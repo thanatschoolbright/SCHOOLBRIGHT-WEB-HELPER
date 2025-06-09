@@ -193,3 +193,47 @@ export interface ResponseLoginAdmin {
     token: string;
   };
 }
+
+export interface RequestNotificationReadMessage
+  extends DefaultRedux<ResponseNotificationReadMessage> {
+  draftValues: {
+    user_id: string;
+    message_id: string;
+  };
+}
+export interface ResponseNotificationReadMessage extends DefaultRedux {
+  data: {
+    sMessage: string;
+    sTitle: string;
+    nMessageID: number;
+    dSend: string; // ISO datetime string
+    nStatus: number;
+    nType: number;
+    push_id: number | null;
+    scheduled_id: string;
+    homework_id: number | null;
+    homework: {
+      dayend: string | null;
+      daynotification: string | null;
+      daystart: string | null;
+      detail: string | null;
+      planename: string | null;
+      teachername: string | null;
+      SchoolID: number;
+    };
+    sell_id: number | null;
+    file: boolean;
+    letter_id: number | null;
+    school_id: number;
+    logo: string | null;
+    letter_status: string | null;
+    LogStatus: number;
+    replyButtons: any | null;
+    replyResult: any | null;
+    replyStatus: boolean;
+    fileUploads: any | null;
+    NewsCreatedBy: any | null;
+    ReplyType: string;
+  };
+  curl: string;
+}

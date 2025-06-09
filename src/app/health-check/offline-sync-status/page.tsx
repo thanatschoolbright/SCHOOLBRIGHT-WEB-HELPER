@@ -174,18 +174,22 @@ ${findSchoolName(schoolId, schoolList)} สามารถออนไลน์�
           row: CallGetRegisterDeviceType[number];
         }) => (
           <>
-            <td className="p-4 font-medium text-sm text-gray-900">{index}</td>
-            <td className="p-4 font-medium text-sm text-gray-900">{row.ID}</td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+              {index}
+            </td>
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+              {row.ID}
+            </td>
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {row.DeviceID}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {row.NeedToUpdate ? "อัพเดทแล้ว" : "ยังไม่ได้อัพเดท"}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {findSchoolName(row.SchoolID, schoolList)} ({row.SchoolID})
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {convertTimeZoneToThai(new Date(row.Tstamp))}
             </td>
             <td className="p-4">
@@ -195,10 +199,10 @@ ${findSchoolName(schoolId, schoolList)} สามารถออนไลน์�
                 <span className="inline-block w-3 h-3 bg-red-500 rounded-full" />
               )}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {row.UserID}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               <MinimalButton
                 onClick={() => {
                   CHECK_ONLINE_DEVICE(row.SchoolID, row.DeviceID);

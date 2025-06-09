@@ -9,6 +9,7 @@ import {
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function SidebarContent() {
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -38,9 +39,11 @@ export default function SidebarContent() {
               const isOpen = openKey === item.label;
               return (
                 <div key={item.label}>
-                  <button
+                  <motion.button
                     onClick={() => setOpenKey(isOpen ? null : item.label)}
                     className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-gray-700 dark:text-gray-200 hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 transition"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   >
                     <span className="text-lg">{item.icon}</span>
                     <span className="flex-1">{item.label}</span>
@@ -49,45 +52,50 @@ export default function SidebarContent() {
                     ) : (
                       <IoIosArrowDown className="text-sm text-gray-500" />
                     )}
-                  </button>
+                  </motion.button>
 
-                  <div
-                    className={`
-                      ml-8 mt-2 flex flex-col space-y-1 overflow-hidden transition-[max-height,opacity] duration-300
-                      ${isOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}
-                    `}
+                  <motion.div
+                    className="ml-8 mt-2 flex flex-col space-y-1 overflow-hidden"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{
+                      height: isOpen ? "auto" : 0,
+                      opacity: isOpen ? 1 : 0,
+                    }}
+                    transition={{ type: "spring", stiffness: 200, damping: 25 }}
                   >
                     {item.children.map((child) => {
                       const isActive = child.href === pathname;
                       return (
-                        <Link
-                          href={child.href!}
+                        <motion.div
                           key={child.label}
-                          className={`
-                            flex items-center gap-2 w-full px-4 py-2 rounded-lg transition-colors duration-200
-                            ${
-                              isActive
-                                ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold"
-                                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            }
-                            ${
-                              isActive
-                                ? "border-l-4 border-orange-500 pl-3"
-                                : ""
-                            }
-                          `}
+                          whileHover={{ x: 5 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 20,
+                          }}
                         >
-                          <span
-                            className={`
-                              w-2 h-2 rounded-full flex-shrink-0
-                              ${isActive ? "bg-orange-500" : "bg-orange-300"}
-                            `}
-                          />
-                          <span className="flex-1">{child.label}</span>
-                        </Link>
+                          <Link
+                            href={child.href!}
+                            className={
+                              `flex items-center gap-2 w-full px-4 py-2 rounded-lg transition-colors duration-200 ` +
+                              (isActive
+                                ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold border-l-4 border-orange-500 pl-3"
+                                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")
+                            }
+                          >
+                            <span
+                              className={
+                                "w-2 h-2 rounded-full flex-shrink-0 " +
+                                (isActive ? "bg-orange-500" : "bg-orange-300")
+                              }
+                            />
+                            <span className="flex-1">{child.label}</span>
+                          </Link>
+                        </motion.div>
                       );
                     })}
-                  </div>
+                  </motion.div>
                 </div>
               );
             } else {
@@ -95,11 +103,12 @@ export default function SidebarContent() {
                 <Link
                   href={item.href || "#"}
                   key={item.label}
-                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl transition-colors hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 ${
-                    item.href === pathname
+                  className={
+                    `w-full flex items-center gap-3 px-4 py-2 rounded-xl transition-colors hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 ` +
+                    (item.href === pathname
                       ? "bg-black text-white dark:bg-orange-500"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")
+                  }
                 >
                   <span className="text-lg">{item.icon}</span>
                   <span className="flex-1">{item.label}</span>

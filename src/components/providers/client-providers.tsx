@@ -5,26 +5,28 @@ import { StoreProvider } from "@stores/store-provider";
 import { useEffect, useState } from "react";
 import { registerServiceWorker } from "@services/progressive-web-app";
 
-export default function ClientProvider({ children }: { children: React.ReactNode }) {
-    const [hydrated, setHydrated] = useState(false);
+export default function ClientProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [hydrated, setHydrated] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-    // Register Service Worker for PWA
-    useEffect(() => {
-        registerServiceWorker();
-    }, []);
+  // Register Service Worker for PWA
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
 
-    // Hydration to avoid SSR mismatch
-    useEffect(() => {
-        setHydrated(true);
-    }, []);
+  // Hydration to avoid SSR mismatch
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
-    if (!hydrated) {
-        return null;
-    }
+  if (!hydrated) {
+    return null;
+  }
 
-    return (
-        <StoreProvider>
-            {children}
-        </StoreProvider>
-    );
+  return <StoreProvider>{children}</StoreProvider>;
 }

@@ -105,10 +105,10 @@ export default function Page() {
             <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {index}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {row.server}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {row.description}
             </td>
             <td className="p-4">
@@ -124,7 +124,7 @@ export default function Page() {
                 </div>
               )}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {convertTimeZoneToThai(new Date(row.timestamp))}
             </td>
             <td className="p-4 text-sm text-blue-600 hover:underline break-all">

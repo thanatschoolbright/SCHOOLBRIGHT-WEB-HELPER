@@ -68,6 +68,10 @@ export const menu: MenuItem[] = [
         label: "แจ้งเตือนในแอพ",
         href: "/mobile/notification",
       },
+      {
+        label: "จดหมายลาหยุด",
+        href: "/mobile/leave-letter",
+      },
     ],
   },
   //   { label: "Timesheets", icon: <FiClock />, href: "/timesheets" },

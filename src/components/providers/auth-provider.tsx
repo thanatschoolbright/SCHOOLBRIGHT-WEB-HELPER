@@ -10,6 +10,8 @@ export default function AuthenticationReduxProvider({
   const dispatch = useDispatch<AppDispatch>();
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
 
+  console.log("test");
+
   useEffect(() => {
     // อ่าน JSON string จาก localStorage
     const raw = localStorage.getItem("AUTH_USER");

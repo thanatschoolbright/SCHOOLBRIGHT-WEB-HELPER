@@ -192,21 +192,23 @@ ${findSchoolName(schoolId, schoolList)} สามารถออนไลน์�
       <MinimalRow key={idx}>
         {({ index, row }: { index: number; row: ResponseOnlineDeviceType }) => (
           <>
-            <td className="p-4 font-medium text-sm text-gray-900">{index}</td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+              {index}
+            </td>
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {findSchoolName(row.SchoolID, schoolList)} ({row.SchoolID})
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {row.DeviceID}
             </td>
 
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {row.Login ? "เข้าสู่ระบบแล้ว" : "ยังไม่ได้เข้าสู่ระบบ"}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {convertTimeZoneToThai(new Date(row.Tstamp))}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               {convertTimeZoneToThai(new Date(row.BusinessDate))}
             </td>
             <td className="p-4">
@@ -216,7 +218,7 @@ ${findSchoolName(schoolId, schoolList)} สามารถออนไลน์�
                 <span className="inline-block w-3 h-3 bg-red-500 rounded-full" />
               )}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
               <MinimalButton
                 onClick={() => {
                   CHECK_ONLINE_DEVICE(row.SchoolID, row.DeviceID);
