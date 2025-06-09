@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-// import TerserPlugin from "terser-webpack-plugin";
+import TerserPlugin from "terser-webpack-plugin";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -23,7 +23,6 @@ const nextConfig = {
   // Custom Webpack configuration
   webpack(config, { dev }) {
     if (!dev) {
-      const TerserPlugin = require("terser-webpack-plugin");
       config.optimization.minimizer.push(
         new TerserPlugin({
           terserOptions: {
