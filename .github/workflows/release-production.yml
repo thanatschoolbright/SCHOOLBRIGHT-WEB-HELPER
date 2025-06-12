@@ -135,7 +135,7 @@ jobs:
             cd /var/www/sb-web-helper
             unzip -o build.zip
             # ติดตั้งเฉพาะ production dependencies
-            npm ci --production
+            npm install
             # รีสตาร์ท service
             sudo systemctl restart sb-web-helper.service
 

@@ -32,9 +32,6 @@ export async function POST(request: NextRequest) {
       headers: { "Content-Type": "application/json" },
     });
 
-    console.log("request ", data);
-    console.log("response", responseFromAPI.data);
-
     return NextResponse.json({
       data: responseFromAPI.data,
       curl: curlCommand,

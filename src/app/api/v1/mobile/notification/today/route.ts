@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const user_id = searchParams.get("user_id");
     const page = searchParams.get("page");
     const apiUrl = `${API_URL.PROD_SB_API_URL}`;
-    const endpoint = `/Notification/week/${user_id}?page=${page}&lang=th`;
+    const endpoint = `/Notification/today/${user_id}?page=${page}&lang=th`;
     const callAPI = apiUrl + endpoint;
     const curlHeader = `--header 'Content-Type: application/json'`;
     const curlCommand = `curl --location ${curlHeader} \ '${callAPI}' `;

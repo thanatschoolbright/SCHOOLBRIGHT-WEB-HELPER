@@ -5,7 +5,7 @@ import { RequestGetUserBySchoolId } from "@/types/device-daily-status.types";
 import { RequestNotification } from "@/stores/type";
 
 // สร้าง async action สำหรับส่งข้อมูลผู้ใช้ไปยัง API
-const API_ENDPOINT = `/api/v1/mobile/notification`;
+const API_ENDPOINT = `/api/v1/mobile/notification/today`;
 export const CallAPI = createAsyncThunk(
   API_METHOD.GET + API_ENDPOINT,
   async (request: RequestNotification["draftValues"]) => {

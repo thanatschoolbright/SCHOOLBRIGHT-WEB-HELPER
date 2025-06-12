@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { InputFieldComponent } from "@/components/input-field/input-field-component";
 import MinimalButton from "@/components/button/minimal-button-component";
-import { FiCreditCard, FiHome, FiUser } from "react-icons/fi";
+import { FiCreditCard, FiHome } from "react-icons/fi";
 import { CallAPI } from "@/stores/actions/call-cancel-sales";
 import Swal from "sweetalert2";
 import {

@@ -1,7 +1,4 @@
-interface ApiUrl {
-  [key: string]: string;
-}
-export const API_URL: ApiUrl = {
+export const API_URL = {
   DEV_PAYMENT_API_URL:
     process.env.NEXT_PUBLIC_DEVELOPMENT_PAYMENT_API_URL ?? "error",
   PROD_PAYMENT_API_URL:
@@ -14,4 +11,6 @@ export const API_URL: ApiUrl = {
     process.env.NEXT_PUBLIC_DEVELOPMENT_HARDWARE_API_URL ?? "error",
   PROD_ADMIN_JABJAI_API_URL:
     process.env.NEXT_PUBLIC_ADMIN_JABJAI_URL ?? "error",
-};
+} as const;
+
+export type ApiUrlKey = keyof typeof API_URL;

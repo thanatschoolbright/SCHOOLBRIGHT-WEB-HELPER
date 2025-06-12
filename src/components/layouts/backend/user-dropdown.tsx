@@ -62,7 +62,7 @@ export default function UserDropdown() {
       {isOpen && (
         <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 shadow-lg rounded-lg z-[60] border border-gray-200 dark:border-gray-700 text-sm animate-fade-in-down transition-all duration-300">
           <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-            <p className="font-semibold text-gray-800 dark:text-white">
+            <p className="font-semibold text-gray-800 dark:text-gray-200">
               {AUTHENTICATION.response.data.name ?? "ชื่อ"}{" "}
               {AUTHENTICATION.response.data.lastname ?? "นามสกุล"}
             </p>

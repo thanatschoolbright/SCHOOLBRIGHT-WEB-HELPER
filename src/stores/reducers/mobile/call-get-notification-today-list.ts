@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RequestNotification } from "@stores/type";
-import { CallAPI } from "@stores/actions/mobile/call-get-notification";
+import { CallAPI } from "@/stores/actions/mobile/call-get-notification-today-list";
 
 const initialState: RequestNotification = {
   draftValues: {
@@ -14,7 +14,7 @@ const initialState: RequestNotification = {
 };
 
 const Slice = createSlice({
-  name: "callGetNotification",
+  name: "callGetNotificationWeekList",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

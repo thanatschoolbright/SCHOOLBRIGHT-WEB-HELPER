@@ -80,7 +80,7 @@ export default function SidebarContent() {
                             className={
                               `flex items-center gap-2 w-full px-4 py-2 rounded-lg transition-colors duration-200 ` +
                               (isActive
-                                ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold border-l-4 border-orange-500 pl-3"
+                                ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 font-semibold border-l-4 border-orange-500 pl-3"
                                 : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")
                             }
                           >

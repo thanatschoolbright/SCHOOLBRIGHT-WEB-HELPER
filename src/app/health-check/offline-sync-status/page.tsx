@@ -174,22 +174,22 @@ ${findSchoolName(schoolId, schoolList)} สามารถออนไลน์�
           row: CallGetRegisterDeviceType[number];
         }) => (
           <>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {index}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.ID}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.DeviceID}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.NeedToUpdate ? "อัพเดทแล้ว" : "ยังไม่ได้อัพเดท"}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {findSchoolName(row.SchoolID, schoolList)} ({row.SchoolID})
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {convertTimeZoneToThai(new Date(row.Tstamp))}
             </td>
             <td className="p-4">
@@ -199,10 +199,10 @@ ${findSchoolName(schoolId, schoolList)} สามารถออนไลน์�
                 <span className="inline-block w-3 h-3 bg-red-500 rounded-full" />
               )}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.UserID}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               <MinimalButton
                 onClick={() => {
                   CHECK_ONLINE_DEVICE(row.SchoolID, row.DeviceID);

@@ -1,6 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import ContentCard from "@components/layouts/backend/content";
 import { useTranslation } from "react-i18next";
@@ -12,42 +11,24 @@ import Swal from "sweetalert2";
 import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
 import { MinimalRow } from "@components/table/minimal-row-component";
 import MinimalTable from "@components/table/minimal-table-component";
-import { findSchoolName } from "@helpers/find-school-id";
 import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
 import { InputFieldComponent } from "@components/input-field/input-field-component";
-import {
-  FiArrowLeft,
-  FiArrowRight,
-  FiRefreshCw,
-  FiSearch,
-} from "react-icons/fi";
-import { isOnline } from "@helpers/check-online-device-status";
-import { unwrapResult } from "@reduxjs/toolkit";
-import {
-  ResponseGetServerStatus,
-  CancelSalesState,
-  ResponseSchoolList,
-  ResponseUserList,
-  ResponseNotification,
-} from "@/stores/type";
+
+import { FiArrowLeft, FiArrowRight, FiSearch } from "react-icons/fi";
+import * as type from "@/stores/type";
 import MinimalModal from "@components/modal/minimal-modal-component";
-import {
-  getNotificationRead,
-  getNotificationType,
-} from "@helpers/get-notification-type";
-import { CallAPI as GET_SERVER_STATUS } from "@stores/actions/server/call-get-server-status";
+
 import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get-user";
-import { CallAPI as GET_NOTIFICATION } from "@stores/actions/mobile/call-get-notification";
-import { CallAPI as GET_NOTIFICATION_MESSAGE } from "@stores/actions/mobile/call-get-read-notification";
+import { CallAPI as GET_LEAVE_LETTER_LIST } from "@stores/actions/mobile/call-get-leave-letter";
+import { CallAPI as FIX_LEAVE_LETTER_DETAIL } from "@stores/actions/mobile/call-get-fix-leave-letter-status";
 
 const columns: { key: string; label: string }[] = [
-  { key: "nMessageID", label: "รหัสข้อความ (ID)" },
-  { key: "dSend", label: "วันที่ส่งข้อความ" },
-  { key: "nType", label: "ประเภทข้อความ" },
-  { key: "nStatus", label: "สถานะการอ่าน" },
-  { key: "sTitle", label: "หัวข้อ" },
-  { key: "sMessage", label: "ข้อความ" },
-  { key: "logo", label: "โลโก้" },
+  { key: "letterId", label: "รหัสจดหมาย" },
+  { key: "letterSubmitDate", label: "วันที่ส่งคำร้อง" },
+  { key: "letterType", label: "ประเภทการลา" },
+  { key: "senderName", label: "ชื่อผู้ส่งคำร้อง" },
+  { key: "userType", label: "ประเภทผู้ใช้งาน" },
+  { key: "status", label: "สถานะ" },
   { key: "action", label: "การกระทำ" },
 ];
 
@@ -60,8 +41,8 @@ export default function Page() {
     (state) => state.callGetuserBySchoolId
   );
 
-  const NOTIFICATION_STATE = useAppSelector(
-    (state) => state.callGetNotification
+  const LEAVE_LETTER_LIST = useAppSelector(
+    (state) => state.callGetLeaveLetterList
   );
 
   const NOTIFICATION_READ_MESSAGE_STATE = useAppSelector(
@@ -73,7 +54,7 @@ export default function Page() {
   const isLoading = [SCHOOL_LIST_STATE.loading, USER_LIST_STATE.loading].some(
     Boolean
   );
-  const [table, setTable] = useState<ResponseNotification[]>([]);
+  const [table, setTable] = useState<type.ResponseLeaveLetter[]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [schoolList, setSchoolList] = useState<any[]>([]);
   const [userList, setUserList] = useState<any[]>([]);
@@ -81,25 +62,13 @@ export default function Page() {
   const [toDate, setToDate] = useState<string>("");
   const [deviceIdSearch, setDeviceIdSearch] = useState<string>("");
   const [modal, setModal] = useState<string>("");
-  const [selectedRow, setSelectedRow] = useState<ResponseNotification>();
+  const [selectedRow, setSelectedRow] = useState<type.ResponseLeaveLetter>();
   const [form, setForm] = useState<{
     schoolID: string;
     userID: string;
-  }>({ schoolID: "", userID: "" });
-  const [page, setPage] = useState<number>(1);
-
-  const filteredTable = (table ?? []).filter((row) => {
-    if (!fromDate && !toDate) return true;
-    const ts = new Date(row.dSend).getTime();
-    const fromTs = fromDate ? new Date(fromDate).getTime() : -Infinity;
-    // วันสุดท้าย ให้ตีเป็นเที่ยงคืนถัดไป เพื่อรวมทั้งวัน
-    const toTs = toDate
-      ? new Date(
-          new Date(toDate).setDate(new Date(toDate).getDate() + 1)
-        ).getTime()
-      : Infinity;
-    return ts >= fromTs && ts < toTs;
-  });
+    letter_id: string;
+  }>({ schoolID: "", userID: "", letter_id: "" });
+  const [page, setPage] = useState<number>(0);
 
   useEffect(() => {
     setSchoolList(
@@ -115,25 +84,23 @@ export default function Page() {
   }, [form.schoolID]);
 
   useEffect(() => {
-    if (page != 1) {
-      handleSubmitForm(page);
-    }
-  }, [page]);
-
-  useEffect(() => {
-    if (page != 1 && table.length < 1) {
+    if (page !== 0 && table.length < 1) {
       Swal.fire({
         title: "ไม่พบข้อมูล",
       });
     }
   }, [table]);
 
+  useEffect(() => {
+    page === 0 ? setPage(1) : setPage(page);
+  }, [page]);
+
   const getUserBySchoolId = async (schoolId: string) => {
     try {
       const response = await dispatch(GET_USER_BY_SCHOOLID({ schoolId }));
       setUserList(
         response?.payload?.data?.map(
-          (item: ResponseUserList["draftValues"]) => ({
+          (item: type.ResponseUserList["draftValues"]) => ({
             label: `${item?.Name} \t ${item?.LastName}\t(ID : ${item?.UserID} Username : ${item?.username})`,
             value: item?.UserID,
           })
@@ -145,21 +112,18 @@ export default function Page() {
     }
   };
 
-  const getMessageByUserAndMessageId = async (
-    userId: string,
-    messageId: string
-  ) => {
+  const confirmFixStatusLeaveLetter = async (letter_id: string) => {
     try {
       await dispatch(
-        GET_NOTIFICATION_MESSAGE({
-          user_id: userId,
-          message_id: messageId,
+        FIX_LEAVE_LETTER_DETAIL({
+          school_id: form.schoolID,
+          letter_id: letter_id,
         })
       ).unwrap();
       setModal("response_open");
     } catch (error: any) {
       throw new Error(
-        "Function [getMessageByUserAndMessageId] :",
+        "Function [confirmFixStatusLeaveLetter] :",
         error.message
       );
     }
@@ -168,7 +132,7 @@ export default function Page() {
   const handleSubmitForm = async (page?: number) => {
     try {
       const response = await dispatch(
-        GET_NOTIFICATION({
+        GET_LEAVE_LETTER_LIST({
           user_id: form.userID,
           page: page?.toString() ?? "1",
         })
@@ -179,57 +143,56 @@ export default function Page() {
     }
   };
 
-  const renderTableData = (data: ResponseNotification[]) =>
+  const renderTableData = (data: type.ResponseLeaveLetter[]) =>
     data.map((row, idx) => (
       <MinimalRow key={idx}>
-        {({ index, row }: { index: number; row: ResponseNotification }) => (
+        {({
+          index,
+          row,
+        }: {
+          index: number;
+          row: type.ResponseLeaveLetter["data"];
+        }) => (
           <>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {index}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
-              {row.nMessageID}
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
+              {row.letterId}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
-              {convertTimeZoneToThai(new Date(row.dSend))}
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
+              {convertTimeZoneToThai(new Date(row.letterSubmitDate))}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
-              {getNotificationType(row.nType)}
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
+              <span className="inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-500 rounded-full">
+                {row.letterType}
+              </span>
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
-              {getNotificationRead(row.nStatus)}
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
+              {row.senderName}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
-              {row.sTitle}
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
+              <span
+                className={`inline-block px-3 py-1 text-sm font-semibold text-white ${
+                  row.userType === "0" ? "bg-orange-400" : "bg-orange-400"
+                } rounded-full`}
+              >
+                {row.userType === "0" ? "นักเรียน" : "คุณครู"}
+              </span>
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
-              {row.sMessage}
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
+              <span
+                className={`inline-block px-3 py-1 text-sm font-semibold text-white bg-green-600 rounded-full`}
+              >
+                {row.ApprovedStatus?.TextTH || "-"}
+              </span>
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
-              {row.logo ? (
-                <Image
-                  src={row.logo}
-                  alt="Notification Logo"
-                  width={40}
-                  height={40}
-                  className="object-contain rounded"
-                />
-              ) : (
-                <span className="text-gray-400">No Image</span>
-              )}
-            </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
-              {/* CURL */}
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               <div className="grid grid-cols-1 justify-between">
                 <MinimalButton
                   className=" bg-green-500 text-white rounded hover:bg-green-600 w-24 h-10 text-sm"
                   onClick={() => {
-                    console.log(
-                      "NOTIFICATION STATE",
-                      NOTIFICATION_STATE?.response?.data?.curl
-                    );
-                    const curlCommand =
-                      NOTIFICATION_STATE?.response?.data?.curl;
+                    const curlCommand = LEAVE_LETTER_LIST?.response?.curl || "";
                     navigator.clipboard.writeText(curlCommand.toString());
                     Swal.fire({
                       icon: "success",
@@ -242,15 +205,13 @@ export default function Page() {
                   CURL
                 </MinimalButton>
                 <MinimalButton
-                  className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 w-24 h-10 text-sm"
+                  className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 w-24 h-10 text-[0.75rem]"
                   onClick={() => {
-                    getMessageByUserAndMessageId(
-                      form.userID,
-                      row.nMessageID.toString()
-                    );
+                    setForm({ ...form, letter_id: row.letterId.toString() });
+                    setModal("confirm_fix_letter");
                   }}
                 >
-                  ดูข้อความ
+                  แก้ไขสถานะ
                 </MinimalButton>
               </div>
             </td>
@@ -261,175 +222,31 @@ export default function Page() {
 
   const renderModal = () => (
     <MinimalModal
-      title="รายละเอียดข้อความแจ้งเตือน"
+      title="ยืนยันการแก้ไขสถานะ"
       onClose={() => setModal("")}
+      confirmMode
+      onConfirm={() => {
+        confirmFixStatusLeaveLetter(form.letter_id);
+      }}
     >
-      <div className="p-4 space-y-4">
-        {/* ข้อความหลัก */}
-        <p className="text-base text-gray-800">
-          {NOTIFICATION_READ_MESSAGE_STATE.response.data.sMessage || "-"}
-        </p>
-
-        {/* รายละเอียดแบบ key / value */}
-        <dl className="grid grid-cols-1 gap-y-3">
-          {/* รหัสข้อความ */}
-          <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">Message ID:</dt>
-            <dd className="flex-1 text-gray-900">
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.nMessageID}
-            </dd>
-          </div>
-
-          {/* วันที่ส่ง */}
-          <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">วันที่ส่ง:</dt>
-            <dd className="flex-1 text-gray-900">
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.dSend
-                ? convertTimeZoneToThai(
-                    new Date(
-                      NOTIFICATION_READ_MESSAGE_STATE.response.data.dSend
-                    )
-                  )
-                : "-"}
-            </dd>
-          </div>
-
-          {/* สถานะ */}
-          <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">สถานะ:</dt>
-            <dd className="flex-1 text-gray-900">
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.nStatus === 1 ? (
-                <span className="text-green-600 font-semibold">อ่านแล้ว</span>
-              ) : (
-                <span className="text-red-600 font-semibold">ยังไม่อ่าน</span>
-              )}
-            </dd>
-          </div>
-
-          {/* ประเภทข้อความ */}
-          <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">ประเภท:</dt>
-            <dd className="flex-1 text-gray-900">
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.nType === 1 &&
-                "แจ้งเช็คชื่อ"}
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.nType === 2 &&
-                "แจ้งซื้อสินค้า"}
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.nType === 3 &&
-                "แจ้งย้อนหลังการใช้จ่าย"}
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.nType === 5 &&
-                "ระบบแจ้งเตือนทั่วไป"}
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.nType === 8 &&
-                "แจ้งเตือนกทั่วไป"}
-              {![1, 2, 3, 5, 8].includes(
-                NOTIFICATION_READ_MESSAGE_STATE.response.data.nType
-              ) && "ไม่ทราบประเภท"}
-            </dd>
-          </div>
-
-          {/* ข้อมูล homework (ถ้ามี) */}
-          {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework && (
-            <>
-              <dt className="w-32 font-medium text-gray-600">Homework:</dt>
-              <dd className="flex-1 text-gray-900">
-                <dl className="grid grid-cols-1 gap-y-2">
-                  <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">
-                      Day Start:
-                    </dt>
-                    <dd className="flex-1 text-gray-900">
-                      {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
-                        .daystart || "-"}
-                    </dd>
-                  </div>
-                  <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">Day End:</dt>
-                    <dd className="flex-1 text-gray-900">
-                      {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
-                        .dayend || "-"}
-                    </dd>
-                  </div>
-                  <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">Detail:</dt>
-                    <dd className="flex-1 text-gray-900">
-                      {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
-                        .detail || "-"}
-                    </dd>
-                  </div>
-                  <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">Teacher:</dt>
-                    <dd className="flex-1 text-gray-900">
-                      {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
-                        .teachername || "-"}
-                    </dd>
-                  </div>
-                  <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">
-                      School ID:
-                    </dt>
-                    <dd className="flex-1 text-gray-900">
-                      {
-                        NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
-                          .SchoolID
-                      }
-                    </dd>
-                  </div>
-                </dl>
-              </dd>
-            </>
-          )}
-
-          {/* รหัสโรงเรียน */}
-          <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">School ID:</dt>
-            <dd className="flex-1 text-gray-900">
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.school_id}
-            </dd>
-          </div>
-
-          {/* ไฟล์แนบ */}
-          <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">แนบไฟล์:</dt>
-            <dd className="flex-1 text-gray-900">
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.file
-                ? "มีไฟล์แนบ"
-                : "ไม่มีไฟล์แนบ"}
-            </dd>
-          </div>
-
-          {/* Logo (กรณีมี) */}
-          <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">Logo URL:</dt>
-            <dd className="flex-1 text-blue-600 break-all">
-              {NOTIFICATION_READ_MESSAGE_STATE.response.data.logo || "-"}
-            </dd>
-          </div>
-        </dl>
-
-        {/* แสดงคำสั่ง curl */}
-        <div className="mt-4">
-          <h3 className="font-medium text-gray-600 mb-1">Curl Command:</h3>
-          <pre className="whitespace-pre-wrap bg-gray-100 p-3 rounded text-xs">
-            {NOTIFICATION_READ_MESSAGE_STATE.response.curl}
-          </pre>
-        </div>
-      </div>
+      <p className="text-gray-700 dark:text-gray-300">
+        สามารถกดยืนยันได้เลย หากสถานะถูกต้องอยู่แล้ว ก็กดไปได้เลย ไม่เป็นอะไร
+        หากสถานะผิดจะแก้ให้ถูก คุณต้องการแก้ไขสถานะที่รหัสข้อความ :
+        {form.letter_id}
+      </p>
     </MinimalModal>
   );
 
   return (
     <DashboardLayout>
       {isLoading && <BaseLoadingComponent />}
-      {modal === "response_open" && renderModal()}
+      {modal === "confirm_fix_letter" && renderModal()}
 
       <div className="w-full space-y-4">
         {/* หมายเหตุ */}
         <div className="grid grid-cols-1 grid-rows-1 gap-0 w-full">
           <div className="space-y-3 w-full grid-cols-2">
-            <ContentCard
-              title="ค้นหาการแจ้งเตือนในแอพ"
-              fullWidth
-              className="w-full"
-            >
+            <ContentCard title="ค้นหาจดหมายลาหยุด" fullWidth className="w-full">
               {/* ห่อสองช่องด้วย grid จริง ๆ */}
               <div className="grid grid-cols-2 gap-4 w-full">
                 {/* กรอก School Id */}
@@ -534,26 +351,6 @@ export default function Page() {
                   className="w-full"
                 />
               </div>
-
-              {/* จากวันที่ */}
-              {/* <div>
-                <DatePickerComponent
-                  label="จากวันที่"
-                  value={fromDate}
-                  onChange={setFromDate}
-                  className="w-full"
-                />
-              </div> */}
-
-              {/* ถึงวันที่ */}
-              {/* <div>
-                <DatePickerComponent
-                  label="ถึงวันที่"
-                  value={toDate}
-                  onChange={setToDate}
-                  className="w-full"
-                />
-              </div> */}
             </div>
           </form>
         </ContentCard>
@@ -566,19 +363,19 @@ export default function Page() {
 
         {/* ตาราง */}
         <ContentCard
-          title="ตารางแสดงข้อความแจ้งเตือน"
+          title={`ตารางแสดงข้อความแจ้งเตือน (หน้าที่ ${page})`}
           className="xl:col-span-4 w-full"
-          isLoading={isLoading}
+          hidden={table.length < 1}
         >
           <MinimalTable
-            isLoading={NOTIFICATION_STATE.loading}
+            isLoading={LEAVE_LETTER_LIST.loading}
             header={columns}
-            data={filteredTable}
+            data={table}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={setRowsPerPage}
             hiddenProps={true}
           >
-            {filteredTable ? renderTableData(filteredTable) : null}
+            {table ? renderTableData(table) : null}
           </MinimalTable>
           <div className="flex justify-between">
             <MinimalButton
@@ -588,6 +385,7 @@ export default function Page() {
               isLoading={isLoading}
               onClick={() => {
                 setPage(page - 1);
+                handleSubmitForm(page - 1);
               }}
             >
               <FiArrowLeft />
@@ -599,6 +397,7 @@ export default function Page() {
               isLoading={isLoading}
               onClick={() => {
                 setPage(page + 1);
+                handleSubmitForm(page + 1);
               }}
             >
               <FiArrowRight />

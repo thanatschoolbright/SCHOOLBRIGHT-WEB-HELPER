@@ -24,7 +24,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
     try {
       Swal.fire({
         icon: "error",
-        title: "การเข้าสู่ระบบล้มเหลว",
+        title: "เข้าสู่ระบบล้มเหลว",
         text: message,
       });
     } catch (error: any) {
@@ -36,12 +36,12 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
     try {
       Swal.fire({
         icon: "success",
-        title: "การเข้าสู่ระบบสำเร็จ",
+        title: "เข้าสู่ระบบสำเร็จ",
         text: "",
       });
       setTimeout(() => {
         router.replace("/backend");
-      }, 2000);
+      }, 500);
     } catch (error: any) {
       throw new Error("Login Error Function", error.message);
     }

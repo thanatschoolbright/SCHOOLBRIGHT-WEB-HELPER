@@ -8,7 +8,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#e8e6f3] dark:bg-gray-900 text-gray-800 dark:text-white flex transition-colors duration-500 ">
+    <div className="min-h-screen bg-[#e8e6f3] dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex transition-colors duration-500 ">
       {/* Sidebar */}
       <aside className="w-64 bg-white dark:bg-gray-800 rounded-r-3xl shadow-lg p-6 flex flex-col justify-between transition-colors duration-500">
         <div>

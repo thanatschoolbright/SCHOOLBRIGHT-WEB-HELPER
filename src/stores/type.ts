@@ -237,3 +237,65 @@ export interface ResponseNotificationReadMessage extends DefaultRedux {
   };
   curl: string;
 }
+
+export interface RequestLeaveLetter extends DefaultRedux<ResponseLeaveLetter> {
+  draftValues: {
+    user_id: string;
+    page: string;
+  };
+}
+
+export interface RequestFixStatusLeaveLetter
+  extends DefaultRedux<ResponseLeaveLetter> {
+  draftValues: {
+    school_id: string;
+    letter_id: string;
+  };
+}
+
+export interface ResponseLeaveLetter {
+  data: {
+    SchoolID: number;
+    letterId: number;
+    status: string;
+    letterSubmitDate: string; // ISO date string
+    letterType: string;
+    letterTypeEN: string;
+    senderName: string;
+    senderNameEN: string;
+    userType: string;
+    ApprovedStatus: {
+      StatusCode: number;
+      TextEN: string;
+      TextTH: string;
+      ApprovalAmount: number;
+    };
+  };
+  curl: string;
+}
+
+export interface RequestSchoolListWithMoreDetail
+  extends DefaultRedux<ResponseSchoolListWithMoreDetail> {
+  draftValues: {};
+}
+export interface ResponseSchoolListWithMoreDetail {
+  data: {
+    data: {
+      company_name: string;
+      school_pass: string;
+      school_type: string;
+      school_id: number;
+      isActive: string;
+      province: string;
+      school_code: string;
+      active_date: string; // รูปแบบ: "DD/MM/YYYY"
+      PROVINCE_NAME: string;
+      SchoolTypes: string;
+      school_group: string;
+      school_class: string | null;
+      sale_name: string;
+      support_name: string;
+      school_grade: string;
+    }[];
+  };
+}

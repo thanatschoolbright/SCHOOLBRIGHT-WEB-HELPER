@@ -13,6 +13,7 @@ interface SearchableSelectProps {
   onChange: (value: string) => void;
   placeholder?: string;
   label?: string;
+  hidden?: boolean;
 }
 
 export function SearchableSelectComponent({
@@ -21,6 +22,7 @@ export function SearchableSelectComponent({
   onChange,
   placeholder = "Select...",
   label,
+  hidden = false,
 }: Readonly<SearchableSelectProps>) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -65,7 +67,7 @@ export function SearchableSelectComponent({
     options.find((opt) => opt.value === value)?.label || placeholder;
 
   return (
-    <div className="w-full " ref={ref}>
+    <div className={`w-full ${hidden ? "hidden" : "bounce-once"}`} ref={ref}>
       {label && (
         <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
@@ -151,3 +153,19 @@ export function SearchableSelectComponent({
     </div>
   );
 }
+
+/* Add bounce-once animation */
+<style jsx global>{`
+  @keyframes bounce-once {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-25%);
+    }
+  }
+  .bounce-once {
+    animation: bounce-once 1s ease-out;
+  }
+`}</style>;

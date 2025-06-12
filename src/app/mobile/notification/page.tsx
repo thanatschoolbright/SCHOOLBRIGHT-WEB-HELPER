@@ -12,32 +12,18 @@ import Swal from "sweetalert2";
 import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
 import { MinimalRow } from "@components/table/minimal-row-component";
 import MinimalTable from "@components/table/minimal-table-component";
-import { findSchoolName } from "@helpers/find-school-id";
 import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
 import { InputFieldComponent } from "@components/input-field/input-field-component";
-import {
-  FiArrowLeft,
-  FiArrowRight,
-  FiRefreshCw,
-  FiSearch,
-} from "react-icons/fi";
-import { isOnline } from "@helpers/check-online-device-status";
-import { unwrapResult } from "@reduxjs/toolkit";
-import {
-  ResponseGetServerStatus,
-  CancelSalesState,
-  ResponseSchoolList,
-  ResponseUserList,
-  ResponseNotification,
-} from "@/stores/type";
+import { FiArrowLeft, FiArrowRight, FiSearch } from "react-icons/fi";
+import { ResponseUserList, ResponseNotification } from "@/stores/type";
 import MinimalModal from "@components/modal/minimal-modal-component";
 import {
   getNotificationRead,
   getNotificationType,
 } from "@helpers/get-notification-type";
-import { CallAPI as GET_SERVER_STATUS } from "@stores/actions/server/call-get-server-status";
 import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get-user";
-import { CallAPI as GET_NOTIFICATION } from "@stores/actions/mobile/call-get-notification";
+import { CallAPI as GET_NOTIFICATION_TODAY_LIST } from "@stores/actions/mobile/call-get-notification-today-list";
+import { CallAPI as GET_NOTIFICATION_WEEK_LIST } from "@stores/actions/mobile/call-get-notification-week-list";
 import { CallAPI as GET_NOTIFICATION_MESSAGE } from "@stores/actions/mobile/call-get-read-notification";
 
 const columns: { key: string; label: string }[] = [
@@ -60,8 +46,12 @@ export default function Page() {
     (state) => state.callGetuserBySchoolId
   );
 
-  const NOTIFICATION_STATE = useAppSelector(
-    (state) => state.callGetNotification
+  const NOTIFICATION_TODAY_LIST = useAppSelector(
+    (state) => state.callGetNotificationTodayList
+  );
+
+  const NOTIFICATION_WEEK_LIST = useAppSelector(
+    (state) => state.callGetNotificationWeekList
   );
 
   const NOTIFICATION_READ_MESSAGE_STATE = useAppSelector(
@@ -74,6 +64,7 @@ export default function Page() {
     Boolean
   );
   const [table, setTable] = useState<ResponseNotification[]>([]);
+  const [todayTable, setTodayTable] = useState<ResponseNotification[]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [schoolList, setSchoolList] = useState<any[]>([]);
   const [userList, setUserList] = useState<any[]>([]);
@@ -168,14 +159,45 @@ export default function Page() {
   const handleSubmitForm = async (page?: number) => {
     try {
       const response = await dispatch(
-        GET_NOTIFICATION({
+        GET_NOTIFICATION_WEEK_LIST({
           user_id: form.userID,
           page: page?.toString() ?? "1",
         })
       ).unwrap();
+
+      const response2 = await dispatch(
+        GET_NOTIFICATION_TODAY_LIST({
+          user_id: form.userID,
+          page: page?.toString() ?? "1",
+        })
+      ).unwrap();
+
+      console.log("res", response.raw.Status);
+
+      if (response.raw.Status === "Error") {
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด แจ้งเตือน 7 วันล่าสุด Error!",
+          html: `
+            <div class="text-left text-sm">
+              <p class="mb-2 font-semibold text-red-600">Copy อันนี้แจ้งพี่โจ้เร็วเข้า!!</p>
+              <pre class="bg-gray-100 text-gray-800 p-4 rounded-md overflow-x-auto text-xs border border-gray-300">
+<code>${response.curl}</code>
+              </pre>
+            </div>
+          `,
+          customClass: {
+            popup: "w-[90vw] max-w-4xl", // makes modal wider
+          },
+        });
+      }
+
       setTable(response?.data);
+      setTodayTable(response2?.data);
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new Error(
+        `Error in function [handleSubmitForm] ${JSON.stringify(error.message)}`
+      );
     }
   };
 
@@ -184,28 +206,28 @@ export default function Page() {
       <MinimalRow key={idx}>
         {({ index, row }: { index: number; row: ResponseNotification }) => (
           <>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {index}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.nMessageID}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {convertTimeZoneToThai(new Date(row.dSend))}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {getNotificationType(row.nType)}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {getNotificationRead(row.nStatus)}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.sTitle}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.sMessage}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.logo ? (
                 <Image
                   src={row.logo}
@@ -218,7 +240,7 @@ export default function Page() {
                 <span className="text-gray-400">No Image</span>
               )}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {/* CURL */}
               <div className="grid grid-cols-1 justify-between">
                 <MinimalButton
@@ -226,10 +248,10 @@ export default function Page() {
                   onClick={() => {
                     console.log(
                       "NOTIFICATION STATE",
-                      NOTIFICATION_STATE?.response?.data?.curl
+                      NOTIFICATION_WEEK_LIST?.response?.data?.curl
                     );
                     const curlCommand =
-                      NOTIFICATION_STATE?.response?.data?.curl;
+                      NOTIFICATION_WEEK_LIST?.response?.data?.curl;
                     navigator.clipboard.writeText(curlCommand.toString());
                     Swal.fire({
                       icon: "success",
@@ -266,7 +288,7 @@ export default function Page() {
     >
       <div className="p-4 space-y-4">
         {/* ข้อความหลัก */}
-        <p className="text-base text-gray-800">
+        <p className="text-base text-gray-800 dark:text-gray-200">
           {NOTIFICATION_READ_MESSAGE_STATE.response.data.sMessage || "-"}
         </p>
 
@@ -274,16 +296,20 @@ export default function Page() {
         <dl className="grid grid-cols-1 gap-y-3">
           {/* รหัสข้อความ */}
           <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">Message ID:</dt>
-            <dd className="flex-1 text-gray-900">
+            <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+              Message ID:
+            </dt>
+            <dd className="flex-1 text-gray-900 dark:text-gray-200">
               {NOTIFICATION_READ_MESSAGE_STATE.response.data.nMessageID}
             </dd>
           </div>
 
           {/* วันที่ส่ง */}
           <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">วันที่ส่ง:</dt>
-            <dd className="flex-1 text-gray-900">
+            <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+              วันที่ส่ง:
+            </dt>
+            <dd className="flex-1 text-gray-900 dark:text-gray-200">
               {NOTIFICATION_READ_MESSAGE_STATE.response.data.dSend
                 ? convertTimeZoneToThai(
                     new Date(
@@ -296,8 +322,10 @@ export default function Page() {
 
           {/* สถานะ */}
           <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">สถานะ:</dt>
-            <dd className="flex-1 text-gray-900">
+            <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+              สถานะ:
+            </dt>
+            <dd className="flex-1 text-gray-900 dark:text-gray-200">
               {NOTIFICATION_READ_MESSAGE_STATE.response.data.nStatus === 1 ? (
                 <span className="text-green-600 font-semibold">อ่านแล้ว</span>
               ) : (
@@ -308,8 +336,10 @@ export default function Page() {
 
           {/* ประเภทข้อความ */}
           <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">ประเภท:</dt>
-            <dd className="flex-1 text-gray-900">
+            <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+              ประเภท:
+            </dt>
+            <dd className="flex-1 text-gray-900 dark:text-gray-200">
               {NOTIFICATION_READ_MESSAGE_STATE.response.data.nType === 1 &&
                 "แจ้งเช็คชื่อ"}
               {NOTIFICATION_READ_MESSAGE_STATE.response.data.nType === 2 &&
@@ -329,44 +359,52 @@ export default function Page() {
           {/* ข้อมูล homework (ถ้ามี) */}
           {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework && (
             <>
-              <dt className="w-32 font-medium text-gray-600">Homework:</dt>
-              <dd className="flex-1 text-gray-900">
+              <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+                Homework:
+              </dt>
+              <dd className="flex-1 text-gray-900 dark:text-gray-200">
                 <dl className="grid grid-cols-1 gap-y-2">
                   <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">
+                    <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
                       Day Start:
                     </dt>
-                    <dd className="flex-1 text-gray-900">
+                    <dd className="flex-1 text-gray-900 dark:text-gray-200">
                       {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
                         .daystart || "-"}
                     </dd>
                   </div>
                   <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">Day End:</dt>
-                    <dd className="flex-1 text-gray-900">
+                    <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+                      Day End:
+                    </dt>
+                    <dd className="flex-1 text-gray-900 dark:text-gray-200">
                       {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
                         .dayend || "-"}
                     </dd>
                   </div>
                   <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">Detail:</dt>
-                    <dd className="flex-1 text-gray-900">
+                    <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+                      Detail:
+                    </dt>
+                    <dd className="flex-1 text-gray-900 dark:text-gray-200">
                       {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
                         .detail || "-"}
                     </dd>
                   </div>
                   <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">Teacher:</dt>
-                    <dd className="flex-1 text-gray-900">
+                    <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+                      Teacher:
+                    </dt>
+                    <dd className="flex-1 text-gray-900 dark:text-gray-200">
                       {NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
                         .teachername || "-"}
                     </dd>
                   </div>
                   <div className="flex">
-                    <dt className="w-32 font-medium text-gray-600">
+                    <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
                       School ID:
                     </dt>
-                    <dd className="flex-1 text-gray-900">
+                    <dd className="flex-1 text-gray-900 dark:text-gray-200">
                       {
                         NOTIFICATION_READ_MESSAGE_STATE.response.data.homework
                           .SchoolID
@@ -380,16 +418,20 @@ export default function Page() {
 
           {/* รหัสโรงเรียน */}
           <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">School ID:</dt>
-            <dd className="flex-1 text-gray-900">
+            <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+              School ID:
+            </dt>
+            <dd className="flex-1 text-gray-900 dark:text-gray-200">
               {NOTIFICATION_READ_MESSAGE_STATE.response.data.school_id}
             </dd>
           </div>
 
           {/* ไฟล์แนบ */}
           <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">แนบไฟล์:</dt>
-            <dd className="flex-1 text-gray-900">
+            <dt className="w-32 font-medium text-gray-600 dark:text-gray-200 ">
+              แนบไฟล์:
+            </dt>
+            <dd className="flex-1 text-gray-900 dark:text-gray-200">
               {NOTIFICATION_READ_MESSAGE_STATE.response.data.file
                 ? "มีไฟล์แนบ"
                 : "ไม่มีไฟล์แนบ"}
@@ -398,7 +440,9 @@ export default function Page() {
 
           {/* Logo (กรณีมี) */}
           <div className="flex">
-            <dt className="w-32 font-medium text-gray-600">Logo URL:</dt>
+            <dt className="w-32 font-medium text-gray-600 dark:text-gray-200">
+              Logo URL:
+            </dt>
             <dd className="flex-1 text-blue-600 break-all">
               {NOTIFICATION_READ_MESSAGE_STATE.response.data.logo || "-"}
             </dd>
@@ -407,8 +451,10 @@ export default function Page() {
 
         {/* แสดงคำสั่ง curl */}
         <div className="mt-4">
-          <h3 className="font-medium text-gray-600 mb-1">Curl Command:</h3>
-          <pre className="whitespace-pre-wrap bg-gray-100 p-3 rounded text-xs">
+          <h3 className="font-medium text-gray-600 mb-1 dark:text-gray-200">
+            Curl Command:
+          </h3>
+          <pre className="whitespace-pre-wrap bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs">
             {NOTIFICATION_READ_MESSAGE_STATE.response.curl}
           </pre>
         </div>
@@ -566,12 +612,54 @@ export default function Page() {
 
         {/* ตาราง */}
         <ContentCard
-          title="ตารางแสดงข้อความแจ้งเตือน"
+          title="ตารางแสดงข้อความแจ้งเตือน (เฉพาะวันนี้)"
           className="xl:col-span-4 w-full"
           isLoading={isLoading}
         >
           <MinimalTable
-            isLoading={NOTIFICATION_STATE.loading}
+            isLoading={NOTIFICATION_TODAY_LIST.loading}
+            header={columns}
+            data={todayTable}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={setRowsPerPage}
+            hiddenProps={true}
+          >
+            {todayTable ? renderTableData(todayTable) : null}
+          </MinimalTable>
+          <div className="flex justify-between">
+            <MinimalButton
+              type="submit"
+              textSize="base"
+              className="bg-sky-500 hover:bg-sky-700 w-10 justify-center"
+              isLoading={isLoading}
+              onClick={() => {
+                setPage(page - 1);
+              }}
+            >
+              <FiArrowLeft />
+            </MinimalButton>
+            <MinimalButton
+              type="submit"
+              textSize="base"
+              className="bg-sky-500 hover:bg-sky-700 w-10 justify-center "
+              isLoading={isLoading}
+              onClick={() => {
+                setPage(page + 1);
+              }}
+            >
+              <FiArrowRight />
+            </MinimalButton>
+          </div>
+        </ContentCard>
+
+        {/* ตาราง */}
+        <ContentCard
+          title="ตารางแสดงข้อความแจ้งเตือน (7 วันล่าสุด) ไม่นับวันนี้"
+          className="xl:col-span-4 w-full"
+          isLoading={isLoading}
+        >
+          <MinimalTable
+            isLoading={NOTIFICATION_WEEK_LIST.loading}
             header={columns}
             data={filteredTable}
             rowsPerPage={rowsPerPage}

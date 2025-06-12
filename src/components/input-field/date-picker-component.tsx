@@ -4,16 +4,12 @@ import { FiCalendar } from "react-icons/fi";
 import { InputFieldComponent } from "./input-field-component";
 
 interface DatePickerProps {
-  /** ป้ายชื่อฟิลด์ */
   label?: string;
-  /** ค่าปัจจุบันในฟอร์แมต YYYY-MM-DD */
   value: string;
-  /** ฟังก์ชันรับค่าใหม่ */
   onChange: (val: string) => void;
-  /** ถ้ากำลังโหลด ให้แสดง skeleton */
   isLoading?: boolean;
-  /** คลาสเพิ่มเติม */
   className?: string;
+  hidden?: boolean;
 }
 
 export default function DatePickerComponent({
@@ -22,9 +18,14 @@ export default function DatePickerComponent({
   onChange,
   isLoading = false,
   className = "",
+  hidden = false,
 }: DatePickerProps) {
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div
+      className={`space-y-1 ${className} ${
+        hidden ? "hidden" : "show animate-pulse"
+      }`}
+    >
       {label && (
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
@@ -40,7 +41,7 @@ export default function DatePickerComponent({
           onChange={(e) => onChange(e.target.value)}
           // icon={<FiCalendar className="text-gray-400 dark:text-gray-500" />}
           placeholder="เลือกวันที่"
-          className="shadow-sm hover:shadow-md transition-shadow duration-200"
+          className=" transition-shadow duration-200"
         />
       )}
     </div>

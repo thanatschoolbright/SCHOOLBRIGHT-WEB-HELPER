@@ -31,6 +31,7 @@ export const menu: MenuItem[] = [
     label: "Support",
     icon: <FaRegLightbulb />,
     children: [
+      { label: "Bypass โรงเรียน", href: "/support/bypass" },
       { label: "ทดสอบค้นหาบัตร NFC (Vimal)", href: "/support/test/nfc" },
       {
         label: "ยกเลิกรายการสินค้าเกิน 7 วัน",

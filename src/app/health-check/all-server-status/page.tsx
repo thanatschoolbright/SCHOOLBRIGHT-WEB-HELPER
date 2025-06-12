@@ -102,13 +102,13 @@ export default function Page() {
           row: ResponseGetServerStatus["draftValues"]["Array"][number];
         }) => (
           <>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {index}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.server}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.description}
             </td>
             <td className="p-4">
@@ -124,7 +124,7 @@ export default function Page() {
                 </div>
               )}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-white">
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {convertTimeZoneToThai(new Date(row.timestamp))}
             </td>
             <td className="p-4 text-sm text-blue-600 hover:underline break-all">

@@ -22,6 +22,7 @@ interface MinimalTableProps {
   children: React.ReactNode;
   isLoading: boolean;
   hiddenProps?: boolean;
+  rowRenderer?: (row: Record<string, any>, index: number) => React.ReactNode;
 }
 
 export default function MinimalTable({
@@ -32,7 +33,12 @@ export default function MinimalTable({
   onRowsPerPageChange,
   isLoading,
   hiddenProps,
-}: Readonly<MinimalTableProps>) {
+  rowRenderer,
+}: Readonly<
+  MinimalTableProps & {
+    rowRenderer?: (row: Record<string, any>, index: number) => React.ReactNode;
+  }
+>) {
   const [sortedData, setSortedData] = useState(data);
   const [sortField, setSortField] = useState(header[0]?.key ?? "");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -102,6 +108,10 @@ export default function MinimalTable({
                   ))}
                 </tr>
               ))
+            : rowRenderer
+            ? paginated.map((row, idx) =>
+                rowRenderer(row, (currentPage - 1) * rowsPerPage + idx + 1)
+              )
             : (() => {
                 const arr = Children.toArray(children).filter(
                   isValidElement
