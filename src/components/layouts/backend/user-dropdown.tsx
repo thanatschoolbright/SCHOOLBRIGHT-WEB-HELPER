@@ -30,7 +30,10 @@ export default function UserDropdown() {
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="text-sm font-medium text-gray-700 dark:text-orange-400 hidden sm:block">
-          User
+          สวัสดีคุณ &nbsp;
+          {(AUTHENTICATION.response.data.name ?? "Name") +
+            " " +
+            (AUTHENTICATION.response.data.lastname ?? "")}
         </span>
         <Image
           src="/photo/profile.png"
@@ -67,7 +70,7 @@ export default function UserDropdown() {
               {AUTHENTICATION.response.data.lastname ?? "นามสกุล"}
             </p>
             <p className="text-gray-500 dark:text-gray-400 text-xs">
-              wilbur@email.com
+              {AUTHENTICATION.response.data.username ?? "mail@mail.com"}
             </p>
           </div>
 
@@ -75,7 +78,13 @@ export default function UserDropdown() {
             <button className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition">
               Profile
             </button>
-            <button className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 transition">
+            <button
+              onClick={() => {
+                localStorage.clear(); // ลบข้อมูลทั้งหมดใน localStorage
+                window.location.href = "/"; // หรือใช้ router.push("/login") หากมีหน้าล็อกอิน
+              }}
+              className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 transition"
+            >
               Logout
             </button>
           </div>
@@ -86,18 +95,22 @@ export default function UserDropdown() {
               Language
             </p>
             <div className="flex gap-2 px-4">
-              <button
-                onClick={() => changeLanguage("en")}
-                className="px-3 py-1 rounded-full text-xs font-semibold border hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-              >
-                EN
-              </button>
-              <button
-                onClick={() => changeLanguage("th")}
-                className="px-3 py-1 rounded-full text-xs font-semibold border hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-              >
-                TH
-              </button>
+              {["en", "th"].map((lng) => {
+                const isActive = i18n.language === lng;
+                return (
+                  <button
+                    key={lng}
+                    onClick={() => changeLanguage(lng)}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-300 ${
+                      isActive
+                        ? "border-orange-500 text-orange-500 bg-orange-100 dark:bg-orange-900 animate-pulse"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+                    }`}
+                  >
+                    {lng.toUpperCase()}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

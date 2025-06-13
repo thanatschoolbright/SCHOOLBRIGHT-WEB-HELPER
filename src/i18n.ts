@@ -5,14 +5,19 @@ import Cookies from "js-cookie";
 // #region : mock-phase
 import en from "@locales/en.json";
 import th from "@locales/th.json";
+import thai_menu from "@locales/thai-menu.json";
+import english_menu from "@locales/eng-menu.json";
+
 // #endregion
 
 const resources = {
   en: {
     mock: en,
+    menu: english_menu,
   },
   th: {
     mock: th,
+    menu: thai_menu,
   },
 };
 

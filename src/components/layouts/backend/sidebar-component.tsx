@@ -1,6 +1,6 @@
 "use client";
 
-import { menu } from "@/constants/sidebar-menu-constant";
+import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
 import {
   IoIosArrowForward,
   IoIosArrowDown,
@@ -12,6 +12,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function SidebarContent() {
+  const menu = useSidebarMenu();
   const [openKey, setOpenKey] = useState<string | null>(null);
   const pathname = usePathname();
 

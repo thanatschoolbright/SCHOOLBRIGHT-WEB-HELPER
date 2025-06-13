@@ -9,7 +9,7 @@ interface Props {
 export default function AuthTabs({ tab, setTab }: Props) {
   return (
     <div className="flex justify-between text-sm font-medium border-b border-gray-300 mb-6">
-      {["signin"].map((item) => (
+      {["signin", "signup"].map((item) => (
         <button
           key={item}
           className={`w-full text-center pb-2 transition-all duration-300 ${
@@ -19,7 +19,7 @@ export default function AuthTabs({ tab, setTab }: Props) {
           }`}
           onClick={() => setTab(item as "signup" | "signin")}
         >
-          {item === "signup" ? "Sign Up" : "Sign In"}
+          {item === "signup" ? "สมัครสมาชิก" : "เข้าสู่ระบบ"}
         </button>
       ))}
     </div>

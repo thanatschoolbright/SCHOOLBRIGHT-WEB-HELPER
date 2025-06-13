@@ -299,3 +299,10 @@ export interface ResponseSchoolListWithMoreDetail {
     }[];
   };
 }
+
+export interface RequestBypassToken extends DefaultRedux<ResponseLeaveLetter> {
+  draftValues: {
+    school_id: string;
+    user_email: string;
+  };
+}

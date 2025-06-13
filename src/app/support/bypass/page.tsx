@@ -11,6 +11,7 @@ import { SearchableSelectComponent } from "@/components/input-field/searchable-s
 import { MinimalRow } from "@components/table/minimal-row-component";
 import MinimalTable from "@components/table/minimal-table-component";
 import { CallAPI as GET_SCHOOL_LIST_DETAIL } from "@stores/actions/support/call-get-school-list-detail";
+import { CallAPI as GET_BYPASS_TOKEN } from "@stores/actions/support/call-get-bypass-token";
 import * as type from "@stores/type";
 
 const columns: { key: string; label: string }[] = [
@@ -33,8 +34,25 @@ export default function Page() {
     (state) => state.callGetSchooListDetail
   );
 
+  const USER = useAppSelector((state) => state.callAdminLogin);
+
   const [selectedSchool, setSelectedSchool] = useState<string>("");
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
+  const [url, setUrl] = useState<{ prodSystemUrl: string }>({
+    prodSystemUrl: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
+  });
+  const [bypass, setBypass] = useState<string>("");
+  const [mode, setMode] = useState<{
+    school_id: string;
+    name: string;
+    environment: string;
+  }>({
+    school_id: "",
+    name: "",
+    environment: "",
+  });
+  // เปลี่ยน useRef เดิมของ `dropdownRef` ให้รองรับ dropdown หลายอัน
+  const dropdownRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleEdit = (row: any) => {
     console.log("Edit", row);
@@ -46,22 +64,58 @@ export default function Page() {
     setDropdownOpen(null);
   };
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const handleOpenByPassLink = async (targetUrl: string, school_id: string) => {
+    try {
+      const url = targetUrl + (await getBypassToken(school_id));
+      return window.open(url, "_blank");
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  };
+
+  const getBypassToken = async (school_id: string) => {
+    try {
+      const userEmail = USER?.response?.data?.username;
+      console.log("user", USER);
+      const response = await dispatch(
+        GET_BYPASS_TOKEN({ school_id: school_id, user_email: userEmail })
+      ).unwrap();
+      return response?.data?.bypass;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    try {
+      switch (mode.name) {
+        case "system":
+          switch (mode.environment) {
+            case "production":
+              handleOpenByPassLink(url.prodSystemUrl, mode.school_id);
+              break;
+          }
+          break;
+      }
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }, [mode]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(null);
+      if (dropdownOpen !== null) {
+        const ref = dropdownRefs.current[dropdownOpen];
+        if (ref && !ref.contains(event.target as Node)) {
+          setDropdownOpen(null);
+        }
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [dropdownOpen]);
 
   useEffect(() => {
     const data = SCHOOL_LIST_WITH_DETAIL?.response?.data?.data ?? [];
@@ -210,7 +264,9 @@ export default function Page() {
 
                 <td className="p-4 relative">
                   <div
-                    ref={dropdownRef}
+                    ref={(el) => {
+                      dropdownRefs.current[idx] = el;
+                    }}
                     className="relative inline-block text-left"
                   >
                     <MinimalButton
@@ -232,9 +288,18 @@ export default function Page() {
                     >
                       <ul className="py-1 text-sm text-gray-700 dark:text-gray-100">
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                          Login
+                          System
                           <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "system",
+                                  environment: "production",
+                                });
+                              }}
+                            >
                               Production
                             </li>
                             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">

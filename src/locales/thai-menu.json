@@ -1,0 +1,10 @@
+{
+  "testing": "การทดสอบ",
+  "automated_testing": "การทดสอบอัตโนมัติ",
+  "load_testing": "โหลดเทส",
+  "support": "ฝ่ายสนับสนุน",
+  "bypass_school": "Bypass โรงเรียน",
+  "test_nfc_card": "ทดสอบค้นหาบัตร NFC (Vimal)",
+  "cancel_sales": "ยกเลิกรายการสินค้าเกิน 7 วัน",
+  "upload_student_migration": "อัปโหลดการย้ายข้อมูลนักเรียน (User Balance)"
+}
