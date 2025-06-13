@@ -12,7 +12,13 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function SidebarContent() {
-  const menu = useSidebarMenu();
+  const menu: {
+    label: string;
+    icon: JSX.Element;
+    children?: { label: string; href: string }[];
+    href?: string;
+    tag?: string;
+  }[] = useSidebarMenu();
   const [openKey, setOpenKey] = useState<string | null>(null);
   const pathname = usePathname();
 
@@ -102,11 +108,15 @@ export default function SidebarContent() {
             } else {
               return (
                 <Link
-                  href={item.href || "#"}
+                  href={
+                    "href" in item && typeof item.href === "string"
+                      ? item.href
+                      : "#"
+                  }
                   key={item.label}
                   className={
                     `w-full flex items-center gap-3 px-4 py-2 rounded-xl transition-colors hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 ` +
-                    (item.href === pathname
+                    ("href" in item && item.href === pathname
                       ? "bg-black text-white dark:bg-orange-500"
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")
                   }
