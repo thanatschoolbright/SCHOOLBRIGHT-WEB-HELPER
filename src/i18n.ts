@@ -21,7 +21,7 @@ const resources = {
   },
 };
 
-const lang = Cookies.get("i18nextLng") || "en";
+const lang = Cookies.get("i18nextLng") || "th";
 
 i18n
   .use(initReactI18next) // Bind react-i18next to the instance
