@@ -6,5 +6,12 @@
   "bypass_school": "Bypass School",
   "test_nfc_card": "Test NFC Card (Vimal)",
   "cancel_sales": "Cancel Sales Over 7 Days",
-  "upload_student_migration": "Upload Student Migration (User Balance)"
+  "upload_student_migration": "Upload Student Migration (User Balance)",
+  "health_check": "System Health Check",
+  "all_server_status": "All System Status Report",
+  "online_status": "Online System Connection Report",
+  "offline_sync_status": "Latest Offline Sync Report",
+  "mobile_app": "Mobile Application",
+  "app_notification": "App Notification",
+  "leave_letter": "Leave Letter"
 }

@@ -22,8 +22,7 @@ const columns: { key: string; label: string }[] = [
   { key: "school_class", label: "ระดับชั้นที่เปิดสอน" },
   { key: "school_grade", label: "เกรดโรงเรียน" },
   { key: "isActive", label: "สถานะการใช้งาน" },
-
-  { key: "action", label: "การกระทำ" }, // เช่น ปุ่มแก้ไข ลบ ฯลฯ
+  { key: "action", label: "เข้าสู่ระบบ" },
 ];
 
 export default function Page() {
@@ -38,8 +37,27 @@ export default function Page() {
 
   const [selectedSchool, setSelectedSchool] = useState<string>("");
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
-  const [url, setUrl] = useState<{ prodSystemUrl: string }>({
-    prodSystemUrl: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
+  const [url, setUrl] = useState<{
+    prodSystemURL: string;
+    betaSystemURL: string;
+    devSystemURL: string;
+    prodAcademicURL: string;
+    devAcademicURL: string;
+    devUIAcademicURL: string;
+    devLibraryURL: string;
+    prodLibraryURL: string;
+  }>({
+    prodSystemURL: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
+    betaSystemURL: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
+    devSystemURL: "https://dev.schoolbright.co/BypassSuperAdmin.aspx?q=",
+    prodAcademicURL:
+      "https://academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
+    devAcademicURL:
+      "https://dev-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
+    devUIAcademicURL:
+      "https://dev-ui-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
+    devLibraryURL: "https://library-dev.schoolbright.co/home/getToken?token=",
+    prodLibraryURL: "https://library.schoolbright.co/home/getToken?token=",
   });
   const [bypass, setBypass] = useState<string>("");
   const [mode, setMode] = useState<{
@@ -54,19 +72,10 @@ export default function Page() {
   // เปลี่ยน useRef เดิมของ `dropdownRef` ให้รองรับ dropdown หลายอัน
   const dropdownRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const handleEdit = (row: any) => {
-    console.log("Edit", row);
-    setDropdownOpen(null);
-  };
-
-  const handleDelete = (row: any) => {
-    console.log("Delete", row);
-    setDropdownOpen(null);
-  };
-
   const handleOpenByPassLink = async (targetUrl: string, school_id: string) => {
     try {
       const url = targetUrl + (await getBypassToken(school_id));
+      console.log("URL \n", url);
       return window.open(url, "_blank");
     } catch (error: any) {
       throw new Error(error.message);
@@ -92,10 +101,42 @@ export default function Page() {
         case "system":
           switch (mode.environment) {
             case "production":
-              handleOpenByPassLink(url.prodSystemUrl, mode.school_id);
+              handleOpenByPassLink(url.prodSystemURL, mode.school_id);
+              break;
+
+            case "staging":
+              handleOpenByPassLink(url.betaSystemURL, mode.school_id);
+              break;
+
+            case "development":
+              handleOpenByPassLink(url.devSystemURL, mode.school_id);
               break;
           }
           break;
+        case "academic":
+          switch (mode.environment) {
+            case "production":
+              handleOpenByPassLink(url.prodAcademicURL, mode.school_id);
+              break;
+
+            case "development":
+              handleOpenByPassLink(url.devAcademicURL, mode.school_id);
+              break;
+
+            case "ui":
+              handleOpenByPassLink(url.devUIAcademicURL, mode.school_id);
+              break;
+          }
+        case "library":
+          switch (mode.environment) {
+            case "production":
+              handleOpenByPassLink(url.prodLibraryURL, mode.school_id);
+              break;
+
+            case "development":
+              handleOpenByPassLink(url.devLibraryURL, mode.school_id);
+              break;
+          }
       }
     } catch (error: any) {
       throw new Error(error.message);
@@ -273,7 +314,7 @@ export default function Page() {
                       className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs"
                       onClick={() => setDropdownOpen(idx)}
                     >
-                      จัดการ
+                      เข้าสู่ระบบ
                     </MinimalButton>
 
                     <div
@@ -287,8 +328,8 @@ export default function Page() {
                       }}
                     >
                       <ul className="py-1 text-sm text-gray-700 dark:text-gray-100">
-                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                          System
+                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-blue-100">
+                          ✨ System
                           <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -302,37 +343,132 @@ export default function Page() {
                             >
                               Production
                             </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
-                              Dev
-                            </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "system",
+                                  environment: "staging",
+                                });
+                              }}
+                            >
                               Beta
                             </li>
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "system",
+                                  environment: "development",
+                                });
+                              }}
+                            >
+                              Dev
+                            </li>
                           </ul>
                         </li>
-                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                          Academic
+                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-green-100">
+                          👩🏻‍🏫 Academic
                           <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
-                              Login Grade
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "academic",
+                                  environment: "production",
+                                });
+                              }}
+                            >
+                              Production
                             </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
-                              Login Grade Memory
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "academic",
+                                  environment: "development",
+                                });
+                              }}
+                            >
+                              Dev
                             </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
-                              Login Academic
-                            </li>
-                            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
-                              Login Dev Academic
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "academic",
+                                  environment: "ui",
+                                });
+                              }}
+                            >
+                              Dev UI
                             </li>
                           </ul>
                         </li>
-                        <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                          Accounting Dev
+                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-fuchsia-100">
+                          🧾 Accounting
+                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "accounting",
+                                  environment: "production",
+                                });
+                              }}
+                            >
+                              Production
+                            </li>
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "academic",
+                                  environment: "development",
+                                });
+                              }}
+                            >
+                              Dev
+                            </li>
+                          </ul>
                         </li>
-                        <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                          Login Library
+                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-yellow-100">
+                          📔 Library
+                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "library",
+                                  environment: "production",
+                                });
+                              }}
+                            >
+                              Production
+                            </li>
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "library",
+                                  environment: "development",
+                                });
+                              }}
+                            >
+                              Dev
+                            </li>
+                          </ul>
                         </li>
+
                         <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                           Login Canteen
                         </li>
