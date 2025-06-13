@@ -363,7 +363,7 @@ export default function Page() {
                     >
                       <ul className="py-1 text-sm text-gray-700 dark:text-gray-100">
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-blue-100">
-                          ✨ System
+                          ✨ System (ระบบหลัก)
                           <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -404,7 +404,7 @@ export default function Page() {
                           </ul>
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-green-100">
-                          👩🏻‍🏫 Academic
+                          👩🏻‍🏫 Academic (ระบบวิชาการ)
                           <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -445,7 +445,7 @@ export default function Page() {
                           </ul>
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-fuchsia-100">
-                          🧾 Accounting
+                          🧾 Accounting (ระบบบัญชี)
                           <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -474,7 +474,7 @@ export default function Page() {
                           </ul>
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-yellow-100">
-                          📔 Library
+                          📔 Library (ระบบห้องสมุด)
                           <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -504,7 +504,7 @@ export default function Page() {
                         </li>
 
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-purple-100">
-                          🥪 Canteen
+                          🥪 Canteen (ระบบเติมเงิน,ถอนเงิน,รายงาน)
                           <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -533,7 +533,7 @@ export default function Page() {
                           </ul>
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-orange-100">
-                          👶🏻 Kindergaeten
+                          👶🏻 Kindergaeten (ระบบอนุบาล)
                           <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -560,9 +560,6 @@ export default function Page() {
                               Dev
                             </li>
                           </ul>
-                        </li>
-                        <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                          Edit
                         </li>
                       </ul>
                     </div>
