@@ -41,6 +41,8 @@ export default function Page() {
     prodSystemURL: string;
     betaSystemURL: string;
     devSystemURL: string;
+    prodCanteenURL: string;
+    devCanteenURL: string;
     prodAcademicURL: string;
     devAcademicURL: string;
     devUIAcademicURL: string;
@@ -50,6 +52,9 @@ export default function Page() {
     prodSystemURL: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
     betaSystemURL: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
     devSystemURL: "https://dev.schoolbright.co/BypassSuperAdmin.aspx?q=",
+    prodCanteenURL: "https://canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
+    devCanteenURL:
+      "https://canteen-dev.schoolbright.co/BypassSuperAdmin.aspx?q=",
     prodAcademicURL:
       "https://academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
     devAcademicURL:
@@ -137,6 +142,16 @@ export default function Page() {
               handleOpenByPassLink(url.devLibraryURL, mode.school_id);
               break;
           }
+        case "canteen":
+          switch (mode.environment) {
+            case "production":
+              handleOpenByPassLink(url.prodCanteenURL, mode.school_id);
+              break;
+
+            case "development":
+              handleOpenByPassLink(url.devCanteenURL, mode.school_id);
+              break;
+          }
       }
     } catch (error: any) {
       throw new Error(error.message);
@@ -148,10 +163,13 @@ export default function Page() {
       if (dropdownOpen !== null) {
         const ref = dropdownRefs.current[dropdownOpen];
         if (ref && !ref.contains(event.target as Node)) {
-          setDropdownOpen(null);
+          setTimeout(() => {
+            setDropdownOpen(null);
+          }, 350);
         }
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -330,7 +348,7 @@ export default function Page() {
                       <ul className="py-1 text-sm text-gray-700 dark:text-gray-100">
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-blue-100">
                           ✨ System
-                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                          <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                               onClick={() => {
@@ -371,7 +389,7 @@ export default function Page() {
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-green-100">
                           👩🏻‍🏫 Academic
-                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                          <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                               onClick={() => {
@@ -412,7 +430,7 @@ export default function Page() {
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-fuchsia-100">
                           🧾 Accounting
-                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                          <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                               onClick={() => {
@@ -441,7 +459,7 @@ export default function Page() {
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-yellow-100">
                           📔 Library
-                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                          <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                               onClick={() => {
@@ -469,8 +487,34 @@ export default function Page() {
                           </ul>
                         </li>
 
-                        <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                          Login Canteen
+                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-purple-100">
+                          🥪 Canteen
+                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "canteen",
+                                  environment: "production",
+                                });
+                              }}
+                            >
+                              Production
+                            </li>
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "canteen",
+                                  environment: "development",
+                                });
+                              }}
+                            >
+                              Dev
+                            </li>
+                          </ul>
                         </li>
                         <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                           Login Kindergarten
