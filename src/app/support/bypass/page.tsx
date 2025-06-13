@@ -48,6 +48,8 @@ export default function Page() {
     devUIAcademicURL: string;
     devLibraryURL: string;
     prodLibraryURL: string;
+    prodKindergartenURL: string;
+    devKindergartenURL: string;
   }>({
     prodSystemURL: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
     betaSystemURL: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
@@ -63,6 +65,10 @@ export default function Page() {
       "https://dev-ui-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
     devLibraryURL: "https://library-dev.schoolbright.co/home/getToken?token=",
     prodLibraryURL: "https://library.schoolbright.co/home/getToken?token=",
+    prodKindergartenURL:
+      "https://kindergarten.schoolbright.co/Home/ByPass?token=",
+    devKindergartenURL:
+      "https://kindergarten-dev.schoolbright.co/Home/ByPass?token=",
   });
   const [bypass, setBypass] = useState<string>("");
   const [mode, setMode] = useState<{
@@ -150,6 +156,16 @@ export default function Page() {
 
             case "development":
               handleOpenByPassLink(url.devCanteenURL, mode.school_id);
+              break;
+          }
+        case "kindergarten":
+          switch (mode.environment) {
+            case "production":
+              handleOpenByPassLink(url.prodKindergartenURL, mode.school_id);
+              break;
+
+            case "development":
+              handleOpenByPassLink(url.devKindergartenURL, mode.school_id);
               break;
           }
       }
@@ -516,8 +532,34 @@ export default function Page() {
                             </li>
                           </ul>
                         </li>
-                        <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                          Login Kindergarten
+                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-orange-100">
+                          👶🏻 Kindergaeten
+                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "kindergarten",
+                                  environment: "production",
+                                });
+                              }}
+                            >
+                              Production
+                            </li>
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "kindergarten",
+                                  environment: "development",
+                                });
+                              }}
+                            >
+                              Dev
+                            </li>
+                          </ul>
                         </li>
                         <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                           Edit
