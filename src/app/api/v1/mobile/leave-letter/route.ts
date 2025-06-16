@@ -23,6 +23,8 @@ export async function GET(request: NextRequest) {
       httpsAgent: agent,
     });
 
+    console.log("[API]", JSON.stringify(responseFromAPI.data, null, 2));
+
     return NextResponse.json(
       { data: responseFromAPI.data, curl: curlCommand },
       {
@@ -30,13 +32,12 @@ export async function GET(request: NextRequest) {
       }
     );
   } catch (error: any) {
-    const ERROR = {
-      message: error.message || "Internal Server Error",
-      raw: error.response?.data || null,
-      curl: curlCommand,
-    };
-    const status = 200;
-    console.error(ERROR);
-    return NextResponse.json(ERROR, { status });
+    return NextResponse.json(
+      {
+        message: error.message || "Internal Server Error",
+        status: error.response?.status || 500,
+      },
+      { status: error.response?.status || 500 }
+    );
   }
 }

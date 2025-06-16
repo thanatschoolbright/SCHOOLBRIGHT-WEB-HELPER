@@ -84,7 +84,7 @@ export default function Page() {
   }, [form.schoolID]);
 
   useEffect(() => {
-    if (page !== 0 && table.length < 1) {
+    if (page !== 0 && table?.length < 1) {
       Swal.fire({
         title: "ไม่พบข้อมูล",
       });
@@ -365,7 +365,7 @@ export default function Page() {
         <ContentCard
           title={`ตารางแสดงข้อความแจ้งเตือน (หน้าที่ ${page})`}
           className="xl:col-span-4 w-full"
-          hidden={table.length < 1}
+          hidden={table?.length < 1}
         >
           <MinimalTable
             isLoading={LEAVE_LETTER_LIST.loading}
