@@ -160,7 +160,7 @@ export default function Page() {
     try {
       const response = await dispatch(
         GET_NOTIFICATION_WEEK_LIST({
-          user_id: form.userID,
+          user_id: form?.userID,
           page: page?.toString() ?? "1",
         })
       ).unwrap();
@@ -172,9 +172,9 @@ export default function Page() {
         })
       ).unwrap();
 
-      console.log("res", response.raw.Status);
+      console.log("res", response?.raw?.Status);
 
-      if (response.raw.Status === "Error") {
+      if (response?.raw?.Status === "Error") {
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาด แจ้งเตือน 7 วันล่าสุด Error!",
