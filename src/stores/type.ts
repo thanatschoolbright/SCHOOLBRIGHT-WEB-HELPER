@@ -258,7 +258,8 @@ export interface ResponseLeaveLetter {
     SchoolID: number;
     letterId: number;
     status: string;
-    letterSubmitDate: string; // ISO date string
+    letterSubmitDate: string;
+    leaveLetterId: number;
     letterType: string;
     letterTypeEN: string;
     senderName: string;

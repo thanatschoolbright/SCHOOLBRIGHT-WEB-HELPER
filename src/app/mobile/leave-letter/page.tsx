@@ -120,7 +120,16 @@ export default function Page() {
           letter_id: letter_id,
         })
       ).unwrap();
-      setModal("response_open");
+      Swal.fire({
+        icon: "success",
+        title: "แก้ไขสถานะสำเร็จ",
+        text: `แก้ไขสถานะจดหมายลาหยุดที่รหัส ${letter_id} สำเร็จแล้ว`,
+      }).then(() => {
+        setModal("");
+        handleSubmitForm(page);
+        setForm({ ...form, letter_id: "" });
+        setSelectedRow(undefined);
+      });
     } catch (error: any) {
       throw new Error(
         "Function [confirmFixStatusLeaveLetter] :",
@@ -207,7 +216,10 @@ export default function Page() {
                 <MinimalButton
                   className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 w-24 h-10 text-[0.75rem]"
                   onClick={() => {
-                    setForm({ ...form, letter_id: row.letterId.toString() });
+                    setForm({
+                      ...form,
+                      letter_id: row.leaveLetterId.toString(),
+                    });
                     setModal("confirm_fix_letter");
                   }}
                 >

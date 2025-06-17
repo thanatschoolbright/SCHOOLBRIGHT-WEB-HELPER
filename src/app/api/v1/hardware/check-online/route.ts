@@ -5,10 +5,13 @@ import { CallPostOnlineDevice } from "@stores/type";
 import { DeviceDailyStatusService } from "@services/backend/device-daily-status.service";
 import { DeviceDailyStatus } from "generated/prisma";
 import { RequestDeviceDailyStatusTypes } from "@/types/device-daily-status.types";
+import { sanitizeForwardHeaders } from "@/services/api-header";
 
 export async function POST(NextRequest: NextRequest) {
   const { SchoolID, DeviceID } = await NextRequest.json();
   try {
+    const headers = sanitizeForwardHeaders(NextRequest);
+
     const endpoint = `/api/device/status/registeronline`;
     const apiUrl = `${API_URL.PROD_PAYMENT_API_URL}` + `${endpoint}`;
     const curlHeader = `--header 'Content-Type: application/json'`;
@@ -18,26 +21,34 @@ export async function POST(NextRequest: NextRequest) {
       "Status": "Online"
     }'`;
     const curlCommand = `curl --location ${curlHeader} \ '${apiUrl}' \ ${curlData}`;
+    console.log("curlCommand", curlCommand);
+
     const payload: CallPostOnlineDevice["draftValues"] = {
       SchoolID: SchoolID,
       DeviceID: DeviceID,
       Status: "Online",
     };
     const responseFromAPI = await axios.post(apiUrl, payload, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
     });
+
+    console.log(
+      "[API] POST /api/device/status/registeronline",
+      JSON.stringify(responseFromAPI.data, null, 2)
+    );
 
     return NextResponse.json({
       data: responseFromAPI.data,
       curl: curlCommand,
     });
-  } catch (err: any) {
-    return NextResponse.json({
-      message: err.message || "Internal Server Error",
-      status: err.response?.status || 500,
-    });
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        message: error.message || "Internal Server Error",
+        status: error.response?.status || 500,
+      },
+      { status: error.response?.status || 500 }
+    );
   }
 }
 

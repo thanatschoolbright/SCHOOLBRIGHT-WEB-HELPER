@@ -218,8 +218,9 @@ ${findSchoolName(schoolId, schoolList)} สามารถออนไลน์�
                 <span className="inline-block w-3 h-3 bg-red-500 rounded-full" />
               )}
             </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
+            <td className="p-4 font-medium text-sm  text-gray-900 dark:text-gray-200">
               <MinimalButton
+                className="bg-green-500"
                 onClick={() => {
                   CHECK_ONLINE_DEVICE(row.SchoolID, row.DeviceID);
                 }}
