@@ -33,6 +33,8 @@ export async function POST(req: NextRequest) {
       repoName === "Jabjai-Corporation/robodocs-web-main"
     ) {
       mentionUser = "<@1343873740055777353>";
+      discordWebhook =
+        "https://discord.com/api/webhooks/1385156909312770048/o6lGdMEvDC1E90S1nJSNiO75P6XqbpQtARUDO81FQleudrfT4BK-BsNORB9Ytl_LoDM_";
     } else if (repoName === "Jabjai-Corporation/sb-web-mark_activity") {
       mentionUser = "<@1343873740055777353>";
       discordWebhook =
