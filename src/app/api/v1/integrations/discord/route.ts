@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     } else {
       mentionUser = "<@692371893826879568>";
       discordWebhook =
-        "https://discord.com/api/webhooks/1385156909312770048/o6lGdMEvDC1E90S1nJSNiO75P6XqbpQtARUDO81FQleudrfT4BK-BsNORB9Ytl_LoDM_";
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
     }
 
     const curlHeader = `--header 'Content-Type: application/json'`;
