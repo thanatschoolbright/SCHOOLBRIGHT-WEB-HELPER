@@ -27,6 +27,7 @@ const initialState: RequestLeaveLetter = {
         TextTH: "",
         ApprovalAmount: 0,
       },
+      leaveLetterId: 0,
     },
     curl: "",
   },
