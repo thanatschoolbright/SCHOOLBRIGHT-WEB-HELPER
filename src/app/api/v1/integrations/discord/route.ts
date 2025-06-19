@@ -23,9 +23,26 @@ export async function POST(req: NextRequest) {
     const repoName = payload.repository.full_name;
     const fromBranch = pr.head.ref;
     const toBranch = pr.base.ref;
+    let mentionUser = "";
 
-    const discordWebhook =
+    let discordWebhook =
       process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
+
+    if (
+      repoName === "Jabjai-Corporation/robodocs-api-main" ||
+      repoName === "Jabjai-Corporation/robodocs-web-main"
+    ) {
+      mentionUser = "<@1343873740055777353>";
+    } else if (repoName === "Jabjai-Corporation/sb-web-mark_activity") {
+      mentionUser = "<@1343873740055777353>";
+      discordWebhook =
+        "https://discord.com/api/webhooks/1385159489694466088/BUJOXrmMwwE1bM81tFyjCGX6QJUHCowdRm3l9vdQMsid5nPi8mcTTQxn8q-QfPlFV8cX";
+    } else {
+      mentionUser = "<@692371893826879568>";
+      discordWebhook =
+        "https://discord.com/api/webhooks/1385156909312770048/o6lGdMEvDC1E90S1nJSNiO75P6XqbpQtARUDO81FQleudrfT4BK-BsNORB9Ytl_LoDM_";
+    }
+
     const curlHeader = `--header 'Content-Type: application/json'`;
     const curlData = `--data '{
       "content": "📣 **เปิด Pull Request ใหม่!**\\n📝 **${title}**\\n🔗 ${url}\\n👤 โดย: ${author}\\n\\n📌 กรุณาตรวจสอบและ Review ทันที 👀"
@@ -33,23 +50,27 @@ export async function POST(req: NextRequest) {
     const curlCommand = `curl --location ${curlHeader} '${discordWebhook}' ${curlData}`;
 
     const discordPayload = {
-      content: `<@692371893826879568> 📣 **มี Pull Request ใหม่เข้ามาแล้ว!**`,
+      content: `${mentionUser} 📣 **มี Pull Request ใหม่เข้ามาแล้ว! (New Pull Request Incoming!)**`,
       embeds: [
         {
           title: `#${pr.number} ${title}`,
           url: url,
           color: 0x00ccff,
           fields: [
-            { name: "🧑‍💻 ผู้เปิด", value: author, inline: true },
-            { name: "📁 Repository", value: `\`${repoName}\``, inline: true },
+            { name: "🧑‍💻 ผู้เปิด (Author)", value: author, inline: true },
             {
-              name: "🌿 จาก → ไป",
+              name: "📁 Repository (ที่เก็บโค้ด)",
+              value: `\`${repoName}\``,
+              inline: true,
+            },
+            {
+              name: "🌿 จากสาขา (From Branch) → ไปยัง (To Branch)",
               value: `\`${fromBranch}\` → \`${toBranch}\``,
               inline: false,
             },
           ],
           footer: {
-            text: "ระบบแจ้งเตือน GitHub PR • SchoolBright",
+            text: "ระบบแจ้งเตือน GitHub PR • SchoolBright (GitHub PR Notifier • SchoolBright)",
           },
           timestamp: new Date().toISOString(),
         },

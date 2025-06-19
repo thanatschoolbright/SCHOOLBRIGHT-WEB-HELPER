@@ -38,8 +38,21 @@ export async function POST(req: NextRequest) {
       })
       .join("\n");
 
-    const discordWebhook =
-      process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
+    let discordWebhook = "";
+
+    if (branch === "release/development") {
+      discordWebhook =
+        "https://discord.com/api/webhooks/1365210285316509727/2Nregu8jQu-eWe75vgZiK9TQa9j5vLwlksYG9JuYoBJ7CD52Aw5rXGxrdzrXQC__bNaA";
+    } else if (branch === "release/beta") {
+      discordWebhook =
+        "https://discord.com/api/webhooks/1374311804582494258/xhyQbTQFCioM__OXU2t2qJIoHEwOTpjheHYYR0I_Z2lJFJ74a4noC_UX0cMEB9XTurRa";
+    } else if (branch === "release/production") {
+      discordWebhook =
+        "https://discord.com/api/webhooks/1365227556659396671/TEBoEmhba0Kyp1ZSTQOe0U1gStAhuzhkgNh3IxfkbJTsP0rhx48Q-7IqriS-X1kuBDaH";
+    } else {
+      discordWebhook =
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER || "";
+    }
 
     if (!discordWebhook || !discordWebhook.startsWith("http")) {
       return NextResponse.json({
