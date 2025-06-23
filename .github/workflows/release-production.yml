@@ -52,38 +52,38 @@ jobs:
       #         page++;
       #       }
 
-  sonarqube-scan:
-    name: "🧪 SonarQube Scan"
-    runs-on: ubuntu-latest
+  # sonarqube-scan:
+  #   name: "🧪 SonarQube Scan"
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: "📥 Checkout Code"
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: "📥 Checkout Code"
+  #       uses: actions/checkout@v3
 
-      - name: "☕ Setup Java"
-        uses: actions/setup-java@v3
-        with:
-          java-version: "17"
-          distribution: "temurin"
+  #     - name: "☕ Setup Java"
+  #       uses: actions/setup-java@v3
+  #       with:
+  #         java-version: "17"
+  #         distribution: "temurin"
 
-      - name: "⚙️ Setup Node.js"
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+  #     - name: "⚙️ Setup Node.js"
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "20"
 
-      - name: "📦 Install Dependencies"
-        run: npm ci
+  #     - name: "📦 Install Dependencies"
+  #       run: npm ci
 
-      - name: "🔍 Run SonarQube Scan"
-        env:
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-        run: |
-          npm install -g sonarqube-scanner
-          sonar-scanner \
-            -Dsonar.projectKey=sb-web-helper \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST_URL }} \
-            -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
+  #     - name: "🔍 Run SonarQube Scan"
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+  #       run: |
+  #         npm install -g sonarqube-scanner
+  #         sonar-scanner \
+  #           -Dsonar.projectKey=sb-web-helper \
+  #           -Dsonar.sources=. \
+  #           -Dsonar.host.url=${{ secrets.SONARQUBE_HOST_URL }} \
+  #           -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
 
   build:
     name: "🔨 Build on Runner"
