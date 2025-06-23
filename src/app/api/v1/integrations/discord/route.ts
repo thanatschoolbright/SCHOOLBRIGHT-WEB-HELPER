@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { discordIdUser } from "@/helpers/api/discord-id-user";
 
 export async function POST(req: NextRequest) {
   const payload = await req.json();
@@ -19,10 +20,6 @@ export async function POST(req: NextRequest) {
     const title = pr.title;
     const url = pr.html_url;
     const author = pr.user.login;
-    const discordIdUser = {
-      Light: "<@1343873740055777353>",
-      Joe: "<@692371893826879568>",
-    };
 
     const repoName = payload.repository.full_name;
     const fromBranch = pr.head.ref;
@@ -44,8 +41,11 @@ export async function POST(req: NextRequest) {
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_MARKACTIVITY_SERVER;
     } else if (repoName === "Jabjai-Corporation/sb-web-system") {
       mentionUser = discordIdUser.Joe;
+      discordWebhook = process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_SYSTEM_SERVER;
+    } else if (repoName === "Jabjai-Corporation/sb-web-academic") {
+      mentionUser = discordIdUser.Krishnan;
       discordWebhook =
-        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACADEMIC_SERVER || "";
     } else {
       mentionUser = "<@692371893826879568>";
       discordWebhook = "";

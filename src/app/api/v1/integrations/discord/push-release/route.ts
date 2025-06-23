@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { discordIdUser } from "@/helpers/api/discord-id-user";
 
 export async function POST(req: NextRequest) {
   const payload = await req.json();
@@ -18,11 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     const repoName = payload.repository.full_name;
     const branch = payload.ref.replace("refs/heads/", "");
-    const discordIdUser = {
-      Light: "<@1343873740055777353>",
-      Joe: "<@692371893826879568>",
-      TeamSupport: "<@&1344169581345902704>",
-    };
+
     if (!payload.ref?.startsWith("refs/heads/release/")) {
       return NextResponse.json({
         message: "Not a release branch",
@@ -54,6 +51,10 @@ export async function POST(req: NextRequest) {
       mentionUser = discordIdUser.Light;
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_MARKACTIVITY_SERVER || "";
+    } else if (repoName === "Jabjai-Corporation/sb-web-academic") {
+      mentionUser = discordIdUser.Krishnan;
+      discordWebhook =
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACADEMIC_SERVER || "";
     } else if (repoName === "Jabjai-Corporation/sb-web-system") {
       mentionUser = discordIdUser.Joe;
       discordWebhook =
