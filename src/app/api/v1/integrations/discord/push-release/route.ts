@@ -59,6 +59,10 @@ export async function POST(req: NextRequest) {
       mentionUser = discordIdUser.TeamSupport;
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER || "";
+    } else if (repoName === "Jabjai-Corporation/sb-web-accounting-system") {
+      mentionUser = discordIdUser.Tuk;
+      discordWebhook =
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACCOUNTING_SERVER || "";
     } else {
       discordWebhook = "";
     }

@@ -3,6 +3,7 @@ interface DiscordIdUser {
   Joe: string;
   TeamSupport: string;
   Krishnan: string;
+  Tuk:string;
 }
 
 export const discordIdUser: DiscordIdUser = {
@@ -10,4 +11,5 @@ export const discordIdUser: DiscordIdUser = {
   Joe: "<@692371893826879568>",
   TeamSupport: "<@&1344169581345902704>",
   Krishnan: "<@1347719592780238979>",
+  Tuk: "<@1344481208192466976>",
 };

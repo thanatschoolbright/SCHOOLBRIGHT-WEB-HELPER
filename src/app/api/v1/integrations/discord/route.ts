@@ -46,6 +46,10 @@ export async function POST(req: NextRequest) {
       mentionUser = discordIdUser.Krishnan;
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACADEMIC_SERVER || "";
+    } else if (repoName === "Jabjai-Corporation/sb-web-accounting-system") {
+      mentionUser = discordIdUser.Tuk;
+      discordWebhook =
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACCOUNTING_SERVER || "";
     } else {
       mentionUser = "<@692371893826879568>";
       discordWebhook = "";
