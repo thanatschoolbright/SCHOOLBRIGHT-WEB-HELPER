@@ -19,8 +19,8 @@ export async function POST(req: NextRequest) {
     const repoName = payload.repository.full_name;
     const branch = payload.ref.replace("refs/heads/", "");
     const discordIdUser = {
-      Light: "<@692371893826879568>",
-      Joe: "<@1343873740055777353>",
+      Light: "<@1343873740055777353>",
+      Joe: "<@692371893826879568>",
       TeamSupport: "<@1344169581345902704>",
     };
     if (!payload.ref?.startsWith("refs/heads/release/")) {

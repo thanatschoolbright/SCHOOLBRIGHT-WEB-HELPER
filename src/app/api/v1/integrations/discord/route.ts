@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
     const url = pr.html_url;
     const author = pr.user.login;
     const discordIdUser = {
-      Light: "<@692371893826879568>",
-      Joe: "<@1343873740055777353>",
+      Light: "<@1343873740055777353>",
+      Joe: "<@692371893826879568>",
     };
 
     const repoName = payload.repository.full_name;
