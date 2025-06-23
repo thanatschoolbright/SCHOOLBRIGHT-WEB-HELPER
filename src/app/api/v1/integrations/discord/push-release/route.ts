@@ -48,15 +48,15 @@ export async function POST(req: NextRequest) {
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_SYSTEM_SERVER || "";
     } else if (repoName === "Jabjai-Corporation/sb-web-mark_activity") {
-      mentionUser = discordIdUser.Light;
+      mentionUser = discordIdUser.TeamSupport;
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_MARKACTIVITY_SERVER || "";
     } else if (repoName === "Jabjai-Corporation/sb-web-academic") {
-      mentionUser = discordIdUser.Krishnan;
+      mentionUser = discordIdUser.TeamSupport;
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACADEMIC_SERVER || "";
     } else if (repoName === "Jabjai-Corporation/sb-web-system") {
-      mentionUser = discordIdUser.Joe;
+      mentionUser = discordIdUser.TeamSupport;
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER || "";
     } else {

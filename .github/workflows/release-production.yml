@@ -52,6 +52,39 @@ jobs:
       #         page++;
       #       }
 
+  sonarqube-scan:
+    name: "🧪 SonarQube Scan"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v3
+
+      - name: "☕ Setup Java"
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: "⚙️ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: "📦 Install Dependencies"
+        run: npm ci
+
+      - name: "🔍 Run SonarQube Scan"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+        run: |
+          npm install -g sonarqube-scanner
+          sonar-scanner \
+            -Dsonar.projectKey=sb-web-helper \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
+
   build:
     name: "🔨 Build on Runner"
     needs: remove-old-artifact
@@ -138,19 +171,3 @@ jobs:
             npm install
             # รีสตาร์ท service
             sudo systemctl restart sb-web-helper.service
-
-  notify:
-    name: "📬 Discord Notification"
-    runs-on: ubuntu-latest
-    environment: production
-    needs: deploy
-    steps:
-      - name: 📣  Notify Discord on Success
-        if: success()
-        run: |
-          COMMIT_MESSAGE=$(echo "${{ github.event.head_commit.message }}" | sed ':a;N;$!ba;s/\n/\\n/g')
-          curl --location '${{vars.DISCORD_WEBHOOK}}' \
-          --header 'Content-Type: application/json' \
-          --data-raw "{
-            \"content\": \"✅ **Deployment Successful!**\\n🖥️ Server: **${{vars.SERVER}}**\\n👤 Pushed By: **${{github.actor}}**\\n📌 Commit:\\n\`\`\`${COMMIT_MESSAGE}\`\`\`\\n👥 <${{vars.DISCORD_ROLE_QA}}> <${{vars.DISCORD_ROLE_SUPPORT}}>\"
-          }"
