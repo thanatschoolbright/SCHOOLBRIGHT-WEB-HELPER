@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const discordIdUser = {
       Light: "<@1343873740055777353>",
       Joe: "<@692371893826879568>",
-      TeamSupport: "<@1344169581345902704>",
+      TeamSupport: "<@&1344169581345902704>",
     };
     if (!payload.ref?.startsWith("refs/heads/release/")) {
       return NextResponse.json({
