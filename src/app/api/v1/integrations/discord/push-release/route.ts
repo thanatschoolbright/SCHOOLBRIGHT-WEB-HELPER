@@ -28,17 +28,13 @@ export async function POST(req: NextRequest) {
       });
     }
     const pusher = payload.pusher.name;
-    const compareUrl =
-      typeof payload.compare === "string" && payload.compare.startsWith("http")
-        ? payload.compare
-        : undefined;
     const commits = payload.commits || [];
 
     const commitMessages = commits
       .map((commit: any, index: number) => {
-        return `${index + 1}. ${commit.id.substring(0, 7)} - ${
-          commit.message
-        } (by ${commit.author?.name || "unknown"})`;
+        return `${index + 1}.- ${commit.message} (by ${
+          commit.author?.name || "unknown"
+        })`;
       })
       .join("\n");
 
@@ -91,9 +87,7 @@ export async function POST(req: NextRequest) {
       embeds: [
         {
           title: `📦 Release: ${repoName}`,
-          description: `อัปเดตบนเซิฟเวอร์ \`${branch}\`${
-            compareUrl ? ` ([ดู diff](${compareUrl}))` : ""
-          }`,
+          description: `อัปเดตบนเซิฟเวอร์ \`${releaseServer}\``,
           color: 0x2ecc71,
           fields: [
             {
