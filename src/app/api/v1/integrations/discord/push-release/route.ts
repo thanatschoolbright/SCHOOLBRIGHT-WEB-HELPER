@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
     const commitMessages = commits
       .map((commit: any, index: number) => {
-        return `> \u2022 [${commit.id.substring(0, 7)}](${commit.url}) - ${
+        return `${index + 1}. ${commit.id.substring(0, 7)} - ${
           commit.message
         } (by ${commit.author?.name || "unknown"})`;
       })
