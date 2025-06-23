@@ -19,6 +19,10 @@ export async function POST(req: NextRequest) {
     const title = pr.title;
     const url = pr.html_url;
     const author = pr.user.login;
+    const discordIdUser = {
+      Light: "<@692371893826879568>",
+      Joe: "<@1343873740055777353>",
+    };
 
     const repoName = payload.repository.full_name;
     const fromBranch = pr.head.ref;
@@ -32,17 +36,19 @@ export async function POST(req: NextRequest) {
       repoName === "Jabjai-Corporation/robodocs-api-main" ||
       repoName === "Jabjai-Corporation/robodocs-web-main"
     ) {
-      mentionUser = "<@1343873740055777353>";
-      discordWebhook =
-        "https://discord.com/api/webhooks/1385156909312770048/o6lGdMEvDC1E90S1nJSNiO75P6XqbpQtARUDO81FQleudrfT4BK-BsNORB9Ytl_LoDM_";
+      mentionUser = discordIdUser.Light;
+      discordWebhook = process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ROBODOCS_SERVER;
     } else if (repoName === "Jabjai-Corporation/sb-web-mark_activity") {
-      mentionUser = "<@1343873740055777353>";
+      mentionUser = discordIdUser.Light;
       discordWebhook =
-        "https://discord.com/api/webhooks/1385159489694466088/BUJOXrmMwwE1bM81tFyjCGX6QJUHCowdRm3l9vdQMsid5nPi8mcTTQxn8q-QfPlFV8cX";
-    } else {
-      mentionUser = "<@692371893826879568>";
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_MARKACTIVITY_SERVER;
+    } else if (repoName === "Jabjai-Corporation/sb-web-system") {
+      mentionUser = discordIdUser.Joe;
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
+    } else {
+      mentionUser = "<@692371893826879568>";
+      discordWebhook = "";
     }
 
     const curlHeader = `--header 'Content-Type: application/json'`;

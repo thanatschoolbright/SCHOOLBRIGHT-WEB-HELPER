@@ -4,6 +4,7 @@ import axios from "axios";
 export async function POST(req: NextRequest) {
   const payload = await req.json();
   const event = req.headers.get("x-github-event");
+  let mentionUser = "";
 
   if (event !== "push") {
     return NextResponse.json({
@@ -17,6 +18,11 @@ export async function POST(req: NextRequest) {
   try {
     const repoName = payload.repository.full_name;
     const branch = payload.ref.replace("refs/heads/", "");
+    const discordIdUser = {
+      Light: "<@692371893826879568>",
+      Joe: "<@1343873740055777353>",
+      TeamSupport: "<@1344169581345902704>",
+    };
     if (!payload.ref?.startsWith("refs/heads/release/")) {
       return NextResponse.json({
         message: "Not a release branch",
@@ -41,11 +47,19 @@ export async function POST(req: NextRequest) {
     let discordWebhook = "";
 
     if (repoName === "Jabjai-Corporation/sb-web-system") {
+      mentionUser = discordIdUser.TeamSupport;
       discordWebhook =
-        "https://discord.com/api/webhooks/1385550158904688781/dj2WpGGAPek0wYswMngKXkuQDMewSCBbunMvLbQSkU7RC6woaBODTn4XfSiWtVY0vxJz";
-    } else {
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_SYSTEM_SERVER || "";
+    } else if (repoName === "Jabjai-Corporation/sb-web-mark_activity") {
+      mentionUser = discordIdUser.Light;
+      discordWebhook =
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_MARKACTIVITY_SERVER || "";
+    } else if (repoName === "Jabjai-Corporation/sb-web-system") {
+      mentionUser = discordIdUser.Joe;
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER || "";
+    } else {
+      discordWebhook = "";
     }
 
     if (!discordWebhook || !discordWebhook.startsWith("http")) {
@@ -56,7 +70,7 @@ export async function POST(req: NextRequest) {
     }
 
     const discordPayload = {
-      content: `<@&1344169581345902704> ระบบได้รับการอัปเดตแล้ว 🎉`,
+      content: `${mentionUser} ระบบได้รับการอัปเดตแล้ว 🎉`,
       embeds: [
         {
           title: `📦 Release: ${repoName}`,
