@@ -41,11 +41,12 @@ export async function POST(req: NextRequest) {
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_MARKACTIVITY_SERVER;
     } else if (repoName === "Jabjai-Corporation/sb-web-system") {
       mentionUser = discordIdUser.Joe;
-      discordWebhook = process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_SYSTEM_SERVER;
+      discordWebhook =
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
     } else if (repoName === "Jabjai-Corporation/sb-web-academic") {
       mentionUser = discordIdUser.Krishnan;
       discordWebhook =
-        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACADEMIC_SERVER || "";
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER || "";
     } else if (repoName === "Jabjai-Corporation/sb-web-accounting-system") {
       mentionUser = discordIdUser.Tuk;
       discordWebhook =
