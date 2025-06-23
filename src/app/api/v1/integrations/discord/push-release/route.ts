@@ -6,6 +6,7 @@ export async function POST(req: NextRequest) {
   const payload = await req.json();
   const event = req.headers.get("x-github-event");
   let mentionUser = "";
+  let releaseServer = "";
 
   if (event !== "push") {
     return NextResponse.json({
@@ -61,6 +62,21 @@ export async function POST(req: NextRequest) {
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACCOUNTING_SERVER || "";
     } else {
       discordWebhook = "";
+    }
+
+    switch (branch) {
+      case "release/development":
+        releaseServer = "Development Server (เซิฟเดฟ)";
+        break;
+      case "release/beta":
+        releaseServer = "Beta Server (เซิฟเบต้า)";
+        break;
+      case "release/production":
+        releaseServer = "Production Server (เซิฟโปรดักชั่น)";
+        break;
+      default:
+        releaseServer = "Unknown Server";
+        break;
     }
 
     if (!discordWebhook || !discordWebhook.startsWith("http")) {
