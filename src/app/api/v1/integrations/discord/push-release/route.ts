@@ -56,6 +56,10 @@ export async function POST(req: NextRequest) {
       mentionUser = discordIdUser.TeamSupport;
       discordWebhook =
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACCOUNTING_SERVER || "";
+    } else if (repoName === "Jabjai-Corporation/sb-api-mobile") {
+      mentionUser = discordIdUser.TeamSupport;
+      discordWebhook =
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_SBAPI_SERVER || "";
     } else {
       discordWebhook = "";
     }
