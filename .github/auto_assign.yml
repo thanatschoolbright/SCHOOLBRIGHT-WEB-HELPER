@@ -1,0 +1,7 @@
+# .github/auto_assign.yml
+
+addAssignees: author # ✅ Assign คนเปิด PR
+addReviewers: true # ✅ เพิ่ม Reviewer อัตโนมัติ
+reviewers: # ✅ Reviewer ตาม CODEOWNERS
+  - thanatschoolbright
+  - tanakongsengwan

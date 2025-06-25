@@ -50,6 +50,8 @@ export default function Page() {
     prodLibraryURL: string;
     prodKindergartenURL: string;
     devKindergartenURL: string;
+    prodActivityURL: string;
+    devActivityURL: string;
   }>({
     prodSystemURL: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
     betaSystemURL: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
@@ -63,12 +65,15 @@ export default function Page() {
       "https://dev-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
     devUIAcademicURL:
       "https://dev-ui-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
-    devLibraryURL: "https://library-dev.schoolbright.co/home/getToken?token=",
-    prodLibraryURL: "https://library.schoolbright.co/home/getToken?token=",
+    devLibraryURL: "https://library-dev.schoolbright.co/Home/ByPass?token=",
+    prodLibraryURL: "https://library.schoolbright.co/Home/ByPass?token=",
     prodKindergartenURL:
       "https://kindergarten.schoolbright.co/Home/ByPass?token=",
     devKindergartenURL:
       "https://kindergarten-dev.schoolbright.co/Home/ByPass?token=",
+    devActivityURL:
+      "https://dev-markactivity.schoolbright.co/Home/ByPass?token=",
+    prodActivityURL: "https://markactivity.schoolbright.co/Home/ByPass?token=",
   });
   const [bypass, setBypass] = useState<string>("");
   const [mode, setMode] = useState<{
@@ -166,6 +171,16 @@ export default function Page() {
 
             case "development":
               handleOpenByPassLink(url.devKindergartenURL, mode.school_id);
+              break;
+          }
+        case "activity":
+          switch (mode.environment) {
+            case "production":
+              handleOpenByPassLink(url.prodActivityURL, mode.school_id);
+              break;
+
+            case "development":
+              handleOpenByPassLink(url.devActivityURL, mode.school_id);
               break;
           }
       }
@@ -553,6 +568,35 @@ export default function Page() {
                                 setMode({
                                   school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
                                   name: "kindergarten",
+                                  environment: "development",
+                                });
+                              }}
+                            >
+                              Dev
+                            </li>
+                          </ul>
+                        </li>
+                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-amber-100">
+                          🎃 Activity (จัดกิจกรรม)
+                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "activity",
+                                  environment: "production",
+                                });
+                              }}
+                            >
+                              Production
+                            </li>
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                  name: "activity",
                                   environment: "development",
                                 });
                               }}

@@ -74,7 +74,7 @@ export default function MinimalTable({
 
   return (
     <div className="p-6 overflow-x-auto">
-      <table className="w-full table-auto text-left min-h-[500px]">
+      <table className="w-full table-auto text-left min-h-[800px]">
         <thead>
           <tr>
             {/* คอลัมน์ No */}
