@@ -5,8 +5,11 @@ import UserDropdown from "@components/layouts/backend/user-dropdown";
 export default function MainHeader() {
   return (
     <header
-      className="w-full px-6 py-4 flex items-center justify-between bg-white dark:bg-gray-800 rounded shadow-md border-b dark:border-gray-700 transition-colors duration-300 transition-all duration-500 ease-in-out
-        animate-fade-in-down"
+      className="w-full px-6 py-4 flex items-center justify-between 
+    bg-white/40 dark:bg-gray-800/40 
+    backdrop-blur-2xl shadow-md 
+    rounded-3xl border border-white/30 dark:border-gray-700 
+    transition-colors duration-300 animate-fade-in-down"
     >
       {/* Left - Logo & Nav */}
       <div className="flex items-center gap-8">

@@ -1,0 +1,30 @@
+name: Automated API tests using Postman CLI
+
+on:
+  workflow_run:
+    workflows: ["Deploy Development Server"]
+    types: completed
+
+  workflow_dispatch:
+
+jobs:
+  automated-api-tests:
+    runs-on: ["self-hosted", "AUTOMATED_TEST_API"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+
+      - name: Run API tests
+        continue-on-error: true
+        run: |
+          postman collection run "41748745-ffe4433a-4899-4cf9-8512-d1118efd50c3" -e "41748745-9390b9f1-42ff-4df9-940b-bbe016e0b24c" \
+            --reporters cli,json \
+            --reporter-json-export postman-test-result.json
+
+      - name: Upload JSON result
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-result
+          path: postman-test-result.json

@@ -58,7 +58,7 @@ export default function Page() {
     devSystemURL: "https://dev.schoolbright.co/BypassSuperAdmin.aspx?q=",
     prodCanteenURL: "https://canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
     devCanteenURL:
-      "https://canteen-dev.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      "https://dev-canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
     prodAcademicURL:
       "https://academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
     devAcademicURL:
@@ -92,6 +92,7 @@ export default function Page() {
     try {
       const url = targetUrl + (await getBypassToken(school_id));
       console.log("URL \n", url);
+
       return window.open(url, "_blank");
     } catch (error: any) {
       throw new Error(error.message);
@@ -143,6 +144,7 @@ export default function Page() {
               handleOpenByPassLink(url.devUIAcademicURL, mode.school_id);
               break;
           }
+          break;
         case "library":
           switch (mode.environment) {
             case "production":
@@ -153,6 +155,7 @@ export default function Page() {
               handleOpenByPassLink(url.devLibraryURL, mode.school_id);
               break;
           }
+          break;
         case "canteen":
           switch (mode.environment) {
             case "production":
@@ -163,6 +166,7 @@ export default function Page() {
               handleOpenByPassLink(url.devCanteenURL, mode.school_id);
               break;
           }
+          break;
         case "kindergarten":
           switch (mode.environment) {
             case "production":
@@ -173,6 +177,7 @@ export default function Page() {
               handleOpenByPassLink(url.devKindergartenURL, mode.school_id);
               break;
           }
+          break;
         case "activity":
           switch (mode.environment) {
             case "production":
@@ -183,6 +188,7 @@ export default function Page() {
               handleOpenByPassLink(url.devActivityURL, mode.school_id);
               break;
           }
+          break;
       }
     } catch (error: any) {
       throw new Error(error.message);

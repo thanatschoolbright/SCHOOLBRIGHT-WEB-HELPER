@@ -3,21 +3,23 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { setResponse } from "@stores/reducers/authentication/call-get-login-admin";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function AuthenticationReduxProvider({
   children,
 }: Readonly<React.PropsWithChildren<{}>>) {
-  const rounter = useRouter();
+  const router = useRouter();
+  const pathname = usePathname(); // 👈 ใช้ตรวจ path ปัจจุบัน
   const dispatch = useDispatch<AppDispatch>();
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
 
   useEffect(() => {
-    // อ่าน JSON string จาก localStorage
     const raw = localStorage.getItem("AUTH_USER");
+
     if (raw) {
       try {
         const stored = JSON.parse(raw);
+
         dispatch(
           setResponse({
             status: 200,
@@ -31,13 +33,18 @@ export default function AuthenticationReduxProvider({
             },
           })
         );
+
+        // ✅ หาก login แล้ว และอยู่หน้า /auth/signin ให้เด้งไป /backend
+        if (pathname === "/auth/signin") {
+          router.replace("/backend");
+        }
       } catch {
-        rounter.replace("/auth/signin");
+        router.replace("/auth/signin");
       }
     } else {
-      rounter.replace("/auth/signin");
+      router.replace("/auth/signin");
     }
-  }, [dispatch]);
+  }, [dispatch, pathname, router]);
 
   return <>{children}</>;
 }
