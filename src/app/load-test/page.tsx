@@ -278,9 +278,6 @@ const LogViewer = ({
 
   return (
     <div className="mt-6">
-      <h2 className="text-lg font-bold text-dark dark:text-white mb-2">
-        📜 Real-time Logs
-      </h2>
       <pre className="bg-black text-sm text-dark dark:text-white p-4 rounded max-h-[400px] overflow-y-auto whitespace-pre-wrap border border-gray-700">
         <div>
           {output.split("\n").map((line, idx) => {
