@@ -4,13 +4,7 @@ import path from "path";
 import fs from "fs/promises";
 
 function buildScriptPath(scriptName: string): string {
-  return path.join(
-    process.cwd(),
-    "src",
-    "helpers",
-    "scripts",
-    `${scriptName}.ts`
-  );
+  return path.join(process.cwd(), ".next", "scripts", `${scriptName}.ts`);
 }
 
 export async function POST(request: NextRequest) {
