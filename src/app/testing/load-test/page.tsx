@@ -1,5 +1,5 @@
 "use client";
-import { FiArrowUp, FiArrowDown } from "react-icons/fi";
+import { FiArrowUp, FiArrowDown, FiPlay } from "react-icons/fi";
 import DashboardLayout from "@/components/layouts/backend-layout";
 import ContentCard from "@components/layouts/backend/content";
 import { useState, useEffect, useRef } from "react";
@@ -209,7 +209,7 @@ const renderFormattedMetricValue = (
 
   return (
     <div className="flex flex-col">
-      <pre className="whitespace-pre-wrap break-words text-gray-200">
+      <pre className="font-mono whitespace-pre-wrap break-words text-gray-200">
         {displayValue}
       </pre>
       {shouldTruncate && (
@@ -304,7 +304,7 @@ const LogViewer = ({
             return (
               <div key={idx} className={colorClass}>
                 <div className="flex flex-col">
-                  <pre className="whitespace-pre-wrap break-words">
+                  <pre className="font-mono bg-black text-sm text-white p-4 rounded ...">
                     {displayedLine}
                   </pre>
                   {formattedJson && formattedJson.length > maxLength && (
@@ -343,49 +343,59 @@ const MetricsTable = ({
   metrics,
   expandedLines,
   setExpandedLines,
-}: MetricsTableProps) => (
-  <section>
-    <h2 className="text-lg font-bold text-white mb-2 mt-6">
-      📈 Summary Report
-    </h2>
-    <div className="overflow-x-auto rounded shadow-lg border border-gray-700">
-      <table className="min-w-full text-sm text-left text-gray-300 bg-gray-800">
-        <thead className="bg-gray-700 text-white">
-          <tr>
-            <th scope="col" className="px-6 py-3 font-semibold tracking-wide">
-              📊 Metric
-            </th>
-            <th scope="col" className="px-6 py-3 font-semibold tracking-wide">
-              🧮 Value
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {metrics.map(({ key, value }, idx) => (
-            <tr
-              key={idx}
-              className={
-                idx % 2 === 0
-                  ? "bg-gray-800 hover:bg-gray-700"
-                  : "bg-gray-900 hover:bg-gray-800"
-              }
-            >
-              <td className="px-6 py-3 whitespace-nowrap font-medium">{key}</td>
-              <td className="px-6 py-3 whitespace-pre-wrap">
-                {renderFormattedMetricValue(
-                  value,
-                  idx,
-                  expandedLines,
-                  setExpandedLines
-                )}
-              </td>
+}: MetricsTableProps) => {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  return (
+    <section className="mt-6" ref={scrollRef}>
+      <div className="overflow-x-auto rounded shadow-lg border border-gray-700 max-h-[400px] overflow-y-auto">
+        <h2 className="text-lg font-bold text-dark dark:text-white mb-2 mt-0 px-6 pt-6">
+          📈 สรุปผลการทดสอบ (Metrics Report)
+        </h2>
+        <table className="min-w-full text-sm text-left text-gray-300 bg-gray-800">
+          <thead className="bg-gray-700 text-white sticky top-0 z-10">
+            <tr>
+              <th scope="col" className="px-6 py-3 font-semibold tracking-wide">
+                📊 Metric
+              </th>
+              <th scope="col" className="px-6 py-3 font-semibold tracking-wide">
+                🧮 Value
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </section>
-);
+          </thead>
+          <tbody>
+            {metrics.map(({ key, value }, idx) => (
+              <tr
+                key={idx}
+                className={
+                  idx % 2 === 0
+                    ? "bg-gray-800 hover:bg-gray-700"
+                    : "bg-gray-900 hover:bg-gray-800"
+                }
+              >
+                <td className="px-6 py-3 whitespace-nowrap font-medium">
+                  {key}
+                </td>
+                <td className="px-6 py-3 whitespace-pre-wrap">
+                  {renderFormattedMetricValue(
+                    value,
+                    idx,
+                    expandedLines,
+                    setExpandedLines
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+};
 
 // 🔍 แสดง URL ที่กำลังทดสอบอยู่
 const SelectedTargetSummary = ({
@@ -416,9 +426,11 @@ export default function Page() {
   const [selectedEnv, setSelectedEnv] = useState(
     "https://apimobile-dev.schoolbright.co"
   );
+  const [isLoading, setIsLoading] = useState(false);
 
   const runTest = async () => {
     try {
+      setIsLoading(true);
       setShowMetrics(false);
       setOutput("");
       const response = await fetch("/api/v1/load-test", {
@@ -446,7 +458,17 @@ export default function Page() {
       setParsedStats(parseTestStats(accumulated));
     } catch (error: any) {
       setOutput(`❌ Load test failed: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const downloadLog = () => {
+    const blob = new Blob([output], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `k6-log-${selectedScript}.txt`;
+    link.click();
   };
 
   const metrics = parseMetrics(output);
@@ -498,9 +520,17 @@ export default function Page() {
           <div className="flex items-end h-full">
             <button
               onClick={runTest}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full sm:w-auto "
+              disabled={isLoading}
+              className={`w-full sm:w-auto px-6 py-2 text-white text-lg font-semibold rounded-xl border transition-colors duration-200 ${
+                isLoading
+                  ? "bg-gray-700 cursor-not-allowed"
+                  : "bg-gray-900 border-gray-700 hover:border-emerald-400 hover:bg-gray-800"
+              }`}
             >
-              🚀 รันทดสอบ K6
+              <span className="relative z-10 flex items-center gap-2">
+                <FiPlay className="text-emerald-400" />
+                {isLoading ? "กำลังทดสอบ..." : "รันทดสอบ K6"}
+              </span>
             </button>
           </div>
         </div>

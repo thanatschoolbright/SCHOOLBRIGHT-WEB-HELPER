@@ -1,4 +1,3 @@
-import __ENV from "k6";
 import http, { Response } from "k6/http";
 import { check, sleep } from "k6";
 import { SharedArray } from "k6/data";
@@ -19,7 +18,10 @@ const credentials = new SharedArray<Credential>("users", () => [
   { user: "9999", pass: "invalid", schoolid: 849, imei: "" },
 ]);
 
-const base_url = (__ENV as any)["BASE_URL"] || "https://sbapi.schoolbright.co";
+const base_url = __ENV.BASE_URL;
+if (!base_url) {
+  throw new Error("❌ Missing BASE_URL! Please specify via --env BASE_URL=");
+}
 
 // 🔧 ตั้งค่า Virtual Users และระยะเวลา
 export const options = {
