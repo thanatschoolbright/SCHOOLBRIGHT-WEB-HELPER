@@ -107,10 +107,24 @@ jobs:
         run: npx prisma generate --schema=prisma/schema.prisma
 
       - name: "🏗️ Build Project"
-        run: npm run build
+        run: |
+          npm run build
+          # Compile any raw .ts scripts (e.g., K6, helpers) if needed at runtime
+          if [ -d src/helpers/scripts ]; then
+            find src/helpers/scripts -name "*.ts" | while read tsfile; do
+              jsfile="${tsfile%.ts}.js"
+              # Only compile if not present in .next or not already compiled
+              if [ ! -f "$jsfile" ]; then
+                npx tsc "$tsfile" --outDir "$(dirname "$tsfile")" --esModuleInterop --target ES2020
+              fi
+            done
+          fi
+          # Optionally copy tsconfig.json if needed for runtime
+          cp tsconfig.json ./ || true
 
       - name: "📤 Archive Build Artifacts"
         run: |
+          # Archive build output, including any .ts scripts and config files needed at runtime
           zip -r build.zip \
             .next \
             public \
@@ -118,7 +132,8 @@ jobs:
             package.json \
             package-lock.json \
             next.config.mjs \
-            src/helpers/scripts
+            tsconfig.json \
+            $(find src/helpers/scripts -type f \( -name "*.ts" -o -name "*.js" -o -name ".*" \))
 
       - name: "⬆️ Upload Artifacts"
         uses: actions/upload-artifact@v4
@@ -169,6 +184,12 @@ jobs:
             cd /var/www/sb-web-helper
             unzip -o build.zip
             # ติดตั้งเฉพาะ production dependencies
-            npm install
+            npm ci --omit=dev
             # รีสตาร์ท service
             sudo systemctl restart sb-web-helper.service
+
+            # Optional: Validate artifact exists after unzip
+            if [ ! -d ".next" ]; then
+              echo "❌ .next directory missing after unzip!"
+              exit 1
+            fi
