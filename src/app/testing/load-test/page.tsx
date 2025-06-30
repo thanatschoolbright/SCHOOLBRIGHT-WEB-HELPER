@@ -506,6 +506,10 @@ export default function Page() {
                 { label: "reset-password", value: "reset-password" },
                 { label: "register", value: "register" },
                 { label: "payment", value: "payment" },
+                {
+                  label: "many-api-load (ยิงหลาย API พร้อมกัน)",
+                  value: "many-api-load",
+                },
               ]}
               value={selectedScript}
               onChange={setSelectedScript}
@@ -658,14 +662,15 @@ export default function Page() {
           </ContentCard>
         </>
       )}
-
-      <ContentCard title="📜 รายงาน Log จากเซิร์ฟเวอร์" size="xl" fullWidth>
-        <LogViewer
-          output={output}
-          expandedLines={expandedLines}
-          setExpandedLines={setExpandedLines}
-        />
-      </ContentCard>
+      {output && (
+        <ContentCard title="📜 รายงาน Log จากเซิร์ฟเวอร์" size="xl" fullWidth>
+          <LogViewer
+            output={output}
+            expandedLines={expandedLines}
+            setExpandedLines={setExpandedLines}
+          />
+        </ContentCard>
+      )}
 
       {showMetrics && metrics.length > 0 && (
         <ContentCard
