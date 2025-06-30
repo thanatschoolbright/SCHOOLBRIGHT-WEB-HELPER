@@ -26,7 +26,13 @@ ChartJS.register(
 );
 
 // SummaryChart component
-const SummaryChart = ({ stats }: { stats: Record<string, any> }) => {
+const SummaryChart = ({
+  stats,
+  isLoading,
+}: {
+  stats: Record<string, any>;
+  isLoading?: boolean;
+}) => {
   const chartRef = useRef<any>(null);
   const total = parseInt(
     stats["checks_total......................."]?.split(" ")[0] || "0"
@@ -125,7 +131,13 @@ const SummaryChart = ({ stats }: { stats: Record<string, any> }) => {
   // (Chart.js 3+ handles context-based gradient correctly)
   return (
     <div className="my-6">
-      <Bar ref={chartRef} data={data} options={options} />
+      {isLoading ? (
+        <div className="h-[300px] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-emerald-500"></div>
+        </div>
+      ) : (
+        <Bar ref={chartRef} data={data} options={options} />
+      )}
     </div>
   );
 };
@@ -546,7 +558,7 @@ export default function Page() {
             fullWidth
             className="mb-4"
           >
-            <SummaryChart stats={parsedStats} />
+            <SummaryChart stats={parsedStats} isLoading={isLoading} />
           </ContentCard>
           <ContentCard
             title={`🧪 สรุปผลของการทดสอบที่ ${selectedEnv.replace(
@@ -565,6 +577,7 @@ export default function Page() {
                 }
                 subtitle="รวมทั้งหมดที่ทำการตรวจสอบ"
                 bgColor="from-green-400 via-emerald-500 to-green-600 bg-gradient-to-br"
+                isLoading={isLoading}
               />
               <SummaryCard
                 title="🎯 จำนวนที่สำเร็จ"
@@ -575,6 +588,7 @@ export default function Page() {
                 }
                 subtitle="จำนวนที่ตรวจสอบผ่าน"
                 bgColor="from-green-400 via-emerald-500 to-green-600 bg-gradient-to-br"
+                isLoading={isLoading}
               />
               <SummaryCard
                 title="❌ จำนวนที่ล้มเหลว"
@@ -594,6 +608,7 @@ export default function Page() {
                 })()}
                 subtitle="จำนวนที่ตรวจสอบไม่ผ่าน"
                 bgColor="from-red-400 via-red-500 to-rose-600 bg-gradient-to-br"
+                isLoading={isLoading}
               />
               <SummaryCard
                 title="📦 HTTP Requests"
@@ -604,6 +619,7 @@ export default function Page() {
                 }
                 subtitle="จำนวนคำขอทั้งหมด"
                 bgColor="from-blue-400 via-sky-500 to-blue-600 bg-gradient-to-br"
+                isLoading={isLoading}
               />
               <SummaryCard
                 title="⏱️ Avg Duration"
@@ -614,6 +630,7 @@ export default function Page() {
                 }
                 subtitle="เวลาเฉลี่ยในการตอบสนอง"
                 bgColor="from-yellow-300 via-amber-400 to-orange-400 bg-gradient-to-br"
+                isLoading={isLoading}
               />
               <SummaryCard
                 title="🔁 Iterations"
@@ -624,6 +641,7 @@ export default function Page() {
                 }
                 subtitle="จำนวนรอบการทำซ้ำ"
                 bgColor="from-purple-400 via-violet-500 to-indigo-600 bg-gradient-to-br"
+                isLoading={isLoading}
               />
               <SummaryCard
                 title="📊 Throughput"
@@ -634,6 +652,7 @@ export default function Page() {
                 }
                 subtitle="จำนวนการตรวจสอบต่อวินาที"
                 bgColor="from-fuchsia-400 via-pink-500 to-rose-500 bg-gradient-to-br"
+                isLoading={isLoading}
               />
             </div>
           </ContentCard>
