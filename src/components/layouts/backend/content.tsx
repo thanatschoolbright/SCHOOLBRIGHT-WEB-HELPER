@@ -43,19 +43,19 @@ export default function ContentCard({
     <div className="">
       <div
         className={`
-        bg-white dark:bg-gray-900
-        rounded-2xl shadow-md border
-        border-gray-200 dark:border-gray-700
+        bg-white/70 dark:bg-gray-800/50 backdrop-blur-sm
+        rounded-2xl shadow-lg border
+        border-white/30 dark:border-white/10
         transition-all duration-500 ease-in-out
+        hover:bg-white/90 dark:hover:bg-gray-900/70
         text-sm
         ${hidden ? "hidden" : "show"}
         ${dimensionClass} ${fullSpanClass} ${className}
-        
       `}
       >
         {/* Title */}
         {title && (
-          <h2 className=" text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
             {title}
           </h2>
         )}
@@ -68,7 +68,7 @@ export default function ContentCard({
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
           </div>
         ) : (
-          <div className="text-gray-700 dark:text-gray-300">{children}</div>
+          <div className="text-gray-800 dark:text-gray-100">{children}</div>
         )}
       </div>
     </div>

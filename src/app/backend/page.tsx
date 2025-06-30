@@ -1,24 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import DashboardHeader from "@components/layouts/backend/dashboard-header";
 import DashboardLayout from "@components/layouts/backend-layout";
-import TimeChart from "@components/layouts/backend/time-chart";
-import TaskOverview from "@components/layouts/backend/task-overview";
 import ContentCard from "@components/layouts/backend/content";
 import { useTranslation } from "react-i18next";
-import MinimalButton from "@components/button/minimal-button-component";
-import { HiOutlineMail } from "react-icons/hi";
-import MinimalTable from "@components/table/minimal-table-component"; // หรือใช้ FiMail จาก react-icons/fi
-import collection from "@/data/postman/collection-school-bright-v2.json";
-import { MinimalRow } from "@components/table/minimal-row-component";
-import MinimalModal from "@components/modal/minimal-modal-component";
-import ModalAPIDetail from "@components/modal/info-api-modal-detail-component";
-import StatusBadge from "@components/badge/status-badge-component";
-import MethodBadge from "@components/badge/method-badge-component";
 import BaseLoadingComponent from "@components/loading/loading-component-1";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useAppSelector } from "@stores/store";
-import { runPostmanCollection } from "@stores/actions/call-newman";
 
 export default function DashboardPage() {
   const { t } = useTranslation("mock");

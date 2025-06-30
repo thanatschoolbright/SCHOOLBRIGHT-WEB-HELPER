@@ -1,7 +1,9 @@
+import __ENV from "k6";
 import http, { Response } from "k6/http";
 import { check, sleep } from "k6";
 import { SharedArray } from "k6/data";
 
+// ✅ ประเภทข้อมูลของผู้ใช้สำหรับ login
 type Credential = {
   user: string;
   pass: string;
@@ -9,7 +11,7 @@ type Credential = {
   imei: string;
 };
 
-// 👥 Load real or test credentials (some valid, some invalid)
+// 🧑‍🏫 รายชื่อ credentials จำลอง (ทั้ง valid และ invalid) สำหรับ load test
 const credentials = new SharedArray<Credential>("users", () => [
   { user: "2250", pass: "1", schoolid: 849, imei: "" },
   { user: "2251", pass: "wrong", schoolid: 849, imei: "" },
@@ -17,22 +19,28 @@ const credentials = new SharedArray<Credential>("users", () => [
   { user: "9999", pass: "invalid", schoolid: 849, imei: "" },
 ]);
 
+const base_url = (__ENV as any)["BASE_URL"] || "https://sbapi.schoolbright.co";
+
+// 🔧 ตั้งค่า Virtual Users และระยะเวลา
 export const options = {
   vus: 10,
   duration: "10s",
 };
 
-function buildUrl(cred: Credential): string {
-  return `https://sbapi.schoolbright.co/api/Login?user=${cred.user}&pass=${cred.pass}&schoolid=${cred.schoolid}&imei=${cred.imei}`;
+// 🔗 สร้าง URL สำหรับ request login
+function buildLoginUrl(cred: Credential): string {
+  return `${base_url}/api/Login?user=${cred.user}&pass=${cred.pass}&schoolid=${cred.schoolid}&imei=${cred.imei}`;
 }
 
-function buildHeaders(): Record<string, string> {
+// 🧾 สร้าง headers แบบ static (จำลอง session)
+function getStaticHeaders(): Record<string, string> {
   return {
     Cookie: "HWWAFSESID=static_session_id; HWWAFSESTIME=1751251207449",
   };
 }
 
-function logRequestResponse(
+// 📋 แสดงผล Request และ Response ลงใน Console
+function printRequestAndResponse(
   url: string,
   headers: Record<string, string>,
   response: Response
@@ -45,21 +53,8 @@ function logRequestResponse(
   console.log(`🔸 Body: ${response.body}`);
 }
 
-export default function () {
-  const total = credentials.length;
-  const index = ((__VU - 1) * 10 + __ITER) % total;
-  const credential = credentials[index];
-
-  console.log(
-    `🌀 VU: ${__VU}, Iteration: ${__ITER}, Using user: ${credential.user}, pass: ${credential.pass}`
-  );
-
-  const url = buildUrl(credential);
-  const headers = buildHeaders();
-  const response = http.get(url, { headers });
-
-  logRequestResponse(url, headers, response);
-
+// ✅ ตรวจสอบผลลัพธ์ของ response
+function runChecks(response: Response): void {
   check(response, {
     "✅ Status is 200": (r) => r.status === 200,
     "✅ Body is JSON": (r) => {
@@ -85,6 +80,24 @@ export default function () {
       }
     },
   });
+}
 
-  sleep(1);
+// 🧪 main function สำหรับ Virtual User แต่ละตัว
+export default function main(): void {
+  const totalUsers = credentials.length;
+  const index = ((__VU - 1) * 10 + __ITER) % totalUsers;
+  const user = credentials[index];
+
+  console.log(
+    `🌀 VU: ${__VU}, Iteration: ${__ITER}, Testing with user: ${user.user}, pass: ${user.pass}`
+  );
+
+  const url = buildLoginUrl(user);
+  const headers = getStaticHeaders();
+  const res = http.get(url, { headers });
+
+  printRequestAndResponse(url, headers, res);
+  runChecks(res);
+
+  sleep(1); // 💤 simulate user wait
 }

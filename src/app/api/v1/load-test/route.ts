@@ -14,7 +14,7 @@ function buildScriptPath(scriptName: string): string {
 }
 
 export async function POST(request: NextRequest) {
-  const { script } = await request.json();
+  const { script, baseURL } = await request.json();
   console.log("📩 : Received POST request for K6 load test");
 
   if (!script) {
@@ -45,7 +45,12 @@ export async function POST(request: NextRequest) {
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
 
-  const child = spawn("k6", ["run", scriptPath]);
+  const child = spawn("k6", [
+    "run",
+    "--env",
+    `BASE_URL=${baseURL || "https://sbapi.schoolbright.co"}`,
+    scriptPath,
+  ]);
 
   child.stdout.on("data", (chunk) => {
     console.log(`📥 stdout: ${chunk}`);

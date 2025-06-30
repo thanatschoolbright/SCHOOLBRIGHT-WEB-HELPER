@@ -6,8 +6,8 @@ export default function MainHeader() {
   return (
     <header
       className="w-full px-6 py-4 flex items-center justify-between 
-    bg-white/40 dark:bg-gray-800/40 
-    backdrop-blur-2xl shadow-md 
+    bg-white/30 dark:bg-gray-800/30 
+    backdrop-blur-md shadow-sm hover:bg-white hover:dark:bg-gray-700 
     rounded-3xl border border-white/30 dark:border-gray-700 
     transition-colors duration-300 animate-fade-in-down"
     >

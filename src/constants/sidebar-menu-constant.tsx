@@ -15,7 +15,7 @@ export const useSidebarMenu = () => {
         icon: <FiGrid />,
         children: [
           { label: t("automated_testing"), href: "/testing/auto" },
-          { label: t("load_testing"), href: "/testing/load" },
+          { label: t("load_testing"), href: "/testing/load-test" },
         ],
       },
       {

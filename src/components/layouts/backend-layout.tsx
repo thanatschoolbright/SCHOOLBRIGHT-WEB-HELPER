@@ -11,10 +11,11 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-[#e8e6f3] dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex transition-colors duration-500 ">
       {/* Sidebar */}
       <aside
-        className="w-64 p-5 h-full ml-5 mt-5 flex flex-col justify-between transition-colors duration-500 
-    bg-white/50 dark:bg-gray-800/50 
-    backdrop-blur-2xl shadow-lg 
-    rounded-3xl border border-white/30 dark:border-white/10"
+        className="w-64 p-5 h-full ml-5 mt-5 flex flex-col justify-between transition-all duration-500 
+bg-white/40 dark:bg-gray-800/40 
+hover:bg-white dark:hover:bg-gray-700 
+backdrop-blur-md shadow-md 
+rounded-3xl border border-white/20 dark:border-white/10"
       >
         <div>
           <SidebarContent />
