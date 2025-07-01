@@ -46,7 +46,7 @@ jobs:
             @types/react \
             @types/react-redux \
             @types/chart.js \
-            @types/csstype \
+            csstype \
             undici-types
 
       - name: "⚙️ Prisma Generate"
