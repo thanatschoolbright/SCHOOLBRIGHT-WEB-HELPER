@@ -72,3 +72,19 @@ body {
     }
   }
 }
+
+@layer utilities {
+  .animate-dna-float {
+    animation: dnaFloat 10s ease-in-out infinite;
+  }
+
+  @keyframes dnaFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10%);
+    }
+  }
+}
