@@ -74,6 +74,7 @@ export default function Page() {
     devActivityURL:
       "https://dev-markactivity.schoolbright.co/Home/ByPass?token=",
     prodActivityURL: "https://markactivity.schoolbright.co/Home/ByPass?token=",
+
   });
   const [bypass, setBypass] = useState<string>("");
   const [mode, setMode] = useState<{
@@ -88,9 +89,9 @@ export default function Page() {
   // เปลี่ยน useRef เดิมของ `dropdownRef` ให้รองรับ dropdown หลายอัน
   const dropdownRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const handleOpenByPassLink = async (targetUrl: string, school_id: string) => {
+  const handleOpenByPassLink = async (targetUrl: string, school_id: string,extendPath?:string) => {
     try {
-      const url = targetUrl + (await getBypassToken(school_id));
+      const url = targetUrl + (await getBypassToken(school_id)) + extendPath;
       console.log("URL \n", url);
 
       return window.open(url, "_blank");
@@ -181,11 +182,11 @@ export default function Page() {
         case "activity":
           switch (mode.environment) {
             case "production":
-              handleOpenByPassLink(url.prodActivityURL, mode.school_id);
+              handleOpenByPassLink(url.prodActivityURL, mode.school_id,"&page=ActivityManagement");
               break;
 
             case "development":
-              handleOpenByPassLink(url.devActivityURL, mode.school_id);
+              handleOpenByPassLink(url.devActivityURL, mode.school_id,"&page=ActivityManagement");
               break;
           }
           break;
@@ -343,7 +344,7 @@ export default function Page() {
                           : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
                       }`}
                   >
-                    {row.school_grade}
+                    {row.school_grade ?? "No Grade"}
                   </span>
                 </td>
                 <td className="p-4 text-sm text-gray-700 dark:text-gray-200">
@@ -382,7 +383,7 @@ export default function Page() {
                         pointerEvents: dropdownOpen === idx ? "auto" : "none",
                       }}
                     >
-                      <ul className="py-1 text-sm text-gray-700 dark:text-gray-100">
+                      <ul className="py-1 text-sm text-gray-700 dark:text-gray-100 dark:text-black">
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-blue-100">
                           ✨ System (ระบบหลัก)
                           <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
