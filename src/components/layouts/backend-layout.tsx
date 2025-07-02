@@ -14,7 +14,7 @@ export default function DashboardLayout({
         <img
           src="/background/bg-dna.png"
           alt="DNA background"
-          className="w-full h-full object-cover animate-[dnaFloat_10s_ease-in-out_infinite]"
+          className="w-full h-full object-cover "
           style={{ opacity: 1 }}
         />
       </div>
