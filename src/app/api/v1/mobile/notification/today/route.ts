@@ -1,7 +1,7 @@
 import axios from "axios";
 import {NextRequest, NextResponse} from "next/server";
 import {API_URL} from "@/services/api-url";
-import {getHeaders} from "@/services/api-header";
+import {getHeaders, normalHeader} from "@/services/api-header";
 import {sanitizeForwardHeaders} from "@/services/api-header";
 import https from "https";
 
@@ -9,7 +9,8 @@ const agent = new https.Agent({rejectUnauthorized: false});
 
 export async function GET(request: NextRequest) {
     const {searchParams} = new URL(request.url);
-    const headers = sanitizeForwardHeaders(request);
+    const headers = await normalHeader(request);
+    console.log("HEADERS", headers);
     const user_id = searchParams.get("user_id");
     const page = searchParams.get("page");
     const apiUrl = `${API_URL.PROD_SB_API_URL}`;

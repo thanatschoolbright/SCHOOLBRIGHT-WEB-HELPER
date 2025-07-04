@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -21,7 +21,6 @@ model ADjustedSIDS {
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model BackupOfflineSales {
@@ -754,8 +753,6 @@ model defrag_work {
 
   @@ignore
 }
-
-
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model DeviceActivityLogTemp {
@@ -8903,8 +8900,6 @@ model UserAPIResponse {
 
   @@index([APIProcessedTime], map: "INDEX_VV_129_128")
 }
-
-
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model UserDailyBalance_03012025 {

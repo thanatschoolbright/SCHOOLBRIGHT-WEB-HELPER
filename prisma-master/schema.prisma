@@ -1,0 +1,10 @@
+// prisma-master/schema.prisma
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_MASTER")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/master"
+}
