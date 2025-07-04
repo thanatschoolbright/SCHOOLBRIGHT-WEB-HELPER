@@ -29,7 +29,7 @@ const refreshToken = async () => {
     }
     return null;
   } catch (error) {
-    console.error("Error refreshing token:", error);
+    console.error("❌ [API-GATEWAY] Error while refreshing token:", error);
     return null;
   }
 };
@@ -48,7 +48,7 @@ export const callBackendAPI = async ({
     extendHeader,
     backendUrl,
   };
-  console.log("[API-GATEWAY]", JSON.stringify(defaultRequest, null, 2));
+  console.log("🌐 [API-GATEWAY] Sending request:", JSON.stringify(defaultRequest, null, 2));
   const url = `${backendUrl}${
     endpoint.startsWith("/") ? endpoint : `/${endpoint}`
   }`;
@@ -95,7 +95,7 @@ export const callBackendAPI = async ({
         "Content-Type": "application/json",
       };
 
-      console.log("retry", retryHeaders);
+      console.log("🔁 [API-GATEWAY] Retrying request with new token headers:", retryHeaders);
 
       // 🔁 ลองเรียก API ใหม่อีกรอบ
       const retryConfig = { headers: retryHeaders };
@@ -114,12 +114,12 @@ export const callBackendAPI = async ({
           retryResponse = await axios.delete(url, retryConfig);
           break;
       }
-      console.log("Retry", retryResponse?.data);
+      console.log("✅ [API-GATEWAY] Retry success. Response data:", retryResponse?.data);
       return retryResponse?.data;
     }
 
     throw new Error(error.message);
   } finally {
-    console.log("API call completed");
+    console.log("📦 [API-GATEWAY] API call completed.");
   }
 };
