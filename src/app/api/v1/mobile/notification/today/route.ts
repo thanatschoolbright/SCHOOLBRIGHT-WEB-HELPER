@@ -34,9 +34,10 @@ export async function GET(request: NextRequest) {
         const ERROR = {
             message: error.message || "Internal Server Error",
             raw: error.response?.data || null,
+            status: error.response?.status || 500,
             curl: curlCommand,
         };
-        const status = 200;
+        const status = error.response?.status || 500;
         console.error(ERROR);
         return NextResponse.json(ERROR, {status});
     }
