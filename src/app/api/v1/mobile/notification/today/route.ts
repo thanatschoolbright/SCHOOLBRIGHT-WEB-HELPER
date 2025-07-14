@@ -10,7 +10,6 @@ const agent = new https.Agent({rejectUnauthorized: false});
 export async function GET(request: NextRequest) {
     const {searchParams} = new URL(request.url);
     const headers = await normalHeader(request);
-    console.log("HEADERS", headers);
     const user_id = searchParams.get("user_id");
     const page = searchParams.get("page");
     const apiUrl = `${API_URL.PROD_SB_API_URL}`;

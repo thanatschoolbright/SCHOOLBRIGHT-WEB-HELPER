@@ -13,5 +13,7 @@
   "offline_sync_status": "Latest Offline Sync Report",
   "mobile_app": "Mobile Application",
   "app_notification": "App Notification",
-  "leave_letter": "Leave Letter"
+  "leave_letter": "Leave Letter",
+  "app_hardware": "Hardware App",
+  "app_canteen" : "Canteen App"
 }

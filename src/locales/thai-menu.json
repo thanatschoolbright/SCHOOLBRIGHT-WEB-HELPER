@@ -15,5 +15,7 @@
   "app_notification": "แจ้งเตือนในแอพ",
   "leave_letter": "จดหมายลาหยุด",
   "mobile_notification": "แจ้งเตือนในแอพ",
-  "mobile_leave_letter": "จดหมายลาหยุด"
+  "mobile_leave_letter": "จดหมายลาหยุด",
+  "app_hardware": "ฮาร์ดแวร์แอพ",
+  "app_canteen" : "แอพโรงอาหาร"
 }
