@@ -315,12 +315,14 @@ export interface RequestApplicationList extends DefaultRedux<ResponseApplication
 }
 
 export interface ResponseApplicationList {
-    status: string;
     data: {
-        app_id: string;
-        app_name: string;
-        app_type: string;
-    }[];
+        status: string;
+        data: {
+            app_id: string;
+            app_name: string;
+            app_type: string;
+        }[];
+    }
 }
 
 export interface RequestApplicationVersionList extends DefaultRedux<ResponseApplicationVersionList> {
@@ -330,13 +332,16 @@ export interface RequestApplicationVersionList extends DefaultRedux<ResponseAppl
 }
 
 export interface ResponseApplicationVersionList {
-    status: string;
     data: {
-        version_id: string;
-        version_name: string;
-        url: string;
-        env: string;
-        updated_at: string | null;
-    }[];
+        status: string;
+        data: {
+            version_id: string;
+            version_name: string;
+            url: string;
+            env: string;
+            updated_at: string | null;
+        }[];
+    }
+
 }
 

@@ -3,13 +3,18 @@ import {CallAPI} from "@stores/actions/hardware/canteen/call-get-application-by-
 import {RequestApplicationVersionList} from "@stores/type";
 
 const initialState: RequestApplicationVersionList = {
-    draftValues: {},
+    draftValues: {
+        app_id: ""
+    },
     loading: false,
     error: "",
     success: "",
     response: {
-        status: "",
-        data: []
+        data: {
+            status: "",
+            data: []
+        }
+
     },
 };
 

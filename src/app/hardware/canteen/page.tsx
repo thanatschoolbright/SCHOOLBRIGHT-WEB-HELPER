@@ -19,7 +19,7 @@ import ModalComponent from "@components/modal/modal-component";
 import BaseLoadingComponent from "@components/loading/loading-component-1";
 
 const renderTableHardwareApplicationList = (
-    data: ResponseApplicationList['data'],
+    data: ResponseApplicationList['data']['data'],
     openVersionModal: (appId: string, appName: string) => void
 ) =>
     data.map((row, idx) => (
@@ -83,7 +83,7 @@ export default function Page() {
     const {t} = useTranslation("mock");
     const dispatch = useDispatch<AppDispatch>();
 
-    const [applicationList, setApplicationList] = useState<ResponseApplicationList['data']>([]);
+    const [applicationList, setApplicationList] = useState<ResponseApplicationList['data']['data']>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedAppName, setSelectedAppName] = useState("");
 
@@ -108,7 +108,7 @@ export default function Page() {
     useEffect(() => {
         const rawList = STATE_HARDWARE_APPLICATION?.response?.data?.data || [];
 
-        const transformed = rawList.map((item: any) => ({
+        const transformed = rawList.map((item: ResponseApplicationList['data']['data'][number]) => ({
             app_name: item.app_name,
             app_id: item.app_id,
             app_type: item.app_type,

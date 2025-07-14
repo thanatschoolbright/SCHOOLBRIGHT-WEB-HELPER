@@ -10,8 +10,10 @@ const initialState: RequestApplicationList = {
     error: "",
     success: "",
     response: {
-        status: "",
-        data: []
+        data: {
+            status: "",
+            data: [],
+        }
     },
 };
 
