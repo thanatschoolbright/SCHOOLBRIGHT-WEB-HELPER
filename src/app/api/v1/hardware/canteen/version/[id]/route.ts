@@ -1,11 +1,12 @@
 import {NextRequest, NextResponse} from "next/server";
-import {API_URL} from "@/services/api-url";
+import {API_URL} from "@services/api-url";
 import {callWithLogging} from "@helpers/call-with-logging";
 import {convertToCurl} from "@helpers/api/convert-to-curl";
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, {params}: { params: { id: string } }) {
+    const {id} = params;
     const apiUrl = API_URL.DEV_HARDWARE_API_URL;
-    const endpoint = "/api/v2/applications";
+    const endpoint = `/api/v2/applications/version/${id}`;
     const fullURL = `${apiUrl}${endpoint}`;
     const curlCommand = convertToCurl(apiUrl, endpoint);
 
@@ -14,7 +15,6 @@ export async function GET(request: NextRequest) {
             {
                 method: "GET",
                 url: fullURL,
-                // สามารถใส่ headers หรือ httpsAgent ได้หากจำเป็น
             },
             {
                 requestPath: request.nextUrl.pathname,

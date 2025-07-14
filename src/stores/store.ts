@@ -1,5 +1,5 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { TypedUseSelectorHook, useSelector } from "react-redux";
+import {configureStore} from "@reduxjs/toolkit";
+import {TypedUseSelectorHook, useSelector} from "react-redux";
 // #region : reducer
 import newmanReducer from "@stores/reducers/call-newman";
 import formCardNfcReducer from "@stores/reducers/form-card-nfc";
@@ -18,28 +18,32 @@ import callAdminLoginReducer from "@stores/reducers/authentication/call-get-logi
 import callGetNotificationMessageReducer from "@stores/reducers/mobile/call-get-read-notification";
 import callGetLeaveLetterListReducer from "@stores/reducers/mobile/call-get-leave-letter";
 import callGetSchooListDetailReducer from "@stores/reducers/support/call-get-school-list-detail";
+import callGetHardwareApplicationReducer from "@stores/reducers/hardware/canteen/call-get-application";
+import callGetHardwareApplicationByAppIdReducer from "@stores/reducers/hardware/canteen/call-get-application-by-appId";
 // #endregion
 
 export const store = configureStore({
-  reducer: {
-    newman: newmanReducer,
-    formCardNfc: formCardNfcReducer,
-    callCancelSales: callCancelSalesReducer,
-    callSchoolList: callSchoolListReducer,
-    callGetRegisterDevice: callGetRegisterDeviceReducer,
-    callPostOnlineDevice: callPostOnlineDeviceReducer,
-    callPostOfflineDevice: callPostOfflineDeviceReducer,
-    callGetOnlineDevice: callGetOnlineDeviceReducer,
-    callGetServerStatus: callGetServerStatusReducer,
-    callGetuserBySchoolId: callGetuserBySchoolIdReducer,
-    callRefreshToken: callRefreshTokenReducer,
-    callGetNotificationWeekList: callGetNotificationWeekListReducer,
-    callGetNotificationTodayList: callGetNotificationTodayListReducer,
-    callAdminLogin: callAdminLoginReducer,
-    callGetNotificationMessage: callGetNotificationMessageReducer,
-    callGetLeaveLetterList: callGetLeaveLetterListReducer,
-    callGetSchooListDetail: callGetSchooListDetailReducer,
-  },
+    reducer: {
+        newman: newmanReducer,
+        formCardNfc: formCardNfcReducer,
+        callCancelSales: callCancelSalesReducer,
+        callSchoolList: callSchoolListReducer,
+        callGetRegisterDevice: callGetRegisterDeviceReducer,
+        callPostOnlineDevice: callPostOnlineDeviceReducer,
+        callPostOfflineDevice: callPostOfflineDeviceReducer,
+        callGetOnlineDevice: callGetOnlineDeviceReducer,
+        callGetServerStatus: callGetServerStatusReducer,
+        callGetuserBySchoolId: callGetuserBySchoolIdReducer,
+        callRefreshToken: callRefreshTokenReducer,
+        callGetNotificationWeekList: callGetNotificationWeekListReducer,
+        callGetNotificationTodayList: callGetNotificationTodayListReducer,
+        callAdminLogin: callAdminLoginReducer,
+        callGetNotificationMessage: callGetNotificationMessageReducer,
+        callGetLeaveLetterList: callGetLeaveLetterListReducer,
+        callGetSchooListDetail: callGetSchooListDetailReducer,
+        callGetHardwareApplication: callGetHardwareApplicationReducer,
+        callGetHardwareApplicationByAppId: callGetHardwareApplicationByAppIdReducer,
+    },
 });
 
 // ? : อธิบาย : store และ configureStore ใน redux toolkit

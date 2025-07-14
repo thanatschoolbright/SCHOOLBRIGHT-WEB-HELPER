@@ -310,6 +310,10 @@ export interface RequestBypassToken extends DefaultRedux<ResponseLeaveLetter> {
     };
 }
 
+export interface RequestApplicationList extends DefaultRedux<ResponseApplicationList> {
+    draftValues: {};
+}
+
 export interface ResponseApplicationList {
     status: string;
     data: {
@@ -318,3 +322,21 @@ export interface ResponseApplicationList {
         app_type: string;
     }[];
 }
+
+export interface RequestApplicationVersionList extends DefaultRedux<ResponseApplicationVersionList> {
+    draftValues: {
+        app_id: string;
+    };
+}
+
+export interface ResponseApplicationVersionList {
+    status: string;
+    data: {
+        version_id: string;
+        version_name: string;
+        url: string;
+        env: string;
+        updated_at: string | null;
+    }[];
+}
+
