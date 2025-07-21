@@ -9,7 +9,9 @@ import { convertToCurl } from "@helpers/api/convert-to-curl";
  */
 export async function POST(request: NextRequest) {
     const apiUrl = API_URL.DEV_HARDWARE_API_URL;
-    let appIdFromForm: string | null = null;
+    const endpoint = `/api/v2/applications/version/update/${(await request.formData()).get("app_id")}`;
+    const fullURL = `${apiUrl}${endpoint}`;
+    const curlCommand = convertToCurl(apiUrl, endpoint);
 
     try {
         const contentType = request.headers.get("content-type") || "";
@@ -18,7 +20,6 @@ export async function POST(request: NextRequest) {
 
         if (contentType.includes("multipart/form-data")) {
             const formData = await request.formData();
-            appIdFromForm = formData.get("version_id")?.toString() || null;
 
             const entries = [...formData.entries()];
             const debugData: Record<string, any> = {};
@@ -46,10 +47,6 @@ export async function POST(request: NextRequest) {
         } else {
             data = request.body;
         }
-
-        const endpoint = `/api/v2/applications/version/update/${appIdFromForm}`;
-        const fullURL = `${apiUrl}${endpoint}`;
-        const curlCommand = convertToCurl(apiUrl, endpoint);
 
         const apiResponse = await callWithLogging(
             {

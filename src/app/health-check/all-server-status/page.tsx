@@ -39,7 +39,7 @@ export default function Page() {
     (state) => state.callGetServerStatus
   );
 
-  const [selectedSchool, setSelectedSchool] = useState<string>("");
+  const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
   // filter by selected school
   const isLoading = [
     SCHOOL_LIST_STATE.loading,

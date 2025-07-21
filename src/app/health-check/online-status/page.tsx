@@ -48,7 +48,7 @@ export default function Page() {
   const CHECK_ONLINE_DEVICE_STATE = useAppSelector(
     (state) => state.callPostOnlineDevice
   );
-  const [selectedSchool, setSelectedSchool] = useState<string>("");
+  const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
   // filter by selected school
   const isLoading = [
     SCHOOL_LIST_STATE.loading,
@@ -96,7 +96,7 @@ export default function Page() {
 
   useEffect(() => {
     const defaultRequest: RequestDeviceDailyStatusTypes = {
-      schoolId: selectedSchool ?? "0",
+      schoolId: selectedSchool as string,
       deviceId: deviceIdSearch,
       limit: rowsPerPage.toString(),
     };

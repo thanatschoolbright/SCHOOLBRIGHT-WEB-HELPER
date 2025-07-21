@@ -58,7 +58,7 @@ export default function Page() {
         (state) => state.callGetNotificationMessage
     );
 
-    const [selectedSchool, setSelectedSchool] = useState<string>("");
+    const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
     // filter by selected school
     const isLoading = [SCHOOL_LIST_STATE.loading, USER_LIST_STATE.loading].some(
         Boolean

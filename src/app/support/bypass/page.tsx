@@ -35,7 +35,7 @@ export default function Page() {
 
     const USER = useAppSelector((state) => state.callAdminLogin);
 
-    const [selectedSchool, setSelectedSchool] = useState<string>("");
+    const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
     const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
     const [url, setUrl] = useState<{
         prodSystemURL: string;

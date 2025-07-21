@@ -50,7 +50,7 @@ export default function Page() {
   const CHECK_ONLINE_DEVICE_STATE = useAppSelector(
     (state) => state.callPostOnlineDevice
   );
-  const [selectedSchool, setSelectedSchool] = useState<string>("");
+  const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
   // filter by selected school
   const isLoading = [
     SCHOOL_LIST_STATE.loading,
