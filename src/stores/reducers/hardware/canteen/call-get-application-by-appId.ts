@@ -1,4 +1,4 @@
-import {createSlice} from "@reduxjs/toolkit";
+import {createSlice , PayloadAction} from "@reduxjs/toolkit";
 import {CallAPI} from "@stores/actions/hardware/canteen/call-get-application-by-appId";
 import {RequestApplicationVersionList} from "@stores/type";
 
@@ -21,7 +21,20 @@ const initialState: RequestApplicationVersionList = {
 const Slice = createSlice({
     name: "CallGetHardwareApplicationByAppIdSlice",
     initialState,
-    reducers: {},
+    reducers: {
+        setDraftValues: (
+            state,
+            action: PayloadAction<RequestApplicationVersionList["draftValues"]>
+          ) => {
+            return {
+              ...state,
+              draftValues: {
+                ...state.draftValues,
+                ...action.payload,
+              },
+            };
+          }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(CallAPI.pending, (state) => {
@@ -39,4 +52,5 @@ const Slice = createSlice({
     },
 });
 
+export const {setDraftValues} = Slice.actions;
 export default Slice.reducer;

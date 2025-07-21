@@ -384,15 +384,15 @@ export default function Page() {
                                                 pointerEvents: dropdownOpen === idx ? "auto" : "none",
                                             }}
                                         >
-                                            <ul className="py-1 text-sm text-gray-700 dark:text-gray-100 dark:text-black">
-                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-blue-100">
+                                            <ul className="py-1 text-sm text-gray-700 dark:text-gray-100">
+                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-blue-100 dark:bg-blue-900/60">
                                                     ✨ System (ระบบหลัก)
                                                     <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                                                         <li
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "system",
                                                                     environment: "production",
                                                                 });
@@ -404,7 +404,7 @@ export default function Page() {
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "system",
                                                                     environment: "staging",
                                                                 });
@@ -416,7 +416,7 @@ export default function Page() {
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "system",
                                                                     environment: "development",
                                                                 });
@@ -426,14 +426,14 @@ export default function Page() {
                                                         </li>
                                                     </ul>
                                                 </li>
-                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-green-100">
+                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-green-100 dark:bg-green-900/60">
                                                     👩🏻‍🏫 Academic (ระบบวิชาการ)
                                                     <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                                                         <li
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "academic",
                                                                     environment: "production",
                                                                 });
@@ -445,7 +445,7 @@ export default function Page() {
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "academic",
                                                                     environment: "development",
                                                                 });
@@ -457,7 +457,7 @@ export default function Page() {
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "academic",
                                                                     environment: "ui",
                                                                 });
@@ -467,14 +467,14 @@ export default function Page() {
                                                         </li>
                                                     </ul>
                                                 </li>
-                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-fuchsia-100">
+                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-fuchsia-100 dark:bg-fuchsia-900/60">
                                                     🧾 Accounting (ระบบบัญชี)
                                                     <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                                                         <li
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "accounting",
                                                                     environment: "production",
                                                                 });
@@ -486,7 +486,7 @@ export default function Page() {
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "academic",
                                                                     environment: "development",
                                                                 });
@@ -496,14 +496,14 @@ export default function Page() {
                                                         </li>
                                                     </ul>
                                                 </li>
-                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-yellow-100">
+                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-yellow-100 dark:bg-yellow-900/60">
                                                     📔 Library (ระบบห้องสมุด)
                                                     <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                                                         <li
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "library",
                                                                     environment: "production",
                                                                 });
@@ -515,7 +515,7 @@ export default function Page() {
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "library",
                                                                     environment: "development",
                                                                 });
@@ -526,14 +526,14 @@ export default function Page() {
                                                     </ul>
                                                 </li>
 
-                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-purple-100">
+                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-purple-100 dark:bg-purple-900/60">
                                                     🥪 Canteen (ระบบเติมเงิน,ถอนเงิน,รายงาน)
                                                     <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                                                         <li
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "canteen",
                                                                     environment: "production",
                                                                 });
@@ -545,7 +545,7 @@ export default function Page() {
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "canteen",
                                                                     environment: "development",
                                                                 });
@@ -555,14 +555,14 @@ export default function Page() {
                                                         </li>
                                                     </ul>
                                                 </li>
-                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-orange-100">
+                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-orange-100 dark:bg-orange-900/60">
                                                     👶🏻 Kindergaeten (ระบบอนุบาล)
                                                     <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                                                         <li
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "kindergarten",
                                                                     environment: "production",
                                                                 });
@@ -574,7 +574,7 @@ export default function Page() {
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "kindergarten",
                                                                     environment: "development",
                                                                 });
@@ -584,14 +584,14 @@ export default function Page() {
                                                         </li>
                                                     </ul>
                                                 </li>
-                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-amber-100">
+                                                <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-amber-100 dark:bg-amber-900/60">
                                                     🎃 Activity (จัดกิจกรรม)
                                                     <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                                                         <li
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "activity",
                                                                     environment: "production",
                                                                 });
@@ -603,7 +603,7 @@ export default function Page() {
                                                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                                                             onClick={() => {
                                                                 setMode({
-                                                                    school_id: row?.school_id ?? "", // เผื่อ row ไม่มีค่า
+                                                                    school_id: row?.school_id ?? "",
                                                                     name: "activity",
                                                                     environment: "development",
                                                                 });

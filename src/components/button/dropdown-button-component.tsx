@@ -1,14 +1,16 @@
 type DropdownItem = {
     label: string;
     onClick: () => void;
+    textColor?: string;
 };
 
 interface DropdownButtonComponentProps {
     id: string;
     items: DropdownItem[];
+    textColor?: string;
 }
 
-export default function DropdownButtonComponent({id, items}: DropdownButtonComponentProps) {
+export default function DropdownButtonComponent({id, items, textColor}: DropdownButtonComponentProps) {
     const toggleDropdown = () => {
         const el = document.getElementById(`dropdown-${id}`);
         if (el) {
@@ -25,7 +27,6 @@ export default function DropdownButtonComponent({id, items}: DropdownButtonCompo
         "group relative block px-4 py-2 text-sm text-left w-full text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 overflow-hidden";
 
     return (
-        <td className="p-4 text-sm text-gray-900 dark:text-gray-200">
             <div className="relative inline-block text-left">
                 <button
                     onClick={toggleDropdown}
@@ -41,15 +42,14 @@ export default function DropdownButtonComponent({id, items}: DropdownButtonCompo
                         <button
                             key={index}
                             onClick={item.onClick}
-                            className={buttonClasses}
+                            className={`${buttonClasses} ${item.textColor}`}
                         >
-                            <span className="relative z-10">{item.label}</span>
+                            <span className="relative z-10 ">{item.label}</span>
                             <span
                                 className="absolute left-0 bottom-0 w-0 h-0.5 bg-purple-500 transition-all duration-300 group-hover:w-full"></span>
                         </button>
                     ))}
                 </div>
             </div>
-        </td>
     );
 }

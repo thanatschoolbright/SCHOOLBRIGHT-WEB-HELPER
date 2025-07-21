@@ -9,11 +9,16 @@ interface Option {
 
 interface SearchableSelectProps {
   options: Option[];
-  value: string;
-  onChange: (value: string) => void;
+  value: string | string[];
+  onChange: (value: string | string[]) => void;
   placeholder?: string;
   label?: string;
   hidden?: boolean;
+  id?: string;
+  name?: string;
+  multiselect?: boolean; // <-- add this prop
+  required?: boolean;
+  error?: string;
 }
 
 export function SearchableSelectComponent({
@@ -23,6 +28,11 @@ export function SearchableSelectComponent({
   placeholder = "Select...",
   label,
   hidden = false,
+  id,
+  name,
+  multiselect = false,
+  required = false,
+  error = "",
 }: Readonly<SearchableSelectProps>) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -55,35 +65,112 @@ export function SearchableSelectComponent({
     } else if (e.key === "Enter") {
       const opt = filtered[highlighted];
       if (opt) {
-        onChange(opt.value);
-        setOpen(false);
-        setSearch("");
+        if (multiselect) {
+          handleMultiSelect(opt.value);
+        } else {
+          onChange(opt.value);
+          setOpen(false);
+          setSearch("");
+        }
       }
     }
   };
 
-  // Display label for current value
+  // For multiselect, value is string[]
+  const isSelected = (val: string) => {
+    if (multiselect) {
+      return Array.isArray(value) && value.includes(val);
+    }
+    return value === val;
+  };
+
+  // For multiselect, display selected labels as chips
+  const selectedLabels = multiselect
+    ? options.filter((opt) => Array.isArray(value) && value.includes(opt.value))
+    : [];
+
+  // Handle select/deselect for multiselect
+  const handleMultiSelect = (val: string) => {
+    if (!Array.isArray(value)) {
+      onChange([val]);
+      setSearch("");
+      return;
+    }
+    if (value.includes(val)) {
+      // Remove
+      const newVals = value.filter((v) => v !== val);
+      onChange(newVals);
+    } else {
+      // Add
+      const newVals = [...value, val];
+      onChange(newVals);
+    }
+    setSearch("");
+  };
+
+  // Remove chip for multiselect
+  const handleRemoveChip = (val: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (Array.isArray(value)) {
+      onChange(value.filter((v) => v !== val));
+    }
+  };
+
+  // Display label for current value (single select)
   const currentLabel =
-    options.find((opt) => opt.value === value)?.label || placeholder;
+    !multiselect
+      ? options.find((opt) => opt.value === value)?.label || placeholder
+      : selectedLabels.length > 0
+        ? ""
+        : placeholder;
 
   return (
     <div className={`w-full ${hidden ? "hidden" : "bounce-once"}`} ref={ref}>
       {label && (
         <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
+          {required && (
+            <span className="text-red-500 text-xs ml-1" aria-hidden="true">
+              *
+            </span>
+          )}
         </label>
       )}
 
       <div
         className={`relative cursor-pointer`}
         onClick={() => setOpen((o) => !o)}
+        tabIndex={0}
       >
         <div
-          className={`flex items-center justify-between px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg`}
+          className={`flex items-center justify-between px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg min-h-[40px] flex-wrap gap-1`}
         >
-          <span className="text-gray-800 dark:text-gray-200">
-            {currentLabel}
-          </span>
+          {multiselect ? (
+            <div className="flex flex-wrap gap-1 flex-1 min-w-0">
+              {selectedLabels.length > 0 ? (
+                selectedLabels.map((opt) => (
+                  <span
+                    key={opt.value}
+                    className="flex items-center bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full px-2 py-0.5 text-xs font-medium mr-1"
+                  >
+                    {opt.label}
+                    <button
+                      type="button"
+                      className="ml-1 text-purple-500 hover:text-purple-800 dark:hover:text-purple-200 focus:outline-none"
+                      onClick={(e) => handleRemoveChip(opt.value, e)}
+                      tabIndex={-1}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-400 dark:text-gray-500">{placeholder}</span>
+              )}
+            </div>
+          ) : (
+            <span className="text-gray-800 dark:text-gray-200 truncate">{currentLabel}</span>
+          )}
           <svg
             className={`w-4 h-4 text-gray-500 transform transition-transform ${
               open ? "rotate-180" : ""
@@ -102,6 +189,8 @@ export function SearchableSelectComponent({
         {open && (
           <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
             <input
+              id={id}
+              name={name}
               type="text"
               className="w-full px-3 py-2 border-b border-gray-200 dark:border-gray-700 outline-none bg-transparent text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
               placeholder="Search..."
@@ -122,22 +211,35 @@ export function SearchableSelectComponent({
                 filtered.map((opt, idx) => (
                   <li
                     key={opt.value}
-                    className={`px-4 py-2 cursor-pointer truncate ${
+                    className={`px-4 py-2 cursor-pointer truncate flex items-center ${
                       idx === highlighted
                         ? "bg-purple-100 dark:bg-purple-900"
                         : "hover:bg-gray-100 dark:hover:bg-gray-700"
                     } ${
-                      value === opt.value
+                      isSelected(opt.value)
                         ? "font-semibold text-purple-600 dark:text-purple-400"
                         : "text-gray-800 dark:text-gray-200"
                     }`}
                     onMouseDown={() => {
-                      onChange(opt.value);
-                      setOpen(false);
-                      setSearch("");
+                      if (multiselect) {
+                        handleMultiSelect(opt.value);
+                      } else {
+                        onChange(opt.value);
+                        setOpen(false);
+                        setSearch("");
+                      }
                     }}
                     onMouseEnter={() => setHighlighted(idx)}
                   >
+                    {multiselect && (
+                      <input
+                        type="checkbox"
+                        checked={isSelected(opt.value)}
+                        readOnly
+                        className="mr-2 accent-purple-600"
+                        tabIndex={-1}
+                      />
+                    )}
                     {opt.label}
                   </li>
                 ))
@@ -147,9 +249,27 @@ export function SearchableSelectComponent({
                 </li>
               )}
             </ul>
+            {multiselect && (
+              <div className="flex justify-end p-2 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setOpen(false);
+                    setSearch("");
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
+      {error && (
+        <p className="text-red-500 text-xs mt-1">{error}</p>
+      )}
     </div>
   );
 }

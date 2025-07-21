@@ -335,13 +335,34 @@ export interface ResponseApplicationVersionList {
     data: {
         status: string;
         data: {
+            app_id?: string;
             version_id: string;
             version_name: string;
             url: string;
             env: string;
             updated_at: string | null;
+            note?: string;
         }[];
     }
 
 }
 
+export interface ResponseCreateApplicationVersion {
+    data: {
+        status: string;
+        message: string;
+        version_id: string;
+    }
+}
+
+export interface RequestCreateApplicationVersion extends DefaultRedux<ResponseCreateApplicationVersion> {
+    draftValues: {
+        versionID?: string | null;
+        schoolID: string | string[];
+        appID: string;
+        versionName: string;
+        env: string;
+        note: string;
+        file: File | null;
+    };
+}

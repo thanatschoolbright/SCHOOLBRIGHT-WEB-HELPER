@@ -8,6 +8,7 @@ interface ModalComponentProps {
     onClose: () => void;
     title?: string;
     children: ReactNode;
+    size?: "sm" | "md" | "lg";
 }
 
 export default function ModalComponent({
@@ -15,6 +16,7 @@ export default function ModalComponent({
                                            onClose,
                                            title,
                                            children,
+                                           size = "md",
                                        }: ModalComponentProps) {
     return (
         <AnimatePresence>
