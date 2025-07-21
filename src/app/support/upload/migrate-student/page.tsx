@@ -17,7 +17,7 @@ export default function Page() {
   const dispatch = useDispatch<AppDispatch>();
   const NFCstate = useAppSelector((state) => state.formCardNfc);
   const SCHOOLstate = useAppSelector((state) => state.callSchoolList);
-  const [show, setShow] = useState("");
+  const [show, setShow] = useState<string | string[]>("");
   const [formState, setFormState] = useState<any>({
     nfc_card: NFCstate.draftValues.nfc_card,
     school_id: NFCstate.draftValues.school_id,

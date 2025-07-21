@@ -433,9 +433,9 @@ export default function Page() {
     {}
   );
   const [showMetrics, setShowMetrics] = useState(false);
-  const [selectedScript, setSelectedScript] = useState("authentication");
+  const [selectedScript, setSelectedScript] = useState<any>("authentication");
   const [parsedStats, setParsedStats] = useState<Record<string, any>>({});
-  const [selectedEnv, setSelectedEnv] = useState(
+  const [selectedEnv, setSelectedEnv] = useState<any>(
     "https://apimobile-dev.schoolbright.co"
   );
   const [isLoading, setIsLoading] = useState(false);
@@ -565,7 +565,7 @@ export default function Page() {
             <SummaryChart stats={parsedStats} isLoading={isLoading} />
           </ContentCard>
           <ContentCard
-            title={`🧪 สรุปผลของการทดสอบที่ ${selectedEnv.replace(
+            title={`🧪 สรุปผลของการทดสอบที่ ${selectedEnv?.replace(
               "https://",
               ""
             )}/api/${selectedScript}`}
