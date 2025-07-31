@@ -364,5 +364,6 @@ export interface RequestCreateApplicationVersion extends DefaultRedux<ResponseCr
         env: string;
         note: string;
         file: File | null;
+        isLatestVersion: string | number;
     };
 }

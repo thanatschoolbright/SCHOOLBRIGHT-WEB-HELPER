@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { API_URL } from "@/services/api-url";
-import { callWithLogging } from "@helpers/call-with-logging";
-import { convertToCurl } from "@helpers/api/convert-to-curl";
+import {NextRequest, NextResponse} from "next/server";
+import {API_URL} from "@/services/api-url";
+import {callWithLogging} from "@helpers/call-with-logging";
+import {convertToCurl} from "@helpers/api/convert-to-curl";
 
 /**
  * Proxy endpoint for creating application version (canteen hardware).
@@ -9,42 +9,35 @@ import { convertToCurl } from "@helpers/api/convert-to-curl";
  */
 export async function POST(request: NextRequest) {
     const apiUrl = API_URL.DEV_HARDWARE_API_URL;
-    const endpoint = `/api/v2/applications/version/update/${(await request.formData()).get("app_id")}`;
-    const fullURL = `${apiUrl}${endpoint}`;
+    const formData = await request.formData();
+    const versionId = formData.get("version_id");
+    const endpoint = "/api/v2/applications/version/update/";
+    const fullURL = `${apiUrl}${endpoint}${versionId}`;
     const curlCommand = convertToCurl(apiUrl, endpoint);
 
     try {
+        // Read the incoming request as a FormData (multipart/form-data)
         const contentType = request.headers.get("content-type") || "";
         let data: any;
         let headers: Record<string, string> = {};
 
         if (contentType.includes("multipart/form-data")) {
-            const formData = await request.formData();
+            // Use the experimental formData() API from Next.js
+            // https://nextjs.org/docs/app/building-your-application/routing/route-handlers#parsing-form-data
 
-            const entries = [...formData.entries()];
-            const debugData: Record<string, any> = {};
-            entries.forEach(([key, value]) => {
-                debugData[key] =
-                    typeof value === "object" &&
-                    value !== null &&
-                    "name" in value &&
-                    "size" in value &&
-                    "type" in value
-                        ? {
-                              name: (value as any).name,
-                              size: (value as any).size,
-                              type: (value as any).type,
-                          }
-                        : value;
-            });
-            console.log("📥 [DEBUG] Parsed FormData Entries:", debugData);
+            // Convert FormData to a format suitable for axios/fetch
+            // We'll use node-fetch's FormData if available, otherwise fallback to undici's
+            // But for callWithLogging, we assume it can handle FormData directly
 
             data = formData;
-            headers = {}; // Let fetch/axios handle Content-Type + boundary
+            console.log("📥 [DEBUG] Parsed FormData Entries:", data);
+            // Remove content-type so fetch/axios can set the correct boundary
+            headers = {};
         } else if (contentType.includes("application/json")) {
             data = await request.json();
-            headers = { "Content-Type": "application/json" };
+            headers = {"Content-Type": "application/json"};
         } else {
+            // Fallback: just pass the raw body
             data = request.body;
         }
 
@@ -62,24 +55,21 @@ export async function POST(request: NextRequest) {
             }
         );
 
-        console.log("📦 [DEBUG] API Response:", apiResponse.data);
-
         return NextResponse.json(
             {
                 data: apiResponse.data,
                 curl: curlCommand,
             },
-            { status: apiResponse.status }
+            {status: apiResponse.status}
         );
     } catch (error: any) {
         const statusCode = error?.response?.status || 500;
-        console.error("❌ [ERROR] API Proxy Error:", error?.message);
         return NextResponse.json(
             {
                 message: error?.message || "Internal Server Error",
                 raw: error?.response?.data || null,
             },
-            { status: statusCode }
+            {status: statusCode}
         );
     }
 }

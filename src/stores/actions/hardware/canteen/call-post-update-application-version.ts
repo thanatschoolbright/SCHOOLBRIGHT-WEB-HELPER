@@ -14,9 +14,10 @@ type CreateApplicationVersionRequest = {
 
 const API_ENDPOINT = `/api/v1/hardware/canteen/update`;
 export const CallAPI = createAsyncThunk(
-  API_METHOD.POST + API_ENDPOINT,
-  async (formData: FormData) => {
-    const response = await axios.post(API_ENDPOINT, formData); // <-- ไม่มี headers
-    return response.data;
-  }
+    API_METHOD.POST + API_ENDPOINT,
+    async (formData: FormData) => {
+        const response = await axios.post(API_ENDPOINT, formData); // <-- ไม่มี headers
+        console.log("response", response);
+        return response.data;
+    }
 );
