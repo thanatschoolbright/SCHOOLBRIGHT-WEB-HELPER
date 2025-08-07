@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
+import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
 
-const convertToThaiDate = (date: string) => {
-  const thaiDate = new Date(date);
-  return thaiDate.toLocaleDateString("th-TH", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-};
+
 
 export async function GET() {
   try {
@@ -20,7 +11,7 @@ export async function GET() {
       "Content-Type": "application/json",
     };
 
-    const timestamp = convertToThaiDate(new Date().toISOString());
+    const timestamp = convertToThaiDateDDMMYYY(new Date().toISOString());
 
     const SERVER_PROD_SBAPI = `${API_URL.PROD_SB_API_URL}/api/SeverStatus`;
     const SERVER_DEV_SBAPI = `${API_URL.DEV_SB_API_URL}/api/SeverStatus`;
