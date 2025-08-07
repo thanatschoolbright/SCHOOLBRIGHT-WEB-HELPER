@@ -92,11 +92,30 @@ export async function GET() {
       }
     });
 
-    return NextResponse.json({ data });
-  } catch (err: any) {
-    return NextResponse.json({
-      message: err.message || "Internal Server Error",
-      status: err.response?.status || 500,
+    return new NextResponse(JSON.stringify({ data }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
     });
+  } catch (err: any) {
+    return new NextResponse(
+      JSON.stringify({
+        message: err.message || "Internal Server Error",
+        status: err.response?.status || 500,
+      }),
+      {
+        status: err.response?.status || 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      }
+    );
   }
 }
