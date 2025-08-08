@@ -22,9 +22,7 @@ export async function GET() {
     // perform both requests and handle failures individually
     const results = await Promise.allSettled([
       axios.get(SERVER_PROD_SBAPI, { headers }),
-      axios.get(SERVER_DEV_SBAPI, { headers }),
       axios.post(SERVER_PROD_PAYSB, { headers }),
-      axios.get(SERVER_DEV_HARDWARE, { headers }),
       axios.get(SERVER_PROD_HARDWARE, { headers }),
     ]);
 
