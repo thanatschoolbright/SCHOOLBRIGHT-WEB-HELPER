@@ -18,76 +18,8 @@ jobs:
     steps:
       - name: 🧪 Test SSH Connection
         run: |
+          echo "👉 Testing SSH connection to production server..."
           sshpass -p "${{ secrets.HUAWEI_CLOUD_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HUAWEI_CLOUD_USERNAME }}@${{ secrets.HUAWEI_CLOUD_HOST }} "echo '✅ SSH Success'" || echo "❌ SSH Failed"
-
-      # - name: 🗑️ Delete Old Artifacts
-      #   uses: actions/github-script@v6
-      #   with:
-      #     script: |
-      #       const perPage = 100;
-      #       let page = 1;
-      #       let artifacts = [];
-
-      #       while (true) {
-      #         const res = await github.rest.actions.listArtifactsForRepo({
-      #           owner: context.repo.owner,
-      #           repo: context.repo.repo,
-      #           per_page: perPage,
-      #           page: page
-      #         });
-
-      #         artifacts = res.data.artifacts;
-      #         if (artifacts.length === 0) break;
-
-      #         for (const artifact of artifacts) {
-      #           const createdAt = new Date(artifact.created_at);
-      #           const ageInDays = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
-
-      #           if (ageInDays > 1) {
-      #             console.log(`Deleting artifact ${artifact.name} (ID: ${artifact.id})`);
-      #             await github.rest.actions.deleteArtifact({
-      #               owner: context.repo.owner,
-      #               repo: context.repo.repo,
-      #               artifact_id: artifact.id,
-      #             });
-      #           }
-      #         }
-
-      #         page++;
-      #       }
-
-  # sonarqube-scan:
-  #   name: "🧪 SonarQube Scan"
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: "📥 Checkout Code"
-  #       uses: actions/checkout@v3
-
-  #     - name: "☕ Setup Java"
-  #       uses: actions/setup-java@v3
-  #       with:
-  #         java-version: "17"
-  #         distribution: "temurin"
-
-  #     - name: "⚙️ Setup Node.js"
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: "20"
-
-  #     - name: "📦 Install Dependencies"
-  #       run: npm ci
-
-  #     - name: "🔍 Run SonarQube Scan"
-  #       env:
-  #         SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-  #       run: |
-  #         npm install -g sonarqube-scanner
-  #         sonar-scanner \
-  #           -Dsonar.projectKey=sb-web-helper \
-  #           -Dsonar.sources=. \
-  #           -Dsonar.host.url=${{ secrets.SONARQUBE_HOST_URL }} \
-  #           -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
 
   build:
     name: "🔨 Build on Runner"
@@ -99,27 +31,34 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # If manually triggered and a tag is provided, checkout that tag.
-          # Otherwise use the ref that triggered the workflow (branch/tag chosen in the UI or push ref).
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag != '' && format('refs/tags/{0}', inputs.tag) || github.ref }}
+      - run: echo "👉 Picked ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag != '' && format('refs/tags/{0}', inputs.tag) || github.ref }}"
 
       - name: "⚙️ Setup Node.js"
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
+      - run: echo "👉 Node.js 20 is ready with npm cache enabled"
 
       - name: "📦 Install Dependencies"
-        run: npm ci
+        run: |
+          echo "👉 Installing dependencies..."
+          npm ci
 
       - name: "⚙️ Prisma Generate"
-        run: npx prisma generate --schema=prisma/schema.prisma
+        run: |
+          echo "👉 Generating Prisma client..."
+          npx prisma generate --schema=prisma/schema.prisma
 
       - name: "🏗️ Build Project"
-        run: npm run build
+        run: |
+          echo "👉 Building project..."
+          npm run build
 
       - name: "📤 Archive Build Artifacts"
         run: |
+          echo "👉 Archiving build artifacts..."
           zip -r build.zip \
             .next \
             public \
@@ -133,6 +72,9 @@ jobs:
         with:
           name: build-output
           path: build.zip
+
+      - name: "✅ Confirm Upload"
+        run: echo "✅ Build artifacts uploaded"
 
   deploy:
     name: "🚚 Deploy to Server"
@@ -149,12 +91,16 @@ jobs:
           password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
           port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
           script: |
+            echo "👉 Removing old deployment files..."
             rm -rf /var/www/sb-web-helper/*
 
       - name: "📥 Download Artifacts"
         uses: actions/download-artifact@v4
         with:
           name: build-output
+
+      - name: "✅ Confirm Download"
+        run: echo "✅ Build artifacts downloaded"
 
       - name: "🔐 Copy to Server via SCP"
         uses: appleboy/scp-action@v0.1.5
@@ -166,6 +112,9 @@ jobs:
           source: "build.zip"
           target: "/var/www/sb-web-helper"
 
+      - name: "✅ Confirm Upload"
+        run: echo "✅ Build.zip uploaded to server"
+
       - name: "🗜️ Unzip & Install on Server"
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -174,9 +123,10 @@ jobs:
           password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
           port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
           script: |
+            echo "👉 Extracting build.zip and installing production dependencies..."
             cd /var/www/sb-web-helper
             unzip -o build.zip
-            # ติดตั้งเฉพาะ production dependencies
             npm install
-            # รีสตาร์ท service
+            echo "👉 Restarting service..."
             sudo systemctl restart sb-web-helper.service
+            echo "✅ Deployment completed!"
