@@ -1,4 +1,4 @@
-name: 🚀 Release Production
+name: 🚀 Release Tag Version
 
 on:
   push:
