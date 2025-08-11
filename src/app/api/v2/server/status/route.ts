@@ -231,7 +231,10 @@ export async function GET() {
         });
 
         return NextResponse.json(
-            {data},
+            {
+                timestamp,
+                data,
+            },
             {
                 status: 200,
                 headers: {
