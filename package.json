@@ -1,6 +1,6 @@
 {
   "name": "personal-webapp-project",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "node_version": "22.9.0",
   "private": true,
   "type": "module",
