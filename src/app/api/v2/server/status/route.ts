@@ -42,6 +42,21 @@ function returnStatus(httpCode: number) {
     return "Offline";
 }
 
+function returnSeverityLevel(ok: boolean, responseTime: number) {
+    if (!ok) {
+        return "error";
+    }
+
+    if (responseTime < 1) {
+        return "low";
+    } else if (responseTime < 3) {
+        return "medium";
+    } else {
+        return "high";
+    }
+}
+
+
 export async function GET() {
     try {
         const timestamp = convertToThaiDateDDMMYYY(new Date().toISOString());
@@ -51,7 +66,7 @@ export async function GET() {
                 info: {
                     server: "SERVER_PROD_SBAPI",
                     server_name: "SCHOOL BRIGHT MOBILE APPLICATION API",
-                    server_name_th: "ระบบหลังบ้าน APP SB",
+                    server_name_th: "1.ระบบหลังบ้าน SB App",
                     server_name_en: "Backend Service for School Bright App",
                     environment: "Production",
                     url: API_URL.PROD_SB_API_URL,
@@ -64,9 +79,24 @@ export async function GET() {
             },
             {
                 info: {
+                    server: "SERVER_PROD_HARDWARE",
+                    server_name: "SCHOOL BRIGHT HARDWARE API",
+                    server_name_th: "2.ระบบแสกนหน้า/ตอกบัตร",
+                    server_name_en: "Backend Service for Online Scan System",
+                    environment: "Production",
+                    url: API_URL.PROD_HARDWARE_API_URL,
+                    endpoint: "/api/application",
+                    description:
+                        "เซิฟเวอร์ Production ระบบหลังบ้าน SB HARDWARE API ที่พี่โจ้ เป็นคนทำ เช่น ระบบแสกนหน้าออนไลน์ , ออฟไลน์ เป็นต้น",
+                    timestamp,
+                },
+                fn: () => axios.get(`${API_URL.PROD_HARDWARE_API_URL}/api/application`, {headers: HEADERS}),
+            },
+            {
+                info: {
                     server: "SERVER_PROD_PAYSB",
                     server_name: "SCHOOL BRIGHT PAYMENT API",
-                    server_name_th: "ระบบจ่ายเงินโรงอาหาร",
+                    server_name_th: "3.ระบบจ่ายเงินโรงอาหาร",
                     server_name_en: "Backend Service for Canteen Payment System",
                     environment: "Production",
                     url: API_URL.PROD_PAYMENT_API_URL,
@@ -85,24 +115,39 @@ export async function GET() {
             },
             {
                 info: {
-                    server: "SERVER_PROD_HARDWARE",
-                    server_name: "SCHOOL BRIGHT HARDWARE API",
-                    server_name_th: "ระบบแสกนหน้า/ตอกบัตร",
-                    server_name_en: "Backend Service for Online Scan System",
+                    server: "SERVER_PROD_CANTEEN_WEB",
+                    server_name: "SCHOOL BRIGHT CANTEEN WEB",
+                    server_name_th: "4.ระบบเว็บเติมเงิน",
+                    server_name_en: "Canteen Web System",
                     environment: "Production",
-                    url: API_URL.PROD_HARDWARE_API_URL,
-                    endpoint: "/api/application",
+                    url: API_URL.PROD_CANTEEN_WEB_URL,
+                    endpoint: "/",
                     description:
-                        "เซิฟเวอร์ Production ระบบหลังบ้าน SB HARDWARE API ที่พี่โจ้ เป็นคนทำ เช่น ระบบแสกนหน้าออนไลน์ , ออฟไลน์ เป็นต้น",
+                        "เซิฟเวอร์ Production ระบบเว็บโรงอาหาร ที่พี่ยู เป็นคนทำ เช่น  ระบบเว็บโรงอาหาร เป็นต้น",
                     timestamp,
                 },
-                fn: () => axios.get(`${API_URL.PROD_HARDWARE_API_URL}/api/application`, {headers: HEADERS}),
+                fn: () => axios.get(`${API_URL.PROD_CANTEEN_WEB_URL}`, {headers: HEADERS}),
+            },
+            {
+                info: {
+                    server: "SERVER_PROD_PAYMENT_GATEWAY_API",
+                    server_name: "SCHOOL BRIGHT PAYMENT GATEWAY API",
+                    server_name_th: "5.ระบบเชื่อมต่อธนาคาร",
+                    server_name_en: "Payment Gateway API",
+                    environment: "Production",
+                    url: API_URL.PROD_PAYMENT_GATEWAY_API_URL,
+                    endpoint: "/",
+                    description:
+                        "เซิฟเวอร์ Production ระบบจ่ายเงินผ่านช่องทางธนาคาร ที่พี่ดีน เป็นคนทำ",
+                    timestamp,
+                },
+                fn: () => axios.get(`${API_URL.PROD_PAYMENT_GATEWAY_API_URL}`, {headers: HEADERS}),
             },
             {
                 info: {
                     server: "SERVER_PROD_ACCOUNTING_WEB",
                     server_name: "SCHOOL BRIGHT ACCOUNTING WEB",
-                    server_name_th: "ระบบบัญชีโรงเรียน",
+                    server_name_th: "6.ระบบบัญชีโรงเรียน",
                     server_name_en: "School Accounting System",
                     environment: "Production",
                     url: API_URL.PROD_ACCOUNTING_WEB_URL,
@@ -117,7 +162,7 @@ export async function GET() {
                 info: {
                     server: "SERVER_PROD_ACADEMIC_WEB",
                     server_name: "SCHOOL BRIGHT ACADEMIC WEB",
-                    server_name_th: "ระบบวิชาการ",
+                    server_name_th: "7.ระบบวิชาการ",
                     server_name_en: "Backend Service for Academic System",
                     environment: "Production",
                     url: API_URL.PROD_ACADEMIC_WEB_URL,
@@ -128,26 +173,12 @@ export async function GET() {
                 },
                 fn: () => axios.get(`${API_URL.PROD_ACADEMIC_WEB_URL}`, {headers: HEADERS}),
             },
-            {
-                info: {
-                    server: "SERVER_PROD_CANTEEN_WEB",
-                    server_name: "SCHOOL BRIGHT CANTEEN WEB",
-                    server_name_th: "ระบบเว็บเติมเงิน",
-                    server_name_en: "Canteen Web System",
-                    environment: "Production",
-                    url: API_URL.PROD_CANTEEN_WEB_URL,
-                    endpoint: "/",
-                    description:
-                        "เซิฟเวอร์ Production ระบบเว็บโรงอาหาร ที่พี่ยู เป็นคนทำ เช่น  ระบบเว็บโรงอาหาร เป็นต้น",
-                    timestamp,
-                },
-                fn: () => axios.get(`${API_URL.PROD_CANTEEN_WEB_URL}`, {headers: HEADERS}),
-            },
+
             {
                 info: {
                     server: "SERVER_PROD_SCHOOLBUS_WEB",
                     server_name: "SCHOOL BRIGHT SCHOOLBUS WEB",
-                    server_name_th: "ระบบรถบัสโรงเรียน",
+                    server_name_th: "8.ระบบรถบัสโรงเรียน",
                     server_name_en: "Schoolbus Web System",
                     environment: "Production",
                     url: API_URL.PROD_SCHOOLBUS_WEB_URL,
@@ -162,7 +193,7 @@ export async function GET() {
                 info: {
                     server: "SERVER_PROD_LIBRARY_WEB",
                     server_name: "SCHOOL BRIGHT LIBRARY WEB",
-                    server_name_th: "ระบบห้องสมุด",
+                    server_name_th: "9.ระบบห้องสมุด",
                     server_name_en: "Library Web System",
                     environment: "Production",
                     url: API_URL.PROD_LIBRARY_WEB_URL,
@@ -177,31 +208,16 @@ export async function GET() {
                 info: {
                     server: "SERVER_PROD_MARK_ACTIVITY_WEB",
                     server_name: "SCHOOL BRIGHT MARK ACTIVITY WEB",
-                    server_name_th: "ระบบเช็คชื่อกิจกรรม",
+                    server_name_th: "10.ระบบเช็คชื่อกิจกรรม",
                     server_name_en: "Mark Activity Web System",
                     environment: "Production",
                     url: API_URL.PROD_MARK_ACTIVITY_WEB_URL,
-                    endpoint: "/",
+                    endpoint: "/ActivityManagement",
                     description:
                         "เซิฟเวอร์ Production ระบบเช็คชื่อกิจกรรม ที่คนจีน (Needman) เป็นคนทำ",
                     timestamp,
                 },
-                fn: () => axios.get(`${API_URL.PROD_MARK_ACTIVITY_WEB_URL}`, {headers: HEADERS}),
-            },
-            {
-                info: {
-                    server: "SERVER_PROD_PAYMENT_GATEWAY_API",
-                    server_name: "SCHOOL BRIGHT PAYMENT GATEWAY API",
-                    server_name_th: "ระบบเชื่อมต่อธนาคาร",
-                    server_name_en: "Payment Gateway API",
-                    environment: "Production",
-                    url: API_URL.PROD_PAYMENT_GATEWAY_API_URL,
-                    endpoint: "/",
-                    description:
-                        "เซิฟเวอร์ Production ระบบจ่ายเงินผ่านช่องทางธนาคาร ที่พี่ดีน เป็นคนทำ",
-                    timestamp,
-                },
-                fn: () => axios.get(`${API_URL.PROD_PAYMENT_GATEWAY_API_URL}`, {headers: HEADERS}),
+                fn: () => axios.get(`${API_URL.PROD_MARK_ACTIVITY_WEB_URL}/ActivityManagement`, {headers: HEADERS}),
             },
 
 
@@ -218,6 +234,7 @@ export async function GET() {
                     status_code: httpCode,
                     status: returnStatus(httpCode),
                     response_time: r.response_time,
+                    response_time_severity_level: returnSeverityLevel(true, r.response_time),
                 };
             }
             const err = r.error;
@@ -227,6 +244,7 @@ export async function GET() {
                 status_code: err?.response?.status || 500,
                 message: err?.message || "",
                 response_time: r.response_time,
+                response_time_severity_level: returnSeverityLevel(true, r.response_time),
             };
         });
 
