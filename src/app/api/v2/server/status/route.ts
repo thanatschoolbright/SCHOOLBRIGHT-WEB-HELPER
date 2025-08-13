@@ -81,7 +81,7 @@ export async function GET() {
                 info: {
                     server: "SERVER_PROD_HARDWARE",
                     server_name: "SCHOOL BRIGHT HARDWARE API",
-                    server_name_th: "2.ระบบแสกนหน้า/ตอกบัตร",
+                    server_name_th: "2.ระบบสแกนหน้า/แสกนบัตร",
                     server_name_en: "Backend Service for Online Scan System",
                     environment: "Production",
                     url: API_URL.PROD_HARDWARE_API_URL,
