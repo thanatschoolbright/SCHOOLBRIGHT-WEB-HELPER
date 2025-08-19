@@ -15,5 +15,6 @@
   "app_notification": "App Notification",
   "leave_letter": "Leave Letter",
   "app_hardware": "Hardware App",
-  "app_canteen" : "Canteen App"
+  "app_canteen" : "Canteen App",
+  "statistics": "Attendance Statistics"
 }

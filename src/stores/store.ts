@@ -20,8 +20,11 @@ import callGetLeaveLetterListReducer from "@stores/reducers/mobile/call-get-leav
 import callGetSchooListDetailReducer from "@stores/reducers/support/call-get-school-list-detail";
 import callGetHardwareApplicationReducer from "@stores/reducers/hardware/canteen/call-get-application";
 import callGetHardwareApplicationByAppIdReducer from "@stores/reducers/hardware/canteen/call-get-application-by-appId";
-import callPostCreateApplicationVersionReducer from "@stores/reducers/hardware/canteen/call-post-create-application-version";
-import callPostUpdateApplicationVersionReducer from "@stores/reducers/hardware/canteen/call-post-update-application-version";
+import callPostCreateApplicationVersionReducer
+    from "@stores/reducers/hardware/canteen/call-post-create-application-version";
+import callPostUpdateApplicationVersionReducer
+    from "@stores/reducers/hardware/canteen/call-post-update-application-version";
+import callPostStatisticReducer from "@stores/reducers/mobile/call-post-statistic";
 // #endregion
 
 export const store = configureStore({
@@ -47,6 +50,7 @@ export const store = configureStore({
         callGetHardwareApplicationByAppId: callGetHardwareApplicationByAppIdReducer,
         callPostCreateApplicationVersion: callPostCreateApplicationVersionReducer,
         callPostUpdateApplicationVersion: callPostUpdateApplicationVersionReducer,
+        callPostStatistic: callPostStatisticReducer,
     },
 });
 

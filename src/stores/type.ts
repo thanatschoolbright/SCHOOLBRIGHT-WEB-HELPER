@@ -246,6 +246,15 @@ export interface RequestLeaveLetter extends DefaultRedux<ResponseLeaveLetter> {
     };
 }
 
+export interface RequestStatistic extends DefaultRedux<ResponseLeaveLetter> {
+    draftValues: {
+        user_id: string;
+        school_id: string;
+        start_date: string; // รูปแบบ: "DD/MM/YYYY"
+        end_date: string; // รูปแบบ: "DD/MM/YYYY"
+    };
+}
+
 export interface RequestFixStatusLeaveLetter
     extends DefaultRedux<ResponseLeaveLetter> {
     draftValues: {

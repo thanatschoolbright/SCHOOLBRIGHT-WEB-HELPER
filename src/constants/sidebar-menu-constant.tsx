@@ -1,8 +1,7 @@
 import {useTranslation} from "react-i18next";
 import {useMemo} from "react";
-import {FiGrid} from "react-icons/fi";
+import {FiActivity, FiGrid} from "react-icons/fi";
 import {FaRegLightbulb} from "react-icons/fa";
-import {FiActivity} from "react-icons/fi";
 import {AiFillMobile} from "react-icons/ai";
 
 export const useSidebarMenu = () => {
@@ -61,6 +60,11 @@ export const useSidebarMenu = () => {
                         label: t("mobile_leave_letter"),
                         href: "/mobile/leave-letter",
                     },
+                    {
+                        label: t("statistics"),
+                        href: "/mobile/statistic",
+                    },
+
                 ],
             },
             {
