@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
         const discordPayload: any = {
             content: `${mentionUser} มีรายงานการทดสอบอัตโนมัติพร้อมให้ตรวจสอบแล้ว 📣`,
-            embeds: [จด
+            embeds: [
                 {
                     title: "✅ Automated Test Report is ready",
                     description: `URL : ${automateUrl}`,
