@@ -51,6 +51,8 @@ export default function Page() {
         devKindergartenURL: string;
         prodActivityURL: string;
         devActivityURL: string;
+        devAccountingURL: string;
+        prodAccountingURL: string;
     }>({
         prodSystemURL: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
         betaSystemURL: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
@@ -73,6 +75,8 @@ export default function Page() {
         devActivityURL:
             "https://dev-markactivity.schoolbright.co/Home/ByPass?token=",
         prodActivityURL: "https://markactivity.schoolbright.co/Home/ByPass?token=",
+        devAccountingURL: "https://dev-accounting.schoolbright.co/Home/ByPass?token=",
+        prodAccountingURL: "https://accounting.schoolbright.co/Home/ByPass?token=",
 
     });
     const [bypass, setBypass] = useState<string>("");
@@ -154,6 +158,17 @@ export default function Page() {
 
                         case "development":
                             handleOpenByPassLink(url.devLibraryURL, mode.school_id);
+                            break;
+                    }
+                    break;
+                case "accounting":
+                    switch (mode.environment) {
+                        case "production":
+                            handleOpenByPassLink(url.prodAccountingURL, mode.school_id);
+                            break;
+
+                        case "development":
+                            handleOpenByPassLink(url.devAccountingURL, mode.school_id);
                             break;
                     }
                     break;
