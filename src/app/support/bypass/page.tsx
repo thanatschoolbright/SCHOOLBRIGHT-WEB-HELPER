@@ -1,5 +1,5 @@
 "use client";
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import ContentCard from "@components/layouts/backend/content";
 import {useTranslation} from "react-i18next";
@@ -8,7 +8,6 @@ import {useDispatch} from "react-redux";
 import {AppDispatch, useAppSelector} from "@stores/store";
 import MinimalButton from "@/components/button/minimal-button-component";
 import {SearchableSelectComponent} from "@/components/input-field/searchable-select-component";
-import {MinimalRow} from "@components/table/minimal-row-component";
 import MinimalTable from "@components/table/minimal-table-component";
 import {CallAPI as GET_SCHOOL_LIST_DETAIL} from "@stores/actions/support/call-get-school-list-detail";
 import {CallAPI as GET_BYPASS_TOKEN} from "@stores/actions/support/call-get-bypass-token";
@@ -487,7 +486,7 @@ export default function Page() {
                                                             onClick={() => {
                                                                 setMode({
                                                                     school_id: row?.school_id ?? "",
-                                                                    name: "academic",
+                                                                    name: "accounting",
                                                                     environment: "development",
                                                                 });
                                                             }}
