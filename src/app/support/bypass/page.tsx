@@ -12,6 +12,7 @@ import MinimalTable from "@components/table/minimal-table-component";
 import { CallAPI as GET_SCHOOL_LIST_DETAIL } from "@stores/actions/support/call-get-school-list-detail";
 import { CallAPI as GET_BYPASS_TOKEN } from "@stores/actions/support/call-get-bypass-token";
 import * as type from "@stores/type";
+import { Toaster, toast } from "sonner";
 
 const columns: { key: string; label: string }[] = [
   { key: "school_id", label: "รหัสโรงเรียน" },
@@ -99,10 +100,32 @@ export default function Page() {
   ) => {
     try {
       const isExtendPath = extendPath ? extendPath : "";
-      const url = targetUrl + (await getBypassToken(school_id)) + isExtendPath;
-      console.log("URL \n", url);
+      // เปลี่ยนชื่อแปรท้องถิ่นเป็น finalUrl เพื่อไม่ชน state ชื่อ url
+      const finalUrl =
+        targetUrl + (await getBypassToken(school_id)) + isExtendPath;
 
-      return window.open(url, "_blank");
+      console.log("URL \n", finalUrl);
+
+      // ✅ Toast แจ้งสำเร็จ + ปุ่ม Copy URL + 10 วิ + Bottom Center
+      toast.success("Bypass สำเร็จ", {
+        description: `คุณกำลังเข้าสู่ ${finalUrl}`,
+        duration: 10000,
+        position: "bottom-center",
+        action: {
+          label: "Copy URL",
+          onClick: () => {
+            navigator.clipboard.writeText(finalUrl).then(() => {
+              toast.success("Copied!", {
+                description: "URL copied to clipboard.",
+                duration: 3000,
+                position: "bottom-center",
+              });
+            });
+          },
+        },
+      });
+
+      return window.open(finalUrl, "_blank");
     } catch (error: any) {
       throw new Error(error.message);
     }
@@ -281,6 +304,8 @@ export default function Page() {
 
   return (
     <DashboardLayout>
+      <Toaster richColors position="bottom-center" closeButton />
+
       {isLoading && <BaseLoadingComponent />}
 
       <div className="w-full space-y-4">

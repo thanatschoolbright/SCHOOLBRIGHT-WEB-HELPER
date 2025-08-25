@@ -7,7 +7,7 @@ import BaseLoadingComponent from "@components/loading/loading-component-1";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import MinimalButton from "@/components/button/minimal-button-component";
-import Swal from "sweetalert2";
+import { Toaster, toast } from "sonner";
 import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
 import { MinimalRow } from "@components/table/minimal-row-component";
 import MinimalTable from "@components/table/minimal-table-component";
@@ -161,6 +161,7 @@ export default function Page() {
 
   return (
     <DashboardLayout>
+      <Toaster richColors position="bottom-center" closeButton />
       {isLoading && <BaseLoadingComponent />}
       {modal === "response_open" && renderModal()}
 
@@ -187,6 +188,10 @@ export default function Page() {
                 className="bg-green-500 hover:bg-green-600"
                 onClick={() => {
                   dispatch(GET_SERVER_STATUS());
+                  toast.success("Refresh สำเร็จ", {
+                    duration: 3000,
+                    position: "bottom-center",
+                  });
                 }}
               >
                 รีเฟรช

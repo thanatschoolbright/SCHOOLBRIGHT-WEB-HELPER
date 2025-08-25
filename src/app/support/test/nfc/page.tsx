@@ -10,7 +10,7 @@ import { InputFieldComponent } from "@/components/input-field/input-field-compon
 import MinimalButton from "@/components/button/minimal-button-component";
 import { FiCreditCard } from "react-icons/fi";
 import { CallAPI } from "@/stores/actions/form-card-nfc-action";
-import Swal from "sweetalert2";
+import { Toaster, toast } from "sonner";
 import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
 
 export default function DashboardPage() {
@@ -30,20 +30,18 @@ export default function DashboardPage() {
   useEffect(() => {
     switch (modal) {
       case "error":
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "กรุณากรอกข้อมูลให้ครบถ้วน",
-          confirmButtonText: "OK",
+        toast.error("Error", {
+          description: "กรุณากรอกข้อมูลให้ครบถ้วน",
+          duration: 5000,
+          position: "bottom-center",
         });
         setModal("");
         break;
       case "success":
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "ยิง API สำเร็จ",
-          confirmButtonText: "ยืนยัน",
+        toast.success("Success", {
+          description: "ยิง API สำเร็จ",
+          duration: 4000,
+          position: "bottom-center",
         });
         setModal("");
         break;
@@ -82,11 +80,10 @@ export default function DashboardPage() {
       console.error("API error:", error);
 
       // คุณสามารถแสดง error จาก response จริงได้ เช่น message
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text: error.message || "ไม่สามารถดำเนินการได้",
-        confirmButtonText: "ตกลง",
+      toast.error("เกิดข้อผิดพลาด", {
+        description: error.message || "ไม่สามารถดำเนินการได้",
+        duration: 6000,
+        position: "bottom-center",
       });
     }
   };
@@ -95,6 +92,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
+      <Toaster richColors position="bottom-center" closeButton />
       {isLoading && <BaseLoadingComponent />}
 
       <div className="w-full space-y-4">
@@ -186,11 +184,10 @@ export default function DashboardPage() {
                   navigator.clipboard.writeText(
                     JSON.stringify(NFCstate.response.data?.data, null, 2)
                   );
-                  Swal.fire({
-                    icon: "success",
-                    title: "Copied!",
-                    text: "Response copied to clipboard.",
-                    confirmButtonText: "OK",
+                  toast.success("Copied!", {
+                    description: "Response copied to clipboard.",
+                    duration: 2000,
+                    position: "bottom-center",
                   });
                 }}
               >
@@ -203,11 +200,10 @@ export default function DashboardPage() {
                 onClick={() => {
                   const curlCommand = NFCstate.response.data?.curl;
                   navigator.clipboard.writeText(curlCommand.toString());
-                  Swal.fire({
-                    icon: "success",
-                    title: "Copied!",
-                    text: "Copy CURL to clipboard.",
-                    confirmButtonText: "OK",
+                  toast.success("Copied!", {
+                    description: "Copy CURL to clipboard.",
+                    duration: 2000,
+                    position: "bottom-center",
                   });
                 }}
               >
