@@ -7,7 +7,12 @@ const isProd = process.env.NODE_ENV === "production";
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["userstorage.obs.ap-southeast-2.myhuaweicloud.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "userstorage.obs.ap-southeast-2.myhuaweicloud.com"
+      }
+    ],
   },
 
   // Rewrite API requests to the backend
