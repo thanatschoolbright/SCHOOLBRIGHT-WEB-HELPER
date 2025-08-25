@@ -1,7 +1,7 @@
 // reducers/userReducer.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ResponseGetServerStatus } from "@stores/type";
-import { CallAPI } from "@stores/actions/server/call-get-server-status";
+import { CallAPI } from "@stores/actions/server/call-get-server-status.v2";
 
 const initialState: ResponseGetServerStatus = {
   draftValues: {

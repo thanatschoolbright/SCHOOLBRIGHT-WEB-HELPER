@@ -17,15 +17,20 @@ import { InputFieldComponent } from "@components/input-field/input-field-compone
 import { FiRefreshCw, FiSearch } from "react-icons/fi";
 import { isOnline } from "@helpers/check-online-device-status";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { ResponseGetServerStatus } from "@/stores/type";
+import {
+  ResponseGetServerStatus,
+  ResponseGetServerStatusV2,
+} from "@/stores/type";
 import MinimalModal from "@components/modal/minimal-modal-component";
 import { CallAPI as GET_SERVER_STATUS } from "@/stores/actions/server/call-get-server-status";
+import { CallAPI as GET_SERVER_STATUS_V2 } from "@/stores/actions/server/call-get-server-status.v2";
 
 const columns: { key: string; label: string }[] = [
   { key: "server", label: "เซิฟเวอร์" },
   { key: "description", label: "คำอธิบาย" },
-  { key: "Status", label: "สถานะเซิฟเวอร์" },
+  { key: "status", label: "สถานะเซิฟเวอร์" },
   { key: "timestamp", label: "ตรวจสอบล่าสุดเมื่อ" },
+  { key: "response_time", label: "เวลาตอบสนอง (ms)" },
   { key: "url", label: "URL" },
   { key: "endpoint", label: "ENDPOINT" },
   { key: "response", label: "RESPONSE" },
@@ -38,15 +43,19 @@ export default function Page() {
   const GET_SERVER_STATUS_STATE = useAppSelector(
     (state) => state.callGetServerStatus
   );
+  const GET_SERVER_STATUS_STATE_V2 = useAppSelector(
+    (state) => state.callGetServerStatusV2
+  );
 
   const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
   // filter by selected school
   const isLoading = [
     SCHOOL_LIST_STATE.loading,
     GET_SERVER_STATUS_STATE.loading,
+    GET_SERVER_STATUS_STATE_V2.loading,
   ].some(Boolean);
   const [table, setTable] = useState<
-    ResponseGetServerStatus["draftValues"]["Array"]
+    ResponseGetServerStatusV2["draftValues"]["Array"]
   >([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [schoolList, setSchoolList] = useState<any[]>([]);
@@ -55,7 +64,7 @@ export default function Page() {
   const [deviceIdSearch, setDeviceIdSearch] = useState<string>("");
   const [modal, setModal] = useState<string>("");
   const [selectedRow, setSelectedRow] =
-    useState<ResponseGetServerStatus["draftValues"]["Array"][number]>();
+    useState<ResponseGetServerStatusV2["draftValues"]["Array"][number]>();
 
   const filteredTable = (table ?? []).filter((row) => {
     if (!fromDate && !toDate) return true;
@@ -71,26 +80,17 @@ export default function Page() {
   });
 
   useEffect(() => {
-    setSchoolList(
-      SCHOOL_LIST_STATE?.response?.data?.data?.map((item: any) => ({
-        label: item.SchoolName,
-        value: item.SchoolID,
-      })) || []
-    );
-  }, [SCHOOL_LIST_STATE?.response]);
-
-  useEffect(() => {
-    dispatch(GET_SERVER_STATUS());
+    dispatch(GET_SERVER_STATUS_V2());
   }, []);
 
   useEffect(() => {
-    const response = GET_SERVER_STATUS_STATE?.response?.data?.data;
-    console.log("Res", response);
+    const response = GET_SERVER_STATUS_STATE_V2?.response?.data?.data;
+    console.log("Response : ", JSON.stringify(response, null, 2));
     setTable(response);
-  }, [GET_SERVER_STATUS_STATE]);
+  }, [GET_SERVER_STATUS_STATE_V2]);
 
   const renderTableData = (
-    data: ResponseGetServerStatus["draftValues"]["Array"]
+    data: ResponseGetServerStatusV2["draftValues"]["Array"]
   ) =>
     data.map((row, idx) => (
       <MinimalRow key={idx}>
@@ -99,20 +99,20 @@ export default function Page() {
           row,
         }: {
           index: number;
-          row: ResponseGetServerStatus["draftValues"]["Array"][number];
+          row: ResponseGetServerStatusV2["draftValues"]["Array"][number];
         }) => (
           <>
             <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {index}
             </td>
             <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              {row.server}
+              {row.server_name_th}
             </td>
             <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
               {row.description}
             </td>
             <td className="p-4">
-              {row.Status === "Online" ? (
+              {row.status === "Online" ? (
                 <div>
                   <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-2" />
                   <span className="text-green-600 font-semibold">Online</span>
@@ -125,7 +125,10 @@ export default function Page() {
               )}
             </td>
             <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              {convertTimeZoneToThai(new Date(row.timestamp))}
+              {row.timestamp}
+            </td>
+            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
+              {row.response_time}
             </td>
             <td className="p-4 text-sm text-blue-600 hover:underline break-all">
               <a href={row.url} target="_blank" rel="noopener noreferrer">
@@ -187,7 +190,7 @@ export default function Page() {
                 iconLeft={<FiRefreshCw className="" />}
                 className="bg-green-500 hover:bg-green-600"
                 onClick={() => {
-                  dispatch(GET_SERVER_STATUS());
+                  dispatch(GET_SERVER_STATUS_V2());
                   toast.success("Refresh สำเร็จ", {
                     duration: 3000,
                     position: "bottom-center",

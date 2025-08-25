@@ -79,9 +79,33 @@ export interface ResponseGetServerStatus extends DefaultRedux {
             Message: string;
             description: string;
             timestamp: Date | string;
+            
         }[];
     };
 }
+
+export interface ResponseGetServerStatusV2 extends DefaultRedux {
+    draftValues: {
+        Array: {
+            server: string;
+            status:string;
+            server_name: string;
+            server_name_th: string;
+            server_name_en: string;
+            environment: string;
+            url: string;
+            endpoint: string;
+            description: string;
+            timestamp: string;
+            response_time: number;
+            response_time_severity_level: string;
+        }[];
+    };
+}
+
+
+
+
 
 export interface ResponseSchoolList extends DefaultRedux {
     draftValues: { SchoolName: string; SchoolID: string }[];

@@ -10,6 +10,7 @@ import callPostOnlineDeviceReducer from "@stores/reducers/hardware/call-post-onl
 import callPostOfflineDeviceReducer from "@stores/reducers/hardware/call-post-offline-device";
 import callGetOnlineDeviceReducer from "@stores/reducers/hardware/call-get-online-device";
 import callGetServerStatusReducer from "@stores/reducers/server/call-get-server-status";
+import callGetServerStatusV2Reducer from "@stores/reducers/server/call-get-server-status.v2";
 import callGetuserBySchoolIdReducer from "@stores/reducers/school/call-get-user";
 import callRefreshTokenReducer from "@stores/reducers/authentication/call-refresh-token";
 import callGetNotificationTodayListReducer from "@/stores/reducers/mobile/call-get-notification-today-list";
@@ -38,6 +39,7 @@ export const store = configureStore({
         callPostOfflineDevice: callPostOfflineDeviceReducer,
         callGetOnlineDevice: callGetOnlineDeviceReducer,
         callGetServerStatus: callGetServerStatusReducer,
+        callGetServerStatusV2: callGetServerStatusV2Reducer,
         callGetuserBySchoolId: callGetuserBySchoolIdReducer,
         callRefreshToken: callRefreshTokenReducer,
         callGetNotificationWeekList: callGetNotificationWeekListReducer,
