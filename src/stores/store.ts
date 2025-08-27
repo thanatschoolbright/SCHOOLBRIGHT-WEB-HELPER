@@ -1,5 +1,5 @@
-import {configureStore} from "@reduxjs/toolkit";
-import {TypedUseSelectorHook, useSelector} from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
+import { TypedUseSelectorHook, useSelector } from "react-redux";
 // #region : reducer
 import newmanReducer from "@stores/reducers/call-newman";
 import formCardNfcReducer from "@stores/reducers/form-card-nfc";
@@ -21,39 +21,39 @@ import callGetLeaveLetterListReducer from "@stores/reducers/mobile/call-get-leav
 import callGetSchooListDetailReducer from "@stores/reducers/support/call-get-school-list-detail";
 import callGetHardwareApplicationReducer from "@stores/reducers/hardware/canteen/call-get-application";
 import callGetHardwareApplicationByAppIdReducer from "@stores/reducers/hardware/canteen/call-get-application-by-appId";
-import callPostCreateApplicationVersionReducer
-    from "@stores/reducers/hardware/canteen/call-post-create-application-version";
-import callPostUpdateApplicationVersionReducer
-    from "@stores/reducers/hardware/canteen/call-post-update-application-version";
+import callPostCreateApplicationVersionReducer from "@stores/reducers/hardware/canteen/call-post-create-application-version";
+import callPostUpdateApplicationVersionReducer from "@stores/reducers/hardware/canteen/call-post-update-application-version";
 import callPostStatisticReducer from "@stores/reducers/mobile/call-post-statistic";
+import callVersionControlReducer from "@stores/reducers/health-check/version-control/reducer";
 // #endregion
 
 export const store = configureStore({
-    reducer: {
-        newman: newmanReducer,
-        formCardNfc: formCardNfcReducer,
-        callCancelSales: callCancelSalesReducer,
-        callSchoolList: callSchoolListReducer,
-        callGetRegisterDevice: callGetRegisterDeviceReducer,
-        callPostOnlineDevice: callPostOnlineDeviceReducer,
-        callPostOfflineDevice: callPostOfflineDeviceReducer,
-        callGetOnlineDevice: callGetOnlineDeviceReducer,
-        callGetServerStatus: callGetServerStatusReducer,
-        callGetServerStatusV2: callGetServerStatusV2Reducer,
-        callGetuserBySchoolId: callGetuserBySchoolIdReducer,
-        callRefreshToken: callRefreshTokenReducer,
-        callGetNotificationWeekList: callGetNotificationWeekListReducer,
-        callGetNotificationTodayList: callGetNotificationTodayListReducer,
-        callAdminLogin: callAdminLoginReducer,
-        callGetNotificationMessage: callGetNotificationMessageReducer,
-        callGetLeaveLetterList: callGetLeaveLetterListReducer,
-        callGetSchooListDetail: callGetSchooListDetailReducer,
-        callGetHardwareApplication: callGetHardwareApplicationReducer,
-        callGetHardwareApplicationByAppId: callGetHardwareApplicationByAppIdReducer,
-        callPostCreateApplicationVersion: callPostCreateApplicationVersionReducer,
-        callPostUpdateApplicationVersion: callPostUpdateApplicationVersionReducer,
-        callPostStatistic: callPostStatisticReducer,
-    },
+  reducer: {
+    newman: newmanReducer,
+    formCardNfc: formCardNfcReducer,
+    callCancelSales: callCancelSalesReducer,
+    callSchoolList: callSchoolListReducer,
+    callGetRegisterDevice: callGetRegisterDeviceReducer,
+    callPostOnlineDevice: callPostOnlineDeviceReducer,
+    callPostOfflineDevice: callPostOfflineDeviceReducer,
+    callGetOnlineDevice: callGetOnlineDeviceReducer,
+    callGetServerStatus: callGetServerStatusReducer,
+    callGetServerStatusV2: callGetServerStatusV2Reducer,
+    callGetuserBySchoolId: callGetuserBySchoolIdReducer,
+    callRefreshToken: callRefreshTokenReducer,
+    callGetNotificationWeekList: callGetNotificationWeekListReducer,
+    callGetNotificationTodayList: callGetNotificationTodayListReducer,
+    callAdminLogin: callAdminLoginReducer,
+    callGetNotificationMessage: callGetNotificationMessageReducer,
+    callGetLeaveLetterList: callGetLeaveLetterListReducer,
+    callGetSchooListDetail: callGetSchooListDetailReducer,
+    callGetHardwareApplication: callGetHardwareApplicationReducer,
+    callGetHardwareApplicationByAppId: callGetHardwareApplicationByAppIdReducer,
+    callPostCreateApplicationVersion: callPostCreateApplicationVersionReducer,
+    callPostUpdateApplicationVersion: callPostUpdateApplicationVersionReducer,
+    callPostStatistic: callPostStatisticReducer,
+    callVersionControlReducer,
+  },
 });
 
 // ? : อธิบาย : store และ configureStore ใน redux toolkit

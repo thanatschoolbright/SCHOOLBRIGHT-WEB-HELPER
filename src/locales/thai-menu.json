@@ -8,6 +8,7 @@
   "cancel_sales": "ยกเลิกรายการสินค้าเกิน 7 วัน",
   "upload_student_migration": "อัปโหลดการย้ายข้อมูลนักเรียน (User Balance)",
   "health_check": "ตรวจสุขภาพระบบ",
+  "version_control" : "เช็กเวอร์ชันทุกระบบ",
   "all_server_status": "รายงานการทำงานทุกระบบ",
   "online_status": "รายงานการเชื่อมต่อระบบออนไลน์",
   "offline_sync_status": "รายงานซิงก์ข้อมูลออฟไลน์ล่าสุด",
