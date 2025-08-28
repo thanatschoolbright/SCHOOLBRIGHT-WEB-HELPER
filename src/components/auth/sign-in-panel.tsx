@@ -130,7 +130,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
         />
         <button
           type="submit"
-          className="w-full bg-blue-900 text-white py-2 rounded-full font-semibold"
+          className="w-full bg-[#0071e3] text-white py-3 rounded-xl font-semibold tracking-wide shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-99"
           disabled={isLoading}
         >
           {isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}

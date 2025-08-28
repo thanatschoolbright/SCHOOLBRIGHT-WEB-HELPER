@@ -30,6 +30,36 @@ export default function SidebarContent() {
     });
   }, [pathname]);
 
+  const submenuVariants = {
+    open: {
+      opacity: 1,
+      height: "auto",
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeInOut",
+        staggerChildren: 0.05,
+      },
+    },
+    closed: {
+      opacity: 0,
+      height: 0,
+      y: -10,
+      scale: 0.95,
+      transition: {
+        duration: 0.4,
+        ease: "easeInOut",
+      },
+    },
+  };
+
+  const childVariants = {
+    initial: { opacity: 0, x: -10 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -10 },
+  };
+
   return (
     <div
       className="flex flex-col h-full justify-between text-sm font-medium transition-all duration-500 ease-in-out
@@ -48,8 +78,9 @@ export default function SidebarContent() {
                 <div key={item.label}>
                   <motion.button
                     onClick={() => setOpenKey(isOpen ? null : item.label)}
-                    className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-gray-700 dark:text-gray-200 hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 transition"
-                    whileHover={{ scale: 1.02 }}
+                    className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-gray-700 dark:text-gray-200 hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 transition border-b border-gray-200 dark:border-gray-700"
+                    whileHover={{ scale: 1.03, x: 2 }}
+                    whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   >
                     <span className="text-lg">{item.icon}</span>
@@ -63,24 +94,21 @@ export default function SidebarContent() {
 
                   <motion.div
                     className="ml-8 mt-2 flex flex-col space-y-1 overflow-hidden"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{
-                      height: isOpen ? "auto" : 0,
-                      opacity: isOpen ? 1 : 0,
-                    }}
-                    transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                    initial="closed"
+                    animate={isOpen ? "open" : "closed"}
+                    exit="closed"
+                    variants={submenuVariants}
                   >
                     {item.children.map((child) => {
                       const isActive = child.href === pathname;
                       return (
                         <motion.div
                           key={child.label}
-                          whileHover={{ x: 5 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 20,
-                          }}
+                          variants={childVariants}
+                          initial="initial"
+                          animate="animate"
+                          exit="exit"
+                          transition={{ duration: 0.3 }}
                         >
                           <Link
                             href={child.href!}
@@ -115,7 +143,7 @@ export default function SidebarContent() {
                   }
                   key={item.label}
                   className={
-                    `w-full flex items-center gap-3 px-4 py-2 rounded-xl transition-colors hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 ` +
+                    `w-full flex items-center gap-3 px-4 py-2 rounded-xl transition-colors hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 border-b border-gray-200 dark:border-gray-700 ` +
                     ("href" in item && item.href === pathname
                       ? "bg-black text-white dark:bg-orange-500"
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")

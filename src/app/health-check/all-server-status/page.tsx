@@ -164,22 +164,12 @@ export default function Page() {
 
   return (
     <DashboardLayout>
-      <Toaster richColors position="bottom-center" closeButton />
       {isLoading && <BaseLoadingComponent />}
       {modal === "response_open" && renderModal()}
 
       <div className="w-full space-y-4">
         {/* หมายเหตุ */}
-        <div className="grid grid-cols-2 grid-rows-1 gap-6 w-full">
-          <ContentCard
-            title="หมายเหตุ (1)"
-            fullWidth
-            className="w-full col-span-1 row-span-2"
-          >
-            <p className="text-sm text-red-500">
-              {t("ค้นหาด้วยชื่อโรงเรียน หรือ Device ID ก่อนแล้วข้อมูลจะขึ้น")}
-            </p>
-          </ContentCard>
+        <div className="grid grid-cols-1 grid-rows-1 gap-6 w-full">
           <ContentCard
             title="ทดสอบสถานะเซิฟเวอร์อีกครั้ง"
             fullWidth
@@ -191,7 +181,7 @@ export default function Page() {
                 className="bg-green-500 hover:bg-green-600"
                 onClick={() => {
                   dispatch(GET_SERVER_STATUS_V2());
-                  toast.success("Refresh สำเร็จ", {
+                  toast.success("รีเฟรชสำเร็จ", {
                     duration: 3000,
                     position: "top-right",
                   });

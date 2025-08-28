@@ -1,62 +1,142 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import ContentCard from "@components/layouts/backend/content";
 import { useTranslation } from "react-i18next";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
-import { useDispatch } from "react-redux";
-import { useAppSelector } from "@stores/store";
 
 export default function DashboardPage() {
   const { t } = useTranslation("mock");
-  const dispatch = useDispatch();
-  const newmanState = useAppSelector((state) => state.newman); // จาก newmanReducer
-
-  const [selectedDetail, setSelectedDetail] = useState<any | null>(null);
-  const executions = newmanState.result || [];
-  const tableData = mapExecutionToRowData(executions);
-  const isLoading = newmanState.loading;
-  const headerRow = ["no.", "name", "method", "url", "status", "time", "info"];
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  function mapExecutionToRowData(executions: any[]) {
-    const result = executions.map((item) => ({
-      name: item.item.name,
-      method: item.request.method,
-      url: `${item.request.url.protocol}://${item.request.url.host.join(
-        "."
-      )}/${item.request.url.path.join("/")}`,
-      status: item.response?.status || "Unknown",
-      time: item.response?.responseTime || 0,
-      request: item.request,
-      response: item.response,
-      headers: item.request.header,
-      assertions: item.assertions, // ✅ เพิ่มตรงนี้
-      code: item?.response?.code || "0",
-      raw: item || [],
-    }));
-
-    return result;
-  }
-
-  React.useEffect(() => {
-    console.log("tableData", executions);
-  }, [executions]);
 
   return (
     <DashboardLayout>
-      {isLoading && <BaseLoadingComponent />}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6 w-full">
-        {/* บังคับให้ card แรกอยู่เต็มความกว้างใน md และ xl */}
-        <ContentCard
-          title="Welcome"
-          fullWidth
-          className="md:col-span-2 xl:col-span-4 w-full"
-        >
-          {t("welcome")} <p>Hello Support 👋 Welcome back to your dashboard.</p>
+      <div className="grid grid-cols-1  gap-6 mt-6 w-full">
+        <ContentCard title="Release Note" fullWidth className=" w-full">
+          <div className="p-4">
+            <div className="space-y-6">
+              {releaseNotes
+                .slice()
+                .sort((a, b) => b.date.localeCompare(a.date))
+                .map((group, groupIdx) => (
+                  <ContentCard
+                    key={group.date}
+                    title={group.date}
+                    className="w-full"
+                    fullWidth={false}
+                  >
+                    <ul className="space-y-3">
+                      {group.release_note
+                        .sort((a, b) => {
+                          const order = { add: 0, update: 1, remove: 2 };
+                          return (
+                            order[a.type as keyof typeof order] -
+                            order[b.type as keyof typeof order]
+                          );
+                        })
+                        .map((note, idx) => (
+                          <li
+                            key={idx}
+                            className={`flex items-start gap-2 rounded px-3 py-2 border border-gray-200 shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md hover:-translate-y-1 ${
+                              note.type === "add"
+                                ? "bg-green-50"
+                                : note.type === "remove"
+                                ? "bg-red-50"
+                                : "bg-yellow-50"
+                            }`}
+                          >
+                            <span className="text-xl" aria-label={note.type}>
+                              {note.emoji}
+                            </span>
+                            <span
+                              className={`font-medium ${
+                                note.type === "add"
+                                  ? "text-green-700"
+                                  : note.type === "remove"
+                                  ? "text-red-700"
+                                  : "text-yellow-700"
+                              }`}
+                            >
+                              {note.message}
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </ContentCard>
+                ))}
+            </div>
+          </div>
         </ContentCard>
       </div>
     </DashboardLayout>
   );
 }
+
+// Release notes grouped by date
+const releaseNotes = [
+  {
+    date: "2024-06-03",
+    release_note: [
+      {
+        type: "add",
+        emoji: "🔺",
+        message:
+          "เพิ่มหน้า Release Note สำหรับติดตามความเปลี่ยนแปลงล่าสุดในระบบ",
+      },
+      {
+        type: "update",
+        emoji: "⚡️",
+        message: "ปรับปรุงความเร็วในการโหลดข้อมูลหน้า Dashboard",
+      },
+      {
+        type: "remove",
+        emoji: "🔻",
+        message: "ลดปุ่มที่ไม่จำเป็นออกจากเมนูด้านข้าง",
+      },
+      {
+        type: "add",
+        emoji: "🎨",
+        message: "เพิ่มแอนิเมชันปุ่ม hover/scale และปุ่ม login สีเขียว",
+      },
+      {
+        type: "add",
+        emoji: "✨",
+        message: "เปลี่ยนมาใช้ Toast จาก Sonner แทน SweetAlert2",
+      },
+      {
+        type: "update",
+        emoji: "⏳",
+        message: "ปรับปรุง Loading Component ให้แสดง spinner มาตรฐาน",
+      },
+      {
+        type: "update",
+        emoji: "📌",
+        message:
+          "ปรับปรุง Sidebar ให้สามารถย่อ/ขยายได้, ติดขอบหน้าจอ และเพิ่มแอนิเมชัน",
+      },
+      {
+        type: "update",
+        emoji: "🔝",
+        message: "ปรับปรุง Topbar พร้อมแอนิเมชันการเลื่อน",
+      },
+      {
+        type: "update",
+        emoji: "⬇️",
+        message: "ปรับปรุงเมนู Dropdown ด้วยแอนิเมชันเลื่อนและเส้นขอบ",
+      },
+      {
+        type: "add",
+        emoji: "📄",
+        message: "เพิ่มหน้า Release Note สำหรับแสดงประวัติการอัพเดทระบบ",
+      },
+    ],
+  },
+  {
+    date: "2024-06-02",
+    release_note: [
+      {
+        type: "update",
+        emoji: "🛠️",
+        message: "แก้ไขบัคในการโหลดข้อมูลผู้ใช้งานที่ทำให้บางครั้งแสดงผลล่าช้า",
+      },
+    ],
+  },
+];

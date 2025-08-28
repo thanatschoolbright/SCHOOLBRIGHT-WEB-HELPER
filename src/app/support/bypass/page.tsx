@@ -37,24 +37,7 @@ export default function Page() {
 
   const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
-  const [url, setUrl] = useState<{
-    prodSystemURL: string;
-    betaSystemURL: string;
-    devSystemURL: string;
-    prodCanteenURL: string;
-    devCanteenURL: string;
-    prodAcademicURL: string;
-    devAcademicURL: string;
-    devUIAcademicURL: string;
-    devLibraryURL: string;
-    prodLibraryURL: string;
-    prodKindergartenURL: string;
-    devKindergartenURL: string;
-    prodActivityURL: string;
-    devActivityURL: string;
-    devAccountingURL: string;
-    prodAccountingURL: string;
-  }>({
+  const [url, setUrl] = useState<Record<string, string>>({
     prodSystemURL: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
     betaSystemURL: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
     devSystemURL: "https://dev.schoolbright.co/BypassSuperAdmin.aspx?q=",
@@ -79,6 +62,7 @@ export default function Page() {
     devAccountingURL:
       "https://dev-accounting.schoolbright.co/Home/ByPass?token=",
     prodAccountingURL: "https://accounting.schoolbright.co/Home/ByPass?token=",
+    prodExamURL: "https://exam.schoolbright.co/Home/getToken?token=",
   });
   const [bypass, setBypass] = useState<string>("");
   const [mode, setMode] = useState<{
@@ -240,6 +224,17 @@ export default function Page() {
               break;
           }
           break;
+        case "exam":
+          switch (mode.environment) {
+            case "production":
+              handleOpenByPassLink(url.prodExamURL, mode.school_id);
+              break;
+
+            case "development":
+              handleOpenByPassLink(url.devExamURL, mode.school_id);
+              break;
+          }
+          break;
       }
     } catch (error: any) {
       throw new Error(error.message);
@@ -304,8 +299,6 @@ export default function Page() {
 
   return (
     <DashboardLayout>
-      <Toaster richColors position="bottom-center" closeButton />
-
       {isLoading && <BaseLoadingComponent />}
 
       <div className="w-full space-y-4">
@@ -419,10 +412,11 @@ export default function Page() {
                     className="relative inline-block text-left"
                   >
                     <MinimalButton
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs"
+                      className="relative px-4 py-2 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white rounded shadow-lg text-xs font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 active:scale-95"
                       onClick={() => setDropdownOpen(idx)}
                     >
-                      เข้าสู่ระบบ
+                      <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 rounded transition-opacity duration-300" />
+                      เลือกเซิฟเวอร์
                     </MinimalButton>
 
                     <div
@@ -437,7 +431,7 @@ export default function Page() {
                     >
                       <ul className="py-1 text-sm text-gray-700 dark:text-gray-100">
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-blue-100 dark:bg-blue-900/60">
-                          ✨ System (ระบบหลัก)
+                          ✨ System
                           <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -478,7 +472,7 @@ export default function Page() {
                           </ul>
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-green-100 dark:bg-green-900/60">
-                          👩🏻‍🏫 Academic (ระบบวิชาการ)
+                          👩🏻‍🏫 Academic
                           <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -519,7 +513,7 @@ export default function Page() {
                           </ul>
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-fuchsia-100 dark:bg-fuchsia-900/60">
-                          🧾 Accounting (ระบบบัญชี)
+                          🧾 Accounting
                           <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -548,7 +542,7 @@ export default function Page() {
                           </ul>
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-yellow-100 dark:bg-yellow-900/60">
-                          📔 Library (ระบบห้องสมุด)
+                          📔 Library
                           <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
@@ -576,10 +570,9 @@ export default function Page() {
                             </li>
                           </ul>
                         </li>
-
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-purple-100 dark:bg-purple-900/60">
-                          🥪 Canteen (ระบบเติมเงิน,ถอนเงิน,รายงาน)
-                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                          🥪 Canteen
+                          <ul className="absolute right-full top-0 mส-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                               onClick={() => {
@@ -607,8 +600,8 @@ export default function Page() {
                           </ul>
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-orange-100 dark:bg-orange-900/60">
-                          👶🏻 Kindergaeten (ระบบอนุบาล)
-                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                          👶🏻 Kindergarten
+                          <ul className="absolute right-full top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                               onClick={() => {
@@ -636,8 +629,8 @@ export default function Page() {
                           </ul>
                         </li>
                         <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-amber-100 dark:bg-amber-900/60">
-                          🎃 Activity (จัดกิจกรรม)
-                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                          🎃 Mark Activity
+                          <ul className="absolute right-full top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
                               onClick={() => {
@@ -656,6 +649,35 @@ export default function Page() {
                                 setMode({
                                   school_id: row?.school_id ?? "",
                                   name: "activity",
+                                  environment: "development",
+                                });
+                              }}
+                            >
+                              Dev
+                            </li>
+                          </ul>
+                        </li>
+                        <li className="hidden group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-amber-100 dark:bg-amber-900/60">
+                          🚀 SB Exam
+                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "",
+                                  name: "exam",
+                                  environment: "production",
+                                });
+                              }}
+                            >
+                              Production
+                            </li>
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "",
+                                  name: "exam",
                                   environment: "development",
                                 });
                               }}

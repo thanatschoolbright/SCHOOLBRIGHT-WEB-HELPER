@@ -92,7 +92,6 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <Toaster richColors position="bottom-center" closeButton />
       {isLoading && <BaseLoadingComponent />}
 
       <div className="w-full space-y-4">

@@ -34,48 +34,17 @@ export default function BaseLoadingComponent({
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
           <motion.div
-            className="bg-white px-8 py-8 rounded-2xl shadow-2xl text-center"
+            className="bg-white dark:bg-gray-800 px-8 py-8 rounded-2xl shadow-2xl text-center"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
+            <div className="flex justify-center mb-6">
+              <AiOutlineLoading3Quarters className="text-blue-600 text-5xl animate-spin" />
+            </div>
             <motion.div
-              className="flex justify-center mb-6"
-              animate={{
-                rotate: 360,
-                scale: [1, 1.2, 1],
-                boxShadow: [],
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 1.5,
-                ease: "linear",
-                boxShadow: {
-                  repeat: Infinity,
-                  duration: 1.5,
-                  ease: "linear",
-                },
-                scale: {
-                  repeat: Infinity,
-                  duration: 1.5,
-                  ease: "linear",
-                },
-                rotate: {
-                  repeat: Infinity,
-                  duration: 1.5,
-                  ease: "linear",
-                },
-              }}
-              style={{
-                borderRadius: "50%",
-                boxShadow: "0 0 0 0px #3b82f6",
-              }}
-            >
-              <AiOutlineLoading3Quarters className="text-blue-600 text-5xl" />
-            </motion.div>
-            <motion.div
-              className="text-2xl font-semibold text-gray-700 mb-2"
+              className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2"
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
@@ -83,7 +52,7 @@ export default function BaseLoadingComponent({
               {title}
             </motion.div>
             <motion.div
-              className="text-sm text-gray-500 mt-1"
+              className="text-sm text-gray-600 dark:text-gray-400"
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.5 }}

@@ -129,7 +129,6 @@ export default function Page() {
 
   return (
     <DashboardLayout>
-      <Toaster richColors position="top-right" closeButton />
       {isLoading && <BaseLoadingComponent />}
       {modal === "response_open" && renderModal()}
 
