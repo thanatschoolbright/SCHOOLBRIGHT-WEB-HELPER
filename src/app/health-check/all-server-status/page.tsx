@@ -193,7 +193,7 @@ export default function Page() {
                   dispatch(GET_SERVER_STATUS_V2());
                   toast.success("Refresh สำเร็จ", {
                     duration: 3000,
-                    position: "bottom-center",
+                    position: "top-right",
                   });
                 }}
               >

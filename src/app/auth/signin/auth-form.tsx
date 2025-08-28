@@ -15,7 +15,7 @@ export default function AuthForm() {
       description:
         "โปรดใช้ username และ password เดียวกันกับ https://adminsystem.schoolbright.co/",
       duration: 6000,
-      position: "bottom-center",
+      position: "top-right",
     });
   }, []);
 

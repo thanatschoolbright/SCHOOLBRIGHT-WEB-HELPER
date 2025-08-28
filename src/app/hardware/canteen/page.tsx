@@ -272,7 +272,7 @@ const AddOrEditVersionModal: React.FC<{
       toast.error("เกิดข้อผิดพลาด", {
         description: `กรุณากรอกข้อมูลให้ครบถ้วน`,
         duration: 5000,
-        position: "bottom-center",
+        position: "top-right",
       });
       return;
     }
@@ -305,7 +305,7 @@ const AddOrEditVersionModal: React.FC<{
             "สร้างเวอร์ชันแอปพลิเคชันสำเร็จ"
           }\nversion id : ${resultAction.payload?.data?.version_id ?? "-"}`,
           duration: 5000,
-          position: "bottom-center",
+          position: "top-right",
         });
         setIsOpenModal(false);
       } else {
@@ -315,7 +315,7 @@ const AddOrEditVersionModal: React.FC<{
             resultAction?.payload?.error?.message ||
             "เกิดข้อผิดพลาดในการสร้างเวอร์ชันแอปพลิเคชัน",
           duration: 6000,
-          position: "bottom-center",
+          position: "top-right",
         });
       }
     } catch (err: any) {
@@ -323,7 +323,7 @@ const AddOrEditVersionModal: React.FC<{
       toast.error("เกิดข้อผิดพลาด", {
         description: err?.message || "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
         duration: 6000,
-        position: "bottom-center",
+        position: "top-right",
       });
     }
   };
@@ -675,7 +675,7 @@ export default function Page() {
                   toast.success("สำเร็จ", {
                     description: "รหัสผ่านถูกต้อง",
                     duration: 3000,
-                    position: "bottom-center",
+                    position: "top-right",
                   });
                 } else {
                   setPasswordError("รหัสผ่านไม่ถูกต้อง");

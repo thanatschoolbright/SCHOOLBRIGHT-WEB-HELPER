@@ -110,7 +110,7 @@ export default function Page() {
       toast.success("Bypass สำเร็จ", {
         description: `คุณกำลังเข้าสู่ ${finalUrl}`,
         duration: 10000,
-        position: "bottom-center",
+        position: "top-right",
         action: {
           label: "Copy URL",
           onClick: () => {
@@ -118,7 +118,7 @@ export default function Page() {
               toast.success("Copied!", {
                 description: "URL copied to clipboard.",
                 duration: 3000,
-                position: "bottom-center",
+                position: "top-right",
               });
             });
           },
