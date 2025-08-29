@@ -73,7 +73,7 @@ export const useSidebarMenu = () => {
       {
         label: t("app_hardware"),
         icon: <FiGrid />,
-        children: [{ label: t("app_canteen"), href: "/hardware/canteen" }],
+        children: [{ label: t("app_control"), href: "/hardware/canteen" }],
       },
       // ... เหมือนเดิม
     ],

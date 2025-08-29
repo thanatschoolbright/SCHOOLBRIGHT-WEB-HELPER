@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-interface InputComponentProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputComponentProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   id: string;
   error?: string;
@@ -28,41 +29,40 @@ const InputComponent: React.FC<InputComponentProps> = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <label
-        htmlFor={id}
-        className="text-base font-bold text-black flex items-center gap-1 mb-1"
-        style={{
-          letterSpacing: "0.02em",
-        }}
-      >
-        {label}
-        {required && (
-          <span
-            className="text-red-500 text-base font-bold ml-1"
-            aria-hidden="true"
-          >
-            *
-          </span>
-        )}
-      </label>
-      <input
-        id={id}
-        type={type}
-        required={required}
-        className={`w-full px-4 py-2 border ${
-          error
-            ? "border-red-500"
-            : "border-gray-300 dark:border-gray-600"
-        } rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white`}
-        {...props}
-        onChange={handleChange}
-      />
+      <div className="relative group">
+        <input
+          id={id}
+          type={type}
+          required={required}
+          placeholder=" "
+          className={`peer w-full px-4 pt-6 pb-2 border ${
+            error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+          } rounded-xl ${
+            props.disabled
+              ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
+              : "bg-transparent"
+          } focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white placeholder-transparent`}
+          {...props}
+          onChange={handleChange}
+        />
+        <label
+          htmlFor={id}
+          className={`absolute left-4 top-2 text-gray-500 dark:text-gray-400 text-sm font-extralight pointer-events-none transition-all duration-200 ease-in-out ${
+            required
+              ? "after:content-['*'] after:ml-1 after:text-red-500 after:font-thin"
+              : ""
+          } peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:dark:text-gray-500 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-500 dark:peer-focus:text-blue-400 ${
+            props.disabled ? "text-gray-400 dark:text-gray-500" : ""
+          }`}
+          style={{ letterSpacing: "0.00em" }}
+        >
+          {label}
+        </label>
+      </div>
       {type === "file" && fileName && (
         <span className="text-xs text-gray-500 mt-1">{fileName}</span>
       )}
-      {error && (
-        <span className="text-xs text-red-500 mt-1">{error}</span>
-      )}
+      {error && <span className="text-xs text-red-500 mt-1">{error}</span>}
     </div>
   );
 };

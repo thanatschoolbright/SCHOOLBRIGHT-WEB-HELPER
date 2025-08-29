@@ -1,15 +1,29 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 
+// Components
 import DashboardLayout from "@components/layouts/backend-layout";
 import ContentCard from "@components/layouts/backend/content";
 import { MinimalRow } from "@components/table/minimal-row-component";
 import MinimalTable from "@components/table/minimal-table-component";
 import DropdownButtonComponent from "@components/button/dropdown-button-component";
+import ModalComponent from "@components/modal/modal-component";
+import BaseLoadingComponent from "@components/loading/loading-component-1";
+import RoundedButton from "@/components/button/rounded-button-component";
+import InputComponent from "@/components/input-field/input-component";
+import UploadComponent from "@/components/input-field/upload-component";
+import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
+import RadioComponent from "@components/input-field/radio-component";
+
+// Icons
+import { FiCheck, FiPlus, FiX } from "react-icons/fi";
+
+// Store/actions
 import { CallAPI as GET_APPLICATION_LIST } from "@stores/actions/hardware/canteen/call-get-application";
 import { CallAPI as GET_APPLICATION_VERSION_BY_APPID } from "@stores/actions/hardware/canteen/call-get-application-by-appId";
 import { CallAPI as POST_CREATE_APPLICATION_VERSION } from "@stores/actions/hardware/canteen/call-post-create-application-version";
@@ -20,15 +34,10 @@ import {
   ResponseApplicationList,
   ResponseApplicationVersionList,
 } from "@stores/type";
-import ModalComponent from "@components/modal/modal-component";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
-import RoundedButton from "@/components/button/rounded-button-component";
-import { FiCheck, FiPlus, FiX } from "react-icons/fi";
-import InputComponent from "@/components/input-field/input-component";
-import UploadComponent from "@/components/input-field/upload-component";
-import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
-import { Toaster, toast } from "sonner";
-import RadioComponent from "@components/input-field/radio-component";
+
+// Utilities
+import { toast } from "sonner";
+import ToggleSwitchComponent from "@/components/input-field/toggle-switch-component";
 
 const TableHardwareApplicationList = ({
   data,
@@ -42,23 +51,21 @@ const TableHardwareApplicationList = ({
   return (
     <>
       {data.map((row, idx) => (
-        <MinimalRow key={`${row.app_id}-${idx}`}>
+        <MinimalRow key={`${row.app_id}-${idx}`} index={idx + 1}>
           {({ index }) => (
             <>
-              <td className="p-4 text-sm text-gray-900 dark:text-gray-200">
-                {index}
-              </td>
-              <td className="p-4 text-sm text-gray-900 dark:text-gray-200">
-                {row.app_id}
-              </td>
-              <td className="p-4 text-sm text-gray-900 dark:text-gray-200">
+              <td className="px-6 py-4 text-xs font-medium ">{index}</td>
+
+              <td className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100">
                 {row.app_name}
               </td>
-              <td className="p-4 text-sm text-gray-900 dark:text-gray-200">
-                {row.app_type}
+              <td className="px-6 py-4">
+                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200 rounded-full text-xs font-medium">
+                  {row.app_type}
+                </span>
               </td>
-              <td className="p-4">
-                <span className="inline-flex">
+              <td className="px-6 py-4">
+                <div className="flex justify-center">
                   <DropdownButtonComponent
                     id={row.app_id}
                     items={[
@@ -68,7 +75,7 @@ const TableHardwareApplicationList = ({
                       },
                     ]}
                   />
-                </span>
+                </div>
               </td>
             </>
           )}
@@ -114,7 +121,6 @@ const TableHardwareVersionByAppIdList: React.FC<{
                       {
                         label: "แก้ไข",
                         onClick: () => {
-                          console.log("แก้ไข", row.version_id);
                           setShowEditVersionModal("edit");
                           dispatch(
                             setDraftValuesCallPostCreateApplicationVersion({
@@ -128,6 +134,7 @@ const TableHardwareVersionByAppIdList: React.FC<{
                               file: null,
                               schoolID: "",
                               isLatestVersion: "",
+                              forceUpdate: "",
                             })
                           );
                         },
@@ -205,7 +212,6 @@ const AddOrEditVersionModal: React.FC<{
   const STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION = useAppSelector(
     (state) => state.callPostCreateApplicationVersion
   );
-
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState<{
     schoolID: string | string[];
@@ -216,6 +222,7 @@ const AddOrEditVersionModal: React.FC<{
     note: string;
     file: File | null;
     isLastestVersion?: string | number;
+    forceUpdate?: string | number;
   }>({
     schoolID: "",
     versionID:
@@ -234,17 +241,15 @@ const AddOrEditVersionModal: React.FC<{
     isLastestVersion:
       STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues
         .isLatestVersion || 0,
+    forceUpdate: 0,
     file: null,
   });
 
   useEffect(() => {
-    console.log(
-      "✅ [STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION]",
-      STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues
-    );
+    // Update form when switching to edit mode
     if (type === "edit") {
-      setForm({
-        ...form,
+      setForm((prevForm) => ({
+        ...prevForm,
         appID:
           STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues.appID?.toString() ||
           "",
@@ -262,9 +267,12 @@ const AddOrEditVersionModal: React.FC<{
         isLastestVersion:
           STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues
             .isLatestVersion || 0,
-      });
+        forceUpdate:
+          STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues
+            .forceUpdate ?? 0,
+      }));
     }
-  }, [type]);
+  }, [type, STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -340,146 +348,177 @@ const AddOrEditVersionModal: React.FC<{
       title={
         type === "add"
           ? "เพิ่มเวอร์ชันแอปพลิเคชัน"
-          : `แก้ไขเวอร์ชันแอปพลิเคชัน ${STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues.versionName} (version id : ${STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues.versionID})`
+          : `แก้ไขเวอร์ชัน ${STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues.versionName} 
+        (ID: ${STATE_HARDWARE_CALL_POST_CREATE_APPLICATION_VERSION.draftValues.versionID})`
       }
       onClose={() => setIsOpenModal(false)}
     >
       {isLoading && <BaseLoadingComponent />}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg transition-all duration-500 ease-in-out">
         <form
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-5 animate-fadeIn"
           encType="multipart/form-data"
           onSubmit={handleSubmit}
         >
-          <SearchableSelectComponent
-            label="เลือกโรงเรียน"
-            id="school_id"
-            name="school_id"
-            multiselect={false}
-            required={true}
-            options={[
-              { label: "เลือกรายการ", value: "" },
-              ...schoolList.map((s: any) => ({
-                label: s.label + " (" + s.value + ")",
-                value: String(s.value),
-              })),
-            ]}
-            value={form.schoolID}
-            onChange={(value: string | string[]) => {
-              setForm({
-                ...form,
-                schoolID: value,
-              });
-            }}
-            placeholder="เลือกโรงเรียน"
-            error={
-              (typeof form.schoolID === "string" && form.schoolID === "") ||
-              (Array.isArray(form.schoolID) && form.schoolID.length === 0)
-                ? "กรุณาเลือกโรงเรียน"
-                : ""
-            }
-          />
-          {appIdList.length > 0 && (
+          {/* Dropdown section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+            {/* เลือกโรงเรียน */}
             <SearchableSelectComponent
-              label="เลือก App ID"
-              id="app_id"
-              name="app_id"
-              options={appIdList}
-              value={form.appID}
+              label="เลือกโรงเรียน (ไม่บังคับ)"
+              id="school_id"
+              name="school_id"
               multiselect={false}
-              required={true}
-              onChange={(value: string | string[]) => {
+              options={[
+                { label: "ทุกโรงเรียน", value: "" },
+                ...schoolList.map((s: any) => ({
+                  label: `${s.label} (${s.value})`,
+                  value: String(s.value),
+                })),
+              ]}
+              value={form.schoolID}
+              onChange={(value: string | string[]) =>
+                setForm({ ...form, schoolID: value })
+              }
+              placeholder="เลือกโรงเรียน"
+            />
+            {/* App ID */}
+            {appIdList.length > 0 && (
+              <SearchableSelectComponent
+                label="เลือกแอปพลิเคชัน"
+                id="app_id"
+                name="app_id"
+                options={appIdList}
+                value={form.appID}
+                multiselect={false}
+                required
+                onChange={(value: string | string[]) =>
+                  setForm({
+                    ...form,
+                    appID: Array.isArray(value) ? value[0] : value,
+                  })
+                }
+                placeholder="เลือก App ID"
+                error={form.appID === "" ? "กรุณาเลือก App ID" : ""}
+                disabled={type === "edit"}
+              />
+            )}
+            {/* Environment */}
+            <SearchableSelectComponent
+              label="สภาพแวดล้อม (Environment)"
+              options={envOptions}
+              value={form.env}
+              onChange={(value: string | string[]) =>
                 setForm({
                   ...form,
-                  appID: Array.isArray(value) ? value[0] : value,
-                });
-              }}
-              placeholder="เลือก App ID"
-              error={form.appID === "" ? "กรุณาเลือก App ID" : ""}
-              disabled={type === "edit"}
+                  env: Array.isArray(value) ? value[0] : value,
+                })
+              }
+              placeholder="เลือกสภาพแวดล้อม"
+              error={form.env === "" ? "กรุณาเลือกสภาพแวดล้อม" : ""}
             />
-          )}
+          </div>
 
-          <InputComponent
-            label="ชื่อเวอร์ชัน (version_name)"
-            id="version_name"
-            name="version_name"
-            value={form.versionName}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setForm({ ...form, versionName: event.target.value });
-            }}
-            type="text"
-            required
-            placeholder="ชื่อเวอร์ชัน เช่น 1.0.0"
-            error={form.versionName === "" ? "กรุณาระบุชื่อเวอร์ชัน" : ""}
-          />
+          {/* Input section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-gray-200 dark:border-gray-700">
+            {/* Version Name */}
+            <InputComponent
+              label="ชื่อเวอร์ชัน"
+              id="version_name"
+              name="version_name"
+              value={form.versionName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setForm({ ...form, versionName: e.target.value })
+              }
+              type="text"
+              required
+              placeholder="เช่น 1.0.0"
+              error={
+                form.versionName === ""
+                  ? "กรุณาระบุชื่อเวอร์ชัน"
+                  : !/^\d+\.\d+\.\d+$/.test(form.versionName)
+                  ? "รูปแบบไม่ถูกต้อง (ควรเป็น x.y.z เช่น 1.0.0)"
+                  : ""
+              }
+            />
+            {/* Version ID (read-only) */}
+            <InputComponent
+              label="Version ID"
+              id="version_id"
+              name="version_id"
+              value={form.versionID ?? "null"}
+              type="text"
+              disabled
+            />
+            {/* Note */}
+            <InputComponent
+              label="หมายเหตุ"
+              id="note"
+              name="note"
+              type="text"
+              value={form.note}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setForm({ ...form, note: e.target.value })
+              }
+              placeholder="ใส่รายละเอียดเพิ่มเติม"
+            />
 
-          <InputComponent
-            label="Version ID (version_id)"
-            id="version_id"
-            name="version_id"
-            value={form.versionID ?? "null"}
-            type="text"
-            disabled
-          />
+            {/* Upload */}
+            <div className="md:col-span-2">
+              <UploadComponent
+                label="เลือกไฟล์แอป (.apk)"
+                id="file"
+                name="file"
+                accept=".apk,.zip"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setForm({ ...form, file: e.target.files?.[0] || null })
+                }
+                error={
+                  form.file === null
+                    ? "กรุณาเลือกไฟล์แอปในรูปแบบ .APK เท่านั้น"
+                    : ""
+                }
+              />
+            </div>
+          </div>
 
-          <SearchableSelectComponent
-            label="เลือกสภาพแวดล้อม (Environment)"
-            options={envOptions}
-            value={form.env}
-            onChange={(value: string | string[]) => {
-              setForm({
-                ...form,
-                env: Array.isArray(value) ? value[0] : value,
-              });
-            }}
-            placeholder="เลือกสภาพแวดล้อม"
-            error={form.env === "" ? "กรุณาเลือกสภาพแวดล้อม" : ""}
-          />
-          <InputComponent
-            label="หมายเหตุ (note)"
-            id="note"
-            name="note"
-            type="text"
-            value={form.note}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setForm({ ...form, note: event.target.value });
-            }}
-            placeholder="หมายเหตุ"
-          />
-          <RadioComponent
-            id="is_lastest_version"
-            name="is_lastest_version"
-            label={`เป็นเวอร์ชันล่าสุดหรือไม่ คำตอบตอนนี้ : (${
-              form.isLastestVersion ? "ใช่" : "ไม่"
-            })`}
-            options={[
-              { label: "ใช่", value: "1" },
-              { label: "ไม่", value: "0" },
-            ]}
-            required
-            value={form.isLastestVersion} // ✅ แปลง boolean → string
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setForm({
-                ...form,
-                isLastestVersion: event.target.value === "1" ? 1 : 0,
-              });
-            }}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Toggle Switch */}
+            <ToggleSwitchComponent
+              id="is_lastest_version"
+              name="is_lastest_version"
+              label="เป็นเวอร์ชันล่าสุดหรือไม่ ?"
+              checked={form.isLastestVersion === 1}
+              onChange={(checked) =>
+                setForm({
+                  ...form,
+                  isLastestVersion: checked ? 1 : 0,
+                })
+              }
+            />
 
-          <UploadComponent
-            label="ไฟล์แอป (.apk หรือ .zip)"
-            id="file"
-            name="file"
-            accept=".apk,.zip"
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setForm({ ...form, file: event.target.files?.[0] || null });
-            }}
-            error={form.file === null ? "กรุณาเลือกไฟล์แอป" : ""}
-          />
+            {/* Force Update */}
+            <ToggleSwitchComponent
+              id="force_update"
+              name="force_update"
+              label="บังคับอัพเดท (Force Update)"
+              checked={form.forceUpdate === 1}
+              onChange={(checked) =>
+                setForm({
+                  ...form,
+                  forceUpdate: checked ? 1 : 0,
+                })
+              }
+            />
+          </div>
+
+          {/* Submit */}
           <button
             type="submit"
-            className="mt-4 w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl"
+            className="mt-4 w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 
+                   hover:from-blue-600 hover:to-indigo-700 
+                   text-white font-semibold rounded-xl shadow-md 
+                   transform transition-all duration-300 ease-in-out 
+                   hover:scale-105 active:scale-95"
           >
             บันทึกเวอร์ชัน
           </button>
@@ -491,16 +530,16 @@ const AddOrEditVersionModal: React.FC<{
 
 // 🧾 คอลัมน์ของตาราง
 const columns: { key: string; label: string }[] = [
-  { key: "app_id", label: "APP ID" },
   { key: "app_name", label: "ชื่อแอปพลิเคชัน" },
   { key: "app_type", label: "แพลตฟอร์ม" },
-  { key: "action", label: "การกระทำ" },
+  { key: "action", label: "" },
 ];
 
 export default function Page() {
   const { t } = useTranslation("mock");
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-
+  // State hooks
   const [applicationList, setApplicationList] = useState<
     ResponseApplicationList["data"]["data"]
   >([]);
@@ -515,14 +554,13 @@ export default function Page() {
     useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
 
+  // Redux selectors
   const STATE_HARDWARE_APPLICATION = useAppSelector(
     (state) => state.callGetHardwareApplication
   );
-
   const STATE_HARDWARE_APPLICATION_BY_APP_ID = useAppSelector(
     (state) => state.callGetHardwareApplicationByAppId
   );
-
   const SCHOOL_LIST_STATE = useAppSelector((state) => state.callSchoolList);
 
   const isLoading = [STATE_HARDWARE_APPLICATION_BY_APP_ID.loading].some(
@@ -539,7 +577,7 @@ export default function Page() {
     setIsPasswordModalOpen(true);
   }, []);
 
-  // 🔄 โหลดข้อมูลรายชื่อโรงเรียน
+  // Load school list
   useEffect(() => {
     setSchoolList(
       SCHOOL_LIST_STATE?.response?.data?.data?.map((item: any) => ({
@@ -549,17 +587,16 @@ export default function Page() {
     );
   }, [SCHOOL_LIST_STATE?.response]);
 
-  // 🚀 โหลดข้อมูลตอนเปิดหน้า (และไม่โหลดซ้ำเมื่อ Modal เปิด)
+  // Fetch application list when page loads (not when modal is open)
   useEffect(() => {
     if (!isModalOpen && applicationList.length === 0) {
       dispatch(GET_APPLICATION_LIST()).unwrap();
     }
   }, [isModalOpen]);
 
-  // 🔄 แปลงข้อมูลจาก Redux เป็นรูปแบบที่ต้องการสำหรับตาราง
+  // Transform Redux data for table
   useEffect(() => {
     const rawList = STATE_HARDWARE_APPLICATION?.response?.data?.data || [];
-
     const transformed = rawList.map(
       (item: ResponseApplicationList["data"]["data"][number]) => ({
         app_name: item.app_name,
@@ -567,24 +604,22 @@ export default function Page() {
         app_type: item.app_type,
       })
     );
-
     setApplicationList(transformed);
   }, [STATE_HARDWARE_APPLICATION?.response]);
 
+  // Debug: log application by app id
   useEffect(() => {
-    console.log(
-      "✅ [STATE_HARDWARE_APPLICATION_BY_APP_ID]",
-      STATE_HARDWARE_APPLICATION_BY_APP_ID.response.data.data
-    );
+    // console.log("✅ [STATE_HARDWARE_APPLICATION_BY_APP_ID]", STATE_HARDWARE_APPLICATION_BY_APP_ID.response.data.data);
   }, [STATE_HARDWARE_APPLICATION_BY_APP_ID]);
 
   const openVersionModal = async (
     data: ResponseApplicationList["data"]["data"][number]
   ) => {
+    setSelectedAppData(data);
     await dispatch(
       setDraftValuesCallGetApplicationByAppId({ app_id: data.app_id })
     );
-    await dispatch(GET_APPLICATION_VERSION_BY_APPID({ app_id: data.app_id })); // เรียก API เพื่อดึงข้อมูลเวอร์ชัน
+    await dispatch(GET_APPLICATION_VERSION_BY_APPID({ app_id: data.app_id }));
     setIsModalOpen(true);
   };
 
@@ -593,21 +628,26 @@ export default function Page() {
       {isLoading && <BaseLoadingComponent />}
 
       <div className="w-full space-y-4">
-        {/* 🔘 ปุ่มเพิ่มเติมในอนาคต */}
+        {/* Action button */}
         <div className="flex justify-end mb-4">
           <RoundedButton
             type="button"
-            className="bg-blue-500 hover:bg-blue-600 text-white"
-            iconLeft={<FiPlus className="w-4 h-4" />}
-            onClick={() => {
-              setShowAddOrEditApplicationModal("add");
-            }}
+            className="bg-blue-500 hover:bg-blue-600 text-white group transition-all duration-300"
+            onClick={() => setShowAddOrEditApplicationModal("add")}
           >
-            เพิ่มแอปพลิเคชัน
+            <span className="flex items-center overflow-hidden">
+              <FiPlus className="w-4 h-4 flex-shrink-0 transition-all duration-300" />
+              <span
+                className="opacity-0 translate-x-[-10px] max-w-0 group-hover:opacity-100 group-hover:translate-x-0 group-hover:max-w-xs transition-all duration-300 ml-2 whitespace-nowrap"
+                style={{ display: "inline-block" }}
+              >
+                เพิ่มเวอร์ชันใหม่
+              </span>
+            </span>
           </RoundedButton>
         </div>
 
-        {/* 📋 รายการแอปพลิเคชัน */}
+        {/* Application list */}
         <ContentCard
           title="รายการแอปพลิเคชัน"
           className="xl:col-span-4 w-full"
@@ -630,17 +670,18 @@ export default function Page() {
         </ContentCard>
       </div>
 
-      {/* Modal ใส่รหัสผ่านก่อนเปิด AddApplicationModal */}
+      {/* Password Modal */}
       <ModalComponent
         isOpen={isPasswordModalOpen}
         title="💬 กรุณาใส่รหัสผ่านก่อนเปิดหน้า"
         onClose={() => setIsPasswordModalOpen(false)}
+        onCancel={() => router.push("/backend")}
       >
         <div className="flex flex-col gap-4">
           <InputComponent
             id="password"
             type="password"
-            label="🔒 รหัสผ่าน"
+            label="รหัสผ่าน"
             value={passwordInput}
             onChange={(e) => setPasswordInput(e.target.value)}
             placeholder="กรอกรหัสผ่าน"
@@ -656,6 +697,7 @@ export default function Page() {
                 setIsPasswordModalOpen(false);
                 setPasswordInput("");
                 setPasswordError("");
+                router.push("/backend");
               }}
               iconLeft={<FiX className="w-4 h-4" />}
             >
@@ -666,7 +708,7 @@ export default function Page() {
               className="bg-blue-500 hover:bg-blue-600 text-white"
               iconLeft={<FiCheck className="w-4 h-4" />}
               onClick={async () => {
-                const correctPassword = "canteenadmin";
+                const correctPassword = "qa";
                 if (passwordInput === correctPassword) {
                   setIsPasswordModalOpen(false);
                   setPasswordInput("");
@@ -688,28 +730,27 @@ export default function Page() {
         </div>
       </ModalComponent>
 
-      {/* Modal สำหรับ AddApplicationModal จริง */}
+      {/* Add/Edit Version Modal */}
       <AddOrEditVersionModal
         type={showAddOrEditApplicationModal}
         isOpenModal={showAddOrEditApplicationModal !== ""}
-        setIsOpenModal={(isOpen) => setShowAddOrEditApplicationModal("")}
+        setIsOpenModal={() => setShowAddOrEditApplicationModal("")}
         schoolList={schoolList}
         appIdList={
           STATE_HARDWARE_APPLICATION.response?.data?.data?.map(
             (item: ResponseApplicationList["data"]["data"][number]) => ({
-              label: `${item.app_name} (${item.app_id})`,
+              label: `${item.app_name}`,
               value: String(item.app_id),
             })
           ) || []
         }
       />
 
+      {/* Version List Modal */}
       <ModalComponent
         isOpen={isModalOpen}
-        title={`เวอร์ชันของ ${selectedAppData?.app_name}`}
-        onClose={() => {
-          setIsModalOpen(false);
-        }}
+        title={`คุณกำลังเลือก ${selectedAppData?.app_name}`}
+        onClose={() => setIsModalOpen(false)}
       >
         <MinimalTable
           key={`version-table-${selectedAppData?.app_name}`}
@@ -717,8 +758,8 @@ export default function Page() {
           header={[
             { key: "version_name", label: "เวอร์ชัน" },
             { key: "env", label: "สภาพแวดล้อม" },
-            { key: "updated_at", label: "อัปเดตเมื่อ" },
-            { key: "action", label: "การกระทำ" },
+            { key: "updated_at", label: "อัปเดทล่าสุด" },
+            { key: "action", label: "" },
           ]}
           data={STATE_HARDWARE_APPLICATION_BY_APP_ID.response?.data?.data || []}
           rowsPerPage={10}
@@ -729,9 +770,9 @@ export default function Page() {
             data={
               STATE_HARDWARE_APPLICATION_BY_APP_ID.response?.data?.data || []
             }
-            setShowEditVersionModal={(type: string) => {
-              setShowAddOrEditApplicationModal(type);
-            }}
+            setShowEditVersionModal={(type: string) =>
+              setShowAddOrEditApplicationModal(type)
+            }
           />
         </MinimalTable>
       </ModalComponent>

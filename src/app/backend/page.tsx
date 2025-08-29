@@ -73,6 +73,62 @@ export default function DashboardPage() {
 // Release notes grouped by date
 const releaseNotes = [
   {
+    date: "2024-08-29",
+    release_note: [
+      {
+        type: "add",
+        emoji: "🔘",
+        message:
+          "เพิ่ม Toggle Switch component สำหรับการตั้งค่า เช่น 'เป็นเวอร์ชันล่าสุด' และ 'Force Update'",
+      },
+      {
+        type: "update",
+        emoji: "🎨",
+        message:
+          "ปรับ InputComponent เป็น Floating Label แบบ Google Material Design พร้อมสถานะ Disabled สีเทา",
+      },
+      {
+        type: "update",
+        emoji: "⬇️",
+        message:
+          "ปรับ SearchableSelectComponent ให้ใช้งานง่ายขึ้น พร้อม animation และ label หายเมื่อเลือกแล้ว",
+      },
+      {
+        type: "update",
+        emoji: "📂",
+        message:
+          "อัปเดต UploadComponent ให้เป็นปุ่ม Upload พร้อม animation hover",
+      },
+      {
+        type: "update",
+        emoji: "📌",
+        message:
+          "DropdownButtonComponent ปรับดีไซน์ใหม่ เพิ่มความเด่นและ animation slide",
+      },
+      {
+        type: "update",
+        emoji: "🖼️",
+        message: "ModalComponent รองรับ onCancel และปรับ animation overlay",
+      },
+      {
+        type: "update",
+        emoji: "⚙️",
+        message:
+          "ปรับหน้า Hardware Canteen Page: Modal Add/Edit Version ให้แยก Section, validation แบบ semantic version, toggle switch",
+      },
+      {
+        type: "add",
+        emoji: "📄",
+        message: "เพิ่มหน้า Release Note สำหรับติดตามประวัติการอัปเดต",
+      },
+      {
+        type: "update",
+        emoji: "🌐",
+        message: "แก้ไขข้อความในเมนู (eng/thai menu.json)",
+      },
+    ],
+  },
+  {
     date: "2024-06-03",
     release_note: [
       {

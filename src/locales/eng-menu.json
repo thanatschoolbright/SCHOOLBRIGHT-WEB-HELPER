@@ -8,7 +8,7 @@
   "cancel_sales": "Cancel Sales Over 7 Days",
   "upload_student_migration": "Upload Student Migration (User Balance)",
   "health_check": "System Health Check",
-  "version_control" : "System Version Control",
+  "version_control": "System Version Control",
   "all_server_status": "All System Status Report",
   "online_status": "Online System Connection Report",
   "offline_sync_status": "Latest Offline Sync Report",
@@ -16,6 +16,7 @@
   "app_notification": "App Notification",
   "leave_letter": "Leave Letter",
   "app_hardware": "Hardware App",
-  "app_canteen" : "Canteen App",
-  "statistics": "Attendance Statistics"
+  "app_canteen": "Canteen App",
+  "statistics": "Attendance Statistics",
+  "app_control": "App Control"
 }

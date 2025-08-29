@@ -395,6 +395,7 @@ export interface RequestCreateApplicationVersion
     note: string;
     file: File | null;
     isLatestVersion: string | number;
+    forceUpdate: string | number;
   };
 }
 
