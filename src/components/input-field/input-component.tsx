@@ -41,7 +41,9 @@ const InputComponent: React.FC<InputComponentProps> = ({
             props.disabled
               ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
               : "bg-transparent"
-          } focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white placeholder-transparent`}
+          } focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-transparent ${
+            props.disabled ? "text-gray-400 dark:text-gray-500" : ""
+          }`}
           {...props}
           onChange={handleChange}
         />

@@ -5,12 +5,12 @@ import { useDispatch } from "react-redux";
 import { AppDispatch, store, useAppSelector } from "@stores/store";
 import { CallAPI } from "@/stores/actions/authentication/call-get-login-admin";
 import BaseLoadingComponent from "@components/loading/loading-component-1";
-// ❌ ลบ SweetAlert2
-// import Swal from "sweetalert2";
-// ✅ ใช้ Sonner
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { CallAPI as CallRefreshAPI } from "@/stores/actions/authentication/call-post-refresh-token";
+
+// ✅ ใช้ InputComponent
+import InputComponent from "@/components/input-field/input-component";
 
 export default function SignInPanel({ visible }: { visible: boolean }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,21 +38,13 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
   const refreshToken = async () => {
     const state = store.getState();
     const { school_id, user_id, token } = state.callRefreshToken.draftValues;
-    console.log("✅ [Refresh Token] Request:", {
-      school_id,
-      user_id,
-      token,
-    });
 
     try {
       const payload = await store
         .dispatch(CallRefreshAPI({ school_id, user_id, token }))
         .unwrap();
 
-      console.log("👨🏻‍💻 [API-GATEWAY] Refresh Token Payload:", payload);
-
       if (payload?.data?.token) {
-        console.log("✅ [API-GATEWAY] New Token:", payload.data.token);
         newToken = payload.data.token;
         return newToken;
       }
@@ -112,22 +104,31 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
       </p>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <input
+        {/* ✅ ใช้ InputComponent */}
+        <InputComponent
+          label="อีเมล"
+          id="username"
           type="email"
-          placeholder="กรอกอีเมลล์"
-          className="w-full border border-gray-300 px-4 py-2 rounded-lg text-black"
+          placeholder="กรอกอีเมล"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setUsername(e.target.value)
+          }
           required
         />
-        <input
+
+        <InputComponent
+          label="รหัสผ่าน"
+          id="password"
           type="password"
           placeholder="••••••••"
-          className="w-full border border-gray-300 px-4 py-2 rounded-lg text-black"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setPassword(e.target.value)
+          }
           required
         />
+
         <button
           type="submit"
           className="w-full bg-[#0071e3] text-white py-3 rounded-xl font-semibold tracking-wide shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-99"
