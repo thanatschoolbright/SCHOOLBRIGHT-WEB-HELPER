@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SB Helper – SchoolBright Back-Office Tool
 
-## Getting Started
+**Web Application ช่วยเหลือการทำงานฝั่ง Back-Office ของระบบ SchoolBright**  
+สร้างด้วย **Next.js** เพื่อช่วยตรวจสอบสุขภาพระบบ, จัดการ Mobile App, และทำ Load Testing ได้จากเว็บโดยตรง
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌟 จุดประสงค์ของโปรเจกต์
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+SB Helper ถูกพัฒนามาเพื่อช่วย **ทีมพัฒนาและทีมซัพพอร์ตของ SchoolBright**  
+ในการตรวจสอบ ติดตาม และจัดการระบบหลังบ้านได้ง่ายขึ้น โดยไม่ต้องพึ่งพาผู้ใช้งานจริง
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔑 ฟีเจอร์หลัก
 
-## Learn More
+### 🩺 ตรวจสุขภาพระบบ (System Health Check)
+- รายงานการทำงานของทุกระบบ
+- ตรวจสอบการเชื่อมต่อออนไลน์
+- ตรวจสอบการซิงก์ข้อมูลออฟไลน์ล่าสุด
+- เช็คเซิร์ฟเวอร์และ service ที่เกี่ยวข้องทั้งหมด
 
-To learn more about Next.js, take a look at the following resources:
+### 📱 แอปพลิเคชันมือถือ (Mobile App Support)
+- ตรวจสอบ **In-App Notification**
+- เช็ค **จดหมายลาหยุด**
+- ดู **สถิติการมาเรียน**
+- จัดการ **App Version Control** ได้จากหลังบ้าน
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### ⚙️ ระบบฮาร์ดแวร์แอป (Hardware Integration)
+- รองรับการตรวจสอบการทำงานของอุปกรณ์ที่เชื่อมกับ SchoolBright
+- Monitor สถานะการเชื่อมต่อแบบ Real-time
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🚀 Load Testing & Bypass
+- ระบบทดสอบโหลด (Load Testing) ผ่านเว็บ
+- **Bypass ระดับโรงเรียน** เพื่อจำลองการใช้งานจริง โดยไม่ต้องใช้ User/Password ของนักเรียนหรือครู
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ เทคโนโลยีที่ใช้
+- **Next.js** – Web Framework ที่ทันสมัยและรองรับการทำงานแบบ Full-Stack
+- **TypeScript** – เพิ่มความปลอดภัยและลด bug ในโค้ด
+- **API Integration** – เชื่อมต่อกับระบบ SchoolBright หลักเพื่อนำข้อมูลมาใช้
+- **UI/UX Friendly** – ออกแบบมาเพื่อทีม Dev/Support ใช้งานง่ายที่สุด
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📌 Highlights
+- ตรวจสอบระบบได้ครบ จบในที่เดียว
+- ช่วยทีมงาน SchoolBright ทำงานเร็วขึ้น ไม่ต้องรอผู้ใช้รีพอร์ต
+- Mobile Friendly ใช้งานได้สะดวกทั้งบน Desktop และ Mobile
+- โชว์ประสิทธิภาพด้วย Load Testing ที่รันได้ทันทีจากเว็บ
+
+---
+
+## 🔗 Production
+[https://sb-helper.schoolbright.co/](https://sb-helper.schoolbright.co/)
