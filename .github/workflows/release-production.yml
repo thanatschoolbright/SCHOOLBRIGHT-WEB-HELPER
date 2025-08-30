@@ -2,7 +2,7 @@ name: 🚀 Release Production
 
 on:
   push:
-    branches: [ main ]
+    branches: [release/production]
   workflow_dispatch:
     inputs:
       tag:

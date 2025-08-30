@@ -62,7 +62,7 @@ export default function Page() {
     devAccountingURL:
       "https://dev-accounting.schoolbright.co/Home/ByPass?token=",
     prodAccountingURL: "https://accounting.schoolbright.co/Home/ByPass?token=",
-    prodExamURL: "https://exam.schoolbright.co/Home/getToken?token=",
+    prodExamURL: "https://exam.schoolbright.co/home/getToken?token=",
   });
   const [bypass, setBypass] = useState<string>("");
   const [mode, setMode] = useState<{
@@ -657,7 +657,7 @@ export default function Page() {
                             </li>
                           </ul>
                         </li>
-                        <li className="hidden group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-amber-100 dark:bg-amber-900/60">
+                        <li className="group relative px-4 py-2 hover:bg-sky-400 dark:hover:bg-gray-400 cursor-pointer bg-sky-100 dark:bg-sky-900/60">
                           🚀 SB Exam
                           <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
                             <li
