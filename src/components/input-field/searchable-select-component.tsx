@@ -145,7 +145,7 @@ export function SearchableSelectComponent({
         tabIndex={0}
       >
         <div
-          className={`flex items-center justify-between px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg min-h-[40px] flex-wrap gap-1`}
+          className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg min-h-[48px] flex-wrap gap-1`}
         >
           {multiselect ? (
             <div className="flex flex-wrap gap-1 flex-1 min-w-0">

@@ -18,5 +18,6 @@
   "app_hardware": "Hardware App",
   "app_canteen": "Canteen App",
   "statistics": "Attendance Statistics",
+  "qrcode_health_check": "QR Code Health Check",
   "app_control": "App Control"
 }

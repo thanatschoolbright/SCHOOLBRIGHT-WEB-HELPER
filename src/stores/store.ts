@@ -25,6 +25,7 @@ import callPostCreateApplicationVersionReducer from "@stores/reducers/hardware/c
 import callPostUpdateApplicationVersionReducer from "@stores/reducers/hardware/canteen/call-post-update-application-version";
 import callPostStatisticReducer from "@stores/reducers/mobile/call-post-statistic";
 import callVersionControlReducer from "@stores/reducers/health-check/version-control/reducer";
+import callQRCodeHealthCheckReducer from "@stores/reducers/mobile/qrcode-health-check/reducer";
 // #endregion
 
 export const store = configureStore({
@@ -53,6 +54,7 @@ export const store = configureStore({
     callPostUpdateApplicationVersion: callPostUpdateApplicationVersionReducer,
     callPostStatistic: callPostStatisticReducer,
     callVersionControlReducer,
+    callQRCodeHealthCheckReducer,
   },
 });
 

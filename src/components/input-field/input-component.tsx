@@ -6,6 +6,8 @@ interface InputComponentProps
   id: string;
   error?: string;
   required?: boolean; // 🟥 เพิ่ม required prop
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 const InputComponent: React.FC<InputComponentProps> = ({
@@ -14,6 +16,8 @@ const InputComponent: React.FC<InputComponentProps> = ({
   type,
   error,
   required = false,
+  leftIcon,
+  rightIcon,
   ...props
 }) => {
   const [fileName, setFileName] = useState<string>("");
@@ -28,35 +32,48 @@ const InputComponent: React.FC<InputComponentProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="relative group">
-        <input
-          id={id}
-          type={type}
-          required={required}
-          placeholder=" "
-          className={`peer w-full px-4 pt-6 pb-2 border ${
-            error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
-          } rounded-xl ${
-            props.disabled
-              ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
-              : "bg-transparent"
-          } focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-transparent ${
-            props.disabled ? "text-gray-400 dark:text-gray-500" : ""
-          }`}
-          {...props}
-          onChange={handleChange}
-        />
+    <div className="flex flex-col gap-1 items-center">
+      <div className="relative group overflow-visible w-full">
+        <div className="relative w-full">
+          {leftIcon && (
+            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              {leftIcon}
+            </div>
+          )}
+          <input
+            id={id}
+            type={type}
+            required={required}
+            placeholder=" "
+            className={`peer w-full px-4 pt-5 pb-3 border border-2 ${
+              error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+            } rounded-md ${
+              props.disabled
+                ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
+                : "bg-white dark:bg-gray-800"
+            } focus:outline-none focus:border-purple-500 text-gray-900 dark:text-gray-100 placeholder-transparent ${
+              props.disabled ? "text-gray-400 dark:text-gray-500" : ""
+            }${leftIcon ? " pl-10" : ""}${rightIcon ? " pr-10" : ""}`}
+            {...props}
+            onChange={handleChange}
+          />
+          {rightIcon && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              {rightIcon}
+            </div>
+          )}
+        </div>
         <label
           htmlFor={id}
-          className={`absolute left-4 top-2 text-gray-500 dark:text-gray-400 text-sm font-extralight pointer-events-none transition-all duration-200 ease-in-out ${
+          className={`absolute -top-2 left-3 bg-white dark:bg-gray-800 px-1 text-gray-500 dark:text-gray-400 text-sm font-extralight pointer-events-none transition-all duration-200 ease-in-out z-10 peer-placeholder-shown:top-3.5 peer-placeholder-shown:left-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:dark:text-gray-500 peer-focus:-top-2 peer-focus:left-3 peer-focus:text-purple-600 ${
             required
               ? "after:content-['*'] after:ml-1 after:text-red-500 after:font-thin"
               : ""
-          } peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:dark:text-gray-500 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-500 dark:peer-focus:text-blue-400 ${
-            props.disabled ? "text-gray-400 dark:text-gray-500" : ""
+          } ${
+            props.disabled
+              ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
+              : ""
           }`}
-          style={{ letterSpacing: "0.00em" }}
         >
           {label}
         </label>

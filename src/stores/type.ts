@@ -422,3 +422,28 @@ export interface RequestVersionControl
   extends DefaultRedux<ResponseVersionControl> {
   draftValues: {};
 }
+export interface ResponseQRCodeGenerator {
+  message: string;
+  raw: any;
+  data: {
+    data: {
+      status: string;
+      results: {
+        bank: string | null;
+        status: string | null;
+        request_body: any;
+        response_body: any;
+        response_time: number;
+      }[];
+    };
+  };
+}
+
+export interface RequestQRCodeGenerator
+  extends DefaultRedux<ResponseQRCodeGenerator> {
+  draftValues: {
+    amount: number;
+    school_id: number;
+    shop_id: number;
+  };
+}

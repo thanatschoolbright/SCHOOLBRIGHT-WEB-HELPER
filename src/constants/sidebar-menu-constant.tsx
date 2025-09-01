@@ -68,6 +68,10 @@ export const useSidebarMenu = () => {
             label: t("statistics"),
             href: "/mobile/statistic",
           },
+          {
+            label: t("qrcode_health_check"),
+            href: "/mobile/qrcode-health-check",
+          },
         ],
       },
       {
