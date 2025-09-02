@@ -1,25 +1,51 @@
 {
-  "testing": "การทดสอบ",
-  "automated_testing": "การทดสอบอัตโนมัติ",
-  "load_testing": "โหลดเทส",
-  "support": "ฝ่ายสนับสนุน",
-  "bypass_school": "Bypass โรงเรียน",
-  "test_nfc_card": "ทดสอบค้นหาบัตร NFC (Vimal)",
-  "cancel_sales": "ยกเลิกรายการสินค้าเกิน 7 วัน",
-  "upload_student_migration": "อัปโหลดการย้ายข้อมูลนักเรียน (User Balance)",
-  "health_check": "ตรวจสุขภาพระบบ",
-  "version_control": "เช็กเวอร์ชันทุกระบบ",
-  "all_server_status": "รายงานการทำงานทุกระบบ",
-  "online_status": "รายงานการเชื่อมต่อระบบออนไลน์",
-  "offline_sync_status": "รายงานซิงก์ข้อมูลออฟไลน์ล่าสุด",
-  "mobile_app": "แอปพลิเคชันมือถือ",
-  "app_notification": "แจ้งเตือนในแอพ",
-  "leave_letter": "จดหมายลาหยุด",
-  "statistics": "สถิติการมาเรียน",
-  "qrcode_health_check": "ตรวจสอบระบบ QR Code",
-  "mobile_notification": "แจ้งเตือนในแอพ",
-  "mobile_leave_letter": "จดหมายลาหยุด",
-  "app_hardware": "ฮาร์ดแวร์แอพ",
-  "app_canteen": "แอพโรงอาหาร",
-  "app_control": "การควบคุมแอพ"
+  "testing": {
+    "title": "การทดสอบ",
+    "children": {
+      "automated_testing": "การทดสอบอัตโนมัติ",
+      "load_testing": "โหลดเทส"
+    }
+  },
+  "support": {
+    "title": "ฝ่ายสนับสนุน",
+    "children": {
+      "bypass_school": "Bypass โรงเรียน",
+      "test_nfc_card": "ทดสอบค้นหาบัตร NFC (Vimal)",
+      "cancel_sales": "ยกเลิกรายการสินค้าเกิน 7 วัน",
+      "upload_student_migration": "อัปโหลดการย้ายข้อมูลนักเรียน (User Balance)"
+    }
+  },
+  "health_check": {
+    "title": "ตรวจสุขภาพระบบ",
+    "children": {
+      "version_control": "เช็กเวอร์ชันทุกระบบ",
+      "all_server_status": "รายงานการทำงานทุกระบบ",
+      "online_status": "รายงานการเชื่อมต่อระบบออนไลน์",
+      "offline_sync_status": "รายงานซิงก์ข้อมูลออฟไลน์ล่าสุด"
+    }
+  },
+  "mobile_app": {
+    "title": "แอปพลิเคชันมือถือ",
+    "children": {
+      "app_notification": "แจ้งเตือนในแอพ",
+      "leave_letter": "จดหมายลาหยุด",
+      "statistics": "สถิติการมาเรียน",
+      "qrcode_health_check": "ตรวจสอบระบบ QR Code",
+      "mobile_notification": "แจ้งเตือนในแอพ",
+      "mobile_leave_letter": "จดหมายลาหยุด"
+    }
+  },
+  "app_hardware": {
+    "title": "ฮาร์ดแวร์แอพ",
+    "children": {
+      "app_canteen": "แอพโรงอาหาร",
+      "app_control": "การควบคุมแอพ"
+    }
+  },
+  "timesheet_system": {
+    "title": "ระบบทามชีท",
+    "children": {
+      "project": "จัดการโครงการ"
+    }
+  }
 }

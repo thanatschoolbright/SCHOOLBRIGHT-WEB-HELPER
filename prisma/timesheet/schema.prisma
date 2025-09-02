@@ -1,0 +1,53 @@
+generator timesheet_client {
+  provider      = "prisma-client-js"
+  output        = "../../generated/prisma-timesheet"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource timesheet {
+  provider = "postgresql"
+  url      = env("DATABASE_TIMESHEET_URL")
+}
+
+
+model Project {
+  id         Int              @id @default(autoincrement()) @map("id")
+  name       String           @map("name")
+  features   Feature[]
+  timesheets TimesheetEntry[]
+  description String
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+  createdBy  Int?             @map("created_by")
+  updatedBy  Int?             @map("updated_by")
+
+  @@map("project")
+}
+
+model Feature {
+  id         Int              @id @default(autoincrement()) @map("id")
+  projectId  Int              @map("project_id")
+  name       String           @map("name")
+  project    Project          @relation(fields: [projectId], references: [id])
+  timesheets TimesheetEntry[]
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+  createdBy  Int?             @map("created_by")
+  updatedBy  Int?             @map("updated_by")
+
+  @@map("feature")
+}
+
+model TimesheetEntry {
+  id          Int       @id @default(autoincrement()) @map("id")
+  projectId   Int       @map("project_id")
+  featureId   Int       @map("feature_id")
+  date        DateTime  @map("date")
+  hours       Decimal   @map("hours")
+  description String?   @map("description")
+  status      String    @default("DRAFT") @map("status")
+  project     Project   @relation(fields: [projectId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  feature     Feature   @relation(fields: [featureId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+
+  @@map("timesheet_entry")
+}
