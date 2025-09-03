@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ProjectService } from "@services/backend/timesheet/project.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { z } from "zod";
+import { validateRequest } from "@/helpers/api/validate.request";
 
 const ProjectReadSchema = z
   .object({
@@ -14,42 +15,25 @@ const ProjectReadSchema = z
   });
 
 export async function POST(request: NextRequest) {
-  let body: any;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json(errorResponse({ error: "Invalid JSON body" }), {
-      status: 400,
-    });
+  const { data, error } = await validateRequest(request, ProjectReadSchema);
+  if (error) {
+    return error;
   }
 
-  const parsed = ProjectReadSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      {
-        status: 400,
-        message: "Validation failed",
-        errors: parsed.error.issues,
-      },
-      { status: 400 }
-    );
-  }
-  const dto = parsed.data;
-
   try {
-    const { id, limit = 10, page = 1 } = dto;
+    const { id, limit = 10, page = 1 } = data;
     const take = Number(limit);
     const currentPage = Number(page);
-    let data;
+    let dataResult;
     let total = 0;
 
     if (id) {
-      data = await ProjectService.findById(Number(id));
-      total = data ? 1 : 0;
+      dataResult = await ProjectService.findById(Number(id));
+      total = dataResult ? 1 : 0;
     } else {
       const skip = (currentPage - 1) * take;
       const result = await ProjectService.findAll({ limit: take, skip });
-      data = result.items;
+      dataResult = result.items;
       total = result.total;
     }
 
@@ -57,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       successResponse({
-        data,
+        data: dataResult,
         pagination: {
           page: currentPage,
           pageSize: take,

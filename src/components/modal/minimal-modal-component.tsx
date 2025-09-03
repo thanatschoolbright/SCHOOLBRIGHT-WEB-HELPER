@@ -7,37 +7,52 @@ export default function MinimalModal({
   children,
   confirmMode = false,
   onConfirm,
+  isOpen,
 }: {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
   confirmMode?: boolean;
   onConfirm?: () => void;
+  isOpen?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(true); // ควบคุม unmount
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 10); // trigger เปิด
-    return () => clearTimeout(timer);
-  }, []);
+    if (isOpen === undefined) {
+      const timer = setTimeout(() => setVisible(true), 10); // trigger เปิด
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
-    setVisible(false); // ค่อยๆ หายไปก่อน
-    setTimeout(() => {
-      setShouldRender(false);
-      onClose(); // แล้วค่อยปิดจริง
-    }, 300); // ระยะเวลาเดียวกับ duration-300
+    if (isOpen === undefined) {
+      setVisible(false); // ค่อยๆ หายไปก่อน
+      setTimeout(() => {
+        setShouldRender(false);
+        onClose(); // แล้วค่อยปิดจริง
+      }, 300); // ระยะเวลาเดียวกับ duration-300
+    } else {
+      onClose();
+    }
   };
 
-  if (!shouldRender) return null;
+  if (isOpen === false || (!shouldRender && isOpen === undefined)) return null;
+
+  const isVisible = isOpen === undefined ? visible : isOpen;
+  const isRendered = isOpen === undefined ? shouldRender : isOpen;
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
+    <div
+      className={`fixed inset-0 z-[999] flex items-center justify-center px-4 transition-opacity duration-300 ${
+        isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
+      }`}
+    >
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black transition-opacity duration-300 ${
-          visible ? "opacity-40" : "opacity-0"
+        className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${
+          isVisible ? "opacity-40" : "opacity-0"
         }`}
         onClick={handleClose}
       />
@@ -45,8 +60,12 @@ export default function MinimalModal({
       {/* Modal content */}
       <div
         className={`
-          relative bg-white/95 dark:bg-gray-900/95 w-full max-w-4xl rounded-xl shadow-2xl shadow-purple-100/30 dark:shadow-purple-800/20 p-6 transition-all duration-500 ease-in-out
-          transform ${visible ? "scale-100 opacity-100" : "scale-95 opacity-0"}
+          relative bg-white/95 dark:bg-gray-900/95 w-full max-w-4xl rounded-xl shadow-2xl shadow-purple-100/30 dark:shadow-purple-800/20 p-6
+          transition-all duration-300 ${
+            isVisible
+              ? "opacity-100 scale-100 ease-out"
+              : "opacity-0 scale-95 ease-in"
+          }
         `}
       >
         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-200">

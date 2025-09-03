@@ -33,7 +33,7 @@ export default function UserDropdown() {
           สวัสดีคุณ &nbsp;
           {(AUTHENTICATION.response.data.name ?? "Name") +
             " " +
-            (AUTHENTICATION.response.data.lastname ?? "")}
+            (AUTHENTICATION.response.data.lastname ?? "")}{" "}
         </span>
         <Image
           src="/photo/profile.png"

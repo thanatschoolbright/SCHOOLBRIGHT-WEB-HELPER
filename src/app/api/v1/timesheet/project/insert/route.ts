@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ProjectService } from "@services/backend/timesheet/project.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
+import { validateRequest } from "@helpers/api/validate.request";
 import { z } from "zod";
 
 const ProjectCreateUpdateSchema = z.object({
@@ -10,43 +11,12 @@ const ProjectCreateUpdateSchema = z.object({
   by: z.number().min(1),
 });
 
-async function validateRequest(request: NextRequest) {
-  let body: any;
-  try {
-    body = await request.json();
-  } catch {
-    return {
-      error: NextResponse.json(
-        errorResponse({
-          message_en: "Invalid JSON body",
-          message_th: "ข้อมูล JSON ไม่ถูกต้อง",
-        }),
-        { status: 400 }
-      ),
-    };
-  }
-
-  const parsed = ProjectCreateUpdateSchema.safeParse(body);
-  if (!parsed.success) {
-    return {
-      error: NextResponse.json(
-        {
-          status: 400,
-          message_en: "Validation failed",
-          message_th: "การตรวจสอบไม่ผ่าน",
-          errors: parsed.error.issues,
-        },
-        { status: 400 }
-      ),
-    };
-  }
-
-  return { data: parsed.data };
-}
-
 export async function POST(request: NextRequest) {
   // Parse and validate request
-  const { data, error } = await validateRequest(request);
+  const { data, error } = await validateRequest(
+    request,
+    ProjectCreateUpdateSchema
+  );
   if (error) return error;
 
   const { id, name, description, by } = data;

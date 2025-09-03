@@ -60,7 +60,7 @@ export const ProjectService = {
   },
 
   // * ลบ Project ตาม ID
-  async delete(id: number) {
+  async delete(id: number, p0: { deletedBy: number }) {
     return await PrismaTimesheet.project.delete({
       where: { id },
     });
