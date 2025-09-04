@@ -11,6 +11,7 @@ import { CallAPI as CallRefreshAPI } from "@/stores/actions/authentication/call-
 
 // ✅ ใช้ InputComponent
 import InputComponent from "@/components/input-field/input-component";
+import { FiMail, FiLock } from "react-icons/fi";
 
 export default function SignInPanel({ visible }: { visible: boolean }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -124,6 +125,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
             setUsername(e.target.value)
           }
           required
+          leftIcon={<FiMail className="w-5 h-5 text-gray-400" />}
         />
 
         <InputComponent
@@ -136,6 +138,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
             setPassword(e.target.value)
           }
           required
+          leftIcon={<FiLock className="w-5 h-5 text-gray-400" />}
         />
 
         <button

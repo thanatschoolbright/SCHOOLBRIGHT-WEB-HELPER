@@ -1,5 +1,7 @@
+// src/components/InputComponent.tsx
 import React, { useState } from "react";
 
+// กำหนด type ของ props
 interface InputComponentProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -13,7 +15,7 @@ interface InputComponentProps
 const InputComponent: React.FC<InputComponentProps> = ({
   label,
   id,
-  type = "text",
+  type,
   error,
   required = false,
   leftIcon,
@@ -32,44 +34,67 @@ const InputComponent: React.FC<InputComponentProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-1 w-full px-1">
-      {/* Label อยู่ด้านบน input */}
-      <label
-        htmlFor={id}
-        className={`text-sm font-medium text-gray-900 dark:text-gray-100 ${
-          required ? "after:content-['*'] after:ml-1 after:text-red-500" : ""
-        }`}
-      >
-        {label}
-      </label>
-
-      <div className="relative w-full">
-        {leftIcon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-            {leftIcon}
-          </div>
-        )}
-
-        <input
-          id={id}
-          type={type}
-          required={required}
-          className={`w-full rounded-full border ${
-            error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
-          } py-2 px-4 ${leftIcon ? "pl-10" : ""} ${rightIcon ? "pr-10" : ""} 
-          bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 
-          focus:outline-none focus:ring-2 focus:ring-purple-500`}
-          {...props}
-          onChange={handleChange}
-        />
-
-        {rightIcon && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-            {rightIcon}
-          </div>
-        )}
+    <div className="flex flex-col gap-1 items-center w-full">
+      <div className="relative w-full group overflow-visible">
+        <div className="relative w-full">
+          {leftIcon && (
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-colors duration-200 peer-focus:text-purple-600 peer-focus:dark:text-purple-400">
+              {leftIcon}
+            </div>
+          )}
+          <input
+            id={id}
+            type={type}
+            required={required}
+            placeholder=" "
+            className={`
+              peer w-full px-4 pt-5 pb-3 border border-2 rounded-md
+              ${
+                error
+                  ? "border-red-500"
+                  : "border-gray-300 dark:border-gray-600"
+              }
+              ${
+                props.disabled
+                  ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "bg-white dark:bg-gray-800"
+              }
+              text-gray-900 dark:text-gray-100 placeholder-transparent transition-all duration-300 ease-in-out
+              focus:outline-none focus:border-purple-500
+              ${leftIcon ? "pl-10" : ""}
+              ${rightIcon ? "pr-10" : ""}
+            `}
+            {...props}
+            onChange={handleChange}
+          />
+          {rightIcon && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 transition-colors duration-200 peer-focus:text-purple-600 peer-focus:dark:text-purple-400">
+              {rightIcon}
+            </div>
+          )}
+        </div>
+        <label
+          htmlFor={id}
+          className={`
+            absolute -top-2 left-3 px-1 text-gray-500 dark:text-gray-400 text-sm font-extralight pointer-events-none
+            transition-all duration-300 ease-in-out
+            peer-placeholder-shown:top-3.5 peer-placeholder-shown:left-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:dark:text-gray-500
+            peer-focus:-top-2 peer-focus:left-3 peer-focus:text-purple-600 peer-focus:dark:text-purple-400
+            ${
+              required
+                ? "after:content-['*'] after:ml-1 after:text-red-500 after:font-thin"
+                : ""
+            }
+            ${
+              props.disabled
+                ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                : "bg-white dark:bg-gray-800"
+            }
+          `}
+        >
+          {label}
+        </label>
       </div>
-
       {type === "file" && fileName && (
         <span className="text-xs text-gray-500 mt-1">{fileName}</span>
       )}
