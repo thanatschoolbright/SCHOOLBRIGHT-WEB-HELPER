@@ -1,7 +1,7 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { Project } from "generated/prisma-timesheet"; // Prisma Client ของ Timesheet
 
-export const ProjectService = {
+export const Service = {
   // * ดึงข้อมูล Project ทั้งหมด พร้อม pagination
   async findAll(
     opts: { limit?: number; skip?: number } = { limit: 50, skip: 0 }

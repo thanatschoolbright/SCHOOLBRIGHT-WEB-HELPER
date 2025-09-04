@@ -26,6 +26,7 @@ import callPostUpdateApplicationVersionReducer from "@stores/reducers/hardware/c
 import callPostStatisticReducer from "@stores/reducers/mobile/call-post-statistic";
 import callVersionControlReducer from "@stores/reducers/health-check/version-control/reducer";
 import callQRCodeHealthCheckReducer from "@stores/reducers/mobile/qrcode-health-check/reducer";
+import loginReucerV2 from "@stores/reducers/authentication/sign-in/reducer";
 // #endregion
 
 export const store = configureStore({
@@ -55,6 +56,7 @@ export const store = configureStore({
     callPostStatistic: callPostStatisticReducer,
     callVersionControlReducer,
     callQRCodeHealthCheckReducer,
+    loginReucerV2,
   },
 });
 

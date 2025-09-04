@@ -447,3 +447,28 @@ export interface RequestQRCodeGenerator
     shop_id: number;
   };
 }
+
+export interface RequestLoginV2 extends DefaultRedux<ResponseLoginV2> {
+  draftValues: {
+    username: string;
+    password: string;
+  };
+}
+
+export interface ResponseLoginV2 {
+  data: {
+    success: boolean;
+    token: string;
+    user_data: {
+      admin_id: number;
+      employee_code: string;
+      firstname: string;
+      lastname: string;
+      nickname: string;
+      email: string;
+      backlog_email: string;
+      tel: string;
+      position: string;
+    };
+  };
+}

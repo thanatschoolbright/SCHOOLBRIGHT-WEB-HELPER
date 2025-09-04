@@ -19,6 +19,7 @@ import MinimalModal from "@components/modal/minimal-modal-component";
 import { toast } from "sonner";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 
 interface Project {
   id: number;
@@ -40,6 +41,10 @@ interface ProjectForm {
 export default function Page() {
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
 
+  const { project_id } = useParams() as { project_id: string };
+  const router = useRouter();
+  const [projectName, setProjectName] = useState<string>("");
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [form, setForm] = useState<ProjectForm & { confirmText?: string }>({
     name: "",
@@ -51,6 +56,33 @@ export default function Page() {
   const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [detailProject, setDetailProject] = useState<Project | null>(null);
+
+  // Fetch project detail for projectName
+  useEffect(() => {
+    const fetchProjectDetail = async () => {
+      if (!project_id) return;
+      try {
+        const res = await fetch("/api/v1/timesheet/project/read/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: Number(project_id) }),
+        });
+        if (!res.ok) throw new Error("Failed to fetch project detail");
+        const data = await res.json();
+        // If API returns single project as array or object
+        const project =
+          Array.isArray(data.data) && data.data.length > 0
+            ? data.data[0]
+            : data.data || {};
+        setProjectName(project.name || "");
+      } catch (error) {
+        setProjectName("");
+      }
+    };
+    fetchProjectDetail();
+  }, [project_id]);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -199,15 +231,7 @@ export default function Page() {
         <FiTrash2 className="w-5 h-5" />
       </button>
       <Link
-        href={`/timesheet/project/sub-project/${
-          project.id
-        }?data=${encodeURIComponent(
-          JSON.stringify({
-            id: project.id,
-            name: project.name,
-            description: project.description,
-          })
-        )}`}
+        href={`/timesheet/project/sub-project/${project.id}`}
         className="text-green-600 hover:text-green-800 flex items-center"
         aria-label="Go to Sub Project"
       >
@@ -227,6 +251,20 @@ export default function Page() {
   return (
     <DashboardLayout>
       <div className="w-full space-y-4">
+        <div className="w-full flex justify-start">
+          <RoundedButton
+            type="button"
+            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 flex items-center space-x-2"
+            onClick={() => router.back()}
+            iconLeft={<FiArrowRight className="w-5 h-5 rotate-180" />}
+          >
+            <span>ย้อนกลับ</span>
+          </RoundedButton>
+        </div>
+        {/* Project Name Header */}
+        <ContentCard title="โครงการ" className="w-1/2 mb-2">
+          <div className="text-2xl font-bold text-gray-700">{projectName}</div>
+        </ContentCard>
         {/* Add Project Button */}
         <div className="w-full flex justify-end">
           <RoundedButton

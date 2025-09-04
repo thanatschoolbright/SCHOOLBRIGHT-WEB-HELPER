@@ -3,7 +3,7 @@
 import React, { useState, FormEvent } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch, store, useAppSelector } from "@stores/store";
-import { CallAPI } from "@/stores/actions/authentication/call-get-login-admin";
+import { CallAPI } from "@/stores/actions/authentication/sign-in/action";
 import BaseLoadingComponent from "@components/loading/loading-component-1";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -16,8 +16,8 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
-  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
-  const isLoading = [AUTHENTICATION.loading].some(Boolean);
+  const AUTHENTICATION_V2 = useAppSelector((state) => state.loginReucerV2);
+  const isLoading = AUTHENTICATION_V2.loading;
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -73,11 +73,20 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
     e.preventDefault();
     try {
       await refreshToken();
-      const response = await dispatch(CallAPI({ username, password })).unwrap();
-      if (response?.data?.token === undefined) {
-        return loginFailure(response?.data);
-      } else if (response?.data?.token !== undefined) {
-        localStorage.setItem("AUTH_USER", JSON.stringify(response?.data));
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("password", password);
+      const response = await dispatch(CallAPI(formData)).unwrap();
+      if (!response.success) {
+        return loginFailure(response.message || "Unknown error");
+      } else if (response.token !== undefined) {
+        localStorage.setItem(
+          "AUTH_USER",
+          JSON.stringify({
+            token: response.token,
+            user_data: response.user_data,
+          })
+        );
         return await loginSuccess();
       }
     } catch (error: any) {

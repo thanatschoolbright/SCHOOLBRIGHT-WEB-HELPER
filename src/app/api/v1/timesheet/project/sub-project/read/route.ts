@@ -1,34 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Service } from "@services/backend/timesheet/project.service";
+import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { z } from "zod";
 import { validateRequest } from "@/helpers/api/validate.request";
 
-const ProjectReadSchema = z
-  .object({
-    id: z.number().optional(),
-    limit: z.number().min(1), // required
-    page: z.number().min(1).optional(),
-  })
-  .refine((data) => data.id !== undefined || data.page !== undefined, {
-    message: "ต้องระบุ id หรือ page อย่างน้อย 1 อย่าง และต้องกำหนด limit เสมอ",
-  });
+const Schema = z.object({
+  project_id: z.union([z.number().min(1), z.string().min(1)]),
+  limit: z.union([z.number().min(1), z.string()]),
+  page: z.union([z.number().min(1), z.string()]),
+});
 
 export async function POST(request: NextRequest) {
-  const { data, error } = await validateRequest(request, ProjectReadSchema);
+  const { data, error } = await validateRequest(request, Schema);
   if (error) {
     return error;
   }
 
   try {
-    const { id, limit = 10, page = 1 } = data;
+    const { project_id, limit = 10, page = 1 } = data;
     const take = Number(limit);
     const currentPage = Number(page);
     let dataResult;
     let total = 0;
 
-    if (id) {
-      dataResult = await Service.findById(Number(id));
+    if (project_id) {
+      dataResult = await Service.findByProjectId(Number(project_id));
       total = dataResult ? 1 : 0;
     } else {
       const skip = (currentPage - 1) * take;

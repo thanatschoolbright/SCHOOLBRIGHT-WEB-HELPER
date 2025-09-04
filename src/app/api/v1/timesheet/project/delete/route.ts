@@ -1,4 +1,4 @@
-import { ProjectService } from "@services/backend/timesheet/project.service";
+import { Service } from "@services/backend/timesheet/project.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { z } from "zod";
 import { validateRequest } from "@/helpers/api/validate.request";
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   const { id, by } = data;
 
   try {
-    await ProjectService.delete(id, { deletedBy: by });
+    await Service.delete(id, { deletedBy: by });
 
     return NextResponse.json(
       successResponse({

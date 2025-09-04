@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ProjectService } from "@services/backend/timesheet/project.service";
+import { Service } from "@services/backend/timesheet/project.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
 import { z } from "zod";
@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const project = id
-      ? await ProjectService.update(id, { name, description, updatedBy: by })
-      : await ProjectService.create({ name, description, createdBy: by });
+      ? await Service.update(id, { name, description, updatedBy: by })
+      : await Service.create({ name, description, createdBy: by });
 
     return NextResponse.json(
       successResponse({

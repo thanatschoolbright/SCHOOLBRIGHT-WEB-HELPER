@@ -30,11 +30,12 @@ function getStatusColor(status: number): string {
   return reset;
 }
 
-function logRequestDetails(
+async function logRequestDetails(
   req: NextRequest,
   requestBody: any,
   duration: number,
-  status: number
+  status: number,
+  responseBody: any
 ) {
   const statusColor = getStatusColor(status);
   console.log(
@@ -55,9 +56,26 @@ function logRequestDetails(
   }
   console.log(`${boldRed}Response Time${reset}: ${duration}ms`);
   console.log(`${statusColor}Status${reset}: ${status}`);
-  console.log(`${boldRed}Response Body${reset}: N/A`);
+  if (responseBody !== null && responseBody !== undefined) {
+    console.log(
+      `${boldRed}Response Body${reset}: ${prettyPrintAndTruncate(responseBody)}`
+    );
+  } else {
+    console.log(`${boldRed}Response Body${reset}: null`);
+  }
   console.log(`${boldRed}URL${reset}: ${req.url}`);
   console.log(`${boldRed}Endpoint${reset}: ${new URL(req.url).pathname}`);
+
+  // Detect if targeting external API
+  if (req.url.includes("adminsystem.schoolbright.co")) {
+    console.log(
+      `${boldRed}External API Request${reset}: Placeholder for external API request details`
+    );
+    console.log(
+      `${boldRed}External API Response${reset}: Placeholder for external API response details`
+    );
+  }
+
   console.log(
     "================================================================================================"
   );
@@ -77,15 +95,39 @@ export async function middleware(req: NextRequest) {
       try {
         requestBody = await req.clone().json();
       } catch {
-        requestBody = null;
+        try {
+          const formData = await req.clone().formData();
+          requestBody = Object.fromEntries(formData.entries());
+        } catch {
+          requestBody = null;
+        }
       }
     }
 
     const res = NextResponse.next();
 
+    let responseBody: any = null;
+    try {
+      const resClone = res.clone();
+      const contentType = resClone.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        responseBody = await resClone.json();
+      } else {
+        responseBody = await resClone.text();
+      }
+    } catch {
+      responseBody = null;
+    }
+
     const duration = Date.now() - requestStartTime;
 
-    logRequestDetails(req, requestBody, duration, res.status);
+    await logRequestDetails(
+      req,
+      requestBody,
+      duration,
+      res.status,
+      responseBody
+    );
 
     return res;
   } catch (error) {

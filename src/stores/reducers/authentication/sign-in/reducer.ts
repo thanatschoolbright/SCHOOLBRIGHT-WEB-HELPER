@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RequestLoginAdmin, RequestLoginV2 } from "@stores/type";
-import { CallAPI } from "@stores/actions/authentication/call-get-login-admin";
+import { createSlice } from "@reduxjs/toolkit";
+import { RequestLoginV2 } from "@stores/type";
+import { CallAPI } from "@stores/actions/authentication/sign-in/action";
 
 const initialState: RequestLoginV2 = {
   draftValues: {
@@ -29,14 +29,10 @@ const initialState: RequestLoginV2 = {
   },
 };
 
-const Slice = createSlice({
-  name: "callLogin",
+const Reducer = createSlice({
+  name: "CallSignInActionV2",
   initialState,
-  reducers: {
-    setResponse(state, action: PayloadAction<RequestLoginV2["response"]>) {
-      state.response = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(CallAPI.pending, (state) => {
@@ -44,7 +40,7 @@ const Slice = createSlice({
       })
       .addCase(CallAPI.fulfilled, (state, action) => {
         state.loading = false;
-        state.response = action.payload;
+        state.response.data = action.payload;
         state.success = "successfully";
       })
       .addCase(CallAPI.rejected, (state, action) => {
@@ -54,5 +50,4 @@ const Slice = createSlice({
   },
 });
 
-export const { setResponse } = Slice.actions;
-export default Slice.reducer;
+export default Reducer.reducer;

@@ -20,19 +20,15 @@ export default function AuthenticationReduxProvider({
       try {
         const stored = JSON.parse(raw);
 
-        dispatch(
-          setResponse({
-            status: 200,
-            data: {
-              id: stored?.id,
-              admin_id: stored?.admin_id,
-              username: stored?.username,
-              name: stored?.name,
-              lastname: stored?.lastname,
-              token: stored?.token,
-            },
-          })
-        );
+        const response = {
+          status: 200,
+          data: {
+            ...stored,
+            token: stored.token,
+          },
+        };
+        console.log("[AUTH PROVIDER] setResponse:", response);
+        dispatch(setResponse(response));
 
         // ✅ หาก login แล้ว และอยู่หน้า /auth/signin ให้เด้งไป /backend
         if (pathname === "/auth/signin") {
