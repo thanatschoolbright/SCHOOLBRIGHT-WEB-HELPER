@@ -11,8 +11,8 @@ const ProjectCreateUpdateSchema = z.object({
   by: z.number().min(1),
 });
 
+// ใช้สำหรับสร้างหรืออัปเดตโครงการ
 export async function POST(request: NextRequest) {
-  // Parse and validate request
   const { data, error } = await validateRequest(
     request,
     ProjectCreateUpdateSchema

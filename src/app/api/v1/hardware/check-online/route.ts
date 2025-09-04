@@ -21,7 +21,6 @@ export async function POST(NextRequest: NextRequest) {
       "Status": "Online"
     }'`;
     const curlCommand = `curl --location ${curlHeader} \ '${apiUrl}' \ ${curlData}`;
-    console.log("curlCommand", curlCommand);
 
     const payload: CallPostOnlineDevice["draftValues"] = {
       SchoolID: SchoolID,
@@ -31,11 +30,6 @@ export async function POST(NextRequest: NextRequest) {
     const responseFromAPI = await axios.post(apiUrl, payload, {
       headers,
     });
-
-    console.log(
-      "[API] POST /api/device/status/registeronline",
-      JSON.stringify(responseFromAPI.data, null, 2)
-    );
 
     return NextResponse.json({
       data: responseFromAPI.data,

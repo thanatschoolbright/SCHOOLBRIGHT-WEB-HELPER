@@ -10,7 +10,6 @@ const ProjectDeleteSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  // Parse and validate request
   const { data, error } = await validateRequest(request, ProjectDeleteSchema);
   if (error) return error;
 
