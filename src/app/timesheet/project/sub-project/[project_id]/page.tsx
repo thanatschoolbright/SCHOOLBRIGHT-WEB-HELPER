@@ -31,10 +31,20 @@ interface Project {
   createdBy: number;
 }
 
-interface ProjectForm {
+interface SubProject {
+  id: number;
+  project_id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  by: number;
+  createdBy: number;
+}
+
+interface SubProjectForm {
   id?: number;
   name: string;
-  description: string;
+  project_id: number;
   by: number;
 }
 
@@ -42,49 +52,58 @@ export default function Page() {
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
 
   const { project_id } = useParams() as { project_id: string };
-  const router = useRouter();
-  const [projectName, setProjectName] = useState<string>("");
 
+  const router = useRouter();
+  const [subProjects, setSubProjects] = useState<SubProject[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [form, setForm] = useState<ProjectForm & { confirmText?: string }>({
+  const [form, setForm] = useState<SubProjectForm & { confirmText?: string }>({
     name: "",
-    description: "",
     by: AUTHENTICATION.response.data.user_data.admin_id,
     confirmText: "",
+    project_id: Number(project_id),
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [detailProject, setDetailProject] = useState<Project | null>(null);
+  const [detailProject, setDetailProject] = useState<SubProject | null>(null);
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const limit = 10;
 
   // Fetch project detail for projectName
-  useEffect(() => {
-    const fetchProjectDetail = async () => {
-      if (!project_id) return;
-      try {
-        const res = await fetch("/api/v1/timesheet/project/read/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ id: Number(project_id) }),
-        });
-        if (!res.ok) throw new Error("Failed to fetch project detail");
-        const data = await res.json();
-        // If API returns single project as array or object
-        const project =
-          Array.isArray(data.data) && data.data.length > 0
-            ? data.data[0]
-            : data.data || {};
-        setProjectName(project.name || "");
-      } catch (error) {
-        setProjectName("");
-      }
-    };
-    fetchProjectDetail();
-  }, [project_id]);
 
-  const fetchProjects = async () => {
+  const fetchSubProjects = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/v1/timesheet/project/sub-project/read/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          limit,
+          page: currentPage,
+          project_id: Number(project_id),
+        }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to fetch projects");
+      }
+      const data = await res.json();
+      console.log("Fetched projects:", data);
+      setSubProjects(data?.data?.items || []);
+      setTotalPages(data.pagination?.totalPages || 1);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      setSubProjects([]);
+      toast.error("โหลดโปรเจคล้มเหลว", { duration: 5000 });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProjectsById = async (project_id: string | number) => {
     setLoading(true);
     try {
       const res = await fetch("/api/v1/timesheet/project/read/", {
@@ -92,13 +111,17 @@ export default function Page() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ limit: 10, page: 1 }),
+        body: JSON.stringify({
+          limit: 10,
+          page: 1,
+          id: Number(project_id),
+        }),
       });
       if (!res.ok) {
         throw new Error("Failed to fetch projects");
       }
       const data = await res.json();
-      setProjects(data.data || []);
+      setProjects(data.data.items || []);
     } catch (error) {
       console.error("Error fetching projects:", error);
       setProjects([]);
@@ -108,9 +131,9 @@ export default function Page() {
     }
   };
 
-  const createOrUpdateProject = async (project: ProjectForm) => {
+  const createOrUpdateProject = async (project: SubProjectForm) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/project/insert/`, {
+      const res = await fetch(`/api/v1/timesheet/project/sub-project/insert/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -120,7 +143,7 @@ export default function Page() {
       if (!res.ok) {
         throw new Error("Failed to create or update project");
       }
-      toast.success("สร้าง/อัปเดตโปรเจคสำเร็จ", { duration: 5000 });
+      toast.success("สร้าง/อัปเดตฟีเจอร์สำเร็จ", { duration: 5000 });
     } catch (error) {
       console.error("Error creating or updating project:", error);
       toast.error("สร้าง/อัปเดตโปรเจคล้มเหลว", { duration: 5000 });
@@ -129,7 +152,7 @@ export default function Page() {
 
   const deleteProject = async (id: number) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/project/delete/`, {
+      const res = await fetch(`/api/v1/timesheet/project/sub-project/delete/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,7 +173,11 @@ export default function Page() {
   };
 
   useEffect(() => {
-    fetchProjects();
+    fetchSubProjects();
+  }, [currentPage]);
+
+  useEffect(() => {
+    fetchProjectsById(project_id);
   }, []);
 
   const handleSubmit = async () => {
@@ -158,27 +185,28 @@ export default function Page() {
     await createOrUpdateProject(form);
     setForm({
       name: "",
-      description: "",
+      project_id: Number(project_id),
       by: AUTHENTICATION.response.data.user_data.admin_id,
     });
     setModal("");
-    await fetchProjects();
+    setCurrentPage(1);
+    await fetchSubProjects();
   };
 
   const openCreateModal = () => {
     setForm({
       name: "",
-      description: "",
+      project_id: Number(project_id),
       by: AUTHENTICATION.response.data.user_data.admin_id,
     });
     setModal("create");
   };
 
-  const openEditModal = (project: Project) => {
+  const openEditModal = (project: SubProject) => {
     setForm({
       id: project.id,
       name: project.name,
-      description: project.description,
+      project_id: project.project_id,
       by: AUTHENTICATION.response.data.user_data.admin_id,
     });
     setModal("edit");
@@ -194,15 +222,15 @@ export default function Page() {
     await deleteProject(deleteId);
     setModal("");
     setDeleteId(null);
-    await fetchProjects();
+    setCurrentPage(1);
+    await fetchSubProjects();
   };
 
-  const headers = ["ลำดับ", "ชื่อโปรเจค", "คำอธิบาย", "จัดการ"];
-  const rows = projects.map((project, index) => [
-    index + 1,
+  const headers = ["ลำดับ", "ชื่อโปรเจค", "จัดการ"];
+  const rows = subProjects.map((project, index) => [
+    index + 1 + (currentPage - 1) * limit,
     project.name,
-    project.description,
-    <div className="flex space-x-2 justify-center">
+    <div className="flex space-x-2 justify-center" key={project.id}>
       <button
         onClick={() => {
           setDetailProject(project);
@@ -240,6 +268,101 @@ export default function Page() {
     </div>,
   ]);
 
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pages: (number | string)[] = [];
+    const maxPagesToShow = 7;
+    let startPage = Math.max(1, currentPage - 3);
+    let endPage = Math.min(totalPages, currentPage + 3);
+
+    if (endPage - startPage < maxPagesToShow - 1) {
+      if (startPage === 1) {
+        endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+      } else if (endPage === totalPages) {
+        startPage = Math.max(1, endPage - maxPagesToShow + 1);
+      }
+    }
+
+    if (startPage > 1) {
+      pages.push(1);
+      if (startPage > 2) {
+        pages.push("...");
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push("...");
+      }
+      pages.push(totalPages);
+    }
+
+    return (
+      <nav className="flex justify-center mt-4" aria-label="Pagination">
+        <ul className="inline-flex items-center -space-x-px text-sm font-medium">
+          <li>
+            <button
+              className={`px-3 py-1 rounded-l-md border border-gray-300 bg-white hover:bg-gray-100 ${
+                currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
+              }`}
+              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              aria-label="ก่อนหน้า"
+            >
+              ก่อนหน้า
+            </button>
+          </li>
+          {pages.map((page, idx) =>
+            page === "..." ? (
+              <li key={`ellipsis-${idx}`}>
+                <span className="px-3 py-1 border border-gray-300 bg-white cursor-default">
+                  ...
+                </span>
+              </li>
+            ) : (
+              <li key={page}>
+                <button
+                  className={`px-3 py-1 border border-gray-300 hover:bg-gray-100 ${
+                    page === currentPage
+                      ? "bg-blue-500 text-white cursor-default"
+                      : "bg-white"
+                  }`}
+                  onClick={() =>
+                    page !== currentPage && setCurrentPage(Number(page))
+                  }
+                  aria-current={page === currentPage ? "page" : undefined}
+                >
+                  {page}
+                </button>
+              </li>
+            )
+          )}
+          <li>
+            <button
+              className={`px-3 py-1 rounded-r-md border border-gray-300 bg-white hover:bg-gray-100 ${
+                currentPage === totalPages
+                  ? "cursor-not-allowed opacity-50"
+                  : ""
+              }`}
+              onClick={() =>
+                currentPage < totalPages && setCurrentPage(currentPage + 1)
+              }
+              disabled={currentPage === totalPages}
+              aria-label="ถัดไป"
+            >
+              ถัดไป
+            </button>
+          </li>
+        </ul>
+      </nav>
+    );
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -263,7 +386,9 @@ export default function Page() {
         </div>
         {/* Project Name Header */}
         <ContentCard title="โครงการ" className="w-1/2 mb-2">
-          <div className="text-2xl font-bold text-gray-700">{projectName}</div>
+          <div className="text-2xl font-bold text-gray-700">
+            {projects[0]?.name}
+          </div>
         </ContentCard>
         {/* Add Project Button */}
         <div className="w-full flex justify-end">
@@ -273,16 +398,17 @@ export default function Page() {
             onClick={openCreateModal}
             iconRight={<FiPlus className="w-6 h-6" />}
           >
-            <span className="text-lg font-semibold">เพิ่มโปรเจค</span>
+            <span className="text-lg font-semibold">เพิ่มฟีเจอร์</span>
           </RoundedButton>
         </div>
 
-        <ContentCard title="รายการโปรเจค" className="w-full">
+        <ContentCard title="รายการโครงการย่อย (Feature)" className="w-full">
           <TableComponent
             headers={headers}
             rows={rows}
             alignments={["center", "left", "left", "center"]}
           />
+          {renderPagination()}
         </ContentCard>
 
         {/* Create/Edit Modal */}
@@ -290,7 +416,7 @@ export default function Page() {
           <MinimalModal
             isOpen={true}
             onClose={() => setModal("")}
-            title={form.id ? "แก้ไขโปรเจค" : "เพิ่มโปรเจคใหม่"}
+            title={form.id ? "แก้ไขโปรเจค" : "เพิ่มฟีเจอร์"}
           >
             <div className="space-y-4 mt-5">
               <InputComponent
@@ -303,17 +429,6 @@ export default function Page() {
                 }
                 type="text"
                 placeholder="กรอกชื่อโปรเจค"
-              />
-              <InputComponent
-                label="คำอธิบายโปรเจค"
-                id="description"
-                name="description"
-                value={form.description}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                type="text"
-                placeholder="กรอกคำอธิบายโปรเจค"
               />
             </div>
             <div className="mt-6 flex justify-end space-x-4">
@@ -397,7 +512,7 @@ export default function Page() {
                 <strong>ชื่อโปรเจค:</strong> {detailProject.name}
               </p>
               <p>
-                <strong>คำอธิบาย:</strong> {detailProject.description}
+                <strong>โปรเจ็คหลัก:</strong> {projects[0].name}
               </p>
               <p>
                 <strong>สร้างโดย (id):</strong> {detailProject.createdBy}

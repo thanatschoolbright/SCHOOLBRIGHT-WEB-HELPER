@@ -6,8 +6,8 @@ import { validateRequest } from "@/helpers/api/validate.request";
 
 const Schema = z.object({
   project_id: z.union([z.number().min(1), z.string().min(1)]),
-  limit: z.union([z.number().min(1), z.string()]),
-  page: z.union([z.number().min(1), z.string()]),
+  limit: z.union([z.number().min(1), z.string().optional()]),
+  page: z.union([z.number().min(1), z.string().optional()]),
 });
 
 export async function POST(request: NextRequest) {
