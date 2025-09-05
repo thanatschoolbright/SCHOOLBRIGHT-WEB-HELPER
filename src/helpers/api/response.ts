@@ -29,6 +29,11 @@ export function successResponse<T>({
   pagination,
   status = 200,
 }: SuccessOptions<T>): ApiResponse<T> {
+  console.log(
+    "\x1b[32m%s\x1b[0m",
+    "✅ Response Data:",
+    JSON.stringify(data, null, 2)
+  );
   return {
     status,
     message_th,
@@ -51,6 +56,7 @@ export function errorResponse({
   status = 500,
   error,
 }: ErrorOptions): ApiResponse {
+  console.log("\x1b[31m%s\x1b[0m", "❌ Error Response:", error);
   return {
     status,
     message_th,

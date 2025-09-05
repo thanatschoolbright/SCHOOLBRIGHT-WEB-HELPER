@@ -72,7 +72,6 @@ export default function SidebarContent() {
 
         <nav className="space-y-2">
           {menu.map((item) => {
-            console.log("Sidebar menu:", menu);
             if (item.children) {
               const isOpen = openKey === item.label;
               return (
