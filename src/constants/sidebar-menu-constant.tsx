@@ -3,8 +3,20 @@ import { useMemo } from "react";
 import { FiActivity, FiFolder, FiGrid } from "react-icons/fi";
 import { FaRegLightbulb } from "react-icons/fa";
 import { AiFillMobile } from "react-icons/ai";
+interface SidebarChild {
+  label: string;
+  href: string;
+  news?: boolean;
+}
 
-export const useSidebarMenu = () => {
+interface SidebarItem {
+  label: string;
+  icon: JSX.Element;
+  children?: SidebarChild[];
+  href?: string;
+  tag?: string;
+}
+export const useSidebarMenu = (): SidebarItem[] => {
   const { t } = useTranslation("menu"); // ชี้ namespace "menu"
 
   const menu = useMemo(
@@ -39,6 +51,7 @@ export const useSidebarMenu = () => {
           {
             label: t("support.children.upload_student_migration"),
             href: "/support/upload/migrate-student",
+            news: true,
           },
         ],
       },
@@ -61,6 +74,10 @@ export const useSidebarMenu = () => {
           {
             label: t("health_check.children.version_control"),
             href: "/health-check/version-control",
+          },
+          {
+            label: t("health_check.children.transaction_log"),
+            href: "/health-check/transaction-log",
           },
         ],
       },

@@ -15,7 +15,7 @@ export default function SidebarContent() {
   const menu: {
     label: string;
     icon: JSX.Element;
-    children?: { label: string; href: string }[];
+    children?: { label: string; href: string; news?: boolean }[];
     href?: string;
     tag?: string;
   }[] = useSidebarMenu();
@@ -67,11 +67,12 @@ export default function SidebarContent() {
     >
       <div>
         <div className="mb-6 text-2xl font-extrabold text-[#ff7b00] dark:text-orange-400">
-          HELPER
+          เมนู
         </div>
 
         <nav className="space-y-2">
           {menu.map((item) => {
+            console.log("Sidebar menu:", menu);
             if (item.children) {
               const isOpen = openKey === item.label;
               return (
@@ -125,7 +126,24 @@ export default function SidebarContent() {
                                 (isActive ? "bg-orange-500" : "bg-orange-300")
                               }
                             />
-                            <span className="flex-1">{child.label}</span>
+                            <div className="flex-1 flex items-center justify-between">
+                              <span>{child.label}</span>
+                              {child.href ===
+                                "/health-check/transaction-log" && (
+                                <motion.span
+                                  className="ml-2 text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-full"
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{
+                                    type: "spring",
+                                    stiffness: 300,
+                                    damping: 15,
+                                  }}
+                                >
+                                  NEW
+                                </motion.span>
+                              )}
+                            </div>
                           </Link>
                         </motion.div>
                       );

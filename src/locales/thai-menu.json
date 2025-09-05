@@ -21,7 +21,8 @@
       "version_control": "เช็กเวอร์ชันทุกระบบ",
       "all_server_status": "รายงานการทำงานทุกระบบ",
       "online_status": "รายงานการเชื่อมต่อระบบออนไลน์",
-      "offline_sync_status": "รายงานซิงก์ข้อมูลออฟไลน์ล่าสุด"
+      "offline_sync_status": "รายงานซิงก์ข้อมูลออฟไลน์ล่าสุด",
+      "transaction_log": "บันทึกการทำธุรกรรมโรงเรียน"
     }
   },
   "mobile_app": {
