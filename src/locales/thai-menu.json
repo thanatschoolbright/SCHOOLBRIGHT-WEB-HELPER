@@ -46,7 +46,8 @@
   "timesheet_system": {
     "title": "ระบบทามชีท",
     "children": {
-      "project": "จัดการโครงการ"
+      "project": "จัดการโครงการ",
+      "entry": "ลงเวลาทำงาน"
     }
   }
 }

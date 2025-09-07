@@ -472,3 +472,39 @@ export interface ResponseLoginV2 {
     };
   };
 }
+
+export interface Project {
+  id: number;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  by: number;
+  createdBy: number;
+}
+
+export interface WorkEntryForm {
+  id?: number;
+  project_id: string | string[];
+  sub_project_id: string | string[];
+  description: string;
+  work_hour: string;
+  by: number;
+}
+
+export interface SubProject {
+  id: number;
+  project_id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  by: number;
+  createdBy: number;
+}
+
+export interface SubProjectForm {
+  id?: number;
+  name: string;
+  project_id: number;
+  by: number;
+}

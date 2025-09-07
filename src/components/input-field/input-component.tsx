@@ -3,13 +3,16 @@ import React, { useState } from "react";
 
 // กำหนด type ของ props
 interface InputComponentProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+  extends React.HTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
   label: string;
   id: string;
   error?: string;
   required?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  textAlign?: "left" | "center" | "right";
+  type: any;
+  disabled: boolean;
 }
 
 const InputComponent: React.FC<InputComponentProps> = ({
@@ -20,12 +23,20 @@ const InputComponent: React.FC<InputComponentProps> = ({
   required = false,
   leftIcon,
   rightIcon,
+  textAlign,
   ...props
 }) => {
   const [fileName, setFileName] = useState<string>("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (type === "file" && e.target.files && e.target.files.length > 0) {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (
+      type === "file" &&
+      "files" in e.target &&
+      e.target.files &&
+      e.target.files.length > 0
+    ) {
       setFileName(e.target.files[0].name);
     }
     if (props.onChange) {
@@ -38,35 +49,76 @@ const InputComponent: React.FC<InputComponentProps> = ({
       <div className="relative w-full group overflow-visible">
         <div className="relative w-full">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 transition-colors duration-200 peer-focus:text-purple-600 peer-focus:dark:text-purple-400">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 z-1 transition-colors duration-200 peer-focus:text-purple-600 peer-focus:dark:text-purple-400 ">
               {leftIcon}
             </div>
           )}
-          <input
-            id={id}
-            type={type}
-            required={required}
-            placeholder=" "
-            className={`
-              peer w-full px-4 pt-5 pb-3 border border-2 rounded-md
-              ${
-                error
-                  ? "border-red-500"
-                  : "border-gray-300 dark:border-gray-600"
-              }
-              ${
-                props.disabled
-                  ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
-                  : "bg-white dark:bg-gray-800"
-              }
-              text-gray-900 dark:text-gray-100 placeholder-transparent transition-all duration-300 ease-in-out
-              focus:outline-none focus:border-purple-500
-              ${leftIcon ? "pl-10" : ""}
-              ${rightIcon ? "pr-10" : ""}
-            `}
-            {...props}
-            onChange={handleChange}
-          />
+          {type === "textarea" ? (
+            <textarea
+              id={id}
+              required={required}
+              placeholder=" "
+              className={`
+                peer w-full px-4 pt-5 pb-3 border border-2 rounded-md
+                ${
+                  error
+                    ? "border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
+                }
+                ${
+                  props.disabled
+                    ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
+                    : "bg-white dark:bg-gray-800"
+                }
+                text-gray-900 dark:text-gray-100 placeholder-transparent transition-all duration-300 ease-in-out
+                focus:outline-none focus:border-purple-500
+                ${leftIcon ? "pl-10" : ""}
+                ${rightIcon ? "pr-10" : ""}
+                ${
+                  textAlign === "right"
+                    ? "text-right"
+                    : textAlign === "center"
+                    ? "text-center"
+                    : "text-left"
+                }
+              `}
+              {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+              onChange={handleChange}
+            />
+          ) : (
+            <input
+              id={id}
+              type={type}
+              required={required}
+              placeholder=" "
+              className={`
+                peer w-full px-4 pt-5 pb-3 border border-2 rounded-md
+                ${
+                  error
+                    ? "border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
+                }
+                ${
+                  props.disabled
+                    ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
+                    : "bg-white dark:bg-gray-800"
+                }
+                text-gray-900 dark:text-gray-100 placeholder-transparent transition-all duration-300 ease-in-out
+                focus:outline-none focus:border-purple-500
+                ${leftIcon ? "pl-10" : ""}
+                ${rightIcon ? "pr-[4rem]" : ""}
+                ${
+                  textAlign === "right"
+                    ? "text-right"
+                    : textAlign === "center"
+                    ? "text-center"
+                    : "text-left"
+                }
+              `}
+              {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
+              onChange={handleChange}
+            />
+          )}
           {rightIcon && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 transition-colors duration-200 peer-focus:text-purple-600 peer-focus:dark:text-purple-400">
               {rightIcon}

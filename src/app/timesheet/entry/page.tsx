@@ -1,272 +1,529 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import ContentCard from "@components/layouts/backend/content";
 import BaseLoadingComponent from "@components/loading/loading-component-1";
-import { AppDispatch, useAppSelector } from "@stores/store";
-import { useDispatch } from "react-redux";
+import {
+  FiPlus,
+  FiCheckCircle,
+  FiEdit2,
+  FiTrash2,
+  FiInfo,
+  FiArrowRight,
+  FiClock,
+} from "react-icons/fi";
+import RoundedButton from "@components/button/rounded-button-component";
 import InputComponent from "@components/input-field/input-component";
-import { RequestQRCodeGenerator } from "@stores/type";
-import DropdownSchoolComponent from "@/components/input-field/school_id/reuse-dropdown-school-component";
-import { FiShoppingCart, FiCheckCircle } from "react-icons/fi";
-import { FaBahtSign } from "react-icons/fa6";
-import RoundedButton from "@/components/button/rounded-button-component";
+import TableComponent from "@components/table/base-table-component";
+import { useAppSelector } from "@stores/store";
+import MinimalModal from "@components/modal/minimal-modal-component";
 import { toast } from "sonner";
-
-// Call API
-import { CallAPI as POST_QRCODE_HEALTH_CHECK } from "@stores/actions/mobile/qrcode-health-check/action";
+import { convertToThaiDateDDMMYYY } from "@helpers/convert-time-zone-to-thai";
+import Link from "next/link";
+import Swal from "sweetalert2";
+import { SearchableSelectComponent } from "@components/input-field/searchable-select-component";
+import { Project, SubProject, WorkEntryForm } from "@stores/type";
 
 export default function Page() {
-  const dispatch = useDispatch<AppDispatch>();
-  const SCHOOL_LIST_STATE = useAppSelector((state) => state.callSchoolList);
-  const QR_CODE_HEALTH_CHECK_STATE = useAppSelector(
-    (state) => state.callQRCodeHealthCheckReducer
-  );
+  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
 
-  // filter by selected school
-  const isLoading = [SCHOOL_LIST_STATE.loading].some(Boolean);
+  const limit = 10;
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
-  const [form, setForm] = useState<RequestQRCodeGenerator["draftValues"]>({
-    amount: 0,
-    school_id: 0,
-    shop_id: 0,
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [subProject, setSubProjects] = useState<SubProject[]>([]);
+  const [form, setForm] = useState<WorkEntryForm & { confirmText?: string }>({
+    name: "",
+    description: "",
+    by: AUTHENTICATION.response.data.user_data.admin_id,
+    confirmText: "",
   });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [detailProject, setDetailProject] = useState<Project | null>(null);
 
-  const handleSubmit = async () => {
+  const fetchProjects = async () => {
+    setLoading(true);
     try {
-      const response = await dispatch(POST_QRCODE_HEALTH_CHECK(form)).unwrap();
-      console.log("response", response?.data);
-    } catch (error: any) {
-      console.error("ERROR CATCHING : ", error.message);
-      toast.error("เกิดข้อผิดพลาดในการตรวจสอบ", { description: error.message });
+      const res = await fetch("/api/v1/timesheet/project/read/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ limit, page: currentPage }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to fetch projects");
+      }
+      const data = await res.json();
+      setProjects(data.data || []);
+      setTotalPages(data.pagination?.totalPages || 1);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      setProjects([]);
+      toast.error("โหลดโปรเจคล้มเหลว", { duration: 5000 });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSubProjects = async (project_id: string) => {
+    try {
+      const res = await fetch("/api/v1/timesheet/project/sub-project/read/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          limit,
+          page: currentPage,
+          project_id: Number(project_id),
+        }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to fetch projects");
+      }
+      const data = await res.json();
+      console.log("Fetched projects:", data);
+      setSubProjects(data?.data?.items || []);
+      setTotalPages(data.pagination?.totalPages || 1);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      setSubProjects([]);
+      toast.error("โหลดโปรเจคล้มเหลว", { duration: 5000 });
+    }
+  };
+
+  const createOrUpdateProject = async (project: ProjectForm) => {
+    try {
+      const res = await fetch(`/api/v1/timesheet/project/insert/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(project),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to create or update project");
+      }
+      toast.success("สร้าง/อัปเดตโปรเจคสำเร็จ", { duration: 5000 });
+    } catch (error) {
+      console.error("Error creating or updating project:", error);
+      toast.error("สร้าง/อัปเดตโปรเจคล้มเหลว", { duration: 5000 });
+    }
+  };
+
+  const deleteProject = async (id: number) => {
+    try {
+      const res = await fetch(`/api/v1/timesheet/project/delete/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          by: AUTHENTICATION.response.data.user_data.admin_id,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to delete project");
+      }
+      toast.success("ลบโปรเจคสำเร็จ", { duration: 5000 });
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      toast.error("ลบโปรเจคล้มเหลว", { duration: 5000 });
     }
   };
 
   useEffect(() => {
-    if (QR_CODE_HEALTH_CHECK_STATE.success) {
-      toast.success("ตรวจสอบสำเร็จ", {
-        description: JSON.stringify(
-          QR_CODE_HEALTH_CHECK_STATE.response?.data?.data,
-          null,
-          2
-        ),
-      });
-    }
-    if (QR_CODE_HEALTH_CHECK_STATE.error) {
-      toast.error("เกิดข้อผิดพลาด", {
-        description: JSON.stringify(QR_CODE_HEALTH_CHECK_STATE.error, null, 2),
-      });
-    }
-  }, [QR_CODE_HEALTH_CHECK_STATE.success, QR_CODE_HEALTH_CHECK_STATE.error]);
+    fetchProjects();
+  }, [currentPage]);
 
-  const getStatusLabel = (status: string | null) => {
-    if (status === "success") return "สำเร็จ";
-    if (status === "failed") return "ล้มเหลว";
-    return status || "-";
+  const handleSubmit = async () => {
+    if (!form.name.trim()) return;
+    await createOrUpdateProject(form);
+    setForm({
+      name: "",
+      description: "",
+      by: AUTHENTICATION.response.data.user_data.admin_id,
+    });
+    setModal("");
+    await fetchProjects();
   };
 
-  const renderResultContent = () => {
-    if (QR_CODE_HEALTH_CHECK_STATE.loading) {
-      return (
-        <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      );
-    }
-    if (QR_CODE_HEALTH_CHECK_STATE?.response?.data?.data?.results?.length > 0) {
-      const result = QR_CODE_HEALTH_CHECK_STATE.response.data.data.results[0];
-      return (
-        <div className="flex flex-col items-center space-y-4">
-          <table className="min-w-full text-sm text-left border">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 font-semibold border">หัวข้อ</th>
-                <th className="px-4 py-2 font-semibold border">รายละเอียด</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="px-4 py-2 font-medium border">สถานะ</td>
-                <td className="px-4 py-2 border">
-                  {getStatusLabel(result.status)}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">จำนวนเงิน</td>
-                <td className="px-4 py-2 border">
-                  {result.request_body.txnAmount || form.amount} บาท
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">รหัสโรงเรียน</td>
-                <td className="px-4 py-2 border">
-                  {result.request_body.reference1}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">รหัสร้านค้า</td>
-                <td className="px-4 py-2 border">
-                  {result.request_body.merchantId}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">ธนาคาร</td>
-                <td className="px-4 py-2 border">{result.bank}</td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">
-                  ระยะเวลาในการรอคำตอบจากธนาคาร
-                </td>
-                <td className="px-4 py-2 border">
-                  {result.response_time} วินาที
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-    if (QR_CODE_HEALTH_CHECK_STATE.error) {
-      return (
-        <div className="flex flex-col items-center space-y-4">
-          <table className="min-w-full text-sm text-left border">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 font-semibold border">หัวข้อ</th>
-                <th className="px-4 py-2 font-semibold border">รายละเอียด</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="px-4 py-2 font-medium border">สถานะ</td>
-                <td className="px-4 py-2 border">เกิดข้อผิดพลาด</td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">ข้อความ</td>
-                <td className="px-4 py-2 border">
-                  {QR_CODE_HEALTH_CHECK_STATE.response?.message ||
-                    (typeof QR_CODE_HEALTH_CHECK_STATE.error === "string"
-                      ? QR_CODE_HEALTH_CHECK_STATE.error
-                      : "ไม่สามารถแสดงข้อความข้อผิดพลาดได้")}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">รายละเอียด</td>
-                <td className="px-4 py-2 border">
-                  {QR_CODE_HEALTH_CHECK_STATE.response?.raw?.ExceptionMessage ||
-                    "ทางโรงเรียนยังไม่ได้เปิดใช้งานระบบธนาคาร"}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">ประเภท</td>
-                <td className="px-4 py-2 border">
-                  {QR_CODE_HEALTH_CHECK_STATE.response?.raw?.ExceptionType ||
-                    "ไม่ระบุประเภทข้อผิดพลาด"}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-    return <p className="text-center text-gray-500">ยังไม่มีผลการตรวจสอบ</p>;
+  const openCreateModal = () => {
+    setForm({
+      name: "",
+      description: "",
+      by: AUTHENTICATION.response.data.user_data.admin_id,
+    });
+    setModal("create");
   };
+
+  const openEditModal = (project: Project) => {
+    setForm({
+      id: project.id,
+      name: project.name,
+      description: project.description,
+      by: AUTHENTICATION.response.data.user_data.admin_id,
+    });
+    setModal("edit");
+  };
+
+  const openDeleteModal = (id: number) => {
+    setDeleteId(id);
+    setModal("delete");
+  };
+
+  const confirmDelete = async () => {
+    if (deleteId === null) return;
+    await deleteProject(deleteId);
+    setModal("");
+    setDeleteId(null);
+    await fetchProjects();
+  };
+
+  const headers = ["ลำดับ", "ชื่อโปรเจค", "คำอธิบาย", "จัดการ"];
+  const rows = projects.map((project, index) => [
+    index + 1 + (currentPage - 1) * limit,
+    project.name,
+    project.description,
+    <div className="flex space-x-2 justify-center" key={project.id}>
+      <button
+        onClick={() => {
+          setDetailProject(project);
+          setModal("detail");
+        }}
+        className="text-gray-600 hover:text-gray-800"
+        aria-label="View Details"
+        type="button"
+      >
+        <FiInfo className="w-5 h-5" />
+      </button>
+      <button
+        onClick={() => openEditModal(project)}
+        className="text-blue-600 hover:text-blue-800"
+        aria-label="Edit Project"
+        type="button"
+      >
+        <FiEdit2 className="w-5 h-5" />
+      </button>
+      <button
+        onClick={() => openDeleteModal(project.id)}
+        className="text-red-600 hover:text-red-800"
+        aria-label="Delete Project"
+        type="button"
+      >
+        <FiTrash2 className="w-5 h-5" />
+      </button>
+      <Link
+        href={`/timesheet/project/sub-project/${project.id}`}
+        className="text-green-600 hover:text-green-800 flex items-center"
+        aria-label="Go to Sub Project"
+      >
+        <FiArrowRight className="w-5 h-5" />
+      </Link>
+    </div>,
+  ]);
+
+  const getPaginationItems = (total: number, current: number) => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+    let l: number = 0;
+
+    for (let i = 1; i <= total; i++) {
+      if (
+        i === 1 ||
+        i === total ||
+        (i >= current - delta && i <= current + delta)
+      ) {
+        range.push(i);
+      }
+    }
+
+    for (let i of range) {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push("...");
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    }
+
+    return rangeWithDots;
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <BaseLoadingComponent />
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
-      {isLoading && <BaseLoadingComponent />}
-
       <div className="w-full space-y-4">
-        {/* Input Field */}
-        <ContentCard title="ทดสอบระบบ QR Code" className="xl:col-span-4 w-full">
-          {/* Input section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-gray-200 dark:border-gray-700">
-            {/* School Dropdown */}
-            <div className="mb-5">
-              <DropdownSchoolComponent
-                onChange={(value) => setForm({ ...form, school_id: value })}
-                defaultValue={form.school_id}
-              />
-            </div>
-          </div>
-
-          {/* Input section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 relative z-0">
-            {/* Shop ID */}
-            <InputComponent
-              label="รหัสร้านค้า (id)"
-              id="shop_id"
-              name="shop_id"
-              disabled
-              value={form.shop_id || 0}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setForm({ ...form, shop_id: Number(e.target.value) })
-              }
-              type="number"
-              placeholder="เช่น 1.0.0"
-              leftIcon={<FiShoppingCart className="text-gray-400" />}
-            />
-
-            {/* Amount */}
-            <InputComponent
-              label="จำนวนเงิน (บาท)"
-              id="amount"
-              name="amount"
-              value={form.amount || 0}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setForm({ ...form, amount: Number(e.target.value) })
-              }
-              type="number"
-              placeholder="กรอกจำนวนเงิน"
-              leftIcon={<FaBahtSign className="text-gray-400" />}
-            />
-          </div>
-
+        {/* Add Project Button */}
+        <div className="w-full flex justify-end">
           <RoundedButton
             type="button"
-            className="bg-gray-400 hover:bg-green-500 text-white group transition-all duration-300 mt-5 mx-auto"
-            onClick={handleSubmit}
+            className="w-full sm:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white flex items-center space-x-3"
+            onClick={openCreateModal}
+            iconRight={<FiPlus className="w-6 h-6" />}
           >
-            <span className="flex items-center overflow-hidden">
-              <span className="max-w-xs transition-all duration-300 ml-2 whitespace-nowrap">
-                ตรวจสอบระบบ QR Code
-              </span>
-              <span className="opacity-0 max-w-0 -translate-x-2 group-hover:opacity-100 group-hover:max-w-xs group-hover:translate-x-0 transition-all duration-300 flex-shrink-0 me-3">
-                <FiCheckCircle className="w-4 h-4 ml-3" />
-              </span>
-            </span>
+            <span className="text-lg font-semibold">ลงเวลาทำงาน</span>
           </RoundedButton>
+        </div>
+
+        <ContentCard title="รายการโปรเจค" className="w-full">
+          <TableComponent
+            headers={headers}
+            rows={rows}
+            alignments={["center", "left", "left", "center"]}
+          />
+          {/* Pagination UI */}
+          <div className="mt-4 flex justify-center items-center space-x-2">
+            <button
+              type="button"
+              className={`px-3 py-1 rounded ${
+                currentPage === 1
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              aria-label="Previous Page"
+            >
+              ก่อนหน้า
+            </button>
+            {getPaginationItems(totalPages, currentPage).map((page, idx) =>
+              page === "..." ? (
+                <span key={`dots-${idx}`} className="px-2 select-none">
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={page}
+                  type="button"
+                  className={`px-3 py-1 rounded ${
+                    page === currentPage
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+                  onClick={() => setCurrentPage(page as number)}
+                  aria-current={page === currentPage ? "page" : undefined}
+                >
+                  {page}
+                </button>
+              )
+            )}
+            <button
+              type="button"
+              className={`px-3 py-1 rounded ${
+                currentPage === totalPages
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+              onClick={() =>
+                currentPage < totalPages && setCurrentPage(currentPage + 1)
+              }
+              disabled={currentPage === totalPages}
+              aria-label="Next Page"
+            >
+              ถัดไป
+            </button>
+          </div>
         </ContentCard>
 
-        {QR_CODE_HEALTH_CHECK_STATE?.response?.data?.data?.results?.length >
-          0 &&
-          (() => {
-            const result =
-              QR_CODE_HEALTH_CHECK_STATE.response.data.data.results[0];
-            return (
-              <ContentCard
-                title="QR Code จากธนาคาร"
-                className="w-1/2 justify-center mx-auto"
-              >
-                <div className="flex justify-center">
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-                      result.response_body.qrCode
-                    )}`}
-                    alt="QR Code"
-                    className="w-40 h-40 border rounded-lg shadow-md"
-                  />
-                </div>
-              </ContentCard>
-            );
-          })()}
-
-        <ContentCard
-          title="ผลการตรวจสอบ"
-          className="w-1/2 justify-center mx-auto"
+        {/* Create/Edit Modal */}
+        <MinimalModal
+          isOpen={modal === "create" || modal === "edit"}
+          onClose={() => setModal("")}
+          title={form.id ? "แก้ไขเวลาการทำงาน" : "เพิ่มเวลาการทำงาน"}
         >
-          {renderResultContent()}
-        </ContentCard>
+          <div className="flex flex-col gap-5 animate-fadeIn transition-all duration-500 ease-in-out space-y-3 m-3">
+            <div className="grid grid-cols-2 gap-x-2 gap-5">
+              {/* เลือกโปรเจ็ค */}
+              <SearchableSelectComponent
+                label="เลือกโปรเจ็ค"
+                options={[
+                  { label: "เลือกรายการ", value: "" },
+                  ...projects.map((s) => ({
+                    label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
+                    value: String(s.id),
+                  })),
+                ]}
+                value={form.project_id}
+                onChange={(value: string | string[]) => {
+                  setForm({ ...form, project_id: value, sub_project_id: "" });
+
+                  fetchSubProjects(String(value));
+                }}
+                placeholder="เลือกโปรเจ็ค"
+              />
+              {/* เลือกโปรเจ็ครอง */}
+              <SearchableSelectComponent
+                label="เลือกโปรคเจ็คย่อย"
+                options={[
+                  { label: "เลือกรายการ", value: "" },
+                  ...subProject.map((s) => ({
+                    label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
+                    value: String(s.id),
+                  })),
+                ]}
+                value={form.sub_project_id}
+                onChange={(value: string | string[]) =>
+                  setForm({ ...form, sub_project_id: value })
+                }
+                placeholder="เลือกโปรเจ็ค"
+              />
+              {/* ชั่วโมงทำงาน */}
+              <InputComponent
+                label="ชั่วโมงทำงาน"
+                id="work_hour"
+                name="work_hour"
+                value={form.work_hour}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setForm({ ...form, work_hour: e.target.value })
+                }
+                type="text"
+                placeholder="กรอกจำนวนชั่วโมงที่ทำงาน"
+                leftIcon={<FiClock className="w-5 h-5 text-gray-400" />}
+                rightIcon={
+                  <span className="text-gray-500 text-sm font-medium">
+                    ชั่วโมง
+                  </span>
+                }
+                textAlign="right"
+              />
+            </div>
+            {/* คำอธิบายเพิ่มเติม */}
+            <InputComponent
+              label="คำอธิบายโปรเจค"
+              id="description"
+              name="description"
+              value={form.description}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                setForm({ ...form, description: event.target.value })
+              }
+              type="textarea"
+              placeholder="กรอกคำอธิบายโปรเจค"
+              leftIcon={<FiEdit2 className="w-5 h-5 text-gray-400" />}
+            />
+          </div>
+          <div className="grid grid-flow-col auto-cols-max gap-2 justify-end">
+            <RoundedButton
+              type="button"
+              className="w-full sm:w-auto px-6 py-3 rounded bg-gray-300 hover:bg-gray-400"
+              onClick={() => setModal("")}
+            >
+              ยกเลิก
+            </RoundedButton>
+            <RoundedButton
+              type="button"
+              className="w-full sm:w-auto px-6 py-3 rounded bg-green-500 hover:bg-green-600 text-white flex items-center space-x-2"
+              onClick={handleSubmit}
+              iconRight={<FiCheckCircle className="w-5 h-5" />}
+            >
+              <span>บันทึก</span>
+            </RoundedButton>
+          </div>
+        </MinimalModal>
+
+        {/* Delete Confirmation Modal */}
+        <MinimalModal
+          isOpen={modal === "delete"}
+          onClose={() => setModal("")}
+          title="ยืนยันการลบ"
+        >
+          <div className="space-y-4 mt-4">
+            <p className="text-red-600 font-semibold">
+              คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
+            </p>
+            <p className="text-gray-700">
+              โปรดพิมพ์ <span className="font-bold text-red-600">Delete</span>{" "}
+              เพื่อยืนยัน
+            </p>
+            <input
+              type="text"
+              placeholder="พิมพ์ Delete เพื่อยืนยัน"
+              className="w-full border px-3 py-2 rounded"
+              onChange={(e) =>
+                setForm({ ...form, confirmText: e.target.value })
+              }
+            />
+          </div>
+          <div className="mt-6 flex justify-end space-x-4">
+            <RoundedButton
+              type="button"
+              className="w-full sm:w-auto px-6 py-3 rounded bg-gray-300 hover:bg-gray-400"
+              onClick={() => setModal("")}
+              iconRight={<FiCheckCircle className="w-5 h-5" />}
+            >
+              ยกเลิก
+            </RoundedButton>
+            <RoundedButton
+              type="button"
+              className="w-full sm:w-auto px-6 py-3 rounded bg-red-600 hover:bg-red-700 text-white"
+              onClick={confirmDelete}
+              disabled={form.confirmText !== "Delete"}
+              iconRight={<FiTrash2 className="w-5 h-5" />}
+            >
+              ลบ
+            </RoundedButton>
+          </div>
+        </MinimalModal>
+
+        {/* Detail Modal */}
+        {modal === "detail" && detailProject && (
+          <MinimalModal
+            isOpen={modal === "detail"}
+            onClose={() => {
+              setModal("");
+              setDetailProject(null);
+            }}
+            title="รายละเอียดโปรเจค"
+          >
+            <div className="space-y-3 mt-5">
+              <p>
+                <strong>ชื่อโปรเจค:</strong> {detailProject.name}
+              </p>
+              <p>
+                <strong>คำอธิบาย:</strong> {detailProject.description}
+              </p>
+              <p>
+                <strong>สร้างโดย (id):</strong> {detailProject.createdBy}
+              </p>
+              <p>
+                <strong>สร้างเมื่อ:</strong>{" "}
+                {convertToThaiDateDDMMYYY(detailProject.createdAt)}
+              </p>
+              <p>
+                <strong>แก้ไขล่าสุด:</strong>{" "}
+                {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
+              </p>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <RoundedButton
+                type="button"
+                className="w-full sm:w-auto px-6 py-3 rounded bg-gray-300 hover:bg-gray-400"
+                onClick={() => {
+                  setModal("");
+                  setDetailProject(null);
+                }}
+              >
+                ปิด
+              </RoundedButton>
+            </div>
+          </MinimalModal>
+        )}
       </div>
     </DashboardLayout>
   );

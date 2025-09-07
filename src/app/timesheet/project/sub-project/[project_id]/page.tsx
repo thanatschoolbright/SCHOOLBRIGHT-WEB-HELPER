@@ -20,33 +20,7 @@ import { toast } from "sonner";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-
-interface Project {
-  id: number;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  by: number;
-  createdBy: number;
-}
-
-interface SubProject {
-  id: number;
-  project_id: number;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-  by: number;
-  createdBy: number;
-}
-
-interface SubProjectForm {
-  id?: number;
-  name: string;
-  project_id: number;
-  by: number;
-}
+import { Project, SubProject, SubProjectForm } from "@stores/type";
 
 export default function Page() {
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);

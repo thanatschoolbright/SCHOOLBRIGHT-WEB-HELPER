@@ -8,14 +8,18 @@ export default function MinimalModal({
   confirmMode = false,
   onConfirm,
   isOpen = false,
-}: {
+  width,
+  height,
+}: Readonly<{
   title: string;
   onClose: () => void;
   children: React.ReactNode;
   confirmMode?: boolean;
   onConfirm?: () => void;
   isOpen?: boolean;
-}) {
+  width?: string;
+  height?: string;
+}>) {
   const [isVisible, setIsVisible] = useState(isOpen);
 
   useEffect(() => {
@@ -52,6 +56,10 @@ export default function MinimalModal({
           transform transition-all duration-300 ease-out
           ${isOpen ? "animate-modal-bounce" : "animate-modal-fadeout"}
         `}
+        style={{
+          width: width || undefined,
+          height: height || undefined,
+        }}
       >
         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-200">
           {title}

@@ -121,6 +121,10 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("timesheet_system.children.project"),
             href: "/timesheet/project",
           },
+          {
+            label: t("timesheet_system.children.entry"),
+            href: "/timesheet/entry",
+          },
         ],
       },
       // ... เหมือนเดิม
