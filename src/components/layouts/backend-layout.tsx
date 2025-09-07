@@ -3,6 +3,10 @@ import MainHeader from "@components/layouts/backend/navbar";
 import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
 import { useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import "@ant-design/v5-patch-for-react-19";
+import { Breadcrumb } from "antd";
+import Link from "next/link";
+import Breadcrumbs from "../breadcrump/breadcrumb-component";
 
 export default function DashboardLayout({
   children,
@@ -61,6 +65,14 @@ export default function DashboardLayout({
         {/* 🔝 Sticky Header */}
         <div className="sticky top-0 z-50 px-5 py-4">
           <MainHeader />
+        </div>
+
+        {/* 🧭 Breadcrumb */}
+        <div className="px-5 py-2">
+          {/* 🧭 Breadcrumb */}
+          <div className="px-5 py-2">
+            <Breadcrumbs />
+          </div>
         </div>
 
         {/* 🧩 Page Children */}
