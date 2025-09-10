@@ -2,17 +2,20 @@
 import React, { useState } from "react";
 
 // กำหนด type ของ props
-interface InputComponentProps
-  extends React.HTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
+interface InputComponentProps {
   label: string;
   id: string;
+  name?: string; // Add the name property
+  value?: any; // Add the value property for controlled components
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // Define onChange explicitly
   error?: string;
   required?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   textAlign?: "left" | "center" | "right";
-  type: any;
-  disabled: boolean;
+  type: string; // Change type to string to be more specific
+  disabled?: boolean; // Make disabled optional
+  placeholder?: string; // Add placeholder to the interface
 }
 
 const InputComponent: React.FC<InputComponentProps> = ({
@@ -26,6 +29,7 @@ const InputComponent: React.FC<InputComponentProps> = ({
   textAlign,
   ...props
 }) => {
+  // The rest of the component logic remains the same
   const [fileName, setFileName] = useState<string>("");
 
   const handleChange = (

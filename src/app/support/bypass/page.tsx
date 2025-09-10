@@ -117,7 +117,7 @@ export default function Page() {
 
   const getBypassToken = async (school_id: string) => {
     try {
-      const userEmail = USER?.response?.data?.username;
+      const userEmail = USER?.response?.data?.user_data.email;
       console.log("user", USER);
       const response = await dispatch(
         GET_BYPASS_TOKEN({ school_id: school_id, user_email: userEmail })

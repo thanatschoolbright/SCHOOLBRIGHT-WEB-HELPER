@@ -366,7 +366,7 @@ export default function Page() {
               id="name"
               name="name"
               value={form.name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(e: any) =>
                 setForm({ ...form, name: e.target.value })
               }
               type="text"
@@ -378,7 +378,7 @@ export default function Page() {
               id="description"
               name="description"
               value={form.description}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(e: any) =>
                 setForm({ ...form, description: e.target.value })
               }
               type="text"

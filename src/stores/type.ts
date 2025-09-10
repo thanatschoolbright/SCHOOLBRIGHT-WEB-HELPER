@@ -508,3 +508,23 @@ export interface SubProjectForm {
   project_id: number;
   by: number;
 }
+
+export interface RequestHeartbeats extends DefaultRedux<ResponseHeartbeats> {
+  draftValues: {};
+}
+
+export interface ResponseHeartbeats {
+  data: {
+    status: number;
+    message_th: string;
+    message_en: string;
+    data: {
+      JobName: string;
+      Interval: number;
+      IsAlwaysRunning: boolean;
+      Status: string;
+      Remarks: string;
+      LastUpdatedTime: string;
+    }[];
+  };
+}

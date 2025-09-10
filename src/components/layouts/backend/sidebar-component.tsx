@@ -33,7 +33,7 @@ export default function SidebarContent() {
   const submenuVariants = {
     open: {
       opacity: 1,
-      height: "auto",
+      height: "auto", // Keep 'auto' for correct animation
       y: 0,
       scale: 1,
       transition: {
@@ -97,7 +97,7 @@ export default function SidebarContent() {
                     initial="closed"
                     animate={isOpen ? "open" : "closed"}
                     exit="closed"
-                    variants={submenuVariants}
+                    variants={submenuVariants as any}
                   >
                     {item.children.map((child) => {
                       const isActive = child.href === pathname;

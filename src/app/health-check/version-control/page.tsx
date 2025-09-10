@@ -5,14 +5,14 @@ import { useTranslation } from "react-i18next";
 import BaseLoadingComponent from "@components/loading/loading-component-1";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import {  toast } from "sonner";
+import { toast } from "sonner";
 import { FiRefreshCw } from "react-icons/fi";
 import { ResponseVersionControl } from "@/stores/type";
 import { CallAPI as GET_VERSION_CONTROL } from "@/stores/actions/health-check/version-control/action";
 import { convertTimeZoneToThai } from "@/helpers/convert-time-zone-to-thai";
 
 // Ant Design
-import { Table, Tag, Button, Modal, Space, Card,Typography  } from "antd";
+import { Table, Tag, Button, Modal, Space, Card, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 export default function Page() {
@@ -55,9 +55,9 @@ export default function Page() {
       dataIndex: "system",
       key: "system",
       sorter: (a, b) => a.system.localeCompare(b.system),
-      render: (data:string) => {
-        return  <Typography>{String(data.toUpperCase())}</Typography>;
-      }
+      render: (data: string) => {
+        return <Typography>{String(data.toUpperCase())}</Typography>;
+      },
     },
     {
       title: "สภาพแวดล้อม",
@@ -68,7 +68,7 @@ export default function Page() {
         { text: "staging", value: "staging" },
         { text: "beta", value: "beta" },
       ],
-      onFilter: (value, record) => record.environment === value,
+      onFilter: (value: any, record: any) => record.environment === value,
       render: (env: string) => {
         let color: string = "blue";
         if (env === "production") color = "green";
@@ -119,7 +119,6 @@ export default function Page() {
     <DashboardLayout>
       {isLoading && <BaseLoadingComponent />}
 
-
       {/* Modal แสดงรายละเอียด */}
       <Modal
         title="รายละเอียดเซิร์ฟเวอร์"
@@ -135,7 +134,6 @@ export default function Page() {
       <div className="w-full space-y-4">
         {/* ปุ่มรีเฟรช */}
         <Card title="ทดสอบสถานะเซิฟเวอร์อีกครั้ง">
-       
           <Button
             color="primary"
             variant="outlined"
@@ -160,7 +158,7 @@ export default function Page() {
             loading={isLoading}
             pagination={{ pageSize: 10 }}
             size="middle"
-            rowKey={(record) => `${record.system}-${record.environment}`}
+            rowKey={(record: any) => `${record.system}-${record.environment}`}
             style={{
               background: "white",
               borderRadius: 14,

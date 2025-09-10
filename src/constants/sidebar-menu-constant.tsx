@@ -79,6 +79,10 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("health_check.children.transaction_log"),
             href: "/health-check/transaction-log",
           },
+           {
+            label: t("health_check.children.heartbeats"),
+            href: "/health-check/heartbeats",
+          },
         ],
       },
       {

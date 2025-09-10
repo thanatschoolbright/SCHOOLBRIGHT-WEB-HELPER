@@ -121,7 +121,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
           type="email"
           placeholder="กรอกอีเมล"
           value={username}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange={(e: any) =>
             setUsername(e.target.value)
           }
           required
@@ -134,7 +134,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
           type="password"
           placeholder="••••••••"
           value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange={(e: any) =>
             setPassword(e.target.value)
           }
           required

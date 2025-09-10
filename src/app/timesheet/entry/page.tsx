@@ -34,8 +34,10 @@ export default function Page() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [subProject, setSubProjects] = useState<SubProject[]>([]);
   const [form, setForm] = useState<WorkEntryForm & { confirmText?: string }>({
-    name: "",
+    project_id: "",
+    sub_project_id: "",
     description: "",
+    work_hour: "",
     by: AUTHENTICATION.response.data.user_data.admin_id,
     confirmText: "",
   });
@@ -96,14 +98,14 @@ export default function Page() {
     }
   };
 
-  const createOrUpdateProject = async (project: ProjectForm) => {
+  const createOrUpdateProject = async (request: WorkEntryForm) => {
     try {
       const res = await fetch(`/api/v1/timesheet/project/insert/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(project),
+        body: JSON.stringify(request),
       });
       if (!res.ok) {
         throw new Error("Failed to create or update project");
@@ -142,11 +144,12 @@ export default function Page() {
   }, [currentPage]);
 
   const handleSubmit = async () => {
-    if (!form.name.trim()) return;
     await createOrUpdateProject(form);
     setForm({
-      name: "",
+      project_id: "",
+      sub_project_id: "",
       description: "",
+      work_hour: "",
       by: AUTHENTICATION.response.data.user_data.admin_id,
     });
     setModal("");
@@ -155,19 +158,24 @@ export default function Page() {
 
   const openCreateModal = () => {
     setForm({
-      name: "",
+      project_id: "",
+      sub_project_id: "",
       description: "",
+      work_hour: "",
       by: AUTHENTICATION.response.data.user_data.admin_id,
+      confirmText: "",
     });
     setModal("create");
   };
 
   const openEditModal = (project: Project) => {
     setForm({
-      id: project.id,
-      name: project.name,
-      description: project.description,
+      project_id: "",
+      sub_project_id: "",
+      description: "",
+      work_hour: "",
       by: AUTHENTICATION.response.data.user_data.admin_id,
+      confirmText: "",
     });
     setModal("edit");
   };
@@ -390,7 +398,7 @@ export default function Page() {
                 id="work_hour"
                 name="work_hour"
                 value={form.work_hour}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange={(e: any) =>
                   setForm({ ...form, work_hour: e.target.value })
                 }
                 type="text"
@@ -410,7 +418,7 @@ export default function Page() {
               id="description"
               name="description"
               value={form.description}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(event: any) =>
                 setForm({ ...form, description: event.target.value })
               }
               type="textarea"

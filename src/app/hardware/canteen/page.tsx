@@ -426,7 +426,7 @@ const AddOrEditVersionModal: React.FC<{
               id="version_name"
               name="version_name"
               value={form.versionName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(e: any) =>
                 setForm({ ...form, versionName: e.target.value })
               }
               type="text"
@@ -456,7 +456,7 @@ const AddOrEditVersionModal: React.FC<{
               name="note"
               type="text"
               value={form.note}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(e: any) =>
                 setForm({ ...form, note: e.target.value })
               }
               placeholder="ใส่รายละเอียดเพิ่มเติม"
@@ -469,7 +469,7 @@ const AddOrEditVersionModal: React.FC<{
                 id="file"
                 name="file"
                 accept=".apk,.zip"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange={(e: any) =>
                   setForm({ ...form, file: e.target.files?.[0] || null })
                 }
                 error={
