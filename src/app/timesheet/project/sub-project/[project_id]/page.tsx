@@ -1,8 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
+import {
+  Card,
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Space,
+  Spin,
+  Typography,
+} from "antd";
 import {
   FiPlus,
   FiCheckCircle,
@@ -11,11 +20,7 @@ import {
   FiInfo,
   FiArrowRight,
 } from "react-icons/fi";
-import RoundedButton from "@components/button/rounded-button-component";
-import InputComponent from "@components/input-field/input-component";
-import TableComponent from "@components/table/base-table-component";
 import { useAppSelector } from "@stores/store";
-import MinimalModal from "@components/modal/minimal-modal-component";
 import { toast } from "sonner";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
 import Link from "next/link";
@@ -36,6 +41,7 @@ export default function Page() {
     confirmText: "",
     project_id: Number(project_id),
   });
+  const [antdForm] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
   const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -200,47 +206,63 @@ export default function Page() {
     await fetchSubProjects();
   };
 
-  const headers = ["ลำดับ", "ชื่อโปรเจค", "จัดการ"];
-  const rows = subProjects.map((project, index) => [
-    index + 1 + (currentPage - 1) * limit,
-    project.name,
-    <div className="flex space-x-2 justify-center" key={project.id}>
-      <button
-        onClick={() => {
-          setDetailProject(project);
-          setModal("detail");
-        }}
-        className="text-gray-600 hover:text-gray-800"
-        aria-label="View Details"
-        type="button"
-      >
-        <FiInfo className="w-5 h-5" />
-      </button>
-      <button
-        onClick={() => openEditModal(project)}
-        className="text-blue-600 hover:text-blue-800"
-        aria-label="Edit Project"
-        type="button"
-      >
-        <FiEdit2 className="w-5 h-5" />
-      </button>
-      <button
-        onClick={() => openDeleteModal(project.id)}
-        className="text-red-600 hover:text-red-800"
-        aria-label="Delete Project"
-        type="button"
-      >
-        <FiTrash2 className="w-5 h-5" />
-      </button>
-      <Link
-        href={`/timesheet/project/sub-project/${project.id}`}
-        className="text-green-600 hover:text-green-800 flex items-center"
-        aria-label="Go to Sub Project"
-      >
-        <FiArrowRight className="w-5 h-5" />
-      </Link>
-    </div>,
-  ]);
+  const columns = [
+    {
+      title: "ลำดับ",
+      dataIndex: "index",
+      key: "index",
+      align: "center" as const,
+      width: 80,
+      render: (_: any, __: any, idx: number) =>
+        idx + 1 + (currentPage - 1) * limit,
+    },
+    {
+      title: "ชื่อโปรเจค",
+      dataIndex: "name",
+      key: "name",
+      align: "left" as const,
+      render: (text: string) => <span>{text}</span>,
+    },
+    {
+      title: "จัดการ",
+      key: "action",
+      align: "center" as const,
+      width: 200,
+      render: (_: any, record: SubProject) => (
+        <Space>
+          <Button
+            type="text"
+            icon={<FiInfo className="w-5 h-5" />}
+            onClick={() => {
+              setDetailProject(record);
+              setModal("detail");
+            }}
+            aria-label="View Details"
+          />
+          <Button
+            type="text"
+            icon={<FiEdit2 className="w-5 h-5" />}
+            onClick={() => openEditModal(record)}
+            aria-label="Edit Project"
+          />
+          <Button
+            type="text"
+            danger
+            icon={<FiTrash2 className="w-5 h-5" />}
+            onClick={() => openDeleteModal(record.id)}
+            aria-label="Delete Project"
+          />
+          <Link
+            href={`/timesheet/project/sub-project/${record.id}`}
+            className="text-green-600 hover:text-green-800 flex items-center"
+            aria-label="Go to Sub Project"
+          >
+            <FiArrowRight className="w-5 h-5" />
+          </Link>
+        </Space>
+      ),
+    },
+  ];
 
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -340,7 +362,9 @@ export default function Page() {
   if (loading) {
     return (
       <DashboardLayout>
-        <BaseLoadingComponent />
+        <div className="flex justify-center items-center min-h-[200px]">
+          <Spin size="large" />
+        </div>
       </DashboardLayout>
     );
   }
@@ -349,144 +373,162 @@ export default function Page() {
     <DashboardLayout>
       <div className="w-full space-y-4">
         <div className="w-full flex justify-start">
-          <RoundedButton
-            type="button"
-            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 flex items-center space-x-2"
+          <Button
+            type="default"
+            icon={<FiArrowRight className="w-5 h-5 rotate-180" />}
             onClick={() => router.back()}
-            iconLeft={<FiArrowRight className="w-5 h-5 rotate-180" />}
+            style={{ display: "flex", alignItems: "center" }}
           >
-            <span>ย้อนกลับ</span>
-          </RoundedButton>
+            ย้อนกลับ
+          </Button>
         </div>
         {/* Project Name Header */}
-        <ContentCard title="โครงการ" className="w-1/2 mb-2">
-          <div className="text-2xl font-bold text-gray-700">
+        <Card title="โครงการ" className="w-1/2 mb-2">
+          <Typography.Title level={4} style={{ margin: 0 }}>
             {projects[0]?.name}
-          </div>
-        </ContentCard>
+          </Typography.Title>
+        </Card>
         {/* Add Project Button */}
         <div className="w-full flex justify-end">
-          <RoundedButton
-            type="button"
-            className="w-full sm:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white flex items-center space-x-3"
+          <Button
+            type="primary"
+            icon={<FiPlus className="w-6 h-6" />}
+            size="large"
             onClick={openCreateModal}
-            iconRight={<FiPlus className="w-6 h-6" />}
+            style={{ display: "flex", alignItems: "center" }}
           >
             <span className="text-lg font-semibold">เพิ่มฟีเจอร์</span>
-          </RoundedButton>
+          </Button>
         </div>
 
-        <ContentCard title="รายการโครงการย่อย (Feature)" className="w-full">
-          <TableComponent
-            headers={headers}
-            rows={rows}
-            alignments={["center", "left", "left", "center"]}
+        <Card title="รายการโครงการย่อย (Feature)" className="w-full">
+          <Table
+            columns={columns}
+            dataSource={subProjects}
+            rowKey="id"
+            pagination={false}
           />
           {renderPagination()}
-        </ContentCard>
+        </Card>
 
         {/* Create/Edit Modal */}
-        {(modal === "create" || modal === "edit") && (
-          <MinimalModal
-            isOpen={true}
-            onClose={() => setModal("")}
-            title={form.id ? "แก้ไขโปรเจค" : "เพิ่มฟีเจอร์"}
+        <Modal
+          open={modal === "create" || modal === "edit"}
+          onCancel={() => setModal("")}
+          title={form.id ? "แก้ไขโปรเจค" : "เพิ่มฟีเจอร์"}
+          footer={null}
+          destroyOnClose
+        >
+          <Form
+            form={antdForm}
+            layout="vertical"
+            initialValues={{ name: form.name }}
+            onValuesChange={(_, allValues) =>
+              setForm({ ...form, ...allValues })
+            }
+            onFinish={async () => {
+              await handleSubmit();
+              antdForm.resetFields();
+            }}
           >
-            <div className="space-y-4 mt-5">
-              <InputComponent
-                label="ชื่อโปรเจค"
-                id="name"
-                name="name"
-                value={form.name}
-                onChange={(e: any) =>
-                  setForm({ ...form, name: e.target.value })
-                }
-                type="text"
-                placeholder="กรอกชื่อโปรเจค"
-              />
-            </div>
-            <div className="mt-6 flex justify-end space-x-4">
-              <RoundedButton
-                type="button"
-                className="w-full sm:w-auto px-6 py-3 rounded bg-gray-300 hover:bg-gray-400"
-                onClick={() => setModal("")}
+            <Form.Item
+              label="ชื่อโปรเจค"
+              name="name"
+              rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
+            >
+              <Input placeholder="กรอกชื่อโปรเจค" />
+            </Form.Item>
+            <div
+              style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}
+            >
+              <Button onClick={() => setModal("")}>ยกเลิก</Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<FiCheckCircle className="w-5 h-5" />}
               >
-                ยกเลิก
-              </RoundedButton>
-              <RoundedButton
-                type="button"
-                className="w-full sm:w-auto px-6 py-3 rounded bg-green-500 hover:bg-green-600 text-white flex items-center space-x-2"
-                onClick={handleSubmit}
-                iconRight={<FiCheckCircle className="w-5 h-5" />}
-              >
-                <span>บันทึก</span>
-              </RoundedButton>
+                บันทึก
+              </Button>
             </div>
-          </MinimalModal>
-        )}
+          </Form>
+        </Modal>
 
         {/* Delete Confirmation Modal */}
-        {modal === "delete" && (
-          <MinimalModal
-            isOpen={true}
-            onClose={() => setModal("")}
-            title="ยืนยันการลบ"
+        <Modal
+          open={modal === "delete"}
+          onCancel={() => setModal("")}
+          title="ยืนยันการลบ"
+          footer={null}
+          destroyOnClose
+        >
+          <div className="space-y-4 mt-2">
+            <Typography.Text type="danger" strong>
+              คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
+            </Typography.Text>
+            <Typography.Text>
+              โปรดพิมพ์{" "}
+              <span style={{ fontWeight: "bold", color: "#f5222d" }}>
+                Delete
+              </span>{" "}
+              เพื่อยืนยัน
+            </Typography.Text>
+            <Input
+              placeholder="พิมพ์ Delete เพื่อยืนยัน"
+              value={form.confirmText}
+              onChange={(e) =>
+                setForm({ ...form, confirmText: e.target.value })
+              }
+            />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 12,
+              marginTop: 24,
+            }}
           >
-            <div className="space-y-4 mt-4">
-              <p className="text-red-600 font-semibold">
-                คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
-              </p>
-              <p className="text-gray-700">
-                โปรดพิมพ์ <span className="font-bold text-red-600">Delete</span>{" "}
-                เพื่อยืนยัน
-              </p>
-              <input
-                type="text"
-                placeholder="พิมพ์ Delete เพื่อยืนยัน"
-                className="w-full border px-3 py-2 rounded"
-                onChange={(e) =>
-                  setForm({ ...form, confirmText: e.target.value })
-                }
-              />
-            </div>
-            <div className="mt-6 flex justify-end space-x-4">
-              <RoundedButton
-                type="button"
-                className="w-full sm:w-auto px-6 py-3 rounded bg-gray-300 hover:bg-gray-400"
-                onClick={() => setModal("")}
-                iconRight={<FiCheckCircle className="w-5 h-5" />}
-              >
-                ยกเลิก
-              </RoundedButton>
-              <RoundedButton
-                type="button"
-                className="w-full sm:w-auto px-6 py-3 rounded bg-red-600 hover:bg-red-700 text-white"
-                onClick={confirmDelete}
-                disabled={form.confirmText !== "Delete"}
-                iconRight={<FiTrash2 className="w-5 h-5" />}
-              >
-                ลบ
-              </RoundedButton>
-            </div>
-          </MinimalModal>
-        )}
+            <Button onClick={() => setModal("")}>ยกเลิก</Button>
+            <Button
+              type="primary"
+              danger
+              icon={<FiTrash2 className="w-5 h-5" />}
+              onClick={confirmDelete}
+              disabled={form.confirmText !== "Delete"}
+            >
+              ลบ
+            </Button>
+          </div>
+        </Modal>
 
         {/* Detail Modal */}
-        {modal === "detail" && detailProject && (
-          <MinimalModal
-            isOpen={modal === "detail"}
-            onClose={() => {
-              setModal("");
-              setDetailProject(null);
-            }}
-            title="รายละเอียดโปรเจค"
-          >
-            <div className="space-y-3 mt-5">
-              <p>
+        <Modal
+          open={modal === "detail" && !!detailProject}
+          onCancel={() => {
+            setModal("");
+            setDetailProject(null);
+          }}
+          title="รายละเอียดโปรเจค"
+          footer={[
+            <Button
+              key="close"
+              onClick={() => {
+                setModal("");
+                setDetailProject(null);
+              }}
+            >
+              ปิด
+            </Button>,
+          ]}
+          destroyOnClose
+        >
+          {detailProject && (
+            <div className="space-y-3 mt-2">
+              <Typography.Text>
                 <strong>ชื่อโปรเจค:</strong> {detailProject.name}
-              </p>
+              </Typography.Text>
               <p>
-                <strong>โปรเจ็คหลัก:</strong> {projects[0].name}
+                <strong>โปรเจ็คหลัก:</strong> {projects[0]?.name}
               </p>
               <p>
                 <strong>สร้างโดย (id):</strong> {detailProject.createdBy}
@@ -500,20 +542,8 @@ export default function Page() {
                 {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
               </p>
             </div>
-            <div className="mt-6 flex justify-end">
-              <RoundedButton
-                type="button"
-                className="w-full sm:w-auto px-6 py-3 rounded bg-gray-300 hover:bg-gray-400"
-                onClick={() => {
-                  setModal("");
-                  setDetailProject(null);
-                }}
-              >
-                ปิด
-              </RoundedButton>
-            </div>
-          </MinimalModal>
-        )}
+          )}
+        </Modal>
       </div>
     </DashboardLayout>
   );

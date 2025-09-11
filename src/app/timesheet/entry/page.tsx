@@ -1,28 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-// import ContentCard from "@components/layouts/backend/content";
-// import BaseLoadingComponent from "@components/loading/loading-component-1";
 import {
   FiPlus,
   FiCheckCircle,
   FiEdit2,
   FiTrash2,
   FiInfo,
-  FiArrowRight,
   FiClock,
 } from "react-icons/fi";
 import dayjs from "dayjs";
-// import RoundedButton from "@components/button/rounded-button-component";
-// import InputComponent from "@components/input-field/input-component";
-// import TableComponent from "@components/table/base-table-component";
 import { useAppSelector } from "@stores/store";
-// import MinimalModal from "@components/modal/minimal-modal-component";
 import { toast } from "sonner";
 import { convertToThaiDateDDMMYYY } from "@helpers/convert-time-zone-to-thai";
-import Link from "next/link";
-import Swal from "sweetalert2";
-// import { SearchableSelectComponent } from "@components/input-field/searchable-select-component";
 import { Project, SubProject } from "@stores/type";
 import {
   Card,
@@ -40,6 +30,7 @@ import {
   Col,
   DatePicker,
 } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 export default function Page() {
   const [antdForm] = Form.useForm();
@@ -356,7 +347,16 @@ export default function Page() {
   if (loading) {
     return (
       <DashboardLayout>
-        <Spin />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 200,
+          }}
+        >
+          <Spin />
+        </div>
       </DashboardLayout>
     );
   }
@@ -368,11 +368,12 @@ export default function Page() {
         <div className="w-full flex justify-end">
           <Button
             type="primary"
-            className="w-full sm:w-auto px-6 py-3 flex items-center space-x-3"
+            icon={<PlusOutlined />}
+            size="large"
             onClick={openCreateModal}
-            icon={<FiPlus className="w-6 h-6" />}
+            style={{ minWidth: 160 }}
           >
-            <span className="text-lg font-semibold">ลงเวลาทำงาน</span>
+            เพิ่มโปรเจค
           </Button>
         </div>
 
@@ -530,7 +531,6 @@ export default function Page() {
                       gap: 8,
                     }}
                   >
-                    <FiEdit2 className="w-5 h-5 text-gray-400 mt-1" />
                     <Input.TextArea
                       placeholder="กรอกคำอธิบายโปรเจค"
                       autoSize={{ minRows: 2, maxRows: 5 }}
