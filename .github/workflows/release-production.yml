@@ -1,4 +1,4 @@
-name: 🚀 Release Production
+name: Release Production
 
 on:
   push:
@@ -51,6 +51,8 @@ jobs:
         run: |
           echo "👉 Generating Prisma client..."
           npx prisma generate --schema=prisma/schema.prisma
+          npx prisma generate --schema=prisma/timesheet/schema.prisma
+
 
       - name: "🏗️ Build Project"
         run: |
