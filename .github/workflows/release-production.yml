@@ -66,6 +66,7 @@ jobs:
             .next \
             public \
             generated/prisma \
+            generated/prisma-timesheet \
             package.json \
             package-lock.json \
             next.config.mjs
