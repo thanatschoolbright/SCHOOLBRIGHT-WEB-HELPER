@@ -39,7 +39,7 @@ async function validateReferences(projectId: number, subProjectId: number, id?: 
 export async function POST(request: NextRequest) {
   // Validate request body
   const { data, error } = await validateRequest(request, timesheetEntrySchema);
-  if (error) return error;
+  if (error) return NextResponse.json(error);
 
   const {
     id,
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
   // Validate project, sub-project, and timesheet entry references
   const referencesValidation = await validateReferences(Number(project_id), Number(sub_project_id), id);
-  if (referencesValidation !== true) return referencesValidation;
+  if (referencesValidation !== true) return NextResponse.json(referencesValidation);
 
   // Prepare payload for service call
   const payload = {

@@ -23,7 +23,7 @@ import { convertToThaiDateDDMMYYY } from "@helpers/convert-time-zone-to-thai";
 import Link from "next/link";
 import Swal from "sweetalert2";
 // import { SearchableSelectComponent } from "@components/input-field/searchable-select-component";
-import { Project, SubProject, WorkEntryForm } from "@stores/type";
+import { Project, SubProject } from "@stores/type";
 import {
   Card,
   Table,
@@ -53,14 +53,9 @@ export default function Page() {
   const [entries, setEntries] = useState<any[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [subProject, setSubProjects] = useState<SubProject[]>([]);
-  const [form, setForm] = useState<WorkEntryForm & { confirmText?: string }>({
-    project_id: "",
-    sub_project_id: "",
-    description: "",
-    work_hour: "",
-    by: AUTH_USER?.admin_id,
-    confirmText: "",
-  });
+  const [editingEntryId, setEditingEntryId] = useState<number | null>(null);
+  const [confirmText, setConfirmText] = useState<string>("");
+
   const [loading, setLoading] = useState<boolean>(false);
   const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
@@ -151,6 +146,7 @@ export default function Page() {
     const payload = {
       ...raw,
       date: raw.date ? dayjs(raw.date).toDate() : undefined,
+      by: AUTH_USER?.admin_id,
     };
     try {
       const res = await fetch(`/api/v1/timesheet/entry/insert/`, {
@@ -198,44 +194,30 @@ export default function Page() {
   }, [currentPage]);
 
   const handleSubmit = async () => {
-    await createOrUpdateEntry(form);
-    setForm({
-      project_id: "",
-      sub_project_id: "",
-      description: "",
-      work_hour: "",
-      by: AUTH_USER?.admin_id,
-    });
+    await createOrUpdateEntry();
+    antdForm.resetFields();
+    setEditingEntryId(null);
     setModal("");
     await fetchTimesheetEntry();
   };
 
   const openCreateModal = () => {
-    setForm({
+    antdForm.resetFields();
+    antdForm.setFieldsValue({
       project_id: "",
       sub_project_id: "",
       description: "",
       work_hour: "",
-      by: AUTH_USER?.admin_id,
-      confirmText: "",
+      date: null,
+      status: undefined,
     });
-    antdForm.resetFields();
+    setEditingEntryId(null);
     setModal("create");
   };
 
   const openEditModal = async (entry: any) => {
     setModalLoading(true);
-    setForm({
-      project_id: entry.project_id ? String(entry.project_id) : "",
-      sub_project_id: entry.feature_id ? String(entry.feature_id) : "",
-      description: entry.description || "",
-      work_hour: entry.hours ? String(entry.hours) : "",
-      by: AUTH_USER?.admin_id,
-      confirmText: "",
-      id: entry.id,
-      date: entry.date,
-      status: entry.status,
-    });
+    setEditingEntryId(entry.id ?? null);
     // Ensure subprojects are loaded before setting form values
     await fetchSubProjects(entry.project_id);
     antdForm.setFieldsValue({
@@ -252,6 +234,7 @@ export default function Page() {
 
   const openDeleteModal = (id: number) => {
     setDeleteId(id);
+    setConfirmText("");
     setModal("delete");
   };
 
@@ -414,7 +397,7 @@ export default function Page() {
         <Modal
           open={modal === "create" || modal === "edit"}
           onCancel={() => setModal("")}
-          title={form.id ? "แก้ไขเวลาการทำงาน" : "เพิ่มเวลาการทำงาน"}
+          title={editingEntryId ? "แก้ไขเวลาการทำงาน" : "เพิ่มเวลาการทำงาน"}
           footer={null}
           width={700}
           style={{ top: 40 }}
@@ -436,14 +419,6 @@ export default function Page() {
                 layout="vertical"
                 className="mt-0"
                 onFinish={handleSubmit}
-                initialValues={{
-                  project_id: form.project_id,
-                  sub_project_id: form.sub_project_id,
-                  date: form.date ? dayjs(form.date) : null,
-                  work_hour: form.work_hour,
-                  description: form.description,
-                  status: form.status,
-                }}
                 form={antdForm}
               >
                 <Row gutter={16}>
@@ -548,11 +523,19 @@ export default function Page() {
                   </Col>
                 </Row>
                 <Form.Item label="คำอธิบายโปรเจค" name="description">
-                  <Input.TextArea
-                    prefix={<FiEdit2 className="w-5 h-5 text-gray-400" />}
-                    placeholder="กรอกคำอธิบายโปรเจค"
-                    autoSize={{ minRows: 2, maxRows: 5 }}
-                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 8,
+                    }}
+                  >
+                    <FiEdit2 className="w-5 h-5 text-gray-400 mt-1" />
+                    <Input.TextArea
+                      placeholder="กรอกคำอธิบายโปรเจค"
+                      autoSize={{ minRows: 2, maxRows: 5 }}
+                    />
+                  </div>
                 </Form.Item>
                 <Row justify="end" gutter={8}>
                   <Col>
@@ -583,7 +566,10 @@ export default function Page() {
         {/* Delete Confirmation Modal */}
         <Modal
           open={modal === "delete"}
-          onCancel={() => setModal("")}
+          onCancel={() => {
+            setConfirmText("");
+            setModal("");
+          }}
           title="ยืนยันการลบ"
           footer={null}
         >
@@ -598,10 +584,8 @@ export default function Page() {
             <Input
               type="text"
               placeholder="พิมพ์ Delete เพื่อยืนยัน"
-              value={form.confirmText}
-              onChange={(e) =>
-                setForm({ ...form, confirmText: e.target.value })
-              }
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
             />
           </div>
           <div className="mt-6 flex justify-end space-x-4">
@@ -618,7 +602,7 @@ export default function Page() {
               danger
               className="w-full sm:w-auto px-6 py-3"
               onClick={confirmDelete}
-              disabled={form.confirmText !== "Delete"}
+              disabled={confirmText !== "Delete"}
               icon={<FiTrash2 className="w-5 h-5" />}
             >
               ลบ
@@ -654,23 +638,13 @@ export default function Page() {
                 <strong>รหัส:</strong> {detailProject.id}
               </p>
               <p>
-                <strong>รหัสโปรเจค:</strong> {detailProject.project_id}
+                <strong>รหัสโปรเจค:</strong> {detailProject.id}
               </p>
-              <p>
-                <strong>รหัสโปรเจ็คย่อย:</strong> {detailProject.feature_id}
-              </p>
-              <p>
-                <strong>วันที่:</strong> {detailProject.date}
-              </p>
-              <p>
-                <strong>ชั่วโมง:</strong> {detailProject.hours}
-              </p>
+
               <p>
                 <strong>คำอธิบาย:</strong> {detailProject.description}
               </p>
-              <p>
-                <strong>สถานะ:</strong> {detailProject.status}
-              </p>
+
               <p>
                 <strong>สร้างเมื่อ:</strong>{" "}
                 {convertToThaiDateDDMMYYY(detailProject.createdAt)}
