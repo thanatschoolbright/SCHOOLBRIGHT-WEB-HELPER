@@ -10,7 +10,7 @@ export default function UploadFileComponent(props: Props) {
     sizeKB: number;
   } | null>(null);
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFileChange = (e: any) => {
     const file = e.target.files?.[0];
     if (!file) {
       setFileInfo(null);

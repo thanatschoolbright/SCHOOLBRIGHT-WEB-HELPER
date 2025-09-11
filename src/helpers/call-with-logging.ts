@@ -1,6 +1,14 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { apiLog } from "@services/api-log";
 
+// ANSI color codes for enhanced log readability
+const colors = {
+  info: "\x1b[36m", // cyan
+  success: "\x1b[32m", // green
+  error: "\x1b[31m", // red
+};
+const resetColor = "\x1b[0m";
+
 export async function callWithLogging<T = any>(
   config: AxiosRequestConfig,
   logMeta?: {
@@ -14,7 +22,9 @@ export async function callWithLogging<T = any>(
 
   apiLog.info({
     emoji: "📡",
-    message: `[CALL] ${method} ${logMeta?.requestPath || url}`,
+    message: `${colors.info}[CALL] ${method} ${
+      logMeta?.requestPath || url
+    }${resetColor}`,
     url,
     ...(logMeta?.curl && { curl: logMeta.curl }),
   });
@@ -22,28 +32,10 @@ export async function callWithLogging<T = any>(
   try {
     const response = await axios(config);
 
-    apiLog.info({
-      emoji: "📦",
-      message: `[RESPONSE] ${method} ${logMeta?.requestPath || url}`,
-      status: response.status,
-      data: response.data,
-    });
-
     return response;
   } catch (error: any) {
     const statusCode = error.response?.status || 500;
     const raw = error.response?.data;
-
-    apiLog.error({
-      emoji: "🔥",
-      message: `[ERROR] ${method} ${logMeta?.requestPath || url} - ${
-        error.message
-      }`,
-      status: statusCode,
-      data: raw,
-      raw,
-      curl: logMeta?.curl,
-    });
 
     throw error;
   }

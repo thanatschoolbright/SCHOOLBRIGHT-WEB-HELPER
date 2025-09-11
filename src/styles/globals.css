@@ -26,6 +26,13 @@
   }
 }
 
+
+
+* {
+    font-family: "LINESeedSansTH", sans-serif;
+
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
@@ -92,4 +99,23 @@ body {
       transform: translateY(-10%);
     }
   }
+}
+
+@keyframes modal-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-bounce {
+  animation: modal-bounce 0.35s ease-out;
 }

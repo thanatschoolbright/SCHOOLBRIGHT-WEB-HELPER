@@ -447,3 +447,84 @@ export interface RequestQRCodeGenerator
     shop_id: number;
   };
 }
+
+export interface RequestLoginV2 extends DefaultRedux<ResponseLoginV2> {
+  draftValues: {
+    username: string;
+    password: string;
+  };
+}
+
+export interface ResponseLoginV2 {
+  data: {
+    success: boolean;
+    token: string;
+    user_data: {
+      admin_id: number;
+      employee_code: string;
+      firstname: string;
+      lastname: string;
+      nickname: string;
+      email: string;
+      backlog_email: string;
+      tel: string;
+      position: string;
+    };
+  };
+}
+
+export interface Project {
+  id: number;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  by: number;
+  createdBy: number;
+}
+
+export interface WorkEntryForm {
+  id?: number;
+  project_id: string | string[];
+  sub_project_id: string | string[];
+  description: string;
+  work_hour: string;
+  by: number;
+}
+
+export interface SubProject {
+  id: number;
+  project_id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  by: number;
+  createdBy: number;
+}
+
+export interface SubProjectForm {
+  id?: number;
+  name: string;
+  project_id: number;
+  by: number;
+}
+
+export interface RequestHeartbeats extends DefaultRedux<ResponseHeartbeats> {
+  draftValues: {};
+}
+
+export interface ResponseHeartbeats {
+  data: {
+    status: number;
+    message_th: string;
+    message_en: string;
+    data: {
+      JobName: string;
+      Interval: number;
+      IsAlwaysRunning: boolean;
+      Status: string;
+      Remarks: string;
+      LastUpdatedTime: string;
+    }[];
+  };
+}

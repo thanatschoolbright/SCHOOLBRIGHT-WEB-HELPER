@@ -31,9 +31,9 @@ export default function UserDropdown() {
       >
         <span className="text-sm font-medium text-gray-700 dark:text-orange-400 hidden sm:block">
           สวัสดีคุณ &nbsp;
-          {(AUTHENTICATION.response.data.name ?? "Name") +
+          {(AUTHENTICATION?.response?.data?.user_data?.firstname ?? "Name") +
             " " +
-            (AUTHENTICATION.response.data.lastname ?? "")}
+            (AUTHENTICATION?.response?.data?.user_data?.lastname ?? "")}{" "}
         </span>
         <Image
           src="/photo/profile.png"
@@ -66,11 +66,11 @@ export default function UserDropdown() {
         <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 shadow-lg rounded-lg z-[60] border border-gray-200 dark:border-gray-700 text-sm animate-fade-in-down transition-all duration-300">
           <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
             <p className="font-semibold text-gray-800 dark:text-gray-200">
-              {AUTHENTICATION.response.data.name ?? "ชื่อ"}{" "}
-              {AUTHENTICATION.response.data.lastname ?? "นามสกุล"}
+              {AUTHENTICATION?.response?.data?.user_data?.firstname ?? "ชื่อ"}{" "}
+              {AUTHENTICATION?.response?.data?.user_data?.lastname ?? "นามสกุล"}
             </p>
             <p className="text-gray-500 dark:text-gray-400 text-xs">
-              {AUTHENTICATION.response.data.username ?? "mail@mail.com"}
+              {AUTHENTICATION?.response?.data?.user_data?.email ?? "mail@mail.com"}
             </p>
           </div>
 

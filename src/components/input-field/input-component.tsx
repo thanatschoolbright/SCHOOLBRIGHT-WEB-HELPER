@@ -1,13 +1,21 @@
+// src/components/InputComponent.tsx
 import React, { useState } from "react";
 
-interface InputComponentProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+// กำหนด type ของ props
+interface InputComponentProps {
   label: string;
   id: string;
+  name?: string; // Add the name property
+  value?: any; // Add the value property for controlled components
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // Define onChange explicitly
   error?: string;
-  required?: boolean; // 🟥 เพิ่ม required prop
+  required?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  textAlign?: "left" | "center" | "right";
+  type: string; // Change type to string to be more specific
+  disabled?: boolean; // Make disabled optional
+  placeholder?: string; // Add placeholder to the interface
 }
 
 const InputComponent: React.FC<InputComponentProps> = ({
@@ -18,12 +26,21 @@ const InputComponent: React.FC<InputComponentProps> = ({
   required = false,
   leftIcon,
   rightIcon,
+  textAlign,
   ...props
 }) => {
+  // The rest of the component logic remains the same
   const [fileName, setFileName] = useState<string>("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (type === "file" && e.target.files && e.target.files.length > 0) {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (
+      type === "file" &&
+      "files" in e.target &&
+      e.target.files &&
+      e.target.files.length > 0
+    ) {
       setFileName(e.target.files[0].name);
     }
     if (props.onChange) {
@@ -32,48 +49,104 @@ const InputComponent: React.FC<InputComponentProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-1 items-center">
-      <div className="relative group overflow-visible w-full">
+    <div className="flex flex-col gap-1 items-center w-full">
+      <div className="relative w-full group overflow-visible">
         <div className="relative w-full">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 z-1 transition-colors duration-200 peer-focus:text-purple-600 peer-focus:dark:text-purple-400 ">
               {leftIcon}
             </div>
           )}
-          <input
-            id={id}
-            type={type}
-            required={required}
-            placeholder=" "
-            className={`peer w-full px-4 pt-5 pb-3 border border-2 ${
-              error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
-            } rounded-md ${
-              props.disabled
-                ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
-                : "bg-white dark:bg-gray-800"
-            } focus:outline-none focus:border-purple-500 text-gray-900 dark:text-gray-100 placeholder-transparent ${
-              props.disabled ? "text-gray-400 dark:text-gray-500" : ""
-            }${leftIcon ? " pl-10" : ""}${rightIcon ? " pr-10" : ""}`}
-            {...props}
-            onChange={handleChange}
-          />
+          {type === "textarea" ? (
+            <textarea
+              id={id}
+              required={required}
+              placeholder=" "
+              className={`
+                peer w-full px-4 pt-5 pb-3 border border-2 rounded-md
+                ${
+                  error
+                    ? "border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
+                }
+                ${
+                  props.disabled
+                    ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
+                    : "bg-white dark:bg-gray-800"
+                }
+                text-gray-900 dark:text-gray-100 placeholder-transparent transition-all duration-300 ease-in-out
+                focus:outline-none focus:border-purple-500
+                ${leftIcon ? "pl-10" : ""}
+                ${rightIcon ? "pr-10" : ""}
+                ${
+                  textAlign === "right"
+                    ? "text-right"
+                    : textAlign === "center"
+                    ? "text-center"
+                    : "text-left"
+                }
+              `}
+              {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+              onChange={handleChange}
+            />
+          ) : (
+            <input
+              id={id}
+              type={type}
+              required={required}
+              placeholder=" "
+              className={`
+                peer w-full px-4 pt-5 pb-3 border border-2 rounded-md
+                ${
+                  error
+                    ? "border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
+                }
+                ${
+                  props.disabled
+                    ? "bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
+                    : "bg-white dark:bg-gray-800"
+                }
+                text-gray-900 dark:text-gray-100 placeholder-transparent transition-all duration-300 ease-in-out
+                focus:outline-none focus:border-purple-500
+                ${leftIcon ? "pl-10" : ""}
+                ${rightIcon ? "pr-[4rem]" : ""}
+                ${
+                  textAlign === "right"
+                    ? "text-right"
+                    : textAlign === "center"
+                    ? "text-center"
+                    : "text-left"
+                }
+              `}
+              {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
+              onChange={handleChange}
+            />
+          )}
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-1 transition-colors duration-200 peer-focus:text-purple-600 peer-focus:dark:text-purple-400">
               {rightIcon}
             </div>
           )}
         </div>
         <label
           htmlFor={id}
-          className={`absolute -top-2 left-3 bg-white dark:bg-gray-800 px-1 text-gray-500 dark:text-gray-400 text-sm font-extralight pointer-events-none transition-all duration-200 ease-in-out z-10 peer-placeholder-shown:top-3.5 peer-placeholder-shown:left-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:dark:text-gray-500 peer-focus:-top-2 peer-focus:left-3 peer-focus:text-purple-600 ${
-            required
-              ? "after:content-['*'] after:ml-1 after:text-red-500 after:font-thin"
-              : ""
-          } ${
-            props.disabled
-              ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
-              : ""
-          }`}
+          className={`
+            absolute -top-2 left-3 px-1 text-gray-500 dark:text-gray-400 text-sm font-extralight pointer-events-none
+            transition-all duration-300 ease-in-out
+            peer-placeholder-shown:top-3.5 peer-placeholder-shown:left-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:dark:text-gray-500
+            peer-focus:-top-2 peer-focus:left-3 peer-focus:text-purple-600 peer-focus:dark:text-purple-400
+            ${
+              required
+                ? "after:content-['*'] after:ml-1 after:text-red-500 after:font-thin"
+                : ""
+            }
+            ${
+              props.disabled
+                ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                : "bg-white dark:bg-gray-800"
+            }
+          `}
         >
           {label}
         </label>

@@ -16,23 +16,24 @@ export default function AuthenticationReduxProvider({
   useEffect(() => {
     const raw = localStorage.getItem("AUTH_USER");
 
+
     if (raw) {
       try {
         const stored = JSON.parse(raw);
+        // * ใช้สำหรับตรวจสอบ Login V.2 แบบใหม่ มีการเปลี่ยน Response Body 
+        if (stored.user_data === undefined)  {
+          return router.replace("/auth/signin")
+        }
 
-        dispatch(
-          setResponse({
-            status: 200,
-            data: {
-              id: stored?.id,
-              admin_id: stored?.admin_id,
-              username: stored?.username,
-              name: stored?.name,
-              lastname: stored?.lastname,
-              token: stored?.token,
-            },
-          })
-        );
+        const response = {
+          status: 200,
+          data: {
+            ...stored,
+            token: stored.token,
+          },
+        };
+        console.log("[AUTH PROVIDER] setResponse:", response);
+        dispatch(setResponse(response));
 
         // ✅ หาก login แล้ว และอยู่หน้า /auth/signin ให้เด้งไป /backend
         if (pathname === "/auth/signin") {

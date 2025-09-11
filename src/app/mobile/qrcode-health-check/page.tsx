@@ -199,7 +199,7 @@ export default function Page() {
               name="shop_id"
               disabled
               value={form.shop_id || 0}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(e: any) =>
                 setForm({ ...form, shop_id: Number(e.target.value) })
               }
               type="number"
@@ -213,7 +213,7 @@ export default function Page() {
               id="amount"
               name="amount"
               value={form.amount || 0}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(e: any) =>
                 setForm({ ...form, amount: Number(e.target.value) })
               }
               type="number"
