@@ -26,6 +26,13 @@
   }
 }
 
+
+
+* {
+    font-family: "LINESeedSansTH", sans-serif;
+
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

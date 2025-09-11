@@ -16,9 +16,14 @@ export default function AuthenticationReduxProvider({
   useEffect(() => {
     const raw = localStorage.getItem("AUTH_USER");
 
+
     if (raw) {
       try {
         const stored = JSON.parse(raw);
+        // * ใช้สำหรับตรวจสอบ Login V.2 แบบใหม่ มีการเปลี่ยน Response Body 
+        if (stored.user_data === undefined)  {
+          return router.replace("/auth/signin")
+        }
 
         const response = {
           status: 200,

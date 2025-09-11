@@ -1,6 +1,32 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
+interface CreateTimesheetEntryInput {
+  description: string;
+  createdBy?: number;
+  projectId: number;
+  subProjectId: number;
+  date: Date;
+  hour: number;
+  status: string;
+}
+
+interface UpdateTimesheetEntryInput {
+  description?: string;
+  projectId?: number;
+  subProjectId?: number;
+  date?: Date;
+  hour?: number;
+  status?: string;
+  updatedBy?: number;
+}
+
 export const Service = {
+  async validatorID(id: number) {
+    const find = await PrismaTimesheet.timesheetEntry.findUnique({
+      where: { id: id },
+    });
+    return find !== null;
+  },
   // * ดึงข้อมูล Project ทั้งหมด พร้อม pagination
   async findAll(
     opts: { limit?: number; skip?: number } = { limit: 50, skip: 0 }
@@ -10,9 +36,26 @@ export const Service = {
         take: opts.limit,
         skip: opts.skip,
         orderBy: { createdAt: "desc" },
+        include: {
+          project: {
+            select: {
+              id: true,
+              name: true, // ✅ จะได้ project_name กลับมาด้วย
+            },
+          },
+          feature: {
+            select: {
+              id: true,
+              name: true, // ✅ จะได้ feature_name กลับมาด้วย
+            },
+          },
+        },
       }),
       PrismaTimesheet.timesheetEntry.count(),
     ]);
+
+    console.info("ITEMS",items)
+
     return { items, total };
   },
 
@@ -29,16 +72,7 @@ export const Service = {
   },
 
   // * สร้าง
-  async create(data: {
-    name: string;
-    description: string;
-    createdBy?: number;
-    projectId: number;
-    subProjectId: number;
-    date: Date;
-    hour: number;
-    status: string;
-  }) {
+  async create(data: CreateTimesheetEntryInput) {
     return await PrismaTimesheet.timesheetEntry.create({
       data: {
         projectId: data.projectId,
@@ -47,38 +81,27 @@ export const Service = {
         status: data.status,
         description: data.description,
         date: data.date,
-        createdBy: data.createdBy !== undefined ? data.createdBy : 0,
+        createdBy: data.createdBy ?? 0,
       },
     });
   },
 
   // * อัปเดต ตาม ID
-  async update(
-    id: number,
-    data: {
-      description?: string;
-      projectId?: number;
-      subProjectId?: number;
-      date?: Date;
-      hour?: number;
-      status?: string;
-      updatedBy?: number;
+  async update(id: number, data: UpdateTimesheetEntryInput) {
+    if (!id || id <= 0) {
+      throw new Error("Invalid id for update");
     }
-  ) {
-    return await PrismaTimesheet.timesheetEntry.update({
+
+    return PrismaTimesheet.timesheetEntry.update({
       where: { id },
       data: {
-        ...(data.projectId !== undefined && { projectId: data.projectId }),
-        ...(data.subProjectId !== undefined && {
-          featureId: data.subProjectId,
-        }),
-        ...(data.hour !== undefined && { hours: data.hour }),
-        ...(data.status !== undefined && { status: data.status }),
-        ...(data.description !== undefined && {
-          description: data.description,
-        }),
-        ...(data.date !== undefined && { date: data.date }),
-        updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
+        projectId: data.projectId,
+        featureId: data.subProjectId,
+        hours: data.hour,
+        status: data.status,
+        description: data.description,
+        date: data.date,
+        updatedBy: data.updatedBy ?? 0,
       },
     });
   },

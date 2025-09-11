@@ -41,3 +41,5 @@ Generates the Prisma Client based on your schema, so you can use it in your appl
 ## Generate Prisma Studio
 
 npx prisma studio --schema=prisma/timesheet/schema.prisma
+
+brew services restart postgresql

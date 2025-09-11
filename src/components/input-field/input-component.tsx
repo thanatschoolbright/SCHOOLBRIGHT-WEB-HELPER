@@ -124,7 +124,7 @@ const InputComponent: React.FC<InputComponentProps> = ({
             />
           )}
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 transition-colors duration-200 peer-focus:text-purple-600 peer-focus:dark:text-purple-400">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-1 transition-colors duration-200 peer-focus:text-purple-600 peer-focus:dark:text-purple-400">
               {rightIcon}
             </div>
           )}

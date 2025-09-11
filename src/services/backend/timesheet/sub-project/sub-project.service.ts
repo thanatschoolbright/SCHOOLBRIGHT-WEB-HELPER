@@ -8,6 +8,13 @@ export const Service = {
     return project !== null;
   },
 
+  async validateSubProjectId(subProjectId: number) {
+    const find = await PrismaTimesheet.feature.findUnique({
+      where: { id: subProjectId },
+    });
+    return find !== null;
+  },
+
   // * ดึงข้อมูล Feature ทั้งหมด พร้อม pagination
   async findAll(
     opts: { limit?: number; skip?: number } = { limit: 50, skip: 0 }

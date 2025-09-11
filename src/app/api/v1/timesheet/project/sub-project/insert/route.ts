@@ -3,6 +3,7 @@ import { Service } from "@services/backend/timesheet/sub-project/sub-project.ser
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
 import { z } from "zod";
+import { projectIdValidation } from "@api/v1/timesheet/helper/timesheet.validation";
 
 const ProjectCreateUpdateSchema = z.object({
   id: z.union([z.number().min(1), z.string().min(1).optional()]),
@@ -11,19 +12,7 @@ const ProjectCreateUpdateSchema = z.object({
   by: z.union([z.number().min(1), z.string().min(1)]),
 });
 
-const projectIdValidation = async (projectId: number) => {
-  const isValidProject = await Service.validateProjectId(projectId);
-  if (!isValidProject) {
-    return NextResponse.json(
-      errorResponse({
-        message_en: "The project_id does not exist",
-        message_th: "project_id นี้ไม่มีอยู่ในระบบ",
-      }),
-      { status: 200 }
-    );
-  }
-  return true;
-};
+errorResponse
 // ใช้สำหรับสร้างหรืออัปเดตโครงการ
 export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(

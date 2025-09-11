@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
+// import ContentCard from "@components/layouts/backend/content";
+// import BaseLoadingComponent from "@components/loading/loading-component-1";
 import {
   FiPlus,
   FiCheckCircle,
@@ -12,25 +12,45 @@ import {
   FiArrowRight,
   FiClock,
 } from "react-icons/fi";
-import RoundedButton from "@components/button/rounded-button-component";
-import InputComponent from "@components/input-field/input-component";
-import TableComponent from "@components/table/base-table-component";
+import dayjs from "dayjs";
+// import RoundedButton from "@components/button/rounded-button-component";
+// import InputComponent from "@components/input-field/input-component";
+// import TableComponent from "@components/table/base-table-component";
 import { useAppSelector } from "@stores/store";
-import MinimalModal from "@components/modal/minimal-modal-component";
+// import MinimalModal from "@components/modal/minimal-modal-component";
 import { toast } from "sonner";
 import { convertToThaiDateDDMMYYY } from "@helpers/convert-time-zone-to-thai";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { SearchableSelectComponent } from "@components/input-field/searchable-select-component";
+// import { SearchableSelectComponent } from "@components/input-field/searchable-select-component";
 import { Project, SubProject, WorkEntryForm } from "@stores/type";
+import {
+  Card,
+  Table,
+  Tag,
+  Space,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Spin,
+  Typography,
+  Row,
+  Col,
+  DatePicker,
+} from "antd";
 
 export default function Page() {
+  const [antdForm] = Form.useForm();
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
+  const AUTH_USER = AUTHENTICATION?.response?.data?.user_data;
 
   const limit = 10;
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
 
+  const [entries, setEntries] = useState<any[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [subProject, setSubProjects] = useState<SubProject[]>([]);
   const [form, setForm] = useState<WorkEntryForm & { confirmText?: string }>({
@@ -38,10 +58,11 @@ export default function Page() {
     sub_project_id: "",
     description: "",
     work_hour: "",
-    by: AUTHENTICATION.response.data.user_data.admin_id,
+    by: AUTH_USER?.admin_id,
     confirmText: "",
   });
   const [loading, setLoading] = useState<boolean>(false);
+  const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [detailProject, setDetailProject] = useState<Project | null>(null);
@@ -66,6 +87,31 @@ export default function Page() {
       console.error("Error fetching projects:", error);
       setProjects([]);
       toast.error("โหลดโปรเจคล้มเหลว", { duration: 5000 });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTimesheetEntry = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/v1/timesheet/entry/read/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ limit, page: currentPage }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to fetch timesheet entries");
+      }
+      const data = await res.json();
+      setEntries(data.data || []);
+      setTotalPages(data.pagination?.totalPages || 1);
+    } catch (error) {
+      console.error("Error fetching timesheet entries:", error);
+      setEntries([]);
+      toast.error("โหลดข้อมูล timesheet ล้มเหลว", { duration: 5000 });
     } finally {
       setLoading(false);
     }
@@ -98,62 +144,70 @@ export default function Page() {
     }
   };
 
-  const createOrUpdateProject = async (request: WorkEntryForm) => {
+  const createOrUpdateEntry = async () => {
+    // Log form values at the beginning of submission
+    console.log("Form Values at submission:", antdForm.getFieldsValue());
+    const raw = antdForm.getFieldsValue();
+    const payload = {
+      ...raw,
+      date: raw.date ? dayjs(raw.date).toDate() : undefined,
+    };
     try {
-      const res = await fetch(`/api/v1/timesheet/project/insert/`, {
+      const res = await fetch(`/api/v1/timesheet/entry/insert/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(request),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        throw new Error("Failed to create or update project");
+        throw new Error("Failed to create or update entry");
       }
-      toast.success("สร้าง/อัปเดตโปรเจคสำเร็จ", { duration: 5000 });
+      toast.success("สร้าง/อัปเดต timesheet สำเร็จ", { duration: 5000 });
     } catch (error) {
-      console.error("Error creating or updating project:", error);
-      toast.error("สร้าง/อัปเดตโปรเจคล้มเหลว", { duration: 5000 });
+      console.error("Error creating or updating entry:", error);
+      toast.error("สร้าง/อัปเดต timesheet ล้มเหลว", { duration: 5000 });
     }
   };
 
-  const deleteProject = async (id: number) => {
+  const deleteEntry = async (id: number) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/project/delete/`, {
+      const res = await fetch(`/api/v1/timesheet/entry/delete/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id,
-          by: AUTHENTICATION.response.data.user_data.admin_id,
+          by: AUTH_USER?.admin_id,
         }),
       });
       if (!res.ok) {
-        throw new Error("Failed to delete project");
+        throw new Error("Failed to delete entry");
       }
-      toast.success("ลบโปรเจคสำเร็จ", { duration: 5000 });
+      toast.success("ลบ timesheet สำเร็จ", { duration: 5000 });
     } catch (error) {
-      console.error("Error deleting project:", error);
-      toast.error("ลบโปรเจคล้มเหลว", { duration: 5000 });
+      console.error("Error deleting entry:", error);
+      toast.error("ลบ timesheet ล้มเหลว", { duration: 5000 });
     }
   };
 
   useEffect(() => {
+    fetchTimesheetEntry();
     fetchProjects();
   }, [currentPage]);
 
   const handleSubmit = async () => {
-    await createOrUpdateProject(form);
+    await createOrUpdateEntry(form);
     setForm({
       project_id: "",
       sub_project_id: "",
       description: "",
       work_hour: "",
-      by: AUTHENTICATION.response.data.user_data.admin_id,
+      by: AUTH_USER?.admin_id,
     });
     setModal("");
-    await fetchProjects();
+    await fetchTimesheetEntry();
   };
 
   const openCreateModal = () => {
@@ -162,21 +216,37 @@ export default function Page() {
       sub_project_id: "",
       description: "",
       work_hour: "",
-      by: AUTHENTICATION.response.data.user_data.admin_id,
+      by: AUTH_USER?.admin_id,
       confirmText: "",
     });
+    antdForm.resetFields();
     setModal("create");
   };
 
-  const openEditModal = (project: Project) => {
+  const openEditModal = async (entry: any) => {
+    setModalLoading(true);
     setForm({
-      project_id: "",
-      sub_project_id: "",
-      description: "",
-      work_hour: "",
-      by: AUTHENTICATION.response.data.user_data.admin_id,
+      project_id: entry.project_id ? String(entry.project_id) : "",
+      sub_project_id: entry.feature_id ? String(entry.feature_id) : "",
+      description: entry.description || "",
+      work_hour: entry.hours ? String(entry.hours) : "",
+      by: AUTH_USER?.admin_id,
       confirmText: "",
+      id: entry.id,
+      date: entry.date,
+      status: entry.status,
     });
+    // Ensure subprojects are loaded before setting form values
+    await fetchSubProjects(entry.project_id);
+    antdForm.setFieldsValue({
+      project_id: entry.project_id ? String(entry.project_id) : "",
+      sub_project_id: entry.feature_id ? String(entry.feature_id) : "",
+      work_hour: entry.hours ? String(entry.hours) : "",
+      description: entry.description || "",
+      date: entry.date ? dayjs(entry.date) : null,
+      status: entry.status,
+    });
+    setModalLoading(false);
     setModal("edit");
   };
 
@@ -187,90 +257,123 @@ export default function Page() {
 
   const confirmDelete = async () => {
     if (deleteId === null) return;
-    await deleteProject(deleteId);
+    await deleteEntry(deleteId);
     setModal("");
     setDeleteId(null);
-    await fetchProjects();
+    await fetchTimesheetEntry();
   };
 
-  const headers = ["ลำดับ", "ชื่อโปรเจค", "คำอธิบาย", "จัดการ"];
-  const rows = projects.map((project, index) => [
-    index + 1 + (currentPage - 1) * limit,
-    project.name,
-    project.description,
-    <div className="flex space-x-2 justify-center" key={project.id}>
-      <button
-        onClick={() => {
-          setDetailProject(project);
-          setModal("detail");
-        }}
-        className="text-gray-600 hover:text-gray-800"
-        aria-label="View Details"
-        type="button"
-      >
-        <FiInfo className="w-5 h-5" />
-      </button>
-      <button
-        onClick={() => openEditModal(project)}
-        className="text-blue-600 hover:text-blue-800"
-        aria-label="Edit Project"
-        type="button"
-      >
-        <FiEdit2 className="w-5 h-5" />
-      </button>
-      <button
-        onClick={() => openDeleteModal(project.id)}
-        className="text-red-600 hover:text-red-800"
-        aria-label="Delete Project"
-        type="button"
-      >
-        <FiTrash2 className="w-5 h-5" />
-      </button>
-      <Link
-        href={`/timesheet/project/sub-project/${project.id}`}
-        className="text-green-600 hover:text-green-800 flex items-center"
-        aria-label="Go to Sub Project"
-      >
-        <FiArrowRight className="w-5 h-5" />
-      </Link>
-    </div>,
-  ]);
-
-  const getPaginationItems = (total: number, current: number) => {
-    const delta = 2;
-    const range = [];
-    const rangeWithDots = [];
-    let l: number = 0;
-
-    for (let i = 1; i <= total; i++) {
-      if (
-        i === 1 ||
-        i === total ||
-        (i >= current - delta && i <= current + delta)
-      ) {
-        range.push(i);
-      }
-    }
-
-    for (let i of range) {
-      if (l) {
-        if (i - l === 2) {
-          rangeWithDots.push(l + 1);
-        } else if (i - l !== 1) {
-          rangeWithDots.push("...");
-        }
-      }
-      rangeWithDots.push(i);
-      l = i;
-    }
-
-    return rangeWithDots;
-  };
+  // AntD Table columns
+  const columns = [
+    {
+      title: "ลำดับ",
+      dataIndex: "index",
+      key: "index",
+      align: "center" as const,
+      render: (_: any, __: any, idx: number) =>
+        idx + 1 + (currentPage - 1) * limit,
+    },
+    {
+      title: "รหัส",
+      dataIndex: "id",
+      key: "id",
+      align: "center" as const,
+    },
+    {
+      title: "รหัสโปรเจค",
+      dataIndex: "project_id",
+      key: "project_id",
+      align: "center" as const,
+    },
+    {
+      title: "รหัสโปรเจ็คย่อย",
+      dataIndex: "feature_id",
+      key: "feature_id",
+      align: "center" as const,
+      // fallback to featureId if feature_id is missing
+      render: (_: any, record: any) => record.feature_id || record.featureId,
+    },
+    {
+      title: "วันที่",
+      dataIndex: "date",
+      key: "date",
+      align: "center" as const,
+      render: (date: string) => (date ? convertToThaiDateDDMMYYY(date) : ""),
+    },
+    {
+      title: "ชั่วโมง",
+      dataIndex: "hours",
+      key: "hours",
+      align: "center" as const,
+    },
+    {
+      title: "คำอธิบาย",
+      dataIndex: "description",
+      key: "description",
+      align: "left" as const,
+    },
+    {
+      title: "สถานะ",
+      dataIndex: "status",
+      key: "status",
+      align: "center" as const,
+      render: (status: string) => (
+        <Tag color={status === "active" ? "green" : "default"}>{status}</Tag>
+      ),
+    },
+    {
+      title: "สร้างเมื่อ",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      align: "center" as const,
+      render: (createdAt: string) =>
+        createdAt ? convertToThaiDateDDMMYYY(createdAt) : "",
+    },
+    {
+      title: "แก้ไขเมื่อ",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      align: "center" as const,
+      render: (updatedAt: string) =>
+        updatedAt ? convertToThaiDateDDMMYYY(updatedAt) : "",
+    },
+    {
+      title: "จัดการ",
+      key: "action",
+      align: "center" as const,
+      render: (_: any, record: any) => (
+        <Space>
+          <Button
+            size="small"
+            icon={<FiInfo />}
+            onClick={() => {
+              setDetailProject(record);
+              setModal("detail");
+            }}
+            aria-label="View Details"
+          />
+          <Button
+            size="small"
+            icon={<FiEdit2 />}
+            onClick={() => openEditModal(record)}
+            aria-label="Edit Entry"
+          />
+          <Button
+            size="small"
+            danger
+            icon={<FiTrash2 />}
+            onClick={() => openDeleteModal(record.id)}
+            aria-label="Delete Entry"
+          />
+        </Space>
+      ),
+    },
+  ];
 
   if (loading) {
     return (
       <DashboardLayout>
-        <BaseLoadingComponent />
+        <Spin />
       </DashboardLayout>
     );
   }
@@ -280,234 +383,293 @@ export default function Page() {
       <div className="w-full space-y-4">
         {/* Add Project Button */}
         <div className="w-full flex justify-end">
-          <RoundedButton
-            type="button"
-            className="w-full sm:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white flex items-center space-x-3"
+          <Button
+            type="primary"
+            className="w-full sm:w-auto px-6 py-3 flex items-center space-x-3"
             onClick={openCreateModal}
-            iconRight={<FiPlus className="w-6 h-6" />}
+            icon={<FiPlus className="w-6 h-6" />}
           >
             <span className="text-lg font-semibold">ลงเวลาทำงาน</span>
-          </RoundedButton>
+          </Button>
         </div>
 
-        <ContentCard title="รายการโปรเจค" className="w-full">
-          <TableComponent
-            headers={headers}
-            rows={rows}
-            alignments={["center", "left", "left", "center"]}
+        <Card title="รายการลงเวลาทำงาน" className="w-full">
+          <Table
+            columns={columns}
+            dataSource={entries}
+            rowKey="id"
+            pagination={{
+              current: currentPage,
+              total: totalPages * limit,
+              pageSize: limit,
+              onChange: setCurrentPage,
+              showSizeChanger: false,
+            }}
+            scroll={{ x: "max-content" }}
+            style={{ overflowX: "auto" }}
           />
-          {/* Pagination UI */}
-          <div className="mt-4 flex justify-center items-center space-x-2">
-            <button
-              type="button"
-              className={`px-3 py-1 rounded ${
-                currentPage === 1
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              aria-label="Previous Page"
-            >
-              ก่อนหน้า
-            </button>
-            {getPaginationItems(totalPages, currentPage).map((page, idx) =>
-              page === "..." ? (
-                <span key={`dots-${idx}`} className="px-2 select-none">
-                  ...
-                </span>
-              ) : (
-                <button
-                  key={page}
-                  type="button"
-                  className={`px-3 py-1 rounded ${
-                    page === currentPage
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-200 hover:bg-gray-300"
-                  }`}
-                  onClick={() => setCurrentPage(page as number)}
-                  aria-current={page === currentPage ? "page" : undefined}
-                >
-                  {page}
-                </button>
-              )
-            )}
-            <button
-              type="button"
-              className={`px-3 py-1 rounded ${
-                currentPage === totalPages
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-              onClick={() =>
-                currentPage < totalPages && setCurrentPage(currentPage + 1)
-              }
-              disabled={currentPage === totalPages}
-              aria-label="Next Page"
-            >
-              ถัดไป
-            </button>
-          </div>
-        </ContentCard>
+        </Card>
 
         {/* Create/Edit Modal */}
-        <MinimalModal
-          isOpen={modal === "create" || modal === "edit"}
-          onClose={() => setModal("")}
+        <Modal
+          open={modal === "create" || modal === "edit"}
+          onCancel={() => setModal("")}
           title={form.id ? "แก้ไขเวลาการทำงาน" : "เพิ่มเวลาการทำงาน"}
+          footer={null}
+          width={700}
+          style={{ top: 40 }}
         >
-          <div className="flex flex-col gap-5 animate-fadeIn transition-all duration-500 ease-in-out space-y-3 m-3">
-            <div className="grid grid-cols-2 gap-x-2 gap-5">
-              {/* เลือกโปรเจ็ค */}
-              <SearchableSelectComponent
-                label="เลือกโปรเจ็ค"
-                options={[
-                  { label: "เลือกรายการ", value: "" },
-                  ...projects.map((s) => ({
-                    label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
-                    value: String(s.id),
-                  })),
-                ]}
-                value={form.project_id}
-                onChange={(value: string | string[]) => {
-                  setForm({ ...form, project_id: value, sub_project_id: "" });
-
-                  fetchSubProjects(String(value));
+          <div style={{ paddingTop: 16 }}>
+            {modalLoading ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  minHeight: 200,
                 }}
-                placeholder="เลือกโปรเจ็ค"
-              />
-              {/* เลือกโปรเจ็ครอง */}
-              <SearchableSelectComponent
-                label="เลือกโปรคเจ็คย่อย"
-                options={[
-                  { label: "เลือกรายการ", value: "" },
-                  ...subProject.map((s) => ({
-                    label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
-                    value: String(s.id),
-                  })),
-                ]}
-                value={form.sub_project_id}
-                onChange={(value: string | string[]) =>
-                  setForm({ ...form, sub_project_id: value })
-                }
-                placeholder="เลือกโปรเจ็ค"
-              />
-              {/* ชั่วโมงทำงาน */}
-              <InputComponent
-                label="ชั่วโมงทำงาน"
-                id="work_hour"
-                name="work_hour"
-                value={form.work_hour}
-                onChange={(e: any) =>
-                  setForm({ ...form, work_hour: e.target.value })
-                }
-                type="text"
-                placeholder="กรอกจำนวนชั่วโมงที่ทำงาน"
-                leftIcon={<FiClock className="w-5 h-5 text-gray-400" />}
-                rightIcon={
-                  <span className="text-gray-500 text-sm font-medium">
-                    ชั่วโมง
-                  </span>
-                }
-                textAlign="right"
-              />
-            </div>
-            {/* คำอธิบายเพิ่มเติม */}
-            <InputComponent
-              label="คำอธิบายโปรเจค"
-              id="description"
-              name="description"
-              value={form.description}
-              onChange={(event: any) =>
-                setForm({ ...form, description: event.target.value })
-              }
-              type="textarea"
-              placeholder="กรอกคำอธิบายโปรเจค"
-              leftIcon={<FiEdit2 className="w-5 h-5 text-gray-400" />}
-            />
+              >
+                <Spin />
+              </div>
+            ) : (
+              <Form
+                layout="vertical"
+                className="mt-0"
+                onFinish={handleSubmit}
+                initialValues={{
+                  project_id: form.project_id,
+                  sub_project_id: form.sub_project_id,
+                  date: form.date ? dayjs(form.date) : null,
+                  work_hour: form.work_hour,
+                  description: form.description,
+                  status: form.status,
+                }}
+                form={antdForm}
+              >
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      label="เลือกโปรเจ็ค"
+                      name="project_id"
+                      rules={[{ required: true, message: "กรุณาเลือกโปรเจ็ค" }]}
+                    >
+                      <Select
+                        showSearch
+                        placeholder="เลือกโปรเจ็ค"
+                        onChange={(value) => {
+                          fetchSubProjects(String(value));
+                        }}
+                        options={[
+                          { label: "เลือกรายการ", value: "" },
+                          ...projects.map((s) => ({
+                            label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
+                            value: String(s.id),
+                          })),
+                        ]}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      label="เลือกโปรคเจ็คย่อย"
+                      name="sub_project_id"
+                      rules={[
+                        { required: true, message: "กรุณาเลือกโปรเจ็คย่อย" },
+                      ]}
+                    >
+                      <Select
+                        showSearch
+                        placeholder="เลือกโปรเจ็ค"
+                        options={[
+                          { label: "เลือกรายการ", value: "" },
+                          ...subProject.map((s) => ({
+                            label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
+                            value: String(s.id),
+                          })),
+                        ]}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      label="วันที่ทำงาน"
+                      name="date"
+                      rules={[
+                        { required: true, message: "กรุณาเลือกวันที่ทำงาน" },
+                      ]}
+                    >
+                      <DatePicker
+                        style={{ width: "100%" }}
+                        format="DD/MM/YYYY"
+                        placeholder="เลือกวันที่"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      label="สถานะ"
+                      name="status"
+                      rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
+                    >
+                      <Select
+                        placeholder="เลือกสถานะ"
+                        options={[
+                          { label: "DRAFT", value: "DRAFT" },
+                          { label: "IN_PROGRESS", value: "IN_PROGRESS" },
+                          { label: "DONE", value: "DONE" },
+                        ]}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={16}>
+                  <Col span={24}>
+                    <Form.Item
+                      label="ชั่วโมงทำงาน"
+                      name="work_hour"
+                      rules={[
+                        { required: true, message: "กรุณากรอกชั่วโมงทำงาน" },
+                      ]}
+                    >
+                      <Input
+                        prefix={<FiClock className="w-5 h-5 text-gray-400" />}
+                        suffix={
+                          <span className="text-gray-500 text-sm font-medium">
+                            ชั่วโมง
+                          </span>
+                        }
+                        placeholder="กรอกจำนวนชั่วโมงที่ทำงาน"
+                        type="text"
+                        style={{ textAlign: "right" }}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Form.Item label="คำอธิบายโปรเจค" name="description">
+                  <Input.TextArea
+                    prefix={<FiEdit2 className="w-5 h-5 text-gray-400" />}
+                    placeholder="กรอกคำอธิบายโปรเจค"
+                    autoSize={{ minRows: 2, maxRows: 5 }}
+                  />
+                </Form.Item>
+                <Row justify="end" gutter={8}>
+                  <Col>
+                    <Button
+                      type="default"
+                      className="w-full sm:w-auto px-6 py-3 rounded"
+                      onClick={() => setModal("")}
+                    >
+                      ยกเลิก
+                    </Button>
+                  </Col>
+                  <Col>
+                    <Button
+                      type="primary"
+                      className="w-full sm:w-auto px-6 py-3 flex items-center space-x-2"
+                      htmlType="submit"
+                      icon={<FiCheckCircle className="w-5 h-5" />}
+                    >
+                      <span>บันทึก</span>
+                    </Button>
+                  </Col>
+                </Row>
+              </Form>
+            )}
           </div>
-          <div className="grid grid-flow-col auto-cols-max gap-2 justify-end">
-            <RoundedButton
-              type="button"
-              className="w-full sm:w-auto px-6 py-3 rounded bg-gray-300 hover:bg-gray-400"
-              onClick={() => setModal("")}
-            >
-              ยกเลิก
-            </RoundedButton>
-            <RoundedButton
-              type="button"
-              className="w-full sm:w-auto px-6 py-3 rounded bg-green-500 hover:bg-green-600 text-white flex items-center space-x-2"
-              onClick={handleSubmit}
-              iconRight={<FiCheckCircle className="w-5 h-5" />}
-            >
-              <span>บันทึก</span>
-            </RoundedButton>
-          </div>
-        </MinimalModal>
+        </Modal>
 
         {/* Delete Confirmation Modal */}
-        <MinimalModal
-          isOpen={modal === "delete"}
-          onClose={() => setModal("")}
+        <Modal
+          open={modal === "delete"}
+          onCancel={() => setModal("")}
           title="ยืนยันการลบ"
+          footer={null}
         >
           <div className="space-y-4 mt-4">
-            <p className="text-red-600 font-semibold">
+            <Typography.Text type="danger" strong>
               คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
-            </p>
-            <p className="text-gray-700">
+            </Typography.Text>
+            <Typography.Text>
               โปรดพิมพ์ <span className="font-bold text-red-600">Delete</span>{" "}
               เพื่อยืนยัน
-            </p>
-            <input
+            </Typography.Text>
+            <Input
               type="text"
               placeholder="พิมพ์ Delete เพื่อยืนยัน"
-              className="w-full border px-3 py-2 rounded"
+              value={form.confirmText}
               onChange={(e) =>
                 setForm({ ...form, confirmText: e.target.value })
               }
             />
           </div>
           <div className="mt-6 flex justify-end space-x-4">
-            <RoundedButton
-              type="button"
-              className="w-full sm:w-auto px-6 py-3 rounded bg-gray-300 hover:bg-gray-400"
+            <Button
+              type="default"
+              className="w-full sm:w-auto px-6 py-3 rounded"
               onClick={() => setModal("")}
-              iconRight={<FiCheckCircle className="w-5 h-5" />}
+              icon={<FiCheckCircle className="w-5 h-5" />}
             >
               ยกเลิก
-            </RoundedButton>
-            <RoundedButton
-              type="button"
-              className="w-full sm:w-auto px-6 py-3 rounded bg-red-600 hover:bg-red-700 text-white"
+            </Button>
+            <Button
+              type="primary"
+              danger
+              className="w-full sm:w-auto px-6 py-3"
               onClick={confirmDelete}
               disabled={form.confirmText !== "Delete"}
-              iconRight={<FiTrash2 className="w-5 h-5" />}
+              icon={<FiTrash2 className="w-5 h-5" />}
             >
               ลบ
-            </RoundedButton>
+            </Button>
           </div>
-        </MinimalModal>
+        </Modal>
 
         {/* Detail Modal */}
-        {modal === "detail" && detailProject && (
-          <MinimalModal
-            isOpen={modal === "detail"}
-            onClose={() => {
-              setModal("");
-              setDetailProject(null);
-            }}
-            title="รายละเอียดโปรเจค"
-          >
+        <Modal
+          open={modal === "detail" && !!detailProject}
+          onCancel={() => {
+            setModal("");
+            setDetailProject(null);
+          }}
+          title="รายละเอียดการลงเวลาทำงาน"
+          footer={[
+            <Button
+              key="close"
+              type="default"
+              className="w-full sm:w-auto px-6 py-3 rounded"
+              onClick={() => {
+                setModal("");
+                setDetailProject(null);
+              }}
+            >
+              ปิด
+            </Button>,
+          ]}
+        >
+          {detailProject && (
             <div className="space-y-3 mt-5">
               <p>
-                <strong>ชื่อโปรเจค:</strong> {detailProject.name}
+                <strong>รหัส:</strong> {detailProject.id}
+              </p>
+              <p>
+                <strong>รหัสโปรเจค:</strong> {detailProject.project_id}
+              </p>
+              <p>
+                <strong>รหัสโปรเจ็คย่อย:</strong> {detailProject.feature_id}
+              </p>
+              <p>
+                <strong>วันที่:</strong> {detailProject.date}
+              </p>
+              <p>
+                <strong>ชั่วโมง:</strong> {detailProject.hours}
               </p>
               <p>
                 <strong>คำอธิบาย:</strong> {detailProject.description}
               </p>
               <p>
-                <strong>สร้างโดย (id):</strong> {detailProject.createdBy}
+                <strong>สถานะ:</strong> {detailProject.status}
               </p>
               <p>
                 <strong>สร้างเมื่อ:</strong>{" "}
@@ -518,20 +680,8 @@ export default function Page() {
                 {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
               </p>
             </div>
-            <div className="mt-6 flex justify-end">
-              <RoundedButton
-                type="button"
-                className="w-full sm:w-auto px-6 py-3 rounded bg-gray-300 hover:bg-gray-400"
-                onClick={() => {
-                  setModal("");
-                  setDetailProject(null);
-                }}
-              >
-                ปิด
-              </RoundedButton>
-            </div>
-          </MinimalModal>
-        )}
+          )}
+        </Modal>
       </div>
     </DashboardLayout>
   );

@@ -14,6 +14,24 @@ const ProjectReadSchema = z
     message: "ต้องระบุ id หรือ page อย่างน้อย 1 อย่าง และต้องกำหนด limit เสมอ",
   });
 
+async function DTO(data: any) {
+  return {
+    id: data.id,
+    project_id: data.projectId,
+    project_name : data.project.name,
+    feature_id: data.featureId,
+    feature_name : data.feature.name,
+    date: data.date,
+    hours: data.hours,
+    description: data.description,
+    status: data.status,
+    created_at: data.createdAt,
+    updated_at: data.updatedAt,
+    created_by: data.createdBy,
+    updated_by: data.updatedBy,
+  };
+}
+
 export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(request, ProjectReadSchema);
   if (error) {
@@ -28,12 +46,13 @@ export async function POST(request: NextRequest) {
     let total = 0;
 
     if (id) {
-      dataResult = await Service.findById(Number(id));
+      const result = await Service.findById(Number(id));
+      dataResult = result ? await DTO(result) : null;
       total = dataResult ? 1 : 0;
     } else {
       const skip = (currentPage - 1) * take;
       const result = await Service.findAll({ limit: take, skip });
-      dataResult = result.items;
+      dataResult = await Promise.all(result.items.map((item: any) => DTO(item)));
       total = result.total;
     }
 
