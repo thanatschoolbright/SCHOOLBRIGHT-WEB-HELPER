@@ -194,7 +194,6 @@ const config = {
     "timesheet"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "timesheet": {
       "url": {
