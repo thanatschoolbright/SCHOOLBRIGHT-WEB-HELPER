@@ -1,7 +1,7 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
 interface CreateTimesheetEntryInput {
-  description: string;
+  description?: string;
   createdBy?: number;
   projectId: number;
   subProjectId: number;
@@ -78,13 +78,15 @@ export const Service = {
 
   // * สร้าง
   async create(data: CreateTimesheetEntryInput) {
+    console.log("CREATE ENTRY TIMESHEET");
+
     return await PrismaTimesheet.timesheetEntry.create({
       data: {
         projectId: data.projectId,
         featureId: data.subProjectId,
         hours: data.hour,
         status: data.status,
-        description: data.description,
+        description: data.description ?? "",
         date: data.date,
         createdBy: data.createdBy ?? 0,
       },
@@ -93,6 +95,7 @@ export const Service = {
 
   // * อัปเดต ตาม ID
   async update(id: number, data: UpdateTimesheetEntryInput) {
+    console.log("UPDATE ENTRY TIMESHEET");
     if (!id || id <= 0) {
       throw new Error("Invalid id for update");
     }

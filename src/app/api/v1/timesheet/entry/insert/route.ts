@@ -12,7 +12,7 @@ import {
 // Timesheet entry validation schema
 const timesheetEntrySchema = z.object({
   id: z.number().optional(),
-  description: z.string().min(1),
+  description: z.string().optional(),
   project_id: z.string().transform((val) => Number(val)),
   sub_project_id: z.string().transform((val) => Number(val)),
   date: z.string().datetime(),
@@ -23,11 +23,17 @@ const timesheetEntrySchema = z.object({
 });
 
 // Helper to validate references and return early if invalid
-async function validateReferences(projectId: number, subProjectId: number, id?: number) {
+async function validateReferences(
+  projectId: number,
+  subProjectId: number,
+  id?: number
+) {
   const validators = [
     projectIdValidation(projectId),
     subProjectIdValidation(subProjectId),
-    id !== undefined ? updateTimesheetEntryIdValidation(id) : Promise.resolve(true),
+    id !== undefined
+      ? updateTimesheetEntryIdValidation(id)
+      : Promise.resolve(true),
   ];
   for (const validationPromise of validators) {
     const result = await validationPromise;
@@ -39,11 +45,22 @@ async function validateReferences(projectId: number, subProjectId: number, id?: 
 export async function POST(request: NextRequest) {
   // Validate request body
   const { data, error } = await validateRequest(request, timesheetEntrySchema);
-  if (error) return NextResponse.json(error);
+  if (error) {
+    console.error("[VALIDATION ERROR]", error);
+
+    return NextResponse.json(
+      errorResponse({
+        message_en: "Validation failed",
+        message_th: "ข้อมูลไม่ถูกต้อง",
+        error, // ส่งรายละเอียด zod error กลับไปด้วย
+      }),
+      { status: 400 }
+    );
+  }
 
   const {
     id,
-    description,
+    description = "",
     project_id,
     sub_project_id,
     date,
@@ -53,11 +70,20 @@ export async function POST(request: NextRequest) {
     updated_by,
   } = data;
 
-  // Validate project, sub-project, and timesheet entry references
-  const referencesValidation = await validateReferences(Number(project_id), Number(sub_project_id), id);
-  if (referencesValidation !== true) return NextResponse.json(referencesValidation);
+  console.log("INCOMING DATA");
 
-  // Prepare payload for service call
+  // Validate project, sub-project, and timesheet entry references
+  const referencesValidation = await validateReferences(
+    Number(project_id),
+    Number(sub_project_id),
+    id
+  );
+  if (referencesValidation !== true)
+    return NextResponse.json(referencesValidation);
+
+  console.log("NOW IS ON PAYLOAD DATA");
+
+  // Prepare payload for service callx
   const payload = {
     description,
     project_id,
@@ -69,13 +95,18 @@ export async function POST(request: NextRequest) {
 
   try {
     // Create or update timesheet entry
+    console.log("NOW IS ON TRY FUNCTION");
+
     const entry = id
-      ? await Service.update(id, { ...payload, updatedBy:updated_by })
+      ? await Service.update(id, { ...payload, updatedBy: updated_by })
       : await Service.create({
-        ...payload, createdBy: by,
-        projectId: project_id,
-        subProjectId: sub_project_id
-      });
+          ...payload,
+          createdBy: by,
+          projectId: project_id,
+          subProjectId: sub_project_id,
+        });
+
+    console.log("ENTRY", entry);
 
     // Prepare success messages
     const messageEn = id

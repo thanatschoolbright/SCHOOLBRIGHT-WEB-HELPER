@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 import { useAppSelector } from "@stores/store";
 import { toast } from "sonner";
 import { convertToThaiDateDDMMYYY } from "@helpers/convert-time-zone-to-thai";
-import { Project, SubProject } from "@stores/type";
+import { Project, SubProject, WorkEntryForm } from "@stores/type";
 import {
   Card,
   Table,
@@ -76,7 +76,7 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [total_pages, settotal_pages] = useState<number>(1);
 
-  const [entries, setEntries] = useState<any[]>([]);
+  const [entries, setEntries] = useState<WorkEntryForm[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [subProject, setSubProjects] = useState<SubProject[]>([]);
   const [editingEntryId, setEditingEntryId] = useState<number | null>(null);
@@ -258,23 +258,18 @@ export default function Page() {
     // Ensure subprojects are loaded before setting form values
     await fetchSubProjects(entry.project_id);
     console.info("PRIMARY ID", entry.id);
+    console.info("ENTRY DATA", entry);
     antdForm.setFieldsValue({
       id: entry.id,
       project_id: entry.project_id ? String(entry.project_id) : "",
       sub_project_id: entry.feature_id ? String(entry.feature_id) : "",
       work_hour: entry.hours ? String(entry.hours) : "",
-      description: entry.description || "",
+      description: entry?.description ?? "",
       date: entry.date ? dayjs(entry.date) : dayjs(),
       status: entry.status,
     });
     setModalLoading(false);
     setModal("edit");
-  };
-
-  const openDeleteModal = (id: number) => {
-    setDeleteId(id);
-    setConfirmText("");
-    setModal("delete");
   };
 
   // Batch delete function
@@ -342,25 +337,51 @@ export default function Page() {
       dataIndex: "status",
       key: "status",
       align: "center" as const,
-      render: (status: string) => (
-        <Tag color={status === "active" ? "green" : "default"}>{status}</Tag>
-      ),
+      render: (status: string) => {
+        const option = STATUS_OPTIONS.find((opt) => opt.value === status);
+        const label = option
+          ? i18n.language === "th"
+            ? option.label_th
+            : option.label_en
+          : status;
+
+        let color: string = "default";
+        switch (status) {
+          case "DONE":
+            color = "green";
+            break;
+          case "IN_PROGRESS":
+            color = "orange";
+            break;
+          case "REVIEW":
+            color = "blue";
+            break;
+          case "CANCELLED":
+            color = "red";
+            break;
+          case "DRAFT":
+            color = "default";
+            break;
+        }
+
+        return <Tag color={color}>{label}</Tag>;
+      },
     },
     {
       title: "สร้างเมื่อ",
-      dataIndex: "createdAt",
-      key: "createdAt",
+      dataIndex: "created_at",
+      key: "created_at",
       align: "center" as const,
       render: (createdAt: string) =>
-        createdAt ? convertToThaiDateDDMMYYY(createdAt) : "",
+        createdAt ? dayjs(createdAt).format("DD/MM/YYYY HH:mm") : "",
     },
     {
       title: "แก้ไขเมื่อ",
-      dataIndex: "updatedAt",
-      key: "updatedAt",
+      dataIndex: "updated_at",
+      key: "updated_at",
       align: "center" as const,
       render: (updatedAt: string) =>
-        updatedAt ? convertToThaiDateDDMMYYY(updatedAt) : "",
+        updatedAt ? dayjs(updatedAt).format("DD/MM/YYYY HH:mm") : "",
     },
     {
       title: "จัดการ",
@@ -406,319 +427,326 @@ export default function Page() {
   }
 
   return (
-    <DashboardLayout>
-      <div className="w-full space-y-4">
-        {/* Add Project Button */}
-        <div className="w-full flex justify-end">
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            size="large"
-            onClick={openCreateModal}
-            style={{ minWidth: 160 }}
-          >
-            เพิ่มโปรเจค
-          </Button>
-        </div>
-
-        <Card title="รายการลงเวลาทำงาน" className="w-full">
-          <div className="flex justify-end mb-3">
+    <PermissionLayout role={["TESTER"]}>
+      <DashboardLayout>
+        <div className="w-full space-y-4">
+          {/* Add Project Button */}
+          <div className="w-full flex justify-end">
             <Button
               type="primary"
-              danger
-              icon={<FiTrash2 />}
-              onClick={() => {
-                setModal("delete");
-                setConfirmText("");
-              }}
-              disabled={!hasSelected}
+              icon={<PlusOutlined />}
+              size="large"
+              onClick={openCreateModal}
+              style={{ minWidth: 160 }}
             >
-              ลบที่เลือก
+              เพิ่มโปรเจค
             </Button>
           </div>
-          <Table
-            columns={columns}
-            dataSource={entries}
-            rowSelection={rowSelection}
-            rowKey="id"
-            pagination={{
-              current: currentPage,
-              total: total_pages * limit,
-              pageSize: limit,
-              onChange: setCurrentPage,
-              showSizeChanger: false,
-            }}
-            scroll={{ x: "max-content" }}
-            style={{ overflowX: "auto" }}
-          />
-        </Card>
 
-        {/* Create/Edit Modal */}
-        <Modal
-          open={modal === "create" || modal === "edit"}
-          onCancel={() => setModal("")}
-          title={editingEntryId ? "แก้ไขเวลาการทำงาน" : "เพิ่มเวลาการทำงาน"}
-          footer={null}
-          width={700}
-          style={{ top: 40 }}
-        >
-          <div style={{ paddingTop: 16 }}>
-            {modalLoading ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  minHeight: 200,
+          <Card title="รายการลงเวลาทำงาน" className="w-full">
+            <div className="flex justify-end mb-3">
+              <Button
+                type="primary"
+                danger
+                icon={<FiTrash2 />}
+                onClick={() => {
+                  setModal("delete");
+                  setConfirmText("");
                 }}
+                disabled={!hasSelected}
               >
-                <Spin />
-              </div>
-            ) : (
-              <Form
-                layout="vertical"
-                className="mt-0"
-                onFinish={handleSubmit}
-                form={antdForm}
-              >
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      label="เลือกโปรเจ็ค"
-                      name="project_id"
-                      rules={[{ required: true, message: "กรุณาเลือกโปรเจ็ค" }]}
-                    >
-                      <Select
-                        showSearch
-                        placeholder="เลือกโปรเจ็ค"
-                        onChange={(value) => {
-                          fetchSubProjects(String(value));
-                        }}
-                        options={[
-                          { label: "เลือกรายการ", value: "" },
-                          ...projects.map((s) => ({
-                            label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
-                            value: String(s.id),
-                          })),
+                ลบที่เลือก
+              </Button>
+            </div>
+            <Table
+              columns={columns}
+              dataSource={entries}
+              rowSelection={rowSelection}
+              rowKey="id"
+              pagination={{
+                current: currentPage,
+                total: total_pages * limit,
+                pageSize: limit,
+                onChange: setCurrentPage,
+                showSizeChanger: false,
+              }}
+              scroll={{ x: "max-content" }}
+              style={{ overflowX: "auto" }}
+            />
+          </Card>
+
+          {/* Create/Edit Modal */}
+          <Modal
+            open={modal === "create" || modal === "edit"}
+            onCancel={() => setModal("")}
+            title={editingEntryId ? "แก้ไขเวลาการทำงาน" : "เพิ่มเวลาการทำงาน"}
+            footer={null}
+            width={700}
+            style={{ top: 40 }}
+          >
+            <div style={{ paddingTop: 16 }}>
+              {modalLoading ? (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: 200,
+                  }}
+                >
+                  <Spin />
+                </div>
+              ) : (
+                <Form
+                  layout="vertical"
+                  className="mt-0"
+                  onFinish={handleSubmit}
+                  form={antdForm}
+                >
+                  <Row gutter={16}>
+                    {/* Hidden */}
+                    <Form.Item name="id" hidden>
+                      <Input type="hidden" />
+                    </Form.Item>
+
+                    <Col span={12}>
+                      <Form.Item
+                        label="เลือกโปรเจ็ค"
+                        name="project_id"
+                        rules={[
+                          { required: true, message: "กรุณาเลือกโปรเจ็ค" },
                         ]}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      label="เลือกโปรคเจ็คย่อย"
-                      name="sub_project_id"
-                      rules={[
-                        { required: true, message: "กรุณาเลือกโปรเจ็คย่อย" },
-                      ]}
-                    >
-                      <Select
-                        showSearch
-                        placeholder="เลือกโปรเจ็ค"
-                        options={[
-                          { label: "เลือกรายการ", value: "" },
-                          ...subProject.map((s) => ({
-                            label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
-                            value: String(s.id),
-                          })),
+                      >
+                        <Select
+                          showSearch
+                          placeholder="เลือกโปรเจ็ค"
+                          onChange={(value) => {
+                            fetchSubProjects(String(value));
+                          }}
+                          options={[
+                            { label: "เลือกรายการ", value: "" },
+                            ...projects.map((s) => ({
+                              label:
+                                s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
+                              value: String(s.id),
+                            })),
+                          ]}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        label="เลือกโปรคเจ็คย่อย"
+                        name="sub_project_id"
+                        rules={[
+                          { required: true, message: "กรุณาเลือกโปรเจ็คย่อย" },
                         ]}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      label="วันที่ทำงาน"
-                      name="date"
-                      rules={[
-                        { required: true, message: "กรุณาเลือกวันที่ทำงาน" },
-                      ]}
-                    >
-                      <DatePicker
-                        style={{ width: "100%" }}
-                        format="DD/MM/YYYY"
-                        placeholder="เลือกวันที่"
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      label="สถานะ"
-                      name="status"
-                      initialValue={"DRAFT"}
-                      rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
-                    >
-                      <Select
-                        placeholder="เลือกสถานะ"
-                        options={STATUS_OPTIONS.map((data) => ({
-                          label:
-                            i18n.language === "th"
-                              ? data.label_th
-                              : data.label_en,
-                          value: data.value,
-                        }))}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={24}>
-                    <Form.Item
-                      label="ชั่วโมงทำงาน"
-                      name="work_hour"
-                      rules={[
-                        { required: true, message: "กรุณากรอกชั่วโมงทำงาน" },
-                      ]}
-                    >
-                      <Input
-                        prefix={<FiClock className="w-5 h-5 text-gray-400" />}
-                        suffix={
-                          <span className="text-gray-500 text-sm font-medium">
-                            ชั่วโมง
-                          </span>
-                        }
-                        placeholder="กรอกจำนวนชั่วโมงที่ทำงาน"
-                        type="text"
-                        style={{ textAlign: "right" }}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Form.Item label="คำอธิบายโปรเจค" name="description">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 8,
-                    }}
+                      >
+                        <Select
+                          showSearch
+                          placeholder="เลือกโปรเจ็ค"
+                          options={[
+                            { label: "เลือกรายการ", value: "" },
+                            ...subProject.map((s) => ({
+                              label:
+                                s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
+                              value: String(s.id),
+                            })),
+                          ]}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item
+                        label="วันที่ทำงาน"
+                        name="date"
+                        rules={[
+                          { required: true, message: "กรุณาเลือกวันที่ทำงาน" },
+                        ]}
+                      >
+                        <DatePicker
+                          style={{ width: "100%" }}
+                          format="DD/MM/YYYY"
+                          placeholder="เลือกวันที่"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        label="สถานะ"
+                        name="status"
+                        initialValue={"DRAFT"}
+                        rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
+                      >
+                        <Select
+                          placeholder="เลือกสถานะ"
+                          options={STATUS_OPTIONS.map((data) => ({
+                            label:
+                              i18n.language === "th"
+                                ? data.label_th
+                                : data.label_en,
+                            value: data.value,
+                          }))}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={24}>
+                      <Form.Item
+                        label="ชั่วโมงทำงาน"
+                        name="work_hour"
+                        rules={[
+                          { required: true, message: "กรุณากรอกชั่วโมงทำงาน" },
+                        ]}
+                      >
+                        <Input
+                          prefix={<FiClock className="w-5 h-5 text-gray-400" />}
+                          suffix={
+                            <span className="text-gray-500 text-sm font-medium">
+                              ชั่วโมง
+                            </span>
+                          }
+                          placeholder="กรอกจำนวนชั่วโมงที่ทำงาน"
+                          type="text"
+                          style={{ textAlign: "right" }}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Form.Item
+                    label="คำอธิบายโปรเจค"
+                    name="description"
+                    initialValue=""
                   >
                     <Input.TextArea
                       placeholder="กรอกคำอธิบายโปรเจค"
                       autoSize={{ minRows: 2, maxRows: 5 }}
                     />
-                  </div>
-                </Form.Item>
-                <Row justify="end" gutter={8}>
-                  <Col>
-                    <Button
-                      type="default"
-                      className="w-full sm:w-auto px-6 py-3 rounded"
-                      onClick={() => setModal("")}
-                    >
-                      ยกเลิก
-                    </Button>
-                  </Col>
-                  <Col>
-                    <Button
-                      type="primary"
-                      className="w-full sm:w-auto px-6 py-3 flex items-center space-x-2"
-                      htmlType="submit"
-                      icon={<FiCheckCircle className="w-5 h-5" />}
-                    >
-                      <span>บันทึก</span>
-                    </Button>
-                  </Col>
-                </Row>
-              </Form>
-            )}
-          </div>
-        </Modal>
-
-        {/* Delete Confirmation Modal */}
-        <Modal
-          open={modal === "delete"}
-          onCancel={() => {
-            setConfirmText("");
-            setModal("");
-          }}
-          title="ยืนยันการลบ"
-          footer={null}
-        >
-          <div className="space-y-4 mt-4">
-            <Typography.Text type="danger" strong>
-              คุณต้องการยืนยันที่จะลบข้อมูลที่เลือกเหล่านี้จริงหรือไม่
-            </Typography.Text>
-            <Typography.Text>
-              โปรดพิมพ์ <span className="font-bold text-red-600">Delete</span>{" "}
-              เพื่อยืนยัน
-            </Typography.Text>
-            <Input
-              type="text"
-              placeholder="พิมพ์ Delete เพื่อยืนยัน"
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-            />
-          </div>
-          <div className="mt-6 flex justify-end space-x-4">
-            <Button
-              type="default"
-              className="w-full sm:w-auto px-6 py-3 rounded"
-              onClick={() => setModal("")}
-              icon={<FiCheckCircle className="w-5 h-5" />}
-            >
-              ยกเลิก
-            </Button>
-            <Button
-              type="primary"
-              danger
-              className="w-full sm:w-auto px-6 py-3"
-              onClick={confirmBatchDelete}
-              disabled={confirmText !== "Delete"}
-              icon={<FiTrash2 className="w-5 h-5" />}
-            >
-              ลบ
-            </Button>
-          </div>
-        </Modal>
-
-        {/* Detail Modal */}
-        <Modal
-          open={modal === "detail" && !!detailProject}
-          onCancel={() => {
-            setModal("");
-            setDetailProject(null);
-          }}
-          title="รายละเอียดการลงเวลาทำงาน"
-          footer={[
-            <Button
-              key="close"
-              type="default"
-              className="w-full sm:w-auto px-6 py-3 rounded"
-              onClick={() => {
-                setModal("");
-                setDetailProject(null);
-              }}
-            >
-              ปิด
-            </Button>,
-          ]}
-        >
-          {detailProject && (
-            <div className="space-y-3 mt-5">
-              <p>
-                <strong>รหัส:</strong> {detailProject.id}
-              </p>
-              <p>
-                <strong>รหัสโปรเจค:</strong> {detailProject.id}
-              </p>
-
-              <p>
-                <strong>คำอธิบาย:</strong> {detailProject.description}
-              </p>
-
-              <p>
-                <strong>สร้างเมื่อ:</strong>{" "}
-                {convertToThaiDateDDMMYYY(detailProject.createdAt)}
-              </p>
-              <p>
-                <strong>แก้ไขล่าสุด:</strong>{" "}
-                {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
-              </p>
+                  </Form.Item>
+                  <Row justify="end" gutter={8}>
+                    <Col>
+                      <Button
+                        type="default"
+                        className="w-full sm:w-auto px-6 py-3 rounded"
+                        onClick={() => setModal("")}
+                      >
+                        ยกเลิก
+                      </Button>
+                    </Col>
+                    <Col>
+                      <Button
+                        type="primary"
+                        className="w-full sm:w-auto px-6 py-3 flex items-center space-x-2"
+                        htmlType="submit"
+                        icon={<FiCheckCircle className="w-5 h-5" />}
+                      >
+                        <span>บันทึก</span>
+                      </Button>
+                    </Col>
+                  </Row>
+                </Form>
+              )}
             </div>
-          )}
-        </Modal>
-      </div>
-    </DashboardLayout>
+          </Modal>
+
+          {/* Delete Confirmation Modal */}
+          <Modal
+            open={modal === "delete"}
+            onCancel={() => {
+              setConfirmText("");
+              setModal("");
+            }}
+            title="ยืนยันการลบ"
+            footer={null}
+          >
+            <div className="space-y-4 mt-4">
+              <Typography.Text type="danger" strong>
+                คุณต้องการยืนยันที่จะลบข้อมูลที่เลือกเหล่านี้จริงหรือไม่
+              </Typography.Text>
+              <Typography.Text>
+                โปรดพิมพ์ <span className="font-bold text-red-600">Delete</span>{" "}
+                เพื่อยืนยัน
+              </Typography.Text>
+              <Input
+                type="text"
+                placeholder="พิมพ์ Delete เพื่อยืนยัน"
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+              />
+            </div>
+            <div className="mt-6 flex justify-end space-x-4">
+              <Button
+                type="default"
+                className="w-full sm:w-auto px-6 py-3 rounded"
+                onClick={() => setModal("")}
+                icon={<FiCheckCircle className="w-5 h-5" />}
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                type="primary"
+                danger
+                className="w-full sm:w-auto px-6 py-3"
+                onClick={confirmBatchDelete}
+                disabled={confirmText !== "Delete"}
+                icon={<FiTrash2 className="w-5 h-5" />}
+              >
+                ลบ
+              </Button>
+            </div>
+          </Modal>
+
+          {/* Detail Modal */}
+          <Modal
+            open={modal === "detail" && !!detailProject}
+            onCancel={() => {
+              setModal("");
+              setDetailProject(null);
+            }}
+            title="รายละเอียดการลงเวลาทำงาน"
+            footer={[
+              <Button
+                key="close"
+                type="default"
+                className="w-full sm:w-auto px-6 py-3 rounded"
+                onClick={() => {
+                  setModal("");
+                  setDetailProject(null);
+                }}
+              >
+                ปิด
+              </Button>,
+            ]}
+          >
+            {detailProject && (
+              <div className="space-y-3 mt-5">
+                <p>
+                  <strong>รหัส:</strong> {detailProject.id}
+                </p>
+                <p>
+                  <strong>รหัสโปรเจค:</strong> {detailProject.id}
+                </p>
+
+                <p>
+                  <strong>คำอธิบาย:</strong> {detailProject.description}
+                </p>
+
+                <p>
+                  <strong>สร้างเมื่อ:</strong>{" "}
+                  {convertToThaiDateDDMMYYY(detailProject.createdAt)}
+                </p>
+                <p>
+                  <strong>แก้ไขล่าสุด:</strong>{" "}
+                  {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
+                </p>
+              </div>
+            )}
+          </Modal>
+        </div>
+      </DashboardLayout>
+    </PermissionLayout>
   );
 }
