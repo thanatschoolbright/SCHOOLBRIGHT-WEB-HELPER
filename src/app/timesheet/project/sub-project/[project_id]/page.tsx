@@ -252,13 +252,6 @@ export default function Page() {
             onClick={() => openDeleteModal(record.id)}
             aria-label="Delete Project"
           />
-          <Link
-            href={`/timesheet/project/sub-project/${record.id}`}
-            className="text-green-600 hover:text-green-800 flex items-center"
-            aria-label="Go to Sub Project"
-          >
-            <FiArrowRight className="w-5 h-5" />
-          </Link>
         </Space>
       ),
     },
