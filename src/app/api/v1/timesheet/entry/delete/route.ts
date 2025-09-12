@@ -1,4 +1,4 @@
-import { Service } from "@services/backend/timesheet/project.service";
+import { Service } from "@services/backend/timesheet/entry.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { z } from "zod";
 import { validateRequest } from "@/helpers/api/validate.request";

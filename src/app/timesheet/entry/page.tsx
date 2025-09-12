@@ -29,17 +29,52 @@ import {
   Row,
   Col,
   DatePicker,
+  TableProps,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import PermissionLayout from "@/components/layouts/permission-layout";
+import { useTranslation } from "react-i18next";
+
+const STATUS_OPTIONS = [
+  {
+    label_th: "ร่าง",
+    label_en: "Draft",
+    value: "DRAFT",
+  },
+  {
+    label_th: "กำลังดำเนินการ",
+    label_en: "In Progress",
+    value: "IN_PROGRESS",
+  },
+  {
+    label_th: "รอตรวจสอบ",
+    label_en: "Review",
+    value: "REVIEW",
+  },
+  {
+    label_th: "เสร็จสิ้น",
+    label_en: "Done",
+    value: "DONE",
+  },
+  {
+    label_th: "ยกเลิก",
+    label_en: "Cancelled",
+    value: "CANCELLED",
+  },
+];
+type TableRowSelection<T extends object = object> =
+  TableProps<T>["rowSelection"];
 
 export default function Page() {
+  const { t, i18n } = useTranslation("mock");
+
   const [antdForm] = Form.useForm();
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
   const AUTH_USER = AUTHENTICATION?.response?.data?.user_data;
 
   const limit = 10;
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [total_pages, settotal_pages] = useState<number>(1);
 
   const [entries, setEntries] = useState<any[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -52,6 +87,18 @@ export default function Page() {
   const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [detailProject, setDetailProject] = useState<Project | null>(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const hasSelected = selectedRowKeys.length > 0;
+
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection: TableRowSelection<any> = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -68,11 +115,11 @@ export default function Page() {
       }
       const data = await res.json();
       setProjects(data.data || []);
-      setTotalPages(data.pagination?.totalPages || 1);
+      settotal_pages(data.pagination?.total_pages || 1);
     } catch (error) {
       console.error("Error fetching projects:", error);
       setProjects([]);
-      toast.error("โหลดโปรเจคล้มเหลว", { duration: 5000 });
+      toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
     } finally {
       setLoading(false);
     }
@@ -86,18 +133,20 @@ export default function Page() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ limit, page: currentPage }),
+        body: JSON.stringify({
+          limit,
+          page: currentPage,
+          user_id: Number(AUTH_USER?.admin_id) ?? null,
+        }),
       });
-      if (!res.ok) {
-        throw new Error("Failed to fetch timesheet entries");
-      }
+
       const data = await res.json();
       setEntries(data.data || []);
-      setTotalPages(data.pagination?.totalPages || 1);
+      settotal_pages(data.pagination?.total_pages || 1);
     } catch (error) {
       console.error("Error fetching timesheet entries:", error);
       setEntries([]);
-      toast.error("โหลดข้อมูล timesheet ล้มเหลว", { duration: 5000 });
+      toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
     } finally {
       setLoading(false);
     }
@@ -116,26 +165,22 @@ export default function Page() {
           project_id: Number(project_id),
         }),
       });
-      if (!res.ok) {
-        throw new Error("Failed to fetch projects");
-      }
       const data = await res.json();
-      console.log("Fetched projects:", data);
       setSubProjects(data?.data?.items || []);
-      setTotalPages(data.pagination?.totalPages || 1);
+      settotal_pages(data.pagination?.total_pages || 1);
     } catch (error) {
       console.error("Error fetching projects:", error);
       setSubProjects([]);
-      toast.error("โหลดโปรเจคล้มเหลว", { duration: 5000 });
+      toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
     }
   };
 
   const createOrUpdateEntry = async () => {
-    // Log form values at the beginning of submission
     console.log("Form Values at submission:", antdForm.getFieldsValue());
     const raw = antdForm.getFieldsValue();
     const payload = {
       ...raw,
+      id: raw.id,
       date: raw.date ? dayjs(raw.date).toDate() : undefined,
       by: AUTH_USER?.admin_id,
     };
@@ -150,10 +195,10 @@ export default function Page() {
       if (!res.ok) {
         throw new Error("Failed to create or update entry");
       }
-      toast.success("สร้าง/อัปเดต timesheet สำเร็จ", { duration: 5000 });
+      toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
       console.error("Error creating or updating entry:", error);
-      toast.error("สร้าง/อัปเดต timesheet ล้มเหลว", { duration: 5000 });
+      toast.error("สร้าง/อัปเดต ข้อมูลล้มเหลว", { duration: 5000 });
     }
   };
 
@@ -172,10 +217,10 @@ export default function Page() {
       if (!res.ok) {
         throw new Error("Failed to delete entry");
       }
-      toast.success("ลบ timesheet สำเร็จ", { duration: 5000 });
+      toast.success("ลบข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
       console.error("Error deleting entry:", error);
-      toast.error("ลบ timesheet ล้มเหลว", { duration: 5000 });
+      toast.error("ลบข้อมูลล้มเหลว", { duration: 5000 });
     }
   };
 
@@ -199,7 +244,7 @@ export default function Page() {
       sub_project_id: "",
       description: "",
       work_hour: "",
-      date: null,
+      date: dayjs(),
       status: undefined,
     });
     setEditingEntryId(null);
@@ -211,12 +256,14 @@ export default function Page() {
     setEditingEntryId(entry.id ?? null);
     // Ensure subprojects are loaded before setting form values
     await fetchSubProjects(entry.project_id);
+    console.info("PRIMARY ID", entry.id);
     antdForm.setFieldsValue({
+      id: entry.id,
       project_id: entry.project_id ? String(entry.project_id) : "",
       sub_project_id: entry.feature_id ? String(entry.feature_id) : "",
       work_hour: entry.hours ? String(entry.hours) : "",
       description: entry.description || "",
-      date: entry.date ? dayjs(entry.date) : null,
+      date: entry.date ? dayjs(entry.date) : dayjs(),
       status: entry.status,
     });
     setModalLoading(false);
@@ -254,18 +301,19 @@ export default function Page() {
       align: "center" as const,
     },
     {
-      title: "รหัสโปรเจค",
-      dataIndex: "project_id",
-      key: "project_id",
+      title: "ชื่อโปรเจ็ค",
+      dataIndex: "project_name",
+      key: "project_name",
       align: "center" as const,
     },
     {
-      title: "รหัสโปรเจ็คย่อย",
-      dataIndex: "feature_id",
-      key: "feature_id",
+      title: "ชื่อฟีเจอร์",
+      dataIndex: "feature_name",
+      key: "feature_name",
       align: "center" as const,
       // fallback to featureId if feature_id is missing
-      render: (_: any, record: any) => record.feature_id || record.featureId,
+      render: (_: any, record: any) =>
+        record.feature_name || record.feature_name,
     },
     {
       title: "วันที่",
@@ -378,13 +426,27 @@ export default function Page() {
         </div>
 
         <Card title="รายการลงเวลาทำงาน" className="w-full">
+          <div className="flex justify-end mb-3">
+            <Button
+              type="primary"
+              danger
+              icon={<FiTrash2 />}
+              onClick={() => {
+                // TODO: ใส่ฟังก์ชัน batch delete ที่คุณทำไว้
+              }}
+              disabled={!hasSelected}
+            >
+              ลบที่เลือก
+            </Button>
+          </div>
           <Table
             columns={columns}
             dataSource={entries}
+            rowSelection={rowSelection}
             rowKey="id"
             pagination={{
               current: currentPage,
-              total: totalPages * limit,
+              total: total_pages * limit,
               pageSize: limit,
               onChange: setCurrentPage,
               showSizeChanger: false,
@@ -487,15 +549,18 @@ export default function Page() {
                     <Form.Item
                       label="สถานะ"
                       name="status"
+                      initialValue={"DRAFT"}
                       rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
                     >
                       <Select
                         placeholder="เลือกสถานะ"
-                        options={[
-                          { label: "DRAFT", value: "DRAFT" },
-                          { label: "IN_PROGRESS", value: "IN_PROGRESS" },
-                          { label: "DONE", value: "DONE" },
-                        ]}
+                        options={STATUS_OPTIONS.map((data) => ({
+                          label:
+                            i18n.language === "th"
+                              ? data.label_th
+                              : data.label_en,
+                          value: data.value,
+                        }))}
                       />
                     </Form.Item>
                   </Col>

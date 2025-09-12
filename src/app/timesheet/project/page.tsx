@@ -87,7 +87,7 @@ export default function Page() {
       setTotalItems(data.pagination?.totalItems || 0);
     } catch (error) {
       setProjects([]);
-      toast.error("โหลดโปรเจคล้มเหลว", { duration: 5000 });
+      toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
     } finally {
       setLoading(false);
     }
@@ -104,9 +104,9 @@ export default function Page() {
         body: JSON.stringify(project),
       });
       if (!res.ok) throw new Error("Failed to create or update project");
-      toast.success("สร้าง/อัปเดตโปรเจคสำเร็จ", { duration: 5000 });
+      toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
-      toast.error("สร้าง/อัปเดตโปรเจคล้มเหลว", { duration: 5000 });
+      toast.error("สร้าง/อัปเดต ข้อมูลล้มเหลว", { duration: 5000 });
     }
   };
 
@@ -124,9 +124,9 @@ export default function Page() {
         }),
       });
       if (!res.ok) throw new Error("Failed to delete project");
-      toast.success("ลบโปรเจคสำเร็จ", { duration: 5000 });
+      toast.success("ลบข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
-      toast.error("ลบโปรเจคล้มเหลว", { duration: 5000 });
+      toast.error("ลบข้อมูลล้มเหลว", { duration: 5000 });
     }
   };
 

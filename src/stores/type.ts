@@ -519,6 +519,8 @@ export interface ResponseHeartbeats {
     message_th: string;
     message_en: string;
     data: {
+      ID: number;
+      Description: string;
       JobName: string;
       Interval: number;
       IsAlwaysRunning: boolean;

@@ -79,9 +79,10 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("health_check.children.transaction_log"),
             href: "/health-check/transaction-log",
           },
-           {
+          {
             label: t("health_check.children.heartbeats"),
             href: "/health-check/heartbeats",
+            news: true,
           },
         ],
       },
@@ -104,6 +105,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("mobile_app.children.qrcode_health_check"),
             href: "/mobile/qrcode-health-check",
+            news: true,
           },
         ],
       },
@@ -124,10 +126,12 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.project"),
             href: "/timesheet/project",
+            news: true,
           },
           {
             label: t("timesheet_system.children.entry"),
             href: "/timesheet/entry",
+            news: true,
           },
         ],
       },

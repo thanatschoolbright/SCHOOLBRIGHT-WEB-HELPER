@@ -1,8 +1,8 @@
 interface PaginationMeta {
   page: number;
-  pageSize: number;
+  page_size: number;
   total: number;
-  totalPages: number;
+  total_pages: number;
 }
 
 interface ApiResponse<T = any> {

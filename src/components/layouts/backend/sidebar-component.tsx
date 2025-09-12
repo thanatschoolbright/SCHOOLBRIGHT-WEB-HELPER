@@ -127,8 +127,7 @@ export default function SidebarContent() {
                             />
                             <div className="flex-1 flex items-center justify-between">
                               <span>{child.label}</span>
-                              {child.href ===
-                                "/health-check/transaction-log" && (
+                              {child.news && (
                                 <motion.span
                                   className="ml-2 text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-full"
                                   initial={{ scale: 0 }}

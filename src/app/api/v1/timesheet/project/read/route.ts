@@ -37,16 +37,16 @@ export async function POST(request: NextRequest) {
       total = result.total;
     }
 
-    const totalPages = Math.ceil(total / take);
+    const total_pages = Math.ceil(total / take);
 
     return NextResponse.json(
       successResponse({
         data: dataResult,
         pagination: {
           page: currentPage,
-          pageSize: take,
+          page_size: take,
           total,
-          totalPages,
+          total_pages,
         },
       })
     );

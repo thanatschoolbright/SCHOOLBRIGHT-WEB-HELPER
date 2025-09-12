@@ -60,12 +60,12 @@ export const Service = {
   },
 
   // * ลบ Project ตาม ID
-  async delete(id: number, p0: { deletedBy: number }) {
+  async delete(id: number, query: { deletedBy: number }) {
     return await PrismaTimesheet.project.update({
       where: { id },
       data: {
         is_deleted: true,
-        updatedBy: p0.deletedBy,
+        updatedBy: query.deletedBy,
       },
     });
   },

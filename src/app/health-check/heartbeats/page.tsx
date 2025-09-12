@@ -8,12 +8,22 @@ import { ReloadOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { toast } from "sonner";
-import { FiRefreshCw } from "react-icons/fi";
+import { FiCheckCircle, FiEdit2, FiRefreshCw } from "react-icons/fi";
 import { ResponseHeartbeats } from "@/stores/type";
 import { CallAPI as GET_HEARTBEATS } from "@/stores/actions/health-check/heartbeats/action";
 
 // Ant Design
-import { Table, Tag, Button, Modal, Space, Card, Typography } from "antd";
+import {
+  Table,
+  Tag,
+  Button,
+  Modal,
+  Space,
+  Card,
+  Typography,
+  Form,
+  Input,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 // Corrected the type definition to be the array of data objects
@@ -22,6 +32,7 @@ type ApiTableData = ResponseHeartbeats["data"]["data"][number];
 export default function Page() {
   const { t } = useTranslation("mock");
   const dispatch = useDispatch<AppDispatch>();
+  const [updateDescriptionForm] = Form.useForm();
 
   const HEARTBEAT_STATE = useAppSelector((state) => state.heartbeatReducer);
 
@@ -29,7 +40,7 @@ export default function Page() {
 
   // Corrected the type of the 'table' state to be a single array
   const [table, setTable] = useState<ApiTableData[]>([]);
-  const [modal, setModal] = useState<boolean>(false);
+  const [modal, setModal] = useState<string>("");
   // Corrected the type of 'selectedRow' to be a valid object type
   const [selectedRow, setSelectedRow] = useState<ApiTableData | null>(null);
 
@@ -42,6 +53,32 @@ export default function Page() {
     if (hours > 0) result += `${hours} ชั่วโมง `;
     if (minutes > 0) result += `${minutes} นาที`;
     return result.trim() || "0 นาที";
+  };
+
+  const handleUpdateDescription = async () => {
+    try {
+      const values = await updateDescriptionForm.validateFields();
+      const payload = {
+        Description: values.description,
+      };
+      const response = await fetch(
+        `/api/v1/health-check/server/heartbeats/update/${selectedRow?.ID}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to update description");
+      toast.success("อัปเดตคำอธิบายสำเร็จ", { duration: 3000 });
+      setModal("");
+      setSelectedRow(null);
+      updateDescriptionForm.resetFields();
+      dispatch(GET_HEARTBEATS());
+    } catch (error: any) {
+      console.error("Error updating description:", error);
+      toast.error("อัปเดตคำอธิบายล้มเหลว", { duration: 3000 });
+    }
   };
 
   useEffect(() => {
@@ -73,15 +110,25 @@ export default function Page() {
       key: "JobName",
       render: (text) => <Typography.Text copyable>{text}</Typography.Text>,
       sorter: (a, b) => a.JobName.localeCompare(b.JobName),
-      width: 300
+      width: 300,
     },
-     {
+    {
       title: "รายละเอียด",
-      dataIndex: "Remarks",
-      key: "Remarks",
-      render: (text) => <Typography.Text >{text}</Typography.Text>,
-      sorter: (a, b) => a.Remarks.localeCompare(b.Remarks),
-      
+      dataIndex: "Description",
+      key: "Description",
+      render: (text, record) => (
+        <Space>
+          <Typography.Text>{text ?? "โปรดกรอกการทำงานของบอท"}</Typography.Text>
+          <Button
+            type="link"
+            icon={<FiEdit2 />}
+            onClick={() => {
+              setSelectedRow(record);
+              setModal("edit-description");
+            }}
+          />
+        </Space>
+      ),
     },
     {
       title: "ทำงานทุก (ชั่วโมง/นาที)",
@@ -143,11 +190,48 @@ export default function Page() {
     <DashboardLayout>
       {isLoading && <BaseLoadingComponent />}
 
+      {/* Edit Description Modal */}
+      <Modal
+        open={modal === "edit-description" && !!selectedRow}
+        onCancel={() => {
+          setModal("");
+          setSelectedRow(null);
+        }}
+        title="แก้ไขคำอธิบาย"
+        footer={[
+          <Button key="cancel" onClick={() => setModal("")}>
+            ยกเลิก
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => handleUpdateDescription()}
+            icon={<FiCheckCircle />}
+          >
+            บันทึก
+          </Button>,
+        ]}
+        destroyOnHidden
+      >
+        <Form form={updateDescriptionForm} layout="vertical">
+          <Form.Item
+            label="คำอธิบาย"
+            name="description"
+            rules={[{ required: true, message: "กรุณากรอกคำอธิบาย" }]}
+          >
+            <Input.TextArea
+              placeholder="กรอกคำอธิบาย"
+              autoSize={{ minRows: 2, maxRows: 5 }}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
       {/* Modal แสดงรายละเอียด */}
       <Modal
         title="รายละเอียดเซิร์ฟเวอร์"
-        open={modal}
-        onCancel={() => setModal(false)}
+        open={modal === "description"}
+        onCancel={() => setModal("")}
         footer={null}
       >
         <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded text-sm">

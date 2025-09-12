@@ -22,7 +22,7 @@ export default function Page() {
 
   const limit = 10;
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [total_pages, settotal_pages] = useState<number>(1);
 
   const [projects, setProjects] = useState<Project[]>([]);
 
@@ -101,7 +101,7 @@ export default function Page() {
             >
               ก่อนหน้า
             </button>
-            {getPaginationItems(totalPages, currentPage).map((page, idx) =>
+            {getPaginationItems(total_pages, currentPage).map((page, idx) =>
               page === "..." ? (
                 <span key={`dots-${idx}`} className="px-2 select-none">
                   ...
@@ -125,14 +125,14 @@ export default function Page() {
             <button
               type="button"
               className={`px-3 py-1 rounded ${
-                currentPage === totalPages
+                currentPage === total_pages
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-gray-200 hover:bg-gray-300"
               }`}
               onClick={() =>
-                currentPage < totalPages && setCurrentPage(currentPage + 1)
+                currentPage < total_pages && setCurrentPage(currentPage + 1)
               }
-              disabled={currentPage === totalPages}
+              disabled={currentPage === total_pages}
               aria-label="Next Page"
             >
               ถัดไป

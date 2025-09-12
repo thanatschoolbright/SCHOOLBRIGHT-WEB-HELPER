@@ -29,14 +29,17 @@ export const Service = {
   },
   // * ดึงข้อมูล Project ทั้งหมด พร้อม pagination
   async findAll(
-    opts: { limit?: number; skip?: number } = { limit: 50, skip: 0 }
+    query: { limit?: number; skip?: number; user_id?: number } = {
+      limit: 50,
+      skip: 0,
+    }
   ) {
     const [items, total] = await Promise.all([
       PrismaTimesheet.timesheetEntry.findMany({
-        take: opts.limit,
-        skip: opts.skip,
+        take: query.limit,
+        skip: query.skip,
         orderBy: { createdAt: "desc" },
-        where: { is_deleted: false },
+        where: { is_deleted: false, createdBy: query.user_id },
         include: {
           project: {
             select: {
@@ -53,22 +56,21 @@ export const Service = {
         },
       }),
       PrismaTimesheet.timesheetEntry.count({
-        where: { is_deleted: false },
+        where: { is_deleted: false, createdBy: query.user_id },
       }),
     ]);
-
-    console.info("ITEMS", items);
 
     return { items, total };
   },
 
   // * ดึงข้อมูล  ตาม ID พร้อมโครงสร้างข้อมูลแบบเดียวกับ findAll
   async findById(id: number) {
-    const timesheetEntry = await PrismaTimesheet.timesheetEntry.findFirst({
+    const data = await PrismaTimesheet.timesheetEntry.findFirst({
       where: { id, is_deleted: false },
     });
-    if (timesheetEntry) {
-      return { items: [timesheetEntry], total: 1 };
+
+    if (data) {
+      return { items: [data], total: 1 };
     } else {
       return { items: [], total: 0 };
     }

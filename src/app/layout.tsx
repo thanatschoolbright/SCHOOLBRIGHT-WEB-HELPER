@@ -1,9 +1,9 @@
-// app/layout.tsx (or app/layout.jsx if using JavaScript)
+// app/layout.tsx
 import "@styles/font.css";
 import "@styles/globals.css";
 import ClientProvider from "@components/providers/client-providers";
-import LocaleProvider from "@components/providers/i18n-provider"; // Import the new ClientProvider
-import SchoolReduxProvider from "@components/providers/school-list-provider"; // Import the new ClientProvider
+import LocaleProvider from "@components/providers/i18n-provider";
+import SchoolReduxProvider from "@components/providers/school-list-provider";
 import AuthenticationReduxProvider from "@/components/providers/auth-provider";
 import { Toaster } from "sonner";
 
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon-32x32.png" sizes="32x32" />
@@ -36,8 +36,6 @@ export default function RootLayout({
       </head>
       <body className="font-lineseed antialiased">
         <Toaster richColors position="top-right" closeButton />
-
-        {/* Move client-related providers to a separate component */}
         <ClientProvider>
           <LocaleProvider locale="en" />
           <AuthenticationReduxProvider>

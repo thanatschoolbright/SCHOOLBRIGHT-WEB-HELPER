@@ -48,7 +48,7 @@ export default function Page() {
   const [detailProject, setDetailProject] = useState<SubProject | null>(null);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [total_pages, settotal_pages] = useState<number>(1);
   const limit = 10;
 
   // Fetch project detail for projectName
@@ -73,7 +73,7 @@ export default function Page() {
       const data = await res.json();
       console.log("Fetched projects:", data);
       setSubProjects(data?.data?.items || []);
-      setTotalPages(data.pagination?.totalPages || 1);
+      settotal_pages(data.pagination?.total_pages || 1);
     } catch (error) {
       console.error("Error fetching projects:", error);
       setSubProjects([]);
@@ -145,10 +145,10 @@ export default function Page() {
       if (!res.ok) {
         throw new Error("Failed to delete project");
       }
-      toast.success("ลบโปรเจคสำเร็จ", { duration: 5000 });
+      toast.success("ลบข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
       console.error("Error deleting project:", error);
-      toast.error("ลบโปรเจคล้มเหลว", { duration: 5000 });
+      toast.error("ลบข้อมูลล้มเหลว", { duration: 5000 });
     }
   };
 
@@ -265,17 +265,17 @@ export default function Page() {
   ];
 
   const renderPagination = () => {
-    if (totalPages <= 1) return null;
+    if (total_pages <= 1) return null;
 
     const pages: (number | string)[] = [];
     const maxPagesToShow = 7;
     let startPage = Math.max(1, currentPage - 3);
-    let endPage = Math.min(totalPages, currentPage + 3);
+    let endPage = Math.min(total_pages, currentPage + 3);
 
     if (endPage - startPage < maxPagesToShow - 1) {
       if (startPage === 1) {
-        endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-      } else if (endPage === totalPages) {
+        endPage = Math.min(total_pages, startPage + maxPagesToShow - 1);
+      } else if (endPage === total_pages) {
         startPage = Math.max(1, endPage - maxPagesToShow + 1);
       }
     }
@@ -291,11 +291,11 @@ export default function Page() {
       pages.push(i);
     }
 
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
+    if (endPage < total_pages) {
+      if (endPage < total_pages - 1) {
         pages.push("...");
       }
-      pages.push(totalPages);
+      pages.push(total_pages);
     }
 
     return (
@@ -341,14 +341,14 @@ export default function Page() {
           <li>
             <button
               className={`px-3 py-1 rounded-r-md border border-gray-300 bg-white hover:bg-gray-100 ${
-                currentPage === totalPages
+                currentPage === total_pages
                   ? "cursor-not-allowed opacity-50"
                   : ""
               }`}
               onClick={() =>
-                currentPage < totalPages && setCurrentPage(currentPage + 1)
+                currentPage < total_pages && setCurrentPage(currentPage + 1)
               }
-              disabled={currentPage === totalPages}
+              disabled={currentPage === total_pages}
               aria-label="ถัดไป"
             >
               ถัดไป
