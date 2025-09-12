@@ -196,13 +196,14 @@ export default function Page() {
         throw new Error("Failed to create or update entry");
       }
       toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
+      fetchTimesheetEntry();
     } catch (error) {
       console.error("Error creating or updating entry:", error);
       toast.error("สร้าง/อัปเดต ข้อมูลล้มเหลว", { duration: 5000 });
     }
   };
 
-  const deleteEntry = async (id: number) => {
+  const deleteEntry = async (ids: number[]) => {
     try {
       const res = await fetch(`/api/v1/timesheet/entry/delete/`, {
         method: "POST",
@@ -210,7 +211,7 @@ export default function Page() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id,
+          ids,
           by: AUTH_USER?.admin_id,
         }),
       });
@@ -276,11 +277,13 @@ export default function Page() {
     setModal("delete");
   };
 
-  const confirmDelete = async () => {
-    if (deleteId === null) return;
-    await deleteEntry(deleteId);
+  // Batch delete function
+  const confirmBatchDelete = async () => {
+    if (selectedRowKeys.length === 0) return;
+    await deleteEntry(selectedRowKeys.map((id) => Number(id)));
+    setSelectedRowKeys([]);
+    setConfirmText("");
     setModal("");
-    setDeleteId(null);
     await fetchTimesheetEntry();
   };
 
@@ -380,13 +383,6 @@ export default function Page() {
             onClick={() => openEditModal(record)}
             aria-label="Edit Entry"
           />
-          <Button
-            size="small"
-            danger
-            icon={<FiTrash2 />}
-            onClick={() => openDeleteModal(record.id)}
-            aria-label="Delete Entry"
-          />
         </Space>
       ),
     },
@@ -432,7 +428,8 @@ export default function Page() {
               danger
               icon={<FiTrash2 />}
               onClick={() => {
-                // TODO: ใส่ฟังก์ชัน batch delete ที่คุณทำไว้
+                setModal("delete");
+                setConfirmText("");
               }}
               disabled={!hasSelected}
             >
@@ -640,7 +637,7 @@ export default function Page() {
         >
           <div className="space-y-4 mt-4">
             <Typography.Text type="danger" strong>
-              คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
+              คุณต้องการยืนยันที่จะลบข้อมูลที่เลือกเหล่านี้จริงหรือไม่
             </Typography.Text>
             <Typography.Text>
               โปรดพิมพ์ <span className="font-bold text-red-600">Delete</span>{" "}
@@ -666,7 +663,7 @@ export default function Page() {
               type="primary"
               danger
               className="w-full sm:w-auto px-6 py-3"
-              onClick={confirmDelete}
+              onClick={confirmBatchDelete}
               disabled={confirmText !== "Delete"}
               icon={<FiTrash2 className="w-5 h-5" />}
             >

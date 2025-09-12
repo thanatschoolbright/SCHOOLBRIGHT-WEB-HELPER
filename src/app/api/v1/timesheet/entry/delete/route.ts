@@ -5,7 +5,7 @@ import { validateRequest } from "@/helpers/api/validate.request";
 import { NextRequest, NextResponse } from "next/server";
 
 const ProjectDeleteSchema = z.object({
-  id: z.number(),
+  ids: z.array(z.number()),
   by: z.number(),
 });
 
@@ -13,16 +13,18 @@ export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(request, ProjectDeleteSchema);
   if (error) return error;
 
-  const { id, by } = data;
+  const { ids, by } = data;
 
   try {
-    await Service.delete(id, { deletedBy: by });
+    await Promise.all(
+      ids.map((id: number) => Service.delete(id, { deletedBy: by }))
+    );
 
     return NextResponse.json(
       successResponse({
         data: null,
-        message_en: "Project deleted successfully",
-        message_th: "ลบโครงการสำเร็จ",
+        message_en: "Projects deleted successfully",
+        message_th: "ลบโครงการที่เลือกสำเร็จ",
       })
     );
   } catch (error: any) {

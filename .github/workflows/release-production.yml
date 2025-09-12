@@ -47,12 +47,16 @@ jobs:
           echo "👉 Installing dependencies..."
           npm ci
 
+      - name: "🐳 Pull Database Latest"
+        run: |
+          echo "👉 Pull latest database..."
+          npx prisma db pull --schema=prisma/timesheet/schema.prisma
+
       - name: "⚙️ Prisma Generate"
         run: |
           echo "👉 Generating Prisma client..."
           npx prisma generate --schema=prisma/schema.prisma
           npx prisma generate --schema=prisma/timesheet/schema.prisma
-
 
       - name: "🏗️ Build Project"
         run: |
