@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Spin } from "antd";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { setResponse } from "@stores/reducers/authentication/call-get-login-admin";
@@ -53,7 +54,20 @@ export default function AuthenticationReduxProvider({
   }, [dispatch, pathname, router]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Spin size="large">
+          <div style={{ marginTop: 16 }}>กำลังโหลด...</div>
+        </Spin>
+      </div>
+    );
   }
 
   return <>{children}</>;
