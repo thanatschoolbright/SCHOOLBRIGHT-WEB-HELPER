@@ -123,11 +123,12 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  description: 'description',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
   createdBy: 'createdBy',
-  updatedBy: 'updatedBy'
+  updatedAt: 'updatedAt',
+  updatedBy: 'updatedBy',
+  description: 'description',
+  is_deleted: 'is_deleted'
 };
 
 exports.Prisma.FeatureScalarFieldEnum = {
@@ -135,9 +136,10 @@ exports.Prisma.FeatureScalarFieldEnum = {
   projectId: 'projectId',
   name: 'name',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
   createdBy: 'createdBy',
-  updatedBy: 'updatedBy'
+  updatedAt: 'updatedAt',
+  updatedBy: 'updatedBy',
+  is_deleted: 'is_deleted'
 };
 
 exports.Prisma.TimesheetEntryScalarFieldEnum = {
@@ -149,9 +151,10 @@ exports.Prisma.TimesheetEntryScalarFieldEnum = {
   description: 'description',
   status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
   createdBy: 'createdBy',
-  updatedBy: 'updatedBy'
+  updatedAt: 'updatedAt',
+  updatedBy: 'updatedBy',
+  is_deleted: 'is_deleted'
 };
 
 exports.Prisma.SortOrder = {

@@ -36,6 +36,7 @@ export const Service = {
         take: opts.limit,
         skip: opts.skip,
         orderBy: { createdAt: "desc" },
+        where: { is_deleted: false },
         include: {
           project: {
             select: {
@@ -51,18 +52,20 @@ export const Service = {
           },
         },
       }),
-      PrismaTimesheet.timesheetEntry.count(),
+      PrismaTimesheet.timesheetEntry.count({
+        where: { is_deleted: false },
+      }),
     ]);
 
-    console.info("ITEMS",items)
+    console.info("ITEMS", items);
 
     return { items, total };
   },
 
   // * ดึงข้อมูล  ตาม ID พร้อมโครงสร้างข้อมูลแบบเดียวกับ findAll
   async findById(id: number) {
-    const timesheetEntry = await PrismaTimesheet.timesheetEntry.findUnique({
-      where: { id },
+    const timesheetEntry = await PrismaTimesheet.timesheetEntry.findFirst({
+      where: { id, is_deleted: false },
     });
     if (timesheetEntry) {
       return { items: [timesheetEntry], total: 1 };
@@ -108,8 +111,12 @@ export const Service = {
 
   // * ลบตาม ID
   async delete(id: number, p0: { deletedBy: number }) {
-    return await PrismaTimesheet.timesheetEntry.delete({
+    return await PrismaTimesheet.timesheetEntry.update({
       where: { id },
+      data: {
+        is_deleted: true,
+        updatedBy: p0.deletedBy,
+      },
     });
   },
 };

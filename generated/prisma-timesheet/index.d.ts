@@ -1135,31 +1135,34 @@ export namespace Prisma {
   export type ProjectMinAggregateOutputType = {
     id: number | null
     name: string | null
-    description: string | null
     createdAt: Date | null
-    updatedAt: Date | null
     createdBy: number | null
+    updatedAt: Date | null
     updatedBy: number | null
+    description: string | null
+    is_deleted: boolean | null
   }
 
   export type ProjectMaxAggregateOutputType = {
     id: number | null
     name: string | null
-    description: string | null
     createdAt: Date | null
-    updatedAt: Date | null
     createdBy: number | null
+    updatedAt: Date | null
     updatedBy: number | null
+    description: string | null
+    is_deleted: boolean | null
   }
 
   export type ProjectCountAggregateOutputType = {
     id: number
     name: number
-    description: number
     createdAt: number
-    updatedAt: number
     createdBy: number
+    updatedAt: number
     updatedBy: number
+    description: number
+    is_deleted: number
     _all: number
   }
 
@@ -1179,31 +1182,34 @@ export namespace Prisma {
   export type ProjectMinAggregateInputType = {
     id?: true
     name?: true
-    description?: true
     createdAt?: true
-    updatedAt?: true
     createdBy?: true
+    updatedAt?: true
     updatedBy?: true
+    description?: true
+    is_deleted?: true
   }
 
   export type ProjectMaxAggregateInputType = {
     id?: true
     name?: true
-    description?: true
     createdAt?: true
-    updatedAt?: true
     createdBy?: true
+    updatedAt?: true
     updatedBy?: true
+    description?: true
+    is_deleted?: true
   }
 
   export type ProjectCountAggregateInputType = {
     id?: true
     name?: true
-    description?: true
     createdAt?: true
-    updatedAt?: true
     createdBy?: true
+    updatedAt?: true
     updatedBy?: true
+    description?: true
+    is_deleted?: true
     _all?: true
   }
 
@@ -1296,11 +1302,12 @@ export namespace Prisma {
   export type ProjectGroupByOutputType = {
     id: number
     name: string
-    description: string
     createdAt: Date
-    updatedAt: Date
     createdBy: number | null
+    updatedAt: Date
     updatedBy: number | null
+    description: string
+    is_deleted: boolean
     _count: ProjectCountAggregateOutputType | null
     _avg: ProjectAvgAggregateOutputType | null
     _sum: ProjectSumAggregateOutputType | null
@@ -1325,11 +1332,12 @@ export namespace Prisma {
   export type ProjectSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    description?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
+    description?: boolean
+    is_deleted?: boolean
     features?: boolean | Project$featuresArgs<ExtArgs>
     timesheets?: boolean | Project$timesheetsArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
@@ -1338,34 +1346,37 @@ export namespace Prisma {
   export type ProjectSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    description?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
+    description?: boolean
+    is_deleted?: boolean
   }, ExtArgs["result"]["project"]>
 
   export type ProjectSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    description?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
+    description?: boolean
+    is_deleted?: boolean
   }, ExtArgs["result"]["project"]>
 
   export type ProjectSelectScalar = {
     id?: boolean
     name?: boolean
-    description?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
+    description?: boolean
+    is_deleted?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "description" | "is_deleted", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     features?: boolean | Project$featuresArgs<ExtArgs>
     timesheets?: boolean | Project$timesheetsArgs<ExtArgs>
@@ -1383,11 +1394,12 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
-      description: string
       createdAt: Date
-      updatedAt: Date
       createdBy: number | null
+      updatedAt: Date
       updatedBy: number | null
+      description: string
+      is_deleted: boolean
     }, ExtArgs["result"]["project"]>
     composites: {}
   }
@@ -1815,11 +1827,12 @@ export namespace Prisma {
   interface ProjectFieldRefs {
     readonly id: FieldRef<"Project", 'Int'>
     readonly name: FieldRef<"Project", 'String'>
-    readonly description: FieldRef<"Project", 'String'>
     readonly createdAt: FieldRef<"Project", 'DateTime'>
-    readonly updatedAt: FieldRef<"Project", 'DateTime'>
     readonly createdBy: FieldRef<"Project", 'Int'>
+    readonly updatedAt: FieldRef<"Project", 'DateTime'>
     readonly updatedBy: FieldRef<"Project", 'Int'>
+    readonly description: FieldRef<"Project", 'String'>
+    readonly is_deleted: FieldRef<"Project", 'Boolean'>
   }
     
 
@@ -2305,9 +2318,10 @@ export namespace Prisma {
     projectId: number | null
     name: string | null
     createdAt: Date | null
-    updatedAt: Date | null
     createdBy: number | null
+    updatedAt: Date | null
     updatedBy: number | null
+    is_deleted: boolean | null
   }
 
   export type FeatureMaxAggregateOutputType = {
@@ -2315,9 +2329,10 @@ export namespace Prisma {
     projectId: number | null
     name: string | null
     createdAt: Date | null
-    updatedAt: Date | null
     createdBy: number | null
+    updatedAt: Date | null
     updatedBy: number | null
+    is_deleted: boolean | null
   }
 
   export type FeatureCountAggregateOutputType = {
@@ -2325,9 +2340,10 @@ export namespace Prisma {
     projectId: number
     name: number
     createdAt: number
-    updatedAt: number
     createdBy: number
+    updatedAt: number
     updatedBy: number
+    is_deleted: number
     _all: number
   }
 
@@ -2351,9 +2367,10 @@ export namespace Prisma {
     projectId?: true
     name?: true
     createdAt?: true
-    updatedAt?: true
     createdBy?: true
+    updatedAt?: true
     updatedBy?: true
+    is_deleted?: true
   }
 
   export type FeatureMaxAggregateInputType = {
@@ -2361,9 +2378,10 @@ export namespace Prisma {
     projectId?: true
     name?: true
     createdAt?: true
-    updatedAt?: true
     createdBy?: true
+    updatedAt?: true
     updatedBy?: true
+    is_deleted?: true
   }
 
   export type FeatureCountAggregateInputType = {
@@ -2371,9 +2389,10 @@ export namespace Prisma {
     projectId?: true
     name?: true
     createdAt?: true
-    updatedAt?: true
     createdBy?: true
+    updatedAt?: true
     updatedBy?: true
+    is_deleted?: true
     _all?: true
   }
 
@@ -2468,9 +2487,10 @@ export namespace Prisma {
     projectId: number
     name: string
     createdAt: Date
-    updatedAt: Date
     createdBy: number | null
+    updatedAt: Date
     updatedBy: number | null
+    is_deleted: boolean
     _count: FeatureCountAggregateOutputType | null
     _avg: FeatureAvgAggregateOutputType | null
     _sum: FeatureSumAggregateOutputType | null
@@ -2497,9 +2517,10 @@ export namespace Prisma {
     projectId?: boolean
     name?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
+    is_deleted?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     timesheets?: boolean | Feature$timesheetsArgs<ExtArgs>
     _count?: boolean | FeatureCountOutputTypeDefaultArgs<ExtArgs>
@@ -2510,9 +2531,10 @@ export namespace Prisma {
     projectId?: boolean
     name?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
+    is_deleted?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
 
@@ -2521,9 +2543,10 @@ export namespace Prisma {
     projectId?: boolean
     name?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
+    is_deleted?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
 
@@ -2532,12 +2555,13 @@ export namespace Prisma {
     projectId?: boolean
     name?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
+    is_deleted?: boolean
   }
 
-  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy", ExtArgs["result"]["feature"]>
+  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "is_deleted", ExtArgs["result"]["feature"]>
   export type FeatureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     timesheets?: boolean | Feature$timesheetsArgs<ExtArgs>
@@ -2561,9 +2585,10 @@ export namespace Prisma {
       projectId: number
       name: string
       createdAt: Date
-      updatedAt: Date
       createdBy: number | null
+      updatedAt: Date
       updatedBy: number | null
+      is_deleted: boolean
     }, ExtArgs["result"]["feature"]>
     composites: {}
   }
@@ -2993,9 +3018,10 @@ export namespace Prisma {
     readonly projectId: FieldRef<"Feature", 'Int'>
     readonly name: FieldRef<"Feature", 'String'>
     readonly createdAt: FieldRef<"Feature", 'DateTime'>
-    readonly updatedAt: FieldRef<"Feature", 'DateTime'>
     readonly createdBy: FieldRef<"Feature", 'Int'>
+    readonly updatedAt: FieldRef<"Feature", 'DateTime'>
     readonly updatedBy: FieldRef<"Feature", 'Int'>
+    readonly is_deleted: FieldRef<"Feature", 'Boolean'>
   }
     
 
@@ -3473,9 +3499,10 @@ export namespace Prisma {
     description: string | null
     status: string | null
     createdAt: Date | null
-    updatedAt: Date | null
     createdBy: number | null
+    updatedAt: Date | null
     updatedBy: number | null
+    is_deleted: boolean | null
   }
 
   export type TimesheetEntryMaxAggregateOutputType = {
@@ -3487,9 +3514,10 @@ export namespace Prisma {
     description: string | null
     status: string | null
     createdAt: Date | null
-    updatedAt: Date | null
     createdBy: number | null
+    updatedAt: Date | null
     updatedBy: number | null
+    is_deleted: boolean | null
   }
 
   export type TimesheetEntryCountAggregateOutputType = {
@@ -3501,9 +3529,10 @@ export namespace Prisma {
     description: number
     status: number
     createdAt: number
-    updatedAt: number
     createdBy: number
+    updatedAt: number
     updatedBy: number
+    is_deleted: number
     _all: number
   }
 
@@ -3535,9 +3564,10 @@ export namespace Prisma {
     description?: true
     status?: true
     createdAt?: true
-    updatedAt?: true
     createdBy?: true
+    updatedAt?: true
     updatedBy?: true
+    is_deleted?: true
   }
 
   export type TimesheetEntryMaxAggregateInputType = {
@@ -3549,9 +3579,10 @@ export namespace Prisma {
     description?: true
     status?: true
     createdAt?: true
-    updatedAt?: true
     createdBy?: true
+    updatedAt?: true
     updatedBy?: true
+    is_deleted?: true
   }
 
   export type TimesheetEntryCountAggregateInputType = {
@@ -3563,9 +3594,10 @@ export namespace Prisma {
     description?: true
     status?: true
     createdAt?: true
-    updatedAt?: true
     createdBy?: true
+    updatedAt?: true
     updatedBy?: true
+    is_deleted?: true
     _all?: true
   }
 
@@ -3664,9 +3696,10 @@ export namespace Prisma {
     description: string | null
     status: string
     createdAt: Date
-    updatedAt: Date
     createdBy: number | null
+    updatedAt: Date
     updatedBy: number | null
+    is_deleted: boolean
     _count: TimesheetEntryCountAggregateOutputType | null
     _avg: TimesheetEntryAvgAggregateOutputType | null
     _sum: TimesheetEntrySumAggregateOutputType | null
@@ -3697,11 +3730,12 @@ export namespace Prisma {
     description?: boolean
     status?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
-    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    is_deleted?: boolean
     feature?: boolean | FeatureDefaultArgs<ExtArgs>
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["timesheetEntry"]>
 
   export type TimesheetEntrySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3713,11 +3747,12 @@ export namespace Prisma {
     description?: boolean
     status?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
-    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    is_deleted?: boolean
     feature?: boolean | FeatureDefaultArgs<ExtArgs>
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["timesheetEntry"]>
 
   export type TimesheetEntrySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3729,11 +3764,12 @@ export namespace Prisma {
     description?: boolean
     status?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
-    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    is_deleted?: boolean
     feature?: boolean | FeatureDefaultArgs<ExtArgs>
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["timesheetEntry"]>
 
   export type TimesheetEntrySelectScalar = {
@@ -3745,30 +3781,31 @@ export namespace Prisma {
     description?: boolean
     status?: boolean
     createdAt?: boolean
-    updatedAt?: boolean
     createdBy?: boolean
+    updatedAt?: boolean
     updatedBy?: boolean
+    is_deleted?: boolean
   }
 
-  export type TimesheetEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "featureId" | "date" | "hours" | "description" | "status" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy", ExtArgs["result"]["timesheetEntry"]>
+  export type TimesheetEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "featureId" | "date" | "hours" | "description" | "status" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "is_deleted", ExtArgs["result"]["timesheetEntry"]>
   export type TimesheetEntryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    project?: boolean | ProjectDefaultArgs<ExtArgs>
     feature?: boolean | FeatureDefaultArgs<ExtArgs>
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
   }
   export type TimesheetEntryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    project?: boolean | ProjectDefaultArgs<ExtArgs>
     feature?: boolean | FeatureDefaultArgs<ExtArgs>
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
   }
   export type TimesheetEntryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    project?: boolean | ProjectDefaultArgs<ExtArgs>
     feature?: boolean | FeatureDefaultArgs<ExtArgs>
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
   }
 
   export type $TimesheetEntryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TimesheetEntry"
     objects: {
-      project: Prisma.$ProjectPayload<ExtArgs>
       feature: Prisma.$FeaturePayload<ExtArgs>
+      project: Prisma.$ProjectPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -3779,9 +3816,10 @@ export namespace Prisma {
       description: string | null
       status: string
       createdAt: Date
-      updatedAt: Date
       createdBy: number | null
+      updatedAt: Date
       updatedBy: number | null
+      is_deleted: boolean
     }, ExtArgs["result"]["timesheetEntry"]>
     composites: {}
   }
@@ -4176,8 +4214,8 @@ export namespace Prisma {
    */
   export interface Prisma__TimesheetEntryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     feature<T extends FeatureDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FeatureDefaultArgs<ExtArgs>>): Prisma__FeatureClient<$Result.GetResult<Prisma.$FeaturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4215,9 +4253,10 @@ export namespace Prisma {
     readonly description: FieldRef<"TimesheetEntry", 'String'>
     readonly status: FieldRef<"TimesheetEntry", 'String'>
     readonly createdAt: FieldRef<"TimesheetEntry", 'DateTime'>
-    readonly updatedAt: FieldRef<"TimesheetEntry", 'DateTime'>
     readonly createdBy: FieldRef<"TimesheetEntry", 'Int'>
+    readonly updatedAt: FieldRef<"TimesheetEntry", 'DateTime'>
     readonly updatedBy: FieldRef<"TimesheetEntry", 'Int'>
+    readonly is_deleted: FieldRef<"TimesheetEntry", 'Boolean'>
   }
     
 
@@ -4649,11 +4688,12 @@ export namespace Prisma {
   export const ProjectScalarFieldEnum: {
     id: 'id',
     name: 'name',
-    description: 'description',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
     createdBy: 'createdBy',
-    updatedBy: 'updatedBy'
+    updatedAt: 'updatedAt',
+    updatedBy: 'updatedBy',
+    description: 'description',
+    is_deleted: 'is_deleted'
   };
 
   export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
@@ -4664,9 +4704,10 @@ export namespace Prisma {
     projectId: 'projectId',
     name: 'name',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
     createdBy: 'createdBy',
-    updatedBy: 'updatedBy'
+    updatedAt: 'updatedAt',
+    updatedBy: 'updatedBy',
+    is_deleted: 'is_deleted'
   };
 
   export type FeatureScalarFieldEnum = (typeof FeatureScalarFieldEnum)[keyof typeof FeatureScalarFieldEnum]
@@ -4681,9 +4722,10 @@ export namespace Prisma {
     description: 'description',
     status: 'status',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
     createdBy: 'createdBy',
-    updatedBy: 'updatedBy'
+    updatedAt: 'updatedAt',
+    updatedBy: 'updatedBy',
+    is_deleted: 'is_deleted'
   };
 
   export type TimesheetEntryScalarFieldEnum = (typeof TimesheetEntryScalarFieldEnum)[keyof typeof TimesheetEntryScalarFieldEnum]
@@ -4761,6 +4803,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'Decimal'
    */
   export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -4797,11 +4846,12 @@ export namespace Prisma {
     NOT?: ProjectWhereInput | ProjectWhereInput[]
     id?: IntFilter<"Project"> | number
     name?: StringFilter<"Project"> | string
-    description?: StringFilter<"Project"> | string
     createdAt?: DateTimeFilter<"Project"> | Date | string
-    updatedAt?: DateTimeFilter<"Project"> | Date | string
     createdBy?: IntNullableFilter<"Project"> | number | null
+    updatedAt?: DateTimeFilter<"Project"> | Date | string
     updatedBy?: IntNullableFilter<"Project"> | number | null
+    description?: StringFilter<"Project"> | string
+    is_deleted?: BoolFilter<"Project"> | boolean
     features?: FeatureListRelationFilter
     timesheets?: TimesheetEntryListRelationFilter
   }
@@ -4809,11 +4859,12 @@ export namespace Prisma {
   export type ProjectOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrderInput | SortOrder
+    description?: SortOrder
+    is_deleted?: SortOrder
     features?: FeatureOrderByRelationAggregateInput
     timesheets?: TimesheetEntryOrderByRelationAggregateInput
   }
@@ -4824,11 +4875,12 @@ export namespace Prisma {
     OR?: ProjectWhereInput[]
     NOT?: ProjectWhereInput | ProjectWhereInput[]
     name?: StringFilter<"Project"> | string
-    description?: StringFilter<"Project"> | string
     createdAt?: DateTimeFilter<"Project"> | Date | string
-    updatedAt?: DateTimeFilter<"Project"> | Date | string
     createdBy?: IntNullableFilter<"Project"> | number | null
+    updatedAt?: DateTimeFilter<"Project"> | Date | string
     updatedBy?: IntNullableFilter<"Project"> | number | null
+    description?: StringFilter<"Project"> | string
+    is_deleted?: BoolFilter<"Project"> | boolean
     features?: FeatureListRelationFilter
     timesheets?: TimesheetEntryListRelationFilter
   }, "id">
@@ -4836,11 +4888,12 @@ export namespace Prisma {
   export type ProjectOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrderInput | SortOrder
+    description?: SortOrder
+    is_deleted?: SortOrder
     _count?: ProjectCountOrderByAggregateInput
     _avg?: ProjectAvgOrderByAggregateInput
     _max?: ProjectMaxOrderByAggregateInput
@@ -4854,11 +4907,12 @@ export namespace Prisma {
     NOT?: ProjectScalarWhereWithAggregatesInput | ProjectScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"Project"> | number
     name?: StringWithAggregatesFilter<"Project"> | string
-    description?: StringWithAggregatesFilter<"Project"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
     createdBy?: IntNullableWithAggregatesFilter<"Project"> | number | null
+    updatedAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
     updatedBy?: IntNullableWithAggregatesFilter<"Project"> | number | null
+    description?: StringWithAggregatesFilter<"Project"> | string
+    is_deleted?: BoolWithAggregatesFilter<"Project"> | boolean
   }
 
   export type FeatureWhereInput = {
@@ -4869,9 +4923,10 @@ export namespace Prisma {
     projectId?: IntFilter<"Feature"> | number
     name?: StringFilter<"Feature"> | string
     createdAt?: DateTimeFilter<"Feature"> | Date | string
-    updatedAt?: DateTimeFilter<"Feature"> | Date | string
     createdBy?: IntNullableFilter<"Feature"> | number | null
+    updatedAt?: DateTimeFilter<"Feature"> | Date | string
     updatedBy?: IntNullableFilter<"Feature"> | number | null
+    is_deleted?: BoolFilter<"Feature"> | boolean
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     timesheets?: TimesheetEntryListRelationFilter
   }
@@ -4881,9 +4936,10 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrderInput | SortOrder
+    is_deleted?: SortOrder
     project?: ProjectOrderByWithRelationInput
     timesheets?: TimesheetEntryOrderByRelationAggregateInput
   }
@@ -4896,9 +4952,10 @@ export namespace Prisma {
     projectId?: IntFilter<"Feature"> | number
     name?: StringFilter<"Feature"> | string
     createdAt?: DateTimeFilter<"Feature"> | Date | string
-    updatedAt?: DateTimeFilter<"Feature"> | Date | string
     createdBy?: IntNullableFilter<"Feature"> | number | null
+    updatedAt?: DateTimeFilter<"Feature"> | Date | string
     updatedBy?: IntNullableFilter<"Feature"> | number | null
+    is_deleted?: BoolFilter<"Feature"> | boolean
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     timesheets?: TimesheetEntryListRelationFilter
   }, "id">
@@ -4908,9 +4965,10 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrderInput | SortOrder
+    is_deleted?: SortOrder
     _count?: FeatureCountOrderByAggregateInput
     _avg?: FeatureAvgOrderByAggregateInput
     _max?: FeatureMaxOrderByAggregateInput
@@ -4926,9 +4984,10 @@ export namespace Prisma {
     projectId?: IntWithAggregatesFilter<"Feature"> | number
     name?: StringWithAggregatesFilter<"Feature"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Feature"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"Feature"> | Date | string
     createdBy?: IntNullableWithAggregatesFilter<"Feature"> | number | null
+    updatedAt?: DateTimeWithAggregatesFilter<"Feature"> | Date | string
     updatedBy?: IntNullableWithAggregatesFilter<"Feature"> | number | null
+    is_deleted?: BoolWithAggregatesFilter<"Feature"> | boolean
   }
 
   export type TimesheetEntryWhereInput = {
@@ -4943,11 +5002,12 @@ export namespace Prisma {
     description?: StringNullableFilter<"TimesheetEntry"> | string | null
     status?: StringFilter<"TimesheetEntry"> | string
     createdAt?: DateTimeFilter<"TimesheetEntry"> | Date | string
-    updatedAt?: DateTimeFilter<"TimesheetEntry"> | Date | string
     createdBy?: IntNullableFilter<"TimesheetEntry"> | number | null
+    updatedAt?: DateTimeFilter<"TimesheetEntry"> | Date | string
     updatedBy?: IntNullableFilter<"TimesheetEntry"> | number | null
-    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    is_deleted?: BoolFilter<"TimesheetEntry"> | boolean
     feature?: XOR<FeatureScalarRelationFilter, FeatureWhereInput>
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
   }
 
   export type TimesheetEntryOrderByWithRelationInput = {
@@ -4959,11 +5019,12 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     status?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrderInput | SortOrder
-    project?: ProjectOrderByWithRelationInput
+    is_deleted?: SortOrder
     feature?: FeatureOrderByWithRelationInput
+    project?: ProjectOrderByWithRelationInput
   }
 
   export type TimesheetEntryWhereUniqueInput = Prisma.AtLeast<{
@@ -4978,11 +5039,12 @@ export namespace Prisma {
     description?: StringNullableFilter<"TimesheetEntry"> | string | null
     status?: StringFilter<"TimesheetEntry"> | string
     createdAt?: DateTimeFilter<"TimesheetEntry"> | Date | string
-    updatedAt?: DateTimeFilter<"TimesheetEntry"> | Date | string
     createdBy?: IntNullableFilter<"TimesheetEntry"> | number | null
+    updatedAt?: DateTimeFilter<"TimesheetEntry"> | Date | string
     updatedBy?: IntNullableFilter<"TimesheetEntry"> | number | null
-    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    is_deleted?: BoolFilter<"TimesheetEntry"> | boolean
     feature?: XOR<FeatureScalarRelationFilter, FeatureWhereInput>
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
   }, "id">
 
   export type TimesheetEntryOrderByWithAggregationInput = {
@@ -4994,9 +5056,10 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     status?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrderInput | SortOrder
+    is_deleted?: SortOrder
     _count?: TimesheetEntryCountOrderByAggregateInput
     _avg?: TimesheetEntryAvgOrderByAggregateInput
     _max?: TimesheetEntryMaxOrderByAggregateInput
@@ -5016,18 +5079,20 @@ export namespace Prisma {
     description?: StringNullableWithAggregatesFilter<"TimesheetEntry"> | string | null
     status?: StringWithAggregatesFilter<"TimesheetEntry"> | string
     createdAt?: DateTimeWithAggregatesFilter<"TimesheetEntry"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"TimesheetEntry"> | Date | string
     createdBy?: IntNullableWithAggregatesFilter<"TimesheetEntry"> | number | null
+    updatedAt?: DateTimeWithAggregatesFilter<"TimesheetEntry"> | Date | string
     updatedBy?: IntNullableWithAggregatesFilter<"TimesheetEntry"> | number | null
+    is_deleted?: BoolWithAggregatesFilter<"TimesheetEntry"> | boolean
   }
 
   export type ProjectCreateInput = {
     name: string
-    description: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
     features?: FeatureCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
   }
@@ -5035,22 +5100,24 @@ export namespace Prisma {
   export type ProjectUncheckedCreateInput = {
     id?: number
     name: string
-    description: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     features?: FeatureUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
   }
@@ -5058,11 +5125,12 @@ export namespace Prisma {
   export type ProjectUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -5070,38 +5138,42 @@ export namespace Prisma {
   export type ProjectCreateManyInput = {
     id?: number
     name: string
-    description: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
   }
 
   export type ProjectUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ProjectUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type FeatureCreateInput = {
     name: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
     project: ProjectCreateNestedOneWithoutFeaturesInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
   }
@@ -5111,18 +5183,20 @@ export namespace Prisma {
     projectId: number
     name: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
   }
 
   export type FeatureUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
   }
@@ -5132,9 +5206,10 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
@@ -5143,17 +5218,19 @@ export namespace Prisma {
     projectId: number
     name: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
   }
 
   export type FeatureUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type FeatureUncheckedUpdateManyInput = {
@@ -5161,9 +5238,10 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TimesheetEntryCreateInput = {
@@ -5172,11 +5250,12 @@ export namespace Prisma {
     description?: string | null
     status?: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
-    project: ProjectCreateNestedOneWithoutTimesheetsInput
+    is_deleted?: boolean
     feature: FeatureCreateNestedOneWithoutTimesheetsInput
+    project: ProjectCreateNestedOneWithoutTimesheetsInput
   }
 
   export type TimesheetEntryUncheckedCreateInput = {
@@ -5188,9 +5267,10 @@ export namespace Prisma {
     description?: string | null
     status?: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
   }
 
   export type TimesheetEntryUpdateInput = {
@@ -5199,11 +5279,12 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    project?: ProjectUpdateOneRequiredWithoutTimesheetsNestedInput
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     feature?: FeatureUpdateOneRequiredWithoutTimesheetsNestedInput
+    project?: ProjectUpdateOneRequiredWithoutTimesheetsNestedInput
   }
 
   export type TimesheetEntryUncheckedUpdateInput = {
@@ -5215,9 +5296,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TimesheetEntryCreateManyInput = {
@@ -5229,9 +5311,10 @@ export namespace Prisma {
     description?: string | null
     status?: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
   }
 
   export type TimesheetEntryUpdateManyMutationInput = {
@@ -5240,9 +5323,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TimesheetEntryUncheckedUpdateManyInput = {
@@ -5254,9 +5338,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -5307,6 +5392,11 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type FeatureListRelationFilter = {
     every?: FeatureWhereInput
     some?: FeatureWhereInput
@@ -5335,11 +5425,12 @@ export namespace Prisma {
   export type ProjectCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrder
+    description?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type ProjectAvgOrderByAggregateInput = {
@@ -5351,21 +5442,23 @@ export namespace Prisma {
   export type ProjectMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrder
+    description?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type ProjectMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrder
+    description?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type ProjectSumOrderByAggregateInput = {
@@ -5438,6 +5531,14 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type ProjectScalarRelationFilter = {
     is?: ProjectWhereInput
     isNot?: ProjectWhereInput
@@ -5448,9 +5549,10 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type FeatureAvgOrderByAggregateInput = {
@@ -5465,9 +5567,10 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type FeatureMinOrderByAggregateInput = {
@@ -5475,9 +5578,10 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type FeatureSumOrderByAggregateInput = {
@@ -5527,9 +5631,10 @@ export namespace Prisma {
     description?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type TimesheetEntryAvgOrderByAggregateInput = {
@@ -5550,9 +5655,10 @@ export namespace Prisma {
     description?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type TimesheetEntryMinOrderByAggregateInput = {
@@ -5564,9 +5670,10 @@ export namespace Prisma {
     description?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
-    updatedAt?: SortOrder
     createdBy?: SortOrder
+    updatedAt?: SortOrder
     updatedBy?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type TimesheetEntrySumOrderByAggregateInput = {
@@ -5654,6 +5761,10 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type FeatureUpdateManyWithoutProjectNestedInput = {
@@ -5776,16 +5887,16 @@ export namespace Prisma {
     deleteMany?: TimesheetEntryScalarWhereInput | TimesheetEntryScalarWhereInput[]
   }
 
-  export type ProjectCreateNestedOneWithoutTimesheetsInput = {
-    create?: XOR<ProjectCreateWithoutTimesheetsInput, ProjectUncheckedCreateWithoutTimesheetsInput>
-    connectOrCreate?: ProjectCreateOrConnectWithoutTimesheetsInput
-    connect?: ProjectWhereUniqueInput
-  }
-
   export type FeatureCreateNestedOneWithoutTimesheetsInput = {
     create?: XOR<FeatureCreateWithoutTimesheetsInput, FeatureUncheckedCreateWithoutTimesheetsInput>
     connectOrCreate?: FeatureCreateOrConnectWithoutTimesheetsInput
     connect?: FeatureWhereUniqueInput
+  }
+
+  export type ProjectCreateNestedOneWithoutTimesheetsInput = {
+    create?: XOR<ProjectCreateWithoutTimesheetsInput, ProjectUncheckedCreateWithoutTimesheetsInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutTimesheetsInput
+    connect?: ProjectWhereUniqueInput
   }
 
   export type DecimalFieldUpdateOperationsInput = {
@@ -5800,20 +5911,20 @@ export namespace Prisma {
     set?: string | null
   }
 
-  export type ProjectUpdateOneRequiredWithoutTimesheetsNestedInput = {
-    create?: XOR<ProjectCreateWithoutTimesheetsInput, ProjectUncheckedCreateWithoutTimesheetsInput>
-    connectOrCreate?: ProjectCreateOrConnectWithoutTimesheetsInput
-    upsert?: ProjectUpsertWithoutTimesheetsInput
-    connect?: ProjectWhereUniqueInput
-    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutTimesheetsInput, ProjectUpdateWithoutTimesheetsInput>, ProjectUncheckedUpdateWithoutTimesheetsInput>
-  }
-
   export type FeatureUpdateOneRequiredWithoutTimesheetsNestedInput = {
     create?: XOR<FeatureCreateWithoutTimesheetsInput, FeatureUncheckedCreateWithoutTimesheetsInput>
     connectOrCreate?: FeatureCreateOrConnectWithoutTimesheetsInput
     upsert?: FeatureUpsertWithoutTimesheetsInput
     connect?: FeatureWhereUniqueInput
     update?: XOR<XOR<FeatureUpdateToOneWithWhereWithoutTimesheetsInput, FeatureUpdateWithoutTimesheetsInput>, FeatureUncheckedUpdateWithoutTimesheetsInput>
+  }
+
+  export type ProjectUpdateOneRequiredWithoutTimesheetsNestedInput = {
+    create?: XOR<ProjectCreateWithoutTimesheetsInput, ProjectUncheckedCreateWithoutTimesheetsInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutTimesheetsInput
+    upsert?: ProjectUpsertWithoutTimesheetsInput
+    connect?: ProjectWhereUniqueInput
+    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutTimesheetsInput, ProjectUpdateWithoutTimesheetsInput>, ProjectUncheckedUpdateWithoutTimesheetsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -5861,6 +5972,11 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -5948,6 +6064,14 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type NestedDecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -6009,9 +6133,10 @@ export namespace Prisma {
   export type FeatureCreateWithoutProjectInput = {
     name: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
   }
 
@@ -6019,9 +6144,10 @@ export namespace Prisma {
     id?: number
     name: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
   }
 
@@ -6041,9 +6167,10 @@ export namespace Prisma {
     description?: string | null
     status?: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
     feature: FeatureCreateNestedOneWithoutTimesheetsInput
   }
 
@@ -6055,9 +6182,10 @@ export namespace Prisma {
     description?: string | null
     status?: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
   }
 
   export type TimesheetEntryCreateOrConnectWithoutProjectInput = {
@@ -6094,9 +6222,10 @@ export namespace Prisma {
     projectId?: IntFilter<"Feature"> | number
     name?: StringFilter<"Feature"> | string
     createdAt?: DateTimeFilter<"Feature"> | Date | string
-    updatedAt?: DateTimeFilter<"Feature"> | Date | string
     createdBy?: IntNullableFilter<"Feature"> | number | null
+    updatedAt?: DateTimeFilter<"Feature"> | Date | string
     updatedBy?: IntNullableFilter<"Feature"> | number | null
+    is_deleted?: BoolFilter<"Feature"> | boolean
   }
 
   export type TimesheetEntryUpsertWithWhereUniqueWithoutProjectInput = {
@@ -6127,29 +6256,32 @@ export namespace Prisma {
     description?: StringNullableFilter<"TimesheetEntry"> | string | null
     status?: StringFilter<"TimesheetEntry"> | string
     createdAt?: DateTimeFilter<"TimesheetEntry"> | Date | string
-    updatedAt?: DateTimeFilter<"TimesheetEntry"> | Date | string
     createdBy?: IntNullableFilter<"TimesheetEntry"> | number | null
+    updatedAt?: DateTimeFilter<"TimesheetEntry"> | Date | string
     updatedBy?: IntNullableFilter<"TimesheetEntry"> | number | null
+    is_deleted?: BoolFilter<"TimesheetEntry"> | boolean
   }
 
   export type ProjectCreateWithoutFeaturesInput = {
     name: string
-    description: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
     timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutFeaturesInput = {
     id?: number
     name: string
-    description: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
   }
 
@@ -6164,9 +6296,10 @@ export namespace Prisma {
     description?: string | null
     status?: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
     project: ProjectCreateNestedOneWithoutTimesheetsInput
   }
 
@@ -6178,9 +6311,10 @@ export namespace Prisma {
     description?: string | null
     status?: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
   }
 
   export type TimesheetEntryCreateOrConnectWithoutFeatureInput = {
@@ -6206,22 +6340,24 @@ export namespace Prisma {
 
   export type ProjectUpdateWithoutFeaturesInput = {
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutFeaturesInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
   }
 
@@ -6241,38 +6377,13 @@ export namespace Prisma {
     data: XOR<TimesheetEntryUpdateManyMutationInput, TimesheetEntryUncheckedUpdateManyWithoutFeatureInput>
   }
 
-  export type ProjectCreateWithoutTimesheetsInput = {
-    name: string
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    createdBy?: number | null
-    updatedBy?: number | null
-    features?: FeatureCreateNestedManyWithoutProjectInput
-  }
-
-  export type ProjectUncheckedCreateWithoutTimesheetsInput = {
-    id?: number
-    name: string
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    createdBy?: number | null
-    updatedBy?: number | null
-    features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
-  }
-
-  export type ProjectCreateOrConnectWithoutTimesheetsInput = {
-    where: ProjectWhereUniqueInput
-    create: XOR<ProjectCreateWithoutTimesheetsInput, ProjectUncheckedCreateWithoutTimesheetsInput>
-  }
-
   export type FeatureCreateWithoutTimesheetsInput = {
     name: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
     project: ProjectCreateNestedOneWithoutFeaturesInput
   }
 
@@ -6281,9 +6392,10 @@ export namespace Prisma {
     projectId: number
     name: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
   }
 
   export type FeatureCreateOrConnectWithoutTimesheetsInput = {
@@ -6291,36 +6403,32 @@ export namespace Prisma {
     create: XOR<FeatureCreateWithoutTimesheetsInput, FeatureUncheckedCreateWithoutTimesheetsInput>
   }
 
-  export type ProjectUpsertWithoutTimesheetsInput = {
-    update: XOR<ProjectUpdateWithoutTimesheetsInput, ProjectUncheckedUpdateWithoutTimesheetsInput>
+  export type ProjectCreateWithoutTimesheetsInput = {
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
+    features?: FeatureCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutTimesheetsInput = {
+    id?: number
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
+    features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutTimesheetsInput = {
+    where: ProjectWhereUniqueInput
     create: XOR<ProjectCreateWithoutTimesheetsInput, ProjectUncheckedCreateWithoutTimesheetsInput>
-    where?: ProjectWhereInput
-  }
-
-  export type ProjectUpdateToOneWithWhereWithoutTimesheetsInput = {
-    where?: ProjectWhereInput
-    data: XOR<ProjectUpdateWithoutTimesheetsInput, ProjectUncheckedUpdateWithoutTimesheetsInput>
-  }
-
-  export type ProjectUpdateWithoutTimesheetsInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    features?: FeatureUpdateManyWithoutProjectNestedInput
-  }
-
-  export type ProjectUncheckedUpdateWithoutTimesheetsInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type FeatureUpsertWithoutTimesheetsInput = {
@@ -6337,9 +6445,10 @@ export namespace Prisma {
   export type FeatureUpdateWithoutTimesheetsInput = {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
   }
 
@@ -6348,18 +6457,54 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type ProjectUpsertWithoutTimesheetsInput = {
+    update: XOR<ProjectUpdateWithoutTimesheetsInput, ProjectUncheckedUpdateWithoutTimesheetsInput>
+    create: XOR<ProjectCreateWithoutTimesheetsInput, ProjectUncheckedCreateWithoutTimesheetsInput>
+    where?: ProjectWhereInput
+  }
+
+  export type ProjectUpdateToOneWithWhereWithoutTimesheetsInput = {
+    where?: ProjectWhereInput
+    data: XOR<ProjectUpdateWithoutTimesheetsInput, ProjectUncheckedUpdateWithoutTimesheetsInput>
+  }
+
+  export type ProjectUpdateWithoutTimesheetsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    features?: FeatureUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutTimesheetsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type FeatureCreateManyProjectInput = {
     id?: number
     name: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
   }
 
   export type TimesheetEntryCreateManyProjectInput = {
@@ -6370,17 +6515,19 @@ export namespace Prisma {
     description?: string | null
     status?: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
   }
 
   export type FeatureUpdateWithoutProjectInput = {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
   }
 
@@ -6388,9 +6535,10 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
@@ -6398,9 +6546,10 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TimesheetEntryUpdateWithoutProjectInput = {
@@ -6409,9 +6558,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     feature?: FeatureUpdateOneRequiredWithoutTimesheetsNestedInput
   }
 
@@ -6423,9 +6573,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TimesheetEntryUncheckedUpdateManyWithoutProjectInput = {
@@ -6436,9 +6587,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TimesheetEntryCreateManyFeatureInput = {
@@ -6449,9 +6601,10 @@ export namespace Prisma {
     description?: string | null
     status?: string
     createdAt?: Date | string
-    updatedAt?: Date | string
     createdBy?: number | null
+    updatedAt?: Date | string
     updatedBy?: number | null
+    is_deleted?: boolean
   }
 
   export type TimesheetEntryUpdateWithoutFeatureInput = {
@@ -6460,9 +6613,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     project?: ProjectUpdateOneRequiredWithoutTimesheetsNestedInput
   }
 
@@ -6474,9 +6628,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TimesheetEntryUncheckedUpdateManyWithoutFeatureInput = {
@@ -6487,9 +6642,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
 

@@ -12,13 +12,14 @@ datasource timesheet {
 model Project {
   id          Int              @id @default(autoincrement()) @map("id")
   name        String           @map("name")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  createdBy   Int?             @map("created_by")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  updatedBy   Int?             @map("updated_by")
+  description String
+  is_deleted  Boolean          @default(false)
   features    Feature[]
   timesheets  TimesheetEntry[]
-  description String
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
-  createdBy   Int?             @map("created_by")
-  updatedBy   Int?             @map("updated_by")
 
   @@map("project")
 }
@@ -27,12 +28,13 @@ model Feature {
   id         Int              @id @default(autoincrement()) @map("id")
   projectId  Int              @map("project_id")
   name       String           @map("name")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  createdBy  Int?             @map("created_by")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+  updatedBy  Int?             @map("updated_by")
+  is_deleted Boolean          @default(false)
   project    Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
   timesheets TimesheetEntry[]
-  createdAt  DateTime         @default(now()) @map("created_at")
-  updatedAt  DateTime         @updatedAt @map("updated_at")
-  createdBy  Int?             @map("created_by")
-  updatedBy  Int?             @map("updated_by")
 
   @@map("feature")
 }
@@ -46,11 +48,12 @@ model TimesheetEntry {
   description String?  @map("description")
   status      String   @default("DRAFT") @map("status")
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
   createdBy   Int?     @map("created_by")
+  updatedAt   DateTime @updatedAt @map("updated_at")
   updatedBy   Int?     @map("updated_by")
-  project     Project  @relation(fields: [projectId], references: [id], onUpdate: NoAction, onDelete: NoAction)
-  feature     Feature  @relation(fields: [featureId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  is_deleted  Boolean  @default(false)
+  feature     Feature  @relation(fields: [featureId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("timesheet_entry")
 }

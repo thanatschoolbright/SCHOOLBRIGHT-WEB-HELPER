@@ -7,19 +7,20 @@ export const Service = {
   ) {
     const [items, total] = await Promise.all([
       PrismaTimesheet.project.findMany({
+        where: { is_deleted: false },
         take: opts.limit,
         skip: opts.skip,
         orderBy: { createdAt: "desc" },
       }),
-      PrismaTimesheet.project.count(),
+      PrismaTimesheet.project.count({ where: { is_deleted: false } }),
     ]);
     return { items, total };
   },
 
   // * ดึงข้อมูล Project ตาม ID พร้อมโครงสร้างข้อมูลแบบเดียวกับ findAll
   async findById(id: number) {
-    const project = await PrismaTimesheet.project.findUnique({
-      where: { id },
+    const project = await PrismaTimesheet.project.findFirst({
+      where: { id, is_deleted: false },
     });
     if (project) {
       return { items: [project], total: 1 };
@@ -60,8 +61,12 @@ export const Service = {
 
   // * ลบ Project ตาม ID
   async delete(id: number, p0: { deletedBy: number }) {
-    return await PrismaTimesheet.project.delete({
+    return await PrismaTimesheet.project.update({
       where: { id },
+      data: {
+        is_deleted: true,
+        updatedBy: p0.deletedBy,
+      },
     });
   },
 };

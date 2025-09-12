@@ -48,16 +48,20 @@ interface ProjectForm {
 }
 
 export default function Page() {
+  const [antdForm] = Form.useForm();
   // ใช้ Redux store สำหรับข้อมูล authentication
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
-  const [form] = Form.useForm();
   const limit = 10;
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [modalType, setModalType] = useState<"" | "create" | "edit" | "delete" | "detail">("");
-  const [formState, setFormState] = useState<ProjectForm & { confirmText?: string }>({
+  const [modalType, setModalType] = useState<
+    "" | "create" | "edit" | "delete" | "detail"
+  >("");
+  const [formState, setFormState] = useState<
+    ProjectForm & { confirmText?: string }
+  >({
     name: "",
     description: "",
     by: AUTHENTICATION.response.data.user_data.admin_id,
@@ -164,7 +168,6 @@ export default function Page() {
       by: AUTHENTICATION.response.data.user_data.admin_id,
       confirmText: "",
     });
-    form.resetFields();
     setModalType("create");
   };
 
@@ -175,10 +178,6 @@ export default function Page() {
       name: project.name,
       description: project.description,
       by: AUTHENTICATION.response.data.user_data.admin_id,
-    });
-    form.setFieldsValue({
-      name: project.name,
-      description: project.description,
     });
     setModalType("edit");
   };
@@ -197,7 +196,10 @@ export default function Page() {
   };
 
   // ฟังก์ชัน submit สำหรับสร้าง/แก้ไขโปรเจค
-  const handleSubmit = async (values: { name: string; description: string }) => {
+  const handleSubmit = async (values: {
+    name: string;
+    description: string;
+  }) => {
     if (!values.name.trim()) return;
     await createOrUpdateProject({
       ...formState,
@@ -206,7 +208,6 @@ export default function Page() {
     });
     setModalType("");
     await fetchProjects();
-    form.resetFields();
   };
 
   // ฟังก์ชันยืนยันลบโปรเจค
@@ -286,7 +287,9 @@ export default function Page() {
     return (
       <DashboardLayout>
         <div className="flex justify-center items-center h-96">
-          <Spin size="large" tip="กำลังโหลด..." />
+          <Spin size="large" tip="กำลังโหลด...">
+            <div style={{ height: 100, width: 100 }} />
+          </Spin>
         </div>
       </DashboardLayout>
     );
@@ -338,7 +341,7 @@ export default function Page() {
         >
           {/* ฟอร์มโปรเจค */}
           <Form
-            form={form}
+            form={antdForm}
             layout="vertical"
             initialValues={{
               name: formState.name,
@@ -431,10 +434,13 @@ export default function Page() {
           }}
           title="รายละเอียดโปรเจค"
           footer={[
-            <Button key="close" onClick={() => {
-              setModalType("");
-              setDetailProject(null);
-            }}>
+            <Button
+              key="close"
+              onClick={() => {
+                setModalType("");
+                setDetailProject(null);
+              }}
+            >
               ปิด
             </Button>,
           ]}
