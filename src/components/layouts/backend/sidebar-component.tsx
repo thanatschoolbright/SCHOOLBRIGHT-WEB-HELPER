@@ -74,11 +74,19 @@ export default function SidebarContent() {
           {menu.map((item) => {
             if (item.children) {
               const isOpen = openKey === item.label;
+              const isParentActive = item.children.some(
+                (child) => child.href === pathname
+              );
               return (
                 <div key={item.label}>
                   <motion.button
                     onClick={() => setOpenKey(isOpen ? null : item.label)}
-                    className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-gray-700 dark:text-gray-200 hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 transition border-b border-gray-200 dark:border-gray-700"
+                    className={
+                      "w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-gray-700 dark:text-gray-200 hover:ring-2 hover:ring-orange-300 dark:hover:ring-orange-500 transition border-b border-gray-200 dark:border-gray-700" +
+                      (isParentActive
+                        ? " font-bold text-orange-600 dark:text-orange-300"
+                        : "")
+                    }
                     whileHover={{ scale: 1.03, x: 2 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}

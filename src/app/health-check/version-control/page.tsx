@@ -160,7 +160,6 @@ export default function Page() {
             size="middle"
             rowKey={(record: any) => `${record.system}-${record.environment}`}
             style={{
-              background: "white",
               borderRadius: 14,
             }}
           />

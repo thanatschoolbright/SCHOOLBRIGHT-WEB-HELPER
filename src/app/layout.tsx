@@ -6,6 +6,7 @@ import LocaleProvider from "@components/providers/i18n-provider";
 import SchoolReduxProvider from "@components/providers/school-list-provider";
 import AuthenticationReduxProvider from "@/components/providers/auth-provider";
 import { Toaster } from "sonner";
+import AntThemeProvider from "@/components/layouts/ant-layout";
 
 export default function RootLayout({
   children,
@@ -36,12 +37,14 @@ export default function RootLayout({
       </head>
       <body className="font-lineseed antialiased">
         <Toaster richColors position="top-right" closeButton />
-        <ClientProvider>
-          <LocaleProvider locale="en" />
-          <AuthenticationReduxProvider>
-            <SchoolReduxProvider>{children}</SchoolReduxProvider>
-          </AuthenticationReduxProvider>
-        </ClientProvider>
+        <AntThemeProvider>
+          <ClientProvider>
+            <LocaleProvider locale="en" />
+            <AuthenticationReduxProvider>
+              <SchoolReduxProvider>{children}</SchoolReduxProvider>
+            </AuthenticationReduxProvider>
+          </ClientProvider>
+        </AntThemeProvider>
       </body>
     </html>
   );

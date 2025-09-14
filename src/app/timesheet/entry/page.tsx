@@ -1,6 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
+import type { Key } from "react";
 import {
   FiPlus,
   FiCheckCircle,
@@ -30,8 +31,11 @@ import {
   Col,
   DatePicker,
   TableProps,
+  Descriptions,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import { Tooltip } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { useTranslation } from "react-i18next";
 
@@ -69,6 +73,8 @@ export default function Page() {
   const { t, i18n } = useTranslation("mock");
 
   const [antdForm] = Form.useForm();
+  // Track work_hour value for warning tooltip
+  const [workHours, setWorkHours] = useState<number | null>(null);
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
   const AUTH_USER = AUTHENTICATION?.response?.data?.user_data;
 
@@ -76,17 +82,17 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [total_pages, settotal_pages] = useState<number>(1);
 
-  const [entries, setEntries] = useState<WorkEntryForm[]>([]);
+  const [entries, setEntries] = useState<any[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [subProject, setSubProjects] = useState<SubProject[]>([]);
-  const [editingEntryId, setEditingEntryId] = useState<number | null>(null);
+  // Inline editing state
+  const [editingKey, setEditingKey] = useState<string | number>("");
   const [confirmText, setConfirmText] = useState<string>("");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [detailProject, setDetailProject] = useState<Project | null>(null);
+  const [detailProject, setDetailProject] = useState<WorkEntryForm>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const hasSelected = selectedRowKeys.length > 0;
 
@@ -141,7 +147,25 @@ export default function Page() {
       });
 
       const data = await res.json();
-      setEntries(data.data || []);
+      // Group entries by date using dayjs(item.date).format("YYYY-MM-DD")
+      const rawEntries = data.data || [];
+      const groupedObj: { [date: string]: any[] } = rawEntries.reduce(
+        (acc: any, item: any) => {
+          const dateKey = dayjs(item.date).format("YYYY-MM-DD");
+          if (!acc[dateKey]) acc[dateKey] = [];
+          acc[dateKey].push(item);
+          return acc;
+        },
+        {}
+      );
+      const groupedData = Object.entries(groupedObj).map(
+        ([date, children]) => ({
+          key: date,
+          date,
+          children,
+        })
+      );
+      setEntries(groupedData);
       settotal_pages(data.pagination?.total_pages || 1);
     } catch (error) {
       console.error("Error fetching timesheet entries:", error);
@@ -233,13 +257,14 @@ export default function Page() {
   const handleSubmit = async () => {
     await createOrUpdateEntry();
     antdForm.resetFields();
-    setEditingEntryId(null);
+    setEditingKey("");
     setModal("");
     await fetchTimesheetEntry();
   };
 
   const openCreateModal = () => {
     antdForm.resetFields();
+    setWorkHours(null);
     antdForm.setFieldsValue({
       project_id: "",
       sub_project_id: "",
@@ -248,28 +273,59 @@ export default function Page() {
       date: dayjs(),
       status: undefined,
     });
-    setEditingEntryId(null);
+    setEditingKey("");
     setModal("create");
   };
 
-  const openEditModal = async (entry: any) => {
-    setModalLoading(true);
-    setEditingEntryId(entry.id ?? null);
+  // Inline editing helpers
+  const isEditing = (record: any) => record.id === editingKey;
+  const edit = async (record: any) => {
     // Ensure subprojects are loaded before setting form values
-    await fetchSubProjects(entry.project_id);
-    console.info("PRIMARY ID", entry.id);
-    console.info("ENTRY DATA", entry);
+    await fetchSubProjects(record.project_id);
     antdForm.setFieldsValue({
-      id: entry.id,
-      project_id: entry.project_id ? String(entry.project_id) : "",
-      sub_project_id: entry.feature_id ? String(entry.feature_id) : "",
-      work_hour: entry.hours ? String(entry.hours) : "",
-      description: entry?.description ?? "",
-      date: entry.date ? dayjs(entry.date) : dayjs(),
-      status: entry.status,
+      id: record.id,
+      project_id: record.project_id ? String(record.project_id) : "",
+      sub_project_id: record.feature_id ? String(record.feature_id) : "",
+      work_hour: record.hours ? String(record.hours) : "",
+      description: record?.description ?? "",
+      date: record.date ? dayjs(record.date) : dayjs(),
+      status: record.status,
     });
-    setModalLoading(false);
-    setModal("edit");
+    setEditingKey(record.id);
+    setWorkHours(
+      record.hours !== undefined && record.hours !== null && record.hours !== ""
+        ? Number(record.hours)
+        : null
+    );
+  };
+  const cancel = () => {
+    setEditingKey("");
+    setWorkHours(null);
+  };
+  const save = async (key: string | number) => {
+    try {
+      const row = await antdForm.validateFields();
+      // Compose payload for update
+      const payload = {
+        ...row,
+        id: key,
+        date: row.date ? dayjs(row.date).toDate() : undefined,
+        by: AUTH_USER?.admin_id,
+      };
+      await fetch(`/api/v1/timesheet/entry/insert/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
+      setEditingKey("");
+      setWorkHours(null);
+      await fetchTimesheetEntry();
+    } catch (errInfo) {
+      console.error("Validate Failed:", errInfo);
+    }
   };
 
   // Batch delete function
@@ -283,60 +339,209 @@ export default function Page() {
   };
 
   // AntD Table columns
+  // Editable cell for Ant Design Table
+  const EditableCell = ({
+    editing,
+    dataIndex,
+    title,
+    inputType,
+    record,
+    index,
+    children,
+    ...restProps
+  }: any) => {
+    let inputNode = null;
+    switch (dataIndex) {
+      case "project_name":
+        inputNode = (
+          <Select
+            showSearch
+            placeholder="เลือกโปรเจ็ค"
+            onChange={(value) => {
+              fetchSubProjects(String(value));
+              antdForm.setFieldsValue({ sub_project_id: "" });
+            }}
+            options={[
+              ...projects.map((s) => ({
+                label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
+                value: String(s.id),
+              })),
+            ]}
+          />
+        );
+        break;
+      case "feature_name":
+        inputNode = (
+          <Select
+            showSearch
+            placeholder="เลือกโปรเจ็คย่อย"
+            options={[
+              ...subProject.map((s) => ({
+                label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
+                value: String(s.id),
+              })),
+            ]}
+          />
+        );
+        break;
+      case "date":
+        inputNode = (
+          <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+        );
+        break;
+      case "status":
+        inputNode = (
+          <Select
+            placeholder="เลือกสถานะ"
+            options={STATUS_OPTIONS.map((data) => ({
+              label: i18n.language === "th" ? data.label_th : data.label_en,
+              value: data.value,
+            }))}
+          />
+        );
+        break;
+      case "hours":
+        inputNode = (
+          <Input
+            type="number"
+            min={0}
+            onChange={(e) => {
+              const val = e.target.value;
+              setWorkHours(val === "" ? null : Number(val));
+            }}
+            suffix={
+              <>
+                {workHours !== null && workHours >= 8 ? (
+                  <Tooltip title="คุณต้องการใส่เกิน 8 ชั่วโมงจริงๆหรือ?">
+                    <ExclamationCircleOutlined
+                      style={{ color: "red", marginRight: 8 }}
+                    />
+                  </Tooltip>
+                ) : null}
+                <span className="text-gray-500 text-sm font-medium">
+                  ชั่วโมง
+                </span>
+              </>
+            }
+            style={{ textAlign: "right" }}
+          />
+        );
+        break;
+      case "description":
+        inputNode = (
+          <Input.TextArea
+            autoSize={{ minRows: 1, maxRows: 3 }}
+            placeholder="กรอกคำอธิบายโปรเจค"
+          />
+        );
+        break;
+      default:
+        inputNode = <Input />;
+    }
+    let name;
+    // Map table columns to form field names
+    switch (dataIndex) {
+      case "project_name":
+        name = "project_id";
+        break;
+      case "feature_name":
+        name = "sub_project_id";
+        break;
+      case "hours":
+        name = "work_hour";
+        break;
+      default:
+        name = dataIndex;
+    }
+    return (
+      <td {...restProps}>
+        {editing ? (
+          <Form.Item
+            name={name}
+            style={{ margin: 0 }}
+            rules={
+              name === "project_id"
+                ? [{ required: true, message: "กรุณาเลือกโปรเจ็ค" }]
+                : name === "sub_project_id"
+                ? [{ required: true, message: "กรุณาเลือกโปรเจ็คย่อย" }]
+                : name === "date"
+                ? [{ required: true, message: "กรุณาเลือกวันที่ทำงาน" }]
+                : name === "status"
+                ? [{ required: true, message: "กรุณาเลือกสถานะ" }]
+                : name === "work_hour"
+                ? [{ required: true, message: "กรุณากรอกชั่วโมงทำงาน" }]
+                : []
+            }
+          >
+            {inputNode}
+          </Form.Item>
+        ) : (
+          children
+        )}
+      </td>
+    );
+  };
+
+  // Table columns with inline editing
   const columns = [
     {
-      title: "ลำดับ",
-      dataIndex: "index",
-      key: "index",
-      align: "center" as const,
-      render: (_: any, __: any, idx: number) =>
-        idx + 1 + (currentPage - 1) * limit,
-    },
-    {
-      title: "รหัส",
-      dataIndex: "id",
-      key: "id",
-      align: "center" as const,
+      title: "วันที่",
+      dataIndex: "date",
+      key: "date",
+      align: "left" as const,
+      editable: true,
+      render: (date: string, record: any) => {
+        if (record.children) {
+          return (
+            <Typography.Text strong>
+              {dayjs(date).format("DD/MM/YYYY")}
+            </Typography.Text>
+          );
+        }
+        return date ? convertToThaiDateDDMMYYY(date) : "";
+      },
+      sorter: (a: any, b: any) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime(),
     },
     {
       title: "ชื่อโปรเจ็ค",
       dataIndex: "project_name",
       key: "project_name",
-      align: "center" as const,
+      align: "left" as const,
+      editable: true,
+      sorter: (a: any, b: any) => a.project_name.localeCompare(b.project_name),
+      filters: projects
+        .map((p) => ({ text: p.name, value: p.name }))
+        .filter((v, i, arr) => arr.findIndex((x) => x.value === v.value) === i),
+      onFilter: (value: boolean | Key, record: any) =>
+        record.project_name === value,
     },
     {
       title: "ชื่อฟีเจอร์",
       dataIndex: "feature_name",
       key: "feature_name",
-      align: "center" as const,
-      // fallback to featureId if feature_id is missing
+      align: "left" as const,
+      editable: true,
       render: (_: any, record: any) =>
         record.feature_name || record.feature_name,
-    },
-    {
-      title: "วันที่",
-      dataIndex: "date",
-      key: "date",
-      align: "center" as const,
-      render: (date: string) => (date ? convertToThaiDateDDMMYYY(date) : ""),
-    },
-    {
-      title: "ชั่วโมง",
-      dataIndex: "hours",
-      key: "hours",
-      align: "center" as const,
+      sorter: (a: any, b: any) =>
+        (a.feature_name || "").localeCompare(b.feature_name || ""),
     },
     {
       title: "คำอธิบาย",
       dataIndex: "description",
       key: "description",
       align: "left" as const,
+      editable: true,
+      sorter: (a: any, b: any) =>
+        (a.description || "").localeCompare(b.description || ""),
     },
     {
       title: "สถานะ",
       dataIndex: "status",
       key: "status",
-      align: "center" as const,
+      align: "left" as const,
+      editable: true,
       render: (status: string) => {
         const option = STATUS_OPTIONS.find((opt) => opt.value === status);
         const label = option
@@ -344,7 +549,6 @@ export default function Page() {
             ? option.label_th
             : option.label_en
           : status;
-
         let color: string = "default";
         switch (status) {
           case "DONE":
@@ -363,51 +567,107 @@ export default function Page() {
             color = "default";
             break;
         }
-
+        return <Tag color={color}>{label}</Tag>;
+      },
+      filters: STATUS_OPTIONS.map((opt) => ({
+        text: i18n.language === "th" ? opt.label_th : opt.label_en,
+        value: opt.value,
+      })),
+      onFilter: (value: boolean | Key, record: any) => record.status === value,
+    },
+    {
+      title: "ชั่วโมง",
+      dataIndex: "hours",
+      key: "hours",
+      align: "left" as const,
+      editable: true,
+      sorter: (a: any, b: any) => Number(a.hours) - Number(b.hours),
+      render: (hours: string | number) => {
+        const value = Number(hours);
+        let color = "gold";
+        let label = value;
+        if (value >= 8) {
+          color = "red";
+          label = value;
+        } else if (value < 4) {
+          color = "green";
+          label = value;
+        } else {
+          color = "yellow";
+          label = value;
+        }
         return <Tag color={color}>{label}</Tag>;
       },
     },
     {
-      title: "สร้างเมื่อ",
-      dataIndex: "created_at",
-      key: "created_at",
-      align: "center" as const,
-      render: (createdAt: string) =>
-        createdAt ? dayjs(createdAt).format("DD/MM/YYYY HH:mm") : "",
-    },
-    {
-      title: "แก้ไขเมื่อ",
-      dataIndex: "updated_at",
-      key: "updated_at",
-      align: "center" as const,
-      render: (updatedAt: string) =>
-        updatedAt ? dayjs(updatedAt).format("DD/MM/YYYY HH:mm") : "",
-    },
-    {
       title: "จัดการ",
       key: "action",
+      fixed: "right" as const,
       align: "center" as const,
-      render: (_: any, record: any) => (
-        <Space>
-          <Button
-            size="small"
-            icon={<FiInfo />}
-            onClick={() => {
-              setDetailProject(record);
-              setModal("detail");
-            }}
-            aria-label="View Details"
-          />
-          <Button
-            size="small"
-            icon={<FiEdit2 />}
-            onClick={() => openEditModal(record)}
-            aria-label="Edit Entry"
-          />
-        </Space>
-      ),
+      render: (_: any, record: any) => {
+        const editable = isEditing(record);
+        return editable ? (
+          <span>
+            <Button
+              type="link"
+              onClick={() => save(record.id)}
+              style={{ marginRight: 8 }}
+            >
+              บันทึก
+            </Button>
+            <Button type="link" onClick={cancel}>
+              ยกเลิก
+            </Button>
+          </span>
+        ) : (
+          <Space>
+            <Button
+              size="small"
+              icon={<FiInfo />}
+              onClick={() => {
+                setDetailProject(record);
+                setModal("detail");
+              }}
+              aria-label="View Details"
+            />
+            <Button
+              size="small"
+              icon={<FiEdit2 />}
+              disabled={editingKey !== ""}
+              onClick={() => edit(record)}
+              aria-label="Edit Entry"
+            />
+          </Space>
+        );
+      },
     },
   ];
+
+  // Add onCell for editable columns
+  const mergedColumns = columns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record: any) => ({
+        record,
+        inputType:
+          col.dataIndex === "hours"
+            ? "number"
+            : col.dataIndex === "date"
+            ? "date"
+            : col.dataIndex === "project_name" ||
+              col.dataIndex === "feature_name" ||
+              col.dataIndex === "status"
+            ? "select"
+            : "text",
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: isEditing(record),
+      }),
+    };
+  });
 
   if (loading) {
     return (
@@ -427,7 +687,7 @@ export default function Page() {
   }
 
   return (
-    <PermissionLayout role={["TESTER"]}>
+    <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
         <div className="w-full space-y-4">
           {/* Add Project Button */}
@@ -458,199 +718,30 @@ export default function Page() {
                 ลบที่เลือก
               </Button>
             </div>
-            <Table
-              columns={columns}
-              dataSource={entries}
-              rowSelection={rowSelection}
-              rowKey="id"
-              pagination={{
-                current: currentPage,
-                total: total_pages * limit,
-                pageSize: limit,
-                onChange: setCurrentPage,
-                showSizeChanger: false,
-              }}
-              scroll={{ x: "max-content" }}
-              style={{ overflowX: "auto" }}
-            />
+            <Form form={antdForm} component={false}>
+              <Table
+                components={{
+                  body: {
+                    cell: EditableCell,
+                  },
+                }}
+                columns={mergedColumns}
+                dataSource={entries}
+                rowSelection={rowSelection}
+                rowKey={(record: any) => record.id ?? record.key}
+                pagination={{
+                  current: currentPage,
+                  total: total_pages * limit,
+                  pageSize: limit,
+                  onChange: setCurrentPage,
+                  showSizeChanger: false,
+                }}
+                bordered
+                scroll={{ x: "max-content" }}
+                style={{ overflowX: "auto" }}
+              />
+            </Form>
           </Card>
-
-          {/* Create/Edit Modal */}
-          <Modal
-            open={modal === "create" || modal === "edit"}
-            onCancel={() => setModal("")}
-            title={editingEntryId ? "แก้ไขเวลาการทำงาน" : "เพิ่มเวลาการทำงาน"}
-            footer={null}
-            width={700}
-            style={{ top: 40 }}
-          >
-            <div style={{ paddingTop: 16 }}>
-              {modalLoading ? (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: 200,
-                  }}
-                >
-                  <Spin />
-                </div>
-              ) : (
-                <Form
-                  layout="vertical"
-                  className="mt-0"
-                  onFinish={handleSubmit}
-                  form={antdForm}
-                >
-                  <Row gutter={16}>
-                    {/* Hidden */}
-                    <Form.Item name="id" hidden>
-                      <Input type="hidden" />
-                    </Form.Item>
-
-                    <Col span={12}>
-                      <Form.Item
-                        label="เลือกโปรเจ็ค"
-                        name="project_id"
-                        rules={[
-                          { required: true, message: "กรุณาเลือกโปรเจ็ค" },
-                        ]}
-                      >
-                        <Select
-                          showSearch
-                          placeholder="เลือกโปรเจ็ค"
-                          onChange={(value) => {
-                            fetchSubProjects(String(value));
-                          }}
-                          options={[
-                            { label: "เลือกรายการ", value: "" },
-                            ...projects.map((s) => ({
-                              label:
-                                s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
-                              value: String(s.id),
-                            })),
-                          ]}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        label="เลือกโปรคเจ็คย่อย"
-                        name="sub_project_id"
-                        rules={[
-                          { required: true, message: "กรุณาเลือกโปรเจ็คย่อย" },
-                        ]}
-                      >
-                        <Select
-                          showSearch
-                          placeholder="เลือกโปรเจ็ค"
-                          options={[
-                            { label: "เลือกรายการ", value: "" },
-                            ...subProject.map((s) => ({
-                              label:
-                                s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
-                              value: String(s.id),
-                            })),
-                          ]}
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Form.Item
-                        label="วันที่ทำงาน"
-                        name="date"
-                        rules={[
-                          { required: true, message: "กรุณาเลือกวันที่ทำงาน" },
-                        ]}
-                      >
-                        <DatePicker
-                          style={{ width: "100%" }}
-                          format="DD/MM/YYYY"
-                          placeholder="เลือกวันที่"
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        label="สถานะ"
-                        name="status"
-                        initialValue={"DRAFT"}
-                        rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
-                      >
-                        <Select
-                          placeholder="เลือกสถานะ"
-                          options={STATUS_OPTIONS.map((data) => ({
-                            label:
-                              i18n.language === "th"
-                                ? data.label_th
-                                : data.label_en,
-                            value: data.value,
-                          }))}
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={24}>
-                      <Form.Item
-                        label="ชั่วโมงทำงาน"
-                        name="work_hour"
-                        rules={[
-                          { required: true, message: "กรุณากรอกชั่วโมงทำงาน" },
-                        ]}
-                      >
-                        <Input
-                          prefix={<FiClock className="w-5 h-5 text-gray-400" />}
-                          suffix={
-                            <span className="text-gray-500 text-sm font-medium">
-                              ชั่วโมง
-                            </span>
-                          }
-                          placeholder="กรอกจำนวนชั่วโมงที่ทำงาน"
-                          type="text"
-                          style={{ textAlign: "right" }}
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Form.Item
-                    label="คำอธิบายโปรเจค"
-                    name="description"
-                    initialValue=""
-                  >
-                    <Input.TextArea
-                      placeholder="กรอกคำอธิบายโปรเจค"
-                      autoSize={{ minRows: 2, maxRows: 5 }}
-                    />
-                  </Form.Item>
-                  <Row justify="end" gutter={8}>
-                    <Col>
-                      <Button
-                        type="default"
-                        className="w-full sm:w-auto px-6 py-3 rounded"
-                        onClick={() => setModal("")}
-                      >
-                        ยกเลิก
-                      </Button>
-                    </Col>
-                    <Col>
-                      <Button
-                        type="primary"
-                        className="w-full sm:w-auto px-6 py-3 flex items-center space-x-2"
-                        htmlType="submit"
-                        icon={<FiCheckCircle className="w-5 h-5" />}
-                      >
-                        <span>บันทึก</span>
-                      </Button>
-                    </Col>
-                  </Row>
-                </Form>
-              )}
-            </div>
-          </Modal>
 
           {/* Delete Confirmation Modal */}
           <Modal
@@ -704,7 +795,6 @@ export default function Page() {
             open={modal === "detail" && !!detailProject}
             onCancel={() => {
               setModal("");
-              setDetailProject(null);
             }}
             title="รายละเอียดการลงเวลาทำงาน"
             footer={[
@@ -714,7 +804,6 @@ export default function Page() {
                 className="w-full sm:w-auto px-6 py-3 rounded"
                 onClick={() => {
                   setModal("");
-                  setDetailProject(null);
                 }}
               >
                 ปิด
@@ -722,26 +811,101 @@ export default function Page() {
             ]}
           >
             {detailProject && (
-              <div className="space-y-3 mt-5">
-                <p>
-                  <strong>รหัส:</strong> {detailProject.id}
-                </p>
-                <p>
-                  <strong>รหัสโปรเจค:</strong> {detailProject.id}
-                </p>
-
-                <p>
-                  <strong>คำอธิบาย:</strong> {detailProject.description}
-                </p>
-
-                <p>
-                  <strong>สร้างเมื่อ:</strong>{" "}
-                  {convertToThaiDateDDMMYYY(detailProject.createdAt)}
-                </p>
-                <p>
-                  <strong>แก้ไขล่าสุด:</strong>{" "}
-                  {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
-                </p>
+              <div className="mt-5">
+                <Descriptions
+                  bordered
+                  column={1}
+                  size="middle"
+                  layout="horizontal"
+                  styles={{
+                    label: { width: 120, fontWeight: 600 },
+                  }}
+                >
+                  <Descriptions.Item label="รหัส">
+                    {detailProject.id}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="รหัสโปรเจค">
+                    {detailProject.project_id ?? detailProject.id}
+                  </Descriptions.Item>
+                  {detailProject.feature_id !== undefined &&
+                    detailProject.feature_id !== null && (
+                      <Descriptions.Item label="รหัสฟีเจอร์">
+                        {detailProject.feature_id}
+                      </Descriptions.Item>
+                    )}
+                  <Descriptions.Item label="คำอธิบาย">
+                    <Typography.Text
+                      color="blue"
+                      style={{ fontSize: 16, padding: "4px 12px" }}
+                    >
+                      {detailProject.description || "-"}
+                    </Typography.Text>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="สถานะ">
+                    {(() => {
+                      const status = detailProject.status;
+                      let color = "default";
+                      let label = status;
+                      const opt = STATUS_OPTIONS.find(
+                        (s) => s.value === status
+                      );
+                      if (opt) {
+                        label = opt.label_th;
+                      }
+                      switch (status) {
+                        case "DONE":
+                          color = "green";
+                          break;
+                        case "IN_PROGRESS":
+                          color = "orange";
+                          break;
+                        case "REVIEW":
+                          color = "blue";
+                          break;
+                        case "CANCELLED":
+                          color = "red";
+                          break;
+                        case "DRAFT":
+                        default:
+                          color = "default";
+                          break;
+                      }
+                      return (
+                        <Tag color={color} style={{ fontSize: 15 }}>
+                          {label}
+                        </Tag>
+                      );
+                    })()}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="ชั่วโมง">
+                    <Tag
+                      color={
+                        Number(detailProject.hours) >= 8
+                          ? "red"
+                          : Number(detailProject.hours) < 4
+                          ? "green"
+                          : "gold"
+                      }
+                      style={{ fontSize: 15 }}
+                    >
+                      {detailProject.hours}
+                    </Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="สร้างเมื่อ">
+                    {detailProject.created_at
+                      ? dayjs(detailProject.created_at).format(
+                          "DD/MM/YYYY HH:mm"
+                        )
+                      : "-"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="แก้ไขล่าสุด">
+                    {detailProject.updated_at
+                      ? dayjs(detailProject.updated_at).format(
+                          "DD/MM/YYYY HH:mm"
+                        )
+                      : "-"}
+                  </Descriptions.Item>
+                </Descriptions>
               </div>
             )}
           </Modal>

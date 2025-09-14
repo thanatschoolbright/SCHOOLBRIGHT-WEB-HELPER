@@ -485,6 +485,11 @@ export interface Project {
 
 export interface WorkEntryForm {
   id?: number;
+  feature_id: number;
+  status: string;
+  hours: number;
+  created_at: Date;
+  updated_at: Date;
   project_id: string | string[];
   sub_project_id: string | string[];
   description: string;

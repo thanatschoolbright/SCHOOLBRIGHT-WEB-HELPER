@@ -410,7 +410,7 @@ export default function Page() {
           onCancel={() => setModal("")}
           title={form.id ? "แก้ไขโปรเจค" : "เพิ่มฟีเจอร์"}
           footer={null}
-          destroyOnClose
+          destroyOnHidden
         >
           <Form
             form={antdForm}
@@ -452,7 +452,7 @@ export default function Page() {
           onCancel={() => setModal("")}
           title="ยืนยันการลบ"
           footer={null}
-          destroyOnClose
+          destroyOnHidden
         >
           <div className="space-y-4 mt-2">
             <Typography.Text type="danger" strong>
@@ -513,7 +513,7 @@ export default function Page() {
               ปิด
             </Button>,
           ]}
-          destroyOnClose
+          destroyOnHidden
         >
           {detailProject && (
             <div className="space-y-3 mt-2">
