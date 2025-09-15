@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
+import dayjs from "dayjs";
 import {
   Card,
   Table,
@@ -11,6 +12,9 @@ import {
   Space,
   Spin,
   Typography,
+  DatePicker,
+  Row,
+  Col,
 } from "antd";
 import {
   FiPlus,
@@ -43,6 +47,7 @@ export default function Page() {
     confirmText: "",
     project_id: Number(project_id),
     backlogDescription: null,
+    dateRange: [],
   });
   const [antdForm] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
@@ -171,6 +176,7 @@ export default function Page() {
       project_id: Number(project_id),
       by: AUTHENTICATION.response.data.user_data.admin_id,
       backlogDescription: null,
+      dateRange: [],
     });
     setModal("");
     setCurrentPage(1);
@@ -183,6 +189,7 @@ export default function Page() {
       project_id: Number(project_id),
       by: AUTHENTICATION.response.data.user_data.admin_id,
       backlogDescription: null,
+      dateRange: [],
     });
     setModal("create");
   };
@@ -194,6 +201,10 @@ export default function Page() {
       project_id: project.project_id,
       by: AUTHENTICATION.response.data.user_data.admin_id,
       backlogDescription: project.backlogDescription ?? null,
+      dateRange:
+        project.startDate && project.endDate
+          ? [dayjs(project.startDate), dayjs(project.endDate)] // ✅ ใช้ dayjs ตรง ๆ
+          : [],
     });
     setModal("edit");
   };
@@ -228,6 +239,32 @@ export default function Page() {
       key: "name",
       align: "left" as const,
       render: (text: string) => <span>{text}</span>,
+    },
+    {
+      title: "วันเริ่มต้น",
+      dataIndex: "startDate",
+      key: "startDate",
+      align: "left" as const,
+      render: (text: string) => (
+        <span>
+          {text
+            ? dayjs(text).format("DD/MM/YYYY")
+            : "ยังไม่ได้เลือกวันที่เริ่มต้น"}
+        </span>
+      ),
+    },
+    {
+      title: "วันสิ้นสุด",
+      dataIndex: "endDate",
+      key: "endDate",
+      align: "left" as const,
+      render: (text: string) => (
+        <span>
+          {text
+            ? dayjs(text).format("DD/MM/YYYY")
+            : "ยังไม่ได้เลือกวันที่สิ้นสุด"}
+        </span>
+      ),
     },
     {
       title: "จัดการ",
@@ -424,6 +461,7 @@ export default function Page() {
             initialValues={{
               name: form.name,
               backlogDescription: form.backlogDescription,
+              dateRange: form.dateRange,
             }}
             onValuesChange={(_, allValues) =>
               setForm({ ...form, ...allValues })
@@ -441,14 +479,31 @@ export default function Page() {
               <Input type="hidden" />
             </Form.Item>
             <Form.Item
-              label="ชื่อโครงการ"
+              label="ชื่อโครงการย่อย"
               name="name"
               rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
             >
               <Input placeholder="กรอกชื่อโปรเจค" />
             </Form.Item>
+            {/* Start Date & End Date */}
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item
+                  label="วันที่เริ่มต้น - วันที่สิ้นสุด"
+                  name="dateRange"
+                  rules={[{ required: true, message: "กรุณาเลือกช่วงวันที่" }]}
+                >
+                  <DatePicker.RangePicker
+                    format="DD/MM/YYYY"
+                    style={{ width: "100%" }}
+                    placeholder={["กรอกวันที่เริ่มต้น", "กรอกวันที่สิ้นสุด"]}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
             {/* Backlog Description: note and backlogs */}
-            <Form.Item label="Note" name={["backlogDescription", "note"]}>
+            <Form.Item label="โน้ต" name={["backlogDescription", "note"]}>
               <Input placeholder="กรอก Note" />
             </Form.Item>
             <Form.List name={["backlogDescription", "backlogs"]}>
@@ -592,162 +647,187 @@ export default function Page() {
           destroyOnHidden
         >
           {detailProject && (
-            <Space
-              direction="vertical"
-              size={12}
-              style={{ marginTop: 8, width: "100%" }}
-            >
-              <Typography.Paragraph>
-                <Typography.Text strong>ชื่อโปรเจค: </Typography.Text>
-                {detailProject.name}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <Typography.Text strong>โปรเจ็คหลัก: </Typography.Text>
-                {projects[0]?.name}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <Typography.Text strong>สร้างโดย (id): </Typography.Text>
-                {detailProject.createdBy}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <Typography.Text strong>สร้างเมื่อ: </Typography.Text>
-                {convertToThaiDateDDMMYYY(detailProject.createdAt)}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <Typography.Text strong>แก้ไขล่าสุด: </Typography.Text>
-                {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
-              </Typography.Paragraph>
-              {/* Backlog Section */}
-              {detailProject.backlogDescription && (
-                <div>
-                  <Typography.Title level={5} style={{ marginBottom: 8 }}>
-                    Backlogs
-                  </Typography.Title>
-                  {/* If backlogDescription is an array (legacy) */}
-                  {Array.isArray(detailProject.backlogDescription) &&
-                    detailProject.backlogDescription.length > 0 && (
-                      <Space
-                        direction="vertical"
-                        size={8}
-                        style={{ width: "100%" }}
-                      >
-                        {detailProject.backlogDescription.map(
-                          (item: any, idx: number) => (
-                            <Card
-                              key={idx}
-                              size="small"
-                              styles={{ body: { padding: 12 } }}
-                              style={{ marginBottom: 8 }}
-                            >
-                              <Typography.Text strong style={{ fontSize: 15 }}>
-                                {item.title}
-                              </Typography.Text>
-                              {item.link && (
-                                <div style={{ marginTop: 4 }}>
-                                  <Typography.Link
-                                    href={item.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    {item.link}
-                                  </Typography.Link>
-                                </div>
-                              )}
-                              {item.description && (
-                                <div style={{ marginTop: 4 }}>
-                                  <Typography.Text>
-                                    {item.description}
-                                  </Typography.Text>
-                                </div>
-                              )}
-                            </Card>
-                          )
-                        )}
-                      </Space>
-                    )}
-                  {/* If backlogDescription is an object with note/backlogs */}
-                  {!Array.isArray(detailProject.backlogDescription) &&
-                    typeof detailProject.backlogDescription === "object" &&
-                    detailProject.backlogDescription !== null && (
-                      <Space
-                        direction="vertical"
-                        size={8}
-                        style={{ width: "100%" }}
-                      >
-                        {"note" in detailProject.backlogDescription &&
-                          detailProject.backlogDescription.note && (
-                            <Typography.Paragraph
-                              type="secondary"
-                              italic
-                              style={{ marginBottom: 2 }}
-                            >
-                              {detailProject.backlogDescription.note}
-                            </Typography.Paragraph>
-                          )}
-                        {"backlogs" in detailProject.backlogDescription &&
-                          Array.isArray(
-                            detailProject.backlogDescription.backlogs
-                          ) &&
-                          detailProject.backlogDescription.backlogs.map(
-                            (item: any, idx: number) => (
-                              <Card
-                                key={idx}
-                                size="small"
-                                styles={{ body: { padding: 12 } }}
-                                style={{ marginBottom: 8 }}
-                              >
-                                <Typography.Text
-                                  strong
-                                  style={{ fontSize: 15 }}
+            <>
+              <Card size="small" title="ข้อมูลทั่วไป" style={{ padding: 8 }}>
+                <Space direction="vertical" size={12} style={{ width: "100%" }}>
+                  <Typography.Paragraph>
+                    <Typography.Text strong>ชื่อโปรเจค: </Typography.Text>
+                    {detailProject.name}
+                  </Typography.Paragraph>
+                  <Typography.Paragraph>
+                    <Typography.Text strong>โปรเจ็คหลัก: </Typography.Text>
+                    {projects[0]?.name}
+                  </Typography.Paragraph>
+                  <Typography.Paragraph>
+                    <Typography.Text strong>สร้างโดย (id): </Typography.Text>
+                    {detailProject.createdBy}
+                  </Typography.Paragraph>
+                  <Typography.Paragraph>
+                    <Typography.Text strong>สร้างเมื่อ: </Typography.Text>
+                    {convertToThaiDateDDMMYYY(detailProject.createdAt)}
+                  </Typography.Paragraph>
+                  <Typography.Paragraph>
+                    <Typography.Text strong>แก้ไขล่าสุด: </Typography.Text>
+                    {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
+                  </Typography.Paragraph>
+                  <Typography.Paragraph>
+                    <Typography.Text strong>วันเริ่มต้น: </Typography.Text>
+                    {detailProject.startDate
+                      ? dayjs(detailProject.startDate).format("DD/MM/YYYY")
+                      : "ยังไม่ได้เลือกวันที่เริ่มต้น"}
+                  </Typography.Paragraph>
+                  <Typography.Paragraph>
+                    <Typography.Text strong>วันสิ้นสุด: </Typography.Text>
+                    {detailProject.endDate
+                      ? dayjs(detailProject.endDate).format("DD/MM/YYYY")
+                      : "ยังไม่ได้เลือกวันที่สิ้นสุด"}
+                  </Typography.Paragraph>
+                </Space>
+              </Card>
+              <Card
+                size="small"
+                title="Backlogs"
+                style={{ marginTop: 16, padding: 0 }}
+                bodyStyle={{ padding: 16 }}
+              >
+                <Space direction="vertical" size={8} style={{ width: "100%" }}>
+                  {detailProject.backlogDescription ? (
+                    <>
+                      {/* If backlogDescription is an array (legacy) */}
+                      {Array.isArray(detailProject.backlogDescription) &&
+                        detailProject.backlogDescription.length > 0 && (
+                          <Space
+                            direction="vertical"
+                            size={8}
+                            style={{ width: "100%" }}
+                          >
+                            {detailProject.backlogDescription.map(
+                              (item: any, idx: number) => (
+                                <Card
+                                  key={idx}
+                                  size="small"
+                                  styles={{ body: { padding: 12 } }}
+                                  style={{ marginBottom: 8 }}
                                 >
-                                  {item.title}
-                                </Typography.Text>
-                                {item.link && (
-                                  <div style={{ marginTop: 4 }}>
-                                    <Typography.Link
-                                      href={item.link}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
+                                  <Typography.Text
+                                    strong
+                                    style={{ fontSize: 15 }}
+                                  >
+                                    {item.title}
+                                  </Typography.Text>
+                                  {item.link && (
+                                    <div style={{ marginTop: 4 }}>
+                                      <Typography.Link
+                                        href={item.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                      >
+                                        {item.link}
+                                      </Typography.Link>
+                                    </div>
+                                  )}
+                                  {item.description && (
+                                    <div style={{ marginTop: 4 }}>
+                                      <Typography.Text>
+                                        {item.description}
+                                      </Typography.Text>
+                                    </div>
+                                  )}
+                                </Card>
+                              )
+                            )}
+                          </Space>
+                        )}
+                      {/* If backlogDescription is an object with note/backlogs */}
+                      {!Array.isArray(detailProject.backlogDescription) &&
+                        typeof detailProject.backlogDescription === "object" &&
+                        detailProject.backlogDescription !== null && (
+                          <Space
+                            direction="vertical"
+                            size={8}
+                            style={{ width: "100%" }}
+                          >
+                            {"note" in detailProject.backlogDescription &&
+                              detailProject.backlogDescription.note && (
+                                <Typography.Paragraph
+                                  type="secondary"
+                                  italic
+                                  style={{ marginBottom: 2 }}
+                                >
+                                  {detailProject.backlogDescription.note}
+                                </Typography.Paragraph>
+                              )}
+                            {"backlogs" in detailProject.backlogDescription &&
+                              Array.isArray(
+                                detailProject.backlogDescription.backlogs
+                              ) &&
+                              detailProject.backlogDescription.backlogs.map(
+                                (item: any, idx: number) => (
+                                  <Card
+                                    key={idx}
+                                    size="small"
+                                    styles={{ body: { padding: 12 } }}
+                                    style={{ marginBottom: 8 }}
+                                  >
+                                    <Typography.Text
+                                      strong
+                                      style={{ fontSize: 15 }}
                                     >
-                                      {item.link}
-                                    </Typography.Link>
-                                  </div>
-                                )}
-                                {item.description && (
-                                  <div style={{ marginTop: 4 }}>
-                                    <Typography.Text>
-                                      {item.description}
+                                      {item.title}
                                     </Typography.Text>
-                                  </div>
-                                )}
-                              </Card>
-                            )
-                          )}
-                        {/* Fallback if no note or backlogs */}
-                        {!detailProject.backlogDescription.note &&
-                          !(
-                            Array.isArray(
-                              detailProject.backlogDescription.backlogs
-                            ) &&
-                            detailProject.backlogDescription.backlogs.length > 0
-                          ) && (
-                            <Typography.Text>
-                              {String(detailProject.backlogDescription)}
-                            </Typography.Text>
-                          )}
-                      </Space>
-                    )}
-                  {/* If backlogDescription is a primitive */}
-                  {!Array.isArray(detailProject.backlogDescription) &&
-                    (typeof detailProject.backlogDescription !== "object" ||
-                      detailProject.backlogDescription === null) && (
-                      <Typography.Text>
-                        {String(detailProject.backlogDescription)}
-                      </Typography.Text>
-                    )}
-                </div>
-              )}
-            </Space>
+                                    {item.link && (
+                                      <div style={{ marginTop: 4 }}>
+                                        <Typography.Link
+                                          href={item.link}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          {item.link}
+                                        </Typography.Link>
+                                      </div>
+                                    )}
+                                    {item.description && (
+                                      <div style={{ marginTop: 4 }}>
+                                        <Typography.Text>
+                                          {item.description}
+                                        </Typography.Text>
+                                      </div>
+                                    )}
+                                  </Card>
+                                )
+                              )}
+                            {/* Fallback if no note or backlogs */}
+                            {!detailProject.backlogDescription.note &&
+                              !(
+                                Array.isArray(
+                                  detailProject.backlogDescription.backlogs
+                                ) &&
+                                detailProject.backlogDescription.backlogs
+                                  .length > 0
+                              ) && (
+                                <Typography.Text>
+                                  {String(detailProject.backlogDescription)}
+                                </Typography.Text>
+                              )}
+                          </Space>
+                        )}
+                      {/* If backlogDescription is a primitive */}
+                      {!Array.isArray(detailProject.backlogDescription) &&
+                        (typeof detailProject.backlogDescription !== "object" ||
+                          detailProject.backlogDescription === null) && (
+                          <Typography.Text>
+                            {String(detailProject.backlogDescription)}
+                          </Typography.Text>
+                        )}
+                    </>
+                  ) : (
+                    <Typography.Text type="secondary">
+                      ไม่มีข้อมูล Backlogs
+                    </Typography.Text>
+                  )}
+                </Space>
+              </Card>
+            </>
           )}
         </Modal>
       </div>

@@ -1,3 +1,4 @@
+import { date } from "zod";
 // types.ts
 export interface DefaultRedux<T = any> {
   loading: boolean;
@@ -505,6 +506,9 @@ export interface SubProject {
   updatedAt: string;
   by: number;
   createdBy: number;
+  dateRange: any;
+  startDate?: Date | null;
+  endDate?: Date | null;
   backlogDescription?: {
     note?: string;
     backlogs?: {
@@ -519,6 +523,7 @@ export interface SubProjectForm {
   name: string;
   project_id: number;
   by: number;
+  dateRange: any;
 }
 
 export interface RequestHeartbeats extends DefaultRedux<ResponseHeartbeats> {

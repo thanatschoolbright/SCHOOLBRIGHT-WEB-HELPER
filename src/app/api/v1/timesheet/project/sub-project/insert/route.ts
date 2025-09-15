@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
-import { z } from "zod";
+import { date, z } from "zod";
 import { projectIdValidation } from "@api/v1/timesheet/helper/timesheet.validation";
 
 const ProjectCreateUpdateSchema = z.object({
@@ -11,6 +11,7 @@ const ProjectCreateUpdateSchema = z.object({
   project_id: z.union([z.number().min(1), z.string().min(1)]),
   by: z.union([z.number().min(1), z.string().min(1)]),
   backlogDescription: z.any().optional(),
+  dateRange: z.array(z.date()).length(2),
 });
 
 errorResponse;
@@ -22,7 +23,10 @@ export async function POST(request: NextRequest) {
   );
   if (error) return error;
 
-  const { id, name, project_id, by, backlogDescription } = data;
+  const { id, name, project_id, by, backlogDescription, dateRange } = data;
+
+  const startDate = dateRange[0];
+  const endDate = dateRange[1];
 
   try {
     const validationProject = await projectIdValidation(Number(project_id));
@@ -32,12 +36,16 @@ export async function POST(request: NextRequest) {
           name,
           updatedBy: Number(by),
           backlogDescription: backlogDescription,
+          startDate,
+          endDate,
         })
       : await Service.create({
           projectId: Number(project_id),
           name,
           createdBy: Number(by),
           backlogDescription: backlogDescription,
+          startDate,
+          endDate,
         });
 
     return NextResponse.json(

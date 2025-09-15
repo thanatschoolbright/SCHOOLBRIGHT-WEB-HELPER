@@ -63,6 +63,8 @@ export const Service = {
     name: string;
     createdBy?: number;
     backlogDescription?: any;
+    startDate: Date;
+    endDate: Date;
   }) {
     return await PrismaTimesheet.feature.create({
       data: {
@@ -70,6 +72,8 @@ export const Service = {
         name: data.name,
         createdBy: data.createdBy !== undefined ? data.createdBy : 0,
         backlogDescription: data.backlogDescription,
+        startDate: data.startDate,
+        endDate: data.endDate,
       },
     });
   },
@@ -77,7 +81,13 @@ export const Service = {
   // * อัปเดต Feature ตาม ID
   async update(
     id: number,
-    data: { name?: string; updatedBy?: number; backlogDescription?: any }
+    data: {
+      name?: string;
+      updatedBy?: number;
+      backlogDescription?: any;
+      startDate: Date;
+      endDate: Date;
+    }
   ) {
     return await PrismaTimesheet.feature.update({
       where: { id },
@@ -86,6 +96,8 @@ export const Service = {
         updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
         ...(data.backlogDescription && {
           backlogDescription: data.backlogDescription,
+          startDate: data.startDate,
+          endDate: data.endDate,
         }),
       },
     });
