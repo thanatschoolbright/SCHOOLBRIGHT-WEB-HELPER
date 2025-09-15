@@ -14,10 +14,10 @@ import MinimalTable from "@components/table/minimal-table-component";
 import DropdownButtonComponent from "@components/button/dropdown-button-component";
 import ModalComponent from "@components/modal/modal-component";
 import BaseLoadingComponent from "@components/loading/loading-component-1";
-import RoundedButton from "@/components/button/rounded-button-component";
-import InputComponent from "@/components/input-field/input-component";
-import UploadComponent from "@/components/input-field/upload-component";
-import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
+import RoundedButton from "@components/button/rounded-button-component";
+import InputComponent from "@components/input-field/input-component";
+import UploadComponent from "@components/input-field/upload-component";
+import { SearchableSelectComponent } from "@components/input-field/searchable-select-component";
 import RadioComponent from "@components/input-field/radio-component";
 
 // Icons
@@ -37,7 +37,9 @@ import {
 
 // Utilities
 import { toast } from "sonner";
-import ToggleSwitchComponent from "@/components/input-field/toggle-switch-component";
+import ToggleSwitchComponent from "@components/input-field/toggle-switch-component";
+import { Modal, Button, Space, Typography, Input } from "antd";
+import DeleteConfirmModal from "@components/modal/modal-confirm-delete-component";
 
 const TableHardwareApplicationList = ({
   data,
@@ -93,8 +95,57 @@ const TableHardwareVersionByAppIdList: React.FC<{
   const STATE_HARDWARE_APPLICATION_BY_APP_ID = useAppSelector(
     (state) => state.callGetHardwareApplicationByAppId
   );
+  const [versionId, setVersionId] = useState<string>("");
+  const [modal, setModal] = useState<string>("");
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [confirmText, setConfirmText] = useState<string>("");
+  const deleteVersion = async () => {
+    try {
+      setIsDeleting(true);
+      const response = await fetch(
+        `/api/v1/hardware/canteen/delete/${versionId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const result = await response.json();
+      setIsDeleting(false);
+      setVersionId("");
+      setModal("");
+      setConfirmText("");
+      toast.success("สำเร็จ", {
+        description: result?.data?.message || "ลบเวอร์ชันสำเร็จ",
+        duration: 5000,
+      });
+      return result;
+    } catch (error) {
+      setIsDeleting(false);
+      console.error("Error deleting version:", error);
+      setVersionId("");
+      setModal("");
+      setConfirmText("");
+      throw error;
+    }
+  };
+
   return (
     <>
+      {modal === "delete-version" && (
+        <DeleteConfirmModal
+          open={modal === "delete-version"}
+          isDeleting={isDeleting}
+          onCancel={() => {
+            setVersionId("");
+            setModal("");
+          }}
+          onConfirm={async () => {
+            await deleteVersion();
+          }}
+        />
+      )}
       {data.map((v: any, idx: number) => (
         <MinimalRow key={`${v.version_id}-${idx}`} row={v} index={idx + 1}>
           {({ row, index }) => (
@@ -141,7 +192,10 @@ const TableHardwareVersionByAppIdList: React.FC<{
                       },
                       {
                         label: "ลบ",
-                        onClick: () => console.log("ลบ", row.version_id),
+                        onClick: () => {
+                          setVersionId(row.version_id);
+                          setModal("delete-version");
+                        },
                         textColor: "text-red-500",
                       },
                     ]}
@@ -456,9 +510,7 @@ const AddOrEditVersionModal: React.FC<{
               name="note"
               type="text"
               value={form.note}
-              onChange={(e: any) =>
-                setForm({ ...form, note: e.target.value })
-              }
+              onChange={(e: any) => setForm({ ...form, note: e.target.value })}
               placeholder="ใส่รายละเอียดเพิ่มเติม"
             />
 
