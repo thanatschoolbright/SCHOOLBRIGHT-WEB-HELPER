@@ -425,7 +425,7 @@ export default function Page() {
             }}
           >
             <Form.Item
-              label="ชื่อโปรเจค"
+              label="ชื่อโครงการ"
               name="name"
               rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
             >

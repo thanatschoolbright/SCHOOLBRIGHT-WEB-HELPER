@@ -12,26 +12,36 @@ export default function Breadcrumbs() {
   const pathname = usePathname();
   const menu = useSidebarMenu();
 
-  // หา parent และ child ที่ตรงกับ path ปัจจุบัน
+  // หา parent และ child ที่ตรงกับ path ปัจจุบัน โดยรองรับ nested paths
   const findBreadcrumb = () => {
-    for (const parent of menu) {
-      // 1) ถ้า parent มี children → หา child ที่ href ตรง
-      if (parent.children) {
-        const child = parent.children.find((c) => c.href === pathname);
-        if (child) {
-          return [
-            { title: parent.label, href: parent.href || "#" },
-            { title: child.label, href: child.href },
-          ];
+    const segments = pathname.split("/").filter(Boolean);
+    const breadcrumbItems: { title: string; href: string }[] = [];
+    let accumulatedPath = "";
+
+    const findLabel = (path: string, items: any[]): string | null => {
+      for (const item of items) {
+        if (item.href && path === item.href) {
+          return item.label;
+        }
+        if (item.children) {
+          const label = findLabel(path, item.children);
+          if (label) return label;
         }
       }
+      return null;
+    };
 
-      // 2) ถ้า parent เองมี href และตรงกับ path
-      if (parent.href === pathname) {
-        return [{ title: parent.label, href: parent.href }];
+    for (const segment of segments) {
+      accumulatedPath += "/" + segment;
+      let label = findLabel(accumulatedPath, menu);
+      if (!label) {
+        // If no label found, use the segment itself (capitalized)
+        label = segment.charAt(0).toUpperCase() + segment.slice(1);
       }
+      breadcrumbItems.push({ title: label, href: accumulatedPath });
     }
-    return [];
+
+    return breadcrumbItems;
   };
 
   const breadcrumbItems = findBreadcrumb();
@@ -53,7 +63,7 @@ export default function Breadcrumbs() {
                 href="/"
                 className="text-gray-700 dark:text-gray-200 transition-colors duration-300"
               >
-                Home
+                หน้าหลัก
               </Link>
             ),
           },

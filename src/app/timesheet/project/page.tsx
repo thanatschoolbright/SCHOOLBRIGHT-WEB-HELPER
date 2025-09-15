@@ -298,7 +298,7 @@ export default function Page() {
   return (
     <DashboardLayout>
       <div className="w-full space-y-4">
-        {/* ปุ่มเพิ่มโปรเจค */}
+        {/* ปุ่มเพิ่มโครงการใหม่ */}
         <div className="w-full flex justify-end">
           <Button
             type="primary"
@@ -307,13 +307,13 @@ export default function Page() {
             onClick={openCreateModal}
             style={{ minWidth: 160 }}
           >
-            เพิ่มโปรเจค
+            เพิ่มโครงการใหม่
           </Button>
         </div>
 
-        {/* Card รายการโปรเจค */}
-        <Card title="รายการโปรเจค" className="w-full">
-          {/* ตารางโปรเจค */}
+        {/* Card รายการโครงการ */}
+        <Card title="รายการโครงการ" className="w-full">
+          {/* ตารางโครงการ */}
           <Table
             columns={columns}
             dataSource={projects}
@@ -350,7 +350,7 @@ export default function Page() {
             onFinish={handleSubmit}
           >
             <Form.Item
-              label="ชื่อโปรเจค"
+              label="ชื่อโครงการ"
               name="name"
               rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
             >
@@ -362,9 +362,9 @@ export default function Page() {
                 }
               />
             </Form.Item>
-            <Form.Item label="คำอธิบายโปรเจค" name="description">
+            <Form.Item label="คำอธิบายโครงการ" name="description">
               <Input
-                placeholder="กรอกคำอธิบายโปรเจค"
+                placeholder="กรอกคำอธิบายโครงการ (ถ้ามี)"
                 prefix={<EditOutlined />}
                 onChange={(e) =>
                   setFormState((prev) => ({
@@ -449,7 +449,7 @@ export default function Page() {
           {detailProject && (
             <div className="space-y-3 mt-2">
               <Typography.Paragraph>
-                <strong>ชื่อโปรเจค:</strong> {detailProject.name}
+                <strong>ชื่อโครงการ:</strong> {detailProject.name}
               </Typography.Paragraph>
               <Typography.Paragraph>
                 <strong>คำอธิบาย:</strong> {detailProject.description}
