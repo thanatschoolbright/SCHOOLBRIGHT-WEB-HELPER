@@ -2322,6 +2322,8 @@ export namespace Prisma {
     updatedAt: Date | null
     updatedBy: number | null
     is_deleted: boolean | null
+    startDate: Date | null
+    endDate: Date | null
   }
 
   export type FeatureMaxAggregateOutputType = {
@@ -2333,6 +2335,8 @@ export namespace Prisma {
     updatedAt: Date | null
     updatedBy: number | null
     is_deleted: boolean | null
+    startDate: Date | null
+    endDate: Date | null
   }
 
   export type FeatureCountAggregateOutputType = {
@@ -2345,6 +2349,8 @@ export namespace Prisma {
     updatedAt: number
     updatedBy: number
     is_deleted: number
+    startDate: number
+    endDate: number
     _all: number
   }
 
@@ -2372,6 +2378,8 @@ export namespace Prisma {
     updatedAt?: true
     updatedBy?: true
     is_deleted?: true
+    startDate?: true
+    endDate?: true
   }
 
   export type FeatureMaxAggregateInputType = {
@@ -2383,6 +2391,8 @@ export namespace Prisma {
     updatedAt?: true
     updatedBy?: true
     is_deleted?: true
+    startDate?: true
+    endDate?: true
   }
 
   export type FeatureCountAggregateInputType = {
@@ -2395,6 +2405,8 @@ export namespace Prisma {
     updatedAt?: true
     updatedBy?: true
     is_deleted?: true
+    startDate?: true
+    endDate?: true
     _all?: true
   }
 
@@ -2494,6 +2506,8 @@ export namespace Prisma {
     updatedAt: Date
     updatedBy: number | null
     is_deleted: boolean
+    startDate: Date | null
+    endDate: Date | null
     _count: FeatureCountAggregateOutputType | null
     _avg: FeatureAvgAggregateOutputType | null
     _sum: FeatureSumAggregateOutputType | null
@@ -2525,6 +2539,8 @@ export namespace Prisma {
     updatedAt?: boolean
     updatedBy?: boolean
     is_deleted?: boolean
+    startDate?: boolean
+    endDate?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     timesheets?: boolean | Feature$timesheetsArgs<ExtArgs>
     _count?: boolean | FeatureCountOutputTypeDefaultArgs<ExtArgs>
@@ -2540,6 +2556,8 @@ export namespace Prisma {
     updatedAt?: boolean
     updatedBy?: boolean
     is_deleted?: boolean
+    startDate?: boolean
+    endDate?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
 
@@ -2553,6 +2571,8 @@ export namespace Prisma {
     updatedAt?: boolean
     updatedBy?: boolean
     is_deleted?: boolean
+    startDate?: boolean
+    endDate?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
 
@@ -2566,9 +2586,11 @@ export namespace Prisma {
     updatedAt?: boolean
     updatedBy?: boolean
     is_deleted?: boolean
+    startDate?: boolean
+    endDate?: boolean
   }
 
-  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "backlogDescription" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "is_deleted", ExtArgs["result"]["feature"]>
+  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "backlogDescription" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "is_deleted" | "startDate" | "endDate", ExtArgs["result"]["feature"]>
   export type FeatureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     timesheets?: boolean | Feature$timesheetsArgs<ExtArgs>
@@ -2597,6 +2619,8 @@ export namespace Prisma {
       updatedAt: Date
       updatedBy: number | null
       is_deleted: boolean
+      startDate: Date | null
+      endDate: Date | null
     }, ExtArgs["result"]["feature"]>
     composites: {}
   }
@@ -3031,6 +3055,8 @@ export namespace Prisma {
     readonly updatedAt: FieldRef<"Feature", 'DateTime'>
     readonly updatedBy: FieldRef<"Feature", 'Int'>
     readonly is_deleted: FieldRef<"Feature", 'Boolean'>
+    readonly startDate: FieldRef<"Feature", 'DateTime'>
+    readonly endDate: FieldRef<"Feature", 'DateTime'>
   }
     
 
@@ -4717,7 +4743,9 @@ export namespace Prisma {
     createdBy: 'createdBy',
     updatedAt: 'updatedAt',
     updatedBy: 'updatedBy',
-    is_deleted: 'is_deleted'
+    is_deleted: 'is_deleted',
+    startDate: 'startDate',
+    endDate: 'endDate'
   };
 
   export type FeatureScalarFieldEnum = (typeof FeatureScalarFieldEnum)[keyof typeof FeatureScalarFieldEnum]
@@ -4969,6 +4997,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Feature"> | Date | string
     updatedBy?: IntNullableFilter<"Feature"> | number | null
     is_deleted?: BoolFilter<"Feature"> | boolean
+    startDate?: DateTimeNullableFilter<"Feature"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"Feature"> | Date | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     timesheets?: TimesheetEntryListRelationFilter
   }
@@ -4983,6 +5013,8 @@ export namespace Prisma {
     updatedAt?: SortOrder
     updatedBy?: SortOrderInput | SortOrder
     is_deleted?: SortOrder
+    startDate?: SortOrderInput | SortOrder
+    endDate?: SortOrderInput | SortOrder
     project?: ProjectOrderByWithRelationInput
     timesheets?: TimesheetEntryOrderByRelationAggregateInput
   }
@@ -5000,6 +5032,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Feature"> | Date | string
     updatedBy?: IntNullableFilter<"Feature"> | number | null
     is_deleted?: BoolFilter<"Feature"> | boolean
+    startDate?: DateTimeNullableFilter<"Feature"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"Feature"> | Date | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     timesheets?: TimesheetEntryListRelationFilter
   }, "id">
@@ -5014,6 +5048,8 @@ export namespace Prisma {
     updatedAt?: SortOrder
     updatedBy?: SortOrderInput | SortOrder
     is_deleted?: SortOrder
+    startDate?: SortOrderInput | SortOrder
+    endDate?: SortOrderInput | SortOrder
     _count?: FeatureCountOrderByAggregateInput
     _avg?: FeatureAvgOrderByAggregateInput
     _max?: FeatureMaxOrderByAggregateInput
@@ -5034,6 +5070,8 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Feature"> | Date | string
     updatedBy?: IntNullableWithAggregatesFilter<"Feature"> | number | null
     is_deleted?: BoolWithAggregatesFilter<"Feature"> | boolean
+    startDate?: DateTimeNullableWithAggregatesFilter<"Feature"> | Date | string | null
+    endDate?: DateTimeNullableWithAggregatesFilter<"Feature"> | Date | string | null
   }
 
   export type TimesheetEntryWhereInput = {
@@ -5221,6 +5259,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     updatedBy?: number | null
     is_deleted?: boolean
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
   }
@@ -5235,6 +5275,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     updatedBy?: number | null
     is_deleted?: boolean
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
   }
 
@@ -5246,6 +5288,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
   }
@@ -5260,6 +5304,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
@@ -5273,6 +5319,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     updatedBy?: number | null
     is_deleted?: boolean
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type FeatureUpdateManyMutationInput = {
@@ -5283,6 +5331,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type FeatureUncheckedUpdateManyInput = {
@@ -5295,6 +5345,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type TimesheetEntryCreateInput = {
@@ -5615,6 +5667,17 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type ProjectScalarRelationFilter = {
     is?: ProjectWhereInput
     isNot?: ProjectWhereInput
@@ -5630,6 +5693,8 @@ export namespace Prisma {
     updatedAt?: SortOrder
     updatedBy?: SortOrder
     is_deleted?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
   }
 
   export type FeatureAvgOrderByAggregateInput = {
@@ -5648,6 +5713,8 @@ export namespace Prisma {
     updatedAt?: SortOrder
     updatedBy?: SortOrder
     is_deleted?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
   }
 
   export type FeatureMinOrderByAggregateInput = {
@@ -5659,6 +5726,8 @@ export namespace Prisma {
     updatedAt?: SortOrder
     updatedBy?: SortOrder
     is_deleted?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
   }
 
   export type FeatureSumOrderByAggregateInput = {
@@ -5692,6 +5761,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type DecimalFilter<$PrismaModel = never> = {
@@ -5954,6 +6037,10 @@ export namespace Prisma {
     connect?: TimesheetEntryWhereUniqueInput | TimesheetEntryWhereUniqueInput[]
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type ProjectUpdateOneRequiredWithoutFeaturesNestedInput = {
     create?: XOR<ProjectCreateWithoutFeaturesInput, ProjectUncheckedCreateWithoutFeaturesInput>
     connectOrCreate?: ProjectCreateOrConnectWithoutFeaturesInput
@@ -6174,6 +6261,17 @@ export namespace Prisma {
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
   }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -6196,6 +6294,20 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedDecimalFilter<$PrismaModel = never> = {
@@ -6264,6 +6376,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     updatedBy?: number | null
     is_deleted?: boolean
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
   }
 
@@ -6276,6 +6390,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     updatedBy?: number | null
     is_deleted?: boolean
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
   }
 
@@ -6355,6 +6471,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Feature"> | Date | string
     updatedBy?: IntNullableFilter<"Feature"> | number | null
     is_deleted?: BoolFilter<"Feature"> | boolean
+    startDate?: DateTimeNullableFilter<"Feature"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"Feature"> | Date | string | null
   }
 
   export type TimesheetEntryUpsertWithWhereUniqueWithoutProjectInput = {
@@ -6514,6 +6632,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     updatedBy?: number | null
     is_deleted?: boolean
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
   }
 
@@ -6527,6 +6647,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     updatedBy?: number | null
     is_deleted?: boolean
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type FeatureCreateOrConnectWithoutTimesheetsInput = {
@@ -6581,6 +6703,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
   }
 
@@ -6594,6 +6718,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ProjectUpsertWithoutTimesheetsInput = {
@@ -6639,6 +6765,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     updatedBy?: number | null
     is_deleted?: boolean
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type TimesheetEntryCreateManyProjectInput = {
@@ -6663,6 +6791,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
   }
 
@@ -6675,6 +6805,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
@@ -6687,6 +6819,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type TimesheetEntryUpdateWithoutProjectInput = {

@@ -22,6 +22,24 @@ export const useSidebarMenu = (): SidebarItem[] => {
   const menu = useMemo(
     () => [
       {
+        label: t("admin_system.title"),
+        icon: <FiFolder />,
+        children: [
+          {
+            label: t("admin_system.children.user_profile"),
+            href: "/admin/user-profile",
+            news: true,
+            children: [
+              {
+                label: t("admin_system.children.user_profile"),
+                href: "/admin/user-profile",
+                news: true,
+              },
+            ],
+          },
+        ],
+      },
+      {
         label: t("testing.title"),
         icon: <FiGrid />,
         children: [

@@ -140,7 +140,9 @@ exports.Prisma.FeatureScalarFieldEnum = {
   createdBy: 'createdBy',
   updatedAt: 'updatedAt',
   updatedBy: 'updatedBy',
-  is_deleted: 'is_deleted'
+  is_deleted: 'is_deleted',
+  startDate: 'startDate',
+  endDate: 'endDate'
 };
 
 exports.Prisma.TimesheetEntryScalarFieldEnum = {

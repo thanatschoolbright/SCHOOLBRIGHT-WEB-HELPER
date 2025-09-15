@@ -1,4 +1,13 @@
 {
+  "admin_system": {
+    "title": "ระบบผู้ดูแล",
+    "children": {
+      "user_profile": "โปรไฟล์ผู้ใช้",
+      "user_management": "จัดการผู้ใช้",
+      "role_management": "จัดการบทบาท",
+      "system_log": "บันทึกระบบ"
+    }
+  },
   "testing": {
     "title": "การทดสอบ",
     "children": {

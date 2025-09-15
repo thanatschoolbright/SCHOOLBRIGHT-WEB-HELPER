@@ -618,9 +618,7 @@ export default function Page() {
                 {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
               </Typography.Paragraph>
               {/* Backlog Section */}
-              {(detailProject.backlogDescription ||
-                (Array.isArray(detailProject.backlogDescription) &&
-                  detailProject.backlogDescription.length > 0)) && (
+              {detailProject.backlogDescription && (
                 <div>
                   <Typography.Title level={5} style={{ marginBottom: 8 }}>
                     Backlogs
