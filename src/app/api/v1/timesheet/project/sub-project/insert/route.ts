@@ -4,22 +4,11 @@ import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
 import { date, z } from "zod";
 import { projectIdValidation } from "@api/v1/timesheet/helper/timesheet.validation";
-
-const ProjectCreateUpdateSchema = z.object({
-  id: z.union([z.number().min(1), z.string().min(1).optional()]),
-  name: z.string().min(1),
-  project_id: z.union([z.number().min(1), z.string().min(1)]),
-  by: z.union([z.number().min(1), z.string().min(1)]),
-  backlogDescription: z.any().optional(),
-  dateRange: z.any().optional(),
-});
+import { Schema } from "./route.validator";
 
 // ใช้สำหรับสร้างหรืออัปเดตโครงการ
 export async function POST(request: NextRequest) {
-  const { data, error } = await validateRequest(
-    request,
-    ProjectCreateUpdateSchema
-  );
+  const { data, error } = await validateRequest(request, Schema);
   if (error) return error;
 
   const { id, name, project_id, by, backlogDescription, dateRange } = data;
