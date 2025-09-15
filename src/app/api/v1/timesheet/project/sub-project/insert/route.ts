@@ -11,10 +11,9 @@ const ProjectCreateUpdateSchema = z.object({
   project_id: z.union([z.number().min(1), z.string().min(1)]),
   by: z.union([z.number().min(1), z.string().min(1)]),
   backlogDescription: z.any().optional(),
-  dateRange: z.array(z.date()).length(2),
+  dateRange: z.any().optional(),
 });
 
-errorResponse;
 // ใช้สำหรับสร้างหรืออัปเดตโครงการ
 export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(
