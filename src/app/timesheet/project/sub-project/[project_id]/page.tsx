@@ -35,11 +35,14 @@ export default function Page() {
   const router = useRouter();
   const [subProjects, setSubProjects] = useState<SubProject[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [form, setForm] = useState<SubProjectForm & { confirmText?: string }>({
+  const [form, setForm] = useState<
+    SubProjectForm & { confirmText?: string; backlogDescription?: any }
+  >({
     name: "",
     by: AUTHENTICATION.response.data.user_data.admin_id,
     confirmText: "",
     project_id: Number(project_id),
+    backlogDescription: null,
   });
   const [antdForm] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
@@ -113,7 +116,7 @@ export default function Page() {
 
   const createOrUpdateProject = async (project: SubProjectForm) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/project/sub-project/insert/`, {
+      const res = await fetch(`/api/v1/timesheet/project/sub-project/insert`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -167,6 +170,7 @@ export default function Page() {
       name: "",
       project_id: Number(project_id),
       by: AUTHENTICATION.response.data.user_data.admin_id,
+      backlogDescription: null,
     });
     setModal("");
     setCurrentPage(1);
@@ -178,6 +182,7 @@ export default function Page() {
       name: "",
       project_id: Number(project_id),
       by: AUTHENTICATION.response.data.user_data.admin_id,
+      backlogDescription: null,
     });
     setModal("create");
   };
@@ -188,6 +193,7 @@ export default function Page() {
       name: project.name,
       project_id: project.project_id,
       by: AUTHENTICATION.response.data.user_data.admin_id,
+      backlogDescription: project.backlogDescription ?? null,
     });
     setModal("edit");
   };
@@ -415,7 +421,10 @@ export default function Page() {
           <Form
             form={antdForm}
             layout="vertical"
-            initialValues={{ name: form.name }}
+            initialValues={{
+              name: form.name,
+              backlogDescription: form.backlogDescription,
+            }}
             onValuesChange={(_, allValues) =>
               setForm({ ...form, ...allValues })
             }
@@ -425,12 +434,79 @@ export default function Page() {
             }}
           >
             <Form.Item
+              name="project_id"
+              initialValue={Number(project_id)}
+              hidden
+            >
+              <Input type="hidden" />
+            </Form.Item>
+            <Form.Item
               label="ชื่อโครงการ"
               name="name"
               rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
             >
               <Input placeholder="กรอกชื่อโปรเจค" />
             </Form.Item>
+            {/* Backlog Description: note and backlogs */}
+            <Form.Item label="Note" name={["backlogDescription", "note"]}>
+              <Input placeholder="กรอก Note" />
+            </Form.Item>
+            <Form.List name={["backlogDescription", "backlogs"]}>
+              {(fields, { add, remove }) => (
+                <>
+                  <label
+                    style={{
+                      fontWeight: 500,
+                      marginBottom: 4,
+                      display: "block",
+                    }}
+                  >
+                    Backlogs
+                  </label>
+                  {fields.map((field, idx) => (
+                    <Space
+                      key={field.key}
+                      align="start"
+                      style={{ display: "flex", marginBottom: 8 }}
+                    >
+                      <Form.Item
+                        name={[field.name, "title"]}
+                        rules={[{ required: true, message: "กรอกชื่อเรื่อง" }]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input placeholder="Title" />
+                      </Form.Item>
+                      <Form.Item
+                        name={[field.name, "link"]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input placeholder="Link" />
+                      </Form.Item>
+                      <Button
+                        type="text"
+                        danger
+                        onClick={() => remove(field.name)}
+                        disabled={fields.length <= 1}
+                        aria-label="ลบ"
+                      >
+                        ลบ
+                      </Button>
+                    </Space>
+                  ))}
+                  <Form.Item>
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<FiPlus />}
+                      disabled={fields.length >= 5}
+                    >
+                      เพิ่ม Backlog
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
             <div
               style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}
             >
@@ -516,25 +592,164 @@ export default function Page() {
           destroyOnHidden
         >
           {detailProject && (
-            <div className="space-y-3 mt-2">
-              <Typography.Text>
-                <strong>ชื่อโปรเจค:</strong> {detailProject.name}
-              </Typography.Text>
-              <p>
-                <strong>โปรเจ็คหลัก:</strong> {projects[0]?.name}
-              </p>
-              <p>
-                <strong>สร้างโดย (id):</strong> {detailProject.createdBy}
-              </p>
-              <p>
-                <strong>สร้างเมื่อ:</strong>{" "}
+            <Space
+              direction="vertical"
+              size={12}
+              style={{ marginTop: 8, width: "100%" }}
+            >
+              <Typography.Paragraph>
+                <Typography.Text strong>ชื่อโปรเจค: </Typography.Text>
+                {detailProject.name}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <Typography.Text strong>โปรเจ็คหลัก: </Typography.Text>
+                {projects[0]?.name}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <Typography.Text strong>สร้างโดย (id): </Typography.Text>
+                {detailProject.createdBy}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <Typography.Text strong>สร้างเมื่อ: </Typography.Text>
                 {convertToThaiDateDDMMYYY(detailProject.createdAt)}
-              </p>
-              <p>
-                <strong>แก้ไขล่าสุด:</strong>{" "}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <Typography.Text strong>แก้ไขล่าสุด: </Typography.Text>
                 {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
-              </p>
-            </div>
+              </Typography.Paragraph>
+              {/* Backlog Section */}
+              {(detailProject.backlogDescription ||
+                (Array.isArray(detailProject.backlogDescription) &&
+                  detailProject.backlogDescription.length > 0)) && (
+                <div>
+                  <Typography.Title level={5} style={{ marginBottom: 8 }}>
+                    Backlogs
+                  </Typography.Title>
+                  {/* If backlogDescription is an array (legacy) */}
+                  {Array.isArray(detailProject.backlogDescription) &&
+                    detailProject.backlogDescription.length > 0 && (
+                      <Space
+                        direction="vertical"
+                        size={8}
+                        style={{ width: "100%" }}
+                      >
+                        {detailProject.backlogDescription.map(
+                          (item: any, idx: number) => (
+                            <Card
+                              key={idx}
+                              size="small"
+                              styles={{ body: { padding: 12 } }}
+                              style={{ marginBottom: 8 }}
+                            >
+                              <Typography.Text strong style={{ fontSize: 15 }}>
+                                {item.title}
+                              </Typography.Text>
+                              {item.link && (
+                                <div style={{ marginTop: 4 }}>
+                                  <Typography.Link
+                                    href={item.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {item.link}
+                                  </Typography.Link>
+                                </div>
+                              )}
+                              {item.description && (
+                                <div style={{ marginTop: 4 }}>
+                                  <Typography.Text>
+                                    {item.description}
+                                  </Typography.Text>
+                                </div>
+                              )}
+                            </Card>
+                          )
+                        )}
+                      </Space>
+                    )}
+                  {/* If backlogDescription is an object with note/backlogs */}
+                  {!Array.isArray(detailProject.backlogDescription) &&
+                    typeof detailProject.backlogDescription === "object" &&
+                    detailProject.backlogDescription !== null && (
+                      <Space
+                        direction="vertical"
+                        size={8}
+                        style={{ width: "100%" }}
+                      >
+                        {"note" in detailProject.backlogDescription &&
+                          detailProject.backlogDescription.note && (
+                            <Typography.Paragraph
+                              type="secondary"
+                              italic
+                              style={{ marginBottom: 2 }}
+                            >
+                              {detailProject.backlogDescription.note}
+                            </Typography.Paragraph>
+                          )}
+                        {"backlogs" in detailProject.backlogDescription &&
+                          Array.isArray(
+                            detailProject.backlogDescription.backlogs
+                          ) &&
+                          detailProject.backlogDescription.backlogs.map(
+                            (item: any, idx: number) => (
+                              <Card
+                                key={idx}
+                                size="small"
+                                styles={{ body: { padding: 12 } }}
+                                style={{ marginBottom: 8 }}
+                              >
+                                <Typography.Text
+                                  strong
+                                  style={{ fontSize: 15 }}
+                                >
+                                  {item.title}
+                                </Typography.Text>
+                                {item.link && (
+                                  <div style={{ marginTop: 4 }}>
+                                    <Typography.Link
+                                      href={item.link}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {item.link}
+                                    </Typography.Link>
+                                  </div>
+                                )}
+                                {item.description && (
+                                  <div style={{ marginTop: 4 }}>
+                                    <Typography.Text>
+                                      {item.description}
+                                    </Typography.Text>
+                                  </div>
+                                )}
+                              </Card>
+                            )
+                          )}
+                        {/* Fallback if no note or backlogs */}
+                        {!detailProject.backlogDescription.note &&
+                          !(
+                            Array.isArray(
+                              detailProject.backlogDescription.backlogs
+                            ) &&
+                            detailProject.backlogDescription.backlogs.length > 0
+                          ) && (
+                            <Typography.Text>
+                              {String(detailProject.backlogDescription)}
+                            </Typography.Text>
+                          )}
+                      </Space>
+                    )}
+                  {/* If backlogDescription is a primitive */}
+                  {!Array.isArray(detailProject.backlogDescription) &&
+                    (typeof detailProject.backlogDescription !== "object" ||
+                      detailProject.backlogDescription === null) && (
+                      <Typography.Text>
+                        {String(detailProject.backlogDescription)}
+                      </Typography.Text>
+                    )}
+                </div>
+              )}
+            </Space>
           )}
         </Modal>
       </div>

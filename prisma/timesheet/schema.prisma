@@ -28,6 +28,7 @@ model Feature {
   id         Int              @id @default(autoincrement()) @map("id")
   projectId  Int              @map("project_id")
   name       String           @map("name")
+  backlogDescription Json?    @map("backlog_description")
   createdAt  DateTime         @default(now()) @map("created_at")
   createdBy  Int?             @map("created_by")
   updatedAt  DateTime         @updatedAt @map("updated_at")

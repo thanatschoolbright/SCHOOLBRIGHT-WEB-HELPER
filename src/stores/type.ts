@@ -505,6 +505,13 @@ export interface SubProject {
   updatedAt: string;
   by: number;
   createdBy: number;
+  backlogDescription: {
+    note: string;
+    backlogs: {
+      title: string;
+      link: string;
+    }[];
+  };
 }
 
 export interface SubProjectForm {

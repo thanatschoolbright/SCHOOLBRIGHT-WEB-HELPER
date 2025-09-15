@@ -58,23 +58,35 @@ export const Service = {
   },
 
   // * สร้าง Feature ใหม่
-  async create(data: { projectId: number; name: string; createdBy?: number }) {
+  async create(data: {
+    projectId: number;
+    name: string;
+    createdBy?: number;
+    backlogDescription?: any;
+  }) {
     return await PrismaTimesheet.feature.create({
       data: {
         projectId: data.projectId,
         name: data.name,
         createdBy: data.createdBy !== undefined ? data.createdBy : 0,
+        backlogDescription: data.backlogDescription,
       },
     });
   },
 
   // * อัปเดต Feature ตาม ID
-  async update(id: number, data: { name?: string; updatedBy?: number }) {
+  async update(
+    id: number,
+    data: { name?: string; updatedBy?: number; backlogDescription?: any }
+  ) {
     return await PrismaTimesheet.feature.update({
       where: { id },
       data: {
         ...(data.name && { name: data.name }),
         updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
+        ...(data.backlogDescription && {
+          backlogDescription: data.backlogDescription,
+        }),
       },
     });
   },
