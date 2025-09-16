@@ -161,13 +161,18 @@ export default function Page() {
         },
         {}
       );
-      const groupedData = Object.entries(groupedObj).map(
-        ([date, children]) => ({
+      const groupedData = Object.entries(groupedObj).map(([date, children]) => {
+        const totalHours = children.reduce(
+          (sum, c) => sum + Number(c.hours || 0),
+          0
+        );
+        return {
           key: date,
           date,
           children,
-        })
-      );
+          totalHours,
+        };
+      });
       setEntries(groupedData);
       settotal_pages(data.pagination?.total_pages || 1);
     } catch (error) {
@@ -585,7 +590,21 @@ export default function Page() {
       align: "left" as const,
       editable: true,
       sorter: (a: any, b: any) => Number(a.hours) - Number(b.hours),
-      render: (hours: string | number) => {
+      render: (hours: string | number, record: any) => {
+        if (record.children) {
+          return (
+            <Space>
+              <Typography.Text strong>
+                {record.totalHours} ชั่วโมง
+              </Typography.Text>
+              {record.totalHours > 8 && (
+                <Tooltip title="คุณทำงานเกิน 8 ชั่วโมง 🔥">
+                  <ExclamationCircleOutlined style={{ color: "red" }} />
+                </Tooltip>
+              )}
+            </Space>
+          );
+        }
         const value = Number(hours);
         let color = "gold";
         let label = value;
@@ -742,6 +761,7 @@ export default function Page() {
                 bordered
                 scroll={{ x: "max-content" }}
                 style={{ overflowX: "auto" }}
+                expandable={{ defaultExpandAllRows: true }}
               />
             </Form>
           </Card>
