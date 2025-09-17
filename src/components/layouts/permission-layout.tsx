@@ -24,6 +24,7 @@ export default function PermissionLayout({ role, children }: Props) {
 
     // ✅ เช็ค role
     if (!role.includes("ALL") && !role.includes(AUTH_USER?.position)) {
+      console.info(AUTH_USER);
       toast.error(
         `คุณมีสิทธิ์ไม่ถึงที่กำหนด คุณต้องเป็น ${role.join(", ")} เท่านั้น`,
         { duration: 3000 }

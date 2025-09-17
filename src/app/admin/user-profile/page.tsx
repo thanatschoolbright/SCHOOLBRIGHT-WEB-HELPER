@@ -40,6 +40,7 @@ import axios from "axios";
 // สำหรับการแก้ไขข้อมูลผู้ใช้งาน
 import FormData from "form-data";
 import { UserProfile, UpdateUserInput, UserProfileForm } from "@stores/type";
+import PermissionLayout from "@/components/layouts/permission-layout";
 
 export default function Page() {
   const [antdForm] = Form.useForm();
@@ -452,347 +453,349 @@ export default function Page() {
   ];
 
   return (
-    <DashboardLayout>
-      <div className="w-full space-y-4">
-        {/* ปุ่มเพิ่มโครงการใหม่ */}
-        <div className="w-full flex justify-end">
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            size="large"
-            onClick={openCreateUserModal}
-            style={{ minWidth: 160 }}
-          >
-            เพิ่มผู้ใช้งาน
-          </Button>
-        </div>
-
-        {/* Card รายการผู้ใช้งาน */}
-        <Card title="รายการผู้ใช้งาน" className="w-full">
-          {/* ตารางผู้ใช้งาน */}
-          {tableLoading ? (
-            <Skeleton active paragraph={{ rows: 6 }} />
-          ) : (
-            <Table
-              columns={columns}
-              dataSource={users}
-              rowKey={(record) => `user-${record.admin_id}`} // ถ้ามี id ทุก record
-              pagination={{
-                pageSize,
-                showSizeChanger: true,
-                pageSizeOptions: ["10", "30", "50"],
-                onShowSizeChange: (_current, size) => setPageSize(size),
-              }}
-              locale={{
-                emptyText: "ไม่พบข้อมูลผู้ใช้งาน",
-              }}
-            />
-          )}
-        </Card>
-
-        {/* Modal สร้างผู้ใช้งาน */}
-        <Modal
-          open={modalType === "create"}
-          onCancel={() => setModalType("")}
-          title="เพิ่มผู้ใช้งานใหม่"
-          footer={null}
-          destroyOnHidden
-        >
-          {/* ฟอร์มผู้ใช้งาน */}
-          <Form
-            form={antdForm}
-            layout="vertical"
-            initialValues={{
-              username: "",
-              password: "",
-              name: "",
-              lastname: "",
-            }}
-            onFinish={handleUserSubmit}
-          >
-            <Form.Item
-              label="ชื่อผู้ใช้งาน (Username)"
-              name="username"
-              rules={[{ required: true, message: "กรุณากรอกชื่อผู้ใช้งาน" }]}
+    <PermissionLayout role={["ADMIN"]}>
+      <DashboardLayout>
+        <div className="w-full space-y-4">
+          {/* ปุ่มเพิ่มโครงการใหม่ */}
+          <div className="w-full flex justify-end">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              size="large"
+              onClick={openCreateUserModal}
+              style={{ minWidth: 160 }}
             >
-              <Input
-                placeholder="กรอกชื่อผู้ใช้งาน"
-                prefix={<InfoCircleOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    username: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item
-              label="รหัสผ่าน"
-              name="password"
-              rules={[
-                { required: true, message: "กรุณากำหนดรหัสผ่าน" },
-                {
-                  min: 6,
-                  message: "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร",
-                },
-              ]}
-            >
-              <Input.Password
-                placeholder="กรอกรหัสผ่าน"
-                prefix={<LockOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    password: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item
-              label="ชื่อ"
-              name="name"
-              rules={[{ required: true, message: "กรุณากรอกชื่อ" }]}
-            >
-              <Input
-                placeholder="กรอกชื่อ"
-                prefix={<EditOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    name: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item
-              label="นามสกุล"
-              name="lastname"
-              rules={[{ required: true, message: "กรุณากรอกนามสกุล" }]}
-            >
-              <Input
-                placeholder="กรอกนามสกุล"
-                prefix={<EditOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    lastname: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item>
-              <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-                <Button onClick={() => setModalType("")}>ยกเลิก</Button>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={<CheckCircleOutlined />}
-                >
-                  บันทึก
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        {/* Modal ยืนยันลบผู้ใช้งาน */}
-        <Modal
-          open={modalType === "delete"}
-          onCancel={() => setModalType("")}
-          title="ยืนยันการลบ"
-          onOk={confirmDeleteUser}
-          okText="ลบ"
-          okType="danger"
-          cancelText="ยกเลิก"
-          okButtonProps={{
-            disabled: formState.confirmText !== "Delete",
-          }}
-          destroyOnHidden
-        >
-          <div style={{ marginBottom: 16 }}>
-            <Typography.Text type="danger" strong>
-              คุณต้องการยืนยันที่จะลบผู้ใช้งานนี้จริงหรือไม่
-            </Typography.Text>
-            <br />
-            <Typography.Text>
-              โปรดพิมพ์ <b style={{ color: "#f5222d" }}>Delete</b> เพื่อยืนยัน
-            </Typography.Text>
-            <Input
-              style={{ marginTop: 10 }}
-              placeholder="พิมพ์ Delete เพื่อยืนยัน"
-              value={formState.confirmText}
-              onChange={(e) =>
-                setFormState((prev) => ({
-                  ...prev,
-                  confirmText: e.target.value,
-                }))
-              }
-            />
+              เพิ่มผู้ใช้งาน
+            </Button>
           </div>
-        </Modal>
 
-        {/* Modal แก้ไขผู้ใช้งาน */}
-        <Modal
-          open={modalType === "edit"}
-          onCancel={() => setModalType("")}
-          title="แก้ไขข้อมูลผู้ใช้งาน"
-          footer={null}
-          destroyOnHidden
-        >
-          <Form
-            layout="vertical"
-            initialValues={{
-              admin_id: formState.admin_id ?? "",
-              employee_code: formState.employee_code ?? "",
-              firstname: formState.firstname ?? "",
-              lastname: formState.lastname ?? "",
-              nickname: formState.nickname ?? "",
-              position: formState.position ?? "",
-              email: formState.email ?? "",
-              backlog_email: formState.backlog_email ?? "",
-              tel: formState.tel ?? "",
-            }}
-            onFinish={handleUpdateUser}
+          {/* Card รายการผู้ใช้งาน */}
+          <Card title="รายการผู้ใช้งาน" className="w-full">
+            {/* ตารางผู้ใช้งาน */}
+            {tableLoading ? (
+              <Skeleton active paragraph={{ rows: 6 }} />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={users}
+                rowKey={(record) => `user-${record.admin_id}`} // ถ้ามี id ทุก record
+                pagination={{
+                  pageSize,
+                  showSizeChanger: true,
+                  pageSizeOptions: ["10", "30", "50"],
+                  onShowSizeChange: (_current, size) => setPageSize(size),
+                }}
+                locale={{
+                  emptyText: "ไม่พบข้อมูลผู้ใช้งาน",
+                }}
+              />
+            )}
+          </Card>
+
+          {/* Modal สร้างผู้ใช้งาน */}
+          <Modal
+            open={modalType === "create"}
+            onCancel={() => setModalType("")}
+            title="เพิ่มผู้ใช้งานใหม่"
+            footer={null}
+            destroyOnHidden
           >
-            <Form.Item hidden label="Admin ID" name="admin_id"></Form.Item>
-
-            <Form.Item
-              label="ชื่อ"
-              name="firstname"
-              rules={[{ required: true, message: "กรุณากรอกชื่อ" }]}
+            {/* ฟอร์มผู้ใช้งาน */}
+            <Form
+              form={antdForm}
+              layout="vertical"
+              initialValues={{
+                username: "",
+                password: "",
+                name: "",
+                lastname: "",
+              }}
+              onFinish={handleUserSubmit}
             >
-              <Input
-                placeholder="กรอกชื่อ"
-                prefix={<UserOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    name: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item
-              label="นามสกุล"
-              name="lastname"
-              rules={[{ required: true, message: "กรุณากรอกนามสกุล" }]}
-            >
-              <Input
-                placeholder="กรอกนามสกุล"
-                prefix={<UserOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    lastname: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item label="ชื่อเล่น" name="nickname">
-              <Input
-                placeholder="กรอกชื่อเล่น"
-                prefix={<SmileOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    nickname: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item label="รหัสพนักงาน" name="employee_code">
-              <Input
-                placeholder="กรอกรหัสพนักงาน"
-                prefix={<IdcardOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    employee_code: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-
-            <Form.Item label="ตำแหน่ง" name="position">
-              <Select
-                placeholder="เลือกตำแหน่ง"
-                value={formState.position}
-                onChange={(value) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    position: value,
-                  }))
-                }
-                allowClear
-                showSearch
-                optionFilterProp="children"
+              <Form.Item
+                label="ชื่อผู้ใช้งาน (Username)"
+                name="username"
+                rules={[{ required: true, message: "กรุณากรอกชื่อผู้ใช้งาน" }]}
               >
-                {positions.map((pos) => (
-                  <Select.Option key={pos} value={pos}>
-                    {pos}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              label="อีเมล"
-              name="email"
-              rules={[{ type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง" }]}
+                <Input
+                  placeholder="กรอกชื่อผู้ใช้งาน"
+                  prefix={<InfoCircleOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      username: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item
+                label="รหัสผ่าน"
+                name="password"
+                rules={[
+                  { required: true, message: "กรุณากำหนดรหัสผ่าน" },
+                  {
+                    min: 6,
+                    message: "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร",
+                  },
+                ]}
+              >
+                <Input.Password
+                  placeholder="กรอกรหัสผ่าน"
+                  prefix={<LockOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item
+                label="ชื่อ"
+                name="name"
+                rules={[{ required: true, message: "กรุณากรอกชื่อ" }]}
+              >
+                <Input
+                  placeholder="กรอกชื่อ"
+                  prefix={<EditOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item
+                label="นามสกุล"
+                name="lastname"
+                rules={[{ required: true, message: "กรุณากรอกนามสกุล" }]}
+              >
+                <Input
+                  placeholder="กรอกนามสกุล"
+                  prefix={<EditOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      lastname: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item>
+                <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+                  <Button onClick={() => setModalType("")}>ยกเลิก</Button>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    icon={<CheckCircleOutlined />}
+                  >
+                    บันทึก
+                  </Button>
+                </Space>
+              </Form.Item>
+            </Form>
+          </Modal>
+
+          {/* Modal ยืนยันลบผู้ใช้งาน */}
+          <Modal
+            open={modalType === "delete"}
+            onCancel={() => setModalType("")}
+            title="ยืนยันการลบ"
+            onOk={confirmDeleteUser}
+            okText="ลบ"
+            okType="danger"
+            cancelText="ยกเลิก"
+            okButtonProps={{
+              disabled: formState.confirmText !== "Delete",
+            }}
+            destroyOnHidden
+          >
+            <div style={{ marginBottom: 16 }}>
+              <Typography.Text type="danger" strong>
+                คุณต้องการยืนยันที่จะลบผู้ใช้งานนี้จริงหรือไม่
+              </Typography.Text>
+              <br />
+              <Typography.Text>
+                โปรดพิมพ์ <b style={{ color: "#f5222d" }}>Delete</b> เพื่อยืนยัน
+              </Typography.Text>
+              <Input
+                style={{ marginTop: 10 }}
+                placeholder="พิมพ์ Delete เพื่อยืนยัน"
+                value={formState.confirmText}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    confirmText: e.target.value,
+                  }))
+                }
+              />
+            </div>
+          </Modal>
+
+          {/* Modal แก้ไขผู้ใช้งาน */}
+          <Modal
+            open={modalType === "edit"}
+            onCancel={() => setModalType("")}
+            title="แก้ไขข้อมูลผู้ใช้งาน"
+            footer={null}
+            destroyOnHidden
+          >
+            <Form
+              layout="vertical"
+              initialValues={{
+                admin_id: formState.admin_id ?? "",
+                employee_code: formState.employee_code ?? "",
+                firstname: formState.firstname ?? "",
+                lastname: formState.lastname ?? "",
+                nickname: formState.nickname ?? "",
+                position: formState.position ?? "",
+                email: formState.email ?? "",
+                backlog_email: formState.backlog_email ?? "",
+                tel: formState.tel ?? "",
+              }}
+              onFinish={handleUpdateUser}
             >
-              <Input
-                placeholder="กรอกอีเมล"
-                prefix={<MailOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    email: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item
-              label="Backlog Email"
-              name="backlog_email"
-              rules={[{ type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง" }]}
-            >
-              <Input
-                placeholder="กรอก Backlog Email"
-                prefix={<MailOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    backlog_email: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item label="เบอร์โทรศัพท์" name="tel">
-              <Input
-                placeholder="กรอกเบอร์โทรศัพท์"
-                prefix={<PhoneOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    tel: e.target.value,
-                  }))
-                }
-              />
-            </Form.Item>
-            <Form.Item>
-              <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-                <Button onClick={() => setModalType("")}>ยกเลิก</Button>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={<CheckCircleOutlined />}
+              <Form.Item hidden label="Admin ID" name="admin_id"></Form.Item>
+
+              <Form.Item
+                label="ชื่อ"
+                name="firstname"
+                rules={[{ required: true, message: "กรุณากรอกชื่อ" }]}
+              >
+                <Input
+                  placeholder="กรอกชื่อ"
+                  prefix={<UserOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item
+                label="นามสกุล"
+                name="lastname"
+                rules={[{ required: true, message: "กรุณากรอกนามสกุล" }]}
+              >
+                <Input
+                  placeholder="กรอกนามสกุล"
+                  prefix={<UserOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      lastname: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item label="ชื่อเล่น" name="nickname">
+                <Input
+                  placeholder="กรอกชื่อเล่น"
+                  prefix={<SmileOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      nickname: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item label="รหัสพนักงาน" name="employee_code">
+                <Input
+                  placeholder="กรอกรหัสพนักงาน"
+                  prefix={<IdcardOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      employee_code: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+
+              <Form.Item label="ตำแหน่ง" name="position">
+                <Select
+                  placeholder="เลือกตำแหน่ง"
+                  value={formState.position}
+                  onChange={(value) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      position: value,
+                    }))
+                  }
+                  allowClear
+                  showSearch
+                  optionFilterProp="children"
                 >
-                  บันทึก
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
-        </Modal>
-      </div>
-    </DashboardLayout>
+                  {positions.map((pos) => (
+                    <Select.Option key={pos} value={pos}>
+                      {pos}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="อีเมล"
+                name="email"
+                rules={[{ type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง" }]}
+              >
+                <Input
+                  placeholder="กรอกอีเมล"
+                  prefix={<MailOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      email: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item
+                label="Backlog Email"
+                name="backlog_email"
+                rules={[{ type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง" }]}
+              >
+                <Input
+                  placeholder="กรอก Backlog Email"
+                  prefix={<MailOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      backlog_email: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item label="เบอร์โทรศัพท์" name="tel">
+                <Input
+                  placeholder="กรอกเบอร์โทรศัพท์"
+                  prefix={<PhoneOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      tel: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item>
+                <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+                  <Button onClick={() => setModalType("")}>ยกเลิก</Button>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    icon={<CheckCircleOutlined />}
+                  >
+                    บันทึก
+                  </Button>
+                </Space>
+              </Form.Item>
+            </Form>
+          </Modal>
+        </div>
+      </DashboardLayout>
+    </PermissionLayout>
   );
 }
