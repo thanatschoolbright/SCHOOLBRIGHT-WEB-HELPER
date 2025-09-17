@@ -28,6 +28,7 @@ import {
   InfoCircleOutlined,
   ArrowRightOutlined,
 } from "@ant-design/icons";
+import axios from "axios";
 
 // ประกาศ interface สำหรับข้อมูลโปรเจค
 interface Project {
@@ -74,15 +75,11 @@ export default function Page() {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/timesheet/project/read/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ limit, page: currentPage }),
+      const response = await axios.post("/api/v1/timesheet/project/read/", {
+        limit,
+        page: currentPage,
       });
-      if (!res.ok) throw new Error("Failed to fetch projects");
-      const data = await res.json();
+      const data = response.data;
       setProjects(data.data || []);
       setTotalItems(data.pagination?.totalItems || 0);
     } catch (error) {
@@ -96,14 +93,10 @@ export default function Page() {
   // ฟังก์ชันสร้างหรือแก้ไขโปรเจค
   const createOrUpdateProject = async (project: ProjectForm) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/project/insert/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(project),
-      });
-      if (!res.ok) throw new Error("Failed to create or update project");
+      const response = await axios.post(
+        `/api/v1/timesheet/project/insert/`,
+        project
+      );
       toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
       toast.error("สร้าง/อัปเดต ข้อมูลล้มเหลว", { duration: 5000 });
@@ -113,17 +106,10 @@ export default function Page() {
   // ฟังก์ชันลบโปรเจค
   const deleteProject = async (id: number) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/project/delete/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id,
-          by: AUTHENTICATION.response.data.user_data.admin_id,
-        }),
+      const response = await axios.post(`/api/v1/timesheet/project/delete/`, {
+        id,
+        by: AUTHENTICATION.response.data.user_data.admin_id,
       });
-      if (!res.ok) throw new Error("Failed to delete project");
       toast.success("ลบข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
       toast.error("ลบข้อมูลล้มเหลว", { duration: 5000 });

@@ -547,3 +547,50 @@ export interface ResponseHeartbeats {
     }[];
   };
 }
+
+export interface UserProfile {
+  id: number;
+  name: string;
+  user_id: string;
+  admin_id: string;
+  email: string;
+  username: string;
+  lastname?: string;
+  firstname?: string;
+  nickname?: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  by: number;
+  createdBy: number;
+  updatedBy: number;
+}
+
+export type UpdateUserInput = {
+  // id: number;
+  admin_id: number;
+  employee_code: string;
+  firstname: string;
+  lastname: string;
+  nickname: string;
+  position: string;
+  email: string;
+  backlog_email: string;
+  tel: string;
+};
+
+export interface UserProfileForm {
+  id?: string | number;
+  admin_id: string | number;
+  username: string;
+  password?: string;
+  name: string;
+  firstname: string;
+  lastname: string;
+  nickname: string;
+  position?: string;
+  backlog_email?: string;
+  email?: string;
+  employee_code: string;
+  tel?: string;
+}

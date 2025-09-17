@@ -31,11 +31,11 @@ export default function AntThemeProvider({
       theme={{
         algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
         token: {
-          colorPrimary: "#6366f1", // Indigo 500
+          colorPrimary: "#ff6b00", // School Bright Orange
           borderRadius: 10,
           fontSize: 16,
           padding: 12,
-          fontFamily: "LINESeedSansTH, sans-serif",
+          fontFamily: "Anuphan, sans-serif",
         },
         components: {
           Button: {

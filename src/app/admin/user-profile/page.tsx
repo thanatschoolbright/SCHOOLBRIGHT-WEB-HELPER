@@ -5,7 +5,6 @@ import DashboardLayout from "@components/layouts/backend-layout";
 import { useAppSelector } from "@stores/store";
 import { toast } from "sonner";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
-import Link from "next/link";
 import Swal from "sweetalert2";
 // นำเข้า Ant Design Components
 import {
@@ -19,6 +18,8 @@ import {
   Space,
   Tag,
   Spin,
+  Select,
+  Skeleton,
 } from "antd";
 import {
   PlusOutlined,
@@ -26,28 +27,19 @@ import {
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
-  ArrowRightOutlined,
+  LockOutlined,
+  SearchOutlined,
+  UserOutlined,
+  SmileOutlined,
+  IdcardOutlined,
+  MailOutlined,
+  PhoneOutlined,
 } from "@ant-design/icons";
-import Loading from "@/components/loading/ant-loading-spin-component";
 import axios from "axios";
 
-// ประกาศ interface สำหรับข้อมูลโปรเจค
-interface UserProfile {
-  id: number;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  by: number;
-  createdBy: number;
-}
-
-interface UserProfileForm {
-  id?: number;
-  name: string;
-  description: string;
-  by: number;
-}
+// สำหรับการแก้ไขข้อมูลผู้ใช้งาน
+import FormData from "form-data";
+import { UserProfile, UpdateUserInput, UserProfileForm } from "@stores/type";
 
 export default function Page() {
   const [antdForm] = Form.useForm();
@@ -55,78 +47,171 @@ export default function Page() {
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
   const [pageSize, setPageSize] = useState<number>(10);
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
   const [modalType, setModalType] = useState<
     "" | "create" | "edit" | "delete" | "detail"
   >("");
+  const initialFormState: UserProfileForm = {
+    username: "",
+    password: "",
+    name: "",
+    firstname: "",
+    lastname: "",
+    nickname: "",
+    email: "",
+    tel: "",
+    backlog_email: "",
+    position: "",
+    employee_code: "",
+    admin_id: "",
+    id: "",
+  };
   const [formState, setFormState] = useState<
     UserProfileForm & { confirmText?: string }
-  >({
-    name: "",
-    description: "",
-    by: AUTHENTICATION.response.data.user_data.admin_id,
-    confirmText: "",
-  });
+  >(initialFormState);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [detailUser, setDetailUser] = useState<UserProfile | null>(null);
+  const [positions, setPositions] = useState<string[]>([]);
 
-  // ฟังก์ชันโหลดข้อมูลโปรเจค
+  const storageToLocal = (users: UserProfile[]) => {
+    localStorage.setItem("users", JSON.stringify(users));
+    toast.success("บันทึกข้อมูลผู้ใช้งานลง Local Storage แล้ว", {
+      duration: 5000,
+    });
+  };
+
+  const updateUser = async (fields: UpdateUserInput) => {
+    console.info("Update Fields:", fields);
+    try {
+      const formData = new FormData();
+      Object.entries(fields).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      const response = await axios.post("/api/v1/admin/user/update", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.status < 200 || response.status >= 300) {
+        throw new Error("Failed to update user");
+      }
+      toast.success("อัปเดตข้อมูลผู้ใช้งานสำเร็จ", { duration: 5000 });
+    } catch (error) {
+      toast.error("อัปเดตข้อมูลผู้ใช้งานล้มเหลว", { duration: 5000 });
+    }
+  };
+
+  // ฟังก์ชัน submit สำหรับอัปเดตผู้ใช้งาน
+  const handleUpdateUser = async (values: UserProfileForm) => {
+    await updateUser({
+      // id: formState.id,
+      admin_id: Number(values.admin_id),
+      employee_code: values?.employee_code,
+      firstname: values?.firstname,
+      lastname: values?.lastname,
+      nickname: values?.nickname,
+      position: values?.position || "",
+      email: values?.email || "",
+      backlog_email: values?.backlog_email || "",
+      tel: values?.tel || "",
+    });
+    setModalType("");
+    await fetchUsers();
+  };
+
+  // ฟังก์ชันโหลดข้อมูลผู้ใช้งาน
+  const fetchUsersByUserId = async (userId: string) => {
+    try {
+      const response = await axios.get(`/api/v1/admin/user/read/${userId}`);
+      const result = response?.data?.data[0];
+      console.info("User Detail:", result);
+      setFormState(result);
+    } catch (error) {
+      toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
+    }
+  };
+
   const fetchUsers = async () => {
-    setLoading(true);
+    setTableLoading(true);
     try {
       const data = await axios.get("/api/v1/admin/user/");
-      console.info("data", data?.data?.data?.data);
-      setUsers(data?.data?.data?.data || []);
+      const fetchedUsers = data?.data?.data?.data || [];
+      setUsers(fetchedUsers);
+      storageToLocal(fetchedUsers);
     } catch (error) {
       setUsers([]);
       toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
     } finally {
-      setLoading(false);
+      setTableLoading(false);
     }
   };
 
-  // ฟังก์ชันสร้างหรือแก้ไขโปรเจค
+  // ฟังก์ชันสร้างหรือแก้ไขผู้ใช้งาน
   const createOrUpdateUser = async (user: UserProfileForm) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/project/insert/`, {
-        method: "POST",
+      const payload = {
+        username: user.username,
+        name: user.name,
+        lastname: user.lastname,
+        ...(user.password ? { password: user.password } : {}),
+      };
+
+      const response = await axios.post(`/api/v1/admin/user/create`, payload, {
         headers: {
           "Content-Type": "application/json",
+          "JabjaiKey-0-0": "",
         },
-        body: JSON.stringify(user),
       });
-      if (!res.ok) throw new Error("Failed to create or update project");
-      toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
+
+      if (response.status < 200 || response.status >= 300)
+        throw new Error("Failed to create or update user");
+
+      toast.success("สร้าง/อัปเดตผู้ใช้งานสำเร็จ", { duration: 5000 });
     } catch (error) {
-      toast.error("สร้าง/อัปเดต ข้อมูลล้มเหลว", { duration: 5000 });
+      toast.error("สร้าง/อัปเดตผู้ใช้งานล้มเหลว", { duration: 5000 });
     }
   };
 
-  // ฟังก์ชันลบโปรเจค
+  // ฟังก์ชันลบผู้ใช้งาน
   const deleteUser = async (id: number) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/project/delete/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await axios.post(
+        `/api/v1/timesheet/project/delete/`,
+        {
           id,
           by: AUTHENTICATION.response.data.user_data.admin_id,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to delete project");
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status !== 200) throw new Error("Failed to delete project");
       toast.success("ลบข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
       toast.error("ลบข้อมูลล้มเหลว", { duration: 5000 });
     }
   };
 
-  // โหลดข้อมูลโปรเจคเมื่อ mount
+  // โหลดข้อมูลผู้ใช้งานเมื่อ mount
   useEffect(() => {
     fetchUsers();
+    fetchPositions();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const fetchPositions = async () => {
+    try {
+      const response = await axios.get("/api/v1/admin/user/constants/position");
+      const result = response?.data?.data?.response?.data;
+      console.info("Positions:", result);
+      setPositions(result);
+    } catch (error) {
+      console.error("Failed to fetch positions:", error);
+      setPositions([]);
+    }
+  };
 
   // ตรวจสอบสิทธิ์การเข้าถึง
   useEffect(() => {
@@ -152,57 +237,52 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [AUTHENTICATION]);
 
-  // เมื่อเปิด modal สร้างโปรเจค
+  // เมื่อเปิด modal สร้างผู้ใช้งาน
   const openCreateUserModal = () => {
-    setFormState({
-      name: "",
-      description: "",
-      by: AUTHENTICATION.response.data.user_data.admin_id,
-      confirmText: "",
-    });
+    setFormState(initialFormState);
     setModalType("create");
   };
 
-  // เมื่อเปิด modal แก้ไขโปรเจค
-  const openEditUserModal = (user: UserProfile) => {
-    setFormState({
-      id: user.id,
-      name: user.name,
-      description: user.description,
-      by: AUTHENTICATION.response.data.user_data.admin_id,
-    });
+  // เมื่อเปิด modal แก้ไขผู้ใช้งาน
+  const openEditUserModal = async (user: UserProfile) => {
+    await fetchUsersByUserId(user?.admin_id);
     setModalType("edit");
   };
 
-  // เมื่อเปิด modal ลบโปรเจค
+  // เมื่อเปิด modal ลบผู้ใช้งาน
   const openDeleteUserModal = (id: number) => {
     setDeleteId(id);
     setFormState((prev) => ({ ...prev, confirmText: "" }));
     setModalType("delete");
   };
 
-  // เมื่อเปิด modal ดูรายละเอียดโปรเจค
-  const openDetailUserModal = (user: UserProfile) => {
-    setDetailUser(user);
-    setModalType("detail");
-  };
-
-  // ฟังก์ชัน submit สำหรับสร้าง/แก้ไขโปรเจค
+  // ฟังก์ชัน submit สำหรับสร้าง/แก้ไขผู้ใช้งาน
   const handleUserSubmit = async (values: {
+    username: string;
+    password?: string;
     name: string;
-    description: string;
+    lastname: string;
   }) => {
-    if (!values.name.trim()) return;
+    const trimmedUsername = values?.username.trim();
+    const trimmedName = values?.name.trim();
+    const trimmedLastname = values?.lastname.trim();
+
+    if (!trimmedUsername || !trimmedName || !trimmedLastname) return;
+
+    const { confirmText, ...restState } = formState;
+
     await createOrUpdateUser({
-      ...formState,
-      name: values.name,
-      description: values.description,
+      ...restState,
+      username: trimmedUsername,
+      password: values?.password?.trim(),
+      name: trimmedName,
+      lastname: trimmedLastname,
     });
     setModalType("");
     await fetchUsers();
   };
 
-  // ฟังก์ชันยืนยันลบโปรเจค
+  // ฟังก์ชันยืนยันลบผู้ใช้งาน
   const confirmDeleteUser = async () => {
     if (deleteId === null) return;
     await deleteUser(deleteId);
@@ -220,21 +300,132 @@ export default function Page() {
       width: 80,
     },
     {
-      title: "ชื่อโปรเจค",
-      dataIndex: "name",
+      title: "ชื่อผู้ใช้งาน",
+      dataIndex: "email",
       align: "left" as const,
-      render: (text: string) => <Typography.Text>{text}</Typography.Text>,
+      sorter: (a: UserProfile, b: UserProfile) =>
+        a.email.localeCompare(b.email),
+      render: (_: string, record: UserProfile) => (
+        <Typography.Text>
+          {record.email} ({record.admin_id})
+        </Typography.Text>
+      ),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: any) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="ค้นหา username หรือ user_id"
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+            autoFocus
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              size="small"
+              style={{ width: 90 }}
+            >
+              ค้นหา
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters && clearFilters();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              รีเซ็ต
+            </Button>
+          </Space>
+        </div>
+      ),
+      onFilter: (value: any, record: UserProfile) => {
+        const email = (record.email ?? "").toString().toLowerCase();
+        const adminId = (record.admin_id ?? "").toString().toLowerCase();
+        return (
+          email.includes(value.toLowerCase()) ||
+          adminId.includes(value.toLowerCase())
+        );
+      },
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+      ),
     },
     {
-      title: "คำอธิบาย",
+      title: "ชื่อ-นามสกุล",
+      dataIndex: "fullname",
+      align: "left" as const,
+      render: (_: string, record: UserProfile) => (
+        <Typography.Text>
+          {record?.firstname} {record?.lastname}
+        </Typography.Text>
+      ),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: any) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="ค้นหา ชื่อ-นามสกุล"
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+            autoFocus
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              size="small"
+              style={{ width: 90 }}
+            >
+              ค้นหา
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters && clearFilters();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              รีเซ็ต
+            </Button>
+          </Space>
+        </div>
+      ),
+      onFilter: (value: any, record: UserProfile) => {
+        const fullName = `${record.firstname ?? ""} ${
+          record.lastname ?? ""
+        }`.toLowerCase();
+        return fullName.includes(value.toLowerCase());
+      },
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+      ),
+    },
+    {
+      title: "ชื่อเล่น",
       dataIndex: "description",
       align: "left" as const,
-      render: (text: string) =>
-        text ? (
-          <Typography.Text type="secondary">{text}</Typography.Text>
-        ) : (
-          <Tag color="default">-</Tag>
-        ),
+      render: (_: string, record: any) => (
+        <Typography.Text>{record?.nickname ?? "-"}</Typography.Text>
+      ),
     },
     {
       title: "จัดการ",
@@ -244,38 +435,21 @@ export default function Page() {
       render: (_: any, record: UserProfile) => (
         <Space>
           <Button
-            icon={<InfoCircleOutlined />}
-            onClick={() => openDetailUserModal(record)}
-            aria-label="View Details"
-          />
-          <Button
             icon={<EditOutlined />}
             onClick={() => openEditUserModal(record)}
-            aria-label="Edit Project"
+            aria-label="Edit User"
             type="primary"
           />
           <Button
             icon={<DeleteOutlined />}
             danger
             onClick={() => openDeleteUserModal(record.id)}
-            aria-label="Delete Project"
+            aria-label="Delete User"
           />
-          <Link href={`/timesheet/project/sub-project/${record.id}`}>
-            <Button
-              icon={<ArrowRightOutlined />}
-              aria-label="Go to Sub Project"
-              type="default"
-            />
-          </Link>
         </Space>
       ),
     },
   ];
-
-  // แสดง loading ขณะโหลดข้อมูล
-  if (loading) {
-    return <Loading />;
-  }
 
   return (
     <DashboardLayout>
@@ -296,61 +470,112 @@ export default function Page() {
         {/* Card รายการผู้ใช้งาน */}
         <Card title="รายการผู้ใช้งาน" className="w-full">
           {/* ตารางผู้ใช้งาน */}
-          <Table
-            columns={columns}
-            dataSource={users}
-            rowKey="id"
-            pagination={{
-              pageSize,
-              showSizeChanger: true,
-              pageSizeOptions: ["10", "30", "50"],
-              onShowSizeChange: (_current, size) => setPageSize(size),
-            }}
-            locale={{
-              emptyText: "ไม่พบข้อมูลโปรเจค",
-            }}
-          />
+          {tableLoading ? (
+            <Skeleton active paragraph={{ rows: 6 }} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={users}
+              rowKey={(record) => `user-${record.admin_id}`} // ถ้ามี id ทุก record
+              pagination={{
+                pageSize,
+                showSizeChanger: true,
+                pageSizeOptions: ["10", "30", "50"],
+                onShowSizeChange: (_current, size) => setPageSize(size),
+              }}
+              locale={{
+                emptyText: "ไม่พบข้อมูลผู้ใช้งาน",
+              }}
+            />
+          )}
         </Card>
 
-        {/* Modal สร้าง/แก้ไขโปรเจค */}
+        {/* Modal สร้างผู้ใช้งาน */}
         <Modal
-          open={modalType === "create" || modalType === "edit"}
+          open={modalType === "create"}
           onCancel={() => setModalType("")}
-          title={formState.id ? "แก้ไขโปรเจค" : "เพิ่มโปรเจคใหม่"}
+          title="เพิ่มผู้ใช้งานใหม่"
           footer={null}
           destroyOnHidden
         >
-          {/* ฟอร์มโปรเจค */}
+          {/* ฟอร์มผู้ใช้งาน */}
           <Form
             form={antdForm}
             layout="vertical"
             initialValues={{
-              name: formState.name,
-              description: formState.description,
+              username: "",
+              password: "",
+              name: "",
+              lastname: "",
             }}
             onFinish={handleUserSubmit}
           >
             <Form.Item
-              label="ชื่อโครงการ"
-              name="name"
-              rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
+              label="ชื่อผู้ใช้งาน (Username)"
+              name="username"
+              rules={[{ required: true, message: "กรุณากรอกชื่อผู้ใช้งาน" }]}
             >
               <Input
-                placeholder="กรอกชื่อโปรเจค"
+                placeholder="กรอกชื่อผู้ใช้งาน"
                 prefix={<InfoCircleOutlined />}
                 onChange={(e) =>
-                  setFormState((prev) => ({ ...prev, name: e.target.value }))
+                  setFormState((prev) => ({
+                    ...prev,
+                    username: e.target.value,
+                  }))
                 }
               />
             </Form.Item>
-            <Form.Item label="คำอธิบายโครงการ" name="description">
+            <Form.Item
+              label="รหัสผ่าน"
+              name="password"
+              rules={[
+                { required: true, message: "กรุณากำหนดรหัสผ่าน" },
+                {
+                  min: 6,
+                  message: "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร",
+                },
+              ]}
+            >
+              <Input.Password
+                placeholder="กรอกรหัสผ่าน"
+                prefix={<LockOutlined />}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    password: e.target.value,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              label="ชื่อ"
+              name="name"
+              rules={[{ required: true, message: "กรุณากรอกชื่อ" }]}
+            >
               <Input
-                placeholder="กรอกคำอธิบายโครงการ (ถ้ามี)"
+                placeholder="กรอกชื่อ"
                 prefix={<EditOutlined />}
                 onChange={(e) =>
                   setFormState((prev) => ({
                     ...prev,
-                    description: e.target.value,
+                    name: e.target.value,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              label="นามสกุล"
+              name="lastname"
+              rules={[{ required: true, message: "กรุณากรอกนามสกุล" }]}
+            >
+              <Input
+                placeholder="กรอกนามสกุล"
+                prefix={<EditOutlined />}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    lastname: e.target.value,
                   }))
                 }
               />
@@ -370,7 +595,7 @@ export default function Page() {
           </Form>
         </Modal>
 
-        {/* Modal ยืนยันลบโปรเจค */}
+        {/* Modal ยืนยันลบผู้ใช้งาน */}
         <Modal
           open={modalType === "delete"}
           onCancel={() => setModalType("")}
@@ -386,7 +611,7 @@ export default function Page() {
         >
           <div style={{ marginBottom: 16 }}>
             <Typography.Text type="danger" strong>
-              คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
+              คุณต้องการยืนยันที่จะลบผู้ใช้งานนี้จริงหรือไม่
             </Typography.Text>
             <br />
             <Typography.Text>
@@ -406,48 +631,166 @@ export default function Page() {
           </div>
         </Modal>
 
-        {/* Modal รายละเอียดโปรเจค */}
+        {/* Modal แก้ไขผู้ใช้งาน */}
         <Modal
-          open={modalType === "detail" && !!detailUser}
-          onCancel={() => {
-            setModalType("");
-            setDetailUser(null);
-          }}
-          title="รายละเอียดโปรเจค"
-          footer={[
-            <Button
-              key="close"
-              onClick={() => {
-                setModalType("");
-                setDetailUser(null);
-              }}
-            >
-              ปิด
-            </Button>,
-          ]}
+          open={modalType === "edit"}
+          onCancel={() => setModalType("")}
+          title="แก้ไขข้อมูลผู้ใช้งาน"
+          footer={null}
           destroyOnHidden
         >
-          {detailUser && (
-            <div className="space-y-3 mt-2">
-              <Typography.Paragraph>
-                <strong>ชื่อโครงการ:</strong> {detailUser.name}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <strong>คำอธิบาย:</strong> {detailUser.description}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <strong>สร้างโดย (id):</strong> {detailUser.createdBy}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <strong>สร้างเมื่อ:</strong>{" "}
-                {convertToThaiDateDDMMYYY(detailUser.createdAt)}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <strong>แก้ไขล่าสุด:</strong>{" "}
-                {convertToThaiDateDDMMYYY(detailUser.updatedAt)}
-              </Typography.Paragraph>
-            </div>
-          )}
+          <Form
+            layout="vertical"
+            initialValues={{
+              admin_id: formState.admin_id ?? "",
+              employee_code: formState.employee_code ?? "",
+              firstname: formState.firstname ?? "",
+              lastname: formState.lastname ?? "",
+              nickname: formState.nickname ?? "",
+              position: formState.position ?? "",
+              email: formState.email ?? "",
+              backlog_email: formState.backlog_email ?? "",
+              tel: formState.tel ?? "",
+            }}
+            onFinish={handleUpdateUser}
+          >
+            <Form.Item hidden label="Admin ID" name="admin_id"></Form.Item>
+
+            <Form.Item
+              label="ชื่อ"
+              name="firstname"
+              rules={[{ required: true, message: "กรุณากรอกชื่อ" }]}
+            >
+              <Input
+                placeholder="กรอกชื่อ"
+                prefix={<UserOutlined />}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              label="นามสกุล"
+              name="lastname"
+              rules={[{ required: true, message: "กรุณากรอกนามสกุล" }]}
+            >
+              <Input
+                placeholder="กรอกนามสกุล"
+                prefix={<UserOutlined />}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    lastname: e.target.value,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item label="ชื่อเล่น" name="nickname">
+              <Input
+                placeholder="กรอกชื่อเล่น"
+                prefix={<SmileOutlined />}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    nickname: e.target.value,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item label="รหัสพนักงาน" name="employee_code">
+              <Input
+                placeholder="กรอกรหัสพนักงาน"
+                prefix={<IdcardOutlined />}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    employee_code: e.target.value,
+                  }))
+                }
+              />
+            </Form.Item>
+
+            <Form.Item label="ตำแหน่ง" name="position">
+              <Select
+                placeholder="เลือกตำแหน่ง"
+                value={formState.position}
+                onChange={(value) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    position: value,
+                  }))
+                }
+                allowClear
+                showSearch
+                optionFilterProp="children"
+              >
+                {positions.map((pos) => (
+                  <Select.Option key={pos} value={pos}>
+                    {pos}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              label="อีเมล"
+              name="email"
+              rules={[{ type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง" }]}
+            >
+              <Input
+                placeholder="กรอกอีเมล"
+                prefix={<MailOutlined />}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              label="Backlog Email"
+              name="backlog_email"
+              rules={[{ type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง" }]}
+            >
+              <Input
+                placeholder="กรอก Backlog Email"
+                prefix={<MailOutlined />}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    backlog_email: e.target.value,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item label="เบอร์โทรศัพท์" name="tel">
+              <Input
+                placeholder="กรอกเบอร์โทรศัพท์"
+                prefix={<PhoneOutlined />}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    tel: e.target.value,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item>
+              <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+                <Button onClick={() => setModalType("")}>ยกเลิก</Button>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  icon={<CheckCircleOutlined />}
+                >
+                  บันทึก
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
         </Modal>
       </div>
     </DashboardLayout>

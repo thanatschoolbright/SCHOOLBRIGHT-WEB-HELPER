@@ -26,22 +26,18 @@
   }
 }
 
-
-
 * {
-    font-family: "LINESeedSansTH", sans-serif;
-
+  font-family: "Anuphan", sans-serif;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: "LINESeedSansTH", sans-serif;
 }
 
 /* ปรับ Toast ให้ใช้ font-family ตามระบบ */
 [data-sonner-toaster] {
-  font-family: "LINESeedSansTH" !important;
+  font-family: "Anuphan" !important;
 }
 
 @layer utilities {

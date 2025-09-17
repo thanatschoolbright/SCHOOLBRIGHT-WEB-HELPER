@@ -725,7 +725,7 @@ export default function Page() {
       {/* Password Modal */}
       <ModalComponent
         isOpen={isPasswordModalOpen}
-        title="💬 กรุณาใส่รหัสผ่านก่อนเปิดหน้า"
+        title="กรุณาใส่รหัสผ่านก่อนเปิดหน้า"
         onClose={() => setIsPasswordModalOpen(false)}
         onCancel={() => router.push("/backend")}
       >

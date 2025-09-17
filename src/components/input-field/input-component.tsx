@@ -7,7 +7,9 @@ interface InputComponentProps {
   id: string;
   name?: string; // Add the name property
   value?: any; // Add the value property for controlled components
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // Define onChange explicitly
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void; // Define onChange explicitly
   error?: string;
   required?: boolean;
   leftIcon?: React.ReactNode;
@@ -132,7 +134,7 @@ const InputComponent: React.FC<InputComponentProps> = ({
         <label
           htmlFor={id}
           className={`
-            absolute -top-2 left-3 px-1 text-gray-500 dark:text-gray-400 text-sm font-extralight pointer-events-none
+            absolute -top-2 left-3 px-1 text-gray-500 dark:text-gray-400 text-sm font-normal pointer-events-none
             transition-all duration-300 ease-in-out
             peer-placeholder-shown:top-3.5 peer-placeholder-shown:left-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:dark:text-gray-500
             peer-focus:-top-2 peer-focus:left-3 peer-focus:text-purple-600 peer-focus:dark:text-purple-400

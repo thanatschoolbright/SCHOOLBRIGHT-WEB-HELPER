@@ -38,34 +38,10 @@ import { Tooltip } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { useTranslation } from "react-i18next";
+import { CreateModalForm } from "./create";
+import { STATUS_OPTIONS } from "@constants/timesheet.constants";
+import axios from "axios";
 
-const STATUS_OPTIONS = [
-  {
-    label_th: "ร่าง",
-    label_en: "Draft",
-    value: "DRAFT",
-  },
-  {
-    label_th: "กำลังดำเนินการ",
-    label_en: "In Progress",
-    value: "IN_PROGRESS",
-  },
-  {
-    label_th: "รอตรวจสอบ",
-    label_en: "Review",
-    value: "REVIEW",
-  },
-  {
-    label_th: "เสร็จสิ้น",
-    label_en: "Done",
-    value: "DONE",
-  },
-  {
-    label_th: "ยกเลิก",
-    label_en: "Cancelled",
-    value: "CANCELLED",
-  },
-];
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
 
@@ -112,17 +88,12 @@ export default function Page() {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/timesheet/project/read/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ limit, page: currentPage }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch projects");
-      }
-      const data = await res.json();
+      const response = await axios.post(
+        "/api/v1/timesheet/project/read/",
+        { limit, page: currentPage },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      const data = response.data;
       setProjects(data.data || []);
       settotal_pages(data.pagination?.total_pages || 1);
     } catch (error) {
@@ -134,47 +105,45 @@ export default function Page() {
     }
   };
 
+  function groupEntriesByDate(entries: any[]) {
+    const groupedObj: Record<string, any[]> = entries.reduce((acc, item) => {
+      const dateKey = dayjs(item.date).format("YYYY-MM-DD");
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(item);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    return Object.entries(groupedObj).map(([date, children]) => {
+      const totalHours = children.reduce(
+        (sum, child) => sum + Number(child.hours || 0),
+        0
+      );
+
+      return {
+        key: date,
+        date,
+        children,
+        totalHours,
+      };
+    });
+  }
+
   const fetchTimesheetEntry = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/timesheet/entry/read/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          limit,
-          page: currentPage,
-          user_id: Number(AUTH_USER?.admin_id) ?? null,
-        }),
+      const response = await axios.post("/api/v1/timesheet/entry/read/", {
+        limit,
+        page: currentPage,
+        user_id: Number(AUTH_USER?.admin_id) ?? null,
       });
 
-      const data = await res.json();
-      // Group entries by date using dayjs(item.date).format("YYYY-MM-DD")
-      const rawEntries = data.data || [];
-      const groupedObj: { [date: string]: any[] } = rawEntries.reduce(
-        (acc: any, item: any) => {
-          const dateKey = dayjs(item.date).format("YYYY-MM-DD");
-          if (!acc[dateKey]) acc[dateKey] = [];
-          acc[dateKey].push(item);
-          return acc;
-        },
-        {}
-      );
-      const groupedData = Object.entries(groupedObj).map(([date, children]) => {
-        const totalHours = children.reduce(
-          (sum, c) => sum + Number(c.hours || 0),
-          0
-        );
-        return {
-          key: date,
-          date,
-          children,
-          totalHours,
-        };
-      });
+      const rawEntries = response.data?.data || [];
+      const groupedData = groupEntriesByDate(rawEntries);
+
       setEntries(groupedData);
-      settotal_pages(data.pagination?.total_pages || 1);
+      settotal_pages(response.data?.pagination?.total_pages || 1);
     } catch (error) {
       console.error("Error fetching timesheet entries:", error);
       setEntries([]);
@@ -186,18 +155,16 @@ export default function Page() {
 
   const fetchSubProjects = async (project_id: string) => {
     try {
-      const res = await fetch("/api/v1/timesheet/project/sub-project/read/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await axios.post(
+        "/api/v1/timesheet/project/sub-project/read/",
+        {
           limit,
           page: currentPage,
           project_id: Number(project_id),
-        }),
-      });
-      const data = await res.json();
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      const data = response.data;
       setSubProjects(data?.data?.items || []);
       settotal_pages(data.pagination?.total_pages || 1);
     } catch (error) {
@@ -217,16 +184,9 @@ export default function Page() {
       by: AUTH_USER?.admin_id,
     };
     try {
-      const res = await fetch(`/api/v1/timesheet/entry/insert/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      await axios.post(`/api/v1/timesheet/entry/insert/`, payload, {
+        headers: { "Content-Type": "application/json" },
       });
-      if (!res.ok) {
-        throw new Error("Failed to create or update entry");
-      }
       toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
       fetchTimesheetEntry();
     } catch (error) {
@@ -237,19 +197,14 @@ export default function Page() {
 
   const deleteEntry = async (ids: number[]) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/entry/delete/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      await axios.post(
+        `/api/v1/timesheet/entry/delete/`,
+        {
           ids,
           by: AUTH_USER?.admin_id,
-        }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to delete entry");
-      }
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
       toast.success("ลบข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
       console.error("Error deleting entry:", error);
@@ -313,19 +268,14 @@ export default function Page() {
   const save = async (key: string | number) => {
     try {
       const row = await antdForm.validateFields();
-      // Compose payload for update
       const payload = {
         ...row,
         id: key,
         date: row.date ? dayjs(row.date).toDate() : undefined,
         by: AUTH_USER?.admin_id,
       };
-      await fetch(`/api/v1/timesheet/entry/insert/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      await axios.post(`/api/v1/timesheet/entry/insert/`, payload, {
+        headers: { "Content-Type": "application/json" },
       });
       toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
       setEditingKey("");
@@ -490,7 +440,6 @@ export default function Page() {
     );
   };
 
-  // Table columns with inline editing
   const columns = [
     {
       title: "วันที่",
@@ -724,7 +673,6 @@ export default function Page() {
               เพิ่มรายการลงเวลา
             </Button>
           </div>
-
           <Card title="รายการลงเวลาทำงาน" className="w-full">
             <div className="flex justify-end mb-3">
               <Button
@@ -765,7 +713,6 @@ export default function Page() {
               />
             </Form>
           </Card>
-
           {/* Delete Confirmation Modal */}
           <Modal
             open={modal === "delete"}
@@ -812,92 +759,18 @@ export default function Page() {
               </Button>
             </div>
           </Modal>
-
           {/* Create Modal */}
-          <Modal
+          <CreateModalForm
             open={modal === "create"}
             onCancel={() => setModal("")}
-            title="เพิ่มรายการลงเวลาทำงาน"
-            footer={[
-              <Button key="cancel" onClick={() => setModal("")}>
-                ยกเลิก
-              </Button>,
-              <Button key="submit" type="primary" onClick={handleSubmit}>
-                บันทึก
-              </Button>,
-            ]}
-          >
-            <Form form={antdForm} layout="vertical">
-              <Form.Item
-                label="โปรเจค"
-                name="project_id"
-                rules={[{ required: true, message: "กรุณาเลือกโปรเจค" }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="เลือกโปรเจค"
-                  onChange={(value) => {
-                    fetchSubProjects(String(value));
-                    antdForm.setFieldsValue({ sub_project_id: "" });
-                  }}
-                  options={projects.map((p) => ({
-                    label: p.name,
-                    value: String(p.id),
-                  }))}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="โปรเจคย่อย"
-                name="sub_project_id"
-                rules={[{ required: true, message: "กรุณาเลือกโปรเจคย่อย" }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="เลือกโปรเจคย่อย"
-                  options={subProject.map((s) => ({
-                    label: s.name,
-                    value: String(s.id),
-                  }))}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="วันที่"
-                name="date"
-                rules={[{ required: true, message: "กรุณาเลือกวันที่" }]}
-              >
-                <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
-              </Form.Item>
-
-              <Form.Item
-                label="ชั่วโมง"
-                name="work_hour"
-                rules={[{ required: true, message: "กรุณากรอกชั่วโมง" }]}
-              >
-                <Input type="number" min={0} placeholder="จำนวนชั่วโมง" />
-              </Form.Item>
-
-              <Form.Item label="คำอธิบาย" name="description">
-                <Input.TextArea rows={3} placeholder="คำอธิบาย" />
-              </Form.Item>
-
-              <Form.Item
-                label="สถานะ"
-                name="status"
-                rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
-              >
-                <Select
-                  options={STATUS_OPTIONS.map((s) => ({
-                    label: i18n.language === "th" ? s.label_th : s.label_en,
-                    value: s.value,
-                  }))}
-                />
-              </Form.Item>
-            </Form>
-          </Modal>
-
-          {/* Detail Modal */}
+            onSubmit={handleSubmit}
+            form={antdForm}
+            projects={projects}
+            subProject={subProject}
+            fetchSubProjects={fetchSubProjects}
+            i18n={i18n}
+          />
+          ;{/* Detail Modal */}
           <Modal
             open={modal === "detail" && !!detailProject}
             onCancel={() => {

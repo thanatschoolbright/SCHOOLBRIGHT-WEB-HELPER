@@ -147,12 +147,15 @@ export default function Page() {
           message_id: messageId,
         })
       )?.unwrap();
-      setModal("response_open");
     } catch (error: any) {
-      throw new Error(
-        "Function [getMessageByUserAndMessageId] :",
-        error.message
-      );
+      console.error("Function [getMessageByUserAndMessageId] :", error);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: error?.message || "ไม่สามารถโหลดข้อมูลได้",
+      });
+    } finally {
+      setModal("response_open");
     }
   };
 
@@ -465,7 +468,9 @@ export default function Page() {
   return (
     <DashboardLayout>
       {isLoading && <BaseLoadingComponent />}
-      {modal === "response_open" && renderModal()}
+      {modal === "response_open" &&
+        NOTIFICATION_READ_MESSAGE_STATE?.response?.data &&
+        renderModal()}
 
       <div className="w-full space-y-4">
         {/* หมายเหตุ */}
