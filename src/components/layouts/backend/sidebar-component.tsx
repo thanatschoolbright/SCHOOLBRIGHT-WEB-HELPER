@@ -188,11 +188,10 @@ export default function SidebarContent() {
       </div>
 
       {/* AI Assistant Card */}
-      <div className="hidden mt-8 p-4 bg-purple-100 dark:bg-purple-900 rounded-2xl text-sm relative overflow-hidden text-gray-700 dark:text-gray-200">
-        <h3 className="font-bold mb-1">AI Assistant</h3>
+      <div className=" mt-8 p-4 bg-purple-100 dark:bg-purple-900 rounded-2xl text-sm relative overflow-hidden text-gray-700 dark:text-gray-200">
+        <h3 className="font-bold mb-1">สวัสดี</h3>
         <p className="text-xs mb-2">
-          Technology that helps people complete tasks faster and more
-          efficiently.
+          เทคโนโลยีที่ช่วยให้ผู้คนทำงานได้เร็วขึ้นและมีประสิทธิภาพมากขึ้น
         </p>
         <div className="absolute -bottom-3 -left-3 transform rotate-12 text-purple-400 text-5xl opacity-20">
           <IoIosArrowForward />

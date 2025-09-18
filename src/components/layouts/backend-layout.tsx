@@ -15,7 +15,7 @@ export default function DashboardLayout({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   return (
-    <div className="relative min-h-screen bg-[#e8e6f3]/80 dark:bg-gray-900/80 text-gray-800 dark:text-gray-200 flex transition-colors duration-500 overflow-hidden">
+    <div className="relative min-h-screen bg-[#e8e6f3]/75 dark:bg-gray-900/80 text-gray-800 dark:text-gray-200 flex transition-colors duration-500 overflow-hidden">
       {/* 🌌 Background DNA Image */}
       <div className="absolute inset-0 -z-10">
         <img
@@ -33,7 +33,7 @@ export default function DashboardLayout({
           p-5 h-full ${
             collapsed ? "" : "ml-5"
           } mt-5 flex flex-col justify-between transition-all duration-250
-          bg-white/40 dark:bg-gray-800/40
+          bg-white/80 dark:bg-gray-800/40
           hover:bg-white dark:hover:bg-gray-700
           backdrop-blur-md shadow-md
           rounded-3xl border border-white/20 dark:border-white/10

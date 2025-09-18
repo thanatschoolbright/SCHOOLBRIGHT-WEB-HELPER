@@ -4,7 +4,7 @@ import UserDropdown from "@components/layouts/backend/user-dropdown";
 
 export default function MainHeader() {
   return (
-    <header className="w-full px-8 py-4 flex items-center justify-between bg-gradient-to-r from-white/40 to-white/20 dark:from-gray-800/40 dark:to-gray-900/20 backdrop-blur-xl shadow-md hover:shadow-lg rounded-3xl border border-white/30 dark:border-gray-700 transition-all duration-500 animate-fade-in-down">
+    <header className="w-full px-8 py-4 flex items-center justify-between bg-gradient-to-r from-white/90 to-white/60 dark:from-gray-800/40 dark:to-gray-900/20 backdrop-blur-xl shadow-md hover:shadow-lg rounded-3xl border border-white/30 dark:border-gray-700 transition-all duration-500 animate-fade-in-down">
       {/* Left - Logo & Nav */}
       <div className="flex items-center gap-8">
         {/* Logo */}

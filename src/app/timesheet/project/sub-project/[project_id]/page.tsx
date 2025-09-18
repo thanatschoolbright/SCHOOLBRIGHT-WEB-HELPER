@@ -396,16 +396,6 @@ export default function Page() {
     );
   };
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex justify-center items-center min-h-[200px]">
-          <Spin size="large" />
-        </div>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout>
       <div className="w-full space-y-4">
@@ -434,11 +424,11 @@ export default function Page() {
             onClick={openCreateModal}
             style={{ display: "flex", alignItems: "center" }}
           >
-            <span className="text-lg font-semibold">เพิ่มฟีเจอร์</span>
+            <span className="text-lg font-semibold">เพิ่มโครงการย่อย</span>
           </Button>
         </div>
 
-        <Card title="รายการโครงการย่อย (Feature)" className="w-full">
+        <Card title="รายการโครงการย่อย" className="w-full">
           {loading ? (
             <div>
               {/* Skeleton to simulate loading table rows */}
@@ -505,7 +495,7 @@ export default function Page() {
         <Modal
           open={modal === "create" || modal === "edit"}
           onCancel={() => setModal("")}
-          title={form.id ? "แก้ไขโปรเจค" : "เพิ่มฟีเจอร์"}
+          title={form.id ? "แก้ไขโครงการย่อย" : "เพิ่มโครงการย่อย"}
           footer={null}
           destroyOnHidden
         >
