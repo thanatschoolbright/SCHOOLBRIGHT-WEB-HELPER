@@ -73,6 +73,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           },
         ],
       },
+
       {
         label: t("health_check.title"),
         icon: <FiActivity />,

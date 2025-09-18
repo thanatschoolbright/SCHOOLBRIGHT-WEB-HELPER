@@ -32,6 +32,7 @@ import {
   DatePicker,
   TableProps,
   Descriptions,
+  Skeleton,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
@@ -640,23 +641,6 @@ export default function Page() {
     };
   });
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: 200,
-          }}
-        >
-          <Spin />
-        </div>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
@@ -689,28 +673,30 @@ export default function Page() {
               </Button>
             </div>
             <Form form={antdForm} component={false}>
-              <Table
-                components={{
-                  body: {
-                    cell: EditableCell,
-                  },
-                }}
-                columns={mergedColumns}
-                dataSource={entries}
-                rowSelection={rowSelection}
-                rowKey={(record: any) => record.id ?? record.key}
-                pagination={{
-                  current: currentPage,
-                  total: total_pages * limit,
-                  pageSize: limit,
-                  onChange: setCurrentPage,
-                  showSizeChanger: false,
-                }}
-                bordered
-                scroll={{ x: "max-content" }}
-                style={{ overflowX: "auto" }}
-                expandable={{ defaultExpandAllRows: true }}
-              />
+              <Skeleton loading={loading} active paragraph={{ rows: 6 }}>
+                <Table
+                  components={{
+                    body: {
+                      cell: EditableCell,
+                    },
+                  }}
+                  columns={mergedColumns}
+                  dataSource={entries}
+                  rowSelection={rowSelection}
+                  rowKey={(record: any) => record.id ?? record.key}
+                  pagination={{
+                    current: currentPage,
+                    total: total_pages * limit,
+                    pageSize: limit,
+                    onChange: setCurrentPage,
+                    showSizeChanger: false,
+                  }}
+                  bordered
+                  scroll={{ x: "max-content" }}
+                  style={{ overflowX: "auto" }}
+                  expandable={{ defaultExpandAllRows: true }}
+                />
+              </Skeleton>
             </Form>
           </Card>
           {/* Delete Confirmation Modal */}

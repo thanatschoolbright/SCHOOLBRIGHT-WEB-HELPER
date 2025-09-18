@@ -20,6 +20,7 @@ import {
   Tag,
   Spin,
   Select,
+  Skeleton,
 } from "antd";
 import {
   PlusOutlined,
@@ -290,18 +291,7 @@ export default function Page() {
     },
   ];
 
-  // แสดง loading ขณะโหลดข้อมูล
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex justify-center items-center h-96">
-          <Spin size="large" tip="กำลังโหลด...">
-            <div style={{ height: 100, width: 100 }} />
-          </Spin>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // ยกเลิก Spin loading เต็มหน้า, ใช้ Skeleton ใน Card แทน
 
   return (
     <DashboardLayout>
@@ -322,21 +312,23 @@ export default function Page() {
         {/* Card รายการโครงการ */}
         <Card title="รายการโครงการ" className="w-full">
           {/* ตารางโครงการ */}
-          <Table
-            columns={columns}
-            dataSource={projects}
-            rowKey="id"
-            pagination={{
-              current: currentPage,
-              pageSize: limit,
-              total: totalItems,
-              showSizeChanger: false,
-              onChange: (page) => setCurrentPage(page),
-            }}
-            locale={{
-              emptyText: "ไม่พบข้อมูลโปรเจค",
-            }}
-          />
+          <Skeleton active loading={loading}>
+            <Table
+              columns={columns}
+              dataSource={projects}
+              rowKey="id"
+              pagination={{
+                current: currentPage,
+                pageSize: limit,
+                total: totalItems,
+                showSizeChanger: false,
+                onChange: (page) => setCurrentPage(page),
+              }}
+              locale={{
+                emptyText: "ไม่พบข้อมูลโปรเจค",
+              }}
+            />
+          </Skeleton>
         </Card>
 
         {/* Modal สร้าง/แก้ไขโปรเจค */}

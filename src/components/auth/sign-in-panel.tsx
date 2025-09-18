@@ -78,9 +78,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
       formData.append("username", username);
       formData.append("password", password);
       const response = await dispatch(CallAPI(formData)).unwrap();
-      if (!response.success) {
-        return loginFailure(response.message || "Unknown error");
-      } else if (response.token !== undefined) {
+      if (response?.token !== undefined) {
         localStorage.setItem(
           "AUTH_USER",
           JSON.stringify({
@@ -91,7 +89,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
         return await loginSuccess();
       }
     } catch (error: any) {
-      throw new Error(error.message);
+      return loginFailure(error.message || "An error occurred during login.");
     }
   };
 

@@ -15,6 +15,7 @@ import {
   DatePicker,
   Row,
   Col,
+  Skeleton,
 } from "antd";
 import {
   FiPlus,
@@ -438,13 +439,66 @@ export default function Page() {
         </div>
 
         <Card title="รายการโครงการย่อย (Feature)" className="w-full">
-          <Table
-            columns={columns}
-            dataSource={subProjects}
-            rowKey="id"
-            pagination={false}
-          />
-          {renderPagination()}
+          {loading ? (
+            <div>
+              {/* Skeleton to simulate loading table rows */}
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div key={idx} style={{ marginBottom: 12 }}>
+                  <Table
+                    columns={columns}
+                    dataSource={[]}
+                    pagination={false}
+                    style={{ display: "none" }}
+                  />
+                  <div style={{ width: "100%" }}>
+                    {/* Use Skeleton.Button to fill the width of the table */}
+                    <Row gutter={0}>
+                      <Col span={3}>
+                        <Skeleton.Button
+                          active
+                          style={{ width: "100%", height: 32 }}
+                        />
+                      </Col>
+                      <Col span={5}>
+                        <Skeleton.Button
+                          active
+                          style={{ width: "100%", height: 32 }}
+                        />
+                      </Col>
+                      <Col span={4}>
+                        <Skeleton.Button
+                          active
+                          style={{ width: "100%", height: 32 }}
+                        />
+                      </Col>
+                      <Col span={4}>
+                        <Skeleton.Button
+                          active
+                          style={{ width: "100%", height: 32 }}
+                        />
+                      </Col>
+                      <Col span={8}>
+                        <Skeleton.Button
+                          active
+                          style={{ width: "100%", height: 32 }}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              <Table
+                columns={columns}
+                dataSource={subProjects}
+                rowKey="id"
+                pagination={false}
+              />
+              {renderPagination()}
+            </>
+          )}
         </Card>
 
         {/* Create/Edit Modal */}
