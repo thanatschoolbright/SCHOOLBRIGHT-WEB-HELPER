@@ -47,34 +47,34 @@ export function CreateModalForm({
     >
       <Form form={form} layout="vertical">
         <Form.Item
-          label="โปรเจค"
+          label="โครงการหลัก"
           name="project_id"
-          rules={[{ required: true, message: "กรุณาเลือกโปรเจค" }]}
+          rules={[{ required: true, message: "กรุณาเลือกโครงการหลัก" }]}
         >
           <Select
             showSearch
-            placeholder="เลือกโปรเจค"
+            placeholder="เลือกโครงการหลัก"
             onChange={(value) => {
               fetchSubProjects(String(value));
               form.setFieldsValue({ sub_project_id: "" });
             }}
             options={projects.map((p) => ({
-              label: p.name,
+              label: p.name + " (" + "รหัส" + +p.id + ")",
               value: String(p.id),
             }))}
           />
         </Form.Item>
 
         <Form.Item
-          label="โปรเจคย่อย"
+          label="โครงการย่อย"
           name="sub_project_id"
-          rules={[{ required: true, message: "กรุณาเลือกโปรเจคย่อย" }]}
+          rules={[{ required: true, message: "กรุณาเลือกโครงการย่อย" }]}
         >
           <Select
             showSearch
-            placeholder="เลือกโปรเจคย่อย"
+            placeholder="เลือกโครงการย่อย"
             options={subProject.map((s) => ({
-              label: s.name,
+              label: s.name + " (" + "รหัส" + +s.id + ")",
               value: String(s.id),
             }))}
           />

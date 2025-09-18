@@ -19,6 +19,7 @@ import {
   Space,
   Tag,
   Spin,
+  Select,
 } from "antd";
 import {
   PlusOutlined,
@@ -29,6 +30,7 @@ import {
   ArrowRightOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
+import { categoryType } from "@data/timesheet.category.type";
 
 // ประกาศ interface สำหรับข้อมูลโปรเจค
 interface Project {
@@ -39,6 +41,7 @@ interface Project {
   updatedAt: string;
   by: number;
   createdBy: number;
+  categoryType: string;
 }
 
 interface ProjectForm {
@@ -46,6 +49,7 @@ interface ProjectForm {
   name: string;
   description: string;
   by: number;
+  categoryType: string;
 }
 
 export default function Page() {
@@ -67,6 +71,7 @@ export default function Page() {
     description: "",
     by: AUTHENTICATION.response.data.user_data.admin_id,
     confirmText: "",
+    categoryType: "",
   });
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [detailProject, setDetailProject] = useState<Project | null>(null);
@@ -153,6 +158,7 @@ export default function Page() {
       description: "",
       by: AUTHENTICATION.response.data.user_data.admin_id,
       confirmText: "",
+      categoryType: "",
     });
     setModalType("create");
   };
@@ -164,6 +170,7 @@ export default function Page() {
       name: project.name,
       description: project.description,
       by: AUTHENTICATION.response.data.user_data.admin_id,
+      categoryType: project.categoryType,
     });
     setModalType("edit");
   };
@@ -185,12 +192,14 @@ export default function Page() {
   const handleSubmit = async (values: {
     name: string;
     description: string;
+    categoryType: string;
   }) => {
     if (!values.name.trim()) return;
     await createOrUpdateProject({
       ...formState,
       name: values.name,
       description: values.description,
+      categoryType: values.categoryType,
     });
     setModalType("");
     await fetchProjects();
@@ -231,6 +240,19 @@ export default function Page() {
         ) : (
           <Tag color="default">-</Tag>
         ),
+    },
+    {
+      title: "ประเภทโครงการ",
+      dataIndex: "categoryType",
+      align: "center" as const,
+      render: (text: string) => {
+        const category = categoryType.find((c) => c.id === text);
+        return category ? (
+          <Tag color="blue">{category.name}</Tag>
+        ) : (
+          <Tag color="default">ไม่ระบุ</Tag>
+        );
+      },
     },
     {
       title: "จัดการ",
@@ -332,6 +354,7 @@ export default function Page() {
             initialValues={{
               name: formState.name,
               description: formState.description,
+              categoryType: formState.categoryType,
             }}
             onFinish={handleSubmit}
           >
@@ -358,6 +381,20 @@ export default function Page() {
                     description: e.target.value,
                   }))
                 }
+              />
+            </Form.Item>
+            <Form.Item
+              label="ประเภทโครงการ"
+              name="categoryType"
+              rules={[{ required: true, message: "กรุณาเลือกประเภทโครงการ" }]}
+            >
+              <Select
+                showSearch
+                placeholder="เลือกประเภทโครงการ"
+                options={categoryType.map((data) => ({
+                  label: `${data.name} (${data.id})`,
+                  value: String(data.id),
+                }))}
               />
             </Form.Item>
             <Form.Item>

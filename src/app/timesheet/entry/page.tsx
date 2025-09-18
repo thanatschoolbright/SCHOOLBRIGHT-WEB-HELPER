@@ -314,7 +314,7 @@ export default function Page() {
         inputNode = (
           <Select
             showSearch
-            placeholder="เลือกโปรเจ็ค"
+            placeholder="เลือกงานหลัก"
             onChange={(value) => {
               fetchSubProjects(String(value));
               antdForm.setFieldsValue({ sub_project_id: "" });
@@ -332,7 +332,7 @@ export default function Page() {
         inputNode = (
           <Select
             showSearch
-            placeholder="เลือกโปรเจ็คย่อย"
+            placeholder="เลือกงานย่อย"
             options={[
               ...subProject.map((s) => ({
                 label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
@@ -770,7 +770,7 @@ export default function Page() {
             fetchSubProjects={fetchSubProjects}
             i18n={i18n}
           />
-          ;{/* Detail Modal */}
+          {/* Detail Modal */}
           <Modal
             open={modal === "detail" && !!detailProject}
             onCancel={() => {

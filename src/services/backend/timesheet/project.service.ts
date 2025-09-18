@@ -33,12 +33,14 @@ export const Service = {
   async create(data: {
     name: string;
     description: string;
+    categoryType: string;
     createdBy?: number;
   }) {
     return await PrismaTimesheet.project.create({
       data: {
         name: data.name,
         description: data.description,
+        categoryType: data.categoryType,
         createdBy: data.createdBy !== undefined ? data.createdBy : 0,
       },
     });
@@ -47,7 +49,12 @@ export const Service = {
   // * อัปเดต Project ตาม ID
   async update(
     id: number,
-    data: { name?: string; description?: string; updatedBy?: number }
+    data: {
+      name?: string;
+      description?: string;
+      updatedBy?: number;
+      categoryType?: string;
+    }
   ) {
     return await PrismaTimesheet.project.update({
       where: { id },
@@ -55,6 +62,7 @@ export const Service = {
         ...(data.name && { name: data.name }),
         ...(data.description && { description: data.description }),
         updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
+        ...(data.categoryType && { categoryType: data.categoryType }),
       },
     });
   },

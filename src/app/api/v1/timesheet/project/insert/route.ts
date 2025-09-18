@@ -2,37 +2,47 @@ import { NextRequest, NextResponse } from "next/server";
 import { Service } from "@services/backend/timesheet/project.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
-import { z } from "zod";
-
-const ProjectCreateUpdateSchema = z.object({
-  id: z.number().optional(),
-  name: z.string().min(1),
-  description: z.string(),
-  by: z.number().min(1),
-});
+import { Schema } from "./route.validator";
 
 // ใช้สำหรับสร้างหรืออัปเดตโครงการ
 export async function POST(request: NextRequest) {
-  const { data, error } = await validateRequest(
-    request,
-    ProjectCreateUpdateSchema
-  );
+  const { data, error } = await validateRequest(request, Schema);
   if (error) return error;
 
-  const { id, name, description, by } = data;
+  const { id, name, description, categoryType, by } = data;
 
   try {
-    const project = id
-      ? await Service.update(id, { name, description, updatedBy: by })
-      : await Service.create({ name, description, createdBy: by });
+    let project;
+    let message_en;
+    let message_th;
+
+    if (id) {
+      // Update
+      project = await Service.update(id, {
+        name: name,
+        description: description,
+        categoryType: categoryType,
+        updatedBy: by,
+      });
+      message_en = "Project updated successfully";
+      message_th = "อัปเดตโครงการสำเร็จ";
+    } else {
+      // Create
+      project = await Service.create({
+        name: name,
+        description: description,
+        categoryType: categoryType,
+        createdBy: by,
+      });
+      message_en = "Project created successfully";
+      message_th = "สร้างโครงการสำเร็จ";
+    }
 
     return NextResponse.json(
       successResponse({
         data: project,
-        message_en: id
-          ? "Project updated successfully"
-          : "Project created successfully",
-        message_th: id ? "อัปเดตโครงการสำเร็จ" : "สร้างโครงการสำเร็จ",
+        message_en,
+        message_th,
       })
     );
   } catch (error: any) {

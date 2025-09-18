@@ -19,19 +19,20 @@
       }
     ],
     "paths": {
-      "@/*": ["src/*"], // ตั้ง alias @ สำหรับ src
-      "@config/*": ["config/*"], // Alias สำหรับโฟลเดอร์ config นอก src
-      "@utils/*": ["src/utils/*"], // Alias สำหรับ utils ภายใน src
-      "@types/*": ["src/types/*"], // Alias สำหรับ types ภายใน types
-      "@styles/*": ["src/styles/*"], // Alias สำหรับ styles ภายใน styles
-      "@components/*": ["src/components/*"], // Alias สำหรับ components ภายใน components
-      "@hooks/*": ["src/hooks/*"], // Alias สำหรับ hooks ��ายใน hooks
-      "@api/*": ["src/app/api/*"], // Alias
-      "@services/*": ["src/services/*"], // Alias
-      "@stores/*": ["src/stores/*"], // Alias
-      "@locales/*": ["src/locales/*"], // Alias
+      "@/*": ["src/*"],
+      "@config/*": ["config/*"],
+      "@utils/*": ["src/utils/*"],
+      "@types/*": ["src/types/*"],
+      "@styles/*": ["src/styles/*"],
+      "@components/*": ["src/components/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@api/*": ["src/app/api/*"],
+      "@services/*": ["src/services/*"],
+      "@stores/*": ["src/stores/*"],
+      "@locales/*": ["src/locales/*"],
       "@helpers/*": ["src/helpers/*"],
-      "@constants/*": ["src/constants/*"] // Alias
+      "@constants/*": ["src/constants/*"],
+      "@data/*": ["src/data/*"]
     },
     "target": "ES2017"
   },

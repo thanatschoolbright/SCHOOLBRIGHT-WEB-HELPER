@@ -121,9 +121,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
           type="email"
           placeholder="กรอกอีเมล"
           value={username}
-          onChange={(e: any) =>
-            setUsername(e.target.value)
-          }
+          onChange={(e: any) => setUsername(e.target.value)}
           required
           leftIcon={<FiMail className="w-5 h-5 text-gray-400" />}
         />
@@ -134,9 +132,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
           type="password"
           placeholder="••••••••"
           value={password}
-          onChange={(e: any) =>
-            setPassword(e.target.value)
-          }
+          onChange={(e: any) => setPassword(e.target.value)}
           required
           leftIcon={<FiLock className="w-5 h-5 text-gray-400" />}
         />
