@@ -71,6 +71,7 @@ export default function Page() {
   const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
   const [detailProject, setDetailProject] = useState<WorkEntryForm>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [actionLoading, setActionLoading] = useState<boolean>(false);
   const hasSelected = selectedRowKeys.length > 0;
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -91,7 +92,7 @@ export default function Page() {
     try {
       const response = await axios.post(
         "/api/v1/timesheet/project/read/",
-        { limit, page: currentPage },
+        { limit : 50, page: currentPage },
         { headers: { "Content-Type": "application/json" } }
       );
       const data = response.data;
@@ -185,6 +186,7 @@ export default function Page() {
       by: AUTH_USER?.admin_id,
     };
     try {
+      setActionLoading(true);
       await axios.post(`/api/v1/timesheet/entry/insert/`, payload, {
         headers: { "Content-Type": "application/json" },
       });
@@ -193,11 +195,14 @@ export default function Page() {
     } catch (error) {
       console.error("Error creating or updating entry:", error);
       toast.error("สร้าง/อัปเดต ข้อมูลล้มเหลว", { duration: 5000 });
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const deleteEntry = async (ids: number[]) => {
     try {
+      setActionLoading(true);
       await axios.post(
         `/api/v1/timesheet/entry/delete/`,
         {
@@ -210,6 +215,8 @@ export default function Page() {
     } catch (error) {
       console.error("Error deleting entry:", error);
       toast.error("ลบข้อมูลล้มเหลว", { duration: 5000 });
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -738,7 +745,7 @@ export default function Page() {
                 danger
                 className="w-full sm:w-auto px-6 py-3"
                 onClick={confirmBatchDelete}
-                disabled={confirmText !== "Delete"}
+                disabled={confirmText !== "Delete" || actionLoading === true}
                 icon={<FiTrash2 className="w-5 h-5" />}
               >
                 ลบ
@@ -755,6 +762,7 @@ export default function Page() {
             subProject={subProject}
             fetchSubProjects={fetchSubProjects}
             i18n={i18n}
+            disabled={actionLoading}
           />
           {/* Detail Modal */}
           <Modal

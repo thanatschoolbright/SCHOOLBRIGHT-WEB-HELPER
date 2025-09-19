@@ -18,6 +18,7 @@ interface CreateModalProps {
   subProject: any[];
   fetchSubProjects: (id: string) => void;
   i18n: any;
+  disabled:boolean
 }
 
 export function CreateModalForm({
@@ -29,6 +30,7 @@ export function CreateModalForm({
   subProject,
   fetchSubProjects,
   i18n,
+  disabled
 }: CreateModalProps) {
   return (
     <Modal
@@ -40,7 +42,7 @@ export function CreateModalForm({
         <Button key="cancel" onClick={onCancel}>
           ยกเลิก
         </Button>,
-        <Button key="submit" type="primary" onClick={onSubmit}>
+        <Button key="submit" type="primary" onClick={onSubmit} disabled={disabled}>
           บันทึก
         </Button>,
       ]}
