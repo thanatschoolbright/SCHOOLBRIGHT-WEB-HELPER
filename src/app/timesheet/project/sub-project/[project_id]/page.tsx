@@ -585,7 +585,7 @@ export default function Page() {
                         type="text"
                         danger
                         onClick={() => remove(field.name)}
-                        disabled={fields.length <= 1}
+                        // disabled={fields.length <= 0}
                         aria-label="ลบ"
                       >
                         ลบ
