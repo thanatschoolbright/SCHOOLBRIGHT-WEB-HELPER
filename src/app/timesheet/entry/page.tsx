@@ -92,7 +92,7 @@ export default function Page() {
     try {
       const response = await axios.post(
         "/api/v1/timesheet/project/read/",
-        { limit : 50, page: currentPage },
+        { limit: 50, page: currentPage },
         { headers: { "Content-Type": "application/json" } }
       );
       const data = response.data;
@@ -179,12 +179,23 @@ export default function Page() {
   const createOrUpdateEntry = async () => {
     console.log("Form Values at submission:", antdForm.getFieldsValue());
     const raw = antdForm.getFieldsValue();
+
     const payload = {
       ...raw,
       id: raw.id,
       date: raw.date ? dayjs(raw.date).toDate() : undefined,
       by: AUTH_USER?.admin_id,
     };
+
+    if (
+      payload.project_id === "" ||
+      payload.sub_project_id === "" ||
+      payload.work_hour === ""
+    ) {
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน", { duration: 5000 });
+      return;
+    }
+
     try {
       setActionLoading(true);
       await axios.post(`/api/v1/timesheet/entry/insert/`, payload, {
@@ -225,25 +236,21 @@ export default function Page() {
       setActionLoading(true);
       const subProject = await fetchSubProjects(record.project_id);
       antdForm.setFieldsValue({
-      project_id: record.project_id,
-      sub_project_id: String(record.feature_id),
-      description: record.description,
-      work_hour: record.hours,
-      date: dayjs(),
-      status: record.status,
-    })
-      console.info("subProject",subProject);
+        project_id: record.project_id,
+        sub_project_id: String(record.feature_id),
+        description: record.description,
+        work_hour: Number(record.hours),
+        date: dayjs(),
+        status: record.status,
+      });
+      console.info("subProject", subProject);
       setModal("create");
     } catch (error) {
       console.error("Error creating or updating entry:", error);
     } finally {
       setActionLoading(false);
     }
-
-    
   };
-
-
 
   useEffect(() => {
     fetchTimesheetEntry();
@@ -517,15 +524,7 @@ export default function Page() {
       sorter: (a: any, b: any) =>
         (a.feature_name || "").localeCompare(b.feature_name || ""),
     },
-    {
-      title: "คำอธิบาย",
-      dataIndex: "description",
-      key: "description",
-      align: "left" as const,
-      editable: true,
-      sorter: (a: any, b: any) =>
-        (a.description || "").localeCompare(b.description || ""),
-    },
+
     {
       title: "สถานะ",
       dataIndex: "status",
@@ -604,18 +603,25 @@ export default function Page() {
       },
     },
     {
+      title: "คำอธิบาย",
+      dataIndex: "description",
+      key: "description",
+      align: "left" as const,
+      editable: true,
+      width: 350,
+      sorter: (a: any, b: any) =>
+        (a.description || "").localeCompare(b.description || ""),
+    },
+    {
       title: "จัดการ",
       key: "action",
       fixed: "right" as const,
       align: "center" as const,
       render: (_: any, record: any) => {
-         if (record.children) {
+        if (record.children) {
           return (
             <Space>
-              <Typography.Text strong>
-               
-              </Typography.Text>
-              
+              <Typography.Text strong></Typography.Text>
             </Space>
           );
         }
@@ -635,31 +641,38 @@ export default function Page() {
           </span>
         ) : (
           <Space>
-            <Button
-              size="small"
-              icon={<FiInfo />}
-              onClick={() => {
-                setDetailProject(record);
-                setModal("detail");
-              }}
-              aria-label="View Details"
-            />
-            <Button
-              size="small"
-              icon={<FiEdit2 />}
-              disabled={editingKey !== ""}
-              onClick={() => edit(record)}
-              aria-label="Edit Entry"
-            />
+            <Tooltip title="ดูรายละเอียด">
+              <Button
+                size="small"
+                icon={<FiInfo />}
+                onClick={() => {
+                  setDetailProject(record);
+                  setModal("detail");
+                }}
+                aria-label="View Details"
+              />
+            </Tooltip>
+            {/* แก้ไข */}
+            <Tooltip title="แก้ไข">
+              <Button
+                size="small"
+                icon={<FiEdit2 />}
+                disabled={editingKey !== ""}
+                onClick={() => edit(record)}
+                aria-label="Edit Entry"
+              />
+            </Tooltip>
             {/* Copied Button */}
-            <Button
-              size="small"
-              icon={<CopyFilled />}
-              disabled={editingKey !== "" || actionLoading}
-              onClick={() => {
-                createCopiedTimesheetEntry(record);
-              }}
-            />
+            <Tooltip title="คัดลอก">
+              <Button
+                size="small"
+                icon={<CopyFilled />}
+                disabled={editingKey !== "" || actionLoading}
+                onClick={() => {
+                  createCopiedTimesheetEntry(record);
+                }}
+              />
+            </Tooltip>
           </Space>
         );
       },
@@ -799,7 +812,9 @@ export default function Page() {
           {/* Create Modal */}
           <CreateModalForm
             open={modal === "create"}
-            onCancel={() => setModal("")}
+            onCancel={() => {
+              setModal("");
+            }}
             onSubmit={handleSubmit}
             form={antdForm}
             projects={projects}

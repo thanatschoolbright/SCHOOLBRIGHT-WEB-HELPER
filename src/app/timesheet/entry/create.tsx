@@ -6,7 +6,17 @@ import {
   Input,
   Button,
   FormInstance,
+  Space,
+  InputNumber,
 } from "antd";
+import {
+  ProjectOutlined,
+  ApartmentOutlined,
+  CalendarOutlined,
+  FieldTimeOutlined,
+  FileTextOutlined,
+  TagsOutlined,
+} from "@ant-design/icons";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 
 interface CreateModalProps {
@@ -18,7 +28,7 @@ interface CreateModalProps {
   subProject: any[];
   fetchSubProjects: (id: string) => void;
   i18n: any;
-  disabled:boolean
+  disabled: boolean;
 }
 
 export function CreateModalForm({
@@ -30,24 +40,16 @@ export function CreateModalForm({
   subProject,
   fetchSubProjects,
   i18n,
-  disabled
+  disabled,
 }: CreateModalProps) {
   return (
     <Modal
       open={open}
-      onCancel={onCancel}
-      onOk={onSubmit}
       title="เพิ่มรายการลงเวลาทำงาน"
-      footer={[
-        <Button key="cancel" onClick={onCancel}>
-          ยกเลิก
-        </Button>,
-        <Button key="submit" type="primary" onClick={onSubmit} disabled={disabled}>
-          บันทึก
-        </Button>,
-      ]}
+      footer={null}
+      onCancel={onCancel}
     >
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" onFinish={onSubmit}>
         <Form.Item
           label="โครงการหลัก"
           name="project_id"
@@ -64,6 +66,13 @@ export function CreateModalForm({
               label: p.name + " (" + "รหัส" + +p.id + ")",
               value: Number(p.id),
             }))}
+            size="large"
+            style={{ width: "100%" }}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            suffixIcon={<ProjectOutlined />}
           />
         </Form.Item>
 
@@ -79,6 +88,13 @@ export function CreateModalForm({
               label: s.name + " (" + "รหัส" + +s.id + ")",
               value: String(s.id),
             }))}
+            size="large"
+            style={{ width: "100%" }}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            suffixIcon={<ApartmentOutlined />}
           />
         </Form.Item>
 
@@ -87,19 +103,39 @@ export function CreateModalForm({
           name="date"
           rules={[{ required: true, message: "กรุณาเลือกวันที่" }]}
         >
-          <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+          <DatePicker
+            format="DD/MM/YYYY"
+            style={{ width: "100%" }}
+            size="large"
+            suffixIcon={<CalendarOutlined />}
+          />
         </Form.Item>
 
         <Form.Item
           label="ชั่วโมง"
           name="work_hour"
-          rules={[{ required: true, message: "กรุณากรอกชั่วโมง" }]}
+          rules={[
+            { required: true, message: "กรุณากรอกชั่วโมง" },
+            { type: "number", min: 1, message: "ชั่วโมงต้องมากกว่า 0" },
+          ]}
         >
-          <Input type="number" min={0} placeholder="จำนวนชั่วโมง" />
+          <InputNumber
+            type="number"
+            min={0}
+            placeholder="จำนวนชั่วโมง"
+            size="large"
+            style={{ width: "100%" }}
+            addonAfter={<FieldTimeOutlined />}
+          />
         </Form.Item>
 
         <Form.Item label="คำอธิบาย" name="description">
-          <Input.TextArea rows={3} placeholder="คำอธิบาย" />
+          <Input.TextArea
+            rows={3}
+            placeholder="คำอธิบาย"
+            size="large"
+            style={{ padding: "8px" }}
+          />
         </Form.Item>
 
         <Form.Item
@@ -112,7 +148,28 @@ export function CreateModalForm({
               label: i18n.language === "th" ? s.label_th : s.label_en,
               value: s.value,
             }))}
+            size="large"
+            style={{ width: "100%" }}
+            suffixIcon={<TagsOutlined />}
           />
+        </Form.Item>
+        <Form.Item>
+          <Space
+            style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
+          >
+            <Button onClick={onCancel} size="large">
+              ยกเลิก
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={disabled}
+              disabled={disabled}
+            >
+              บันทึก
+            </Button>
+          </Space>
         </Form.Item>
       </Form>
     </Modal>
