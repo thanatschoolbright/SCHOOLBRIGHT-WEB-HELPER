@@ -330,14 +330,14 @@ const AddOrEditVersionModal: React.FC<{
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isFormValid(form)) {
-      toast.error("เกิดข้อผิดพลาด", {
-        description: `กรุณากรอกข้อมูลให้ครบถ้วน`,
-        duration: 5000,
-        position: "top-right",
-      });
-      return;
-    }
+    // if (!isFormValid(form)) {
+    //   toast.error("เกิดข้อผิดพลาด", {
+    //     description: `กรุณากรอกข้อมูลให้ครบถ้วน`,
+    //     duration: 5000,
+    //     position: "top-right",
+    //   });
+    //   return;
+    // }
 
     const formData = buildFormData(form);
 

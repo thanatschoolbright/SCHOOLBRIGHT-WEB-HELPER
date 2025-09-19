@@ -554,9 +554,11 @@ export interface UserProfile {
   user_id: string;
   admin_id: string;
   email: string;
+  tel: string;
   username: string;
   lastname?: string;
   firstname?: string;
+  position: string;
   nickname?: string;
   description: string;
   createdAt: string;
@@ -564,6 +566,7 @@ export interface UserProfile {
   by: number;
   createdBy: number;
   updatedBy: number;
+  employee_code: string;
 }
 
 export type UpdateUserInput = {

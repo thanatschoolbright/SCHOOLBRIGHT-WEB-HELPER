@@ -34,6 +34,8 @@ import {
   IdcardOutlined,
   MailOutlined,
   PhoneOutlined,
+  EyeOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 
@@ -257,6 +259,28 @@ export default function Page() {
     setModalType("delete");
   };
 
+  // Copy User Information
+  const copyUserInformation = (user: UserProfile) => {
+    console.info("User Information Copied", JSON.stringify(user, null, 2));
+
+    const textFormat = `
+  📋 USER INFORMATION
+  ━━━━━━━━━━━━━━━━
+
+  👤 Name     : ${user.firstname} ${user.lastname}
+  🆔 ID       : ${user.admin_id}
+  📧 Email    : ${user.email}
+  📱 Phone    : ${user.tel}
+  🔰 Role     : ${user.position}
+  📅 Employee Code  : ${user.employee_code}
+
+  ━━━━━━━━━━━━━━━━
+    `.trim();
+
+    navigator.clipboard.writeText(textFormat);
+    toast.success("ข้อมูลผู้ใช้ถูกคัดลอกไปยังคลิปบอร์ด");
+  };
+
   // ฟังก์ชัน submit สำหรับสร้าง/แก้ไขผู้ใช้งาน
   const handleUserSubmit = async (values: {
     username: string;
@@ -429,6 +453,16 @@ export default function Page() {
       ),
     },
     {
+      title: "ตำแหน่ง",
+      dataIndex: "position",
+      align: "left" as const,
+      sorter: (a: UserProfile, b: UserProfile) =>
+        (a?.position ?? "").localeCompare(b?.position ?? ""),
+      render: (_: string, record: any) => (
+        <Typography.Text>{record?.position ?? "-"}</Typography.Text>
+      ),
+    },
+    {
       title: "จัดการ",
       key: "action",
       align: "center" as const,
@@ -446,6 +480,11 @@ export default function Page() {
             danger
             onClick={() => openDeleteUserModal(record.id)}
             aria-label="Delete User"
+          />
+          <Button
+            icon={<CopyOutlined />}
+            onClick={() => copyUserInformation(record)}
+            aria-label="View User"
           />
         </Space>
       ),
@@ -656,7 +695,9 @@ export default function Page() {
               }}
               onFinish={handleUpdateUser}
             >
-              <Form.Item hidden label="Admin ID" name="admin_id"></Form.Item>
+              <Form.Item name="admin_id" hidden>
+                <Input type="hidden" />
+              </Form.Item>
 
               <Form.Item
                 label="ชื่อ"

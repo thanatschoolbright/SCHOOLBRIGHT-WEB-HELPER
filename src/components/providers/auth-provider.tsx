@@ -35,7 +35,7 @@ export default function AuthenticationReduxProvider({
             token: stored.token,
           },
         };
-        console.log("[AUTH PROVIDER] setResponse:", response);
+        // console.log("[AUTH PROVIDER] setResponse:", response);
         dispatch(setResponse(response));
 
         // ✅ หาก login แล้ว และอยู่หน้า /auth/signin ให้เด้งไป /backend

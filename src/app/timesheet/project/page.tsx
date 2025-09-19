@@ -21,6 +21,7 @@ import {
   Spin,
   Select,
   Skeleton,
+  Descriptions,
 } from "antd";
 import {
   PlusOutlined,
@@ -32,6 +33,8 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { categoryType } from "@data/timesheet.category.type";
+import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
+import { UserProfile } from "@/stores/type";
 
 // ประกาศ interface สำหรับข้อมูลโปรเจค
 interface Project {
@@ -65,6 +68,7 @@ export default function Page() {
   const [modalType, setModalType] = useState<
     "" | "create" | "edit" | "delete" | "detail"
   >("");
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [formState, setFormState] = useState<
     ProjectForm & { confirmText?: string }
   >({
@@ -101,7 +105,7 @@ export default function Page() {
     try {
       const response = await axios.post(
         `/api/v1/timesheet/project/insert/`,
-        project
+        project,
       );
       toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
@@ -125,7 +129,6 @@ export default function Page() {
   // โหลดข้อมูลโปรเจคเมื่อเปลี่ยนหน้า
   useEffect(() => {
     fetchProjects();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   // ตรวจสอบสิทธิ์การเข้าถึง
@@ -462,24 +465,25 @@ export default function Page() {
           destroyOnHidden
         >
           {detailProject && (
-            <div className="space-y-3 mt-2">
-              <Typography.Paragraph>
-                <strong>ชื่อโครงการ:</strong> {detailProject.name}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <strong>คำอธิบาย:</strong> {detailProject.description}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <strong>สร้างโดย (id):</strong> {detailProject.createdBy}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <strong>สร้างเมื่อ:</strong>{" "}
-                {convertToThaiDateDDMMYYY(detailProject.createdAt)}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
-                <strong>แก้ไขล่าสุด:</strong>{" "}
-                {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
-              </Typography.Paragraph>
+            <div className="mt-4">
+              <Descriptions bordered column={1} size="middle">
+                <Descriptions.Item label="ชื่อโครงการ">
+                  {detailProject.name}
+                </Descriptions.Item>
+                <Descriptions.Item label="คำอธิบาย">
+                  {detailProject.description}
+                </Descriptions.Item>
+                <Descriptions.Item label="สร้างโดย (ID)">
+                  {getUserById(detailProject.createdBy)?.firstname}{" "}
+                  {getUserById(detailProject.createdBy)?.lastname}
+                </Descriptions.Item>
+                <Descriptions.Item label="สร้างเมื่อ">
+                  {convertToThaiDateDDMMYYY(detailProject.createdAt)}
+                </Descriptions.Item>
+                <Descriptions.Item label="แก้ไขล่าสุด">
+                  {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
+                </Descriptions.Item>
+              </Descriptions>
             </div>
           )}
         </Modal>

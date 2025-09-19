@@ -8,7 +8,7 @@ interface InputComponentProps {
   name?: string; // Add the name property
   value?: any; // Add the value property for controlled components
   onChange?: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void; // Define onChange explicitly
   error?: string;
   required?: boolean;
@@ -34,7 +34,7 @@ const InputComponent: React.FC<InputComponentProps> = ({
   const [fileName, setFileName] = useState<string>("");
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     if (
       type === "file" &&
@@ -50,28 +50,28 @@ const InputComponent: React.FC<InputComponentProps> = ({
   };
 
   const baseInputClasses = `
-    peer 
-    w-full 
-    rounded-lg 
-    border 
-    border-gray-300 
-    bg-white 
-    dark:bg-gray-900 
+    peer
+    w-full
+    rounded-lg
+    border
+    border-gray-300
+    // bg-white
+    // dark:bg-gray-900
     dark:border-gray-700
-    text-gray-900 
-    dark:text-gray-100 
-    placeholder-transparent 
-    focus:outline-none 
-    focus:ring-2 
-    focus:ring-indigo-500 
-    focus:border-indigo-500 
-    transition 
-    duration-300 
-    ease-in-out 
-    shadow-sm 
+    text-gray-900
+    dark:text-gray-100
+    placeholder-transparent
+    focus:outline-none
+    focus:ring-2
+    focus:ring-indigo-500
+    focus:border-indigo-500
+    transition
+    duration-300
+    ease-in-out
+    shadow-sm
     hover:shadow-md
-    disabled:bg-gray-100 
-    disabled:text-gray-400 
+    disabled:bg-gray-100
+    disabled:text-gray-400
     disabled:cursor-not-allowed
   `;
 
@@ -82,8 +82,8 @@ const InputComponent: React.FC<InputComponentProps> = ({
     textAlign === "right"
       ? "text-right"
       : textAlign === "center"
-      ? "text-center"
-      : "text-left";
+        ? "text-center"
+        : "text-left";
 
   return (
     <div className="w-full flex flex-col">
@@ -124,29 +124,27 @@ const InputComponent: React.FC<InputComponentProps> = ({
         <label
           htmlFor={id}
           className={`
-            absolute 
-            ${leftIcon ? "left-9" : "left-3 "} 
-            top-3 
-            text-gray-500 
-            dark:text-gray-400 
-            text-sm 
-            font-medium 
-            bg-white 
-            dark:bg-gray-900 
-            px-1 
-            pointer-events-none 
-            transition-all 
-            duration-300 
+            absolute
+            ${leftIcon ? "left-9" : "left-3 "}
+            top-3
+            text-gray-500
+            dark:text-gray-400
+            text-xs
+            font-medium
+            px-1
+            pointer-events-none
+            transition-all
+            duration-300
             ease-in-out
-            peer-placeholder-shown:top-6 
-            peer-placeholder-shown:text-base 
-            peer-placeholder-shown:text-gray-400 
+            peer-placeholder-shown:top-6
+            peer-placeholder-shown:text-base
+            peer-placeholder-shown:text-gray-400
             peer-placeholder-shown:dark:text-gray-500
-            peer-focus:top-3 
-            peer-focus:text-indigo-600 
+            peer-focus:top-3
+            peer-focus:text-indigo-600
             peer-focus:dark:text-indigo-400
             peer-focus:text-sm
-           
+
             ${
               required
                 ? "after:content-['*'] after:ml-0.5 after:text-red-500 after:font-normal"

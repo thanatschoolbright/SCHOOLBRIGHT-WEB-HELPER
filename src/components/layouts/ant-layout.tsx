@@ -36,6 +36,9 @@ export default function AntThemeProvider({
           fontSize: 16,
           padding: 12,
           fontFamily: "Anuphan, sans-serif",
+          // ✅ ปรับพื้นหลัง layout/container ให้เหมือน Tailwind dark:bg-gray-800/40
+          colorBgLayout: isDark ? "rgba(31,41,55,0.4)" : "#ffffff",
+          colorBgContainer: isDark ? "rgba(31,41,55,0.4)" : "#ffffff",
         },
         components: {
           Button: {
