@@ -264,15 +264,17 @@ export default function Page() {
     console.info("User Information Copied", JSON.stringify(user, null, 2));
 
     const textFormat = `
-  📋 USER INFORMATION
+  📋 รายละเอียด
+  ✨ ใช้งานสำหรับเข้าเว็บ
+  https://sb-helper.schoolbright.co
   ━━━━━━━━━━━━━━━━
 
-  👤 Name     : ${user.firstname} ${user.lastname}
-  🆔 ID       : ${user.admin_id}
-  📧 Email    : ${user.email}
-  📱 Phone    : ${user.tel}
-  🔰 Role     : ${user.position}
-  📅 Employee Code  : ${user.employee_code}
+  👤 ชื่อ-นามสกุล     : ${user.firstname} ${user.lastname}
+  🆔 ไอดี       : ${user.admin_id}
+  📧 อีเมลล์    : ${user.email}
+  📱 เบอร์มือถือ    : ${user.tel}
+  🔰 ตำแหน่ง     : ${user.position}
+  📅 รหัสพนักงาน  : ${user.employee_code}
 
   ━━━━━━━━━━━━━━━━
     `.trim();
@@ -460,6 +462,16 @@ export default function Page() {
         (a?.position ?? "").localeCompare(b?.position ?? ""),
       render: (_: string, record: any) => (
         <Typography.Text>{record?.position ?? "-"}</Typography.Text>
+      ),
+    },
+    {
+      title: "เบอร์มือถือ",
+      dataIndex: "tel",
+      align: "left" as const,
+      sorter: (a: UserProfile, b: UserProfile) =>
+        (a?.tel ?? "").localeCompare(b?.tel ?? ""),
+      render: (_: string, record: any) => (
+        <Typography.Text>{record?.tel ?? "-"}</Typography.Text>
       ),
     },
     {

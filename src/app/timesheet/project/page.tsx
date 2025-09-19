@@ -35,6 +35,7 @@ import axios from "axios";
 import { categoryType } from "@data/timesheet.category.type";
 import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
 import { UserProfile } from "@/stores/type";
+import PermissionLayout from "@/components/layouts/permission-layout";
 
 // ประกาศ interface สำหรับข้อมูลโปรเจค
 interface Project {
@@ -297,7 +298,8 @@ export default function Page() {
   // ยกเลิก Spin loading เต็มหน้า, ใช้ Skeleton ใน Card แทน
 
   return (
-    <DashboardLayout>
+    <PermissionLayout role={["ALL"]}>
+      <DashboardLayout>
       <div className="w-full space-y-4">
         {/* ปุ่มเพิ่มโครงการใหม่ */}
         <div className="w-full flex justify-end">
@@ -489,5 +491,6 @@ export default function Page() {
         </Modal>
       </div>
     </DashboardLayout>
+    </PermissionLayout>
   );
 }
