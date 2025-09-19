@@ -11,27 +11,36 @@ export async function validateRequest<T>(
     body = await request.json();
   } catch {
     return {
-      error: {
-        status: 400,
-        message_en: "Invalid JSON body",
-        message_th: "ข้อมูล JSON ไม่ถูกต้อง",
-        error_code: "MUJWSOM_INVALID_JSON",
-      },
+      error: NextResponse.json(
+        errorResponse({
+          message_en: "Invalid JSON body",
+          message_th: "ข้อมูล JSON ไม่ถูกต้อง",
+        }),
+        { status: 400 }
+      ),
     };
   }
 
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    const errorObj = {
-      status: 400,
-      message_en: "Validation failed",
-      message_th: "การตรวจสอบไม่ผ่าน",
-      errors: parsed.error.issues,
-      error_code: "MUJWSOM_VALIDATION_ERROR",
-    };
-    console.error(errorObj);
+    console.error(
+      {
+          status: 400,
+          message_en: "Validation failed",
+          message_th: "การตรวจสอบไม่ผ่าน",
+          errors: parsed.error.issues,
+        },
+    )
     return {
-      error: errorObj,
+      error: NextResponse.json(
+        {
+          status: 400,
+          message_en: "Validation failed",
+          message_th: "การตรวจสอบไม่ผ่าน",
+          errors: parsed.error.issues,
+        },
+        { status: 400 }
+      ),
     };
   }
 
