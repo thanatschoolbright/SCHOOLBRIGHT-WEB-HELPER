@@ -13,10 +13,12 @@ import {
 const timesheetEntrySchema = z.object({
   id: z.number().optional(),
   description: z.string().optional(),
-  project_id: z.string().transform((val) => Number(val)),
-  sub_project_id: z.string().transform((val) => Number(val)),
-  date: z.string().datetime(),
-  work_hour: z.string().transform((val) => Number(val)),
+  project_id: z.union([z.string(), z.number()]).transform((val) => Number(val)),
+  sub_project_id: z
+    .union([z.string(), z.number()])
+    .transform((val) => Number(val)),
+  work_hour: z.union([z.string(), z.number()]).transform((val) => Number(val)),
+  date: z.string(),
   status: z.string(),
   by: z.number().min(1).optional(),
   updated_by: z.number().min(1).optional(),
@@ -52,7 +54,8 @@ export async function POST(request: NextRequest) {
       errorResponse({
         message_en: "Validation failed",
         message_th: "ข้อมูลไม่ถูกต้อง",
-        error, // ส่งรายละเอียด zod error กลับไปด้วย
+        status: 400,
+        error,
       }),
       { status: 400 }
     );

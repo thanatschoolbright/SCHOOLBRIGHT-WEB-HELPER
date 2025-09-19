@@ -62,7 +62,7 @@ export function CreateModalForm({
             }}
             options={projects.map((p) => ({
               label: p.name + " (" + "รหัส" + +p.id + ")",
-              value: String(p.id),
+              value: Number(p.id),
             }))}
           />
         </Form.Item>

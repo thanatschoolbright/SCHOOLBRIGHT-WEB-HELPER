@@ -34,7 +34,7 @@ import {
   Descriptions,
   Skeleton,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { CopyFilled, PlusOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import PermissionLayout from "@/components/layouts/permission-layout";
@@ -160,7 +160,7 @@ export default function Page() {
       const response = await axios.post(
         "/api/v1/timesheet/project/sub-project/read/",
         {
-          limit,
+          limit: 50,
           page: currentPage,
           project_id: Number(project_id),
         },
@@ -219,6 +219,31 @@ export default function Page() {
       setActionLoading(false);
     }
   };
+
+  const createCopiedTimesheetEntry = async (record: any) => {
+    try {
+      setActionLoading(true);
+      const subProject = await fetchSubProjects(record.project_id);
+      antdForm.setFieldsValue({
+      project_id: record.project_id,
+      sub_project_id: String(record.feature_id),
+      description: record.description,
+      work_hour: record.hours,
+      date: dayjs(),
+      status: record.status,
+    })
+      console.info("subProject",subProject);
+      setModal("create");
+    } catch (error) {
+      console.error("Error creating or updating entry:", error);
+    } finally {
+      setActionLoading(false);
+    }
+
+    
+  };
+
+
 
   useEffect(() => {
     fetchTimesheetEntry();
@@ -584,6 +609,16 @@ export default function Page() {
       fixed: "right" as const,
       align: "center" as const,
       render: (_: any, record: any) => {
+         if (record.children) {
+          return (
+            <Space>
+              <Typography.Text strong>
+               
+              </Typography.Text>
+              
+            </Space>
+          );
+        }
         const editable = isEditing(record);
         return editable ? (
           <span>
@@ -615,6 +650,15 @@ export default function Page() {
               disabled={editingKey !== ""}
               onClick={() => edit(record)}
               aria-label="Edit Entry"
+            />
+            {/* Copied Button */}
+            <Button
+              size="small"
+              icon={<CopyFilled />}
+              disabled={editingKey !== "" || actionLoading}
+              onClick={() => {
+                createCopiedTimesheetEntry(record);
+              }}
             />
           </Space>
         );
