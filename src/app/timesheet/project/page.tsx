@@ -81,6 +81,7 @@ export default function Page() {
   });
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [detailProject, setDetailProject] = useState<Project | null>(null);
+  const [actionLoading, setActionLoading] = useState<boolean>(false);
 
   // ฟังก์ชันโหลดข้อมูลโปรเจค
   const fetchProjects = async () => {
@@ -92,7 +93,7 @@ export default function Page() {
       });
       const data = response.data;
       setProjects(data.data || []);
-      setTotalItems(data.pagination?.totalItems || 0);
+      setTotalItems(data.pagination?.total || 0);
     } catch (error) {
       setProjects([]);
       toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
@@ -104,6 +105,7 @@ export default function Page() {
   // ฟังก์ชันสร้างหรือแก้ไขโปรเจค
   const createOrUpdateProject = async (project: ProjectForm) => {
     try {
+      setActionLoading(true);
       const response = await axios.post(
         `/api/v1/timesheet/project/insert/`,
         project,
@@ -111,6 +113,8 @@ export default function Page() {
       toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
       toast.error("สร้าง/อัปเดต ข้อมูลล้มเหลว", { duration: 5000 });
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -319,20 +323,20 @@ export default function Page() {
           {/* ตารางโครงการ */}
           <Skeleton active loading={loading}>
             <Table
-              columns={columns}
-              dataSource={projects}
-              rowKey="id"
-              pagination={{
-                current: currentPage,
-                pageSize: limit,
-                total: totalItems,
-                showSizeChanger: false,
-                onChange: (page) => setCurrentPage(page),
-              }}
-              locale={{
-                emptyText: "ไม่พบข้อมูลโปรเจค",
-              }}
-            />
+  columns={columns}
+  dataSource={projects}
+  rowKey="id"
+  pagination={{
+    current: currentPage,
+    pageSize: limit,                // ✅ page_size
+    total: totalItems,              // ✅ total
+    showSizeChanger: false,
+    onChange: (page) => setCurrentPage(page),
+  }}
+  locale={{
+    emptyText: "ไม่พบข้อมูลโปรเจค",
+  }}
+/>
           </Skeleton>
         </Card>
 
@@ -401,6 +405,7 @@ export default function Page() {
                   type="primary"
                   htmlType="submit"
                   icon={<CheckCircleOutlined />}
+                  disabled={actionLoading}
                 >
                   บันทึก
                 </Button>

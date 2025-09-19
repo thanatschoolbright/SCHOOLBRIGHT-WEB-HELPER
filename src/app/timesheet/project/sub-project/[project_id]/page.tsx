@@ -52,6 +52,7 @@ export default function Page() {
   });
   const [antdForm] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
+  const [actionLoading , setActionLoading] = useState<boolean>(false);
   const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [detailProject, setDetailProject] = useState<SubProject | null>(null);
@@ -122,6 +123,7 @@ export default function Page() {
 
   const createOrUpdateProject = async (project: SubProjectForm) => {
     try {
+      setActionLoading(true);
       const res = await fetch(`/api/v1/timesheet/project/sub-project/insert`, {
         method: "POST",
         headers: {
@@ -136,6 +138,8 @@ export default function Page() {
     } catch (error) {
       console.error("Error creating or updating project:", error);
       toast.error("สร้าง/อัปเดตโปรเจคล้มเหลว", { duration: 5000 });
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -171,6 +175,7 @@ export default function Page() {
 
   const handleSubmit = async () => {
     if (!form.name.trim()) return;
+    
     await createOrUpdateProject(form);
     setForm({
       name: "",
@@ -585,7 +590,7 @@ export default function Page() {
                         type="text"
                         danger
                         onClick={() => remove(field.name)}
-                        // disabled={fields.length <= 0}
+                        disabled={fields.length <= 0}
                         aria-label="ลบ"
                       >
                         ลบ
@@ -610,13 +615,19 @@ export default function Page() {
               style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}
             >
               <Button onClick={() => setModal("")}>ยกเลิก</Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                icon={<FiCheckCircle className="w-5 h-5" />}
-              >
-                บันทึก
-              </Button>
+              {actionLoading ? (
+                <Skeleton.Button active style={{ width: 100, height: 32 }} />
+              ) : (
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  icon={<FiCheckCircle className="w-5 h-5" />}
+                  disabled={actionLoading}
+                >
+                  บันทึก
+                </Button>
+              )}
+              
             </div>
           </Form>
         </Modal>
