@@ -47,6 +47,11 @@ jobs:
           echo "👉 Installing dependencies..."
           npm ci
 
+      - name: "❇️ Push Prisma into Database"
+        run: |
+          echo "👉 Pushing Prisma into database..."
+          npx prisma db push --schema=prisma/timesheet/schema.prisma
+
       - name: "⚙️ Prisma Generate"
         run: |
           echo "👉 Generating Prisma client..."
