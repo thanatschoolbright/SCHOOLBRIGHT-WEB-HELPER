@@ -11,6 +11,7 @@ export const Service = {
         take: opts.limit,
         skip: opts.skip,
         orderBy: { createdAt: "desc" },
+        include: { features: true },
       }),
       PrismaTimesheet.project.count({ where: { is_deleted: false } }),
     ]);

@@ -63,6 +63,8 @@ export default function Page() {
       "https://dev-accounting.schoolbright.co/Home/ByPass?token=",
     prodAccountingURL: "https://accounting.schoolbright.co/Home/ByPass?token=",
     prodExamURL: "https://exam.schoolbright.co/home/getToken?token=",
+    devNewKindergarten:
+      "https://kindergarten-log.schoolbright.co/Home/ByPass?token=",
   });
   const [bypass, setBypass] = useState<string>("");
   const [mode, setMode] = useState<{
@@ -202,6 +204,10 @@ export default function Page() {
 
             case "development":
               handleOpenByPassLink(url.devKindergartenURL, mode.school_id);
+              break;
+
+            case "new_development":
+              handleOpenByPassLink(url.devNewKindergarten, mode.school_id);
               break;
           }
           break;
@@ -624,7 +630,19 @@ export default function Page() {
                                 });
                               }}
                             >
-                              Dev
+                              Old Course (คอร์สเก่า)
+                            </li>
+                            <li
+                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                              onClick={() => {
+                                setMode({
+                                  school_id: row?.school_id ?? "",
+                                  name: "kindergarten",
+                                  environment: "development",
+                                });
+                              }}
+                            >
+                              Development
                             </li>
                           </ul>
                         </li>

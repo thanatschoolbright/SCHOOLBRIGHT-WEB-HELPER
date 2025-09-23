@@ -87,8 +87,11 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
           })
         );
         return await loginSuccess();
+      } else {
+        return loginFailure("โปรดตรวจสอบรหัสผ่านอีกครั้ง");
       }
     } catch (error: any) {
+      console.info("error", error);
       return loginFailure(error.message || "An error occurred during login.");
     }
   };

@@ -217,28 +217,6 @@ export default function Page() {
   };
 
   // ตรวจสอบสิทธิ์การเข้าถึง
-  useEffect(() => {
-    const role = AUTHENTICATION?.response?.data?.user_data?.position;
-    if (!role) return;
-    if (role.trim().toLowerCase() !== "admin") {
-      Swal.fire({
-        icon: "warning",
-        title: "ต้องการรหัสผ่าน",
-        input: "text",
-        inputLabel: "กรอกรหัสเพื่อเข้าถึง",
-        inputPlaceholder: "พิมพ์รหัสที่นี่",
-        confirmButtonText: "ยืนยัน",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showCancelButton: false,
-      }).then((result) => {
-        if (result.isConfirmed && result.value !== "NARIN") {
-          window.location.href = "/";
-        }
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [AUTHENTICATION]);
 
   // เมื่อเปิด modal สร้างผู้ใช้งาน
   const openCreateUserModal = () => {

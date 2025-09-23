@@ -76,6 +76,63 @@ export const Service = {
     }
   },
 
+  // * ดึงข้อมูลทุกคน ผู้ที่ยังไม่กรอก Timesheet วันนี้ (เงื่อนไข วันนี้ยังกรอกไม่ครบ 8 ชั่วโมง)
+  async findNotEntryToday() {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    // Find all entries today
+    const entries = await PrismaTimesheet.timesheetEntry.findMany({
+      where: {
+        is_deleted: false,
+        date: {
+          gte: startOfToday,
+          lte: endOfToday,
+        },
+      },
+      select: {
+        createdBy: true,
+        hours: true,
+      },
+    });
+
+    // Group by createdBy and sum hours
+    const userHoursMap: Record<number, number> = {};
+    for (const entry of entries) {
+      const userId = entry.createdBy ?? 0; // Default to 0 or handle null appropriately
+      const hours = Number(entry.hours) || 0;
+      if (userId in userHoursMap) {
+        userHoursMap[userId] += hours;
+      } else {
+        userHoursMap[userId] = hours;
+      }
+    }
+
+    // Build result for all users who have entries today
+    return Object.entries(userHoursMap).map(([userIdStr, totalHours]) => {
+      const user_id = Number(userIdStr);
+      const total_hours = totalHours;
+      const remaining_hours = 8 - total_hours;
+      let status = "";
+      if (total_hours === 0) {
+        status = "ยังไม่ได้กรอก";
+      } else if (total_hours < 8) {
+        status = "กรอกไม่ครบ";
+      } else {
+        status = "ครบ";
+      }
+      return {
+        user_id,
+        total_hours,
+        remaining_hours,
+        status,
+      };
+    });
+  },
+
   // * สร้าง
   async create(data: CreateTimesheetEntryInput) {
     console.log("CREATE ENTRY TIMESHEET");

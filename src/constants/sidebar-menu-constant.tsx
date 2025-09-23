@@ -158,6 +158,11 @@ export const useSidebarMenu = (): SidebarItem[] => {
             href: "/timesheet/entry",
             news: true,
           },
+          {
+            label: t("timesheet_system.children.all"),
+            href: "/timesheet/all",
+            news: true,
+          },
         ],
       },
       // ... เหมือนเดิม

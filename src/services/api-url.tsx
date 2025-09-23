@@ -27,6 +27,7 @@ export const API_URL = {
     process.env.NEXT_PUBLIC_PRODUCTION_PAYMENT_GATEWAY_WEB_URL ?? "error",
   DEV_PAYMENT_GATEWAY_API_URL:
     process.env.NEXT_PUBLIC_DEVELOPMENT_PAYMENT_GATEWAY_API_URL ?? "error",
+  SB_HELPER_URL: process.env.NEXT_PUBLIC_SB_HELPER_URL ?? "error",
 } as const;
 
 export type ApiUrlKey = keyof typeof API_URL;
