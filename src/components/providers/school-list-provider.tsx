@@ -12,16 +12,22 @@ export default function SchoolReduxProvider({
   const schoolState = useAppSelector((state) => state.callSchoolList);
 
   useEffect(() => {
+    const callSchoolList = async () => {
+      const storedSchools = localStorage.getItem("schools");
+      if (storedSchools) {
+        dispatch(setDraftValues(JSON.parse(storedSchools)));
+      } else {
+        try {
+          const response = await dispatch(CallAPI()).unwrap();
+          dispatch(setDraftValues(response));
+          localStorage.setItem("schools", JSON.stringify(response));
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      }
+    };
     callSchoolList();
-  }, []);
-
-  const callSchoolList = async () => {
-    try {
-      const response = await dispatch(CallAPI()).unwrap();
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
+  }, [dispatch]);
 
   return <>{children}</>;
 }

@@ -1,219 +1,387 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import DashboardLayout from "@components/layouts/backend-layout";
-import { useTranslation } from "react-i18next";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
-import { ReloadOutlined } from "@ant-design/icons";
 
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import DashboardLayout from "@components/layouts/backend-layout";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { toast } from "sonner";
-import { FiCheckCircle, FiEdit2, FiRefreshCw } from "react-icons/fi";
-import { ResponseHeartbeats } from "@/stores/type";
 import { CallAPI as GET_HEARTBEATS } from "@/stores/actions/health-check/heartbeats/action";
-
-// Ant Design
+import { ResponseHeartbeats } from "@/stores/type";
 import {
-  Table,
-  Tag,
   Button,
-  Modal,
-  Space,
   Card,
-  Typography,
   Form,
   Input,
+  Modal,
+  Space,
+  Table,
+  Tag,
+  Typography,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import {
+  CheckCircleOutlined,
+  EditOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import type { ColumnsType, ColumnType } from "antd/es/table";
+import type { InputRef } from "antd";
 
-// Corrected the type definition to be the array of data objects
-type ApiTableData = ResponseHeartbeats["data"]["data"][number];
+export type ApiTableData = ResponseHeartbeats["data"]["data"][number];
+
+type SearchableColumnKey = "JobName" | "Description" | "Remarks" | "Status";
+
+type TableColumn = ColumnType<ApiTableData> & {
+  key: keyof ApiTableData | string;
+};
+
+const formatInterval = (minutes: number) => {
+  const totalMinutes = Number(minutes) || 0;
+  const hours = Math.floor(totalMinutes / 60);
+  const remainingMinutes = totalMinutes % 60;
+
+  if (hours === 0 && remainingMinutes === 0) {
+    return "0 นาที";
+  }
+
+  const parts: string[] = [];
+
+  if (hours > 0) {
+    parts.push(`${hours} ชั่วโมง`);
+  }
+
+  if (remainingMinutes > 0) {
+    parts.push(`${remainingMinutes} นาที`);
+  }
+
+  return parts.join(" ");
+};
+
+const formatTimestamp = (value: string) => {
+  if (!value) {
+    return "-";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("th-TH", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+};
 
 export default function Page() {
-  const { t } = useTranslation("mock");
   const dispatch = useDispatch<AppDispatch>();
-  const [updateDescriptionForm] = Form.useForm();
+  const heartbeatState = useAppSelector((state) => state.heartbeatReducer);
 
-  const HEARTBEAT_STATE = useAppSelector((state) => state.heartbeatReducer);
+  const [form] = Form.useForm<{ description: string }>();
+  const [editingRow, setEditingRow] = useState<ApiTableData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const searchInputRefs = useRef<
+    Partial<Record<SearchableColumnKey, InputRef | null>>
+  >({});
 
-  const isLoading = [HEARTBEAT_STATE.loading].some(Boolean);
+  const isLoading = Boolean(heartbeatState.loading);
 
-  // Corrected the type of the 'table' state to be a single array
-  const [table, setTable] = useState<ApiTableData[]>([]);
-  const [modal, setModal] = useState<string>("");
-  // Corrected the type of 'selectedRow' to be a valid object type
-  const [selectedRow, setSelectedRow] = useState<ApiTableData | null>(null);
+  const dataSource = useMemo(() => {
+    const raw = heartbeatState?.response?.data?.data;
+    return Array.isArray(raw) ? (raw as ApiTableData[]) : [];
+  }, [heartbeatState?.response?.data?.data]);
 
-  const formatInterval = (minute: number) => {
-    const seconds = minute * 60;
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-
-    let result = "";
-    if (hours > 0) result += `${hours} ชั่วโมง `;
-    if (minutes > 0) result += `${minutes} นาที`;
-    return result.trim() || "0 นาที";
-  };
-
-  const handleUpdateDescription = async () => {
+  const refreshHeartbeats = useCallback(async () => {
     try {
-      const values = await updateDescriptionForm.validateFields();
-      const payload = {
-        Description: values.description,
-      };
-      const response = await fetch(
-        `/api/v1/health-check/server/heartbeats/update/${selectedRow?.ID}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-      if (!response.ok) throw new Error("Failed to update description");
-      toast.success("อัปเดตคำอธิบายสำเร็จ", { duration: 3000 });
-      setModal("");
-      setSelectedRow(null);
-      updateDescriptionForm.resetFields();
-      dispatch(GET_HEARTBEATS());
+      await dispatch(GET_HEARTBEATS()).unwrap();
+      toast.success("รีเฟรชสำเร็จ", {
+        duration: 3000,
+        position: "top-right",
+      });
     } catch (error: any) {
-      console.error("Error updating description:", error);
-      toast.error("อัปเดตคำอธิบายล้มเหลว", { duration: 3000 });
+      toast.error("รีเฟรชล้มเหลว", {
+        description: error?.message ?? "Unexpected error",
+        duration: 3000,
+        position: "top-right",
+      });
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(GET_HEARTBEATS());
-  }, []);
+  }, [dispatch]);
 
-  useEffect(() => {
-    // Corrected this line: We need the 'data' array from the response object.
-    const response = HEARTBEAT_STATE?.response?.data?.data ?? [];
-    console.log("RESPONSE", response);
-    // Added a check to ensure the response is an array before setting the state
-    if (Array.isArray(response)) {
-      setTable(response);
+  const closeEditModal = useCallback(() => {
+    setEditingRow(null);
+    form.resetFields();
+  }, [form]);
+
+  const openEditModal = useCallback(
+    (record: ApiTableData) => {
+      setEditingRow(record);
+      form.setFieldsValue({ description: record.Description ?? "" });
+    },
+    [form]
+  );
+
+  const handleUpdateDescription = useCallback(async () => {
+    if (!editingRow) {
+      return;
     }
-  }, [HEARTBEAT_STATE]);
 
-  const columns: ColumnsType<ApiTableData> = [
-    {
-      title: "ลำดับ",
-      render: (_, __, index) => (
-        <Typography.Text strong>{index + 1}</Typography.Text>
-      ),
-      width: 80,
-      align: "center",
-    },
-    {
-      title: "ชื่อของบอท",
-      dataIndex: "JobName",
-      key: "JobName",
-      render: (text) => <Typography.Text copyable>{text}</Typography.Text>,
-      sorter: (a, b) => a.JobName.localeCompare(b.JobName),
-      width: 300,
-    },
-    {
-      title: "รายละเอียด",
-      dataIndex: "Description",
-      key: "Description",
-      render: (text, record) => (
-        <Space>
-          <Typography.Text>{text ?? "โปรดกรอกการทำงานของบอท"}</Typography.Text>
-          <Button
-            type="link"
-            icon={<FiEdit2 />}
-            onClick={() => {
-              setSelectedRow(record);
-              setModal("edit-description");
-            }}
-          />
-        </Space>
-      ),
-    },
-    {
-      title: "ทำงานทุก (ชั่วโมง/นาที)",
-      dataIndex: "Interval",
-      key: "Interval",
-      render: (interval) => (
-        <Tag color="blue" icon={<ReloadOutlined />}>
-          {formatInterval(interval)}
-        </Tag>
-      ),
-      sorter: (a, b) => a.Interval - b.Interval,
-      align: "center",
-      width: 300,
-    },
-    {
-      title: "สถานะ",
-      dataIndex: "Status",
-      key: "Status",
-      render: (status: string) => {
-        const isOnline = status === "Online";
+    try {
+      setIsSubmitting(true);
+      const values = await form.validateFields();
+      const response = await fetch(
+        `/api/v1/health-check/server/heartbeats/update/${editingRow.ID}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ Description: values.description }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update description");
+      }
+
+      toast.success("อัปเดตคำอธิบายสำเร็จ", {
+        duration: 3000,
+        position: "top-right",
+      });
+
+      closeEditModal();
+      await dispatch(GET_HEARTBEATS());
+    } catch (error: any) {
+      toast.error("อัปเดตคำอธิบายล้มเหลว", {
+        description: error?.message ?? "Unexpected error",
+        duration: 3000,
+        position: "top-right",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [closeEditModal, dispatch, editingRow, form]);
+
+  const getColumnSearchProps = useCallback(
+    (dataIndex: SearchableColumnKey, title: string): TableColumn => ({
+      key: dataIndex,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => {
+        const value = (selectedKeys[0] as string | undefined) ?? "";
+
         return (
-          <Tag color={isOnline ? "green" : "red"}>
-            {isOnline ? "✅ Online" : "🔴 Offline"}
+          <div
+            style={{ padding: 12 }}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <Input
+              ref={(node) => {
+                searchInputRefs.current[dataIndex] = node;
+              }}
+              placeholder={`ค้นหา ${title}`}
+              value={value}
+              onChange={(event) => {
+                const { value: inputValue } = event.target;
+                setSelectedKeys(inputValue ? [inputValue] : []);
+              }}
+              onPressEnter={() => confirm()}
+              style={{ marginBottom: 8, display: "block" }}
+            />
+            <Space>
+              <Button
+                type="primary"
+                onClick={() => confirm()}
+                icon={<SearchOutlined />}
+                size="small"
+              >
+                ค้นหา
+              </Button>
+              <Button
+                onClick={() => {
+                  clearFilters?.();
+                  confirm({ closeDropdown: true });
+                }}
+                size="small"
+              >
+                รีเซ็ต
+              </Button>
+            </Space>
+          </div>
+        );
+      },
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+      ),
+      onFilter: (value, record) => {
+        const raw = record[dataIndex];
+        if (raw === undefined || raw === null) {
+          return false;
+        }
+        return String(raw).toLowerCase().includes(String(value).toLowerCase());
+      },
+      filterDropdownProps: {
+        onOpenChange: (visible) => {
+          if (visible) {
+            setTimeout(() => searchInputRefs.current[dataIndex]?.select(), 100);
+          }
+        },
+      },
+    }),
+    []
+  );
+
+  const columns = useMemo<ColumnsType<ApiTableData>>(
+    () => [
+      {
+        title: "ลำดับ",
+        key: "index",
+        width: 80,
+        align: "center",
+        render: (_value, _record, index) => (
+          <Typography.Text strong>{index + 1}</Typography.Text>
+        ),
+      },
+      {
+        title: "ชื่อของบอท",
+        dataIndex: "JobName",
+        render: (value: string) => (
+          <Typography.Text copyable>{value}</Typography.Text>
+        ),
+        sorter: (a, b) => a.JobName.localeCompare(b.JobName),
+        width: 280,
+        ...getColumnSearchProps("JobName", "ชื่อของบอท"),
+      },
+      {
+        title: "รายละเอียด",
+        dataIndex: "Description",
+        render: (_value, record) => (
+          <Space size={6}>
+            <Typography.Text>
+              {record.Description ?? "โปรดกรอกการทำงานของบอท"}
+            </Typography.Text>
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => openEditModal(record)}
+            />
+          </Space>
+        ),
+        ...getColumnSearchProps("Description", "รายละเอียด"),
+      },
+      {
+        title: "หมายเหตุ",
+        dataIndex: "Remarks",
+        render: (value: string | null) => value ?? "-",
+        ...getColumnSearchProps("Remarks", "หมายเหตุ"),
+      },
+      {
+        title: "ทำงานทุก (ชั่วโมง/นาที)",
+        dataIndex: "Interval",
+        key: "Interval",
+        align: "center",
+        width: 220,
+        render: (value: number) => (
+          <Tag color="blue" icon={<ReloadOutlined />}>
+            {formatInterval(value)}
           </Tag>
-        );
+        ),
+        sorter: (a, b) => a.Interval - b.Interval,
       },
-      filters: [
-        { text: "Online", value: "Online" },
-        { text: "Offline", value: "Offline" },
-      ],
-      onFilter: (value, record) => record.Status.indexOf(value as string) === 0,
-    },
-    {
-      title: "บอททำงานล่าสุดเมื่อเวลา",
-      dataIndex: "LastUpdatedTime",
-      key: "LastUpdatedTime",
-      render: (time: string) => {
-        const date = new Date(time);
-        return (
-          <Typography.Text>
-            {date.toLocaleString("th-TH", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            })}
-          </Typography.Text>
-        );
+      {
+        title: "สถานะ",
+        dataIndex: "Status",
+        render: (status: string) => {
+          const isOnline = status === "Online";
+          return (
+            <Tag color={isOnline ? "green" : "red"}>
+              {isOnline ? "Online" : "Offline"}
+            </Tag>
+          );
+        },
+        ...getColumnSearchProps("Status", "สถานะ"),
       },
-      sorter: (a, b) =>
-        new Date(a.LastUpdatedTime).getTime() -
-        new Date(b.LastUpdatedTime).getTime(),
-    },
-  ];
+      {
+        title: "บอททำงานล่าสุดเมื่อเวลา",
+        dataIndex: "LastUpdatedTime",
+        key: "LastUpdatedTime",
+        render: (value: string) => formatTimestamp(value),
+        sorter: (a, b) =>
+          new Date(a.LastUpdatedTime).getTime() -
+          new Date(b.LastUpdatedTime).getTime(),
+        defaultSortOrder: "descend",
+        sortDirections: ["descend", "ascend"],
+      },
+    ],
+    [getColumnSearchProps, openEditModal]
+  );
 
   return (
     <DashboardLayout>
-      {isLoading && <BaseLoadingComponent />}
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Card title="ทดสอบสถานะเซิร์ฟเวอร์อีกครั้ง" variant="borderless">
+          <Button
+            type="primary"
+            icon={<ReloadOutlined />}
+            loading={isLoading}
+            onClick={() => void refreshHeartbeats()}
+          >
+            รีเฟรช
+          </Button>
+        </Card>
 
-      {/* Edit Description Modal */}
+        <Card title="เช็กเวอร์ชันทุกระบบ" variant="borderless">
+          <Table<ApiTableData>
+            columns={columns}
+            dataSource={dataSource}
+            loading={isLoading}
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "20", "50"],
+              showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+            }}
+            rowKey={(record) => String(record.ID)}
+          />
+        </Card>
+      </Space>
+
       <Modal
-        open={modal === "edit-description" && !!selectedRow}
-        onCancel={() => {
-          setModal("");
-          setSelectedRow(null);
-        }}
         title="แก้ไขคำอธิบาย"
+        open={Boolean(editingRow)}
+        onCancel={closeEditModal}
+        destroyOnHidden
         footer={[
-          <Button key="cancel" onClick={() => setModal("")}>
+          <Button key="cancel" onClick={closeEditModal}>
             ยกเลิก
           </Button>,
           <Button
             key="submit"
             type="primary"
-            onClick={() => handleUpdateDescription()}
-            icon={<FiCheckCircle />}
+            icon={<CheckCircleOutlined />}
+            onClick={handleUpdateDescription}
+            loading={isSubmitting}
           >
             บันทึก
           </Button>,
         ]}
-        destroyOnHidden
       >
-        <Form form={updateDescriptionForm} layout="vertical">
+        <Form form={form} layout="vertical">
           <Form.Item
             label="คำอธิบาย"
             name="description"
@@ -226,56 +394,6 @@ export default function Page() {
           </Form.Item>
         </Form>
       </Modal>
-
-      {/* Modal แสดงรายละเอียด */}
-      <Modal
-        title="รายละเอียดเซิร์ฟเวอร์"
-        open={modal === "description"}
-        onCancel={() => setModal("")}
-        footer={null}
-      >
-        <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded text-sm">
-          {JSON.stringify(selectedRow, null, 2)}
-        </pre>
-      </Modal>
-
-      <div className="w-full space-y-4">
-        {/* ปุ่มรีเฟรช */}
-        <Card title="ทดสอบสถานะเซิฟเวอร์อีกครั้ง">
-          <Button
-            color="primary"
-            variant="outlined"
-            icon={<FiRefreshCw />}
-            onClick={() => {
-              dispatch(GET_HEARTBEATS());
-              toast.success("รีเฟรชสำเร็จ", {
-                duration: 3000,
-                position: "top-right",
-              });
-            }}
-          >
-            รีเฟรช
-          </Button>
-        </Card>
-
-        {/* ตาราง AntD */}
-        <Card title="เช็กเวอร์ชันทุกระบบ">
-          <Table
-            columns={columns}
-            dataSource={table}
-            loading={isLoading}
-            pagination={{ pageSize: 10 }}
-            size="middle"
-            rowKey={(record: ApiTableData) =>
-              `${record.JobName}-${record.Interval}`
-            }
-            style={{
-              background: "white",
-              borderRadius: 14,
-            }}
-          />
-        </Card>
-      </div>
     </DashboardLayout>
   );
 }

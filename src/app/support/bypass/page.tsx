@@ -1,719 +1,565 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
-import { useTranslation } from "react-i18next";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
+import { Card, Table, Select, Space, Dropdown, Button, Tag, Input } from "antd";
+import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import MinimalButton from "@/components/button/minimal-button-component";
-import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
-import MinimalTable from "@components/table/minimal-table-component";
 import { CallAPI as GET_SCHOOL_LIST_DETAIL } from "@stores/actions/support/call-get-school-list-detail";
 import { CallAPI as GET_BYPASS_TOKEN } from "@stores/actions/support/call-get-bypass-token";
 import * as type from "@stores/type";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
+import type { MenuProps, TableProps } from "antd";
+import type { ColumnsType, ColumnType } from "antd/es/table/interface";
+import type { InputRef } from "antd";
 
-const columns: { key: string; label: string }[] = [
-  { key: "school_id", label: "รหัสโรงเรียน" },
-  { key: "company_name", label: "ชื่อโรงเรียน" },
-  { key: "province", label: "จังหวัด" },
-  { key: "school_group", label: "กลุ่มโรงเรียน" },
-  { key: "school_class", label: "ระดับชั้นที่เปิดสอน" },
-  { key: "school_grade", label: "เกรดโรงเรียน" },
-  { key: "isActive", label: "สถานะการใช้งาน" },
-  { key: "action", label: "เข้าสู่ระบบ" },
-];
+const collator = new Intl.Collator("th", {
+  sensitivity: "base",
+  numeric: true,
+});
+
+const gradeColorMap: Record<string, string> = {
+  A: "green",
+  B: "blue",
+  C: "gold",
+  D: "orange",
+  E: "red",
+};
+
+const statusColorMap: Record<string, string> = {
+  active: "green",
+  inactive: "red",
+};
+
+type BypassTarget = {
+  label: string;
+  environments: Record<
+    string,
+    { label: string; url: string; extendPath?: string }
+  >;
+};
+
+const bypassTargets: Record<string, BypassTarget> = {
+  system: {
+    label: "✨ System",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
+      staging: {
+        label: "Beta",
+        url: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
+      development: {
+        label: "Development",
+        url: "https://dev.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
+    },
+  },
+  academic: {
+    label: "👩🏻‍🏫 Academic",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
+      development: {
+        label: "Development",
+        url: "https://dev-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
+      ui: {
+        label: "Dev UI",
+        url: "https://dev-ui-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
+    },
+  },
+  accounting: {
+    label: "🧾 Accounting",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://accounting.schoolbright.co/Home/ByPass?token=",
+      },
+      development: {
+        label: "Development",
+        url: "https://dev-accounting.schoolbright.co/Home/ByPass?token=",
+      },
+    },
+  },
+  library: {
+    label: "📔 Library",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://library.schoolbright.co/Home/ByPass?token=",
+      },
+      development: {
+        label: "Development",
+        url: "https://library-dev.schoolbright.co/Home/ByPass?token=",
+      },
+    },
+  },
+  canteen: {
+    label: "🥪 Canteen",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
+      development: {
+        label: "Development",
+        url: "https://dev-canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
+    },
+  },
+  kindergarten: {
+    label: "👶🏻 Kindergarten",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://kindergarten.schoolbright.co/Home/ByPass?token=",
+      },
+      legacy: {
+        label: "Old Course",
+        url: "https://kindergarten-dev.schoolbright.co/Home/ByPass?token=",
+      },
+      development: {
+        label: "New Development",
+        url: "https://kindergarten-log.schoolbright.co/Home/ByPass?token=",
+      },
+    },
+  },
+  activity: {
+    label: "🎃 Mark Activity",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://markactivity.schoolbright.co/Home/ByPass?token=",
+        extendPath: "&page=ActivityManagement",
+      },
+      development: {
+        label: "Development",
+        url: "https://dev-markactivity.schoolbright.co/Home/ByPass?token=",
+        extendPath: "&page=ActivityManagement",
+      },
+    },
+  },
+  exam: {
+    label: "🚀 SB Exam",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://exam.schoolbright.co/home/getToken?token=",
+      },
+      development: {
+        label: "Development",
+        url: "https://dev-exam.schoolbright.co/home/getToken?token=",
+      },
+    },
+  },
+};
+
+const buildMenuItems = (): MenuProps["items"] =>
+  Object.entries(bypassTargets).map(([targetKey, target]) => ({
+    key: targetKey,
+    label: target.label,
+    children: Object.entries(target.environments).map(
+      ([environmentKey, environment]) => ({
+        key: `${targetKey}|${environmentKey}`,
+        label: environment.label,
+      })
+    ),
+  }));
+
+const compareValues = (a: unknown, b: unknown) =>
+  collator.compare(String(a ?? ""), String(b ?? ""));
+
+type SchoolDetail =
+  type.ResponseSchoolListWithMoreDetail["data"]["data"][number];
+
+type SearchableColumnKey =
+  | "school_id"
+  | "company_name"
+  | "province"
+  | "school_group"
+  | "school_class"
+  | "school_grade"
+  | "isActive";
 
 export default function Page() {
-  const { t } = useTranslation("mock");
   const dispatch = useDispatch<AppDispatch>();
-  const SCHOOL_LIST_STATE = useAppSelector((state) => state.callSchoolList);
-  const SCHOOL_LIST_WITH_DETAIL = useAppSelector(
+  const schoolListState = useAppSelector((state) => state.callSchoolList);
+  const schoolListWithDetail = useAppSelector(
     (state) => state.callGetSchooListDetail
   );
+  const userState = useAppSelector((state) => state.callAdminLogin);
 
-  const USER = useAppSelector((state) => state.callAdminLogin);
+  const [selectedSchool, setSelectedSchool] = useState<string | undefined>();
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [openDropdownFor, setOpenDropdownFor] = useState<string | null>(null);
 
-  const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
-  const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
-  const [url, setUrl] = useState<Record<string, string>>({
-    prodSystemURL: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
-    betaSystemURL: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
-    devSystemURL: "https://dev.schoolbright.co/BypassSuperAdmin.aspx?q=",
-    prodCanteenURL: "https://canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
-    devCanteenURL:
-      "https://dev-canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
-    prodAcademicURL:
-      "https://academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
-    devAcademicURL:
-      "https://dev-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
-    devUIAcademicURL:
-      "https://dev-ui-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
-    devLibraryURL: "https://library-dev.schoolbright.co/Home/ByPass?token=",
-    prodLibraryURL: "https://library.schoolbright.co/Home/ByPass?token=",
-    prodKindergartenURL:
-      "https://kindergarten.schoolbright.co/Home/ByPass?token=",
-    devKindergartenURL:
-      "https://kindergarten-dev.schoolbright.co/Home/ByPass?token=",
-    devActivityURL:
-      "https://dev-markactivity.schoolbright.co/Home/ByPass?token=",
-    prodActivityURL: "https://markactivity.schoolbright.co/Home/ByPass?token=",
-    devAccountingURL:
-      "https://dev-accounting.schoolbright.co/Home/ByPass?token=",
-    prodAccountingURL: "https://accounting.schoolbright.co/Home/ByPass?token=",
-    prodExamURL: "https://exam.schoolbright.co/home/getToken?token=",
-    devNewKindergarten:
-      "https://kindergarten-log.schoolbright.co/Home/ByPass?token=",
-  });
-  const [bypass, setBypass] = useState<string>("");
-  const [mode, setMode] = useState<{
-    school_id: string;
-    name: string;
-    environment: string;
-  }>({
-    school_id: "",
-    name: "",
-    environment: "",
-  });
-  // เปลี่ยน useRef เดิมของ `dropdownRef` ให้รองรับ dropdown หลายอัน
-  const dropdownRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  const handleOpenByPassLink = async (
-    targetUrl: string,
-    school_id: string,
-    extendPath?: string
-  ) => {
-    try {
-      const isExtendPath = extendPath ? extendPath : "";
-      // เปลี่ยนชื่อแปรท้องถิ่นเป็น finalUrl เพื่อไม่ชน state ชื่อ url
-      const finalUrl =
-        targetUrl + (await getBypassToken(school_id)) + isExtendPath;
-
-      console.log("URL \n", finalUrl);
-
-      // ✅ Toast แจ้งสำเร็จ + ปุ่ม Copy URL + 10 วิ + Bottom Center
-      toast.success("Bypass สำเร็จ", {
-        description: `คุณกำลังเข้าสู่ ${finalUrl}`,
-        duration: 10000,
-        position: "top-right",
-        action: {
-          label: "Copy URL",
-          onClick: () => {
-            navigator.clipboard.writeText(finalUrl).then(() => {
-              toast.success("Copied!", {
-                description: "URL copied to clipboard.",
-                duration: 3000,
-                position: "top-right",
-              });
-            });
-          },
-        },
-      });
-
-      return window.open(finalUrl, "_blank");
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
-
-  const getBypassToken = async (school_id: string) => {
-    try {
-      const userEmail = USER?.response?.data?.user_data.email;
-      console.log("user", USER);
-      const response = await dispatch(
-        GET_BYPASS_TOKEN({ school_id: school_id, user_email: userEmail })
-      ).unwrap();
-      return response?.data?.bypass;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
-
-  useEffect(() => {
-    try {
-      switch (mode.name) {
-        case "system":
-          switch (mode.environment) {
-            case "production":
-              handleOpenByPassLink(url.prodSystemURL, mode.school_id);
-              break;
-
-            case "staging":
-              handleOpenByPassLink(url.betaSystemURL, mode.school_id);
-              break;
-
-            case "development":
-              handleOpenByPassLink(url.devSystemURL, mode.school_id);
-              break;
-          }
-          break;
-        case "academic":
-          switch (mode.environment) {
-            case "production":
-              handleOpenByPassLink(url.prodAcademicURL, mode.school_id);
-              break;
-
-            case "development":
-              handleOpenByPassLink(url.devAcademicURL, mode.school_id);
-              break;
-
-            case "ui":
-              handleOpenByPassLink(url.devUIAcademicURL, mode.school_id);
-              break;
-          }
-          break;
-        case "library":
-          switch (mode.environment) {
-            case "production":
-              handleOpenByPassLink(url.prodLibraryURL, mode.school_id);
-              break;
-
-            case "development":
-              handleOpenByPassLink(url.devLibraryURL, mode.school_id);
-              break;
-          }
-          break;
-        case "accounting":
-          switch (mode.environment) {
-            case "production":
-              handleOpenByPassLink(url.prodAccountingURL, mode.school_id);
-              break;
-
-            case "development":
-              handleOpenByPassLink(url.devAccountingURL, mode.school_id);
-              break;
-          }
-          break;
-        case "canteen":
-          switch (mode.environment) {
-            case "production":
-              handleOpenByPassLink(url.prodCanteenURL, mode.school_id);
-              break;
-
-            case "development":
-              handleOpenByPassLink(url.devCanteenURL, mode.school_id);
-              break;
-          }
-          break;
-        case "kindergarten":
-          switch (mode.environment) {
-            case "production":
-              handleOpenByPassLink(url.prodKindergartenURL, mode.school_id);
-              break;
-
-            case "development":
-              handleOpenByPassLink(url.devKindergartenURL, mode.school_id);
-              break;
-
-            case "new_development":
-              handleOpenByPassLink(url.devNewKindergarten, mode.school_id);
-              break;
-          }
-          break;
-        case "activity":
-          switch (mode.environment) {
-            case "production":
-              handleOpenByPassLink(
-                url.prodActivityURL,
-                mode.school_id,
-                "&page=ActivityManagement"
-              );
-              break;
-
-            case "development":
-              handleOpenByPassLink(
-                url.devActivityURL,
-                mode.school_id,
-                "&page=ActivityManagement"
-              );
-              break;
-          }
-          break;
-        case "exam":
-          switch (mode.environment) {
-            case "production":
-              handleOpenByPassLink(url.prodExamURL, mode.school_id);
-              break;
-
-            case "development":
-              handleOpenByPassLink(url.devExamURL, mode.school_id);
-              break;
-          }
-          break;
-      }
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  }, [mode]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownOpen !== null) {
-        const ref = dropdownRefs.current[dropdownOpen];
-        if (ref && !ref.contains(event.target as Node)) {
-          setTimeout(() => {
-            setDropdownOpen(null);
-          }, 350);
-        }
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [dropdownOpen]);
-
-  useEffect(() => {
-    const data = SCHOOL_LIST_WITH_DETAIL?.response?.data?.data ?? [];
-    const filtered = selectedSchool
-      ? data.filter((d) => String(d.school_id) === selectedSchool)
-      : data;
-    setTable(filtered);
-  }, [selectedSchool, SCHOOL_LIST_WITH_DETAIL]);
-  const [table, setTable] = useState<
-    type.ResponseSchoolListWithMoreDetail["data"]["data"]
-  >([]);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [schoolList, setSchoolList] = useState<any[]>([]);
-  const isLoading = [
-    SCHOOL_LIST_STATE.loading,
-    SCHOOL_LIST_WITH_DETAIL.loading,
-  ].some(Boolean);
-
-  useEffect(() => {
-    setSchoolList(
-      SCHOOL_LIST_STATE?.response?.data?.data?.map((item: any) => ({
-        label: item.SchoolName,
-        value: item.SchoolID,
-      })) || []
-    );
-  }, [SCHOOL_LIST_STATE?.response]);
+  const searchInputRefs = useRef<
+    Partial<Record<SearchableColumnKey, InputRef | null>>
+  >({});
 
   useEffect(() => {
     dispatch(GET_SCHOOL_LIST_DETAIL());
-  }, []);
+  }, [dispatch]);
 
-  useEffect(() => {
-    const data = SCHOOL_LIST_WITH_DETAIL?.response?.data?.data ?? [];
-    const filtered = selectedSchool
-      ? data.filter((d) => String(d.school_id) === selectedSchool)
-      : data;
-    setTable(filtered);
-  }, [SCHOOL_LIST_WITH_DETAIL]);
+  const schoolOptions = useMemo(() => {
+    const rawSchools = schoolListWithDetail?.response?.data?.data ?? [];
+    return rawSchools.map((item: any) => ({
+      label: `${item.company_name} (${item.school_id})`,
+      value: String(item.school_id),
+    }));
+  }, [schoolListState?.response?.data?.data]);
+
+  const schoolDetails = useMemo<SchoolDetail[]>(() => {
+    return (schoolListWithDetail?.response?.data?.data ?? []) as SchoolDetail[];
+  }, [schoolListWithDetail?.response?.data?.data]);
+
+  const filteredDetails = useMemo(() => {
+    if (!selectedSchool) {
+      return schoolDetails;
+    }
+
+    return schoolDetails.filter(
+      (detail) => String(detail.school_id) === String(selectedSchool)
+    );
+  }, [schoolDetails, selectedSchool]);
+
+  const isLoading = useMemo(
+    () =>
+      Boolean(schoolListState?.loading) ||
+      Boolean(schoolListWithDetail?.loading),
+    [schoolListState?.loading, schoolListWithDetail?.loading]
+  );
+
+  const getColumnSearchProps = useCallback(
+    (
+      dataIndex: SearchableColumnKey,
+      title: string
+    ): ColumnType<SchoolDetail> => ({
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => {
+        const inputValue = selectedKeys[0]?.toString() ?? "";
+
+        return (
+          <div style={{ padding: 12 }} onKeyDown={(e) => e.stopPropagation()}>
+            <Input
+              ref={(node) => {
+                searchInputRefs.current[dataIndex] = node;
+              }}
+              placeholder={`ค้นหา ${title}`}
+              value={inputValue}
+              onChange={(e) =>
+                setSelectedKeys(e.target.value ? [e.target.value] : [])
+              }
+              onPressEnter={() => confirm()}
+              style={{ marginBottom: 8, display: "block" }}
+            />
+            <Space>
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                size="small"
+                onClick={() => confirm()}
+              >
+                ค้นหา
+              </Button>
+              <Button
+                size="small"
+                onClick={() => {
+                  clearFilters?.();
+                  confirm({ closeDropdown: true });
+                }}
+              >
+                รีเซ็ต
+              </Button>
+            </Space>
+          </div>
+        );
+      },
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+      ),
+      onFilter: (value, record) =>
+        String(record[dataIndex] ?? "")
+          .toLowerCase()
+          .includes(String(value).toLowerCase()),
+      // ✅ ใช้ filterDropdownProps แทน
+      filterDropdownProps: {
+        onOpenChange: (visible) => {
+          if (visible) {
+            setTimeout(() => {
+              searchInputRefs.current[dataIndex]?.select();
+            }, 100);
+          }
+        },
+      },
+    }),
+    []
+  );
+
+  const getBypassToken = useCallback(
+    async (schoolId: string) => {
+      const userEmail =
+        userState?.response?.data?.user_data?.email ??
+        "support@schoolbright.co";
+      const response = await dispatch(
+        GET_BYPASS_TOKEN({ school_id: schoolId, user_email: userEmail })
+      ).unwrap();
+      return response?.data?.bypass as string;
+    },
+    [dispatch, userState?.response?.data?.user_data?.email]
+  );
+
+  const openBypassLink = useCallback(
+    async (
+      environment: { url: string; extendPath?: string },
+      schoolId: string
+    ) => {
+      try {
+        const token = await getBypassToken(schoolId);
+        const finalUrl = `${environment.url}${token}${
+          environment.extendPath ?? ""
+        }`;
+
+        toast.success("Bypass สำเร็จ", {
+          description: `คุณกำลังเข้าสู่ ${finalUrl}`,
+          duration: 10000,
+          position: "top-right",
+          action: {
+            label: "Copy URL",
+            onClick: () => {
+              navigator.clipboard.writeText(finalUrl).then(() => {
+                toast.success("Copied!", {
+                  description: "URL copied to clipboard.",
+                  duration: 3000,
+                  position: "top-right",
+                });
+              });
+            },
+          },
+        });
+
+        window.open(finalUrl, "_blank", "noopener,noreferrer");
+      } catch (error: any) {
+        toast.error("ไม่สามารถสร้าง Bypass ได้", {
+          description: error?.message ?? "Unexpected error",
+          duration: 5000,
+          position: "top-right",
+        });
+      }
+    },
+    [getBypassToken]
+  );
+
+  const handleMenuItemClick = useCallback(
+    async (compositeKey: string, schoolId: string) => {
+      const [targetKey, environmentKey] = compositeKey.split("|");
+      const environment =
+        bypassTargets[targetKey]?.environments?.[environmentKey];
+
+      if (!environment) {
+        toast.error("ไม่พบการตั้งค่าเซิร์ฟเวอร์");
+        return;
+      }
+
+      if (!schoolId) {
+        toast.error("ไม่พบรหัสโรงเรียน");
+        return;
+      }
+
+      await openBypassLink(environment, schoolId);
+    },
+    [openBypassLink]
+  );
+
+  const menuItems = useMemo(() => buildMenuItems(), []);
+
+  const columns = useMemo<ColumnsType<SchoolDetail>>(
+    () => [
+      {
+        title: "ลำดับ",
+        key: "index",
+        width: 80,
+        align: "center",
+        fixed: "left",
+        render: (_value, _record, index) => index + 1,
+      },
+      {
+        title: "รหัสโรงเรียน",
+        dataIndex: "school_id",
+        key: "school_id",
+        sorter: (a, b) => compareValues(a.school_id, b.school_id),
+        render: (value?: string | number) =>
+          value !== undefined && value !== null && value !== ""
+            ? String(value)
+            : "-",
+        ...getColumnSearchProps("school_id", "รหัสโรงเรียน"),
+      },
+      {
+        title: "ชื่อโรงเรียน",
+        dataIndex: "company_name",
+        key: "company_name",
+        sorter: (a, b) => compareValues(a.company_name, b.company_name),
+        render: (value?: string) => value || "-",
+        ...getColumnSearchProps("company_name", "ชื่อโรงเรียน"),
+      },
+      {
+        title: "จังหวัด",
+        dataIndex: "province",
+        key: "province",
+        sorter: (a, b) => compareValues(a.province, b.province),
+        render: (value?: string) => value || "-",
+        ...getColumnSearchProps("province", "จังหวัด"),
+      },
+      {
+        title: "กลุ่มโรงเรียน",
+        dataIndex: "school_group",
+        key: "school_group",
+        sorter: (a, b) => compareValues(a.school_group, b.school_group),
+        render: (value?: string) => value || "-",
+        ...getColumnSearchProps("school_group", "กลุ่มโรงเรียน"),
+      },
+      {
+        title: "ระดับชั้นที่เปิดสอน",
+        dataIndex: "school_class",
+        key: "school_class",
+        sorter: (a, b) => compareValues(a.school_class, b.school_class),
+        render: (value?: string) => value || "-",
+        ...getColumnSearchProps("school_class", "ระดับชั้นที่เปิดสอน"),
+      },
+      {
+        title: "เกรดโรงเรียน",
+        dataIndex: "school_grade",
+        key: "school_grade",
+        sorter: (a, b) => compareValues(a.school_grade, b.school_grade),
+        render: (value?: string) => {
+          const grade = value ?? "No Grade";
+          const color = gradeColorMap[grade] ?? "default";
+          return <Tag color={color}>{grade}</Tag>;
+        },
+        ...getColumnSearchProps("school_grade", "เกรดโรงเรียน"),
+      },
+      {
+        title: "สถานะการใช้งาน",
+        dataIndex: "isActive",
+        key: "isActive",
+        sorter: (a, b) => compareValues(a.isActive, b.isActive),
+        render: (value?: string) => {
+          if (!value) {
+            return <Tag>-</Tag>;
+          }
+          const normalized = value.toLowerCase();
+          const color = statusColorMap[normalized] ?? "default";
+          return <Tag color={color}>{value}</Tag>;
+        },
+        ...getColumnSearchProps("isActive", "สถานะการใช้งาน"),
+      },
+      {
+        title: "เข้าสู่ระบบ",
+        key: "actions",
+        fixed: "right",
+        render: (_value, record) => {
+          const schoolId = String(record.school_id ?? "");
+          const isOpen = openDropdownFor === schoolId;
+
+          return (
+            <Dropdown
+              menu={{
+                items: menuItems,
+                onClick: ({ key }) =>
+                  handleMenuItemClick(String(key), schoolId),
+              }}
+              trigger={["click"]}
+              placement="bottomRight"
+              arrow
+              open={isOpen}
+              onOpenChange={(open) => {
+                setOpenDropdownFor(open ? schoolId : null);
+              }}
+            >
+              <Button
+                type="primary"
+                icon={<DownOutlined rotate={isOpen ? 180 : 0} />}
+                onClick={(e) => e.preventDefault()}
+              >
+                เลือกเซิร์ฟเวอร์
+              </Button>
+            </Dropdown>
+          );
+        },
+      },
+    ],
+    [menuItems, handleMenuItemClick, openDropdownFor]
+  );
+
+  const handleTableChange: TableProps<SchoolDetail>["onChange"] = (
+    pagination
+  ) => {
+    if (pagination?.pageSize) {
+      setPageSize(pagination.pageSize);
+    }
+  };
 
   return (
     <DashboardLayout>
-      {isLoading && <BaseLoadingComponent />}
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Card title="ค้นหาโรงเรียน" variant="outlined">
+          <div className="flex items-center gap-2">
+            <Select
+              allowClear
+              showSearch
+              placeholder="เลือกโรงเรียน"
+              optionFilterProp="label"
+              options={schoolOptions}
+              value={selectedSchool}
+              onChange={(value) => setSelectedSchool(value || undefined)}
+              style={{ width: "100%" }}
+            />
+            <Button
+              danger
+              size="small"
+              onClick={() => setSelectedSchool(undefined)}
+              type="primary"
+            >
+              X
+            </Button>
+          </div>
+        </Card>
 
-      <div className="w-full space-y-4">
-        {/* บังคับให้ card แรกอยู่เต็มความกว้างใน md และ xl */}
-
-        <ContentCard
-          title="ตารางแสดงรายละเอียดโรงเรียน"
-          fullWidth
-          className="md:col-span-2 xl:col-span-4 w-full "
-        >
-          {/* -- ใน <ContentCard> ส่วนฟอร์ม -- */}
-          <form className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              {/* เลือกโรงเรียน */}
-              <div className="flex-1">
-                <SearchableSelectComponent
-                  label="เลือกโรงเรียน"
-                  options={[
-                    { label: "เลือกรายการ", value: "" },
-                    ...schoolList.map((s) => ({
-                      label: s.label + " (" + s.value + ")",
-                      value: String(s.value),
-                    })),
-                  ]}
-                  value={selectedSchool}
-                  onChange={setSelectedSchool}
-                  placeholder="เลือกโรงเรียน"
-                />
-              </div>
-            </div>
-          </form>
-        </ContentCard>
-
-        {/* Reponse From Server */}
-        {/* <ResponseCardComponent
-          responseData={SCHOOL_LIST_STATE.response.data?.data}
-          curlCommand={SCHOOL_LIST_STATE.response.data?.curl}
-        /> */}
-
-        {/* ตาราง */}
-        <ContentCard
-          title="ตารางแสดงรายละเอียดโรงเรียน"
-          className="xl:col-span-4 w-full"
-        >
-          <MinimalTable
-            isLoading={isLoading}
-            header={columns}
-            data={table}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={setRowsPerPage}
-            rowRenderer={(row, idx) => (
-              <tr key={idx}>
-                <td className="p-4 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {idx + 1}
-                </td>
-                <td className="p-4 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {row.school_id}
-                </td>
-
-                <td className="p-4 text-sm text-gray-700 dark:text-gray-200">
-                  <span className="font-semibold">{row.company_name}</span>
-                </td>
-
-                <td className="p-4 text-sm text-gray-700 dark:text-gray-200">
-                  {row.province}
-                </td>
-
-                <td className="p-4 text-sm text-gray-700 dark:text-gray-200">
-                  {row.school_group || "-"}
-                </td>
-                <td className="p-4 text-sm text-gray-700 dark:text-gray-200">
-                  {row.school_class || "-"}
-                </td>
-                <td className="p-4 text-sm text-gray-700 dark:text-gray-200">
-                  <span
-                    className={`inline-block px-3 py-1 text-xs font-semibold rounded-full transition-all duration-500
-                      ${
-                        row.school_grade === "A"
-                          ? "bg-green-200 text-green-900 dark:bg-green-700 dark:text-green-100 animate-pulse"
-                          : row.school_grade === "B"
-                          ? "bg-blue-200 text-blue-900 dark:bg-blue-700 dark:text-blue-100 animate-pulse"
-                          : row.school_grade === "C"
-                          ? "bg-yellow-200 text-yellow-900 dark:bg-yellow-700 dark:text-yellow-100 animate-pulse"
-                          : row.school_grade === "D"
-                          ? "bg-orange-200 text-orange-900 dark:bg-orange-700 dark:text-orange-100 animate-pulse"
-                          : row.school_grade === "E"
-                          ? "bg-red-200 text-red-900 dark:bg-red-700 dark:text-red-100 animate-pulse"
-                          : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                      }`}
-                  >
-                    {row.school_grade ?? "No Grade"}
-                  </span>
-                </td>
-                <td className="p-4 text-sm text-gray-700 dark:text-gray-200">
-                  <span
-                    className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
-                      row.isActive === "active"
-                        ? "bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-200"
-                        : "bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-200"
-                    }`}
-                  >
-                    {row.isActive}
-                  </span>
-                </td>
-
-                <td className="p-4 relative">
-                  <div
-                    ref={(el) => {
-                      dropdownRefs.current[idx] = el;
-                    }}
-                    className="relative inline-block text-left"
-                  >
-                    <MinimalButton
-                      className="relative px-4 py-2 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white rounded shadow-lg text-xs font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 active:scale-95"
-                      onClick={() => setDropdownOpen(idx)}
-                    >
-                      <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 rounded transition-opacity duration-300" />
-                      เลือกเซิฟเวอร์
-                    </MinimalButton>
-
-                    <div
-                      className={`absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none transition-all duration-300 ease-in-out transform ${
-                        dropdownOpen === idx
-                          ? "opacity-100 scale-100"
-                          : "opacity-0 scale-95"
-                      }`}
-                      style={{
-                        pointerEvents: dropdownOpen === idx ? "auto" : "none",
-                      }}
-                    >
-                      <ul className="py-1 text-sm text-gray-700 dark:text-gray-100">
-                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-blue-100 dark:bg-blue-900/60">
-                          ✨ System
-                          <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "system",
-                                  environment: "production",
-                                });
-                              }}
-                            >
-                              Production
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "system",
-                                  environment: "staging",
-                                });
-                              }}
-                            >
-                              Beta
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "system",
-                                  environment: "development",
-                                });
-                              }}
-                            >
-                              Dev
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-green-100 dark:bg-green-900/60">
-                          👩🏻‍🏫 Academic
-                          <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "academic",
-                                  environment: "production",
-                                });
-                              }}
-                            >
-                              Production
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "academic",
-                                  environment: "development",
-                                });
-                              }}
-                            >
-                              Dev
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "academic",
-                                  environment: "ui",
-                                });
-                              }}
-                            >
-                              Dev UI
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-fuchsia-100 dark:bg-fuchsia-900/60">
-                          🧾 Accounting
-                          <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "accounting",
-                                  environment: "production",
-                                });
-                              }}
-                            >
-                              Production
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "accounting",
-                                  environment: "development",
-                                });
-                              }}
-                            >
-                              Dev
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-yellow-100 dark:bg-yellow-900/60">
-                          📔 Library
-                          <ul className="absolute right-[13rem] top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "library",
-                                  environment: "production",
-                                });
-                              }}
-                            >
-                              Production
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "library",
-                                  environment: "development",
-                                });
-                              }}
-                            >
-                              Dev
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-purple-100 dark:bg-purple-900/60">
-                          🥪 Canteen
-                          <ul className="absolute right-full top-0 mส-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "canteen",
-                                  environment: "production",
-                                });
-                              }}
-                            >
-                              Production
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "canteen",
-                                  environment: "development",
-                                });
-                              }}
-                            >
-                              Dev
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-orange-100 dark:bg-orange-900/60">
-                          👶🏻 Kindergarten
-                          <ul className="absolute right-full top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "kindergarten",
-                                  environment: "production",
-                                });
-                              }}
-                            >
-                              Production
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "kindergarten",
-                                  environment: "development",
-                                });
-                              }}
-                            >
-                              Old Course (คอร์สเก่า)
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "kindergarten",
-                                  environment: "development",
-                                });
-                              }}
-                            >
-                              Development
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="group relative px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer bg-amber-100 dark:bg-amber-900/60">
-                          🎃 Mark Activity
-                          <ul className="absolute right-full top-0 ml-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "activity",
-                                  environment: "production",
-                                });
-                              }}
-                            >
-                              Production
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "activity",
-                                  environment: "development",
-                                });
-                              }}
-                            >
-                              Dev
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="group relative px-4 py-2 hover:bg-sky-400 dark:hover:bg-gray-400 cursor-pointer bg-sky-100 dark:bg-sky-900/60">
-                          🚀 SB Exam
-                          <ul className="absolute right-full top-0 mr-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block transition-all duration-300">
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "exam",
-                                  environment: "production",
-                                });
-                              }}
-                            >
-                              Production
-                            </li>
-                            <li
-                              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-                              onClick={() => {
-                                setMode({
-                                  school_id: row?.school_id ?? "",
-                                  name: "exam",
-                                  environment: "development",
-                                });
-                              }}
-                            >
-                              Dev
-                            </li>
-                          </ul>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            )}
-            children={undefined}
+        <Card title="ตารางแสดงรายละเอียดโรงเรียน" variant="outlined">
+          <Table<SchoolDetail>
+            bordered
+            loading={isLoading}
+            columns={columns}
+            dataSource={filteredDetails}
+            rowKey={(record) => String(record.school_id ?? record.company_name)}
+            pagination={{
+              pageSize,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "20", "50", "100"],
+              showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+            }}
+            scroll={{ x: 1200 }}
+            onChange={handleTableChange}
           />
-        </ContentCard>
-      </div>
+        </Card>
+      </Space>
     </DashboardLayout>
   );
 }
