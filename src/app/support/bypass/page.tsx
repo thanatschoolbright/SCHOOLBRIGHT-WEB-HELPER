@@ -216,11 +216,12 @@ export default function Page() {
 
   const schoolOptions = useMemo(() => {
     const rawSchools = schoolListWithDetail?.response?.data?.data ?? [];
+    console.info("INFO RAW SCHOOL", rawSchools);
     return rawSchools.map((item: any) => ({
       label: `${item.company_name} (${item.school_id})`,
       value: String(item.school_id),
     }));
-  }, [schoolListState?.response?.data?.data]);
+  }, [schoolListWithDetail?.response?.data?.data]);
 
   const schoolDetails = useMemo<SchoolDetail[]>(() => {
     return (schoolListWithDetail?.response?.data?.data ?? []) as SchoolDetail[];
