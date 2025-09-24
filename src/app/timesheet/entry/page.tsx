@@ -1,948 +1,699 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import PermissionLayout from "@/components/layouts/permission-layout";
 import DashboardLayout from "@components/layouts/backend-layout";
-import type { Key } from "react";
-import {
-  FiPlus,
-  FiCheckCircle,
-  FiEdit2,
-  FiTrash2,
-  FiInfo,
-  FiClock,
-} from "react-icons/fi";
-import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@stores/store";
-import { toast } from "sonner";
-import { convertToThaiDateDDMMYYY } from "@helpers/convert-time-zone-to-thai";
-import { Project, SubProject, WorkEntryForm } from "@stores/type";
 import {
-  Card,
-  Table,
-  Tag,
-  Space,
   Button,
-  Modal,
+  Card,
   Form,
   Input,
-  Select,
-  Spin,
+  Modal,
+  Space,
+  Table,
+  Tag,
   Typography,
-  Row,
-  Col,
-  DatePicker,
-  TableProps,
-  Descriptions,
-  Skeleton,
 } from "antd";
-import { CopyFilled, PlusOutlined } from "@ant-design/icons";
-import { Tooltip } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import PermissionLayout from "@/components/layouts/permission-layout";
-import { useTranslation } from "react-i18next";
-import { CreateModalForm } from "./create";
-import { STATUS_OPTIONS } from "@constants/timesheet.constants";
+import type { ColumnsType, ColumnType } from "antd/es/table";
+import type { InputRef } from "antd";
+import type { TableProps } from "antd";
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
 import axios from "axios";
+import { toast } from "sonner";
+import { STATUS_OPTIONS } from "@constants/timesheet.constants";
+import type { Project, SubProject } from "@stores/type";
+import { CreateModalForm } from "./create";
 
-type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
+interface TimesheetEntry {
+  id: number;
+  date: string;
+  project_id: number;
+  project_name: string;
+  feature_id?: number | null;
+  feature_name?: string | null;
+  status: string;
+  hours: number;
+  description?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+type SearchableColumnKey =
+  | "date"
+  | "project_name"
+  | "feature_name"
+  | "status"
+  | "hours"
+  | "description";
+
+type TableColumn = ColumnType<TimesheetEntry> & {
+  key: keyof TimesheetEntry | string;
+};
+
+type FormMode = "create" | "edit" | "copy";
+
+type ModalType = "form" | "detail" | "delete" | null;
+
+const DATE_FORMAT = "DD/MM/YYYY";
+const PAGE_SIZE = 30;
+
+const statusColorMap: Record<string, string> = {
+  DONE: "green",
+  IN_PROGRESS: "orange",
+  REVIEW: "blue",
+  CANCELLED: "red",
+  DRAFT: "default",
+};
 
 export default function Page() {
-  const { t, i18n } = useTranslation("mock");
+  const { i18n } = useTranslation("mock");
+  const [form] = Form.useForm();
 
-  const [antdForm] = Form.useForm();
-  // Track work_hour value for warning tooltip
-  const [workHours, setWorkHours] = useState<number | null>(null);
-  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
-  const AUTH_USER = AUTHENTICATION?.response?.data?.user_data;
+  const authState = useAppSelector((state) => state.callAdminLogin);
+  const adminId = useMemo(
+    () => Number(authState?.response?.data?.user_data?.admin_id) || undefined,
+    [authState?.response?.data?.user_data?.admin_id]
+  );
 
-  const limit = 10;
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [total_pages, settotal_pages] = useState<number>(1);
-
-  const [entries, setEntries] = useState<any[]>([]);
+  const [entries, setEntries] = useState<TimesheetEntry[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [subProject, setSubProjects] = useState<SubProject[]>([]);
-  // Inline editing state
-  const [editingKey, setEditingKey] = useState<string | number>("");
-  const [confirmText, setConfirmText] = useState<string>("");
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const [modalLoading, setModalLoading] = useState<boolean>(false);
-  const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
-  const [detailProject, setDetailProject] = useState<WorkEntryForm>();
+  const [subProjects, setSubProjects] = useState<SubProject[]>([]);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [modalType, setModalType] = useState<ModalType>(null);
+  const [formMode, setFormMode] = useState<FormMode>("create");
+  const [activeRecord, setActiveRecord] = useState<TimesheetEntry | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [actionLoading, setActionLoading] = useState<boolean>(false);
-  const hasSelected = selectedRowKeys.length > 0;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [confirmText, setConfirmText] = useState("");
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
+  const searchInputRefs = useRef<
+    Partial<Record<SearchableColumnKey, InputRef | null>>
+  >({});
 
-  const rowSelection: TableRowSelection<any> = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-    getCheckboxProps: (record: any) => ({
-      disabled: !!record.children, // ถ้ามี children แปลว่าเป็น Group -> ปิดการเลือก
-    }),
-  };
+  const closeModal = useCallback(() => {
+    setModalType(null);
+    setActiveRecord(null);
+    setFormMode("create");
+    setConfirmText("");
+    form.resetFields();
+  }, [form]);
 
-  const fetchProjects = async () => {
-    setLoading(true);
+  const fetchProjects = useCallback(async () => {
     try {
-      const response = await axios.post(
-        "/api/v1/timesheet/project/read/",
-        { limit: 50, page: currentPage },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      const data = response.data;
-      setProjects(data.data || []);
-      settotal_pages(data.pagination?.total_pages || 1);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-      setProjects([]);
-      toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  function groupEntriesByDate(entries: any[]) {
-    const groupedObj: Record<string, any[]> = entries.reduce((acc, item) => {
-      const dateKey = dayjs(item.date).format("YYYY-MM-DD");
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(item);
-      return acc;
-    }, {} as Record<string, any[]>);
-
-    return Object.entries(groupedObj).map(([date, children]) => {
-      const totalHours = children.reduce(
-        (sum, child) => sum + Number(child.hours || 0),
-        0
-      );
-
-      return {
-        key: date,
-        date,
-        children,
-        totalHours,
-      };
-    });
-  }
-
-  const fetchTimesheetEntry = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post("/api/v1/timesheet/entry/read/", {
-        limit,
-        page: currentPage,
-        user_id: Number(AUTH_USER?.admin_id) ?? null,
+      const response = await axios.post("/api/v1/timesheet/project/read/", {
+        limit: 100,
+        page: 1,
       });
-
-      const rawEntries = response.data?.data || [];
-      const groupedData = groupEntriesByDate(rawEntries);
-
-      setEntries(groupedData);
-      settotal_pages(response.data?.pagination?.total_pages || 1);
-    } catch (error) {
-      console.error("Error fetching timesheet entries:", error);
-      setEntries([]);
-      toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
-    } finally {
-      setLoading(false);
+      setProjects(response.data?.data ?? []);
+    } catch (error: any) {
+      console.error("fetchProjects", error);
+      toast.error("โหลดรายการโปรเจคไม่สำเร็จ", {
+        duration: 3000,
+        position: "top-right",
+      });
     }
-  };
+  }, []);
 
-  const fetchSubProjects = async (project_id: string) => {
+  const fetchSubProjectOptions = useCallback(async (projectId: number) => {
+    if (!projectId) {
+      setSubProjects([]);
+      return [];
+    }
+
     try {
       const response = await axios.post(
         "/api/v1/timesheet/project/sub-project/read/",
         {
-          limit: 50,
-          page: currentPage,
-          project_id: Number(project_id),
-        },
-        { headers: { "Content-Type": "application/json" } }
+          limit: 100,
+          page: 1,
+          project_id: Number(projectId),
+        }
       );
-      const data = response.data;
-      setSubProjects(data?.data?.items || []);
-      settotal_pages(data.pagination?.total_pages || 1);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
+      const items = response.data?.data?.items ?? [];
+      setSubProjects(items);
+      return items;
+    } catch (error: any) {
+      console.error("fetchSubProjectOptions", error);
+      toast.error("โหลดรายการโปรเจคย่อยไม่สำเร็จ", {
+        duration: 3000,
+        position: "top-right",
+      });
       setSubProjects([]);
-      toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
+      return [];
     }
-  };
+  }, []);
 
-  const createOrUpdateEntry = async () => {
-    console.log("Form Values at submission:", antdForm.getFieldsValue());
-    const raw = antdForm.getFieldsValue();
+  const fetchEntries = useCallback(async () => {
+    setTableLoading(true);
+    try {
+      const response = await axios.post("/api/v1/timesheet/entry/read/", {
+        limit: pageSize,
+        page: currentPage,
+        user_id: adminId,
+      });
 
-    const payload = {
-      ...raw,
-      id: raw.id,
-      date: raw.date ? dayjs(raw.date).toDate() : undefined,
-      by: AUTH_USER?.admin_id,
-    };
+      const rawList = response.data?.data ?? [];
+      const list = (rawList as TimesheetEntry[]).map((item) => ({
+        ...item,
+        hours: Number((item as TimesheetEntry).hours ?? 0),
+      }));
+      setEntries(list);
 
-    if (
-      payload.project_id === "" ||
-      payload.sub_project_id === "" ||
-      payload.work_hour === ""
-    ) {
-      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน", { duration: 5000 });
+      const totalPages = response.data?.pagination?.total_pages ?? 1;
+      const totalCount = response.data?.pagination?.total_items;
+      setTotalItems(totalCount ?? totalPages * PAGE_SIZE);
+    } catch (error: any) {
+      console.error("fetchEntries", error);
+      setEntries([]);
+      toast.error("โหลดข้อมูลรายการลงเวลาล้มเหลว", {
+        duration: 3000,
+        position: "top-right",
+      });
+    } finally {
+      setTableLoading(false);
+    }
+  }, [adminId, currentPage, pageSize]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  useEffect(() => {
+    fetchEntries();
+  }, [fetchEntries]);
+
+  const openCreateForm = useCallback(() => {
+    setFormMode("create");
+    setActiveRecord(null);
+    setSubProjects([]);
+    form.setFieldsValue({
+      project_id: undefined,
+      sub_project_id: undefined,
+      description: "",
+      work_hour: undefined,
+      status: undefined,
+      date: dayjs(),
+    });
+    setModalType("form");
+  }, [form]);
+
+  const openEditForm = useCallback(
+    async (record: TimesheetEntry) => {
+      setFormMode("edit");
+      setActiveRecord(record);
+      await fetchSubProjectOptions(Number(record.project_id));
+      form.setFieldsValue({
+        project_id: Number(record.project_id),
+        sub_project_id: record.feature_id
+          ? String(record.feature_id)
+          : undefined,
+        description: record.description ?? "",
+        work_hour: Number(record.hours) || undefined,
+        status: record.status,
+        date: dayjs(record.date),
+      });
+      setModalType("form");
+    },
+    [fetchSubProjectOptions, form]
+  );
+
+  const openCopyForm = useCallback(
+    async (record: TimesheetEntry) => {
+      setFormMode("copy");
+      setActiveRecord(null);
+      await fetchSubProjectOptions(Number(record.project_id));
+      form.setFieldsValue({
+        project_id: Number(record.project_id),
+        sub_project_id: record.feature_id
+          ? String(record.feature_id)
+          : undefined,
+        description: record.description ?? "",
+        work_hour: Number(record.hours) || undefined,
+        status: record.status,
+        date: dayjs(),
+      });
+      setModalType("form");
+    },
+    [fetchSubProjectOptions, form]
+  );
+
+  const openDetailModal = useCallback((record: TimesheetEntry) => {
+    setActiveRecord(record);
+    setModalType("detail");
+  }, []);
+
+  const openDeleteModal = useCallback(() => {
+    setConfirmText("");
+    setModalType("delete");
+  }, []);
+
+  const handleSubmitForm = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      setActionLoading(true);
+
+      const payload = {
+        id: formMode === "edit" ? activeRecord?.id : undefined,
+        project_id: values.project_id,
+        sub_project_id: values.sub_project_id,
+        description: values.description ?? "",
+        work_hour: values.work_hour,
+        status: values.status,
+        date: values.date ? dayjs(values.date).toDate() : undefined,
+        by: adminId,
+      };
+
+      await axios.post("/api/v1/timesheet/entry/insert/", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      toast.success("บันทึกข้อมูลสำเร็จ", {
+        duration: 3000,
+        position: "top-right",
+      });
+
+      closeModal();
+      fetchEntries();
+    } catch (error: any) {
+      if (error?.errorFields) {
+        return;
+      }
+      console.error("handleSubmitForm", error);
+      toast.error("บันทึกข้อมูลล้มเหลว", {
+        description: error?.message ?? "Unexpected error",
+        duration: 3000,
+        position: "top-right",
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  }, [activeRecord?.id, adminId, closeModal, fetchEntries, form, formMode]);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (!selectedRowKeys.length) {
       return;
     }
 
     try {
       setActionLoading(true);
-      await axios.post(`/api/v1/timesheet/entry/insert/`, payload, {
-        headers: { "Content-Type": "application/json" },
-      });
-      toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
-      fetchTimesheetEntry();
-    } catch (error) {
-      console.error("Error creating or updating entry:", error);
-      toast.error("สร้าง/อัปเดต ข้อมูลล้มเหลว", { duration: 5000 });
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const deleteEntry = async (ids: number[]) => {
-    try {
-      setActionLoading(true);
       await axios.post(
-        `/api/v1/timesheet/entry/delete/`,
+        "/api/v1/timesheet/entry/delete/",
         {
-          ids,
-          by: AUTH_USER?.admin_id,
+          ids: selectedRowKeys.map((key) => Number(key)),
+          by: adminId,
         },
         { headers: { "Content-Type": "application/json" } }
       );
-      toast.success("ลบข้อมูลสำเร็จ", { duration: 5000 });
-    } catch (error) {
-      console.error("Error deleting entry:", error);
-      toast.error("ลบข้อมูลล้มเหลว", { duration: 5000 });
+
+      toast.success("ลบรายการสำเร็จ", {
+        duration: 3000,
+        position: "top-right",
+      });
+
+      setSelectedRowKeys([]);
+      closeModal();
+      fetchEntries();
+    } catch (error: any) {
+      console.error("handleBulkDelete", error);
+      toast.error("ลบรายการล้มเหลว", {
+        description: error?.message ?? "Unexpected error",
+        duration: 3000,
+        position: "top-right",
+      });
     } finally {
       setActionLoading(false);
     }
-  };
+  }, [adminId, closeModal, fetchEntries, selectedRowKeys]);
 
-  const createCopiedTimesheetEntry = async (record: any) => {
-    try {
-      setActionLoading(true);
-      const subProject = await fetchSubProjects(record.project_id);
-      antdForm.setFieldsValue({
-        project_id: record.project_id,
-        sub_project_id: String(record.feature_id),
-        description: record.description,
-        work_hour: Number(record.hours),
-        date: dayjs(),
-        status: record.status,
-      });
-      console.info("subProject", subProject);
-      setModal("create");
-    } catch (error) {
-      console.error("Error creating or updating entry:", error);
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  const getColumnSearchProps = useCallback(
+    (dataIndex: SearchableColumnKey, title: string): TableColumn => ({
+      key: dataIndex,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => {
+        const value = (selectedKeys[0] as string | undefined) ?? "";
 
-  useEffect(() => {
-    fetchTimesheetEntry();
-    fetchProjects();
-  }, [currentPage]);
-
-  const handleSubmit = async () => {
-    await createOrUpdateEntry();
-    antdForm.resetFields();
-    setEditingKey("");
-    setModal("");
-    await fetchTimesheetEntry();
-  };
-
-  const openCreateModal = () => {
-    antdForm.resetFields();
-    setWorkHours(null);
-    antdForm.setFieldsValue({
-      project_id: "",
-      sub_project_id: "",
-      description: "",
-      work_hour: "",
-      date: dayjs(),
-      status: undefined,
-    });
-    setEditingKey("");
-    setModal("create");
-  };
-
-  // Inline editing helpers
-  const isEditing = (record: any) => record.id === editingKey;
-  const edit = async (record: any) => {
-    // Ensure subprojects are loaded before setting form values
-    await fetchSubProjects(record.project_id);
-    antdForm.setFieldsValue({
-      id: record.id,
-      project_id: record.project_id ? String(record.project_id) : "",
-      sub_project_id: record.feature_id ? String(record.feature_id) : "",
-      work_hour: record.hours ? String(record.hours) : "",
-      description: record?.description ?? "",
-      date: record.date ? dayjs(record.date) : dayjs(),
-      status: record.status,
-    });
-    setEditingKey(record.id);
-    setWorkHours(
-      record.hours !== undefined && record.hours !== null && record.hours !== ""
-        ? Number(record.hours)
-        : null
-    );
-  };
-  const cancel = () => {
-    setEditingKey("");
-    setWorkHours(null);
-  };
-  const save = async (key: string | number) => {
-    try {
-      const row = await antdForm.validateFields();
-      const payload = {
-        ...row,
-        id: key,
-        date: row.date ? dayjs(row.date).toDate() : undefined,
-        by: AUTH_USER?.admin_id,
-      };
-      await axios.post(`/api/v1/timesheet/entry/insert/`, payload, {
-        headers: { "Content-Type": "application/json" },
-      });
-      toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
-      setEditingKey("");
-      setWorkHours(null);
-      await fetchTimesheetEntry();
-    } catch (errInfo) {
-      console.error("Validate Failed:", errInfo);
-    }
-  };
-
-  // Batch delete function
-  const confirmBatchDelete = async () => {
-    if (selectedRowKeys.length === 0) return;
-    await deleteEntry(selectedRowKeys.map((id) => Number(id)));
-    setSelectedRowKeys([]);
-    setConfirmText("");
-    setModal("");
-    await fetchTimesheetEntry();
-  };
-
-  // AntD Table columns
-  // Editable cell for Ant Design Table
-  const EditableCell = ({
-    editing,
-    dataIndex,
-    title,
-    inputType,
-    record,
-    index,
-    children,
-    ...restProps
-  }: any) => {
-    let inputNode = null;
-    switch (dataIndex) {
-      case "project_name":
-        inputNode = (
-          <Select
-            showSearch
-            placeholder="เลือกงานหลัก"
-            onChange={(value) => {
-              fetchSubProjects(String(value));
-              antdForm.setFieldsValue({ sub_project_id: "" });
-            }}
-            options={[
-              ...projects.map((s) => ({
-                label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
-                value: String(s.id),
-              })),
-            ]}
-          />
-        );
-        break;
-      case "feature_name":
-        inputNode = (
-          <Select
-            showSearch
-            placeholder="เลือกงานย่อย"
-            options={[
-              ...subProject.map((s) => ({
-                label: s.name + " (" + "รหัสโปรเจ็ค" + +s.id + ")",
-                value: String(s.id),
-              })),
-            ]}
-          />
-        );
-        break;
-      case "date":
-        inputNode = (
-          <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
-        );
-        break;
-      case "status":
-        inputNode = (
-          <Select
-            placeholder="เลือกสถานะ"
-            options={STATUS_OPTIONS.map((data) => ({
-              label: i18n.language === "th" ? data.label_th : data.label_en,
-              value: data.value,
-            }))}
-          />
-        );
-        break;
-      case "hours":
-        inputNode = (
-          <Input
-            type="number"
-            min={0}
-            onChange={(e) => {
-              const val = e.target.value;
-              setWorkHours(val === "" ? null : Number(val));
-            }}
-            suffix={
-              <>
-                {workHours !== null && workHours >= 8 ? (
-                  <Tooltip title="คุณต้องการใส่เกิน 8 ชั่วโมงจริงๆหรือ?">
-                    <ExclamationCircleOutlined
-                      style={{ color: "red", marginRight: 8 }}
-                    />
-                  </Tooltip>
-                ) : null}
-                <span className="text-gray-500 text-sm font-medium">
-                  ชั่วโมง
-                </span>
-              </>
-            }
-            style={{ textAlign: "right" }}
-          />
-        );
-        break;
-      case "description":
-        inputNode = (
-          <Input.TextArea
-            autoSize={{ minRows: 1, maxRows: 3 }}
-            placeholder="กรอกคำอธิบายโปรเจค"
-          />
-        );
-        break;
-      default:
-        inputNode = <Input />;
-    }
-    let name;
-    // Map table columns to form field names
-    switch (dataIndex) {
-      case "project_name":
-        name = "project_id";
-        break;
-      case "feature_name":
-        name = "sub_project_id";
-        break;
-      case "hours":
-        name = "work_hour";
-        break;
-      default:
-        name = dataIndex;
-    }
-    return (
-      <td {...restProps}>
-        {editing ? (
-          <Form.Item
-            name={name}
-            style={{ margin: 0 }}
-            rules={
-              name === "project_id"
-                ? [{ required: true, message: "กรุณาเลือกโปรเจ็ค" }]
-                : name === "sub_project_id"
-                ? [{ required: true, message: "กรุณาเลือกโปรเจ็คย่อย" }]
-                : name === "date"
-                ? [{ required: true, message: "กรุณาเลือกวันที่ทำงาน" }]
-                : name === "status"
-                ? [{ required: true, message: "กรุณาเลือกสถานะ" }]
-                : name === "work_hour"
-                ? [{ required: true, message: "กรุณากรอกชั่วโมงทำงาน" }]
-                : []
-            }
+        return (
+          <div
+            style={{ padding: 12 }}
+            onKeyDown={(event) => event.stopPropagation()}
           >
-            {inputNode}
-          </Form.Item>
-        ) : (
-          children
-        )}
-      </td>
-    );
-  };
-
-  const columns = [
-    {
-      title: "วันที่",
-      dataIndex: "date",
-      key: "date",
-      align: "left" as const,
-      editable: true,
-      render: (date: string, record: any) => {
-        if (record.children) {
-          return (
-            <Typography.Text strong>
-              {dayjs(date).format("DD/MM/YYYY")}
-            </Typography.Text>
-          );
-        }
-        return date ? convertToThaiDateDDMMYYY(date) : "";
-      },
-      sorter: (a: any, b: any) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime(),
-    },
-    {
-      title: "ชื่อโปรเจ็ค",
-      dataIndex: "project_name",
-      key: "project_name",
-      align: "left" as const,
-      editable: true,
-      sorter: (a: any, b: any) => a.project_name.localeCompare(b.project_name),
-      filters: projects
-        .map((p) => ({ text: p.name, value: p.name }))
-        .filter((v, i, arr) => arr.findIndex((x) => x.value === v.value) === i),
-      onFilter: (value: boolean | Key, record: any) =>
-        record.project_name === value,
-    },
-    {
-      title: "ชื่อฟีเจอร์",
-      dataIndex: "feature_name",
-      key: "feature_name",
-      align: "left" as const,
-      editable: true,
-      render: (_: any, record: any) =>
-        record.feature_name || record.feature_name,
-      sorter: (a: any, b: any) =>
-        (a.feature_name || "").localeCompare(b.feature_name || ""),
-    },
-
-    {
-      title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
-      align: "left" as const,
-      editable: true,
-      render: (status: string) => {
-        const option = STATUS_OPTIONS.find((opt) => opt.value === status);
-        const label = option
-          ? i18n.language === "th"
-            ? option.label_th
-            : option.label_en
-          : status;
-        let color: string = "default";
-        switch (status) {
-          case "DONE":
-            color = "green";
-            break;
-          case "IN_PROGRESS":
-            color = "orange";
-            break;
-          case "REVIEW":
-            color = "blue";
-            break;
-          case "CANCELLED":
-            color = "red";
-            break;
-          case "DRAFT":
-            color = "default";
-            break;
-        }
-        return <Tag color={color}>{label}</Tag>;
-      },
-      filters: STATUS_OPTIONS.map((opt) => ({
-        text: i18n.language === "th" ? opt.label_th : opt.label_en,
-        value: opt.value,
-      })),
-      onFilter: (value: boolean | Key, record: any) => record.status === value,
-    },
-    {
-      title: "ชั่วโมง",
-      dataIndex: "hours",
-      key: "hours",
-      align: "left" as const,
-      editable: true,
-      sorter: (a: any, b: any) => Number(a.hours) - Number(b.hours),
-      render: (hours: string | number, record: any) => {
-        if (record.children) {
-          return (
+            <Input
+              ref={(node) => {
+                searchInputRefs.current[dataIndex] = node;
+              }}
+              placeholder={`ค้นหา ${title}`}
+              value={value}
+              onChange={(event) => {
+                const { value: inputValue } = event.target;
+                setSelectedKeys(inputValue ? [inputValue] : []);
+              }}
+              onPressEnter={() => confirm()}
+              style={{ marginBottom: 8, display: "block" }}
+            />
             <Space>
-              <Typography.Text strong>
-                {record.totalHours} ชั่วโมง
-              </Typography.Text>
-              {record.totalHours > 8 && (
-                <Tooltip title="คุณทำงานเกิน 8 ชั่วโมง 🔥">
-                  <ExclamationCircleOutlined style={{ color: "red" }} />
-                </Tooltip>
-              )}
-            </Space>
-          );
-        }
-        const value = Number(hours);
-        let color = "gold";
-        let label = value;
-        if (value >= 8) {
-          color = "red";
-          label = value;
-        } else if (value < 4) {
-          color = "green";
-          label = value;
-        } else {
-          color = "yellow";
-          label = value;
-        }
-        return <Tag color={color}>{label}</Tag>;
-      },
-    },
-    {
-      title: "คำอธิบาย",
-      dataIndex: "description",
-      key: "description",
-      align: "left" as const,
-      editable: true,
-      width: 350,
-      sorter: (a: any, b: any) =>
-        (a.description || "").localeCompare(b.description || ""),
-    },
-    {
-      title: "จัดการ",
-      key: "action",
-      fixed: "right" as const,
-      align: "center" as const,
-      render: (_: any, record: any) => {
-        if (record.children) {
-          return (
-            <Space>
-              <Typography.Text strong></Typography.Text>
-            </Space>
-          );
-        }
-        const editable = isEditing(record);
-        return editable ? (
-          <span>
-            <Button
-              type="link"
-              onClick={() => save(record.id)}
-              style={{ marginRight: 8 }}
-            >
-              บันทึก
-            </Button>
-            <Button type="link" onClick={cancel}>
-              ยกเลิก
-            </Button>
-          </span>
-        ) : (
-          <Space>
-            <Tooltip title="ดูรายละเอียด">
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                size="small"
+                onClick={() => confirm()}
+              >
+                ค้นหา
+              </Button>
               <Button
                 size="small"
-                icon={<FiInfo />}
                 onClick={() => {
-                  setDetailProject(record);
-                  setModal("detail");
+                  clearFilters?.();
+                  confirm({ closeDropdown: true });
                 }}
-                aria-label="View Details"
-              />
-            </Tooltip>
-            {/* แก้ไข */}
-            <Tooltip title="แก้ไข">
-              <Button
-                size="small"
-                icon={<FiEdit2 />}
-                disabled={editingKey !== ""}
-                onClick={() => edit(record)}
-                aria-label="Edit Entry"
-              />
-            </Tooltip>
-            {/* Copied Button */}
-            <Tooltip title="คัดลอก">
-              <Button
-                size="small"
-                icon={<CopyFilled />}
-                disabled={editingKey !== "" || actionLoading}
-                onClick={() => {
-                  createCopiedTimesheetEntry(record);
-                }}
-              />
-            </Tooltip>
-          </Space>
+              >
+                รีเซ็ต
+              </Button>
+            </Space>
+          </div>
         );
       },
-    },
-  ];
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+      ),
+      onFilter: (value, record) => {
+        const raw = record[dataIndex];
+        if (raw === undefined || raw === null) {
+          return false;
+        }
 
-  // Add onCell for editable columns
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: any) => ({
-        record,
-        inputType:
-          col.dataIndex === "hours"
-            ? "number"
-            : col.dataIndex === "date"
-            ? "date"
-            : col.dataIndex === "project_name" ||
-              col.dataIndex === "feature_name" ||
-              col.dataIndex === "status"
-            ? "select"
-            : "text",
-        dataIndex: col.dataIndex,
-        title: col.title,
-        editing: isEditing(record),
-      }),
-    };
-  });
+        if (dataIndex === "date") {
+          return dayjs(raw).format(DATE_FORMAT).includes(String(value));
+        }
+
+        return String(raw).toLowerCase().includes(String(value).toLowerCase());
+      },
+      onFilterDropdownOpenChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInputRefs.current[dataIndex]?.select(), 100);
+        }
+      },
+    }),
+    []
+  );
+
+  const columns = useMemo<ColumnsType<TimesheetEntry>>(
+    () => [
+      {
+        title: "วันที่",
+        dataIndex: "date",
+        width: 140,
+        defaultSortOrder: "descend",
+        sorter: (a, b) =>
+          dayjs(a.date).startOf("day").valueOf() -
+          dayjs(b.date).startOf("day").valueOf(),
+        render: (value: string) => dayjs(value).format(DATE_FORMAT),
+        ...getColumnSearchProps("date", "วันที่"),
+      },
+      {
+        title: "ชื่อโปรเจ็ค",
+        dataIndex: "project_name",
+        sorter: (a, b) => a.project_name.localeCompare(b.project_name),
+        render: (value: string) => value ?? "-",
+        ...getColumnSearchProps("project_name", "ชื่อโปรเจ็ค"),
+      },
+      {
+        title: "ชื่อฟีเจอร์",
+        dataIndex: "feature_name",
+        sorter: (a, b) =>
+          (a.feature_name ?? "").localeCompare(b.feature_name ?? ""),
+        render: (value: string | null) => value || "-",
+        ...getColumnSearchProps("feature_name", "ชื่อฟีเจอร์"),
+      },
+      {
+        title: "สถานะ",
+        dataIndex: "status",
+        sorter: (a, b) => (a.status ?? "").localeCompare(b.status ?? ""),
+        render: (value: string) => {
+          const option = STATUS_OPTIONS.find((item) => item.value === value);
+          const label = option
+            ? i18n.language === "th"
+              ? option.label_th
+              : option.label_en
+            : value;
+          const color = statusColorMap[value] ?? "default";
+          return <Tag color={color}>{label}</Tag>;
+        },
+        ...getColumnSearchProps("status", "สถานะ"),
+      },
+      {
+        title: "ชั่วโมง",
+        dataIndex: "hours",
+        align: "right",
+        sorter: (a, b) => Number(a.hours) - Number(b.hours),
+        render: (value: number) => (
+          <Typography.Text>{Number(value) || 0}</Typography.Text>
+        ),
+        ...getColumnSearchProps("hours", "ชั่วโมง"),
+      },
+      {
+        title: "คำอธิบาย",
+        dataIndex: "description",
+        sorter: (a, b) =>
+          (a.description ?? "").localeCompare(b.description ?? ""),
+        render: (value: string | null) => value || "-",
+        ...getColumnSearchProps("description", "คำอธิบาย"),
+      },
+      {
+        title: "จัดการ",
+        key: "actions",
+        fixed: "right",
+        width: 160,
+        render: (_value, record) => (
+          <Space size="middle">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={() => openDetailModal(record)}
+            />
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => openEditForm(record)}
+            />
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              onClick={() => openCopyForm(record)}
+            />
+          </Space>
+        ),
+      },
+    ],
+    [
+      getColumnSearchProps,
+      i18n.language,
+      openCopyForm,
+      openDetailModal,
+      openEditForm,
+    ]
+  );
+
+  const rowSelection: TableProps<TimesheetEntry>["rowSelection"] = {
+    selectedRowKeys,
+    onChange: (keys) => setSelectedRowKeys(keys),
+  };
 
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
-        <div className="w-full space-y-4">
-          {/* Add Project Button */}
-          <div className="w-full flex justify-end">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              size="large"
-              onClick={openCreateModal}
-              style={{ minWidth: 160 }}
-            >
-              เพิ่มรายการลงเวลา
-            </Button>
-          </div>
-          <Card title="รายการลงเวลาทำงาน" className="w-full">
-            <div className="flex justify-end mb-3">
-              <Button
-                type="primary"
-                danger
-                icon={<FiTrash2 />}
-                onClick={() => {
-                  setModal("delete");
-                  setConfirmText("");
-                }}
-                disabled={!hasSelected}
-              >
-                ลบที่เลือก
-              </Button>
-            </div>
-            <Form form={antdForm} component={false}>
-              <Skeleton loading={loading} active paragraph={{ rows: 6 }}>
-                <Table
-                  components={{
-                    body: {
-                      cell: EditableCell,
-                    },
-                  }}
-                  columns={mergedColumns}
-                  dataSource={entries}
-                  rowSelection={rowSelection}
-                  rowKey={(record: any) => record.id ?? record.key}
-                  pagination={{
-                    current: currentPage,
-                    total: total_pages * limit,
-                    pageSize: limit,
-                    onChange: setCurrentPage,
-                    showSizeChanger: false,
-                  }}
-                  bordered
-                  scroll={{ x: "max-content" }}
-                  style={{ overflowX: "auto" }}
-                  expandable={{ defaultExpandAllRows: true }}
-                />
-              </Skeleton>
-            </Form>
-          </Card>
-          {/* Delete Confirmation Modal */}
-          <Modal
-            open={modal === "delete"}
-            onCancel={() => {
-              setConfirmText("");
-              setModal("");
-            }}
-            title="ยืนยันการลบ"
-            footer={null}
-          >
-            <div className="space-y-4 mt-4">
-              <Typography.Text type="danger" strong>
-                คุณต้องการยืนยันที่จะลบข้อมูลที่เลือกเหล่านี้จริงหรือไม่
-              </Typography.Text>
-              <Typography.Text>
-                โปรดพิมพ์ <span className="font-bold text-red-600">Delete</span>{" "}
-                เพื่อยืนยัน
-              </Typography.Text>
-              <Input
-                type="text"
-                placeholder="พิมพ์ Delete เพื่อยืนยัน"
-                value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
-              />
-            </div>
-            <div className="mt-6 flex justify-end space-x-4">
-              <Button
-                type="default"
-                className="w-full sm:w-auto px-6 py-3 rounded"
-                onClick={() => setModal("")}
-                icon={<FiCheckCircle className="w-5 h-5" />}
-              >
-                ยกเลิก
-              </Button>
-              <Button
-                type="primary"
-                danger
-                className="w-full sm:w-auto px-6 py-3"
-                onClick={confirmBatchDelete}
-                disabled={confirmText !== "Delete" || actionLoading === true}
-                icon={<FiTrash2 className="w-5 h-5" />}
-              >
-                ลบ
-              </Button>
-            </div>
-          </Modal>
-          {/* Create Modal */}
-          <CreateModalForm
-            open={modal === "create"}
-            onCancel={() => {
-              setModal("");
-            }}
-            onSubmit={handleSubmit}
-            form={antdForm}
-            projects={projects}
-            subProject={subProject}
-            fetchSubProjects={fetchSubProjects}
-            i18n={i18n}
-            disabled={actionLoading}
-          />
-          {/* Detail Modal */}
-          <Modal
-            open={modal === "detail" && !!detailProject}
-            onCancel={() => {
-              setModal("");
-            }}
-            title="รายละเอียดการลงเวลาทำงาน"
-            footer={[
-              <Button
-                key="close"
-                type="default"
-                className="w-full sm:w-auto px-6 py-3 rounded"
-                onClick={() => {
-                  setModal("");
-                }}
-              >
-                ปิด
-              </Button>,
-            ]}
-          >
-            {detailProject && (
-              <div className="mt-5">
-                <Descriptions
-                  bordered
-                  column={1}
-                  size="middle"
-                  layout="horizontal"
-                  styles={{
-                    label: { width: 120, fontWeight: 600 },
-                  }}
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          <Card
+            bordered={false}
+            title="การลงเวลาทำงาน"
+            extra={
+              <Space>
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={() => fetchEntries()}
+                  loading={tableLoading}
                 >
-                  <Descriptions.Item label="รหัส">
-                    {detailProject.id}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="รหัสโปรเจค">
-                    {detailProject.project_id ?? detailProject.id}
-                  </Descriptions.Item>
-                  {detailProject.feature_id !== undefined &&
-                    detailProject.feature_id !== null && (
-                      <Descriptions.Item label="รหัสฟีเจอร์">
-                        {detailProject.feature_id}
-                      </Descriptions.Item>
-                    )}
-                  <Descriptions.Item label="คำอธิบาย">
-                    <Typography.Text
-                      color="blue"
-                      style={{ fontSize: 16, padding: "4px 12px" }}
-                    >
-                      {detailProject.description || "-"}
-                    </Typography.Text>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="สถานะ">
-                    {(() => {
-                      const status = detailProject.status;
-                      let color = "default";
-                      let label = status;
-                      const opt = STATUS_OPTIONS.find(
-                        (s) => s.value === status
-                      );
-                      if (opt) {
-                        label = opt.label_th;
-                      }
-                      switch (status) {
-                        case "DONE":
-                          color = "green";
-                          break;
-                        case "IN_PROGRESS":
-                          color = "orange";
-                          break;
-                        case "REVIEW":
-                          color = "blue";
-                          break;
-                        case "CANCELLED":
-                          color = "red";
-                          break;
-                        case "DRAFT":
-                        default:
-                          color = "default";
-                          break;
-                      }
-                      return (
-                        <Tag color={color} style={{ fontSize: 15 }}>
-                          {label}
-                        </Tag>
-                      );
-                    })()}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="ชั่วโมง">
-                    <Tag
-                      color={
-                        Number(detailProject.hours) >= 8
-                          ? "red"
-                          : Number(detailProject.hours) < 4
-                          ? "green"
-                          : "gold"
-                      }
-                      style={{ fontSize: 15 }}
-                    >
-                      {detailProject.hours}
-                    </Tag>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="สร้างเมื่อ">
-                    {detailProject.created_at
-                      ? dayjs(detailProject.created_at).format(
-                          "DD/MM/YYYY HH:mm"
-                        )
-                      : "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="แก้ไขล่าสุด">
-                    {detailProject.updated_at
-                      ? dayjs(detailProject.updated_at).format(
-                          "DD/MM/YYYY HH:mm"
-                        )
-                      : "-"}
-                  </Descriptions.Item>
-                </Descriptions>
-              </div>
-            )}
-          </Modal>
-        </div>
+                  รีเฟรช
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={openCreateForm}
+                >
+                  เพิ่มรายการลงเวลา
+                </Button>
+              </Space>
+            }
+          >
+            <Space style={{ marginBottom: 16 }}>
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                disabled={!selectedRowKeys.length}
+                onClick={openDeleteModal}
+              >
+                ลบที่เลือก ({selectedRowKeys.length})
+              </Button>
+            </Space>
+
+            <Table<TimesheetEntry>
+              bordered
+              rowKey={(record) => String(record.id)}
+              columns={columns}
+              dataSource={entries}
+              loading={tableLoading}
+              rowSelection={rowSelection}
+              pagination={{
+                current: currentPage,
+                pageSize,
+                total: totalItems,
+                onChange: (page, size) => {
+                  setCurrentPage(page);
+                  if (size && size !== pageSize) {
+                    setPageSize(size);
+                  }
+                },
+                showSizeChanger: true,
+                pageSizeOptions: [10, 20, 50, 100, 500, 1000, 5000, 10000],
+                showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+              }}
+              scroll={{ x: 1000 }}
+            />
+          </Card>
+        </Space>
+
+        <CreateModalForm
+          open={modalType === "form"}
+          onCancel={closeModal}
+          onSubmit={handleSubmitForm}
+          form={form}
+          projects={projects}
+          subProject={subProjects}
+          fetchSubProjects={(id) => fetchSubProjectOptions(Number(id))}
+          i18n={i18n}
+          disabled={actionLoading}
+        />
+
+        <Modal
+          title="รายละเอียดการลงเวลาทำงาน"
+          open={modalType === "detail" && !!activeRecord}
+          onCancel={closeModal}
+          footer={[
+            <Button key="close" onClick={closeModal}>
+              ปิด
+            </Button>,
+          ]}
+        >
+          {activeRecord && (
+            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+              <Typography.Text strong>โปรเจ็ค</Typography.Text>
+              <Typography.Text>{activeRecord.project_name}</Typography.Text>
+
+              <Typography.Text strong>ฟีเจอร์</Typography.Text>
+              <Typography.Text>
+                {activeRecord.feature_name || "-"}
+              </Typography.Text>
+
+              <Typography.Text strong>วันที่</Typography.Text>
+              <Typography.Text>
+                {dayjs(activeRecord.date).format(DATE_FORMAT)}
+              </Typography.Text>
+
+              <Typography.Text strong>ชั่วโมง</Typography.Text>
+              <Typography.Text>{activeRecord.hours}</Typography.Text>
+
+              <Typography.Text strong>สถานะ</Typography.Text>
+              <Tag color={statusColorMap[activeRecord.status] ?? "default"}>
+                {(() => {
+                  const option = STATUS_OPTIONS.find(
+                    (item) => item.value === activeRecord.status
+                  );
+                  if (!option) {
+                    return activeRecord.status;
+                  }
+                  return i18n.language === "th"
+                    ? option.label_th
+                    : option.label_en;
+                })()}
+              </Tag>
+
+              <Typography.Text strong>คำอธิบาย</Typography.Text>
+              <Typography.Paragraph>
+                {activeRecord.description || "-"}
+              </Typography.Paragraph>
+
+              <Typography.Text strong>สร้างเมื่อ</Typography.Text>
+              <Typography.Text>
+                {activeRecord.created_at
+                  ? dayjs(activeRecord.created_at).format("DD/MM/YYYY HH:mm")
+                  : "-"}
+              </Typography.Text>
+
+              <Typography.Text strong>แก้ไขล่าสุด</Typography.Text>
+              <Typography.Text>
+                {activeRecord.updated_at
+                  ? dayjs(activeRecord.updated_at).format("DD/MM/YYYY HH:mm")
+                  : "-"}
+              </Typography.Text>
+            </Space>
+          )}
+        </Modal>
+
+        <Modal
+          title="ยืนยันการลบ"
+          open={modalType === "delete"}
+          onCancel={closeModal}
+          footer={[
+            <Button key="cancel" onClick={closeModal}>
+              ยกเลิก
+            </Button>,
+            <Button
+              key="delete"
+              danger
+              type="primary"
+              icon={<DeleteOutlined />}
+              disabled={confirmText !== "Delete" || !selectedRowKeys.length}
+              loading={actionLoading}
+              onClick={handleBulkDelete}
+            >
+              ลบ
+            </Button>,
+          ]}
+        >
+          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+            <Typography.Text type="danger" strong>
+              พิมพ์คำว่า Delete เพื่อยืนยันการลบ {selectedRowKeys.length} รายการ
+            </Typography.Text>
+            <Input
+              value={confirmText}
+              onChange={(event) => setConfirmText(event.target.value)}
+              placeholder="พิมพ์ Delete เพื่อยืนยัน"
+            />
+          </Space>
+        </Modal>
       </DashboardLayout>
     </PermissionLayout>
   );
