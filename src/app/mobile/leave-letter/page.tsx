@@ -1,423 +1,497 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
-import { useTranslation } from "react-i18next";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import MinimalButton from "@/components/button/minimal-button-component";
-import Swal from "sweetalert2";
-import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
-import { MinimalRow } from "@components/table/minimal-row-component";
-import MinimalTable from "@components/table/minimal-table-component";
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
+import type { ColumnsType, ColumnType } from "antd/es/table";
+import type { InputRef } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+import { toast } from "sonner";
 import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
-import { InputFieldComponent } from "@components/input-field/input-field-component";
-
-import { FiArrowLeft, FiArrowRight, FiSearch } from "react-icons/fi";
-
-import * as type from "@/stores/type";
-import MinimalModal from "@components/modal/minimal-modal-component";
-
 import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get-user";
 import { CallAPI as GET_LEAVE_LETTER_LIST } from "@stores/actions/mobile/call-get-leave-letter";
 import { CallAPI as FIX_LEAVE_LETTER_DETAIL } from "@stores/actions/mobile/call-get-fix-leave-letter-status";
+import type { ResponseLeaveLetter, ResponseUserList } from "@/stores/type";
 
-const columns: { key: string; label: string }[] = [
-  { key: "letterId", label: "รหัสจดหมาย" },
-  { key: "letterSubmitDate", label: "วันที่ส่งคำร้อง" },
-  { key: "letterType", label: "ประเภทการลา" },
-  { key: "senderName", label: "ชื่อผู้ส่งคำร้อง" },
-  { key: "userType", label: "ประเภทผู้ใช้งาน" },
-  { key: "status", label: "สถานะ" },
-  { key: "action", label: "การกระทำ" },
-];
+const PAGE_SIZE = 10;
+
+type SearchableColumnKey =
+  | "letterId"
+  | "letterSubmitDate"
+  | "letterType"
+  | "senderName"
+  | "userType"
+  | "status";
+
+type TableColumn = ColumnType<ResponseLeaveLetter> & {
+  key: keyof ResponseLeaveLetter | string;
+};
+
+type DatasetState = {
+  data: ResponseLeaveLetter[];
+  loading: boolean;
+  curl: string;
+  page: number;
+};
+
+const USER_TYPE_LABEL: Record<string, string> = {
+  "0": "นักเรียน",
+  "1": "คุณครู",
+};
+
+const STATUS_COLOR_MAP: Record<string, string> = {
+  อนุมัติ: "green",
+  รออนุมัติ: "orange",
+  ปฏิเสธ: "red",
+};
+
+const getStatusColor = (status?: string) => {
+  if (!status) {
+    return "default";
+  }
+  return STATUS_COLOR_MAP[status] ?? "default";
+};
 
 export default function Page() {
-  const { t } = useTranslation("mock");
   const dispatch = useDispatch<AppDispatch>();
-  const SCHOOL_LIST_STATE = useAppSelector((state) => state.callSchoolList);
+  const [form] = Form.useForm<{ schoolID: string; userID: string }>();
 
-  const USER_LIST_STATE = useAppSelector(
-    (state) => state.callGetuserBySchoolId
-  );
+  const schoolState = useAppSelector((state) => state.callSchoolList);
+  const userState = useAppSelector((state) => state.callGetuserBySchoolId);
+  const [dataset, setDataset] = useState<DatasetState>({
+    data: [],
+    loading: false,
+    curl: "",
+    page: 1,
+  });
 
-  const LEAVE_LETTER_LIST = useAppSelector(
-    (state) => state.callGetLeaveLetterList
-  );
+  const searchInputRefs = useRef<
+    Partial<Record<SearchableColumnKey, InputRef | null>>
+  >({});
 
-  const NOTIFICATION_READ_MESSAGE_STATE = useAppSelector(
-    (state) => state.callGetNotificationMessage
-  );
-
-  const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
-  // filter by selected school
-  const isLoading = [SCHOOL_LIST_STATE.loading, USER_LIST_STATE.loading].some(
-    Boolean
-  );
-  const [table, setTable] = useState<type.ResponseLeaveLetter[]>([]);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [schoolList, setSchoolList] = useState<any[]>([]);
-  const [userList, setUserList] = useState<any[]>([]);
-  const [fromDate, setFromDate] = useState<string>("");
-  const [toDate, setToDate] = useState<string>("");
-  const [deviceIdSearch, setDeviceIdSearch] = useState<string>("");
-  const [modal, setModal] = useState<string>("");
-  const [selectedRow, setSelectedRow] = useState<type.ResponseLeaveLetter>();
-  const [form, setForm] = useState<{
-    schoolID: string;
-    userID: string;
-    letter_id: string;
-  }>({ schoolID: "", userID: "", letter_id: "" });
-  const [page, setPage] = useState<number>(0);
-
-  useEffect(() => {
-    setSchoolList(
-      SCHOOL_LIST_STATE?.response?.data?.data?.map((item: any) => ({
-        label: item.SchoolName,
-        value: item.SchoolID,
-      })) || []
+  const schoolOptions = useMemo(() => {
+    return (
+      schoolState?.response?.data?.map((item: any) => ({
+        label: `${item.SchoolName} (${item.SchoolID})`,
+        value: String(item.SchoolID),
+      })) ?? []
     );
-  }, [SCHOOL_LIST_STATE?.response]);
+  }, [schoolState?.response?.data]);
 
-  useEffect(() => {
-    getUserBySchoolId(form.schoolID);
-  }, [form.schoolID]);
+  const userOptions = useMemo(() => {
+    return (
+      userState?.response?.data?.data?.map(
+        (item: ResponseUserList["draftValues"]) => ({
+          label: `${item?.Name ?? ""} ${item?.LastName ?? ""} (ID: ${
+            item?.UserID
+          })`,
+          value: String(item?.UserID),
+        })
+      ) ?? []
+    );
+  }, [userState?.response?.data?.data]);
 
-  useEffect(() => {
-    if (page !== 0 && table?.length < 1) {
-      Swal.fire({
-        title: "ไม่พบข้อมูล",
-      });
-    }
-  }, [table]);
+  const overallLoading = Boolean(
+    schoolState.loading || userState.loading || dataset.loading
+  );
 
-  useEffect(() => {
-    page === 0 ? setPage(1) : setPage(page);
-  }, [page]);
+  const fetchUsersBySchool = useCallback(
+    async (schoolID?: string) => {
+      if (!schoolID) {
+        return;
+      }
 
-  const getUserBySchoolId = async (schoolId: string) => {
-    try {
-      const response = await dispatch(GET_USER_BY_SCHOOLID({ schoolId }));
-      setUserList(
-        response?.payload?.data?.map(
-          (item: type.ResponseUserList["draftValues"]) => ({
-            label: `${item?.Name} \t ${item?.LastName}\t(ID : ${item?.UserID} Username : ${item?.username})`,
-            value: item?.UserID,
+      const toastId = toast.loading("กำลังโหลดรายชื่อผู้ใช้...");
+      try {
+        await dispatch(GET_USER_BY_SCHOOLID({ schoolId: schoolID })).unwrap();
+        toast.success("โหลดรายชื่อผู้ใช้สำเร็จ", { id: toastId });
+      } catch (error: any) {
+        toast.error(error?.message ?? "ไม่สามารถโหลดรายชื่อผู้ใช้", {
+          id: toastId,
+        });
+      }
+    },
+    [dispatch]
+  );
+
+  const fetchLeaveLetters = useCallback(
+    async (userID: string, requestedPage = 1) => {
+      if (!userID) {
+        toast.info("กรุณาเลือกผู้ใช้ก่อน");
+        return;
+      }
+
+      setDataset((prev) => ({ ...prev, loading: true }));
+      const toastId = toast.loading("กำลังโหลดจดหมายลาหยุด...");
+
+      try {
+        const response = await dispatch(
+          GET_LEAVE_LETTER_LIST({
+            user_id: userID,
+            page: String(requestedPage),
           })
-        )
-      );
-      console.log(response);
-    } catch (error) {
-      throw new Error((error as Error).message);
-    }
-  };
+        ).unwrap();
 
-  const confirmFixStatusLeaveLetter = async (letter_id: string) => {
-    try {
-      await dispatch(
-        FIX_LEAVE_LETTER_DETAIL({
-          school_id: form.schoolID,
-          letter_id: letter_id,
-        })
-      ).unwrap();
-      Swal.fire({
-        icon: "success",
-        title: "แก้ไขสถานะสำเร็จ",
-        text: `แก้ไขสถานะจดหมายลาหยุดที่รหัส ${letter_id} สำเร็จแล้ว`,
-      }).then(() => {
-        setModal("");
-        handleSubmitForm(page);
-        setForm({ ...form, letter_id: "" });
-        setSelectedRow(undefined);
-      });
-    } catch (error: any) {
-      throw new Error(
-        "Function [confirmFixStatusLeaveLetter] :",
-        error.message
-      );
-    }
-  };
+        const responseData = response?.data;
+        const normalizedData = Array.isArray(responseData)
+          ? responseData
+          : responseData
+          ? [responseData]
+          : [];
 
-  const handleSubmitForm = async (page?: number) => {
-    try {
-      const response = await dispatch(
-        GET_LEAVE_LETTER_LIST({
-          user_id: form.userID,
-          page: page?.toString() ?? "1",
-        })
-      ).unwrap();
-      setTable(response?.data);
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
+        setDataset({
+          data: normalizedData,
+          loading: false,
+          curl: response?.curl ?? "",
+          page: requestedPage,
+        });
 
-  const renderTableData = (data: type.ResponseLeaveLetter[]) =>
-    data.map((row, idx) => (
-      <MinimalRow key={idx}>
-        {({
-          index,
-          row,
-        }: {
-          index: number;
-          row: type.ResponseLeaveLetter["data"];
-        }) => (
-          <>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              {index}
-            </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              {row.letterId}
-            </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              {convertTimeZoneToThai(new Date(row.letterSubmitDate))}
-            </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              <span className="inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-500 rounded-full">
-                {row.letterType}
-              </span>
-            </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              {row.senderName}
-            </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              <span
-                className={`inline-block px-3 py-1 text-sm font-semibold text-white ${
-                  row.userType === "0" ? "bg-orange-400" : "bg-orange-400"
-                } rounded-full`}
+        toast.success("โหลดข้อมูลสำเร็จ", { id: toastId });
+      } catch (error: any) {
+        setDataset((prev) => ({ ...prev, loading: false }));
+        toast.error(error?.message ?? "ไม่สามารถโหลดข้อมูลจดหมาย", {
+          id: toastId,
+        });
+      }
+    },
+    [dispatch]
+  );
+
+  const handleSubmit = useCallback(async () => {
+    const values = await form.validateFields();
+    await fetchLeaveLetters(values.userID, 1);
+  }, [fetchLeaveLetters, form]);
+
+  const handlePageChange = useCallback(
+    async (nextPage: number) => {
+      const { userID } = form.getFieldsValue();
+      if (!userID) {
+        toast.info("กรุณาเลือกผู้ใช้ก่อน");
+        return;
+      }
+
+      if (nextPage < 1) {
+        return;
+      }
+
+      await fetchLeaveLetters(userID, nextPage);
+    },
+    [fetchLeaveLetters, form]
+  );
+
+  const handleFixStatus = useCallback(
+    async (letterId: string) => {
+      const { schoolID } = form.getFieldsValue();
+      if (!schoolID) {
+        toast.info("กรุณาเลือกโรงเรียนก่อน");
+        return;
+      }
+
+      const toastId = toast.loading("กำลังแก้ไขสถานะ...");
+
+      try {
+        await dispatch(
+          FIX_LEAVE_LETTER_DETAIL({
+            school_id: schoolID,
+            letter_id: letterId,
+          })
+        ).unwrap();
+
+        toast.success(`แก้ไขสถานะจดหมาย ${letterId} สำเร็จ`, {
+          id: toastId,
+        });
+
+        const { userID } = form.getFieldsValue();
+        if (userID) {
+          await fetchLeaveLetters(userID, dataset.page);
+        }
+      } catch (error: any) {
+        toast.error(error?.message ?? "ไม่สามารถแก้ไขสถานะได้", {
+          id: toastId,
+        });
+      }
+    },
+    [dataset.page, dispatch, fetchLeaveLetters, form]
+  );
+
+  const selectedSchoolId = Form.useWatch("schoolID", form);
+
+  useEffect(() => {
+    form.setFieldsValue({ userID: undefined });
+    if (selectedSchoolId) {
+      fetchUsersBySchool(selectedSchoolId);
+    }
+  }, [fetchUsersBySchool, form, selectedSchoolId]);
+
+  const getColumnSearchProps = useCallback(
+    (dataIndex: SearchableColumnKey, title: string): TableColumn => ({
+      key: dataIndex,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => {
+        const value = (selectedKeys[0] as string | undefined) ?? "";
+
+        return (
+          <div
+            style={{ padding: 12 }}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <Input
+              ref={(node) => {
+                searchInputRefs.current[dataIndex] = node;
+              }}
+              placeholder={`ค้นหา ${title}`}
+              value={value}
+              onChange={(event) => {
+                const { value: inputValue } = event.target;
+                setSelectedKeys(inputValue ? [inputValue] : []);
+              }}
+              onPressEnter={() => confirm()}
+              style={{ marginBottom: 8, display: "block" }}
+            />
+            <Space>
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                size="small"
+                onClick={() => confirm()}
               >
-                {row.userType === "0" ? "นักเรียน" : "คุณครู"}
-              </span>
-            </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              <span
-                className={`inline-block px-3 py-1 text-sm font-semibold text-white bg-green-600 rounded-full`}
+                ค้นหา
+              </Button>
+              <Button
+                size="small"
+                onClick={() => {
+                  clearFilters?.();
+                  confirm({ closeDropdown: true });
+                }}
               >
-                {row.ApprovedStatus?.TextTH || "-"}
-              </span>
-            </td>
-            <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-              <div className="grid grid-cols-1 justify-between">
-                <MinimalButton
-                  className=" bg-green-500 text-white rounded hover:bg-green-600 w-24 h-10 text-sm"
-                  onClick={() => {
-                    const curlCommand = LEAVE_LETTER_LIST?.response?.curl || "";
-                    navigator.clipboard.writeText(curlCommand.toString());
-                    Swal.fire({
-                      icon: "success",
-                      title: "Copied!",
-                      text: "Copy CURL to clipboard.",
-                      confirmButtonText: "OK",
-                    });
-                  }}
-                >
-                  CURL
-                </MinimalButton>
-                <MinimalButton
-                  className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 w-24 h-10 text-[0.75rem]"
-                  onClick={() => {
-                    setForm({
-                      ...form,
-                      letter_id: row.leaveLetterId.toString(),
-                    });
-                    setModal("confirm_fix_letter");
-                  }}
-                >
-                  แก้ไขสถานะ
-                </MinimalButton>
-              </div>
-            </td>
-          </>
-        )}
-      </MinimalRow>
-    ));
+                รีเซ็ต
+              </Button>
+            </Space>
+          </div>
+        );
+      },
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+      ),
+      onFilter: (value, record) => {
+        const raw = record[dataIndex];
+        if (!raw) {
+          return false;
+        }
+        return String(raw).toLowerCase().includes(String(value).toLowerCase());
+      },
+      filterDropdownProps: {
+        onOpenChange: (visible) => {
+          if (visible) {
+            setTimeout(() => searchInputRefs.current[dataIndex]?.select(), 100);
+          }
+        },
+      },
+    }),
+    []
+  );
 
-  const renderModal = () => (
-    <MinimalModal
-      title="ยืนยันการแก้ไขสถานะ"
-      onClose={() => setModal("")}
-      confirmMode
-      onConfirm={() => {
-        confirmFixStatusLeaveLetter(form.letter_id);
-      }}
-    >
-      <p className="text-gray-700 dark:text-gray-300">
-        สามารถกดยืนยันได้เลย หากสถานะถูกต้องอยู่แล้ว ก็กดไปได้เลย ไม่เป็นอะไร
-        หากสถานะผิดจะแก้ให้ถูก คุณต้องการแก้ไขสถานะที่รหัสข้อความ :
-        {form.letter_id}
-      </p>
-    </MinimalModal>
+  const columns = useMemo<ColumnsType<ResponseLeaveLetter>>(
+    () => [
+      {
+        title: "ลำดับ",
+        key: "index",
+        render: (_value, _record, index) =>
+          index + 1 + (dataset.page - 1) * PAGE_SIZE,
+        width: 80,
+        align: "center",
+      },
+      {
+        title: "รหัสจดหมาย",
+        dataIndex: "letterId",
+        sorter: (a, b) => Number(a.letterId) - Number(b.letterId),
+        ...getColumnSearchProps("letterId", "รหัสจดหมาย"),
+      },
+      {
+        title: "วันที่ส่งคำร้อง",
+        dataIndex: "letterSubmitDate",
+        sorter: (a, b) =>
+          dayjs(a.letterSubmitDate as unknown as string).valueOf() -
+          dayjs(b.letterSubmitDate as unknown as string).valueOf(),
+        render: (value: string) => convertTimeZoneToThai(new Date(value)),
+        ...getColumnSearchProps("letterSubmitDate", "วันที่ส่ง"),
+      },
+      {
+        title: "ประเภทการลา",
+        dataIndex: "letterType",
+        sorter: (a, b) =>
+          String(a.letterType).localeCompare(String(b.letterType)),
+        render: (value: string) => <Tag color="blue">{value}</Tag>,
+        ...getColumnSearchProps("letterType", "ประเภทการลา"),
+      },
+      {
+        title: "ชื่อผู้ส่งคำร้อง",
+        dataIndex: "senderName",
+        sorter: (a, b) =>
+          String(a.senderName).localeCompare(String(b.senderName)),
+        ...getColumnSearchProps("senderName", "ชื่อผู้ส่ง"),
+      },
+      {
+        title: "ประเภทผู้ใช้งาน",
+        dataIndex: "userType",
+        sorter: (a, b) => String(a.userType).localeCompare(String(b.userType)),
+        filters: [
+          { text: USER_TYPE_LABEL["0"], value: "0" },
+          { text: USER_TYPE_LABEL["1"], value: "1" },
+        ],
+        onFilter: (value, record) => String(record.userType) === String(value),
+        render: (value: string) => USER_TYPE_LABEL[value] ?? value,
+        ...getColumnSearchProps("userType", "ประเภทผู้ใช้"),
+      },
+      {
+        title: "สถานะ",
+        dataIndex: "status",
+        sorter: (a, b) => String(a.status).localeCompare(String(b.status)),
+        render: (_value: string, record) => (
+          <Tag color={getStatusColor(record.ApprovedStatus?.TextTH)}>
+            {record.ApprovedStatus?.TextTH ?? "-"}
+          </Tag>
+        ),
+        ...getColumnSearchProps("status", "สถานะ"),
+      },
+      {
+        title: "การกระทำ",
+        key: "actions",
+        render: (_value, record) => (
+          <Space>
+            <Button
+              onClick={() => {
+                if (!dataset.curl) {
+                  toast.info("ไม่พบคำสั่ง CURL");
+                  return;
+                }
+                navigator.clipboard.writeText(dataset.curl);
+                toast.success("คัดลอกคำสั่ง CURL แล้ว");
+              }}
+            >
+              คัดลอก CURL
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => handleFixStatus(String(record.leaveLetterId))}
+            >
+              แก้ไขสถานะ
+            </Button>
+          </Space>
+        ),
+      },
+    ],
+    [dataset.curl, dataset.page, getColumnSearchProps, handleFixStatus]
   );
 
   return (
     <DashboardLayout>
-      {isLoading && <BaseLoadingComponent />}
-      {modal === "confirm_fix_letter" && renderModal()}
-
-      <div className="w-full space-y-4">
-        {/* หมายเหตุ */}
-        <div className="grid grid-cols-1 grid-rows-1 gap-0 w-full">
-          <div className="space-y-3 w-full grid-cols-2">
-            <ContentCard title="ค้นหาจดหมายลาหยุด" fullWidth className="w-full">
-              {/* ห่อสองช่องด้วย grid จริง ๆ */}
-              <div className="grid grid-cols-2 gap-4 w-full">
-                {/* กรอก School Id */}
-                <div>
-                  <SearchableSelectComponent
-                    label="เลือกโรงเรียน"
-                    options={[
-                      { label: "เลือกรายการ", value: "" },
-                      ...schoolList.map((s) => ({
-                        label: s.label + " (" + s.value + ")",
-                        value: String(s.value),
-                      })),
-                    ]}
-                    value={form.schoolID}
-                    onChange={(event: any) => {
-                      setForm({ ...form, schoolID: event });
-                    }}
-                    placeholder="เลือกโรงเรียน"
-                  />
-                </div>
-
-                {/* กรอกรหัส User ID  */}
-                <div>
-                  <SearchableSelectComponent
-                    label="กรอกรหัส User ID ที่ต้องการค้นหา"
-                    options={[
-                      { label: "เลือกรายการ", value: "" },
-                      ...(userList ?? []).map((s) => ({
-                        label: s.label,
-                        value: String(s.value),
-                      })),
-                    ]}
-                    value={form.userID}
-                    onChange={(event: any) => {
-                      setForm({ ...form, userID: event });
-                    }}
-                    placeholder="กรอกรหัส User ID"
-                  />
-                </div>
-
-                <div></div>
-
-                <div className="flex justify-end w-full">
-                  <MinimalButton
-                    type="button"
-                    textSize="base"
-                    className={` ${
-                      form?.userID
-                        ? "bg-green-500 hover:bg-green-600"
-                        : "bg-gray-300"
-                    }`}
-                    isLoading={isLoading}
-                    disabled={!form?.userID}
-                    onClick={async () => {
-                      setPage(1);
-                      await handleSubmitForm(1);
-                    }}
-                  >
-                    ค้นหา
-                  </MinimalButton>
-                </div>
-              </div>
-            </ContentCard>
-          </div>
-        </div>
-
-        <ContentCard
-          title="รายงานการทำงานทุกระบบ"
-          fullWidth
-          className="md:col-span-2 xl:col-span-4 w-full hidden"
-        >
-          {/* -- ใน <ContentCard> ส่วนฟอร์ม -- */}
-          <form className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              {/* เลือกโรงเรียน */}
-              <div className="flex-1">
-                <SearchableSelectComponent
-                  label="เลือกโรงเรียน"
-                  options={[
-                    { label: "เลือกรายการ", value: "" },
-                    ...schoolList.map((s) => ({
-                      label: s.label + " (" + s.value + ")",
-                      value: String(s.value),
-                    })),
-                  ]}
-                  value={selectedSchool}
-                  onChange={setSelectedSchool}
-                  placeholder="เลือกโรงเรียน"
-                />
-              </div>
-
-              {/* ค้นหา Device ID */}
-              <div>
-                <InputFieldComponent
-                  label="ค้นหา Device ID"
-                  placeholder="พิมพ์ Device ID"
-                  icon={
-                    <FiSearch className="text-gray-400 dark:text-gray-500" />
-                  }
-                  value={deviceIdSearch}
-                  onChange={(e) => setDeviceIdSearch(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-            </div>
-          </form>
-        </ContentCard>
-
-        {/* Reponse From Server */}
-        {/* <ResponseCardComponent
-          responseData={SCHOOL_LIST_STATE.response.data?.data}
-          curlCommand={SCHOOL_LIST_STATE.response.data?.curl}
-        /> */}
-
-        {/* ตาราง */}
-        <ContentCard
-          title={`ตารางแสดงข้อความแจ้งเตือน (หน้าที่ ${page})`}
-          className="xl:col-span-4 w-full"
-          hidden={table?.length < 1}
-        >
-          <MinimalTable
-            isLoading={LEAVE_LETTER_LIST.loading}
-            header={columns}
-            data={table}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={setRowsPerPage}
-            hiddenProps={true}
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Card title="ค้นหาจดหมายลาหยุด" variant="borderless">
+          <Form
+            layout="vertical"
+            form={form}
+            onFinish={handleSubmit}
+            initialValues={{ schoolID: "", userID: "" }}
           >
-            {table ? renderTableData(table) : null}
-          </MinimalTable>
-          <div className="flex justify-between">
-            <MinimalButton
-              type="submit"
-              textSize="base"
-              className="bg-sky-500 hover:bg-sky-700 w-10 justify-center"
-              isLoading={isLoading}
-              onClick={() => {
-                setPage(page - 1);
-                handleSubmitForm(page - 1);
-              }}
+            <Form.Item
+              label="เลือกโรงเรียน"
+              name="schoolID"
+              rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
             >
-              <FiArrowLeft />
-            </MinimalButton>
-            <MinimalButton
-              type="submit"
-              textSize="base"
-              className="bg-sky-500 hover:bg-sky-700 w-10 justify-center "
-              isLoading={isLoading}
-              onClick={() => {
-                setPage(page + 1);
-                handleSubmitForm(page + 1);
-              }}
+              <Select
+                showSearch
+                placeholder="เลือกโรงเรียน"
+                options={schoolOptions}
+                loading={schoolState.loading}
+                filterOption={(input, option) =>
+                  String(option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="เลือกผู้ใช้"
+              name="userID"
+              rules={[{ required: true, message: "กรุณาเลือกผู้ใช้" }]}
             >
-              <FiArrowRight />
-            </MinimalButton>
-          </div>
-        </ContentCard>
-      </div>
+              <Select
+                showSearch
+                placeholder="เลือกผู้ใช้"
+                options={userOptions}
+                loading={userState.loading}
+                filterOption={(input, option) =>
+                  String(option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit" loading={overallLoading}>
+                ค้นหา
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+
+        <Card
+          title={`ตารางจดหมายลาหยุด (หน้า ${dataset.page})`}
+          bordered={false}
+          extra={
+            <Space>
+              <Button
+                onClick={() => handlePageChange(dataset.page - 1)}
+                disabled={dataset.page <= 1}
+              >
+                หน้าก่อนหน้า
+              </Button>
+              <Button onClick={() => handlePageChange(dataset.page + 1)}>
+                หน้าถัดไป
+              </Button>
+            </Space>
+          }
+        >
+          <Table<ResponseLeaveLetter>
+            dataSource={dataset.data}
+            loading={dataset.loading}
+            columns={columns}
+            rowKey={(record) => String(record.leaveLetterId)}
+            pagination={false}
+            locale={{
+              emptyText: overallLoading ? "กำลังโหลด..." : "ไม่พบข้อมูล",
+            }}
+            scroll={{ x: 1200 }}
+          />
+        </Card>
+      </Space>
     </DashboardLayout>
   );
 }

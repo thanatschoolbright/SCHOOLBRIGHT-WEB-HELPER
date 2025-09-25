@@ -24,14 +24,17 @@ const Slice = createSlice({
   initialState,
   reducers: {
     setDraftValues: (state, action: PayloadAction<CallSchoolListState>) => {
-      console.log("[setDraftValues] : ", action.payload);
       state.draftValues = {
         ...state.draftValues,
         ...action.payload,
       };
     },
+    setResponse: (state, action: PayloadAction<CallSchoolListState>) => {
+      state.response = {
+        ...action.payload,
+      };
+    },
     submitState: (state, action: PayloadAction<CallSchoolListState>) => {
-      console.log("[submitState] : ", action.payload);
       state.draftValues = {
         ...state.draftValues,
         ...action.payload,
@@ -55,5 +58,5 @@ const Slice = createSlice({
   },
 });
 
-export const { setDraftValues, submitState } = Slice.actions;
+export const { setDraftValues, submitState, setResponse } = Slice.actions;
 export default Slice.reducer;
