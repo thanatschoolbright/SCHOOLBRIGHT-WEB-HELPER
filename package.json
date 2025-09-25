@@ -44,6 +44,7 @@
     "sonner": "^2.0.7",
     "sweetalert2": "^11.21.2",
     "ts-node": "^10.9.2",
+    "xlsx": "^0.18.5",
     "zod": "^4.1.5"
   },
   "devDependencies": {

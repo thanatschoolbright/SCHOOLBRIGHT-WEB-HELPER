@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import type { Key } from "react";
-import { FiCheckCircle, FiTrash2, FiInfo, FiEdit2 } from "react-icons/fi";
+import { FiCheckCircle, FiTrash2, FiInfo } from "react-icons/fi";
 import dayjs from "dayjs";
 import { useAppSelector } from "@stores/store";
 import { toast } from "sonner";
@@ -23,14 +23,14 @@ import {
   Skeleton,
   Select,
   DatePicker,
+  Dropdown,
 } from "antd";
 import {
-  PlusOutlined,
   BarChartOutlined,
   PieChartOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import { Tooltip } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { useTranslation } from "react-i18next";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
@@ -38,6 +38,9 @@ import axios from "axios";
 import { getUserData } from "@/helpers/local_storage/user.storage";
 import { GraphTimesheetModal } from "@/components/modal/graph-timesheet-modal-component";
 import { PieTimesheetModal } from "@/components/modal/pie-timesheet-modal-component";
+import { utils, writeFile } from "xlsx";
+import type { TimesheetMode } from "@/components/modal/graph-timesheet-modal-component";
+import type { MenuProps } from "antd";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -89,6 +92,9 @@ export default function Page() {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [rawTimesheetData, setRawTimesheetData] = useState<any[]>([]);
+  const [exporting, setExporting] = useState<boolean>(false);
+  const [graphMode, setGraphMode] = useState<TimesheetMode>("week");
+  const [pieMode, setPieMode] = useState<TimesheetMode>("week");
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -181,8 +187,90 @@ export default function Page() {
     return users.find((user) => String(user.admin_id) === String(id));
   };
 
-  const openGraphModal = () => {
+  const statusLabelMap = useMemo(() => {
+    return STATUS_OPTIONS.reduce<Record<string, string>>((acc, option) => {
+      acc[option.value] =
+        i18n.language === "th" ? option.label_th : option.label_en;
+      return acc;
+    }, {});
+  }, [i18n.language]);
+
+  const handleExportAll = async () => {
+    try {
+      setExporting(true);
+      const response = await axios.post("/api/v1/timesheet/entry/read/", {
+        limit: 10000,
+        page: 1,
+      });
+
+      const allEntries = response.data?.data ?? [];
+
+      if (!allEntries.length) {
+        toast.info("ไม่มีข้อมูลสำหรับส่งออก", {
+          duration: 3000,
+          position: "top-right",
+        });
+        return;
+      }
+
+      const dataset = allEntries.map((entry: any) => {
+        const user = getUserById(entry.created_by);
+        return {
+          วันที่: entry.date ? dayjs(entry.date).format("DD/MM/YYYY") : "-",
+          ชื่อโปรเจ็ค: entry.project_name ?? "-",
+          ชื่อฟีเจอร์: entry.feature_name ?? "-",
+          ชื่อผู้จัดทำ: user
+            ? `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() || "-"
+            : "-",
+          สถานะ: statusLabelMap[entry.status] ?? entry.status ?? "-",
+          ชั่วโมง: Number(entry.hours ?? 0),
+          คำอธิบาย: entry.description ?? "-",
+        };
+      });
+
+      const worksheet = utils.json_to_sheet(dataset);
+      const workbook = utils.book_new();
+      utils.book_append_sheet(workbook, worksheet, "Timesheet");
+
+      const filename = `timesheet-report-${dayjs().format(
+        "YYYYMMDD-HHmmss"
+      )}.xlsx`;
+      writeFile(workbook, filename);
+
+      toast.success("ส่งออกข้อมูลสำเร็จ", {
+        duration: 3000,
+        position: "top-right",
+      });
+    } catch (error: any) {
+      console.error("handleExportAll", error);
+      toast.error("ส่งออกข้อมูลล้มเหลว", {
+        description: error?.message ?? "Unexpected error",
+        duration: 3000,
+        position: "top-right",
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const timeModeItems = useMemo(
+    () => [
+      { key: "today", label: "วันนี้" },
+      { key: "week", label: "สัปดาห์นี้" },
+      { key: "month", label: "เดือนนี้" },
+      { key: "year", label: "ปีนี้" },
+    ],
+    []
+  );
+
+  const handleOpenGraph: MenuProps["onClick"] = ({ key }) => {
+    setGraphMode(key as TimesheetMode);
     setModal("graph");
+  };
+
+  const handleOpenPie: MenuProps["onClick"] = ({ key }) => {
+    setPieMode(key as TimesheetMode);
+    setModal("pie");
   };
 
   const columns = [
@@ -328,12 +416,14 @@ export default function Page() {
           open={modal === "graph"}
           onClose={() => setModal("")}
           data={rawTimesheetData}
+          mode={graphMode}
         />
         {/* Timesheet Graph Component */}
         <PieTimesheetModal
           open={modal === "pie"}
           onClose={() => setModal("")}
           data={rawTimesheetData}
+          mode={pieMode}
         />
 
         <div className="w-full space-y-4">
@@ -341,27 +431,49 @@ export default function Page() {
             {/* Action Buttons */}
             <div className="w-full flex justify-end mb-4">
               <Space size="middle">
-                <Tooltip title="ดูกราฟแท่ง">
+                <Dropdown
+                  menu={{ items: timeModeItems, onClick: handleOpenGraph }}
+                  placement="bottomRight"
+                  trigger={["click"]}
+                >
+                  <Tooltip title="เลือกช่วงเวลาของกราฟแท่ง">
+                    <Button
+                      type="primary"
+                      shape="round"
+                      icon={<BarChartOutlined />}
+                      size="large"
+                    >
+                      กราฟแท่ง
+                    </Button>
+                  </Tooltip>
+                </Dropdown>
+                <Dropdown
+                  menu={{ items: timeModeItems, onClick: handleOpenPie }}
+                  placement="bottomRight"
+                  trigger={["click"]}
+                >
+                  <Tooltip title="เลือกช่วงเวลาของกราฟวงกลม">
+                    <Button
+                      type="primary"
+                      shape="round"
+                      icon={<PieChartOutlined />}
+                      size="large"
+                    >
+                      กราฟวงกลม
+                    </Button>
+                  </Tooltip>
+                </Dropdown>
+                <Tooltip title="ส่งออกทั้งหมด">
                   <Button
                     type="primary"
-                    shape="circle"
-                    icon={<BarChartOutlined />}
+                    shape="round"
+                    icon={<ExportOutlined />}
                     size="large"
-                    onClick={openGraphModal}
-                    style={{ minWidth: 48 }}
-                    ghost
-                  />
-                </Tooltip>
-                <Tooltip title="ดูกราฟวงกลม">
-                  <Button
-                    type="primary"
-                    shape="circle"
-                    icon={<PieChartOutlined />}
-                    size="large"
-                    onClick={() => setModal("pie")}
-                    style={{ minWidth: 48 }}
-                    ghost
-                  />
+                    onClick={handleExportAll}
+                    loading={exporting}
+                  >
+                    Export
+                  </Button>
                 </Tooltip>
               </Space>
             </div>

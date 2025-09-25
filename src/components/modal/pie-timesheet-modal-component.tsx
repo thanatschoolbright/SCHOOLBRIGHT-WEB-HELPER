@@ -5,6 +5,8 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Title, Tooltip, Legend } from "chart.js";
 import { Modal } from "antd";
 import { getProjectById } from "@/helpers/local_storage/project.storage";
+import dayjs from "dayjs";
+import type { TimesheetMode } from "./graph-timesheet-modal-component";
 
 ChartJS.register(ArcElement, Title, Tooltip, Legend);
 
@@ -12,13 +14,30 @@ interface PieTimesheetModalProps {
   open: boolean;
   onClose: () => void;
   data: any[];
+  mode?: TimesheetMode;
 }
 
-function filterDataForToday(data: any[]) {
-  const todayStr = new Date().toDateString();
-  return (data ?? []).filter(
-    (item) => new Date(item.date).toDateString() === todayStr
-  );
+function filterDataByMode(data: any[], mode: TimesheetMode) {
+  const now = dayjs();
+
+  return (data ?? []).filter((item) => {
+    const itemDate = item?.date ? dayjs(item.date) : null;
+    if (!itemDate || !itemDate.isValid()) {
+      return false;
+    }
+
+    switch (mode) {
+      case "today":
+        return itemDate.isSame(now, "day");
+      case "month":
+        return itemDate.isSame(now, "month");
+      case "year":
+        return itemDate.isSame(now, "year");
+      case "week":
+      default:
+        return itemDate.isSame(now, "week");
+    }
+  });
 }
 
 function aggregateHoursByProject(data: any[]) {
@@ -48,21 +67,31 @@ const backgroundColors = [
   "rgba(60, 179, 113, 0.7)",
 ];
 
+const modeLabelMap: Record<TimesheetMode, string> = {
+  today: "วันนี้",
+  week: "สัปดาห์นี้",
+  month: "เดือนนี้",
+  year: "ปีนี้",
+};
+
 export function PieTimesheetModal({
   open,
   onClose,
   data,
+  mode = "week",
 }: PieTimesheetModalProps) {
-  const todayData = filterDataForToday(data);
-  const hoursByProject = aggregateHoursByProject(todayData);
+  const filteredData = filterDataByMode(data, mode);
+  const hoursByProject = aggregateHoursByProject(filteredData);
   const projectNames = Object.keys(hoursByProject);
   const hours = Object.values(hoursByProject);
+
+  const modeLabel = modeLabelMap[mode] ?? modeLabelMap.week;
 
   const chartData = {
     labels: projectNames,
     datasets: [
       {
-        label: "ชั่วโมงที่ใช้ในแต่ละโปรเจกต์ (วันนี้)" as string,
+        label: `ชั่วโมงที่ใช้ในแต่ละโปรเจกต์ (${modeLabel})` as string,
         data: hours,
         backgroundColor: backgroundColors.slice(0, projectNames.length),
         borderWidth: 1,
@@ -79,7 +108,7 @@ export function PieTimesheetModal({
       },
       title: {
         display: true,
-        text: "Timesheet: ชั่วโมงที่ใช้ในแต่ละโปรเจกต์ (วันนี้)",
+        text: `Timesheet: ชั่วโมงที่ใช้ในแต่ละโปรเจกต์ (${modeLabel})`,
       },
     },
   };

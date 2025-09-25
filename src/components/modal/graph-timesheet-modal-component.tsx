@@ -12,8 +12,8 @@ import {
   Legend,
 } from "chart.js";
 import { Modal } from "antd";
-import { useEffect } from "react";
 import { getUserById } from "@helpers/local_storage/user.storage";
+import dayjs from "dayjs";
 
 ChartJS.register(
   CategoryScale,
@@ -24,17 +24,36 @@ ChartJS.register(
   Legend
 );
 
+export type TimesheetMode = "today" | "week" | "month" | "year";
+
 interface GraphTimesheetModalProps {
   open: boolean;
   onClose: () => void;
   data: any[];
+  mode?: TimesheetMode;
 }
 
-function filterDataForToday(data: any[]) {
-  const todayStr = new Date().toDateString();
-  return (data ?? []).filter(
-    (item) => new Date(item.date).toDateString() === todayStr
-  );
+function filterDataByMode(data: any[], mode: TimesheetMode) {
+  const now = dayjs();
+
+  return (data ?? []).filter((item) => {
+    const itemDate = item?.date ? dayjs(item.date) : null;
+    if (!itemDate || !itemDate.isValid()) {
+      return false;
+    }
+
+    switch (mode) {
+      case "today":
+        return itemDate.isSame(now, "day");
+      case "month":
+        return itemDate.isSame(now, "month");
+      case "year":
+        return itemDate.isSame(now, "year");
+      case "week":
+      default:
+        return itemDate.isSame(now, "week");
+    }
+  });
 }
 
 function aggregateHoursByUser(data: any[]) {
@@ -57,21 +76,31 @@ function getBackgroundColors(hoursArray: number[]) {
   });
 }
 
+const modeLabelMap: Record<TimesheetMode, string> = {
+  today: "วันนี้",
+  week: "สัปดาห์นี้",
+  month: "เดือนนี้",
+  year: "ปีนี้",
+};
+
 export function GraphTimesheetModal({
   open,
   onClose,
   data,
+  mode = "week",
 }: GraphTimesheetModalProps) {
-  const todayData = filterDataForToday(data);
-  const hoursByUser = aggregateHoursByUser(todayData);
+  const filteredData = filterDataByMode(data, mode);
+  const hoursByUser = aggregateHoursByUser(filteredData);
   const userNames = Object.keys(hoursByUser);
   const hours = Object.values(hoursByUser);
+
+  const modeLabel = modeLabelMap[mode] ?? modeLabelMap.week;
 
   const chartData = {
     labels: userNames,
     datasets: [
       {
-        label: "ชั่วโมงของแต่ละคน (วันนี้)" as string,
+        label: `ชั่วโมงของแต่ละคน (${modeLabel})` as string,
         data: hours,
         backgroundColor: getBackgroundColors(hours as number[]),
         borderRadius: 5,
@@ -89,7 +118,7 @@ export function GraphTimesheetModal({
       },
       title: {
         display: true,
-        text: "Timesheet: ชั่วโมงต่อผู้ใช้ (วันนี้)",
+        text: `Timesheet: ชั่วโมงต่อผู้ใช้ (${modeLabel})`,
         font: {
           size: 20,
           family: "Anuphan",
