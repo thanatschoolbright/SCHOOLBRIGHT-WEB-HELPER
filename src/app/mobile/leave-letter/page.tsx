@@ -43,7 +43,7 @@ type SearchableColumnKey =
   | "userType"
   | "status";
 
-type TableColumn = ColumnType<ResponseLeaveLetter> & {
+type TableColumn = ColumnType<any> & {
   key: keyof ResponseLeaveLetter | string;
 };
 
@@ -315,7 +315,7 @@ export default function Page() {
     []
   );
 
-  const columns = useMemo<ColumnsType<ResponseLeaveLetter>>(
+  const columns = useMemo<ColumnsType<any>>(
     () => [
       {
         title: "ลำดับ",
@@ -479,7 +479,7 @@ export default function Page() {
             </Space>
           }
         >
-          <Table<ResponseLeaveLetter>
+          <Table
             dataSource={dataset.data}
             loading={dataset.loading}
             columns={columns}

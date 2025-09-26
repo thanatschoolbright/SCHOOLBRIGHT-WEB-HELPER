@@ -116,7 +116,7 @@ export function CreateModalForm({
           name="work_hour"
           rules={[
             { required: true, message: "กรุณากรอกชั่วโมง" },
-            { type: "number", min: 1, message: "ชั่วโมงต้องมากกว่า 0" },
+            { type: "number", min: 0, message: "ชั่วโมงต้องมากกว่า 0" },
           ]}
         >
           <InputNumber

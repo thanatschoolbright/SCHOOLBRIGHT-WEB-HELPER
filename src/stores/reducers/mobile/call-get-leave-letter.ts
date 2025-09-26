@@ -11,28 +11,7 @@ const initialState: RequestLeaveLetter = {
   error: "",
   success: "",
   response: {
-    letterId: function (letterId: any): unknown {
-      throw new Error("Function not implemented.");
-    },
-    letterSubmitDate: function (letterSubmitDate: any): unknown {
-      throw new Error("Function not implemented.");
-    },
-    letterType: function (letterType: any): unknown {
-      throw new Error("Function not implemented.");
-    },
-    senderName: function (senderName: any): unknown {
-      throw new Error("Function not implemented.");
-    },
-    userType: function (userType: any): unknown {
-      throw new Error("Function not implemented.");
-    },
-    status: function (status: any): unknown {
-      throw new Error("Function not implemented.");
-    },
     ApprovedStatus: undefined,
-    leaveLetterId: function (leaveLetterId: any): void {
-      throw new Error("Function not implemented.");
-    },
     data: {
       SchoolID: 0,
       letterId: 0,

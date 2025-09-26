@@ -24,14 +24,18 @@ import {
   Tag,
   Typography,
   Upload,
+  Steps,
 } from "antd";
 import type { ColumnsType, ColumnType } from "antd/es/table";
 import type { InputRef } from "antd";
-import type { UploadFile } from "antd/es/upload/interface";
+import type { UploadChangeParam, UploadFile } from "antd/es/upload/interface";
 import {
+  AppstoreAddOutlined,
+  CloudUploadOutlined,
   DownloadOutlined,
   EditOutlined,
   EyeOutlined,
+  FileTextOutlined,
   PlusOutlined,
   SearchOutlined,
   UploadOutlined as UploadIcon,
@@ -196,6 +200,7 @@ export default function Page() {
   const [versionFormMode, setVersionFormMode] = useState<"add" | "edit">("add");
   const [versionForm] = Form.useForm<VersionFormValues>();
   const [deleteTarget, setDeleteTarget] = useState<VersionRecord | null>(null);
+  const [versionFormStep, setVersionFormStep] = useState(0);
 
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
@@ -252,13 +257,14 @@ export default function Page() {
   }, [dispatch, selectedApplication, versionModalVisible]);
 
   const schoolOptions = useMemo(() => {
-    return (
-      schoolState?.response?.data?.data?.map((item: any) => ({
+    const schools =
+      schoolState?.response?.data?.map((item: any) => ({
         label: item.SchoolName,
         value: String(item.SchoolID),
-      })) ?? []
-    );
-  }, [schoolState?.response?.data?.data]);
+      })) ?? [];
+
+    return [{ label: "ทุกโรงเรียน", value: "" }, ...schools];
+  }, [schoolState]);
 
   const applicationColumns = useMemo<ColumnsType<ApplicationRecord>>(
     () => [
@@ -302,7 +308,7 @@ export default function Page() {
     [applicationState?.response?.data?.data, getColumnSearchProps]
   );
 
-  const handleUploadChange = (info: any) => {
+  const handleUploadChange = (info: UploadChangeParam<UploadFile>) => {
     if (info.file.status === "removed") {
       versionForm.setFieldsValue({ file: null });
     }
@@ -310,6 +316,7 @@ export default function Page() {
 
   const openVersionForm = (mode: "add" | "edit", version?: VersionRecord) => {
     setVersionFormMode(mode);
+    setVersionFormStep(0);
     if (mode === "add") {
       versionForm.resetFields();
       versionForm.setFieldsValue({
@@ -625,10 +632,52 @@ export default function Page() {
           versionFormMode === "add" ? "เพิ่มเวอร์ชันแอป" : "แก้ไขเวอร์ชันแอป"
         }
         open={versionFormVisible}
-        onCancel={() => setVersionFormVisible(false)}
-        onOk={handleVersionSubmit}
-        okText="บันทึก"
-        width={720}
+        onCancel={() => {
+          setVersionFormVisible(false);
+          setVersionFormStep(0);
+        }}
+        width={760}
+        footer={
+          <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+            <Button
+              onClick={() => {
+                setVersionFormVisible(false);
+                setVersionFormStep(0);
+              }}
+            >
+              ยกเลิก
+            </Button>
+            {versionFormStep > 0 && (
+              <Button
+                onClick={() =>
+                  setVersionFormStep((step) => Math.max(step - 1, 0))
+                }
+              >
+                ย้อนกลับ
+              </Button>
+            )}
+            {versionFormStep < 1 && (
+              <Button
+                type="primary"
+                onClick={async () => {
+                  try {
+                    await versionForm.validateFields(["schoolID", "appID"]);
+                    setVersionFormStep(1);
+                  } catch (error) {
+                    // validation handled in form
+                  }
+                }}
+              >
+                ถัดไป
+              </Button>
+            )}
+            {versionFormStep === 1 && (
+              <Button type="primary" onClick={handleVersionSubmit}>
+                บันทึกเวอร์ชัน
+              </Button>
+            )}
+          </Space>
+        }
       >
         <Form<VersionFormValues>
           layout="vertical"
@@ -643,103 +692,160 @@ export default function Page() {
             file: null,
           }}
         >
-          <Form.Item label="เลือกโรงเรียน" name="schoolID">
-            <Select
-              allowClear
-              placeholder="เลือกโรงเรียน"
-              options={schoolOptions}
-              showSearch
-              filterOption={(input, option) =>
-                String(option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="เลือกแอปพลิเคชัน"
-            name="appID"
-            rules={[{ required: true, message: "กรุณาเลือกแอปพลิเคชัน" }]}
-          >
-            <Select
-              placeholder="เลือกแอป"
-              disabled={versionFormMode === "edit"}
-              options={
-                applicationState?.response?.data?.data?.map(
-                  (item: ApplicationRecord) => ({
-                    label: item.app_name,
-                    value: String(item.app_id),
-                  })
-                ) ?? []
-              }
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Version ID"
-            name="versionID"
-            hidden={versionFormMode === "add"}
-          >
-            <Input disabled />
-          </Form.Item>
-
-          <Form.Item
-            label="ชื่อเวอร์ชัน"
-            name="versionName"
-            rules={[{ required: true, message: "กรุณาระบุชื่อเวอร์ชัน" }]}
-          >
-            <Input placeholder="เช่น 1.0.0" />
-          </Form.Item>
-
-          <Form.Item
-            label="สภาพแวดล้อม"
-            name="env"
-            rules={[{ required: true, message: "กรุณาเลือกสภาพแวดล้อม" }]}
-          >
-            <Select
-              placeholder="เลือกสภาพแวดล้อม"
-              options={[
-                { label: "Production", value: "Production" },
-                { label: "Beta", value: "Beta" },
-                { label: "Development", value: "Development" },
+          <Space direction="vertical" size="large" style={{ width: "100%" }}>
+            <Steps
+              current={versionFormStep}
+              items={[
+                {
+                  title: "เลือกแอป",
+                  icon: <AppstoreAddOutlined />,
+                  description: "เลือกโรงเรียนและแอปที่จะอัปเดต",
+                },
+                {
+                  title: "รายละเอียด",
+                  icon: <FileTextOutlined />,
+                  description: "ระบุรายละเอียดเวอร์ชัน",
+                },
               ]}
             />
-          </Form.Item>
 
-          <Form.Item label="หมายเหตุ" name="note">
-            <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม" />
-          </Form.Item>
+            {versionFormStep === 0 && (
+              <Card
+                size="small"
+                title={
+                  <Space>
+                    <AppstoreAddOutlined />
+                    <span>ขั้นตอนที่ 1: ข้อมูลเบื้องต้น</span>
+                  </Space>
+                }
+              >
+                <Form.Item label="เลือกโรงเรียน" name="schoolID">
+                  <Select
+                    allowClear
+                    placeholder="เลือกโรงเรียน"
+                    options={schoolOptions}
+                    showSearch
+                    filterOption={(input, option) =>
+                      String(option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  />
+                </Form.Item>
 
-          <Form.Item
-            label="อัปโหลดไฟล์"
-            name="file"
-            getValueFromEvent={(info: any) =>
-              info.file.status === "removed" ? null : info.file
-            }
-          >
-            <Upload
-              beforeUpload={() => false}
-              maxCount={1}
-              onChange={handleUploadChange}
-              accept=".apk,.zip"
-            >
-              <Button icon={<UploadIcon />}>เลือกไฟล์ (.apk หรือ .zip)</Button>
-            </Upload>
-          </Form.Item>
+                <Form.Item
+                  label="เลือกแอปพลิเคชัน"
+                  name="appID"
+                  rules={[{ required: true, message: "กรุณาเลือกแอปพลิเคชัน" }]}
+                >
+                  <Select
+                    placeholder="เลือกแอปพลิเคชัน"
+                    disabled={versionFormMode === "edit"}
+                    options={
+                      applicationState?.response?.data?.data?.map(
+                        (item: ApplicationRecord) => ({
+                          label: item.app_name,
+                          value: String(item.app_id),
+                        })
+                      ) ?? []
+                    }
+                  />
+                </Form.Item>
 
-          <Space>
-            <Form.Item name="isLatestVersion" valuePropName="checked">
-              <Switch />
-            </Form.Item>
-            <Typography.Text>เวอร์ชันล่าสุด</Typography.Text>
-          </Space>
+                {versionFormMode === "edit" && (
+                  <Form.Item label="Version ID" name="versionID">
+                    <Input disabled />
+                  </Form.Item>
+                )}
+              </Card>
+            )}
 
-          <Space>
-            <Form.Item name="forceUpdate" valuePropName="checked">
-              <Switch />
-            </Form.Item>
-            <Typography.Text>บังคับอัปเดต</Typography.Text>
+            {versionFormStep === 1 && (
+              <Card
+                size="small"
+                title={
+                  <Space>
+                    <FileTextOutlined />
+                    <span>ขั้นตอนที่ 2: รายละเอียดเวอร์ชัน</span>
+                  </Space>
+                }
+              >
+                <Form.Item
+                  label="ชื่อเวอร์ชัน"
+                  name="versionName"
+                  rules={[{ required: true, message: "กรุณาระบุชื่อเวอร์ชัน" }]}
+                >
+                  <Input placeholder="เช่น 1.0.0" />
+                </Form.Item>
+
+                <Form.Item
+                  label="สภาพแวดล้อม"
+                  name="env"
+                  rules={[{ required: true, message: "กรุณาเลือกสภาพแวดล้อม" }]}
+                >
+                  <Select
+                    placeholder="เลือกสภาพแวดล้อม"
+                    options={[
+                      { label: "Production", value: "Production" },
+                      { label: "Beta", value: "Beta" },
+                      { label: "Development", value: "Development" },
+                    ]}
+                  />
+                </Form.Item>
+
+                <Form.Item label="หมายเหตุ" name="note">
+                  <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม" />
+                </Form.Item>
+
+                <Form.Item
+                  label="อัปโหลดไฟล์"
+                  name="file"
+                  valuePropName="fileList"
+                  getValueFromEvent={(info: UploadChangeParam<UploadFile>) =>
+                    info.fileList
+                  }
+                  rules={[
+                    {
+                      required: versionFormMode === "add",
+                      validator: (_, fileList) => {
+                        if (!fileList || fileList.length === 0) {
+                          return Promise.reject(
+                            "กรุณาอัปโหลดไฟล์เวอร์ชัน (.apk หรือ .zip)"
+                          );
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
+                  <Upload
+                    beforeUpload={() => false}
+                    maxCount={1}
+                    onChange={handleUploadChange}
+                    accept=".apk,.zip"
+                  >
+                    <Button icon={<CloudUploadOutlined />}>
+                      เลือกไฟล์เวอร์ชัน
+                    </Button>
+                  </Upload>
+                </Form.Item>
+
+                <Space size="large">
+                  <Space>
+                    <Form.Item name="isLatestVersion" valuePropName="checked">
+                      <Switch />
+                    </Form.Item>
+                    <Typography.Text>เวอร์ชันล่าสุด</Typography.Text>
+                  </Space>
+                  <Space>
+                    <Form.Item name="forceUpdate" valuePropName="checked">
+                      <Switch />
+                    </Form.Item>
+                    <Typography.Text>บังคับอัปเดต</Typography.Text>
+                  </Space>
+                </Space>
+              </Card>
+            )}
           </Space>
         </Form>
       </Modal>

@@ -284,14 +284,7 @@ export interface RequestFixStatusLeaveLetter
 }
 
 export interface ResponseLeaveLetter {
-  letterId(letterId: any): unknown;
-  letterSubmitDate(letterSubmitDate: any): unknown;
-  letterType(letterType: any): unknown;
-  senderName(senderName: any): unknown;
-  userType(userType: any): unknown;
-  status(status: any): unknown;
   ApprovedStatus: any;
-  leaveLetterId(leaveLetterId: any): void;
   data: {
     SchoolID: number;
     letterId: number;
