@@ -467,8 +467,7 @@ export default function Page() {
         key: "school_grade",
         sorter: (a, b) => compareValues(a.school_grade, b.school_grade),
         render: (value?: string) => {
-          const grade = (value ?? "Bronze").trim();
-
+          const grade = (value ?? "Bronze").replace(/\s+/g, "");
           const gradeConfig: Record<
             string,
             {
@@ -480,7 +479,8 @@ export default function Page() {
           > = {
             "S+": {
               label: "Legendary",
-              gradient: "linear-gradient(135deg, #fffb7d 0%, #ffb347 50%, #ff512f 100%)",
+              gradient:
+                "linear-gradient(135deg, #fffb7d 0%, #ffb347 50%, #ff512f 100%)",
               glow: "0 0 18px rgba(255, 178, 55, 0.85)",
               icon: <FireFilled style={{ color: "#ff6b00" }} />,
             },
@@ -490,66 +490,66 @@ export default function Page() {
               glow: "0 0 16px rgba(176, 243, 241, 0.8)",
               icon: <CrownFilled style={{ color: "#3f87ff" }} />,
             },
-            A: {
+            "A ": {
               label: "Platinum",
               gradient: "linear-gradient(135deg, #d9fffc 0%, #45aaf2 100%)",
               glow: "0 0 14px rgba(69, 170, 242, 0.7)",
               icon: <StarFilled style={{ color: "#45aaf2" }} />,
             },
             B: {
-        label: "Gold",
-        gradient: "linear-gradient(135deg, #ffe259 0%, #ffa751 100%)",
-        glow: "0 0 12px rgba(255, 162, 81, 0.6)",
-        icon: <TrophyFilled style={{ color: "#d48806" }} />,
-      },
-      C: {
-        label: "Silver",
-        gradient: "linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)",
-        glow: "0 0 10px rgba(207, 222, 243, 0.6)",
-        icon: <SafetyCertificateFilled style={{ color: "#95a5a6" }} />,
-      },
-      "D+": {
-        label: "Bronze+",
-        gradient: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)",
-        glow: "0 0 10px rgba(253, 160, 133, 0.5)",
-        icon: <RocketFilled style={{ color: "#f2994a" }} />,
-      },
-      D: {
-        label: "Bronze",
-        gradient: "linear-gradient(135deg, #fceabb 0%, #f8b500 100%)",
-        glow: "0 0 8px rgba(248, 181, 0, 0.4)",
-        icon: <ToolOutlined style={{ color: "#f39c12" }} />,
-      },
-      "E+": {
-        label: "Iron+",
-        gradient: "linear-gradient(135deg, #d9a7c7 0%, #fffcdc 100%)",
-        glow: "0 0 8px rgba(217, 167, 199, 0.4)",
-        icon: <ExperimentFilled style={{ color: "#9b59b6" }} />,
-      },
-      E: {
-        label: "Iron",
-        gradient: "linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%)",
-        glow: "0 0 6px rgba(227, 238, 255, 0.3)",
-        icon: <AlertFilled style={{ color: "#95a5a6" }} />,
-      },
-      F: {
-        label: "Stone",
-        gradient: "linear-gradient(135deg, #cac531 0%, #f3f9a7 100%)",
-        glow: "0 0 6px rgba(202, 197, 49, 0.3)",
-        icon: <ThunderboltOutlined style={{ color: "#7f8c8d" }} />,
-      },
-      "No Grade": {
-        label: "Unranked",
-        gradient: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
-        glow: "0 0 6px rgba(233, 236, 239, 0.3)",
-        icon: <AlertFilled style={{ color: "#95a5a6" }} />,
-      },
-      Bronze: {
-        label: "Bronze",
-        gradient: "linear-gradient(135deg, #fceabb 0%, #f8b500 100%)",
-        glow: "0 0 6px rgba(248, 181, 0, 0.3)",
-        icon: <ToolOutlined style={{ color: "#e67e22" }} />,
-      },
+              label: "Gold",
+              gradient: "linear-gradient(135deg, #ffe259 0%, #ffa751 100%)",
+              glow: "0 0 12px rgba(255, 162, 81, 0.6)",
+              icon: <TrophyFilled style={{ color: "#d48806" }} />,
+            },
+            C: {
+              label: "Silver",
+              gradient: "linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)",
+              glow: "0 0 10px rgba(207, 222, 243, 0.6)",
+              icon: <SafetyCertificateFilled style={{ color: "#95a5a6" }} />,
+            },
+            "D+": {
+              label: "Bronze+",
+              gradient: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)",
+              glow: "0 0 10px rgba(253, 160, 133, 0.5)",
+              icon: <RocketFilled style={{ color: "#f2994a" }} />,
+            },
+            D: {
+              label: "Bronze",
+              gradient: "linear-gradient(135deg, #fceabb 0%, #f8b500 100%)",
+              glow: "0 0 8px rgba(248, 181, 0, 0.4)",
+              icon: <ToolOutlined style={{ color: "#f39c12" }} />,
+            },
+            "E+": {
+              label: "Iron+",
+              gradient: "linear-gradient(135deg, #d9a7c7 0%, #fffcdc 100%)",
+              glow: "0 0 8px rgba(217, 167, 199, 0.4)",
+              icon: <ExperimentFilled style={{ color: "#9b59b6" }} />,
+            },
+            E: {
+              label: "Iron",
+              gradient: "linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%)",
+              glow: "0 0 6px rgba(227, 238, 255, 0.3)",
+              icon: <AlertFilled style={{ color: "#95a5a6" }} />,
+            },
+            F: {
+              label: "Stone",
+              gradient: "linear-gradient(135deg, #cac531 0%, #f3f9a7 100%)",
+              glow: "0 0 6px rgba(202, 197, 49, 0.3)",
+              icon: <ThunderboltOutlined style={{ color: "#7f8c8d" }} />,
+            },
+            "No Grade": {
+              label: "Unranked",
+              gradient: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+              glow: "0 0 6px rgba(233, 236, 239, 0.3)",
+              icon: <AlertFilled style={{ color: "#95a5a6" }} />,
+            },
+            Bronze: {
+              label: "Bronze",
+              gradient: "linear-gradient(135deg, #fceabb 0%, #f8b500 100%)",
+              glow: "0 0 6px rgba(248, 181, 0, 0.3)",
+              icon: <ToolOutlined style={{ color: "#e67e22" }} />,
+            },
           };
 
           const config = gradeConfig[grade] ?? gradeConfig["Bronze"];
