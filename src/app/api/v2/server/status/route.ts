@@ -26,7 +26,7 @@ const HEADERS = Object.freeze({
   "Content-Type": "application/json",
 });
 
-const REQUEST_TIMEOUT_MS = 3000;
+const REQUEST_TIMEOUT_MS = 10000;
 
 const axiosClient = axios.create({
   headers: HEADERS,
