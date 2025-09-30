@@ -221,7 +221,7 @@ export const Service = {
       throw new Error("Invalid id for update");
     }
 
-    return PrismaTimesheet.timesheetEntry.update({
+    const response = PrismaTimesheet.timesheetEntry.update({
       where: { id },
       data: {
         projectId: data.projectId,
@@ -233,6 +233,10 @@ export const Service = {
         updatedBy: data.updatedBy ?? 0,
       },
     });
+
+    console.info("[UPDATE TIMESHEET ENTRY]", response);
+
+    return response;
   },
 
   // * ลบตาม ID

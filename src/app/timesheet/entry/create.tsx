@@ -60,7 +60,7 @@ export function CreateModalForm({
             placeholder="เลือกโครงการหลัก"
             onChange={(value) => {
               fetchSubProjects(String(value));
-              form.setFieldsValue({ sub_project_id: "" });
+              form.setFieldsValue({ sub_project_id: undefined });
             }}
             options={projects.map((p) => ({
               label: p.name + " (" + "รหัส" + +p.id + ")",
@@ -85,8 +85,8 @@ export function CreateModalForm({
             showSearch
             placeholder="เลือกโครงการย่อย"
             options={subProject.map((s) => ({
-              label: s.name + " (" + "รหัส" + +s.id + ")",
-              value: String(s.id),
+              label: `${s.name} (รหัส${s.id})`,
+              value: Number(s.id),
             }))}
             size="large"
             style={{ width: "100%" }}

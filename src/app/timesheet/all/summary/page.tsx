@@ -28,6 +28,12 @@ import {
   ReloadOutlined,
   TrophyOutlined,
   WarningOutlined,
+  CrownFilled,
+  StarFilled,
+  SmileFilled,
+  MehFilled,
+  FrownFilled,
+  FireFilled,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 
@@ -98,13 +104,31 @@ const buildFullName = ({ full_name }: SummaryRecord) => full_name || "-";
 const formatNickname = (nickname?: string | null) =>
   nickname ? `(${nickname})` : "";
 
-const formatContact = ({ email, tel }: SummaryRecord) =>
-  [email, tel].filter(Boolean).join(" • ") || "-";
-
 const formatBreakdown = (rows: BreakdownRow[]) =>
   rows.length
     ? rows.map((item) => `${item.weekday_th} ${item.date} • ${item.hours} ชม.`)
     : ["ไม่มีข้อมูลในช่วงวันที่เลือก"];
+
+type GradeConfig = {
+  grade: "A" | "B" | "C" | "D" | "E" | "F";
+  min: number;
+  color: string;
+  label: string;
+  icon: React.ReactNode;
+};
+
+const GRADE_RULES: GradeConfig[] = [
+  { grade: "A", min: 100, color: "#facc15", label: "Excellent", icon: <CrownFilled /> },
+  { grade: "B", min: 90, color: "#38bdf8", label: "Great", icon: <StarFilled /> },
+  { grade: "C", min: 75, color: "#34d399", label: "Good", icon: <SmileFilled /> },
+  { grade: "D", min: 60, color: "#fb923c", label: "Needs Focus", icon: <MehFilled /> },
+  { grade: "E", min: 40, color: "#f97316", label: "Risk", icon: <FrownFilled /> },
+  { grade: "F", min: 0, color: "#f87171", label: "Critical", icon: <FireFilled /> },
+];
+
+const resolveGrade = (completionRate: number) => {
+  return GRADE_RULES.find((rule) => completionRate >= rule.min) ?? GRADE_RULES.at(-1)!;
+};
 
 export default function Page() {
   const [keyword, setKeyword] = useState("");
@@ -220,6 +244,29 @@ export default function Page() {
         ),
       },
       {
+        title: "เกรด",
+        key: "grade",
+        align: "center",
+        width: 120,
+        render: (_value, record) => {
+          const grade = resolveGrade(record.completion_rate);
+          return (
+            <Tag
+              icon={grade.icon}
+              color={grade.color}
+              style={{
+                minWidth: 72,
+                display: "inline-flex",
+                justifyContent: "center",
+                fontWeight: 600,
+              }}
+            >
+              {grade.grade}
+            </Tag>
+          );
+        },
+      },
+      {
         title: "ชื่อ - สกุล",
         key: "name",
         render: (_value, record) => (
@@ -270,11 +317,16 @@ export default function Page() {
         ),
       },
       {
-        title: "ติดต่อ",
-        key: "contact",
-        render: (_value, record) => (
-          <Typography.Text>{formatContact(record)}</Typography.Text>
-        ),
+        title: "อีเมล",
+        dataIndex: "email",
+        key: "email",
+        render: (value?: string | null) => value || "-",
+      },
+      {
+        title: "เบอร์มือถือ",
+        dataIndex: "tel",
+        key: "tel",
+        render: (value?: string | null) => value || "-",
       },
     ],
     []

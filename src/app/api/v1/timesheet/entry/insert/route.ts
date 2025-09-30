@@ -1,60 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+
 import { Service } from "@services/backend/timesheet/entry.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
-import { z } from "zod";
 import {
   projectIdValidation,
   subProjectIdValidation,
   updateTimesheetEntryIdValidation,
 } from "@api/v1/timesheet/helper/timesheet.validation";
 
-// Timesheet entry validation schema
-const timesheetEntrySchema = z.object({
+//** Schema กำหนดรูปแบบข้อมูลที่รับเข้ามา
+const TimesheetEntrySchema = z.object({
   id: z.number().optional(),
-  description: z.string().optional(),
-  project_id: z.union([z.string(), z.number()]).transform((val) => Number(val)),
-  sub_project_id: z
-    .union([z.string(), z.number()])
-    .transform((val) => Number(val)),
-  work_hour: z.union([z.string(), z.number()]).transform((val) => Number(val)),
+  description: z.string().optional().default(""),
+  project_id: z.union([z.string(), z.number()]).transform(Number),
+  sub_project_id: z.union([z.string(), z.number()]).transform(Number),
+  work_hour: z.union([z.string(), z.number()]).transform(Number),
   date: z.string(),
   status: z.string(),
   by: z.number().min(1).optional(),
   updated_by: z.number().min(1).optional(),
 });
 
-// Helper to validate references and return early if invalid
-async function validateReferences(
+//** ตรวจสอบว่าข้อมูลอ้างอิงยังถูกต้องอยู่หรือไม่
+async function ensureReferencesValid(
   projectId: number,
   subProjectId: number,
-  id?: number
+  entryId?: number
 ) {
-  const validators = [
+  const validations = [
     projectIdValidation(projectId),
     subProjectIdValidation(subProjectId),
-    id !== undefined
-      ? updateTimesheetEntryIdValidation(id)
+    entryId !== undefined
+      ? updateTimesheetEntryIdValidation(entryId)
       : Promise.resolve(true),
   ];
-  for (const validationPromise of validators) {
-    const result = await validationPromise;
+
+  for (const validator of validations) {
+    const result = await validator;
     if (result !== true) return result;
   }
+
   return true;
 }
 
 export async function POST(request: NextRequest) {
-  // Validate request body
-  const { data, error } = await validateRequest(request, timesheetEntrySchema);
+  //** ตรวจสอบ payload ที่ส่งเข้ามา
+  const { data, error } = await validateRequest(request, TimesheetEntrySchema);
   if (error) {
-    console.error("[VALIDATION ERROR]", error);
-
+    console.error("[timesheet][insert] validation error", error);
     return NextResponse.json(
       errorResponse({
+        status: 400,
         message_en: "Validation failed",
         message_th: "ข้อมูลไม่ถูกต้อง",
-        status: 400,
         error,
       }),
       { status: 400 }
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
   const {
     id,
-    description = "",
+    description,
     project_id,
     sub_project_id,
     date,
@@ -73,65 +73,62 @@ export async function POST(request: NextRequest) {
     updated_by,
   } = data;
 
-  console.log("INCOMING DATA");
-
-  // Validate project, sub-project, and timesheet entry references
-  const referencesValidation = await validateReferences(
-    Number(project_id),
-    Number(sub_project_id),
-    id
-  );
-  if (referencesValidation !== true)
-    return NextResponse.json(referencesValidation);
-
-  console.log("NOW IS ON PAYLOAD DATA");
-
-  // Prepare payload for service callx
-  const payload = {
-    description,
+  //** ตรวจสอบ project / sub-project และ entry (ถ้ามี id)
+  const referencesValid = await ensureReferencesValid(
     project_id,
     sub_project_id,
+    id
+  );
+  if (referencesValid !== true) {
+    return NextResponse.json(referencesValid);
+  }
+
+  //** เตรียม payload ส่งให้ service (ใช้ camelCase ให้ตรงกับ Prisma)
+  const payload = {
+    description,
+    projectId: project_id,
+    subProjectId: sub_project_id,
     date: new Date(date),
-    hour: Number(work_hour),
+    hour: work_hour,
     status,
   };
 
   try {
-    // Create or update timesheet entry
-    console.log("NOW IS ON TRY FUNCTION");
-
+    //** เลือกสร้างหรืออัปเดตตามว่ามี id หรือไม่
     const entry = id
-      ? await Service.update(id, { ...payload, updatedBy: updated_by })
+      ? await Service.update(id, {
+          ...payload,
+          updatedBy: updated_by ?? by,
+        })
       : await Service.create({
           ...payload,
           createdBy: by,
-          projectId: project_id,
-          subProjectId: sub_project_id,
         });
 
-    console.log("ENTRY", entry);
-
-    // Prepare success messages
-    const messageEn = id
+    const isUpdate = Boolean(id);
+    const message_en = isUpdate
       ? "Timesheet entry updated successfully"
       : "Timesheet entry created successfully";
-    const messageTh = id ? "อัปเดตเวลาทำงานสำเร็จ" : "สร้างเวลาทำงานสำเร็จ";
+    const message_th = isUpdate
+      ? "อัปเดตเวลาทำงานสำเร็จ"
+      : "สร้างเวลาทำงานสำเร็จ";
 
-    // Return successful response
     return NextResponse.json(
       successResponse({
         data: entry,
-        message_en: messageEn,
-        message_th: messageTh,
+        message_en,
+        message_th,
       })
     );
-  } catch (error: any) {
-    // Return error response
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[timesheet][insert]", message, err);
+
     return NextResponse.json(
       errorResponse({
-        message_en: error.message,
+        message_en: message,
         message_th: "เกิดข้อผิดพลาด",
-        error,
+        error: err,
       })
     );
   }

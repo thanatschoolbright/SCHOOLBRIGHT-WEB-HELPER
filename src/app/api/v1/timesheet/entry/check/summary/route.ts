@@ -215,6 +215,23 @@ const computeExpectedHours = (start: Date, end: Date) => {
   return { workingDays, expectedHours: workingDays * WORKING_HOURS_PER_DAY };
 };
 
+const extractAxiosMessage = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as
+      | { message_th?: string; message_en?: string; message?: string }
+      | undefined;
+    return (
+      data?.message_th ||
+      data?.message_en ||
+      data?.message ||
+      error.message ||
+      "ไม่สามารถเชื่อมต่อบริการภายนอกได้"
+    );
+  }
+
+  return error instanceof Error ? error.message : "Unexpected error";
+};
+
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
@@ -231,13 +248,28 @@ export async function POST(request: Request) {
       throw new Error("Missing SB Helper API base URL configuration");
     }
 
-    const [entries, usersResponse] = await Promise.all([
-      Service.findEntriesBetween(start, end),
-      axios.get(`${baseUrl}/api/v1/admin/user/`),
-    ]);
+    const entries = await Service.findEntriesBetween(start, end);
 
-    const rawUsers = usersResponse?.data?.data?.data;
-    const users: TimesheetUser[] = Array.isArray(rawUsers) ? rawUsers : [];
+    let users: TimesheetUser[] = [];
+
+    try {
+      const usersResponse = await axios.get(`${baseUrl}/api/v1/admin/user/`);
+      const rawUsers = usersResponse?.data?.data?.data;
+      users = Array.isArray(rawUsers) ? (rawUsers as TimesheetUser[]) : [];
+    } catch (userError) {
+      const humanMessage = extractAxiosMessage(userError);
+      console.error("[Timesheet][summary] fetch users failed", humanMessage);
+
+      return NextResponse.json(
+        errorResponse({
+          status: 502,
+          message_en: "Failed to fetch user directory from SB Helper",
+          message_th: "ไม่สามารถโหลดข้อมูลผู้ใช้จาก SB Helper ได้",
+          error: userError,
+        }),
+        { status: 502 }
+      );
+    }
 
     const summaryRecords = buildSummaryRecords(
       users,

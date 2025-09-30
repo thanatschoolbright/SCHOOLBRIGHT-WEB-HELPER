@@ -12,6 +12,7 @@ import DashboardLayout from "@components/layouts/backend-layout";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@stores/store";
 import {
+  Avatar,
   Button,
   Card,
   Form,
@@ -22,11 +23,17 @@ import {
   Table,
   Tag,
   Typography,
+  theme,
 } from "antd";
 import type { ColumnsType, ColumnType } from "antd/es/table";
 import type { InputRef } from "antd";
 import type { TableProps } from "antd";
 import {
+  ArrowUpOutlined,
+  CrownFilled,
+  FireFilled,
+  FrownFilled,
+  MehFilled,
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
@@ -34,13 +41,20 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  SmileFilled,
+  StarFilled,
+  ThunderboltOutlined,
+  TrophyFilled,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
 import axios from "axios";
 import { toast } from "sonner";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 import type { Project, SubProject } from "@stores/type";
 import { CreateModalForm } from "./create";
+
+dayjs.extend(isBetween);
 
 interface TimesheetEntry {
   id: number;
@@ -81,6 +95,11 @@ type DailySummaryItem = {
 };
 
 type WeeklySummaryItem = DailySummaryItem & { label: string };
+
+type TopUsage = {
+  name: string;
+  hours: number;
+};
 
 const DATE_FORMAT = "DD/MM/YYYY";
 const PAGE_SIZE = 30;
@@ -238,60 +257,251 @@ const deriveRankProfile = (
   return rankMap[completedDays] ?? rankMap[0];
 };
 
-//** แสดงการ์ด Rank เท่ๆ มุมขวา
-const RankBadge: React.FC<{ profile: RankProfile }> = ({ profile }) => (
-  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-    <div
+const rankVisualMap: Record<
+  RankProfile["rank"],
+  { accent: string; icon: React.ReactNode }
+> = {
+  A: { accent: "#facc15", icon: <CrownFilled /> },
+  B: { accent: "#38bdf8", icon: <StarFilled /> },
+  C: { accent: "#34d399", icon: <SmileFilled /> },
+  D: { accent: "#fb923c", icon: <MehFilled /> },
+  E: { accent: "#f97316", icon: <FrownFilled /> },
+  F: { accent: "#f87171", icon: <FireFilled /> },
+};
+
+//** การ์ด Rank สัปดาห์นี้ (โทนเดียวกับ MiniUsageCard)
+const RankBadge: React.FC<{ profile: RankProfile }> = ({ profile }) => {
+  const { token } = theme.useToken();
+  const visual = rankVisualMap[profile.rank] ?? rankVisualMap.C;
+
+  const gradientBackground = `linear-gradient(135deg, ${addAlpha(
+    visual.accent,
+    0.3
+  )}, ${token.colorBgElevated})`;
+
+  return (
+    <Card
+      bordered
       style={{
-        minWidth: 220,
-        padding: "16px 22px",
+        minWidth: 260,
         borderRadius: 18,
-        background: profile.gradient,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        boxShadow: "0 20px 38px rgba(0,0,0,0.18)",
-        border: `1px solid ${profile.borderColor}`,
+        borderColor: addAlpha(visual.accent, 0.4),
+        background: gradientBackground,
+        boxShadow: `0 18px 32px ${addAlpha(visual.accent, 0.25)}`,
+      }}
+      styles={{
+        body: {
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+          padding: 20,
+        },
       }}
     >
+      <Space
+        align="start"
+        style={{ width: "100%", justifyContent: "space-between" }}
+      >
+        <div>
+          <Typography.Text
+            style={{
+              fontSize: 12,
+              letterSpacing: 0.6,
+              fontWeight: 600,
+              color: addAlpha(token.colorText, 0.75),
+              textTransform: "uppercase",
+            }}
+          >
+            Weekly Rank
+          </Typography.Text>
+          <Typography.Title
+            level={3}
+            style={{
+              margin: 0,
+              fontWeight: 800,
+              color: token.colorText,
+              letterSpacing: 4,
+            }}
+          >
+            {profile.rank}
+          </Typography.Title>
+        </div>
+        <Avatar
+          size={52}
+          style={{
+            background: addAlpha(visual.accent, 0.18),
+            color: addAlpha(visual.accent, 0.9),
+            fontSize: 26,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {visual.icon}
+        </Avatar>
+      </Space>
+
       <Typography.Text
+        style={{ fontSize: 13, color: token.colorTextSecondary }}
+      >
+        {profile.title} · {profile.description}
+      </Typography.Text>
+
+      <Space size={8} align="center">
+        <ThunderboltOutlined style={{ color: addAlpha(visual.accent, 0.9) }} />
+        <Typography.Text style={{ fontWeight: 600, color: token.colorText }}>
+          {profile.completedDays} / 5 วัน
+        </Typography.Text>
+        <Typography.Text style={{ color: token.colorTextSecondary }}>
+          สำเร็จในสัปดาห์นี้
+        </Typography.Text>
+      </Space>
+    </Card>
+  );
+};
+
+//** คำนวณโปรเจ็ค/ฟีเจอร์ที่ใช้เวลามากที่สุดในสัปดาห์ปัจจุบัน
+const aggregateTopUsage = (
+  entries: TimesheetEntry[],
+  key: "project_name" | "feature_name"
+): TopUsage | null => {
+  if (!entries.length) return null;
+
+  const totals = entries.reduce<Map<string, number>>((map, entry) => {
+    const label = (entry[key] ?? "ไม่ระบุ") as string;
+    const hours = Number(entry.hours ?? 0);
+    if (!hours) return map;
+    map.set(label, (map.get(label) ?? 0) + hours);
+    return map;
+  }, new Map());
+
+  if (!totals.size) return null;
+
+  const [name, hours] = Array.from(totals.entries()).sort(
+    (a, b) => b[1] - a[1]
+  )[0];
+
+  return { name, hours: Number(hours.toFixed(2)) };
+};
+
+//** การ์ดสรุปการใช้งานสูงสุดประจำสัปดาห์
+const MiniUsageCard: React.FC<{
+  title: string;
+  highlight: string;
+  hours: number;
+  accent: string;
+}> = ({ title, highlight, hours, accent }) => {
+  const { token } = theme.useToken();
+
+  const gradientBackground = `linear-gradient(135deg, ${addAlpha(
+    accent,
+    0.28
+  )}, ${token.colorBgElevated})`;
+
+  const iconBackground = addAlpha(accent, 0.2);
+  const iconColor = addAlpha(accent, 0.85);
+
+  return (
+    <Card
+      bordered
+      style={{
+        minWidth: 240,
+        borderRadius: 16,
+        borderColor: addAlpha(accent, 0.35),
+        background: gradientBackground,
+        boxShadow: `0 12px 26px ${addAlpha(accent, 0.22)}`,
+      }}
+      styles={{
+        body: {
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          padding: 18,
+        },
+      }}
+    >
+      <Space
+        align="start"
+        style={{ width: "100%", justifyContent: "space-between" }}
+      >
+        <Typography.Text
+          style={{
+            fontSize: 12,
+            letterSpacing: 0.5,
+            fontWeight: 600,
+            color: token.colorTextSecondary,
+            textTransform: "uppercase",
+          }}
+        >
+          {title}
+        </Typography.Text>
+        <Avatar
+          size={38}
+          style={{
+            background: iconBackground,
+            color: iconColor,
+            fontWeight: 700,
+          }}
+        >
+          {highlight?.charAt(0)?.toUpperCase() || "∞"}
+        </Avatar>
+      </Space>
+
+      <Typography.Title
+        level={4}
         style={{
-          color: profile.textColor,
-          fontWeight: 800,
-          fontSize: 22,
-          letterSpacing: 3,
+          margin: 0,
+          fontWeight: 700,
+          color: token.colorText,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
         }}
+        title={highlight}
       >
-        RANK {profile.rank}
-      </Typography.Text>
-      <Typography.Text
-        style={{
-          color: profile.textColor,
-          fontSize: 12,
-          opacity: 0.85,
-          textTransform: "uppercase",
-        }}
-      >
-        {profile.title}
-      </Typography.Text>
-      <Typography.Text
-        style={{ color: profile.textColor, fontSize: 11, opacity: 0.75 }}
-      >
-        {profile.description}
-      </Typography.Text>
-      <Typography.Text
-        style={{
-          color: profile.textColor,
-          fontSize: 10,
-          opacity: 0.7,
-          marginTop: 8,
-        }}
-      >
-        ครบ {profile.completedDays} / 5 วัน
-      </Typography.Text>
-    </div>
-  </div>
-);
+        {highlight || "-"}
+      </Typography.Title>
+
+      <Space size={6} align="center">
+        <ArrowUpOutlined style={{ color: iconColor }} />
+        <Typography.Text style={{ color: iconColor, fontWeight: 600 }}>
+          {hours.toFixed(2)} ชม.
+        </Typography.Text>
+        <Typography.Text style={{ color: token.colorTextSecondary }}>
+          ในสัปดาห์นี้
+        </Typography.Text>
+      </Space>
+    </Card>
+  );
+};
+
+const addAlpha = (color: string, alpha: number) => {
+  if (color.startsWith("#")) {
+    let hex = color.slice(1);
+    if (hex.length === 3) {
+      hex = hex
+        .split("")
+        .map((char) => char + char)
+        .join("");
+    }
+    const num = Number.parseInt(hex, 16);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  if (color.startsWith("rgb")) {
+    const values = color
+      .replace(/rgba?\(|\)|\s/g, "")
+      .split(",")
+      .slice(0, 3)
+      .join(",");
+    return `rgba(${values}, ${alpha})`;
+  }
+
+  return color;
+};
 
 const statusColorMap: Record<string, string> = {
   DONE: "green",
@@ -304,6 +514,7 @@ const statusColorMap: Record<string, string> = {
 export default function Page() {
   const { i18n } = useTranslation("mock");
   const [form] = Form.useForm();
+  const { token } = theme.useToken();
 
   const authState = useAppSelector((state) => state.callAdminLogin);
   const adminId = useMemo(
@@ -450,7 +661,7 @@ export default function Page() {
       form.setFieldsValue({
         project_id: Number(record.project_id),
         sub_project_id: record.feature_id
-          ? String(record.feature_id)
+          ? Number(record.feature_id)
           : undefined,
         description: record.description ?? "",
         work_hour: Number(record.hours) || undefined,
@@ -471,7 +682,7 @@ export default function Page() {
       form.setFieldsValue({
         project_id: Number(record.project_id),
         sub_project_id: record.feature_id
-          ? String(record.feature_id)
+          ? Number(record.feature_id)
           : undefined,
         description: record.description ?? "",
         work_hour: Number(record.hours) || undefined,
@@ -664,6 +875,27 @@ export default function Page() {
     [weeklySummary]
   );
 
+  const weeklyFocusEntries = useMemo(() => {
+    const start = dayjs().startOf("week");
+    const end = dayjs().endOf("week");
+    return entries.filter((entry) => {
+      const entryDate = dayjs(entry.date);
+      return entryDate.isBetween(start, end, "day", "[]");
+    });
+  }, [entries]);
+
+  const topProjectUsage = useMemo(
+    () => aggregateTopUsage(weeklyFocusEntries, "project_name"),
+    [weeklyFocusEntries]
+  );
+
+  const topFeatureUsage = useMemo(
+    () => aggregateTopUsage(weeklyFocusEntries, "feature_name"),
+    [weeklyFocusEntries]
+  );
+
+  const today = dayjs();
+
   const columns = useMemo<ColumnsType<TimesheetEntry>>(
     () => [
       {
@@ -770,8 +1002,37 @@ export default function Page() {
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          {/* การ์ดแสดง Rank ของสัปดาห์นี้ */}
-          {rankProfile && <RankBadge profile={rankProfile} />}
+          {(rankProfile || topProjectUsage || topFeatureUsage) && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 16,
+                flexWrap: "wrap",
+              }}
+            >
+              {/* การ์ดแสดง Rank ของสัปดาห์นี้ */}
+              {rankProfile && <RankBadge profile={rankProfile} />}
+              {/* การ์ดโปรเจ็คที่ใช้เวลามากที่สุด */}
+              {topProjectUsage && (
+                <MiniUsageCard
+                  title="โปรเจ็คที่ใช้เวลามากที่สุด"
+                  highlight={topProjectUsage.name}
+                  hours={topProjectUsage.hours}
+                  accent="#38bdf8"
+                />
+              )}
+              {/* การ์ดฟีเจอร์ที่ใช้เวลามากที่สุด */}
+              {topFeatureUsage && (
+                <MiniUsageCard
+                  title="ฟีเจอร์ที่ใช้เวลามากที่สุด"
+                  highlight={topFeatureUsage.name}
+                  hours={topFeatureUsage.hours}
+                  accent="#fb7185"
+                />
+              )}
+            </div>
+          )}
           {/* การ์ดสรุปชั่วโมงรายวัน */}
           {weeklySummary.length > 0 && (
             <Card
@@ -795,19 +1056,54 @@ export default function Page() {
                     item.totalHours - DAILY_TARGET_HOURS,
                     0
                   );
+
+                  const dayDate = dayjs(item.dateKey);
+                  const isFutureDay = dayDate.isAfter(today, "day");
+                  const isCompleteDay = item.isCompleted;
+                  const neutralAccent = token.colorBorderSecondary ?? "#94a3b8";
+                  const successAccent = token.colorSuccess ?? "#22c55e";
+                  const errorAccent = token.colorError ?? "#ef4444";
+                  const accentBase = isFutureDay
+                    ? neutralAccent
+                    : isCompleteDay
+                    ? successAccent
+                    : errorAccent;
+                  const containerBg =
+                    token.colorBgElevated ?? token.colorBgContainer;
+                  const cardBackground = `linear-gradient(135deg, ${addAlpha(
+                    accentBase,
+                    isFutureDay ? 0.06 : 0.12
+                  )}, ${containerBg})`;
+                  const cardBorder = `1px solid ${addAlpha(accentBase, 0.35)}`;
+                  const tagColor = isFutureDay
+                    ? undefined
+                    : isCompleteDay
+                    ? "success"
+                    : "error";
+                  const tagLabel = isFutureDay
+                    ? "ยังไม่ถึงกำหนด"
+                    : isCompleteDay
+                    ? "ครบ 8 ชั่วโมง"
+                    : "ยังไม่ครบ 8 ชั่วโมง";
+                  const progressStatus = isFutureDay
+                    ? "normal"
+                    : isCompleteDay
+                    ? "success"
+                    : "exception";
+                  const progressColor = accentBase;
+                  const subtitleColor = token.colorTextSecondary;
+
                   return (
                     <div
                       key={item.dateKey}
                       style={{
                         flex: "1 1 calc(20% - 16px)",
                         minWidth: 200,
-                        background: item.isCompleted
-                          ? "linear-gradient(135deg, #f6ffed, #ffffff)"
-                          : "linear-gradient(135deg, #fff7e6, #ffffff)",
+                        background: cardBackground,
                         borderRadius: 16,
-                        boxShadow: "0 12px 24px rgba(15, 23, 42, 0.08)",
+                        boxShadow: `0 12px 24px ${addAlpha(accentBase, 0.12)}`,
                         padding: 16,
-                        border: "1px solid rgba(226, 232, 240, 0.6)",
+                        border: cardBorder,
                       }}
                     >
                       <Space
@@ -827,39 +1123,54 @@ export default function Page() {
                               {item.label}
                             </Typography.Text>
                             <Typography.Paragraph
-                              style={{ margin: 0, color: "#7c8da6" }}
+                              style={{ margin: 0, color: subtitleColor }}
                             >
                               {item.displayDate}
                             </Typography.Paragraph>
                           </div>
-                          <Tag color={item.isCompleted ? "green" : "orange"}>
-                            {item.isCompleted
-                              ? "ครบ 8 ชั่วโมง"
-                              : "ยังไม่ครบ 8 ชั่วโมง"}
-                          </Tag>
+                          {tagColor ? (
+                            <Tag color={tagColor}>{tagLabel}</Tag>
+                          ) : (
+                            <Tag>{tagLabel}</Tag>
+                          )}
                         </Space>
                         {/* แถบความคืบหน้ารายวัน */}
                         <Progress
                           percent={percentForBar}
-                          status={item.isCompleted ? "success" : "active"}
-                          strokeColor={item.isCompleted ? "#52c41a" : "#1677ff"}
+                          status={progressStatus}
+                          strokeColor={progressColor}
+                          trailColor={addAlpha(neutralAccent, 0.2)}
                           format={() => `${item.totalHours.toFixed(2)} ชม.`}
                         />
-                        {item.totalHours === 0 && (
+                        {item.totalHours === 0 && !isFutureDay && (
                           <Typography.Text type="secondary">
                             ยังไม่มีข้อมูลการลงเวลา
                           </Typography.Text>
                         )}
-                        {!item.isCompleted && item.totalHours > 0 && (
+                        {!isFutureDay &&
+                          !isCompleteDay &&
+                          item.totalHours > 0 && (
+                            <Typography.Text type="secondary">
+                              ขาดอีก {remainingHours.toFixed(2)} ชั่วโมง
+                              เพื่อครบ 8 ชั่วโมง
+                            </Typography.Text>
+                          )}
+                        {isFutureDay && (
                           <Typography.Text type="secondary">
-                            ขาดอีก {remainingHours.toFixed(2)} ชั่วโมง เพื่อครบ
-                            8 ชั่วโมง
+                            วันทำงานนี้ยังไม่ถึงกำหนด
                           </Typography.Text>
                         )}
-                        {item.isCompleted &&
+                        {isCompleteDay &&
                           item.percent > 100 &&
                           surplusHours > 0 && (
                             <Typography.Text type="secondary">
+                              <span
+                                role="img"
+                                aria-label="over-achieved"
+                                style={{ marginRight: 4 }}
+                              >
+                                🔥
+                              </span>
                               เกินเป้าหมาย {surplusHours.toFixed(2)} ชั่วโมง
                             </Typography.Text>
                           )}
