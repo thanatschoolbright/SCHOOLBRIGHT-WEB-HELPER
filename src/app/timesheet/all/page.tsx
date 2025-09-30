@@ -12,8 +12,12 @@ import DashboardLayout from "@components/layouts/backend-layout";
 import {
   Button,
   Card,
+  DatePicker,
+  Descriptions,
+  Divider,
   Form,
   Input,
+  InputNumber,
   Modal,
   Select,
   Space,
@@ -30,13 +34,17 @@ import {
   BarChartOutlined,
   ExportOutlined,
   InfoCircleOutlined,
+  ApartmentOutlined,
   PieChartOutlined,
+  ProjectOutlined,
   SearchOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import axios from "axios";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "next/navigation";
 import { convertToThaiDateDDMMYYY } from "@helpers/convert-time-zone-to-thai";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 import { getUserData } from "@/helpers/local_storage/user.storage";
@@ -86,6 +94,9 @@ const getHourTagColor = (hours: number) => {
   if (hours < 4) return "green";
   return "gold";
 };
+
+const formatTimestamp = (value?: string | null) =>
+  value ? dayjs(value).format("DD/MM/YYYY HH:mm") : "-";
 
 const useColumnSearch = (
   searchInputRefs: React.MutableRefObject<
@@ -164,12 +175,17 @@ const useColumnSearch = (
 export default function Page() {
   const { i18n } = useTranslation("mock");
   const [form] = Form.useForm();
+  const router = useRouter();
+  const [exportModalVisible, setExportModalVisible] = useState(false);
+  const [exportingTemplate, setExportingTemplate] = useState(false);
+  const [exportForm] = Form.useForm();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [entries, setEntries] = useState<any[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [subProjects, setSubProjects] = useState<SubProject[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [graphMode, setGraphMode] = useState<TimesheetMode>("week");
@@ -178,6 +194,49 @@ export default function Page() {
   const [detailRecord, setDetailRecord] = useState<any>(null);
   const [exporting, setExporting] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  const selectedProjectId = Form.useWatch("project_id", exportForm);
+
+  const projectOptions = useMemo(
+    () =>
+      projects.map((project) => ({
+        label: `${project.name ?? "ไม่ระบุ"} (รหัส ${project.id})`,
+        value: project.id,
+      })),
+    [projects]
+  );
+
+  const subProjectOptions = useMemo(() => {
+    const targetProjectId = selectedProjectId
+      ? Number(selectedProjectId)
+      : undefined;
+    const scopedSubProjects = targetProjectId
+      ? subProjects.filter(
+          (item) => Number(item.project_id) === Number(targetProjectId)
+        )
+      : subProjects;
+
+    return scopedSubProjects.map((subProject) => ({
+      label: `${subProject.name ?? "ไม่ระบุ"} (รหัส ${subProject.id})`,
+      value: String(subProject.id),
+    }));
+  }, [selectedProjectId, subProjects]);
+
+  const userOptions = useMemo(
+    () =>
+      users.map((user) => {
+        const fullname = `${user.firstname ?? ""} ${
+          user.lastname ?? ""
+        }`.trim();
+        const displayName = fullname || user.name || user.email;
+        const code = user.employee_code ? ` • รหัส ${user.employee_code}` : "";
+        return {
+          label: `${displayName}${code}`,
+          value: String(user.admin_id ?? user.id ?? ""),
+        };
+      }),
+    [users]
+  );
 
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
@@ -259,6 +318,28 @@ export default function Page() {
     }
   }, [currentPage, pageSize]);
 
+  const fetchSubProjectsByProject = useCallback(async (projectId: number) => {
+    const toastId = toast.loading("กำลังโหลดโครงการย่อย...");
+    try {
+      const response = await axios.post(
+        "/api/v1/timesheet/project/sub-project/read/",
+        {
+          limit: 200,
+          page: 1,
+          project_id: Number(projectId),
+        }
+      );
+      const items = response.data?.data?.items ?? [];
+      setSubProjects(items);
+      toast.success("โหลดโครงการย่อยสำเร็จ", { id: toastId });
+    } catch (error: any) {
+      setSubProjects([]);
+      toast.error(error?.message ?? "ไม่สามารถโหลดโครงการย่อยได้", {
+        id: toastId,
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const allUsers = getUserData();
     if (allUsers) {
@@ -270,6 +351,80 @@ export default function Page() {
     fetchEntries();
     fetchProjects();
   }, [fetchEntries, fetchProjects]);
+
+  useEffect(() => {
+    if (!exportModalVisible) {
+      setSubProjects([]);
+      return;
+    }
+
+    if (selectedProjectId) {
+      setSubProjects([]);
+      fetchSubProjectsByProject(Number(selectedProjectId));
+      return;
+    }
+
+    setSubProjects([]);
+  }, [exportModalVisible, selectedProjectId, fetchSubProjectsByProject]);
+
+  useEffect(() => {
+    if (exportModalVisible) {
+      exportForm.setFieldsValue({
+        date_range: [dayjs().startOf("month"), dayjs()],
+        project_id: undefined,
+        sub_project_id: undefined,
+        created_by: undefined,
+        investment: undefined,
+      });
+    }
+  }, [exportModalVisible, exportForm]);
+
+  const handleExportTemplate = useCallback(async () => {
+    try {
+      const values = await exportForm.validateFields();
+      setExportingTemplate(true);
+      const investmentValue = Number(values.investment);
+      if (!Number.isFinite(investmentValue) || investmentValue <= 0) {
+        throw new Error("งบการลงทุนต้องเป็นตัวเลขมากกว่า 0");
+      }
+      const response = await fetch("/api/v1/timesheet/excel/template_1", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          start_date: values.date_range[0].format("YYYY-MM-DD"),
+          end_date: values.date_range[1].format("YYYY-MM-DD"),
+          project_id: values.project_id || "",
+          sub_project_id: values.sub_project_id || "",
+          created_by: values.created_by || "",
+          investment: investmentValue,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("ไม่สามารถส่งออกไฟล์ได้");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const start = values.date_range[0].format("YYYYMMDD");
+      const end = values.date_range[1].format("YYYYMMDD");
+      link.href = url;
+      link.download = `timesheet-export_${start}_${end}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("ส่งออกไฟล์เรียบร้อย");
+      setExportModalVisible(false);
+      exportForm.resetFields();
+    } catch (error: any) {
+      toast.error(error?.message || "ส่งออกไฟล์ไม่สำเร็จ");
+    } finally {
+      setExportingTemplate(false);
+    }
+  }, [exportForm]);
 
   const handleExportAll = useCallback(async () => {
     setExporting(true);
@@ -430,42 +585,139 @@ export default function Page() {
     if (!detailRecord) {
       return null;
     }
+
     const user = selectedUsersMap.get(String(detailRecord.created_by));
+    const userName = user
+      ? [user.firstname, user.lastname].filter(Boolean).join(" ") || "-"
+      : "-";
+
+    const detailItems = [
+      {
+        key: "description",
+        label: "รายละเอียดคำอธิบาย",
+        value: (
+          <Typography.Paragraph className="timesheet-detail-description">
+            {detailRecord.description ?? "-"}
+          </Typography.Paragraph>
+        ),
+      },
+      {
+        key: "project",
+        label: "โปรเจ็ค",
+        value: detailRecord.project_name ?? "-",
+      },
+      {
+        key: "feature",
+        label: "ฟีเจอร์",
+        value: detailRecord.feature_name ?? "-",
+      },
+      {
+        key: "owner",
+        label: "ผู้จัดทำ",
+        value: userName,
+      },
+      {
+        key: "status",
+        label: "สถานะ",
+        value: (
+          <Tag color={getStatusColor(detailRecord.status)}>
+            {statusLabelMap[detailRecord.status] ?? detailRecord.status}
+          </Tag>
+        ),
+      },
+      {
+        key: "hours",
+        label: "จำนวนชั่วโมง",
+        value: (
+          <Tag color={getHourTagColor(Number(detailRecord.hours))}>
+            {detailRecord.hours}
+          </Tag>
+        ),
+      },
+      {
+        key: "created",
+        label: "สร้างเมื่อ",
+        value: formatTimestamp(detailRecord.created_at),
+      },
+      {
+        key: "updated",
+        label: "แก้ไขล่าสุด",
+        value: formatTimestamp(detailRecord.updated_at),
+      },
+    ];
+
     return (
-      <Space direction="vertical" style={{ width: "100%" }} size="middle">
-        <Typography.Text strong>รายละเอียดคำอธิบาย</Typography.Text>
-        <Typography.Paragraph>
-          {detailRecord.description ?? "-"}
-        </Typography.Paragraph>
-        <Typography.Text strong>โปรเจ็ค</Typography.Text>
-        <Typography.Text>{detailRecord.project_name}</Typography.Text>
-        <Typography.Text strong>ฟีเจอร์</Typography.Text>
-        <Typography.Text>{detailRecord.feature_name ?? "-"}</Typography.Text>
-        <Typography.Text strong>ผู้จัดทำ</Typography.Text>
-        <Typography.Text>
-          {user ? `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() : "-"}
-        </Typography.Text>
-        <Typography.Text strong>สถานะ</Typography.Text>
-        <Tag color={getStatusColor(detailRecord.status)}>
-          {statusLabelMap[detailRecord.status] ?? detailRecord.status}
-        </Tag>
-        <Typography.Text strong>ชั่วโมง</Typography.Text>
-        <Tag color={getHourTagColor(Number(detailRecord.hours))}>
-          {detailRecord.hours}
-        </Tag>
-        <Typography.Text strong>สร้างเมื่อ</Typography.Text>
-        <Typography.Text>
-          {detailRecord.created_at
-            ? dayjs(detailRecord.created_at).format("DD/MM/YYYY HH:mm")
-            : "-"}
-        </Typography.Text>
-        <Typography.Text strong>แก้ไขล่าสุด</Typography.Text>
-        <Typography.Text>
-          {detailRecord.updated_at
-            ? dayjs(detailRecord.updated_at).format("DD/MM/YYYY HH:mm")
-            : "-"}
-        </Typography.Text>
-      </Space>
+      <>
+        <Card variant="borderless" className="timesheet-detail-card">
+          <Space direction="vertical" size={8} style={{ width: "100%" }}>
+            <Typography.Title level={4} className="timesheet-detail-title">
+              สรุปรายการลงเวลา
+            </Typography.Title>
+            <Typography.Text type="secondary">
+              อัปเดตล่าสุด{" "}
+              {formatTimestamp(
+                detailRecord.updated_at || detailRecord.created_at
+              )}
+            </Typography.Text>
+          </Space>
+          <Divider className="timesheet-detail-divider" dashed />
+          <Descriptions
+            column={1}
+            colon={false}
+            labelStyle={{ width: 160, fontWeight: 600, color: "#0f172a" }}
+            contentStyle={{ color: "#1d2939" }}
+          >
+            {detailItems.map(({ key, label, value }) => (
+              <Descriptions.Item key={key} label={label}>
+                {value}
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+        </Card>
+        <style jsx>{`
+          .timesheet-detail-card {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
+            position: relative;
+            overflow: hidden;
+          }
+
+          .timesheet-detail-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: repeating-linear-gradient(
+              0deg,
+              rgba(15, 23, 42, 0.04) 0,
+              rgba(15, 23, 42, 0.04) 1px,
+              transparent 1px,
+              transparent 32px
+            );
+            pointer-events: none;
+          }
+
+          .timesheet-detail-card .ant-card-body {
+            position: relative;
+            z-index: 1;
+          }
+
+          .timesheet-detail-title {
+            margin-bottom: 0;
+            letter-spacing: 0.5px;
+          }
+
+          .timesheet-detail-divider {
+            margin: 12px 0 24px;
+          }
+
+          .timesheet-detail-description {
+            margin-bottom: 0;
+            white-space: pre-line;
+          }
+        `}</style>
+      </>
     );
   }, [detailRecord, selectedUsersMap, statusLabelMap]);
 
@@ -493,20 +745,54 @@ export default function Page() {
         />
 
         <Modal
-          title="รายละเอียดการลงเวลาทำงาน"
+          title={null}
           open={modalKey === "detail"}
           onCancel={() => setModalKey("")}
           footer={null}
-          width={640}
+          width={680}
+          centered
+          className="timesheet-detail-modal"
         >
           {detailModalContent}
         </Modal>
+
+        <style jsx global>{`
+          .timesheet-detail-modal .ant-modal-content {
+            border-radius: 20px;
+            padding: 24px;
+            background: #f5f7fa;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+          }
+
+          .timesheet-detail-modal .ant-modal-body {
+            padding: 0;
+          }
+        `}</style>
 
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
           <Card
             title="การจัดการลงเวลาทำงาน"
             extra={
               <Space>
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: "report-who-not-entry",
+                        label: "รายงานยังไม่กรอก Timesheet วันนี้",
+                        onClick: () =>
+                          router.push("/timesheet/all/who-not-entry"),
+                      },
+                      {
+                        key: "report-summary",
+                        label: "รายงานการกรอก Timesheet ทั้งอาทิตย์",
+                        onClick: () => router.push("/timesheet/all/summary"),
+                      },
+                    ],
+                  }}
+                >
+                  <Button>เลือกดูรายงาน Timesheet</Button>
+                </Dropdown>
                 <Dropdown
                   menu={{
                     items: timeModeItems,
@@ -523,18 +809,30 @@ export default function Page() {
                 >
                   <Button icon={<PieChartOutlined />}>กราฟวงกลม</Button>
                 </Dropdown>
-                <Button
-                  type="primary"
-                  icon={<ExportOutlined />}
-                  loading={exporting}
-                  onClick={handleExportAll}
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: "export-template",
+                        label: "Template Timesheet",
+                        onClick: () => setExportModalVisible(true),
+                      },
+                    ],
+                  }}
                 >
-                  ส่งออกทั้งหมด
-                </Button>
+                  <Button
+                    type="primary"
+                    icon={<ExportOutlined />}
+                    loading={exporting || exportingTemplate}
+                  >
+                    ส่งออกข้อมูล
+                  </Button>
+                </Dropdown>
               </Space>
             }
           >
             <Table
+              bordered
               dataSource={entries}
               loading={loading}
               columns={columns}
@@ -556,6 +854,120 @@ export default function Page() {
               scroll={{ x: 1400 }}
             />
           </Card>
+          <Modal
+            open={exportModalVisible}
+            onCancel={() => setExportModalVisible(false)}
+            title="ส่งออก Timesheet (Template)"
+            footer={null}
+          >
+            <Form form={exportForm} layout="vertical">
+              <Form.Item
+                label="ช่วงวันที่"
+                name="date_range"
+                rules={[{ required: true, message: "กรุณาเลือกช่วงวันที่" }]}
+              >
+                <DatePicker.RangePicker
+                  style={{ width: "100%" }}
+                  format="DD/MM/YYYY"
+                />
+              </Form.Item>
+              <Form.Item
+                label="งบการลงทุนรวม (บาท)"
+                name="investment"
+                rules={[
+                  { required: true, message: "กรุณาระบุงบการลงทุน" },
+                  {
+                    validator: (_rule, value) => {
+                      if (value === undefined || value === null) {
+                        return Promise.reject("กรุณาระบุงบการลงทุน");
+                      }
+                      if (value <= 0) {
+                        return Promise.reject("งบการลงทุนต้องมากกว่า 0");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
+                <InputNumber
+                  style={{ width: "100%" }}
+                  min={0.01}
+                  step={0.01}
+                  precision={2}
+                  placeholder="ระบุจำนวนเงินรวมที่ต้องการจัดสรร"
+                />
+              </Form.Item>
+              <Form.Item label="โครงการหลัก" name="project_id">
+                <Select
+                  allowClear
+                  showSearch
+                  placeholder="เลือกโครงการหลัก (ไม่บังคับ)"
+                  options={projectOptions}
+                  optionFilterProp="label"
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  onChange={() =>
+                    exportForm.setFieldsValue({ sub_project_id: undefined })
+                  }
+                  suffixIcon={<ProjectOutlined />}
+                  style={{ width: "100%" }}
+                  size="large"
+                />
+              </Form.Item>
+              <Form.Item label="โครงการย่อย" name="sub_project_id">
+                <Select
+                  allowClear
+                  showSearch
+                  placeholder="เลือกโครงการย่อย (ไม่บังคับ)"
+                  options={subProjectOptions}
+                  optionFilterProp="label"
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  suffixIcon={<ApartmentOutlined />}
+                  style={{ width: "100%" }}
+                  size="large"
+                />
+              </Form.Item>
+              <Form.Item label="ผู้จัดทำ" name="created_by">
+                <Select
+                  allowClear
+                  showSearch
+                  placeholder="เลือกผู้จัดทำ (ไม่บังคับ)"
+                  options={userOptions}
+                  optionFilterProp="label"
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  suffixIcon={<UserOutlined />}
+                  style={{ width: "100%" }}
+                  size="large"
+                />
+              </Form.Item>
+              <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+                <Button onClick={() => setExportModalVisible(false)}>
+                  ยกเลิก
+                </Button>
+                <Button
+                  type="primary"
+                  loading={exportingTemplate}
+                  onClick={handleExportTemplate}
+                >
+                  ส่งออก
+                </Button>
+              </Space>
+            </Form>
+          </Modal>
         </Space>
       </DashboardLayout>
     </PermissionLayout>

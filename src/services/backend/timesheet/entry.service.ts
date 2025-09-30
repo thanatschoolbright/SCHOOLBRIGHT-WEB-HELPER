@@ -133,6 +133,70 @@ export const Service = {
     });
   },
 
+  async findEntriesBetween(startDate: Date, endDate: Date) {
+    return PrismaTimesheet.timesheetEntry.findMany({
+      where: {
+        is_deleted: false,
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      select: {
+        createdBy: true,
+        hours: true,
+        date: true,
+      },
+    });
+  },
+
+  async findEntriesForExport(filter: {
+    startDate: Date;
+    endDate: Date;
+    projectId?: number;
+    subProjectId?: number;
+    createdBy?: number;
+  }) {
+    const where: any = {
+      is_deleted: false,
+      date: {
+        gte: filter.startDate,
+        lte: filter.endDate,
+      },
+    };
+
+    if (filter.projectId) {
+      where.projectId = filter.projectId;
+    }
+
+    if (filter.subProjectId) {
+      where.featureId = filter.subProjectId;
+    }
+
+    if (filter.createdBy) {
+      where.createdBy = filter.createdBy;
+    }
+
+    return PrismaTimesheet.timesheetEntry.findMany({
+      where,
+      orderBy: [{ date: "asc" }, { id: "asc" }],
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        feature: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+  },
+
   // * สร้าง
   async create(data: CreateTimesheetEntryInput) {
     console.log("CREATE ENTRY TIMESHEET");
