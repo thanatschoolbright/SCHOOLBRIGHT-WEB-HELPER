@@ -23,12 +23,15 @@ import {
   Table,
   Tag,
   Typography,
+  Tooltip,
 } from "antd";
 import {
   CheckCircleOutlined,
+  CloseCircleOutlined,
   EditOutlined,
   ReloadOutlined,
   SearchOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType, ColumnType } from "antd/es/table";
 import type { InputRef } from "antd";
@@ -261,7 +264,9 @@ export default function Page() {
         title: "ชื่อของบอท",
         dataIndex: "JobName",
         render: (value: string) => (
-          <Typography.Text copyable>{value}</Typography.Text>
+          <Typography.Text copyable strong type="secondary">
+            {value}
+          </Typography.Text>
         ),
         sorter: (a, b) => a.JobName.localeCompare(b.JobName),
         width: 280,
@@ -270,24 +275,36 @@ export default function Page() {
       {
         title: "รายละเอียด",
         dataIndex: "Description",
-        render: (_value, record) => (
-          <Space size={6}>
-            <Typography.Text>
-              {record.Description ?? "โปรดกรอกการทำงานของบอท"}
-            </Typography.Text>
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => openEditModal(record)}
-            />
-          </Space>
-        ),
+        render: (_value, record) => {
+          const text = record.Description ?? "โปรดกรอกการทำงานของบอท";
+          return (
+            <Space size={6}>
+              <Tooltip title={text.length > 50 ? text : undefined}>
+                <Typography.Paragraph
+                  ellipsis={{ rows: 2, expandable: true }}
+                  style={{ margin: 0 }}
+                >
+                  {text}
+                </Typography.Paragraph>
+              </Tooltip>
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                onClick={() => openEditModal(record)}
+              />
+            </Space>
+          );
+        },
         ...getColumnSearchProps("Description", "รายละเอียด"),
       },
       {
         title: "หมายเหตุ",
         dataIndex: "Remarks",
-        render: (value: string | null) => value ?? "-",
+        render: (value: string | null) => {
+          if (!value) return "-";
+          const color = value === "Always Running" ? "green" : "blue";
+          return <Tag color={color}>{value}</Tag>;
+        },
         ...getColumnSearchProps("Remarks", "หมายเหตุ"),
       },
       {
@@ -296,11 +313,19 @@ export default function Page() {
         key: "Interval",
         align: "center",
         width: 220,
-        render: (value: number) => (
-          <Tag color="blue" icon={<ReloadOutlined />}>
-            {formatInterval(value)}
-          </Tag>
-        ),
+        render: (value: number) => {
+          let color = "blue";
+          if (value <= 5) {
+            color = "red";
+          } else if (value <= 15) {
+            color = "orange";
+          }
+          return (
+            <Tag color={color} icon={<ReloadOutlined />}>
+              {formatInterval(value)}
+            </Tag>
+          );
+        },
         sorter: (a, b) => a.Interval - b.Interval,
       },
       {
@@ -309,7 +334,12 @@ export default function Page() {
         render: (status: string) => {
           const isOnline = status === "Online";
           return (
-            <Tag color={isOnline ? "green" : "red"}>
+            <Tag
+              color={isOnline ? "green" : "red"}
+              icon={
+                isOnline ? <CheckCircleOutlined /> : <CloseCircleOutlined />
+              }
+            >
               {isOnline ? "Online" : "Offline"}
             </Tag>
           );
@@ -320,7 +350,14 @@ export default function Page() {
         title: "บอททำงานล่าสุดเมื่อเวลา",
         dataIndex: "LastUpdatedTime",
         key: "LastUpdatedTime",
-        render: (value: string) => formatTimestamp(value),
+        render: (value: string) => (
+          <Tooltip title={value}>
+            <Space>
+              <ClockCircleOutlined />
+              {formatTimestamp(value)}
+            </Space>
+          </Tooltip>
+        ),
         sorter: (a, b) =>
           new Date(a.LastUpdatedTime).getTime() -
           new Date(b.LastUpdatedTime).getTime(),
@@ -351,12 +388,14 @@ export default function Page() {
             dataSource={dataSource}
             loading={isLoading}
             pagination={{
-              pageSize: 10,
+              pageSize: 20,
               showSizeChanger: true,
               pageSizeOptions: ["10", "20", "50"],
               showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+              showQuickJumper: true,
             }}
             rowKey={(record) => String(record.ID)}
+            bordered
           />
         </Card>
       </Space>

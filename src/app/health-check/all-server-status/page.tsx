@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
@@ -21,7 +21,7 @@ const Page = () => {
   const [table, setTable] = useState<
     ResponseGetServerStatusV2["draftValues"]["Array"]
   >([]);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [isLoading, setIsLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRow, setSelectedRow] =
@@ -39,6 +39,11 @@ const Page = () => {
     setTable(response || []);
   }, [GET_SERVER_STATUS_STATE_V2]);
 
+  const renderResponseTime = useCallback((time: number) => {
+    let color = time < 1 ? "green" : time < 2 ? "orange" : "red";
+    return <Tag color={color}>{time.toFixed(3)} ms</Tag>;
+  }, []);
+
   const columns: ColumnsType<
     ResponseGetServerStatusV2["draftValues"]["Array"][number]
   > = [
@@ -46,18 +51,21 @@ const Page = () => {
       title: "เซิฟเวอร์",
       dataIndex: "server_name_th",
       key: "server_name_th",
+      width: 280,
       sorter: (a, b) => a.server_name_th.localeCompare(b.server_name_th),
     },
     {
       title: "คำอธิบาย",
       dataIndex: "description",
       key: "description",
+      width: 280,
       sorter: (a, b) => a.description.localeCompare(b.description),
     },
     {
       title: "สถานะเซิฟเวอร์",
       dataIndex: "status",
       key: "status",
+      width: 140,
       filters: [
         { text: "Online", value: "Online" },
         { text: "Offline", value: "Offline" },
@@ -75,19 +83,24 @@ const Page = () => {
       title: "ตรวจสอบล่าสุดเมื่อ",
       dataIndex: "timestamp",
       key: "timestamp",
+      width: 180,
       sorter: (a, b) =>
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+      render: (text: string) => <span>{text}</span>,
     },
     {
       title: "เวลาตอบสนอง (ms)",
       dataIndex: "response_time",
       key: "response_time",
+      width: 160,
       sorter: (a, b) => a.response_time - b.response_time,
+      render: renderResponseTime,
     },
     {
       title: "URL",
       dataIndex: "url",
       key: "url",
+      width: 240,
       render: (url: string) => (
         <a href={url} target="_blank" rel="noopener noreferrer">
           {url}
@@ -98,11 +111,25 @@ const Page = () => {
       title: "ENDPOINT",
       dataIndex: "endpoint",
       key: "endpoint",
-      render: (endpoint: string) => <code>{endpoint}</code>,
+      width: 120,
+      render: (endpoint: string) => (
+        <code
+          style={{
+            display: "inline-block",
+            maxWidth: 100,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {endpoint}
+        </code>
+      ),
     },
     {
       title: "RESPONSE",
       key: "response",
+      width: 120,
       render: (_text, record) => (
         <Button
           type="primary"
@@ -145,10 +172,16 @@ const Page = () => {
           <Skeleton active paragraph={{ rows: 10 }} />
         ) : (
           <Table
+            bordered
             columns={columns}
             dataSource={table}
             rowKey={(record) => record.server_name_th + record.timestamp}
-            pagination={{ pageSize: rowsPerPage, onChange: setRowsPerPage }}
+            pagination={{
+              pageSize: rowsPerPage,
+              defaultPageSize: 20,
+              showSizeChanger: true,
+              onChange: setRowsPerPage,
+            }}
           />
         )}
       </Card>
@@ -163,6 +196,7 @@ const Page = () => {
           </Button>,
         ]}
         width={800}
+        destroyOnClose
       >
         <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded text-sm">
           {selectedRow ? JSON.stringify(selectedRow, null, 2) : ""}

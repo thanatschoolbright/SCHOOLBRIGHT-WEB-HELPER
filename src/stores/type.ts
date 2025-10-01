@@ -404,7 +404,7 @@ export interface RequestCreateApplicationVersion
   };
 }
 
-type Environment = "development" | "staging" | "production";
+type Environment = "development" | "staging" | "production" | "beta";
 type Branch = "release/development" | "release/production" | string;
 
 export interface ResponseVersionControl {
