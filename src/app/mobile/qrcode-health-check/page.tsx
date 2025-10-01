@@ -1,20 +1,32 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Button,
+  Card,
+  Descriptions,
+  Form,
+  InputNumber,
+  Select,
+  Space,
+  Spin,
+  Typography,
+} from "antd";
+import {
+  CheckCircleFilled,
+  ShopOutlined,
+  DollarOutlined,
+} from "@ant-design/icons";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+
 import DashboardLayout from "@components/layouts/backend-layout";
 import ContentCard from "@components/layouts/backend/content";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import { useDispatch } from "react-redux";
-import InputComponent from "@components/input-field/input-component";
 import { RequestQRCodeGenerator } from "@stores/type";
-import DropdownSchoolComponent from "@/components/input-field/school_id/reuse-dropdown-school-component";
-import { FiShoppingCart, FiCheckCircle } from "react-icons/fi";
-import { FaBahtSign } from "react-icons/fa6";
-import RoundedButton from "@/components/button/rounded-button-component";
-import { toast } from "sonner";
 
 // Call API
 import { CallAPI as POST_QRCODE_HEALTH_CHECK } from "@stores/actions/mobile/qrcode-health-check/action";
+import BaseLoadingComponent from "@/components/loading/loading-component-1";
 
 export default function Page() {
   const dispatch = useDispatch<AppDispatch>();
@@ -23,19 +35,34 @@ export default function Page() {
     (state) => state.callQRCodeHealthCheckReducer
   );
 
-  // filter by selected school
+  const [form] = Form.useForm<RequestQRCodeGenerator["draftValues"]>();
+  const [lastPayload, setLastPayload] = useState<
+    RequestQRCodeGenerator["draftValues"] | null
+  >(null);
+
   const isLoading = [SCHOOL_LIST_STATE.loading].some(Boolean);
 
-  const [form, setForm] = useState<RequestQRCodeGenerator["draftValues"]>({
-    amount: 0,
-    school_id: 0,
-    shop_id: 0,
-  });
+  const schoolOptions = useMemo(() => {
+    const data = SCHOOL_LIST_STATE?.draftValues?.data ?? [];
+    console.info("SCHOOL_LIST_STATE", SCHOOL_LIST_STATE);
+    return (Array.isArray(data) ? data : []).map((school: any) => ({
+      label: `${school.SchoolName} (${school.SchoolID})`,
+      value: String(school.SchoolID),
+    }));
+  }, [SCHOOL_LIST_STATE]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (
+    values: RequestQRCodeGenerator["draftValues"]
+  ) => {
     try {
-      const response = await dispatch(POST_QRCODE_HEALTH_CHECK(form)).unwrap();
-      console.log("response", response?.data);
+      const payload = {
+        ...values,
+        school_id: Number(values.school_id) || 0,
+        shop_id: Number(values.shop_id) || 0,
+        amount: Number(values.amount) || 0,
+      };
+      setLastPayload(payload);
+      await dispatch(POST_QRCODE_HEALTH_CHECK(payload)).unwrap();
     } catch (error: any) {
       console.error("ERROR CATCHING : ", error.message);
       toast.error("เกิดข้อผิดพลาดในการตรวจสอบ", { description: error.message });
@@ -68,105 +95,53 @@ export default function Page() {
   const renderResultContent = () => {
     if (QR_CODE_HEALTH_CHECK_STATE.loading) {
       return (
-        <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
+        <Space className="w-full h-40" align="center">
+          <Spin size="large" />
+        </Space>
       );
     }
     if (QR_CODE_HEALTH_CHECK_STATE?.response?.data?.data?.results?.length > 0) {
       const result = QR_CODE_HEALTH_CHECK_STATE.response.data.data.results[0];
       return (
-        <div className="flex flex-col items-center space-y-4">
-          <table className="min-w-full text-sm text-left border">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 font-semibold border">หัวข้อ</th>
-                <th className="px-4 py-2 font-semibold border">รายละเอียด</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="px-4 py-2 font-medium border">สถานะ</td>
-                <td className="px-4 py-2 border">
-                  {getStatusLabel(result.status)}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">จำนวนเงิน</td>
-                <td className="px-4 py-2 border">
-                  {result.request_body.txnAmount || form.amount} บาท
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">รหัสโรงเรียน</td>
-                <td className="px-4 py-2 border">
-                  {result.request_body.reference1}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">รหัสร้านค้า</td>
-                <td className="px-4 py-2 border">
-                  {result.request_body.merchantId}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">ธนาคาร</td>
-                <td className="px-4 py-2 border">{result.bank}</td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">
-                  ระยะเวลาในการรอคำตอบจากธนาคาร
-                </td>
-                <td className="px-4 py-2 border">
-                  {result.response_time} วินาที
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <Descriptions bordered column={1} size="middle">
+          <Descriptions.Item label="สถานะ">
+            {getStatusLabel(result.status)}
+          </Descriptions.Item>
+          <Descriptions.Item label="จำนวนเงิน">
+            {result.request_body.txnAmount || lastPayload?.amount || 0} บาท
+          </Descriptions.Item>
+          <Descriptions.Item label="รหัสโรงเรียน">
+            {result.request_body.reference1}
+          </Descriptions.Item>
+          <Descriptions.Item label="รหัสร้านค้า">
+            {result.request_body.merchantId}
+          </Descriptions.Item>
+          <Descriptions.Item label="ธนาคาร">{result.bank}</Descriptions.Item>
+          <Descriptions.Item label="ระยะเวลาในการตอบกลับ">
+            {result.response_time} วินาที
+          </Descriptions.Item>
+        </Descriptions>
       );
     }
     if (QR_CODE_HEALTH_CHECK_STATE.error) {
       return (
-        <div className="flex flex-col items-center space-y-4">
-          <table className="min-w-full text-sm text-left border">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 font-semibold border">หัวข้อ</th>
-                <th className="px-4 py-2 font-semibold border">รายละเอียด</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="px-4 py-2 font-medium border">สถานะ</td>
-                <td className="px-4 py-2 border">เกิดข้อผิดพลาด</td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">ข้อความ</td>
-                <td className="px-4 py-2 border">
-                  {QR_CODE_HEALTH_CHECK_STATE.response?.message ||
-                    (typeof QR_CODE_HEALTH_CHECK_STATE.error === "string"
-                      ? QR_CODE_HEALTH_CHECK_STATE.error
-                      : "ไม่สามารถแสดงข้อความข้อผิดพลาดได้")}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">รายละเอียด</td>
-                <td className="px-4 py-2 border">
-                  {QR_CODE_HEALTH_CHECK_STATE.response?.raw?.ExceptionMessage ||
-                    "ทางโรงเรียนยังไม่ได้เปิดใช้งานระบบธนาคาร"}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 font-medium border">ประเภท</td>
-                <td className="px-4 py-2 border">
-                  {QR_CODE_HEALTH_CHECK_STATE.response?.raw?.ExceptionType ||
-                    "ไม่ระบุประเภทข้อผิดพลาด"}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <Descriptions bordered column={1} size="middle">
+          <Descriptions.Item label="สถานะ">เกิดข้อผิดพลาด</Descriptions.Item>
+          <Descriptions.Item label="ข้อความ">
+            {QR_CODE_HEALTH_CHECK_STATE.response?.message ||
+              (typeof QR_CODE_HEALTH_CHECK_STATE.error === "string"
+                ? QR_CODE_HEALTH_CHECK_STATE.error
+                : "ไม่สามารถแสดงข้อความข้อผิดพลาดได้")}
+          </Descriptions.Item>
+          <Descriptions.Item label="รายละเอียด">
+            {QR_CODE_HEALTH_CHECK_STATE.response?.raw?.ExceptionMessage ||
+              "ทางโรงเรียนยังไม่ได้เปิดใช้งานระบบธนาคาร"}
+          </Descriptions.Item>
+          <Descriptions.Item label="ประเภท">
+            {QR_CODE_HEALTH_CHECK_STATE.response?.raw?.ExceptionType ||
+              "ไม่ระบุประเภทข้อผิดพลาด"}
+          </Descriptions.Item>
+        </Descriptions>
       );
     }
     return <p className="text-center text-gray-500">ยังไม่มีผลการตรวจสอบ</p>;
@@ -180,62 +155,60 @@ export default function Page() {
         {/* Input Field */}
         <ContentCard title="ทดสอบระบบ QR Code" className="xl:col-span-4 w-full">
           {/* Input section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-gray-200 dark:border-gray-700">
-            {/* School Dropdown */}
-            <div className="mb-5">
-              <DropdownSchoolComponent
-                onChange={(value) => setForm({ ...form, school_id: value })}
-                defaultValue={form.school_id}
-              />
-            </div>
-          </div>
-
-          {/* Input section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 relative z-0">
-            {/* Shop ID */}
-            <InputComponent
-              label="รหัสร้านค้า (id)"
-              id="shop_id"
-              name="shop_id"
-              disabled
-              value={form.shop_id || 0}
-              onChange={(e: any) =>
-                setForm({ ...form, shop_id: Number(e.target.value) })
-              }
-              type="number"
-              placeholder="เช่น 1.0.0"
-              leftIcon={<FiShoppingCart className="text-gray-400" />}
-            />
-
-            {/* Amount */}
-            <InputComponent
-              label="จำนวนเงิน (บาท)"
-              id="amount"
-              name="amount"
-              value={form.amount || 0}
-              onChange={(e: any) =>
-                setForm({ ...form, amount: Number(e.target.value) })
-              }
-              type="number"
-              placeholder="กรอกจำนวนเงิน"
-              leftIcon={<FaBahtSign className="text-gray-400" />}
-            />
-          </div>
-
-          <RoundedButton
-            type="button"
-            className="bg-gray-400 hover:bg-green-500 text-white group transition-all duration-300 mt-5 mx-auto"
-            onClick={handleSubmit}
+          <Form
+            form={form}
+            layout="vertical"
+            initialValues={{ amount: 0, school_id: "", shop_id: 0 }}
+            onFinish={handleSubmit}
           >
-            <span className="flex items-center overflow-hidden">
-              <span className="max-w-xs transition-all duration-300 ml-2 whitespace-nowrap">
+            <Space direction="vertical" size="large" style={{ width: "100%" }}>
+              <Form.Item
+                label="เลือกโรงเรียน"
+                name="school_id"
+                rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="เลือกโรงเรียน"
+                  options={schoolOptions}
+                  optionFilterProp="label"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="รหัสร้านค้า"
+                name="shop_id"
+                tooltip="ระบบจะใช้รหัสที่ตั้งค่าจากหลังบ้าน"
+              >
+                <InputNumber
+                  disabled
+                  addonBefore={<ShopOutlined />}
+                  style={{ width: "100%" }}
+                  min={0}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="จำนวนเงิน (บาท)"
+                name="amount"
+                rules={[{ required: true, message: "กรุณากรอกจำนวนเงิน" }]}
+              >
+                <InputNumber
+                  min={0}
+                  addonBefore={<DollarOutlined />}
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<CheckCircleFilled />}
+              >
                 ตรวจสอบระบบ QR Code
-              </span>
-              <span className="opacity-0 max-w-0 -translate-x-2 group-hover:opacity-100 group-hover:max-w-xs group-hover:translate-x-0 transition-all duration-300 flex-shrink-0 me-3">
-                <FiCheckCircle className="w-4 h-4 ml-3" />
-              </span>
-            </span>
-          </RoundedButton>
+              </Button>
+            </Space>
+          </Form>
         </ContentCard>
 
         {QR_CODE_HEALTH_CHECK_STATE?.response?.data?.data?.results?.length >

@@ -33,6 +33,7 @@ export interface CancelSalesState extends DefaultRedux {
 
 export interface CallSchoolListState extends DefaultRedux {
   draftValues: {
+    data: any;
     Array: {
       SchoolID: number; // school id
       SchoolName: string; // ชื่อโรงเรียน

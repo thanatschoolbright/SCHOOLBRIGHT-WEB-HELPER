@@ -281,7 +281,7 @@ const RankBadge: React.FC<{ profile: RankProfile }> = ({ profile }) => {
 
   return (
     <Card
-      bordered
+      variant="outlined"
       style={{
         minWidth: 260,
         borderRadius: 18,
@@ -403,7 +403,7 @@ const MiniUsageCard: React.FC<{
 
   return (
     <Card
-      bordered
+      variant="outlined"
       style={{
         minWidth: 240,
         borderRadius: 16,

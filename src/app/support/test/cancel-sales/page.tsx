@@ -54,14 +54,14 @@ export default function Page() {
 
   useEffect(() => {
     setSchoolList(
-      SCHOOL_LIST_STATE?.response?.data?.data?.map(
+      SCHOOL_LIST_STATE?.draftValues?.data?.map(
         (item: ResponseSchoolList["draftValues"][number]) => ({
           label: item.SchoolName,
           value: item.SchoolID,
         })
       ) || []
     );
-  }, [SCHOOL_LIST_STATE?.response]);
+  }, [SCHOOL_LIST_STATE]);
 
   useEffect(() => {
     getUserBySchoolId(formState.SchoolID);

@@ -5,6 +5,7 @@ import { CallAPI } from "../actions/call-school-list";
 
 const initialState: CallSchoolListState = {
   draftValues: {
+    data: [],
     Array: [
       {
         SchoolID: 0,

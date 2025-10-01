@@ -7,8 +7,8 @@ interface PaginationMeta {
 
 interface ApiResponse<T = any> {
   status: number;
-  message_th?: string;
-  message_en?: string;
+  message_th?: string | string[];
+  message_en?: string | string[];
   data?: T;
   pagination?: PaginationMeta;
   error?: any;
@@ -16,8 +16,8 @@ interface ApiResponse<T = any> {
 
 interface SuccessOptions<T> {
   data: T;
-  message_th?: string;
-  message_en?: string;
+  message_th?: string | string[];
+  message_en?: string | string[];
   pagination?: PaginationMeta;
   status?: number;
 }
@@ -44,8 +44,8 @@ export function successResponse<T>({
 }
 
 interface ErrorOptions {
-  message_th?: string;
-  message_en?: string;
+  message_th?: string | string[];
+  message_en?: string | string[];
   status?: number;
   error?: any;
 }

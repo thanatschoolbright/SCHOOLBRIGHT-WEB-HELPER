@@ -25,7 +25,7 @@ type TimesheetUser = {
   position?: string | null;
 };
 
-//** ตรวจสอบรูปแบบ month/year ให้เป็นสตริง 2/4 หลักตามลำดับ
+//** ตรวจสอบ month/year ให้เป็นสตริง 2/4 หลัก
 const MonthYearSchema = z.object({
   month: z
     .string()
@@ -37,18 +37,18 @@ const MonthYearSchema = z.object({
     .transform((value) => value.padStart(4, "0")),
 });
 
-//** เพิ่มวันแบบไม่ทำลายค่าเดิม ใช้สำหรับเดินช่วงวันที่
+//** Utility: เพิ่มวันโดยไม่แก้ไขต้นฉบับ
 const addDays = (date: Date, amount: number) =>
   new Date(date.getTime() + amount * 86_400_000);
 
-//** คืนค่า yyyy-mm-dd เพื่อใช้ออก report ได้ง่าย
+//** Utility: yyyy-mm-dd สำหรับ metadata
 const toISODate = (date: Date) => date.toISOString().slice(0, 10);
 
-//** จัดรูปแบบเดือน/ปีเป็นภาษาไทย (เช่น "ตุลาคม 2568")
+//** Utility: label เดือนภาษาไทย (เช่น "ตุลาคม 2568")
 const toThaiMonthYear = (date: Date) =>
   date.toLocaleDateString("th-TH", { month: "long", year: "numeric" });
 
-//** คำนวณจำนวนวันทำงาน (จันทร์-ศุกร์) และชั่วโมงคาดหวังในช่วงที่ขอ
+//** คำนวณวันทำงาน (จันทร์-ศุกร์) และชั่วโมงที่คาดหวังในช่วงที่ให้มา
 const computeWorkingDays = (start: Date, end: Date) => {
   let workingDays = 0;
   for (
@@ -62,7 +62,7 @@ const computeWorkingDays = (start: Date, end: Date) => {
   return { workingDays, expectedHours: workingDays * HOURS_PER_WORKDAY };
 };
 
-//** สรุปชั่วโมงรวมต่อผู้ใช้จาก raw entries ในเดือนนั้น
+//** รวมชั่วโมงของผู้ใช้ในแต่ละเดือน
 const aggregateEntries = (entries: TimesheetEntryRow[]) => {
   const map = new Map<string, number>();
   entries.forEach((entry) => {
@@ -73,7 +73,7 @@ const aggregateEntries = (entries: TimesheetEntryRow[]) => {
   return map;
 };
 
-//** นิยามเกณฑ์ Rank รายเดือน พร้อมคำอธิบายเพื่อสะดวกต่อการแสดงผล
+//** เกณฑ์การให้ Rank รายเดือน A-E
 const determineMonthlyRank = (rate: number) => {
   if (rate >= 100)
     return { grade: "A" as const, description: "ทำครบหรือเกินเป้าในเดือนนี้" };
@@ -92,7 +92,7 @@ const determineMonthlyRank = (rate: number) => {
   };
 };
 
-//** แปลง Axios error ให้เป็นข้อความที่อ่านง่ายและเป็นมิตรต่อผู้ใช้
+//** แปลง Axios error ให้เป็นข้อความที่อ่านง่าย
 const describeAxiosError = (error: unknown) => {
   if (axios.isAxiosError(error)) {
     const payload = error.response?.data as
@@ -109,7 +109,7 @@ const describeAxiosError = (error: unknown) => {
   return error instanceof Error ? error.message : "Unexpected error";
 };
 
-//** สร้างช่วงวันที่ในเดือนที่ระบุ โดยจำกัดให้หยุดที่วันปัจจุบันเพื่อความยุติธรรม
+//** สร้างช่วงวันที่ของเดือน พร้อมจำกัดว่าไม่เกินวันปัจจุบัน
 const buildEffectivePeriod = (month: string, year: string) => {
   const monthIndex = Number(month) - 1;
   const yearNumber = Number(year);
@@ -148,7 +148,7 @@ const buildEffectivePeriod = (month: string, year: string) => {
   };
 };
 
-//** ดึงข้อมูลผู้ใช้จาก SB Helper และแปลงให้เป็นรูปแบบมาตรฐาน
+//** ดึงข้อมูลผู้ใช้จาก SB Helper
 const fetchTimesheetUsers = async (
   baseUrl: string
 ): Promise<TimesheetUser[]> => {
@@ -157,7 +157,7 @@ const fetchTimesheetUsers = async (
   return Array.isArray(rawUsers) ? (rawUsers as TimesheetUser[]) : [];
 };
 
-//** สร้างรายงานสรุปต่อผู้ใช้ พร้อมอันดับ
+//** สร้างข้อมูลสรุปต่อผู้ใช้ พร้อมจัดอันดับ
 const buildMonthlyRecords = (
   users: TimesheetUser[],
   totalsByUser: Map<string, number>,
@@ -261,7 +261,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         errorResponse({
           status: 400,
-          message_th: error.issues.map((issue) => issue.message).join(", "),
+          message_th: error.issues.map((issue) => issue.message),
           message_en: "Invalid request payload",
           error,
         }),

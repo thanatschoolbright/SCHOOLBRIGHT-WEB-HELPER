@@ -21,6 +21,7 @@ export default function SchoolReduxProvider({
         console.info("[STORED] SCHOOL TO CALL SCHOOL LIST REDUX : ");
         dispatch(setDraftValues(JSON.parse(storedSchools)));
         dispatch(setResponse(JSON.parse(storedSchools)));
+        console.table(JSON.parse(storedSchools));
       } else {
         try {
           const response = await dispatch(CallAPI()).unwrap();
