@@ -380,6 +380,10 @@ export default function Page() {
   }, [exportModalVisible, exportForm]);
 
   const handleExportTemplate = useCallback(async () => {
+    const pollIntervalMs = 1500;
+    const maxAttempts = 120; // roughly 3 minutes
+    let toastId: string | number | undefined;
+
     try {
       const values = await exportForm.validateFields();
       setExportingTemplate(true);
@@ -387,6 +391,9 @@ export default function Page() {
       if (!Number.isFinite(investmentValue) || investmentValue <= 0) {
         throw new Error("งบการลงทุนต้องเป็นตัวเลขมากกว่า 0");
       }
+
+      toastId = toast.loading("กำลังจัดเตรียมคำขอส่งออก...");
+
       const response = await fetch("/api/v1/timesheet/excel/template_1", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -404,6 +411,94 @@ export default function Page() {
         throw new Error("ไม่สามารถส่งออกไฟล์ได้");
       }
 
+      if (response.status === 202) {
+        const payload = await response.json();
+        const statusUrl = payload.statusUrl as string;
+        const downloadUrl = payload.downloadUrl as string;
+        if (!statusUrl || !downloadUrl) {
+          throw new Error("ระบบไม่ได้ส่งข้อมูลสถานะการดาวน์โหลดกลับมา");
+        }
+
+        const seenSteps = new Set<string>();
+        let attempts = 0;
+        while (attempts < maxAttempts) {
+          attempts += 1;
+          const statusResponse = await fetch(statusUrl, { cache: "no-store" });
+          if (!statusResponse.ok) {
+            const statusError = await statusResponse
+              .json()
+              .catch(() => ({} as any));
+            throw new Error(
+              statusError?.message_th ||
+                statusError?.message_en ||
+                "ส่งออกไฟล์ไม่สำเร็จ"
+            );
+          }
+
+          const statusData = await statusResponse.json();
+
+          const steps = Array.isArray(statusData.steps) ? statusData.steps : [];
+          if (steps.length) {
+            const latestStep = steps[steps.length - 1];
+            if (latestStep?.key && !seenSteps.has(latestStep.key)) {
+              seenSteps.add(latestStep.key);
+              toast.loading(latestStep.label ?? "กำลังดำเนินการ...", {
+                id: toastId,
+              });
+            }
+          }
+
+          if (statusData.status === "ready") {
+            toast.loading("ไฟล์พร้อมแล้ว กำลังเตรียมดาวน์โหลด...", {
+              id: toastId,
+            });
+
+            const downloadResponse = await fetch(downloadUrl, {
+              cache: "no-store",
+            });
+
+            if (!downloadResponse.ok) {
+              const downloadError = await downloadResponse
+                .json()
+                .catch(() => ({} as any));
+              throw new Error(
+                downloadError?.message_th ||
+                  downloadError?.message_en ||
+                  "ไม่สามารถดาวน์โหลดไฟล์ได้"
+              );
+            }
+
+            const blob = await downloadResponse.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            const start = values.date_range[0].format("YYYYMMDD");
+            const end = values.date_range[1].format("YYYYMMDD");
+            link.href = url;
+            link.download = `timesheet-export_${start}_${end}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success("ส่งออกไฟล์เรียบร้อย", { id: toastId });
+            setExportModalVisible(false);
+            exportForm.resetFields();
+            return;
+          }
+
+          if (statusData.status === "failed") {
+            throw new Error(statusData.error || "ไม่สามารถสร้างไฟล์ได้");
+          }
+
+          await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+        }
+
+        throw new Error(
+          "ส่งออกไฟล์ใช้เวลานานกว่าที่กำหนด กรุณาลองใหม่อีกครั้ง"
+        );
+      }
+
+      // Fallback: immediate binary response (legacy behaviour)
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -416,15 +511,20 @@ export default function Page() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      toast.success("ส่งออกไฟล์เรียบร้อย");
+      toast.success("ส่งออกไฟล์เรียบร้อย", { id: toastId });
       setExportModalVisible(false);
       exportForm.resetFields();
     } catch (error: any) {
-      toast.error(error?.message || "ส่งออกไฟล์ไม่สำเร็จ");
+      const message = error?.message || "ส่งออกไฟล์ไม่สำเร็จ";
+      if (toastId !== undefined) {
+        toast.error(message, { id: toastId });
+      } else {
+        toast.error(message);
+      }
     } finally {
       setExportingTemplate(false);
     }
-  }, [exportForm]);
+  }, [exportForm, setExportModalVisible]);
 
   const handleExportAll = useCallback(async () => {
     setExporting(true);
@@ -770,28 +870,52 @@ export default function Page() {
         `}</style>
 
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          <Card
-            title="การจัดการลงเวลาทำงาน"
-            extra={
-              <Space>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Card
+              bordered
+              size="small"
+              style={{
+                borderRadius: 12,
+                boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+              }}
+              bodyStyle={{
+                padding: "12px 16px",
+                display: "inline-flex",
+              }}
+            >
+              <Space size="small" wrap>
                 <Dropdown
                   menu={{
                     items: [
                       {
                         key: "report-who-not-entry",
-                        label: "รายงานยังไม่กรอก Timesheet วันนี้",
+                        label: "รายงานการไม่กรอกไทม์ชีทวันนี้",
                         onClick: () =>
                           router.push("/timesheet/all/who-not-entry"),
                       },
                       {
                         key: "report-summary",
-                        label: "รายงานการกรอก Timesheet ทั้งอาทิตย์",
+                        label: "รายงานการกรอกไทม์ชีท ทั้งอาทิตย์",
                         onClick: () => router.push("/timesheet/all/summary"),
+                      },
+                      {
+                        key: "report-summary",
+                        label: "รายงานการกรอกไทม์ชีท ทั้งเดือน (จัดแรงก์)",
+                        onClick: () =>
+                          router.push("/timesheet/all/summary-month"),
                       },
                     ],
                   }}
                 >
-                  <Button>เลือกดูรายงาน Timesheet</Button>
+                  <Button type="default" size="middle">
+                    เลือกดูรายงาน Timesheet
+                  </Button>
                 </Dropdown>
                 <Dropdown
                   menu={{
@@ -799,7 +923,13 @@ export default function Page() {
                     onClick: handleTimeModeSelect(setGraphMode),
                   }}
                 >
-                  <Button icon={<BarChartOutlined />}>กราฟแท่ง</Button>
+                  <Button
+                    type="default"
+                    size="middle"
+                    icon={<BarChartOutlined />}
+                  >
+                    กราฟแท่ง
+                  </Button>
                 </Dropdown>
                 <Dropdown
                   menu={{
@@ -807,7 +937,13 @@ export default function Page() {
                     onClick: handleTimeModeSelect(setPieMode),
                   }}
                 >
-                  <Button icon={<PieChartOutlined />}>กราฟวงกลม</Button>
+                  <Button
+                    type="default"
+                    size="middle"
+                    icon={<PieChartOutlined />}
+                  >
+                    กราฟวงกลม
+                  </Button>
                 </Dropdown>
                 <Dropdown
                   menu={{
@@ -822,6 +958,7 @@ export default function Page() {
                 >
                   <Button
                     type="primary"
+                    size="middle"
                     icon={<ExportOutlined />}
                     loading={exporting || exportingTemplate}
                   >
@@ -829,8 +966,10 @@ export default function Page() {
                   </Button>
                 </Dropdown>
               </Space>
-            }
-          >
+            </Card>
+          </div>
+
+          <Card title="การจัดการลงเวลาทำงาน">
             <Table
               bordered
               dataSource={entries}

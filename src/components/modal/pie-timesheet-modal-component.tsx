@@ -1,14 +1,67 @@
 /* eslint-disable */
 "use client";
 
+import { useMemo } from "react";
 import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Title, Tooltip, Legend } from "chart.js";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartOptions,
+  Plugin,
+  ChartType,
+} from "chart.js";
 import { Modal } from "antd";
 import { getProjectById } from "@/helpers/local_storage/project.storage";
 import dayjs from "dayjs";
 import type { TimesheetMode } from "./graph-timesheet-modal-component";
 
-ChartJS.register(ArcElement, Title, Tooltip, Legend);
+declare module "chart.js" {
+  interface PluginOptionsByType<TType extends ChartType> {
+    centerTextDarkMode?: {
+      isDarkMode: boolean;
+    };
+  }
+}
+
+const centerTextPlugin: Plugin<"pie"> = {
+  id: "sb-center-text",
+  afterDraw(chart) {
+    const dataset = chart.getDatasetMeta(0);
+    const arc = dataset?.data?.[0];
+    if (!arc) return;
+
+    const data = (chart.data?.datasets?.[0]?.data ?? []) as number[];
+    const total = data.reduce((sum, value) => sum + Number(value || 0), 0);
+    if (!total) return;
+
+    const { ctx } = chart;
+    const centerX = arc.x;
+    const centerY = arc.y;
+
+    const opts: any = chart?.options?.plugins?.centerTextDarkMode;
+    const isDarkMode = opts?.isDarkMode ?? false;
+
+    ctx.save();
+    ctx.font = "600 18px 'Anuphan', sans-serif";
+    ctx.fillStyle = isDarkMode ? "#f8fafc" : "#1f2937";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`${total.toFixed(2)} ชม.`, centerX, centerY);
+
+    if (chart.data?.labels?.length) {
+      ctx.font = "400 13px 'Anuphan', sans-serif";
+      ctx.fillStyle = isDarkMode ? "#cbd5e1" : "#64748b";
+      ctx.fillText("รวมเวลาทั้งหมด", centerX, centerY + 24);
+    }
+
+    ctx.restore();
+  },
+};
+
+ChartJS.register(ArcElement, Title, Tooltip, Legend, centerTextPlugin);
 
 interface PieTimesheetModalProps {
   open: boolean;
@@ -55,17 +108,17 @@ function aggregateHoursByProject(data: any[]) {
 }
 
 const backgroundColors = [
-  "rgba(255, 99, 132, 0.7)",
-  "rgba(54, 162, 235, 0.7)",
-  "rgba(255, 206, 86, 0.7)",
-  "rgba(75, 192, 192, 0.7)",
-  "rgba(153, 102, 255, 0.7)",
-  "rgba(255, 159, 64, 0.7)",
-  "rgba(199, 199, 199, 0.7)",
-  "rgba(83, 102, 255, 0.7)",
-  "rgba(255, 99, 71, 0.7)",
-  "rgba(60, 179, 113, 0.7)",
-];
+  "#ff8058",
+  "#f4b266",
+  "#9dca83",
+  "#5fbcc2",
+  "#6c8cff",
+  "#b087ff",
+  "#ff9bbd",
+  "#ffc078",
+  "#64d8cb",
+  "#ffb5a1",
+].map((hex) => `${hex}dd`);
 
 const modeLabelMap: Record<TimesheetMode, string> = {
   today: "วันนี้",
@@ -80,48 +133,135 @@ export function PieTimesheetModal({
   data,
   mode = "week",
 }: PieTimesheetModalProps) {
+  const isDarkMode = useMemo(() => {
+    if (typeof document !== "undefined") {
+      return document.documentElement.classList.contains("dark");
+    }
+    return false;
+  }, []);
+
   const filteredData = filterDataByMode(data, mode);
   const hoursByProject = aggregateHoursByProject(filteredData);
   const projectNames = Object.keys(hoursByProject);
   const hours = Object.values(hoursByProject);
+  const segmentCount = projectNames.length;
 
   const modeLabel = modeLabelMap[mode] ?? modeLabelMap.week;
 
-  const chartData = {
-    labels: projectNames,
-    datasets: [
-      {
-        label: `ชั่วโมงที่ใช้ในแต่ละโปรเจกต์ (${modeLabel})` as string,
-        data: hours,
-        backgroundColor: backgroundColors.slice(0, projectNames.length),
-        borderWidth: 1,
-      },
-    ],
-  };
+  const chartData = useMemo(
+    () => ({
+      labels: projectNames,
+      datasets: [
+        {
+          label: `ชั่วโมงที่ใช้ในแต่ละโปรเจกต์ (${modeLabel})`,
+          data: hours,
+          backgroundColor: backgroundColors.slice(0, projectNames.length),
+          borderColor: "#ffffff",
+          borderWidth: 2,
+          hoverOffset: 16,
+          borderRadius: 10,
+        },
+      ],
+    }),
+    [hours, modeLabel, projectNames]
+  );
 
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: "top" as const,
+  const options: any = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: 16 },
+      cutout: "55%",
+      animation: {
+        animateRotate: true,
+        animateScale: true,
+        duration: 800,
+        easing: "easeOutQuart",
       },
-      title: {
-        display: true,
-        text: `Timesheet: ชั่วโมงที่ใช้ในแต่ละโปรเจกต์ (${modeLabel})`,
+      plugins: {
+        legend: {
+          display: true,
+          position: "bottom",
+          labels: {
+            usePointStyle: true,
+            padding: 18,
+            font: {
+              family: "Anuphan, sans-serif",
+            },
+            color: isDarkMode ? "#e2e8f0" : "#334155",
+          },
+        },
+        title: {
+          display: true,
+          text: `Timesheet · ภาพรวมการใช้เวลา (${modeLabel})`,
+          padding: {
+            bottom: 20,
+          },
+          font: {
+            family: "Anuphan, sans-serif",
+            size: 18,
+            weight: "600",
+          },
+          color: isDarkMode ? "#f8fafc" : "#0f172a",
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: { raw: any; label: any }) => {
+              const rawValue = Number(context.raw ?? 0);
+              const total = hours.reduce((sum, value) => sum + value, 0);
+              const percent = total
+                ? ((rawValue / total) * 100).toFixed(1)
+                : "0";
+              return ` ${context.label}: ${rawValue.toFixed(
+                2
+              )} ชม. (${percent}%)`;
+            },
+          },
+          backgroundColor: isDarkMode
+            ? "rgba(255,255,255,0.9)"
+            : "rgba(15, 23, 42, 0.85)",
+          titleFont: {
+            family: "Anuphan, sans-serif",
+            weight: "600",
+            size: 14,
+          },
+          bodyFont: {
+            family: "Anuphan, sans-serif",
+            size: 13,
+          },
+          padding: 12,
+          cornerRadius: 12,
+        },
+        centerTextDarkMode: { isDarkMode },
       },
-    },
-  };
+    }),
+    [hours, modeLabel, isDarkMode]
+  );
+
+  const chartHeight = useMemo(() => {
+    const base = 400;
+    const extra = Math.max(0, segmentCount - 8) * 24;
+    return Math.min(720, base + extra);
+  }, [segmentCount]);
 
   return (
     <Modal
       open={open}
       onCancel={onClose}
       footer={null}
-      width="50%"
+      width={540}
       title="ผลลัพธ์แบบกราฟ"
     >
-      <Pie data={chartData} options={options} />
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 680,
+          margin: "0 auto",
+          height: chartHeight,
+        }}
+      >
+        <Pie data={chartData} options={options} />
+      </div>
     </Modal>
   );
 }

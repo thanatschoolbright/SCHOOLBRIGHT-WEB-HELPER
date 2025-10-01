@@ -48,6 +48,7 @@ export function CreateModalForm({
       title="เพิ่มรายการลงเวลาทำงาน"
       footer={null}
       onCancel={onCancel}
+      forceRender
     >
       <Form form={form} layout="vertical" onFinish={onSubmit}>
         <Form.Item

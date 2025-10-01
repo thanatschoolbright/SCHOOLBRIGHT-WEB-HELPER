@@ -45,6 +45,62 @@ type RawUser = {
   email?: string | null;
 };
 
+type RequestPayload = z.infer<typeof RequestSchema>;
+
+type ExportStatus = "queued" | "processing" | "ready" | "failed";
+
+type ExportStep = {
+  key: string;
+  label: string;
+  timestamp: string;
+};
+
+interface ExportTaskState {
+  id: string;
+  status: ExportStatus;
+  steps: ExportStep[];
+  error?: string;
+  buffer?: ArrayBuffer;
+  filename?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+const EXPORT_TASK_TTL_MS = 10 * 60 * 1000;
+const exportTasks = new Map<string, ExportTaskState>();
+
+const cleanupTasks = () => {
+  const now = Date.now();
+  exportTasks.forEach((task, id) => {
+    if (now - task.updatedAt > EXPORT_TASK_TTL_MS) {
+      exportTasks.delete(id);
+    }
+  });
+};
+
+const setTaskState = (id: string, patch: Partial<ExportTaskState>) => {
+  const task = exportTasks.get(id);
+  if (!task) return;
+  exportTasks.set(id, {
+    ...task,
+    ...patch,
+    updatedAt: Date.now(),
+  });
+};
+
+const pushTaskStep = (id: string, key: string, label: string) => {
+  const task = exportTasks.get(id);
+  if (!task) return;
+  const step: ExportStep = {
+    key,
+    label,
+    timestamp: new Date().toISOString(),
+  };
+  task.steps = [...task.steps, step];
+  task.updatedAt = Date.now();
+  exportTasks.set(id, task);
+};
+
 const extractHours = (value: unknown): number => {
   if (typeof value === "number") return value;
   if (typeof value === "string") {
@@ -158,14 +214,17 @@ const configureWorksheet = (workbook: ExcelJS.Workbook) => {
   return worksheet;
 };
 
-export async function POST(request: Request) {
-  try {
-    const raw = await request.json();
-    const body = RequestSchema.parse(raw);
+const buildFilename = (payload: RequestPayload) =>
+  `timesheet-export_${payload.start_date}_${payload.end_date}.xlsx`;
 
+const processExportTask = async (exportId: string, body: RequestPayload) => {
+  try {
+    setTaskState(exportId, { status: "processing" });
+    pushTaskStep(exportId, "PREPARE_DATE_RANGE", "กำลังเตรียมช่วงวันที่");
     const startDate = parseDate(body.start_date, "start");
     const endDate = parseDate(body.end_date, "end");
 
+    pushTaskStep(exportId, "NORMALIZE_FILTER", "กำลังประมวลผลตัวกรอง");
     const projectId = normalizeFilterValue(body.project_id);
     const subProjectId = normalizeFilterValue(body.sub_project_id);
     const createdBy = normalizeFilterValue(body.created_by);
@@ -178,6 +237,12 @@ export async function POST(request: Request) {
       throw new Error("ไม่พบการตั้งค่า SB Helper API base URL");
     }
 
+    pushTaskStep(
+      exportId,
+      "FETCH_DATA",
+      "กำลังดึงข้อมูลบันทึกเวลาและผู้ใช้งาน"
+    );
+
     const [entries, userResponse] = await Promise.all([
       Service.findEntriesForExport({
         startDate,
@@ -189,10 +254,13 @@ export async function POST(request: Request) {
       axios.get(`${baseUrl}/api/v1/admin/user/`),
     ]);
 
+    pushTaskStep(exportId, "DATA_READY", "ดึงข้อมูลสำเร็จ");
+
     const rawUsers = userResponse?.data?.data?.data;
     const users = Array.isArray(rawUsers) ? (rawUsers as RawUser[]) : [];
     const userDirectory = buildUserDirectory(users);
 
+    pushTaskStep(exportId, "CALCULATE_RATE", "กำลังคำนวณชั่วโมงและงบลงทุน");
     const totalHours = entries.reduce((sum, entry) => {
       return sum + extractHours(entry.hours ?? 0);
     }, 0);
@@ -203,6 +271,7 @@ export async function POST(request: Request) {
 
     const hourlyRate = investment / totalHours;
 
+    pushTaskStep(exportId, "BUILD_EXCEL", "กำลังสร้างไฟล์ Excel");
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "Timesheet System";
     workbook.created = new Date();
@@ -216,15 +285,57 @@ export async function POST(request: Request) {
       });
 
     const buffer = await workbook.xlsx.writeBuffer();
+    const filename = buildFilename(body);
 
-    return new NextResponse(buffer, {
-      status: 200,
-      headers: {
-        "Content-Type":
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="timesheet-export_${body.start_date}_${body.end_date}.xlsx"`,
-      },
+    setTaskState(exportId, {
+      status: "ready",
+      buffer,
+      filename,
     });
+    pushTaskStep(exportId, "READY", "สร้างไฟล์สำเร็จ พร้อมให้ดาวน์โหลด");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    setTaskState(exportId, { status: "failed", error: message });
+    pushTaskStep(exportId, "FAILED", `เกิดข้อผิดพลาด: ${message}`);
+    console.error("[Timesheet][export-template-1]", message, error);
+  }
+};
+
+export async function POST(request: Request) {
+  cleanupTasks();
+
+  try {
+    const raw = await request.json();
+    const body = RequestSchema.parse(raw);
+    const exportId = crypto.randomUUID();
+    const filename = buildFilename(body);
+
+    exportTasks.set(exportId, {
+      id: exportId,
+      status: "queued",
+      steps: [],
+      filename,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    pushTaskStep(exportId, "QUEUED", "คำขอส่งออกถูกสร้าง");
+    void processExportTask(exportId, body);
+
+    const url = new URL(request.url);
+    const statusUrl = `${url.origin}${url.pathname}?exportId=${exportId}`;
+    const downloadUrl = `${statusUrl}&download=1`;
+
+    return NextResponse.json(
+      {
+        exportId,
+        status: "queued",
+        filename,
+        statusUrl,
+        downloadUrl,
+      },
+      { status: 202 }
+    );
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -246,7 +357,79 @@ export async function POST(request: Request) {
         message_en: message,
         message_th: "ไม่สามารถสร้างไฟล์ Excel ได้",
         error,
-      })
+      }),
+      { status: 500 }
     );
   }
+}
+
+export async function GET(request: Request) {
+  cleanupTasks();
+
+  const url = new URL(request.url);
+  const exportId = url.searchParams.get("exportId");
+
+  if (!exportId) {
+    return NextResponse.json(
+      errorResponse({
+        status: 400,
+        message_en: "Missing exportId",
+        message_th: "จำเป็นต้องระบุ exportId",
+      }),
+      { status: 400 }
+    );
+  }
+
+  const task = exportTasks.get(exportId);
+
+  if (!task) {
+    return NextResponse.json(
+      errorResponse({
+        status: 404,
+        message_en: "Export job not found",
+        message_th: "ไม่พบคำขอส่งออก",
+      }),
+      { status: 404 }
+    );
+  }
+
+  const wantsDownload = url.searchParams.get("download") === "1";
+
+  if (wantsDownload) {
+    if (task.status !== "ready" || !task.buffer) {
+      return NextResponse.json(
+        errorResponse({
+          status: task.status === "failed" ? 422 : 409,
+          message_en:
+            task.status === "failed"
+              ? task.error ?? "Export failed"
+              : "Export is not ready",
+          message_th:
+            task.status === "failed"
+              ? task.error ?? "ไม่สามารถสร้างไฟล์ได้"
+              : "ไฟล์ยังไม่พร้อมดาวน์โหลด",
+        }),
+        { status: task.status === "failed" ? 422 : 409 }
+      );
+    }
+
+    return new NextResponse(task.buffer, {
+      status: 200,
+      headers: {
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": `attachment; filename="${
+          task.filename ?? "timesheet-export.xlsx"
+        }"`,
+      },
+    });
+  }
+
+  return NextResponse.json({
+    exportId: task.id,
+    status: task.status,
+    steps: task.steps,
+    filename: task.filename,
+    error: task.error ?? null,
+  });
 }

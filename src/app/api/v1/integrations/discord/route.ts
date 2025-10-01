@@ -41,16 +41,184 @@ const REPOSITORY_CONFIG: Record<string, RepoConfig> = {
   },
 };
 
-const buildCurlCommand = (
-  webhook: string,
-  title: string,
-  url: string,
-  author: string
+type ActionStyle = {
+  emoji: string;
+  label: string;
+  subline: string;
+  color: number;
+};
+
+const ACTION_STYLE_MAP: Record<string, ActionStyle> = {
+  opened: {
+    emoji: "🚀",
+    label: "เปิด PR ใหม่แล้ว!",
+    subline: "ทีมพร้อมลุยรีวิวกันได้เลย",
+    color: 0x1abc9c,
+  },
+  reopened: {
+    emoji: "🔁",
+    label: "PR นี้กลับมาอีกครั้ง",
+    subline: "มีการแก้ไขใหม่ อย่าลืมเช็กอัปเดต",
+    color: 0xf39c12,
+  },
+  ready_for_review: {
+    emoji: "✅",
+    label: "พร้อมสำหรับการรีวิว",
+    subline: "ผ่านช่วง Draft แล้ว เข้ามารีวิวได้ทันที",
+    color: 0x2ecc71,
+  },
+};
+
+const DRAFT_ACTION_STYLE: ActionStyle = {
+  emoji: "📝",
+  label: "กำลังอยู่ในสถานะ Draft",
+  subline: "ปรับแต่งอยู่ ยังไม่พร้อมสำหรับรีวิว",
+  color: 0xf1c40f,
+};
+
+const DEFAULT_ACTION_STYLE: ActionStyle = {
+  emoji: "📣",
+  label: "มีการอัปเดตบน Pull Request",
+  subline: "มีความเคลื่อนไหวใหม่ ๆ ใน PR นี้",
+  color: 0x5865f2,
+};
+
+const resolveActionStyle = (
+  action: string | undefined,
+  isDraft: boolean
+): ActionStyle => {
+  if (isDraft) {
+    return DRAFT_ACTION_STYLE;
+  }
+
+  return ACTION_STYLE_MAP[action ?? ""] ?? DEFAULT_ACTION_STYLE;
+};
+
+const toUnixTimestamp = (value?: string | null) =>
+  value ? Math.floor(new Date(value).getTime() / 1000) : undefined;
+
+const buildStatsSummary = (pr: any) => {
+  const parts = [
+    pr.commits != null ? `• Commits: **${pr.commits}**` : undefined,
+    pr.changed_files != null ? `• Files: **${pr.changed_files}**` : undefined,
+    pr.additions != null || pr.deletions != null
+      ? `• Diff: **+${pr.additions ?? 0} / -${pr.deletions ?? 0}**`
+      : undefined,
+  ].filter(Boolean);
+
+  return parts.length ? parts.join("\n") : "";
+};
+
+const buildTimelineSummary = (pr: any) => {
+  const created = toUnixTimestamp(pr.created_at);
+  const updated = toUnixTimestamp(pr.updated_at);
+  const merged = toUnixTimestamp(pr.merged_at);
+
+  const parts = [
+    created ? `• เปิดเมื่อ: <t:${created}:F> (<t:${created}:R>)` : undefined,
+    updated && updated !== created
+      ? `• อัปเดตล่าสุด: <t:${updated}:R>`
+      : undefined,
+    merged ? `• รวมโค้ดแล้ว: <t:${merged}:R>` : undefined,
+  ].filter(Boolean);
+
+  return parts.length ? parts.join("\n") : "";
+};
+
+const buildReviewerSummary = (pr: any) => {
+  const reviewers: Array<{ login: string; html_url?: string }> = Array.isArray(
+    pr.requested_reviewers
+  )
+    ? pr.requested_reviewers
+    : [];
+
+  if (!reviewers.length) {
+    return "ยังไม่ได้ระบุผู้รีวิว — เพิ่ม Reviewer เพื่อแจ้งเตือนอัตโนมัติ ✨";
+  }
+
+  return reviewers
+    .map((reviewer) =>
+      reviewer.login
+        ? `• [${reviewer.login}](${
+            reviewer.html_url ?? `https://github.com/${reviewer.login}`
+          })`
+        : undefined
+    )
+    .filter(Boolean)
+    .join("\n");
+};
+
+const buildLabelsSummary = (pr: any) => {
+  const labels: Array<{ name?: string }> = Array.isArray(pr.labels)
+    ? pr.labels
+    : [];
+
+  const labelNames = labels
+    .map((label) => (label?.name ? `\`${label.name}\`` : undefined))
+    .filter(Boolean);
+
+  return labelNames.length ? labelNames.join(" ") : "";
+};
+
+const buildBodyPreview = (body: unknown) => {
+  if (typeof body !== "string") {
+    return "";
+  }
+
+  const sanitized = body.replace(/\r\n/g, "\n").trim();
+  if (!sanitized) {
+    return "";
+  }
+
+  const preview = sanitized.split("\n").slice(0, 6).join("\n");
+  return preview.length < sanitized.length ? `${preview}\n…` : preview;
+};
+
+const buildComponentButtons = (
+  repoName: string,
+  prUrl: string,
+  fromBranch: string,
+  toBranch: string
 ) => {
+  const encodedFrom = encodeURIComponent(fromBranch);
+  const encodedTo = encodeURIComponent(toBranch);
+  const compareUrl = `https://github.com/${repoName}/compare/${encodedTo}...${encodedFrom}?expand=1`;
+  const branchUrl = `https://github.com/${repoName}/tree/${encodedFrom}`;
+
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 5,
+          label: "เปิด Pull Request",
+          url: prUrl,
+          emoji: { name: "🔍" },
+        },
+        {
+          type: 2,
+          style: 5,
+          label: "ดู Diff",
+          url: compareUrl,
+          emoji: { name: "🧾" },
+        },
+        {
+          type: 2,
+          style: 5,
+          label: "ที่มา (From)",
+          url: branchUrl,
+          emoji: { name: "🌿" },
+        },
+      ],
+    },
+  ];
+};
+
+const buildCurlCommand = (webhook: string, payload: unknown) => {
   const curlHeader = `--header 'Content-Type: application/json'`;
-  const curlData = `--data '{
-    "content": "📣 **เปิด Pull Request ใหม่!**\\n📝 **${title}**\\n🔗 ${url}\\n👤 โดย: ${author}\\n\\n📌 กรุณาตรวจสอบและ Review ทันที 👀"
-  }'`;
+  const jsonPayload = JSON.stringify(payload).replace(/'/g, "'\"'\"'");
+  const curlData = `--data '${jsonPayload}'`;
 
   return `curl --location ${curlHeader} '${webhook}' ${curlData}`;
 };
@@ -60,34 +228,122 @@ const buildDiscordPayload = (
   pr: any,
   repoName: string,
   fromBranch: string,
-  toBranch: string
-) => ({
-  content: `${mention} 📣 **มี Pull Request ใหม่เข้ามาแล้ว! (New Pull Request Incoming!)**`,
-  embeds: [
+  toBranch: string,
+  action: string | undefined
+) => {
+  const actionStyle = resolveActionStyle(action, Boolean(pr.draft));
+  const statsSummary = buildStatsSummary(pr);
+  const timelineSummary = buildTimelineSummary(pr);
+  const reviewerSummary = buildReviewerSummary(pr);
+  const labelsSummary = buildLabelsSummary(pr);
+  const bodyPreview = buildBodyPreview(pr.body);
+  const mentionId = mention.match(/<@!?([0-9]+)>/)?.[1];
+
+  const fields = [
     {
-      title: `#${pr.number} ${pr.title}`,
-      url: pr.html_url,
-      color: 0x00ccff,
-      fields: [
-        { name: "🧑‍💻 ผู้เปิด (Author)", value: pr.user.login, inline: true },
-        {
-          name: "📁 Repository (ที่เก็บโค้ด)",
-          value: `\`${repoName}\``,
-          inline: true,
-        },
-        {
-          name: "🌿 จากสาขา (From Branch) → ไปยัง (To Branch)",
-          value: `\`${fromBranch}\` → \`${toBranch}\``,
-          inline: false,
-        },
-      ],
-      footer: {
-        text: "ระบบแจ้งเตือน GitHub PR • SchoolBright (GitHub PR Notifier • SchoolBright)",
-      },
-      timestamp: new Date().toISOString(),
+      name: "🧑‍💻 ผู้เปิด (Author)",
+      value: pr.user?.login
+        ? `[${pr.user.login}](${pr.user?.html_url ?? pr.html_url})`
+        : "ไม่ทราบ",
+      inline: true,
     },
-  ],
-});
+    {
+      name: "📁 Repository (ที่เก็บโค้ด)",
+      value: `\`${repoName}\``,
+      inline: true,
+    },
+    {
+      name: "🌿 จากสาขา (From Branch) → ไปยัง (To Branch)",
+      value: `\`${fromBranch}\` → \`${toBranch}\``,
+      inline: false,
+    },
+    {
+      name: "🚦 สถานะ",
+      value: `${actionStyle.emoji} ${actionStyle.label}`,
+      inline: true,
+    },
+  ].filter((field) => Boolean(field.value));
+
+  if (statsSummary) {
+    fields.push({
+      name: "📊 รายละเอียดการเปลี่ยนแปลง",
+      value: statsSummary,
+      inline: true,
+    });
+  }
+
+  if (timelineSummary) {
+    fields.push({
+      name: "🕒 ไทม์ไลน์",
+      value: timelineSummary,
+      inline: true,
+    });
+  }
+
+  if (reviewerSummary) {
+    fields.push({
+      name: "🧑‍⚖️ ผู้รีวิวที่ร้องขอ",
+      value: reviewerSummary,
+      inline: false,
+    });
+  }
+
+  if (labelsSummary) {
+    fields.push({
+      name: "🏷️ Labels",
+      value: labelsSummary,
+      inline: false,
+    });
+  }
+
+  const embed = {
+    title: `#${pr.number} ${pr.title}`,
+    url: pr.html_url,
+    color: actionStyle.color,
+    description: [
+      `${actionStyle.emoji} **${actionStyle.subline}**`,
+      bodyPreview
+        ? ["```markdown", bodyPreview, "```"].join("\n")
+        : pr.draft
+        ? "⚠️ PR นี้ยังเป็น Draft — พร้อมเมื่อไรกด Ready for Review นะ!"
+        : "โปรดรีวิวและตรวจสอบ",
+    ]
+      .filter(Boolean)
+      .join("\n\n"),
+    author: pr.user?.login
+      ? {
+          name: pr.user.login,
+          icon_url: pr.user?.avatar_url,
+          url: pr.user?.html_url,
+        }
+      : undefined,
+    thumbnail: pr.user?.avatar_url ? { url: pr.user.avatar_url } : undefined,
+    fields,
+    footer: {
+      text: "ระบบแจ้งเตือน GitHub PR • SchoolBright",
+      icon_url:
+        "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+    },
+    timestamp: new Date().toISOString(),
+  };
+
+  const payload: Record<string, unknown> = {
+    content: `${mention} ${actionStyle.emoji} Pull Request ใหม่บน \`${repoName}\` พร้อมตรวจสอบแล้ว!`,
+    embeds: [embed],
+    components: buildComponentButtons(
+      repoName,
+      pr.html_url,
+      fromBranch,
+      toBranch
+    ),
+  };
+
+  if (mentionId) {
+    payload.allowed_mentions = { parse: [] as string[], users: [mentionId] };
+  }
+
+  return payload;
+};
 
 function resolveRepoConfig(repoName: string): RepoConfig {
   return (
@@ -145,7 +401,8 @@ export async function POST(req: NextRequest) {
       pr,
       repoName,
       fromBranch,
-      toBranch
+      toBranch,
+      payload?.action
     );
 
     const response = await axios.post(webhookUrl, discordPayload, {
@@ -155,7 +412,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       message: "Notification sent to Discord",
       status: response.status,
-      curl: buildCurlCommand(webhookUrl, pr.title, pr.html_url, pr.user.login),
+      curl: buildCurlCommand(webhookUrl, discordPayload),
     });
   } catch (err: any) {
     return NextResponse.json({

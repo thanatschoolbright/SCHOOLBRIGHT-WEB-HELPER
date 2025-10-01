@@ -23,7 +23,13 @@ type TimesheetGap = TimesheetUser & {
   total_hours: number;
 };
 
-const TARGET_POSITIONS = new Set(["developer", "tester"]);
+const TARGET_POSITIONS = new Set([
+  "developer",
+  "tester",
+  "business development",
+  "admin",
+  "business analyst",
+]);
 
 const normalizePosition = (position?: string) =>
   position ? position.trim().toLowerCase() : "";

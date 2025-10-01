@@ -23,6 +23,7 @@ import {
   Skeleton,
   Descriptions,
 } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import {
   PlusOutlined,
   CheckCircleOutlined,
@@ -61,7 +62,7 @@ export default function Page() {
   const [antdForm] = Form.useForm();
   // ใช้ Redux store สำหรับข้อมูล authentication
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
-  const limit = 10;
+  const [limit, setLimit] = useState<number>(20);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -108,7 +109,7 @@ export default function Page() {
       setActionLoading(true);
       const response = await axios.post(
         `/api/v1/timesheet/project/insert/`,
-        project,
+        project
       );
       toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
     } catch (error) {
@@ -131,10 +132,10 @@ export default function Page() {
     }
   };
 
-  // โหลดข้อมูลโปรเจคเมื่อเปลี่ยนหน้า
+  // โหลดข้อมูลโปรเจคเมื่อเปลี่ยนหน้า หรือ limit
   useEffect(() => {
     fetchProjects();
-  }, [currentPage]);
+  }, [currentPage, limit]);
 
   // ตรวจสอบสิทธิ์การเข้าถึง
   useEffect(() => {
@@ -224,10 +225,11 @@ export default function Page() {
   };
 
   // กำหนด columns สำหรับตารางโปรเจค
-  const columns = [
+  const columns: ColumnsType<Project> = [
     {
       title: "ลำดับ",
       dataIndex: "index",
+      key: "index",
       align: "center" as const,
       render: (_: any, __: any, idx: number) =>
         idx + 1 + (currentPage - 1) * limit,
@@ -236,13 +238,24 @@ export default function Page() {
     {
       title: "ชื่อโปรเจค",
       dataIndex: "name",
+      key: "name",
       align: "left" as const,
+      sorter: (a: Project, b: Project) => a.name.localeCompare(b.name),
+      filterSearch: true,
+      onFilter: (value, record) => record.name === String(value),
+      filters: Array.from(new Set(projects.map((p) => p.name))).map((name) => ({
+        text: name,
+        value: String(name),
+      })),
       render: (text: string) => <Typography.Text>{text}</Typography.Text>,
     },
     {
       title: "คำอธิบาย",
       dataIndex: "description",
+      key: "description",
       align: "left" as const,
+      sorter: (a: Project, b: Project) =>
+        (a.description || "").localeCompare(b.description || ""),
       render: (text: string) =>
         text ? (
           <Typography.Text type="secondary">{text}</Typography.Text>
@@ -253,7 +266,15 @@ export default function Page() {
     {
       title: "ประเภทโครงการ",
       dataIndex: "categoryType",
+      key: "categoryType",
       align: "center" as const,
+      filters: categoryType.map((data) => ({
+        text: data.name,
+        value: String(data.id),
+      })),
+      onFilter: (value, record) => record.categoryType === String(value),
+      sorter: (a: Project, b: Project) =>
+        a.categoryType.localeCompare(b.categoryType),
       render: (text: string) => {
         const category = categoryType.find((c) => c.id === text);
         return category ? (
@@ -262,6 +283,24 @@ export default function Page() {
           <Tag color="default">ไม่ระบุ</Tag>
         );
       },
+    },
+    {
+      title: "สร้างเมื่อ",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      align: "center" as const,
+      sorter: (a: Project, b: Project) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      render: (text: string) => convertToThaiDateDDMMYYY(text),
+    },
+    {
+      title: "แก้ไขล่าสุด",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      align: "center" as const,
+      sorter: (a: Project, b: Project) =>
+        new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime(),
+      render: (text: string) => convertToThaiDateDDMMYYY(text),
     },
     {
       title: "จัดการ",
@@ -304,198 +343,204 @@ export default function Page() {
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
-      <div className="w-full space-y-4">
-        {/* ปุ่มเพิ่มโครงการใหม่ */}
-        <div className="w-full flex justify-end">
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            size="large"
-            onClick={openCreateModal}
-            style={{ minWidth: 160 }}
-          >
-            เพิ่มโครงการใหม่
-          </Button>
-        </div>
-
-        {/* Card รายการโครงการ */}
-        <Card title="รายการโครงการ" className="w-full">
-          {/* ตารางโครงการ */}
-          <Skeleton active loading={loading}>
-            <Table
-  columns={columns}
-  dataSource={projects}
-  rowKey="id"
-  pagination={{
-    current: currentPage,
-    pageSize: limit,                // ✅ page_size
-    total: totalItems,              // ✅ total
-    showSizeChanger: false,
-    onChange: (page) => setCurrentPage(page),
-  }}
-  locale={{
-    emptyText: "ไม่พบข้อมูลโปรเจค",
-  }}
-/>
-          </Skeleton>
-        </Card>
-
-        {/* Modal สร้าง/แก้ไขโปรเจค */}
-        <Modal
-          open={modalType === "create" || modalType === "edit"}
-          onCancel={() => setModalType("")}
-          title={formState.id ? "แก้ไขโปรเจค" : "เพิ่มโปรเจคใหม่"}
-          footer={null}
-          destroyOnHidden
-        >
-          {/* ฟอร์มโปรเจค */}
-          <Form
-            form={antdForm}
-            layout="vertical"
-            initialValues={{
-              name: formState.name,
-              description: formState.description,
-              categoryType: formState.categoryType,
-            }}
-            onFinish={handleSubmit}
-          >
-            <Form.Item
-              label="ชื่อโครงการ"
-              name="name"
-              rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
+        <div className="w-full space-y-4">
+          {/* ปุ่มเพิ่มโครงการใหม่ */}
+          <div className="w-full flex justify-end">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              size="large"
+              onClick={openCreateModal}
+              style={{ minWidth: 160 }}
             >
-              <Input
-                placeholder="กรอกชื่อโปรเจค"
-                prefix={<InfoCircleOutlined />}
-                onChange={(e) =>
-                  setFormState((prev) => ({ ...prev, name: e.target.value }))
-                }
+              เพิ่มโครงการใหม่
+            </Button>
+          </div>
+
+          {/* Card รายการโครงการ */}
+          <Card title="รายการโครงการ" className="w-full">
+            {/* ตารางโครงการ */}
+            <Skeleton active loading={loading}>
+              <Table
+                columns={columns}
+                dataSource={projects}
+                rowKey="id"
+                pagination={{
+                  current: currentPage,
+                  pageSize: limit,
+                  total: totalItems,
+                  showSizeChanger: true,
+                  pageSizeOptions: ["10", "20", "50", "100"],
+                  onChange: (page, pageSize) => {
+                    setCurrentPage(page);
+                    if (typeof pageSize === "number") {
+                      setLimit(pageSize);
+                    }
+                  },
+                }}
+                locale={{
+                  emptyText: "ไม่พบข้อมูลโปรเจค",
+                }}
               />
-            </Form.Item>
-            <Form.Item label="คำอธิบายโครงการ" name="description">
+            </Skeleton>
+          </Card>
+
+          {/* Modal สร้าง/แก้ไขโปรเจค */}
+          <Modal
+            open={modalType === "create" || modalType === "edit"}
+            onCancel={() => setModalType("")}
+            title={formState.id ? "แก้ไขโปรเจค" : "เพิ่มโปรเจคใหม่"}
+            footer={null}
+            destroyOnHidden
+          >
+            {/* ฟอร์มโปรเจค */}
+            <Form
+              form={antdForm}
+              layout="vertical"
+              initialValues={{
+                name: formState.name,
+                description: formState.description,
+                categoryType: formState.categoryType,
+              }}
+              onFinish={handleSubmit}
+            >
+              <Form.Item
+                label="ชื่อโครงการ"
+                name="name"
+                rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
+              >
+                <Input
+                  placeholder="กรอกชื่อโปรเจค"
+                  prefix={<InfoCircleOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item label="คำอธิบายโครงการ" name="description">
+                <Input
+                  placeholder="กรอกคำอธิบายโครงการ (ถ้ามี)"
+                  prefix={<EditOutlined />}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Item>
+              <Form.Item
+                label="ประเภทโครงการ"
+                name="categoryType"
+                rules={[{ required: true, message: "กรุณาเลือกประเภทโครงการ" }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="เลือกประเภทโครงการ"
+                  options={categoryType.map((data) => ({
+                    label: `${data.name} (${data.id})`,
+                    value: String(data.id),
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item>
+                <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+                  <Button onClick={() => setModalType("")}>ยกเลิก</Button>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    icon={<CheckCircleOutlined />}
+                    disabled={actionLoading}
+                  >
+                    บันทึก
+                  </Button>
+                </Space>
+              </Form.Item>
+            </Form>
+          </Modal>
+
+          {/* Modal ยืนยันลบโปรเจค */}
+          <Modal
+            open={modalType === "delete"}
+            onCancel={() => setModalType("")}
+            title="ยืนยันการลบ"
+            onOk={confirmDelete}
+            okText="ลบ"
+            okType="danger"
+            cancelText="ยกเลิก"
+            okButtonProps={{
+              disabled: formState.confirmText !== "Delete",
+            }}
+            destroyOnHidden
+          >
+            <div style={{ marginBottom: 16 }}>
+              <Typography.Text type="danger" strong>
+                คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
+              </Typography.Text>
+              <br />
+              <Typography.Text>
+                โปรดพิมพ์ <b style={{ color: "#f5222d" }}>Delete</b> เพื่อยืนยัน
+              </Typography.Text>
               <Input
-                placeholder="กรอกคำอธิบายโครงการ (ถ้ามี)"
-                prefix={<EditOutlined />}
+                style={{ marginTop: 10 }}
+                placeholder="พิมพ์ Delete เพื่อยืนยัน"
+                value={formState.confirmText}
                 onChange={(e) =>
                   setFormState((prev) => ({
                     ...prev,
-                    description: e.target.value,
+                    confirmText: e.target.value,
                   }))
                 }
               />
-            </Form.Item>
-            <Form.Item
-              label="ประเภทโครงการ"
-              name="categoryType"
-              rules={[{ required: true, message: "กรุณาเลือกประเภทโครงการ" }]}
-            >
-              <Select
-                showSearch
-                placeholder="เลือกประเภทโครงการ"
-                options={categoryType.map((data) => ({
-                  label: `${data.name} (${data.id})`,
-                  value: String(data.id),
-                }))}
-              />
-            </Form.Item>
-            <Form.Item>
-              <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-                <Button onClick={() => setModalType("")}>ยกเลิก</Button>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={<CheckCircleOutlined />}
-                  disabled={actionLoading}
-                >
-                  บันทึก
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        {/* Modal ยืนยันลบโปรเจค */}
-        <Modal
-          open={modalType === "delete"}
-          onCancel={() => setModalType("")}
-          title="ยืนยันการลบ"
-          onOk={confirmDelete}
-          okText="ลบ"
-          okType="danger"
-          cancelText="ยกเลิก"
-          okButtonProps={{
-            disabled: formState.confirmText !== "Delete",
-          }}
-          destroyOnHidden
-        >
-          <div style={{ marginBottom: 16 }}>
-            <Typography.Text type="danger" strong>
-              คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
-            </Typography.Text>
-            <br />
-            <Typography.Text>
-              โปรดพิมพ์ <b style={{ color: "#f5222d" }}>Delete</b> เพื่อยืนยัน
-            </Typography.Text>
-            <Input
-              style={{ marginTop: 10 }}
-              placeholder="พิมพ์ Delete เพื่อยืนยัน"
-              value={formState.confirmText}
-              onChange={(e) =>
-                setFormState((prev) => ({
-                  ...prev,
-                  confirmText: e.target.value,
-                }))
-              }
-            />
-          </div>
-        </Modal>
-
-        {/* Modal รายละเอียดโปรเจค */}
-        <Modal
-          open={modalType === "detail" && !!detailProject}
-          onCancel={() => {
-            setModalType("");
-            setDetailProject(null);
-          }}
-          title="รายละเอียดโปรเจค"
-          footer={[
-            <Button
-              key="close"
-              onClick={() => {
-                setModalType("");
-                setDetailProject(null);
-              }}
-            >
-              ปิด
-            </Button>,
-          ]}
-          destroyOnHidden
-        >
-          {detailProject && (
-            <div className="mt-4">
-              <Descriptions bordered column={1} size="middle">
-                <Descriptions.Item label="ชื่อโครงการ">
-                  {detailProject.name}
-                </Descriptions.Item>
-                <Descriptions.Item label="คำอธิบาย">
-                  {detailProject.description}
-                </Descriptions.Item>
-                <Descriptions.Item label="สร้างโดย (ID)">
-                  {getUserById(detailProject.createdBy)?.firstname}{" "}
-                  {getUserById(detailProject.createdBy)?.lastname}
-                </Descriptions.Item>
-                <Descriptions.Item label="สร้างเมื่อ">
-                  {convertToThaiDateDDMMYYY(detailProject.createdAt)}
-                </Descriptions.Item>
-                <Descriptions.Item label="แก้ไขล่าสุด">
-                  {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
-                </Descriptions.Item>
-              </Descriptions>
             </div>
-          )}
-        </Modal>
-      </div>
-    </DashboardLayout>
+          </Modal>
+
+          {/* Modal รายละเอียดโปรเจค */}
+          <Modal
+            open={modalType === "detail" && !!detailProject}
+            onCancel={() => {
+              setModalType("");
+              setDetailProject(null);
+            }}
+            title="รายละเอียดโปรเจค"
+            footer={[
+              <Button
+                key="close"
+                onClick={() => {
+                  setModalType("");
+                  setDetailProject(null);
+                }}
+              >
+                ปิด
+              </Button>,
+            ]}
+            destroyOnHidden
+          >
+            {detailProject && (
+              <div className="mt-4">
+                <Descriptions bordered column={1} size="middle">
+                  <Descriptions.Item label="ชื่อโครงการ">
+                    {detailProject.name}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="คำอธิบาย">
+                    {detailProject.description}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="สร้างโดย (ID)">
+                    {getUserById(detailProject.createdBy)?.firstname}{" "}
+                    {getUserById(detailProject.createdBy)?.lastname}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="สร้างเมื่อ">
+                    {convertToThaiDateDDMMYYY(detailProject.createdAt)}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="แก้ไขล่าสุด">
+                    {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
+                  </Descriptions.Item>
+                </Descriptions>
+              </div>
+            )}
+          </Modal>
+        </div>
+      </DashboardLayout>
     </PermissionLayout>
   );
 }

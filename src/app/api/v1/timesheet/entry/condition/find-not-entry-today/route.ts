@@ -8,7 +8,12 @@ import { API_URL } from "@services/api-url";
 const VALIDATED_USERS_ARE_NOT_ENTRY = (users: any[], entries: any[]) => {
   // Filter users to only Developer or Tester
   const filteredUsers = users.filter(
-    (user) => user.position === "Developer" || user.position === "Tester"
+    (user) =>
+      user.position === "Developer" ||
+      user.position === "Tester" ||
+      user.position === "ADMIN" ||
+      user.position === "Business Development" ||
+      user.position === "Business Analyst"
   );
 
   // Extract user_ids from entries

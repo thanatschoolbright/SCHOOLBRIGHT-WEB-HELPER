@@ -30,10 +30,6 @@ import type { InputRef } from "antd";
 import type { TableProps } from "antd";
 import {
   ArrowUpOutlined,
-  CrownFilled,
-  FireFilled,
-  FrownFilled,
-  MehFilled,
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
@@ -41,10 +37,6 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  SmileFilled,
-  StarFilled,
-  ThunderboltOutlined,
-  TrophyFilled,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -53,6 +45,7 @@ import { toast } from "sonner";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 import type { Project, SubProject } from "@stores/type";
 import { CreateModalForm } from "./create";
+import { MonthlyRankBoard } from "./monthly-rank-board";
 
 dayjs.extend(isBetween);
 
@@ -105,16 +98,6 @@ const DATE_FORMAT = "DD/MM/YYYY";
 const PAGE_SIZE = 30;
 const DAILY_TARGET_HOURS = 8;
 const WEEKDAY_LABELS = ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์"];
-
-interface RankProfile {
-  rank: "A" | "B" | "C" | "D" | "E" | "F";
-  completedDays: number;
-  title: string;
-  description: string;
-  gradient: string;
-  textColor: string;
-  borderColor: string;
-}
 
 //** รวมชั่วโมงของแต่ละวันจากรายการทั้งหมด
 const buildDailySummary = (entries: TimesheetEntry[]): DailySummaryItem[] => {
@@ -187,177 +170,6 @@ const buildWeeklySummary = (
       isCompleted: summary?.isCompleted ?? false,
     };
   });
-};
-
-//** คำนวณ Rank ตามจำนวนวันที่ครบเป้าหมาย
-const deriveRankProfile = (
-  weeklySummary: WeeklySummaryItem[]
-): RankProfile | null => {
-  if (!weeklySummary.length) return null;
-
-  const completedDays = weeklySummary.filter((day) => day.isCompleted).length;
-
-  const rankMap: Record<number, RankProfile> = {
-    5: {
-      rank: "A",
-      completedDays,
-      title: "MAX STREAK",
-      description: "ลงครบทุกวันในสัปดาห์นี้",
-      gradient: "linear-gradient(135deg, #ffd700, #ff9f1a)",
-      textColor: "#3b2000",
-      borderColor: "#ffb347",
-    },
-    4: {
-      rank: "B",
-      completedDays,
-      title: "PROGRESSIVE",
-      description: "เหลืออีกเพียง 1 วันเท่านั้น",
-      gradient: "linear-gradient(135deg, #bae0ff, #69b1ff)",
-      textColor: "#002766",
-      borderColor: "#69b1ff",
-    },
-    3: {
-      rank: "C",
-      completedDays,
-      title: "STABLE",
-      description: "รักษาเสถียรภาพได้ดี",
-      gradient: "linear-gradient(135deg, #d9f7be, #73d13d)",
-      textColor: "#092b00",
-      borderColor: "#73d13d",
-    },
-    2: {
-      rank: "D",
-      completedDays,
-      title: "ON TRACK",
-      description: "พยายามต่ออีกหน่อย",
-      gradient: "linear-gradient(135deg, #fff1b8, #fadb14)",
-      textColor: "#613400",
-      borderColor: "#fadb14",
-    },
-    1: {
-      rank: "E",
-      completedDays,
-      title: "WARM UP",
-      description: "เริ่มต้นได้แล้ว เดินหน้าต่อ",
-      gradient: "linear-gradient(135deg, #ffe7ba, #ffa940)",
-      textColor: "#613b11",
-      borderColor: "#ffa940",
-    },
-    0: {
-      rank: "F",
-      completedDays,
-      title: "CRITICAL",
-      description: "ยังไม่ครบวันใดเลย ต้องเร่งด่วน",
-      gradient: "linear-gradient(135deg, #ff4d4f, #a8071a)",
-      textColor: "#fff",
-      borderColor: "#a8071a",
-    },
-  };
-
-  return rankMap[completedDays] ?? rankMap[0];
-};
-
-const rankVisualMap: Record<
-  RankProfile["rank"],
-  { accent: string; icon: React.ReactNode }
-> = {
-  A: { accent: "#facc15", icon: <CrownFilled /> },
-  B: { accent: "#38bdf8", icon: <StarFilled /> },
-  C: { accent: "#34d399", icon: <SmileFilled /> },
-  D: { accent: "#fb923c", icon: <MehFilled /> },
-  E: { accent: "#f97316", icon: <FrownFilled /> },
-  F: { accent: "#f87171", icon: <FireFilled /> },
-};
-
-//** การ์ด Rank สัปดาห์นี้ (โทนเดียวกับ MiniUsageCard)
-const RankBadge: React.FC<{ profile: RankProfile }> = ({ profile }) => {
-  const { token } = theme.useToken();
-  const visual = rankVisualMap[profile.rank] ?? rankVisualMap.C;
-
-  const gradientBackground = `linear-gradient(135deg, ${addAlpha(
-    visual.accent,
-    0.3
-  )}, ${token.colorBgElevated})`;
-
-  return (
-    <Card
-      variant="outlined"
-      style={{
-        minWidth: 260,
-        borderRadius: 18,
-        borderColor: addAlpha(visual.accent, 0.4),
-        background: gradientBackground,
-        boxShadow: `0 18px 32px ${addAlpha(visual.accent, 0.25)}`,
-      }}
-      styles={{
-        body: {
-          display: "flex",
-          flexDirection: "column",
-          gap: 14,
-          padding: 20,
-        },
-      }}
-    >
-      <Space
-        align="start"
-        style={{ width: "100%", justifyContent: "space-between" }}
-      >
-        <div>
-          <Typography.Text
-            style={{
-              fontSize: 12,
-              letterSpacing: 0.6,
-              fontWeight: 600,
-              color: addAlpha(token.colorText, 0.75),
-              textTransform: "uppercase",
-            }}
-          >
-            Weekly Rank
-          </Typography.Text>
-          <Typography.Title
-            level={3}
-            style={{
-              margin: 0,
-              fontWeight: 800,
-              color: token.colorText,
-              letterSpacing: 4,
-            }}
-          >
-            {profile.rank}
-          </Typography.Title>
-        </div>
-        <Avatar
-          size={52}
-          style={{
-            background: addAlpha(visual.accent, 0.18),
-            color: addAlpha(visual.accent, 0.9),
-            fontSize: 26,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {visual.icon}
-        </Avatar>
-      </Space>
-
-      <Typography.Text
-        style={{ fontSize: 13, color: token.colorTextSecondary }}
-      >
-        {profile.title} · {profile.description}
-      </Typography.Text>
-
-      <Space size={8} align="center">
-        <ThunderboltOutlined style={{ color: addAlpha(visual.accent, 0.9) }} />
-        <Typography.Text style={{ fontWeight: 600, color: token.colorText }}>
-          {profile.completedDays} / 5 วัน
-        </Typography.Text>
-        <Typography.Text style={{ color: token.colorTextSecondary }}>
-          สำเร็จในสัปดาห์นี้
-        </Typography.Text>
-      </Space>
-    </Card>
-  );
 };
 
 //** คำนวณโปรเจ็ค/ฟีเจอร์ที่ใช้เวลามากที่สุดในสัปดาห์ปัจจุบัน
@@ -515,6 +327,7 @@ export default function Page() {
   const { i18n } = useTranslation("mock");
   const [form] = Form.useForm();
   const { token } = theme.useToken();
+  const isMountedRef = useRef(true);
 
   const authState = useAppSelector((state) => state.callAdminLogin);
   const adminId = useMemo(
@@ -540,6 +353,13 @@ export default function Page() {
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
 
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   //** ปิด modal และรีเซ็ตค่าที่เกี่ยวข้อง
   const closeModal = useCallback(() => {
     setModalType(null);
@@ -556,6 +376,7 @@ export default function Page() {
         limit: 100,
         page: 1,
       });
+      if (!isMountedRef.current) return;
       setProjects(response.data?.data ?? []);
     } catch (error: any) {
       console.error("fetchProjects", error);
@@ -583,7 +404,9 @@ export default function Page() {
         }
       );
       const items = response.data?.data?.items ?? [];
-      setSubProjects(items);
+      if (isMountedRef.current) {
+        setSubProjects(items);
+      }
       return items;
     } catch (error: any) {
       console.error("fetchSubProjectOptions", error);
@@ -591,13 +414,18 @@ export default function Page() {
         duration: 3000,
         position: "top-right",
       });
-      setSubProjects([]);
+      if (isMountedRef.current) {
+        setSubProjects([]);
+      }
       return [];
     }
   }, []);
 
   //** โหลดรายการลงเวลาพร้อมแบ่งหน้า
   const fetchEntries = useCallback(async () => {
+    if (!isMountedRef.current) {
+      return;
+    }
     setTableLoading(true);
     try {
       const response = await axios.post("/api/v1/timesheet/entry/read/", {
@@ -611,6 +439,10 @@ export default function Page() {
         ...item,
         hours: Number((item as TimesheetEntry).hours ?? 0),
       }));
+      if (!isMountedRef.current) {
+        return;
+      }
+
       setEntries(list);
 
       const totalPages = response.data?.pagination?.total_pages ?? 1;
@@ -618,13 +450,17 @@ export default function Page() {
       setTotalItems(totalCount ?? totalPages * PAGE_SIZE);
     } catch (error: any) {
       console.error("fetchEntries", error);
-      setEntries([]);
+      if (isMountedRef.current) {
+        setEntries([]);
+      }
       toast.error("โหลดข้อมูลรายการลงเวลาล้มเหลว", {
         duration: 3000,
         position: "top-right",
       });
     } finally {
-      setTableLoading(false);
+      if (isMountedRef.current) {
+        setTableLoading(false);
+      }
     }
   }, [adminId, currentPage, pageSize]);
 
@@ -658,6 +494,9 @@ export default function Page() {
       setFormMode("edit");
       setActiveRecord(record);
       await fetchSubProjectOptions(Number(record.project_id));
+      if (!isMountedRef.current) {
+        return;
+      }
       form.setFieldsValue({
         project_id: Number(record.project_id),
         sub_project_id: record.feature_id
@@ -679,6 +518,9 @@ export default function Page() {
       setFormMode("copy");
       setActiveRecord(null);
       await fetchSubProjectOptions(Number(record.project_id));
+      if (!isMountedRef.current) {
+        return;
+      }
       form.setFieldsValue({
         project_id: Number(record.project_id),
         sub_project_id: record.feature_id
@@ -732,6 +574,9 @@ export default function Page() {
         position: "top-right",
       });
 
+      if (!isMountedRef.current) {
+        return;
+      }
       closeModal();
       fetchEntries();
     } catch (error: any) {
@@ -745,7 +590,9 @@ export default function Page() {
         position: "top-right",
       });
     } finally {
-      setActionLoading(false);
+      if (isMountedRef.current) {
+        setActionLoading(false);
+      }
     }
   }, [activeRecord?.id, adminId, closeModal, fetchEntries, form, formMode]);
 
@@ -771,9 +618,11 @@ export default function Page() {
         position: "top-right",
       });
 
-      setSelectedRowKeys([]);
-      closeModal();
-      fetchEntries();
+      if (isMountedRef.current) {
+        setSelectedRowKeys([]);
+        closeModal();
+        fetchEntries();
+      }
     } catch (error: any) {
       console.error("handleBulkDelete", error);
       toast.error("ลบรายการล้มเหลว", {
@@ -782,7 +631,9 @@ export default function Page() {
         position: "top-right",
       });
     } finally {
-      setActionLoading(false);
+      if (isMountedRef.current) {
+        setActionLoading(false);
+      }
     }
   }, [adminId, closeModal, fetchEntries, selectedRowKeys]);
 
@@ -870,11 +721,6 @@ export default function Page() {
     () => buildWeeklySummary(dailySummary),
     [dailySummary]
   );
-  const rankProfile = useMemo(
-    () => deriveRankProfile(weeklySummary),
-    [weeklySummary]
-  );
-
   const weeklyFocusEntries = useMemo(() => {
     const start = dayjs().startOf("week");
     const end = dayjs().endOf("week");
@@ -1002,37 +848,32 @@ export default function Page() {
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          {(rankProfile || topProjectUsage || topFeatureUsage) && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 16,
-                flexWrap: "wrap",
-              }}
-            >
-              {/* การ์ดแสดง Rank ของสัปดาห์นี้ */}
-              {rankProfile && <RankBadge profile={rankProfile} />}
-              {/* การ์ดโปรเจ็คที่ใช้เวลามากที่สุด */}
-              {topProjectUsage && (
-                <MiniUsageCard
-                  title="โปรเจ็คที่ใช้เวลามากที่สุด"
-                  highlight={topProjectUsage.name}
-                  hours={topProjectUsage.hours}
-                  accent="#38bdf8"
-                />
-              )}
-              {/* การ์ดฟีเจอร์ที่ใช้เวลามากที่สุด */}
-              {topFeatureUsage && (
-                <MiniUsageCard
-                  title="ฟีเจอร์ที่ใช้เวลามากที่สุด"
-                  highlight={topFeatureUsage.name}
-                  hours={topFeatureUsage.hours}
-                  accent="#fb7185"
-                />
-              )}
-            </div>
-          )}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 16,
+              flexWrap: "wrap",
+            }}
+          >
+            <MonthlyRankBoard currentAdminId={adminId} variant="wide" />
+            {topProjectUsage && (
+              <MiniUsageCard
+                title="โปรเจ็คที่ใช้เวลามากที่สุด"
+                highlight={topProjectUsage.name}
+                hours={topProjectUsage.hours}
+                accent="#38bdf8"
+              />
+            )}
+            {topFeatureUsage && (
+              <MiniUsageCard
+                title="ฟีเจอร์ที่ใช้เวลามากที่สุด"
+                highlight={topFeatureUsage.name}
+                hours={topFeatureUsage.hours}
+                accent="#fb7185"
+              />
+            )}
+          </div>
           {/* การ์ดสรุปชั่วโมงรายวัน */}
           {weeklySummary.length > 0 && (
             <Card

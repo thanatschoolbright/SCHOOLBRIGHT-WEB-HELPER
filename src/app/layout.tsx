@@ -5,10 +5,10 @@ import ClientProvider from "@components/providers/client-providers";
 import LocaleProvider from "@components/providers/i18n-provider";
 import SchoolReduxProvider from "@components/providers/school-list-provider";
 import AuthenticationReduxProvider from "@components/providers/auth-provider";
-import { Toaster } from "sonner";
 import AntThemeProvider from "@components/layouts/ant-layout";
 import { StorageProvider } from "@components/providers/storage-provider";
 import ChartProvider from "@/components/providers/chartjs-provider";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -39,6 +39,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <Toaster richColors position="top-right" closeButton />
+
         <AntThemeProvider>
           <ClientProvider>
             <LocaleProvider locale="en" />
