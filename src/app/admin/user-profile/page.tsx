@@ -20,6 +20,7 @@ import {
   Spin,
   Select,
   Skeleton,
+  Avatar,
 } from "antd";
 import {
   PlusOutlined,
@@ -296,6 +297,16 @@ export default function Page() {
     await fetchUsers();
   };
 
+  // For color position tags
+  const positionTagColors: Record<string, string> = {
+    ADMIN: "red",
+    Manager: "blue",
+    Developer: "green",
+    QA: "purple",
+    Support: "orange",
+    // fallback handled below
+  };
+
   const columns = [
     {
       title: "ลำดับ",
@@ -309,11 +320,16 @@ export default function Page() {
       dataIndex: "email",
       align: "left" as const,
       sorter: (a: UserProfile, b: UserProfile) =>
-        a.email.localeCompare(b.email),
+        (a.email ?? "").localeCompare(b.email ?? ""),
       render: (_: string, record: UserProfile) => (
-        <Typography.Text>
-          {record.email} ({record.admin_id})
-        </Typography.Text>
+        <Space direction="vertical" size={0}>
+          <Typography.Text strong>
+            <a href={`mailto:${record.email}`}>{record.email}</a>
+          </Typography.Text>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            รหัสพนักงาน: {record.employee_code ? record.employee_code : "-"}
+          </Typography.Text>
+        </Space>
       ),
       filterDropdown: ({
         setSelectedKeys,
@@ -323,7 +339,7 @@ export default function Page() {
       }: any) => (
         <div style={{ padding: 8 }}>
           <Input
-            placeholder="ค้นหา username หรือ user_id"
+            placeholder="ค้นหา username หรือ รหัสพนักงาน"
             value={selectedKeys[0]}
             onChange={(e) =>
               setSelectedKeys(e.target.value ? [e.target.value] : [])
@@ -356,10 +372,12 @@ export default function Page() {
       ),
       onFilter: (value: any, record: UserProfile) => {
         const email = (record.email ?? "").toString().toLowerCase();
-        const adminId = (record.admin_id ?? "").toString().toLowerCase();
+        const employeeCode = (record.employee_code ?? "")
+          .toString()
+          .toLowerCase();
         return (
           email.includes(value.toLowerCase()) ||
-          adminId.includes(value.toLowerCase())
+          employeeCode.includes(value.toLowerCase())
         );
       },
       filterIcon: (filtered: boolean) => (
@@ -370,10 +388,31 @@ export default function Page() {
       title: "ชื่อ-นามสกุล",
       dataIndex: "fullname",
       align: "left" as const,
+      sorter: (a: UserProfile, b: UserProfile) => {
+        const aName = `${a.firstname ?? ""} ${a.lastname ?? ""}`
+          .trim()
+          .toLowerCase();
+        const bName = `${b.firstname ?? ""} ${b.lastname ?? ""}`
+          .trim()
+          .toLowerCase();
+        return aName.localeCompare(bName);
+      },
       render: (_: string, record: UserProfile) => (
-        <Typography.Text>
-          {record?.firstname} {record?.lastname}
-        </Typography.Text>
+        <Space>
+          <Avatar
+            style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }}
+            size="small"
+          >
+            {(
+              (record.firstname ?? "").charAt(0) ||
+              (record.lastname ?? "").charAt(0) ||
+              "U"
+            ).toUpperCase()}
+          </Avatar>
+          <Typography.Text strong>
+            {record?.firstname} {record?.lastname}
+          </Typography.Text>
+        </Space>
       ),
       filterDropdown: ({
         setSelectedKeys,
@@ -426,10 +465,58 @@ export default function Page() {
     },
     {
       title: "ชื่อเล่น",
-      dataIndex: "description",
+      dataIndex: "nickname",
       align: "left" as const,
+      sorter: (a: UserProfile, b: UserProfile) =>
+        (a?.nickname ?? "").localeCompare(b?.nickname ?? ""),
       render: (_: string, record: any) => (
         <Typography.Text>{record?.nickname ?? "-"}</Typography.Text>
+      ),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: any) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="ค้นหาชื่อเล่น"
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+            autoFocus
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              size="small"
+              style={{ width: 90 }}
+            >
+              ค้นหา
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters && clearFilters();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              รีเซ็ต
+            </Button>
+          </Space>
+        </div>
+      ),
+      onFilter: (value: any, record: UserProfile) => {
+        const nickname = (record.nickname ?? "").toLowerCase();
+        return nickname.includes(value.toLowerCase());
+      },
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
       ),
     },
     {
@@ -438,8 +525,61 @@ export default function Page() {
       align: "left" as const,
       sorter: (a: UserProfile, b: UserProfile) =>
         (a?.position ?? "").localeCompare(b?.position ?? ""),
-      render: (_: string, record: any) => (
-        <Typography.Text>{record?.position ?? "-"}</Typography.Text>
+      render: (_: string, record: any) => {
+        const pos = record?.position ?? "-";
+        const color =
+          positionTagColors[pos] || (pos === "-" ? "default" : "geekblue");
+        return (
+          <Tag color={color} style={{ fontWeight: 500 }}>
+            {pos}
+          </Tag>
+        );
+      },
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: any) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="ค้นหาตำแหน่ง"
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+            autoFocus
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              size="small"
+              style={{ width: 90 }}
+            >
+              ค้นหา
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters && clearFilters();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              รีเซ็ต
+            </Button>
+          </Space>
+        </div>
+      ),
+      onFilter: (value: any, record: UserProfile) => {
+        const position = (record.position ?? "").toLowerCase();
+        return position.includes(value.toLowerCase());
+      },
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
       ),
     },
     {
@@ -448,8 +588,59 @@ export default function Page() {
       align: "left" as const,
       sorter: (a: UserProfile, b: UserProfile) =>
         (a?.tel ?? "").localeCompare(b?.tel ?? ""),
-      render: (_: string, record: any) => (
-        <Typography.Text>{record?.tel ?? "-"}</Typography.Text>
+      render: (_: string, record: any) =>
+        record?.tel ? (
+          <Typography.Text strong>
+            <a href={`tel:${record.tel}`}>{record.tel}</a>
+          </Typography.Text>
+        ) : (
+          <Typography.Text>-</Typography.Text>
+        ),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: any) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="ค้นหาเบอร์มือถือ"
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+            autoFocus
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              size="small"
+              style={{ width: 90 }}
+            >
+              ค้นหา
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters && clearFilters();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              รีเซ็ต
+            </Button>
+          </Space>
+        </div>
+      ),
+      onFilter: (value: any, record: UserProfile) => {
+        const tel = (record.tel ?? "").toLowerCase();
+        return tel.includes(value.toLowerCase());
+      },
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
       ),
     },
     {
@@ -505,6 +696,7 @@ export default function Page() {
               <Skeleton active paragraph={{ rows: 6 }} />
             ) : (
               <Table
+                bordered
                 columns={columns}
                 dataSource={users}
                 rowKey={(record) => `user-${record.admin_id}`} // ถ้ามี id ทุก record
@@ -512,11 +704,14 @@ export default function Page() {
                   pageSize,
                   showSizeChanger: true,
                   pageSizeOptions: ["10", "30", "50"],
+                  showQuickJumper: true,
                   onShowSizeChange: (_current, size) => setPageSize(size),
                 }}
                 locale={{
                   emptyText: "ไม่พบข้อมูลผู้ใช้งาน",
                 }}
+                scroll={{ x: "max-content" }}
+                rowClassName={() => "ant-table-row-hover"}
               />
             )}
           </Card>
