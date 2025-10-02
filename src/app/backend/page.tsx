@@ -1,77 +1,42 @@
 "use client";
+//** หน้า Dashboard (Release Notes) โทน Minimal ใช้ Ant Design ทั้งหมด และโครงสร้างโค้ดที่อ่านง่าย
 import React from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
-import { useTranslation } from "react-i18next";
+import { Card, Space, Typography } from "antd";
+import ReleaseNoteGroupCard from "@components/release-note/release-note-group-card";
+import type { ReleaseNoteGroup } from "@components/release-note/types";
 
+//** คอมโพเนนต์หลักของหน้า: แสดงหัวเรื่อง + กลุ่มการ์ด Release Notes
 export default function DashboardPage() {
-  const { t } = useTranslation("mock");
-
   return (
     <DashboardLayout>
-      <div className="grid grid-cols-1  gap-6 mt-6 w-full">
-        <ContentCard title="Release Note" fullWidth className=" w-full">
-          <div className="p-4">
-            <div className="space-y-6">
-              {releaseNotes
-                .slice()
-                .sort((a, b) => b.date.localeCompare(a.date))
-                .map((group, groupIdx) => (
-                  <ContentCard
-                    key={group.date}
-                    title={group.date}
-                    className="w-full"
-                    fullWidth={false}
-                  >
-                    <ul className="space-y-3">
-                      {group.release_note
-                        .sort((a, b) => {
-                          const order = { add: 0, update: 1, remove: 2 };
-                          return (
-                            order[a.type as keyof typeof order] -
-                            order[b.type as keyof typeof order]
-                          );
-                        })
-                        .map((note, idx) => (
-                          <li
-                            key={idx}
-                            className={`flex items-start gap-2 rounded px-3 py-2 border border-gray-200 shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md hover:-translate-y-1 ${
-                              note.type === "add"
-                                ? "bg-green-50"
-                                : note.type === "remove"
-                                ? "bg-red-50"
-                                : "bg-yellow-50"
-                            }`}
-                          >
-                            <span className="text-xl" aria-label={note.type}>
-                              {note.emoji}
-                            </span>
-                            <span
-                              className={`font-medium ${
-                                note.type === "add"
-                                  ? "text-green-700"
-                                  : note.type === "remove"
-                                  ? "text-red-700"
-                                  : "text-yellow-700"
-                              }`}
-                            >
-                              {note.message}
-                            </span>
-                          </li>
-                        ))}
-                    </ul>
-                  </ContentCard>
-                ))}
-            </div>
-          </div>
-        </ContentCard>
-      </div>
+      <Space direction="vertical" size={16} style={{ width: "100%", marginTop: 16 }}>
+        {/* 1) หัวเรื่องหน้า */}
+        <Card size="small">
+          <Space direction="vertical" size={4}>
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              Release Notes
+            </Typography.Title>
+            <Typography.Text type="secondary">
+              บันทึกความเปลี่ยนแปลงล่าสุดของระบบ (Minimal • Ant Design)
+            </Typography.Text>
+          </Space>
+        </Card>
+
+        {/* 2) กลุ่มการ์ด Release Notes */}
+        <Space direction="vertical" size={12} style={{ width: "100%" }}>
+          {releaseNotes.map((group) => (
+            <ReleaseNoteGroupCard key={group.date} group={group} />
+          ))}
+        </Space>
+      </Space>
     </DashboardLayout>
   );
 }
 
 // Release notes grouped by date
-const releaseNotes = [
+//** ข้อมูล Release Notes (ตัวอย่าง) — จัดกลุ่มตามวันที่
+const releaseNotes: ReleaseNoteGroup[] = [
   {
     date: "2024-08-29",
     release_note: [

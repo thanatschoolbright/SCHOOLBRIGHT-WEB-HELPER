@@ -171,7 +171,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
         children: [
           {
             label: t("backlogs.children.report"),
-            href: "/backlogs/proreportect",
+            href: "/backlogs/report",
             news: true,
             children: [],
           },
