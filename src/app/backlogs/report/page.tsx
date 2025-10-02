@@ -11,12 +11,11 @@ import {
   Table,
   Tag,
   Skeleton,
-  theme,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { toast } from "sonner";
-import IssueDrawer from "@components/backlog/issue-drawer";
+import { useRouter } from "next/navigation";
 
 type Project = {
   id: number;
@@ -26,16 +25,10 @@ type Project = {
 };
 
 export default function Page() {
-  const { token } = theme.useToken();
+  const router = useRouter();
   const [space, setSpace] = useState("jabjai");
-  const [connecting, setConnecting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [openIssue, setOpenIssue] = useState(false);
-  const [activeProject, setActiveProject] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
 
   //** โหมด API Key: ไม่ต้อง OAuth — กด Connect = โหลด Projects ทันที
   const startAuthorize = () => fetchProjects();
@@ -115,7 +108,7 @@ export default function Page() {
               <Button
                 type="primary"
                 onClick={startAuthorize}
-                loading={connecting}
+                loading={loading}
               >
                 Load Projects
               </Button>
@@ -142,22 +135,16 @@ export default function Page() {
               pagination={{ pageSize: 10, showSizeChanger: true }}
               onRow={(record) => ({
                 onClick: () => {
-                  setActiveProject({ id: record.id, name: record.name });
-                  setOpenIssue(true);
+                  router.push(
+                    `/backlogs/projects/${record.id}/issues?space=${encodeURIComponent(space)}&name=${encodeURIComponent(
+                      record.name
+                    )}`
+                  );
                 },
               })}
             />
           )}
         </Card>
-
-        {/* Drawer แสดง Issues ของโปรเจ็กต์ */}
-        <IssueDrawer
-          open={openIssue}
-          onClose={() => setOpenIssue(false)}
-          space={space}
-          projectId={activeProject?.id ?? null}
-          projectName={activeProject?.name}
-        />
       </Space>
     </DashboardLayout>
   );

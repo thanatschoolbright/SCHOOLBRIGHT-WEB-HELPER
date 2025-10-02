@@ -38,6 +38,7 @@ export type BulkUpdatePanelProps = {
   selectedCount: number;
   statusOptions: OptionItem[];
   submitDisabled: boolean;
+  showAutoCategoryToggle?: boolean;
 };
 
 //** กล่องควบคุมการอัปเดตแบบกลุ่ม (เลือก Status, Priority, Milestone, Category ฯลฯ)
@@ -67,6 +68,7 @@ export default function BulkUpdatePanel({
   selectedCount,
   statusOptions,
   submitDisabled,
+  showAutoCategoryToggle = true,
 }: BulkUpdatePanelProps) {
   return (
     <Card
@@ -82,17 +84,17 @@ export default function BulkUpdatePanel({
         borderRadius: 16,
         boxShadow: "0 12px 28px rgba(15, 23, 42, 0.06)",
       }}
-      title={<Typography.Text strong>Bulk Update</Typography.Text>}
+      title={<Typography.Text strong>อัปเดตแบบกลุ่ม</Typography.Text>}
     >
       <Space align="center" size={8} wrap>
         <Typography.Text type="secondary">
-          เลือก Issue ด้วย Checkbox เพื่ออัปเดตแบบกลุ่ม ({selectedCount})
+          เลือกงานด้วย Checkbox เพื่ออัปเดตแบบกลุ่ม ({selectedCount})
         </Typography.Text>
 
         <Select
           allowClear
           options={statusOptions}
-          placeholder="Status ใหม่"
+          placeholder="สถานะใหม่"
           style={{ minWidth: 200 }}
           value={bulkStatusId}
           onChange={(value) => onStatusChange(value as number | undefined)}
@@ -101,7 +103,7 @@ export default function BulkUpdatePanel({
         <Select
           allowClear
           options={priorityOptions}
-          placeholder="Priority ใหม่"
+          placeholder="ระดับความสำคัญใหม่"
           style={{ minWidth: 200 }}
           value={bulkPriorityId}
           onChange={(value) => onPriorityChange(value as number | undefined)}
@@ -112,7 +114,7 @@ export default function BulkUpdatePanel({
             allowClear
             mode="multiple"
             options={milestoneOptions}
-            placeholder="Milestone ใหม่"
+            placeholder="ไมล์สโตนใหม่"
             style={{ minWidth: 220 }}
             value={bulkMilestoneIds === undefined ? undefined : bulkMilestoneIds}
             onChange={(values) =>
@@ -123,21 +125,23 @@ export default function BulkUpdatePanel({
               )
             }
           />
-          <Button onClick={onManageMilestone}>[จัดการ Milestone]</Button>
+          <Button onClick={onManageMilestone}>จัดการไมล์สโตน</Button>
         </Space>
 
-        <AutoCategoryToggle
-          disabled={autoCategoryLoading || bulkUpdating || !categoryOptions.length}
-          enabled={autoCategoryEnabled}
-          onChange={(checked) => onAutoCategoryChange(checked)}
-        />
+        {showAutoCategoryToggle ? (
+          <AutoCategoryToggle
+            disabled={autoCategoryLoading || bulkUpdating || !categoryOptions.length}
+            enabled={autoCategoryEnabled}
+            onChange={(checked) => onAutoCategoryChange(checked)}
+          />
+        ) : null}
 
         <Select
           allowClear
           disabled={autoCategoryEnabled}
           mode="multiple"
           options={categoryOptions}
-          placeholder="Category ใหม่"
+          placeholder="หมวดหมู่ใหม่"
           style={{ minWidth: 220 }}
           value={bulkCategoryIds === undefined ? undefined : bulkCategoryIds}
           onChange={(values) =>
@@ -151,7 +155,7 @@ export default function BulkUpdatePanel({
 
         <DatePicker
           allowClear
-          placeholder="Start Date"
+          placeholder="วันที่เริ่มต้น"
           style={{ minWidth: 160 }}
           value={bulkStartDate === undefined ? null : bulkStartDate}
           onChange={(value) => onStartDateChange(value ?? null)}
@@ -159,7 +163,7 @@ export default function BulkUpdatePanel({
 
         <DatePicker
           allowClear
-          placeholder="Due Date"
+          placeholder="วันที่ครบกำหนด"
           style={{ minWidth: 160 }}
           value={bulkDueDate === undefined ? null : bulkDueDate}
           onChange={(value) => onDueDateChange(value ?? null)}
@@ -172,10 +176,10 @@ export default function BulkUpdatePanel({
             disabled={submitDisabled || (autoCategoryEnabled && !categoryOptions.length)}
             onClick={onSubmit}
           >
-            Bulk Update
+            อัปเดตแบบกลุ่ม
           </Button>
           <Button disabled={bulkUpdating} onClick={onClear}>
-            Clear
+            ล้างค่า
           </Button>
         </Space>
       </Space>

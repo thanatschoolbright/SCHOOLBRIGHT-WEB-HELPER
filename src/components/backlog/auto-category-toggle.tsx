@@ -13,18 +13,18 @@ export type AutoCategoryToggleProps = {
 function AutoCategoryToggleComponent({ disabled, enabled, onChange }: AutoCategoryToggleProps) {
   return (
     <Space direction="vertical" size={4} style={{ minWidth: 220 }}>
-      <Typography.Text strong>สรุป Category ด้วย Gemini</Typography.Text>
+      <Typography.Text strong>สรุปหมวดหมู่ด้วย Gemini</Typography.Text>
       <Space align="center" size={12}>
         <Switch
           checked={enabled}
           disabled={disabled}
           onChange={onChange}
-          checkedChildren="ON"
-          unCheckedChildren="OFF"
+          checkedChildren="เปิด"
+          unCheckedChildren="ปิด"
           style={{ backgroundColor: enabled ? "#0c7ff2" : undefined }}
         />
         <Typography.Text type="secondary">
-          เมื่อเปิด ระบบจะเลือก Category ที่เหมาะสมอัตโนมัติ
+          เมื่อเปิด ระบบจะเลือกหมวดหมู่ที่เหมาะสมอัตโนมัติ
         </Typography.Text>
       </Space>
     </Space>

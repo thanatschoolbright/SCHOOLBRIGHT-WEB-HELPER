@@ -8,10 +8,15 @@ const DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;
 async function callWithDomains<T>(
   space: string,
   path: string,
-  params: Record<string, any>
+  params: Record<string, any>,
+  preferredDomain?: string
 ) {
   let lastError: any;
-  for (const domain of DOMAINS) {
+  const domainsToTry = preferredDomain
+    ? [preferredDomain, ...DOMAINS.filter((entry) => entry !== preferredDomain)]
+    : [...DOMAINS];
+
+  for (const domain of domainsToTry) {
     try {
       const url = `https://${space}.${domain}${path}`;
       const resp = await axios.get<T>(url, { params });
@@ -43,9 +48,9 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const space = searchParams.get("space");
     const projectId = searchParams.get("projectId");
-    const count = Number(searchParams.get("count") || 20);
+    const requestedCount = Math.max(1, Math.min(Number(searchParams.get("count") || 20), 500));
     const page = Number(searchParams.get("page") || 1);
-    const offset = Number(searchParams.get("offset") || (page - 1) * count);
+    const offset = Math.max(0, Number(searchParams.get("offset") || (page - 1) * requestedCount));
 
     if (!space || !projectId) {
       return NextResponse.json(
@@ -59,9 +64,9 @@ export async function GET(req: NextRequest) {
     }
 
     // Build params for Backlog API — note: array params must use [] suffix.
-    const params: Record<string, any> = { apiKey, count, offset };
+    const filterParams: Record<string, any> = { apiKey };
     // Project filter (Backlog expects projectId[])
-    if (projectId) params["projectId[]"] = [Number(projectId)];
+    if (projectId) filterParams["projectId[]"] = [Number(projectId)];
 
     // Single-value filters
     const singleKeys = [
@@ -75,12 +80,13 @@ export async function GET(req: NextRequest) {
     ];
     for (const key of singleKeys) {
       const v = searchParams.get(key);
-      if (v !== null) params[key] = v;
+      if (v !== null) filterParams[key] = v;
     }
 
     // Multi-value filters map (client sends keys without [], server converts)
     // รองรับทั้ง key ปกติ และรูปแบบ [] จาก client/axios
     const baseKeys = [
+      "issueKey",
       "statusId",
       "priorityId",
       "issueTypeId",
@@ -95,29 +101,47 @@ export async function GET(req: NextRequest) {
       const bracket = searchParams.getAll(`${base}[]`);
       const merged = [...normal, ...bracket];
       if (merged.length) {
-        params[`${base}[]`] = merged.map((x) =>
+        filterParams[`${base}[]`] = merged.map((x) =>
           Number.isNaN(Number(x)) ? x : Number(x)
         );
       }
     }
 
-    // Fetch issues list
-    const { data: items } = await callWithDomains<any[]>(
-      space,
-      "/api/v2/issues",
-      params
-    );
+    const MAX_BACKLOG_COUNT = 100;
+    let issues: any[] = [];
+    let preferredDomain: string | undefined;
+    let fetched = 0;
+
+    while (fetched < requestedCount) {
+      const batchCount = Math.min(MAX_BACKLOG_COUNT, requestedCount - fetched);
+      const batchParams = {
+        ...filterParams,
+        count: batchCount,
+        offset: offset + fetched,
+      };
+      const { data: batchItems, domain } = await callWithDomains<any[]>(
+        space,
+        "/api/v2/issues",
+        batchParams,
+        preferredDomain
+      );
+      preferredDomain = domain;
+      issues = issues.concat(batchItems);
+      fetched += batchCount;
+      if (batchItems.length < batchCount) break;
+    }
 
     // Fetch total count with same filters
     const { data: countObj } = await callWithDomains<{ count: number }>(
       space,
       "/api/v2/issues/count",
-      { ...params }
+      { ...filterParams },
+      preferredDomain
     );
 
     return NextResponse.json(
       successResponse({
-        data: { items, total: countObj?.count ?? 0 },
+        data: { items: issues, total: countObj?.count ?? 0 },
         message_en: "Fetch Backlog issues successfully",
         message_th: "ดึงข้อมูล Issue สำเร็จ",
       })
