@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@stores/store";
 import {
   Avatar,
@@ -46,6 +45,7 @@ import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 import type { Project, SubProject } from "@stores/type";
 import { CreateModalForm } from "./create";
 import { MonthlyRankBoard } from "./monthly-rank-board";
+import i18next from "i18next";
 
 dayjs.extend(isBetween);
 
@@ -213,7 +213,7 @@ const MiniUsageCard: React.FC<{
         borderRadius: 12,
         borderColor: token.colorBorderSecondary,
         background: token.colorBgContainer,
-        boxShadow: 'none',
+        boxShadow: "none",
         borderLeft: `4px solid ${accent}`,
       }}
       styles={{
@@ -317,7 +317,7 @@ const statusColorMap: Record<string, string> = {
 };
 
 export default function Page() {
-  const { i18n } = useTranslation("mock");
+  const i18n = i18next;
   const [form] = Form.useForm();
   const { token } = theme.useToken();
   const isMountedRef = useRef(true);
@@ -823,13 +823,7 @@ export default function Page() {
         ),
       },
     ],
-    [
-      getColumnSearchProps,
-      i18n.language,
-      openCopyForm,
-      openDetailModal,
-      openEditForm,
-    ]
+    [getColumnSearchProps, openCopyForm, openDetailModal, openEditForm]
   );
 
   const rowSelection: TableProps<TimesheetEntry>["rowSelection"] = {

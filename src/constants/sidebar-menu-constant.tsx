@@ -165,6 +165,18 @@ export const useSidebarMenu = (): SidebarItem[] => {
           },
         ],
       },
+      {
+        label: t("backlogs.title"),
+        icon: <FiFolder />, // ใช้ Folder แทนเพื่อสื่อถึงโปรเจกต์
+        children: [
+          {
+            label: t("backlogs.children.report"),
+            href: "/backlogs/proreportect",
+            news: true,
+            children: [],
+          },
+        ],
+      },
       // ... เหมือนเดิม
     ],
     [t]

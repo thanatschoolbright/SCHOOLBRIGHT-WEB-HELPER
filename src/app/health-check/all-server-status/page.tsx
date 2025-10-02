@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { FiRefreshCw } from "react-icons/fi";
@@ -12,7 +11,6 @@ import { Table, Card, Button, Modal, Skeleton, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 const Page = () => {
-  const { t } = useTranslation("mock");
   const dispatch = useDispatch<AppDispatch>();
   const GET_SERVER_STATUS_STATE_V2 = useAppSelector(
     (state) => state.callGetServerStatusV2
@@ -196,7 +194,7 @@ const Page = () => {
           </Button>,
         ]}
         width={800}
-        destroyOnClose
+        destroyOnHidden
       >
         <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded text-sm">
           {selectedRow ? JSON.stringify(selectedRow, null, 2) : ""}

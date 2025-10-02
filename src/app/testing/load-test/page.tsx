@@ -1,10 +1,27 @@
 "use client";
-import { FiArrowUp, FiArrowDown, FiPlay } from "react-icons/fi";
-import DashboardLayout from "@/components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
 import { useState, useEffect, useRef } from "react";
-import { SearchableSelectComponent } from "@components/input-field/searchable-select-component";
-import SummaryCard from "@components/card/summary-card";
+import DashboardLayout from "@/components/layouts/backend-layout";
+import {
+  Card,
+  Row,
+  Col,
+  Select,
+  Button,
+  Typography,
+  Space,
+  Statistic,
+  Table,
+  FloatButton,
+  Divider,
+  Skeleton,
+  theme,
+  Tag,
+} from "antd";
+import {
+  PlayCircleOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+} from "@ant-design/icons";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -25,7 +42,7 @@ ChartJS.register(
   Legend
 );
 
-// SummaryChart component
+//** SummaryChart: แผนภูมิแท่งสรุปผล (Minimal + ใช้โทนสีจาก Ant Design Token)
 const SummaryChart = ({
   stats,
   isLoading,
@@ -34,21 +51,15 @@ const SummaryChart = ({
   isLoading?: boolean;
 }) => {
   const chartRef = useRef<any>(null);
-  const total = parseInt(
-    stats["checks_total......................."]?.split(" ")[0] || "0"
-  );
-  const success = parseInt(
-    stats["checks_succeeded..................."]?.match(/(\d+)\s+out/)?.[1] ||
-      "0"
-  );
-  const failed = total - success;
+  const { token } = theme.useToken();
+  const { total, success, failed } = getCheckCounts(stats);
 
   // Chart.js v3+ supports context-based backgroundColor for gradients
   const data = {
     labels: ["ผลการทดสอบ"],
     datasets: [
       {
-        label: "✅ สำเร็จ",
+        label: "Success",
         data: [success],
         backgroundColor: (context: any) => {
           const chart = context.chart;
@@ -60,14 +71,14 @@ const SummaryChart = ({
             0,
             chartArea.top
           );
-          gradient.addColorStop(0, "#10b981"); // emerald-500
-          gradient.addColorStop(1, "#6ee7b7"); // emerald-300
+          gradient.addColorStop(0, token.colorSuccess);
+          gradient.addColorStop(1, `${token.colorSuccess}66`);
           return gradient;
         },
         borderRadius: 12,
       },
       {
-        label: "❌ ไม่สำเร็จ",
+        label: "Failed",
         data: [failed],
         backgroundColor: (context: any) => {
           const chart = context.chart;
@@ -79,8 +90,8 @@ const SummaryChart = ({
             0,
             chartArea.top
           );
-          gradient.addColorStop(0, "#f87171"); // red-400
-          gradient.addColorStop(1, "#fecaca"); // red-200
+          gradient.addColorStop(0, token.colorError);
+          gradient.addColorStop(1, `${token.colorError}66`);
           return gradient;
         },
         borderRadius: 12,
@@ -94,7 +105,7 @@ const SummaryChart = ({
       legend: {
         position: "top" as const,
         labels: {
-          color: "#000000", // เปลี่ยนจาก gray-200 เป็นสีดำ
+          color: token.colorText,
           font: {
             size: 14,
           },
@@ -104,24 +115,23 @@ const SummaryChart = ({
         display: false,
       },
       tooltip: {
-        backgroundColor: "#ffffff",
-        titleColor: "#000000", // สีข้อความใน tooltip
-        bodyColor: "#000000",
-        // ...
+        backgroundColor: token.colorBgElevated,
+        titleColor: token.colorText,
+        bodyColor: token.colorText,
       },
     },
     scales: {
       x: {
         grid: { display: false },
         ticks: {
-          color: "#000000", // สีแกน X
+          color: token.colorTextSecondary,
         },
       },
       y: {
         grid: { display: false },
         beginAtZero: true,
         ticks: {
-          color: "#000000", // สีแกน Y
+          color: token.colorTextSecondary,
         },
       },
     },
@@ -129,24 +139,20 @@ const SummaryChart = ({
 
   // To ensure gradient is recalculated on resize, force update
   // (Chart.js 3+ handles context-based gradient correctly)
-  return (
-    <div className="my-6">
-      {isLoading ? (
-        <div className="h-[300px] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-emerald-500"></div>
-        </div>
-      ) : (
-        <Bar ref={chartRef} data={data} options={options} />
-      )}
-    </div>
+  return isLoading ? (
+    <Skeleton active paragraph={{ rows: 6 }} />
+  ) : (
+    <Bar ref={chartRef} data={data} options={options} />
   );
 };
 
+//** ประเภท Metric: โครงสร้างข้อมูล key/value จาก log
 type Metric = {
   key: string;
   value: string;
 };
 
+//** parseMetrics: แปลงข้อความผลลัพธ์เป็นรายการ Metric
 const parseMetrics = (text: string): Metric[] => {
   const lines = text.split("\n");
   const keyValueRegex = /^\s*([^\s.]+.*?):\s+(.*)$/;
@@ -159,20 +165,22 @@ const parseMetrics = (text: string): Metric[] => {
     .filter((item): item is Metric => Boolean(item));
 };
 
+//** parseTestStats: สกัดค่าสรุปเป็น Dictionary (สำหรับใช้งานต่อ)
 const parseTestStats = (text: string): Record<string, any> => {
   const result: Record<string, any> = {};
   const lines = text.split("\n");
   lines.forEach((line) => {
-    const match = line.match(/^([\w_.\s✓✅]+):\s+(.+)$/);
-    if (match) {
-      const key = match[1].trim();
-      const value = match[2].trim();
-      result[key] = value;
+    const idx = line.indexOf(":");
+    if (idx > -1) {
+      const key = line.slice(0, idx).trim();
+      const value = line.slice(idx + 1).trim();
+      if (key) result[key] = value;
     }
   });
   return result;
 };
 
+//** extractJsonAndFormat: ค้นหา JSON ภายในบรรทัดและจัดรูปแบบให้อ่านง่าย
 const extractJsonAndFormat = (line: string): string | null => {
   const jsonStartIndex = line.indexOf("{");
   const jsonEndIndex = line.lastIndexOf("}") + 1;
@@ -189,6 +197,7 @@ const extractJsonAndFormat = (line: string): string | null => {
   }
 };
 
+//** renderFormattedMetricValue: แสดงค่า Metric (รองรับย่อ/ขยาย)
 const renderFormattedMetricValue = (
   value: string,
   idx: number,
@@ -241,28 +250,22 @@ const renderFormattedMetricValue = (
   );
 };
 
+//** ScrollToButtons: ปุ่ม BackTop และเลื่อนไปล่างสุด
 const ScrollToButtons = () => (
-  <div className="fixed right-4 bottom-4 md:bottom-8 md:right-8 z-[9999] flex flex-col items-center gap-2">
-    <button
-      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full shadow-md backdrop-blur"
-      title="ไปบนสุด"
-    >
-      <FiArrowUp size={20} />
-    </button>
-    <button
+  <>
+    <FloatButton.BackTop icon={<ArrowUpOutlined />} />
+    <FloatButton
+      icon={<ArrowDownOutlined />}
+      style={{ right: 24, bottom: 88 }}
       onClick={() =>
         window.scrollTo({
           top: document.documentElement.scrollHeight,
           behavior: "smooth",
         })
       }
-      className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full shadow-md backdrop-blur"
-      title="ไปล่างสุด"
-    >
-      <FiArrowDown size={20} />
-    </button>
-  </div>
+      tooltip="Scroll to bottom"
+    />
+  </>
 );
 
 type LogViewerProps = {
@@ -274,6 +277,7 @@ type LogViewerProps = {
   maxLength?: number;
 };
 
+//** LogViewer: แสดง Log แบบเรียลไทม์พร้อมปุ่ม See more/less
 const LogViewer = ({
   output,
   expandedLines,
@@ -289,56 +293,69 @@ const LogViewer = ({
   }, [output]);
 
   return (
-    <div className="mt-6">
-      <h2 className="text-lg font-bold text-dark dark:text-white mb-2">
+    <div style={{ marginTop: 16 }}>
+      <Typography.Title level={5} style={{ marginBottom: 8 }}>
         📜 Real-time Logs
-      </h2>
-      <pre className="bg-black text-sm text-white p-4 rounded max-h-[400px] overflow-y-auto whitespace-pre-wrap border border-gray-700">
-        <div>
-          {output.split("\n").map((line, idx) => {
-            const colorClass =
-              line.includes("❌") || line.toLowerCase().includes("error")
-                ? "text-red-400"
-                : line.includes("✅") || line.toLowerCase().includes("success")
-                ? "text-green-400"
-                : line.includes("⚠️") || line.toLowerCase().includes("warn")
-                ? "text-yellow-300"
-                : "text-gray-200";
+      </Typography.Title>
+      <Card
+        size="small"
+        bodyStyle={{ padding: 12 }}
+        style={{ maxHeight: 420, overflow: "auto" }}
+      >
+        {output.split("\n").map((line, idx) => {
+          const colorClass =
+            line.includes("❌") || line.toLowerCase().includes("error")
+              ? "text-red-400"
+              : line.includes("✅") || line.toLowerCase().includes("success")
+              ? "text-green-400"
+              : line.includes("⚠️") || line.toLowerCase().includes("warn")
+              ? "text-yellow-300"
+              : "text-gray-200";
 
-            const formattedJson = extractJsonAndFormat(line);
-            const isExpanded = expandedLines[idx] || false;
+          const formattedJson = extractJsonAndFormat(line);
+          const isExpanded = expandedLines[idx] || false;
 
-            const displayedLine =
-              formattedJson && !isExpanded && formattedJson.length > maxLength
-                ? formattedJson.slice(0, maxLength) + "..."
-                : formattedJson || line;
+          const displayedLine =
+            formattedJson && !isExpanded && formattedJson.length > maxLength
+              ? formattedJson.slice(0, maxLength) + "..."
+              : formattedJson || line;
 
-            return (
-              <div key={idx} className={colorClass}>
-                <div className="flex flex-col">
-                  <pre className="font-mono bg-black text-sm text-white p-4 rounded ...">
-                    {displayedLine}
-                  </pre>
-                  {formattedJson && formattedJson.length > maxLength && (
-                    <button
-                      className="text-blue-400 text-xs underline w-fit mt-1"
-                      onClick={() =>
-                        setExpandedLines((prev) => ({
-                          ...prev,
-                          [idx]: !isExpanded,
-                        }))
-                      }
-                    >
-                      {isExpanded ? "🔽 See less" : "🔼 See more"}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-          <div ref={bottomRef} />
-        </div>
-      </pre>
+          return (
+            <div key={idx} style={{ marginBottom: 8 }}>
+              <pre
+                style={{
+                  background: "#000",
+                  color: "#fff",
+                  padding: 8,
+                  borderRadius: 8,
+                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                  whiteSpace: "pre-wrap",
+                  margin: 0,
+                }}
+                className={colorClass}
+              >
+                {displayedLine}
+              </pre>
+              {formattedJson && formattedJson.length > maxLength && (
+                <Button
+                  type="link"
+                  size="small"
+                  onClick={() =>
+                    setExpandedLines((prev) => ({
+                      ...prev,
+                      [idx]: !isExpanded,
+                    }))
+                  }
+                  style={{ paddingInline: 0 }}
+                >
+                  {isExpanded ? "See less" : "See more"}
+                </Button>
+              )}
+            </div>
+          );
+        })}
+        <div ref={bottomRef} />
+      </Card>
     </div>
   );
 };
@@ -351,6 +368,7 @@ type MetricsTableProps = {
   >;
 };
 
+//** MetricsTable: สรุป Metrics ด้วยตาราง AntD
 const MetricsTable = ({
   metrics,
   expandedLines,
@@ -362,54 +380,51 @@ const MetricsTable = ({
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  const columns = [
+    {
+      title: "📊 Metric",
+      dataIndex: "key",
+      key: "key",
+      width: 320,
+      render: (text: string) => (
+        <Typography.Text strong>{text}</Typography.Text>
+      ),
+    },
+    {
+      title: "🧮 Value",
+      dataIndex: "value",
+      key: "value",
+      render: (_: any, record: Metric, idx: number) => (
+        <div>
+          {renderFormattedMetricValue(
+            record.value,
+            idx,
+            expandedLines,
+            setExpandedLines
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <section className="mt-6" ref={scrollRef}>
-      <div className="overflow-x-auto rounded shadow-lg border border-gray-700 max-h-[400px] overflow-y-auto">
-        <h2 className="text-lg font-bold text-dark dark:text-white mb-2 mt-0 px-6 pt-6">
-          📈 สรุปผลการทดสอบ (Metrics Report)
-        </h2>
-        <table className="min-w-full text-sm text-left text-gray-300 bg-gray-800">
-          <thead className="bg-gray-700 text-white sticky top-0 z-10">
-            <tr>
-              <th scope="col" className="px-6 py-3 font-semibold tracking-wide">
-                📊 Metric
-              </th>
-              <th scope="col" className="px-6 py-3 font-semibold tracking-wide">
-                🧮 Value
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {metrics.map(({ key, value }, idx) => (
-              <tr
-                key={idx}
-                className={
-                  idx % 2 === 0
-                    ? "bg-gray-800 hover:bg-gray-700"
-                    : "bg-gray-900 hover:bg-gray-800"
-                }
-              >
-                <td className="px-6 py-3 whitespace-nowrap font-medium">
-                  {key}
-                </td>
-                <td className="px-6 py-3 whitespace-pre-wrap">
-                  {renderFormattedMetricValue(
-                    value,
-                    idx,
-                    expandedLines,
-                    setExpandedLines
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <section style={{ marginTop: 16 }} ref={scrollRef}>
+      <Card size="small" title="📈 สรุปผลการทดสอบ (Metrics Report)">
+        <Table
+          size="small"
+          pagination={false}
+          rowKey={(r, i) => String(i)}
+          dataSource={metrics}
+          columns={columns as any}
+          scroll={{ y: 360 }}
+        />
+      </Card>
     </section>
   );
 };
 
 // 🔍 แสดง URL ที่กำลังทดสอบอยู่
+//** SelectedTargetSummary: สรุป URL ที่ใช้งานจริง
 const SelectedTargetSummary = ({
   script,
   env,
@@ -427,7 +442,21 @@ const SelectedTargetSummary = ({
   </div>
 );
 
+//** getCheckCounts: คำนวณจำนวน Total/Success/Failed จากสถิติ
+const getCheckCounts = (stats: Record<string, any>) => {
+  const total = parseInt(
+    stats["checks_total......................."]?.split(" ")[0] || "0"
+  );
+  const success = parseInt(
+    stats["checks_succeeded..................."]?.match(/(\d+)\s+out/)?.[1] ||
+      "0"
+  );
+  const failed = Math.max(0, total - success);
+  return { total, success, failed };
+};
+
 export default function Page() {
+  //** State หลักของหน้า (Log, ขยายบรรทัด, แสดง Metrics, เลือก Script/Env, โหลด)
   const [output, setOutput] = useState("");
   const [expandedLines, setExpandedLines] = useState<Record<number, boolean>>(
     {}
@@ -439,7 +468,9 @@ export default function Page() {
     "https://apimobile-dev.schoolbright.co"
   );
   const [isLoading, setIsLoading] = useState(false);
+  const { token } = theme.useToken();
 
+  //** runTest: เรียก API /api/v1/load-test และอ่านผลแบบสตรีมทีละ chunk
   const runTest = async () => {
     try {
       setIsLoading(true);
@@ -475,6 +506,7 @@ export default function Page() {
     }
   };
 
+  //** downloadLog: ดาวน์โหลดไฟล์ Log ปัจจุบัน
   const downloadLog = () => {
     const blob = new Blob([output], { type: "text/plain" });
     const link = document.createElement("a");
@@ -489,202 +521,185 @@ export default function Page() {
     <DashboardLayout>
       <ScrollToButtons />
 
-      <ContentCard
-        title="📌 คำสั่งรันทดสอบ (K6 Command)"
-        size="xl"
-        fullWidth
-        className="mb-4"
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center mb-4">
-          <div>
-            <SearchableSelectComponent
-              options={[
-                {
-                  label: "authentication (/api/Login)",
-                  value: "authentication",
-                },
-                { label: "reset-password", value: "reset-password" },
-                { label: "register", value: "register" },
-                { label: "payment", value: "payment" },
-                {
-                  label: "many-api-load (ยิงหลาย API พร้อมกัน)",
-                  value: "many-api-load",
-                },
-              ]}
-              value={selectedScript}
-              onChange={setSelectedScript}
-              label="🔧 เลือก Script:"
-            />
-            <div className="mt-4">
-              <SearchableSelectComponent
-                options={[
-                  {
-                    label: "Development",
-                    value: "https://apimobile-dev.schoolbright.co",
-                  },
-                  {
-                    label: "Production",
-                    value: "https://sbapi.schoolbright.co",
-                  },
-                ]}
-                value={selectedEnv}
-                onChange={setSelectedEnv}
-                label="🌐 เลือก Environment:"
-              />
-            </div>
-          </div>
-          <div className="flex items-end h-full">
-            <button
-              onClick={runTest}
-              disabled={isLoading}
-              className={`w-full sm:w-auto px-6 py-2 text-white text-lg font-semibold rounded-xl border transition-colors duration-200 ${
-                isLoading
-                  ? "bg-gray-700 cursor-not-allowed"
-                  : "bg-gray-900 border-gray-700 hover:border-emerald-400 hover:bg-gray-800"
-              }`}
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                <FiPlay className="text-emerald-400" />
+      <Card title="📌 คำสั่งรันทดสอบ (K6 Command)" style={{ marginBottom: 16 }}>
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} sm={12}>
+            <Space direction="vertical" style={{ width: "100%" }}>
+              <div>
+                <Typography.Text strong>🔧 เลือก Script:</Typography.Text>
+                <Select
+                  showSearch
+                  style={{ width: "100%", marginTop: 6 }}
+                  value={selectedScript}
+                  onChange={setSelectedScript}
+                  options={[
+                    {
+                      label: "authentication (/api/Login)",
+                      value: "authentication",
+                    },
+                    { label: "reset-password", value: "reset-password" },
+                    { label: "register", value: "register" },
+                    { label: "payment", value: "payment" },
+                    {
+                      label: "many-api-load (ยิงหลาย API พร้อมกัน)",
+                      value: "many-api-load",
+                    },
+                  ]}
+                  filterOption={(input, option) =>
+                    (option?.label as string)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                />
+              </div>
+              <div>
+                <Typography.Text strong>🌐 เลือก Environment:</Typography.Text>
+                <Select
+                  showSearch
+                  style={{ width: "100%", marginTop: 6 }}
+                  value={selectedEnv}
+                  onChange={setSelectedEnv}
+                  options={[
+                    {
+                      label: "Development",
+                      value: "https://apimobile-dev.schoolbright.co",
+                    },
+                    {
+                      label: "Production",
+                      value: "https://sbapi.schoolbright.co",
+                    },
+                  ]}
+                  filterOption={(input, option) =>
+                    (option?.label as string)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                />
+              </div>
+            </Space>
+          </Col>
+          <Col
+            xs={24}
+            sm={12}
+            style={{ display: "flex", justifyContent: "flex-end" }}
+          >
+            <Space>
+              <Button
+                type="primary"
+                size="large"
+                icon={<PlayCircleOutlined />}
+                onClick={runTest}
+                loading={isLoading}
+              >
                 {isLoading ? "กำลังทดสอบ..." : "รันทดสอบ K6"}
-              </span>
-            </button>
-          </div>
-        </div>
-        {/* Summary of selected test */}
+              </Button>
+              <Button onClick={downloadLog} disabled={!output}>
+                บันทึก Log
+              </Button>
+            </Space>
+          </Col>
+        </Row>
+        <Divider style={{ margin: "12px 0" }} />
         <SelectedTargetSummary script={selectedScript} env={selectedEnv} />
-      </ContentCard>
+      </Card>
 
       {Object.keys(parsedStats).length > 0 && (
         <>
-          <ContentCard
-            title="📈 กราฟสรุปผลการทดสอบ"
-            size="xl"
-            fullWidth
-            className="mb-4"
-          >
+          <Card title="📈 กราฟสรุปผลการทดสอบ" style={{ marginBottom: 16 }}>
             <SummaryChart stats={parsedStats} isLoading={isLoading} />
-          </ContentCard>
-          <ContentCard
+          </Card>
+
+          <Card
             title={`🧪 สรุปผลของการทดสอบที่ ${selectedEnv?.replace(
               "https://",
               ""
-            )}/api/${selectedScript}`}
-            size="xl"
-            className="mt-4 mb-4"
-            fullWidth
+            )} /api/${selectedScript}`}
+            style={{ marginBottom: 16 }}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <SummaryCard
-                title="✅ จำนวนที่ตรวจสอบทั้งหมด"
-                value={
-                  parsedStats["checks_total......................."] || "N/A"
-                }
-                subtitle="รวมทั้งหมดที่ทำการตรวจสอบ"
-                bgColor="from-green-400 via-emerald-500 to-green-600 bg-gradient-to-br"
-                isLoading={isLoading}
-              />
-              <SummaryCard
-                title="🎯 จำนวนที่สำเร็จ"
-                value={
-                  parsedStats["checks_succeeded..................."]?.match(
-                    /(\d+)\s+out/
-                  )?.[1] || "N/A"
-                }
-                subtitle="จำนวนที่ตรวจสอบผ่าน"
-                bgColor="from-green-400 via-emerald-500 to-green-600 bg-gradient-to-br"
-                isLoading={isLoading}
-              />
-              <SummaryCard
-                title="❌ จำนวนที่ล้มเหลว"
-                value={(() => {
-                  const total =
-                    parsedStats["checks_total......................."]?.split(
-                      " "
-                    )[0];
-                  const success =
-                    parsedStats["checks_succeeded..................."]?.match(
-                      /(\d+)\s+out/
-                    )?.[1];
-                  if (total && success) {
-                    return parseInt(total) - parseInt(success);
-                  }
-                  return "N/A";
-                })()}
-                subtitle="จำนวนที่ตรวจสอบไม่ผ่าน"
-                bgColor="from-red-400 via-red-500 to-rose-600 bg-gradient-to-br"
-                isLoading={isLoading}
-              />
-              <SummaryCard
-                title="📦 HTTP Requests"
-                value={
-                  parsedStats[
-                    "http_reqs..............................................................."
-                  ] || "N/A"
-                }
-                subtitle="จำนวนคำขอทั้งหมด"
-                bgColor="from-blue-400 via-sky-500 to-blue-600 bg-gradient-to-br"
-                isLoading={isLoading}
-              />
-              <SummaryCard
-                title="⏱️ Avg Duration"
-                value={
-                  parsedStats[
-                    "http_req_duration......................................................."
-                  ]?.match(/avg=([\d.]+ms)/)?.[1] || "N/A"
-                }
-                subtitle="เวลาเฉลี่ยในการตอบสนอง"
-                bgColor="from-yellow-300 via-amber-400 to-orange-400 bg-gradient-to-br"
-                isLoading={isLoading}
-              />
-              <SummaryCard
-                title="🔁 Iterations"
-                value={
-                  parsedStats[
-                    "iterations.............................................................."
-                  ]?.split(" ")[0] || "N/A"
-                }
-                subtitle="จำนวนรอบการทำซ้ำ"
-                bgColor="from-purple-400 via-violet-500 to-indigo-600 bg-gradient-to-br"
-                isLoading={isLoading}
-              />
-              <SummaryCard
-                title="📊 Throughput"
-                value={
-                  parsedStats["checks_total......................."]?.split(
-                    " "
-                  )[1] || "N/A"
-                }
-                subtitle="จำนวนการตรวจสอบต่อวินาที"
-                bgColor="from-fuchsia-400 via-pink-500 to-rose-500 bg-gradient-to-br"
-                isLoading={isLoading}
-              />
-            </div>
-          </ContentCard>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12} md={12} lg={6}>
+                <Card size="small" bordered>
+                  <Statistic title="✅ Checks Total" value={getCheckCounts(parsedStats).total || "N/A"} />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={12} lg={6}>
+                <Card size="small" bordered>
+                  <Statistic title="🎯 Succeeded" value={getCheckCounts(parsedStats).success || "N/A"} />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={12} lg={6}>
+                <Card size="small" bordered>
+                  <Statistic title="❌ Failed" value={getCheckCounts(parsedStats).failed || "N/A"} />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={12} lg={6}>
+                <Card size="small" bordered>
+                  <Statistic
+                    title="📦 HTTP Requests"
+                    value={
+                      parsedStats[
+                        "http_reqs..............................................................."
+                      ] || "N/A"
+                    }
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={12} lg={6}>
+                <Card size="small" bordered>
+                  <Statistic
+                    title="⏱️ Avg Duration"
+                    value={
+                      parsedStats[
+                        "http_req_duration......................................................."
+                      ]?.match(/avg=([\d.]+ms)/)?.[1] || "N/A"
+                    }
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={12} lg={6}>
+                <Card size="small" bordered>
+                  <Statistic
+                    title="🔁 Iterations"
+                    value={
+                      parsedStats[
+                        "iterations.............................................................."
+                      ]?.split(" ")[0] || "N/A"
+                    }
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={12} lg={6}>
+                <Card size="small" bordered>
+                  <Statistic
+                    title="📊 Throughput"
+                    value={
+                      parsedStats["checks_total......................."]?.split(
+                        " "
+                      )[1] || "N/A"
+                    }
+                  />
+                </Card>
+              </Col>
+            </Row>
+          </Card>
         </>
       )}
       {output && (
-        <ContentCard title="📜 รายงาน Log จากเซิร์ฟเวอร์" size="xl" fullWidth>
+        <Card title="📜 รายงาน Log จากเซิร์ฟเวอร์" style={{ marginBottom: 16 }}>
           <LogViewer
             output={output}
             expandedLines={expandedLines}
             setExpandedLines={setExpandedLines}
           />
-        </ContentCard>
+        </Card>
       )}
 
       {showMetrics && metrics.length > 0 && (
-        <ContentCard
-          title="📈 สรุปผลการทดสอบ (Metrics Report)"
-          size="xl"
-          className="mt-4"
-          fullWidth
-        >
-          <MetricsTable
-            metrics={metrics}
-            expandedLines={expandedLines}
-            setExpandedLines={setExpandedLines}
-          />
-        </ContentCard>
+        <MetricsTable
+          metrics={metrics}
+          expandedLines={expandedLines}
+          setExpandedLines={setExpandedLines}
+        />
       )}
     </DashboardLayout>
   );

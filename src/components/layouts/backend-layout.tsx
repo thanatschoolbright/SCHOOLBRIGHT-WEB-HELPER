@@ -1,12 +1,44 @@
-import SidebarContent from "@components/layouts/backend/sidebar-component";
-import MainHeader from "@components/layouts/backend/navbar";
 import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
-import { useState } from "react";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { Suspense, useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
-import { Breadcrumb } from "antd";
-import Link from "next/link";
+import { Layout, Skeleton, theme } from "antd";
 import Breadcrumbs from "../breadcrump/breadcrumb-component";
+import dynamic from "next/dynamic";
+
+// Lazy chunks with local skeleton fallbacks
+const SidebarContent = dynamic(
+  () => import("@components/layouts/backend/sidebar-component"),
+  {
+    loading: () => (
+      <div style={{ padding: 16 }}>
+        <Skeleton active title={{ width: 120 }} paragraph={false} />
+        <div style={{ marginTop: 12 }}>
+          <Skeleton active title={false} paragraph={{ rows: 6 }} />
+        </div>
+      </div>
+    ),
+    ssr: true,
+  }
+);
+
+const MainHeader = dynamic(() => import("@components/layouts/backend/navbar"), {
+  loading: () => (
+    <div style={{ paddingBlock: 8 }}>
+      <Skeleton active title={{ width: 220 }} paragraph={false} />
+    </div>
+  ),
+  ssr: true,
+});
+
+const BreadcrumbsLazy = dynamic(
+  () => import("../breadcrump/breadcrumb-component"),
+  {
+    loading: () => (
+      <Skeleton active title={false} paragraph={{ rows: 1, width: "60%" }} />
+    ),
+    ssr: true,
+  }
+);
 
 export default function DashboardLayout({
   children,
@@ -14,72 +46,91 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const { token } = theme.useToken();
+  const { Header, Sider, Content } = Layout;
+
   return (
-    <div className="relative min-h-screen bg-[#e8e6f3]/75 dark:bg-gray-900/80 text-gray-800 dark:text-gray-200 flex transition-colors duration-500 overflow-hidden">
-      {/* 🌌 Background DNA Image */}
-      <div className="absolute inset-0 -z-10">
-        <img
-          src="/background/bg-dna.png"
-          alt="DNA background"
-          className="w-full h-full object-cover "
-          style={{ opacity: 1 }}
-        />
-      </div>
-
-      {/* 🧭 Sidebar */}
-      <aside
-        className={`
-          ${collapsed ? "w-2" : "w-64"}
-          p-5 h-full ${
-            collapsed ? "" : "ml-5"
-          } mt-5 flex flex-col justify-between transition-all duration-250
-          bg-white/80 dark:bg-gray-800/40
-          hover:bg-white dark:hover:bg-gray-700
-          backdrop-blur-md shadow-md
-          rounded-3xl border border-white/20 dark:border-white/10
-          relative
-        `}
+    <Layout style={{ minHeight: "100vh", background: token.colorBgLayout }}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        width={260}
+        breakpoint="lg"
+        style={{
+          background: token.colorBgContainer,
+          borderRight: `1px solid ${token.colorBorderSecondary}`,
+        }}
       >
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className={`absolute -right-4 top-6 flex items-center justify-center rounded-full bg-orange-500 text-white shadow-lg transition-all duration-300 ${
-            collapsed ? "w-12 h-12 hover:scale-110" : "w-9 h-9 hover:scale-105"
-          }`}
+        <div
+          style={{
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
-          {collapsed ? (
-            <IoIosArrowForward className="text-2xl" />
-          ) : (
-            <IoIosArrowBack className="text-lg" />
-          )}
-        </button>
-        <div className={collapsed ? "hidden" : "block"}>
-          <SidebarContent />
-        </div>
-        <div className={collapsed ? "hidden" : ""}>
-          <DarkModeToggle />
-        </div>
-      </aside>
-
-      {/* 📄 Main Content Area */}
-      <div className="flex-1 flex flex-col relative overflow-hidden">
-        {/* 🔝 Sticky Header */}
-        <div className="sticky top-0 z-50 px-5 py-4">
-          <MainHeader />
-        </div>
-
-        {/* 🧭 Breadcrumb */}
-        <div className="px-5 py-2">
-          {/* 🧭 Breadcrumb */}
-          <div className="px-5 py-2">
-            <Breadcrumbs />
+          <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
+            <SidebarContent />
           </div>
+          {!collapsed && (
+            <div
+              style={{
+                padding: 16,
+                borderTop: `1px solid ${token.colorBorderSecondary}`,
+              }}
+            >
+              <DarkModeToggle />
+            </div>
+          )}
         </div>
+      </Sider>
 
-        {/* 🧩 Page Children */}
-        <main className="flex-1 p-5 overflow-y-auto animate-fade-in-down">
-          {children}
-        </main>
-      </div>
-    </div>
+      <Layout>
+        <Header
+          style={{
+            background: token.colorBgContainer,
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
+            position: "sticky",
+            top: 0,
+            zIndex: 50,
+            paddingInline: 20,
+          }}
+        >
+          <MainHeader />
+        </Header>
+
+        <Content
+          style={{
+            padding: 20,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+            gap: 16,
+          }}
+        >
+          <div>
+            <BreadcrumbsLazy />
+          </div>
+          <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+            <Suspense
+              fallback={
+                <div style={{ padding: 12 }}>
+                  <Skeleton
+                    active
+                    title={{ width: "40%" }}
+                    paragraph={{ rows: 2 }}
+                  />
+                  <div style={{ marginTop: 12 }}>
+                    <Skeleton active title={false} paragraph={{ rows: 6 }} />
+                  </div>
+                </div>
+              }
+            >
+              {children}
+            </Suspense>
+          </div>
+        </Content>
+      </Layout>
+    </Layout>
   );
 }

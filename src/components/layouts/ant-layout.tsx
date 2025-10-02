@@ -34,30 +34,31 @@ export default function AntThemeProvider({
   const palette = useMemo(() => {
     if (isDark) {
       return {
-        primary: "#ff9552",
-        primaryHover: "#ffad78",
-        primaryActive: "#ff7f33",
-        backgroundBase: "#1d1d1f",
-        backgroundElevated: "rgba(36,36,39,0.92)",
-        backgroundMuted: "rgba(255,149,82,0.12)",
-        border: "rgba(255,149,82,0.28)",
+        primary: "#ff8a50",
+        primaryHover: "#ffa06f",
+        primaryActive: "#ff7a3a",
+        backgroundBase: "#141414",
+        backgroundElevated: "#1f1f1f",
+        backgroundMuted: "#2a2a2a",
+        border: "#303030",
         textPrimary: "rgba(255,255,255,0.88)",
         textSecondary: "rgba(255,255,255,0.65)",
-        modalMask: "rgba(10,10,12,0.78)",
+        modalMask: "rgba(0,0,0,0.55)",
       } as const;
     }
 
+    // Light: minimal, neutral canvas with a warm primary accent
     return {
-      primary: "#ff6f2c", // ปรับสี primary ให้เข้มขึ้นเล็กน้อยเพื่อไม่ให้กลืนกับ headerBg
-      primaryHover: "#ff9d68",
-      primaryActive: "#ff7129",
-      backgroundBase: "#faf6f2",
+      primary: "#ff7a45", // Ant Orange 6
+      primaryHover: "#ff8f5f",
+      primaryActive: "#e86b37",
+      backgroundBase: "#f5f7fa", // clean neutral canvas
       backgroundElevated: "#ffffff",
-      backgroundMuted: "#ff8350",
-      border: "#ffe1cc",
-      textPrimary: "#3c2f24",
-      textSecondary: "rgba(60,47,36,0.68)",
-      modalMask: "rgba(46,30,18,0.2)",
+      backgroundMuted: "#f1f5f9", // subtle neutral fill
+      border: "#e5e7eb", // neutral border
+      textPrimary: "#0f172a",
+      textSecondary: "rgba(15,23,42,0.65)",
+      modalMask: "rgba(15,23,42,0.35)",
     } as const;
   }, [isDark]);
 
@@ -69,8 +70,8 @@ export default function AntThemeProvider({
         colorPrimaryHover: palette.primaryHover,
         colorPrimaryActive: palette.primaryActive,
         colorPrimaryBorder: palette.border,
-        colorPrimaryBg: palette.backgroundMuted,
-        colorPrimaryBgHover: palette.primaryHover,
+        colorPrimaryBg: `${palette.primary}14`,
+        colorPrimaryBgHover: `${palette.primary}20`,
         colorText: palette.textPrimary,
         colorTextSecondary: palette.textSecondary,
         colorTextTertiary: isDark
@@ -110,12 +111,14 @@ export default function AntThemeProvider({
           borderRadius: 18,
           controlHeight: 44,
           fontWeight: 600,
-          boxShadow: "0 10px 24px rgba(255,133,70,0.18)",
+          boxShadow: isDark
+            ? "0 6px 16px rgba(0,0,0,0.35)"
+            : "0 6px 16px rgba(15,23,42,0.06)",
           defaultColor: palette.textPrimary,
           defaultBg: palette.backgroundElevated,
           defaultBorderColor: palette.border,
-          colorBgTextHover: palette.backgroundMuted,
-          colorBgTextActive: palette.primaryActive,
+          colorBgTextHover: `${palette.primary}12`,
+          colorBgTextActive: `${palette.primary}18`,
         },
         Input: {
           borderRadius: 18,
@@ -141,11 +144,11 @@ export default function AntThemeProvider({
         Card: {
           borderRadiusLG: 26,
           borderRadiusSM: 20,
-          colorBorderSecondary: "transparent",
+          colorBorderSecondary: palette.border,
           colorBgContainer: palette.backgroundElevated,
           boxShadow: isDark
-            ? "0 18px 32px rgba(8,8,12,0.55)"
-            : "0 20px 40px rgba(255,133,70,0.12)",
+            ? "0 12px 24px rgba(0,0,0,0.35)"
+            : "0 6px 16px rgba(15,23,42,0.06)",
           headerFontSize: 18,
           headerHeight: 58,
         },
@@ -155,49 +158,41 @@ export default function AntThemeProvider({
           headerBg: palette.backgroundElevated,
           titleFontSize: 20,
           boxShadow: isDark
-            ? "0 28px 60px rgba(0,0,0,0.65)"
-            : "0 24px 60px rgba(255,133,70,0.18)",
+            ? "0 28px 60px rgba(0,0,0,0.55)"
+            : "0 12px 32px rgba(15,23,42,0.08)",
         },
         Table: {
           borderRadius: 24,
-          headerBg: "#ff945c", // ปรับสีหัวตารางให้อ่อนลงเล็กน้อย
-          headerColor: "#ffffff",
-          rowHoverBg: `${palette.primary}12`,
+          headerBg: isDark ? "#1f1f1f" : "#f8fafc",
+          headerColor: palette.textPrimary,
+          rowHoverBg: isDark ? "#1f1f1f" : "rgba(15,23,42,0.03)",
           colorBgContainer: palette.backgroundElevated,
           filterDropdownBg: palette.backgroundElevated,
           filterDropdownMenuBg: palette.backgroundElevated,
           filterDropdownMenuBorderColor: palette.border,
-          filterIconColor: "#ffffff",
-          filterIconActiveColor: "#ffffff",
-          headerSortActiveColor: "#ffffff",
-          headerSortHoverColor: "#ffffff",
-          headerSortActiveBg: "#ff8645",
-          headerSortHoverBg: "#ff9d68",
         },
         Dropdown: {
           borderRadiusLG: 22,
           colorBgElevated: palette.backgroundElevated,
-          controlItemBgHover: `${palette.primary}14`,
-          controlItemBgActive: `${palette.primary}22`,
+          controlItemBgHover: `${palette.primary}10`,
+          controlItemBgActive: `${palette.primary}16`,
         },
         Tag: {
           borderRadiusSM: 14,
-          defaultBg: `${palette.primary}18`,
-          defaultColor: palette.primaryActive,
+          defaultBg: `${palette.primary}12`,
+          defaultColor: palette.primary,
         },
         Tooltip: {
-          colorBgDefault: isDark
-            ? "rgba(255,255,255,0.1)"
-            : "rgba(46,23,14,0.92)",
-          colorTextLightSolid: isDark ? palette.textPrimary : "#fffaf5",
+          colorBgDefault: isDark ? "rgba(0,0,0,0.85)" : "rgba(15,23,42,0.92)",
+          colorTextLightSolid: "#ffffff",
         },
         Segmented: {
           borderRadius: 18,
-          itemSelectedBg: `${palette.primary}22`,
+          itemSelectedBg: `${palette.primary}18`,
         },
         Skeleton: {
-          colorBgBase: isDark ? "#2a2a2a" : "#f2f2f2",
-          colorFill: isDark ? "#3a3a3a" : "#e0e0e0",
+          colorBgBase: isDark ? "#2a2a2a" : "#eef2f6",
+          colorFill: isDark ? "#3a3a3a" : "#e5eaf0",
         },
       },
     }),

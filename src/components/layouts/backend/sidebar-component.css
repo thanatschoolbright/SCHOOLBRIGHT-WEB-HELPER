@@ -1,0 +1,39 @@
+.sb-sidebar-wrap .sb-sidebar-menu.ant-menu-light .ant-menu-item-selected {
+  background-color: var(--sb-primary) !important;
+}
+
+.sb-sidebar-wrap .sb-sidebar-menu.ant-menu-light .ant-menu-item-selected,
+.sb-sidebar-wrap .sb-sidebar-menu.ant-menu-light .ant-menu-item-selected .ant-menu-title-content,
+.sb-sidebar-wrap .sb-sidebar-menu.ant-menu-light .ant-menu-item-selected .anticon,
+.sb-sidebar-wrap .sb-sidebar-menu.ant-menu-light .ant-menu-item-selected a {
+  color: #ffffff !important;
+}
+
+.sb-sidebar-wrap .sb-sidebar-menu.ant-menu-light .ant-menu-item-selected:hover {
+  color: #ffffff !important;
+}
+
+/* Make submenu items smaller and allow wrapping */
+.sb-sidebar-menu .ant-menu-sub .ant-menu-item .ant-menu-title-content {
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.sb-sidebar-menu .ant-menu-sub .ant-menu-item {
+  height: auto;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+/* Also allow wrapping for top-level titles, but keep size */
+.sb-sidebar-menu .ant-menu-item .ant-menu-title-content {
+  white-space: normal;
+  word-break: break-word;
+  overflow: visible;
+  text-overflow: unset;
+}
+
