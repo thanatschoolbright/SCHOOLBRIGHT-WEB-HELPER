@@ -1,17 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Card,
-  Space,
-  Typography,
-  Tag,
-  Progress,
-  Avatar,
-  Button,
-  DatePicker,
-  Skeleton,
-} from "antd";
+import { Card, Space, Typography, Tag, Progress, Avatar, Button, DatePicker, Skeleton, theme } from "antd";
+import { CrownOutlined, TrophyOutlined, SmileOutlined, WarningOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import { ReloadOutlined } from "@ant-design/icons";
@@ -100,6 +91,17 @@ const fallbackAccent = {
   glow: "0 12px 26px rgba(99, 102, 241, 0.16)",
 };
 
+const addAlpha = (hex: string, alpha: number) => {
+  if (!hex?.startsWith("#")) return hex;
+  let h = hex.slice(1);
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  const num = parseInt(h, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const useMonthlyRankData = () => {
   const [records, setRecords] = useState<SummaryRecord[]>([]);
   const [metadata, setMetadata] = useState<SummaryMetadata | null>(null);
@@ -174,6 +176,7 @@ export function MonthlyRankBoard({
   currentAdminId,
   variant = "wide",
 }: MonthlyRankBoardProps) {
+  const { token } = theme.useToken();
   const {
     records,
     metadata,
@@ -205,18 +208,18 @@ export function MonthlyRankBoard({
   const isCompact = variant === "compact";
   const cardStyle = isCompact
     ? {
-        borderRadius: 18,
-        boxShadow: "0 14px 28px rgba(15, 23, 42, 0.14)",
-        background:
-          "linear-gradient(135deg, rgba(255,134,69,0.12), rgba(244, 244, 245, 0.55))",
+        borderRadius: 12,
+        boxShadow: "none",
+        background: token.colorBgContainer,
+        border: `1px solid ${token.colorBorderSecondary}`,
         minWidth: 260,
         width: 300,
       }
     : {
-        borderRadius: 22,
-        boxShadow: "0 18px 36px rgba(15, 23, 42, 0.12)",
-        background:
-          "linear-gradient(135deg, rgba(255,134,69,0.09), rgba(244, 244, 245, 0.72))",
+        borderRadius: 16,
+        boxShadow: "none",
+        background: token.colorBgContainer,
+        border: `1px solid ${token.colorBorderSecondary}`,
       };
 
   return (
@@ -269,16 +272,15 @@ export function MonthlyRankBoard({
             size={isCompact ? 10 : 14}
             style={{ width: "100%" }}
           >
-            {Array.from({ length: isCompact ? 1 : 3 }).map((_, index) => (
+            {Array.from({ length: isCompact ? 1 : 1 }).map((_, index) => (
               <Card
                 key={`skeleton-${index}`}
                 size="small"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(148,163,184,0.18), rgba(226,232,240,0.45))",
-                  borderRadius: 18,
-                  border: "none",
-                  boxShadow: "0 12px 24px rgba(148, 163, 184, 0.18)",
+                  background: token.colorBgContainer,
+                  borderRadius: 10,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  boxShadow: "none",
                 }}
                 styles={{
                   body: { padding: isCompact ? "12px 16px" : "14px 18px" },
@@ -309,6 +311,25 @@ export function MonthlyRankBoard({
           >
             {visibleRecords.map((record) => {
               const accent = rankAccentMap[record.rank] ?? fallbackAccent;
+              const iconByRank = {
+                A: <CrownOutlined style={{ color: "#f59e0b" }} />,
+                B: <TrophyOutlined style={{ color: "#1d4ed8" }} />,
+                C: <SmileOutlined style={{ color: "#f59e0b" }} />,
+                D: <WarningOutlined style={{ color: "#dc2626" }} />,
+                E: <CloseCircleOutlined style={{ color: "#7f1d1d" }} />,
+              } as const;
+
+              const chipStyle: React.CSSProperties =
+                record.rank === "A"
+                  ? {
+                      background:
+                        "linear-gradient(90deg, rgba(255,122,182,0.15), rgba(255,209,102,0.15), rgba(143,211,254,0.15), rgba(168,255,120,0.15))",
+                      border: `1px solid ${addAlpha("#f59e0b", 0.25)}`,
+                    }
+                  : {
+                      background: addAlpha(accent.color, 0.08),
+                      border: `1px solid ${addAlpha(accent.color, 0.18)}`,
+                    };
               const progressPercent = record.expected_hours
                 ? Math.min(
                     100,
@@ -321,10 +342,11 @@ export function MonthlyRankBoard({
                   key={record.admin_id}
                   size="small"
                   style={{
-                    background: accent.bg,
-                    borderRadius: 18,
-                    border: "none",
-                    boxShadow: accent.glow,
+                    background: token.colorBgContainer,
+                    borderRadius: 10,
+                    border: `1px solid ${token.colorBorderSecondary}`,
+                    boxShadow: "none",
+                    borderLeft: `4px solid ${accent.color}`,
                   }}
                   styles={{
                     body: { padding: isCompact ? "12px 16px" : "14px 18px" },
@@ -337,8 +359,8 @@ export function MonthlyRankBoard({
                   >
                     <Avatar
                       style={{
-                        backgroundColor: `${accent.color}1a`,
-                        color: accent.color,
+                        backgroundColor: token.colorFillTertiary,
+                        color: token.colorTextSecondary,
                       }}
                     >
                       {record.full_name?.charAt(0)?.toUpperCase() ?? "?"}
@@ -354,25 +376,35 @@ export function MonthlyRankBoard({
                           justifyContent: "space-between",
                         }}
                       >
-                        <Space
-                          align="center"
-                          size={isCompact ? 6 : 8}
-                          style={{ minWidth: 0 }}
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 8,
+                            padding: "4px 8px",
+                            borderRadius: 999,
+                            ...chipStyle,
+                            maxWidth: isCompact ? 220 : 260,
+                          }}
+                          title={`${formatName(record)} · Rank ${record.rank}`}
                         >
+                          <span style={{ display: "inline-flex", alignItems: "center" }}>
+                            {iconByRank[record.rank as keyof typeof iconByRank]}
+                          </span>
                           <Typography.Text
                             ellipsis
                             style={{
                               fontWeight: 600,
+                              color: token.colorText,
                               maxWidth: isCompact ? 140 : 180,
-                              color: accent.color,
                             }}
                           >
                             {formatName(record)}
                           </Typography.Text>
-                          <Tag color={accent.tagColor ?? "default"}>
+                          <Tag color={accent.tagColor ?? "default"} style={{ marginInlineStart: 0 }}>
                             Rank {record.rank}
                           </Tag>
-                        </Space>
+                        </div>
                         <Typography.Text strong>
                           {formatCompletionLabel(record)}
                         </Typography.Text>
@@ -385,7 +417,7 @@ export function MonthlyRankBoard({
                       <Progress
                         percent={Number(progressPercent.toFixed(1))}
                         strokeColor={accent.color}
-                        trailColor="rgba(226, 232, 240, 0.6)"
+                        trailColor={token.colorFillSecondary}
                         format={() => formatHoursLabel(record)}
                       />
                     </Space>

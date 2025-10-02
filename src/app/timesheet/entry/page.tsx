@@ -196,7 +196,7 @@ const aggregateTopUsage = (
   return { name, hours: Number(hours.toFixed(2)) };
 };
 
-//** การ์ดสรุปการใช้งานสูงสุดประจำสัปดาห์
+//** การ์ดสรุปการใช้งานสูงสุดประจำสัปดาห์ (Minimal / Ant Design theme)
 const MiniUsageCard: React.FC<{
   title: string;
   highlight: string;
@@ -205,30 +205,23 @@ const MiniUsageCard: React.FC<{
 }> = ({ title, highlight, hours, accent }) => {
   const { token } = theme.useToken();
 
-  const gradientBackground = `linear-gradient(135deg, ${addAlpha(
-    accent,
-    0.28
-  )}, ${token.colorBgElevated})`;
-
-  const iconBackground = addAlpha(accent, 0.2);
-  const iconColor = addAlpha(accent, 0.85);
-
   return (
     <Card
       variant="outlined"
       style={{
         minWidth: 240,
-        borderRadius: 16,
-        borderColor: addAlpha(accent, 0.35),
-        background: gradientBackground,
-        boxShadow: `0 12px 26px ${addAlpha(accent, 0.22)}`,
+        borderRadius: 12,
+        borderColor: token.colorBorderSecondary,
+        background: token.colorBgContainer,
+        boxShadow: 'none',
+        borderLeft: `4px solid ${accent}`,
       }}
       styles={{
         body: {
           display: "flex",
           flexDirection: "column",
-          gap: 12,
-          padding: 18,
+          gap: 10,
+          padding: 16,
         },
       }}
     >
@@ -248,10 +241,10 @@ const MiniUsageCard: React.FC<{
           {title}
         </Typography.Text>
         <Avatar
-          size={38}
+          size={36}
           style={{
-            background: iconBackground,
-            color: iconColor,
+            background: token.colorFillTertiary,
+            color: token.colorTextSecondary,
             fontWeight: 700,
           }}
         >
@@ -275,8 +268,8 @@ const MiniUsageCard: React.FC<{
       </Typography.Title>
 
       <Space size={6} align="center">
-        <ArrowUpOutlined style={{ color: iconColor }} />
-        <Typography.Text style={{ color: iconColor, fontWeight: 600 }}>
+        <ArrowUpOutlined style={{ color: accent }} />
+        <Typography.Text style={{ color: token.colorText, fontWeight: 600 }}>
           {hours.toFixed(2)} ชม.
         </Typography.Text>
         <Typography.Text style={{ color: token.colorTextSecondary }}>

@@ -7,6 +7,10 @@ import { Service } from "@/services/backend/timesheet/entry.service";
 import { API_URL } from "@services/api-url";
 
 const HOURS_PER_WORKDAY = 8;
+// Default to Bangkok (+07:00) unless overridden
+const TZ_OFFSET_MINUTES = Number(
+  process.env.TIMESHEET_TZ_OFFSET_MINUTES ?? 420
+);
 
 type TimesheetEntryRow = {
   createdBy: number | null;
@@ -35,28 +39,38 @@ const MonthYearSchema = z.object({
     .string()
     .min(4, "กรุณาระบุปี")
     .transform((value) => value.padStart(4, "0")),
+  // scope: "elapsed" = up to today (default), "full" = entire month
+  scope: z.enum(["elapsed", "full"]).optional().default("elapsed"),
 });
 
 //** Utility: เพิ่มวันโดยไม่แก้ไขต้นฉบับ
 const addDays = (date: Date, amount: number) =>
   new Date(date.getTime() + amount * 86_400_000);
 
-//** Utility: yyyy-mm-dd สำหรับ metadata
-const toISODate = (date: Date) => date.toISOString().slice(0, 10);
+//** Utility: yyyy-mm-dd สำหรับ metadata (local by TZ offset)
+const toISODateLocal = (utc: Date, offsetMinutes = TZ_OFFSET_MINUTES) => {
+  const local = new Date(utc.getTime() + offsetMinutes * 60_000);
+  return local.toISOString().slice(0, 10);
+};
 
 //** Utility: label เดือนภาษาไทย (เช่น "ตุลาคม 2568")
 const toThaiMonthYear = (date: Date) =>
   date.toLocaleDateString("th-TH", { month: "long", year: "numeric" });
 
-//** คำนวณวันทำงาน (จันทร์-ศุกร์) และชั่วโมงที่คาดหวังในช่วงที่ให้มา
-const computeWorkingDays = (start: Date, end: Date) => {
+//** คำนวณวันทำงานตามเวลาท้องถิ่นที่กำหนด (จันทร์-ศุกร์)
+const computeWorkingDaysLocal = (
+  startUtc: Date,
+  endUtc: Date,
+  offsetMinutes = TZ_OFFSET_MINUTES
+) => {
   let workingDays = 0;
+  // เดินวันแบบ local date โดยเลื่อน cursor เป็น local time
   for (
-    let cursor = new Date(start);
-    cursor <= end;
-    cursor = addDays(cursor, 1)
+    let localCursor = new Date(startUtc.getTime() + offsetMinutes * 60_000);
+    localCursor <= new Date(endUtc.getTime() + offsetMinutes * 60_000);
+    localCursor = addDays(localCursor, 1)
   ) {
-    const day = cursor.getDay();
+    const day = localCursor.getDay();
     if (day >= 1 && day <= 5) workingDays += 1;
   }
   return { workingDays, expectedHours: workingDays * HOURS_PER_WORKDAY };
@@ -109,8 +123,13 @@ const describeAxiosError = (error: unknown) => {
   return error instanceof Error ? error.message : "Unexpected error";
 };
 
-//** สร้างช่วงวันที่ของเดือน พร้อมจำกัดว่าไม่เกินวันปัจจุบัน
-const buildEffectivePeriod = (month: string, year: string) => {
+//** สร้างช่วงวันที่ของเดือน แบบยึดเวลาท้องถิ่น (เช่น Asia/Bangkok)
+//   และจำกัดว่าไม่เกินวันปัจจุบัน (ถ้า scope = elapsed)
+const buildEffectivePeriod = (
+  month: string,
+  year: string,
+  scope: "elapsed" | "full"
+) => {
   const monthIndex = Number(month) - 1;
   const yearNumber = Number(year);
 
@@ -122,29 +141,58 @@ const buildEffectivePeriod = (month: string, year: string) => {
     throw new Error("รูปแบบเดือนหรือปีไม่ถูกต้อง");
   }
 
-  const startOfMonth = new Date(Date.UTC(yearNumber, monthIndex, 1));
-  const endOfMonth = new Date(
-    Date.UTC(yearNumber, monthIndex + 1, 0, 23, 59, 59, 999)
+  // คำนวณขอบเขตเดือนใน local time แล้วแปลงเป็น UTC
+  const offsetMs = TZ_OFFSET_MINUTES * 60_000;
+  // Local start: YYYY-MM-01T00:00:00 local -> UTC = local - offset
+  const startLocalToUtc = new Date(
+    Date.UTC(yearNumber, monthIndex, 1, 0, 0, 0, 0) - offsetMs
   );
+  // Local next month start: YYYY-MM+1-01T00:00:00 local -> UTC
+  const nextMonthStartLocalToUtc = new Date(
+    Date.UTC(yearNumber, monthIndex + 1, 1, 0, 0, 0, 0) - offsetMs
+  );
+  // Local end of month = nextMonthStart - 1 ms (still in UTC timeline)
+  const endLocalToUtc = new Date(nextMonthStartLocalToUtc.getTime() - 1);
 
-  const today = new Date();
+  // Current local time: nowUTC -> local by adding offset
+  const nowUtc = new Date();
+  const nowLocal = new Date(nowUtc.getTime() + offsetMs);
   const isRequestMonthCurrent =
-    today.getUTCFullYear() === yearNumber && today.getUTCMonth() === monthIndex;
+    nowLocal.getFullYear() === yearNumber && nowLocal.getMonth() === monthIndex;
 
-  const effectiveEnd = isRequestMonthCurrent
-    ? new Date(
-        Date.UTC(yearNumber, monthIndex, today.getUTCDate(), 23, 59, 59, 999)
-      )
-    : endOfMonth;
+  // Local end of today (23:59:59.999 local), then convert back to UTC
+  const endOfTodayLocal = new Date(
+    nowLocal.getFullYear(),
+    nowLocal.getMonth(),
+    nowLocal.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
+  const endOfTodayLocalToUtc = new Date(endOfTodayLocal.getTime() - offsetMs);
 
-  if (effectiveEnd < startOfMonth) {
+  const effectiveEnd =
+    scope === "full"
+      ? endLocalToUtc
+      : isRequestMonthCurrent
+      ? new Date(
+          Math.min(endLocalToUtc.getTime(), endOfTodayLocalToUtc.getTime())
+        )
+      : endLocalToUtc;
+
+  if (effectiveEnd < startLocalToUtc) {
     throw new Error("ยังไม่ถึงช่วงเวลาที่ร้องขอ");
   }
 
   return {
-    startOfMonth,
-    effectiveEnd,
-    label: toThaiMonthYear(startOfMonth),
+    startOfMonthUtc: startLocalToUtc,
+    effectiveEndUtc: effectiveEnd,
+    endOfMonthUtc: endLocalToUtc,
+    label: toThaiMonthYear(
+      // สร้าง label จาก local start
+      new Date(startLocalToUtc.getTime() + offsetMs)
+    ),
   };
 };
 
@@ -196,16 +244,15 @@ const buildMonthlyRecords = (
 export async function POST(request: Request) {
   try {
     const rawBody = await request.json().catch(() => ({}));
-    const { month, year } = MonthYearSchema.parse(rawBody);
+    const { month, year, scope } = MonthYearSchema.parse(rawBody);
 
-    const { startOfMonth, effectiveEnd, label } = buildEffectivePeriod(
-      month,
-      year
-    );
+    const { startOfMonthUtc, effectiveEndUtc, endOfMonthUtc, label } =
+      buildEffectivePeriod(month, year, scope);
 
-    const { workingDays, expectedHours } = computeWorkingDays(
-      startOfMonth,
-      effectiveEnd
+    const { workingDays, expectedHours } = computeWorkingDaysLocal(
+      startOfMonthUtc,
+      effectiveEndUtc,
+      TZ_OFFSET_MINUTES
     );
 
     const baseUrl =
@@ -215,8 +262,8 @@ export async function POST(request: Request) {
     }
 
     const entries = await Service.findEntriesBetween(
-      startOfMonth,
-      effectiveEnd
+      startOfMonthUtc,
+      effectiveEndUtc
     );
 
     try {
@@ -230,15 +277,29 @@ export async function POST(request: Request) {
             records,
             metadata: {
               range: {
-                start_date: toISODate(startOfMonth),
-                end_date: toISODate(effectiveEnd),
+                start_date: toISODateLocal(startOfMonthUtc),
+                end_date: toISODateLocal(effectiveEndUtc),
                 label_th: label,
               },
+              mode: scope === "full" ? "full_month" : "elapsed_to_date",
               working_days: workingDays,
               expected_hours_per_member: expectedHours,
+              // For clarity, also include the full-month expectation
+              working_days_full_month: computeWorkingDaysLocal(
+                startOfMonthUtc,
+                endOfMonthUtc,
+                TZ_OFFSET_MINUTES
+              ).workingDays,
+              expected_hours_full_month: computeWorkingDaysLocal(
+                startOfMonthUtc,
+                endOfMonthUtc,
+                TZ_OFFSET_MINUTES
+              ).expectedHours,
               generated_at: new Date().toISOString(),
               notes:
-                "รวบรวมเฉพาะวันทำงานที่ผ่านไปแล้วในเดือนที่เลือก เพื่อความยุติธรรม",
+                scope === "full"
+                  ? "สรุปทั้งเดือน (รวมวันอนาคตด้วย)"
+                  : "รวบรวมเฉพาะวันทำงานที่ผ่านไปแล้วในเดือนที่เลือก เพื่อความยุติธรรม",
             },
           },
         })
