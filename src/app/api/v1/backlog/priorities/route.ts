@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { NextRequest, NextResponse } from "next/server";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 
 const DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;
 
@@ -17,10 +17,9 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const space = searchParams.get("space");
-    const projectId = searchParams.get("projectId");
-    if (!space || !projectId) {
+    if (!space) {
       return NextResponse.json(
-        errorResponse({ status: 400, message_en: "Missing space or projectId", message_th: "กรุณาระบุ space และ projectId" }),
+        errorResponse({ status: 400, message_en: "Missing space", message_th: "กรุณาระบุ space" }),
         { status: 400 }
       );
     }
@@ -28,10 +27,10 @@ export async function GET(req: NextRequest) {
     let lastError: any;
     for (const domain of DOMAINS) {
       try {
-        const url = `https://${space}.${domain}/api/v2/projects/${projectId}/issueTypes`;
+        const url = `https://${space}.${domain}/api/v2/priorities`;
         const { data } = await axios.get(url, { params: { apiKey } });
         return NextResponse.json(
-          successResponse({ data, message_en: "Fetch issue types ok", message_th: "ดึงประเภท Issue สำเร็จ" })
+          successResponse({ data, message_en: "Fetch priorities ok", message_th: "ดึงลำดับความสำคัญสำเร็จ" })
         );
       } catch (e) {
         lastError = e;
@@ -40,11 +39,10 @@ export async function GET(req: NextRequest) {
     throw lastError;
   } catch (error: any) {
     const status = error?.response?.status || 500;
-    const reason = error?.response?.data || error?.message || "Fetch issue types failed";
+    const reason = error?.response?.data || error?.message || "Fetch priorities failed";
     return NextResponse.json(
-      errorResponse({ status, message_en: typeof reason === "string" ? reason : "Fetch issue types failed", message_th: "ดึงประเภท Issue ไม่สำเร็จ", error }),
+      errorResponse({ status, message_en: typeof reason === "string" ? reason : "Fetch priorities failed", message_th: "ดึงลำดับความสำคัญไม่สำเร็จ", error }),
       { status }
     );
   }
 }
-

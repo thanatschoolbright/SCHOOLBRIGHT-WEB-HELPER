@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { NextRequest, NextResponse } from "next/server";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 
 // Build domain candidates for Backlog (supports .com/.backlogtool.com/.jp)
 const DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;

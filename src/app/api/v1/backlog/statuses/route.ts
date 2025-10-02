@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { NextRequest, NextResponse } from "next/server";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 
 const DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;
 
@@ -46,4 +46,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-

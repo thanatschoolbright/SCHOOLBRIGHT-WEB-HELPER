@@ -1,5 +1,7 @@
-import { useTranslation } from "react-i18next";
+"use client";
+
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { FiActivity, FiFolder, FiGrid } from "react-icons/fi";
 import { FaRegLightbulb } from "react-icons/fa";
 import { AiFillMobile } from "react-icons/ai";

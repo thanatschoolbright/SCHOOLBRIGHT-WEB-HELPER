@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { NextRequest, NextResponse } from "next/server";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 
 const DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;
 
@@ -15,6 +15,17 @@ type BulkUpdateBody = {
     milestoneId?: number | number[];
     categoryId?: number | number[];
   };
+  entries?: Array<{
+    issueKeyOrId: string | number;
+    updates: {
+      startDate?: string | null;
+      dueDate?: string | null;
+      statusId?: number;
+      priorityId?: number;
+      milestoneId?: number | number[];
+      categoryId?: number | number[];
+    };
+  }>;
 };
 
 //** อัปเดต Issue เป็นกลุ่ม: รับ list ของ id/issueKey และ fields ที่ต้องการแก้
@@ -33,8 +44,9 @@ export async function POST(request: NextRequest) {
     const space = body.space;
     const issues = body.issues || [];
     const updates = body.updates || {};
+    const entryOverrides = body.entries || [];
 
-    if (!space || !issues.length) {
+    if (!space || (!issues.length && !entryOverrides.length)) {
       return NextResponse.json(
         errorResponse({ status: 400, message_en: "Missing space or issues", message_th: "กรุณาระบุ space และรายการ issues" }),
         { status: 400 }
@@ -42,14 +54,15 @@ export async function POST(request: NextRequest) {
     }
 
     // เตรียมฟอร์มข้อมูลที่จะส่งให้ Backlog (x-www-form-urlencoded)
-    const buildForm = () => {
+    const buildForm = (updateSet: BulkUpdateBody["updates"]) => {
       const form = new URLSearchParams();
-      if (updates.startDate !== undefined) form.set("startDate", updates.startDate ?? "");
-      if (updates.dueDate !== undefined) form.set("dueDate", updates.dueDate ?? "");
-      if (updates.statusId !== undefined) form.set("statusId", String(updates.statusId));
-      if (updates.priorityId !== undefined) form.set("priorityId", String(updates.priorityId));
-      if (updates.milestoneId !== undefined) {
-        const milestoneValues = Array.isArray(updates.milestoneId) ? updates.milestoneId : [updates.milestoneId];
+      if (!updateSet) return form;
+      if (updateSet.startDate !== undefined) form.set("startDate", updateSet.startDate ?? "");
+      if (updateSet.dueDate !== undefined) form.set("dueDate", updateSet.dueDate ?? "");
+      if (updateSet.statusId !== undefined) form.set("statusId", String(updateSet.statusId));
+      if (updateSet.priorityId !== undefined) form.set("priorityId", String(updateSet.priorityId));
+      if (updateSet.milestoneId !== undefined) {
+        const milestoneValues = Array.isArray(updateSet.milestoneId) ? updateSet.milestoneId : [updateSet.milestoneId];
         if (!milestoneValues.length) {
           form.append("milestoneId[]", "");
         } else {
@@ -58,8 +71,8 @@ export async function POST(request: NextRequest) {
           }
         }
       }
-      if (updates.categoryId !== undefined) {
-        const categoryValues = Array.isArray(updates.categoryId) ? updates.categoryId : [updates.categoryId];
+      if (updateSet.categoryId !== undefined) {
+        const categoryValues = Array.isArray(updateSet.categoryId) ? updateSet.categoryId : [updateSet.categoryId];
         if (!categoryValues.length) {
           form.append("categoryId[]", "");
         } else {
@@ -75,14 +88,23 @@ export async function POST(request: NextRequest) {
       success: [],
       failed: [],
     };
+    const workItems = entryOverrides.length
+      ? entryOverrides.map((entry) => ({
+          issueKeyOrId: entry.issueKeyOrId,
+          form: buildForm(entry.updates),
+        }))
+      : issues.map((issueKeyOrId) => ({
+          issueKeyOrId,
+          form: buildForm(updates),
+        }));
 
-    for (const issueKeyOrId of issues) {
+    for (const { issueKeyOrId, form } of workItems) {
       let done = false;
       let lastError: any;
       for (const domain of DOMAINS) {
         try {
           const url = `https://${space}.${domain}/api/v2/issues/${issueKeyOrId}`;
-          const response = await axios.patch(url, buildForm().toString(), {
+          const response = await axios.patch(url, form.toString(), {
             params: { apiKey },
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             validateStatus: () => true,

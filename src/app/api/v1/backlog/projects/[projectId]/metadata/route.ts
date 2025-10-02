@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 
-const BACKLOG_DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;
+const BACKLOG_DOMAINS = [
+  "backlog.com",
+  "backlogtool.com",
+  "backlog.jp",
+] as const;
 
 type RouteParams = {
   projectId: string;
@@ -14,7 +18,7 @@ type BacklogMetadata = {
 };
 
 //** ดึง Category และ Milestone ของโปรเจ็กต์จาก Backlog
-export async function GET(request: NextRequest, context: { params: RouteParams }) {
+export async function GET(request: NextRequest, context: any) {
   try {
     const apiKeyFromEnvironment = process.env.BACKLOG_API_KEY;
     if (!apiKeyFromEnvironment) {
@@ -68,8 +72,10 @@ export async function GET(request: NextRequest, context: { params: RouteParams }
         ]);
 
         const data: BacklogMetadata = {
-          categories: (categoriesResponse.data ?? []) as BacklogMetadata["categories"],
-          milestones: (milestonesResponse.data ?? []) as BacklogMetadata["milestones"],
+          categories: (categoriesResponse.data ??
+            []) as BacklogMetadata["categories"],
+          milestones: (milestonesResponse.data ??
+            []) as BacklogMetadata["milestones"],
         };
 
         return NextResponse.json(
@@ -87,11 +93,15 @@ export async function GET(request: NextRequest, context: { params: RouteParams }
     throw lastError;
   } catch (error: any) {
     const status = error?.response?.status || 500;
-    const reason = error?.response?.data || error?.message || "Fetch project metadata failed";
+    const reason =
+      error?.response?.data ||
+      error?.message ||
+      "Fetch project metadata failed";
     return NextResponse.json(
       errorResponse({
         status,
-        message_en: typeof reason === "string" ? reason : "Fetch project metadata failed",
+        message_en:
+          typeof reason === "string" ? reason : "Fetch project metadata failed",
         message_th: "ดึงข้อมูลเมทาดาทาของโปรเจ็กต์ไม่สำเร็จ",
         error,
       }),

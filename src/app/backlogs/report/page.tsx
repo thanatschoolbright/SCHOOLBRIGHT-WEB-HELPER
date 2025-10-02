@@ -49,7 +49,7 @@ export default function Page() {
     const toastId = toast.loading("กำลังโหลด Projects จาก Backlog...");
     setLoading(true);
     try {
-      const { data } = await axios.get("/api/backlog/projects", {
+      const { data } = await axios.get("/api/v1/backlog/projects", {
         params: { space },
       });
       setProjects((data?.data as Project[]) || []);

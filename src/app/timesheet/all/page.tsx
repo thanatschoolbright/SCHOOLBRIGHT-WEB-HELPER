@@ -878,15 +878,17 @@ export default function Page() {
             }}
           >
             <Card
-              bordered
+              variant="outlined"
               size="small"
               style={{
                 borderRadius: 12,
                 boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
               }}
-              bodyStyle={{
-                padding: "12px 16px",
-                display: "inline-flex",
+              styles={{
+                body: {
+                  padding: "12px 16px",
+                  display: "inline-flex",
+                },
               }}
             >
               <Space size="small" wrap>

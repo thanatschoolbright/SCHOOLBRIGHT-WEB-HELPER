@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/backlogs/report?error=missing_code", req.url));
   }
 
-  const tokenEndpoint = new URL("/api/backlog/oauth/token", req.url).toString();
+  const tokenEndpoint = new URL("/api/v1/backlog/oauth/token", req.url).toString();
   try {
     await fetch(tokenEndpoint, {
       method: "POST",
@@ -27,4 +27,3 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.redirect(new URL("/backlogs/report", req.url));
 }
-

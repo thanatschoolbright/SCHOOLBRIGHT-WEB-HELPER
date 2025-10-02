@@ -464,7 +464,7 @@ export default function Page() {
 
         <Card
           title={`ตารางจดหมายลาหยุด (หน้า ${dataset.page})`}
-          bordered={false}
+          variant="outlined"
           extra={
             <Space>
               <Button

@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 
-const BACKLOG_DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;
+const BACKLOG_DOMAINS = [
+  "backlog.com",
+  "backlogtool.com",
+  "backlog.jp",
+] as const;
 
 type RouteParams = {
   projectId: string;
@@ -20,19 +24,22 @@ type MilestoneListQuery = {
   includeArchived?: string;
 };
 
-const buildMilestoneForm = (payload: Partial<MilestonePayload>) => {
+const buildMilestoneForm = (payload: any) => {
   const form = new URLSearchParams();
   if (payload.name !== undefined) form.set("name", payload.name);
-  if (payload.description !== undefined) form.set("description", payload.description ?? "");
-  if (payload.startDate !== undefined) form.set("startDate", payload.startDate ?? "");
+  if (payload.description !== undefined)
+    form.set("description", payload.description ?? "");
+  if (payload.startDate !== undefined)
+    form.set("startDate", payload.startDate ?? "");
   if (payload.releaseDueDate !== undefined)
     form.set("releaseDueDate", payload.releaseDueDate ?? "");
-  if (payload.archived !== undefined) form.set("archived", payload.archived ? "true" : "false");
+  if (payload.archived !== undefined)
+    form.set("archived", payload.archived ? "true" : "false");
   return form;
 };
 
 //** ดึงรายการ Milestone/Version ของโปรเจ็กต์จาก Backlog
-export async function GET(request: NextRequest, context: { params: RouteParams }) {
+export async function GET(request: NextRequest, context: any) {
   try {
     const apiKeyFromEnvironment = process.env.BACKLOG_API_KEY;
     if (!apiKeyFromEnvironment) {
@@ -100,11 +107,13 @@ export async function GET(request: NextRequest, context: { params: RouteParams }
     throw lastError;
   } catch (error: any) {
     const status = error?.response?.status || 500;
-    const reason = error?.response?.data || error?.message || "Fetch milestones failed";
+    const reason =
+      error?.response?.data || error?.message || "Fetch milestones failed";
     return NextResponse.json(
       errorResponse({
         status,
-        message_en: typeof reason === "string" ? reason : "Fetch milestones failed",
+        message_en:
+          typeof reason === "string" ? reason : "Fetch milestones failed",
         message_th: "ดึงรายการ Milestone ไม่สำเร็จ",
         error,
       }),
@@ -114,7 +123,7 @@ export async function GET(request: NextRequest, context: { params: RouteParams }
 }
 
 //** เพิ่ม Milestone ใหม่ให้โปรเจ็กต์บน Backlog
-export async function POST(request: NextRequest, context: { params: RouteParams }) {
+export async function POST(request: NextRequest, context: any) {
   try {
     const apiKeyFromEnvironment = process.env.BACKLOG_API_KEY;
     if (!apiKeyFromEnvironment) {
@@ -154,7 +163,9 @@ export async function POST(request: NextRequest, context: { params: RouteParams 
       );
     }
 
-    const payload = (await request.json().catch(() => ({}))) as Partial<MilestonePayload>;
+    const payload = (await request
+      .json()
+      .catch(() => ({}))) as Partial<MilestonePayload>;
     if (!payload.name) {
       return NextResponse.json(
         errorResponse({
@@ -191,11 +202,13 @@ export async function POST(request: NextRequest, context: { params: RouteParams 
     throw lastError;
   } catch (error: any) {
     const status = error?.response?.status || 500;
-    const reason = error?.response?.data || error?.message || "Create milestone failed";
+    const reason =
+      error?.response?.data || error?.message || "Create milestone failed";
     return NextResponse.json(
       errorResponse({
         status,
-        message_en: typeof reason === "string" ? reason : "Create milestone failed",
+        message_en:
+          typeof reason === "string" ? reason : "Create milestone failed",
         message_th: "สร้าง Milestone ไม่สำเร็จ",
         error,
       }),

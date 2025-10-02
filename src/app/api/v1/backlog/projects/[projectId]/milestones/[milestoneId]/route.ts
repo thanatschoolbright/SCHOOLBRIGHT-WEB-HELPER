@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 
-const BACKLOG_DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;
+const BACKLOG_DOMAINS = [
+  "backlog.com",
+  "backlogtool.com",
+  "backlog.jp",
+] as const;
 
 type RouteParams = {
   projectId: string;
@@ -20,16 +24,19 @@ type UpdateMilestonePayload = {
 const buildMilestoneForm = (payload: UpdateMilestonePayload) => {
   const form = new URLSearchParams();
   if (payload.name !== undefined) form.set("name", payload.name);
-  if (payload.description !== undefined) form.set("description", payload.description ?? "");
-  if (payload.startDate !== undefined) form.set("startDate", payload.startDate ?? "");
+  if (payload.description !== undefined)
+    form.set("description", payload.description ?? "");
+  if (payload.startDate !== undefined)
+    form.set("startDate", payload.startDate ?? "");
   if (payload.releaseDueDate !== undefined)
     form.set("releaseDueDate", payload.releaseDueDate ?? "");
-  if (payload.archived !== undefined) form.set("archived", payload.archived ? "true" : "false");
+  if (payload.archived !== undefined)
+    form.set("archived", payload.archived ? "true" : "false");
   return form;
 };
 
 //** แก้ไขรายละเอียด Milestone บน Backlog
-export async function PATCH(request: NextRequest, context: { params: RouteParams }) {
+export async function PATCH(request: NextRequest, context: any) {
   try {
     const apiKeyFromEnvironment = process.env.BACKLOG_API_KEY;
     if (!apiKeyFromEnvironment) {
@@ -43,7 +50,8 @@ export async function PATCH(request: NextRequest, context: { params: RouteParams
       );
     }
 
-    const { projectId, milestoneId } = context.params;
+    const params = context.params as { projectId: string; milestoneId: string };
+    const { projectId, milestoneId } = params;
     if (!projectId || !milestoneId) {
       return NextResponse.json(
         errorResponse({
@@ -68,7 +76,9 @@ export async function PATCH(request: NextRequest, context: { params: RouteParams
       );
     }
 
-    const payload = (await request.json().catch(() => ({}))) as UpdateMilestonePayload;
+    const payload = (await request
+      .json()
+      .catch(() => ({}))) as UpdateMilestonePayload;
     if (!Object.keys(payload).length) {
       return NextResponse.json(
         errorResponse({
@@ -105,11 +115,13 @@ export async function PATCH(request: NextRequest, context: { params: RouteParams
     throw lastError;
   } catch (error: any) {
     const status = error?.response?.status || 500;
-    const reason = error?.response?.data || error?.message || "Update milestone failed";
+    const reason =
+      error?.response?.data || error?.message || "Update milestone failed";
     return NextResponse.json(
       errorResponse({
         status,
-        message_en: typeof reason === "string" ? reason : "Update milestone failed",
+        message_en:
+          typeof reason === "string" ? reason : "Update milestone failed",
         message_th: "อัปเดต Milestone ไม่สำเร็จ",
         error,
       }),
@@ -119,7 +131,7 @@ export async function PATCH(request: NextRequest, context: { params: RouteParams
 }
 
 //** ลบ Milestone ออกจาก Backlog
-export async function DELETE(request: NextRequest, context: { params: RouteParams }) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
     const apiKeyFromEnvironment = process.env.BACKLOG_API_KEY;
     if (!apiKeyFromEnvironment) {
@@ -133,7 +145,8 @@ export async function DELETE(request: NextRequest, context: { params: RouteParam
       );
     }
 
-    const { projectId, milestoneId } = context.params;
+    const params = context.params as { projectId: string; milestoneId: string };
+    const { projectId, milestoneId } = params;
     if (!projectId || !milestoneId) {
       return NextResponse.json(
         errorResponse({
@@ -180,11 +193,13 @@ export async function DELETE(request: NextRequest, context: { params: RouteParam
     throw lastError;
   } catch (error: any) {
     const status = error?.response?.status || 500;
-    const reason = error?.response?.data || error?.message || "Delete milestone failed";
+    const reason =
+      error?.response?.data || error?.message || "Delete milestone failed";
     return NextResponse.json(
       errorResponse({
         status,
-        message_en: typeof reason === "string" ? reason : "Delete milestone failed",
+        message_en:
+          typeof reason === "string" ? reason : "Delete milestone failed",
         message_th: "ลบ Milestone ไม่สำเร็จ",
         error,
       }),

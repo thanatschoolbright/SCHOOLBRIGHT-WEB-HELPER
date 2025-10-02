@@ -6,22 +6,14 @@ import {
   LoadingOutlined,
   RobotOutlined,
 } from "@ant-design/icons";
-import AutoCategoryToggle from "@components/backlog/auto-category-toggle";
 import {
   Button,
-  Card,
   DatePicker,
-  Divider,
   Drawer,
   Form,
   Input,
-  List,
-  Modal,
-  Popconfirm,
   Select,
-  Skeleton,
   Space,
-  Switch,
   Table,
   Tag,
   Tooltip,
@@ -34,23 +26,24 @@ import type { Dayjs } from "dayjs";
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-type Issue = {
-  id: number;
-  issueKey: string;
-  summary: string;
-  description?: string;
-  created?: string;
-  updated?: string;
-  status?: { id: number; name: string };
-  priority?: { id: number; name: string };
-  assignee?: { id: number; name: string };
-  issueType?: { id: number; name: string };
-  category?: Array<{ id: number; name: string }>;
-  versions?: Array<{ id: number; name: string }>;
-  milestone?: Array<{ id: number; name: string }>;
-  startDate?: string | null;
-  dueDate?: string | null;
-};
+import AiUpdateDrawer from "./ai-update-drawer";
+import BulkProgressModal, {
+  BulkProgressStep,
+  BulkStepStatus,
+} from "@components/backlog/bulk-progress-modal";
+import BulkUpdatePanel from "./bulk-update-panel";
+import MilestoneManagerModal from "./milestone-manager-modal";
+import type {
+  AiUpdateState,
+  BulkProgressStatus,
+  BulkUpdatePayload,
+  Issue,
+  Milestone,
+  MilestoneFormValues,
+  OptionItem,
+  PerIssueUpdateEntry,
+  ProjectMetadata,
+} from "./types";
 
 type Props = {
   open: boolean;
@@ -60,33 +53,6 @@ type Props = {
   projectName?: string;
 };
 
-type OptionItem = {
-  label: string;
-  value: number;
-};
-
-type ProjectMetadata = {
-  categories: Array<{ id: number; name: string }>;
-  milestones: Milestone[];
-};
-
-type Milestone = {
-  id: number;
-  name: string;
-  description?: string | null;
-  startDate?: string | null;
-  releaseDueDate?: string | null;
-  archived?: boolean;
-};
-
-type MilestoneFormValues = {
-  name: string;
-  description?: string;
-  startDate?: Dayjs | null;
-  releaseDueDate?: Dayjs | null;
-  archived?: boolean;
-};
-
 export default function IssueDrawer({
   open,
   onClose,
@@ -94,17 +60,18 @@ export default function IssueDrawer({
   projectId,
   projectName,
 }: Props) {
+  const [defaultStatusApplied, setDefaultStatusApplied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [issues, setIssues] = useState<Issue[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [aiModal, setAiModal] = useState<{
-    open: boolean;
-    issue: Issue | null;
-    generating: boolean;
-    newText: string;
-  }>({ open: false, issue: null, generating: false, newText: "" });
+  const [aiModal, setAiModal] = useState<AiUpdateState>({
+    generating: false,
+    issue: null,
+    newText: "",
+    open: false,
+  });
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [bulkStatusId, setBulkStatusId] = useState<number | undefined>(
     undefined
@@ -140,10 +107,53 @@ export default function IssueDrawer({
   const [milestoneForm] = Form.useForm<MilestoneFormValues>();
   const [autoCategoryEnabled, setAutoCategoryEnabled] = useState(false);
   const [autoCategoryLoading, setAutoCategoryLoading] = useState(false);
-  const [bulkProgress, setBulkProgress] = useState<Record<
-    string,
-    "idle" | "processing" | "success" | "error"
-  >>({});
+  const [bulkProgress, setBulkProgress] = useState<
+    Record<string, BulkProgressStatus>
+  >({});
+  const [bulkSteps, setBulkSteps] = useState<BulkProgressStep[]>([]);
+
+  //** เตรียมขั้นตอนแสดงผลบนโมดอล Progress
+  const initializeBulkSteps = (useAI: boolean) => {
+    const steps: BulkProgressStep[] = useAI
+      ? [
+          { key: "prepare", title: "ตรวจสอบข้อมูล", status: "process" },
+          { key: "ai", title: "Gemini กำลังสรุป Category", status: "wait" },
+          { key: "update", title: "กำลังอัปเดตไปยัง Backlog", status: "wait" },
+        ]
+      : [
+          { key: "prepare", title: "ตรวจสอบข้อมูล", status: "process" },
+          { key: "update", title: "กำลังอัปเดตไปยัง Backlog", status: "wait" },
+        ];
+    setBulkSteps(steps);
+  };
+
+  const updateStepStatus = (
+    key: string,
+    status: BulkStepStatus,
+    description?: string
+  ) => {
+    setBulkSteps((prev) =>
+      prev.map((step) =>
+        step.key === key
+          ? {
+              ...step,
+              status,
+              ...(description !== undefined ? { description } : {}),
+            }
+          : step
+      )
+    );
+  };
+
+  const updateStepDescription = (key: string, description: string) => {
+    setBulkSteps((prev) =>
+      prev.map((step) => (step.key === key ? { ...step, description } : step))
+    );
+  };
+
+  const handleCloseBulkModal = () => {
+    setBulkSteps([]);
+  };
 
   // ฟิลเตอร์พื้นฐาน
   const [keyword, setKeyword] = useState("");
@@ -381,6 +391,7 @@ export default function IssueDrawer({
     setBulkCategoryIds(undefined);
     setAutoCategoryEnabled(false);
     setBulkProgress({});
+    setBulkSteps([]);
   };
 
   //** แปลงค่า Dayjs เป็นรูปแบบวันที่สตริงเพื่อส่งต่อให้ Backlog
@@ -554,14 +565,7 @@ export default function IssueDrawer({
   //** ส่งคำขออัปเดตแบบกลุ่มไปยัง Backlog
   const handleBulkUpdate = async () => {
     if (!space || !selectedRowKeys.length) return;
-    type BulkUpdatePayload = {
-      statusId?: number;
-      priorityId?: number;
-      startDate?: string | null;
-      dueDate?: string | null;
-      milestoneId?: number[] | number;
-      categoryId?: number[] | number;
-    };
+    initializeBulkSteps(autoCategoryEnabled);
     const sharedUpdates: BulkUpdatePayload = {};
     if (bulkStatusId !== undefined) sharedUpdates.statusId = bulkStatusId;
     if (bulkPriorityId !== undefined) sharedUpdates.priorityId = bulkPriorityId;
@@ -580,6 +584,17 @@ export default function IssueDrawer({
 
     if (!autoCategoryEnabled && !Object.keys(sharedUpdates).length) {
       toast.error("กรุณาเลือกข้อมูลที่จะอัปเดต");
+      updateStepStatus("prepare", "error", "กรุณาเลือกข้อมูลที่จะอัปเดต");
+      return;
+    }
+
+    if (autoCategoryEnabled && !categoryOptions.length) {
+      toast.error("ยังไม่มีรายการ Category สำหรับโปรเจ็กต์นี้");
+      updateStepStatus(
+        "prepare",
+        "error",
+        "ยังไม่มีรายการ Category สำหรับโปรเจ็กต์นี้"
+      );
       return;
     }
 
@@ -593,6 +608,7 @@ export default function IssueDrawer({
       });
       return next;
     });
+    updateStepStatus("prepare", "finish");
 
     try {
       toastId = toast.loading(
@@ -602,10 +618,6 @@ export default function IssueDrawer({
       );
 
       if (autoCategoryEnabled) {
-        if (!categoryOptions.length) {
-          throw new Error("ยังไม่มีรายการ Category สำหรับโปรเจ็กต์นี้");
-        }
-
         const selectedIssueMap = new Map(
           issues.map((issueItem) => {
             const key = issueItem.issueKey || String(issueItem.id);
@@ -621,9 +633,11 @@ export default function IssueDrawer({
           .filter((item): item is Issue => Boolean(item));
 
         if (!selectedIssues.length) {
+          updateStepStatus("ai", "error", "ไม่พบข้อมูล Issue ที่เลือก");
           throw new Error("ไม่พบข้อมูล Issue ที่เลือก");
         }
 
+        updateStepStatus("ai", "process");
         toast.message("กำลังวิเคราะห์ Category ด้วย Gemini", { id: toastId });
 
         const { data: autoCategoryResponse } = await axios.post(
@@ -651,13 +665,14 @@ export default function IssueDrawer({
         const suggestionMap = new Map(
           suggestions.map((suggestion) => [suggestion.issueKey, suggestion])
         );
+        updateStepStatus("ai", "finish", "Gemini วิเคราะห์สำเร็จ");
 
         const sharedEntriesUpdates: BulkUpdatePayload = { ...sharedUpdates };
         delete sharedEntriesUpdates.categoryId;
 
         const missingIssues: string[] = [];
         const perIssueEntries = selectedRowKeys
-          .map((key) => {
+          .map<PerIssueUpdateEntry | null>((key) => {
             const keyStr = String(key);
             const target = selectedIssueMap.get(keyStr);
             if (!target) {
@@ -691,13 +706,7 @@ export default function IssueDrawer({
               },
             };
           })
-          .filter((item): item is {
-            keyStr: string,
-            payload: {
-              space: string;
-              entries: Array<{ issueKeyOrId: string | number; updates: BulkUpdatePayload }>;
-            };
-          }>(() => true);
+          .filter((item): item is PerIssueUpdateEntry => item !== null);
 
         if (missingIssues.length) {
           setBulkProgress((prev) => {
@@ -720,10 +729,25 @@ export default function IssueDrawer({
         let successCount = 0;
         let failedCount = 0;
 
-        for (const entry of perIssueEntries) {
+        updateStepStatus(
+          "update",
+          "process",
+          `กำลังอัปเดต 0/${perIssueEntries.length} งาน`
+        );
+
+        for (let index = 0; index < perIssueEntries.length; index += 1) {
+          const entry = perIssueEntries[index];
+          const order = index + 1;
           toast.message(`กำลังอัปเดต ${entry.keyStr}`, { id: toastId });
+          updateStepDescription(
+            "update",
+            `กำลังอัปเดต ${order}/${perIssueEntries.length} งาน`
+          );
           try {
-            await axios.post("/api/v1/backlog/issues/bulk-update", entry.payload);
+            await axios.post(
+              "/api/v1/backlog/issues/bulk-update",
+              entry.payload
+            );
             successCount += 1;
             setBulkProgress((prev) => ({
               ...prev,
@@ -744,22 +768,41 @@ export default function IssueDrawer({
           }
         }
 
-        if (failedCount === 0) {
+        const totalFailed = failedCount + missingIssues.length;
+
+        updateStepStatus(
+          "update",
+          totalFailed ? "error" : "finish",
+          `สำเร็จ ${successCount}/${perIssueEntries.length} งาน (พลาด ${totalFailed} งาน)`
+        );
+
+        if (totalFailed === 0) {
           toast.success(`อัปเดต ${successCount} งานสำเร็จ`, { id: toastId });
         } else {
-          toast.error(
-            `สำเร็จ ${successCount} งาน, ล้มเหลว ${failedCount} งาน`,
-            { id: toastId }
-          );
+          toast.error(`สำเร็จ ${successCount} งาน, พลาด ${totalFailed} งาน`, {
+            id: toastId,
+          });
         }
         await loadIssues(page, pageSize);
+        setSelectedRowKeys([]);
       } else {
         let successCount = 0;
         let failedCount = 0;
 
+        updateStepStatus(
+          "update",
+          "process",
+          `กำลังอัปเดต 0/${selectedRowKeys.length} งาน`
+        );
+
         for (const key of selectedRowKeys) {
           const keyStr = String(key);
+          const order = successCount + failedCount + 1;
           toast.message(`กำลังอัปเดต ${keyStr}`, { id: toastId });
+          updateStepDescription(
+            "update",
+            `กำลังอัปเดต ${order}/${selectedRowKeys.length} งาน`
+          );
           try {
             await axios.post("/api/v1/backlog/issues/bulk-update", {
               space,
@@ -780,6 +823,12 @@ export default function IssueDrawer({
           }
         }
 
+        updateStepStatus(
+          "update",
+          failedCount ? "error" : "finish",
+          `สำเร็จ ${successCount}/${selectedRowKeys.length} งาน`
+        );
+
         if (failedCount === 0) {
           toast.success(`อัปเดต ${successCount} งานสำเร็จ`, { id: toastId });
         } else {
@@ -789,6 +838,7 @@ export default function IssueDrawer({
           );
         }
         await loadIssues(page, pageSize);
+        setSelectedRowKeys([]);
       }
     } catch (error: any) {
       const message =
@@ -816,7 +866,23 @@ export default function IssueDrawer({
     }
   };
 
-  const loadIssues = async (p = page, ps = pageSize) => {
+  const handleAiClose = () => {
+    setAiModal({ generating: false, issue: null, newText: "", open: false });
+  };
+
+  const handleAiRegenerate = () => {
+    if (aiModal.issue) {
+      onClickAI(aiModal.issue);
+    }
+  };
+
+  const loadIssues = async (
+    p = page,
+    ps = pageSize,
+    override?: {
+      statusIds?: string[];
+    }
+  ) => {
     if (!space || !projectId) return;
     const id = toast.loading("กำลังโหลด Issues...");
     setLoading(true);
@@ -827,8 +893,9 @@ export default function IssueDrawer({
         page: p,
         count: ps,
       };
+      const effectiveStatusIds = override?.statusIds ?? statusIds;
       if (keyword) params.q = keyword;
-      if (statusIds.length) params.statusId = statusIds;
+      if (effectiveStatusIds.length) params.statusId = effectiveStatusIds;
       if (priorityIds.length) params.priorityId = priorityIds;
       if (issueTypeIds.length) params.issueTypeId = issueTypeIds;
       if (dateRange?.length === 2) {
@@ -848,7 +915,10 @@ export default function IssueDrawer({
         )
       );
       setBulkProgress((prev) => {
-        const next: Record<string, "idle" | "processing" | "success" | "error"> = {};
+        const next: Record<
+          string,
+          "idle" | "processing" | "success" | "error"
+        > = {};
         items.forEach((issue) => {
           const key = issue.issueKey || String(issue.id);
           if (prev[key]) {
@@ -871,14 +941,24 @@ export default function IssueDrawer({
   useEffect(() => {
     if (open) {
       setPage(1);
-      loadIssues(1, pageSize);
+      if (defaultStatusApplied) {
+        loadIssues(1, pageSize);
+      }
     }
     if (!open) {
       setSelectedRowKeys([]);
       clearBulkForm();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, projectId]);
+  }, [open, projectId, defaultStatusApplied]);
+
+  useEffect(() => {
+    if (open) {
+      setDefaultStatusApplied(false);
+      setStatusIds([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
 
   // โหลดตัวเลือกฟิลเตอร์เมื่อเปิด Drawer
   useEffect(() => {
@@ -901,12 +981,25 @@ export default function IssueDrawer({
               : Promise.resolve({ data: { data: [] } }),
           ]);
 
+        const rawStatuses: Array<{ id: number; name: string }> =
+          statusesResponse?.data?.data || [];
         setStatusOptions(
-          (statusesResponse?.data?.data || []).map((statusItem: any) => ({
+          rawStatuses.map((statusItem) => ({
             label: statusItem.name,
             value: Number(statusItem.id),
           }))
         );
+
+        if (!defaultStatusApplied) {
+          const openStatusIds = rawStatuses
+            .filter((statusItem) => !/closed/i.test(statusItem?.name ?? ""))
+            .map((statusItem) => String(statusItem.id));
+
+          setStatusIds(openStatusIds);
+          setDefaultStatusApplied(true);
+          await loadIssues(1, pageSize, { statusIds: openStatusIds });
+        }
+
         setPriorityOptions(
           (prioritiesResponse?.data?.data || []).map((priorityItem: any) => ({
             label: priorityItem.name,
@@ -974,12 +1067,13 @@ export default function IssueDrawer({
         syncMilestoneSelection([]);
       }
     };
+
     loadOptions();
-  }, [open, space, projectId]);
+  }, [open, space, projectId, defaultStatusApplied, pageSize]);
 
   useEffect(() => {
     setBulkProgress((prev) => {
-      const next: Record<string, "idle" | "processing" | "success" | "error"> = {};
+      const next: Record<string, BulkProgressStatus> = {};
       selectedRowKeys.forEach((key) => {
         const keyStr = String(key);
         next[keyStr] = prev[keyStr] ?? "idle";
@@ -1063,130 +1157,42 @@ export default function IssueDrawer({
           </Button>
         </Space>
 
-        <Card
-          size="small"
-          styles={{ body: { padding: 12 } }}
-          style={{
-            background: "#ffffff",
-            borderRadius: 16,
-            border: "1px solid #f0f2f5",
-            boxShadow: "0 12px 28px rgba(15, 23, 42, 0.06)",
+        <BulkUpdatePanel
+          autoCategoryEnabled={autoCategoryEnabled}
+          autoCategoryLoading={autoCategoryLoading}
+          bulkCategoryIds={bulkCategoryIds}
+          bulkDueDate={bulkDueDate}
+          bulkMilestoneIds={bulkMilestoneIds}
+          bulkPriorityId={bulkPriorityId}
+          bulkStartDate={bulkStartDate}
+          bulkStatusId={bulkStatusId}
+          bulkUpdating={bulkUpdating}
+          categoryOptions={categoryOptions}
+          milestoneOptions={milestoneOptions}
+          onAutoCategoryChange={(checked) => {
+            setAutoCategoryEnabled(checked);
+            if (checked) setBulkCategoryIds(undefined);
           }}
-          title={<Typography.Text strong>Bulk Update</Typography.Text>}
-        >
-          <Space wrap size={8} align="center">
-            <Typography.Text type="secondary">
-              เลือก Issue ด้วย Checkbox เพื่ออัปเดตแบบกลุ่ม (
-              {selectedRowKeys.length})
-            </Typography.Text>
-            <Select
-              allowClear
-              placeholder="Status ใหม่"
-              value={bulkStatusId}
-              onChange={(value) => setBulkStatusId(value as number | undefined)}
-              options={statusOptions}
-              style={{ minWidth: 200 }}
-            />
-            <Select
-              allowClear
-              placeholder="Priority ใหม่"
-              value={bulkPriorityId}
-              onChange={(value) =>
-                setBulkPriorityId(value as number | undefined)
-              }
-              options={priorityOptions}
-              style={{ minWidth: 200 }}
-            />
-            <Space size={6} align="center">
-              <Select
-                mode="multiple"
-                allowClear
-                placeholder="Milestone ใหม่"
-                value={
-                  bulkMilestoneIds === undefined ? undefined : bulkMilestoneIds
-                }
-                onChange={(values) =>
-                  setBulkMilestoneIds(() => {
-                    const valueList = Array.isArray(values)
-                      ? (values as Array<number | string>)
-                      : [];
-                    const normalizedValues = valueList.map((value) =>
-                      Number(value)
-                    );
-                    return normalizedValues.length ? normalizedValues : [];
-                  })
-                }
-                options={milestoneOptions}
-                style={{ minWidth: 220 }}
-              />
-              <Button onClick={openMilestoneManagerPopup}>
-                [จัดการ Milestone]
-              </Button>
-            </Space>
-            <AutoCategoryToggle
-              disabled={bulkUpdating || autoCategoryLoading || !categoryOptions.length}
-              enabled={autoCategoryEnabled}
-              onChange={(checked) => {
-                setAutoCategoryEnabled(checked);
-                if (checked) setBulkCategoryIds(undefined);
-              }}
-            />
-            <Select
-              mode="multiple"
-              allowClear
-              placeholder="Category ใหม่"
-              value={
-                bulkCategoryIds === undefined ? undefined : bulkCategoryIds
-              }
-              onChange={(values) =>
-                setBulkCategoryIds(() => {
-                  const valueList = Array.isArray(values)
-                    ? (values as Array<number | string>)
-                    : [];
-                  const normalizedValues = valueList.map((value) =>
-                    Number(value)
-                  );
-                  return normalizedValues.length ? normalizedValues : [];
-                })
-              }
-              options={categoryOptions}
-              style={{ minWidth: 220 }}
-              disabled={autoCategoryEnabled}
-            />
-            <DatePicker
-              allowClear
-              placeholder="Start Date"
-              value={bulkStartDate === undefined ? null : bulkStartDate}
-              onChange={(value) => setBulkStartDate(value ?? null)}
-              style={{ minWidth: 160 }}
-            />
-            <DatePicker
-              allowClear
-              placeholder="Due Date"
-              value={bulkDueDate === undefined ? null : bulkDueDate}
-              onChange={(value) => setBulkDueDate(value ?? null)}
-              style={{ minWidth: 160 }}
-            />
-            <Space>
-              <Button
-                type="primary"
-                onClick={handleBulkUpdate}
-                disabled={
-                  !selectedRowKeys.length ||
-                  !hasBulkUpdates ||
-                  bulkUpdating ||
-                  (autoCategoryEnabled && !categoryOptions.length)
-                }
-                loading={bulkUpdating}
-              >
-                Bulk Update
-              </Button>
-              <Button onClick={clearBulkForm} disabled={bulkUpdating}>
-                Clear
-              </Button>
-            </Space>
-          </Space>
-        </Card>
+          onCategoryChange={(values) =>
+            setBulkCategoryIds(values && values.length ? values : [])
+          }
+          onClear={clearBulkForm}
+          onDueDateChange={(value) => setBulkDueDate(value ?? null)}
+          onManageMilestone={openMilestoneManagerPopup}
+          onMilestoneChange={(values) =>
+            setBulkMilestoneIds(values && values.length ? values : [])
+          }
+          onPriorityChange={(value) => setBulkPriorityId(value)}
+          onStartDateChange={(value) => setBulkStartDate(value ?? null)}
+          onStatusChange={(value) => setBulkStatusId(value)}
+          onSubmit={handleBulkUpdate}
+          priorityOptions={priorityOptions}
+          selectedCount={selectedRowKeys.length}
+          statusOptions={statusOptions}
+          submitDisabled={
+            !selectedRowKeys.length || !hasBulkUpdates || bulkUpdating
+          }
+        />
 
         <Table<Issue>
           bordered
@@ -1219,225 +1225,30 @@ export default function IssueDrawer({
         />
       </Space>
 
-      <Modal
-        title="จัดการ Milestone"
-        open={milestoneManagerOpen}
+      <MilestoneManagerModal
+        editingMilestone={editingMilestone}
+        form={milestoneForm}
+        loading={milestoneManagerLoading}
+        milestones={milestoneManagerItems}
         onCancel={closeMilestoneManagerPopup}
-        footer={null}
-        width={600}
-        destroyOnHidden={false}
-        styles={{ content: { borderRadius: 20, padding: 24 } }}
-      >
-        <Typography.Paragraph type="secondary" style={{ marginBottom: 16 }}>
-          เพิ่ม แก้ไข หรือลบ Milestone
-          เพื่อใช้กับการอัปเดตแบบกลุ่มและการกรองข้อมูล
-        </Typography.Paragraph>
+        onDelete={handleDeleteMilestone}
+        onEdit={handleEditMilestone}
+        onFinish={handleSubmitMilestone}
+        onResetEdit={handleCancelEditMilestone}
+        open={milestoneManagerOpen}
+        saving={milestoneSaving}
+        selectedDeletingId={milestoneDeletingId}
+      />
 
-        <Form
-          layout="vertical"
-          form={milestoneForm}
-          onFinish={handleSubmitMilestone}
-          initialValues={{ archived: false }}
-        >
-          <Form.Item
-            label="ชื่อ Milestone"
-            name="name"
-            rules={[{ required: true, message: "กรุณากรอกชื่อ Milestone" }]}
-          >
-            <Input placeholder="เช่น Sprint 01" />
-          </Form.Item>
-          <Form.Item label="รายละเอียด" name="description">
-            <Input.TextArea
-              rows={3}
-              placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"
-            />
-          </Form.Item>
-          <Space size={12} style={{ width: "100%" }} wrap>
-            <Form.Item label="วันเริ่ม" name="startDate">
-              <DatePicker allowClear />
-            </Form.Item>
-            <Form.Item label="วันกำหนดส่ง" name="releaseDueDate">
-              <DatePicker allowClear />
-            </Form.Item>
-            <Form.Item label="สถานะ" name="archived" valuePropName="checked">
-              <Switch checkedChildren="Archived" unCheckedChildren="Active" />
-            </Form.Item>
-          </Space>
-          <Space>
-            <Button type="primary" htmlType="submit" loading={milestoneSaving}>
-              {editingMilestone ? "บันทึกการแก้ไข" : "เพิ่ม Milestone"}
-            </Button>
-            {editingMilestone && (
-              <Button
-                onClick={handleCancelEditMilestone}
-                disabled={milestoneSaving}
-              >
-                ยกเลิกการแก้ไข
-              </Button>
-            )}
-          </Space>
-        </Form>
-
-        <Divider />
-
-        <List
-          loading={milestoneManagerLoading}
-          dataSource={milestoneManagerItems}
-          rowKey={(item) => String(item.id)}
-          locale={{ emptyText: "ยังไม่มี Milestone" }}
-          renderItem={(item) => (
-            <List.Item
-              actions={[
-                <Button
-                  key="edit"
-                  size="small"
-                  onClick={() => handleEditMilestone(item)}
-                >
-                  แก้ไข
-                </Button>,
-                <Popconfirm
-                  key="delete"
-                  title="ยืนยันการลบ Milestone"
-                  okText="ลบ"
-                  cancelText="ยกเลิก"
-                  onConfirm={() => handleDeleteMilestone(item.id)}
-                >
-                  <Button
-                    danger
-                    size="small"
-                    loading={milestoneDeletingId === item.id}
-                  >
-                    ลบ
-                  </Button>
-                </Popconfirm>,
-              ]}
-            >
-              <List.Item.Meta
-                title={
-                  <Space size={8} wrap>
-                    <Typography.Text strong>{item.name}</Typography.Text>
-                    {item.archived ? <Tag color="default">Archived</Tag> : null}
-                  </Space>
-                }
-                description={
-                  <Space
-                    direction="vertical"
-                    size={4}
-                    style={{ width: "100%" }}
-                  >
-                    <Typography.Text>{item.description || "-"}</Typography.Text>
-                    <Typography.Text type="secondary">
-                      เริ่ม: {formatDate(item.startDate)} • กำหนดส่ง:{" "}
-                      {formatDate(item.releaseDueDate)}
-                    </Typography.Text>
-                  </Space>
-                }
-              />
-            </List.Item>
-          )}
-        />
-      </Modal>
-
-      {/* AI Modal */}
-      {aiModal.open && (
-        <Drawer
-          title={`AI Update • ${aiModal.issue?.issueKey || "-"}`}
-          open={aiModal.open}
-          onClose={() =>
-            setAiModal({
-              open: false,
-              issue: null,
-              generating: false,
-              newText: "",
-            })
-          }
-          width={900}
-        >
-          <Space direction="vertical" style={{ width: "100%" }} size={16}>
-            <Typography.Text type="secondary">
-              ระบบจะช่วยสรุป Task เป็น .MD ก่อนอนุมัติ (Minimal/อ่านง่าย)
-            </Typography.Text>
-
-            {/* Section 1: ข้อความเดิม */}
-            <Card
-              size="small"
-              styles={{ body: { padding: 12 } }}
-              title={<Typography.Text strong>ข้อความเดิม</Typography.Text>}
-            >
-              <div
-                style={{
-                  whiteSpace: "pre-wrap",
-                  border: "1px solid #eee",
-                  borderRadius: 10,
-                  padding: 12,
-                  minHeight: 200,
-                  background: "#fafafa",
-                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                }}
-              >
-                {aiModal.issue?.description || "-"}
-              </div>
-            </Card>
-
-            {/* Section 2: สรุปโดย AI */}
-            <Card
-              size="small"
-              styles={{ body: { padding: 12 } }}
-              title={<Typography.Text strong>สรุปโดย AI (.MD)</Typography.Text>}
-            >
-              {aiModal.generating ? (
-                <div
-                  style={{
-                    border: "1px solid #eee",
-                    borderRadius: 10,
-                    padding: 12,
-                  }}
-                >
-                  <Skeleton active paragraph={{ rows: 10 }} />
-                </div>
-              ) : (
-                <textarea
-                  value={aiModal.newText}
-                  onChange={(event) =>
-                    setAiModal((state) => ({
-                      ...state,
-                      newText: event.target.value,
-                    }))
-                  }
-                  style={{
-                    width: "100%",
-                    minHeight: 240,
-                    borderRadius: 10,
-                    border: "1px solid #eee",
-                    padding: 12,
-                    fontFamily:
-                      "ui-monospace, SFMono-Regular, Menlo, monospace",
-                  }}
-                />
-              )}
-            </Card>
-
-            {/* Actions */}
-            <Divider style={{ margin: "8px 0 0" }} />
-            <Space style={{ justifyContent: "flex-end", width: "100%" }}>
-              <Button
-                onClick={() => onClickAI(aiModal.issue!)}
-                loading={aiModal.generating}
-                disabled={aiModal.generating}
-              >
-                Regenerate
-              </Button>
-              <Button
-                type="primary"
-                onClick={doApproveUpdate}
-                disabled={!aiModal.newText || aiModal.generating}
-              >
-                อนุมัติการแก้ไข
-              </Button>
-            </Space>
-          </Space>
-        </Drawer>
-      )}
+      <AiUpdateDrawer
+        aiState={aiModal}
+        onApprove={doApproveUpdate}
+        onClose={handleAiClose}
+        onRegenerate={handleAiRegenerate}
+        onUpdateText={(value) =>
+          setAiModal((prev) => ({ ...prev, newText: value }))
+        }
+      />
     </Drawer>
   );
 }
