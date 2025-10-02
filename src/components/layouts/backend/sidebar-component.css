@@ -14,8 +14,13 @@
 }
 
 /* Make submenu items smaller and allow wrapping */
+.sb-sidebar-menu .ant-menu-item .ant-menu-title-content {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
 .sb-sidebar-menu .ant-menu-sub .ant-menu-item .ant-menu-title-content {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.35;
   white-space: normal;
   word-break: break-word;
@@ -25,8 +30,9 @@
 
 .sb-sidebar-menu .ant-menu-sub .ant-menu-item {
   height: auto;
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  margin-block: 4px;
 }
 
 /* Also allow wrapping for top-level titles, but keep size */
@@ -37,3 +43,31 @@
   text-overflow: unset;
 }
 
+/* Minimal spacing and rounded corners */
+.sb-sidebar-menu .ant-menu-item,
+.sb-sidebar-menu .ant-menu-submenu-title {
+  border-radius: 8px;
+  margin-block: 2px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Hover states (light/dark) */
+.sb-sidebar-menu.ant-menu-light .ant-menu-item:hover,
+.sb-sidebar-menu.ant-menu-light .ant-menu-submenu-title:hover {
+  background-color: rgba(15, 23, 42, 0.04);
+}
+.dark .sb-sidebar-menu .ant-menu-item:hover,
+.dark .sb-sidebar-menu .ant-menu-submenu-title:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Selected in submenu: use primary + white text */
+.sb-sidebar-wrap .sb-sidebar-menu .ant-menu-sub .ant-menu-item-selected {
+  background-color: var(--sb-primary) !important;
+}
+.sb-sidebar-wrap .sb-sidebar-menu .ant-menu-sub .ant-menu-item-selected,
+.sb-sidebar-wrap .sb-sidebar-menu .ant-menu-sub .ant-menu-item-selected .ant-menu-title-content,
+.sb-sidebar-wrap .sb-sidebar-menu .ant-menu-sub .ant-menu-item-selected .anticon,
+.sb-sidebar-wrap .sb-sidebar-menu .ant-menu-sub .ant-menu-item-selected a {
+  color: #ffffff !important;
+}
