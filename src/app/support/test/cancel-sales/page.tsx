@@ -710,7 +710,7 @@ export default function Page() {
         <AiChatWidget
           title="AI Assistant สำหรับยกเลิกรายการ"
           placeholder="พิมพ์คำสั่ง เช่น ยกเลิกการขายให้โรงเรียน ... พร้อมข้อมูลที่จำเป็น"
-          cancellationLog={lastCancellationLog}
+          cancellationLog={lastCancellationLog as any}
           onCancellationInfo={handleCancellationInfo}
           onConfirmCancellation={handleChatConfirmCancellation}
         />

@@ -1,9 +1,11 @@
+//** ไฟล์ API สำหรับจัดการการสนทนา AI เพื่อยกเลิกรายการขายเกิน 7 วัน
+//** โดยใช้ Gemini AI ในการประมวลผลและโต้ตอบกับผู้ใช้
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { QA_CANCEL_SALES_CHAT_PROMPT } from "@/constants/prompts";
-import { errorResponse, successResponse } from "@/helpers/api/response";
+import { QA_CANCEL_SALES_CHAT_PROMPT } from "src/constants/prompts";
+import { errorResponse, successResponse } from "src/helpers/api/response";
 import {
   matchSchool,
   matchUserByName,
@@ -11,10 +13,11 @@ import {
   type UserMatch,
 } from "./matcher";
 
-//** สร้าง URL เรียกใช้งาน Gemini รุ่น REST API v1 สำหรับฟีเจอร์สนทนา Cancel Sales
-const buildGeminiChatUrl = (modelName: string) =>
+//** สร้าง URL สำหรับเรียกใช้งาน Gemini REST API v1 สำหรับฟีเจอร์สนทนา Cancel Sales
+const buildGeminiChatUrl = (modelName: string): string =>
   `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent`;
 
+//** Schema สำหรับตรวจสอบโครงสร้างของข้อความที่ส่งเข้ามาใน API
 const chatRequestSchema = z.object({
   messages: z
     .array(
@@ -26,29 +29,35 @@ const chatRequestSchema = z.object({
     .min(1),
 });
 
-const normalizeText = (value?: string) =>
+//** แปลงข้อความเป็นรูปแบบปกติ (ตัวพิมพ์เล็ก, ลบคำว่า "โรงเรียน", ลบช่องว่าง)
+const normalizeText = (value?: string): string =>
   (value || "")
     .toLowerCase()
     .replace(/โรงเรียน/g, "")
     .replace(/\s+/g, "")
     .trim();
 
-const isConfirmationMessage = (message: string) => {
-  const normalized = message.trim().toLowerCase();
-  if (!normalized) return false;
+//** ตรวจสอบว่าข้อความเป็นข้อความยืนยันหรือไม่
+const isConfirmationMessage = (message: string): boolean => {
+  const normalizedMessage = message.trim().toLowerCase();
+  if (!normalizedMessage) return false;
   return /(ยืนยัน|ตกลง|confirm|คอนเฟิร์ม|ใช่ค่ะ|ใช่ครับ|yes|ตกลงค่ะ|ตกลงครับ)/i.test(
-    normalized
+    normalizedMessage
   );
 };
 
-const sanitizeCapturedValue = (value: string) =>
+//** ล้างค่าที่ดึงมาได้จากข้อความ (ลบอักขระพิเศษและรหัสที่ไม่เกี่ยวข้อง)
+const sanitizeCapturedValue = (value: string): string =>
   value
     .replace(/[*_`]/g, "")
     .replace(/\(\s*รหัส[^)]*\)/gi, "")
     .replace(/\(SchoolID[^)]*\)/gi, "")
     .trim();
 
-const extractApiStatusText = (result: CancelSalesResultMeta | null) => {
+//** ดึงข้อความสถานะจากผลลัพธ์ API
+const extractApiStatusText = (
+  result: CancelSalesResultMeta | null
+): string | null => {
   if (!result?.data || typeof result.data !== "object") return null;
   const data = result.data as Record<string, any>;
   return (
@@ -60,12 +69,14 @@ const extractApiStatusText = (result: CancelSalesResultMeta | null) => {
   );
 };
 
+//** Interface สำหรับข้อมูลบริบทของโรงเรียน
 interface SchoolContextHint {
   schoolId?: string;
   schoolName?: string;
   schoolNameEN?: string;
 }
 
+//** Interface สำหรับข้อมูลที่ดึงมาจากข้อความสนทนา
 interface ExtractedInfo {
   schoolName?: string;
   schoolNameEN?: string;
@@ -79,64 +90,74 @@ interface ExtractedInfo {
   sSellId?: string;
 }
 
+//** Interface สำหรับผลลัพธ์จากการยกเลิกการขาย
 interface CancelSalesResultMeta {
   status: "success" | "error";
   data?: unknown;
   message?: string;
 }
 
+//** Type สำหรับฟิลด์ที่กำลังรอข้อมูล
 type PendingField = "school" | "seller" | "transaction" | null;
 
+//** ดึงข้อมูลจากข้อความสนทนาของผู้ใช้
+//** ฟังก์ชันนี้จะวิเคราะห์ข้อความที่ผู้ใช้ป้อนเข้ามาเพื่อดึงข้อมูลสำคัญ เช่น SchoolID, ชื่อโรงเรียน, UserID ของผู้ซื้อ/ผู้ขาย และ sSellID
 const extractInfoFromMessages = (
   messages: Array<{ role: string; content: string }>
-) => {
-  const info: ExtractedInfo = {};
+): ExtractedInfo => {
+  const extractedInformation: ExtractedInfo = {};
   let currentRole: "buyer" | "seller" | "" = "";
   let pendingField: "buyerUserId" | "sellerUserId" | "sSellId" | null = null;
 
-  const lines = messages
+  const userMessageLines = messages
     .filter((message) => message.role === "user")
     .flatMap((message) => message.content.split(/\n+/));
 
-  for (const original of lines) {
-    if (!original) continue;
-    const line = original.trim().replace(/^[-•\*]+\s*/, "");
-    if (!line) continue;
-    const lower = line.toLowerCase();
+  for (const originalLine of userMessageLines) {
+    if (!originalLine) continue;
+    const processedLine = originalLine.trim().replace(/^[-•\*]+\s*/, "");
+    if (!processedLine) continue;
+    const lowerCaseLine = processedLine.toLowerCase();
 
-    if (/(ผู้ซื้อ|buyer)/i.test(lower)) {
+    //** ตรวจสอบบทบาทของผู้ใช้ (ผู้ซื้อหรือผู้ขาย)
+    if (/(ผู้ซื้อ|buyer)/i.test(lowerCaseLine)) {
       currentRole = "buyer";
-    } else if (/(ผู้ขาย|seller)/i.test(lower)) {
+    } else if (/(ผู้ขาย|seller)/i.test(lowerCaseLine)) {
       currentRole = "seller";
     }
 
-    const schoolIdMatch = line.match(/school[_\s-]*id\s*[:：]?\s*(\d+)/i);
+    //** ดึง SchoolID
+    const schoolIdMatch = processedLine.match(
+      /school[_\s-]*id\s*[:：]?\s*(\d+)/i
+    );
     if (schoolIdMatch) {
-      info.schoolId = schoolIdMatch[1];
+      extractedInformation.schoolId = schoolIdMatch[1];
     }
 
-    if (/ชื่อโรงเรียน/.test(lower)) {
-      const value = line.split(/[:：]/)[1]?.trim();
+    //** ดึงชื่อโรงเรียน (ไทยหรืออังกฤษ)
+    if (/ชื่อโรงเรียน/.test(lowerCaseLine)) {
+      const value = processedLine.split(/[:：]/)[1]?.trim();
       if (value) {
-        if (/อังกฤษ|english|schoolnameen/.test(lower)) {
-          info.schoolNameEN = value;
+        if (/อังกฤษ|english|schoolnameen/.test(lowerCaseLine)) {
+          extractedInformation.schoolNameEN = value;
         } else {
-          info.schoolName = value;
+          extractedInformation.schoolName = value;
         }
       }
     }
 
-    const sSellMatch =
-      line.match(/sSellID\s*[:：]?\s*([\w-]+)/i) ||
-      line.match(
+    //** ดึง sSellID
+    const sSellIdMatch =
+      processedLine.match(/sSellID\s*[:：]?\s*([\w-]+)/i) ||
+      processedLine.match(
         /รหัส\s*ทราน(ซ|ส)เ?คชั?น[\s\-]*การซื้อขาย\s*[:：]?\s*([\w-]+)/i
       );
-    if (sSellMatch) {
-      const value = (sSellMatch[1] ?? sSellMatch[2] ?? "")
+    if (sSellIdMatch) {
+      const value = (sSellIdMatch[1] ?? sSellIdMatch[2] ?? "")
         .trim()
         .replace(/^[-\s]+/, "");
       if (value) {
-        info.sSellId = value;
+        extractedInformation.sSellId = value;
         pendingField = null;
       } else {
         pendingField = "sSellId";
@@ -144,13 +165,16 @@ const extractInfoFromMessages = (
       continue;
     }
 
-    const userIdMatch = line.match(/user[_\s-]*id[^:：]*[:：]?\s*(.+)?/i);
+    //** ดึง UserID
+    const userIdMatch = processedLine.match(
+      /user[_\s-]*id[^:：]*[:：]?\s*(.+)?/i
+    );
     if (userIdMatch) {
       const rawValue = userIdMatch[1]?.replace(/^[–\-]\s*/, "").trim();
-      const targetField =
+      const targetField: keyof ExtractedInfo =
         currentRole === "seller" ? "sellerUserId" : "buyerUserId";
       if (rawValue && /^[0-9]+$/.test(rawValue)) {
-        (info as any)[targetField] = rawValue;
+        extractedInformation[targetField] = rawValue;
         pendingField = null;
       } else {
         pendingField = targetField;
@@ -158,100 +182,122 @@ const extractInfoFromMessages = (
       continue;
     }
 
+    //** จัดการฟิลด์ที่รอดำเนินการ
     if (pendingField) {
-      const value = line.replace(/^[–\-]\s*/, "").trim();
+      const value = processedLine.replace(/^[–\-]\s*/, "").trim();
       if (value && value !== "—" && !/ไม่มี|not\s*required/i.test(value)) {
-        (info as any)[pendingField] = value;
+        extractedInformation[pendingField as keyof ExtractedInfo] = value;
       }
       pendingField = null;
     }
 
-    const nameMatch = line.match(/ชื่อ(?!โรงเรียน)[^:：]*[:：]\s*(.+)/i);
+    //** ดึงชื่อ
+    const nameMatch = processedLine.match(
+      /ชื่อ(?!โรงเรียน)[^:：]*[:：]\s*(.+)/i
+    );
     if (nameMatch) {
       const value = nameMatch[1].trim();
       if (value && value !== "—") {
         if (currentRole === "seller") {
-          info.sellerName = value;
+          extractedInformation.sellerName = value;
         } else {
-          info.buyerName = value;
+          extractedInformation.buyerName = value;
         }
       }
     }
 
-    const lastNameMatch = line.match(/นามสกุล[^:：]*[:：]\s*(.+)/i);
+    //** ดึงนามสกุล
+    const lastNameMatch = processedLine.match(/นามสกุล[^:：]*[:：]\s*(.+)/i);
     if (lastNameMatch) {
       const value = lastNameMatch[1].trim();
       if (value && value !== "—") {
         if (currentRole === "seller") {
-          info.sellerLastName = value;
+          extractedInformation.sellerLastName = value;
         } else {
-          info.buyerLastName = value;
+          extractedInformation.buyerLastName = value;
         }
       }
       continue;
     }
 
+    //** จัดการ sSellID ที่รอดำเนินการ
     if (pendingField === "sSellId") {
-      const value = line.replace(/^[–\-]\s*/, "").trim();
+      const value = processedLine.replace(/^[–\-]\s*/, "").trim();
       if (value && value !== "—" && !/ไม่มี/.test(value)) {
-        info.sSellId = value;
+        extractedInformation.sSellId = value;
       }
       pendingField = null;
     }
   }
 
-  return info;
+  return extractedInformation;
 };
 
+//** เพิ่มข้อมูลที่ดึงมาได้จากบทสนทนา
+//** ฟังก์ชันนี้จะช่วยเสริมข้อมูลที่ดึงมาได้จาก extractInfoFromMessages โดยพิจารณาจากบทสนทนาทั้งหมด
 const augmentInfoFromConversation = (
   messages: Array<{ role: string; content: string }>,
-  info: ExtractedInfo
-) => {
+  extractedInformation: ExtractedInfo
+): ExtractedInfo => {
   let pendingField: PendingField = null;
 
   for (const message of messages) {
-    const content = message.content?.trim();
-    if (!content) continue;
-    const lines = content
+    const messageContent = message.content?.trim();
+    if (!messageContent) continue;
+    const lines = messageContent
       .split(/\n+/)
       .map((line) => line.trim())
       .filter(Boolean);
     if (!lines.length) continue;
 
     if (message.role === "assistant") {
-      const lowerContent = content.toLowerCase();
-      if (/โรงเรียน/.test(lowerContent) && /(อะไร|แจ้ง)/.test(lowerContent)) {
+      const lowerCaseContent = messageContent.toLowerCase();
+      if (
+        /โรงเรียน/.test(lowerCaseContent) &&
+        /(อะไร|แจ้ง)/.test(lowerCaseContent)
+      ) {
         pendingField = "school";
       }
-      if (/ผู้ขาย/.test(lowerContent) && /(ใคร|คือ)/.test(lowerContent)) {
+      if (
+        /ผู้ขาย/.test(lowerCaseContent) &&
+        /(ใคร|คือ)/.test(lowerCaseContent)
+      ) {
         pendingField = "seller";
       }
       if (
-        /ssellid/i.test(content) ||
-        /รหัส\s*(ธุรกรรม|ทราน|transaction)/i.test(lowerContent)
+        /ssellid/i.test(messageContent) ||
+        /รหัส\s*(ธุรกรรม|ทราน|transaction)/i.test(lowerCaseContent)
       ) {
         pendingField = "transaction";
       }
 
       for (const line of lines) {
         const schoolIdMatch = line.match(/school[_\s-]*id\s*[:：]?\s*(\d+)/i);
-        if (schoolIdMatch && !info.schoolId) {
-          info.schoolId = schoolIdMatch[1];
+        if (schoolIdMatch && !extractedInformation.schoolId) {
+          extractedInformation.schoolId = schoolIdMatch[1];
         }
         const sellerIdMatch = line.match(/\bUserID\b[^\d]*(\d+)/i);
-        if (sellerIdMatch && !info.sellerUserId) {
-          info.sellerUserId = sellerIdMatch[1];
+        if (sellerIdMatch && !extractedInformation.sellerUserId) {
+          extractedInformation.sellerUserId = sellerIdMatch[1];
         }
-        if (/user\s*id\s*\(sID\/sID2\)/i.test(line) && !info.sellerUserId) {
+        if (
+          /user\s*id\s*\(sID\/sID2\)/i.test(line) &&
+          !extractedInformation.sellerUserId
+        ) {
           const digits = line.match(/(\d{3,})/);
-          if (digits) info.sellerUserId = digits[1];
+          if (digits) extractedInformation.sellerUserId = digits[1];
         }
-        if (/โรงเรียนที่พบเจอปัญหาคือ/i.test(line) && !info.schoolName) {
+        if (
+          /โรงเรียนที่พบเจอปัญหาคือ/i.test(line) &&
+          !extractedInformation.schoolName
+        ) {
           const nameMatch = line.match(
             /โรงเรียนที่พบเจอปัญหาคือ:\s*[*_]*([^\n]+)/i
           );
           if (nameMatch) {
-            info.schoolName = sanitizeCapturedValue(nameMatch[1]);
+            extractedInformation.schoolName = sanitizeCapturedValue(
+              nameMatch[1]
+            );
           }
         }
       }
@@ -262,54 +308,60 @@ const augmentInfoFromConversation = (
 
     for (const line of lines) {
       const userIdMatch = line.match(/user[_\s-]*id\s*[:：]?\s*(\d+)/i);
-      if (userIdMatch && !info.sellerUserId) {
-        info.sellerUserId = userIdMatch[1];
+      if (userIdMatch && !extractedInformation.sellerUserId) {
+        extractedInformation.sellerUserId = userIdMatch[1];
       }
 
       const schoolIdMatch = line.match(/school[_\s-]*id\s*[:：]?\s*(\d+)/i);
-      if (schoolIdMatch && !info.schoolId) {
-        info.schoolId = schoolIdMatch[1];
+      if (schoolIdMatch && !extractedInformation.schoolId) {
+        extractedInformation.schoolId = schoolIdMatch[1];
       }
 
-      if (pendingField === "school" && !info.schoolName) {
-        info.schoolName = sanitizeCapturedValue(line);
+      if (pendingField === "school" && !extractedInformation.schoolName) {
+        extractedInformation.schoolName = sanitizeCapturedValue(line);
         pendingField = null;
         continue;
       }
 
       if (pendingField === "seller") {
-        if (!info.sellerName) {
-          info.sellerName = sanitizeCapturedValue(line.replace(/\(.*?\)/g, ""));
+        if (!extractedInformation.sellerName) {
+          extractedInformation.sellerName = sanitizeCapturedValue(
+            line.replace(/\(.*?\)/g, "")
+          );
         }
-        if (!info.sellerUserId) {
+        if (!extractedInformation.sellerUserId) {
           const digits = line.match(/(\d{3,})/);
-          if (digits) info.sellerUserId = digits[1];
+          if (digits) extractedInformation.sellerUserId = digits[1];
         }
         pendingField = null;
         continue;
       }
 
-      if (pendingField === "transaction" && !info.sSellId) {
-        const tx = line.match(/[A-Za-z0-9_-]+/);
-        if (tx) info.sSellId = tx[0];
+      if (pendingField === "transaction" && !extractedInformation.sSellId) {
+        const transactionId = line.match(/[A-Za-z0-9_-]+/);
+        if (transactionId) extractedInformation.sSellId = transactionId[0];
         pendingField = null;
         continue;
       }
 
-      if (!info.sSellId) {
-        const txInline = line.match(/ssellid\s*[:：]?\s*([\w-]+)/i);
-        if (txInline) info.sSellId = txInline[1];
+      if (!extractedInformation.sSellId) {
+        const transactionInline = line.match(/ssellid\s*[:：]?\s*([\w-]+)/i);
+        if (transactionInline)
+          extractedInformation.sSellId = transactionInline[1];
       }
     }
   }
 
-  return info;
+  return extractedInformation;
 };
 
+//** สร้างบริบทสำหรับการค้นหาโรงเรียน
+//** ฟังก์ชันนี้จะใช้ข้อความล่าสุดของผู้ใช้ในการค้นหาโรงเรียนที่เกี่ยวข้องจาก API
+//** และสร้างบริบทสำหรับ Gemini AI เพื่อช่วยในการโต้ตอบ
 const buildSchoolSearchContext = async (
-  origin: string,
+  requestOrigin: string,
   latestUserMessage: string
-) => {
+): Promise<string> => {
   const baseInstruction =
     'เริ่มสนทนาทุกครั้งด้วยคำถาม "โรงเรียนที่พบเจอปัญหาคืออะไรคะ?" และแจ้งผู้ใช้ว่าจะตรวจสอบ SchoolID ผ่าน API /api/v1/school ก่อนถามข้อมูลผู้ขาย';
 
@@ -321,7 +373,7 @@ const buildSchoolSearchContext = async (
   const contextLines = [baseInstruction];
 
   try {
-    const schoolResponse = await axios.get(`${origin}/api/v1/school`);
+    const schoolResponse = await axios.get(`${requestOrigin}/api/v1/school`);
     const schools: Array<{
       SchoolID: number | string;
       SchoolName: string;
@@ -329,25 +381,27 @@ const buildSchoolSearchContext = async (
     }> = schoolResponse.data?.data ?? [];
 
     const normalizedMessage = normalizeText(latestUserMessage);
-    const matched = schools
+    const matchedSchools = schools
       .map((school) => {
         const normalizedName = normalizeText(school.SchoolName);
-        const normalizedNameEN = normalizeText(school.SchoolNameEN);
+        const normalizedEnglishName = normalizeText(school.SchoolNameEN);
 
         let score = 0;
         if (
           normalizedMessage === normalizedName ||
-          (normalizedNameEN && normalizedMessage === normalizedNameEN)
+          (normalizedEnglishName && normalizedMessage === normalizedEnglishName)
         ) {
           score = 3;
         } else if (
           (normalizedName && normalizedMessage.includes(normalizedName)) ||
-          (normalizedNameEN && normalizedMessage.includes(normalizedNameEN))
+          (normalizedEnglishName &&
+            normalizedMessage.includes(normalizedEnglishName))
         ) {
           score = 2;
         } else if (
           (normalizedName && normalizedName.includes(normalizedMessage)) ||
-          (normalizedNameEN && normalizedNameEN.includes(normalizedMessage))
+          (normalizedEnglishName &&
+            normalizedEnglishName.includes(normalizedMessage))
         ) {
           score = 1;
         }
@@ -359,37 +413,39 @@ const buildSchoolSearchContext = async (
       .slice(0, 5)
       .map((item) => item.school);
 
-    if (!matched.length) {
+    if (!matchedSchools.length) {
       contextLines.push(
         "ยังไม่พบโรงเรียนที่ตรงกับข้อความล่าสุด ให้ขอชื่อโรงเรียนเพิ่มเติมหรือสะกดใหม่"
       );
       return contextLines.join("\n");
     }
 
-    const [primary, ...alternatives] = matched;
-    const primaryThai = (primary.SchoolName || "").trim();
-    const primaryEnglish = (primary.SchoolNameEN || "").trim();
-    const primaryDisplay = primaryEnglish
-      ? `${primaryThai} (${primaryEnglish})`
-      : primaryThai;
+    const [primarySchool, ...alternativeSchools] = matchedSchools;
+    const primarySchoolThai = (primarySchool.SchoolName || "").trim();
+    const primarySchoolEnglish = (primarySchool.SchoolNameEN || "").trim();
+    const primarySchoolDisplay = primarySchoolEnglish
+      ? `${primarySchoolThai} (${primarySchoolEnglish})`
+      : primarySchoolThai;
 
     contextLines.push(
-      `โรงเรียนที่ตรงกันมากที่สุด: ${primaryDisplay} (SchoolID: ${primary.SchoolID})`
+      `โรงเรียนที่ตรงกันมากที่สุด: ${primarySchoolDisplay} (SchoolID: ${primarySchool.SchoolID})`
     );
 
-    if (alternatives.length) {
-      for (const school of alternatives) {
-        const thai = (school.SchoolName || "").trim();
-        const english = (school.SchoolNameEN || "").trim();
-        const display = english ? `${thai} (${english})` : thai;
+    if (alternativeSchools.length) {
+      for (const school of alternativeSchools) {
+        const thaiName = (school.SchoolName || "").trim();
+        const englishName = (school.SchoolNameEN || "").trim();
+        const displayName = englishName
+          ? `${thaiName} (${englishName})`
+          : thaiName;
         contextLines.push(
-          `- ทางเลือกใกล้เคียง: ${display} (SchoolID: ${school.SchoolID})`
+          `- ทางเลือกใกล้เคียง: ${displayName} (SchoolID: ${school.SchoolID})`
         );
       }
     }
 
     contextLines.push(
-      `ให้ถามยืนยันว่า \"ต้องการยกเลิกรายการสินค้าเกิน 7 วันที่${primaryThai} (รหัส : ${primary.SchoolID}) ใช่หรือไม่คะ\" และเมื่อได้รับคำยืนยันให้จดจำ SchoolID นี้สำหรับขั้นตอนถัดไป`
+      `ให้ถามยืนยันว่า \"ต้องการยกเลิกรายการสินค้าเกิน 7 วันที่${primarySchoolThai} (รหัส : ${primarySchool.SchoolID}) ใช่หรือไม่คะ\" และเมื่อได้รับคำยืนยันให้จดจำ SchoolID นี้สำหรับขั้นตอนถัดไป`
     );
     contextLines.push(
       "หากผู้ใช้บอกว่าไม่ตรงหรือยังไม่แน่ใจ ให้ขอชื่อโรงเรียนใหม่ก่อนดำเนินการถามข้อมูลผู้ขาย"
@@ -402,25 +458,28 @@ const buildSchoolSearchContext = async (
   }
 };
 
+//** สร้างบริบทสำหรับการค้นหาผู้ใช้
+//** ฟังก์ชันนี้จะใช้ SchoolID ที่ได้มาเพื่อค้นหาผู้ใช้ที่เกี่ยวข้องจาก API
+//** และสร้างบริบทสำหรับ Gemini AI เพื่อช่วยในการโต้ตอบ
 const buildUserSearchContext = async (
-  origin: string,
-  school: SchoolContextHint
-) => {
-  if (!school.schoolId) return "";
+  requestOrigin: string,
+  schoolContext: SchoolContextHint
+): Promise<string> => {
+  if (!schoolContext.schoolId) return "";
 
-  const schoolDisplay = school.schoolName
-    ? school.schoolName
-    : school.schoolNameEN
-    ? school.schoolNameEN
+  const schoolDisplayName = schoolContext.schoolName
+    ? schoolContext.schoolName
+    : schoolContext.schoolNameEN
+    ? schoolContext.schoolNameEN
     : "โรงเรียนที่ระบุ";
 
   const contextLines = [
-    `Progress: กำลังค้นหาชื่อผู้ใช้ที่โรงเรียน${schoolDisplay} (รหัส : ${school.schoolId}) จาก API /api/v1/school/get-user`,
+    `Progress: กำลังค้นหาชื่อผู้ใช้ที่โรงเรียน${schoolDisplayName} (รหัส : ${schoolContext.schoolId}) จาก API /api/v1/school/get-user`,
   ];
 
   try {
     const userResponse = await axios.get(
-      `${origin}/api/v1/school/get-user?school_id=${school.schoolId}`
+      `${requestOrigin}/api/v1/school/get-user?school_id=${schoolContext.schoolId}`
     );
     const users: Array<{
       UserID: number | string;
@@ -462,11 +521,23 @@ const buildUserSearchContext = async (
   }
 };
 
-//** เรียก Gemini สนทนา AI สำหรับ workflow ยกเลิกรายการขาย
+//** ฟังก์ชันสำหรับบันทึกข้อมูลลงในคอนโซลอย่างมีโครงสร้าง
+const logStructuredInfo = (prefix: string, message: string, data: object) => {
+  console.info(`${prefix} ${message}`, JSON.stringify(data, null, 2));
+};
+
+//** ฟังก์ชันสำหรับบันทึกข้อผิดพลาดลงในคอนโซลอย่างมีโครงสร้าง
+const logStructuredError = (prefix: string, message: string, data: object) => {
+  console.error(`${prefix} ${message}`, JSON.stringify(data, null, 2));
+};
+
+//** API Endpoint สำหรับจัดการการสนทนา AI เพื่อยกเลิกรายการขาย
+//** ฟังก์ชันนี้เป็น Main Handler สำหรับ API route นี้
 export async function POST(request: NextRequest) {
+  const loggerPrefix = "[Gemini Cancel Sales]";
   try {
-    const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-    if (!apiKey) {
+    const googleApiKey = process.env.GOOGLE_GEMINI_API_KEY;
+    if (!googleApiKey) {
       return NextResponse.json(
         errorResponse({
           status: 500,
@@ -493,113 +564,112 @@ export async function POST(request: NextRequest) {
     }
 
     const chatMessages = parsedRequest.data.messages;
-    const origin = request.nextUrl.origin;
-    const logPrefix = "[Gemini Cancel Sales]";
-    console.info(
-      `${logPrefix} Incoming request`,
-      JSON.stringify({ messageCount: chatMessages.length }, null, 2)
-    );
+    const requestOrigin = request.nextUrl.origin;
+    logStructuredInfo(loggerPrefix, "Incoming request", {
+      messageCount: chatMessages.length,
+    });
     const latestUserMessage = [...chatMessages]
       .reverse()
       .find((message) => message.role === "user")?.content;
 
-    const extractedInfo = augmentInfoFromConversation(
+    const extractedInformation = augmentInfoFromConversation(
       chatMessages,
       extractInfoFromMessages(chatMessages)
     );
 
     const schoolSearchTerms: Array<string | undefined> = [
-      extractedInfo.schoolName,
-      extractedInfo.schoolNameEN,
-      extractedInfo.schoolId,
+      extractedInformation.schoolName,
+      extractedInformation.schoolNameEN,
+      extractedInformation.schoolId,
       latestUserMessage,
     ];
 
-    let schoolMatch: SchoolMatch | null = null;
-    const seenTerms = new Set<string>();
-    for (const term of schoolSearchTerms) {
-      if (!term) continue;
-      const key = term.trim().toLowerCase();
-      if (!key || seenTerms.has(key)) continue;
-      seenTerms.add(key);
+    let schoolMatchResult: SchoolMatch | null = null;
+    const seenSearchTerms = new Set<string>();
+    for (const searchTerm of schoolSearchTerms) {
+      if (!searchTerm) continue;
+      const key = searchTerm.trim().toLowerCase();
+      if (!key || seenSearchTerms.has(key)) continue;
+      seenSearchTerms.add(key);
 
-      schoolMatch = await matchSchool(origin, term);
-      if (schoolMatch?.schoolId) {
-        extractedInfo.schoolId = schoolMatch.schoolId;
-        extractedInfo.schoolName = schoolMatch.schoolName;
-        extractedInfo.schoolNameEN = schoolMatch.schoolNameEN;
+      schoolMatchResult = await matchSchool(requestOrigin, searchTerm);
+      if (schoolMatchResult?.schoolId) {
+        extractedInformation.schoolId = schoolMatchResult.schoolId;
+        extractedInformation.schoolName = schoolMatchResult.schoolName;
+        extractedInformation.schoolNameEN = schoolMatchResult.schoolNameEN;
         break;
       }
     }
 
-    console.info(
-      `${logPrefix} Extracted info after school/user matching`,
-      JSON.stringify(
-        {
-          schoolId: extractedInfo.schoolId,
-          schoolName: extractedInfo.schoolName,
-          sellerUserId: extractedInfo.sellerUserId,
-          sSellId: extractedInfo.sSellId,
-        },
-        null,
-        2
-      )
+    logStructuredInfo(
+      loggerPrefix,
+      "Extracted information after school/user matching",
+      {
+        schoolId: extractedInformation.schoolId,
+        schoolName: extractedInformation.schoolName,
+        sellerUserId: extractedInformation.sellerUserId,
+        sSellId: extractedInformation.sSellId,
+      }
     );
 
-    let buyerMatch: UserMatch | null = null;
-    let sellerMatch: UserMatch | null = null;
-    if (extractedInfo.schoolId) {
+    let buyerMatchResult: UserMatch | null = null;
+    let sellerMatchResult: UserMatch | null = null;
+    if (extractedInformation.schoolId) {
       if (
-        extractedInfo.sellerName ||
-        extractedInfo.sellerLastName ||
-        extractedInfo.sellerUserId
+        extractedInformation.sellerName ||
+        extractedInformation.sellerLastName ||
+        extractedInformation.sellerUserId
       ) {
-        sellerMatch = await matchUserByName(
-          origin,
-          extractedInfo.schoolId,
-          extractedInfo.sellerName,
-          extractedInfo.sellerLastName,
-          extractedInfo.sellerUserId
+        sellerMatchResult = await matchUserByName(
+          requestOrigin,
+          extractedInformation.schoolId,
+          extractedInformation.sellerName,
+          extractedInformation.sellerLastName,
+          extractedInformation.sellerUserId
         );
-        if (sellerMatch?.userId) {
-          extractedInfo.sellerUserId = sellerMatch.userId;
-          extractedInfo.sellerName = sellerMatch.name;
-          extractedInfo.sellerLastName = sellerMatch.lastName;
+        if (sellerMatchResult?.userId) {
+          extractedInformation.sellerUserId = sellerMatchResult.userId;
+          extractedInformation.sellerName = sellerMatchResult.name;
+          extractedInformation.sellerLastName = sellerMatchResult.lastName;
         }
       }
     }
 
-    if (extractedInfo.sellerUserId) {
-      extractedInfo.buyerUserId = extractedInfo.sellerUserId;
-      if (!extractedInfo.buyerName && extractedInfo.sellerName) {
-        extractedInfo.buyerName = extractedInfo.sellerName;
+    if (extractedInformation.sellerUserId) {
+      extractedInformation.buyerUserId = extractedInformation.sellerUserId;
+      if (!extractedInformation.buyerName && extractedInformation.sellerName) {
+        extractedInformation.buyerName = extractedInformation.sellerName;
       }
-      if (!extractedInfo.buyerLastName && extractedInfo.sellerLastName) {
-        extractedInfo.buyerLastName = extractedInfo.sellerLastName;
+      if (
+        !extractedInformation.buyerLastName &&
+        extractedInformation.sellerLastName
+      ) {
+        extractedInformation.buyerLastName =
+          extractedInformation.sellerLastName;
       }
-      buyerMatch = sellerMatch;
+      buyerMatchResult = sellerMatchResult;
     }
 
     const preparedCancellationPayload =
-      extractedInfo.schoolId &&
-      extractedInfo.sellerUserId &&
-      extractedInfo.sSellId
+      extractedInformation.schoolId &&
+      extractedInformation.sellerUserId &&
+      extractedInformation.sSellId
         ? {
-            SchoolID: extractedInfo.schoolId,
-            sID: extractedInfo.sellerUserId,
-            sID2: extractedInfo.sellerUserId,
-            sSellID: extractedInfo.sSellId,
+            SchoolID: extractedInformation.schoolId,
+            sID: extractedInformation.sellerUserId,
+            sID2: extractedInformation.sellerUserId,
+            sSellID: extractedInformation.sSellId,
           }
         : null;
 
     if (!preparedCancellationPayload) {
       console.warn(
-        `${logPrefix} Missing cancellation payload data`,
+        `${loggerPrefix} Missing cancellation payload data`,
         JSON.stringify(
           {
-            schoolId: extractedInfo.schoolId,
-            sellerUserId: extractedInfo.sellerUserId,
-            sSellId: extractedInfo.sSellId,
+            schoolId: extractedInformation.schoolId,
+            sellerUserId: extractedInformation.sellerUserId,
+            sSellId: extractedInformation.sSellId,
           },
           null,
           2
@@ -614,27 +684,21 @@ export async function POST(request: NextRequest) {
       latestUserMessage &&
       isConfirmationMessage(latestUserMessage);
 
-    console.info(
-      `${logPrefix} Submission check`,
-      JSON.stringify(
-        {
-          hasPayload: hasCancellationPayload,
-          shouldSubmit: shouldSubmitCancellation,
-          latestUserMessage,
-        },
-        null,
-        2
-      )
-    );
+    logStructuredInfo(loggerPrefix, "Submission check", {
+      hasPayload: hasCancellationPayload,
+      shouldSubmit: shouldSubmitCancellation,
+      latestUserMessage,
+    });
 
     if (shouldSubmitCancellation && preparedCancellationPayload) {
-      console.info(
-        `${logPrefix} Calling cancel-sales API`,
-        JSON.stringify(preparedCancellationPayload, null, 2)
+      logStructuredInfo(
+        loggerPrefix,
+        "Calling cancel-sales API",
+        preparedCancellationPayload
       );
       try {
         const cancellationResponse = await axios.post(
-          `${origin}/api/v1/support/cancle-sales`,
+          `${requestOrigin}/api/v1/support/cancle-sales`,
           preparedCancellationPayload,
           {
             headers: { "Content-Type": "application/json" },
@@ -645,22 +709,23 @@ export async function POST(request: NextRequest) {
           status: "success",
           data: cancellationResponse.data,
         };
-        console.info(
-          `${logPrefix} Cancel-sales API success`,
-          JSON.stringify(cancellationResponse.data, null, 2)
+        logStructuredInfo(
+          loggerPrefix,
+          "Cancel-sales API success",
+          cancellationResponse.data
         );
       } catch (error) {
-        let message = "ไม่ทราบสาเหตุ";
-        let data: unknown = undefined;
+        let errorMessage = "ไม่ทราบสาเหตุ";
+        let errorData: unknown = undefined;
         if (axios.isAxiosError(error)) {
-          message =
+          errorMessage =
             error.response?.data?.message ||
             error.response?.data?.error ||
             error.message ||
-            message;
-          data = error.response?.data;
+            errorMessage;
+          errorData = error.response?.data;
         } else if (error instanceof Error) {
-          message = error.message;
+          errorMessage = error.message;
         }
 
         console.error("Gemini Cancel Sales Submission Failed", {
@@ -670,34 +735,20 @@ export async function POST(request: NextRequest) {
 
         cancelSalesResult = {
           status: "error",
-          message,
-          data,
+          message: errorMessage,
+          data: errorData,
         };
-        console.error(
-          `${logPrefix} Cancel-sales API error`,
-          JSON.stringify(
-            {
-              message,
-              data,
-            },
-            null,
-            2
-          )
-        );
+        logStructuredError(loggerPrefix, "Cancel-sales API error", {
+          message: errorMessage,
+          data: errorData,
+        });
       }
     } else if (!shouldSubmitCancellation) {
-      console.info(
-        `${logPrefix} Skipping cancel-sales API call`,
-        JSON.stringify(
-          {
-            reason: hasCancellationPayload
-              ? "latest message not confirmation"
-              : "payload incomplete",
-          },
-          null,
-          2
-        )
-      );
+      logStructuredInfo(loggerPrefix, "Skipping cancel-sales API call", {
+        reason: hasCancellationPayload
+          ? "latest message not confirmation"
+          : "payload incomplete",
+      });
     }
 
     const cancellationPayloadJson = preparedCancellationPayload
@@ -710,43 +761,49 @@ export async function POST(request: NextRequest) {
         : null;
 
     const schoolSearchContext = await buildSchoolSearchContext(
-      origin,
+      requestOrigin,
       latestUserMessage ?? ""
     );
 
-    const userSearchContext = await buildUserSearchContext(origin, {
-      schoolId: extractedInfo.schoolId,
-      schoolName: extractedInfo.schoolName,
-      schoolNameEN: extractedInfo.schoolNameEN,
+    const userSearchContext = await buildUserSearchContext(requestOrigin, {
+      schoolId: extractedInformation.schoolId,
+      schoolName: extractedInformation.schoolName,
+      schoolNameEN: extractedInformation.schoolNameEN,
     });
 
     const structuredContextParts: string[] = [];
-    if (extractedInfo.schoolName || extractedInfo.schoolId) {
+    if (extractedInformation.schoolName || extractedInformation.schoolId) {
       structuredContextParts.push(
         `โรงเรียนที่ระบุ: ${
-          extractedInfo.schoolName || extractedInfo.schoolNameEN || "ไม่ระบุ"
-        } (SchoolID: ${extractedInfo.schoolId || "ไม่ทราบ"})`
+          extractedInformation.schoolName ||
+          extractedInformation.schoolNameEN ||
+          "ไม่ระบุ"
+        } (SchoolID: ${extractedInformation.schoolId || "ไม่ทราบ"})`
       );
     }
-    if (extractedInfo.sellerName || extractedInfo.sellerUserId) {
+    if (extractedInformation.sellerName || extractedInformation.sellerUserId) {
       structuredContextParts.push(
         `ผู้ขาย: ${
-          (extractedInfo.sellerName || "ไม่ทราบ") +
-          (extractedInfo.sellerLastName
-            ? " " + extractedInfo.sellerLastName
+          (extractedInformation.sellerName || "ไม่ทราบ") +
+          (extractedInformation.sellerLastName
+            ? " " + extractedInformation.sellerLastName
             : "")
-        } (UserID: ${extractedInfo.sellerUserId || "ไม่ทราบ"})`
+        } (UserID: ${extractedInformation.sellerUserId || "ไม่ทราบ"})`
       );
       structuredContextParts.push(
-        `sID (รหัสสำหรับผู้ขาย): ${extractedInfo.sellerUserId || "ยังไม่ทราบ"}`
+        `sID (รหัสสำหรับผู้ขาย): ${
+          extractedInformation.sellerUserId || "ยังไม่ทราบ"
+        }`
       );
       structuredContextParts.push(
-        `sID2 (รหัสสำหรับผู้ขาย): ${extractedInfo.sellerUserId || "ยังไม่ทราบ"}`
+        `sID2 (รหัสสำหรับผู้ขาย): ${
+          extractedInformation.sellerUserId || "ยังไม่ทราบ"
+        }`
       );
     }
-    if (extractedInfo.sSellId) {
+    if (extractedInformation.sSellId) {
       structuredContextParts.push(
-        `รหัสธุรกรรม (sSellID): ${extractedInfo.sSellId}`
+        `รหัสธุรกรรม (sSellID): ${extractedInformation.sSellId}`
       );
     }
     if (preparedCancellationPayload && cancellationPayloadJson) {
@@ -760,7 +817,7 @@ export async function POST(request: NextRequest) {
       );
     }
     if (cancelSalesResult) {
-      if (cancelSalesResult.status === "success" && cancelSalesResultJson) {
+      if (cancelSalesResult.status === "success" && cancellationPayloadJson) {
         structuredContextParts.push(
           [
             "ผลลัพธ์จาก API ยกเลิกการขาย:",
@@ -872,15 +929,19 @@ export async function POST(request: NextRequest) {
 
     for (const modelName of modelCandidates) {
       try {
-        const requestUrl = `${buildGeminiChatUrl(modelName)}?key=${apiKey}`;
-        const timeoutMs = Number(process.env.GEMINI_TIMEOUT_MS ?? 20_000);
+        const requestUrl = `${buildGeminiChatUrl(
+          modelName
+        )}?key=${googleApiKey}`;
+        const timeoutMilliseconds = Number(
+          process.env.GEMINI_TIMEOUT_MS ?? 20_000
+        );
 
         const geminiResponse = await axios.post(
           requestUrl,
           { contents },
           {
             headers: { "Content-Type": "application/json" },
-            timeout: timeoutMs,
+            timeout: timeoutMilliseconds,
             validateStatus: () => true,
           }
         );
@@ -900,20 +961,28 @@ export async function POST(request: NextRequest) {
           }
 
           lastErrorMessage = "Gemini responded without content";
-          console.error("Gemini Cancel Sales Empty Response", {
-            model: modelName,
-            data: geminiResponse.data,
-          });
+          logStructuredError(
+            loggerPrefix,
+            "Gemini Cancel Sales Empty Response",
+            {
+              model: modelName,
+              data: geminiResponse.data,
+            }
+          );
         } else {
           lastErrorMessage =
             typeof geminiResponse.data === "string"
               ? geminiResponse.data
               : JSON.stringify(geminiResponse.data);
-          console.error("Gemini Cancel Sales Error Response", {
-            model: modelName,
-            status: geminiResponse.status,
-            data: geminiResponse.data,
-          });
+          logStructuredError(
+            loggerPrefix,
+            "Gemini Cancel Sales Error Response",
+            {
+              model: modelName,
+              status: geminiResponse.status,
+              data: geminiResponse.data,
+            }
+          );
         }
       } catch (error: unknown) {
         const errorMessage =
@@ -921,7 +990,7 @@ export async function POST(request: NextRequest) {
             ? String((error as Error).message)
             : String(error);
         lastErrorMessage = errorMessage;
-        console.error("Gemini Cancel Sales Request Failed", {
+        logStructuredError(loggerPrefix, "Gemini Cancel Sales Request Failed", {
           model: modelName,
           error,
         });
@@ -933,10 +1002,9 @@ export async function POST(request: NextRequest) {
         lastErrorMessage && /timeout|exceeded/i.test(lastErrorMessage)
           ? " (Timeout - ลองอีกครั้งหรือยืนยันว่าคีย์ GEMINI พร้อมใช้งาน)"
           : "";
-      console.error(
-        `${logPrefix} No reply from Gemini`,
-        JSON.stringify({ lastErrorMessage }, null, 2)
-      );
+      logStructuredError(loggerPrefix, "No reply from Gemini", {
+        lastErrorMessage,
+      });
       return NextResponse.json(
         errorResponse({
           status: 502,
@@ -948,26 +1016,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.info(
-      `${logPrefix} Reply prepared`,
-      JSON.stringify(
-        {
-          cancelSalesTriggered: Boolean(cancelSalesResult),
-        },
-        null,
-        2
-      )
-    );
+    logStructuredInfo(loggerPrefix, "Reply prepared", {
+      cancelSalesTriggered: Boolean(cancelSalesResult),
+    });
 
     return NextResponse.json(
       successResponse({
         data: {
           reply: replyText,
           meta: {
-            extraction: extractedInfo,
-            schoolMatch,
-            buyerMatch,
-            sellerMatch,
+            extraction: extractedInformation,
+            schoolMatch: schoolMatchResult,
+            buyerMatch: buyerMatchResult,
+            sellerMatch: sellerMatchResult,
             cancellationPayload: preparedCancellationPayload,
             cancelSalesResult,
             cancelSalesTriggered: Boolean(cancelSalesResult),

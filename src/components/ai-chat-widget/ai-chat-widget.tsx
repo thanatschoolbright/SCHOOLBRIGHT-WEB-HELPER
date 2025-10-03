@@ -31,6 +31,7 @@ interface ChatMessage {
 
 interface CancellationLog {
   endpoint: string;
+  context: any;
   request: Record<string, unknown>;
   response?: unknown;
   error?: {
@@ -486,7 +487,7 @@ const AiChatWidget = ({
       const response = await axios.post(
         "/api/v1/ai/gemini/chat/cancel-sales",
         { messages: payloadMessages },
-        { timeout: 12_000 }
+        { timeout: 60_000 }
       );
 
       const replyText = response.data?.data?.reply as string | undefined;
@@ -734,12 +735,17 @@ const AiChatWidget = ({
 
               {isSending && (
                 <div className="chat-item">
-                  <Space align="start">
+                  <Space align="start" style={{ width: "100%" }}>
                     <Avatar size={32} style={{ background: "#2563eb" }}>
                       AI
                     </Avatar>
                     <div className="chat-bubble assistant">
-                      <Skeleton active paragraph={{ rows: 2 }} title={false} />
+                      <Skeleton
+                        active
+                        avatar={{ size: 32, shape: "circle" }}
+                        paragraph={{ rows: 3, width: ["80%", "90%", "60%"] }}
+                        title={false}
+                      />
                     </div>
                   </Space>
                 </div>
