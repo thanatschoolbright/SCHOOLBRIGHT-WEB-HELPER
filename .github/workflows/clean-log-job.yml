@@ -1,0 +1,74 @@
+name: Weekly Log Cleanup
+
+on:
+    schedule:
+        # รันทุกอาทิตย์ 01:00 Asia/Bangkok (UTC+7) = 18:00 UTC วันเสาร์
+        - cron: "0 18 * * 6"
+    workflow_dispatch:
+
+jobs:
+    cleanup:
+        name: "🧹 Cleanup Logs on Production"
+        runs-on: ubuntu-latest
+        environment: production
+
+        steps:
+            - name: "🧪 Test SSH Connection"
+              run: |
+                  echo "👉 Testing SSH connection to production server..."
+                  sshpass -p "${{ secrets.HUAWEI_CLOUD_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HUAWEI_CLOUD_USERNAME }}@${{ secrets.HUAWEI_CLOUD_HOST }} "echo '✅ SSH Success'" || echo "❌ SSH Failed"
+
+            - name: "🗑️ Run Log Cleanup on Server"
+              uses: appleboy/ssh-action@v0.1.8
+              with:
+                  host: ${{ secrets.HUAWEI_CLOUD_HOST }}
+                  username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
+                  password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
+                  port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
+                  script: |
+                      echo "👉 Starting log cleanup..."
+                      TS="$(date +'%Y%m%d-%H%M%S')"
+                      LOGDIR="/var/log/maintenance"
+                      LOGFILE="$LOGDIR/cleanup-$TS.log"
+
+                      sudo mkdir -p "$LOGDIR"
+
+                      # เก็บสภาพก่อน cleanup
+                      {
+                        echo "=== BEFORE ==="
+                        sudo du -sh /var/log || true
+                        sudo journalctl --disk-usage || true
+                        df -h
+                      } | sudo tee "$LOGFILE"
+
+                      # ทำความสะอาด
+                      sudo truncate -s 0 /var/log/syslog.1 2>/dev/null || true
+                      sudo rm -f /var/log/*.gz || true
+                      sudo journalctl --vacuum-size=500M || true
+
+                      # เก็บสภาพหลัง cleanup
+                      {
+                        echo "=== AFTER ==="
+                        sudo du -sh /var/log || true
+                        sudo journalctl --disk-usage || true
+                        df -h
+                      } | sudo tee -a "$LOGFILE"
+
+                      echo "✅ Cleanup completed. Log saved at $LOGFILE"
+
+            - name: "📥 Download Cleanup Logs"
+              uses: appleboy/scp-action@v0.1.5
+              with:
+                  host: ${{ secrets.HUAWEI_CLOUD_HOST }}
+                  username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
+                  password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
+                  port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
+                  source: "/var/log/maintenance/*.log"
+                  target: "artifacts/maintenance-logs"
+
+            - name: "⬆️ Upload Logs as Artifact"
+              uses: actions/upload-artifact@v4
+              with:
+                  name: maintenance-logs
+                  path: artifacts/maintenance-logs
+                  retention-days: 120

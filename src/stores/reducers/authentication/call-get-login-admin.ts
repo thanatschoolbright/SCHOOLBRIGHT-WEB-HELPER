@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RequestLoginAdmin } from "@stores/type";
+import { RequestLoginAdmin, RequestLoginV2 } from "@stores/type";
 import { CallAPI } from "@stores/actions/authentication/call-get-login-admin";
 
-const initialState: RequestLoginAdmin = {
+const initialState: RequestLoginV2 = {
   draftValues: {
     username: "",
     password: "",
@@ -11,14 +11,20 @@ const initialState: RequestLoginAdmin = {
   error: "",
   success: "",
   response: {
-    status: 0,
     data: {
-      id: "",
-      admin_id: 0,
-      username: "",
-      name: "",
-      lastname: "",
+      success: false,
       token: "",
+      user_data: {
+        admin_id: 0,
+        employee_code: "",
+        firstname: "",
+        lastname: "",
+        nickname: "",
+        email: "",
+        backlog_email: "",
+        tel: "",
+        position: "",
+      },
     },
   },
 };
@@ -27,7 +33,7 @@ const Slice = createSlice({
   name: "callLogin",
   initialState,
   reducers: {
-    setResponse(state, action: PayloadAction<RequestLoginAdmin["response"]>) {
+    setResponse(state, action: PayloadAction<RequestLoginV2["response"]>) {
       state.response = action.payload;
     },
   },

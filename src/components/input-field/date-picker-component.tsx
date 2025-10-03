@@ -21,11 +21,7 @@ export default function DatePickerComponent({
   hidden = false,
 }: DatePickerProps) {
   return (
-    <div
-      className={`space-y-1 ${className} ${
-        hidden ? "hidden" : "show animate-pulse"
-      }`}
-    >
+    <div className={`space-y-1 ${className} ${hidden ? "hidden" : "show"}`}>
       {label && (
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}

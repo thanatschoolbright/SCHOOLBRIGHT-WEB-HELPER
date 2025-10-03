@@ -14,7 +14,7 @@ const initialState: ResponseGetServerStatus = {
 };
 
 const callGetServerStatus = createSlice({
-  name: "call-cancel-sales",
+  name: "CallGetServerStatus",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

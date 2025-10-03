@@ -42,7 +42,7 @@ export default function DarkModeToggle() {
     <div className="pt-6 border-t mt-6 border-gray-300 dark:border-gray-600">
       <div className="flex items-center justify-between text-sm">
         <span className="text-gray-700 dark:text-gray-300">
-          {isDark ? "Dark Mode" : "Light Mode"}
+          {isDark ? "โหมดมืด" : "โหมดสว่าง"}
         </span>
         {/* ✅ iPhone-style toggle switch */}
         <button

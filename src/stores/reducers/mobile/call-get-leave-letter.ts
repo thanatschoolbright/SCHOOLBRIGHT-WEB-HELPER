@@ -11,11 +11,13 @@ const initialState: RequestLeaveLetter = {
   error: "",
   success: "",
   response: {
+    ApprovedStatus: undefined,
     data: {
       SchoolID: 0,
       letterId: 0,
       status: "",
       letterSubmitDate: "",
+      leaveLetterId: 0,
       letterType: "",
       letterTypeEN: "",
       senderName: "",
@@ -27,7 +29,6 @@ const initialState: RequestLeaveLetter = {
         TextTH: "",
         ApprovalAmount: 0,
       },
-      leaveLetterId: 0,
     },
     curl: "",
   },

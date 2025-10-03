@@ -1,5 +1,6 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Spin } from "antd";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { setResponse } from "@stores/reducers/authentication/call-get-login-admin";
@@ -12,6 +13,7 @@ export default function AuthenticationReduxProvider({
   const pathname = usePathname(); // 👈 ใช้ตรวจ path ปัจจุบัน
   const dispatch = useDispatch<AppDispatch>();
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const raw = localStorage.getItem("AUTH_USER");
@@ -19,32 +21,54 @@ export default function AuthenticationReduxProvider({
     if (raw) {
       try {
         const stored = JSON.parse(raw);
+        // * ใช้สำหรับตรวจสอบ Login V.2 แบบใหม่ มีการเปลี่ยน Response Body
+        if (stored.user_data === undefined) {
+          router.replace("/auth/signin");
+          setLoading(false);
+          return;
+        }
 
-        dispatch(
-          setResponse({
-            status: 200,
-            data: {
-              id: stored?.id,
-              admin_id: stored?.admin_id,
-              username: stored?.username,
-              name: stored?.name,
-              lastname: stored?.lastname,
-              token: stored?.token,
-            },
-          })
-        );
+        const response = {
+          status: 200,
+          data: {
+            ...stored,
+            token: stored.token,
+          },
+        };
+        // console.log("[AUTH PROVIDER] setResponse:", response);
+        dispatch(setResponse(response));
 
         // ✅ หาก login แล้ว และอยู่หน้า /auth/signin ให้เด้งไป /backend
         if (pathname === "/auth/signin") {
           router.replace("/backend");
         }
+        setLoading(false);
       } catch {
         router.replace("/auth/signin");
+        setLoading(false);
       }
     } else {
       router.replace("/auth/signin");
+      setLoading(false);
     }
   }, [dispatch, pathname, router]);
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Spin size="large">
+          <div style={{ marginTop: 16 }}>กำลังโหลด...</div>
+        </Spin>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

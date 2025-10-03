@@ -7,7 +7,7 @@ import BaseLoadingComponent from "@components/loading/loading-component-1";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import MinimalButton from "@/components/button/minimal-button-component";
-import Swal from "sweetalert2";
+import { Toaster, toast } from "sonner";
 import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
 import { ResponseCardComponent } from "@/components/card/curl-card-component";
 import MethodBadge from "@components/badge/method-badge-component";
@@ -126,37 +126,34 @@ export default function Page() {
       } = unwrapResult(response);
 
       if (result?.data?.statusCode === 200) {
-        const message = `อุปกรณ์ ${deviceId}  
-${findSchoolName(schoolId, schoolList)} สามารถออนไลน์ได้  
-`;
+        const message = `อุปกรณ์ ${deviceId}  \n${findSchoolName(
+          schoolId,
+          schoolList
+        )} สามารถออนไลน์ได้`;
 
-        Swal.fire({
-          title: "ระบบสามารถออนไลน์ได้ตามปกติ",
-          text: message,
-          icon: "success",
-          showDenyButton: true,
-          confirmButtonText: "OK",
-          denyButtonText: "Copy CURL",
-        }).then((res) => {
-          if (res.isDenied) {
-            // คัดลอกคำสั่ง CURL
-            navigator.clipboard.writeText(result.curl).then(() => {
-              Swal.fire({
-                icon: "success",
-                title: "Copied!",
-                text: "CURL copied to clipboard.",
-                timer: 1500,
-                showConfirmButton: false,
+        toast.success("ระบบสามารถออนไลน์ได้ตามปกติ", {
+          description: message,
+          duration: 5000,
+          position: "top-right",
+          action: {
+            label: "Copy CURL",
+            onClick: () => {
+              navigator.clipboard.writeText(result.curl).then(() => {
+                toast.success("Copied!", {
+                  description: "CURL copied to clipboard.",
+                  duration: 1500,
+                  position: "top-right",
+                });
               });
-            });
-          }
+            },
+          },
         });
       }
     } catch (error: any) {
-      Swal.fire({
-        title: "เกิดข้อผิดพลาด",
-        text: error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
-        icon: "error",
+      toast.error("เกิดข้อผิดพลาด", {
+        description: error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+        duration: 6000,
+        position: "top-right",
       });
       console.error("Error posting online device:", error);
       return false;
@@ -282,6 +279,8 @@ ${findSchoolName(schoolId, schoolList)} สามารถออนไลน์�
                 />
               </div>
             </div>
+
+            {/* ปุ่มค้นหา */}
           </form>
         </ContentCard>
 

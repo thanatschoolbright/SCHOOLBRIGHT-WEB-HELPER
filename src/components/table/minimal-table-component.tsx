@@ -66,7 +66,7 @@ export default function MinimalTable({
     setCurrentPage(1);
   };
 
-  const totalPages = Math.ceil(sortedData.length / rowsPerPage);
+  const total_pages = Math.ceil(sortedData.length / rowsPerPage);
   const paginated = sortedData.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
@@ -141,11 +141,11 @@ export default function MinimalTable({
             Prev
           </button>
           <span>
-            Page {currentPage} of {totalPages}
+            Page {currentPage} of {total_pages}
           </span>
           <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, total_pages))}
+            disabled={currentPage === total_pages}
             className={`px-3 py-1 border rounded disabled:opacity-40 ${
               hiddenProps ? "hidden" : ""
             }`}

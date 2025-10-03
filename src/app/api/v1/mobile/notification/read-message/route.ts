@@ -1,7 +1,7 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import { API_URL } from "@/services/api-url";
-import { getHeaders } from "@/services/api-header";
+import { API_URL } from "@services/api-url";
+import { getHeaders } from "@services/api-header";
 import { sanitizeForwardHeaders } from "@/services/api-header";
 import https from "https";
 

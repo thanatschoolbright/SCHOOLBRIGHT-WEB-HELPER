@@ -23,8 +23,6 @@ export async function GET(request: NextRequest) {
       httpsAgent: agent,
     });
 
-    console.log("[API]", JSON.stringify(responseFromAPI.data, null, 2));
-
     return NextResponse.json(
       { data: responseFromAPI.data, curl: curlCommand },
       {

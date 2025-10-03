@@ -51,10 +51,13 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
       <label
         htmlFor={id}
         className={`
-          flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer
-          bg-blue-600 hover:bg-blue-700 text-white font-semibold
+          flex items-center gap-2 px-6 py-3 rounded-xl cursor-pointer
+          bg-gradient-to-r from-blue-500 to-indigo-600
+          text-white font-semibold shadow-md
           transition-all duration-300 ease-in-out
-          focus:outline-none focus:ring-2 focus:ring-blue-500
+          hover:scale-105 hover:shadow-lg
+          active:scale-95
+          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400
           disabled:opacity-60 disabled:cursor-not-allowed
         `}
         tabIndex={0}
@@ -75,11 +78,27 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
 
       {/* 👇 แสดงชื่อไฟล์ด้านล่าง */}
       {fileName && (
-         <span className="text-xs text-gray-500 mt-1">ไฟล์ที่อัปโหลด: {fileName}</span>
+        <span className="text-xs text-gray-600 dark:text-gray-400 mt-2 animate-fadeIn">
+          📂 ไฟล์ที่เลือก: {fileName}
+        </span>
       )}
-      {error && (
-        <p className="text-red-500 text-xs mt-1">{error}</p>
-      )}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(5px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
