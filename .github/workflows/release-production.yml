@@ -1,4 +1,4 @@
-name: Release Production
+name: 🚀 Release Production
 
 on:
   push:
@@ -10,47 +10,49 @@ on:
         required: false
 
 jobs:
-  remove-old-artifact:
-    name: 🗑️ Remove Old Artifacts
+  pre-check:
+    name: 🧾 Pre-Deployment Check
     runs-on: ubuntu-latest
     environment: production
-
     steps:
-      - name: 🧪 Test SSH Connection
+      - name: "🔑 Test SSH Connection"
         run: |
           echo "👉 Testing SSH connection to production server..."
-          sshpass -p "${{ secrets.HUAWEI_CLOUD_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HUAWEI_CLOUD_USERNAME }}@${{ secrets.HUAWEI_CLOUD_HOST }} "echo '✅ SSH Success'" || echo "❌ SSH Failed"
+          if sshpass -p "${{ secrets.HUAWEI_CLOUD_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HUAWEI_CLOUD_USERNAME }}@${{ secrets.HUAWEI_CLOUD_HOST }} "echo '✅ SSH Success'"; then
+            echo "✅ SSH connection established"
+          else
+            echo "❌ SSH connection failed" && exit 1
+          fi
 
   build:
-    name: "🔨 Build on Runner"
-    needs: remove-old-artifact
+    name: "🔨 Build Project"
+    needs: pre-check
     runs-on: ubuntu-latest
-
     steps:
       - name: "📥 Checkout Code"
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag != '' && format('refs/tags/{0}', inputs.tag) || github.ref }}
-      - run: |
-          echo "👉 Picked ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag != '' && format('refs/tags/{0}', inputs.tag) || github.ref }}"
+      - name: "ℹ️ Log Ref Used" # yamllint disable-line rule:line-length
+        run: |
+          echo "👉 Determining ref..."
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.tag }}" != "" ]]; then
+            echo "👉 Using ref: refs/tags/${{ inputs.tag }}"
+          else
+            echo "👉 Using ref: ${{ github.ref }}"
+          fi
 
       - name: "⚙️ Setup Node.js"
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
           cache: "npm"
-      - run: echo "👉 Node.js 20 is ready with npm cache enabled"
 
       - name: "📦 Install Dependencies"
         run: |
-          echo "👉 Installing dependencies..."
+          echo "👉 Installing dependencies with npm ci..."
           npm ci
-
-      - name: "❇️ Push Prisma into Database"
-        run: |
-          echo "👉 Pushing Prisma into database..."
-          # npx prisma db push --schema=prisma/timesheet/schema.prisma
 
       - name: "⚙️ Prisma Generate"
         run: |
@@ -65,7 +67,7 @@ jobs:
 
       - name: "📤 Archive Build Artifacts"
         run: |
-          echo "👉 Archiving build artifacts..."
+          echo "👉 Archiving build artifacts into build.zip..."
           zip -r build.zip \
             .next \
             public \
@@ -82,16 +84,29 @@ jobs:
           path: build.zip
 
       - name: "✅ Confirm Upload"
-        run: echo "✅ Build artifacts uploaded"
+        run: echo "✅ Build artifacts uploaded successfully"
 
   deploy:
     name: "🚚 Deploy to Server"
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
     environment: production
-
     steps:
-      - name: "🗑️ Delete old deployment folder"
+      - name: "📥 Download Artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+
+      - name: "✅ Verify Artifact"
+        run: |
+          echo "👉 Verifying build.zip artifact..."
+          if test -f build.zip; then
+            echo "✅ build.zip exists"
+          else
+            echo "❌ build.zip missing" && exit 1
+          fi
+
+      - name: "🛑 Stop Service Before Deployment"
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.HUAWEI_CLOUD_HOST }}
@@ -99,18 +114,21 @@ jobs:
           password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
           port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
           script: |
-            echo "👉 Removing old deployment files..."
+            echo "👉 Stopping sb-web-helper.service..."
+            sudo systemctl stop sb-web-helper.service || echo "⚠️ Service was not running or failed to stop"
+
+      - name: "🗑️ Clean Old Deployment"
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.HUAWEI_CLOUD_HOST }}
+          username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
+          password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
+          port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
+          script: |
+            echo "👉 Removing old deployment files from /var/www/sb-web-helper..."
             rm -rf /var/www/sb-web-helper/*
 
-      - name: "📥 Download Artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          name: build-output
-
-      - name: "✅ Confirm Download"
-        run: echo "✅ Build artifacts downloaded"
-
-      - name: "🔐 Copy to Server via SCP"
+      - name: "🔐 Upload Artifact via SCP"
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ secrets.HUAWEI_CLOUD_HOST }}
@@ -120,10 +138,7 @@ jobs:
           source: "build.zip"
           target: "/var/www/sb-web-helper"
 
-      - name: "✅ Confirm Upload"
-        run: echo "✅ Build.zip uploaded to server"
-
-      - name: "🗜️ Unzip & Install on Server"
+      - name: "🗜️ Deploy & Install"
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.HUAWEI_CLOUD_HOST }}
@@ -131,10 +146,15 @@ jobs:
           password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
           port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
           script: |
-            echo "👉 Extracting build.zip and installing production dependencies..."
             cd /var/www/sb-web-helper
+            echo "👉 Extracting build.zip..."
             unzip -o build.zip
-            npm install
-            echo "👉 Restarting service..."
+            echo "👉 Installing production dependencies with npm ci --only=production..."
+            npm ci --only=production
+            echo "👉 Pruning unnecessary packages..."
+            npm prune --production
+            echo "👉 Restarting sb-web-helper.service..."
             sudo systemctl restart sb-web-helper.service
+            echo "👉 Checking service status..."
+            sudo systemctl status sb-web-helper.service --no-pager
             echo "✅ Deployment completed!"
