@@ -105,7 +105,7 @@ export interface ResponseGetServerStatusV2 extends DefaultRedux {
 }
 
 export interface ResponseSchoolList extends DefaultRedux {
-  draftValues: { SchoolName: string; SchoolID: string }[];
+  draftValues: { SchoolName: string; SchoolID: string; SchoolNameEN: string }[];
 }
 
 export interface ResponseUserList extends DefaultRedux {

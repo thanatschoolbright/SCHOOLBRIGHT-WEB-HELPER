@@ -48,7 +48,10 @@ export const callBackendAPI = async ({
     extendHeader,
     backendUrl,
   };
-  console.log("🌐 [API-GATEWAY] Sending request:", JSON.stringify(defaultRequest, null, 2));
+  console.log(
+    "🌐 [API-GATEWAY] Sending request:",
+    JSON.stringify(defaultRequest, null, 2)
+  );
   const url = `${backendUrl}${
     endpoint.startsWith("/") ? endpoint : `/${endpoint}`
   }`;
@@ -95,7 +98,10 @@ export const callBackendAPI = async ({
         "Content-Type": "application/json",
       };
 
-      console.log("🔁 [API-GATEWAY] Retrying request with new token headers:", retryHeaders);
+      console.log(
+        "🔁 [API-GATEWAY] Retrying request with new token headers:",
+        retryHeaders
+      );
 
       // 🔁 ลองเรียก API ใหม่อีกรอบ
       const retryConfig = { headers: retryHeaders };
@@ -114,7 +120,10 @@ export const callBackendAPI = async ({
           retryResponse = await axios.delete(url, retryConfig);
           break;
       }
-      console.log("✅ [API-GATEWAY] Retry success. Response data:", retryResponse?.data);
+      console.log(
+        "✅ [API-GATEWAY] Retry success. Response data:",
+        retryResponse?.data
+      );
       return retryResponse?.data;
     }
 

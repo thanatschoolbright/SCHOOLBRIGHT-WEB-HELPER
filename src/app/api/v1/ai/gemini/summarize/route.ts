@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { z } from "zod";
+import { QA_TASK_SUMMARY_PROMPT } from "@/constants/prompts";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 
 //** สร้าง URL เรียกใช้งาน Gemini รุ่น REST API v1
 const buildGeminiUrl = (model: string) =>
   `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`;
 
-const PROMPT_HEADER = `ภาษา : เขียนในรูปแบบ .MD\nฉันคือ Quality Assurance ที่ต้องการลง Task ให้กับ Developer เข้าใจ\n- เน้นอธิบายในรูปแบบตาราง\n- อย่าอธิบาย ยาวเยอะจนเกินไป\n- มีการจัดวางแต่ละหัวข้ออย่างเป็นระเบียบ\n\nตัวอย่าง .MD\nรหัสโรงเรียน : 849\nยูเซอร์ที่พบปัญหา : ….\nตำแหน่ง : คุณครู / นักเรียน\n\n⸻\n\nเนื้อหา และ รูปภาพประกอบ\n\n…\n(ตัวอย่างการแนบรูปภาพ ![image][7413.jpg])\n\nความต้องการให้แก้ไข\n\n…\n\nข้อแนะนำอื่น ๆ\n\n…\n\n⸻ ช่วยตัดข้อความ "นี่คือตัวอย่างการเขียน Task ให้ Developer ในรูปแบบ Markdown (.MD) ตามที่คุณต้องการครับ
-
-" ออกไปด้วย แล้วเขียนว่า "สรุป Task อัจฉริยะด้วย Gemini AI พัฒนาโดย Tech Lead ไลท์"`;
+const requestSchema = z.object({
+  summary: z.string().optional(),
+  description: z.string().optional(),
+});
 
 //** เรียก Gemini สร้าง Markdown สรุป Task (เรียบง่าย ใช้ axios และลองหลายรุ่นเผื่อรุ่นแรกไม่รองรับ)
 export async function POST(request: NextRequest) {
@@ -26,24 +29,38 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { summary, description } = body as {
-      summary?: string;
-      description?: string;
-    };
-    // รุ่นที่ใช้กับ REST API v1 (เรียงจากเร็ว → ละเอียด)
-    const modelCandidates: string[] = [
-      process.env.GOOGLE_GEMINI_MODEL,
+    const parsedBody = requestSchema.safeParse(body);
+
+    if (!parsedBody.success) {
+      return NextResponse.json(
+        errorResponse({
+          status: 400,
+          message_en: "Invalid request payload",
+          message_th: "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+          error: parsedBody.error.format(),
+        }),
+        { status: 400 }
+      );
+    }
+
+    const { summary, description } = parsedBody.data;
+
+    const fallbackModels = [
       "gemini-2.5-flash",
       "gemini-2.5-pro",
       "gemini-1.5-flash",
       "gemini-1.5-pro",
-    ].filter(Boolean) as string[];
+    ];
+    const envModel = process.env.GOOGLE_GEMINI_MODEL?.trim();
+    const modelCandidates = envModel
+      ? [envModel, ...fallbackModels.filter((model) => model !== envModel)]
+      : fallbackModels;
 
     const contents = [
       {
         role: "user",
         parts: [
-          { text: PROMPT_HEADER },
+          { text: QA_TASK_SUMMARY_PROMPT },
           {
             text: `\n\nข้อมูลปัจจุบันของงาน (สำหรับสรุป):\n- Summary: ${
               summary || "-"
@@ -62,21 +79,43 @@ export async function POST(request: NextRequest) {
           { contents },
           {
             headers: { "Content-Type": "application/json" },
+            timeout: 10_000,
             validateStatus: () => true,
           }
         );
         if (response.status >= 200 && response.status < 300) {
-          markdown =
-            response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-          if (markdown) break;
+          const candidates = response.data?.candidates;
+          const firstText =
+            Array.isArray(candidates) &&
+            candidates[0]?.content?.parts?.[0]?.text;
+
+          if (typeof firstText === "string" && firstText.trim()) {
+            markdown = firstText;
+            break;
+          }
+
+          lastErrorMessage = "Gemini responded without content";
+          console.error("Gemini Empty Response", {
+            model: modelName,
+            data: response.data,
+          });
         } else {
           lastErrorMessage =
             typeof response.data === "string"
               ? response.data
               : JSON.stringify(response.data);
+          console.error("Gemini Error Response", {
+            model: modelName,
+            status: response.status,
+            data: response.data,
+          });
         }
       } catch (modelError: any) {
         lastErrorMessage = modelError?.message || String(modelError);
+        console.error("Gemini Request Failed", {
+          model: modelName,
+          error: modelError,
+        });
       }
     }
 
