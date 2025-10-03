@@ -21,6 +21,7 @@ import {
   Tag,
   Tooltip,
   Typography,
+  theme,
 } from "antd";
 import type { RangePickerProps } from "antd/es/date-picker";
 import type { ColumnsType } from "antd/es/table";
@@ -48,6 +49,7 @@ import type {
   PerIssueUpdateEntry,
   ProjectMetadata,
 } from "@components/backlog/issue-drawer/types";
+import DashboardLayout from "@/components/layouts/backend-layout";
 
 const { Content } = Layout;
 
@@ -70,6 +72,44 @@ export default function ProjectIssuesPage() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
+
+  const { token } = theme.useToken();
+  const {
+    colorBgLayout,
+    colorBgContainer,
+    colorBorderSecondary,
+    colorPrimary,
+    colorSuccess,
+    colorError,
+    colorBgBase,
+  } = token;
+  const isDarkMode = colorBgBase?.toLowerCase() === "#141414";
+  const layoutStyle = useMemo(
+    () => ({
+      minHeight: "100vh",
+      background: colorBgLayout,
+    }),
+    [colorBgLayout]
+  );
+  const elevatedCardStyle = useMemo(
+    () => ({
+      background: colorBgContainer,
+      border: `1px solid ${colorBorderSecondary}`,
+      borderRadius: 20,
+      boxShadow: isDarkMode
+        ? "0 12px 28px rgba(0,0,0,0.45)"
+        : "0 12px 28px rgba(15, 23, 42, 0.05)",
+    }),
+    [colorBgContainer, colorBorderSecondary, isDarkMode]
+  );
+  const listCardStyle = useMemo(
+    () => ({
+      background: colorBgContainer,
+      border: `1px solid ${colorBorderSecondary}`,
+      borderRadius: 20,
+    }),
+    [colorBgContainer, colorBorderSecondary]
+  );
 
   const projectIdParam = params?.projectId;
   const projectId =
@@ -286,13 +326,13 @@ export default function ProjectIssuesPage() {
           const key = record.issueKey || String(record.id);
           const status = bulkProgress[key];
           if (status === "processing") {
-            return <LoadingOutlined style={{ color: "#1677ff" }} />;
+            return <LoadingOutlined style={{ color: colorPrimary }} />;
           }
           if (status === "success") {
-            return <CheckCircleOutlined style={{ color: "#30a46c" }} />;
+            return <CheckCircleOutlined style={{ color: colorSuccess }} />;
           }
           if (status === "error") {
-            return <CloseCircleOutlined style={{ color: "#d83b3b" }} />;
+            return <CloseCircleOutlined style={{ color: colorError }} />;
           }
           return null;
         },
@@ -409,7 +449,7 @@ export default function ProjectIssuesPage() {
         render: (v) => formatDate(v),
       },
     ],
-    [bulkProgress, space]
+    [bulkProgress, colorError, colorPrimary, colorSuccess, space]
   );
 
   const rowSelection = useMemo(
@@ -900,7 +940,9 @@ export default function ProjectIssuesPage() {
         }));
         setIssueTypeOptions(issueTypeOptionList);
         if (!defaultIssueTypeApplied && issueTypeOptionList.length) {
-          setIssueTypeIds(issueTypeOptionList.map((item) => Number(item.value)));
+          setIssueTypeIds(
+            issueTypeOptionList.map((item) => Number(item.value))
+          );
           setDefaultIssueTypeApplied(true);
         }
       } catch (error: any) {
@@ -998,7 +1040,7 @@ export default function ProjectIssuesPage() {
 
   if (!projectReady) {
     return (
-      <Layout style={{ minHeight: "100vh", background: "#f6f8fb" }}>
+      <Layout style={layoutStyle}>
         <Content
           style={{
             display: "flex",
@@ -1027,176 +1069,270 @@ export default function ProjectIssuesPage() {
   }
 
   return (
-    <Layout style={{ minHeight: "100vh", background: "#f6f8fb" }}>
-      <Content style={{ padding: 32 }}>
-        <Space direction="vertical" size={16} style={{ width: "100%" }}>
-          <Space align="center" size={12}>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => router.back()}>
-              ย้อนกลับ
-            </Button>
-            <div>
-              <Typography.Title level={3} style={{ marginBottom: 0 }}>
-                งาน • {projectName || projectId}
-              </Typography.Title>
-              <Typography.Text type="secondary">Space: {space}</Typography.Text>
-            </div>
-          </Space>
-
-          <Card
-            size="small"
-            styles={{
-              body: {
-                padding: 16,
-              },
-            }}
-            style={{
-              background: "#ffffff",
-              border: "1px solid #f0f2f5",
-              borderRadius: 20,
-              boxShadow: "0 12px 28px rgba(15, 23, 42, 0.05)",
-            }}
-            title="ตัวกรองข้อมูล"
-          >
-            <Skeleton
-              active
-              loading={optionsLoading}
-              paragraph={{ rows: 4 }}
-              title={false}
-            >
-              <Tabs
-                defaultActiveKey="primary"
-                items={[
-                  {
-                    key: "primary",
-                    label: "ตัวกรองหลัก",
-                    children: (
-                      <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                        <Space size={12} style={{ width: "100%" }} wrap>
-                          <Space direction="vertical" size={6} style={{ flex: "1 1 240px", minWidth: 200 }}>
-                            <Typography.Text type="secondary">คำค้นหา</Typography.Text>
-                            <Input
-                              placeholder="ค้นหา (คีย์เวิร์ด)"
-                              value={keyword}
-                              onChange={(e) => setKeyword(e.target.value)}
-                              onPressEnter={handleKeywordSearch}
-                            />
-                          </Space>
-                          <Space direction="vertical" size={6} style={{ flex: "1 1 260px", minWidth: 240 }}>
-                            <Typography.Text type="secondary">สถานะ</Typography.Text>
-                            <Select
-                              mode="multiple"
-                              allowClear
-                              placeholder="เลือกสถานะ"
-                              value={statusIds}
-                              onChange={handleStatusFilterChange}
-                              options={statusOptions}
-                            />
-                          </Space>
-                          <Space direction="vertical" size={6} style={wideFilterItemStyle}>
-                            <Typography.Text type="secondary">ความสำคัญ</Typography.Text>
-                            <Select
-                              mode="multiple"
-                              allowClear
-                              placeholder="เลือกความสำคัญ"
-                              value={priorityIds}
-                              onChange={handlePriorityFilterChange}
-                              options={priorityOptions}
-                            />
-                          </Space>
-                        </Space>
-                      </Space>
-                    ),
-                  },
-                  {
-                    key: "advanced",
-                    label: "ตัวกรองเพิ่มเติม",
-                    children: (
-                      <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                        <Space size={12} style={{ width: "100%" }} wrap>
-                          <Space direction="vertical" size={6} style={wideFilterItemStyle}>
-                            <Typography.Text type="secondary">ประเภทงาน</Typography.Text>
-                            <Select
-                              mode="multiple"
-                              allowClear
-                              placeholder="เลือกประเภทงาน"
-                              value={issueTypeIds}
-                              onChange={handleIssueTypeFilterChange}
-                              options={issueTypeOptions}
-                            />
-                          </Space>
-                          <Space direction="vertical" size={6} style={{ flex: "1 1 260px", minWidth: 200 }}>
-                            <Typography.Text type="secondary">ช่วงวันที่อัปเดต</Typography.Text>
-                            <DatePicker.RangePicker
-                              value={dateRange ?? null}
-                              onChange={handleDateRangeChange}
-                            />
-                          </Space>
-                        </Space>
-                      </Space>
-                    ),
-                  },
-                ]}
-              />
-              {/* * ปุ่มล้างค่าและแสดงผล * */}
-              <Space
-                align="center"
-                size={8}
-                style={{ marginLeft: "auto", marginTop: 12 }}
+    <DashboardLayout>
+      <Layout style={layoutStyle}>
+        <Content style={{ padding: 32 }}>
+          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+            <Space align="center" size={12}>
+              <Button
+                icon={<ArrowLeftOutlined />}
+                onClick={() => router.back()}
               >
-                <Button onClick={handleResetFilters}>ล้างค่า</Button>
-                <Button type="primary" onClick={handleKeywordSearch}>
-                  แสดงผล
-                </Button>
-              </Space>
-            </Skeleton>
-          </Card>
+                ย้อนกลับ
+              </Button>
+              <div>
+                <Typography.Title level={3} style={{ marginBottom: 0 }}>
+                  งาน • {projectName || projectId}
+                </Typography.Title>
+                <Typography.Text type="secondary">
+                  Space: {space}
+                </Typography.Text>
+              </div>
+            </Space>
 
-          <Card
-            size="small"
-            styles={{ body: { padding: 16 } }}
-            style={{
-              background: "#ffffff",
-              border: "1px solid #f0f2f5",
-              borderRadius: 20,
-              boxShadow: "0 12px 28px rgba(15, 23, 42, 0.05)",
-            }}
-            title="การอัปเดตแบบกลุ่ม"
-          >
-            {/* * แท็บควบคุมการอัปเดตงานแบบกลุ่ม * */}
-            <Skeleton
-              active
-              loading={optionsLoading}
-              paragraph={{ rows: 6 }}
-              title={false}
+            <Card
+              size="small"
+              styles={{
+                body: {
+                  padding: 16,
+                },
+              }}
+              style={elevatedCardStyle}
+              title="ตัวกรองข้อมูล"
             >
-              <Tabs
-                activeKey={bulkTabKey}
-                onChange={(key) => setBulkTabKey(key as "ai" | "manual")}
-                items={[
-                  {
-                    key: "ai",
-                    label: "อัปเดตด้วย AI",
-                    children: (
-                      <Space
-                        direction="vertical"
-                        size={12}
-                        style={{ width: "100%" }}
-                      >
-                        <Typography.Text type="secondary">
-                          เปิดใช้งานเพื่อให้ Gemini ช่วยเลือกหมวดหมู่ก่อนส่งคำสั่งอัปเดตแบบกลุ่ม
-                        </Typography.Text>
-                        <AutoCategoryToggle
-                          disabled={
-                            autoCategoryLoading ||
-                            bulkUpdating ||
-                            !categoryOptions.length
-                          }
-                          enabled={autoCategoryEnabled}
-                          onChange={handleAutoCategoryToggle}
-                        />
+              <Skeleton
+                active
+                loading={optionsLoading}
+                paragraph={{ rows: 4 }}
+                title={false}
+              >
+                <Tabs
+                  defaultActiveKey="primary"
+                  items={[
+                    {
+                      key: "primary",
+                      label: "ตัวกรองหลัก",
+                      children: (
+                        <Space
+                          direction="vertical"
+                          size={12}
+                          style={{ width: "100%" }}
+                        >
+                          <Space size={12} style={{ width: "100%" }} wrap>
+                            <Space
+                              direction="vertical"
+                              size={6}
+                              style={{ flex: "1 1 240px", minWidth: 200 }}
+                            >
+                              <Typography.Text type="secondary">
+                                คำค้นหา
+                              </Typography.Text>
+                              <Input
+                                placeholder="ค้นหา (คีย์เวิร์ด)"
+                                value={keyword}
+                                onChange={(e) => setKeyword(e.target.value)}
+                                onPressEnter={handleKeywordSearch}
+                              />
+                            </Space>
+                            <Space
+                              direction="vertical"
+                              size={6}
+                              style={{ flex: "1 1 260px", minWidth: 240 }}
+                            >
+                              <Typography.Text type="secondary">
+                                สถานะ
+                              </Typography.Text>
+                              <Select
+                                mode="multiple"
+                                allowClear
+                                placeholder="เลือกสถานะ"
+                                value={statusIds}
+                                onChange={handleStatusFilterChange}
+                                options={statusOptions}
+                              />
+                            </Space>
+                            <Space
+                              direction="vertical"
+                              size={6}
+                              style={wideFilterItemStyle}
+                            >
+                              <Typography.Text type="secondary">
+                                ความสำคัญ
+                              </Typography.Text>
+                              <Select
+                                mode="multiple"
+                                allowClear
+                                placeholder="เลือกความสำคัญ"
+                                value={priorityIds}
+                                onChange={handlePriorityFilterChange}
+                                options={priorityOptions}
+                              />
+                            </Space>
+                          </Space>
+                        </Space>
+                      ),
+                    },
+                    {
+                      key: "advanced",
+                      label: "ตัวกรองเพิ่มเติม",
+                      children: (
+                        <Space
+                          direction="vertical"
+                          size={12}
+                          style={{ width: "100%" }}
+                        >
+                          <Space size={12} style={{ width: "100%" }} wrap>
+                            <Space
+                              direction="vertical"
+                              size={6}
+                              style={wideFilterItemStyle}
+                            >
+                              <Typography.Text type="secondary">
+                                ประเภทงาน
+                              </Typography.Text>
+                              <Select
+                                mode="multiple"
+                                allowClear
+                                placeholder="เลือกประเภทงาน"
+                                value={issueTypeIds}
+                                onChange={handleIssueTypeFilterChange}
+                                options={issueTypeOptions}
+                              />
+                            </Space>
+                            <Space
+                              direction="vertical"
+                              size={6}
+                              style={{ flex: "1 1 260px", minWidth: 200 }}
+                            >
+                              <Typography.Text type="secondary">
+                                ช่วงวันที่อัปเดต
+                              </Typography.Text>
+                              <DatePicker.RangePicker
+                                value={dateRange ?? null}
+                                onChange={handleDateRangeChange}
+                              />
+                            </Space>
+                          </Space>
+                        </Space>
+                      ),
+                    },
+                  ]}
+                />
+                {/* * ปุ่มล้างค่าและแสดงผล * */}
+                <Space
+                  align="center"
+                  size={8}
+                  style={{ marginLeft: "auto", marginTop: 12 }}
+                >
+                  <Button onClick={handleResetFilters}>ล้างค่า</Button>
+                  <Button type="primary" onClick={handleKeywordSearch}>
+                    แสดงผล
+                  </Button>
+                </Space>
+              </Skeleton>
+            </Card>
+
+            <Card
+              size="small"
+              styles={{ body: { padding: 16 } }}
+              style={elevatedCardStyle}
+              title="การอัปเดตแบบกลุ่ม"
+            >
+              {/* * แท็บควบคุมการอัปเดตงานแบบกลุ่ม * */}
+              <Skeleton
+                active
+                loading={optionsLoading}
+                paragraph={{ rows: 6 }}
+                title={false}
+              >
+                <Tabs
+                  activeKey={bulkTabKey}
+                  onChange={(key) => setBulkTabKey(key as "ai" | "manual")}
+                  items={[
+                    {
+                      key: "ai",
+                      label: "อัปเดตด้วย AI",
+                      children: (
+                        <Space
+                          direction="vertical"
+                          size={12}
+                          style={{ width: "100%" }}
+                        >
+                          <Typography.Text type="secondary">
+                            เปิดใช้งานเพื่อให้ Gemini
+                            ช่วยเลือกหมวดหมู่ก่อนส่งคำสั่งอัปเดตแบบกลุ่ม
+                          </Typography.Text>
+                          <AutoCategoryToggle
+                            disabled={
+                              autoCategoryLoading ||
+                              bulkUpdating ||
+                              !categoryOptions.length
+                            }
+                            enabled={autoCategoryEnabled}
+                            onChange={handleAutoCategoryToggle}
+                          />
+                          <BulkUpdatePanel
+                            autoCategoryEnabled={autoCategoryEnabled}
+                            autoCategoryLoading={autoCategoryLoading}
+                            bulkCategoryIds={bulkCategoryIds}
+                            bulkDueDate={bulkDueDate}
+                            bulkMilestoneIds={bulkMilestoneIds}
+                            bulkPriorityId={bulkPriorityId}
+                            bulkStartDate={bulkStartDate}
+                            bulkStatusId={bulkStatusId}
+                            bulkUpdating={bulkUpdating}
+                            categoryOptions={categoryOptions}
+                            milestoneOptions={milestoneOptions}
+                            onAutoCategoryChange={handleAutoCategoryToggle}
+                            onCategoryChange={(values) =>
+                              setBulkCategoryIds(
+                                values && values.length ? values : []
+                              )
+                            }
+                            onClear={clearBulkForm}
+                            onDueDateChange={(value) =>
+                              setBulkDueDate(value ?? null)
+                            }
+                            onManageMilestone={() => {
+                              router.push(
+                                `/backlogs/projects/${projectId}/milestones?space=${encodeURIComponent(
+                                  space
+                                )}&name=${encodeURIComponent(projectName)}`
+                              );
+                            }}
+                            onMilestoneChange={(values) =>
+                              setBulkMilestoneIds(
+                                values && values.length ? values : []
+                              )
+                            }
+                            onPriorityChange={(value) =>
+                              setBulkPriorityId(value)
+                            }
+                            onStartDateChange={(value) =>
+                              setBulkStartDate(value ?? null)
+                            }
+                            onStatusChange={(value) => setBulkStatusId(value)}
+                            onSubmit={handleBulkUpdate}
+                            priorityOptions={priorityOptions}
+                            selectedCount={selectedRowKeys.length}
+                            statusOptions={statusOptions}
+                            submitDisabled={
+                              !selectedRowKeys.length ||
+                              !hasBulkUpdates ||
+                              bulkUpdating
+                            }
+                            showAutoCategoryToggle={false}
+                          />
+                        </Space>
+                      ),
+                    },
+                    {
+                      key: "manual",
+                      label: "อัปเดตแบบกลุ่ม",
+                      children: (
                         <BulkUpdatePanel
-                          autoCategoryEnabled={autoCategoryEnabled}
-                          autoCategoryLoading={autoCategoryLoading}
+                          autoCategoryEnabled={false}
+                          autoCategoryLoading={false}
                           bulkCategoryIds={bulkCategoryIds}
                           bulkDueDate={bulkDueDate}
                           bulkMilestoneIds={bulkMilestoneIds}
@@ -1238,133 +1374,83 @@ export default function ProjectIssuesPage() {
                           selectedCount={selectedRowKeys.length}
                           statusOptions={statusOptions}
                           submitDisabled={
-                            !selectedRowKeys.length || !hasBulkUpdates || bulkUpdating
+                            !selectedRowKeys.length ||
+                            !hasBulkUpdates ||
+                            bulkUpdating
                           }
                           showAutoCategoryToggle={false}
                         />
-                      </Space>
-                    ),
-                  },
-                  {
-                    key: "manual",
-                    label: "อัปเดตแบบกลุ่ม",
-                    children: (
-                      <BulkUpdatePanel
-                        autoCategoryEnabled={false}
-                        autoCategoryLoading={false}
-                        bulkCategoryIds={bulkCategoryIds}
-                        bulkDueDate={bulkDueDate}
-                        bulkMilestoneIds={bulkMilestoneIds}
-                        bulkPriorityId={bulkPriorityId}
-                        bulkStartDate={bulkStartDate}
-                        bulkStatusId={bulkStatusId}
-                        bulkUpdating={bulkUpdating}
-                        categoryOptions={categoryOptions}
-                        milestoneOptions={milestoneOptions}
-                        onAutoCategoryChange={handleAutoCategoryToggle}
-                        onCategoryChange={(values) =>
-                          setBulkCategoryIds(
-                            values && values.length ? values : []
-                          )
-                        }
-                        onClear={clearBulkForm}
-                        onDueDateChange={(value) => setBulkDueDate(value ?? null)}
-                        onManageMilestone={() => {
-                          router.push(
-                            `/backlogs/projects/${projectId}/milestones?space=${encodeURIComponent(
-                              space
-                            )}&name=${encodeURIComponent(projectName)}`
-                          );
-                        }}
-                        onMilestoneChange={(values) =>
-                          setBulkMilestoneIds(values && values.length ? values : [])
-                        }
-                        onPriorityChange={(value) => setBulkPriorityId(value)}
-                        onStartDateChange={(value) => setBulkStartDate(value ?? null)}
-                        onStatusChange={(value) => setBulkStatusId(value)}
-                        onSubmit={handleBulkUpdate}
-                        priorityOptions={priorityOptions}
-                        selectedCount={selectedRowKeys.length}
-                        statusOptions={statusOptions}
-                        submitDisabled={
-                          !selectedRowKeys.length || !hasBulkUpdates || bulkUpdating
-                        }
-                        showAutoCategoryToggle={false}
-                      />
-                    ),
-                  },
-                ]}
-              />
-            </Skeleton>
-          </Card>
+                      ),
+                    },
+                  ]}
+                />
+              </Skeleton>
+            </Card>
 
-          <Card
-            size="small"
-            style={{
-              background: "#ffffff",
-              border: "1px solid #f0f2f5",
-              borderRadius: 20,
-            }}
-            styles={{ body: { padding: 0 } }}
-            title="รายการงานทั้งหมด"
-          >
-            {loading ? (
-              <Space direction="vertical" size={12} style={{ padding: 24 }}>
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Skeleton
-                    key={`issues-skeleton-${index}`}
-                    active
-                    paragraph={{ rows: 1 }}
-                    title={false}
-                  />
-                ))}
-              </Space>
-            ) : (
-              <Table<Issue>
-                bordered
-                columns={columns}
-                dataSource={issues}
-                rowKey={(r) => r.issueKey || String(r.id)}
-                rowSelection={rowSelection}
-                scroll={{ x: 1200 }}
-                expandable={{
-                  expandedRowRender: (record) => (
-                    <div style={{ whiteSpace: "pre-wrap", padding: 16 }}>
-                      <Typography.Text strong>Description</Typography.Text>
-                      <br />
-                      <Typography.Text>
-                        {record.description || "-"}
-                      </Typography.Text>
-                    </div>
-                  ),
-                }}
-                pagination={{
-                  total,
-                  current: page,
-                  pageSize,
-                  showSizeChanger: true,
-                  pageSizeOptions: ["20", "50", "100", "200", "500"],
-                  onChange: (p, ps) => {
-                    setPage(p);
-                    setPageSize(ps);
-                    loadIssues(p, ps);
-                  },
-                }}
-              />
-            )}
-          </Card>
-        </Space>
+            <Card
+              size="small"
+              style={listCardStyle}
+              styles={{ body: { padding: 0 } }}
+              title="รายการงานทั้งหมด"
+            >
+              {loading ? (
+                <Space direction="vertical" size={12} style={{ padding: 24 }}>
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Skeleton
+                      key={`issues-skeleton-${index}`}
+                      active
+                      paragraph={{ rows: 1 }}
+                      title={false}
+                    />
+                  ))}
+                </Space>
+              ) : (
+                <Table<Issue>
+                  bordered
+                  columns={columns}
+                  dataSource={issues}
+                  rowKey={(r) => r.issueKey || String(r.id)}
+                  rowSelection={rowSelection}
+                  scroll={{ x: 1200 }}
+                  expandable={{
+                    expandedRowRender: (record) => (
+                      <div style={{ whiteSpace: "pre-wrap", padding: 16 }}>
+                        <Typography.Text strong>Description</Typography.Text>
+                        <br />
+                        <Typography.Text>
+                          {record.description || "-"}
+                        </Typography.Text>
+                      </div>
+                    ),
+                  }}
+                  pagination={{
+                    total,
+                    current: page,
+                    pageSize,
+                    showSizeChanger: true,
+                    pageSizeOptions: ["20", "50", "100", "200", "500"],
+                    onChange: (p, ps) => {
+                      setPage(p);
+                      setPageSize(ps);
+                      loadIssues(p, ps);
+                    },
+                  }}
+                />
+              )}
+            </Card>
+          </Space>
 
-        <AiUpdateDrawer
-          aiState={aiModal}
-          onApprove={doApproveUpdate}
-          onClose={handleAiClose}
-          onRegenerate={handleAiRegenerate}
-          onUpdateText={(value) =>
-            setAiModal((prev) => ({ ...prev, newText: value }))
-          }
-        />
-      </Content>
-    </Layout>
+          <AiUpdateDrawer
+            aiState={aiModal}
+            onApprove={doApproveUpdate}
+            onClose={handleAiClose}
+            onRegenerate={handleAiRegenerate}
+            onUpdateText={(value) =>
+              setAiModal((prev) => ({ ...prev, newText: value }))
+            }
+          />
+        </Content>
+      </Layout>
+    </DashboardLayout>
   );
 }

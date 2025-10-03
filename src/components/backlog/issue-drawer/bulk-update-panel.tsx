@@ -8,9 +8,11 @@ import {
   Select,
   Space,
   Typography,
+  theme,
 } from "antd";
 import type { Dayjs } from "dayjs";
 import type { OptionItem } from "./types";
+import { useMemo } from "react";
 
 export type BulkUpdatePanelProps = {
   autoCategoryEnabled: boolean;
@@ -70,6 +72,21 @@ export default function BulkUpdatePanel({
   submitDisabled,
   showAutoCategoryToggle = true,
 }: BulkUpdatePanelProps) {
+  const { token } = theme.useToken();
+  const { colorBgContainer, colorBorderSecondary, colorBgBase } = token;
+  const isDarkMode = colorBgBase?.toLowerCase() === "#141414";
+  const cardStyle = useMemo(
+    () => ({
+      background: colorBgContainer,
+      border: `1px solid ${colorBorderSecondary}`,
+      borderRadius: 16,
+      boxShadow: isDarkMode
+        ? "0 12px 28px rgba(0,0,0,0.45)"
+        : "0 12px 28px rgba(15, 23, 42, 0.06)",
+    }),
+    [colorBgContainer, colorBorderSecondary, isDarkMode]
+  );
+
   return (
     <Card
       size="small"
@@ -78,12 +95,7 @@ export default function BulkUpdatePanel({
           padding: 12,
         },
       }}
-      style={{
-        background: "#ffffff",
-        border: "1px solid #f0f2f5",
-        borderRadius: 16,
-        boxShadow: "0 12px 28px rgba(15, 23, 42, 0.06)",
-      }}
+      style={cardStyle}
       title={<Typography.Text strong>อัปเดตแบบกลุ่ม</Typography.Text>}
     >
       <Space align="center" size={8} wrap>

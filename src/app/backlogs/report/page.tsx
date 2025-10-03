@@ -1,21 +1,21 @@
 "use client";
-//** หน้า Backlog Report (API Key): ใส่ Space แล้วโหลด Projects ด้วย Ant Design (Minimal)
-import React, { useMemo, useState, useEffect } from "react";
+//** หน้าแบ็กล็อกรีพอร์ตรูปแบบคีย์ API: ใส่ Space แล้วโหลดโปรเจ็กต์ด้วย Ant Design โทนมินิมอล **
+import React, { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import {
-  Card,
-  Space,
-  Typography,
-  Input,
   Button,
+  Card,
+  Input,
+  Skeleton,
+  Space,
   Table,
   Tag,
-  Skeleton,
+  Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Project = {
   id: number;
@@ -30,26 +30,26 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
 
-  //** โหมด API Key: ไม่ต้อง OAuth — กด Connect = โหลด Projects ทันที
+  //** โหมดคีย์ API: ไม่ต้องทำ OAuth — กดโหลดเพื่อดึงโปรเจ็กต์ได้ทันที **
   const startAuthorize = () => fetchProjects();
 
-  //** โหลด Projects จาก API ภายใน (ใช้ API Key ฝั่งเซิร์ฟเวอร์)
+  //** โหลดโปรเจ็กต์จาก API ภายใน (ใช้คีย์ API ฝั่งเซิร์ฟเวอร์) **
   const fetchProjects = async () => {
     if (!space) {
-      toast.warning("กรุณากรอก Space (subdomain)");
+      toast.warning("กรุณากรอก Space (โดเมนย่อย)");
       return;
     }
-    const toastId = toast.loading("กำลังโหลด Projects จาก Backlog...");
+    const toastId = toast.loading("กำลังโหลดรายการโปรเจ็กต์จาก Backlog...");
     setLoading(true);
     try {
       const { data } = await axios.get("/api/v1/backlog/projects", {
         params: { space },
       });
       setProjects((data?.data as Project[]) || []);
-      toast.success("โหลด Projects สำเร็จ", { id: toastId });
+      toast.success("โหลดรายการโปรเจ็กต์สำเร็จ", { id: toastId });
     } catch (e: any) {
       toast.error(
-        e?.response?.data?.message || e.message || "โหลด Projects ไม่สำเร็จ",
+        e?.response?.data?.message || e.message || "โหลดรายการโปรเจ็กต์ไม่สำเร็จ",
         {
           id: toastId,
         }
@@ -66,16 +66,16 @@ export default function Page() {
 
   const columns: ColumnsType<Project> = useMemo(
     () => [
-      { title: "ID", dataIndex: "id", key: "id", width: 100 },
-      { title: "Key", dataIndex: "projectKey", key: "projectKey", width: 140 },
-      { title: "Name", dataIndex: "name", key: "name" },
+      { title: "รหัส", dataIndex: "id", key: "id", width: 100 },
+      { title: "คีย์โปรเจ็กต์", dataIndex: "projectKey", key: "projectKey", width: 140 },
+      { title: "ชื่อโปรเจ็กต์", dataIndex: "name", key: "name" },
       {
-        title: "Archived",
+        title: "สถานะ",
         dataIndex: "archived",
         key: "archived",
         width: 120,
         render: (v?: boolean) =>
-          v ? <Tag color="default">Yes</Tag> : <Tag color="green">No</Tag>,
+          v ? <Tag color="default">ปิดใช้งาน</Tag> : <Tag color="green">ใช้งาน</Tag>,
       },
     ],
     []
@@ -88,40 +88,35 @@ export default function Page() {
         size={16}
         style={{ width: "100%", marginTop: 16 }}
       >
-        {/* 1) แผงกรอก Space และโหลดข้อมูล (API Key) */}
         <Card size="small" styles={{ body: { padding: 16 } }}>
           <Space direction="vertical" style={{ width: "100%" }} size={8}>
-            <Typography.Text strong>Backlog (API Key)</Typography.Text>
+            <Typography.Text strong>แบ็กล็อก (คีย์ API)</Typography.Text>
             <Typography.Text type="secondary">
-              กรอก Space (subdomain) เช่น schoolbright (ตั้งค่าเริ่มต้น: jabjai)
-              แล้วกด Load เพื่อดึง Projects
+              กรอก Space (subdomain) เช่น schoolbright (ค่าเริ่มต้น: jabjai)
+              แล้วกดปุ่มเพื่อโหลดรายการโปรเจ็กต์
             </Typography.Text>
             <Space>
-              {/* 1.1 ช่องกรอก Space */}
               <Input
                 placeholder="เช่น jabjai"
                 value={space}
                 onChange={(e) => setSpace(e.target.value.trim())}
                 style={{ width: 260 }}
               />
-              {/* 1.2 ปุ่ม Load (แทน Connect) */}
               <Button
                 type="primary"
                 onClick={startAuthorize}
                 loading={loading}
               >
-                Load Projects
+                โหลดโปรเจ็กต์
               </Button>
-              {/* 1.3 ปุ่ม Refresh Projects */}
-              <Button onClick={fetchProjects}>Refresh Projects</Button>
+              <Button onClick={fetchProjects}>รีเฟรชโปรเจ็กต์</Button>
             </Space>
           </Space>
         </Card>
 
-        {/* 2) ตาราง Projects */}
         <Card
           size="small"
-          title="Backlog Projects"
+          title="รายการโปรเจ็กต์บน Backlog"
           styles={{ body: { padding: 0 } }}
         >
           {loading ? (

@@ -907,7 +907,7 @@ export default function Page() {
                         onClick: () => router.push("/timesheet/all/summary"),
                       },
                       {
-                        key: "report-summary",
+                        key: "report-summary-ranking",
                         label: "รายงานการกรอกไทม์ชีท ทั้งเดือน (จัดแรงก์)",
                         onClick: () =>
                           router.push("/timesheet/all/summary-month"),
