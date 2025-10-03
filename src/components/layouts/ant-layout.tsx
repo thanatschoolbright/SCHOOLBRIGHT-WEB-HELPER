@@ -201,7 +201,7 @@ export default function AntThemeProvider({
   );
 
   return (
-    <ConfigProvider locale={thTH} theme={themeTokens}>
+    <ConfigProvider locale={thTH} theme={themeTokens as any}>
       {children}
     </ConfigProvider>
   );

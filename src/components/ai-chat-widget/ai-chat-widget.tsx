@@ -739,7 +739,7 @@ const AiChatWidget = ({
                     <Avatar size={32} style={{ background: "#2563eb" }}>
                       AI
                     </Avatar>
-                    <div className="chat-bubble assistant">
+                    <div className="assistant">
                       <Skeleton
                         active
                         avatar={{ size: 32, shape: "circle" }}
