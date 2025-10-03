@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { callBackendAPI, CallBackendAPIProps } from "@services/api-gateway";
+import type { CallBackendAPIProps } from "@services/api-gateway";
 import { CancelSalesState } from "@stores/type";
 
 import { API_METHOD } from "@/services/api-method";
@@ -13,6 +13,7 @@ export const CallAPI = createAsyncThunk(
       "[Request Data] : ",
       JSON.stringify(request.draftValues, null, 2)
     );
+    const { callBackendAPI } = await import("@/services/api-gateway");
     const payload: CallBackendAPIProps = {
       method: API_METHOD.POST,
       endpoint: API_ENDPOINT,

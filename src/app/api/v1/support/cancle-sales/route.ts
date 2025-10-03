@@ -3,6 +3,7 @@ import axios from "axios";
 import { API_URL } from "@/services/api-url";
 
 export async function POST(request: NextRequest) {
+  console.info("[POST] /api/v1/support/cancle-sales");
   const { SchoolID, sID, sID2, sSellID } = await request.json();
 
   const data = {
