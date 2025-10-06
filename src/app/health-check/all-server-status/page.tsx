@@ -170,7 +170,6 @@ const Page = () => {
           <Skeleton active paragraph={{ rows: 10 }} />
         ) : (
           <Table
-            bordered
             columns={columns}
             dataSource={table}
             rowKey={(record) => record.server_name_th + record.timestamp}

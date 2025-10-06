@@ -1,8 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Card, Space, Typography, Tag, Progress, Avatar, Button, DatePicker, Skeleton, theme } from "antd";
-import { CrownOutlined, TrophyOutlined, SmileOutlined, WarningOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Space,
+  Typography,
+  Tag,
+  Progress,
+  Avatar,
+  Button,
+  DatePicker,
+  Skeleton,
+  theme,
+} from "antd";
+import {
+  CrownOutlined,
+  TrophyOutlined,
+  SmileOutlined,
+  WarningOutlined,
+  CloseCircleOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import { ReloadOutlined } from "@ant-design/icons";
@@ -94,7 +112,11 @@ const fallbackAccent = {
 const addAlpha = (hex: string, alpha: number) => {
   if (!hex?.startsWith("#")) return hex;
   let h = hex.slice(1);
-  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  if (h.length === 3)
+    h = h
+      .split("")
+      .map((c) => c + c)
+      .join("");
   const num = parseInt(h, 16);
   const r = (num >> 16) & 255;
   const g = (num >> 8) & 255;
@@ -312,6 +334,7 @@ export function MonthlyRankBoard({
             {visibleRecords.map((record) => {
               const accent = rankAccentMap[record.rank] ?? fallbackAccent;
               const iconByRank = {
+                S: <ThunderboltOutlined style={{ color: "#166534" }} />,
                 A: <CrownOutlined style={{ color: "#f59e0b" }} />,
                 B: <TrophyOutlined style={{ color: "#1d4ed8" }} />,
                 C: <SmileOutlined style={{ color: "#f59e0b" }} />,
@@ -320,10 +343,17 @@ export function MonthlyRankBoard({
               } as const;
 
               const chipStyle: React.CSSProperties =
-                record.rank === "A"
+                record.rank === "S"
                   ? {
                       background:
-                        "linear-gradient(90deg, rgba(255,122,182,0.15), rgba(255,209,102,0.15), rgba(143,211,254,0.15), rgba(168,255,120,0.15))",
+                        "linear-gradient(90deg, rgba(255,223,102,0.25), rgba(120,255,214,0.25), rgba(102,204,255,0.25))",
+                      border: `1px solid ${addAlpha("#22c55e", 0.4)}`,
+                      boxShadow: "0 0 12px rgba(34,197,94,0.35)",
+                    }
+                  : record.rank === "A"
+                  ? {
+                      background:
+                        "linear-gradient(90deg, rgba(255,215,0,0.18), rgba(255,182,72,0.18), rgba(255,239,184,0.18))",
                       border: `1px solid ${addAlpha("#f59e0b", 0.25)}`,
                     }
                   : {
@@ -344,12 +374,11 @@ export function MonthlyRankBoard({
                   style={{
                     background: token.colorBgContainer,
                     borderRadius: 10,
-                    border: `1px solid ${token.colorBorderSecondary}`,
-                    boxShadow: "none",
+                    borderTop: `1px solid ${token.colorBorderSecondary}`,
+                    borderRight: `1px solid ${token.colorBorderSecondary}`,
+                    borderBottom: `1px solid ${token.colorBorderSecondary}`,
                     borderLeft: `4px solid ${accent.color}`,
-                  }}
-                  styles={{
-                    body: { padding: isCompact ? "12px 16px" : "14px 18px" },
+                    boxShadow: "none",
                   }}
                 >
                   <Space
@@ -388,7 +417,12 @@ export function MonthlyRankBoard({
                           }}
                           title={`${formatName(record)} · Rank ${record.rank}`}
                         >
-                          <span style={{ display: "inline-flex", alignItems: "center" }}>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                            }}
+                          >
                             {iconByRank[record.rank as keyof typeof iconByRank]}
                           </span>
                           <Typography.Text
@@ -401,7 +435,10 @@ export function MonthlyRankBoard({
                           >
                             {formatName(record)}
                           </Typography.Text>
-                          <Tag color={accent.tagColor ?? "default"} style={{ marginInlineStart: 0 }}>
+                          <Tag
+                            color={accent.tagColor ?? "default"}
+                            style={{ marginInlineStart: 0 }}
+                          >
                             Rank {record.rank}
                           </Tag>
                         </div>

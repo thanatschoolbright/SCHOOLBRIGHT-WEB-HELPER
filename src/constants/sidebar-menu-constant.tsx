@@ -30,12 +30,12 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("admin_system.children.user_profile"),
             href: "/admin/user-profile",
-            news: true,
+            news: false,
             children: [
               {
                 label: t("admin_system.children.user_profile"),
                 href: "/admin/user-profile",
-                news: true,
+                news: false,
               },
             ],
           },
@@ -126,7 +126,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("mobile_app.children.qrcode_health_check"),
             href: "/mobile/qrcode-health-check",
-            news: true,
+            news: false,
           },
         ],
       },
@@ -147,7 +147,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.project"),
             href: "/timesheet/project",
-            news: true,
+            news: false,
             children: [
               {
                 label: t("timesheet_system.children.sub_project"),
@@ -158,12 +158,12 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.entry"),
             href: "/timesheet/entry",
-            news: true,
+            news: false,
           },
           {
             label: t("timesheet_system.children.all"),
             href: "/timesheet/all",
-            news: true,
+            news: false,
           },
         ],
       },

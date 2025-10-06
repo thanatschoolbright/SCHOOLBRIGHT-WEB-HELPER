@@ -142,16 +142,21 @@ export default function AntThemeProvider({
           cellActiveWithRangeBg: `${palette.primary}30`,
         },
         Card: {
+          // Header Section
+
+          // Body Section
+          padding: 24, // ✅ ระยะห่างภายในของ body (ค่าเริ่มต้น 24)
+          fontSize: 15, // ✅ ขนาดตัวอักษรใน body
+          colorBgContainer: palette.backgroundElevated, // ✅ สีพื้นหลังของ card body
+          colorText: palette.textPrimary, // ✅ สีข้อความใน body
+          colorBorderSecondary: palette.border, // ✅ สีเส้นขอบ (body-border)
+
+          // Common Style
           borderRadiusLG: 18,
           borderRadiusSM: 14,
-          colorBorderSecondary: palette.border,
-          colorBgContainer: palette.backgroundElevated,
           boxShadow: isDark
             ? "0 12px 24px rgba(0,0,0,0.35)"
             : "0 6px 16px rgba(15,23,42,0.06)",
-          headerPadding: "18px 26px",
-          headerFontSize: 18,
-          headerHeight: 58,
         },
         Modal: {
           borderRadiusLG: 28,

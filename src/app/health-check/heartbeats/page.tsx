@@ -110,13 +110,11 @@ export default function Page() {
       await dispatch(GET_HEARTBEATS()).unwrap();
       toast.success("รีเฟรชสำเร็จ", {
         duration: 3000,
-        position: "top-right",
       });
     } catch (error: any) {
       toast.error("รีเฟรชล้มเหลว", {
         description: error?.message ?? "Unexpected error",
         duration: 3000,
-        position: "top-right",
       });
     }
   }, [dispatch]);
@@ -161,7 +159,6 @@ export default function Page() {
 
       toast.success("อัปเดตคำอธิบายสำเร็จ", {
         duration: 3000,
-        position: "top-right",
       });
 
       closeEditModal();
@@ -170,7 +167,6 @@ export default function Page() {
       toast.error("อัปเดตคำอธิบายล้มเหลว", {
         description: error?.message ?? "Unexpected error",
         duration: 3000,
-        position: "top-right",
       });
     } finally {
       setIsSubmitting(false);

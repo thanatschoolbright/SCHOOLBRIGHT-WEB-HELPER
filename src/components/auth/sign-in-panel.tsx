@@ -29,7 +29,6 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
       toast.error("เข้าสู่ระบบล้มเหลว", {
         description: message,
         duration: 5000,
-        position: "top-right",
       });
     } catch (error: any) {
       throw new Error("Login Error Function: " + error.message);
@@ -60,7 +59,6 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
     try {
       toast.success("เข้าสู่ระบบสำเร็จ", {
         duration: 3000,
-        position: "top-right",
       });
       setTimeout(() => {
         router.replace("/backend");

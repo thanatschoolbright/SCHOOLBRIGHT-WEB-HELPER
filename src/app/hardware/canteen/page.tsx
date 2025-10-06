@@ -522,7 +522,7 @@ export default function Page() {
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <Card
           title="รายการแอปพลิเคชัน"
-          bordered={false}
+          variant="borderless"
           extra={
             <Button
               type="primary"

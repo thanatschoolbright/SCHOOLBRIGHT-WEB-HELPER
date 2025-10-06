@@ -1,31 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import DashboardLayout from "@components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
-import { useTranslation } from "react-i18next";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import MinimalButton from "@/components/button/minimal-button-component";
-import { toast } from "sonner";
-import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
-import { MinimalRow } from "@components/table/minimal-row-component";
-import MinimalTable from "@components/table/minimal-table-component";
-import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
-import { InputFieldComponent } from "@components/input-field/input-field-component";
-
-import {
-  FiSearch,
-  FiCheckCircle,
-  FiXCircle,
-  FiClock,
-  FiBriefcase,
-  FiHeart,
-  FiHelpCircle,
-} from "react-icons/fi";
+import { useTranslation } from "react-i18next";
+import { Card, Form, Button, Select, DatePicker, Table, Space, Tag, Typography, message, Spin } from "antd";
+import { SearchOutlined, CopyOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import * as type from "@/stores/type";
-import DatePickerComponent from "@components/input-field/date-picker-component";
-
+import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
 import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get-user";
 import { CallAPI as POST_TO_GET_STATISTIC } from "@stores/actions/mobile/call-post-statistic";
 import formatDateToMMDDYYYY from "@helpers/convert-to-mm-dd-yyyy";
@@ -41,435 +22,373 @@ type AttendanceRow = {
   TimeOut: string; // เวลาออก (ISO string)
 };
 
-// {* แปลงรหัสสถานะ -> ป้ายภาษาไทย + สีแสดงผล (ใช้เฉดสีอ่อน) *}
-const getStatusInfo = (status: string): { label: string; color: string } => {
+//** แปลงรหัสสถานะ -> ป้ายภาษาไทย + สีแสดงผล (AntD Tag) **
+const getStatusTag = (status: string) => {
   switch (status) {
     case "0":
     case "7":
-      return { label: "ตรงเวลา", color: "bg-green-100 text-green-700" };
+      return <Tag color="green">ตรงเวลา</Tag>;
     case "1":
-      return { label: "สาย", color: "bg-red-100 text-red-700" };
+      return <Tag color="red">สาย</Tag>;
     case "3":
-      return { label: "ขาด", color: "bg-gray-100 text-gray-700" };
+      return <Tag color="default">ขาด</Tag>;
     case "4":
     case "10":
-      return { label: "ลากิจ", color: "bg-yellow-100 text-yellow-700" };
+      return <Tag color="gold">ลากิจ</Tag>;
     case "5":
     case "11":
-      return { label: "ลาป่วย", color: "bg-blue-100 text-blue-700" };
+      return <Tag color="blue">ลาป่วย</Tag>;
     case "6":
     case "12":
-      return { label: "กิจกรรม", color: "bg-purple-100 text-purple-700" };
+      return <Tag color="purple">กิจกรรม</Tag>;
     case "21":
     case "22":
     case "23":
     case "24":
     case "25":
     case "26":
-      return { label: "ลาอื่นๆ", color: "bg-pink-100 text-pink-700" };
+      return <Tag color="magenta">ลาอื่นๆ</Tag>;
     case "99":
-      return { label: "ไม่เช็กชื่อ", color: "bg-orange-100 text-orange-700" };
+      return <Tag color="orange">ไม่เช็กชื่อ</Tag>;
     case "-":
-      return { label: "ไม่ทราบ", color: "bg-gray-100 text-gray-700" };
     default:
-      return { label: "ไม่ทราบ", color: "bg-gray-100 text-gray-700" };
+      return <Tag color="default">ไม่ทราบ</Tag>;
   }
-};
-
-const getStatusElement = (info: { label: string; color: string }) => {
-  let Icon = FiHelpCircle;
-  switch (info.label) {
-    case "ตรงเวลา":
-      Icon = FiCheckCircle;
-      break;
-    case "สาย":
-      Icon = FiClock;
-      break;
-    case "ขาด":
-      Icon = FiXCircle;
-      break;
-    case "ลากิจ":
-      Icon = FiBriefcase;
-      break;
-    case "ลาป่วย":
-      Icon = FiHeart;
-      break;
-    default:
-      Icon = FiHelpCircle;
-  }
-  return (
-    <span
-      className={`inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full transition-all duration-300 hover:scale-105 ${info.color}`}
-    >
-      <Icon className="w-4 h-4 animate-bounce" />
-      {info.label}
-    </span>
-  );
 };
 // ---------------------------------------------
 
-// {* คอลัมน์สำหรับตารางสถิติการมาเรียน *}
-const columns: { key: string; label: string }[] = [
-  { key: "SchoolID", label: "รหัสโรงเรียน" },
-  { key: "Owner", label: "ผู้ที่แสกน" },
-  { key: "dScan", label: "วันที่สแกน" },
-  { key: "TimeIn", label: "เวลาเข้า" },
-  { key: "TimeOut", label: "เวลาออก" },
-  { key: "StatusIN", label: "สถานะเข้า" },
-  { key: "StatusOut", label: "สถานะออก" },
-  { key: "action", label: "การกระทำ" },
+//** สร้าง columns แบบ Ant Design **
+const getTableColumns = (userList: any[], formUserId: string, statisticCurl: string) => [
+  {
+    title: "รหัสโรงเรียน",
+    dataIndex: "SchoolID",
+    key: "SchoolID",
+    sorter: (a: AttendanceRow, b: AttendanceRow) => (a.SchoolID ?? 0) - (b.SchoolID ?? 0),
+  },
+  {
+    title: "ผู้ที่แสกน",
+    dataIndex: "Owner",
+    key: "Owner",
+    render: (_: any, row: AttendanceRow) =>
+      userList.find((user: any) => String(user.value) === String(formUserId))?.label ?? "ไม่พบข้อมูลผู้ใช้",
+    // ไม่สามารถ sort ได้ (เพราะ label ไม่อยู่ใน row)
+  },
+  {
+    title: "วันที่สแกน",
+    dataIndex: "dScan",
+    key: "dScan",
+    sorter: (a: AttendanceRow, b: AttendanceRow) =>
+      new Date(a.dScan).getTime() - new Date(b.dScan).getTime(),
+    render: (dScan: string) => convertTimeZoneToThai(new Date(dScan)),
+  },
+  {
+    title: "เวลาเข้า",
+    dataIndex: "TimeIn",
+    key: "TimeIn",
+    render: (TimeIn: string) => convertTimeZoneToThai(new Date(TimeIn)),
+  },
+  {
+    title: "เวลาออก",
+    dataIndex: "TimeOut",
+    key: "TimeOut",
+    render: (TimeOut: string) => convertTimeZoneToThai(new Date(TimeOut)),
+  },
+  {
+    title: "สถานะเข้า",
+    dataIndex: "StatusIN",
+    key: "StatusIN",
+    render: (status: string) => getStatusTag(status),
+    filters: [
+      { text: "ตรงเวลา", value: "0" },
+      { text: "สาย", value: "1" },
+      { text: "ขาด", value: "3" },
+      { text: "ลากิจ", value: "4" },
+      { text: "ลาป่วย", value: "5" },
+      { text: "กิจกรรม", value: "6" },
+      { text: "ลาอื่นๆ", value: "21" },
+      { text: "ไม่เช็กชื่อ", value: "99" },
+      { text: "ไม่ทราบ", value: "-" },
+    ],
+    onFilter: (value: any, record: AttendanceRow) => record.StatusIN === value,
+  },
+  {
+    title: "สถานะออก",
+    dataIndex: "StatusOut",
+    key: "StatusOut",
+    render: (status: string) => getStatusTag(status),
+    filters: [
+      { text: "ตรงเวลา", value: "0" },
+      { text: "สาย", value: "1" },
+      { text: "ขาด", value: "3" },
+      { text: "ลากิจ", value: "4" },
+      { text: "ลาป่วย", value: "5" },
+      { text: "กิจกรรม", value: "6" },
+      { text: "ลาอื่นๆ", value: "21" },
+      { text: "ไม่เช็กชื่อ", value: "99" },
+      { text: "ไม่ทราบ", value: "-" },
+    ],
+    onFilter: (value: any, record: AttendanceRow) => record.StatusOut === value,
+  },
+  {
+    title: "การกระทำ",
+    key: "action",
+    render: (_: any, row: AttendanceRow) => (
+      <Button
+        icon={<CopyOutlined />}
+        size="small"
+        onClick={() => {
+          if (statisticCurl) {
+            navigator.clipboard.writeText(String(statisticCurl));
+            message.success("CURL command copied to clipboard.");
+          } else {
+            message.error("ไม่มี CURL Command");
+          }
+        }}
+      >
+        COPY CURL
+      </Button>
+    ),
+  },
 ];
 
 export default function Page() {
+  //** โหลดภาษา **
   const { t } = useTranslation("mock");
+  //** เชื่อม Redux **
   const dispatch = useDispatch<AppDispatch>();
+  //** โหลดรายชื่อโรงเรียนจาก Redux **
   const SCHOOL_LIST_STATE = useAppSelector((state) => state.callSchoolList);
-
-  const USER_LIST_STATE = useAppSelector(
-    (state) => state.callGetuserBySchoolId
-  );
-
-  const NOTIFICATION_READ_MESSAGE_STATE = useAppSelector(
-    (state) => state.callGetNotificationMessage
-  );
-
+  //** โหลดรายชื่อ user จาก Redux **
+  const USER_LIST_STATE = useAppSelector((state) => state.callGetuserBySchoolId);
+  //** สถิติการมาเรียน (ผลลัพธ์) **
   const STATISTIC_STATE = useAppSelector((state) => state.callPostStatistic);
 
-  const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
-  // filter by selected school
-  const isLoading = [SCHOOL_LIST_STATE.loading, USER_LIST_STATE.loading].some(
-    Boolean
-  );
-  // {"table" เก็บรายการสแกนเข้า-ออกโรงเรียน}
-  const [table, setTable] = useState<AttendanceRow[]>([]);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  //** State สำหรับฟอร์ม **
+  const [form] = Form.useForm();
   const [schoolList, setSchoolList] = useState<any[]>([]);
   const [userList, setUserList] = useState<any[]>([]);
+  const [table, setTable] = useState<AttendanceRow[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const [deviceIdSearch, setDeviceIdSearch] = useState<string>("");
-  const [modal, setModal] = useState<string>("");
-  const [selectedRow, setSelectedRow] = useState<AttendanceRow | undefined>();
-  const [form, setForm] = useState<{
-    school_id: string;
-    user_id: string;
-    start_date: string;
-    end_date: string;
-  }>({
-    school_id: "",
-    user_id: "",
-    start_date: "",
-    end_date: "",
-  });
-  const [page, setPage] = useState<number>(0);
-
+  //** โหลดโรงเรียน **
   useEffect(() => {
     setSchoolList(
       SCHOOL_LIST_STATE?.response?.data?.data?.map((item: any) => ({
-        label: item.SchoolName,
-        value: item.SchoolID,
+        label: item.SchoolName + " (" + item.SchoolID + ")",
+        value: String(item.SchoolID),
       })) || []
     );
   }, [SCHOOL_LIST_STATE?.response]);
 
+  //** โหลด user เมื่อเลือกโรงเรียน **
   useEffect(() => {
-    getUserBySchoolId(form.school_id);
-  }, [form.school_id]);
-
-  useEffect(() => {
-    if (page !== 0 && table?.length < 1) {
-      toast.error("ไม่พบข้อมูล", {
-        duration: 3000,
-        position: "top-right",
-      });
+    const schoolId = form.getFieldValue("school_id");
+    if (schoolId) {
+      getUserBySchoolId(schoolId);
+    } else {
+      setUserList([]);
     }
-  }, [table]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.getFieldValue("school_id")]);
 
-  useEffect(() => {
-    page === 0 ? setPage(1) : setPage(page);
-  }, [page]);
-
+  //** ฟังก์ชันโหลด user **
   const getUserBySchoolId = async (schoolId: string) => {
     try {
+      setLoading(true);
       const response = await dispatch(GET_USER_BY_SCHOOLID({ schoolId }));
       setUserList(
         response?.payload?.data?.map(
           (item: type.ResponseUserList["draftValues"]) => ({
-            label: `${item?.Name} \t ${item?.LastName}\t(ID : ${item?.UserID} Username : ${item?.username})`,
-            value: item?.UserID,
+            label: `${item?.Name} ${item?.LastName} (ID: ${item?.UserID} Username: ${item?.username})`,
+            value: String(item?.UserID),
           })
-        )
+        ) ?? []
       );
-      console.log(response);
     } catch (error) {
-      throw new Error((error as Error).message);
+      message.error("เกิดข้อผิดพลาดในการโหลดผู้ใช้");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmitForm = async () => {
+  //** ค้นหาข้อมูลสถิติจาก API **
+  const handleSubmitForm = async (values: any) => {
     try {
+      setLoading(true);
       const response = await dispatch(
         POST_TO_GET_STATISTIC({
-          user_id: form.user_id,
-          school_id: form.school_id,
-          start_date: formatDateToMMDDYYYY(form.start_date),
-          end_date: formatDateToMMDDYYYY(form.end_date),
+          user_id: values.user_id,
+          school_id: values.school_id,
+          start_date: formatDateToMMDDYYYY(values.start_date),
+          end_date: formatDateToMMDDYYYY(values.end_date),
         })
       ).unwrap();
-
-      setTable(response?.data);
-
-      // ✅ แจ้งเตือนเมื่อค้นหาสำเร็จ
+      setTable(response?.data ?? []);
       if (response?.data?.length > 0) {
-        toast.success("ค้นหาสำเร็จ", {
-          description: `รหัสนักเรียน/บุคลากร: ${form.user_id}`,
-          duration: 4000,
-          position: "top-right",
+        message.success({
+          content: `ค้นหาสำเร็จ (รหัสนักเรียน/บุคลากร: ${values.user_id})`,
+          duration: 3,
         });
+      } else {
+        message.error("ไม่พบข้อมูล");
       }
     } catch (error: any) {
-      throw new Error(error.message);
+      message.error(error?.message ?? "เกิดข้อผิดพลาด");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // { * สร้างแถวข้อมูลสำหรับตารางสถิติการมาเรียน * }
-  const renderTableData = (data: AttendanceRow[]) =>
-    data.map((row, idx) => (
-      <MinimalRow key={idx}>
-        {({ index }: { index: number }) => {
-          const inInfo = getStatusInfo(row.StatusIN);
-          const outInfo = getStatusInfo(row.StatusOut);
-          return (
-            <>
-              {/* { * ลำดับรายการ * } */}
-              <td className="p-4 font-medium text-sm text-gray-700 dark:text-gray-300">
-                {index + 1}
-              </td>
-              {/* { * รหัสโรงเรียน * } */}
-              <td className="p-4 font-medium text-sm text-gray-700 dark:text-gray-300">
-                {row.SchoolID}
-              </td>
-              {/* { * ผู้ที่แสกน * } */}
-              <td className="p-4 font-medium text-sm text-gray-700 dark:text-gray-300">
-                {userList.find(
-                  (user: any) => String(user.value) === String(form.user_id)
-                )?.label ?? "ไม่พบข้อมูลผู้ใช้"}
-              </td>
-              {/* { * วันที่สแกน * } */}
-              <td className="p-4 font-medium text-sm text-gray-700 dark:text-gray-300">
-                {convertTimeZoneToThai(new Date(row.dScan))}
-              </td>
-              {/* { * เวลาเข้า * } */}
-              <td className="p-4 font-medium text-sm text-gray-700 dark:text-gray-300">
-                {convertTimeZoneToThai(new Date(row.TimeIn))}
-              </td>
-              {/* { * เวลาออก * } */}
-              <td className="p-4 font-medium text-sm text-gray-700 dark:text-gray-300">
-                {convertTimeZoneToThai(new Date(row.TimeOut))}
-              </td>
-              {/* { * สถานะเข้า * } */}
-              <td className="p-4 font-medium text-sm text-gray-700 dark:text-gray-300">
-                {getStatusElement(inInfo)}
-              </td>
-              {/* { * สถานะออก * } */}
-              <td className="p-4 font-medium text-sm text-gray-700 dark:text-gray-300">
-                {getStatusElement(outInfo)}
-              </td>
-              {/* { * ปุ่มคัดลอก CURL * } */}
-              <td className="p-4 font-medium text-sm text-gray-700 dark:text-gray-300">
-                <div className="grid grid-cols-1 justify-between">
-                  <MinimalButton
-                    className="bg-green-600 text-green-700 rounded-lg hover:bg-green-900 w-24 h-9 text-xs transition-all duration-300 hover:scale-105 active:scale-95"
-                    onClick={() => {
-                      const curlCommand = STATISTIC_STATE?.response?.curl;
-                      if (curlCommand) {
-                        navigator.clipboard.writeText(String(curlCommand));
-                        toast.success("Copied CURL", {
-                          description: "CURL command copied to clipboard.",
-                          duration: 3000,
-                          position: "top-right",
-                        });
-                      } else {
-                        toast.error("ไม่มี CURL Command", {
-                          duration: 3000,
-                          position: "top-right",
-                        });
-                      }
-                    }}
-                  >
-                    COPY CURL
-                  </MinimalButton>
-                </div>
-              </td>
-            </>
-          );
-        }}
-      </MinimalRow>
-    ));
+  //** เปลี่ยนหน้า Pagination **
+  const handleChangePage = (pageNum: number) => {
+    setPage(pageNum);
+  };
+
+  //** คำนวณข้อมูลหน้าปัจจุบัน **
+  const pagedData = table.slice((page - 1) * pageSize, page * pageSize);
+
+  //** Columns ตาราง **
+  const columns = getTableColumns(userList, form.getFieldValue("user_id"), STATISTIC_STATE?.response?.curl);
 
   return (
-    <DashboardLayout>
-      {isLoading && <BaseLoadingComponent />}
+    <div style={{ padding: 16 }}>
+      <Typography.Title level={3}>สถิติการมาเรียน</Typography.Title>
+      {/* ฟอร์มค้นหา */}
+      <Card style={{ marginBottom: 24 }}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmitForm}
+          initialValues={{
+            school_id: "",
+            user_id: "",
+            start_date: null,
+            end_date: null,
+          }}
+        >
+          <Space size="middle" style={{ display: "flex", flexWrap: "wrap" }}>
+            <Form.Item
+              label="เลือกโรงเรียน"
+              name="school_id"
+              rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
+              style={{ minWidth: 250 }}
+            >
+              <Select
+                showSearch
+                placeholder="เลือกโรงเรียน"
+                options={[{ label: "เลือกรายการ", value: "" }, ...schoolList]}
+                loading={SCHOOL_LIST_STATE.loading}
+                filterOption={(input, option) =>
+                  (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              label="กรอกรหัส User ID ที่ต้องการค้นหา"
+              name="user_id"
+              rules={[{ required: true, message: "กรุณาเลือกผู้ใช้" }]}
+              style={{ minWidth: 250 }}
+            >
+              <Select
+                showSearch
+                placeholder="กรอกรหัส User ID"
+                options={[{ label: "เลือกรายการ", value: "" }, ...userList]}
+                loading={USER_LIST_STATE.loading}
+                filterOption={(input, option) =>
+                  (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              label="จากวันที่"
+              name="start_date"
+              rules={[{ required: true, message: "กรุณาเลือกวันที่เริ่มต้น" }]}
+            >
+              <DatePicker
+                format="YYYY-MM-DD"
+                style={{ width: 160 }}
+                placeholder="จากวันที่"
+              />
+            </Form.Item>
+            <Form.Item
+              label="ถึงวันที่"
+              name="end_date"
+              rules={[{ required: true, message: "กรุณาเลือกวันที่สิ้นสุด" }]}
+            >
+              <DatePicker
+                format="YYYY-MM-DD"
+                style={{ width: 160 }}
+                placeholder="ถึงวันที่"
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<SearchOutlined />}
+                loading={loading}
+                disabled={
+                  !form.getFieldValue("user_id") ||
+                  !form.getFieldValue("start_date") ||
+                  !form.getFieldValue("end_date")
+                }
+              >
+                ค้นหา
+              </Button>
+            </Form.Item>
+          </Space>
+        </Form>
+      </Card>
 
-      <div className="w-full space-y-4">
-        {/* หมายเหตุ */}
-        <div className="grid grid-cols-1 grid-rows-1 gap-0 w-full">
-          <div className="space-y-3 w-full grid-cols-2">
-            <ContentCard title="สถิติการมาเรียน" fullWidth className="w-full">
-              {/* ห่อสองช่องด้วย grid จริง ๆ */}
-              <div className="grid grid-cols-2 gap-4 w-full">
-                {/* กรอก School Id */}
-                <div>
-                  <SearchableSelectComponent
-                    label="เลือกโรงเรียน"
-                    options={[
-                      { label: "เลือกรายการ", value: "" },
-                      ...schoolList.map((s) => ({
-                        label: s.label + " (" + s.value + ")",
-                        value: String(s.value),
-                      })),
-                    ]}
-                    value={form.school_id}
-                    onChange={(event: any) => {
-                      setForm({ ...form, school_id: event });
-                    }}
-                    placeholder="เลือกโรงเรียน"
-                  />
-                </div>
-
-                {/* กรอกรหัส User ID  */}
-                <div>
-                  <SearchableSelectComponent
-                    label="กรอกรหัส User ID ที่ต้องการค้นหา"
-                    options={[
-                      { label: "เลือกรายการ", value: "" },
-                      ...(userList ?? []).map((s) => ({
-                        label: s.label,
-                        value: String(s.value),
-                      })),
-                    ]}
-                    value={form.user_id}
-                    onChange={(event: any) => {
-                      setForm({ ...form, user_id: event });
-                    }}
-                    placeholder="กรอกรหัส User ID"
-                  />
-                </div>
-
-                {/* จากวันที่ */}
-                <div>
-                  <DatePickerComponent
-                    label="จากวันที่"
-                    value={form.start_date}
-                    onChange={(event: any) => {
-                      setForm({
-                        ...form,
-                        start_date: event ? event : "",
-                      });
-                    }}
-                    className="w-full"
-                  />
-                </div>
-
-                {/* ถึงวันที่ */}
-                <div>
-                  <DatePickerComponent
-                    label="ถึงวันที่"
-                    value={form.end_date}
-                    onChange={(event: any) => {
-                      setForm({
-                        ...form,
-                        end_date: event ? event : "",
-                      });
-                    }}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="flex justify-center  col-span-2 ">
-                  <MinimalButton
-                    type="button"
-                    textSize="lg"
-                    className={`${
-                      form?.user_id
-                        ? "bg-green-500 hover:bg-green-600"
-                        : "bg-gray-300"
-                    }`}
-                    isLoading={isLoading}
-                    disabled={
-                      !form?.user_id || !form?.start_date || !form?.end_date
-                    }
-                    onClick={async () => {
-                      await handleSubmitForm();
-                    }}
-                  >
-                    ค้นหา
-                  </MinimalButton>
-                </div>
-              </div>
-            </ContentCard>
+      {/* ตารางข้อมูล */}
+      <Card
+        title={`ตาราง (หน้าที่ ${page})`}
+        style={{ width: "100%" }}
+        extra={
+          <Space>
+            <Button
+              icon={<LeftOutlined />}
+              onClick={() => handleChangePage(Math.max(1, page - 1))}
+              disabled={page === 1}
+            >
+              หน้าก่อนหน้า
+            </Button>
+            <Button
+              icon={<RightOutlined />}
+              onClick={() =>
+                handleChangePage(
+                  page * pageSize < table.length ? page + 1 : page
+                )
+              }
+              disabled={page * pageSize >= table.length}
+            >
+              หน้าถัดไป
+            </Button>
+          </Space>
+        }
+        hidden={table?.length < 1}
+      >
+        <Spin spinning={loading || STATISTIC_STATE.loading}>
+          <Table
+            columns={columns}
+            dataSource={pagedData.map((row, idx) => ({
+              ...row,
+              key: (page - 1) * pageSize + idx,
+            }))}
+            pagination={false}
+            bordered
+            size="middle"
+            scroll={{ x: "max-content" }}
+          />
+          <div style={{ marginTop: 16, textAlign: "right" }}>
+            <Typography.Text>
+              แสดง {pagedData.length} จาก {table.length} รายการ
+            </Typography.Text>
           </div>
-        </div>
-
-        <ContentCard
-          title="รายงานการทำงานทุกระบบ"
-          fullWidth
-          className="md:col-span-2 xl:col-span-4 w-full hidden"
-        >
-          {/* -- ใน <ContentCard> ส่วนฟอร์ม -- */}
-          <form className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              {/* เลือกโรงเรียน */}
-              <div className="flex-1">
-                <SearchableSelectComponent
-                  label="เลือกโรงเรียน"
-                  options={[
-                    { label: "เลือกรายการ", value: "" },
-                    ...schoolList.map((s) => ({
-                      label: s.label + " (" + s.value + ")",
-                      value: String(s.value),
-                    })),
-                  ]}
-                  value={selectedSchool}
-                  onChange={setSelectedSchool}
-                  placeholder="เลือกโรงเรียน"
-                />
-              </div>
-
-              {/* ค้นหา Device ID */}
-              <div>
-                <InputFieldComponent
-                  label="ค้นหา Device ID"
-                  placeholder="พิมพ์ Device ID"
-                  icon={
-                    <FiSearch className="text-gray-400 dark:text-gray-500" />
-                  }
-                  value={deviceIdSearch}
-                  onChange={(e) => setDeviceIdSearch(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-            </div>
-          </form>
-        </ContentCard>
-
-        {/* ตาราง */}
-        <ContentCard
-          title={`ตาราง (หน้าที่ ${page})`}
-          className="xl:col-span-4 w-full"
-          hidden={table?.length < 1}
-        >
-          <MinimalTable
-            isLoading={STATISTIC_STATE.loading}
-            header={columns}
-            data={table}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={setRowsPerPage}
-            hiddenProps={false}
-          >
-            {table ? renderTableData(table) : null}
-          </MinimalTable>
-        </ContentCard>
-      </div>
-    </DashboardLayout>
+        </Spin>
+      </Card>
+    </div>
   );
 }

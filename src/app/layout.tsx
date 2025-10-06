@@ -38,7 +38,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="antialiased">
-        <Toaster richColors position="top-right" closeButton />
+        <Toaster richColors position="bottom-center" closeButton />
 
         <AntThemeProvider>
           <ClientProvider>

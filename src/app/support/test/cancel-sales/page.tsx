@@ -723,7 +723,7 @@ export default function Page() {
                 Cancel Sales เกิน 7 วัน
               </Typography.Title>
             }
-            bordered={false}
+            variant="outlined"
           >
             <Skeleton
               active
@@ -828,7 +828,7 @@ export default function Page() {
                   Response
                 </Typography.Title>
               }
-              bordered={false}
+              variant="borderless"
             >
               <Space
                 direction="vertical"
@@ -870,13 +870,12 @@ export default function Page() {
           )}
 
           <Card
-            className="glass-card"
             title={
               <Typography.Title level={5} className="card-title">
                 หมายเหตุ (1)
               </Typography.Title>
             }
-            bordered={false}
+            variant="outlined"
           >
             <Space direction="vertical">
               <Typography.Text type="danger">

@@ -33,7 +33,6 @@ export default function DashboardPage() {
         toast.error("Error", {
           description: "กรุณากรอกข้อมูลให้ครบถ้วน",
           duration: 5000,
-          position: "top-right",
         });
         setModal("");
         break;
@@ -41,7 +40,6 @@ export default function DashboardPage() {
         toast.success("Success", {
           description: "ยิง API สำเร็จ",
           duration: 4000,
-          position: "top-right",
         });
         setModal("");
         break;
@@ -83,7 +81,6 @@ export default function DashboardPage() {
       toast.error("เกิดข้อผิดพลาด", {
         description: error.message || "ไม่สามารถดำเนินการได้",
         duration: 6000,
-        position: "top-right",
       });
     }
   };
@@ -186,7 +183,6 @@ export default function DashboardPage() {
                   toast.success("Copied!", {
                     description: "Response copied to clipboard.",
                     duration: 2000,
-                    position: "top-right",
                   });
                 }}
               >
@@ -202,7 +198,6 @@ export default function DashboardPage() {
                   toast.success("Copied!", {
                     description: "Copy CURL to clipboard.",
                     duration: 2000,
-                    position: "top-right",
                   });
                 }}
               >

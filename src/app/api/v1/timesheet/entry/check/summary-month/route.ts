@@ -87,8 +87,13 @@ const aggregateEntries = (entries: TimesheetEntryRow[]) => {
   return map;
 };
 
-//** เกณฑ์การให้ Rank รายเดือน A-E
+//** เกณฑ์การให้ Rank รายเดือน S-A-E
 const determineMonthlyRank = (rate: number) => {
+  if (rate > 100)
+    return {
+      grade: "S" as const,
+      description: "ยอดเยี่ยม! ทำงานเกินเป้าที่กำหนดในเดือนนี้",
+    };
   if (rate >= 100)
     return { grade: "A" as const, description: "ทำครบหรือเกินเป้าในเดือนนี้" };
   if (rate >= 85)

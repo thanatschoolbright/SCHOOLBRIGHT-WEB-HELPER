@@ -288,29 +288,54 @@ export default function ProjectIssuesPage() {
     bulkMilestoneIds !== undefined ||
     bulkCategoryIds !== undefined;
 
+  //** การทำงาน : เรียก AI และแสดงเวลา Toast แบบนับถอยหลัง **/
   const onClickAI = async (issue: Issue) => {
     const toastId = toast.loading("กำลังเตรียมข้อมูลเพื่อสรุปด้วย AI...");
     setAiModal({ open: true, issue, generating: true, newText: "" });
+
+    const startTime = Date.now();
+    let seconds = 0;
+
+    // ✅ มี interval สำหรับนับเวลา
+    const timer = setInterval(() => {
+      seconds = Math.floor((Date.now() - startTime) / 1000);
+      toast.message(`ส่งคำขอไปยัง Gemini... (รอ ${seconds} วินาที)`, {
+        id: toastId,
+      });
+    }, 1000);
+
     try {
-      toast.message("ส่งคำขอไปยัง Gemini", { id: toastId });
       const response = await axios.post("/api/v1/ai/gemini/summarize", {
         summary: issue.summary,
         description: issue.description,
       });
+
+      clearInterval(timer); // ✅ หยุดนับ
       const markdown: string = response?.data?.data?.markdown || "";
+
       setAiModal((state) => ({
         ...state,
         newText: markdown,
         generating: false,
       }));
-      toast.success("ได้รับผลจาก AI แล้ว", { id: toastId });
+
+      // ✅ อัปเดต Toast เดิมเป็น success และตั้ง timeout ให้ปิดเอง
+      toast.success(`ได้รับผลจาก AI แล้ว (ใช้เวลา ${seconds} วินาที)`, {
+        id: toastId,
+        duration: 2500, // 2.5 วิ แล้วค่อยหาย
+      });
     } catch (error: any) {
+      clearInterval(timer); // ✅ หยุดนับเมื่อ error เช่นกัน
       setAiModal((state) => ({ ...state, generating: false }));
+
       toast.error(
         error?.response?.data?.message ||
           error?.message ||
           "เรียก AI ไม่สำเร็จ",
-        { id: toastId }
+        {
+          id: toastId,
+          duration: 3000, // ปิดหลัง 3 วิ
+        }
       );
     }
   };
