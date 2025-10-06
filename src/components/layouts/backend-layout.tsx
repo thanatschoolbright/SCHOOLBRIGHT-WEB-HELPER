@@ -76,7 +76,6 @@ export default function DashboardLayout({
             <div
               style={{
                 padding: 16,
-                borderTop: `1px solid ${token.colorBorderSecondary}`,
               }}
             >
               <DarkModeToggle />

@@ -1,8 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Card, Space, Typography, Tag, Progress, Avatar, Button, DatePicker, Skeleton, theme } from "antd";
-import { CrownOutlined, TrophyOutlined, SmileOutlined, WarningOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Space,
+  Typography,
+  Tag,
+  Progress,
+  Avatar,
+  Button,
+  DatePicker,
+  Skeleton,
+  theme,
+} from "antd";
+import {
+  CrownOutlined,
+  TrophyOutlined,
+  SmileOutlined,
+  WarningOutlined,
+  CloseCircleOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import { ReloadOutlined } from "@ant-design/icons";
@@ -94,7 +111,11 @@ const fallbackAccent = {
 const addAlpha = (hex: string, alpha: number) => {
   if (!hex?.startsWith("#")) return hex;
   let h = hex.slice(1);
-  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  if (h.length === 3)
+    h = h
+      .split("")
+      .map((c) => c + c)
+      .join("");
   const num = parseInt(h, 16);
   const r = (num >> 16) & 255;
   const g = (num >> 8) & 255;
@@ -344,12 +365,11 @@ export function MonthlyRankBoard({
                   style={{
                     background: token.colorBgContainer,
                     borderRadius: 10,
-                    border: `1px solid ${token.colorBorderSecondary}`,
-                    boxShadow: "none",
+                    borderTop: `1px solid ${token.colorBorderSecondary}`,
+                    borderRight: `1px solid ${token.colorBorderSecondary}`,
+                    borderBottom: `1px solid ${token.colorBorderSecondary}`,
                     borderLeft: `4px solid ${accent.color}`,
-                  }}
-                  styles={{
-                    body: { padding: isCompact ? "12px 16px" : "14px 18px" },
+                    boxShadow: "none",
                   }}
                 >
                   <Space
@@ -388,7 +408,12 @@ export function MonthlyRankBoard({
                           }}
                           title={`${formatName(record)} · Rank ${record.rank}`}
                         >
-                          <span style={{ display: "inline-flex", alignItems: "center" }}>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                            }}
+                          >
                             {iconByRank[record.rank as keyof typeof iconByRank]}
                           </span>
                           <Typography.Text
@@ -401,7 +426,10 @@ export function MonthlyRankBoard({
                           >
                             {formatName(record)}
                           </Typography.Text>
-                          <Tag color={accent.tagColor ?? "default"} style={{ marginInlineStart: 0 }}>
+                          <Tag
+                            color={accent.tagColor ?? "default"}
+                            style={{ marginInlineStart: 0 }}
+                          >
                             Rank {record.rank}
                           </Tag>
                         </div>

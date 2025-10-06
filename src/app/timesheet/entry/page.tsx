@@ -97,7 +97,15 @@ type TopUsage = {
 const DATE_FORMAT = "DD/MM/YYYY";
 const PAGE_SIZE = 30;
 const DAILY_TARGET_HOURS = 8;
-const WEEKDAY_LABELS = ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์"];
+const WEEKDAY_LABELS = [
+  "จันทร์",
+  "อังคาร",
+  "พุธ",
+  "พฤหัสบดี",
+  "ศุกร์",
+  "เสาร์",
+  "อาทิตย์",
+];
 
 //** รวมชั่วโมงของแต่ละวันจากรายการทั้งหมด
 const buildDailySummary = (entries: TimesheetEntry[]): DailySummaryItem[] => {
@@ -136,7 +144,7 @@ const buildDailySummary = (entries: TimesheetEntry[]): DailySummaryItem[] => {
     .sort((a, b) => dayjs(b.dateKey).valueOf() - dayjs(a.dateKey).valueOf());
 };
 
-//** สร้างข้อมูลสรุปรายสัปดาห์ (จันทร์-ศุกร์)
+//** สร้างข้อมูลสรุปรายสัปดาห์ (จันทร์-อาทิตย์)
 const buildWeeklySummary = (
   dailySummary: DailySummaryItem[]
 ): WeeklySummaryItem[] => {
@@ -145,17 +153,13 @@ const buildWeeklySummary = (
   const summaryLookup = new Map(
     dailySummary.map((item) => [item.dateKey, item])
   );
-  const latestDate = dailySummary.reduce((latest, item) => {
-    const current = dayjs(item.dateKey);
-    return current.isAfter(latest) ? current : latest;
-  }, dayjs(dailySummary[0].dateKey));
 
-  const offsetToMonday = (latestDate.day() + 6) % 7;
-  const monday = latestDate
-    .clone()
-    .startOf("day")
-    .subtract(offsetToMonday, "day");
+  // 🔧 ใช้วันปัจจุบันเป็น reference
+  const today = dayjs();
+  const offsetToMonday = (today.day() + 6) % 7;
+  const monday = today.clone().startOf("day").subtract(offsetToMonday, "day");
 
+  // 7 วัน: จันทร์-อาทิตย์
   return WEEKDAY_LABELS.map((label, index) => {
     const day = monday.clone().add(index, "day");
     const key = day.format("YYYY-MM-DD");
@@ -715,8 +719,11 @@ export default function Page() {
     [dailySummary]
   );
   const weeklyFocusEntries = useMemo(() => {
-    const start = dayjs().startOf("week");
-    const end = dayjs().endOf("week");
+    const today = dayjs();
+    const offsetToMonday = (today.day() + 6) % 7;
+    const start = today.clone().startOf("day").subtract(offsetToMonday, "day");
+    const end = start.clone().add(4, "day").endOf("day"); // จันทร์-ศุกร์
+
     return entries.filter((entry) => {
       const entryDate = dayjs(entry.date);
       return entryDate.isBetween(start, end, "day", "[]");
@@ -734,6 +741,119 @@ export default function Page() {
   );
 
   const today = dayjs();
+
+  // helper สำหรับ render การ์ดรายวัน
+  const renderDailyCard = (item: WeeklySummaryItem) => {
+    const percentForBar = Math.min(item.percent, 100);
+    const remainingHours = Math.max(DAILY_TARGET_HOURS - item.totalHours, 0);
+    const surplusHours = Math.max(item.totalHours - DAILY_TARGET_HOURS, 0);
+    const dayDate = dayjs(item.dateKey);
+    // ใช้ today และ token จาก scope ของ Page
+    const isFutureDay = dayDate.isAfter(today, "day");
+    const isCompleteDay = item.isCompleted;
+    const neutralAccent = token.colorBorderSecondary ?? "#94a3b8";
+    const successAccent = token.colorSuccess ?? "#22c55e";
+    const errorAccent = token.colorError ?? "#ef4444";
+    const accentBase = isFutureDay
+      ? neutralAccent
+      : isCompleteDay
+      ? successAccent
+      : errorAccent;
+    const containerBg = token.colorBgElevated ?? token.colorBgContainer;
+    const cardBackground = `linear-gradient(135deg, ${addAlpha(
+      accentBase,
+      isFutureDay ? 0.06 : 0.12
+    )}, ${containerBg})`;
+    const cardBorder = `1px solid ${addAlpha(accentBase, 0.35)}`;
+    const tagColor = isFutureDay
+      ? undefined
+      : isCompleteDay
+      ? "success"
+      : "error";
+    const tagLabel = isFutureDay
+      ? "ยังไม่ถึงกำหนด"
+      : isCompleteDay
+      ? "ครบ 8 ชั่วโมง"
+      : "ยังไม่ครบ 8 ชั่วโมง";
+    const progressStatus = isFutureDay
+      ? "normal"
+      : isCompleteDay
+      ? "success"
+      : "exception";
+    const progressColor = accentBase;
+    const subtitleColor = token.colorTextSecondary;
+
+    return (
+      <div
+        key={item.dateKey}
+        style={{
+          flex: "1 1 calc(20% - 16px)",
+          minWidth: 200,
+          background: cardBackground,
+          borderRadius: 16,
+          boxShadow: `0 12px 24px ${addAlpha(accentBase, 0.12)}`,
+          padding: 16,
+          border: cardBorder,
+        }}
+      >
+        <Space direction="vertical" style={{ width: "100%" }} size="small">
+          <Space
+            align="center"
+            style={{
+              width: "100%",
+              justifyContent: "space-between",
+            }}
+          >
+            <div>
+              <Typography.Text strong>{item.label}</Typography.Text>
+              <Typography.Paragraph style={{ margin: 0, color: subtitleColor }}>
+                {item.displayDate}
+              </Typography.Paragraph>
+            </div>
+            {tagColor ? (
+              <Tag color={tagColor}>{tagLabel}</Tag>
+            ) : (
+              <Tag>{tagLabel}</Tag>
+            )}
+          </Space>
+          <Progress
+            percent={percentForBar}
+            status={progressStatus}
+            strokeColor={progressColor}
+            trailColor={addAlpha(neutralAccent, 0.2)}
+            format={() => `${item.totalHours.toFixed(2)} ชม.`}
+          />
+          {item.totalHours === 0 && !isFutureDay && (
+            <Typography.Text type="secondary">
+              ยังไม่มีข้อมูลการลงเวลา
+            </Typography.Text>
+          )}
+          {!isFutureDay && !isCompleteDay && item.totalHours > 0 && (
+            <Typography.Text type="secondary">
+              ขาดอีก {remainingHours.toFixed(2)} ชั่วโมง เพื่อครบ 8 ชั่วโมง
+            </Typography.Text>
+          )}
+          {isFutureDay && (
+            <Typography.Text type="secondary">
+              วันทำงานนี้ยังไม่ถึงกำหนด
+            </Typography.Text>
+          )}
+          {isCompleteDay && item.percent > 100 && surplusHours > 0 && (
+            <Typography.Text type="secondary">
+              <span
+                role="img"
+                aria-label="over-achieved"
+                style={{ marginRight: 4 }}
+              >
+                🔥
+              </span>
+              เกินเป้าหมาย {surplusHours.toFixed(2)} ชั่วโมง
+            </Typography.Text>
+          )}
+        </Space>
+      </div>
+    );
+  };
 
   const columns = useMemo<ColumnsType<TimesheetEntry>>(
     () => [
@@ -866,6 +986,7 @@ export default function Page() {
             <Card
               title={`สรุปชั่วโมงรายวัน (เป้าหมาย ${DAILY_TARGET_HOURS} ชม./วัน)`}
             >
+              {/* แถวที่ 1: จันทร์ - ศุกร์ */}
               <div
                 style={{
                   display: "flex",
@@ -874,138 +995,20 @@ export default function Page() {
                   justifyContent: "space-between",
                 }}
               >
-                {weeklySummary.map((item) => {
-                  const percentForBar = Math.min(item.percent, 100);
-                  const remainingHours = Math.max(
-                    DAILY_TARGET_HOURS - item.totalHours,
-                    0
-                  );
-                  const surplusHours = Math.max(
-                    item.totalHours - DAILY_TARGET_HOURS,
-                    0
-                  );
+                {weeklySummary.slice(0, 5).map((item) => renderDailyCard(item))}
+              </div>
 
-                  const dayDate = dayjs(item.dateKey);
-                  const isFutureDay = dayDate.isAfter(today, "day");
-                  const isCompleteDay = item.isCompleted;
-                  const neutralAccent = token.colorBorderSecondary ?? "#94a3b8";
-                  const successAccent = token.colorSuccess ?? "#22c55e";
-                  const errorAccent = token.colorError ?? "#ef4444";
-                  const accentBase = isFutureDay
-                    ? neutralAccent
-                    : isCompleteDay
-                    ? successAccent
-                    : errorAccent;
-                  const containerBg =
-                    token.colorBgElevated ?? token.colorBgContainer;
-                  const cardBackground = `linear-gradient(135deg, ${addAlpha(
-                    accentBase,
-                    isFutureDay ? 0.06 : 0.12
-                  )}, ${containerBg})`;
-                  const cardBorder = `1px solid ${addAlpha(accentBase, 0.35)}`;
-                  const tagColor = isFutureDay
-                    ? undefined
-                    : isCompleteDay
-                    ? "success"
-                    : "error";
-                  const tagLabel = isFutureDay
-                    ? "ยังไม่ถึงกำหนด"
-                    : isCompleteDay
-                    ? "ครบ 8 ชั่วโมง"
-                    : "ยังไม่ครบ 8 ชั่วโมง";
-                  const progressStatus = isFutureDay
-                    ? "normal"
-                    : isCompleteDay
-                    ? "success"
-                    : "exception";
-                  const progressColor = accentBase;
-                  const subtitleColor = token.colorTextSecondary;
-
-                  return (
-                    <div
-                      key={item.dateKey}
-                      style={{
-                        flex: "1 1 calc(20% - 16px)",
-                        minWidth: 200,
-                        background: cardBackground,
-                        borderRadius: 16,
-                        boxShadow: `0 12px 24px ${addAlpha(accentBase, 0.12)}`,
-                        padding: 16,
-                        border: cardBorder,
-                      }}
-                    >
-                      <Space
-                        direction="vertical"
-                        style={{ width: "100%" }}
-                        size="small"
-                      >
-                        <Space
-                          align="center"
-                          style={{
-                            width: "100%",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <div>
-                            <Typography.Text strong>
-                              {item.label}
-                            </Typography.Text>
-                            <Typography.Paragraph
-                              style={{ margin: 0, color: subtitleColor }}
-                            >
-                              {item.displayDate}
-                            </Typography.Paragraph>
-                          </div>
-                          {tagColor ? (
-                            <Tag color={tagColor}>{tagLabel}</Tag>
-                          ) : (
-                            <Tag>{tagLabel}</Tag>
-                          )}
-                        </Space>
-                        {/* แถบความคืบหน้ารายวัน */}
-                        <Progress
-                          percent={percentForBar}
-                          status={progressStatus}
-                          strokeColor={progressColor}
-                          trailColor={addAlpha(neutralAccent, 0.2)}
-                          format={() => `${item.totalHours.toFixed(2)} ชม.`}
-                        />
-                        {item.totalHours === 0 && !isFutureDay && (
-                          <Typography.Text type="secondary">
-                            ยังไม่มีข้อมูลการลงเวลา
-                          </Typography.Text>
-                        )}
-                        {!isFutureDay &&
-                          !isCompleteDay &&
-                          item.totalHours > 0 && (
-                            <Typography.Text type="secondary">
-                              ขาดอีก {remainingHours.toFixed(2)} ชั่วโมง
-                              เพื่อครบ 8 ชั่วโมง
-                            </Typography.Text>
-                          )}
-                        {isFutureDay && (
-                          <Typography.Text type="secondary">
-                            วันทำงานนี้ยังไม่ถึงกำหนด
-                          </Typography.Text>
-                        )}
-                        {isCompleteDay &&
-                          item.percent > 100 &&
-                          surplusHours > 0 && (
-                            <Typography.Text type="secondary">
-                              <span
-                                role="img"
-                                aria-label="over-achieved"
-                                style={{ marginRight: 4 }}
-                              >
-                                🔥
-                              </span>
-                              เกินเป้าหมาย {surplusHours.toFixed(2)} ชั่วโมง
-                            </Typography.Text>
-                          )}
-                      </Space>
-                    </div>
-                  );
-                })}
+              {/* แถวที่ 2: เสาร์ - อาทิตย์ */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: 16,
+                  flexWrap: "wrap",
+                  justifyContent: "flex-start",
+                  marginTop: 16,
+                }}
+              >
+                {weeklySummary.slice(5).map((item) => renderDailyCard(item))}
               </div>
             </Card>
           )}

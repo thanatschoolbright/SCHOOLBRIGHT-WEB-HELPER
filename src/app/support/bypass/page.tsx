@@ -632,10 +632,9 @@ export default function Page() {
           </div>
         </Card>
 
-        <Card title="ตารางแสดงรายละเอียดโรงเรียน" variant="outlined">
+        <Card title="ตารางแสดงรายละเอียดโรงเรียน" variant="outlined" loading={isLoading}>
           <Table<SchoolDetail>
             bordered
-            loading={isLoading}
             columns={columns}
             dataSource={filteredDetails}
             rowKey={(record) => String(record.school_id ?? record.company_name)}
