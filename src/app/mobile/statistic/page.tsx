@@ -179,7 +179,6 @@ export default function Page() {
     if (page !== 0 && table?.length < 1) {
       toast.error("ไม่พบข้อมูล", {
         duration: 3000,
-        position: "top-right",
       });
     }
   }, [table]);
@@ -223,7 +222,6 @@ export default function Page() {
         toast.success("ค้นหาสำเร็จ", {
           description: `รหัสนักเรียน/บุคลากร: ${form.user_id}`,
           duration: 4000,
-          position: "top-right",
         });
       }
     } catch (error: any) {
@@ -286,12 +284,10 @@ export default function Page() {
                         toast.success("Copied CURL", {
                           description: "CURL command copied to clipboard.",
                           duration: 3000,
-                          position: "top-right",
                         });
                       } else {
                         toast.error("ไม่มี CURL Command", {
                           duration: 3000,
-                          position: "top-right",
                         });
                       }
                     }}

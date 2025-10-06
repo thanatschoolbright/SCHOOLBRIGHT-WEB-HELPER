@@ -296,14 +296,12 @@ export default function Page() {
               toast.success("คัดลอกลิงก์แล้ว", {
                 description: schoolDisplay,
                 duration: 2500,
-                position: "top-right",
               });
             })
             .catch(() => {
               toast.error("คัดลอกลิงก์ไม่สำเร็จ", {
                 description: "โปรดลองอีกครั้ง",
                 duration: 2500,
-                position: "top-right",
               });
             });
         };
@@ -337,7 +335,7 @@ export default function Page() {
             </div>
           ),
           duration: 12000,
-          position: "top-right",
+
           action: {
             label: "คัดลอกลิงก์",
             onClick: handleCopy,
@@ -349,7 +347,6 @@ export default function Page() {
         toast.error("ไม่สามารถสร้าง Bypass ได้", {
           description: error?.message ?? "Unexpected error",
           duration: 5000,
-          position: "top-right",
         });
       }
     },
@@ -391,19 +388,19 @@ export default function Page() {
   const menuItems = useMemo(() => buildMenuItems(), []);
 
   const gradeFilters = useMemo(
-    () => ["A", "B", "C", "D", "E", "F"].map((grade) => ({
-      text: grade,
-      value: grade,
-    })),
+    () =>
+      ["A", "B", "C", "D", "E", "F"].map((grade) => ({
+        text: grade,
+        value: grade,
+      })),
     []
   );
 
   const statusFilters = useMemo(
-    () =>
-      [
-        { text: "Active", value: "active" },
-        { text: "Inactive", value: "inactive" },
-      ],
+    () => [
+      { text: "Active", value: "active" },
+      { text: "Inactive", value: "inactive" },
+    ],
     []
   );
 
@@ -632,7 +629,11 @@ export default function Page() {
           </div>
         </Card>
 
-        <Card title="ตารางแสดงรายละเอียดโรงเรียน" variant="outlined" loading={isLoading}>
+        <Card
+          title="ตารางแสดงรายละเอียดโรงเรียน"
+          variant="outlined"
+          loading={isLoading}
+        >
           <Table<SchoolDetail>
             bordered
             columns={columns}

@@ -134,7 +134,7 @@ export default function Page() {
         toast.success("ระบบสามารถออนไลน์ได้ตามปกติ", {
           description: message,
           duration: 5000,
-          position: "top-right",
+
           action: {
             label: "Copy CURL",
             onClick: () => {
@@ -142,7 +142,6 @@ export default function Page() {
                 toast.success("Copied!", {
                   description: "CURL copied to clipboard.",
                   duration: 1500,
-                  position: "top-right",
                 });
               });
             },
@@ -153,7 +152,6 @@ export default function Page() {
       toast.error("เกิดข้อผิดพลาด", {
         description: error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
         duration: 6000,
-        position: "top-right",
       });
       console.error("Error posting online device:", error);
       return false;

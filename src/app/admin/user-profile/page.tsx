@@ -696,7 +696,6 @@ export default function Page() {
               <Skeleton active paragraph={{ rows: 6 }} />
             ) : (
               <Table
-                bordered
                 columns={columns}
                 dataSource={users}
                 rowKey={(record) => `user-${record.admin_id}`} // ถ้ามี id ทุก record

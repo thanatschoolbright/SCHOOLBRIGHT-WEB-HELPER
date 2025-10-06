@@ -13,6 +13,7 @@ import {
   Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { SettingOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -49,7 +50,9 @@ export default function Page() {
       toast.success("โหลดรายการโปรเจ็กต์สำเร็จ", { id: toastId });
     } catch (e: any) {
       toast.error(
-        e?.response?.data?.message || e.message || "โหลดรายการโปรเจ็กต์ไม่สำเร็จ",
+        e?.response?.data?.message ||
+          e.message ||
+          "โหลดรายการโปรเจ็กต์ไม่สำเร็จ",
         {
           id: toastId,
         }
@@ -67,7 +70,12 @@ export default function Page() {
   const columns: ColumnsType<Project> = useMemo(
     () => [
       { title: "รหัส", dataIndex: "id", key: "id", width: 100 },
-      { title: "คีย์โปรเจ็กต์", dataIndex: "projectKey", key: "projectKey", width: 140 },
+      {
+        title: "คีย์โปรเจ็กต์",
+        dataIndex: "projectKey",
+        key: "projectKey",
+        width: 140,
+      },
       { title: "ชื่อโปรเจ็กต์", dataIndex: "name", key: "name" },
       {
         title: "สถานะ",
@@ -75,10 +83,35 @@ export default function Page() {
         key: "archived",
         width: 120,
         render: (v?: boolean) =>
-          v ? <Tag color="default">ปิดใช้งาน</Tag> : <Tag color="green">ใช้งาน</Tag>,
+          v ? (
+            <Tag color="default">ปิดใช้งาน</Tag>
+          ) : (
+            <Tag color="green">ใช้งาน</Tag>
+          ),
+      },
+      {
+        title: "จัดการ",
+        key: "manage",
+        width: 100,
+        render: (_, record) => (
+          <Button
+            type="link"
+            icon={<SettingOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(
+                `/backlogs/projects/${
+                  record.id
+                }/issues?space=${encodeURIComponent(
+                  space
+                )}&name=${encodeURIComponent(record.name)}`
+              );
+            }}
+          />
+        ),
       },
     ],
-    []
+    [router, space]
   );
 
   return (
@@ -102,11 +135,7 @@ export default function Page() {
                 onChange={(e) => setSpace(e.target.value.trim())}
                 style={{ width: 260 }}
               />
-              <Button
-                type="primary"
-                onClick={startAuthorize}
-                loading={loading}
-              >
+              <Button type="primary" onClick={startAuthorize} loading={loading}>
                 โหลดโปรเจ็กต์
               </Button>
               <Button onClick={fetchProjects}>รีเฟรชโปรเจ็กต์</Button>
@@ -114,31 +143,25 @@ export default function Page() {
           </Space>
         </Card>
 
-        <Card
-          size="small"
-          title="รายการโปรเจ็กต์บน Backlog"
-          styles={{ body: { padding: 0 } }}
-        >
-          {loading ? (
-            <Skeleton active paragraph={{ rows: 8 }} style={{ padding: 16 }} />
-          ) : (
-            <Table<Project>
-              bordered
-              columns={columns}
-              dataSource={projects}
-              rowKey={(r) => String(r.id)}
-              pagination={{ pageSize: 10, showSizeChanger: true }}
-              onRow={(record) => ({
-                onClick: () => {
-                  router.push(
-                    `/backlogs/projects/${record.id}/issues?space=${encodeURIComponent(space)}&name=${encodeURIComponent(
-                      record.name
-                    )}`
-                  );
-                },
-              })}
-            />
-          )}
+        <Card size="small" title="รายการโปรเจ็กต์บน Backlog" loading={loading}>
+          <Table<Project>
+            style={{ cursor: "pointer" }}
+            columns={columns}
+            dataSource={projects}
+            rowKey={(r) => String(r.id)}
+            pagination={{ pageSize: 10, showSizeChanger: true }}
+            onRow={(record) => ({
+              onClick: () => {
+                router.push(
+                  `/backlogs/projects/${
+                    record.id
+                  }/issues?space=${encodeURIComponent(
+                    space
+                  )}&name=${encodeURIComponent(record.name)}`
+                );
+              },
+            })}
+          />
         </Card>
       </Space>
     </DashboardLayout>

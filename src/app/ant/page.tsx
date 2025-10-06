@@ -125,7 +125,6 @@ const Home: React.FC = () => {
       </div>
 
       <Table<UserData>
-        bordered
         columns={columns}
         dataSource={data}
         pagination={{ pageSize: 5 }}

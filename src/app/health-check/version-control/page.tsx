@@ -259,7 +259,6 @@ export default function Page() {
               dispatch(GET_VERSION_CONTROL());
               toast.success("รีเฟรชสำเร็จ", {
                 duration: 3000,
-                position: "top-right",
               });
             }}
           >

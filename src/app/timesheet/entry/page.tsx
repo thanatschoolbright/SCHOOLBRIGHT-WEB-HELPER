@@ -379,7 +379,6 @@ export default function Page() {
       console.error("fetchProjects", error);
       toast.error("โหลดรายการโปรเจคไม่สำเร็จ", {
         duration: 3000,
-        position: "top-right",
       });
     }
   }, []);
@@ -409,7 +408,6 @@ export default function Page() {
       console.error("fetchSubProjectOptions", error);
       toast.error("โหลดรายการโปรเจคย่อยไม่สำเร็จ", {
         duration: 3000,
-        position: "top-right",
       });
       if (isMountedRef.current) {
         setSubProjects([]);
@@ -452,7 +450,6 @@ export default function Page() {
       }
       toast.error("โหลดข้อมูลรายการลงเวลาล้มเหลว", {
         duration: 3000,
-        position: "top-right",
       });
     } finally {
       if (isMountedRef.current) {
@@ -568,7 +565,6 @@ export default function Page() {
 
       toast.success("บันทึกข้อมูลสำเร็จ", {
         duration: 3000,
-        position: "top-right",
       });
 
       if (!isMountedRef.current) {
@@ -584,7 +580,6 @@ export default function Page() {
       toast.error("บันทึกข้อมูลล้มเหลว", {
         description: error?.message ?? "Unexpected error",
         duration: 3000,
-        position: "top-right",
       });
     } finally {
       if (isMountedRef.current) {
@@ -612,7 +607,6 @@ export default function Page() {
 
       toast.success("ลบรายการสำเร็จ", {
         duration: 3000,
-        position: "top-right",
       });
 
       if (isMountedRef.current) {
@@ -625,7 +619,6 @@ export default function Page() {
       toast.error("ลบรายการล้มเหลว", {
         description: error?.message ?? "Unexpected error",
         duration: 3000,
-        position: "top-right",
       });
     } finally {
       if (isMountedRef.current) {
@@ -1049,7 +1042,6 @@ export default function Page() {
             </Space>
 
             <Table<TimesheetEntry>
-              bordered
               rowKey={(record) => String(record.id)}
               columns={columns}
               dataSource={entries}
