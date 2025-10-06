@@ -215,25 +215,53 @@ export default function Page() {
   const userState = useAppSelector((state) => state.callAdminLogin);
 
   const [selectedSchool, setSelectedSchool] = useState<string | undefined>();
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(100);
   const [openDropdownFor, setOpenDropdownFor] = useState<string | null>(null);
 
-  useEffect(() => {
-    dispatch(GET_SCHOOL_LIST_DETAIL());
-  }, [dispatch]);
-
   const schoolOptions = useMemo(() => {
-    const rawSchools = schoolListWithDetail?.response?.data?.data ?? [];
-    console.info("INFO RAW SCHOOL", rawSchools);
-    return rawSchools.map((item: any) => ({
-      label: `${item.company_name} (${item.school_id})`,
-      value: String(item.school_id),
-    }));
+    try {
+      const schools = localStorage?.getItem("schools");
+      if (!schools) return [];
+
+      const parse = JSON.parse(schools);
+      if (Array.isArray(parse?.data)) {
+        return parse?.data?.map((item: any) => ({
+          label: `${item.SchoolName} (${item.SchoolID})`,
+          value: String(item.SchoolID),
+        }));
+      }
+    } catch (error: any) {
+      console.error("❌ Failed to parse schools from localStorage:", error);
+    }
   }, [schoolListWithDetail?.response?.data?.data]);
 
   const schoolDetails = useMemo<SchoolDetail[]>(() => {
-    return (schoolListWithDetail?.response?.data?.data ?? []) as SchoolDetail[];
-  }, [schoolListWithDetail?.response?.data?.data]);
+    try {
+      const schools = localStorage?.getItem("school_details");
+
+      if (!schools) return [];
+
+      const parsed = JSON.parse(schools);
+
+      // ✅ ตรวจสอบว่าข้อมูลเป็น array หรือ object ที่มี key "data"
+      if (Array.isArray(parsed)) {
+        console.log("✅ LocalStorage เป็น array ตรง ๆ", parsed);
+        return parsed as SchoolDetail[];
+      }
+
+      if (Array.isArray(parsed?.data?.data)) {
+        console.log("✅ LocalStorage มี key data:", parsed?.data?.data);
+        return parsed?.data?.data as SchoolDetail[];
+      }
+
+      console.warn("⚠️ LocalStorage.schools รูปแบบไม่ตรงที่คาดไว้:", parsed);
+      return [];
+    } catch (error: any) {
+      console.error("❌ Failed to parse schools from localStorage:", error);
+      toast.error("เกิดข้อผิดพลาดในการอ่านข้อมูลจากเครื่อง");
+      return [];
+    }
+  }, []);
 
   const filteredDetails = useMemo(() => {
     if (!selectedSchool) {
@@ -629,13 +657,9 @@ export default function Page() {
           </div>
         </Card>
 
-        <Card
-          title="ตารางแสดงรายละเอียดโรงเรียน"
-          variant="outlined"
-          loading={isLoading}
-        >
+        <Card title="ตารางแสดงรายละเอียดโรงเรียน" variant="outlined">
           <Table<SchoolDetail>
-            bordered
+            title={() => "รายละเอียดโรงเรียน"}
             columns={columns}
             dataSource={filteredDetails}
             rowKey={(record) => String(record.school_id ?? record.company_name)}

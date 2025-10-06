@@ -1,8 +1,9 @@
 "use client";
 
-import { StarFilled } from "@ant-design/icons";
+import { StarFilled, SendOutlined } from "@ant-design/icons";
 import {
   Avatar,
+  Card,
   Button,
   Collapse,
   Drawer,
@@ -18,8 +19,7 @@ import {
 import type { CollapseProps } from "antd";
 import axios from "axios";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { FiSend } from "react-icons/fi";
-import { toast } from "sonner";
+import { message } from "antd";
 
 interface ChatMessage {
   id: string;
@@ -444,7 +444,7 @@ const AiChatWidget = ({
       return;
     }
 
-    const toastId = toast.loading("กำลังติดต่อ AI ...");
+    const hideLoading = message.loading("กำลังติดต่อ AI ...", 0);
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
       role: "user",
@@ -495,7 +495,7 @@ const AiChatWidget = ({
 
         const messagesToAppend: ChatMessage[] = [assistantMessage];
 
-        toast.success("ได้รับคำตอบจาก AI แล้ว", { id: toastId });
+        message.success("ได้รับคำตอบจาก AI แล้ว");
 
         emitCancellationInfo(replyText);
 
@@ -599,12 +599,13 @@ const AiChatWidget = ({
           }
         }
       } else {
-        toast.error("AI ไม่สามารถตอบกลับได้", { id: toastId });
+        message.error("AI ไม่สามารถตอบกลับได้");
       }
     } catch (error: unknown) {
-      toast.error("เชื่อมต่อ AI ไม่สำเร็จ", { id: toastId });
+      message.error("เชื่อมต่อ AI ไม่สำเร็จ");
     } finally {
       setIsSending(false);
+      hideLoading();
     }
   };
 
@@ -631,15 +632,36 @@ const AiChatWidget = ({
         width={drawerWidth}
         title={null}
         closable={false}
-        destroyOnClose
+        destroyOnHidden
         styles={{
           body: { padding: 0, background: "transparent" },
           mask: { backgroundColor: "rgba(15, 23, 42, 0.35)" },
         }}
       >
-        <div className="ai-chat-wrapper">
-          <div className="drawer-header">
-            <Space align="center" size={12}>
+        <Card
+          styles={{
+            body: {
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              padding: 0,
+            },
+          }}
+        >
+          <Card
+            style={{
+              borderBottom: "1px solid rgba(15,23,42,0.08)",
+            }}
+            styles={{
+              body: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between", // ✅ จัด Space ซ้ายสุด และปุ่มขวาสุด
+              },
+            }}
+          >
+            {/* ด้านซ้าย */}
+            <Space align="center" size={14}>
               <Avatar
                 size={44}
                 style={{
@@ -652,7 +674,7 @@ const AiChatWidget = ({
                 <StarFilled />
               </Avatar>
               <div>
-                <Typography.Title level={4} className="drawer-title">
+                <Typography.Title level={4} style={{ marginBottom: 0 }}>
                   {title}
                 </Typography.Title>
                 <Typography.Text type="secondary">
@@ -660,28 +682,75 @@ const AiChatWidget = ({
                 </Typography.Text>
               </div>
             </Space>
-            <Button type="text" onClick={() => setIsDrawerOpen(false)}>
+
+            {/* ด้านขวา */}
+            <Button
+              type="text"
+              onClick={() => setIsDrawerOpen(false)}
+              style={{ marginLeft: "auto" }} // ✅ กันไว้เผื่อ layout ไม่ทำงาน
+            >
               ปิด
             </Button>
-          </div>
-
-          <div className="drawer-body">
-            <div className="chat-intro">
-              <Typography.Paragraph type="secondary" className="intro-text">
+          </Card>
+          <Space
+            direction="vertical"
+            size={16}
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              padding: "0 24px 24px",
+              gap: 16,
+              minHeight: 0,
+              overflow: "hidden",
+              background: "transparent",
+            }}
+          >
+            <Card
+              bordered={false}
+              style={{
+                background: "transparent",
+                boxShadow: "none",
+                margin: 0,
+                padding: 0,
+              }}
+              bodyStyle={{ padding: "16px 0 0 0" }}
+            >
+              <Typography.Paragraph
+                type="secondary"
+                style={{ marginBottom: 0 }}
+              >
                 ส่งข้อมูลให้ครบถ้วน แล้วรอฉันทวนข้อมูลก่อนพิมพ์คำว่า
                 <Typography.Text strong> “ยืนยัน” </Typography.Text>
                 เพื่อเริ่มกระบวนการยกเลิกค่ะ
               </Typography.Paragraph>
-            </div>
-
-            <div className="chat-history">
+            </Card>
+            <Card
+              style={{
+                flex: 1,
+                overflow: "auto",
+                borderRadius: 18,
+                background: "rgba(248,250,252,0.75)",
+                boxShadow: "inset 0 2px 10px rgba(15,23,42,0.05)",
+                padding: 0,
+                margin: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+                minHeight: 0,
+              }}
+              bodyStyle={{ padding: 16, height: "100%", minHeight: 0 }}
+              loading={isSending}
+            >
               {hasMessages ? (
                 <List
                   dataSource={chatMessages}
                   rowKey={(item) => item.id}
                   split={false}
                   renderItem={(item) => (
-                    <List.Item className="chat-item">
+                    <List.Item
+                      style={{ width: "100%", padding: 0, border: "none" }}
+                    >
                       <Space
                         align="start"
                         style={{
@@ -695,12 +764,38 @@ const AiChatWidget = ({
                             AI
                           </Avatar>
                         )}
-
-                        <div className={`chat-bubble ${item.role}`}>
-                          <Typography.Text strong className="speaker-label">
+                        <Card
+                          style={{
+                            padding: "10px 16px",
+                            borderRadius: 18,
+                            background:
+                              item.role === "assistant"
+                                ? "rgba(37,99,235,0.1)"
+                                : "rgba(15,23,42,0.05)",
+                            borderColor:
+                              item.role === "assistant"
+                                ? "rgba(37,99,235,0.24)"
+                                : "rgba(15,23,42,0.1)",
+                            maxWidth: "78%",
+                            boxShadow: "0 6px 16px rgba(15,23,42,0.08)",
+                            margin: 0,
+                          }}
+                          styles={{
+                            body: {
+                              padding: 0,
+                            },
+                          }}
+                          variant="outlined"
+                        >
+                          <Typography.Text
+                            strong
+                            style={{ display: "block", marginBottom: 1 }}
+                          >
                             {item.role === "assistant" ? "AI" : "คุณ"}
                           </Typography.Text>
-                          <Typography.Paragraph className="message-text">
+                          <Typography.Paragraph
+                            style={{ marginBottom: 0, whiteSpace: "pre-wrap" }}
+                          >
                             {item.render ? (
                               item.render
                             ) : (
@@ -713,11 +808,10 @@ const AiChatWidget = ({
                               />
                             )}
                           </Typography.Paragraph>
-                        </div>
-
+                        </Card>
                         {item.role === "user" && (
-                          <Avatar size={32} style={{ background: "#0f172a" }}>
-                            U
+                          <Avatar size={48} style={{ background: "#0f172a" }}>
+                            คุณ
                           </Avatar>
                         )}
                       </Space>
@@ -727,279 +821,66 @@ const AiChatWidget = ({
               ) : (
                 <Empty description="ยังไม่มีประวัติการสนทนา" />
               )}
-
               {isSending && (
-                <div className="chat-item">
+                <List.Item
+                  style={{ width: "100%", padding: 0, border: "none" }}
+                >
                   <Space align="start" style={{ width: "100%" }}>
                     <Avatar size={32} style={{ background: "#2563eb" }}>
-                      AI
+                      ผู้ช่วย
                     </Avatar>
-                    <div className="assistant">
-                      <Skeleton
-                        active
-                        avatar={{ size: 32, shape: "circle" }}
-                        paragraph={{ rows: 3, width: ["80%", "90%", "60%"] }}
-                        title={false}
-                      />
-                    </div>
+                    <Skeleton
+                      active
+                      avatar={{ size: 32, shape: "circle" }}
+                      paragraph={{ rows: 3, width: ["80%", "90%", "60%"] }}
+                      title={false}
+                    />
                   </Space>
-                </div>
+                </List.Item>
               )}
-            </div>
-
-            <Form form={form} layout="vertical" onFinish={handleSubmit}>
-              <Form.Item
-                name="prompt"
-                label="พิมพ์คำสั่ง"
-                rules={[{ required: true, message: "กรุณากรอกคำสั่ง" }]}
-              >
-                <Input.TextArea
-                  placeholder={placeholder}
-                  autoSize={{ minRows: 2, maxRows: 4 }}
-                  allowClear
-                />
-              </Form.Item>
-
-              <Form.Item style={{ marginBottom: 0 }}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={isSending}
-                  icon={<FiSend />}
-                  block
+            </Card>
+            <Card
+              variant="borderless"
+              style={{
+                background: "transparent",
+                boxShadow: "none",
+                margin: 0,
+                padding: 0,
+              }}
+              styles={{
+                body: {
+                  padding: 0,
+                },
+              }}
+            >
+              <Form form={form} layout="vertical" onFinish={handleSubmit}>
+                <Form.Item
+                  name="prompt"
+                  label="พิมพ์คำสั่ง"
+                  rules={[{ required: true, message: "กรุณากรอกคำสั่ง" }]}
+                  style={{ marginBottom: 8 }}
                 >
-                  ส่งคำสั่งถึง AI
-                </Button>
-              </Form.Item>
-            </Form>
-          </div>
-        </div>
-
-        <style jsx>{`
-          .ai-chat-wrapper {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(
-              160deg,
-              rgba(248, 250, 252, 0.95),
-              #ffffff
-            );
-            color: #0f172a;
-          }
-
-          .drawer-header {
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-          }
-
-          .drawer-title {
-            margin-bottom: 0;
-          }
-
-          .drawer-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            padding: 0 24px 24px;
-          }
-
-          .chat-intro {
-            margin-top: 16px;
-          }
-
-          .intro-text {
-            margin-bottom: 0;
-          }
-
-          .chat-history {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            border-radius: 18px;
-            background: rgba(248, 250, 252, 0.75);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: inset 0 2px 10px rgba(15, 23, 42, 0.05);
-          }
-
-          .chat-item {
-            width: 100%;
-          }
-
-          .chat-bubble {
-            padding: 14px 18px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.96);
-            border: 1px solid rgba(15, 23, 42, 0.08);
-            max-width: 78%;
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
-          }
-
-          .chat-bubble.assistant {
-            background: rgba(37, 99, 235, 0.1);
-            border-color: rgba(37, 99, 235, 0.24);
-          }
-
-          .chat-bubble.user {
-            background: rgba(15, 23, 42, 0.05);
-            border-color: rgba(15, 23, 42, 0.1);
-          }
-
-          .speaker-label {
-            display: block;
-            margin-bottom: 4px;
-          }
-
-          .message-text {
-            margin-bottom: 0;
-            white-space: pre-wrap;
-          }
-
-          .message-text .api-response-block {
-            margin-top: 8px;
-            padding: 12px;
-            border-radius: 12px;
-            background: rgba(15, 23, 42, 0.06);
-            border: 1px solid rgba(15, 23, 42, 0.08);
-            font-family: "SFMono-Regular", Menlo, Monaco, Consolas,
-              "Liberation Mono", "Courier New", monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            max-height: 220px;
-            overflow: auto;
-          }
-
-          .api-log-container {
-            width: 100%;
-          }
-
-          .api-status-text {
-            font-size: 16px;
-          }
-
-          .api-status-text.success {
-            color: #15803d;
-          }
-
-          .api-status-text.error {
-            color: #dc2626;
-          }
-
-          .api-summary-list {
-            margin: 12px 0;
-            padding-left: 20px;
-            color: inherit;
-          }
-
-          .api-summary-list li {
-            margin-bottom: 4px;
-          }
-
-          .api-empty {
-            margin-top: 8px;
-            padding: 12px;
-            border-radius: 10px;
-            background: rgba(15, 23, 42, 0.06);
-            border: 1px dashed rgba(15, 23, 42, 0.12);
-            font-size: 12px;
-          }
-
-          .api-hint {
-            display: inline-block;
-            margin-top: 6px;
-            font-size: 12px;
-            color: #64748b;
-          }
-
-          .api-collapse :global(.ant-collapse-item) {
-            border: none !important;
-          }
-
-          .api-collapse :global(.ant-collapse-header) {
-            padding: 8px 0 !important;
-            font-weight: 600;
-          }
-
-          .api-collapse :global(.ant-collapse-content) {
-            background: transparent !important;
-          }
-
-          .api-collapse :global(.ant-collapse-content-box) {
-            padding: 8px 0 !important;
-          }
-
-          @media (prefers-color-scheme: dark) {
-            .ai-chat-wrapper {
-              background: linear-gradient(
-                160deg,
-                rgba(15, 23, 42, 0.92),
-                rgba(30, 41, 59, 0.92)
-              );
-              color: #e2e8f0;
-            }
-
-            .drawer-header {
-              border-bottom: 1px solid rgba(148, 163, 184, 0.25);
-            }
-
-            .drawer-body {
-              padding: 0 20px 20px;
-            }
-
-            .chat-history {
-              background: rgba(30, 41, 59, 0.7);
-              box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.3);
-            }
-
-            .chat-bubble {
-              background: rgba(148, 163, 184, 0.18);
-              border-color: rgba(148, 163, 184, 0.3);
-              color: #e2e8f0;
-            }
-
-            .chat-bubble.assistant {
-              background: rgba(59, 130, 246, 0.24);
-              border-color: rgba(96, 165, 250, 0.45);
-            }
-
-            .chat-bubble.user {
-              background: rgba(148, 163, 184, 0.2);
-              border-color: rgba(148, 163, 184, 0.32);
-            }
-
-            .message-text .api-response-block {
-              background: rgba(148, 163, 184, 0.22);
-              border-color: rgba(148, 163, 184, 0.32);
-            }
-
-            .api-summary-list li {
-              color: #e2e8f0;
-            }
-
-            .api-empty {
-              background: rgba(148, 163, 184, 0.22);
-              border-color: rgba(148, 163, 184, 0.35);
-            }
-
-            .api-hint {
-              color: #cbd5f5;
-            }
-
-            .api-status-text.success {
-              color: #31c48d;
-            }
-
-            .api-status-text.error {
-              color: #f87171;
-            }
-          }
-        `}</style>
+                  <Input.TextArea
+                    placeholder={placeholder}
+                    autoSize={{ minRows: 2, maxRows: 4 }}
+                    allowClear
+                  />
+                </Form.Item>
+                <Form.Item style={{ marginBottom: 0 }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={isSending}
+                    icon={<SendOutlined />}
+                    block
+                  >
+                    ส่งคำสั่งถึง AI
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Card>
+          </Space>
+        </Card>
       </Drawer>
     </>
   );
