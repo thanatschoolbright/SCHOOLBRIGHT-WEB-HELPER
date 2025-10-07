@@ -1,0 +1,15 @@
+/* 🌈 เอฟเฟกต์ Hover สำหรับปุ่ม AI (Gemini) */
+.gemini-float-btn {
+    transition: all 0.3s ease, transform 0.3s ease;
+}
+
+.gemini-float-btn:hover {
+    background: linear-gradient(135deg, #4285f4, #9b72cb, #d96570, #fbbc05);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+}
+
+.gemini-float-btn:hover img {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}

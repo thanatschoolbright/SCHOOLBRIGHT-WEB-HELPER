@@ -1,58 +1,64 @@
 "use client";
-//** การ์ดแสดง Release Notes แบบกลุ่ม (Minimal โทนขาว ใช้ Ant Design ทั้งหมด)
+//** Accordion แสดงกลุ่ม Release Notes โดยใช้ Collapse ของ Ant Design (Minimal โทนขาว)
 import React from "react";
-import { Card, Space, Typography, Tag, theme, Divider } from "antd";
-import type { ReleaseNoteGroup, ReleaseNoteItem } from "@components/release-note/types";
+import {Collapse, Divider, Space, Tag, theme, Typography} from "antd";
+import type {ReleaseNoteGroup, ReleaseNoteItem} from "@components/release-note/types";
+import dayjs from "dayjs";
 
 //** map สีของ Tag ตามประเภทการเปลี่ยนแปลง
 const typeColor: Record<ReleaseNoteItem["type"], string> = {
-  add: "green",
-  update: "blue",
-  remove: "red",
+    add: "green",
+    update: "blue",
+    remove: "red",
 };
 
 type Props = {
-  group: ReleaseNoteGroup;
+    group: ReleaseNoteGroup;
 };
 
-export default function ReleaseNoteGroupCard({ group }: Props) {
-  const { token } = theme.useToken();
+export default function ReleaseNoteGroupCard({group}: Props) {
+    const {token} = theme.useToken();
 
-  return (
-    <Card
-      size="small"
-      style={{
-        background: token.colorBgContainer,
-        border: `1px solid ${token.colorBorderSecondary}`,
-        borderRadius: 12,
-      }}
-      styles={{ header: { padding: "12px 16px" }, body: { padding: 16 } }}
-      title={
-        //** ส่วนหัวการ์ด: วันที่ของ Release Note
-        <Space direction="vertical" size={0}>
-          <Typography.Text strong>Release Notes</Typography.Text>
-          <Typography.Text type="secondary">{group.date}</Typography.Text>
-        </Space>
-      }
-    >
-      {/* รายการ Release Notes */}
-      <Space direction="vertical" style={{ width: "100%" }} size={10}>
-        {group.release_note.map((item, idx) => (
-          <div key={`${group.date}-${idx}`}>
-            <Space align="start" style={{ width: "100%" }}>
-              {/* แท็กประเภท + emoji แบบ Minimal */}
-              <Tag color={typeColor[item.type]}>{item.emoji}</Tag>
-              {/* ข้อความอธิบายการเปลี่ยนแปลง */}
-              <Typography.Text style={{ color: token.colorText }}>
-                {item.message}
-              </Typography.Text>
-            </Space>
-            {idx < group.release_note.length - 1 ? (
-              <Divider style={{ margin: "10px 0" }} />
-            ) : null}
-          </div>
-        ))}
-      </Space>
-    </Card>
-  );
+    //** สร้าง panelItems สำหรับ Collapse โดยใช้ prop items แทน children ตาม API ใหม่ของ Ant Design
+    const panelItems = [
+        {
+            key: group.date,
+            label: (
+                <Space direction="vertical" size={0}>
+                    {/* แปลงวันที่ให้อยู่ในรูปแบบไทย DD/MM/YYYY */}
+                    <Typography.Text strong>{dayjs(group.date).format("DD/MM/YYYY")}</Typography.Text>
+                    <Typography.Text type="secondary">Release Notes</Typography.Text>
+                </Space>
+            ),
+            children: (
+                <Space direction="vertical" style={{width: "100%"}} size={10}>
+                    {group.release_note.map((item, idx) => (
+                        <div key={`${group.date}-${idx}`}>
+                            <Space align="start" style={{width: "100%"}}>
+                                <Tag color={typeColor[item.type]}>{item.emoji}</Tag>
+                                <Typography.Text style={{color: token.colorText}}>
+                                    {item.message}
+                                </Typography.Text>
+                            </Space>
+                            {idx < group.release_note.length - 1 ? (
+                                <Divider style={{margin: "10px 0"}}/>
+                            ) : null}
+                        </div>
+                    ))}
+                </Space>
+            ),
+        },
+    ];
+
+    return (
+        <Collapse
+            accordion
+            style={{
+                background: token.colorBgContainer,
+                borderRadius: 12,
+                border: `1px solid ${token.colorBorderSecondary}`
+            }}
+            items={panelItems}
+        />
+    );
 }
