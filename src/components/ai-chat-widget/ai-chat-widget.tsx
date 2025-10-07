@@ -614,7 +614,7 @@ const AiChatWidget = ({
     return (
         <>
             <FloatButton
-                type=""
+                type="default"
                 shape="circle"
                 icon={
                     <img
