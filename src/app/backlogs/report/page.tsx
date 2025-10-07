@@ -100,6 +100,8 @@ export default function Page(): JSX.Element {
                     : undefined,
             filterSearch: true,
 
+            filteredValue: null,
+
             // ✅ ฟังก์ชันกรองชื่อโปรเจ็กต์ (ไม่สนตัวพิมพ์)
             onFilter: (value, record) =>
                 record.name.toLowerCase().includes((value as string).toLowerCase()),
