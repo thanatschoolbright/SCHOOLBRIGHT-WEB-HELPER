@@ -1,69 +1,129 @@
+"use client";
+
+import {Radio, Skeleton} from "antd";
 import React from "react";
 
 interface RadioOption {
-  label: string;
-  value: string;
+    label: string;
+    value: string;
+    disabled?: boolean;
 }
 
-interface RadioComponentProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  id: string;
-  options: RadioOption[];
-  error?: string;
-  required?: boolean;
-  name: string;
+interface RadioComponentProps {
+    label?: string;
+    id?: string;
+    options: RadioOption[];
+    value?: string;
+    onChange?: (value: string) => void;
+    error?: string;
+    required?: boolean;
+    disabled?: boolean;
+    loading?: boolean;
+    direction?: "horizontal" | "vertical";
+    size?: "small" | "middle" | "large";
 }
 
-const RadioComponent: React.FC<RadioComponentProps> = ({
-  label,
-  id,
-  options,
-  error,
-  required = false,
-  name,
-  ...props
-}) => {
-  return (
-    <div className="flex flex-col gap-1">
-      <label
-        htmlFor={id}
-        className="text-base font-bold text-black flex items-center gap-1 mb-1"
-        style={{ letterSpacing: "0.02em" }}
-      >
-        {label}
-        {required && (
-          <span
-            className="text-red-500 text-base font-bold ml-1"
-            aria-hidden="true"
-          >
-            *
-          </span>
-        )}
-      </label>
+/**
+ * Component Radio Button Group พร้อมรองรับ Dark Mode
+ * @param props - Properties ของ Radio Component
+ */
+export const RadioComponent: React.FC<RadioComponentProps> = ({
+                                                                  label,
+                                                                  id,
+                                                                  options,
+                                                                  value,
+                                                                  onChange,
+                                                                  error,
+                                                                  required = false,
+                                                                  disabled = false,
+                                                                  loading = false,
+                                                                  direction = "horizontal",
+                                                                  size = "middle",
+                                                              }) => {
+    //** จัดการการเปลี่ยนค่า */
+    const handleChange = (e: any) => {
+        onChange?.(e.target.value);
+    };
 
-      <div className="flex flex-col gap-2">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className="flex items-center gap-2 cursor-pointer text-sm text-gray-700 dark:text-gray-200"
-          >
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              className={`accent-blue-600 w-4 h-4`}
-              required={required}
-              {...props}
-            />
-            <span>{option.label}</span>
-          </label>
-        ))}
-      </div>
+    //** แสดง Skeleton ขณะโหลด */
+    if (loading) {
+        return (
+            <div>
+                {label && (
+                    <div style={{marginBottom: 8}}>
+                        <Skeleton.Input
+                            active
+                            size="small"
+                            style={{width: 100, height: 20}}
+                        />
+                    </div>
+                )}
+                <div
+                    style={{
+                        display: "flex",
+                        gap: 16,
+                        flexDirection:
+                            direction === "vertical" ? "column" : "row",
+                    }}
+                >
+                    {Array.from({length: options.length || 3}).map((_, index) => (
+                        <Skeleton.Input
+                            key={index}
+                            active
+                            size="small"
+                            style={{width: 80, height: 24}}
+                        />
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
-      {error && <span className="text-xs text-red-500 mt-1">{error}</span>}
-    </div>
-  );
+    return (
+        <div>
+            {/* Label ของ Radio Group */}
+            {label && (
+                <div style={{marginBottom: 8}}>
+                    <label htmlFor={id} style={{fontWeight: 500}}>
+                        {label}
+                        {required && (
+                            <span style={{color: "#ff4d4f", marginLeft: 4}}>*</span>
+                        )}
+                    </label>
+                </div>
+            )}
+
+            {/* Radio Group */}
+            <Radio.Group
+                id={id}
+                value={value}
+                onChange={handleChange}
+                disabled={disabled}
+                size={size}
+                style={{
+                    display: "flex",
+                    flexDirection:
+                        direction === "vertical" ? "column" : "row",
+                    gap: direction === "vertical" ? 8 : 16,
+                }}
+            >
+                {options.map((option) => (
+                    <Radio
+                        key={option.value}
+                        value={option.value}
+                        disabled={option.disabled || disabled}
+                    >
+                        {option.label}
+                    </Radio>
+                ))}
+            </Radio.Group>
+
+            {/* ข้อความ Error */}
+            {error && (
+                <div style={{marginTop: 4, color: "#ff4d4f", fontSize: 14}}>
+                    {error}
+                </div>
+            )}
+        </div>
+    );
 };
-
-export default RadioComponent;

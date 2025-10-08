@@ -1,84 +1,128 @@
 "use client";
 
-import { Breadcrumb } from "antd";
-import { motion } from "framer-motion";
+import {Breadcrumb, Skeleton} from "antd";
+import {motion} from "framer-motion";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
-import { RightOutlined } from "@ant-design/icons";
+import {usePathname} from "next/navigation";
+import React, {useMemo} from "react";
 
-/* 🧭 Breadcrumb สร้างจาก Sidebar Menu */
-export default function Breadcrumbs() {
-  const pathname = usePathname();
-  const menu = useSidebarMenu();
+import {useSidebarMenu} from "@/constants/sidebar-menu-constant";
 
-  // หา parent และ child ที่ตรงกับ path ปัจจุบัน โดยรองรับ nested paths
-  const findBreadcrumb = () => {
-    const segments = pathname.split("/").filter(Boolean);
-    const breadcrumbItems: { title: string; href: string }[] = [];
-    let accumulatedPath = "";
+interface BreadcrumbItem {
+    title: string;
+    href: string;
+}
 
-    const findLabel = (path: string, items: any[]): string | null => {
-      for (const item of items) {
-        if (item.href && path === item.href) {
-          return item.label;
+interface MenuItem {
+    href?: string;
+    label: string;
+    children?: MenuItem[];
+}
+
+interface BreadcrumbComponentProps {
+    loading?: boolean;
+    showHome?: boolean;
+}
+
+/**
+ * Component Breadcrumb ที่สร้างจาก Sidebar Menu
+ * @param props - Properties ของ Breadcrumb
+ */
+export default function BreadcrumbComponent({
+                                                loading = false,
+                                                showHome = true,
+                                            }) {
+    const pathname = usePathname();
+    const menu = useSidebarMenu();
+
+    //** ค้นหา breadcrumb items จาก path ปัจจุบัน */
+    const breadcrumbItems = useMemo(() => {
+        const segments = pathname.split("/").filter(Boolean);
+        const items: BreadcrumbItem[] = [];
+        let accumulatedPath = "";
+
+        //** ฟังก์ชันค้นหา label จาก menu items */
+        const findLabel = (path: string, menuItems: MenuItem[]): string | null => {
+            for (const item of menuItems) {
+                if (item.href && path === item.href) {
+                    return item.label;
+                }
+                if (item.children) {
+                    const label = findLabel(path, item.children);
+                    if (label) return label;
+                }
+            }
+            return null;
+        };
+
+        //** เพิ่มหน้าแรกหากต้องการ */
+        if (showHome && pathname !== "/") {
+            items.push({title: "หน้าแรก", href: "/"});
         }
-        if (item.children) {
-          const label = findLabel(path, item.children);
-          if (label) return label;
-        }
-      }
-      return null;
-    };
 
-    for (const segment of segments) {
-      accumulatedPath += "/" + segment;
-      let label = findLabel(accumulatedPath, menu);
-      if (!label) {
-        // If no label found, use the segment itself (capitalized)
-        label = segment.charAt(0).toUpperCase() + segment.slice(1);
-      }
-      breadcrumbItems.push({ title: label, href: accumulatedPath });
+        //** สร้าง breadcrumb จาก segments */
+        for (const segment of segments) {
+            accumulatedPath += `/${segment}`;
+            const label = findLabel(accumulatedPath, menu);
+
+            if (label) {
+                items.push({
+                    title: label,
+                    href: accumulatedPath,
+                });
+            }
+        }
+
+        return items;
+    }, [pathname, menu, showHome]);
+
+    //** แสดง Skeleton ขณะโหลด */
+    if (loading) {
+        return (
+            <div style={{padding: "8px 0"}}>
+                <Skeleton.Input active size="small" style={{width: 200, height: 24}}/>
+            </div>
+        );
     }
 
-    return breadcrumbItems;
-  };
+    //** ไม่แสดงอะไรหากไม่มี breadcrumb items */
+    if (breadcrumbItems.length === 0) {
+        return null;
+    }
 
-  const breadcrumbItems = findBreadcrumb();
+    //** สร้าง breadcrumb items สำหรับ Ant Design */
+    const antBreadcrumbItems = breadcrumbItems.map((item, index) => {
+        const isLast = index === breadcrumbItems.length - 1;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-    >
-      <Breadcrumb
-        separator={
-          <RightOutlined className="text-gray-500 dark:text-gray-400" />
-        }
-        items={[
-          {
-            title: (
-              <Link
-                href="/"
-                className="text-gray-700 dark:text-gray-200 transition-colors duration-300"
-              >
-                หน้าหลัก
-              </Link>
+        return {
+            title: isLast ? (
+                <span style={{fontWeight: 600}}>{item.title}</span>
+            ) : (
+                <Link
+                    href={item.href}
+                    style={{
+                        color: "inherit",
+                        textDecoration: "none",
+                        transition: "color 0.2s",
+                    }}
+                >
+                    {item.title}
+                </Link>
             ),
-          },
-          ...breadcrumbItems.map((item) => ({
-            title: (
-              <Link
-                href={item.href || "#"}
-                className="text-gray-700 dark:text-gray-200 transition-colors duration-300"
-              >
-                {item.title}
-              </Link>
-            ),
-          })),
-        ]}
-      />
-    </motion.div>
-  );
-}
+        };
+    });
+
+    return (
+        <motion.div
+            initial={{opacity: 0, y: -10}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.3}}
+            style={{padding: "8px 0"}}
+        >
+            <Breadcrumb
+                items={antBreadcrumbItems}
+                separator="/"
+            />
+        </motion.div>
+    );
+};

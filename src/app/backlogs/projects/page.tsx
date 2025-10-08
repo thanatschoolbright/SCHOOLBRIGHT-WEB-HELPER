@@ -50,7 +50,6 @@ export default function ProjectsListPage(): JSX.Element {
 
         try {
             const {data} = await axios.get<{ data: Project[] }>("/api/v1/backlog/projects");
-
             const projectList = data?.data ?? [];
             setProjects(projectList);
             setFilteredProjects(projectList);
