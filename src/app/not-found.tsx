@@ -1,17 +1,63 @@
 // src/app/not-found.tsx
+"use client";
+
+import {Button, Card, Result, theme, Typography} from "antd";
+
+//** หน้า 404: แสดงเมื่อไม่พบหน้าเว็บ (Apple Minimal Style + Ant Design) */
 export default function NotFound() {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-gray-800">
-      <h1 className="text-6xl font-bold mb-4">404</h1>
-      <p className="text-lg mb-8">
-        Oops! The page you're looking for can't be found.
-      </p>
-      <a
-        href="/"
-        className="px-6 py-3 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 transition"
-      >
-        Go back to Home
-      </a>
-    </div>
-  );
+    const {token} = theme.useToken();
+
+    return (
+        <div
+            style={{
+                minHeight: "100vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                background: token.colorBgBase,
+            }}
+        >
+            <Card
+                style={{
+                    maxWidth: 480,
+                    width: "100%",
+                    textAlign: "center",
+                    borderRadius: 16,
+                    boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+                }}
+                styles={{
+                    body: {padding: 24},
+                }}
+
+            >
+                <Result
+                    status="404"
+                    title={
+                        <Typography.Title level={2} style={{color: token.colorText}}>
+                            404 - ไม่พบหน้านี้
+                        </Typography.Title>
+                    }
+                    subTitle={
+                        <Typography.Text type="secondary">
+                            ขอโทษค่ะ ไม่พบหน้าที่คุณพยายามเข้าถึง หรืออาจถูกลบไปแล้ว
+                        </Typography.Text>
+                    }
+                    extra={
+                        <Button
+                            type="primary"
+                            size="large"
+                            href="/"
+                            style={{
+                                borderRadius: 24,
+                                paddingInline: 28,
+                                background: token.colorPrimary,
+                            }}
+                        >
+                            กลับไปหน้าแรก
+                        </Button>
+                    }
+                />
+            </Card>
+        </div>
+    );
 }
