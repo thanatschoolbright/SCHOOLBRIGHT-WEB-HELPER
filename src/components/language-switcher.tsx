@@ -67,7 +67,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         return (
             <Skeleton.Input
                 active
-                size={size}
+                size={size as any}
                 style={{
                     width: 120,
                     height:
@@ -97,7 +97,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             value={currentLanguage}
             onChange={handleLanguageChange}
             options={selectOptions}
-            size={size}
+            size={size as any}
             disabled={disabled}
             suffixIcon={<GlobalOutlined/>}
             style={{minWidth: 120}}
