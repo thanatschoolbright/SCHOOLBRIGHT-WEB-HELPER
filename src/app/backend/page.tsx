@@ -38,6 +38,21 @@ export default function DashboardPage() {
 //** ข้อมูล Release Notes (ตัวอย่าง) — จัดกลุ่มตามวันที่
 const releaseNotes: ReleaseNoteGroup[] = [
     {
+        date: "2025-10-08",
+        release_note: [
+            {
+                type: "update",
+                emoji: "📊",
+                message: "ปรับปรุงหน้า สถิติการมาเรียนใหม่ทั้งหมด",
+            },
+            {
+                type: "update",
+                emoji: "🎨",
+                message: "ปรับปรุงหน้า ระบบแบ็คล็อคให้สวยงามมากยิ่งขึ้น",
+            },
+        ],
+    },
+    {
         date: "2025-10-07",
         release_note: [
             {

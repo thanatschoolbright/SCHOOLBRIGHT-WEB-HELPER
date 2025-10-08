@@ -1,42 +1,113 @@
 "use client";
-//** ตารางแสดง Projects จาก Backlog (ใช้ Skeleton ตอนโหลด)
+//** ตารางแสดงรายการโปรเจ็กต์จาก Backlog พร้อมกรองและจัดการ
 import React from "react";
-import { Card, Skeleton, Table, Tag } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import type { BacklogProject } from "@components/backlog/types";
+import {Button, Card, Skeleton, Table, Tag, theme} from "antd";
+import type {ColumnsType, TableProps} from "antd/es/table";
+import {SettingOutlined} from "@ant-design/icons";
+import type {BacklogProject} from "@components/backlog/types";
 
 type Props = {
-  loading: boolean;
-  data: BacklogProject[];
+    loading: boolean;
+    data: BacklogProject[];
+    filteredData: BacklogProject[];
+    filteredStatus: string[];
+    onRowClick: (record: BacklogProject) => void;
+    onTableChange: TableProps<BacklogProject>["onChange"];
 };
 
-export default function BacklogProjectsTable({ loading, data }: Props) {
-  const columns: ColumnsType<BacklogProject> = [
-    { title: "ID", dataIndex: "id", key: "id", width: 100 },
-    { title: "Key", dataIndex: "projectKey", key: "projectKey", width: 140 },
-    { title: "Name", dataIndex: "name", key: "name" },
-    {
-      title: "Archived",
-      dataIndex: "archived",
-      key: "archived",
-      width: 120,
-      render: (v?: boolean) => (v ? <Tag color="default">Yes</Tag> : <Tag color="green">No</Tag>),
-    },
-  ];
+export default function ProjectsTable({
+                                          loading,
+                                          data,
+                                          filteredData,
+                                          filteredStatus,
+                                          onRowClick,
+                                          onTableChange,
+                                      }: Props) {
+    const {token} = theme.useToken();
 
-  return (
-    <Card size="small" title="Backlog Projects" styles={{ body: { padding: 0 } }}>
-      {loading ? (
-        <Skeleton active paragraph={{ rows: 8 }} style={{ padding: 16 }} />
-      ) : (
-        <Table<BacklogProject>
-          columns={columns}
-          dataSource={data}
-          rowKey={(r) => String(r.id)}
-          pagination={{ pageSize: 10, showSizeChanger: true }}
-        />
-      )}
-    </Card>
-  );
+    //** 📋 กำหนดคอลัมน์ของตาราง
+    const columns: ColumnsType<BacklogProject> = [
+        {
+            title: "คีย์โปรเจ็กต์",
+            dataIndex: "projectKey",
+            key: "projectKey",
+            width: 140,
+            sorter: (a, b) => a.projectKey.localeCompare(b.projectKey),
+        },
+        {
+            title: "ชื่อโปรเจ็กต์",
+            dataIndex: "name",
+            key: "name",
+            sorter: (a, b) => a.name.localeCompare(b.name),
+            filters: data.length > 0 ? data.map((p) => ({text: p.name, value: p.name})) : undefined,
+            filterSearch: true,
+            filteredValue: null,
+            onFilter: (value, record) =>
+                record.name.toLowerCase().includes((value as string).toLowerCase()),
+        },
+        {
+            title: "สถานะ",
+            dataIndex: "archived",
+            key: "archived",
+            width: 120,
+            filters: [
+                {text: "ใช้งาน", value: "active"},
+                {text: "ปิดใช้งาน", value: "archived"},
+            ],
+            filteredValue: filteredStatus,
+            onFilter: (value, record) =>
+                value === "active" ? !record.archived : !!record.archived,
+            render: (archived?: boolean) => {
+                const color = archived ? token.colorTextDisabled : token.colorSuccessText;
+                const label = archived ? "ปิดใช้งาน" : "ใช้งาน";
+                return (
+                    <Tag
+                        bordered={false}
+                        style={{
+                            color,
+                            background: archived ? token.colorBgContainerDisabled : token.colorSuccessBg,
+                            fontWeight: 500,
+                        }}
+                    >
+                        {label}
+                    </Tag>
+                );
+            },
+        },
+        {
+            title: "จัดการ",
+            key: "manage",
+            width: 100,
+            render: (_, record) => (
+                <Button
+                    type="link"
+                    icon={<SettingOutlined/>}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onRowClick(record);
+                    }}
+                />
+            ),
+        },
+    ];
+
+    return (
+        <Card size="small" title="รายการโปรเจ็กต์บน Backlog" loading={loading}>
+            {loading ? (
+                <Skeleton active paragraph={{rows: 8}} style={{padding: 16}}/>
+            ) : (
+                <Table<BacklogProject>
+                    columns={columns}
+                    dataSource={filteredData}
+                    rowKey={(r) => String(r.id)}
+                    pagination={{pageSize: 50, showSizeChanger: true}}
+                    onRow={(record) => ({
+                        onClick: () => onRowClick(record),
+                    })}
+                    onChange={onTableChange}
+                    style={{cursor: "pointer"}}
+                />
+            )}
+        </Card>
+    );
 }
-

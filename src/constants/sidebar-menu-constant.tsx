@@ -2,9 +2,16 @@
 
 import {useMemo} from "react";
 import {useTranslation} from "react-i18next";
-import {FiActivity, FiFolder, FiGrid} from "react-icons/fi";
-import {FaRegLightbulb} from "react-icons/fa";
-import {AiFillMobile} from "react-icons/ai";
+import {
+    AppstoreOutlined,
+    BulbOutlined,
+    ClockCircleOutlined,
+    ExperimentOutlined,
+    FileTextOutlined,
+    MobileOutlined,
+    MonitorOutlined,
+    UserOutlined
+} from "@ant-design/icons";
 
 interface SidebarChild {
     label: string;
@@ -21,13 +28,13 @@ interface SidebarItem {
 }
 
 export const useSidebarMenu = (): SidebarItem[] => {
-    const {t} = useTranslation("menu"); // ชี้ namespace "menu"
+    const {t} = useTranslation("menu");
 
     const menu = useMemo(
         () => [
             {
                 label: t("admin_system.title"),
-                icon: <FiFolder/>,
+                icon: <UserOutlined/>,
                 children: [
                     {
                         label: t("admin_system.children.user_profile"),
@@ -45,9 +52,8 @@ export const useSidebarMenu = (): SidebarItem[] => {
             },
             {
                 label: t("testing.title"),
-                icon: <FiGrid/>,
+                icon: <ExperimentOutlined/>,
                 children: [
-                    // { label: t("testing.children.automated_testing"), href: "/testing/auto" },
                     {
                         label: t("testing.children.load_testing"),
                         href: "/testing/load-test",
@@ -56,7 +62,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             },
             {
                 label: t("support.title"),
-                icon: <FaRegLightbulb/>,
+                icon: <BulbOutlined/>,
                 children: [
                     {
                         label: t("support.children.bypass_school"),
@@ -70,13 +76,11 @@ export const useSidebarMenu = (): SidebarItem[] => {
                         label: t("support.children.cancel_sales"),
                         href: "/support/test/cancel-sales",
                     },
-
                 ],
             },
-
             {
                 label: t("health_check.title"),
-                icon: <FiActivity/>,
+                icon: <MonitorOutlined/>,
                 children: [
                     {
                         label: t("health_check.children.all_server_status"),
@@ -107,7 +111,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             },
             {
                 label: t("mobile_app.title"),
-                icon: <AiFillMobile/>,
+                icon: <MobileOutlined/>,
                 children: [
                     {
                         label: t("mobile_app.children.mobile_notification"),
@@ -130,7 +134,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             },
             {
                 label: t("app_hardware.title"),
-                icon: <FiGrid/>,
+                icon: <AppstoreOutlined/>,
                 children: [
                     {
                         label: t("app_hardware.children.app_control"),
@@ -140,7 +144,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             },
             {
                 label: t("timesheet_system.title"),
-                icon: <FiFolder/>, // ใช้ Folder แทนเพื่อสื่อถึงโปรเจกต์
+                icon: <ClockCircleOutlined/>,
                 children: [
                     {
                         label: t("timesheet_system.children.project"),
@@ -167,7 +171,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             },
             {
                 label: t("backlogs.title"),
-                icon: <FiFolder/>, // ใช้ Folder แทนเพื่อสื่อถึงโปรเจกต์
+                icon: <FileTextOutlined/>,
                 children: [
                     {
                         label: t("backlogs.children.report"),
@@ -177,7 +181,6 @@ export const useSidebarMenu = (): SidebarItem[] => {
                     },
                 ],
             },
-            // ... เหมือนเดิม
         ],
         [t]
     );
