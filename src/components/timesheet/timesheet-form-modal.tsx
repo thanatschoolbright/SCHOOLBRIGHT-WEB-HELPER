@@ -1,0 +1,144 @@
+"use client";
+
+import React, {useEffect} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {Button, DatePicker, Form, Input, InputNumber, Modal, Select} from "antd";
+import type {FormInstance} from "antd/es/form";
+import dayjs from "dayjs";
+import i18next from "i18next";
+
+import {STATUS_OPTIONS} from "@constants/timesheet.constants";
+import {setSubProjects} from "@stores/reducers/timesheet-slice";
+import {AppDispatch, RootState} from "@stores/store";
+import {SubProject} from "@/types/timesheet";
+
+interface TimesheetFormModalProps {
+    open: boolean;
+    onCancel: () => void;
+    onSubmit: () => void;
+    form: FormInstance;
+    fetchSubProjects: (projectId: number) => Promise<SubProject[]>;
+}
+
+//** Component: Modal ฟอร์มสำหรับสร้าง/แก้ไข/คัดลอกข้อมูล */
+const TimesheetFormModal: React.FC<TimesheetFormModalProps> = ({open, onCancel, onSubmit, form, fetchSubProjects}) => {
+    const dispatch = useDispatch<AppDispatch>();
+    const {
+        projects,
+        subProjects,
+        formMode,
+        actionLoading,
+        activeRecord
+    } = useSelector((state: RootState) => state.timesheet);
+    const selectedProjectId = Form.useWatch('project_id', form);
+
+    const modalTitleMap = {
+        create: "สร้างรายการใหม่",
+        edit: "แก้ไขรายการ",
+        copy: "คัดลอกรายการ",
+    };
+
+    //** การทำงาน: เมื่อมีการเปลี่ยนแปลงโปรเจ็กต์ ให้โหลดโปรเจ็กต์ย่อยใหม่ */
+    useEffect(() => {
+        if (selectedProjectId) {
+            fetchSubProjects(selectedProjectId).then(items => {
+                dispatch(setSubProjects(items));
+            });
+        } else {
+            dispatch(setSubProjects([]));
+        }
+    }, [selectedProjectId, fetchSubProjects, dispatch]);
+
+    //** การทำงาน: ตั้งค่าฟอร์มเมื่อโหมดหรือข้อมูลที่เลือกเปลี่ยนไป */
+    useEffect(() => {
+        if (open) {
+            if (formMode === 'edit' && activeRecord) {
+                form.setFieldsValue({
+                    ...activeRecord,
+                    date: dayjs(activeRecord.date),
+                    work_hour: activeRecord.hours,
+                    sub_project_id: activeRecord.feature_id,
+                });
+                if (activeRecord.project_id) {
+                    fetchSubProjects(activeRecord.project_id).then(items => dispatch(setSubProjects(items)));
+                }
+            } else if (formMode === 'copy' && activeRecord) {
+                form.setFieldsValue({
+                    ...activeRecord,
+                    date: dayjs(), // Set to today
+                    work_hour: activeRecord.hours,
+                    sub_project_id: activeRecord.feature_id,
+                });
+                if (activeRecord.project_id) {
+                    fetchSubProjects(activeRecord.project_id).then(items => dispatch(setSubProjects(items)));
+                }
+            } else {
+                form.resetFields();
+                form.setFieldsValue({date: dayjs()});
+            }
+        }
+    }, [open, formMode, activeRecord, form, fetchSubProjects, dispatch]);
+
+
+    return (
+        <Modal
+            open={open}
+            title={modalTitleMap[formMode]}
+            onCancel={onCancel}
+            destroyOnClose
+            footer={[
+                <Button key="back" onClick={onCancel} disabled={actionLoading}>
+                    ยกเลิก
+                </Button>,
+                <Button key="submit" type="primary" loading={actionLoading} onClick={onSubmit}>
+                    บันทึก
+                </Button>,
+            ]}
+        >
+            <Form form={form} layout="vertical" name="timesheet_form" initialValues={{date: dayjs()}}>
+                <Form.Item name="date" label="วันที่" rules={[{required: true, message: "กรุณาเลือกวันที่"}]}>
+                    <DatePicker format="DD/MM/YYYY" style={{width: '100%'}}/>
+                </Form.Item>
+                <Form.Item name="project_id" label="โปรเจ็ค" rules={[{required: true, message: "กรุณาเลือกโปรเจ็ค"}]}>
+                    <Select
+                        showSearch
+                        placeholder="เลือกโปรเจ็ค"
+                        optionFilterProp="children"
+                        filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+                        options={projects.map(p => ({value: p.id, label: p.name}))}
+                    />
+                </Form.Item>
+                <Form.Item name="sub_project_id" label="ฟีเจอร์ (ถ้ามี)">
+                    <Select
+                        showSearch
+                        allowClear
+                        placeholder="เลือกฟีเจอร์"
+                        optionFilterProp="children"
+                        filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+                        options={subProjects.map(s => ({value: s.id, label: s.name}))}
+                        disabled={!selectedProjectId || subProjects.length === 0}
+                    />
+                </Form.Item>
+                <Form.Item name="work_hour" label="ชั่วโมงทำงาน"
+                           rules={[{required: true, message: "กรุณากรอกชั่วโมงทำงาน"}]}>
+                    <InputNumber min={0.5} max={24} step={0.5} style={{width: '100%'}}/>
+                </Form.Item>
+                <Form.Item name="status" label="สถานะ" rules={[{required: true, message: "กรุณาเลือกสถานะ"}]}>
+                    <Select placeholder="เลือกสถานะ">
+                        {STATUS_OPTIONS.map(opt => (
+                            <Select.Option key={opt.value} value={opt.value}>
+                                {i18next.language === 'th' ? opt.label_th : opt.label_en}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
+                <Form.Item name="description" label="คำอธิบาย">
+                    <Input.TextArea rows={4} placeholder="รายละเอียดงาน"/>
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+};
+
+export default TimesheetFormModal;
+

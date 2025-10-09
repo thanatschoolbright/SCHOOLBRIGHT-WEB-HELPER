@@ -29,6 +29,7 @@ import callQRCodeHealthCheckReducer from "@stores/reducers/mobile/qrcode-health-
 import loginReucerV2 from "@stores/reducers/authentication/sign-in/reducer";
 import heartbeatReducer from "@stores/reducers/health-check/heartbeats/reducer";
 import issuesReducer from "@stores/reducers/issues-slice";
+import timesheetReducer from "@stores/reducers/timesheet/timesheet-reducer";
 
 export const store = configureStore({
     reducer: {
@@ -60,6 +61,7 @@ export const store = configureStore({
         loginReucerV2,
         heartbeatReducer,
         issues: issuesReducer,
+        timesheet: timesheetReducer,
     },
     devTools: process.env.NODE_ENV !== "production",
 });

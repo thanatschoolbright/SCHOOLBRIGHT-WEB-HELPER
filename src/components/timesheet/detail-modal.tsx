@@ -13,6 +13,7 @@ import {
 import {Descriptions, Divider, Modal, Space, Tag, theme, Typography} from "antd";
 import dayjs from "dayjs";
 import React from "react";
+import {TimesheetEntry} from "@/app/timesheet/entry/page";
 
 // สมมติว่าไฟล์เหล่านี้มีอยู่จริง
 // import {STATUS_OPTIONS} from "@constants/timesheet.constants";
@@ -28,17 +29,6 @@ const STATUS_OPTIONS = [
     {value: 'DRAFT', label_th: 'ฉบับร่าง', label_en: 'Draft'},
 ];
 
-// TimesheetEntry Interface (จำลอง)
-interface TimesheetEntry {
-    project_name: string;
-    feature_name: string | null;
-    date: string;
-    hours: number;
-    status: 'DONE' | 'IN_PROGRESS' | 'REVIEW' | 'CANCELLED' | 'DRAFT';
-    description: string | null;
-    created_at: string | null;
-    updated_at: string | null;
-}
 
 interface DetailModalProps {
     open: boolean;
