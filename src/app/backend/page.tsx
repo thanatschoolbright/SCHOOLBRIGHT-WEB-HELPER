@@ -37,15 +37,40 @@ export default function DashboardPage() {
 // Release notes grouped by date
 //** ข้อมูล Release Notes (ตัวอย่าง) — จัดกลุ่มตามวันที่
 const releaseNotes: ReleaseNoteGroup[] = [
-    {
+   {
         date: "2025-10-09",
         release_note: [
             {
+                type: "add",
+                emoji: "📌",
+                message: "feat(timesheet): เพิ่มระบบจัดการ Timesheet ครบวงจร พร้อม Redux Slice และ Component ใหม่",
+            },
+            {
+                type: "add",
+                emoji: "📌",
+                message: "เพิ่ม TimesheetFormModal สำหรับสร้าง แก้ไข และคัดลอกรายการบันทึกเวลา",
+            },
+            {
+                type: "add",
+                emoji: "📌",
+                message: "เพิ่ม TimesheetSummary สำหรับแสดงสรุปการใช้งานโปรเจกต์และฟีเจอร์ที่ใช้เวลามากที่สุด",
+            },
+            {
+                type: "add",
+                emoji: "📌",
+                message: "เพิ่ม TimesheetTable สำหรับจัดการรายการบันทึกเวลา พร้อมระบบค้นหาและแบ่งหน้า",
+            },
+            {
                 type: "update",
-                emoji: "🗂️",
-                message: "refactor: ปรับปรุง UI การจัดการไมล์สโตน และเพิ่มความอ่านง่ายของโค้ด",
-            }
-        ]
+                emoji: "📌",
+                message: "พัฒนา timesheet-slice เพื่อจัดการ state ของ Timesheet ครอบคลุม entries, projects และ modal",
+            },
+            {
+                type: "add",
+                emoji: "📌",
+                message: "เพิ่ม Type สำหรับ TimesheetEntry, Project และ SubProject เพื่อให้ระบบมี Type Safety",
+            },
+        ],
     },
     {
         date: "2025-10-08",
