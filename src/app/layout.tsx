@@ -38,7 +38,7 @@ export default function RootLayout({
             <link rel="manifest" href="/manifest.json"/>
         </head>
         <body className="antialiased">
-        <Toaster expand={true} richColors position="bottom-center" closeButton/>
+        <Toaster expand={false} richColors position="bottom-center" closeButton/>
 
         {/* ครอบด้วย AntdApp เพื่อให้ context ของ message, modal, notification ทำงานสมบูรณ์ */}
         <AntThemeProvider>

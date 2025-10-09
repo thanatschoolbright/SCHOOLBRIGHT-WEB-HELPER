@@ -1,5 +1,5 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { TypedUseSelectorHook, useSelector } from "react-redux";
+import {configureStore} from "@reduxjs/toolkit";
+import {TypedUseSelectorHook, useSelector} from "react-redux";
 // Reducers
 import newman from "@stores/reducers/call-newman";
 import formCardNfc from "@stores/reducers/form-card-nfc";
@@ -28,38 +28,40 @@ import callVersionControlReducer from "@stores/reducers/health-check/version-con
 import callQRCodeHealthCheckReducer from "@stores/reducers/mobile/qrcode-health-check/reducer";
 import loginReucerV2 from "@stores/reducers/authentication/sign-in/reducer";
 import heartbeatReducer from "@stores/reducers/health-check/heartbeats/reducer";
+import issuesReducer from "@stores/reducers/issues-slice";
 
 export const store = configureStore({
-  reducer: {
-    newman,
-    formCardNfc,
-    callCancelSales,
-    callSchoolList,
-    callGetRegisterDevice,
-    callPostOnlineDevice,
-    callPostOfflineDevice,
-    callGetOnlineDevice,
-    callGetServerStatus,
-    callGetServerStatusV2,
-    callGetuserBySchoolId,
-    callRefreshToken,
-    callGetNotificationWeekList,
-    callGetNotificationTodayList,
-    callAdminLogin,
-    callGetNotificationMessage,
-    callGetLeaveLetterList,
-    callGetSchooListDetail,
-    callGetHardwareApplication,
-    callGetHardwareApplicationByAppId,
-    callPostCreateApplicationVersion,
-    callPostUpdateApplicationVersion,
-    callPostStatistic,
-    callVersionControlReducer,
-    callQRCodeHealthCheckReducer,
-    loginReucerV2,
-    heartbeatReducer,
-  },
-  devTools: process.env.NODE_ENV !== "production",
+    reducer: {
+        newman,
+        formCardNfc,
+        callCancelSales,
+        callSchoolList,
+        callGetRegisterDevice,
+        callPostOnlineDevice,
+        callPostOfflineDevice,
+        callGetOnlineDevice,
+        callGetServerStatus,
+        callGetServerStatusV2,
+        callGetuserBySchoolId,
+        callRefreshToken,
+        callGetNotificationWeekList,
+        callGetNotificationTodayList,
+        callAdminLogin,
+        callGetNotificationMessage,
+        callGetLeaveLetterList,
+        callGetSchooListDetail,
+        callGetHardwareApplication,
+        callGetHardwareApplicationByAppId,
+        callPostCreateApplicationVersion,
+        callPostUpdateApplicationVersion,
+        callPostStatistic,
+        callVersionControlReducer,
+        callQRCodeHealthCheckReducer,
+        loginReucerV2,
+        heartbeatReducer,
+        issues: issuesReducer,
+    },
+    devTools: process.env.NODE_ENV !== "production",
 });
 
 // RootState and AppDispatch types

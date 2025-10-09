@@ -21,12 +21,11 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
                                                                 loading = false,
                                                             }) => {
     if (loading) {
-        return (
-            <Collapse style={{width: "100%"}}>
-                <Collapse.Panel
-                    header="กำลังโหลดข้อมูลสรุปชั่วโมงรายวัน..."
-                    key="1"
-                >
+        const items = [
+            {
+                key: "1",
+                label: "กำลังโหลดข้อมูลสรุปชั่วโมงรายวัน...",
+                children: (
                     <div
                         style={{
                             display: "grid",
@@ -43,21 +42,22 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
                             />
                         ))}
                     </div>
-                </Collapse.Panel>
-            </Collapse>
-        );
+                ),
+            },
+        ];
+
+        return <Collapse style={{width: "100%"}} items={items}/>;
     }
 
     if (!weeklySummary.length) {
         return null;
     }
 
-    return (
-        <Collapse defaultActiveKey={["1"]} style={{width: "100%"}}>
-            <Collapse.Panel
-                header={`สรุปชั่วโมงรายวัน (เป้าหมาย ${targetHours} ชม./วัน)`}
-                key="1"
-            >
+    const items = [
+        {
+            key: "1",
+            label: `สรุปชั่วโมงรายวัน (เป้าหมาย ${targetHours} ชม./วัน)`,
+            children: (
                 <div
                     style={{
                         display: "grid",
@@ -74,7 +74,9 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
                         />
                     ))}
                 </div>
-            </Collapse.Panel>
-        </Collapse>
-    );
+            ),
+        },
+    ];
+
+    return <Collapse defaultActiveKey={["1"]} style={{width: "100%"}} items={items}/>;
 };

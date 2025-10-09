@@ -1,0 +1,354 @@
+"use client";
+
+import {
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+    LoadingOutlined,
+    RobotOutlined,
+    SearchOutlined,
+} from "@ant-design/icons";
+import {Button, Table, theme, Tooltip, Typography,} from "antd";
+import type {ColumnsType} from "antd/es/table";
+import React, {useMemo} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {toast} from "sonner";
+import axios from "axios";
+
+import ColoredBadge from "@components/ant-design/table/table-badge-color";
+import TableSearchFilter from "@components/ant-design/table/table-search-component";
+import type {Issue} from "@components/backlog/issue-drawer/types";
+import {RootState} from "@stores/store";
+import {setPagination, setSelectedRowKeys} from "@stores/reducers/issues-slice";
+import AiUpdateDrawer from "@components/backlog/issue-drawer/ai-update-drawer";
+
+interface IssuesTableProps {
+    listCardStyle: React.CSSProperties;
+    onReload: () => void;
+    space: string;
+}
+
+const IssuesTable: React.FC<IssuesTableProps> = ({listCardStyle, onReload, space}) => {
+    const {token} = theme.useToken();
+    const {colorPrimary, colorSuccess, colorError} = token;
+    const dispatch = useDispatch();
+    const {issues, total, page, pageSize, loading, selectedRowKeys} = useSelector((state: RootState) => state.issues);
+
+    const [aiModal, setAiModal] = React.useState<{
+        generating: boolean;
+        issue: Issue | null;
+        newText: string;
+        open: boolean;
+    }>({
+        generating: false,
+        issue: null,
+        newText: "",
+        open: false,
+    });
+    const [bulkProgress, setBulkProgress] = React.useState<Record<string, 'processing' | 'success' | 'error'>>({});
+
+    const onClickAI = async (issue: Issue) => {
+        const toastId = toast.loading("กำลังเตรียมข้อมูลเพื่อสรุปด้วย AI...");
+        setAiModal({open: true, issue, generating: true, newText: ""});
+
+        const startTime = Date.now();
+        let seconds = 0;
+
+        const timer = setInterval(() => {
+            seconds = Math.floor((Date.now() - startTime) / 1000);
+            toast.message(`ส่งคำขอไปยัง Gemini... (รอ ${seconds} วินาที)`, {
+                id: toastId,
+            });
+        }, 1000);
+
+        try {
+            const response = await axios.post("/api/v1/ai/gemini/summarize", {
+                summary: issue.summary,
+                description: issue.description,
+            });
+
+            clearInterval(timer);
+            const markdown: string = response?.data?.data?.markdown || "";
+
+            setAiModal((state) => ({
+                ...state,
+                newText: markdown,
+                generating: false,
+            }));
+
+            toast.success(`ได้รับผลจาก AI แล้ว (ใช้เวลา ${seconds} วินาที)`, {
+                id: toastId,
+                duration: 2500,
+            });
+        } catch (error: any) {
+            clearInterval(timer);
+            setAiModal((state) => ({...state, generating: false}));
+
+            toast.error(
+                error?.response?.data?.message ||
+                error?.message ||
+                "เรียก AI ไม่สำเร็จ",
+                {
+                    id: toastId,
+                    duration: 3000,
+                }
+            );
+        }
+    };
+
+    const doApproveUpdate = async () => {
+        if (!aiModal.issue) return;
+        const toastId = toast.loading("กำลังอัปเดตคำอธิบายด้วย AI...");
+        try {
+            toast.message("กำลังส่งคำอธิบายใหม่ไปยัง Backlog", {id: toastId});
+            await axios.post("/api/v1/backlog/issues/update", {
+                space,
+                issueKeyOrId: aiModal.issue.issueKey || aiModal.issue.id,
+                description: aiModal.newText,
+            });
+            toast.success("อัปเดต Issue สำเร็จ", {id: toastId});
+            setAiModal({open: false, issue: null, generating: false, newText: ""});
+            onReload();
+        } catch (error: any) {
+            toast.error(
+                error?.response?.data?.message || error?.message || "อัปเดตไม่สำเร็จ",
+                {id: toastId}
+            );
+        }
+    };
+
+    const handleAiClose = () => {
+        setAiModal({generating: false, issue: null, newText: "", open: false});
+    };
+
+    const handleAiRegenerate = () => {
+        if (aiModal.issue) {
+            onClickAI(aiModal.issue);
+        }
+    };
+
+    const columns: ColumnsType<Issue> = [
+        {
+            title: "",
+            dataIndex: "progress",
+            key: "progress",
+            width: 60,
+            align: "left",
+            render: (_, record) => {
+                const key = record.issueKey || String(record.id);
+                const status = bulkProgress[key];
+                switch (status) {
+                    case "processing":
+                        return <LoadingOutlined style={{color: colorPrimary}}/>;
+                    case "success":
+                        return <CheckCircleOutlined style={{color: colorSuccess}}/>;
+                    case "error":
+                        return <CloseCircleOutlined style={{color: colorError}}/>;
+                    default:
+                        return null;
+                }
+            },
+        },
+        {
+            title: "รหัสงาน",
+            dataIndex: "issueKey",
+            key: "issueKey",
+            width: 150,
+            fixed: "left",
+            sorter: (a, b) => a.issueKey.localeCompare(b.issueKey),
+            filterDropdown: (props) => (
+                <TableSearchFilter placeholder="ค้นหารหัสงาน" {...props} />
+            ),
+            filterIcon: (filtered) => (
+                <SearchOutlined style={{color: filtered ? colorPrimary : undefined}}/>
+            ),
+            onFilter: (value, record) =>
+                record.issueKey
+                    ?.toLowerCase()
+                    .includes((value as string).toLowerCase()),
+            render: (key: string) => (
+                <Tooltip title="เปิดงานนี้บน Backlog">
+                    <a
+                        href={`https://${space}.backlog.com/view/${key}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {key}
+                    </a>
+                </Tooltip>
+            ),
+        },
+        {
+            title: "หัวข้อ",
+            dataIndex: "summary",
+            key: "summary",
+            align: "left",
+            ellipsis: true,
+            onCell: () => ({
+                style: {
+                    maxWidth: listCardStyle.width,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                },
+            }),
+            render: (text: string, record: Issue) =>
+                text ? (
+                    <Tooltip placement="bottom" title={`${record.summary}`}>
+                        <Button
+                            type="link"
+                            size="middle"
+                            icon={<SearchOutlined/>}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(
+                                    `https://${space}.backlog.com/view/${record.issueKey}`,
+                                    "_blank",
+                                    "noopener,noreferrer"
+                                )
+                            }}
+                        >
+                            <Typography.Text ellipsis style={{fontSize: 14, fontWeight: 400}}>{text}</Typography.Text>
+                        </Button>
+                    </Tooltip>
+                ) : null,
+        },
+        {
+            title: "ผู้ช่วย AI",
+            key: "ai",
+            width: 80,
+            align: "left",
+            render: (_, record) => (
+                <Tooltip title="ใช้ AI สรุป/ปรับแต่งคำอธิบายเป็น .MD">
+                    <Button
+                        size="small"
+                        icon={<RobotOutlined/>}
+                        onClick={() => onClickAI(record)}
+                    />
+                </Tooltip>
+            ),
+        },
+        {
+            title: "ประเภท",
+            dataIndex: ["issueType", "name"],
+            key: "issueType",
+            align: "left",
+            width: 140,
+            render: (_, record) =>
+                record.issueType ? (
+                    <ColoredBadge
+                        text={record.issueType.name}
+                        color={record.issueType.color}
+                    />
+                ) : null,
+        },
+        {
+            title: "สถานะ",
+            dataIndex: ["status", "name"],
+            key: "status",
+            align: "left",
+            width: 180,
+            render: (_, record) =>
+                record.status ? (
+                    <ColoredBadge
+                        text={record.status.name}
+                        color={record.status.color}
+                    />
+                ) : null,
+        },
+        {
+            title: "ไมล์สโตน",
+            key: "milestone",
+            dataIndex: "milestone",
+            align: "left",
+            width: 180,
+            render: (arr?: Array<{ name: string; color?: string }>) =>
+                arr?.length ? (
+                    <div style={{display: 'flex', flexWrap: 'nowrap', overflow: 'hidden', gap: 4}}>
+                        {arr.map((m) => (
+                            <ColoredBadge
+                                key={m.name}
+                                text={m.name}
+                                color={m.color}
+                                tooltip={false}
+                            />
+                        ))}
+                    </div>
+                ) : null,
+        },
+        {
+            title: "หมวดหมู่",
+            key: "category",
+            dataIndex: "category",
+            align: "left",
+            render: (arr?: Array<{ name: string; color?: string }>) =>
+                arr?.length ? (
+                    <div style={{display: 'flex', flexWrap: 'nowrap', overflow: 'hidden', gap: 4}}>
+                        {arr.map((c) => (
+                            <ColoredBadge
+                                key={c.name}
+                                text={c.name}
+                                color={c.color}
+                                tooltip={false}
+                            />
+                        ))}
+                    </div>
+                ) : null,
+        },
+    ];
+
+    const rowSelection = useMemo(
+        () => ({
+            selectedRowKeys,
+            onChange: (keys: React.Key[]) => dispatch(setSelectedRowKeys(keys)),
+            preserveSelectedRowKeys: true,
+        }),
+        [selectedRowKeys, dispatch]
+    );
+
+    return (
+        <>
+            <Table<Issue>
+                columns={columns}
+                dataSource={issues}
+                rowKey={(r) => r.issueKey || String(r.id)}
+                rowSelection={rowSelection}
+                scroll={{x: 1200}}
+                expandable={{
+                    expandedRowRender: (record) => (
+                        <div style={{whiteSpace: "pre-wrap", padding: 16}}>
+                            <Typography.Text strong>Description</Typography.Text>
+                            <br/>
+                            <Typography.Text>
+                                {record.description || "-"}
+                            </Typography.Text>
+                        </div>
+                    ),
+                }}
+                pagination={{
+                    total,
+                    current: page,
+                    pageSize,
+                    showSizeChanger: true,
+                    pageSizeOptions: ["20", "50", "100", "200", "500"],
+                    onChange: (p, ps) => {
+                        dispatch(setPagination({page: p, pageSize: ps}));
+                        onReload();
+                    },
+                }}
+                loading={loading}
+            />
+            <AiUpdateDrawer
+                aiState={aiModal}
+                onApprove={doApproveUpdate}
+                onClose={handleAiClose}
+                onRegenerate={handleAiRegenerate}
+                onUpdateText={(value) =>
+                    setAiModal((prev) => ({...prev, newText: value}))
+                }
+            />
+        </>
+    );
+};
+
+export default IssuesTable;
+
