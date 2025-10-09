@@ -27,7 +27,8 @@
 }
 
 * {
-  font-family: "Anuphan", sans-serif;
+  font-family: "LINESeedSansTH", sans-serif;
+  letter-spacing: 0.005em;
 }
 
 body {
@@ -37,7 +38,7 @@ body {
 
 /* ปรับ Toast ให้ใช้ font-family ตามระบบ */
 [data-sonner-toaster] {
-  font-family: "Anuphan" !important;
+  font-family: "LINESeedSansTH" !important;
 }
 
 @layer utilities {
