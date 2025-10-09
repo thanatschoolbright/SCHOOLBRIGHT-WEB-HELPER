@@ -176,6 +176,8 @@ export default function AntThemeProvider({
                     filterDropdownBg: palette.backgroundElevated,
                     filterDropdownMenuBg: palette.backgroundElevated,
                     filterDropdownMenuBorderColor: palette.border,
+                    borderColor: palette.border,
+                    borderStyle: "solid",
                 },
                 Dropdown: {
                     borderRadiusLG: 22,

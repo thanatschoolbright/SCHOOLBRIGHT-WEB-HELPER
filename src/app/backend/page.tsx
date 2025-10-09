@@ -38,6 +38,16 @@ export default function DashboardPage() {
 //** ข้อมูล Release Notes (ตัวอย่าง) — จัดกลุ่มตามวันที่
 const releaseNotes: ReleaseNoteGroup[] = [
     {
+        date: "2025-10-09",
+        release_note: [
+            {
+                type: "update",
+                emoji: "🗂️",
+                message: "refactor: ปรับปรุง UI การจัดการไมล์สโตน และเพิ่มความอ่านง่ายของโค้ด",
+            }
+        ]
+    },
+    {
         date: "2025-10-08",
         release_note: [
             {

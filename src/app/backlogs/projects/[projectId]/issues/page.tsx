@@ -406,27 +406,37 @@ export default function ProjectIssuesPage() {
         // 📝 สรุป (คลิกเปิด Backlog Search)
         // -------------------------------------------
         {
-            title: "สรุป",
+            title: "หัวข้อ",
             dataIndex: "summary",
             key: "summary",
-            ellipsis: true,
             align: "left",
-            render: (text: string) =>
+            onCell: () => ({
+                style: {
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                },
+            }),
+            render: (text: string, record: Issue) =>
                 text ? (
-                    <Tooltip placement="topLeft" title="ค้นหาใน Backlog">
+                    <Tooltip placement="bottom" title={`${record.summary}`}>
                         <Button
                             type="link"
-                            size="small"
+                            size="middle"
                             icon={<SearchOutlined/>}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/backlog/find/${encodeURIComponent(text)}`);
+                                window.open(
+                                    `https://${space}.backlog.com/view/${record.issueKey}`,
+                                    "_blank",
+                                    "noopener,noreferrer"
+                                )
                             }}
-                            block
+
                         >
                             <Typography.Text ellipsis style={{
-                                fontSize: 11, // ✅ ตัวอักษรเล็กลง (อ่านง่ายในตาราง)
+                                fontSize: 14, // ✅ ตัวอักษรเล็กลง (อ่านง่ายในตาราง)
                                 fontWeight: 400,
+
                             }}>{text}</Typography.Text>
                         </Button>
                     </Tooltip>
@@ -478,14 +488,8 @@ export default function ProjectIssuesPage() {
             dataIndex: ["status", "name"],
             key: "status",
             align: "left",
-            onCell: () => ({
-                style: {
-                    whiteSpace: "nowrap",        // ไม่ให้ขึ้นบรรทัดใหม่
-                    overflow: "hidden",          // ป้องกันล้น
-                    textOverflow: "ellipsis",    // ตัดข้อความที่ยาวเกิน
-                    maxWidth: 140,               // กำหนดความกว้างสูงสุด
-                },
-            }),
+            width: 180,
+
             render: (_, record) =>
                 record.status ? (
                     <div
@@ -505,45 +509,13 @@ export default function ProjectIssuesPage() {
                     </div>
                 ) : null,
         },
-        {
-            title: "หมวดหมู่",
-            key: "category",
-            dataIndex: "category",
-            align: "left",
-            onCell: () => ({
-                style: {
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    maxWidth: 180,
-                },
-            }),
-            render: (arr?: Array<{ name: string; color?: string }>) =>
-                arr?.length ? (
-                    <div
-                        style={{
-                            display: "flex",
-                            flexWrap: "nowrap",
-                            overflow: "hidden",
-                            gap: 4,
-                        }}
-                    >
-                        {arr.map((c) => (
-                            <ColoredBadge
-                                key={c.name}
-                                text={c.name}
-                                color={c.color}
-                                tooltip={false}
-                            />
-                        ))}
-                    </div>
-                ) : null,
-        },
+
         {
             title: "ไมล์สโตน",
             key: "milestone",
             dataIndex: "milestone",
             align: "left",
+            width: 180,
             onCell: () => ({
                 style: {
                     whiteSpace: "nowrap",
@@ -567,6 +539,33 @@ export default function ProjectIssuesPage() {
                                 key={m.name}
                                 text={m.name}
                                 color={m.color}
+                                tooltip={false}
+                            />
+                        ))}
+                    </div>
+                ) : null,
+        },
+        {
+            title: "หมวดหมู่",
+            key: "category",
+            dataIndex: "category",
+            align: "left",
+
+            render: (arr?: Array<{ name: string; color?: string }>) =>
+                arr?.length ? (
+                    <div
+                        style={{
+                            display: "flex",
+                            flexWrap: "nowrap",
+                            overflow: "hidden",
+                            gap: 4,
+                        }}
+                    >
+                        {arr.map((c) => (
+                            <ColoredBadge
+                                key={c.name}
+                                text={c.name}
+                                color={c.color}
                                 tooltip={false}
                             />
                         ))}
