@@ -48,7 +48,7 @@ export default function Page() {
     confirmText: "",
     project_id: Number(project_id),
     backlogDescription: null,
-    dateRange: [],
+    dateRange: ["", ""],
   });
   const [antdForm] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);

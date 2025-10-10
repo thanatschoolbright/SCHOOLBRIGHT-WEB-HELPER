@@ -227,8 +227,8 @@ export default function Page() {
       filterIcon: (filtered) => (
         <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
       ),
-      onFilter: (value, record) => {
-        const raw = record[dataIndex];
+      onFilter: (value, record: ApiTableData) => {
+        const raw = record[dataIndex as keyof ApiTableData];
         if (raw === undefined || raw === null) {
           return false;
         }

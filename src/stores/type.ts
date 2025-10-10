@@ -1,9 +1,34 @@
+import { Dayjs } from "dayjs";
+
 // types.ts
 export interface DefaultRedux<T = any> {
     loading: boolean;
     error: string;
     success: string;
     response: T;
+}
+
+export interface SubProjectForm {
+    id?: number;
+    project_id: number;
+    name: string;
+    backlogDescription: string | null;
+    by: number;
+    dateRange?: any; // [startDate, endDate] in "YYYY-MM-DD" format
+}
+
+
+export interface ResponseHeartbeats extends DefaultRedux {
+    data: {
+        data: {
+            ID : number;
+            JobStatus : string;
+            Description : string;
+            JobName : string;
+            Interval : number;
+            LastUpdatedTime : string; // ISO datetime string
+        }[];
+    };
 }
 
 //** ประเภทข้อมูล Timesheet */
@@ -33,9 +58,15 @@ export interface SubProject {
     id: number;
     project_id: number;
     name: string;
+    backlogDescription?: any;
     description?: string;
     created_at?: string;
     updated_at?: string;
+    startDate?: string | null;
+    endDate?: string | null;
+    createdBy?: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface UserState extends DefaultRedux {
