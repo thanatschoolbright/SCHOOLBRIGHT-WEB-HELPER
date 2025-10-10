@@ -1,4 +1,4 @@
-import { Dayjs } from "dayjs";
+import { Dayjs, extend } from "dayjs";
 
 // types.ts
 export interface DefaultRedux<T = any> {
@@ -7,6 +7,11 @@ export interface DefaultRedux<T = any> {
     success: string;
     response: T;
 }
+ 
+export interface RequestHeartbeats extends DefaultRedux {
+    draftValues: {};
+}
+
 
 export interface SubProjectForm {
     id?: number;

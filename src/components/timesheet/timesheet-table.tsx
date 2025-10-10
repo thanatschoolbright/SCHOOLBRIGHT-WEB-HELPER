@@ -13,7 +13,7 @@ import {TableActions} from "@components/button/table-actions";
 import {STATUS_OPTIONS} from "@constants/timesheet.constants";
 import {openModal, setPagination, setSelectedRowKeys} from "@stores/reducers/timesheet-slice";
 import {AppDispatch, RootState} from "@stores/store";
-import {TimesheetEntry} from "@/types/timesheet";
+import { TimesheetEntry } from "@/stores/type";
 
 //** ค่าคงที่ */
 const DATE_FORMAT = "DD/MM/YYYY";
@@ -160,34 +160,34 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({onRefresh}) => {
     };
 
     return (
-        <Table<TimesheetEntry>
-            rowKey="id"
-            columns={columns}
-            dataSource={entries}
-            loading={loading}
-            rowSelection={rowSelection}
-            pagination={{
-                current: currentPage,
-                pageSize,
-                total: totalItems,
-                onChange: (page, size) => dispatch(setPagination({page, pageSize: size})),
-                showSizeChanger: true,
-                pageSizeOptions: [10, 20, 50, 100, 500, 1000, 5000, 10000],
-                showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-            }}
-            scroll={{x: 1000}}
-            title={() => <Typography.Title level={5}>การลงเวลาทำงาน</Typography.Title>}
-            extra={() => (
-                <TableActions
-                    onRefresh={onRefresh}
-                    onAdd={handleOpenCreate}
-                    onDelete={handleOpenDelete}
-                    selectedCount={selectedRowKeys.length}
-                    loading={actionLoading}
-                    refreshLoading={loading}
-                />
-            )}
-        />
+        <>
+            <TableActions
+                onRefresh={onRefresh}
+                onAdd={handleOpenCreate}
+                onDelete={handleOpenDelete}
+                selectedCount={selectedRowKeys.length}
+                loading={actionLoading}
+                refreshLoading={loading}
+            />
+            <Table<TimesheetEntry>
+                rowKey="id"
+                columns={columns}
+                dataSource={entries}
+                loading={loading}
+                rowSelection={rowSelection}
+                pagination={{
+                    current: currentPage,
+                    pageSize,
+                    total: totalItems,
+                    onChange: (page, size) => dispatch(setPagination({page, pageSize: size})),
+                    showSizeChanger: true,
+                    pageSizeOptions: [10, 20, 50, 100, 500, 1000, 5000, 10000],
+                    showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+                }}
+                scroll={{x: 1000}}
+                title={() => <Typography.Title level={5}>การลงเวลาทำงาน</Typography.Title>}
+            />
+        </>
     );
 };
 

@@ -4,7 +4,7 @@ import React, {forwardRef} from "react";
 import {useSelector} from "react-redux";
 
 import {UsageCard} from "@components/card/usage-card";
-import {MonthlyRankBoard, MonthlyRankBoardRef} from "@app/timesheet/entry/monthly-rank-board";
+import { MonthlyRankBoard, MonthlyRankBoardRef } from "@/app/timesheet/entry/monthly-rank-board";
 import {useTopUsage} from "@/hooks/use-timesheet-data";
 import {RootState} from "@stores/store";
 

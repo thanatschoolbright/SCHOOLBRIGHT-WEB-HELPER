@@ -2,6 +2,8 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {Project, SubProject, TimesheetEntry} from '@/stores/type';
 
 interface TimesheetState {
+    actionLoading: boolean;
+
     //** ข้อมูลรายการ Timesheet */
     entries: TimesheetEntry[];
     //** สถานะการโหลด */
@@ -24,6 +26,10 @@ interface TimesheetState {
         pageSize: number;
         total: number;
     };
+    currentPage: number;
+    pageSize: number;
+    totalItems: number;
+    
 }
 
 const initialState: TimesheetState = {
@@ -35,6 +41,11 @@ const initialState: TimesheetState = {
     formMode: 'create',
     activeRecord: null,
     selectedRowKeys: [],
+    actionLoading: false,
+    currentPage: 1,
+    pageSize: 20,
+    totalItems: 0,
+
     pagination: {
         current: 1,
         pageSize: 20,

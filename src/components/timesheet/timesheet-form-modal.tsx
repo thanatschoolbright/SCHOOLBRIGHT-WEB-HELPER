@@ -10,7 +10,7 @@ import i18next from "i18next";
 import {STATUS_OPTIONS} from "@constants/timesheet.constants";
 import {setSubProjects} from "@stores/reducers/timesheet-slice";
 import {AppDispatch, RootState} from "@stores/store";
-import {SubProject} from "@/types/timesheet";
+import { SubProject } from "@/stores/type";
 
 interface TimesheetFormModalProps {
     open: boolean;
