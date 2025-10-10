@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {Project, SubProject, TimesheetEntry} from '@/types/timesheet';
+import {Project, SubProject, TimesheetEntry} from '@stores/type';
 
 //** ประเภทของโหมดในฟอร์ม (สร้าง, แก้ไข, คัดลอก) */
 type FormMode = "create" | "edit" | "copy";
@@ -7,7 +7,7 @@ type FormMode = "create" | "edit" | "copy";
 //** ประเภทของ Modal ที่จะแสดง */
 type ModalType = "form" | "detail" | "delete" | null;
 
-//** State αρχικός สำหรับ Timesheet */
+//** State  สำหรับ Timesheet */
 interface TimesheetState {
     entries: TimesheetEntry[];
     projects: Project[];
