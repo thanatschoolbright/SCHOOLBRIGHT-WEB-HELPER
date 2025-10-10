@@ -1,0 +1,305 @@
+/* Apple-like Minimal Design for Timesheet Pages */
+
+/*** การกำหนดตัวแปร CSS สำหรับ Apple Design ***/
+:root {
+  --apple-white: #ffffff;
+  --apple-gray-50: #fafafa;
+  --apple-gray-100: #f5f5f5;
+  --apple-gray-200: #e5e5e5;
+  --apple-gray-300: #d4d4d4;
+  --apple-gray-400: #a3a3a3;
+  --apple-gray-500: #737373;
+  --apple-gray-600: #525252;
+  --apple-gray-700: #404040;
+  --apple-gray-800: #262626;
+  --apple-gray-900: #171717;
+  --apple-blue: #007aff;
+  --apple-green: #34c759;
+  --apple-red: #ff3b30;
+  --apple-orange: #ff9500;
+  --apple-radius: 12px;
+  --apple-radius-sm: 8px;
+  --apple-radius-lg: 16px;
+  --apple-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --apple-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --apple-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/*** ปรับปรุงสำหรับ Timesheet Components ***/
+
+/* Timesheet Header */
+.timesheet-header {
+  background: var(--apple-white);
+  border: 1px solid var(--apple-gray-200);
+  border-radius: var(--apple-radius-lg);
+  box-shadow: var(--apple-shadow-sm);
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.timesheet-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--apple-gray-900);
+  margin: 0;
+}
+
+.timesheet-header .subtitle {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: var(--apple-gray-600);
+  margin-top: 8px;
+}
+
+/* Stats Section */
+.timesheet-stats {
+  display: flex;
+  gap: 48px;
+  margin-top: 24px;
+}
+
+.timesheet-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.timesheet-stat-label {
+  font-size: 0.875rem;
+  color: var(--apple-gray-500);
+  margin-bottom: 4px;
+}
+
+.timesheet-stat-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--apple-gray-900);
+}
+
+/* Controls Section */
+.timesheet-controls {
+  background: var(--apple-gray-50);
+  border: 1px solid var(--apple-gray-200);
+  border-radius: var(--apple-radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.timesheet-controls .ant-btn {
+  border-radius: var(--apple-radius-sm);
+  font-weight: 500;
+  border: 1px solid var(--apple-gray-300);
+  background: var(--apple-white);
+  color: var(--apple-gray-700);
+  transition: all 0.2s ease;
+}
+
+.timesheet-controls .ant-btn:hover {
+  border-color: var(--apple-blue);
+  color: var(--apple-blue);
+  box-shadow: var(--apple-shadow-sm);
+}
+
+.timesheet-controls .ant-btn-primary {
+  background: var(--apple-blue);
+  border-color: var(--apple-blue);
+  color: var(--apple-white);
+}
+
+.timesheet-controls .ant-btn-primary:hover {
+  background: #0056cc;
+  border-color: #0056cc;
+}
+
+/* Table Section */
+.timesheet-table-card {
+  background: var(--apple-white);
+  border: 1px solid var(--apple-gray-200);
+  border-radius: var(--apple-radius-lg);
+  box-shadow: var(--apple-shadow);
+  overflow: hidden;
+}
+
+.timesheet-table-card .ant-card-head {
+  background: var(--apple-gray-50);
+  border-bottom: 1px solid var(--apple-gray-200);
+  padding: 24px 32px;
+}
+
+.timesheet-table-card .ant-card-head-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--apple-gray-900);
+}
+
+.timesheet-table-card .ant-card-body {
+  padding: 0;
+}
+
+/* Table Styles */
+.timesheet-table .ant-table-thead > tr > th {
+  background: var(--apple-gray-50);
+  border-bottom: 1px solid var(--apple-gray-200);
+  color: var(--apple-gray-700);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 16px;
+}
+
+.timesheet-table .ant-table-tbody > tr > td {
+  padding: 16px;
+  border-bottom: 1px solid var(--apple-gray-100);
+  color: var(--apple-gray-700);
+}
+
+.timesheet-table .ant-table-tbody > tr:hover > td {
+  background: var(--apple-gray-50);
+}
+
+/* Loading Skeleton */
+.timesheet-skeleton {
+  background: var(--apple-white);
+  border: 1px solid var(--apple-gray-200);
+  border-radius: var(--apple-radius-lg);
+  padding: 32px;
+}
+
+.timesheet-skeleton-row {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid var(--apple-gray-200);
+  border-radius: var(--apple-radius-sm);
+  background: var(--apple-gray-50);
+}
+
+/* Modal Styles */
+.timesheet-modal .ant-modal-content {
+  border-radius: var(--apple-radius-lg);
+  box-shadow: var(--apple-shadow-lg);
+  overflow: hidden;
+}
+
+.timesheet-modal .ant-modal-header {
+  background: var(--apple-gray-50);
+  border-bottom: 1px solid var(--apple-gray-200);
+  padding: 24px 32px;
+}
+
+.timesheet-modal .ant-modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--apple-gray-900);
+}
+
+.timesheet-modal .ant-modal-body {
+  padding: 32px;
+}
+
+/* Form Elements */
+.timesheet-form .ant-form-item-label > label {
+  color: var(--apple-gray-700);
+  font-weight: 500;
+}
+
+.timesheet-form .ant-input,
+.timesheet-form .ant-select-selector,
+.timesheet-form .ant-picker {
+  border-radius: var(--apple-radius-sm);
+  border: 1px solid var(--apple-gray-300);
+  transition: all 0.2s ease;
+}
+
+.timesheet-form .ant-input:focus,
+.timesheet-form .ant-select-focused .ant-select-selector,
+.timesheet-form .ant-picker:hover,
+.timesheet-form .ant-picker-focused {
+  border-color: var(--apple-blue);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+}
+
+/* Badges and Status */
+.timesheet-status-badge {
+  border-radius: var(--apple-radius-sm);
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
+
+.timesheet-status-badge.success {
+  background: rgba(52, 199, 89, 0.1);
+  color: var(--apple-green);
+  border: 1px solid rgba(52, 199, 89, 0.2);
+}
+
+.timesheet-status-badge.warning {
+  background: rgba(255, 149, 0, 0.1);
+  color: var(--apple-orange);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+.timesheet-status-badge.error {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--apple-red);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+}
+
+.timesheet-hours-badge {
+  background: rgba(0, 122, 255, 0.1);
+  color: var(--apple-blue);
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  border-radius: var(--apple-radius-sm);
+  padding: 4px 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Detail Description */
+.timesheet-detail-description {
+  background: var(--apple-gray-50);
+  border: 1px solid var(--apple-gray-200);
+  border-radius: var(--apple-radius-sm);
+  padding: 16px;
+  margin: 0;
+  line-height: 1.6;
+  color: var(--apple-gray-700);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .timesheet-header {
+    padding: 24px;
+  }
+  
+  .timesheet-header h1 {
+    font-size: 2rem;
+  }
+  
+  .timesheet-stats {
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  
+  .timesheet-controls {
+    padding: 12px;
+  }
+  
+  .timesheet-modal .ant-modal-body {
+    padding: 24px;
+  }
+}
+
+/* Dark Mode Support (ถ้าต้องการ) */
+[data-theme="dark"] {
+  --apple-white: #1c1c1e;
+  --apple-gray-50: #2c2c2e;
+  --apple-gray-100: #3a3a3c;
+  --apple-gray-200: #48484a;
+  --apple-gray-300: #636366;
+  --apple-gray-400: #8e8e93;
+  --apple-gray-500: #aeaeb2;
+  --apple-gray-600: #c7c7cc;
+  --apple-gray-700: #d1d1d6;
+  --apple-gray-800: #e5e5ea;
+  --apple-gray-900: #f2f2f7;
+}

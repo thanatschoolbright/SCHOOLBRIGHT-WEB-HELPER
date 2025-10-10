@@ -30,6 +30,7 @@ import loginReucerV2 from "@stores/reducers/authentication/sign-in/reducer";
 import heartbeatReducer from "@stores/reducers/health-check/heartbeats/reducer";
 import issuesReducer from "@stores/reducers/issues-slice";
 import timesheetReducer from "@stores/reducers/timesheet/timesheet-reducer";
+import timesheetAllReducer from "@stores/reducers/timesheet.reducer";
 
 export const store = configureStore({
     reducer: {
@@ -62,6 +63,7 @@ export const store = configureStore({
         heartbeatReducer,
         issues: issuesReducer,
         timesheet: timesheetReducer,
+        timesheetAll: timesheetAllReducer,
     },
     devTools: process.env.NODE_ENV !== "production",
 });
