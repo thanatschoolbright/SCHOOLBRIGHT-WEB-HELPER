@@ -605,7 +605,7 @@ export default function Page() {
                       icon={<FiPlus />}
                       disabled={fields.length >= 5}
                     >
-                      เพิ่ม Backlog
+                      เพิ่มเอกสาร
                     </Button>
                   </Form.Item>
                 </>
@@ -741,9 +741,13 @@ export default function Page() {
               </Card>
               <Card
                 size="small"
-                title="Backlogs"
+                title="เอกสารที่เกี่ยวข้อง"
                 style={{ marginTop: 16, padding: 0 }}
-                bodyStyle={{ padding: 16 }}
+                styles={{
+                  body: {
+                    padding: 16,
+                  }
+                }}
               >
                 <Space direction="vertical" size={8} style={{ width: "100%" }}>
                   {detailProject.backlogDescription ? (
