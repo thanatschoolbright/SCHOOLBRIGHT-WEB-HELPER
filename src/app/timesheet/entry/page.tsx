@@ -623,16 +623,17 @@ export default function Page() {
                             }
                             style={{
                                 borderRadius: 12,
-                                
+
                             }}
                             styles={{
                                 body: {
-                                    padding: 0
+                                    padding: 16
                                 }
                             }}
                         >
                             <Table<TimesheetEntry>
                                 rowKey={(record) => String(record.id)}
+                                bordered={true}
                                 columns={columns}
                                 dataSource={entries}
                                 loading={tableLoading}

@@ -199,8 +199,6 @@ export const Service = {
 
   // * สร้าง
   async create(data: CreateTimesheetEntryInput) {
-    console.log("CREATE ENTRY TIMESHEET");
-
     return await PrismaTimesheet.timesheetEntry.create({
       data: {
         projectId: data.projectId,

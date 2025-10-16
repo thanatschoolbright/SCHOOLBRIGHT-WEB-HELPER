@@ -202,11 +202,11 @@ async function sendDiscordNotification(users: any[]) {
 
 export async function GET() {
     //   const URL = API_URL.SB_HELPER_URL;
-    const URL = "http://www.localhost:3000";
+    // const URL = "http://www.localhost:3000";
     try {
         const response = await Service.findNotEntryToday();
 
-        const {data: resData} = await axios.get(`${URL}/api/v1/admin/user/`);
+        const {data: resData} = await axios.get(`/api/v1/admin/user/`);
         const resultUsers = resData?.data?.data;
         const users = Array.isArray(resultUsers) ? resultUsers : [];
         const validated = VALIDATED_USERS_ARE_NOT_ENTRY(users, response);

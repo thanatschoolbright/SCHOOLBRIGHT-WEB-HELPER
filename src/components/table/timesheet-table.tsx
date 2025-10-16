@@ -6,11 +6,11 @@ import dayjs from "dayjs";
 
 import { HoursBadge, StatusBadge } from "@components/badge";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
-import type { 
-  TimesheetEntry, 
-  TimesheetTableProps, 
-  TableFilters, 
-  PaginationData 
+import type {
+  TimesheetEntry,
+  TimesheetTableProps,
+  TableFilters,
+  PaginationData
 } from "@/types/timesheet-table.types";
 import type { Project, UserProfile } from "@/stores/type";
 
@@ -53,8 +53,8 @@ export const TimesheetTable: React.FC<EnhancedTimesheetTableProps> = ({
   const rowSelection: TableProps<TimesheetEntry>["rowSelection"] = {
     selectedRowKeys,
     onChange: onSelectionChange,
-    getCheckboxProps: (record) => ({ 
-      disabled: !!(record as any).children 
+    getCheckboxProps: (record) => ({
+      disabled: !!(record as any).children
     }),
   };
 
@@ -165,8 +165,8 @@ export const TimesheetTable: React.FC<EnhancedTimesheetTableProps> = ({
         filteredValue: filteredInfo.status || null,
         sorter: (a, b) => String(a.status).localeCompare(String(b.status)),
         render: (status: string) => (
-          <StatusBadge 
-            status={status} 
+          <StatusBadge
+            status={status}
             statusLabelMap={statusLabelMap}
           />
         ),
@@ -218,7 +218,7 @@ export const TimesheetTable: React.FC<EnhancedTimesheetTableProps> = ({
                 type="text"
                 icon={<InfoCircleOutlined />}
                 onClick={() => onViewDetail?.(record)}
-                style={{ 
+                style={{
                   color: "#1677ff",
                   backgroundColor: "rgba(22, 119, 255, 0.06)"
                 }}
@@ -249,7 +249,7 @@ export const TimesheetTable: React.FC<EnhancedTimesheetTableProps> = ({
       pageSize: paginationInfo.pageSize || 10,
       total: paginationInfo.total || 0,
     };
-    
+
     onTableChange?.(newPagination, filters as TableFilters);
   };
 

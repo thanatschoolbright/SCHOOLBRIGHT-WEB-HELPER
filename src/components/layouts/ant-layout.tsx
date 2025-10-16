@@ -108,9 +108,9 @@ export default function AntThemeProvider({
                     siderBg: palette.backgroundElevated,
                 },
                 Button: {
-                    borderRadius: 18,
-                    controlHeight: 44,
-                    fontWeight: 600,
+                    borderRadius: 12,
+                    controlHeight: 48,
+                    fontWeight: 500,
                     boxShadow: isDark
                         ? "0 6px 16px rgba(0,0,0,0.35)"
                         : "0 6px 16px rgba(15,23,42,0.06)",
@@ -121,21 +121,21 @@ export default function AntThemeProvider({
                     colorBgTextActive: `${palette.primary}18`,
                 },
                 Input: {
-                    borderRadius: 18,
+                    borderRadius: 12,
                     controlHeight: 44,
                     colorBgContainer: palette.backgroundElevated,
                     colorBorder: palette.border,
                     activeShadow: `0 0 0 2px ${palette.primary}26`,
                 },
                 Select: {
-                    borderRadius: 18,
+                    borderRadius: 12,
                     controlHeight: 44,
                     colorBgContainer: palette.backgroundElevated,
                     colorBorder: palette.border,
                     optionSelectedBg: `${palette.primary}26`,
                 },
                 DatePicker: {
-                    borderRadius: 18,
+                    borderRadius: 12,
                     colorBgContainer: palette.backgroundElevated,
                     colorBorder: palette.border,
                     cellHoverBg: `${palette.primary}1a`,
@@ -146,7 +146,7 @@ export default function AntThemeProvider({
 
                     // Body Section
                     padding: 24, // ✅ ระยะห่างภายในของ body (ค่าเริ่มต้น 24)
-                    fontSize: 15, // ✅ ขนาดตัวอักษรใน body
+                    fontSize: 16, // ✅ ขนาดตัวอักษรใน body
                     colorBgContainer: palette.backgroundElevated, // ✅ สีพื้นหลังของ card body
                     colorText: palette.textPrimary, // ✅ สีข้อความใน body
                     colorBorderSecondary: palette.border, // ✅ สีเส้นขอบ (body-border)
@@ -157,9 +157,10 @@ export default function AntThemeProvider({
                     boxShadow: isDark
                         ? "0 12px 24px rgba(0,0,0,0.35)"
                         : "0 6px 16px rgba(15,23,42,0.06)",
+
                 },
                 Modal: {
-                    borderRadiusLG: 28,
+                    borderRadiusLG: 14,
                     colorBgElevated: palette.backgroundElevated,
                     headerBg: palette.backgroundElevated,
                     titleFontSize: 20,
@@ -168,25 +169,50 @@ export default function AntThemeProvider({
                         : "0 12px 32px rgba(15,23,42,0.08)",
                 },
                 Table: {
-                    borderRadius: 24,
-                    headerBg: isDark ? "#1f1f1f" : "#f8fafc",
-                    headerColor: palette.textPrimary,
-                    rowHoverBg: isDark ? "#1f1f1f" : "rgba(15,23,42,0.03)",
+                    borderRadius: 12,
+
+                    // Header styling - ปรับให้โดดเด่นกว่าเดิม
+                    headerBg: isDark ? "rgba(255, 255, 255, 0.08)" : "#f1f5f9",
+                    headerColor: isDark ? "rgba(255, 255, 255, 0.95)" : "#0f172a",
+                    headerSplitColor: "transparent",
+                    headerSortActiveBg: isDark ? "rgba(255, 255, 255, 0.12)" : "#e2e8f0",
+                    headerSortHoverBg: isDark ? "rgba(255, 255, 255, 0.12)" : "#e2e8f0",
+
+                    // Row styling
+                    rowHoverBg: isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(0, 0, 0, 0.02)",
+                    rowSelectedBg: isDark ? "rgba(24, 144, 255, 0.15)" : "rgba(24, 144, 255, 0.08)",
+                    rowSelectedHoverBg: isDark ? "rgba(24, 144, 255, 0.2)" : "rgba(24, 144, 255, 0.12)",
+
+                    // Background
                     colorBgContainer: palette.backgroundElevated,
+
+                    // Border styling
+                    borderColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)",
+
+                    // Cell padding
+                    cellPaddingBlock: 16,
+                    cellPaddingInline: 16,
+
+                    // Font
+                    cellFontSize: 14,
+                    headerFontSize: 14,
+
+                    // Filter dropdown
                     filterDropdownBg: palette.backgroundElevated,
                     filterDropdownMenuBg: palette.backgroundElevated,
-                    filterDropdownMenuBorderColor: palette.border,
-                    borderColor: palette.border,
-                    borderStyle: "solid",
+
+                    // Footer
+                    footerBg: isDark ? "rgba(255, 255, 255, 0.02)" : "#fafafa",
+                    footerColor: palette.textSecondary,
                 },
                 Dropdown: {
-                    borderRadiusLG: 22,
+                    borderRadiusLG: 12,
                     colorBgElevated: palette.backgroundElevated,
                     controlItemBgHover: `${palette.primary}10`,
                     controlItemBgActive: `${palette.primary}16`,
                 },
                 Tag: {
-                    borderRadiusSM: 14,
+                    borderRadiusSM: 12,
                     defaultBg: `${palette.primary}12`,
                     defaultColor: palette.primary,
                 },
