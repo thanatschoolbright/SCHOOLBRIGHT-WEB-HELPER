@@ -5,9 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "bun-dev": "bun run next dev --turbopack",
+    "bun-dev": "bun run next dev",
     "bun-build": "bun run next build",
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint -c config/.eslintrc.json .",

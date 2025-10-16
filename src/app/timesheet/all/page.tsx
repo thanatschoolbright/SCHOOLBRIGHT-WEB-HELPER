@@ -14,9 +14,9 @@ import {HoursBadge, StatusBadge} from "@components/badge";
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@components/layouts/permission-layout";
 import {
-  TimesheetControlsSkeleton,
-  TimesheetHeaderSkeleton,
-  TimesheetTableSkeleton
+    TimesheetControlsSkeleton,
+    TimesheetHeaderSkeleton,
+    TimesheetTableSkeleton
 } from "@components/loading/timesheet-skeleton";
 import type {TimesheetMode} from "@components/modal/graph-timesheet-modal-component";
 import {GraphTimesheetModal} from "@components/modal/graph-timesheet-modal-component";
@@ -28,26 +28,26 @@ import {TimesheetTable} from "@components/table";
 import {STATUS_OPTIONS} from "@constants/timesheet.constants";
 import {getUserData} from "@helpers/local_storage/user.storage";
 import {
-  GET_PROJECTS,
-  GET_SUB_PROJECTS_BY_PROJECT,
-  GET_TIMESHEET_ENTRIES,
-  POST_EXPORT_ALL_ENTRIES,
-  POST_EXPORT_TEMPLATE
+    GET_PROJECTS,
+    GET_SUB_PROJECTS_BY_PROJECT,
+    GET_TIMESHEET_ENTRIES,
+    POST_EXPORT_ALL_ENTRIES,
+    POST_EXPORT_TEMPLATE
 } from "@services/timesheet/timesheet-all.service";
 import {
-  setDetailRecord,
-  setEntries,
-  setEntriesLoading,
-  setExportLoading,
-  setFilteredInfo,
-  setModalState,
-  setPagination,
-  setProjects,
-  setProjectsLoading,
-  setSelectedRowKeys,
-  setSubProjects,
-  setSubProjectsLoading,
-  setUsers,
+    setDetailRecord,
+    setEntries,
+    setEntriesLoading,
+    setExportLoading,
+    setFilteredInfo,
+    setModalState,
+    setPagination,
+    setProjects,
+    setProjectsLoading,
+    setSelectedRowKeys,
+    setSubProjects,
+    setSubProjectsLoading,
+    setUsers,
 } from "@stores/reducers/timesheet.reducer";
 import {useAppSelector} from "@stores/store";
 import type {TimesheetEntry, TimesheetExportData} from "@/types/timesheet-table.types";
@@ -262,7 +262,7 @@ export default function TimesheetAllPage(): JSX.Element {
                 key: "description",
                 label: "รายละเอียดคำอธิบาย",
                 value: (
-                    <Typography.Paragraph className="timesheet-detail-description">
+                    <Typography.Paragraph>
                         {detailRecord.description ?? "-"}
                     </Typography.Paragraph>
                 ),
@@ -413,7 +413,7 @@ export default function TimesheetAllPage(): JSX.Element {
                     footer={null}
                     width={680}
                     centered
-                    className="timesheet-modal"
+
                     styles={{
                         content: {
                             borderRadius: token.borderRadiusLG,
@@ -439,12 +439,12 @@ export default function TimesheetAllPage(): JSX.Element {
                 {/* Main Content */}
                 <Space direction="vertical" size="large" style={{width: "100%"}}>
                     {/* Header */}
-                    <div className="timesheet-header">
+                    <div>
                         <TimesheetHeader stats={statsData}/>
                     </div>
 
                     {/* Controls */}
-                    <div className="timesheet-controls">
+                    <div>
                         <TimesheetControls
                             isExporting={exportLoading}
                             isExportingTemplate={exportLoading}
@@ -459,22 +459,13 @@ export default function TimesheetAllPage(): JSX.Element {
                     <Card
                         title="ข้อมูลการลงเวลาทำงาน"
                         loading={entriesLoading}
-                        className="timesheet-table-card"
                         style={{
                             borderRadius: token.borderRadiusLG,
 
                         }}
-                        styles={{
-                            header: {
-                                borderBottom: `1px solid ${token.colorBorder}`,
-
-                            },
-                            body: {
-                                padding: `1rem`
-                            },
-                        }}
+                        
                     >
-                        <div className="">
+                        <div>
                             <TimesheetTable
                                 dataSource={entries}
                                 loading={entriesLoading}

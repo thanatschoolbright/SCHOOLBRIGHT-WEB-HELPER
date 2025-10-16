@@ -3,51 +3,49 @@
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig = {
+
+  // * Enable strict mode for better development experience
   reactStrictMode: true,
 
+  // * Configure body size limits for API routes and middleware
+  experimental: {
+    serverActions: { bodySizeLimit: '50mb' },
+    middlewareClientMaxBodySize: '100mb',
+  },
+
+  // * Allow images from external domains
   images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "userstorage.obs.ap-southeast-2.myhuaweicloud.com"
-      }
+        hostname: "userstorage.obs.ap-southeast-2.myhuaweicloud.com",
+      },
     ],
   },
 
-  // Rewrite API requests to the backend
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: "/api/:path((?!auth).*)",
-  //       destination: `${process.env.BACKEND_API_URL}/:path*`,
-  //     },
-  //   ];
-  // },
+  // * Remove console logs in production, keep errors and warnings
+  compiler: {
+    removeConsole: isProd ? { exclude: ["error", "warn"] } : false,
+  },
 
-  // Custom Webpack configuration
-  webpack(config, { dev }) {
-    if (!dev) {
+  // * Disable source maps in production for better performance
+  productionBrowserSourceMaps: false,
+
+  // * Custom webpack optimization for production builds
+  webpack(config, { dev, isServer }) {
+    if (!dev && !isServer) {
       try {
-        // Dynamic import - ใช้ได้เฉพาะตอน build
-        // ตอน production runtime จะใช้ built-in terser ของ Next.js
-        const TerserPlugin = require('terser-webpack-plugin');
-
+        const TerserPlugin = require("terser-webpack-plugin");
         config.optimization.minimizer.push(
             new TerserPlugin({
-              terserOptions: {
-                compress: {
-                  drop_console: true, // Drop console logs in production
-                },
-              },
+              terserOptions: { compress: { drop_console: true } },
             })
         );
       } catch (error) {
-        // ถ้าไม่มี terser-webpack-plugin ก็ skip ไป
-        // Next.js จะใช้ built-in terser แทน
-        console.log('Using Next.js built-in Terser optimization');
+        // ! Fallback to Next.js built-in optimization
+        console.log("Using Next.js built-in Terser optimization");
       }
     }
-
     return config;
   },
 };

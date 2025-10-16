@@ -61,6 +61,12 @@ ChartJS.register(
 
 export type TimesheetMode = "today" | "week" | "month" | "year";
 
+// Types
+interface ChartContext {
+    chart: any;
+    dataIndex: number;
+}
+
 interface GraphTimesheetModalProps {
     open: boolean;
     onClose: () => void;
@@ -68,6 +74,27 @@ interface GraphTimesheetModalProps {
     mode?: TimesheetMode;
 }
 
+const barPalette = [
+    "#ff8645",
+    "#ffc078",
+    "#64d8cb",
+    "#70a1ff",
+    "#b087ff",
+    "#ff9bbd",
+    "#9dca83",
+    "#f7b267",
+    "#5fbcc2",
+    "#ffb5a1",
+];
+
+const modeLabelMap: Record<TimesheetMode, string> = {
+    today: "วันนี้",
+    week: "สัปดาห์นี้",
+    month: "เดือนนี้",
+    year: "ปีนี้",
+};
+
+/** การทำงาน: กรองข้อมูลตามโหมดเวลาที่เลือก */
 function filterDataByMode(data: any[], mode: TimesheetMode) {
     const now = dayjs();
 
@@ -91,6 +118,7 @@ function filterDataByMode(data: any[], mode: TimesheetMode) {
     });
 }
 
+/** การทำงาน: รวมชั่วโมงของแต่ละผู้ใช้งาน */
 function aggregateHoursByUser(data: any[]) {
     return data.reduce((acc, item) => {
         const user = getUserById(item.created_by);
@@ -103,25 +131,17 @@ function aggregateHoursByUser(data: any[]) {
     }, {} as Record<string, number>);
 }
 
-const barPalette = [
-    "#ff8645",
-    "#ffc078",
-    "#64d8cb",
-    "#70a1ff",
-    "#b087ff",
-    "#ff9bbd",
-    "#9dca83",
-    "#f7b267",
-    "#5fbcc2",
-    "#ffb5a1",
-];
+/** การทำงาน: ดึงสีจาก palette อย่างปลอดภัย */
+function getSafeColor(dataIndex: number): string {
+    const defaultColor = "#ff8645"; // สีเริ่มต้นหากไม่พบสี
 
-const modeLabelMap: Record<TimesheetMode, string> = {
-    today: "วันนี้",
-    week: "สัปดาห์นี้",
-    month: "เดือนนี้",
-    year: "ปีนี้",
-};
+    if (typeof dataIndex !== 'number' || dataIndex < 0) {
+        return defaultColor;
+    }
+
+    const colorIndex = dataIndex % barPalette.length;
+    return barPalette[colorIndex] || defaultColor;
+}
 
 export function GraphTimesheetModal({
                                         open,
@@ -161,9 +181,9 @@ export function GraphTimesheetModal({
                 {
                     label: `ชั่วโมงของแต่ละคน (${modeLabel})`,
                     data: hours,
-                    backgroundColor: (ctx: any) => {
+                    backgroundColor: (ctx: ChartContext) => {
                         const chart = ctx.chart;
-                        const color = barPalette[ctx.dataIndex % barPalette.length];
+                        const color = getSafeColor(ctx.dataIndex);
                         const {chartArea} = chart;
                         if (!chartArea) return color;
                         const gradient = chart.ctx.createLinearGradient(
@@ -177,8 +197,7 @@ export function GraphTimesheetModal({
                         gradient.addColorStop(1, color);
                         return gradient;
                     },
-                    borderColor: (ctx: any) =>
-                        barPalette[ctx.dataIndex % barPalette.length],
+                    borderColor: (ctx: ChartContext) => getSafeColor(ctx.dataIndex),
                     borderWidth: 1.5,
                     borderRadius: 12,
                     borderSkipped: false,
