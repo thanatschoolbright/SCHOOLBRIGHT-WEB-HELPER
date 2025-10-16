@@ -1,11 +1,10 @@
 /** @type {import('next').NextConfig} */
 
-import TerserPlugin from "terser-webpack-plugin";
-
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig = {
   reactStrictMode: true,
+
   images: {
     remotePatterns: [
       {
@@ -19,7 +18,7 @@ const nextConfig = {
   // async rewrites() {
   //   return [
   //     {
-  //       source: "/api/:path((?!auth).*)", // ส่งเส้นทางที่ไม่ใช่ /api/auth ไปยัง BACKEND_API_URL
+  //       source: "/api/:path((?!auth).*)",
   //       destination: `${process.env.BACKEND_API_URL}/:path*`,
   //     },
   //   ];
@@ -28,18 +27,27 @@ const nextConfig = {
   // Custom Webpack configuration
   webpack(config, { dev }) {
     if (!dev) {
-      config.optimization.minimizer.push(
-        new TerserPlugin({
-          terserOptions: {
-            compress: {
-              drop_console: true, // Drop console logs in production
-            },
-          },
-        })
-      );
+      try {
+        // Dynamic import - ใช้ได้เฉพาะตอน build
+        // ตอน production runtime จะใช้ built-in terser ของ Next.js
+        const TerserPlugin = require('terser-webpack-plugin');
+
+        config.optimization.minimizer.push(
+            new TerserPlugin({
+              terserOptions: {
+                compress: {
+                  drop_console: true, // Drop console logs in production
+                },
+              },
+            })
+        );
+      } catch (error) {
+        // ถ้าไม่มี terser-webpack-plugin ก็ skip ไป
+        // Next.js จะใช้ built-in terser แทน
+        console.log('Using Next.js built-in Terser optimization');
+      }
     }
 
-    // Additional performance optimizations can be added here
     return config;
   },
 };

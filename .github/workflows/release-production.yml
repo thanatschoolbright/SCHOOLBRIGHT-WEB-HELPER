@@ -308,7 +308,7 @@ jobs:
             # Check service status
             if sudo systemctl is-active --quiet sb-web-helper.service; then
               echo "✅ Service is running"
-            else
+            else  
               echo "❌ Service failed to start!"
               sudo journalctl -u sb-web-helper.service -n 20 --no-pager
               exit 1
