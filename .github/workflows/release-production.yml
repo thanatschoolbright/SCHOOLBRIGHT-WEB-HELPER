@@ -58,6 +58,12 @@ jobs:
           DURATION=$((END_TIME - ${{ steps.checkout.outputs.step_start }}))
           echo "⏱️ Checkout completed in: ${DURATION}s"
 
+      - name: "⚙️ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
       - name: "⚙️ Setup Bun"
         id: setup_bun
         run: |
@@ -78,20 +84,20 @@ jobs:
           export PATH="$HOME/.bun/bin:$PATH"
           bun --version
 
-      - name: "📦 Install Dependencies"
+      - name: "📦 Install Dependencies (NPM)"
         id: install
         run: |
-          echo "👉 Installing dependencies with Bun..."
+          echo "👉 Installing dependencies with npm ci..."
+          echo "⚠️ Using npm because bun install has git clone issues"
           STEP_START=$(date +%s)
           echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
-          export PATH="$HOME/.bun/bin:$PATH"
-          npm install
+          npm ci
 
       - name: ⏱️ Install Duration
         run: |
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - ${{ steps.install.outputs.step_start }}))
-          echo "⏱️ Dependencies installed in: ${DURATION}s"
+          echo "⏱️ Dependencies installed with npm in: ${DURATION}s"
 
       - name: "❇️ Push Prisma into Database"
         id: prisma_push
@@ -150,7 +156,7 @@ jobs:
             generated/prisma \
             generated/prisma-timesheet \
             package.json \
-            bun.lockb \
+            package-lock.json \
             next.config.mjs
 
       - name: ⏱️ Archive Duration
@@ -236,7 +242,7 @@ jobs:
           DURATION=$((END_TIME - ${{ steps.scp.outputs.step_start }}))
           echo "⏱️ SCP completed in: ${DURATION}s"
 
-      - name: "🗜️ Unzip & Install on Server with Bun"
+      - name: "🗜️ Unzip & Install on Server"
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.HUAWEI_CLOUD_HOST }}
@@ -244,10 +250,17 @@ jobs:
           password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
           port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
           script: |
-            echo "👉 Extracting and installing with Bun..."
+            set -e  # Exit on error
+            echo "👉 Extracting and installing..."
             DEPLOY_START=$(date +%s)
             
             cd /var/www/sb-web-helper
+            
+            # Backup .env file
+            if [ -f .env ]; then
+              cp .env .env.backup
+              echo "✅ Backed up .env"
+            fi
             
             # Unzip
             UNZIP_START=$(date +%s)
@@ -255,24 +268,57 @@ jobs:
             UNZIP_END=$(date +%s)
             echo "⏱️ Unzip took: $((UNZIP_END - UNZIP_START))s"
             
-            # Install with Bun
+            # Restore .env
+            if [ -f .env.backup ]; then
+              mv .env.backup .env
+              echo "✅ Restored .env"
+            fi
+            
+            # Install dependencies with npm
             INSTALL_START=$(date +%s)
-            export PATH="$HOME/.bun/bin:$PATH"
-            bun install --production
+            echo "👉 Installing dependencies..."
+            
+            # Use npm ci for production (faster and more reliable)
+            if [ -f package-lock.json ]; then
+              npm ci --production --legacy-peer-deps
+            else
+              npm install --production --legacy-peer-deps
+            fi
+            
             INSTALL_END=$(date +%s)
-            echo "⏱️ Bun install took: $((INSTALL_END - INSTALL_START))s"
+            echo "⏱️ npm install took: $((INSTALL_END - INSTALL_START))s"
+            
+            # Verify node_modules exists
+            if [ ! -d "node_modules" ] || [ ! -f "node_modules/next/dist/bin/next" ]; then
+              echo "❌ ERROR: node_modules/next not found!"
+              exit 1
+            fi
+            echo "✅ Dependencies installed successfully"
             
             # Restart service
             RESTART_START=$(date +%s)
+            echo "👉 Restarting service..."
             sudo systemctl restart sb-web-helper.service
             RESTART_END=$(date +%s)
             echo "⏱️ Service restart took: $((RESTART_END - RESTART_START))s"
+            
+            # Wait for service to start
+            sleep 3
+            
+            # Check service status
+            if sudo systemctl is-active --quiet sb-web-helper.service; then
+              echo "✅ Service is running"
+            else
+              echo "❌ Service failed to start!"
+              sudo journalctl -u sb-web-helper.service -n 20 --no-pager
+              exit 1
+            fi
             
             DEPLOY_END=$(date +%s)
             echo "========================================"
             echo "⏱️ TOTAL DEPLOY TIME: $((DEPLOY_END - DEPLOY_START))s"
             echo "========================================"
-            echo "✅ Deployment completed!"
+            echo "✅ Deployment completed successfully!"
 
       - name: "✅ Total Deploy Job Duration"
         run: |
