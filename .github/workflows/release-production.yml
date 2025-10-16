@@ -85,7 +85,7 @@ jobs:
           STEP_START=$(date +%s)
           echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
           export PATH="$HOME/.bun/bin:$PATH"
-          bun install
+          npm install
 
       - name: ⏱️ Install Duration
         run: |
