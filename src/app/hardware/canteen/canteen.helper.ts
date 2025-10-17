@@ -1,5 +1,5 @@
 import type { UploadFile } from "antd/es/upload/interface";
-import type { VersionFormValues } from "../types/canteen.type";
+import type { VersionFormValues } from "../../../types/canteen.type";
 
 //** สร้าง FormData สำหรับส่งข้อมูลเวอร์ชันไปยัง API
 export const buildFormData = (values: VersionFormValues): FormData => {

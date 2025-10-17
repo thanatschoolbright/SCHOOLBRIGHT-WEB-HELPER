@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import {
@@ -44,13 +50,13 @@ import {
   GET_APPLICATION_VERSION_BY_APPID,
   POST_CREATE_APPLICATION_VERSION,
   POST_UPDATE_APPLICATION_VERSION,
-} from "@helpers/canteen-api.helper";
+} from "@/app/hardware/canteen/canteen-api.helper";
 import {
   buildFormData,
   buildSchoolOptions,
   copyToClipboard,
   validatePassword,
-} from "@helpers/canteen.helper";
+} from "@/app/hardware/canteen/canteen.helper";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import type {
   ApplicationRecord,
@@ -59,7 +65,7 @@ import type {
   VersionDataset,
   VersionFormValues,
   VersionRecord,
-} from "../../../types/canteen.type";
+} from "@/types/canteen.type";
 
 const PASSWORD = "SB_ADMIN";
 const PAGE_SIZE = 10;
@@ -151,17 +157,20 @@ export default function Page() {
   const schoolState = useAppSelector((state) => state.callSchoolList);
 
   //** สถานะสำหรับจัดการข้อมูลแอปพลิเคชัน
-  const [applicationList, setApplicationList] = useState<ApplicationRecord[]>([]);
+  const [applicationList, setApplicationList] = useState<ApplicationRecord[]>(
+    []
+  );
   const [applicationLoading, setApplicationLoading] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState<ApplicationRecord | null>(null);
-  
+  const [selectedApplication, setSelectedApplication] =
+    useState<ApplicationRecord | null>(null);
+
   //** สถานะสำหรับจัดการข้อมูลเวอร์ชัน
   const [versionDataset, setVersionDataset] = useState<VersionDataset>({
     data: [],
     loading: false,
     curl: "",
   });
-  
+
   //** สถานะสำหรับจัดการ UI
   const [versionModalVisible, setVersionModalVisible] = useState(false);
   const [versionFormVisible, setVersionFormVisible] = useState(false);
@@ -201,14 +210,16 @@ export default function Page() {
   const loadApplicationList = async () => {
     const toastId = toast.loading("กำลังโหลดรายการแอปพลิเคชัน...");
     setApplicationLoading(true);
-    
+
     try {
       const response = await GET_APPLICATION_LIST();
       const applications = response?.data?.data ?? [];
       setApplicationList(applications);
       toast.success("โหลดรายการแอปพลิเคชันสำเร็จ", { id: toastId });
     } catch (error: any) {
-      toast.error(error?.message ?? "ไม่สามารถโหลดรายการแอปพลิเคชันได้", { id: toastId });
+      toast.error(error?.message ?? "ไม่สามารถโหลดรายการแอปพลิเคชันได้", {
+        id: toastId,
+      });
     } finally {
       setApplicationLoading(false);
     }
@@ -218,7 +229,7 @@ export default function Page() {
   const loadVersionList = async (appId: string | number) => {
     const toastId = toast.loading("กำลังโหลดเวอร์ชันแอป...");
     setVersionDataset((prev) => ({ ...prev, loading: true }));
-    
+
     try {
       const response = await GET_APPLICATION_VERSION_BY_APPID(appId);
       const versions = response?.data?.data ?? [];
@@ -230,7 +241,9 @@ export default function Page() {
       toast.success("โหลดเวอร์ชันสำเร็จ", { id: toastId });
     } catch (error: any) {
       setVersionDataset((prev) => ({ ...prev, loading: false }));
-      toast.error(error?.message ?? "ไม่สามารถโหลดเวอร์ชันได้", { id: toastId });
+      toast.error(error?.message ?? "ไม่สามารถโหลดเวอร์ชันได้", {
+        id: toastId,
+      });
     }
   };
 
@@ -261,9 +274,9 @@ export default function Page() {
         dataIndex: "app_type",
         width: 200,
         sorter: (a, b) => String(a.app_type).localeCompare(String(b.app_type)),
-        filters: Array.from(new Set(applicationList.map((item) => item.app_type))).map(
-          (type) => ({ text: String(type), value: type })
-        ),
+        filters: Array.from(
+          new Set(applicationList.map((item) => item.app_type))
+        ).map((type) => ({ text: String(type), value: type })),
         onFilter: (value, record) => record.app_type === value,
         render: (value: string) => <Tag color="blue">{value}</Tag>,
         ...getColumnSearchProps("app_type", "แพลตฟอร์ม"),
@@ -298,7 +311,7 @@ export default function Page() {
   //** ตรวจสอบรหัสผ่าน
   const handlePasswordSubmit = () => {
     if (validatePassword(password, PASSWORD)) {
-      setPasswordVisible(false);  
+      setPasswordVisible(false);
       toast.success("เข้าสู่ระบบสำเร็จ");
     } else {
       setPasswordError("รหัสผ่านไม่ถูกต้อง");
@@ -311,7 +324,7 @@ export default function Page() {
       toast.info("ไม่พบคำสั่ง CURL");
       return;
     }
-    
+
     const success = await copyToClipboard(versionDataset.curl);
     if (success) {
       toast.success("คัดลอก CURL แล้ว");
@@ -352,7 +365,9 @@ export default function Page() {
       const values = await versionForm.validateFields();
       const formData = buildFormData(values);
       const toastId = toast.loading(
-        versionFormMode === "add" ? "กำลังสร้างเวอร์ชัน..." : "กำลังอัปเดตเวอร์ชัน..."
+        versionFormMode === "add"
+          ? "กำลังสร้างเวอร์ชัน..."
+          : "กำลังอัปเดตเวอร์ชัน..."
       );
 
       const response = await (versionFormMode === "add"
@@ -365,34 +380,42 @@ export default function Page() {
       });
 
       setVersionFormVisible(false);
-      
+
       // รีเฟรชข้อมูลเวอร์ชัน
       if (selectedApplication) {
         await loadVersionList(selectedApplication.app_id);
       }
     } catch (error: any) {
-      toast.error(error?.response?.data?.message ?? "ไม่สามารถบันทึกเวอร์ชันได้", {
-        description: "กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง",
-      });
+      toast.error(
+        error?.response?.data?.message ?? "ไม่สามารถบันทึกเวอร์ชันได้",
+        {
+          description: "กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง",
+        }
+      );
     }
   };
 
   //** ลบเวอร์ชันแอปพลิเคชัน
   const handleDeleteVersion = async (version: VersionRecord) => {
     const toastId = toast.loading("กำลังลบเวอร์ชัน...");
-    
+
     try {
       const response = await DELETE_APPLICATION_VERSION(version.version_id);
-      toast.success(response?.data?.message ?? "ลบเวอร์ชันสำเร็จ", { id: toastId });
-      
+      toast.success(response?.data?.message ?? "ลบเวอร์ชันสำเร็จ", {
+        id: toastId,
+      });
+
       // รีเฟรชข้อมูลเวอร์ชัน
       if (selectedApplication) {
         await loadVersionList(selectedApplication.app_id);
       }
     } catch (error: any) {
-      toast.error(error?.response?.data?.message ?? "เกิดข้อผิดพลาดระหว่างลบเวอร์ชัน", {
-        id: toastId,
-      });
+      toast.error(
+        error?.response?.data?.message ?? "เกิดข้อผิดพลาดระหว่างลบเวอร์ชัน",
+        {
+          id: toastId,
+        }
+      );
     }
   };
 
@@ -562,9 +585,7 @@ export default function Page() {
         width={1080}
         footer={
           <Space>
-            <Button onClick={handleCopyCurl}>
-              คัดลอก CURL
-            </Button>
+            <Button onClick={handleCopyCurl}>คัดลอก CURL</Button>
             <Button type="primary" onClick={() => openVersionForm("add")}>
               เพิ่มเวอร์ชัน
             </Button>
