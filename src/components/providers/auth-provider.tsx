@@ -38,9 +38,9 @@ export default function AuthenticationReduxProvider({
         // console.log("[AUTH PROVIDER] setResponse:", response);
         dispatch(setResponse(response));
 
-        // ✅ หาก login แล้ว และอยู่หน้า /auth/signin ให้เด้งไป /backend
+        // ✅ หาก login แล้ว และอยู่หน้า /auth/signin ให้เด้งไป /main
         if (pathname === "/auth/signin") {
-          router.replace("/backend");
+          router.replace("/main");
         }
         setLoading(false);
       } catch {

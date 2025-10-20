@@ -44,14 +44,15 @@ export default function RootLayout({
         <AntThemeProvider>
             <AntdApp>
                 <ClientProvider>
-                    <LocaleProvider locale="en"/>
-                    <AuthenticationReduxProvider>
-                        <SchoolReduxProvider>
-                            <StorageProvider>
-                                <ChartProvider>{children}</ChartProvider>
-                            </StorageProvider>
-                        </SchoolReduxProvider>
-                    </AuthenticationReduxProvider>
+                    <LocaleProvider locale="th">
+                        <AuthenticationReduxProvider>
+                            <SchoolReduxProvider>
+                                <StorageProvider>
+                                    <ChartProvider>{children}</ChartProvider>
+                                </StorageProvider>
+                            </SchoolReduxProvider>
+                        </AuthenticationReduxProvider>
+                    </LocaleProvider>
                 </ClientProvider>
             </AntdApp>
         </AntThemeProvider>
