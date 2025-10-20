@@ -100,10 +100,17 @@ const IssuesTable: React.FC<IssuesTableProps> = ({listCardStyle, onReload, space
         const toastId = toast.loading("กำลังอัปเดตคำอธิบายด้วย AI...");
         try {
             toast.message("กำลังส่งคำอธิบายใหม่ไปยัง Backlog", {id: toastId});
+            
+            // ตรวจสอบว่า summary มีคำว่า AI หรือ [AI 🤖] อยู่แล้วหรือไม่
+            const currentSummary = aiModal.issue.summary;
+            const hasAiPrefix = currentSummary.includes("AI") || currentSummary.includes("🤖");
+            const finalSummary = hasAiPrefix ? currentSummary : "[AI 🤖] " + currentSummary;
+            
             await axios.post("/api/v1/backlog/issues/update", {
                 space,
                 issueKeyOrId: aiModal.issue.issueKey || aiModal.issue.id,
                 description: aiModal.newText,
+                summary: finalSummary,
             });
             toast.success("อัปเดต Issue สำเร็จ", {id: toastId});
             setAiModal({open: false, issue: null, generating: false, newText: ""});
