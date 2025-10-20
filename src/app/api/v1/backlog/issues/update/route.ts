@@ -15,13 +15,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { space, issueKeyOrId, description } = body as {
+    const { space, issueKeyOrId, description , summary } = body as {
       space?: string;
       issueKeyOrId?: string | number;
       description?: string;
+      summary?: string;
     };
 
-    if (!space || !issueKeyOrId || typeof description !== "string") {
+    if (!space || !issueKeyOrId || typeof description !== "string" || typeof summary !== "string") {
       return NextResponse.json(
         errorResponse({ status: 400, message_en: "Missing space/issueKeyOrId/description", message_th: "กรุณาระบุ space, issueKeyOrId และ description" }),
         { status: 400 }
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
     // Build form params (Backlog expects x-www-form-urlencoded) and apiKey via query
     const form = new URLSearchParams();
     form.set("description", description);
+    form.set("summary", summary);
 
     let lastError: any;
     for (const domain of DOMAINS) {
