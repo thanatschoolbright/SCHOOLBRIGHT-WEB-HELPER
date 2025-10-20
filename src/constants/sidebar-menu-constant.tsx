@@ -187,6 +187,17 @@ export const useSidebarMenu = (): SidebarItem[] => {
                     },
                 ],
             },
+            {
+                label: t("logger.title"),
+                icon: <FileTextOutlined/>,
+                children: [
+                    {
+                        label: t("logger.children.api_logs"),
+                        href: "/logger/api-log",
+                    },
+                    
+                ],
+            }
         ];
         },
         [t, i18n.isInitialized, i18n.language]

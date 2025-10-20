@@ -28,9 +28,9 @@ import callVersionControlReducer from "@stores/reducers/health-check/version-con
 import callQRCodeHealthCheckReducer from "@stores/reducers/mobile/qrcode-health-check/reducer";
 import loginReucerV2 from "@stores/reducers/authentication/sign-in/reducer";
 import heartbeatReducer from "@stores/reducers/health-check/heartbeats/reducer";
-import issuesReducer from "@stores/reducers/issues-slice";
 import timesheetReducer from "@stores/reducers/timesheet/timesheet-reducer";
 import timesheetAllReducer from "@stores/reducers/timesheet.reducer";
+import apiLogReducer from "@stores/api-log.reducer";
 
 export const store = configureStore({
     reducer: {
@@ -61,9 +61,9 @@ export const store = configureStore({
         callQRCodeHealthCheckReducer,
         loginReucerV2,
         heartbeatReducer,
-        issues: issuesReducer,
         timesheet: timesheetReducer,
         timesheetAll: timesheetAllReducer,
+        apiLog: apiLogReducer,
     },
     devTools: process.env.NODE_ENV !== "production",
 });

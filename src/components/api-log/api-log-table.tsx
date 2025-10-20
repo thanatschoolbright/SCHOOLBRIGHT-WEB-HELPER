@@ -1,0 +1,258 @@
+import { Table, Tag, Button, Space, Tooltip, Typography, Popconfirm } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined, InboxOutlined } from '@ant-design/icons';
+import { ApiLogItem, ApiLogPagination, ApiLogFilters } from '@/types/api-log.type';
+import { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+
+const { Text } = Typography;
+
+interface ApiLogTableProps {
+  data: ApiLogItem[];
+  loading: boolean;
+  pagination: ApiLogPagination;
+  filters: ApiLogFilters;
+  onView: (record: ApiLogItem) => void;
+  onEdit: (record: ApiLogItem) => void;
+  onDelete: (id: string) => void;
+  onArchive: (id: string, isArchived: boolean) => void;
+  onTableChange: (pagination: any, filters: any, sorter: any) => void;
+}
+
+//** คอมโพเนนต์ตารางสำหรับแสดง API Logs */
+const ApiLogTable = ({
+  data,
+  loading,
+  pagination,
+  filters,
+  onView,
+  onEdit,
+  onDelete,
+  onArchive,
+  onTableChange,
+}: ApiLogTableProps) => {
+
+  //** สร้าง Status Tag */
+  const renderStatusTag = (statusCode?: number, isSuccess?: boolean) => {
+    if (!statusCode) return <Tag>Unknown</Tag>;
+    
+    let color = 'default';
+    if (statusCode >= 200 && statusCode < 300) color = 'success';
+    else if (statusCode >= 300 && statusCode < 400) color = 'warning';
+    else if (statusCode >= 400 && statusCode < 500) color = 'orange';
+    else if (statusCode >= 500) color = 'error';
+
+    return (
+      <Tag color={color}>
+        {statusCode} {isSuccess ? '✓' : '✗'}
+      </Tag>
+    );
+  };
+
+  //** สร้าง Method Tag */
+  const renderMethodTag = (method?: string) => {
+    if (!method) return <Tag>Unknown</Tag>;
+    
+    const colors: Record<string, string> = {
+      GET: 'blue',
+      POST: 'green',
+      PUT: 'orange',
+      PATCH: 'purple',
+      DELETE: 'red',
+    };
+
+    return <Tag color={colors[method] || 'default'}>{method}</Tag>;
+  };
+
+  //** คอลัมน์ของตาราง */
+  const columns: ColumnsType<ApiLogItem> = [
+    {
+      title: 'Time',
+      dataIndex: 'requestTime',
+      key: 'requestTime',
+      width: 180,
+      sorter: true,
+      sortOrder: filters.sortBy === 'request_time' ? (filters.sortOrder === 'asc' ? 'ascend' : 'descend') : undefined,
+      render: (time: string) => (
+        <Tooltip title={dayjs(time).format('YYYY-MM-DD HH:mm:ss')}>
+          <Text style={{ fontSize: '12px' }}>
+            {dayjs(time).format('MM-DD HH:mm')}
+          </Text>
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'Method',
+      dataIndex: 'method',
+      key: 'method',
+      width: 80,
+      filters: [
+        { text: 'GET', value: 'GET' },
+        { text: 'POST', value: 'POST' },
+        { text: 'PUT', value: 'PUT' },
+        { text: 'PATCH', value: 'PATCH' },
+        { text: 'DELETE', value: 'DELETE' },
+      ],
+      render: renderMethodTag,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'statusCode',
+      key: 'statusCode',
+      width: 100,
+      sorter: true,
+      sortOrder: filters.sortBy === 'status_code' ? (filters.sortOrder === 'asc' ? 'ascend' : 'descend') : undefined,
+      render: (statusCode: number, record: ApiLogItem) => renderStatusTag(statusCode, record.isSuccess),
+    },
+    {
+      title: 'Service',
+      dataIndex: 'serviceName',
+      key: 'serviceName',
+      width: 120,
+      filters: [
+        { text: 'timesheet', value: 'timesheet' },
+        { text: 'auth', value: 'auth' },
+        { text: 'user', value: 'user' },
+        { text: 'logger', value: 'logger' },
+        { text: 'example', value: 'example' },
+      ],
+      render: (serviceName?: string) => (
+        <Tag color="cyan">{serviceName || 'Unknown'}</Tag>
+      ),
+    },
+    {
+      title: 'Endpoint',
+      dataIndex: 'endpoint',
+      key: 'endpoint',
+      width: 200,
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (endpoint?: string) => (
+        <Tooltip title={endpoint}>
+          <Text code style={{ fontSize: '12px' }}>
+            {endpoint || '-'}
+          </Text>
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'Duration',
+      dataIndex: 'durationMs',
+      key: 'durationMs',
+      width: 100,
+      sorter: true,
+      sortOrder: filters.sortBy === 'duration_ms' ? (filters.sortOrder === 'asc' ? 'ascend' : 'descend') : undefined,
+      render: (duration?: number) => {
+        if (!duration) return '-';
+        
+        let color = 'default';
+        if (duration < 100) color = 'success';
+        else if (duration < 500) color = 'warning';
+        else color = 'error';
+
+        return <Tag color={color}>{duration}ms</Tag>;
+      },
+    },
+    {
+      title: 'Called By',
+      dataIndex: 'calledBy',
+      key: 'calledBy',
+      width: 120,
+      render: (calledBy?: string) => (
+        <Text style={{ fontSize: '12px' }}>{calledBy || '-'}</Text>
+      ),
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      width: 100,
+      filters: [
+        { text: 'Active', value: false },
+        { text: 'Archived', value: true },
+      ],
+      render: (_, record: ApiLogItem) => (
+        <Tag color={record.isArchived ? 'orange' : 'green'}>
+          {record.isArchived ? 'Archived' : 'Active'}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 200,
+      fixed: 'right',
+      render: (_, record: ApiLogItem) => (
+        <Space size="small">
+          <Tooltip title="ดูรายละเอียด">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={() => onView(record)}
+              size="small"
+            />
+          </Tooltip>
+
+          <Tooltip title="แก้ไข">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => onEdit(record)}
+              size="small"
+            />
+          </Tooltip>
+
+          <Tooltip title={record.isArchived ? 'Unarchive' : 'Archive'}>
+            <Button
+              type="text"
+              icon={<InboxOutlined />}
+              onClick={() => onArchive(record.id, !record.isArchived)}
+              size="small"
+              style={{ color: record.isArchived ? '#52c41a' : '#fa8c16' }}
+            />
+          </Tooltip>
+
+          <Popconfirm
+            title="ยืนยันการลบ"
+            description="คุณต้องการลบ API Log นี้ใช่หรือไม่?"
+            onConfirm={() => onDelete(record.id)}
+            okText="ลบ"
+            cancelText="ยกเลิก"
+            okType="danger"
+          >
+            <Tooltip title="ลบ">
+              <Button
+                type="text"
+                icon={<DeleteOutlined />}
+                size="small"
+                danger
+              />
+            </Tooltip>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <Table
+      columns={columns}
+      dataSource={data}
+      loading={loading}
+      rowKey="id"
+      scroll={{ x: 1200 }}
+      size="small"
+      pagination={{
+        current: pagination.page,
+        pageSize: pagination.limit,
+        total: pagination.total,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+        pageSizeOptions: ['10', '20', '50', '100'],
+      }}
+      onChange={onTableChange}
+    />
+  );
+};
+
+export default ApiLogTable;
