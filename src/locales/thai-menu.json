@@ -67,5 +67,11 @@
     "children": {
       "report": "รายงาน"
     }
+  },
+  "logger" : {
+    "title": "ระบบบันทึก API",
+    "children": {
+      "api_logs": "ดูบันทึก API"
+    }
   }
 }

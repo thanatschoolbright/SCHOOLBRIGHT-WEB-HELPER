@@ -104,7 +104,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({listCardStyle, onReload, space
             // ตรวจสอบว่า summary มีคำว่า AI หรือ [AI 🤖] อยู่แล้วหรือไม่
             const currentSummary = aiModal.issue.summary;
             const hasAiPrefix = currentSummary.includes("AI") || currentSummary.includes("🤖");
-            const finalSummary = hasAiPrefix ? currentSummary : "[AI 🤖] " + currentSummary;
+            const finalSummary = hasAiPrefix ? currentSummary : currentSummary + " " + "[AI 🤖] ";
             
             await axios.post("/api/v1/backlog/issues/update", {
                 space,

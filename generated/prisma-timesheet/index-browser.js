@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.15.0
- * Query Engine version: 85179d7826409ee107a6ba334b5e305ae3fba9fb
+ * Prisma Client JS version: 6.17.1
+ * Query Engine version: 272a37d34178c2894197e17273bf937f25acdeac
  */
 Prisma.prismaVersion = {
-  client: "6.15.0",
-  engine: "85179d7826409ee107a6ba334b5e305ae3fba9fb"
+  client: "6.17.1",
+  engine: "272a37d34178c2894197e17273bf937f25acdeac"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -161,6 +161,29 @@ exports.Prisma.TimesheetEntryScalarFieldEnum = {
   is_deleted: 'is_deleted'
 };
 
+exports.Prisma.ApiLogScalarFieldEnum = {
+  id: 'id',
+  request_time: 'request_time',
+  response_time: 'response_time',
+  duration_ms: 'duration_ms',
+  method: 'method',
+  status_code: 'status_code',
+  url: 'url',
+  endpoint: 'endpoint',
+  service_name: 'service_name',
+  request_header: 'request_header',
+  request_body: 'request_body',
+  response_body: 'response_body',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent',
+  called_by: 'called_by',
+  trace_id: 'trace_id',
+  error_message: 'error_message',
+  is_success: 'is_success',
+  created_at: 'created_at',
+  is_archived: 'is_archived'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -191,7 +214,8 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.ModelName = {
   Project: 'Project',
   Feature: 'Feature',
-  TimesheetEntry: 'TimesheetEntry'
+  TimesheetEntry: 'TimesheetEntry',
+  ApiLog: 'ApiLog'
 };
 
 /**

@@ -5,13 +5,28 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 
 const {
+  PrismaClientKnownRequestError,
+  PrismaClientUnknownRequestError,
+  PrismaClientRustPanicError,
+  PrismaClientInitializationError,
+  PrismaClientValidationError,
+  getPrismaClient,
+  sqltag,
+  empty,
+  join,
+  raw,
+  skip,
   Decimal,
+  Debug,
   objectEnumValues,
   makeStrictEnum,
+  Extensions,
+  warnOnce,
+  defineDmmfProperty,
   Public,
   getRuntime,
-  skip
-} = require('./runtime/index-browser.js')
+  createParam,
+} = require('./runtime/wasm-engine-edge.js')
 
 
 const Prisma = {}
@@ -20,79 +35,35 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.15.0
- * Query Engine version: 85179d7826409ee107a6ba334b5e305ae3fba9fb
+ * Prisma Client JS version: 6.17.1
+ * Query Engine version: 272a37d34178c2894197e17273bf937f25acdeac
  */
 Prisma.prismaVersion = {
-  client: "6.15.0",
-  engine: "85179d7826409ee107a6ba334b5e305ae3fba9fb"
+  client: "6.17.1",
+  engine: "272a37d34178c2894197e17273bf937f25acdeac"
 }
 
-Prisma.PrismaClientKnownRequestError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientKnownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)};
-Prisma.PrismaClientUnknownRequestError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientUnknownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.PrismaClientRustPanicError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientRustPanicError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.PrismaClientInitializationError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientInitializationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.PrismaClientValidationError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`PrismaClientValidationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
+Prisma.PrismaClientUnknownRequestError = PrismaClientUnknownRequestError
+Prisma.PrismaClientRustPanicError = PrismaClientRustPanicError
+Prisma.PrismaClientInitializationError = PrismaClientInitializationError
+Prisma.PrismaClientValidationError = PrismaClientValidationError
 Prisma.Decimal = Decimal
 
 /**
  * Re-export of sql-template-tag
  */
-Prisma.sql = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`sqltag is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.empty = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`empty is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.join = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`join is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.raw = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`raw is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+Prisma.sql = sqltag
+Prisma.empty = empty
+Prisma.join = join
+Prisma.raw = raw
 Prisma.validator = Public.validator
 
 /**
 * Extensions
 */
-Prisma.getExtensionContext = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`Extensions.getExtensionContext is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.defineExtension = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`Extensions.defineExtension is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+Prisma.getExtensionContext = Extensions.getExtensionContext
+Prisma.defineExtension = Extensions.defineExtension
 
 /**
  * Shorthand utilities for JSON filtering
@@ -109,10 +80,11 @@ Prisma.NullTypes = {
 
 
 
+
+
 /**
  * Enums
  */
-
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   ReadUncommitted: 'ReadUncommitted',
   ReadCommitted: 'ReadCommitted',
@@ -161,6 +133,29 @@ exports.Prisma.TimesheetEntryScalarFieldEnum = {
   is_deleted: 'is_deleted'
 };
 
+exports.Prisma.ApiLogScalarFieldEnum = {
+  id: 'id',
+  request_time: 'request_time',
+  response_time: 'response_time',
+  duration_ms: 'duration_ms',
+  method: 'method',
+  status_code: 'status_code',
+  url: 'url',
+  endpoint: 'endpoint',
+  service_name: 'service_name',
+  request_header: 'request_header',
+  request_body: 'request_body',
+  response_body: 'response_body',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent',
+  called_by: 'called_by',
+  trace_id: 'trace_id',
+  error_message: 'error_message',
+  is_success: 'is_success',
+  created_at: 'created_at',
+  is_archived: 'is_archived'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -191,36 +186,90 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.ModelName = {
   Project: 'Project',
   Feature: 'Feature',
-  TimesheetEntry: 'TimesheetEntry'
+  TimesheetEntry: 'TimesheetEntry',
+  ApiLog: 'ApiLog'
 };
-
 /**
- * This is a stub Prisma Client that will error at runtime if called.
+ * Create the Client
  */
-class PrismaClient {
-  constructor() {
-    return new Proxy(this, {
-      get(target, prop) {
-        let message
-        const runtime = getRuntime()
-        if (runtime.isEdge) {
-          message = `PrismaClient is not configured to run in ${runtime.prettyName}. In order to run Prisma Client on edge runtime, either:
-- Use Prisma Accelerate: https://pris.ly/d/accelerate
-- Use Driver Adapters: https://pris.ly/d/driver-adapters
-`;
-        } else {
-          message = 'PrismaClient is unable to run in this browser environment, or has been bundled for the browser (running in `' + runtime.prettyName + '`).'
-        }
-
-        message += `
-If this is unexpected, please open an issue: https://pris.ly/prisma-prisma-bug-report`
-
-        throw new Error(message)
+const config = {
+  "generator": {
+    "name": "timesheet_client",
+    "provider": {
+      "fromEnvVar": null,
+      "value": "prisma-client-js"
+    },
+    "output": {
+      "value": "/Users/light/Desktop/WORK/SchoolBright/Github/sb-web-helper/generated/prisma-timesheet",
+      "fromEnvVar": null
+    },
+    "config": {
+      "engineType": "library"
+    },
+    "binaryTargets": [
+      {
+        "fromEnvVar": null,
+        "value": "darwin-arm64",
+        "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "debian-openssl-3.0.x"
       }
-    })
+    ],
+    "previewFeatures": [],
+    "sourceFilePath": "/Users/light/Desktop/WORK/SchoolBright/Github/sb-web-helper/prisma/timesheet/schema.prisma",
+    "isCustomOutput": true
+  },
+  "relativeEnvPaths": {
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../.env"
+  },
+  "relativePath": "../../prisma/timesheet",
+  "clientVersion": "6.17.1",
+  "engineVersion": "272a37d34178c2894197e17273bf937f25acdeac",
+  "datasourceNames": [
+    "timesheet"
+  ],
+  "activeProvider": "postgresql",
+  "postinstall": false,
+  "inlineDatasources": {
+    "timesheet": {
+      "url": {
+        "fromEnvVar": "DATABASE_TIMESHEET_URL",
+        "value": null
+      }
+    }
+  },
+  "inlineSchema": "generator timesheet_client {\n  provider      = \"prisma-client-js\"\n  output        = \"../../generated/prisma-timesheet\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n}\n\ndatasource timesheet {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_TIMESHEET_URL\")\n}\n\nmodel Project {\n  id           Int              @id @default(autoincrement()) @map(\"id\")\n  categoryType String?          @map(\"category_type\")\n  name         String           @map(\"name\")\n  createdAt    DateTime         @default(now()) @map(\"created_at\")\n  createdBy    Int?             @map(\"created_by\")\n  updatedAt    DateTime         @updatedAt @map(\"updated_at\")\n  updatedBy    Int?             @map(\"updated_by\")\n  description  String\n  is_deleted   Boolean          @default(false)\n  features     Feature[]\n  timesheets   TimesheetEntry[]\n\n  @@map(\"project\")\n}\n\nmodel Feature {\n  id                 Int              @id @default(autoincrement()) @map(\"id\")\n  projectId          Int              @map(\"project_id\")\n  name               String           @map(\"name\")\n  backlogDescription Json?            @map(\"backlog_description\")\n  createdAt          DateTime         @default(now()) @map(\"created_at\")\n  createdBy          Int?             @map(\"created_by\")\n  updatedAt          DateTime         @updatedAt @map(\"updated_at\")\n  updatedBy          Int?             @map(\"updated_by\")\n  is_deleted         Boolean          @default(false)\n  startDate          DateTime?        @map(\"start_date\")\n  endDate            DateTime?        @map(\"end_date\")\n  project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)\n  timesheets         TimesheetEntry[]\n\n  @@map(\"feature\")\n}\n\nmodel TimesheetEntry {\n  id          Int      @id @default(autoincrement()) @map(\"id\")\n  projectId   Int      @map(\"project_id\")\n  featureId   Int      @map(\"feature_id\")\n  date        DateTime @map(\"date\")\n  hours       Decimal  @map(\"hours\")\n  description String?  @map(\"description\")\n  status      String   @default(\"DRAFT\") @map(\"status\")\n  createdAt   DateTime @default(now()) @map(\"created_at\")\n  createdBy   Int?     @map(\"created_by\")\n  updatedAt   DateTime @updatedAt @map(\"updated_at\")\n  updatedBy   Int?     @map(\"updated_by\")\n  is_deleted  Boolean  @default(false)\n  feature     Feature  @relation(fields: [featureId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  project     Project  @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  @@map(\"timesheet_entry\")\n}\n\n/// API Log Table\n/// ใช้สำหรับบันทึกข้อมูลการเรียกใช้งาน API พร้อมข้อมูลวิเคราะห์ประสิทธิภาพ\nmodel ApiLog {\n  id             BigInt    @id @default(autoincrement()) @map(\"id\") // รหัส Log (Primary Key)\n  request_time   DateTime  @map(\"request_time\") // เวลาที่เรียก API\n  response_time  DateTime? @map(\"response_time\") // เวลาที่ตอบกลับ\n  duration_ms    Int?      @map(\"duration_ms\") // เวลาประมวลผล (ms)\n  method         String?   @map(\"method\") // HTTP Method เช่น GET, POST, PUT, DELETE\n  status_code    Int?      @map(\"status_code\") // HTTP Status เช่น 200, 400, 500\n  url            String?   @map(\"url\") // URL เต็ม\n  endpoint       String?   @map(\"endpoint\") // Endpoint ที่ตัดพารามิเตอร์ออก เช่น /api/timesheet/submit\n  service_name   String?   @map(\"service_name\") // ชื่อ service เช่น timesheet, user, auth\n  request_header Json?     @map(\"request_header\") // Header ที่รับเข้า\n  request_body   Json?     @map(\"request_body\") // Body ของคำร้อง\n  response_body  Json?     @map(\"response_body\") // Response ที่ส่งออก\n  ip_address     String?   @map(\"ip_address\") // IP ของผู้เรียก\n  user_agent     String?   @map(\"user_agent\") // User Agent ของ client\n  called_by      String?   @map(\"called_by\") // ระบบ / ผู้ใช้ / Token ID ที่เรียก\n  trace_id       String?   @map(\"trace_id\") // รหัส trace สำหรับ distributed tracing\n  error_message  String?   @map(\"error_message\") // ข้อความ Error (ถ้ามี)\n  is_success     Boolean   @default(true) @map(\"is_success\") // สำเร็จหรือไม่\n  created_at     DateTime  @default(now()) @map(\"created_at\") // วันที่สร้าง log\n  is_archived    Boolean   @default(false) @map(\"is_archived\") // ใช้แยก log ที่ถูกย้ายไป archive\n\n  @@index([endpoint])\n  @@index([service_name])\n  @@index([status_code])\n  @@index([request_time])\n  @@index([trace_id])\n  @@index([called_by])\n  @@map(\"api_log\")\n}\n",
+  "inlineSchemaHash": "1ebf63522916af1ce61086d8520f6f76fea500bdbf1069c412ae33f065b8f382",
+  "copyEngine": true
+}
+config.dirname = '/'
+
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Project\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"id\"},{\"name\":\"categoryType\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"category_type\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"name\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"createdBy\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"created_by\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"updatedBy\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"updated_by\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_deleted\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"features\",\"kind\":\"object\",\"type\":\"Feature\",\"relationName\":\"FeatureToProject\"},{\"name\":\"timesheets\",\"kind\":\"object\",\"type\":\"TimesheetEntry\",\"relationName\":\"ProjectToTimesheetEntry\"}],\"dbName\":\"project\"},\"Feature\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"id\"},{\"name\":\"projectId\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"project_id\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"name\"},{\"name\":\"backlogDescription\",\"kind\":\"scalar\",\"type\":\"Json\",\"dbName\":\"backlog_description\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"createdBy\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"created_by\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"updatedBy\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"updated_by\"},{\"name\":\"is_deleted\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"startDate\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"start_date\"},{\"name\":\"endDate\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"end_date\"},{\"name\":\"project\",\"kind\":\"object\",\"type\":\"Project\",\"relationName\":\"FeatureToProject\"},{\"name\":\"timesheets\",\"kind\":\"object\",\"type\":\"TimesheetEntry\",\"relationName\":\"FeatureToTimesheetEntry\"}],\"dbName\":\"feature\"},\"TimesheetEntry\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"id\"},{\"name\":\"projectId\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"project_id\"},{\"name\":\"featureId\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"feature_id\"},{\"name\":\"date\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"date\"},{\"name\":\"hours\",\"kind\":\"scalar\",\"type\":\"Decimal\",\"dbName\":\"hours\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"description\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"status\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"createdBy\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"created_by\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"updatedBy\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"updated_by\"},{\"name\":\"is_deleted\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"feature\",\"kind\":\"object\",\"type\":\"Feature\",\"relationName\":\"FeatureToTimesheetEntry\"},{\"name\":\"project\",\"kind\":\"object\",\"type\":\"Project\",\"relationName\":\"ProjectToTimesheetEntry\"}],\"dbName\":\"timesheet_entry\"},\"ApiLog\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"BigInt\",\"dbName\":\"id\"},{\"name\":\"request_time\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"request_time\"},{\"name\":\"response_time\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"response_time\"},{\"name\":\"duration_ms\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"duration_ms\"},{\"name\":\"method\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"method\"},{\"name\":\"status_code\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"status_code\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"url\"},{\"name\":\"endpoint\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"endpoint\"},{\"name\":\"service_name\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"service_name\"},{\"name\":\"request_header\",\"kind\":\"scalar\",\"type\":\"Json\",\"dbName\":\"request_header\"},{\"name\":\"request_body\",\"kind\":\"scalar\",\"type\":\"Json\",\"dbName\":\"request_body\"},{\"name\":\"response_body\",\"kind\":\"scalar\",\"type\":\"Json\",\"dbName\":\"response_body\"},{\"name\":\"ip_address\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"ip_address\"},{\"name\":\"user_agent\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_agent\"},{\"name\":\"called_by\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"called_by\"},{\"name\":\"trace_id\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"trace_id\"},{\"name\":\"error_message\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"error_message\"},{\"name\":\"is_success\",\"kind\":\"scalar\",\"type\":\"Boolean\",\"dbName\":\"is_success\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"is_archived\",\"kind\":\"scalar\",\"type\":\"Boolean\",\"dbName\":\"is_archived\"}],\"dbName\":\"api_log\"}},\"enums\":{},\"types\":{}}")
+defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
+config.engineWasm = {
+  getRuntime: async () => require('./query_engine_bg.js'),
+  getQueryEngineWasmModule: async () => {
+    const loader = (await import('#wasm-engine-loader')).default
+    const engine = (await loader).default
+    return engine
   }
 }
+config.compilerWasm = undefined
 
+config.injectableEdgeEnv = () => ({
+  parsed: {
+    DATABASE_TIMESHEET_URL: typeof globalThis !== 'undefined' && globalThis['DATABASE_TIMESHEET_URL'] || typeof process !== 'undefined' && process.env && process.env.DATABASE_TIMESHEET_URL || undefined
+  }
+})
+
+if (typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined) {
+  Debug.enable(typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined)
+}
+
+const PrismaClient = getPrismaClient(config)
 exports.PrismaClient = PrismaClient
-
 Object.assign(exports, Prisma)
+

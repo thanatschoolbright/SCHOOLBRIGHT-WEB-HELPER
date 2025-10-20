@@ -305,7 +305,7 @@ export default function Page() {
                 setActionLoading(false);
             }
         }
-    }, [timesheetState.activeRecord?.id, timesheetState.formMode, adminId, closeModal, refetchEntries, form]);
+    }, [timesheetState?.activeRecord?.id, timesheetState?.formMode, adminId, closeModal, refetchEntries, form]);
 
     //** ลบหลายรายการ */
     const DELETE_TIMESHEET_FUNCTION = useCallback(async () => {
@@ -319,7 +319,7 @@ export default function Page() {
             await axios.post(
                 "/api/v1/timesheet/entry/delete/",
                 {
-                    ids: timesheetState.selectedRowKeys.map((key) => Number(key)),
+                    ids: timesheetState.selectedRowKeys.map((key:any) => Number(key)),
                     by: adminId,
                 },
                 {headers: {"Content-Type": "application/json"}}
@@ -344,7 +344,7 @@ export default function Page() {
                 setActionLoading(false);
             }
         }
-    }, [adminId, closeModal, refetchEntries, timesheetState.selectedRowKeys, dispatch]);
+    }, [adminId, closeModal, refetchEntries, timesheetState?.selectedRowKeys, dispatch]);
 
     //** ตั้งค่าการค้นหาในคอลัมน์ */
     const getColumnSearchProps = useCallback(
@@ -519,7 +519,7 @@ export default function Page() {
     );
 
     const rowSelection: TableProps<TimesheetEntry>["rowSelection"] = {
-        selectedRowKeys: timesheetState.selectedRowKeys,
+        selectedRowKeys: timesheetState?.selectedRowKeys,
         onChange: (keys) => dispatch(setSelectedRowKeys(keys)),
     };
 
@@ -613,7 +613,7 @@ export default function Page() {
                             loading={tableLoading && entries.length === 0}
                             extra={
                                 <TimesheetActions
-                                    selectedCount={timesheetState.selectedRowKeys.length}
+                                    selectedCount={timesheetState?.selectedRowKeys?.length}
                                     loading={actionLoading}
                                     refreshLoading={tableLoading}
                                     onRefresh={refetchEntries}
@@ -662,7 +662,7 @@ export default function Page() {
 
                     {/* Modal ฟอร์มสร้าง/แก้ไข */}
                     <CreateModalForm
-                        open={timesheetState.modalType === "form"}
+                        open={timesheetState?.modalType === "form"}
                         onCancel={closeModal}
                         onSubmit={SUBMIT_TIMESHEET_FUNCTION}
                         form={form}

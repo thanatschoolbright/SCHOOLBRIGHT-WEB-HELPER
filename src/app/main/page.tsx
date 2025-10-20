@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 const { Title, Text } = Typography;
 
-export default function MainPage() {
+export default function Page() {
   const router = useRouter();
   const { i18n } = useTranslation();
   const menuItems = useSidebarMenu();
