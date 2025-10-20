@@ -180,7 +180,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     //** การทำงาน: ดึงข้อมูล API Logs จากฐานข้อมูล */
-    const result = await ApiLogService.getApiLogs(page, limit, serviceName, isSuccess);
+    const result = await ApiLogService.getApiLogs({
+      page,
+      limit,
+      serviceName,
+      isSuccess
+    });
 
     //** การทำงาน: แปลง BigInt เป็น string สำหรับ JSON */
     const processedData = result.data.map((log) => ({

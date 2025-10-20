@@ -9,7 +9,7 @@ import { ApiResponse, ApiErrorResponse } from "@/types/api-log.types";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   let logData;
 
@@ -17,15 +17,18 @@ export async function GET(
     //** การทำงาน: ดึงข้อมูลจาก request และสร้าง log data พื้นฐาน */
     logData = await ApiLogUtils.createLogData(request);
 
-    //** การทำงาน: ตรวจสอบและแปลง ID */
-    const logId = BigInt(params.id);
-    
-    //** การทำงาน: ดึงข้อมูล API Log จากฐานข้อมูล */
-    const apiLog = await ApiLogService.getApiLogById(logId);
+    //** การทำงาน: รอให้ params resolve */
+    const resolvedParams = await params;
 
+    //** การทำงาน: ตรวจสอบและแปลง ID */
+    const logId = BigInt(resolvedParams.id);
+    
+    //** การทำงาน: ดึงข้อมูล API Log ตาม ID */
+    const apiLog = await ApiLogService.getApiLogById(logId);
+    
     if (!apiLog) {
       const errorResponse: ApiErrorResponse = {
-        message: `API Log with ID ${params.id} not found`,
+        message: `API Log with ID ${resolvedParams.id} not found`,
         error: "Not Found",
         statusCode: 404,
         timestamp: new Date().toISOString(),
@@ -37,10 +40,8 @@ export async function GET(
         logData,
         404,
         ApiLogUtils.sanitizeResponseBody(errorResponse),
-        `API Log with ID ${params.id} not found`
-      );
-      
-      await ApiLogService.createApiLog(errorLogData);
+        `API Log with ID ${resolvedParams.id} not found`
+      );      await ApiLogService.createApiLog(errorLogData);
 
       return NextResponse.json(errorResponse, { status: 404 });
     }
@@ -116,7 +117,7 @@ export async function GET(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   let logData;
 
@@ -124,14 +125,17 @@ export async function DELETE(
     //** การทำงาน: ดึงข้อมูลจาก request และสร้าง log data พื้นฐาน */
     logData = await ApiLogUtils.createLogData(request);
 
+    //** การทำงาน: รอให้ params resolve */
+    const resolvedParams = await params;
+
     //** การทำงาน: ตรวจสอบและแปลง ID */
-    const logId = BigInt(params.id);
+    const logId = BigInt(resolvedParams.id);
     
     //** การทำงาน: ตรวจสอบว่า API Log มีอยู่หรือไม่ */
     const existingLog = await ApiLogService.getApiLogById(logId);
     if (!existingLog) {
       const errorResponse: ApiErrorResponse = {
-        message: `API Log with ID ${params.id} not found`,
+        message: `API Log with ID ${resolvedParams.id} not found`,
         error: "Not Found",
         statusCode: 404,
         timestamp: new Date().toISOString(),
@@ -143,7 +147,7 @@ export async function DELETE(
         logData,
         404,
         ApiLogUtils.sanitizeResponseBody(errorResponse),
-        `API Log with ID ${params.id} not found`
+        `API Log with ID ${resolvedParams.id} not found`
       );
       
       await ApiLogService.createApiLog(errorLogData);
@@ -157,7 +161,7 @@ export async function DELETE(
     //** การทำงาน: สร้าง response ที่สำเร็จ */
     const successResponse: ApiResponse = {
       data: {
-        id: params.id,
+        id: resolvedParams.id,
         deleted: true,
       },
       message: "API Log deleted successfully",

@@ -9,13 +9,16 @@ import { ApiResponse, ApiErrorResponse } from "@/types/api-log.types";
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   let logData;
 
   try {
     //** การทำงาน: ดึงข้อมูลจาก request และสร้าง log data พื้นฐาน */
     logData = await ApiLogUtils.createLogData(request);
+
+    //** การทำงาน: รอให้ params resolve */
+    const resolvedParams = await params;
 
     //** การทำงาน: ดึง request body */
     const requestBody = await request.json().catch(() => ({}));
@@ -44,13 +47,13 @@ export async function PATCH(
     }
 
     //** การทำงาน: ตรวจสอบและแปลง ID */
-    const logId = BigInt(params.id);
+    const logId = BigInt(resolvedParams.id);
     
     //** การทำงาน: ตรวจสอบว่า API Log มีอยู่หรือไม่ */
     const existingLog = await ApiLogService.getApiLogById(logId);
     if (!existingLog) {
       const errorResponse: ApiErrorResponse = {
-        message: `API Log with ID ${params.id} not found`,
+        message: `API Log with ID ${resolvedParams.id} not found`,
         error: "Not Found",
         statusCode: 404,
         timestamp: new Date().toISOString(),
@@ -62,7 +65,7 @@ export async function PATCH(
         logData,
         404,
         ApiLogUtils.sanitizeResponseBody(errorResponse),
-        `API Log with ID ${params.id} not found`
+        `API Log with ID ${resolvedParams.id} not found`
       );
       
       await ApiLogService.createApiLog(errorLogData);
