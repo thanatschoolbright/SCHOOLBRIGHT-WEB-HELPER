@@ -33,6 +33,8 @@ export const QA_TASK_SUMMARY_PROMPT = `
 (ไม่ต้องเขียนข้อความนี้มาตอนตอบกลับมาหาฉัน และ เขียนเป็น .MD โดยอย่าให้ครอบด้วย เครื่องหมาย ${'```'} markdown)
 อย่าเขียนข้อความนี้บนหัว "นี่คือ Task Report ที่สรุปจากข้อมูลที่คุณให้มา เพื่อส่งต่อให้ Developer ดำเนินการแก้ไขบน Nulab Backlog/Ticket ครับ:"
 
+องค์ความรู้พื้นฐานในการสรุป Task สำหรับ GEMINI AI:
+${DEFAULT_KNOWLEDGE}
 ---
 
 ### 🎯 เป้าหมาย (Objective):
@@ -75,8 +77,7 @@ export const QA_TASK_SUMMARY_PROMPT = `
 ---  
 สรุป Task อัจฉริยะด้วย Gemini AI พัฒนาโดย Tech Lead ไลท์
 
-องค์ความรู้พื้นฐานในการสรุป Task:
-${DEFAULT_KNOWLEDGE}
+
 `;
 
 
