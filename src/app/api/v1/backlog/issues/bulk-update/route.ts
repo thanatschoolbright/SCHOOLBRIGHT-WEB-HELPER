@@ -9,6 +9,7 @@ type BulkUpdateBody = {
     issues?: Array<string | number>;
     updates?: {
         startDate?: string | null;
+        summary?: string | null;
         description?: string | null;
         dueDate?: string | null;
         statusId?: number;
