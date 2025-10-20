@@ -37,7 +37,7 @@ export default function MainHeader(): JSX.Element {
                 {/* 🔸 โลโก้ */}
                 <Typography.Title
                     level={4}
-                    onClick={() => router.push("/backend")}
+                    onClick={() => router.push("/main")}
                     style={{
                         margin: 0,
                         cursor: "pointer",

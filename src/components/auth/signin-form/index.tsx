@@ -89,7 +89,7 @@ export default function SignInForm() {
                 );
                 toast.success("เข้าสู่ระบบสำเร็จ", {id: tId});
                 setTimeout(() => {
-                    router.replace("/backend");
+                    router.replace("/main");
                 }, 500);
             } else {
                 toast.error("เข้าสู่ระบบล้มเหลว", {

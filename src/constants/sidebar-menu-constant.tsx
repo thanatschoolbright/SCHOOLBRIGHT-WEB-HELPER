@@ -28,26 +28,32 @@ interface SidebarItem {
 }
 
 export const useSidebarMenu = (): SidebarItem[] => {
-    const {t} = useTranslation("menu");
+    const {t, i18n} = useTranslation("menu");
 
     const menu = useMemo(
-        () => [
-            {
-                label: t("admin_system.title"),
-                icon: <UserOutlined/>,
-                children: [
-                    {
-                        label: t("admin_system.children.user_profile"),
-                        href: "/admin/user-profile",
-                        news: false,
-                        children: [
-                            {
-                                label: t("admin_system.children.user_profile"),
-                                href: "/admin/user-profile",
-                                news: false,
-                            },
-                        ],
-                    },
+        () => {
+            // ตรวจสอบว่า translation พร้อมใช้งานหรือไม่
+            if (!i18n.isInitialized || !i18n.hasResourceBundle(i18n.language, "menu")) {
+                return []; // ส่งคืน array ว่างถ้า translation ยังไม่พร้อม
+            }
+
+            return [
+                {
+                    label: t("admin_system.title"),
+                    icon: <UserOutlined/>,
+                    children: [
+                        {
+                            label: t("admin_system.children.user_profile"),
+                            href: "/admin/user-profile",
+                            news: false,
+                            children: [
+                                {
+                                    label: t("admin_system.children.user_profile"),
+                                    href: "/admin/user-profile",
+                                    news: false,
+                                },
+                            ],
+                        },
                 ],
             },
             {
@@ -181,8 +187,9 @@ export const useSidebarMenu = (): SidebarItem[] => {
                     },
                 ],
             },
-        ],
-        [t]
+        ];
+        },
+        [t, i18n.isInitialized, i18n.language]
     );
 
     return menu;

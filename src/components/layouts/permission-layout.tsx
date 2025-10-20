@@ -29,7 +29,7 @@ export default function PermissionLayout({ role, children }: Props) {
         `คุณมีสิทธิ์ไม่ถึงที่กำหนด คุณต้องเป็น ${role.join(", ")} เท่านั้น`,
         { duration: 3000 }
       );
-      router.replace("/backend");
+      router.replace("/main");
     }
   }, [AUTHENTICATION?.loading, AUTH_USER, role, router]);
 
