@@ -228,7 +228,8 @@ export default function Page() {
         const textFormat = `
   📋 รายละเอียด
   ✨ ใช้งานสำหรับเข้าเว็บ
-  https://sb-helper.schoolbright.co
+  - https://sb-helper.schoolbright.co 
+  - https://adminsystem.schoolbright.co/
   ━━━━━━━━━━━━━━━━
 
   👤 ชื่อ-นามสกุล     : ${user.firstname} ${user.lastname}
