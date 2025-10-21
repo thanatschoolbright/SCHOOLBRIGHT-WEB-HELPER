@@ -94,7 +94,7 @@ export default function AntThemeProvider({
                 controlHeight: 44,
                 controlHeightLG: 50,
                 controlHeightSM: 36,
-                fontSize: 15,
+                fontSize: 13,
                 sizeStep: 4,
                 padding: 14,
                 colorSuccess: "#18c964",
@@ -146,7 +146,7 @@ export default function AntThemeProvider({
 
                     // Body Section
                     padding: 24, // ✅ ระยะห่างภายในของ body (ค่าเริ่มต้น 24)
-                    fontSize: 16, // ✅ ขนาดตัวอักษรใน body
+                    fontSize: 14, // ✅ ขนาดตัวอักษรใน body
                     colorBgContainer: palette.backgroundElevated, // ✅ สีพื้นหลังของ card body
                     colorText: palette.textPrimary, // ✅ สีข้อความใน body
                     colorBorderSecondary: palette.border, // ✅ สีเส้นขอบ (body-border)
