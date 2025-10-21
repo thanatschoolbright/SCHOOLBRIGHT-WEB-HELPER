@@ -31,10 +31,12 @@ import type { InputRef } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { UploadChangeParam, UploadFile } from "antd/es/upload/interface";
 import {
+  CheckCircleOutlined,
   CloudUploadOutlined,
   DeleteOutlined,
   DownloadOutlined,
   EditOutlined,
+  ExclamationCircleOutlined,
   EyeOutlined,
   FileTextOutlined,
   PlusOutlined,
@@ -454,14 +456,52 @@ export default function Page() {
         ellipsis: true,
       },
       {
-        title: "สถานะ",
+        title: "เวอร์ชันล่าสุด",
         dataIndex: "is_lastest_version",
-        render: (_value, record) => (
-          <Space>
-            {record.is_lastest_version === 1 && <Tag color="green">ล่าสุด</Tag>}
-            {record.force_update === 1 && <Tag color="red">บังคับอัปเดต</Tag>}
-          </Space>
-        ),
+        align: "center",
+        width: 120,
+        filters: [
+          { text: "เวอร์ชันล่าสุด", value: true },
+          { text: "เวอร์ชันเก่า", value: false },
+        ],
+        onFilter: (value, record) => {
+          const isLatest = Boolean(record.is_lastest_version);
+          return value === true ? isLatest : !isLatest;
+        },
+        render: (_value, record) => {
+          const isLatest = Boolean(record.is_lastest_version);
+          return isLatest ? (
+            <Tag color="green" icon={<CheckCircleOutlined />}>
+              ล่าสุด
+            </Tag>
+          ) : (
+            <Tag color="default">เวอร์ชันเก่า</Tag>
+          );
+        },
+      },
+      {
+        title: "บังคับอัปเดต",
+        dataIndex: "force_update",
+        align: "center",
+        width: 130,
+        filters: [
+          { text: "บังคับอัปเดต", value: true },
+          { text: "ไม่บังคับ", value: false },
+        ],
+        onFilter: (value, record) => {
+          const isForced = Boolean(record.force_update);
+          return value === true ? isForced : !isForced;
+        },
+        render: (_value, record) => {
+          const isForced = Boolean(record.force_update);
+          return isForced ? (
+            <Tag color="red" icon={<ExclamationCircleOutlined />}>
+              บังคับอัปเดต
+            </Tag>
+          ) : (
+            <Tag color="blue">ไม่บังคับ</Tag>
+          );
+        },
       },
       {
         title: "การจัดการ",
@@ -598,11 +638,8 @@ export default function Page() {
           columns={versionColumns}
           rowKey={(record) => String(record.version_id)}
           pagination={false}
-          locale={{
-            emptyText: versionDataset.loading
-              ? "กำลังโหลด..."
-              : "ไม่พบเวอร์ชัน",
-          }}
+          
+          
         />
       </Modal>
 

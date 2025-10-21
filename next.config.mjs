@@ -10,7 +10,7 @@ const nextConfig = {
   // * Configure body size limits for API routes and middleware
   experimental: {
     serverActions: { bodySizeLimit: '50mb' },
-    middlewareClientMaxBodySize: '100mb',
+    middlewareClientMaxBodySize: '200mb',
   },
 
   // * Allow images from external domains
