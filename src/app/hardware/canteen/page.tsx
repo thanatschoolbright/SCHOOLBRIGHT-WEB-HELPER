@@ -421,6 +421,33 @@ export default function Page() {
     }
   };
 
+  // Memoized render functions สำหรับป้องกัน CSS-in-JS warnings
+  const renderLatestVersionTag = useCallback((record: VersionRecord) => {
+    const isLatest = Boolean(record.is_lastest_version);
+    return (
+      <Tag 
+        key={`latest-${record.version_id}-${isLatest}`}
+        color={isLatest ? "green" : "default"}
+        icon={isLatest ? <CheckCircleOutlined /> : undefined}
+      >
+        {isLatest ? "ล่าสุด" : "เวอร์ชันเก่า"}
+      </Tag>
+    );
+  }, []);
+
+  const renderForceUpdateTag = useCallback((record: VersionRecord) => {
+    const isForced = Boolean(record.force_update);
+    return (
+      <Tag 
+        key={`force-${record.version_id}-${isForced}`}
+        color={isForced ? "red" : "blue"}
+        icon={isForced ? <ExclamationCircleOutlined /> : undefined}
+      >
+        {isForced ? "บังคับอัปเดต" : "ไม่บังคับ"}
+      </Tag>
+    );
+  }, []);
+
   const versionColumns = useMemo<ColumnsType<VersionRecord>>(
     () => [
       {
@@ -468,16 +495,7 @@ export default function Page() {
           const isLatest = Boolean(record.is_lastest_version);
           return value === true ? isLatest : !isLatest;
         },
-        render: (_value, record) => {
-          const isLatest = Boolean(record.is_lastest_version);
-          return isLatest ? (
-            <Tag color="green" icon={<CheckCircleOutlined />}>
-              ล่าสุด
-            </Tag>
-          ) : (
-            <Tag color="default">เวอร์ชันเก่า</Tag>
-          );
-        },
+        render: (_value, record) => renderLatestVersionTag(record),
       },
       {
         title: "บังคับอัปเดต",
@@ -492,16 +510,7 @@ export default function Page() {
           const isForced = Boolean(record.force_update);
           return value === true ? isForced : !isForced;
         },
-        render: (_value, record) => {
-          const isForced = Boolean(record.force_update);
-          return isForced ? (
-            <Tag color="red" icon={<ExclamationCircleOutlined />}>
-              บังคับอัปเดต
-            </Tag>
-          ) : (
-            <Tag color="blue">ไม่บังคับ</Tag>
-          );
-        },
+        render: (_value, record) => renderForceUpdateTag(record),
       },
       {
         title: "การจัดการ",
@@ -536,7 +545,7 @@ export default function Page() {
         ),
       },
     ],
-    [getVersionColumnSearchProps, openVersionForm, versionDataset.data]
+    [getVersionColumnSearchProps, openVersionForm, versionDataset.data, setDeleteTarget, renderLatestVersionTag, renderForceUpdateTag]
   );
 
   return (
