@@ -1,5 +1,7 @@
 // middleware.ts
 import {NextRequest, NextResponse} from "next/server";
+import { ApiLogService } from "@/services/backend/api-log/api-log.service";
+import { ApiLogUtils } from "@/helpers/api-log.utils";
 
 /* ============================================================
    🎨 Color Setup สำหรับ Console
@@ -103,21 +105,102 @@ export async function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
+    const startTime = new Date();
     const start = Date.now();
     const requestBody = await parseRequestBody(req);
+    let logData;
 
-    // ⚙️ รัน request ปกติ
-    const res = NextResponse.next();
-    const duration = Date.now() - start;
+    try {
+        // 🔄 สร้าง API Log Data (skip เฉพาะ logger API เองเพื่อไม่ให้เกิด infinite loop)
+        if (!url.pathname.startsWith('/api/v1/logger/')) {
+            logData = await ApiLogUtils.createLogData(req, {
+                serviceName: extractServiceName(url.pathname),
+                calledBy: "middleware",
+            });
+        }
 
-    // ✅ Log ข้อมูลแบบอ่านง่าย
-    logRequest({
-        req,
-        requestBody,
-        responseBody: "Response logging skipped (NextResponse.next placeholder)",
-        duration,
-        status: res.status,
-    });
+        // ⚙️ รัน request ปกติ
+        const res = NextResponse.next();
+        const duration = Date.now() - start;
 
-    return res;
+        // ✅ Log ข้อมูลแบบอ่านง่าย (Console)
+        logRequest({
+            req,
+            requestBody,
+            responseBody: "Response will be logged by API Logger",
+            duration,
+            status: res.status,
+        });
+
+        // 📊 บันทึก API Log ลงฐานข้อมูล (Async - ไม่บล็อค response)
+        if (logData) {
+            const finalLogData = ApiLogUtils.updateLogDataWithResponse(
+                logData,
+                res.status,
+                undefined, // ไม่บันทึก response body ใน middleware เพื่อความเร็ว
+                undefined  // ไม่มี error message
+            );
+
+            // บันทึก log โดยไม่รอ (ไม่บล็อค API response)
+            ApiLogService.createApiLog(finalLogData).catch((error) => {
+                console.error("❌ API Log creation failed in middleware:", error);
+            });
+        }
+
+        return res;
+
+    } catch (error) {
+        const duration = Date.now() - start;
+        
+        // ✅ Log error ใน console
+        console.error("❌ Middleware error:", error);
+
+        // 📊 บันทึก error log ถ้าสร้าง logData ได้
+        if (logData) {
+            const errorLogData = ApiLogUtils.updateLogDataWithResponse(
+                logData,
+                500,
+                undefined,
+                error instanceof Error ? error.message : "Unknown middleware error"
+            );
+
+            ApiLogService.createApiLog(errorLogData).catch((logError) => {
+                console.error("❌ Error API Log creation failed:", logError);
+            });
+        }
+
+        // ส่งต่อ request ปกติแม้จะเกิด error ใน logging
+        return NextResponse.next();
+    }
+}
+
+/* ============================================================
+   🧩 Helper: Extract Service Name จาก pathname
+   ============================================================ */
+function extractServiceName(pathname: string): string {
+    // /api/v1/logger/search -> logger
+    // /api/v1/timesheet/entry -> timesheet
+    // /api/v1/admin/user -> admin
+    const parts = pathname.split('/').filter(Boolean);
+    if (parts.length >= 3 && parts[0] === 'api') {
+        return parts[2] || 'unknown';
+    }
+    return 'middleware';
+}
+
+/* ============================================================
+   ⚙️ Middleware Configuration
+   ============================================================ */
+export const config = {
+    matcher: [
+        /*
+         * Match all request paths except for the ones starting with:
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         * - public folder files
+         */
+        '/((?!_next/static|_next/image|favicon.ico|public/).*)',
+    ],
+    runtime: 'nodejs', // ใช้ Node.js runtime แทน Edge เพื่อให้ Prisma ทำงาน
 }
