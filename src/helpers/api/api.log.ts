@@ -1,4 +1,4 @@
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import { NextRequest, NextResponse } from "next/server";
 
 const colors = {

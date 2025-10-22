@@ -5,7 +5,7 @@
  * ใช้ Axios สำหรับ fetch และ Sonner สำหรับ Toast
  */
 
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import {useEffect} from "react";
 import {toast} from "sonner";
 

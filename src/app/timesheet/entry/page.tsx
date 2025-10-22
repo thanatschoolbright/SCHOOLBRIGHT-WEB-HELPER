@@ -6,7 +6,7 @@ import {Button, Card, Form, Space, Table, Tag, Typography} from "antd";
 import {CopyOutlined, EditOutlined, EyeOutlined, SearchOutlined} from "@ant-design/icons";
 import type {ColumnsType, ColumnType} from "antd/es/table";
 
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import i18next from "i18next";

@@ -17,7 +17,7 @@ import {
   theme,
   Typography,
 } from "antd";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import dayjs from "dayjs";
 import {useParams, useRouter, useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useMemo, useState} from "react";

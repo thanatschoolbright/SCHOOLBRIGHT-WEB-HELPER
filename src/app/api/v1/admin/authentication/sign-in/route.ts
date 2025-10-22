@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
 import { sanitizeForwardHeaders } from "@/services/api-header";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import { RequestLoginAdmin } from "@/stores/type";
 
 export async function POST(request: NextRequest) {

@@ -10,7 +10,7 @@ import {
   Space,
   Typography,
 } from "antd";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import Link from "next/link";
 import {
   useCallback,

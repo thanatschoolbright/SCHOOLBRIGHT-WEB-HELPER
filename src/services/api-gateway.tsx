@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import { APIMethodProps, API_METHOD } from "@services/api-method";
 import { store } from "@stores/store"; // assuming you have access to the redux store
 import { CallAPI } from "@/stores/actions/authentication/call-post-refresh-token";

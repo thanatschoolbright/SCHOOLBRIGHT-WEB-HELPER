@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import { API_URL } from "@/services/api-url";
 import { CallPostOnlineDevice } from "@stores/type";
 

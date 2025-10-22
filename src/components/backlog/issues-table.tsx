@@ -12,7 +12,7 @@ import type {ColumnsType} from "antd/es/table";
 import React, {useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {toast} from "sonner";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 
 import ColoredBadge from "@components/ant-design/table/table-badge-color";
 import TableSearchFilter from "@components/ant-design/table/table-search-component";

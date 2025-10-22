@@ -1,7 +1,7 @@
 //** Functionality: Main sign in form component orchestrating step-based authentication
 //** Note: Composes LogoHeader, EmailStepForm, PasswordStepForm for modular design
 
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import {Card, Steps, theme} from "antd";
 import {useRouter} from "next/navigation";
 import {useState} from "react";

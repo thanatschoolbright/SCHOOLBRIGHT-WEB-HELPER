@@ -1,4 +1,4 @@
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 
 //** เรียกข้อมูลรายการแอปพลิเคชันทั้งหมด
 export const GET_APPLICATION_LIST = async () => {

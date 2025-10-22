@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import {toast} from "sonner";

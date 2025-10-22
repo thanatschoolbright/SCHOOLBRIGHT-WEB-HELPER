@@ -1,6 +1,6 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {API_METHOD} from "@/services/api-method";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 
 type CreateApplicationVersionRequest = {
     school_id: string | string[];

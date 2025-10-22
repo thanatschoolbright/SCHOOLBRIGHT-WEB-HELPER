@@ -21,7 +21,7 @@ import {
   SmileOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 
 // สำหรับการแก้ไขข้อมูลผู้ใช้งาน
 import FormData from "form-data";

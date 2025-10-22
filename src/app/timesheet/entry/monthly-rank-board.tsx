@@ -1,7 +1,7 @@
 "use client";
 
 import {Card, Skeleton, Space, theme, Typography} from "antd";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import dayjs, {Dayjs} from "dayjs";
 import React, {forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState,} from "react";
 import {toast} from "sonner";

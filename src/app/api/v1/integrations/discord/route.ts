@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import {discordIdUser} from "@/helpers/api/discord-id-user";
 
 type RepoConfig = {

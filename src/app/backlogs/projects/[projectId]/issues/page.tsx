@@ -2,7 +2,7 @@
 
 import {ArrowLeftOutlined} from "@ant-design/icons";
 import {Button, Layout, Space, theme, Typography,} from "antd";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import {useParams, useRouter, useSearchParams} from "next/navigation";
 import React, {useCallback, useEffect, useMemo} from "react";
 import {Provider, useDispatch, useSelector} from "react-redux";

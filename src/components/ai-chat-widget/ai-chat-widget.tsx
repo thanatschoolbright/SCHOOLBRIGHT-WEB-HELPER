@@ -20,7 +20,7 @@ import {
     Typography,
 } from "antd";
 import {toast} from "sonner";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import {type ReactNode, useEffect, useRef, useState} from "react";
 
 interface ChatMessage {

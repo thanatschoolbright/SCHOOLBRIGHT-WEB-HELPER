@@ -5,7 +5,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import DashboardLayout from "@components/layouts/backend-layout";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import {
   Button,
   Card,

@@ -32,7 +32,7 @@ import {
   InfoCircleOutlined,
   ArrowRightOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import { categoryType } from "@data/timesheet.category.type";
 import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
 import { UserProfile } from "@/stores/type";

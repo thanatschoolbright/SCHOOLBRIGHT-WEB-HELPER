@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {toast} from "sonner";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 
 import AutoCategoryToggle from "@components/backlog/auto-category-toggle";
 import AutoAiDescriptionToggle from "@components/backlog/auto-description-toggle";

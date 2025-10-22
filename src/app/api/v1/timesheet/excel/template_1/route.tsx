@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {z} from "zod";
 import ExcelJS from "exceljs";
-import axios from "axios";
+import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import {errorResponse} from "@/helpers/api/response";
 import {Service} from "@/services/backend/timesheet/entry.service";
 import {API_URL} from "@services/api-url";
