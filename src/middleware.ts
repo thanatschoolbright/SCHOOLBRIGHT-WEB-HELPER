@@ -1,7 +1,5 @@
 // middleware.ts
 import {NextRequest, NextResponse} from "next/server";
-import {ApiLogService} from "@/services/backend/api-log/api-log.service";
-import {ApiLogUtils} from "@/helpers/api-log.utils";
 
 /* ============================================================
    🎨 Color Setup สำหรับ Console
@@ -68,12 +66,17 @@ async function parseRequestBody(req: NextRequest) {
 function getCalledByFromHeader(req: NextRequest): string {
     const xRequestUser = req.headers.get('x-request-user');
 
-    if (!xRequestUser) {
-        return "unknown";
+    console.log(`🔍 [Middleware Debug] Raw x-request-user header: "${xRequestUser}" (type: ${typeof xRequestUser})`);
+
+    // ตรวจสอบว่าไม่มี header หรือเป็น "null" string
+    if (!xRequestUser || xRequestUser === 'null' || xRequestUser === 'undefined') {
+        console.log(`⚠️ [Middleware Debug] Invalid header value, returning "middleware-unknown"`);
+        return "middleware-unknown";
     }
 
     // ถ้าเป็น plain text (ตัวเลข, ตัวอักษร, underscore, dash) ให้ใช้เลย
     if (/^[\w-]+$/.test(xRequestUser)) {
+        console.log(`✅ [Middleware Debug] Using plain text user: "${xRequestUser}"`);
         return xRequestUser;
     }
 
@@ -81,13 +84,18 @@ function getCalledByFromHeader(req: NextRequest): string {
     try {
         // ตรวจสอบว่าเป็น Base64 หรือไม่
         if (/^[A-Za-z0-9+/]+={0,2}$/.test(xRequestUser)) {
-            return decodeURIComponent(atob(xRequestUser));
+            const decoded = decodeURIComponent(atob(xRequestUser));
+            console.log(`✅ [Middleware Debug] Decoded Base64 user: "${decoded}"`);
+            return decoded;
         }
 
         // ถ้าไม่ใช่ Base64 ลอง URI decode
-        return decodeURIComponent(xRequestUser);
+        const decoded = decodeURIComponent(xRequestUser);
+        console.log(`✅ [Middleware Debug] URI decoded user: "${decoded}"`);
+        return decoded;
     } catch (e) {
         // ถ้า decode ไม่ได้ ใช้ค่าเดิม
+        console.log(`⚠️ [Middleware Debug] Failed to decode, using raw: "${xRequestUser}"`);
         return xRequestUser;
     }
 }
@@ -130,115 +138,62 @@ function logRequest({
 }
 
 /* ============================================================
-   🚦 Main Middleware Function
+   🚦 Main Middleware Function - DISABLED
+   API Logging ถูกย้ายไปใช้ใน ApiLogUtils.logApiRequest() แทน
    ============================================================ */
 export async function middleware(req: NextRequest) {
-    const url = new URL(req.url);
-
-    // ✅ เฉพาะ API route เท่านั้น
-    if (!url.pathname.startsWith("/api/")) {
-        return NextResponse.next();
-    }
-
-    const startTime = new Date();
-    const start = Date.now();
-    const requestBody = await parseRequestBody(req);
-    let logData;
-
-    try {
-        // 🔄 สร้าง API Log Data (skip เฉพาะ logger API เองเพื่อไม่ให้เกิด infinite loop)
-        if (!url.pathname.startsWith('/api/v1/logger/')) {
-            // 🎯 ดึง calledBy จาก x-request-user header
-            const calledBy = getCalledByFromHeader(req);
-
-            logData = await ApiLogUtils.createLogData(req, {
-                serviceName: extractServiceName(url.pathname),
-                calledBy: calledBy, // ใช้ค่าจาก header แทน "middleware"
-            });
-        }
-
-        // ⚙️ รัน request ปกติ
-        const res = NextResponse.next();
-        const duration = Date.now() - start;
-
-        // ✅ Log ข้อมูลแบบอ่านง่าย (Console)
-        logRequest({
-            req,
-            requestBody,
-            responseBody: "Response will be logged by API Logger",
-            duration,
-            status: res.status,
-        });
-
-        // 📊 บันทึก API Log ลงฐานข้อมูล (Async - ไม่บล็อค response)
-        if (logData) {
-            const finalLogData = ApiLogUtils.updateLogDataWithResponse(
-                logData,
-                res.status,
-                undefined, // ไม่บันทึก response body ใน middleware เพื่อความเร็ว
-                undefined  // ไม่มี error message
-            );
-
-            // บันทึก log โดยไม่รอ (ไม่บล็อค API response)
-            ApiLogService.createApiLog(finalLogData).catch((error) => {
-                console.error("❌ API Log creation failed in middleware:", error);
-            });
-        }
-
-        return res;
-
-    } catch (error) {
-        const duration = Date.now() - start;
-
-        // ✅ Log error ใน console
-        console.error("❌ Middleware error:", error);
-
-        // 📊 บันทึก error log ถ้าสร้าง logData ได้
-        if (logData) {
-            const errorLogData = ApiLogUtils.updateLogDataWithResponse(
-                logData,
-                500,
-                undefined,
-                error instanceof Error ? error.message : "Unknown middleware error"
-            );
-
-            ApiLogService.createApiLog(errorLogData).catch((logError) => {
-                console.error("❌ Error API Log creation failed:", logError);
-            });
-        }
-
-        // ส่งต่อ request ปกติแม้จะเกิด error ใน logging
-        return NextResponse.next();
-    }
+    // ✅ ปิดการใช้งาน middleware - ให้ request ผ่านไปตรงๆ
+    // API Logging จะทำงานใน individual API routes แทน
+    console.log("🔄 [Middleware] DISABLED - API Logging handled by ApiLogUtils");
+    return NextResponse.next();
 }
 
+
 /* ============================================================
-   🧩 Helper: Extract Service Name จาก pathname
+   📝 วิธีใช้งาน ApiLogUtils.logApiRequest() แทน middleware
+
+   ตัวอย่างการใช้งานใน API route:
+
+   import { ApiLogUtils } from "@/helpers/api-log.utils";
+
+   export async function POST(request: NextRequest) {
+       const startTime = new Date();
+
+       try {
+           // ... ประมวลผล API logic ...
+           const result = await someApiLogic();
+
+           // บันทึก API Log
+           await ApiLogUtils.logApiRequest(
+               request,
+               {
+                   status: 200,
+                   body: result
+               },
+               startTime
+           );
+
+           return NextResponse.json(result);
+       } catch (error) {
+           // บันทึก Error Log
+           await ApiLogUtils.logApiRequest(
+               request,
+               {
+                   status: 500,
+                   errorMessage: error.message
+               },
+               startTime
+           );
+
+           return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+       }
+   }
    ============================================================ */
-function extractServiceName(pathname: string): string {
-    // /api/v1/logger/search -> logger
-    // /api/v1/timesheet/entry -> timesheet
-    // /api/v1/admin/user -> admin
-    const parts = pathname.split('/').filter(Boolean);
-    if (parts.length >= 3 && parts[0] === 'api') {
-        return parts[2] || 'unknown';
-    }
-    return 'middleware';
-}
 
 /* ============================================================
-   ⚙️ Middleware Configuration
+   ⚙️ Middleware Configuration - DISABLED
    ============================================================ */
 export const config = {
-    matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public folder files
-         */
-        '/((?!_next/static|_next/image|favicon.ico|public/).*)',
-    ],
-    runtime: 'nodejs', // ใช้ Node.js runtime แทน Edge เพื่อให้ Prisma ทำงาน
+    matcher: [], // ปิดการใช้งาน middleware ทั้งหมด
+    runtime: 'nodejs',
 }

@@ -9,7 +9,7 @@ export const getUserData = () => {
 };
 
 export const getUserById = (id: string | number) => {
-    const users: UserProfile[] = getUserData();
+    const users: UserProfile[] = getUserData()
     if (users) {
         const user = users.find((user) => String(user.admin_id) === String(id));
         return user;
