@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {Button, Col, DatePicker, Form, Input, InputNumber, Row, Select, Space} from 'antd';
+import {Button, Col, DatePicker, Form, Input, Row, Select, Space} from 'antd';
 import {ReloadOutlined, SearchOutlined} from '@ant-design/icons';
 import {ApiLogFilters} from '@/types/api-log.type';
 import dayjs from 'dayjs';
@@ -150,12 +150,25 @@ const ApiLogFilter = ({loading, filters, onSearch, onReset}: ApiLogFilterProps) 
 
                 <Col xs={24} sm={12} md={8} lg={6}>
                     <Form.Item label="Status Code">
-                        <InputNumber
-                            placeholder="เช่น 200, 404, 500"
+                        <Select
+                            placeholder="เลือก status code"
                             value={localFilters.statusCode}
-                            onChange={(value) => handleFilterChange('statusCode', value || undefined)}
-                            style={{width: '100%'}}
-                        />
+                            onChange={(value) => handleFilterChange('statusCode', value)}
+                            allowClear
+                            showSearch
+                        >
+                            <Option value={200}>200 - OK</Option>
+                            <Option value={201}>201 - Created</Option>
+                            <Option value={204}>204 - No Content</Option>
+                            <Option value={400}>400 - Bad Request</Option>
+                            <Option value={401}>401 - Unauthorized</Option>
+                            <Option value={403}>403 - Forbidden</Option>
+                            <Option value={404}>404 - Not Found</Option>
+                            <Option value={422}>422 - Unprocessable Entity</Option>
+                            <Option value={500}>500 - Internal Server Error</Option>
+                            <Option value={502}>502 - Bad Gateway</Option>
+                            <Option value={503}>503 - Service Unavailable</Option>
+                        </Select>
                     </Form.Item>
                 </Col>
 
