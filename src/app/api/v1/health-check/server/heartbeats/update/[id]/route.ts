@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
 import { successResponse, errorResponse } from "@helpers/api/response";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 import { sanitizeForwardHeaders } from "@services/api-header";
 import { API_URL } from "@services/api-url";
 

@@ -1,4 +1,4 @@
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios";
 import {z} from "zod";
 
 import {API_URL} from "@/services/api-url";

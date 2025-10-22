@@ -62,6 +62,13 @@ const ApiLogModal = ({visible, mode, loading, data, onCancel, onSubmit}: ApiLogM
         }
     }, [visible, data, mode, form, isEditMode, isViewMode, isCreateMode]);
 
+    //** Cleanup form เมื่อ component unmount */
+    useEffect(() => {
+        return () => {
+            form.resetFields();
+        };
+    }, [form]);
+
     //** จัดการการส่งฟอร์ม */
     const handleSubmit = async () => {
         try {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 import { discordIdUser } from "@/helpers/api/discord-id-user";
 
 export async function POST(req: NextRequest) {

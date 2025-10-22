@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {errorResponse, successResponse} from "@/helpers/api/response";
 import {Service} from "@/services/backend/timesheet/entry.service";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 
 // ** ค้นหาข้อมูลจากใน USERS และดูว่า POSITION : Developer , Tester ไหนยังไม่ลง Timesheet (Cross Check กับ findNotEntryToday ด้วย)
 const VALIDATED_USERS_ARE_NOT_ENTRY = (users: any[], entries: any[]) => {

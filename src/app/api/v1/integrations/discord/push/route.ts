@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 
 const RepoConfig: Record<
   string,

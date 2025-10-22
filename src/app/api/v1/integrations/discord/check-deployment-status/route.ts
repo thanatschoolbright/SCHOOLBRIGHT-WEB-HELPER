@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 
 export async function POST(req: NextRequest) {
   const payload = await req.json();

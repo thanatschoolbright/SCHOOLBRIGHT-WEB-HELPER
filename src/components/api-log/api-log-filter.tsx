@@ -63,6 +63,13 @@ const ApiLogFilter = ({loading, filters, onSearch, onReset}: ApiLogFilterProps) 
         fetchServices();
     }, []);
 
+    //** Cleanup form เมื่อ component unmount */
+    useEffect(() => {
+        return () => {
+            form.resetFields();
+        };
+    }, [form]);
+
     //** จัดการการเปลี่ยนแปลงฟิลเตอร์ */
     const handleFilterChange = (field: keyof ApiLogFilters, value: any) => {
         const newFilters = {...localFilters, [field]: value, page: 1};

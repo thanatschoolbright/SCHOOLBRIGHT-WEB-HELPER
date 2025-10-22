@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { successResponse, errorResponse } from "@/helpers/api/response";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 import { API_URL } from "@/services/api-url";
 
 export async function GET(request: NextRequest, context: any) {

@@ -1,6 +1,6 @@
 //** ไฟล์ API สำหรับจัดการการสนทนา AI เพื่อยกเลิกรายการขายเกิน 7 วัน
 //** โดยใช้ Gemini AI ในการประมวลผลและโต้ตอบกับผู้ใช้
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 

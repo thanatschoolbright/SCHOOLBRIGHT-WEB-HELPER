@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 import { convertToCurl } from "@helpers/api/convert-to-curl";
 
 export async function GET(request: NextRequest) {

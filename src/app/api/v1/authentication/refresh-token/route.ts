@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 import { RequestRefreshToken } from "@/stores/type";
 
 export async function POST(request: NextRequest) {

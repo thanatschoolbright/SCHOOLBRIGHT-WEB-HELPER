@@ -35,6 +35,12 @@ function getColorByStatus(status: number): string {
 
 function getCalledByFromHeader(): string {
     try {
+        // ตรวจสอบว่าเป็น client side หรือไม่
+        if (typeof window === 'undefined') {
+            console.log(`⚠️ [Axios] Server side - returning "axios-server"`);
+            return "axios-server";
+        }
+
         const userId = localStorage.getItem("AUTH_USER");
         const extractedUser = userId ? JSON.parse(userId) : null;
         const id = extractedUser?.user_data?.admin_id;
@@ -106,32 +112,72 @@ function logRequest({
 
 async function saveApiLog(config: any, response: any, duration: number, calledBy: string, error?: any) {
     try {
-        const url = new URL(config.url);
+        // สร้าง URL object อย่างปลอดภัย
+        let url: URL;
+        let pathname: string;
+
+        try {
+            // ลองสร้าง URL ตรงๆ ก่อน (กรณี absolute URL)
+            url = new URL(config.url);
+            pathname = url.pathname;
+        } catch {
+            // ถ้าไม่ได้ แสดงว่าเป็น relative URL
+            const baseURL = config.baseURL || 'http://localhost:3000';
+            url = new URL(config.url, baseURL);
+            pathname = url.pathname;
+        }
+
+        console.log(`🔍 [Axios] Processing URL: ${url.href}, pathname: ${pathname}`);
 
         // Skip เฉพาะ logger API เพื่อป้องกัน infinite loop
-        if (url.pathname.startsWith('/api/v1/logger/')) {
+        if (pathname.startsWith('/api/v1/logger/')) {
             console.log(`🔍 [Axios] Logger API detected, calledBy: "${calledBy}" - Skip database logging`);
             return;
         }
+
+        console.log(`🚀 [Axios] Starting saveApiLog for: ${url.href}, calledBy: ${calledBy}`);
 
         // Dynamic import เพื่อหลีกเลี่ยง circular dependency
         const {ApiLogUtils} = await import("@/helpers/api-log.utils");
         const {ApiLogService} = await import("@/services/backend/api-log/api-log.service");
 
-        // สร้าง mock NextRequest object
+        console.log(`✅ [Axios] Dynamic imports successful`);
+
+        // สร้าง mock NextRequest object ที่สมบูรณ์
+        const headers = new Headers();
+        Object.entries(config.headers || {}).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                headers.set(key, String(value));
+            }
+        });
+
         const mockRequest = {
-            url: config.url,
+            url: url.href,
             method: config.method?.toUpperCase() || 'GET',
-            headers: new Map(Object.entries(config.headers || {})),
+            headers: headers,
+            nextUrl: {
+                pathname: pathname,
+                search: url.search,
+                searchParams: url.searchParams
+            },
             clone: () => ({
                 json: async () => config.data || null,
-                formData: async () => new FormData()
+                formData: async () => new FormData(),
+                text: async () => JSON.stringify(config.data || {})
             })
         } as any;
 
+        console.log(`✅ [Axios] Mock request created for: ${mockRequest.method} ${pathname}`);
+
         const logData = await ApiLogUtils.createLogData(mockRequest, {
-            serviceName: extractServiceName(config.url),
+            serviceName: extractServiceName(url.href),
             calledBy: calledBy,
+        });
+
+        console.log(`✅ [Axios] Log data created:`, {
+            endpoint: logData.endpoint,
+            serviceName: logData.serviceName,
+            calledBy: logData.calledBy
         });
 
         const finalLogData = ApiLogUtils.updateLogDataWithResponse(
@@ -141,13 +187,38 @@ async function saveApiLog(config: any, response: any, duration: number, calledBy
             error?.message
         );
 
-        // บันทึกลงฐานข้อมูลแบบ async
-        ApiLogService.createApiLog(finalLogData).catch((logError) => {
-            console.error("❌ API Log creation failed in axios:", logError);
+        console.log(`✅ [Axios] Final log data prepared:`, {
+            statusCode: finalLogData.statusCode,
+            isSuccess: finalLogData.isSuccess,
+            durationMs: finalLogData.durationMs
         });
+
+        // บันทึกลงฐานข้อมูลผ่าน API endpoint (เพื่อหลีกเลี่ยง Prisma browser issue)
+        console.log(`🔄 [Axios] Saving to database via API...`);
+
+        // ใช้ fetch แทน axios เพื่อหลีกเลี่ยง circular call
+        fetch('/api/v1/logger/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(finalLogData)
+        })
+            .then(async (response) => {
+                if (response.ok) {
+                    console.log(`✅ [Axios] API Log saved successfully for: ${config.url}`);
+                } else {
+                    const errorData = await response.text();
+                    console.error("❌ API Log creation failed - HTTP error:", response.status, errorData);
+                }
+            })
+            .catch((logError) => {
+                console.error("❌ API Log creation failed in axios:", logError);
+            });
 
     } catch (logError) {
         console.error("❌ Error in saveApiLog:", logError);
+        console.error("❌ Stack trace:", logError instanceof Error ? logError.stack : 'No stack trace');
     }
 }
 
@@ -167,7 +238,7 @@ callApiService.interceptors.request.use(
             const calledBy = getCalledByFromHeader();
 
             // เพิ่ม metadata สำหรับ logging
-            config.metadata = {
+            (config as any).metadata = {
                 startTime: Date.now(),
                 calledBy: calledBy
             };
@@ -185,7 +256,7 @@ callApiService.interceptors.request.use(
             console.error("❌ [Axios Interceptor] Error getting user from localStorage:", error);
             delete config.headers["x-request-user"];
 
-            config.metadata = {
+            (config as any).metadata = {
                 startTime: Date.now(),
                 calledBy: "axios-error"
             };
@@ -202,8 +273,8 @@ callApiService.interceptors.request.use(
 callApiService.interceptors.response.use(
     async (response) => {
         const config = response.config;
-        const duration = Date.now() - (config.metadata?.startTime || Date.now());
-        const calledBy = config.metadata?.calledBy || "axios-unknown";
+        const duration = Date.now() - ((config as any).metadata?.startTime || Date.now());
+        const calledBy = (config as any).metadata?.calledBy || "axios-unknown";
 
         // Log สำเร็จ
         logRequest({
@@ -221,8 +292,8 @@ callApiService.interceptors.response.use(
     },
     async (error) => {
         const config = error.config || {};
-        const duration = Date.now() - (config.metadata?.startTime || Date.now());
-        const calledBy = config.metadata?.calledBy || "axios-unknown";
+        const duration = Date.now() - ((config as any).metadata?.startTime || Date.now());
+        const calledBy = (config as any).metadata?.calledBy || "axios-unknown";
         const status = error.response?.status || 500;
 
         // Log ผิดพลาด

@@ -1,4 +1,4 @@
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import axios from "axios"
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
