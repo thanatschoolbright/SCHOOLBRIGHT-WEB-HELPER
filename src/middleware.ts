@@ -1,7 +1,7 @@
 // middleware.ts
 import {NextRequest, NextResponse} from "next/server";
-import { ApiLogService } from "@/services/backend/api-log/api-log.service";
-import { ApiLogUtils } from "@/helpers/api-log.utils";
+import {ApiLogService} from "@/services/backend/api-log/api-log.service";
+import {ApiLogUtils} from "@/helpers/api-log.utils";
 
 /* ============================================================
    🎨 Color Setup สำหรับ Console
@@ -59,6 +59,40 @@ async function parseRequestBody(req: NextRequest) {
 }
 
 /* ============================================================
+   🧩 Helper: ดึงค่า User จาก Header
+   ============================================================ */
+
+/* ============================================================
+   🧩 Helper: ดึงค่า User จาก Header
+   ============================================================ */
+function getCalledByFromHeader(req: NextRequest): string {
+    const xRequestUser = req.headers.get('x-request-user');
+
+    if (!xRequestUser) {
+        return "unknown";
+    }
+
+    // ถ้าเป็น plain text (ตัวเลข, ตัวอักษร, underscore, dash) ให้ใช้เลย
+    if (/^[\w-]+$/.test(xRequestUser)) {
+        return xRequestUser;
+    }
+
+    // ถ้าไม่ใช่ plain text ให้ลอง decode
+    try {
+        // ตรวจสอบว่าเป็น Base64 หรือไม่
+        if (/^[A-Za-z0-9+/]+={0,2}$/.test(xRequestUser)) {
+            return decodeURIComponent(atob(xRequestUser));
+        }
+
+        // ถ้าไม่ใช่ Base64 ลอง URI decode
+        return decodeURIComponent(xRequestUser);
+    } catch (e) {
+        // ถ้า decode ไม่ได้ ใช้ค่าเดิม
+        return xRequestUser;
+    }
+}
+
+/* ============================================================
    🧩 Helper: สร้าง Log ที่อ่านง่าย
    ============================================================ */
 function logRequest({
@@ -86,6 +120,7 @@ function logRequest({
     console.log(`${boldRed}Headers${reset}: ${pretty(Object.fromEntries(req.headers.entries()))}`);
     console.log(`${boldRed}Body${reset}: ${pretty(requestBody)}`);
     console.log(`${boldRed}Response${reset}: ${pretty(responseBody)}`);
+    console.log(`${boldRed}Called By${reset}: ${getCalledByFromHeader(req)}`); // แสดง calledBy
 
     if (req.url.includes("adminsystem.schoolbright.co")) {
         console.log(`${boldRed}External API${reset}: Detected external API call`);
@@ -113,9 +148,12 @@ export async function middleware(req: NextRequest) {
     try {
         // 🔄 สร้าง API Log Data (skip เฉพาะ logger API เองเพื่อไม่ให้เกิด infinite loop)
         if (!url.pathname.startsWith('/api/v1/logger/')) {
+            // 🎯 ดึง calledBy จาก x-request-user header
+            const calledBy = getCalledByFromHeader(req);
+
             logData = await ApiLogUtils.createLogData(req, {
                 serviceName: extractServiceName(url.pathname),
-                calledBy: "middleware",
+                calledBy: calledBy, // ใช้ค่าจาก header แทน "middleware"
             });
         }
 
@@ -151,7 +189,7 @@ export async function middleware(req: NextRequest) {
 
     } catch (error) {
         const duration = Date.now() - start;
-        
+
         // ✅ Log error ใน console
         console.error("❌ Middleware error:", error);
 

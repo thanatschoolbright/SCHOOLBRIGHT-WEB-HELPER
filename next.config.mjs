@@ -5,7 +5,7 @@ const isProd = process.env.NODE_ENV === "production";
 const nextConfig = {
 
   // * Enable strict mode for better development experience
-  reactStrictMode: true,
+  reactStrictMode: false,
 
   // * Configure body size limits for API routes and middleware
   experimental: {

@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "bun-dev": "bun run next dev",
+    "bun-dev": "bun --env-file .env.local next dev",
     "bun-build": "bun run next build",
     "dev": "next dev",
     "build": "next build",
