@@ -94,7 +94,7 @@ export default function AntThemeProvider({
                 controlHeight: 44,
                 controlHeightLG: 50,
                 controlHeightSM: 36,
-                fontSize: 13,
+                fontSize: 15,
                 sizeStep: 4,
                 padding: 14,
                 colorSuccess: "#18c964",
@@ -108,7 +108,7 @@ export default function AntThemeProvider({
                     siderBg: palette.backgroundElevated,
                 },
                 Button: {
-                    borderRadius: 12,
+                    borderRadius: 16,
                     controlHeight: 48,
                     fontWeight: 500,
                     boxShadow: isDark

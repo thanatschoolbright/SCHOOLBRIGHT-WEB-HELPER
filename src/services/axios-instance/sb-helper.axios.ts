@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {getUserByLocalStorage} from "@helpers/local_storage/user.storage";
+import {API_URL} from "@services/api-url";
 
 /* ============================================================
    🎨 Color Setup สำหรับ Console
@@ -223,7 +224,7 @@ async function saveApiLog(config: any, response: any, duration: number, calledBy
 }
 
 export const callApiService = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_SB_HELPER_URL || 'http://localhost:3000',
+    baseURL: API_URL.SB_HELPER_URL,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
