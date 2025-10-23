@@ -225,9 +225,9 @@ async function saveApiLog(config: any, response: any, duration: number, calledBy
 export const callApiService = axios.create({
     // baseURL: API_URL.SB_HELPER_URL,
     timeout: 60000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    // headers: {
+    //     'Content-Type': 'application/json',
+    // },
 });
 
 // Request Interceptor
