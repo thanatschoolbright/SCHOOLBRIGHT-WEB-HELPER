@@ -11,7 +11,7 @@ export const CallAPI = createAsyncThunk(
   async (formData: FormData) => {
     const response = await axios.post(API_ENDPOINT, formData , {
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
       },
     
     });

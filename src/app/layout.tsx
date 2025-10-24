@@ -9,6 +9,47 @@ import AntThemeProvider from "@components/layouts/ant-layout";
 import {StorageProvider} from "@components/providers/storage-provider";
 import ChartProvider from "@/components/providers/chartjs-provider";
 import {Toaster} from "sonner";
+import type {Metadata, Viewport} from "next";
+
+export const metadata: Metadata = {
+    title: {
+        default: "SchoolBright Web Helper",
+        template: "%s | SchoolBright Web Helper",
+    },
+    description: "ระบบช่วยเหลือการจัดการโรงเรียน - SchoolBright Web Helper",
+    applicationName: "SchoolBright Web Helper",
+    generator: "Next.js",
+    keywords: ["SchoolBright", "Web Helper", "โรงเรียน", "การศึกษา", "ระบบจัดการ"],
+    authors: [{ name: "SchoolBright Team" }],
+    creator: "SchoolBright",
+    publisher: "SchoolBright",
+    robots: {
+        index: false,
+        follow: false,
+        googleBot: {
+            index: false,
+            follow: false,
+        },
+    },
+    icons: {
+        icon: [
+            { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+            { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        ],
+        shortcut: "/favicon.ico",
+        apple: "/apple-touch-icon.png",
+    },
+    manifest: "/manifest.json",
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "default",
+        title: "SchoolBright Web Helper",
+    },
+};
+
+export const viewport: Viewport = {
+    themeColor: "#4A90E2",
+};
 
 export default function RootLayout({
                                        children,
@@ -16,27 +57,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" suppressHydrationWarning>
-        <head>
-            {/* Favicon */}
-            <link rel="icon" href="/favicon-32x32.png" sizes="32x32"/>
-            <link rel="icon" href="/favicon-16x16.png" sizes="16x16"/>
-            <link rel="shortcut icon" href="/favicon.ico"/>
-
-            {/* Apple Touch Icon */}
-            <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-
-            {/* PWA */}
-            <meta name="application-name" content="My Web App"/>
-            <meta name="apple-mobile-web-app-capable" content="yes"/>
-            <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-            <meta name="apple-mobile-web-app-title" content="My Web App"/>
-            <meta name="description" content="This is my awesome web app."/>
-            <meta name="theme-color" content="#4A90E2"/>
-
-            {/* PWA Manifest */}
-            <link rel="manifest" href="/manifest.json"/>
-        </head>
+        <html lang="th" suppressHydrationWarning>
+        <head></head>
         <body className="antialiased">
         <Toaster expand={false} richColors position="bottom-center" closeButton/>
 
