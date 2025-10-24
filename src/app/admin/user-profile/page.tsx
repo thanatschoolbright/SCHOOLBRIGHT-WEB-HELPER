@@ -307,9 +307,24 @@ export default function Page() {
                 (a.email ?? "").localeCompare(b.email ?? ""),
             render: (_: string, record: UserProfile) => (
                 <Space direction="vertical" size={0}>
-                    <Typography.Text strong>
-                        <a href={`mailto:${record.email}`}>{record.email}</a>
-                    </Typography.Text>
+                    <Space align="center">
+                        <Typography.Text strong>
+                            <a href={`mailto:${record.email}`}>{record.email}</a>
+                        </Typography.Text>
+                        {record.email && (
+                            <Button
+                                type="text"
+                                size="small"
+                                icon={<CopyOutlined />}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(record.email);
+                                    toast.success("คัดลอกอีเมลล์สำเร็จ");
+                                }}
+                                style={{ padding: 0, minWidth: 'auto', height: 'auto' }}
+                            />
+                        )}
+                    </Space>
                     <Typography.Text type="secondary" style={{fontSize: 12}}>
                         รหัสพนักงาน: {record.employee_code ? record.employee_code : "-"}
                     </Typography.Text>
