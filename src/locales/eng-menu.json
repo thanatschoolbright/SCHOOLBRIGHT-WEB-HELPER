@@ -19,5 +19,7 @@
   "app_canteen": "Canteen App",
   "statistics": "Attendance Statistics",
   "qrcode_health_check": "QR Code Health Check",
-  "app_control": "App Control"
+  "app_control": "App Control",
+  "sheets": "Sheets",
+  "project_planning": "Project Planning"
 }

@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
-import { Card, Typography, Badge, Row, Col, Spin } from "antd";
+import React, { useState } from "react";
+import { Card, Typography, Badge, Row, Col, Spin, Modal, Button } from "antd";
 import { useRouter } from "next/navigation";
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
 import { useTranslation } from "react-i18next";
+import { CloseOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -12,6 +13,10 @@ export default function Page() {
   const router = useRouter();
   const { i18n } = useTranslation();
   const menuItems = useSidebarMenu();
+  
+  // State สำหรับ iOS-style popup
+  const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   // ตรวจสอบว่า i18n โหลดเสร็จแล้วหรือยัง
   const isI18nReady = i18n.isInitialized && i18n.hasResourceBundle(i18n.language, "menu");
@@ -41,15 +46,39 @@ export default function Page() {
 
   // การจัดการการคลิก
   const handleAppClick = (item: any) => {
-    // หากมี children ให้ไปหน้าแรกของ children
+    // หากมี children ให้แสดง popup แบบ iOS
     if (item.children && item.children.length > 0) {
-      const firstChild = item.children[0];
-      router.push(firstChild.href);
+      setSelectedApp(item);
+      setIsPopupVisible(true);
     }
     // หากมี href ตรงให้ไปตาม href
     else if (item.href) {
-      router.push(item.href);
+      // ตรวจสอบว่าเป็น external link หรือไม่
+      if (item.href.startsWith('http')) {
+        window.open(item.href, '_blank');
+      } else {
+        router.push(item.href);
+      }
     }
+  };
+
+  // การจัดการการคลิกใน sub menu
+  const handleSubMenuClick = (childItem: any) => {
+    setIsPopupVisible(false);
+    setSelectedApp(null);
+    
+    // ตรวจสอบว่าเป็น external link หรือไม่
+    if (childItem.href.startsWith('http')) {
+      window.open(childItem.href, '_blank');
+    } else {
+      router.push(childItem.href);
+    }
+  };
+
+  // ปิด popup
+  const handleClosePopup = () => {
+    setIsPopupVisible(false);
+    setSelectedApp(null);
   };
 
   // สี gradient แต่ละแถว
@@ -202,6 +231,163 @@ export default function Page() {
           </Text>
         </div>
       </div>
+
+      {/* iOS-Style Popup Modal */}
+      <Modal
+        open={isPopupVisible}
+        onCancel={handleClosePopup}
+        footer={null}
+        centered
+        width={400}
+        styles={{
+          mask: {
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(8px)',
+          },
+          content: {
+            padding: 0,
+            borderRadius: 24,
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+          },
+        }}
+        closeIcon={null}
+      >
+        {selectedApp && (
+          <div style={{ padding: '24px' }}>
+            {/* Header with App Info */}
+            <div style={{ 
+              textAlign: 'center', 
+              marginBottom: 24,
+              position: 'relative'
+            }}>
+              {/* Close Button */}
+              <Button
+                type="text"
+                icon={<CloseOutlined />}
+                onClick={handleClosePopup}
+                style={{
+                  position: 'absolute',
+                  top: -8,
+                  right: -8,
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                  border: 'none',
+                  color: '#666',
+                }}
+              />
+              
+              {/* App Icon */}
+              <div style={{ 
+                fontSize: 48, 
+                marginBottom: 12,
+                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+              }}>
+                {selectedApp.icon}
+              </div>
+              
+              {/* App Name */}
+              <Title level={4} style={{ 
+                margin: 0, 
+                color: '#1f2937',
+                fontSize: 18,
+                fontWeight: 600
+              }}>
+                {selectedApp.label}
+              </Title>
+            </div>
+
+            {/* Sub Menu Grid */}
+            <Row gutter={[16, 16]}>
+              {selectedApp.children?.map((child: any, index: number) => (
+                <Col span={12} key={child.label}>
+                  <Card
+                    hoverable
+                    onClick={() => handleSubMenuClick(child)}
+                    style={{
+                      borderRadius: 16,
+                      border: '1px solid rgba(0, 0, 0, 0.06)',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                      height: 100,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      background: 'white',
+                    }}
+                    styles={{
+                      body: {
+                        padding: '12px',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                        gap: '8px',
+                      },
+                    }}
+                  >
+                    {/* Sub Menu Icon */}
+                    {child.icon && (
+                      <div
+                        style={{
+                          fontSize: 24,
+                          color: '#6366f1',
+                          marginBottom: 4,
+                        }}
+                      >
+                        {child.icon}
+                      </div>
+                    )}
+                    
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 11,
+                        color: '#374151',
+                        lineHeight: 1.2,
+                        textAlign: 'center',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {child.label}
+                    </Text>
+                    
+                    {/* New Badge for Sub Menu */}
+                    {child.news && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 4,
+                          right: 4,
+                          backgroundColor: '#10b981',
+                          color: 'white',
+                          fontSize: 8,
+                          fontWeight: 'bold',
+                          padding: '1px 4px',
+                          borderRadius: 4,
+                          lineHeight: 1,
+                        }}
+                      >
+                        NEW
+                      </div>
+                    )}
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

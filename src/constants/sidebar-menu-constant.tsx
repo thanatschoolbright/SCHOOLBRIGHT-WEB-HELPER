@@ -10,13 +10,41 @@ import {
     FileTextOutlined,
     MobileOutlined,
     MonitorOutlined,
-    UserOutlined
+    TableOutlined,
+    UserOutlined,
+    // Sub-menu icons
+    ProfileOutlined,
+    TeamOutlined,
+    SafetyOutlined,
+    HistoryOutlined,
+    LoadingOutlined,
+    ToolOutlined,
+    CreditCardOutlined,
+    ShoppingCartOutlined,
+    DatabaseOutlined,
+    GlobalOutlined,
+    SyncOutlined,
+    DesktopOutlined,
+    FileExcelOutlined,
+    HeartOutlined,
+    BellOutlined,
+    FileTextOutlined as FileIconOutlined,
+    BarChartOutlined,
+    QrcodeOutlined,
+    ControlOutlined,
+    ProjectOutlined,
+    PlusOutlined,
+    UnorderedListOutlined,
+    BugOutlined,
+    ApiOutlined,
+    GoogleOutlined
 } from "@ant-design/icons";
 
 interface SidebarChild {
     label: string;
     href: string;
     news?: boolean;
+    icon?: JSX.Element;
 }
 
 interface SidebarItem {
@@ -45,17 +73,25 @@ export const useSidebarMenu = (): SidebarItem[] => {
                         {
                             label: t("admin_system.children.user_profile"),
                             href: "/admin/user-profile",
-                            news: false,
-                            children: [
-                                {
-                                    label: t("admin_system.children.user_profile"),
-                                    href: "/admin/user-profile",
-                                    news: false,
-                                },
-                            ],
+                            icon: <ProfileOutlined/>,
                         },
-                ],
-            },
+                        {
+                            label: t("admin_system.children.user_management"),
+                            href: "/admin/user-management",
+                            icon: <TeamOutlined/>,
+                        },
+                        {
+                            label: t("admin_system.children.role_management"),
+                            href: "/admin/role-management",
+                            icon: <SafetyOutlined/>,
+                        },
+                        {
+                            label: t("admin_system.children.system_log"),
+                            href: "/admin/system-log",
+                            icon: <HistoryOutlined/>,
+                        },
+                    ],
+                },
             {
                 label: t("testing.title"),
                 icon: <ExperimentOutlined/>,
@@ -63,6 +99,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                     {
                         label: t("testing.children.load_testing"),
                         href: "/testing/load-test",
+                        icon: <LoadingOutlined/>,
                     },
                 ],
             },
@@ -73,14 +110,17 @@ export const useSidebarMenu = (): SidebarItem[] => {
                     {
                         label: t("support.children.bypass_school"),
                         href: "/support/bypass",
+                        icon: <ToolOutlined/>,
                     },
                     {
                         label: t("support.children.test_nfc_card"),
                         href: "/support/test/nfc",
+                        icon: <CreditCardOutlined/>,
                     },
                     {
                         label: t("support.children.cancel_sales"),
                         href: "/support/test/cancel-sales",
+                        icon: <ShoppingCartOutlined/>,
                     },
                 ],
             },
@@ -91,27 +131,33 @@ export const useSidebarMenu = (): SidebarItem[] => {
                     {
                         label: t("health_check.children.all_server_status"),
                         href: "/health-check/all-server-status",
+                        icon: <DatabaseOutlined/>,
                     },
                     {
                         label: t("health_check.children.online_status"),
                         href: "/health-check/online-status",
+                        icon: <GlobalOutlined/>,
                     },
                     {
                         label: t("health_check.children.offline_sync_status"),
                         href: "/health-check/offline-sync-status",
+                        icon: <SyncOutlined/>,
                     },
                     {
                         label: t("health_check.children.version_control"),
                         href: "/health-check/version-control",
+                        icon: <DesktopOutlined/>,
                     },
                     {
                         label: t("health_check.children.transaction_log"),
                         href: "/health-check/transaction-log",
+                        icon: <FileExcelOutlined/>,
                     },
                     {
                         label: t("health_check.children.heartbeats"),
                         href: "/health-check/heartbeats",
                         news: true,
+                        icon: <HeartOutlined/>,
                     },
                 ],
             },
@@ -122,19 +168,23 @@ export const useSidebarMenu = (): SidebarItem[] => {
                     {
                         label: t("mobile_app.children.mobile_notification"),
                         href: "/mobile/notification",
+                        icon: <BellOutlined/>,
                     },
                     {
                         label: t("mobile_app.children.mobile_leave_letter"),
                         href: "/mobile/leave-letter",
+                        icon: <FileIconOutlined/>,
                     },
                     {
                         label: t("mobile_app.children.statistics"),
                         href: "/mobile/statistic",
+                        icon: <BarChartOutlined/>,
                     },
                     {
                         label: t("mobile_app.children.qrcode_health_check"),
                         href: "/mobile/qrcode-health-check",
                         news: false,
+                        icon: <QrcodeOutlined/>,
                     },
                 ],
             },
@@ -145,6 +195,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                     {
                         label: t("app_hardware.children.app_control"),
                         href: "/hardware/canteen",
+                        icon: <ControlOutlined/>,
                     },
                 ],
             },
@@ -156,22 +207,19 @@ export const useSidebarMenu = (): SidebarItem[] => {
                         label: t("timesheet_system.children.project"),
                         href: "/timesheet/project",
                         news: false,
-                        children: [
-                            {
-                                label: t("timesheet_system.children.sub_project"),
-                                href: "/timesheet/project/sub-project",
-                            },
-                        ],
+                        icon: <ProjectOutlined/>,
                     },
                     {
                         label: t("timesheet_system.children.entry"),
                         href: "/timesheet/entry",
                         news: false,
+                        icon: <PlusOutlined/>,
                     },
                     {
                         label: t("timesheet_system.children.all"),
                         href: "/timesheet/all",
                         news: false,
+                        icon: <UnorderedListOutlined/>,
                     },
                 ],
             },
@@ -183,7 +231,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                         label: t("backlogs.children.report"),
                         href: "/backlogs/report",
                         news: true,
-                        children: [],
+                        icon: <BugOutlined/>,
                     },
                 ],
             },
@@ -194,8 +242,19 @@ export const useSidebarMenu = (): SidebarItem[] => {
                     {
                         label: t("logger.children.api_logs"),
                         href: "/logger/api-log",
+                        icon: <ApiOutlined/>,
                     },
-                    
+                ],
+            },
+            {
+                label: t("sheets.title"),
+                icon: <TableOutlined/>,
+                children: [
+                    {
+                        label: t("sheets.children.project_planning"),
+                        href: "https://docs.google.com/spreadsheets/d/1FUIxwi_hi3DGfzsJokU5EMeKlwPC8DUL0r4wWJabzVQ/edit?gid=1358985470#gid=1358985470",
+                        icon: <GoogleOutlined/>,
+                    },
                 ],
             }
         ];

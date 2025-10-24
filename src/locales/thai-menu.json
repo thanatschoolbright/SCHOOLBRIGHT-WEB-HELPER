@@ -73,5 +73,11 @@
     "children": {
       "api_logs": "ดูบันทึก API"
     }
+  },
+  "sheets": {
+    "title": "ชีท",
+    "children": {
+      "project_planning": "แผนงานโครงการ"
+    }
   }
 }
