@@ -255,6 +255,11 @@ export const useSidebarMenu = (): SidebarItem[] => {
                         href: "https://docs.google.com/spreadsheets/d/1FUIxwi_hi3DGfzsJokU5EMeKlwPC8DUL0r4wWJabzVQ/edit?gid=1358985470#gid=1358985470",
                         icon: <GoogleOutlined/>,
                     },
+                    {
+                        label: t("sheets.children.project_training"),
+                        href: "https://docs.google.com/document/d/1a5bTQ6zWf15MUnPp4D2BzDEUmwStnaRliBgXp-H32zM",
+                        icon: <GoogleOutlined/>,
+                    }
                 ],
             }
         ];

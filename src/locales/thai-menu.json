@@ -77,7 +77,8 @@
   "sheets": {
     "title": "ชีท",
     "children": {
-      "project_planning": "แผนงานโครงการ"
+      "project_planning": "แผนงานโครงการ",
+      "project_training": "แผนการสอนพนักงานใหม่"
     }
   }
 }
