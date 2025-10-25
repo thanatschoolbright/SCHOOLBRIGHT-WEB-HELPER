@@ -22,6 +22,7 @@ import type {TimesheetMode} from "@components/modal/graph-timesheet-modal-compon
 import {GraphTimesheetModal} from "@components/modal/graph-timesheet-modal-component";
 import {PieTimesheetModal} from "@components/modal/pie-timesheet-modal-component";
 import ExportModal from "@components/modal/timesheet-export-modal";
+import ExportModalByProject from "@components/modal/timesheet-export-modal-by-project";
 import TimesheetControls from "@components/section/timesheet-controls";
 import TimesheetHeader from "@components/section/timesheet-header";
 import {TimesheetTable} from "@components/table";
@@ -32,8 +33,10 @@ import {
     GET_SUB_PROJECTS_BY_PROJECT,
     GET_TIMESHEET_ENTRIES,
     POST_EXPORT_ALL_ENTRIES,
-    POST_EXPORT_TEMPLATE
+    POST_EXPORT_TEMPLATE,
+    POST_EXPORT_PROJECT_TEMPLATE
 } from "@services/timesheet/timesheet-all.service";
+import type { ProjectExportData } from "@services/timesheet/timesheet-all.service";
 import {
     setDetailRecord,
     setEntries,
@@ -171,6 +174,16 @@ export default function TimesheetAllPage(): JSX.Element {
         dispatch(setExportLoading(true));
         try {
             await POST_EXPORT_TEMPLATE(exportData);
+        } finally {
+            dispatch(setExportLoading(false));
+        }
+    }, [dispatch]);
+
+    //** ส่งออกไฟล์ Template 2 (สรุปตามโปรเจ็ค) */
+    const HANDLE_EXPORT_TEMPLATE2 = useCallback(async (exportData: ProjectExportData) => {
+        dispatch(setExportLoading(true));
+        try {
+            await POST_EXPORT_PROJECT_TEMPLATE(exportData);
         } finally {
             dispatch(setExportLoading(false));
         }
@@ -426,11 +439,23 @@ export default function TimesheetAllPage(): JSX.Element {
                     {detailModalContent}
                 </Modal>
 
+                {/* Export Modal */}
                 <ExportModal
                     visible={modalStates.exportModal}
                     loading={exportLoading}
                     onClose={() => handleCloseModal("exportModal")}
                     onExport={HANDLE_EXPORT_TEMPLATE}
+                    projects={projects}
+                    subProjects={subProjects}
+                    users={users}
+                />
+
+                {/* Export Modal Template 2 */}
+                <ExportModalByProject
+                    visible={modalStates.exportModal2}
+                    loading={exportLoading}
+                    onClose={() => handleCloseModal("exportModal2")}
+                    onExport={HANDLE_EXPORT_TEMPLATE2}
                     projects={projects}
                     subProjects={subProjects}
                     users={users}
@@ -449,6 +474,7 @@ export default function TimesheetAllPage(): JSX.Element {
                             isExporting={exportLoading}
                             isExportingTemplate={exportLoading}
                             onExportTemplate={() => handleOpenModal("exportModal")}
+                            onExportTemplate2={() => handleOpenModal("exportModal2")}
                             onExportAll={HANDLE_EXPORT_ALL}
                             onOpenGraphModal={(mode) => handleOpenModal("graphModal", mode)}
                             onOpenPieModal={(mode) => handleOpenModal("pieModal", mode)}

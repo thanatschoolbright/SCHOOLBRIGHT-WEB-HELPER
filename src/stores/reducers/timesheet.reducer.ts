@@ -31,6 +31,7 @@ interface TimesheetState {
   //** สถานะ Modal */
   modalStates: {
     exportModal: boolean;
+    exportModal2: boolean;
     graphModal: boolean;
     pieModal: boolean;
     detailModal: boolean;
@@ -63,6 +64,7 @@ const initialState: TimesheetState = {
   
   modalStates: {
     exportModal: false,
+    exportModal2: false,
     graphModal: false,
     pieModal: false,
     detailModal: false,
@@ -149,6 +151,7 @@ const timesheetSlice = createSlice({
     resetModalStates: (state) => {
       state.modalStates = {
         exportModal: false,
+        exportModal2: false,
         graphModal: false,
         pieModal: false,
         detailModal: false,

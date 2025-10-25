@@ -15,6 +15,8 @@ interface TimesheetControlsProps {
     isExportingTemplate: boolean;
     /** ฟังก์ชันเปิด Modal ส่งออก Template */
     onExportTemplate: () => void;
+    /** ฟังก์ชันเปิด Modal ส่งออก Template 2 */
+    onExportTemplate2: () => void;
     /** ฟังก์ชันส่งออกข้อมูลทั้งหมด */
     onExportAll: () => void;
     /** ฟังก์ชันเปิด Graph Modal */
@@ -36,6 +38,7 @@ const TimesheetControls: React.FC<TimesheetControlsProps> = ({
                                                                  isExporting,
                                                                  isExportingTemplate,
                                                                  onExportTemplate,
+                                                                 onExportTemplate2,
                                                                  onExportAll,
                                                                  onOpenGraphModal,
                                                                  onOpenPieModal,
@@ -143,6 +146,7 @@ const TimesheetControls: React.FC<TimesheetControlsProps> = ({
                 <ExportButton
                     isExporting={isExporting || isExportingTemplate}
                     onExportTemplate={onExportTemplate}
+                    onExportTemplate2={onExportTemplate2}
                     onExportAll={onExportAll}
                     type="default"
 

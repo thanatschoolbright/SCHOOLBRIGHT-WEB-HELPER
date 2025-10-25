@@ -291,3 +291,63 @@ export const POST_EXPORT_ALL_ENTRIES = async (): Promise<{
     throw error;
   }
 };
+
+//** Interface สำหรับข้อมูลการส่งออกแยกตามโปรเจ็ค */
+export interface ProjectExportData {
+  start_date: string;
+  end_date: string;
+  export_type: "project" | "sub_project";
+}
+
+//** Service สำหรับส่งออกไฟล์ Template Excel แยกตามโปรเจ็ค */
+export const POST_EXPORT_PROJECT_TEMPLATE = async (
+  exportData: ProjectExportData
+): Promise<void> => {
+  let toastId: string | number | undefined;
+
+  try {
+    toastId = toast.loading("กำลังสร้างรายงานสรุปโปรเจ็ค...");
+
+    const response = await fetch("/api/v1/timesheet/excel/template_2", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        start_date: exportData.start_date,
+        end_date: exportData.end_date,
+        export_type: exportData.export_type,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData?.message_th || 
+        errorData?.message_en || 
+        "ไม่สามารถสร้างรายงานได้"
+      );
+    }
+
+    // Download file
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    link.href = url;
+    const typeLabel = exportData.export_type === "project" ? "project" : "subproject";
+    link.download = `timesheet-${typeLabel}-summary_${exportData.start_date.replace(/-/g, '')}_${exportData.end_date.replace(/-/g, '')}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    toast.success("สร้างรายงานสรุปโปรเจ็คเรียบร้อย", { id: toastId });
+  } catch (error: any) {
+    const message = error?.message || "สร้างรายงานไม่สำเร็จ";
+    if (toastId !== undefined) {
+      toast.error(message, { id: toastId });
+    } else {
+      toast.error(message);
+    }
+    throw error;
+  }
+};
