@@ -9,6 +9,9 @@ export interface ProjectSummaryData {
   project_name: string;
   project_description?: string;
   total_hours: number;
+  // ข้อมูลโปรเจ็คหลัก (สำหรับ sub_project)
+  parent_project_id?: number;
+  parent_project_name?: string;
   user_summaries: {
     user_id: number;
     user_name: string;
@@ -67,6 +70,8 @@ export class TimesheetProjectSummaryService {
         id: number;
         name: string;
         description?: string;
+        parent_project_id?: number;
+        parent_project_name?: string;
         entries: any[];
       }>();
 
@@ -75,6 +80,8 @@ export class TimesheetProjectSummaryService {
         let groupId: number;
         let groupName: string;
         let groupDescription: string | undefined;
+        let parentProjectId: number | undefined;
+        let parentProjectName: string | undefined;
 
         if (export_type === "project") {
           // จัดกลุ่มตาม Project
@@ -82,12 +89,16 @@ export class TimesheetProjectSummaryService {
           groupId = entry.projectId;
           groupName = entry.project?.name || 'ไม่ระบุชื่อโปรเจ็ค';
           groupDescription = entry.project?.description;
+          // ไม่ต้องมี parent เพราะเป็น project หลัก
         } else {
           // จัดกลุ่มตาม Sub Project (Feature)
           groupKey = `feature-${entry.featureId}`;
           groupId = entry.featureId;
           groupName = entry.feature?.name || 'ไม่ระบุชื่อ Feature';
           groupDescription = JSON.stringify(entry.feature?.backlogDescription);
+          // เพิ่มข้อมูล parent project
+          parentProjectId = entry.projectId;
+          parentProjectName = entry.project?.name || 'ไม่ระบุชื่อโปรเจ็ค';
         }
 
         if (!groups.has(groupKey)) {
@@ -95,6 +106,8 @@ export class TimesheetProjectSummaryService {
             id: groupId,
             name: groupName,
             description: groupDescription,
+            parent_project_id: parentProjectId,
+            parent_project_name: parentProjectName,
             entries: [],
           });
         }
@@ -146,6 +159,8 @@ export class TimesheetProjectSummaryService {
           project_id: group.id,
           project_name: group.name,
           project_description: group.description,
+          parent_project_id: group.parent_project_id,
+          parent_project_name: group.parent_project_name,
           total_hours: totalHours,
           user_summaries: userSummaries.sort((a, b) => b.hours - a.hours), // เรียงตามชั่วโมงมากไปน้อย
         });
@@ -227,12 +242,36 @@ export class TimesheetProjectSummaryService {
       // สร้างแผ่นงานสรุปรวม  
       const currentDate = new Date().toLocaleDateString('th-TH');
       const reportTypeLabel = params.export_type === "project" ? "โปรเจ็ค" : "Sub Project (Feature)";
+      
+      let headerRow: string[];
+      if (params.export_type === "sub_project") {
+        // สำหรับ sub project เพิ่ม column โปรเจ็คหลัก
+        headerRow = [
+          "โปรเจ็คหลัก", 
+          "รหัสโปรเจ็คหลัก", 
+          reportTypeLabel, 
+          `รหัส${reportTypeLabel}`, 
+          "จำนวนชั่วโมงรวม", 
+          "จำนวนผู้ใช้", 
+          "เปอร์เซ็นต์ของรวม"
+        ];
+      } else {
+        // สำหรับ project ใช้ header เดิม
+        headerRow = [
+          reportTypeLabel, 
+          `รหัส${reportTypeLabel}`, 
+          "จำนวนชั่วโมงรวม", 
+          "จำนวนผู้ใช้", 
+          "เปอร์เซ็นต์ของรวม"
+        ];
+      }
+
       const summaryData = [
         [`รายงานสรุป Timesheet แยกตาม${reportTypeLabel}`],
         [`ช่วงวันที่: ${params.start_date} ถึง ${params.end_date}`],
         [`วันที่สร้างรายงาน: ${currentDate}`],
         [], // บรรทัดว่าง
-        [reportTypeLabel, `รหัส${reportTypeLabel}`, "จำนวนชั่วโมงรวม", "จำนวนผู้ใช้", "เปอร์เซ็นต์ของรวม"],
+        headerRow,
       ];
 
       // คำนวณชั่วโมงรวมก่อน
@@ -242,14 +281,31 @@ export class TimesheetProjectSummaryService {
         const percentage = totalHours > 0 
           ? ((project.total_hours / totalHours) * 100).toFixed(2)
           : "0.00";
+
+        let dataRow: (string | number)[];
+        if (params.export_type === "sub_project") {
+          // สำหรับ sub project เพิ่มข้อมูลโปรเจ็คหลัก
+          dataRow = [
+            project.parent_project_name || 'ไม่ระบุ',
+            project.parent_project_id?.toString() || 'ไม่ระบุ',
+            project.project_name,
+            project.project_id.toString(),
+            project.total_hours.toFixed(2),
+            project.user_summaries.length.toString(),
+            `${percentage}%`,
+          ];
+        } else {
+          // สำหรับ project ใช้ data เดิม
+          dataRow = [
+            project.project_name,
+            project.project_id.toString(),
+            project.total_hours.toFixed(2),
+            project.user_summaries.length.toString(),
+            `${percentage}%`,
+          ];
+        }
           
-        summaryData.push([
-          project.project_name,
-          project.project_id.toString(),
-          project.total_hours.toFixed(2),
-          project.user_summaries.length.toString(),
-          `${percentage}%`,
-        ]);
+        summaryData.push(dataRow as string[]);
       });
 
       // เพิ่มบรรทัดรวม
@@ -257,9 +313,17 @@ export class TimesheetProjectSummaryService {
         projectSummaries.flatMap((p: ProjectSummaryData) => p.user_summaries.map((u: any) => u.user_id))
       ).size;
 
+      // เพิ่มบรรทัดรวม
+      let totalRow: string[];
+      if (params.export_type === "sub_project") {
+        totalRow = ["รวมทั้งหมด", "", "", "", totalHours.toFixed(2), totalUsers.toString(), "100.00%"];
+      } else {
+        totalRow = ["รวมทั้งหมด", "", totalHours.toFixed(2), totalUsers.toString(), "100.00%"];
+      }
+
       summaryData.push(
         [], // บรรทัดว่าง
-        ["รวมทั้งหมด", "", totalHours.toFixed(2), totalUsers.toString(), "100.00%"]
+        totalRow
       );
 
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
