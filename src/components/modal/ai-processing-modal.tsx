@@ -51,13 +51,11 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
       centered
       closable={false}
       footer={null}
-      width={600}
+      width={800}
       maskClosable={false}
-      height={"95vh"}
-    
       styles={{
         content: {
-          padding: '40px 32px',
+          padding: '32px',
           borderRadius: '16px',
         },
         mask: {
@@ -196,7 +194,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
         )}
       </div>
 
-      {/* Steps Progress */}
+      {/* Steps Progress - Horizontal Delivery Tracking Style */}
       <div style={{
         background: 'white',
         borderRadius: '12px',
@@ -205,54 +203,64 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
         marginBottom: '16px'
       }}>
         <Steps
-          direction="vertical"
+          direction="horizontal"
           size="default"
           current={currentStep}
+          labelPlacement="vertical"
+          responsive={false}
           items={steps.map((step, index) => ({
-            title: <span style={{ 
+            title: <div style={{ 
               color: index < currentStep ? '#52c41a' :
                      index === currentStep ? '#1890ff' : '#8c8c8c',
               fontWeight: index === currentStep ? 'bold' : 'normal',
-              fontSize: '16px'
+              fontSize: '14px',
+              textAlign: 'center',
+              marginTop: '8px'
             }}>
               {step.title}
-            </span>,
-            description: <span style={{ 
-              color: index < currentStep ? '#73d13d' :
-                     index === currentStep ? '#69c0ff' : '#d9d9d9',
-              fontSize: '14px',
-              lineHeight: '1.4'
-            }}>
-              {step.description}
               {index < currentStep && (
-                <span style={{ 
+                <div style={{ 
                   color: '#52c41a', 
-                  marginLeft: '8px',
-                  fontSize: '12px'
+                  fontSize: '12px',
+                  fontWeight: 'normal',
+                  marginTop: '4px'
                 }}>
                   ✓ เสร็จสิ้น
-                </span>
+                </div>
               )}
-            </span>,
+            </div>,
+            description: <div style={{ 
+              color: index < currentStep ? '#73d13d' :
+                     index === currentStep ? '#69c0ff' : '#d9d9d9',
+              fontSize: '12px',
+              lineHeight: '1.3',
+              textAlign: 'center',
+              marginTop: '4px',
+              maxWidth: '120px'
+            }}>
+              {step.description}
+            </div>,
             icon: <div style={{
-              fontSize: '18px',
+              fontSize: '16px',
               color: index < currentStep ? '#52c41a' : 
                      index === currentStep ? '#1890ff' : '#d9d9d9',
-              width: '32px',
-              height: '32px',
+              width: '40px',
+              height: '40px',
               borderRadius: '50%',
               background: index < currentStep ? '#f6ffed' :
                          index === currentStep ? '#e6f7ff' : '#f5f5f5',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: `2px solid ${index < currentStep ? '#52c41a' : 
+              border: `3px solid ${index < currentStep ? '#52c41a' : 
                                   index === currentStep ? '#1890ff' : '#d9d9d9'}`,
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              boxShadow: index === currentStep ? '0 0 12px rgba(24, 144, 255, 0.4)' : 
+                         index < currentStep ? '0 0 8px rgba(82, 196, 26, 0.3)' : 'none'
             }}>
               {index < currentStep ? '✓' : (
                 index === currentStep ? (
-                  <Spin indicator={<LoadingOutlined style={{ fontSize: 14, color: '#1890ff' }} />} />
+                  <Spin indicator={<LoadingOutlined style={{ fontSize: 16, color: '#1890ff' }} />} />
                 ) : step.icon
               )}
             </div>
