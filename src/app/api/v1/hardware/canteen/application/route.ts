@@ -5,7 +5,7 @@ import { convertToCurl } from "@helpers/api/convert-to-curl";
 
 export async function GET(request: NextRequest) {
   // ดึงข้อมูลรายการ application ของ hardware canteen
-  const apiUrl = API_URL.DEV_HARDWARE_API_URL;
+  const apiUrl = API_URL.PROD_HARDWARE_API_URL;
   const endpoint = "/api/v2/applications";
   const fullURL = `${apiUrl}${endpoint}`;
   const curlCommand = convertToCurl(apiUrl, endpoint);

@@ -6,11 +6,12 @@
  */
 
 import {useEffect, useState} from "react";
-import {Avatar, Button, Divider, Popover, Segmented, Spin, theme, Typography} from "antd";
-import {DownOutlined, LogoutOutlined, TranslationOutlined} from "@ant-design/icons";
+import {Avatar, Button, Divider, Popover, Segmented, Spin, theme, Typography, Badge, Progress} from "antd";
+import {DownOutlined, LogoutOutlined, TranslationOutlined, TrophyOutlined, StarOutlined, FireOutlined} from "@ant-design/icons";
 import i18n from "@/i18n";
 import {useAppSelector} from "@stores/store";
 import {toast} from "sonner";
+import {getUserRankFromStorage, getDisciplineLevel} from "@/helpers/user-rank.helper";
 
 /**
  * 📦 UserDropdown: Component Dropdown สำหรับเมนูผู้ใช้

@@ -15,6 +15,7 @@ import {
   Row,
   Select,
   Space,
+  Steps,
   Switch,
   Table,
   Tag,
@@ -170,6 +171,7 @@ export default function Page() {
     const [versionModalVisible, setVersionModalVisible] = useState(false);
     const [versionFormVisible, setVersionFormVisible] = useState(false);
     const [versionFormMode, setVersionFormMode] = useState<"add" | "edit">("add");
+    const [currentStep, setCurrentStep] = useState(0);
     const [versionForm] = Form.useForm<VersionFormValues>();
     const [deleteTarget, setDeleteTarget] = useState<VersionRecord | null>(null);
 
@@ -331,6 +333,7 @@ export default function Page() {
 
     const openVersionForm = (mode: "add" | "edit", version?: VersionRecord) => {
         setVersionFormMode(mode);
+        setCurrentStep(0);
         if (mode === "add") {
             versionForm.resetFields();
             versionForm.setFieldsValue({
@@ -355,6 +358,27 @@ export default function Page() {
         setVersionFormVisible(true);
     };
 
+    //** จัดการการย้าย Step
+    const handleNext = async () => {
+        try {
+            // ตรวจสอบข้อมูลตาม Step ปัจจุบัน
+            if (currentStep === 0) {
+                await versionForm.validateFields(['appID', 'versionName', 'env']);
+            } else if (currentStep === 1) {
+                if (versionFormMode === "add") {
+                    await versionForm.validateFields(['file']);
+                }
+            }
+            setCurrentStep(prev => prev + 1);
+        } catch (error) {
+            // จะไม่ย้าย Step ถ้า validation ไม่ผ่าน
+        }
+    };
+
+    const handlePrev = () => {
+        setCurrentStep(prev => prev - 1);
+    };
+
     //** บันทึกข้อมูลเวอร์ชัน (เพิ่มใหม่หรือแก้ไข)
     const handleVersionSubmit = async () => {
         try {
@@ -376,6 +400,7 @@ export default function Page() {
             });
 
             setVersionFormVisible(false);
+            setCurrentStep(0);
 
             // รีเฟรชข้อมูลเวอร์ชัน
             if (selectedApplication) {
@@ -653,22 +678,10 @@ export default function Page() {
                 open={versionFormVisible}
                 onCancel={() => {
                     setVersionFormVisible(false);
+                    setCurrentStep(0);
                 }}
-                width={760}
-                footer={
-                    <Space style={{width: "100%", justifyContent: "flex-end"}}>
-                        <Button
-                            onClick={() => {
-                                setVersionFormVisible(false);
-                            }}
-                        >
-                            ยกเลิก
-                        </Button>
-                        <Button type="primary" onClick={handleVersionSubmit}>
-                            บันทึกเวอร์ชัน
-                        </Button>
-                    </Space>
-                }
+                width={800}
+                footer={null}
             >
                 <Form<VersionFormValues>
                     layout="vertical"
@@ -683,138 +696,220 @@ export default function Page() {
                         file: null,
                     }}
                 >
-                    <Card
-                        size="small"
-                        loading={versionFormMode === "edit" && versionDataset.loading}
-                        title={
-                            <Space>
-                                <FileTextOutlined/>
-                                <span>รายละเอียดเวอร์ชัน</span>
-                            </Space>
-                        }
-                    >
-                        <Row gutter={[16, 16]}>
-                            <Col span={12}>
-                                <Form.Item label="เลือกโรงเรียน" name="schoolID">
-                                    <Select
-                                        allowClear
-                                        placeholder="เลือกโรงเรียน"
-                                        options={schoolOptions}
-                                        showSearch
-                                        filterOption={(input, option) =>
-                                            String(option?.label ?? "")
-                                                .toLowerCase()
-                                                .includes(input.toLowerCase())
-                                        }
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item
-                                    label="เลือกแอปพลิเคชัน"
-                                    name="appID"
-                                    rules={[{required: true, message: "กรุณาเลือกแอปพลิเคชัน"}]}
-                                >
-                                    <Select
-                                        placeholder="เลือกแอปพลิเคชัน"
-                                        disabled={versionFormMode === "edit"}
-                                        options={applicationList.map((item) => ({
-                                            label: item.app_name,
-                                            value: String(item.app_id),
-                                        }))}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            {versionFormMode === "edit" && (
-                                <Col span={12}>
-                                    <Form.Item label="Version ID" name="versionID">
-                                        <Input disabled/>
-                                    </Form.Item>
-                                </Col>
-                            )}
-                            <Col span={12}>
-                                <Form.Item
-                                    label="ชื่อเวอร์ชัน"
-                                    name="versionName"
-                                    rules={[{required: true, message: "กรุณาระบุชื่อเวอร์ชัน"}]}
-                                >
-                                    <Input placeholder="เช่น 1.0.0"/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item
-                                    label="สภาพแวดล้อม"
-                                    name="env"
-                                    rules={[{required: true, message: "กรุณาเลือกสภาพแวดล้อม"}]}
-                                >
-                                    <Select
-                                        placeholder="เลือกสภาพแวดล้อม"
-                                        options={[
-                                            {label: "Production", value: "Production"},
-                                            {label: "Beta", value: "Beta"},
-                                            {label: "Development", value: "Development"},
-                                        ]}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item label="หมายเหตุ" name="note">
-                                    <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม"/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    label="อัปโหลดไฟล์"
-                                    name="file"
-                                    valuePropName="fileList"
-                                    getValueFromEvent={(info: UploadChangeParam<UploadFile>) =>
-                                        info.fileList
-                                    }
-                                    rules={[
-                                        {
-                                            required: versionFormMode === "add",
-                                            validator: (_, fileList) => {
-                                                if (!fileList || fileList.length === 0) {
-                                                    return Promise.reject(
-                                                        "กรุณาอัปโหลดไฟล์เวอร์ชัน (.apk หรือ .zip)"
-                                                    );
+                    {/* Steps Navigation */}
+                    <Steps
+                        current={currentStep}
+                        style={{ marginBottom: 32 }}
+                        items={[
+                            {
+                                title: 'ข้อมูลพื้นฐาน',
+                                description: 'แอป และเวอร์ชัน',
+                            },
+                            {
+                                title: 'อัปโหลดไฟล์',
+                                description: 'ไฟล์เวอร์ชันใหม่',
+                            },
+                            {
+                                title: 'การตั้งค่า',
+                                description: 'ตัวเลือกเพิ่มเติม',
+                            },
+                        ]}
+                    />
+
+                    {/* Step Content */}
+                    <div style={{ minHeight: 300 }}>
+                        {/* Step 1: ข้อมูลพื้นฐาน */}
+                        {currentStep === 0 && (
+                            <Card size="small" title="ข้อมูลพื้นฐาน">
+                                <Row gutter={[16, 16]}>
+                                    <Col span={12}>
+                                        <Form.Item label="เลือกโรงเรียน" name="schoolID">
+                                            <Select
+                                                allowClear
+                                                placeholder="เลือกโรงเรียน"
+                                                options={schoolOptions}
+                                                showSearch
+                                                filterOption={(input, option) =>
+                                                    String(option?.label ?? "")
+                                                        .toLowerCase()
+                                                        .includes(input.toLowerCase())
                                                 }
-                                                return Promise.resolve();
-                                            },
-                                        },
-                                    ]}
-                                >
-                                    <Upload
-                                        beforeUpload={() => false}
-                                        maxCount={1}
-                                        onChange={handleUploadChange}
-                                        accept=".apk,.zip"
-                                        listType="picture"
-                                    >
-                                        <Button icon={<CloudUploadOutlined/>}>
-                                            เลือกไฟล์เวอร์ชัน
-                                        </Button>
-                                    </Upload>
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Flex gap="large">
-                                    <Space>
-                                        <Form.Item name="isLatestVersion" valuePropName="checked">
-                                            <Switch/>
+                                            />
                                         </Form.Item>
-                                        <Typography.Text>เวอร์ชันล่าสุด</Typography.Text>
-                                    </Space>
-                                    <Space>
-                                        <Form.Item name="forceUpdate" valuePropName="checked">
-                                            <Switch/>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            label="เลือกแอปพลิเคชัน"
+                                            name="appID"
+                                            rules={[{required: true, message: "กรุณาเลือกแอปพลิเคชัน"}]}
+                                        >
+                                            <Select
+                                                placeholder="เลือกแอปพลิเคชัน"
+                                                disabled={versionFormMode === "edit"}
+                                                options={applicationList.map((item) => ({
+                                                    label: item.app_name,
+                                                    value: String(item.app_id),
+                                                }))}
+                                            />
                                         </Form.Item>
-                                        <Typography.Text>บังคับอัปเดต</Typography.Text>
-                                    </Space>
-                                </Flex>
-                            </Col>
-                        </Row>
-                    </Card>
+                                    </Col>
+                                    {versionFormMode === "edit" && (
+                                        <Col span={12}>
+                                            <Form.Item label="Version ID" name="versionID">
+                                                <Input disabled/>
+                                            </Form.Item>
+                                        </Col>
+                                    )}
+                                    <Col span={12}>
+                                        <Form.Item
+                                            label="ชื่อเวอร์ชัน"
+                                            name="versionName"
+                                            rules={[{required: true, message: "กรุณาระบุชื่อเวอร์ชัน"}]}
+                                        >
+                                            <Input placeholder="เช่น 1.0.0"/>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            label="สภาพแวดล้อม"
+                                            name="env"
+                                            rules={[{required: true, message: "กรุณาเลือกสภาพแวดล้อม"}]}
+                                        >
+                                            <Select
+                                                placeholder="เลือกสภาพแวดล้อม"
+                                                options={[
+                                                    {label: "Production", value: "Production"},
+                                                    {label: "Beta", value: "Beta"},
+                                                    {label: "Development", value: "Development"},
+                                                ]}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item label="หมายเหตุ" name="note">
+                                            <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม"/>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        )}
+
+                        {/* Step 2: อัปโหลดไฟล์ */}
+                        {currentStep === 1 && (
+                            <Card size="small" title="อัปโหลดไฟล์เวอร์ชัน">
+                                <Row gutter={[16, 16]}>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            label="เลือกไฟล์เวอร์ชัน"
+                                            name="file"
+                                            valuePropName="fileList"
+                                            getValueFromEvent={(info: UploadChangeParam<UploadFile>) =>
+                                                info.fileList
+                                            }
+                                            rules={[
+                                                {
+                                                    required: versionFormMode === "add",
+                                                    validator: (_, fileList) => {
+                                                        if (versionFormMode === "add" && (!fileList || fileList.length === 0)) {
+                                                            return Promise.reject(
+                                                                "กรุณาอัปโหลดไฟล์เวอร์ชัน (.apk หรือ .zip)"
+                                                            );
+                                                        }
+                                                        return Promise.resolve();
+                                                    },
+                                                },
+                                            ]}
+                                        >
+                                            <Upload.Dragger
+                                                beforeUpload={() => false}
+                                                maxCount={1}
+                                                onChange={handleUploadChange}
+                                                accept=".apk,.zip"
+                                                style={{ padding: 40 }}
+                                            >
+                                                <p className="ant-upload-drag-icon">
+                                                    <CloudUploadOutlined style={{ fontSize: 48, color: '#1677ff' }} />
+                                                </p>
+                                                <p className="ant-upload-text">คลิกหรือลากไฟล์มาที่นี่</p>
+                                                <p className="ant-upload-hint">
+                                                    รองรับไฟล์ .apk และ .zip เท่านั้น
+                                                </p>
+                                            </Upload.Dragger>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        )}
+
+                        {/* Step 3: การตั้งค่า */}
+                        {currentStep === 2 && (
+                            <Card size="small" title="การตั้งค่าเพิ่มเติม">
+                                <Row gutter={[16, 16]}>
+                                    <Col span={24}>
+                                        <Flex gap="large" vertical>
+                                            <Card size="small" style={{ backgroundColor: '#f8f9fa' }}>
+                                                <Flex justify="space-between" align="center">
+                                                    <Space>
+                                                        <Typography.Text strong>เวอร์ชันล่าสุด</Typography.Text>
+                                                        <Typography.Text type="secondary">
+                                                            กำหนดให้เป็นเวอร์ชันล่าสุดของแอป
+                                                        </Typography.Text>
+                                                    </Space>
+                                                    <Form.Item name="isLatestVersion" valuePropName="checked" style={{ margin: 0 }}>
+                                                        <Switch />
+                                                    </Form.Item>
+                                                </Flex>
+                                            </Card>
+                                            
+                                            <Card size="small" style={{ backgroundColor: '#fff2f0' }}>
+                                                <Flex justify="space-between" align="center">
+                                                    <Space>
+                                                        <Typography.Text strong>บังคับอัปเดต</Typography.Text>
+                                                        <Typography.Text type="secondary">
+                                                            ผู้ใช้จะต้องอัปเดตก่อนใช้งาน
+                                                        </Typography.Text>
+                                                    </Space>
+                                                    <Form.Item name="forceUpdate" valuePropName="checked" style={{ margin: 0 }}>
+                                                        <Switch />
+                                                    </Form.Item>
+                                                </Flex>
+                                            </Card>
+                                        </Flex>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        )}
+                    </div>
+
+                    {/* Navigation Buttons */}
+                    <Flex justify="space-between" style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                        <Space>
+                            <Button onClick={() => {
+                                setVersionFormVisible(false);
+                                setCurrentStep(0);
+                            }}>
+                                ยกเลิก
+                            </Button>
+                        </Space>
+                        
+                        <Space>
+                            {currentStep > 0 && (
+                                <Button onClick={handlePrev}>
+                                    ย้อนกลับ
+                                </Button>
+                            )}
+                            
+                            {currentStep < 2 ? (
+                                <Button type="primary" onClick={handleNext}>
+                                    ถัดไป
+                                </Button>
+                            ) : (
+                                <Button type="primary" onClick={handleVersionSubmit}>
+                                    บันทึกเวอร์ชัน
+                                </Button>
+                            )}
+                        </Space>
+                    </Flex>
                 </Form>
             </Modal>
 
