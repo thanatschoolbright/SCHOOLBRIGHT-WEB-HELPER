@@ -21,12 +21,25 @@
 }
 
 /* --- Collapsed Mode: Center icons & smooth alignment --- */
-.ant-menu-inline-collapsed .ant-menu-item {
+.ant-menu-inline-collapsed .ant-menu-item,
+.ant-menu-inline-collapsed .ant-menu-submenu-title {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   height: 48px !important;
+  padding: 0 24px !important;
   transition: all 0.25s ease;
+}
+
+.ant-menu-inline-collapsed .ant-menu-item .sidebar-icon-wrapper,
+.ant-menu-inline-collapsed .ant-menu-submenu-title .sidebar-icon-wrapper {
+  margin: 0 !important;
+  transform: scale(1.1);
+}
+
+.ant-menu-inline-collapsed .ant-menu-item .ant-menu-title-content,
+.ant-menu-inline-collapsed .ant-menu-submenu-title .ant-menu-title-content {
+  display: none !important;
 }
 
 .ant-menu-inline-collapsed .ant-menu-item-icon {

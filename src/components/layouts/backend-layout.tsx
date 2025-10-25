@@ -87,16 +87,24 @@ export default function DashboardLayout({children}: DashboardLayoutProps): JSX.E
                 collapsed={collapsed}
                 onCollapse={setCollapsed}
                 width={260}
+                collapsedWidth={80}
                 breakpoint="lg"
                 style={{
-                    background: token.colorBgContainer, // รองรับ Dark Mode
+                    background: token.colorBgContainer,
                     borderRight: `1px solid ${token.colorBorderSecondary}`,
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    overflow: 'hidden'
                 }}
             >
                 <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
                     {/* 📋 เนื้อหา Sidebar */}
-                    <div style={{flex: 1, overflowY: "auto", padding: 16}}>
-                        <MemoSidebarContent/>
+                    <div style={{
+                        flex: 1, 
+                        overflowY: "auto", 
+                        padding: collapsed ? '16px 8px' : '16px',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}>
+                        <MemoSidebarContent collapsed={collapsed}/>
                     </div>
                     {/* 🌙 Toggle Dark Mode */}
                     {darkToggleSection}
