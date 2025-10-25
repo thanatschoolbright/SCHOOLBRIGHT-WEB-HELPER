@@ -6,6 +6,9 @@ import {
     LoadingOutlined,
     RobotOutlined,
     SearchOutlined,
+    FileTextOutlined,
+    EditOutlined,
+    SendOutlined,
 } from "@ant-design/icons";
 import {Button, Table, theme, Tooltip, Typography,} from "antd";
 import type {ColumnsType} from "antd/es/table";
@@ -20,6 +23,7 @@ import type {Issue} from "@components/backlog/issue-drawer/types";
 import {RootState} from "@stores/store";
 import {setPagination, setSelectedRowKeys} from "@stores/reducers/issues-slice";
 import AiUpdateDrawer from "@components/backlog/issue-drawer/ai-update-drawer";
+import AIProcessingModal from "@components/modal/ai-processing-modal";
 
 interface IssuesTableProps {
     listCardStyle: React.CSSProperties;
@@ -44,51 +48,133 @@ const IssuesTable: React.FC<IssuesTableProps> = ({listCardStyle, onReload, space
         newText: "",
         open: false,
     });
+    
+    // AI Processing Modal State
+    const [aiProcessing, setAiProcessing] = React.useState<{
+        open: boolean;
+        currentStep: number;
+        processingTime: number;
+    }>({
+        open: false,
+        currentStep: 0,
+        processingTime: 0,
+    });
+    
     const [bulkProgress, setBulkProgress] = React.useState<Record<string, 'processing' | 'success' | 'error'>>({});
 
+    // Define AI Processing Steps
+    const aiSteps = [
+        {
+            key: 'prepare',
+            title: 'เตรียมข้อมูล',
+            description: 'กำลังวิเคราะห์และเตรียมข้อมูลเพื่อส่งไปยัง AI',
+            icon: <FileTextOutlined />,
+            status: 'wait' as const,
+        },
+        {
+            key: 'send',
+            title: 'ส่งคำขอไปยัง Gemini AI', 
+            description: 'กำลังส่งข้อมูลไปยัง Google Gemini เพื่อประมวลผล',
+            icon: <SendOutlined />,
+            status: 'wait' as const,
+        },
+        {
+            key: 'process',
+            title: 'ประมวลผลด้วย AI',
+            description: 'AI กำลังวิเคราะห์และสรุปเนื้อหาเป็น Markdown',
+            icon: <RobotOutlined />,
+            status: 'wait' as const,
+        },
+        {
+            key: 'format',
+            title: 'จัดรูปแบบผลลัพธ์',
+            description: 'กำลังจัดรูปแบบและปรับแต่งเนื้อหาที่ได้จาก AI',
+            icon: <EditOutlined />,
+            status: 'wait' as const,
+        },
+        {
+            key: 'complete',
+            title: 'เสร็จสิ้น',
+            description: 'ได้รับผลลัพธ์จาก AI เรียบร้อยแล้ว',
+            icon: <CheckCircleOutlined />,
+            status: 'wait' as const,
+        },
+    ];
+
     const onClickAI = async (issue: Issue) => {
-        const toastId = toast.loading("กำลังเตรียมข้อมูลเพื่อสรุปด้วย AI...");
-        setAiModal({open: true, issue, generating: true, newText: ""});
+        // เปิด AI Processing Modal
+        setAiProcessing({
+            open: true,
+            currentStep: 0,
+            processingTime: 0,
+        });
 
         const startTime = Date.now();
-        let seconds = 0;
+        let stepTimer: NodeJS.Timeout;
+        let timeTimer: NodeJS.Timeout;
 
-        const timer = setInterval(() => {
-            seconds = Math.floor((Date.now() - startTime) / 1000);
-            toast.message(`ส่งคำขอไปยัง Gemini... (รอ ${seconds} วินาที)`, {
-                id: toastId,
-            });
+        // Timer สำหรับอัปเดตเวลา
+        timeTimer = setInterval(() => {
+            const seconds = Math.floor((Date.now() - startTime) / 1000);
+            setAiProcessing(prev => ({
+                ...prev,
+                processingTime: seconds,
+            }));
         }, 1000);
 
         try {
+            // Step 1: เตรียมข้อมูล
+            setAiProcessing(prev => ({ ...prev, currentStep: 0 }));
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate preparation time
+
+            // Step 2: ส่งคำขอไปยัง Gemini
+            setAiProcessing(prev => ({ ...prev, currentStep: 1 }));
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Step 3: ประมวลผลด้วย AI
+            setAiProcessing(prev => ({ ...prev, currentStep: 2 }));
+            
             const response = await axios.post("/api/v1/ai/gemini/summarize", {
                 summary: issue.summary,
                 description: issue.description,
             });
 
-            clearInterval(timer);
+            // Step 4: จัดรูปแบบผลลัพธ์
+            setAiProcessing(prev => ({ ...prev, currentStep: 3 }));
+            await new Promise(resolve => setTimeout(resolve, 800));
+
             const markdown: string = response?.data?.data?.markdown || "";
 
-            setAiModal((state) => ({
-                ...state,
-                newText: markdown,
-                generating: false,
-            }));
+            // Step 5: เสร็จสิ้น
+            setAiProcessing(prev => ({ ...prev, currentStep: 4 }));
+            await new Promise(resolve => setTimeout(resolve, 500));
 
-            toast.success(`ได้รับผลจาก AI แล้ว (ใช้เวลา ${seconds} วินาที)`, {
-                id: toastId,
+            // ปิด Processing Modal และเปิด Result Modal
+            clearInterval(timeTimer);
+            setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
+
+            setAiModal({
+                open: true,
+                issue,
+                generating: false,
+                newText: markdown,
+            });
+
+            const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
+            toast.success(`ได้รับผลจาก AI แล้ว (ใช้เวลา ${totalSeconds} วินาที)`, {
                 duration: 2500,
             });
+
         } catch (error: any) {
-            clearInterval(timer);
-            setAiModal((state) => ({...state, generating: false}));
+            clearInterval(timeTimer);
+            setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
+            setAiModal(prev => ({ ...prev, generating: false }));
 
             toast.error(
                 error?.response?.data?.message ||
                 error?.message ||
                 "เรียก AI ไม่สำเร็จ",
                 {
-                    id: toastId,
                     duration: 3000,
                 }
             );
@@ -352,6 +438,15 @@ const IssuesTable: React.FC<IssuesTableProps> = ({listCardStyle, onReload, space
                 onUpdateText={(value) =>
                     setAiModal((prev) => ({...prev, newText: value}))
                 }
+            />
+            
+            {/* AI Processing Modal */}
+            <AIProcessingModal
+                open={aiProcessing.open}
+                currentStep={aiProcessing.currentStep}
+                steps={aiSteps}
+                processingTime={aiProcessing.processingTime}
+                onCancel={() => setAiProcessing({ open: false, currentStep: 0, processingTime: 0 })}
             />
         </>
     );
