@@ -3,11 +3,9 @@ import { ExportOutlined } from "@ant-design/icons";
 import type { ButtonProps, MenuProps } from "antd";
 
 export interface ExportButtonProps extends Omit<ButtonProps, 'onClick'> {
-  /** สถานะการโหลดของการส่งออก */
   isExporting?: boolean;
-  /** ฟังก์ชันสำหรับเปิด modal ส่งออก template */
   onExportTemplate?: () => void;
-  /** ฟังก์ชันสำหรับส่งออกข้อมูลทั้งหมด */
+  onExportTemplate2?: () => void;
   onExportAll?: () => void;
 }
 
@@ -17,6 +15,7 @@ export interface ExportButtonProps extends Omit<ButtonProps, 'onClick'> {
 export const ExportButton = ({
   isExporting = false,
   onExportTemplate,
+  onExportTemplate2,
   onExportAll,
   ...props
 }: ExportButtonProps) => {
@@ -26,6 +25,11 @@ export const ExportButton = ({
       key: "export-template",
       label: "Template Timesheet",
       onClick: onExportTemplate,
+    }] : []),
+    ...(onExportTemplate2 ? [{
+      key: "export-template-2",
+      label: "Template Timesheet 2",
+      onClick: onExportTemplate2,
     }] : []),
     ...(onExportAll ? [{
       key: "export-all", 

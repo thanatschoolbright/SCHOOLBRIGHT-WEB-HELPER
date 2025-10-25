@@ -1,0 +1,150 @@
+name: Copilot Auto Review (Thai)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    
+jobs:
+  copilot-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR files
+        id: pr-files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            
+            const changedFiles = files.map(file => ({
+              filename: file.filename,
+              status: file.status,
+              additions: file.additions,
+              deletions: file.deletions,
+              patch: file.patch
+            }));
+            
+            core.setOutput('files', JSON.stringify(changedFiles));
+            return changedFiles;
+
+      - name: Copilot Code Review (Thai)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = JSON.parse('${{ steps.pr-files.outputs.files }}');
+            
+            const reviewComment = `## 🤖 Copilot Auto Review (ภาษาไทย)
+            
+            กรุณาทำการ Code Review ใน Pull Request นี้เป็นภาษาไทย โดยพิจารณาจาก:
+            
+            📋 **รายการไฟล์ที่เปลี่ยนแปลง:**
+            ${files.map(f => `- ${f.filename} (${f.status})`).join('\n')}
+            
+            🔍 **ประเด็นที่ต้องตรวจสอบ:**
+            - ความถูกต้องของโค้ด (Code Correctness)
+            - ความปลอดภัย (Security Issues) 
+            - ประสิทธิภาพ (Performance)
+            - การปฏิบัติตามมาตรฐาน (Best Practices)
+            - การจัดการข้อผิดพลาด (Error Handling)
+            - การเขียน Comment และ Documentation
+            - การทดสอบ (Testing)
+            
+            📝 **รูปแบบการตอบกลับ:**
+            - ใช้ภาษาไทยทั้งหมด
+            - ให้คำแนะนำเชิงสร้างสรรค์
+            - ระบุบรรทัดที่มีปัญหา (ถ้ามี)
+            - แนะนำแนวทางแก้ไข
+            
+            ---
+            *Review นี้สร้างโดย GitHub Copilot อัตโนมัติ กรุณาตรวจสอบและพิจารณาคำแนะนำก่อนนำไปใช้*
+            
+            **📊 สรุปการเปลี่ยนแปลง:**
+            - ไฟล์ที่เปลี่ยนแปลง: ${files.length} ไฟล์
+            - บรรทัดเพิ่ม: ${files.reduce((sum, f) => sum + f.additions, 0)} บรรทัด
+            - บรรทัดลบ: ${files.reduce((sum, f) => sum + f.deletions, 0)} บรรทัด
+            
+            **🔍 ผลการตรวจสอบเบื้องต้น:**
+            ${files.length > 0 ? '✅ พบไฟล์ที่เปลี่ยนแปลง - กำลังดำเนินการ Review' : '❌ ไม่พบไฟล์ที่เปลี่ยนแปลง'}
+            
+            **💡 คำแนะนำทั่วไป:**
+            - ตรวจสอบการทำงานของ Hot Reload ใน Docker
+            - ทดสอบการแสดงผลรูปภาพใน Preview Modal
+            - ตรวจสอบ JavaScript functions ที่แก้ไข
+            - ยืนยันการทำงานของ Health Check endpoint`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: reviewComment
+            });
+
+      - name: Add Review Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = ['🤖 copilot-reviewed', '🔍 needs-review', '🇹🇭 thai-review'];
+            
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: labels
+            });
+
+      - name: Request Human Review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reviewers = [
+              'thanatschoolbright',
+              'tanakongsengwan', 
+              'tristanjj',
+              'code0x002',
+              'devyuucharawae'
+            ];
+            
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              reviewers: reviewers
+            });
+            
+            const humanReviewComment = `## 👥 Human Review Required
+
+            **📋 Reviewers ที่ได้รับมอบหมาย:**
+            ${reviewers.map(r => `- @${r}`).join('\n')}
+
+            **🔔 การแจ้งเตือน:**
+            กรุณา Reviewers ตรวจสอบ Pull Request นี้ภายใน 24 ชั่วโมง
+
+            **📝 Checklist สำหรับ Reviewer:**
+            - [ ] ตรวจสอบการทำงานของโค้ด
+            - [ ] ทดสอบ Hot Reload ใน Docker
+            - [ ] ยืนยันการแก้ไข Image Preview ปัญหา
+            - [ ] ตรวจสอบ Health Check endpoint
+            - [ ] อนุมัติหรือขอแก้ไขเพิ่มเติม
+
+            ---
+            *แจ้งเตือนโดย Copilot Auto Review System*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: humanReviewComment
+            });
