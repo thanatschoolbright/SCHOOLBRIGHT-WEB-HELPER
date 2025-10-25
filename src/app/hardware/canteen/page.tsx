@@ -646,6 +646,7 @@ export default function Page() {
                 </Space>
             </Modal>
 
+{/* TODO : จงทำให้เป็น Skeleton Loading ตัด Loading แบบหมุนออก */}
             <Modal
                 title={`เวอร์ชันของ ${selectedApplication?.app_name ?? "-"}`}
                 open={versionModalVisible}
@@ -847,7 +848,7 @@ export default function Page() {
                                 <Row gutter={[16, 16]}>
                                     <Col span={24}>
                                         <Flex gap="large" vertical>
-                                            <Card size="small" style={{ backgroundColor: '#f8f9fa' }}>
+                                            <Card size="small" >
                                                 <Flex justify="space-between" align="center">
                                                     <Space>
                                                         <Typography.Text strong>เวอร์ชันล่าสุด</Typography.Text>
@@ -861,7 +862,7 @@ export default function Page() {
                                                 </Flex>
                                             </Card>
                                             
-                                            <Card size="small" style={{ backgroundColor: '#fff2f0' }}>
+                                            <Card size="small" >
                                                 <Flex justify="space-between" align="center">
                                                     <Space>
                                                         <Typography.Text strong>บังคับอัปเดต</Typography.Text>

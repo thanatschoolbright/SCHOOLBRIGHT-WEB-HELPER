@@ -5,4 +5,3 @@
 
 export * from './user-rank.service';
 export * from '../../helpers/user-rank.helper';
-export * from '../../components/user-rank/user-rank-display';

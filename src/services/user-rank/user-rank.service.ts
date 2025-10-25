@@ -6,8 +6,14 @@
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 
 export interface UserRankResponse {
-  rank: number;
-  admin_id: string;
+  rank: number;              // อันดับ (order จาก API)
+  rankLetter: string;        // เกรด rank (S, A, B, C, D, E, F)
+  rankDescription: string;   // คำอธิบาย rank
+  admin_id: number;
+  fullName: string;
+  completion_rate: number;
+  total_hours: number;
+  expected_hours: number;
   month: string;
   year: string;
   rawData: any;
@@ -41,18 +47,25 @@ export const fetchUserRank = async (
       const data = response.data;
       const records = data?.data?.records || [];
       
-      // หาข้อมูล rank ของ user ที่ต้องการ
+      // หาข้อมูล rank ของ user ที่ต้องการ โดยเปรียบเทียบ admin_id
       const userRankData = records.find((item: any) => 
-        item.user_id?.toString() === userId || 
-        item.admin_id?.toString() === userId
+        item.admin_id?.toString() === userId.toString()
       );
+      
+      console.log(`🔍 [UserRankService] Looking for admin_id: ${userId}`);
+      console.log(`📊 [UserRankService] Found ${records.length} records in API response`);
+      console.log(`🎯 [UserRankService] User rank data:`, userRankData);
 
       if (userRankData) {
         const result: UserRankResponse = {
-          rank: userRankData.rank || records.findIndex((item: any) => 
-            (item.user_id?.toString() === userId || item.admin_id?.toString() === userId)
-          ) + 1,
-          admin_id: userRankData.user_id || userRankData.admin_id,
+          rank: userRankData.order || 999, // ใช้ order จาก API
+          rankLetter: userRankData.rank || 'F', // ใช้ rank letter จาก API
+          rankDescription: userRankData.rank_description || 'ไม่มีข้อมูล',
+          admin_id: userRankData.admin_id,
+          fullName: userRankData.full_name || '',
+          completion_rate: userRankData.completion_rate || 0,
+          total_hours: userRankData.total_hours || 0,
+          expected_hours: userRankData.expected_hours || 0,
           month: requestMonth,
           year: requestYear,
           rawData: userRankData
@@ -61,7 +74,8 @@ export const fetchUserRank = async (
         console.log(`✅ [UserRankService] User rank found:`, result);
         return result;
       } else {
-        console.warn(`⚠️ [UserRankService] No rank data found for user: ${userId}`);
+        console.warn(`⚠️ [UserRankService] No rank data found for admin_id: ${userId}`);
+        console.log(`📋 [UserRankService] Available admin_ids:`, records.map((r: any) => r.admin_id));
       }
     } else {
       console.error(`❌ [UserRankService] API responded with status: ${response.status}`);

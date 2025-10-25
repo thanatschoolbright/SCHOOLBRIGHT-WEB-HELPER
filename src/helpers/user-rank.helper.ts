@@ -6,11 +6,17 @@
 import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 
 export interface UserRankData {
-  rank: number;
-  admin_id: string;
+  rank: number;              // อันดับ (order จาก API)
+  rankLetter: string;        // เกรด rank (S, A, B, C, D, E, F)
+  rankDescription: string;   // คำอธิบาย rank
+  admin_id: number;
+  fullName: string;
+  completion_rate: number;
+  total_hours: number;
+  expected_hours: number;
   month: string;
   year: string;
-  updated_at: string;
+  updated_at?: string;
   discipline_score?: any;
 }
 
@@ -19,11 +25,19 @@ export interface UserRankData {
  */
 export const getUserRankFromStorage = (): UserRankData | null => {
   try {
+    // ลองอ่านจาก USER_RANK_DATA ก่อน (ใหม่)
+    const rankData = localStorage.getItem("USER_RANK_DATA");
+    if (rankData) {
+      return JSON.parse(rankData);
+    }
+    
+    // fallback เก่า จาก AUTH_USER
     const authData = localStorage.getItem("AUTH_USER");
     if (authData) {
       const parsed = JSON.parse(authData);
       return parsed.user_rank || null;
     }
+    
     return null;
   } catch (error) {
     console.error("Error reading user rank from storage:", error);
@@ -118,6 +132,7 @@ export const calculateBenefitFromRank = (rank: number): {
  */
 export const isRankDataOutdated = (rankData: UserRankData): boolean => {
   try {
+    if (!rankData.updated_at) return true;
     const updatedDate = new Date(rankData.updated_at);
     const currentDate = new Date();
     const diffInDays = Math.floor((currentDate.getTime() - updatedDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -144,7 +159,13 @@ export const refreshUserRankIfNeeded = async (userId: string): Promise<UserRankD
       if (rankResponse) {
         const newRankData: UserRankData = {
           rank: rankResponse.rank,
+          rankLetter: rankResponse.rankLetter,
+          rankDescription: rankResponse.rankDescription,
           admin_id: rankResponse.admin_id,
+          fullName: rankResponse.fullName,
+          completion_rate: rankResponse.completion_rate,
+          total_hours: rankResponse.total_hours,
+          expected_hours: rankResponse.expected_hours,
           month: rankResponse.month,
           year: rankResponse.year,
           updated_at: new Date().toISOString(),

@@ -9,6 +9,7 @@ import {toast} from "sonner";
 import EmailStepForm from "../email-step-form";
 import LogoHeader from "../logo-header";
 import PasswordStepForm from "../password-step-form";
+import {fetchUserRank} from "@/services/user-rank/user-rank.service";
 
 const {useToken} = theme;
 
@@ -79,18 +80,41 @@ export default function SignInForm() {
             formData.append("username", username);
             formData.append("password", password);
             const response = await axios.post("/api/v2/authentication/sign-in", formData);
+            
             if (response?.data?.token) {
-                localStorage.setItem(
-                    "AUTH_USER",
-                    JSON.stringify({
-                        token: response.data.token,
-                        user_data: response.data.user_data,
-                    })
-                );
+                const userData = {
+                    token: response.data.token,
+                    user_data: response.data.user_data,
+                };
+                
+                // บันทึก AUTH_USER ก่อน
+                localStorage.setItem("AUTH_USER", JSON.stringify(userData));
+                
+                // 🏆 ดึงข้อมูล rank หลังจาก login สำเร็จ
+                try {
+                    toast.loading("กำลังโหลดข้อมูลอันดับ...", { id: tId });
+                    const adminId = response.data.user_data.admin_id.toString();
+                    console.log(`🔍 [Login] Fetching rank for admin_id: ${adminId}`);
+                    console.log(`👤 [Login] User data:`, response.data.user_data);
+                    
+                    const rankData = await fetchUserRank(adminId);
+                    if (rankData && rankData.rank) {
+                        // เก็บข้อมูล rank ใน localStorage
+                        localStorage.setItem("USER_RANK_DATA", JSON.stringify(rankData));
+                        console.log("✅ Rank data loaded:", rankData);
+                    } else {
+                        console.warn("⚠️ No rank data returned from API");
+                    }
+                } catch (rankError) {
+                    console.error("❌ Failed to load rank data:", rankError);
+                    // ไม่ให้ rank error ขัดขวางการ login
+                }
+                
                 toast.success("เข้าสู่ระบบสำเร็จ", {id: tId});
                 setTimeout(() => {
                     router.replace("/main");
                 }, 500);
+                
             } else {
                 toast.error("เข้าสู่ระบบล้มเหลว", {
                     description: "โปรดตรวจสอบรหัสผ่านอีกครั้ง",
