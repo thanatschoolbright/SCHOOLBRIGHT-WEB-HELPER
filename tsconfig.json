@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -11,7 +15,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -19,20 +23,48 @@
       }
     ],
     "paths": {
-      "@/*": ["src/*"],
-      "@config/*": ["config/*"],
-      "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"],
-      "@styles/*": ["src/styles/*"],
-      "@components/*": ["src/components/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@api/*": ["src/app/api/*"],
-      "@services/*": ["src/services/*"],
-      "@stores/*": ["src/stores/*"],
-      "@locales/*": ["src/locales/*"],
-      "@helpers/*": ["src/helpers/*"],
-      "@constants/*": ["src/constants/*"],
-      "@data/*": ["src/data/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@config/*": [
+        "config/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@types/*": [
+        "src/types/*"
+      ],
+      "@styles/*": [
+        "src/styles/*"
+      ],
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@hooks/*": [
+        "src/hooks/*"
+      ],
+      "@api/*": [
+        "src/app/api/*"
+      ],
+      "@services/*": [
+        "src/services/*"
+      ],
+      "@stores/*": [
+        "src/stores/*"
+      ],
+      "@locales/*": [
+        "src/locales/*"
+      ],
+      "@helpers/*": [
+        "src/helpers/*"
+      ],
+      "@constants/*": [
+        "src/constants/*"
+      ],
+      "@data/*": [
+        "src/data/*"
+      ]
     },
     "target": "ES2017"
   },
@@ -41,7 +73,10 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "config/next-i18next.config.js"
+    "config/next-i18next.config.js",
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

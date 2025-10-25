@@ -10,6 +10,7 @@ import {StorageProvider} from "@components/providers/storage-provider";
 import ChartProvider from "@/components/providers/chartjs-provider";
 import {Toaster} from "sonner";
 import type {Metadata, Viewport} from "next";
+import CopyrightNotice from "@components/layouts/copyright-notice";
 
 export const metadata: Metadata = {
     title: {
@@ -78,6 +79,9 @@ export default function RootLayout({
                 </ClientProvider>
             </AntdApp>
         </AntThemeProvider>
+
+        {/* Copyright Notice */}
+        <CopyrightNotice />
         </body>
         </html>
     );

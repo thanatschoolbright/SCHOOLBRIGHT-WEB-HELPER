@@ -7,10 +7,10 @@ const nextConfig = {
   // * Enable strict mode for better development experience
   reactStrictMode: false,
 
-  // * Configure body size limits for API routes and middleware
+  // * Configure body size limits for API routes and proxy
   experimental: {
     serverActions: { bodySizeLimit: '50mb' },
-    middlewareClientMaxBodySize: '200mb',
+    proxyClientMaxBodySize: '200mb',
   },
 
   // * Allow images from external domains
@@ -31,7 +31,14 @@ const nextConfig = {
   // * Disable source maps in production for better performance
   productionBrowserSourceMaps: false,
 
-  // * Custom webpack optimization for production builds
+  // * Turbopack configuration for Next.js 16
+  turbopack: {
+    // Enable Turbopack optimizations
+    rules: {},
+    resolveAlias: {},
+  },
+
+  // * Custom webpack optimization for production builds (fallback for webpack mode)
   webpack(config, { dev, isServer }) {
     if (!dev && !isServer) {
       try {
