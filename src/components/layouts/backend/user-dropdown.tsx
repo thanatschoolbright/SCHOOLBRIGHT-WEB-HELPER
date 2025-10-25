@@ -190,15 +190,34 @@ export default function UserDropdown(): JSX.Element {
                                     <div style={{
                                         background: rankInfo.bgColor,
                                         color: 'white',
-                                        borderRadius: 6,
-                                        padding: '6px 10px',
+                                        borderRadius: 8,
+                                        padding: '8px 12px',
                                         fontWeight: 'bold',
-                                        fontSize: 18,
+                                        fontSize: 20,
                                         textAlign: 'center',
-                                        minWidth: 45,
-                                        boxShadow: `0 2px 8px ${rankInfo.color}40`
+                                        minWidth: 50,
+                                        boxShadow: ['S', 'A'].includes(rankInfo.grade) ? 
+                                            `0 4px 16px ${rankInfo.color}60, inset 0 1px 0 rgba(255,255,255,0.3)` :
+                                            `0 2px 8px ${rankInfo.color}40`,
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        animation: ['S', 'A'].includes(rankInfo.grade) ? 'rankGlow 3s ease-in-out infinite' : 'none'
                                     }}>
-                                        {rankInfo.grade}
+                                        {/* เอฟเฟกต์แสงสำหรับ S/A */}
+                                        {['S', 'A'].includes(rankInfo.grade) && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: '-100%',
+                                                width: '100%',
+                                                height: '100%',
+                                                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+                                                animation: 'shimmer 2s infinite'
+                                            }} />
+                                        )}
+                                        <span style={{ position: 'relative', zIndex: 1 }}>
+                                            {rankInfo.grade}
+                                        </span>
                                     </div>
                                     
                                     {/* ข้อมูลส่วนเสริม */}
@@ -210,6 +229,19 @@ export default function UserDropdown(): JSX.Element {
                                             marginBottom: 2
                                         }}>
                                             {rankInfo.description}
+                                            {['S', 'A'].includes(rankInfo.grade) && (
+                                                <span style={{
+                                                    marginLeft: 6,
+                                                    fontSize: 12,
+                                                    background: rankInfo.bgColor,
+                                                    color: 'white',
+                                                    padding: '2px 6px',
+                                                    borderRadius: 4,
+                                                    fontWeight: 'bold'
+                                                }}>
+                                                    {rankInfo.grade === 'S' ? '🔥 LEGEND' : '⭐ ELITE'}
+                                                </span>
+                                            )}
                                         </div>
                                         <div style={{
                                             fontSize: 11,
@@ -221,6 +253,15 @@ export default function UserDropdown(): JSX.Element {
                                             <span>อันดับ {userRank.rank}</span>
                                             <span>•</span>
                                             <span>{currentMonth}/{currentYear}</span>
+                                            {['S', 'A'].includes(rankInfo.grade) && (
+                                                <span style={{ 
+                                                    color: rankInfo.color,
+                                                    fontWeight: 'bold',
+                                                    animation: 'sparkle 2s ease-in-out infinite'
+                                                }}>
+                                                    ✨
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -278,6 +319,59 @@ export default function UserDropdown(): JSX.Element {
 
     return (
         <>
+            {/* 🎨 CSS Animations สำหรับ Rank A/S */}
+            <style jsx>{`
+                @keyframes rankGlow {
+                    0%, 100% { 
+                        transform: rotate(0deg) scale(1);
+                        filter: brightness(1);
+                    }
+                    25% { 
+                        transform: rotate(90deg) scale(1.05);
+                        filter: brightness(1.2);
+                    }
+                    50% { 
+                        transform: rotate(180deg) scale(1);
+                        filter: brightness(1);
+                    }
+                    75% { 
+                        transform: rotate(270deg) scale(1.05);
+                        filter: brightness(1.2);
+                    }
+                }
+                
+                @keyframes rankPulse {
+                    0%, 100% { 
+                        transform: scale(1);
+                        box-shadow: 0 2px 12px rgba(255, 215, 0, 0.6);
+                    }
+                    50% { 
+                        transform: scale(1.1);
+                        box-shadow: 0 4px 20px rgba(255, 215, 0, 0.8);
+                    }
+                }
+                
+                @keyframes sparkle {
+                    0%, 100% { 
+                        opacity: 0;
+                        transform: scale(0.5) rotate(0deg);
+                    }
+                    50% { 
+                        opacity: 1;
+                        transform: scale(1.2) rotate(180deg);
+                    }
+                }
+                
+                @keyframes shimmer {
+                    0% { left: -100%; }
+                    100% { left: 100%; }
+                }
+                
+                .rank-badge:hover {
+                    transform: scale(1.1) !important;
+                    transition: all 0.3s ease;
+                }
+            `}</style>
             
             <Popover content={dropdownOverlay} trigger={["click"]}>
                 <div
@@ -289,53 +383,124 @@ export default function UserDropdown(): JSX.Element {
                         color: token.colorText, // รองรับ Dark Mode
                     }}
                 >
-                    <span style={{fontSize: 14, fontWeight: 500}}>
-                        สวัสดีคุณ {`${userData.firstname ?? "Name"} ${userData.lastname ?? ""}`}
-                    </span>
-                    
-                    {/* Avatar พร้อม Rank Badge */}
-                    <div style={{ position: 'relative' }}>
-                        <Avatar
-                            src="/photo/profile.png"
-                            alt="Avatar"
-                            size={36}
-                            style={{border: `1px solid ${token.colorBorder}`}}
-                        />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{fontSize: 14, fontWeight: 500}}>
+                            สวัสดีคุณ {`${userData.firstname ?? "Name"} ${userData.lastname ?? ""}`}
+                        </span>
                         
-                        {/* Rank Badge */}
-                        {userRank && (
-                            <Badge
-                                count={(() => {
-                                    const rankInfo = getRankGrade(userRank.rankLetter || 'F');
-                                    return (
-                                        <div 
-                                            className="rank-badge"
-                                            style={{
-                                                background: rankInfo.bgColor,
-                                                color: 'white',
-                                                fontSize: '10px',
-                                                fontWeight: 'bold',
-                                                minWidth: '20px',
-                                                height: '20px',
-                                                lineHeight: '20px',
-                                                borderRadius: '10px',
-                                                textAlign: 'center',
-                                                boxShadow: `0 2px 8px ${rankInfo.color}40`,
-                                                border: '2px solid white',
-                                            }}
-                                        >
-                                            {rankInfo.grade}
+                        {/* Rank Badge หลังชื่อ */}
+                        {userRank && (() => {
+                            const rankInfo = getRankGrade(userRank.rankLetter || 'F');
+                            const isHighRank = ['S', 'A'].includes(rankInfo.grade);
+                            
+                            return (
+                                <div 
+                                    className="rank-badge"
+                                    style={{
+                                        background: rankInfo.bgColor,
+                                        color: 'white',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                        padding: '2px 8px',
+                                        borderRadius: '12px',
+                                        textAlign: 'center',
+                                        boxShadow: `0 2px 8px ${rankInfo.color}40`,
+                                        border: '1px solid rgba(255,255,255,0.3)',
+                                        animation: isHighRank ? 'rankPulse 2s ease-in-out infinite' : 'none',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        marginLeft: 4
+                                    }}
+                                >
+                                    {/* เอฟเฟกต์แสงสำหรับ S/A */}
+                                    {isHighRank && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: '-100%',
+                                            width: '100%',
+                                            height: '100%',
+                                            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+                                            animation: 'shimmer 2s infinite'
+                                        }} />
+                                    )}
+                                    <span style={{ position: 'relative', zIndex: 1 }}>
+                                        {rankInfo.grade}
+                                    </span>
+                                </div>
+                            );
+                        })()}
+                    </div>
+                    
+                    {/* Avatar สะอาด ไม่มี badge */}
+                    <div style={{ position: 'relative' }}>
+                        {(() => {
+                            const rankInfo = userRank ? getRankGrade(userRank.rankLetter || 'F') : null;
+                            const isHighRank = rankInfo && ['S', 'A'].includes(rankInfo.grade);
+                            
+                            // สร้าง unique avatar สำหรับแต่ละคน
+                            const getAvatarUrl = () => {
+                                const adminId = userData.admin_id || 1;
+                                const avatarSeed = `${userData.firstname}_${userData.lastname}_${adminId}`;
+                                return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}&backgroundColor=b6e3f4,c0aede,d1d4f9&radius=50`;
+                            };
+
+                            return (
+                                <div 
+                                    style={{
+                                        position: 'relative',
+                                        borderRadius: '50%',
+                                        padding: isHighRank ? '2px' : '0',
+                                        background: isHighRank ? 
+                                            (rankInfo.grade === 'S' ? 
+                                                'conic-gradient(from 0deg, #FFD700, #FF6B6B, #4ECDC4, #FFD700)' :
+                                                'conic-gradient(from 0deg, #52C41A, #13C2C2, #52C41A)'
+                                            ) : 'transparent',
+                                        animation: isHighRank ? 'rankGlow 3s ease-in-out infinite' : 'none',
+                                    }}
+                                >
+                                    <Avatar
+                                        src={getAvatarUrl()}
+                                        alt={`${userData.firstname} ${userData.lastname}`}
+                                        size={36}
+                                        style={{
+                                            border: isHighRank ? '2px solid white' : `1px solid ${token.colorBorder}`,
+                                            boxShadow: isHighRank ? `0 0 15px ${rankInfo.color}50` : 'none',
+                                        }}
+                                    />
+
+                                    {/* Sparkles สำหรับ S/A Rank - เบาลง */}
+                                    {isHighRank && rankInfo && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: -8,
+                                            left: -8,
+                                            right: -8,
+                                            bottom: -8,
+                                            pointerEvents: 'none',
+                                            zIndex: -1
+                                        }}>
+                                            {[...Array(4)].map((_, i) => (
+                                                <div
+                                                    key={i}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        width: '3px',
+                                                        height: '3px',
+                                                        background: rankInfo.color,
+                                                        borderRadius: '50%',
+                                                        top: `${Math.random() * 100}%`,
+                                                        left: `${Math.random() * 100}%`,
+                                                        animation: `sparkle 2s ease-in-out infinite ${i * 0.5}s`,
+                                                        opacity: 0.6
+                                                    }}
+                                                />
+                                            ))}
                                         </div>
-                                    );
-                                })()}
-                                offset={[-8, -8]}
-                                style={{ 
-                                    position: 'absolute',
-                                    top: -2,
-                                    right: -2,
-                                }}
-                            />
-                        )}
+                                    )}
+                                </div>
+                            );
+                        })()}
                     </div>
                     
                     <DownOutlined style={{color: token.colorTextSecondary}}/>
