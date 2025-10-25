@@ -299,7 +299,11 @@ const LogViewer = ({
       </Typography.Title>
       <Card
         size="small"
-        bodyStyle={{ padding: 12 }}
+        styles={{
+          body: {
+            padding: 12,
+          },
+        }}
         style={{ maxHeight: 420, overflow: "auto" }}
       >
         {output.split("\n").map((line, idx) => {
@@ -619,17 +623,26 @@ export default function Page() {
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered>
-                  <Statistic title="✅ Checks Total" value={getCheckCounts(parsedStats).total || "N/A"} />
+                  <Statistic
+                    title="✅ Checks Total"
+                    value={getCheckCounts(parsedStats).total || "N/A"}
+                  />
                 </Card>
               </Col>
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered>
-                  <Statistic title="🎯 Succeeded" value={getCheckCounts(parsedStats).success || "N/A"} />
+                  <Statistic
+                    title="🎯 Succeeded"
+                    value={getCheckCounts(parsedStats).success || "N/A"}
+                  />
                 </Card>
               </Col>
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered>
-                  <Statistic title="❌ Failed" value={getCheckCounts(parsedStats).failed || "N/A"} />
+                  <Statistic
+                    title="❌ Failed"
+                    value={getCheckCounts(parsedStats).failed || "N/A"}
+                  />
                 </Card>
               </Col>
               <Col xs={24} sm={12} md={12} lg={6}>

@@ -2,8 +2,8 @@
 
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import type {InputRef, TableProps} from "antd";
-import {Button, Card, Form, Space, Table, Tag, Typography} from "antd";
-import {CopyOutlined, EditOutlined, EyeOutlined, SearchOutlined} from "@ant-design/icons";
+import {Button, Card, Form, Space, Table, Tag, Typography, Badge} from "antd";
+import {CopyOutlined, EditOutlined, EyeOutlined, PlusOutlined, RocketOutlined, SearchOutlined} from "@ant-design/icons";
 import type {ColumnsType, ColumnType} from "antd/es/table";
 
 import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
@@ -538,23 +538,75 @@ export default function Page() {
                         style={{width: "100%"}}
                     >
                         {/* หัวข้อหน้า */}
-                        <div style={{marginBottom: 16}}>
-                            <Typography.Title
-                                level={2}
+                        <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div
                                 style={{
-                                    margin: 0,
-                                    fontWeight: 600,
-                                    fontSize: 28
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 16,
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    borderRadius: 16,
+                                    padding: '24px 32px',
+                                    color: 'white',
+                                    boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'
                                 }}
                             >
-                                การลงเวลาทำงาน
-                            </Typography.Title>
-                            <Typography.Text
-                                type="secondary"
-                                style={{fontSize: 16, marginTop: 4}}
+                                <div
+                                    style={{
+                                        background: 'rgba(255,255,255,0.2)',
+                                        padding: 16,
+                                        borderRadius: 12,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    <RocketOutlined style={{ fontSize: 28, color: 'white' }} />
+                                </div>
+                                <div>
+                                    <Typography.Title
+                                        level={4}
+                                        style={{
+                                            margin: 0,
+                                            fontWeight: 600,
+                                            fontSize: 24,
+                                            color: 'white'
+                                        }}
+                                    >
+                                        การลงเวลาทำงาน
+                                    </Typography.Title>
+                                    <Typography.Text
+                                        style={{
+                                            fontSize: 14,
+                                            color: 'rgba(255,255,255,0.9)'
+                                        }}
+                                    >
+                                        จัดการและติดตามเวลาทำงานอย่างมีประสิทธิภาพ
+                                    </Typography.Text>
+                                </div>
+                            </div>
+
+                            {/* ปุ่มลิงก์ไปยังหน้าใหม่ */}
+                            <Button
+                                type="primary"
+                                icon={<RocketOutlined style={{ fontSize: 24 }} />}
+                                href="/timesheet/entry2"
+                                style={{
+                                    background: 'linear-gradient(135deg, #34d399 0%, #10b981 100%)',
+                                    border: 'none',
+                                    borderRadius: 8,
+                                    fontWeight: 600,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    padding: '8px 16px'
+                                }}
                             >
-                                จัดการและติดตามเวลาทำงานของคุณ
-                            </Typography.Text>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span>หน้าลงเวลาแบบใหม่</span>
+                                    <Badge count={"New"} style={{ backgroundColor: '#ff4d4f' }} />
+                                </div>
+                            </Button>
                         </div>
 
                         {/* การ์ดสถิติด้านบน */}

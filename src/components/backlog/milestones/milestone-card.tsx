@@ -44,9 +44,12 @@ export default function MilestoneCard({
     const baseShadow = isDarkMode
       ? "rgba(0,0,0,0.45)"
       : "rgba(15, 23, 42, 0.06)";
-    const accentShadow = status === "in-progress"
-      ? (isDarkMode ? "rgba(250, 173, 20, 0.35)" : "rgba(250, 173, 20, 0.18)")
-      : baseShadow;
+    const accentShadow =
+      status === "in-progress"
+        ? isDarkMode
+          ? "rgba(250, 173, 20, 0.35)"
+          : "rgba(250, 173, 20, 0.18)"
+        : baseShadow;
     return `0 16px 32px ${accentShadow}`;
   }, [isDarkMode, status]);
   const cardStyle = useMemo(
@@ -62,7 +65,11 @@ export default function MilestoneCard({
 
   return (
     <Card
-      bodyStyle={{ padding: 20 }}
+      styles={{
+        body: {
+          padding: 20,
+        },
+      }}
       style={cardStyle}
       title={
         <Space size={12} wrap>
@@ -94,7 +101,8 @@ export default function MilestoneCard({
           {milestone.description || "-"}
         </Typography.Paragraph>
         <Typography.Text style={{ color: colorTextSecondary }}>
-          เริ่ม: {formatDate(milestone.startDate)} • กำหนดส่ง: {formatDate(milestone.releaseDueDate)}
+          เริ่ม: {formatDate(milestone.startDate)} • กำหนดส่ง:{" "}
+          {formatDate(milestone.releaseDueDate)}
         </Typography.Text>
       </Space>
     </Card>
@@ -110,7 +118,9 @@ function formatDate(value?: string | null) {
 function deriveMilestoneStatus(milestone: Milestone) {
   //** คืนสถานะไมล์สโตนตามช่วงวันที่เริ่ม-สิ้นสุด **
   const start = milestone.startDate ? new Date(milestone.startDate) : null;
-  const end = milestone.releaseDueDate ? new Date(milestone.releaseDueDate) : null;
+  const end = milestone.releaseDueDate
+    ? new Date(milestone.releaseDueDate)
+    : null;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -122,7 +132,8 @@ function deriveMilestoneStatus(milestone: Milestone) {
   }
 
   if (end && today > end) return "completed" as const;
-  if (start && end && today >= start && today <= end) return "in-progress" as const;
+  if (start && end && today >= start && today <= end)
+    return "in-progress" as const;
   return "upcoming" as const;
 }
 
