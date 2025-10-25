@@ -33,6 +33,18 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
   processingTime,
   onCancel,
 }) => {
+  const [isMobile, setIsMobile] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
   const formatTime = (seconds: number) => {
     if (seconds < 60) {
       return `${seconds} วินาที`;
@@ -51,12 +63,13 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
       centered
       closable={false}
       footer={null}
-      width={800}
+      width={isMobile ? '95vw' : 800}
       maskClosable={false}
       styles={{
         content: {
-          padding: '32px',
+          padding: isMobile ? '16px' : '32px',
           borderRadius: '16px',
+          margin: isMobile ? '8px' : 'auto',
         },
         mask: {
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
@@ -66,25 +79,25 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
     >
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         {/* Header */}
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: isMobile ? '16px' : '24px' }}>
           <RobotOutlined 
             style={{ 
-              fontSize: '48px', 
+              fontSize: isMobile ? '36px' : '48px', 
               color: '#1890ff',
-              marginBottom: '16px',
+              marginBottom: isMobile ? '12px' : '16px',
               display: 'block'
             }} 
           />
-          <Title level={3} style={{ margin: 0, marginBottom: '8px' }}>
+          <Title level={isMobile ? 4 : 3} style={{ margin: 0, marginBottom: '8px' }}>
             กำลังประมวลผลด้วย AI
           </Title>
-          <Text type="secondary" style={{ fontSize: '16px' }}>
+          <Text type="secondary" style={{ fontSize: isMobile ? '14px' : '16px' }}>
             กรุณารอสักครู่ ระบบกำลังสรุปและปรับแต่งคำอธิบาย
           </Text>
         </div>
 
         {/* Progress Overview */}
-        <div style={{ marginBottom: '32px' }}>
+        <div style={{ marginBottom: isMobile ? '20px' : '32px' }}>
           <Progress
             percent={progressPercent}
             strokeColor={{
@@ -92,14 +105,14 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
               '100%': '#1890ff',
             }}
             trailColor="#f5f5f5"
-            strokeWidth={8}
+            strokeWidth={isMobile ? 6 : 8}
             showInfo={false}
           />
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
             marginTop: '8px',
-            fontSize: '14px',
+            fontSize: isMobile ? '12px' : '14px',
             color: '#666'
           }}>
             <span>ขั้นที่ {currentStep + 1} จาก {steps.length}</span>
@@ -112,9 +125,9 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           <div style={{
             background: 'linear-gradient(135deg, #f6f9fc 0%, #e9f4ff 100%)',
             border: '2px solid #1890ff',
-            borderRadius: '16px',
-            padding: '32px 24px',
-            marginBottom: '32px',
+            borderRadius: isMobile ? '12px' : '16px',
+            padding: isMobile ? '20px 16px' : '32px 24px',
+            marginBottom: isMobile ? '20px' : '32px',
             position: 'relative',
             overflow: 'hidden'
           }}>
@@ -150,16 +163,16 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
             
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div style={{ 
-                fontSize: '40px', 
-                marginBottom: '16px',
+                fontSize: isMobile ? '32px' : '40px', 
+                marginBottom: isMobile ? '12px' : '16px',
                 color: '#1890ff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
                 <div style={{
-                  width: '64px',
-                  height: '64px',
+                  width: isMobile ? '48px' : '64px',
+                  height: isMobile ? '48px' : '64px',
                   borderRadius: '50%',
                   background: 'linear-gradient(45deg, #1890ff, #52c41a)',
                   display: 'flex',
@@ -168,11 +181,11 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                   boxShadow: '0 4px 20px rgba(24, 144, 255, 0.3)'
                 }}>
                   <Spin 
-                    indicator={<LoadingOutlined style={{ fontSize: 28, color: 'white' }} />} 
+                    indicator={<LoadingOutlined style={{ fontSize: isMobile ? 20 : 28, color: 'white' }} />} 
                   />
                 </div>
               </div>
-              <Title level={3} style={{ 
+              <Title level={isMobile ? 4 : 3} style={{ 
                 margin: 0, 
                 marginBottom: '12px', 
                 color: '#1890ff',
@@ -181,7 +194,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                 {currentStepData.title}
               </Title>
               <Text style={{ 
-                fontSize: '16px', 
+                fontSize: isMobile ? '14px' : '16px', 
                 color: '#666',
                 display: 'block',
                 textAlign: 'center',
@@ -203,25 +216,26 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
         marginBottom: '16px'
       }}>
         <Steps
-          direction="horizontal"
-          size="default"
+          direction={isMobile ? "vertical" : "horizontal"}
+          size={isMobile ? "small" : "default"}
           current={currentStep}
-          labelPlacement="vertical"
+          labelPlacement={isMobile ? "horizontal" : "vertical"}
           responsive={false}
           items={steps.map((step, index) => ({
             title: <div style={{ 
               color: index < currentStep ? '#52c41a' :
                      index === currentStep ? '#1890ff' : '#8c8c8c',
               fontWeight: index === currentStep ? 'bold' : 'normal',
-              fontSize: '14px',
-              textAlign: 'center',
-              marginTop: '8px'
+              fontSize: isMobile ? '12px' : '14px',
+              textAlign: isMobile ? 'left' : 'center',
+              marginTop: isMobile ? '0' : '8px',
+              marginLeft: isMobile ? '8px' : '0'
             }}>
               {step.title}
               {index < currentStep && (
                 <div style={{ 
                   color: '#52c41a', 
-                  fontSize: '12px',
+                  fontSize: isMobile ? '10px' : '12px',
                   fontWeight: 'normal',
                   marginTop: '4px'
                 }}>
@@ -232,27 +246,28 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
             description: <div style={{ 
               color: index < currentStep ? '#73d13d' :
                      index === currentStep ? '#69c0ff' : '#d9d9d9',
-              fontSize: '12px',
+              fontSize: isMobile ? '10px' : '12px',
               lineHeight: '1.3',
-              textAlign: 'center',
+              textAlign: isMobile ? 'left' : 'center',
               marginTop: '4px',
-              maxWidth: '120px'
+              marginLeft: isMobile ? '8px' : '0',
+              maxWidth: isMobile ? '200px' : '120px'
             }}>
-              {step.description}
+              {isMobile ? step.description.slice(0, 50) + (step.description.length > 50 ? '...' : '') : step.description}
             </div>,
             icon: <div style={{
-              fontSize: '16px',
+              fontSize: isMobile ? '14px' : '16px',
               color: index < currentStep ? '#52c41a' : 
                      index === currentStep ? '#1890ff' : '#d9d9d9',
-              width: '40px',
-              height: '40px',
+              width: isMobile ? '32px' : '40px',
+              height: isMobile ? '32px' : '40px',
               borderRadius: '50%',
               background: index < currentStep ? '#f6ffed' :
                          index === currentStep ? '#e6f7ff' : '#f5f5f5',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: `3px solid ${index < currentStep ? '#52c41a' : 
+              border: `${isMobile ? '2px' : '3px'} solid ${index < currentStep ? '#52c41a' : 
                                   index === currentStep ? '#1890ff' : '#d9d9d9'}`,
               transition: 'all 0.3s ease',
               boxShadow: index === currentStep ? '0 0 12px rgba(24, 144, 255, 0.4)' : 
@@ -260,7 +275,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
             }}>
               {index < currentStep ? '✓' : (
                 index === currentStep ? (
-                  <Spin indicator={<LoadingOutlined style={{ fontSize: 16, color: '#1890ff' }} />} />
+                  <Spin indicator={<LoadingOutlined style={{ fontSize: isMobile ? 14 : 16, color: '#1890ff' }} />} />
                 ) : step.icon
               )}
             </div>
@@ -271,7 +286,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
       {/* Footer Info */}
       <div style={{ 
         textAlign: 'center', 
-        padding: '20px 16px',
+        padding: isMobile ? '16px 12px' : '20px 16px',
         background: 'linear-gradient(135deg, #f6f9fc 0%, #e9f4ff 100%)',
         borderRadius: '12px',
         border: '1px solid #e6f7ff'
@@ -284,12 +299,12 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           marginBottom: '8px'
         }}>
           <RobotOutlined style={{ 
-            fontSize: '18px', 
+            fontSize: isMobile ? '16px' : '18px', 
             color: '#1890ff',
             animation: 'pulse 2s infinite'
           }} />
           <Text style={{ 
-            fontSize: '16px',
+            fontSize: isMobile ? '14px' : '16px',
             fontWeight: 'bold',
             color: '#1890ff'
           }}>
@@ -297,7 +312,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           </Text>
         </div>
         <Text type="secondary" style={{ 
-          fontSize: '14px',
+          fontSize: isMobile ? '12px' : '14px',
           color: '#666',
           lineHeight: '1.4'
         }}>

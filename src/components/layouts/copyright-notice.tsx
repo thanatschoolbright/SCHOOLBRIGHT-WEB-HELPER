@@ -5,8 +5,14 @@ import React from 'react';
 const CopyrightNotice: React.FC = () => {
   // อ่านเวอร์ชัน Next.js จาก package.json แบบ dynamic
   const [nextVersion, setNextVersion] = React.useState<string>('16.0.0');
+  const [isMobile, setIsMobile] = React.useState<boolean>(false);
 
   React.useEffect(() => {
+    // ตรวจสอบว่าเป็น mobile หรือไม่
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
     // ใช้ fetch เพื่อดึงข้อมูลเวอร์ชันจริง
     const getNextVersion = async () => {
       try {
@@ -22,18 +28,23 @@ const CopyrightNotice: React.FC = () => {
       }
     };
 
+    checkIsMobile();
     getNextVersion();
+
+    // Listen for window resize
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
   return (
     <div style={{
       position: 'fixed',
-      bottom: '10px',
-      right: '10px',
-      fontSize: '10px',
+      bottom: isMobile ? '8px' : '10px',
+      right: isMobile ? '8px' : '10px',
+      fontSize: isMobile ? '8px' : '10px',
       color: '#999',
       backgroundColor: 'rgba(255, 255, 255, 0.9)',
-      padding: '4px 8px',
+      padding: isMobile ? '3px 6px' : '4px 8px',
       borderRadius: '4px',
       fontFamily: 'monospace',
       zIndex: 9999,
@@ -42,10 +53,22 @@ const CopyrightNotice: React.FC = () => {
       userSelect: 'none',
       pointerEvents: 'none',
       textAlign: 'right',
-      lineHeight: '1.2'
+      lineHeight: '1.2',
+      maxWidth: isMobile ? '200px' : 'none',
+      wordWrap: 'break-word'
     }}>
-      <div>THANAT PROMPIRIYA TECH LEAD @ JABJAI CORPORATION</div>
-      <div>COPYRIGHT (NEXT.JS {nextVersion})</div>
+      {isMobile ? (
+        <>
+          <div>THANAT PROMPIRIYA</div>
+          <div>TECH LEAD @ JABJAI</div>
+          <div>NEXT.JS {nextVersion}</div>
+        </>
+      ) : (
+        <>
+          <div>THANAT PROMPIRIYA TECH LEAD @ JABJAI CORPORATION</div>
+          <div>COPYRIGHT (NEXT.JS {nextVersion})</div>
+        </>
+      )}
     </div>
   );
 };
