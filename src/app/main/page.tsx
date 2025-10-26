@@ -24,6 +24,8 @@ export default function Page() {
     "desktop"
   );
   const [gridCols, setGridCols] = useState<number>(4);
+  // hovered submenu index for subtle icon shadow on hover/focus
+  const [hoveredSubIndex, setHoveredSubIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -115,16 +117,17 @@ export default function Page() {
     setSelectedApp(null);
   };
 
-  // สี gradient แต่ละแถว
+  // สี gradient สำหรับวงกลม icon (ทิศทางเดียวกัน เพื่อความเป็น iOS-like minimal)
+  // เก็บเป็นคู่สี แล้วใส่ `linear-gradient(135deg, ...)` ทุกชิ้นเพื่อความสม่ำเสมอ
   const gradients = [
-    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-    "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-    "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-    "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-    "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
-    "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
-    "linear-gradient(135deg, #ff8a80 0%, #ea80fc 100%)",
+    ["#667eea", "#764ba2"],
+    ["#f093fb", "#f5576c"],
+    ["#4facfe", "#00f2fe"],
+    ["#43e97b", "#38f9d7"],
+    ["#fa709a", "#fee140"],
+    ["#a8edea", "#fed6e3"],
+    ["#ffecd2", "#fcb69f"],
+    ["#ff8a80", "#ea80fc"],
   ];
 
   return (
@@ -235,7 +238,7 @@ export default function Page() {
                       ? 28
                       : 24,
                     border: "none",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+                    boxShadow: "0 6px 18px rgba(15, 23, 42, 0.06)",
                     width: "100%",
                     height:
                       screenSize === "mobile"
@@ -245,7 +248,7 @@ export default function Page() {
                         : screenSize === "desktop"
                         ? 220
                         : 180,
-                    background: gradients[index % gradients.length],
+                    background: "rgba(255,255,255,0.9)",
                     cursor: "pointer",
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                     transform: "translateY(0)",
@@ -281,28 +284,132 @@ export default function Page() {
                       "0 8px 32px rgba(0, 0, 0, 0.12)";
                   }}
                 >
+                  {/* Icon circle (consistent gradient direction) with badge */}
                   <div
                     style={{
-                      fontSize:
-                        screenSize === "mobile"
-                          ? 40
-                          : screenSize === "tablet"
-                          ? 60
-                          : screenSize === "desktop"
-                          ? 80
-                          : 60,
-                      color: "white",
-                      filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
                     }}
                   >
-                    {item.icon}
+                    {(() => {
+                      const [c1, c2] = gradients[index % gradients.length];
+                      const circleSize =
+                        screenSize === "mobile"
+                          ? 72
+                          : screenSize === "tablet"
+                          ? 96
+                          : screenSize === "desktop"
+                          ? 120
+                          : 96;
+                      // increased icon sizes for stronger visual presence (mobile/tablet/desktop)
+                      const iconFontSize =
+                        screenSize === "mobile"
+                          ? 44
+                          : screenSize === "tablet"
+                          ? 68
+                          : screenSize === "desktop"
+                          ? 96
+                          : 68;
+
+                      return (
+                        <div
+                          style={{
+                            position: "relative",
+                            display: "inline-block",
+                          }}
+                        >
+                          {/* Numeric badge on top-right of icon (custom, avoids AntD offset quirks) */}
+                          {getChildrenCount(item.children) > 0 && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                zIndex: 15,
+                                minWidth: 20,
+                                height: 20,
+                                padding: "0 6px",
+                                borderRadius: 10,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                backgroundColor: "#ff4d4f",
+                                color: "white",
+                                fontSize: 12,
+                                fontWeight: 700,
+                                boxShadow: "0 6px 18px rgba(15,23,42,0.12)",
+                              }}
+                            >
+                              {getChildrenCount(item.children)}
+                            </div>
+                          )}
+
+                          {/* NEW flag top-left */}
+                          {item.children?.some((child: any) => child.news) && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                left: -6,
+                                top: -6,
+                                zIndex: 14,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  backgroundColor: "#10b981",
+                                  color: "white",
+                                  fontSize: 10,
+                                  fontWeight: 600,
+                                  padding: "1px 6px",
+                                  borderRadius: 8,
+                                  boxShadow: "0 6px 18px rgba(16,185,129,0.12)",
+                                  transform: "translate(-30%, -30%)",
+                                }}
+                              >
+                                NEW
+                              </div>
+                            </div>
+                          )}
+
+                          <div
+                            style={{
+                              width: circleSize,
+                              height: circleSize,
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: c2,
+                              background: "transparent",
+                              boxShadow: "none",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: iconFontSize,
+                                lineHeight: 1,
+                                color: "#000",
+                                opacity: 0.9,
+                                // SVG hint: prefer thinner strokes where icons support currentColor/strokeWidth
+                                strokeWidth: 1,
+                                vectorEffect: "non-scaling-stroke",
+                              }}
+                            >
+                              {item.icon}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </Card>
 
                 {/* App Name - ย้ายออกมาข้างนอก Card */}
                 <Text
-                  strong
                   style={{
+                    fontWeight: 400,
                     color: "#2c3e50",
                     fontSize:
                       screenSize === "mobile"
@@ -333,90 +440,6 @@ export default function Page() {
                 >
                   {item.label}
                 </Text>
-
-                {/* Badge สำหรับจำนวน features */}
-                {getChildrenCount(item.children) > 0 && (
-                  <Badge
-                    count={getChildrenCount(item.children)}
-                    style={{
-                      position: "absolute",
-                      top: isMobile
-                        ? -6
-                        : screenSize === "desktop"
-                        ? -12
-                        : screenSize === "tablet"
-                        ? -10
-                        : -8,
-                      right: isMobile
-                        ? -6
-                        : screenSize === "desktop"
-                        ? -12
-                        : screenSize === "tablet"
-                        ? -10
-                        : -8,
-                      backgroundColor: "#ff4d4f",
-                      boxShadow: "0 2px 8px rgba(255, 77, 79, 0.4)",
-                      zIndex: 10,
-                      transform:
-                        screenSize === "desktop"
-                          ? "scale(1.2)"
-                          : screenSize === "tablet"
-                          ? "scale(1.1)"
-                          : "scale(1)",
-                    }}
-                  />
-                )}
-
-                {/* New Badge */}
-                {item.children?.some((child: any) => child.news) && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: isMobile
-                        ? -6
-                        : screenSize === "desktop"
-                        ? -12
-                        : screenSize === "tablet"
-                        ? -10
-                        : -8,
-                      left: isMobile
-                        ? -6
-                        : screenSize === "desktop"
-                        ? -12
-                        : screenSize === "tablet"
-                        ? -10
-                        : -8,
-                      backgroundColor: "#52c41a",
-                      color: "white",
-                      fontSize: isMobile
-                        ? 8
-                        : screenSize === "desktop"
-                        ? 12
-                        : screenSize === "tablet"
-                        ? 11
-                        : 10,
-                      fontWeight: "bold",
-                      padding: isMobile
-                        ? "1px 4px"
-                        : screenSize === "desktop"
-                        ? "3px 8px"
-                        : screenSize === "tablet"
-                        ? "2px 7px"
-                        : "2px 6px",
-                      borderRadius: isMobile
-                        ? 6
-                        : screenSize === "desktop"
-                        ? 10
-                        : screenSize === "tablet"
-                        ? 9
-                        : 8,
-                      boxShadow: "0 2px 8px rgba(82, 196, 26, 0.4)",
-                      zIndex: 10,
-                    }}
-                  >
-                    NEW
-                  </div>
-                )}
               </div>
             </Col>
           ))}
@@ -450,317 +473,330 @@ export default function Page() {
             พัฒนาโดย SchoolBright Team 💙
           </Text>
         </div>
-      </div>
 
-      {/* iOS-Style Popup Modal */}
-      <Modal
-        open={isPopupVisible}
-        onCancel={handleClosePopup}
-        footer={null}
-        centered
-        width={
-          isMobile
-            ? "95vw"
-            : screenSize === "mobile"
-            ? "95vw"
-            : screenSize === "tablet"
-            ? 600
-            : screenSize === "desktop"
-            ? 800
-            : 600
-        }
-        styles={{
-          mask: {
-            backgroundColor: "rgba(0, 0, 0, 0.6)",
-            backdropFilter: "blur(8px)",
-          },
-          content: {
-            padding: 0,
-            borderRadius: isMobile
-              ? 16
-              : screenSize === "desktop"
-              ? 32
+        {/* iOS-Style Popup Modal */}
+        <Modal
+          open={isPopupVisible}
+          onCancel={handleClosePopup}
+          footer={null}
+          centered
+          width={
+            isMobile
+              ? "95vw"
+              : screenSize === "mobile"
+              ? "95vw"
               : screenSize === "tablet"
-              ? 28
-              : 24,
-            background: "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255, 255, 255, 0.3)",
-            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
-            margin: isMobile ? "16px" : "auto",
-            maxHeight: isMobile
-              ? "90vh"
+              ? 600
               : screenSize === "desktop"
-              ? "85vh"
-              : "auto",
-            overflow: isMobile || screenSize === "desktop" ? "auto" : "visible",
-          },
-        }}
-        closeIcon={null}
-      >
-        {selectedApp && (
-          <div
-            style={{
-              padding: isMobile
-                ? "16px"
+              ? 800
+              : 600
+          }
+          styles={{
+            mask: {
+              backgroundColor: "rgba(0, 0, 0, 0.6)",
+              backdropFilter: "blur(8px)",
+            },
+            content: {
+              padding: 0,
+              borderRadius: isMobile
+                ? 16
                 : screenSize === "desktop"
-                ? "40px"
+                ? 32
                 : screenSize === "tablet"
-                ? "32px"
-                : "24px",
-            }}
-          >
-            {/* Header with App Info */}
+                ? 28
+                : 24,
+              background: "rgba(255, 255, 255, 0.95)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+              margin: isMobile ? "16px" : "auto",
+              maxHeight: isMobile
+                ? "90vh"
+                : screenSize === "desktop"
+                ? "85vh"
+                : "auto",
+              overflow:
+                isMobile || screenSize === "desktop" ? "auto" : "visible",
+            },
+          }}
+          closeIcon={null}
+        >
+          {selectedApp && (
             <div
               style={{
-                textAlign: "center",
-                marginBottom: isMobile
-                  ? 16
+                padding: isMobile
+                  ? "16px"
                   : screenSize === "desktop"
-                  ? 32
+                  ? "40px"
                   : screenSize === "tablet"
-                  ? 28
-                  : 24,
-                position: "relative",
+                  ? "32px"
+                  : "24px",
               }}
             >
-              {/* Close Button */}
-              <Button
-                type="text"
-                icon={<CloseOutlined />}
-                onClick={handleClosePopup}
-                style={{
-                  position: "absolute",
-                  top: isMobile
-                    ? -6
-                    : screenSize === "desktop"
-                    ? -12
-                    : screenSize === "tablet"
-                    ? -10
-                    : -8,
-                  right: isMobile
-                    ? -6
-                    : screenSize === "desktop"
-                    ? -12
-                    : screenSize === "tablet"
-                    ? -10
-                    : -8,
-                  width: isMobile
-                    ? 28
-                    : screenSize === "desktop"
-                    ? 40
-                    : screenSize === "tablet"
-                    ? 36
-                    : 32,
-                  height: isMobile
-                    ? 28
-                    : screenSize === "desktop"
-                    ? 40
-                    : screenSize === "tablet"
-                    ? 36
-                    : 32,
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "rgba(0, 0, 0, 0.1)",
-                  border: "none",
-                  color: "#666",
-                  fontSize:
-                    screenSize === "desktop"
-                      ? "18px"
-                      : screenSize === "tablet"
-                      ? "16px"
-                      : "14px",
-                }}
-              />
-
-              {/* App Icon */}
+              {/* Header with App Info */}
               <div
                 style={{
-                  fontSize: isMobile
-                    ? 36
-                    : screenSize === "desktop"
-                    ? 64
-                    : screenSize === "tablet"
-                    ? 56
-                    : 48,
+                  textAlign: "center",
                   marginBottom: isMobile
-                    ? 8
-                    : screenSize === "desktop"
                     ? 16
+                    : screenSize === "desktop"
+                    ? 32
                     : screenSize === "tablet"
-                    ? 14
-                    : 12,
-                  filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))",
+                    ? 28
+                    : 24,
+                  position: "relative",
                 }}
               >
-                {selectedApp.icon}
+                {/* Close Button */}
+                <Button
+                  type="text"
+                  icon={<CloseOutlined />}
+                  onClick={handleClosePopup}
+                  style={{
+                    position: "absolute",
+                    top: isMobile
+                      ? -6
+                      : screenSize === "desktop"
+                      ? -12
+                      : screenSize === "tablet"
+                      ? -10
+                      : -8,
+                    right: isMobile
+                      ? -6
+                      : screenSize === "desktop"
+                      ? -12
+                      : screenSize === "tablet"
+                      ? -10
+                      : -8,
+                    width: isMobile
+                      ? 28
+                      : screenSize === "desktop"
+                      ? 40
+                      : screenSize === "tablet"
+                      ? 36
+                      : 32,
+                    height: isMobile
+                      ? 28
+                      : screenSize === "desktop"
+                      ? 40
+                      : screenSize === "tablet"
+                      ? 36
+                      : 32,
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "rgba(0, 0, 0, 0.1)",
+                    border: "none",
+                    color: "#666",
+                    fontSize:
+                      screenSize === "desktop"
+                        ? "18px"
+                        : screenSize === "tablet"
+                        ? "16px"
+                        : "14px",
+                  }}
+                />
+
+                {/* App Icon */}
+                <div
+                  style={{
+                    fontSize: isMobile
+                      ? 36
+                      : screenSize === "desktop"
+                      ? 64
+                      : screenSize === "tablet"
+                      ? 56
+                      : 48,
+                    marginBottom: isMobile
+                      ? 8
+                      : screenSize === "desktop"
+                      ? 16
+                      : screenSize === "tablet"
+                      ? 14
+                      : 12,
+                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))",
+                  }}
+                >
+                  {selectedApp.icon}
+                </div>
+
+                {/* App Name */}
+                <Title
+                  level={isMobile ? 5 : 4}
+                  style={{
+                    margin: 0,
+                    color: "#1f2937",
+                    fontSize: isMobile
+                      ? 16
+                      : screenSize === "desktop"
+                      ? 24
+                      : screenSize === "tablet"
+                      ? 22
+                      : 18,
+                    fontWeight: 600,
+                  }}
+                >
+                  {selectedApp.label}
+                </Title>
               </div>
 
-              {/* App Name */}
-              <Title
-                level={isMobile ? 5 : 4}
-                style={{
-                  margin: 0,
-                  color: "#1f2937",
-                  fontSize: isMobile
-                    ? 16
+              {/* Sub Menu Grid */}
+              <Row
+                gutter={
+                  isMobile
+                    ? [8, 8]
                     : screenSize === "desktop"
-                    ? 24
+                    ? [24, 24]
                     : screenSize === "tablet"
-                    ? 22
-                    : 18,
-                  fontWeight: 600,
-                }}
+                    ? [20, 20]
+                    : [16, 16]
+                }
               >
-                {selectedApp.label}
-              </Title>
-            </div>
-
-            {/* Sub Menu Grid */}
-            <Row
-              gutter={
-                isMobile
-                  ? [8, 8]
-                  : screenSize === "desktop"
-                  ? [24, 24]
-                  : screenSize === "tablet"
-                  ? [20, 20]
-                  : [16, 16]
-              }
-            >
-              {selectedApp.children?.map((child: any, index: number) => (
-                <Col
-                  span={
-                    isMobile
-                      ? 24
-                      : screenSize === "desktop"
-                      ? 8
-                      : screenSize === "tablet"
-                      ? 8
-                      : 12
-                  }
-                  key={child.label}
-                >
-                  <Card
-                    hoverable
-                    onClick={() => handleSubMenuClick(child)}
-                    style={{
-                      borderRadius: isMobile
-                        ? 12
+                {selectedApp.children?.map((child: any, index: number) => (
+                  <Col
+                    span={
+                      isMobile
+                        ? 24
                         : screenSize === "desktop"
-                        ? 20
+                        ? 8
                         : screenSize === "tablet"
-                        ? 18
-                        : 16,
-                      border: "1px solid rgba(0, 0, 0, 0.06)",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
-                      height: isMobile
-                        ? 60
-                        : screenSize === "desktop"
-                        ? 120
-                        : screenSize === "tablet"
-                        ? 110
-                        : 100,
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                      background: "white",
-                    }}
-                    styles={{
-                      body: {
-                        padding: isMobile
-                          ? "8px 12px"
-                          : screenSize === "desktop"
-                          ? "20px"
-                          : screenSize === "tablet"
-                          ? "16px"
-                          : "12px",
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: isMobile ? "row" : "column",
-                        justifyContent: isMobile ? "flex-start" : "center",
-                        alignItems: "center",
-                        textAlign: isMobile ? "left" : "center",
-                        gap: isMobile
-                          ? "12px"
-                          : screenSize === "desktop"
-                          ? "12px"
-                          : screenSize === "tablet"
-                          ? "10px"
-                          : "8px",
-                      },
-                    }}
+                        ? 8
+                        : 12
+                    }
+                    key={child.label}
                   >
-                    {/* Sub Menu Icon */}
-                    {child.icon && (
-                      <div
-                        style={{
-                          fontSize: isMobile
-                            ? 20
-                            : screenSize === "desktop"
-                            ? 32
-                            : screenSize === "tablet"
-                            ? 28
-                            : 24,
-                          color: "#6366f1",
-                          marginBottom: isMobile ? 0 : 4,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {child.icon}
-                      </div>
-                    )}
-
-                    <Text
-                      strong
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleSubMenuClick(child)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") handleSubMenuClick(child);
+                      }}
                       style={{
-                        fontSize: isMobile
-                          ? 12
+                        position: "relative",
+                        
+                        height: isMobile
+                          ? 60
                           : screenSize === "desktop"
-                          ? 14
+                          ? 120
                           : screenSize === "tablet"
-                          ? 13
-                          : 11,
-                        color: "#374151",
-                        lineHeight: 1.2,
-                        textAlign: isMobile ? "left" : "center",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        flex: isMobile ? 1 : "none",
+                          ? 110
+                          : 100,
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        // intentionally no background so icon container's bg is visible
+                        background: "transparent",
+                        display: "flex",
+                        padding: isMobile ? "8px 12px" : screenSize === "desktop" ? "20px" : screenSize === "tablet" ? "16px" : "12px",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        textAlign: "center",
+                        gap: isMobile ? "8px" : "12px",
                       }}
                     >
-                      {child.label}
-                    </Text>
 
-                    {/* New Badge for Sub Menu */}
-                    {child.news && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 4,
-                          right: 4,
-                          backgroundColor: "#10b981",
-                          color: "white",
-                          fontSize: 8,
-                          fontWeight: "bold",
-                          padding: "1px 4px",
-                          borderRadius: 4,
-                          lineHeight: 1,
-                        }}
-                      >
-                        NEW
-                      </div>
-                    )}
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </div>
-        )}
-      </Modal>
+                        {/* Sub Menu Icon: separated into its own rounded square container */}
+                        {child.icon && (
+                          <div
+                            onMouseEnter={() => setHoveredSubIndex(index)}
+                            onMouseLeave={() => setHoveredSubIndex(null)}
+                            onFocus={() => setHoveredSubIndex(index)}
+                            onBlur={() => setHoveredSubIndex(null)}
+                            style={{
+                              width: isMobile ? 44 : screenSize === "desktop" ? 64 : 56,
+                              height: isMobile ? 44 : screenSize === "desktop" ? 64 : 56,
+                              borderRadius: 12,
+                              background: "#fff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              marginBottom: 8,
+                              flexShrink: 0,
+                              transition: "box-shadow 160ms ease, transform 160ms ease",
+                              boxShadow:
+                                hoveredSubIndex === index
+                                  ? "0 6px 18px rgba(0,0,0,0.12)"
+                                  : "0 2px 6px rgba(0,0,0,0.04)",
+                              transform: hoveredSubIndex === index ? "translateY(-3px)" : "none",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: isMobile
+                                  ? Math.round(20 * 1.2)
+                                  : screenSize === "desktop"
+                                  ? Math.round(32 * 1.2)
+                                  : screenSize === "tablet"
+                                  ? Math.round(28 * 1.2)
+                                  : Math.round(24 * 1.2),
+                                color: "#0f1724",
+                                opacity: 0.85,
+                                // hint to SVG icons to use thinner strokes where possible
+                                strokeWidth: 1,
+                                vectorEffect: "non-scaling-stroke",
+                                lineHeight: 1,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {child.icon}
+                            </div>
+                          </div>
+                        )}
+
+                        <Text
+                          style={{
+                            fontSize: isMobile
+                              ? 12
+                              : screenSize === "desktop"
+                              ? 14
+                              : screenSize === "tablet"
+                              ? 13
+                              : 11,
+                            color: "#374151",
+                            lineHeight: 1.2,
+                            textAlign: "center",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            flex: "none",
+                            fontWeight: 400,
+                          }}
+                        >
+                          {child.label}
+                        </Text>
+
+                      {/* New Badge for Sub Menu */}
+                      {child.news && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: 4,
+                            right: 4,
+                            backgroundColor: "#10b981",
+                            color: "white",
+                            fontSize: 8,
+                            fontWeight: "bold",
+                            padding: "1px 4px",
+                            borderRadius: 4,
+                            lineHeight: 1,
+                          }}
+                        >
+                          NEW
+                        </div>
+                      )}
+                    </div>
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          )}
+        </Modal>
+      </div>
     </div>
   );
 }

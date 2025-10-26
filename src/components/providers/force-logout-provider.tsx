@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 import { useRouter } from "next/navigation";
 
 // ! ForceLogoutProvider (ผู้ให้บริการฟีเจอร์บังคับออกจากระบบ)
@@ -174,6 +175,61 @@ export default function ForceLogoutProvider({ children }: { children: React.Reac
     triggerForceLogout,
     isForced,
   };
+
+  // Auto-refresh user rank while the user is active on the site.
+  // - If no USER_RANK_DATA exists or it's older than 24 hours, fetch and update it.
+  // - Run check on mount and then poll hourly while the page is open.
+  useEffect(() => {
+    const KEY = "USER_RANK_DATA";
+    const STALE_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+    const refreshRankIfNeeded = async () => {
+      try {
+        const authRaw = localStorage.getItem("AUTH_USER");
+        if (!authRaw) return;
+        const auth = JSON.parse(authRaw);
+        const adminId = auth?.user_data?.admin_id;
+        if (!adminId) return;
+
+        const storedRaw = localStorage.getItem(KEY);
+        if (storedRaw) {
+          try {
+            const stored = JSON.parse(storedRaw);
+            const updatedAt = Number(stored?.updatedAt || 0);
+            if (Date.now() - updatedAt < STALE_MS && stored?.data) {
+              // still fresh
+              return;
+            }
+          } catch (e) {
+            // parse error -> continue to fetch
+          }
+        }
+
+        // fetch new rank data and persist with timestamp
+        const rankData = await fetchUserRank(String(adminId));
+        if (rankData) {
+          try {
+            localStorage.setItem(KEY, JSON.stringify({ data: rankData, updatedAt: Date.now() }));
+            // optional: also keep the raw shape for backwards compatibility
+            if (!localStorage.getItem("USER_RANK_DATA_RAW") && rankData.rank) {
+              try { localStorage.setItem("USER_RANK_DATA_RAW", JSON.stringify(rankData)); } catch(e){}
+            }
+          } catch (e) {
+            // ignore storage write failures
+          }
+        }
+      } catch (e) {
+        // ignore to avoid breaking provider
+      }
+    };
+
+    // run once now
+    refreshRankIfNeeded();
+
+    // poll hourly to check staleness
+    const handle = window.setInterval(refreshRankIfNeeded, 60 * 60 * 1000);
+    return () => window.clearInterval(handle);
+  }, []);
 
   return <ForceLogoutContext.Provider value={ctxValue}>{children}</ForceLogoutContext.Provider>;
 }

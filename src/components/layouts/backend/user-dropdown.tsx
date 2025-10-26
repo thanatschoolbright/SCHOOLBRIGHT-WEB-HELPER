@@ -321,55 +321,54 @@ export default function UserDropdown(): JSX.Element {
         <>
             {/* 🎨 CSS Animations สำหรับ Rank A/S */}
             <style jsx>{`
+                /*
+                 1) ปรับให้ 'rankGlow' ไม่หมุนอีกต่อไป (ไม่มี rotate)
+                 2) ใช้การขยายเล็ก ๆ และเพิ่มความสว่างเพียงพอเป็น glow
+                 3) 'sparkle' เปลี่ยนให้ส่อง/ขยายเล็ก ๆ โดยไม่หมุน
+                */
                 @keyframes rankGlow {
-                    0%, 100% { 
-                        transform: rotate(0deg) scale(1);
+                    0%, 100% {
+                        transform: scale(1);
                         filter: brightness(1);
+                        box-shadow: 0 0 0 rgba(0,0,0,0);
                     }
-                    25% { 
-                        transform: rotate(90deg) scale(1.05);
-                        filter: brightness(1.2);
-                    }
-                    50% { 
-                        transform: rotate(180deg) scale(1);
-                        filter: brightness(1);
-                    }
-                    75% { 
-                        transform: rotate(270deg) scale(1.05);
-                        filter: brightness(1.2);
+                    50% {
+                        transform: scale(1.03);
+                        filter: brightness(1.12);
+                        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
                     }
                 }
-                
+
                 @keyframes rankPulse {
-                    0%, 100% { 
+                    0%, 100% {
                         transform: scale(1);
                         box-shadow: 0 2px 12px rgba(255, 215, 0, 0.6);
                     }
-                    50% { 
-                        transform: scale(1.1);
+                    50% {
+                        transform: scale(1.08);
                         box-shadow: 0 4px 20px rgba(255, 215, 0, 0.8);
                     }
                 }
-                
+
                 @keyframes sparkle {
-                    0%, 100% { 
+                    0%, 100% {
                         opacity: 0;
-                        transform: scale(0.5) rotate(0deg);
+                        transform: scale(0.6);
                     }
-                    50% { 
+                    50% {
                         opacity: 1;
-                        transform: scale(1.2) rotate(180deg);
+                        transform: scale(1.08);
                     }
                 }
-                
+
                 @keyframes shimmer {
                     0% { left: -100%; }
                     100% { left: 100%; }
                 }
-                
+
                 .rank-badge:hover {
-                    transform: scale(1.1) !important;
-                    transition: all 0.3s ease;
+                    transform: scale(1.06) !important;
+                    transition: all 0.26s ease;
                 }
             `}</style>
             
