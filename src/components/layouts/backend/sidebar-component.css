@@ -133,6 +133,17 @@
   transition: all 0.25s ease-in-out;
 }
 
+/* Ensure collapsed popover overlays above sidebar */
+.sidebar-collapsed-menu-popover {
+  z-index: 12000 !important;
+  pointer-events: auto !important;
+}
+
+.sidebar-collapsed-menu-popover .ant-popover-inner {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
 .dark .ant-menu-submenu-placement-rightTop > .ant-menu-sub {
   background: rgba(30, 41, 59, 0.95) !important;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);

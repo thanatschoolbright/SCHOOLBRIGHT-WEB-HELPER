@@ -128,15 +128,24 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
 
                         return (
                             <Popover
-                                placement="right"
+                                placement="rightTop"
                                 overlayClassName="sidebar-collapsed-menu-popover"
-                                trigger={collapsed ? "hover" : undefined}
+                                // fully controlled open for collapsed mode (we handle hover/click)
                                 // attach to body to avoid overflow/clipping when sidebar is collapsed
                                 getPopupContainer={() => (typeof window !== 'undefined' ? document.body : (null as any)) as any}
                                 // small enter/leave delays make hover feel smoother and avoid flicker
                                 mouseEnterDelay={0.08}
                                 mouseLeaveDelay={0.12}
                                 {...popoverControlledProps}
+                                onOpenChange={(open) => {
+                                    // sync if popover toggles for any reason
+                                    if (!collapsed) return;
+                                    if (!open) scheduleClearHover(0);
+                                    else {
+                                        clearHoverTimer();
+                                        setHoveredParent(m.label);
+                                    }
+                                }}
                                 content={collapsed ? (
                                     <div
                                         className="sidebar-popover-content"
@@ -191,6 +200,18 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
                                         setHoveredParent(m.label);
                                     }}
                                     onMouseLeave={() => scheduleClearHover(80)}
+                                    onFocus={() => {
+                                        clearHoverTimer();
+                                        setHoveredParent(m.label);
+                                    }}
+                                    onBlur={() => scheduleClearHover(80)}
+                                    onClick={() => {
+                                        // toggle on click for touch/click support when collapsed
+                                        if (!collapsed) return;
+                                        setHoveredParent((prev) => (prev === m.label ? null : m.label));
+                                    }}
+                                    role={collapsed ? "button" : undefined}
+                                    tabIndex={0}
                                 >
                                     {m.icon}
                                 </div>
