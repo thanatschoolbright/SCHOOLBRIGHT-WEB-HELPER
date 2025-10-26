@@ -1,100 +1,111 @@
 import "@styles/font.css";
 import "@styles/globals.css";
-import {App as AntdApp} from "antd";
+import { App as AntdApp } from "antd";
 import ClientProvider from "@components/providers/client-providers";
 import LocaleProvider from "@components/providers/i18n-provider";
 import SchoolReduxProvider from "@components/providers/school-list-provider";
 import AuthenticationReduxProvider from "@components/providers/auth-provider";
 import AntThemeProvider from "@components/layouts/ant-layout";
-import {StorageProvider} from "@components/providers/storage-provider";
+import { StorageProvider } from "@components/providers/storage-provider";
 import ChartProvider from "@/components/providers/chartjs-provider";
-import {Toaster} from "sonner";
+import { Toaster } from "sonner";
 import ForceLogoutProvider from "@components/providers/force-logout-provider";
-import type {Metadata, Viewport} from "next";
-import CopyrightNotice from "@components/layouts/copyright-notice";
+import type { Metadata, Viewport } from "next";
+import CopyrightToggle from "@components/layouts/copyright-toggle";
 
 export const metadata: Metadata = {
-    title: {
-        default: "SchoolBright Web Helper",
-        template: "%s | SchoolBright Web Helper",
+  title: {
+    default: "SchoolBright Web Helper",
+    template: "%s | SchoolBright Web Helper",
+  },
+  description: "ระบบช่วยเหลือการจัดการโรงเรียน - SchoolBright Web Helper",
+  applicationName: "SchoolBright Web Helper",
+  generator: "Next.js",
+  keywords: [
+    "SchoolBright",
+    "Web Helper",
+    "โรงเรียน",
+    "การศึกษา",
+    "ระบบจัดการ",
+  ],
+  authors: [{ name: "SchoolBright Team" }],
+  creator: "SchoolBright",
+  publisher: "SchoolBright",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
     },
-    description: "ระบบช่วยเหลือการจัดการโรงเรียน - SchoolBright Web Helper",
-    applicationName: "SchoolBright Web Helper",
-    generator: "Next.js",
-    keywords: ["SchoolBright", "Web Helper", "โรงเรียน", "การศึกษา", "ระบบจัดการ"],
-    authors: [{ name: "SchoolBright Team" }],
-    creator: "SchoolBright",
-    publisher: "SchoolBright",
-    robots: {
-        index: false,
-        follow: false,
-        googleBot: {
-            index: false,
-            follow: false,
-        },
-    },
-    icons: {
-        icon: [
-            { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-            { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-        ],
-        shortcut: "/favicon.ico",
-        apple: "/apple-touch-icon.png",
-    },
-    manifest: "/manifest.json",
-    appleWebApp: {
-        capable: true,
-        statusBarStyle: "default",
-        title: "SchoolBright Web Helper",
-    },
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SchoolBright Web Helper",
+  },
 };
 
 export const viewport: Viewport = {
-    themeColor: "#4A90E2",
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-    viewportFit: "cover",
+  themeColor: "#4A90E2",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: {
-    children: React.ReactNode;
+  children,
+}: {
+  children: React.ReactNode;
 }) {
-    return (
-        <html lang="th" suppressHydrationWarning>
-        <head></head>
-        <body className="antialiased">
-        <Toaster expand={false} richColors position="bottom-center" closeButton/>
+  return (
+    <html lang="th" suppressHydrationWarning>
+      <head></head>
+      <body className="antialiased">
+        <Toaster
+          expand={false}
+          richColors
+          position="bottom-center"
+          closeButton
+        />
 
         {/* ครอบด้วย AntdApp เพื่อให้ context ของ message, modal, notification ทำงานสมบูรณ์ */}
         <AntThemeProvider>
-            <AntdApp>
-                <ClientProvider>
-                    {/* ForceLogoutProvider should be placed inside a client context so it can access localStorage.
+          <AntdApp>
+            <ClientProvider>
+              {/* ForceLogoutProvider should be placed inside a client context so it can access localStorage.
                         It wraps the rest of the client-side providers so that any component can call
                         `useForceLogout().triggerForceLogout()` to force logout all clients.
                     */}
-                    <ForceLogoutProvider>
-                      <LocaleProvider locale="th">
-                        <AuthenticationReduxProvider>
-                            <SchoolReduxProvider>
-                                <StorageProvider>
-                                    <ChartProvider>{children}</ChartProvider>
-                                </StorageProvider>
-                            </SchoolReduxProvider>
-                        </AuthenticationReduxProvider>
-                      </LocaleProvider>
-                    </ForceLogoutProvider>
-                </ClientProvider>
-            </AntdApp>
+              <ForceLogoutProvider>
+                <LocaleProvider locale="th">
+                  <AuthenticationReduxProvider>
+                    <SchoolReduxProvider>
+                      <StorageProvider>
+                        <ChartProvider>{children}</ChartProvider>
+                      </StorageProvider>
+                    </SchoolReduxProvider>
+                  </AuthenticationReduxProvider>
+                </LocaleProvider>
+              </ForceLogoutProvider>
+            </ClientProvider>
+          </AntdApp>
         </AntThemeProvider>
 
-        {/* Copyright Notice */}
-        <CopyrightNotice />
-        </body>
-        </html>
-    );
+        {/* Subtle copyright info icon — click to view details */}
+        <CopyrightToggle />
+      </body>
+    </html>
+  );
 }

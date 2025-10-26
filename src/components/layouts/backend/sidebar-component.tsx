@@ -106,9 +106,14 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
                     key: m.label,
                     icon: (
                         <Popover
-                            placement="rightTop"
+                            placement="right"
                             overlayClassName="sidebar-collapsed-menu-popover"
                             trigger={collapsed ? "hover" : undefined}
+                            // attach to body to avoid overflow/clipping when sidebar is collapsed
+                            getPopupContainer={() => (typeof window !== 'undefined' ? document.body : (null as any)) as any}
+                            // small enter/leave delays make hover feel smoother and avoid flicker
+                            mouseEnterDelay={0.08}
+                            mouseLeaveDelay={0.12}
                             content={collapsed ? (
                                 <div className="sidebar-popover-content">
                                     <div className="sidebar-popover-title">{m.label}</div>
