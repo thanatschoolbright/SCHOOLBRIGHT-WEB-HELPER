@@ -1,7 +1,7 @@
 "use client";
 
 import {useSidebarMenu} from "@/constants/sidebar-menu-constant";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {Menu, Tag, theme, Tooltip, Typography, Popover} from "antd";
 import {
@@ -60,6 +60,22 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
     const router = useRouter();
     const {token} = theme.useToken();
 
+    // hover control for collapsed popovers
+    const [hoveredParent, setHoveredParent] = useState<string | null>(null);
+    const hoverTimerRef = useRef<number | null>(null);
+
+    const clearHoverTimer = () => {
+        if (hoverTimerRef.current) {
+            window.clearTimeout(hoverTimerRef.current as any);
+            hoverTimerRef.current = null;
+        }
+    };
+
+    const scheduleClearHover = (delay = 120) => {
+        clearHoverTimer();
+        hoverTimerRef.current = window.setTimeout(() => setHoveredParent(null), delay) as unknown as number;
+    };
+
     useEffect(() => {
         const activeParents = menu
             .filter((m) => m.children?.some((c) => c.href === pathname))
@@ -104,61 +120,83 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
             if (m.children && m.children.length) {
                 return {
                     key: m.label,
-                    icon: (
-                        <Popover
-                            placement="right"
-                            overlayClassName="sidebar-collapsed-menu-popover"
-                            trigger={collapsed ? "hover" : undefined}
-                            // attach to body to avoid overflow/clipping when sidebar is collapsed
-                            getPopupContainer={() => (typeof window !== 'undefined' ? document.body : (null as any)) as any}
-                            // small enter/leave delays make hover feel smoother and avoid flicker
-                            mouseEnterDelay={0.08}
-                            mouseLeaveDelay={0.12}
-                            content={collapsed ? (
-                                <div className="sidebar-popover-content">
-                                    <div className="sidebar-popover-title">{m.label}</div>
-                                    <div className="sidebar-popover-children">
-                                        {m.children?.map((child, idx) => (
-                                            <div 
-                                                key={idx} 
-                                                className="sidebar-popover-child"
-                                                onClick={() => router.push(child.href)}
-                                                style={{ cursor: 'pointer' }}
-                                            >
-                                                {child.icon && (
-                                                    <span className="sidebar-popover-child-icon">
-                                                        {child.icon}
+                    icon: (() => {
+                        // control open state when collapsed to avoid relying solely on Popover's hover behavior
+                        const popoverControlledProps = collapsed
+                            ? { open: hoveredParent === m.label }
+                            : {};
+
+                        return (
+                            <Popover
+                                placement="right"
+                                overlayClassName="sidebar-collapsed-menu-popover"
+                                trigger={collapsed ? "hover" : undefined}
+                                // attach to body to avoid overflow/clipping when sidebar is collapsed
+                                getPopupContainer={() => (typeof window !== 'undefined' ? document.body : (null as any)) as any}
+                                // small enter/leave delays make hover feel smoother and avoid flicker
+                                mouseEnterDelay={0.08}
+                                mouseLeaveDelay={0.12}
+                                {...popoverControlledProps}
+                                content={collapsed ? (
+                                    <div
+                                        className="sidebar-popover-content"
+                                        onMouseEnter={() => {
+                                            clearHoverTimer();
+                                            setHoveredParent(m.label);
+                                        }}
+                                        onMouseLeave={() => scheduleClearHover(120)}
+                                    >
+                                        <div className="sidebar-popover-title">{m.label}</div>
+                                        <div className="sidebar-popover-children">
+                                            {m.children?.map((child, idx) => (
+                                                <div 
+                                                    key={idx} 
+                                                    className="sidebar-popover-child"
+                                                    onClick={() => router.push(child.href)}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    {child.icon && (
+                                                        <span className="sidebar-popover-child-icon">
+                                                            {child.icon}
+                                                        </span>
+                                                    )}
+                                                    <span className="sidebar-popover-child-text">
+                                                        {child.label}
                                                     </span>
-                                                )}
-                                                <span className="sidebar-popover-child-text">
-                                                    {child.label}
-                                                </span>
-                                                {child.news && (
-                                                    <Tag 
-                                                        color="red" 
-                                                        style={{
-                                                            fontSize: '9px',
-                                                            marginLeft: '4px',
-                                                            transform: 'scale(0.8)',
-                                                            height: '14px',
-                                                            lineHeight: '14px',
-                                                            padding: '0 3px'
-                                                        }}
-                                                    >
-                                                        NEW
-                                                    </Tag>
-                                                )}
-                                            </div>
-                                        ))}
+                                                    {child.news && (
+                                                        <Tag 
+                                                            color="red" 
+                                                            style={{
+                                                                fontSize: '9px',
+                                                                marginLeft: '4px',
+                                                                transform: 'scale(0.8)',
+                                                                height: '14px',
+                                                                lineHeight: '14px',
+                                                                padding: '0 3px'
+                                                            }}
+                                                        >
+                                                            NEW
+                                                        </Tag>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
+                                ) : null}
+                            >
+                                <div
+                                    className="sidebar-icon-wrapper"
+                                    onMouseEnter={() => {
+                                        clearHoverTimer();
+                                        setHoveredParent(m.label);
+                                    }}
+                                    onMouseLeave={() => scheduleClearHover(80)}
+                                >
+                                    {m.icon}
                                 </div>
-                            ) : null}
-                        >
-                            <div className="sidebar-icon-wrapper">
-                                {m.icon}
-                            </div>
-                        </Popover>
-                    ),
+                            </Popover>
+                        );
+                    })(),
                     label: (
                         <div className="sidebar-parent-label">
                             <span style={{ fontSize: 16, fontWeight: 700 }}>{m.label}</span>
