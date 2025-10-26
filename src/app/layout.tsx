@@ -9,6 +9,7 @@ import AntThemeProvider from "@components/layouts/ant-layout";
 import {StorageProvider} from "@components/providers/storage-provider";
 import ChartProvider from "@/components/providers/chartjs-provider";
 import {Toaster} from "sonner";
+import ForceLogoutProvider from "@components/providers/force-logout-provider";
 import type {Metadata, Viewport} from "next";
 import CopyrightNotice from "@components/layouts/copyright-notice";
 
@@ -72,7 +73,12 @@ export default function RootLayout({
         <AntThemeProvider>
             <AntdApp>
                 <ClientProvider>
-                    <LocaleProvider locale="th">
+                    {/* ForceLogoutProvider should be placed inside a client context so it can access localStorage.
+                        It wraps the rest of the client-side providers so that any component can call
+                        `useForceLogout().triggerForceLogout()` to force logout all clients.
+                    */}
+                    <ForceLogoutProvider>
+                      <LocaleProvider locale="th">
                         <AuthenticationReduxProvider>
                             <SchoolReduxProvider>
                                 <StorageProvider>
@@ -80,7 +86,8 @@ export default function RootLayout({
                                 </StorageProvider>
                             </SchoolReduxProvider>
                         </AuthenticationReduxProvider>
-                    </LocaleProvider>
+                      </LocaleProvider>
+                    </ForceLogoutProvider>
                 </ClientProvider>
             </AntdApp>
         </AntThemeProvider>
