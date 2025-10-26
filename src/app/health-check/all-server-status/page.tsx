@@ -51,6 +51,17 @@ const Page = () => {
   const [selectedRow, setSelectedRow] =
     useState<ResponseGetServerStatusV2["draftValues"]["Array"][number]>();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  // modal responsive flag
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  useEffect(() => {
+    const handleResize = () =>
+      setIsMobile(
+        typeof window !== "undefined" ? window.innerWidth <= 768 : false
+      );
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editValue, setEditValue] = useState<string>("");
 
@@ -414,13 +425,21 @@ const Page = () => {
         )}
       </Card>
 
+      {/* Responsive modal: switch to viewport width on small screens to avoid layout overlap */}
+
       <Modal
         title="รายละเอียดเซิร์ฟเวอร์"
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={820}
+        width={isMobile ? "95vw" : 820}
         destroyOnHidden
+        styles={{
+          body: {
+            maxHeight: isMobile ? "70vh" : "75vh",
+            overflowY: "auto",
+          },
+        }}
       >
         {selectedRow ? (
           <Space direction="vertical" size="middle" style={{ width: "100%" }}>
@@ -432,11 +451,16 @@ const Page = () => {
                 alignItems: "flex-start",
               }}
             >
-              <Row justify="space-between" style={{ width: "100%" }}>
-                <Col>
+              {/* use responsive Row/Col so on small screens header stacks instead of overlapping */}
+              <Row
+                justify="space-between"
+                style={{ width: "100%", flexWrap: "wrap" }}
+                gutter={16}
+              >
+                <Col xs={24} sm={24} md={14} lg={14}>
                   <Space align="center" size={12}>
                     <Avatar
-                      size={52}
+                      size={isMobile ? 44 : 52}
                       icon={<CloudOutlined />}
                       style={{ background: "#f0f5ff", color: "#2f54eb" }}
                     />
@@ -451,8 +475,17 @@ const Page = () => {
                   </Space>
                 </Col>
 
-                <Col>
-                  <div style={{ textAlign: "right" }}>
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={10}
+                  lg={10}
+                  style={{
+                    display: "flex",
+                    justifyContent: isMobile ? "flex-start" : "flex-end",
+                  }}
+                >
+                  <div style={{ textAlign: isMobile ? "left" : "right" }}>
                     <Tag
                       color={selectedRow.status === "Online" ? "green" : "red"}
                       style={{ fontSize: 14 }}
