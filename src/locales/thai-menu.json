@@ -68,7 +68,7 @@
       "report": "รายงาน"
     }
   },
-  "logger" : {
+  "logger": {
     "title": "ระบบบันทึก API",
     "children": {
       "api_logs": "ดูบันทึก API"
@@ -78,7 +78,8 @@
     "title": "ชีท",
     "children": {
       "project_planning": "แผนงานโครงการ",
-      "project_training": "แผนการสอนพนักงานใหม่"
+      "project_training": "แผนการสอนพนักงานใหม่",
+      "project_release_note": "แผนงานปล่อยระบบ release/note"
     }
   }
 }
