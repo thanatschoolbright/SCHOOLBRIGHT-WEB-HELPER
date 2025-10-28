@@ -7,8 +7,8 @@
  */
 
 import "@ant-design/v5-patch-for-react-19";
-import {Layout, Skeleton, theme} from "antd";
-import React, {Suspense, useMemo, useState} from "react";
+import { Layout, Skeleton, theme } from "antd";
+import React, { Suspense, useMemo, useState } from "react";
 
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
 import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
@@ -19,7 +19,7 @@ import SidebarContent from "@components/layouts/backend/sidebar-component";
  * 🎯 Props สำหรับ DashboardLayout
  */
 type DashboardLayoutProps = {
-    children: React.ReactNode;
+  children: React.ReactNode;
 };
 
 /**
@@ -35,118 +35,124 @@ const MemoBreadcrumbs = React.memo(BreadcrumbComponent);
  * - Skeleton fallback เฉพาะในส่วน children
  * - รองรับ Dark Mode ด้วย theme token
  */
-export default function DashboardLayout({children}: DashboardLayoutProps): JSX.Element {
-    //** 🌐 สถานะให้ Sider ยุบ/ขยาย
-    const [collapsed, setCollapsed] = useState<boolean>(false);
+export default function DashboardLayout({
+  children,
+}: DashboardLayoutProps): JSX.Element {
+  //** 🌐 สถานะให้ Sider ยุบ/ขยาย
+  const [collapsed, setCollapsed] = useState<boolean>(false);
 
-    //** 🎨 ดึง token ธีมจาก Ant Design Theme สำหรับ Dark Mode
-    const {token} = theme.useToken();
-    const {Header, Sider, Content} = Layout;
+  //** 🎨 ดึง token ธีมจาก Ant Design Theme สำหรับ Dark Mode
+  const { token } = theme.useToken();
+  const { Header, Sider, Content } = Layout;
 
-    /**
-     * 🦴 Skeleton ใน fallback ของ Suspense สำหรับ children
-     * แสดง loading ขณะโหลดเนื้อหา
-     */
-    const contentSkeleton = useMemo(
-        () => (
-            <div style={{padding: 12}}>
-                <Skeleton active title={{width: "40%"}} paragraph={{rows: 2}}/>
-                <div style={{marginTop: 12}}>
-                    <Skeleton active title={false} paragraph={{rows: 6}}/>
-                </div>
-            </div>
-        ),
-        []
-    );
+  /**
+   * 🦴 Skeleton ใน fallback ของ Suspense สำหรับ children
+   * แสดง loading ขณะโหลดเนื้อหา
+   */
+  const contentSkeleton = useMemo(
+    () => (
+      <div style={{ padding: 12 }}>
+        <Skeleton active title={{ width: "40%" }} paragraph={{ rows: 2 }} />
+        <div style={{ marginTop: 12 }}>
+          <Skeleton active title={false} paragraph={{ rows: 6 }} />
+        </div>
+      </div>
+    ),
+    []
+  );
 
-    /**
-     * 🌙 DarkModeToggle จะแสดงเฉพาะเมื่อ Sider ไม่ถูกยุบ
-     * เพื่อประหยัดพื้นที่
-     */
-    const darkToggleSection = useMemo(() => {
-        if (!collapsed) {
-            return (
-                <div style={{padding: 16}}>
-                    <DarkModeToggle/>
-                </div>
-            );
-        }
-        return null;
-    }, [collapsed]);
+  /**
+   * 🌙 DarkModeToggle จะแสดงเฉพาะเมื่อ Sider ไม่ถูกยุบ
+   * เพื่อประหยัดพื้นที่
+   */
+  const darkToggleSection = useMemo(() => {
+    if (!collapsed) {
+      return (
+        <div style={{ padding: 16 }}>
+          <DarkModeToggle />
+        </div>
+      );
+    }
+    return null;
+  }, [collapsed]);
 
-    return (
-        <Layout
-            style={{
-                minHeight: "100vh",
-                background: token.colorBgLayout, // รองรับ Dark Mode
-            }}
+  return (
+    <Layout
+      style={{
+        minHeight: "100vh",
+        background: token.colorBgLayout, // รองรับ Dark Mode
+      }}
+    >
+      {/* 🔸 Sidebar ด้านซ้าย */}
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        width={260}
+        collapsedWidth={70}
+        breakpoint="xl"
+        style={{
+          background: token.colorBgContainer,
+          borderRight: `1px solid ${token.colorBorderSecondary}`,
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{ display: "flex", flexDirection: "column", height: "100%" }}
         >
-            {/* 🔸 Sidebar ด้านซ้าย */}
-            <Sider
-                collapsible
-                collapsed={collapsed}
-                onCollapse={setCollapsed}
-                width={260}
-                collapsedWidth={80}
-                breakpoint="lg"
-                style={{
-                    background: token.colorBgContainer,
-                    borderRight: `1px solid ${token.colorBorderSecondary}`,
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    overflow: 'hidden'
-                }}
-            >
-                <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
-                    {/* 📋 เนื้อหา Sidebar */}
-                    <div style={{
-                        flex: 1, 
-                        overflowY: "auto", 
-                        padding: collapsed ? '16px 8px' : '16px',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                    }}>
-                        <MemoSidebarContent collapsed={collapsed}/>
-                    </div>
-                    {/* 🌙 Toggle Dark Mode */}
-                    {darkToggleSection}
-                </div>
-            </Sider>
+          {/* 📋 เนื้อหา Sidebar */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              marginTop: 48,
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          >
+            <MemoSidebarContent collapsed={collapsed} />
+          </div>
+          {/* 🌙 Toggle Dark Mode */}
+          {darkToggleSection}
+        </div>
+      </Sider>
 
-            {/* 🔹 Layout หลัก */}
-            <Layout>
-                {/* 🧭 Header ด้านบน */}
-                <Header
-                    style={{
-                        position: "sticky",
-                        top: 0,
-                        zIndex: 50,
-                        paddingInline: 0,
-                    }}
-                >
-                    <MemoMainHeader/>
-                </Header>
+      {/* 🔹 Layout หลัก */}
+      <Layout>
+        {/* 🧭 Header ด้านบน */}
+        <Header
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 50,
+            paddingInline: 0,
+          }}
+        >
+          <MemoMainHeader />
+        </Header>
 
-                {/* 📄 Content หลัก */}
-                <Content
-                    style={{
-                        padding: 20,
-                        display: "flex",
-                        flexDirection: "column",
-                        minHeight: 0,
-                        gap: 16,
-                        background: token.colorBgLayout, // รองรับ Dark Mode
-                    }}
-                >
-                    {/* 🍞 Breadcrumbs */}
-                    <div>
-                        <MemoBreadcrumbs/>
-                    </div>
+        {/* 📄 Content หลัก */}
+        <Content
+          style={{
+            padding: 20,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+            gap: 16,
+            background: token.colorBgLayout, // รองรับ Dark Mode
+          }}
+        >
+          {/* 🍞 Breadcrumbs */}
+          <div>
+            <MemoBreadcrumbs />
+          </div>
 
-                    {/* 📦 เนื้อหาหลักกับ Skeleton Loading */}
-                    <div style={{flex: 1, minHeight: 0, overflow: "auto"}}>
-                        <Suspense fallback={contentSkeleton}>{children}</Suspense>
-                    </div>
-                </Content>
-            </Layout>
-        </Layout>
-    );
+          {/* 📦 เนื้อหาหลักกับ Skeleton Loading */}
+          <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+            <Suspense fallback={contentSkeleton}>{children}</Suspense>
+          </div>
+        </Content>
+      </Layout>
+    </Layout>
+  );
 }

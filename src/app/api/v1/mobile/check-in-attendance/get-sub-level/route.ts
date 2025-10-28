@@ -6,7 +6,7 @@ import z from "zod";
 import { validateRequest } from "@helpers/api/validate.request";
 
 // Type Definition
-export type LevelDto = {
+export type ResponseGetSubLevel = {
   id: number;
   name: string | null;
   lastname: string | null;
@@ -28,7 +28,7 @@ export type RequestGetSubLevel = {
 };
 
 // Helper: แปลงข้อมูล
-const mapToDto = (item: any): LevelDto => ({
+const mapToDto = (item: any): ResponseGetSubLevel => ({
   id: item.ID,
   name: item.name,
   lastname: item.lastname,

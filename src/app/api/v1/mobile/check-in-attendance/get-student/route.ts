@@ -1,12 +1,14 @@
+import { TTempScanStatusOnline } from "./../../../../../../../generated/prisma/index.d";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@helpers/api/response";
 import { API_CLIENT_WITH_REFRESH_TOKEN } from "@/services/axios-instance/sb-refresh-token.axios";
 import { API_URL } from "@services/api-url";
 import z from "zod";
 import { validateRequest } from "@helpers/api/validate.request";
+import { ATTENDANCE_STATUS } from "@constants/attendance-status";
 
 // Type Definition
-export type LevelDto = {
+export type ResponseGetStudent = {
   student_state: number;
   user_id: number;
   student_id: string;
@@ -34,13 +36,15 @@ export type LevelDto = {
 };
 
 // Helper: แปลงข้อมูล
-const mapToDto = (item: any): LevelDto => ({
+const mapToDto = (item: any): ResponseGetStudent => ({
   student_state: item.Student_State,
   user_id: item.UserId,
   student_id: item.studentId,
   student_name: item.studentName,
   student_name_en: item.studentNameEN,
-  scan_status: item.scanstatus,
+  scan_status:
+    ATTENDANCE_STATUS.find((s) => s.value === item.scanstatus)
+      ?.text ?? "",
   authorized: item.authorized,
   teacher_name: item.teachername,
   teacher_id: item.teacherId,

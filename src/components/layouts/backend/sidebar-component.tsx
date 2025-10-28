@@ -1,10 +1,15 @@
-
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
 import { useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Tag, Tooltip } from "antd";
 
-function MenuTooltip({ label, children }: { label: string; children: React.ReactNode }) {
+function MenuTooltip({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <Tooltip title={label} placement="right">
       <span>{children}</span>
@@ -16,7 +21,9 @@ type SidebarContentProps = {
   collapsed?: boolean;
 };
 
-export default function SidebarContent({ collapsed = false }: SidebarContentProps) {
+export default function SidebarContent({
+  collapsed = false,
+}: SidebarContentProps) {
   const menu = useSidebarMenu();
   const pathname = usePathname();
   const router = useRouter();
@@ -36,7 +43,9 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
               <>
                 <MenuTooltip label={c.label}>{c.label}</MenuTooltip>
                 {!collapsed && c.news && (
-                  <Tag color="red" style={{ marginLeft: 8, fontSize: 12 }}>NEW</Tag>
+                  <Tag color="red" style={{ marginLeft: 8, fontSize: 12 }}>
+                    NEW
+                  </Tag>
                 )}
               </>
             ),
@@ -50,7 +59,9 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
           <>
             {m.label}
             {m.tag && (
-              <Tag color="purple" style={{ marginLeft: 8, fontSize: 10 }}>{m.tag}</Tag>
+              <Tag color="purple" style={{ marginLeft: 8, fontSize: 10 }}>
+                {m.tag}
+              </Tag>
             )}
           </>
         ),
@@ -66,12 +77,16 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
 
   return (
     <Menu
-      mode="vertical"
+      mode="inline"
       inlineCollapsed={collapsed}
       selectedKeys={[pathname]}
       openKeys={collapsed ? [] : openKeys}
       onOpenChange={onOpenChange}
       onClick={onClick}
+      triggerSubMenuAction={collapsed ? "hover" : "click"}
+      getPopupContainer={(triggerNode: HTMLElement) =>
+        typeof document !== "undefined" ? document.body : triggerNode
+      }
       items={items as any}
     />
   );
