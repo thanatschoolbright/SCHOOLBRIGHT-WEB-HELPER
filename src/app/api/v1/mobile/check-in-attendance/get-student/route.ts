@@ -7,41 +7,58 @@ import { validateRequest } from "@helpers/api/validate.request";
 
 // Type Definition
 export type LevelDto = {
-  id: number;
-  name: string | null;
-  lastname: string | null;
-  sex: string | null;
-  value: string | null;
-  name_en: string | null;
-  name_th: string | null;
-  type: string | null;
+  student_state: number;
+  user_id: number;
+  student_id: string;
+  student_name: string;
+  student_name_en: string;
+  scan_status: string;
+  authorized: boolean;
+  teacher_name: string | null;
+  teacher_id: number | null;
+  sex: string;
+  pic: string | null;
+  pic_version: number;
+  n_student_number: number;
+  status_check: boolean;
   school_id: number;
-  image: string | null;
-  token: string | null;
-  desc: string | null;
-  status_code: number;
-};
-
-export type RequestGetSubLevel = {
-  school_id: string;
-  level_id: string;
+  first_name_th: string | null;
+  last_name_th: string | null;
+  first_name_en: string | null;
+  last_name_en: string | null;
+  student_code: string | null;
+  state_th: string | null;
+  state_en: string | null;
+  come2school_status: string | null;
+  pic_update: string | null;
 };
 
 // Helper: แปลงข้อมูล
 const mapToDto = (item: any): LevelDto => ({
-  id: item.ID,
-  name: item.name,
-  lastname: item.lastname,
+  student_state: item.Student_State,
+  user_id: item.UserId,
+  student_id: item.studentId,
+  student_name: item.studentName,
+  student_name_en: item.studentNameEN,
+  scan_status: item.scanstatus,
+  authorized: item.authorized,
+  teacher_name: item.teachername,
+  teacher_id: item.teacherId,
   sex: item.sex,
-  value: item.Value,
-  name_en: item.NameEN,
-  name_th: item.NameTH,
-  type: item.Type,
-  school_id: item.SchoolId,
-  image: item.image,
-  token: item.token,
-  desc: item.Desc,
-  status_code: item.StatusCode,
+  pic: item.pic,
+  pic_version: item.picversion,
+  n_student_number: item.nStudentNumber,
+  status_check: item.statusCheck,
+  school_id: item.SchoolID,
+  first_name_th: item.FirstNameTH,
+  last_name_th: item.LastNameTH,
+  first_name_en: item.FirstNameEN,
+  last_name_en: item.LastNameEN,
+  student_code: item.studentCode,
+  state_th: item.StateTH,
+  state_en: item.StateEN,
+  come2school_status: item.come2school_status,
+  pic_update: item.PicUpdate,
 });
 
 // Helper: ดึงข้อมูลจาก response
@@ -54,8 +71,13 @@ const extractData = (response: any): any[] => {
 // Validation Schema
 const validator = z.object({
   school_id: z.string().min(1, "school_id is required"),
-  level_id: z.string().min(1, "level_id is required"),
+  sub_level_id: z.string().min(1, "sub_level_id is required"),
 });
+
+export type RequestGetStudent = {
+  school_id: string;
+  sub_level_id: string;
+};
 
 // API Route
 export async function POST(request: NextRequest) {
@@ -64,8 +86,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const apiClient = await API_CLIENT_WITH_REFRESH_TOKEN();
-    const payload: RequestGetSubLevel = data;
-    const target = `${API_URL.PROD_SB_API_URL}/api/sublevel2?schoolid=${payload.school_id}&sublevelid=${payload.level_id}`;
+    const payload: RequestGetStudent = data;
+    const target = `${API_URL.PROD_SB_API_URL}/api/School/getstudent/${payload.school_id}/${payload.sub_level_id}`;
     const response = await apiClient.get(target);
 
     const rawData = extractData(response);
