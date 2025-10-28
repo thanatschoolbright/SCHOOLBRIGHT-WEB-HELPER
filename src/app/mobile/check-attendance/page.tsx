@@ -18,7 +18,14 @@ import {
 } from "antd";
 import AttendanceCard from "@components/card/attendance-card-component";
 import { toast } from "sonner";
-import { RocketOutlined } from "@ant-design/icons";
+import {
+  CheckCircleFilled,
+  CheckCircleOutlined,
+  IdcardOutlined,
+  RocketOutlined,
+  TeamOutlined,
+  UserAddOutlined,
+} from "@ant-design/icons";
 
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -205,10 +212,10 @@ export default function Page() {
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
         <HeaderBar
-          icon={<RocketOutlined />}
+          icon={<TeamOutlined />}
           title="ตรวจสอบการเข้าชั้นเรียน"
           subTitle="รายละเอียดการเข้าชั้นเรียน"
-          color="orange"
+          color="none"
         />
 
         {/* ฟิลเตอร์การค้นหา */}
