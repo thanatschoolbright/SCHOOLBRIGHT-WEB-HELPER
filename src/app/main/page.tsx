@@ -675,20 +675,14 @@ export default function Page() {
                       }}
                       style={{
                         position: "relative",
-                        
-                        height: isMobile
-                          ? 60
-                          : screenSize === "desktop"
-                          ? 120
-                          : screenSize === "tablet"
-                          ? 110
-                          : 100,
                         cursor: "pointer",
                         transition: "all 0.2s ease",
-                        // intentionally no background so icon container's bg is visible
                         background: "transparent",
                         display: "flex",
                         padding: isMobile ? "8px 12px" : screenSize === "desktop" ? "20px" : screenSize === "tablet" ? "16px" : "12px",
+                        
+                        borderRadius: 16,
+                        
                         flexDirection: "column",
                         justifyContent: "center",
                         alignItems: "center",
@@ -768,18 +762,17 @@ export default function Page() {
                           }}
                         >
                           {child.label}
-                        </Text>
-
-                      {/* New Badge for Sub Menu */}
+                           {/* New Badge for Sub Menu */}
                       {child.news && (
                         <div
                           style={{
                             position: "absolute",
-                            top: 4,
-                            right: 4,
+                            top: 12,
+                            right: 64,
+                            zIndex: 15,
                             backgroundColor: "#10b981",
                             color: "white",
-                            fontSize: 8,
+                            fontSize: 12,
                             fontWeight: "bold",
                             padding: "1px 4px",
                             borderRadius: 4,
@@ -789,6 +782,10 @@ export default function Page() {
                           NEW
                         </div>
                       )}
+                          
+                        </Text>
+
+                     
                     </div>
                   </Col>
                 ))}
