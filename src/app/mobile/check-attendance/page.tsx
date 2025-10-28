@@ -8,7 +8,6 @@ import {
   Form,
   Row,
   Select,
-  Table,
   List,
   Avatar,
   Badge,
@@ -17,6 +16,7 @@ import {
   Tag,
   Space,
 } from "antd";
+import AttendanceCard from "@components/card/attendance-card-component";
 import { toast } from "sonner";
 import { RocketOutlined } from "@ant-design/icons";
 
@@ -29,8 +29,8 @@ import PermissionLayout from "@/components/layouts/permission-layout";
 import { useAppSelector } from "@stores/store";
 import { useDispatch } from "react-redux";
 
-import { HeaderBar } from "@/components/typhography/header-bar-component";
-import { callApiService } from "@/services/axios-instance/sb-helper.axios";
+import { HeaderBar } from "@components/typhography/header-bar-component";
+import { callApiService } from "@services/axios-instance/sb-helper.axios";
 import { ResponseGetLevel } from "@/app/api/v1/mobile/check-in-attendance/get-level/route";
 import { ResponseGetSubLevel } from "@/app/api/v1/mobile/check-in-attendance/get-sub-level/route";
 import { ResponseGetStudent } from "@/app/api/v1/mobile/check-in-attendance/get-student/route";
@@ -99,7 +99,7 @@ export default function Page() {
       const formattedOptions: ResponseGetLevel[] = response?.data?.data.map(
         (item: ResponseGetLevel) => ({
           label: String(item.name_th),
-          value: String(item.id), // ⚠️ แปลงเป็น String
+          value: String(item.id),
         })
       );
 
@@ -126,7 +126,7 @@ export default function Page() {
       const formattedOptions: ResponseGetSubLevel[] = response?.data?.data.map(
         (item: ResponseGetSubLevel) => ({
           label: String(item.name_th),
-          value: String(item.id), // ⚠️ แปลงเป็น String
+          value: String(item.id),
         })
       );
       setSubLevelOptions(formattedOptions);
@@ -146,7 +146,7 @@ export default function Page() {
         request
       );
       toast.success("โหลดข้อมูลนักเรียนสำเร็จ!", { id: "load-students" });
-      setTable(response?.data?.data);
+      setTable(response?.data?.data || []);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลนักเรียน", {
         id: "load-students",
@@ -176,7 +176,6 @@ export default function Page() {
     }
   };
 
-  // ⚠️ แก้ไขฟังก์ชันนี้
   const handleFormSubmit = async (values: RequestAttendanceReportParams) => {
     const formattedValues = {
       school_id: String(values.school_id || ""),
@@ -184,11 +183,9 @@ export default function Page() {
       sub_level_id: String(values.sub_level_id || ""),
     };
 
-    console.log("Form Values:", formattedValues);
     await GET_STUDENT_API(formattedValues);
   };
 
-  // compute duplicate counts by user_id
   const duplicateCounts = useMemo(() => {
     const counts: Record<string | number, number> = {};
     table.forEach((s) => {
@@ -275,109 +272,23 @@ export default function Page() {
         {/* ผลลัพธ์การตรวจสอบ */}
         <Card style={{ margin: 16 }} title="ผลลัพธ์การตรวจสอบ">
           {table.length > 0 ? (
-            <List
-              grid={{ gutter: 12, column: 1 }}
-              dataSource={table}
-              renderItem={(s, index) => {
-                const id = (s as any).user_id ?? (s as any).student_id;
-                const isDuplicate = (duplicateCounts[id] || 0) > 1;
-
-                // การทำงาน: แสดงชื่อ-รหัสนักเรียน
-                const title = `${s.student_name} (${s.student_id})`;
-
-                // การทำงาน: ลำดับนักเรียน (แสดงด้านขวา)
-                const orderNumber = s.n_student_number || index + 1;
-
-                // การทำงาน: แปลงสถานะสแกนเป็น Tag สี
-
-                // การทำงาน: การ์ดหลักของนักเรียน
-                const card = (
-                  <List.Item key={id}>
-                    <Card
-                      size="small"
-                      variant="outlined"
-                      style={{
-                        background: "#fafafa",
-                        borderRadius: 12,
-                        position: "relative",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                      }}
-                    >
-                      {/* มุมขวาบน - หมายเลขเรียง */}
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 6,
-                          right: 10,
-                          color: "#999",
-                          fontSize: 14,
-                          fontWeight: 600,
-                        }}
-                      >
-                        #{orderNumber}
-                      </div>
-
-                      <Card.Meta
-                        avatar={
-                          s.pic ? (
-                            <Avatar
-                              src={s.pic}
-                              size={56}
-                              shape="square"
-                              style={{ borderRadius: 8 }}
-                            />
-                          ) : (
-                            <Avatar
-                              size={56}
-                              shape="square"
-                              style={{
-                                borderRadius: 8,
-                                backgroundColor: "#f0f0f0",
-                                color: "#555",
-                              }}
-                            >
-                              {s.student_name?.slice(0, 1) || "-"}
-                            </Avatar>
-                          )
-                        }
-                        title={
-                          <Typography.Text strong style={{ fontSize: 15 }}>
-                            {title}
-                          </Typography.Text>
-                        }
-                        description={
-                          <div style={{ marginTop: 6 }}>
-                            <Space size="small">
-                              <Typography.Text>
-                                สถานะการเข้าเรียน{" "}
-                              </Typography.Text>
-
-                              <Tag
-                                color="green"
-                              >
-                                {String(s.scan_status)}
-                              </Tag>
-                            </Space>
-                          </div>
-                        }
-                      />
-                    </Card>
-                  </List.Item>
-                );
-
-                if (isDuplicate) {
+            <>
+              <List
+                grid={{ gutter: 12, column: 1 }}
+                dataSource={table}
+                renderItem={(s, index) => {
+                  const id = (s as any).user_id ?? (s as any).student_id;
+                  const isDuplicate = (duplicateCounts[id] || 0) > 1;
                   return (
-                    <List.Item key={id}>
-                      <Badge.Ribbon text="นักเรียนซ้ำ" color="red">
-                        {card}
-                      </Badge.Ribbon>
-                    </List.Item>
+                    <AttendanceCard
+                      student={s as any}
+                      index={index}
+                      isDuplicate={isDuplicate}
+                    />
                   );
-                }
-
-                return card;
-              }}
-            />
+                }}
+              />
+            </>
           ) : (
             <Empty description="ไม่มีข้อมูลนักเรียน" />
           )}
