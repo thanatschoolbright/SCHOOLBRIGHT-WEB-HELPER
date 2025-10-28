@@ -19,8 +19,9 @@ export type LevelDto = {
   status_code: number;
 };
 
-// Config
-const TARGET = "https://sbapi.schoolbright.co/api/sublevel/getLevel/849";
+export type RequestGetLevel = {
+  school_id: string;
+};
 
 // Helper: แปลงข้อมูล
 const mapToDto = (item: any): LevelDto => ({
@@ -49,7 +50,9 @@ const extractData = (response: any): any[] => {
 // API Route
 export async function POST(request: NextRequest) {
   try {
-    const apiClient = await API_CLIENT_WITH_REFRESH_TOKEN(); // เพิ่ม await
+    const apiClient = await API_CLIENT_WITH_REFRESH_TOKEN();
+    const payload: RequestGetLevel = await request.json();
+    const TARGET = `https://sbapi.schoolbright.co/api/sublevel/getLevel/${payload.school_id}`;
     const response = await apiClient.get(TARGET);
 
     const rawData = extractData(response);
