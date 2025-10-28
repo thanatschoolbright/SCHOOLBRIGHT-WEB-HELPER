@@ -220,7 +220,7 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
                     })(),
                     label: (
                         <div className="sidebar-parent-label">
-                            <span style={{ fontSize: 16, fontWeight: 700 }}>{m.label}</span>
+                            <span style={{ fontSize: 16, fontWeight: 500 }}>{m.label}</span>
                         </div>
                     ),
                     children: m.children.map((c, childIndex) => ({
@@ -236,7 +236,7 @@ export default function SidebarContent({ collapsed = false }: SidebarContentProp
                                     <Typography.Text
                                         className="sidebar-child-text"
                                         style={{
-                                            fontSize: 14,
+                                            fontSize: 13,
                                             fontWeight: 500,
                                             whiteSpace: "normal",
                                             wordBreak: "break-word",
