@@ -185,6 +185,12 @@ export const useSidebarMenu = (): SidebarItem[] => {
             news: false,
             icon: <QrcodeOutlined />,
           },
+          {
+            label: t("mobile_app.children.mobile_check_attendance"),
+            href: "/mobile/check-attendance",
+            icon: <DesktopOutlined />,
+            news: true,
+          }
         ],
       },
       {

@@ -43,7 +43,8 @@
       "statistics": "สถิติการมาเรียน",
       "qrcode_health_check": "ตรวจสอบระบบ QR Code",
       "mobile_notification": "แจ้งเตือนในแอพ",
-      "mobile_leave_letter": "จดหมายลาหยุด"
+      "mobile_leave_letter": "จดหมายลาหยุด",
+      "mobile_check_attendance": "รายงานเช็กชื่อเข้าเรียน"
     }
   },
   "app_hardware": {
