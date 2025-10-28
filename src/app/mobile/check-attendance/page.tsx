@@ -54,19 +54,19 @@ export default function Page() {
   const [subLevelOptions, setSubLevelOptions] = useState<any[]>([]);
   const [table, setTable] = useState<ResponseGetStudent[]>([]);
 
-  const requestStudentForm = {
-    schoolId: Form.useWatch("school_id", form),
-    levelId: Form.useWatch("level_id", form),
-    subLevelId: Form.useWatch("sub_level_id", form),
-  };
+  const [formValues, setFormValues] = useState<{
+    school_id?: string;
+    level_id?: string;
+    sub_level_id?: string;
+  }>({});
 
   const isFormComplete = useMemo(() => {
     return !!(
-      requestStudentForm.schoolId &&
-      requestStudentForm.levelId &&
-      requestStudentForm.subLevelId
+      formValues?.school_id &&
+      formValues?.level_id &&
+      formValues?.sub_level_id
     );
-  }, [requestStudentForm]);
+  }, [formValues]);
 
   const schoolOptions = useMemo(() => {
     try {
@@ -139,21 +139,27 @@ export default function Page() {
   };
 
   const GET_STUDENT_API = async (request: RequestAttendanceReportParams) => {
+    const toastId = toast.loading("กำลังโหลดข้อมูลนักเรียน...");
     try {
-      toast.loading("กำลังโหลดข้อมูลนักเรียน...", { id: "load-students" });
       const response = await callApiService.post(
         "/api/v1/mobile/check-in-attendance/get-student",
         request
       );
-      toast.success("โหลดข้อมูลนักเรียนสำเร็จ!", { id: "load-students" });
+      if (response?.data?.data.length === 0) {
+        toast.info("ไม่พบข้อมูลนักเรียนตามเงื่อนไขที่เลือก", {
+          id: toastId,
+        });
+      } else {
+        toast.success("โหลดข้อมูลนักเรียนสำเร็จ!", {
+          id: toastId,
+        });
+      }
       setTable(response?.data?.data || []);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลนักเรียน", {
-        id: "load-students",
+        id: toastId,
       });
       console.error("❌ Error fetching students:", error);
-    } finally {
-      toast.dismiss("load-students");
     }
   };
 
@@ -207,7 +213,12 @@ export default function Page() {
 
         {/* ฟิลเตอร์การค้นหา */}
         <Card style={{ margin: 16 }} title="ฟิลเตอร์การค้นหา">
-          <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleFormSubmit}
+            onValuesChange={(_, all) => setFormValues(all)}
+          >
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item label="โรงเรียน" name="school_id">
@@ -231,9 +242,7 @@ export default function Page() {
                     optionFilterProp="label"
                     options={levelOptions}
                     loading={isLoadingLevels}
-                    disabled={
-                      !form.getFieldValue("school_id") || isLoadingLevels
-                    }
+                    disabled={!formValues?.school_id || isLoadingLevels}
                     onChange={handleLevelChange}
                   />
                 </Form.Item>
@@ -248,9 +257,7 @@ export default function Page() {
                     optionFilterProp="label"
                     options={subLevelOptions}
                     loading={isLoadingSubLevels}
-                    disabled={
-                      !form.getFieldValue("level_id") || isLoadingSubLevels
-                    }
+                    disabled={!formValues?.level_id || isLoadingSubLevels}
                   />
                 </Form.Item>
               </Col>
@@ -290,7 +297,7 @@ export default function Page() {
               />
             </>
           ) : (
-            <Empty description="ไม่มีข้อมูลนักเรียน" />
+            <Empty description="ไม่มีข้อมูลนักเรียน หรือ ไม่พบข้อมูลนักเรียนที่ค้นหา" />
           )}
         </Card>
       </DashboardLayout>
