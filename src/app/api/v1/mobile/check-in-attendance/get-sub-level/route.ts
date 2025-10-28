@@ -23,7 +23,8 @@ export type LevelDto = {
 };
 
 export type RequestGetLevel = {
-  school_id: string | number;
+  school_id: string;
+  level_id: string;
 };
 
 // Helper: แปลงข้อมูล
@@ -53,6 +54,7 @@ const extractData = (response: any): any[] => {
 // Validation Schema
 const validator = z.object({
   school_id: z.string().min(1, "school_id is required"),
+  level_id: z.string().min(1, "level_id is required"),
 });
 
 // API Route
@@ -63,7 +65,7 @@ export async function POST(request: NextRequest) {
   try {
     const apiClient = await API_CLIENT_WITH_REFRESH_TOKEN();
     const payload: RequestGetLevel = data;
-    const target = `${API_URL.PROD_SB_API_URL}/api/sublevel/getLevel/${payload.school_id}`;
+    const target = `${API_URL.PROD_SB_API_URL}/api/sublevel2?schoolid=${payload.school_id}&sublevelid=${payload.level_id}`;
     const response = await apiClient.get(target);
 
     const rawData = extractData(response);

@@ -23,14 +23,12 @@ export async function validateRequest<T>(
 
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    console.error(
-      {
-          status: 400,
-          message_en: "Validation failed",
-          message_th: "การตรวจสอบไม่ผ่าน",
-          errors: parsed.error.issues,
-        },
-    )
+    console.error({
+      status: 400,
+      message_en: "Validation failed",
+      message_th: "การตรวจสอบไม่ผ่าน",
+      errors: parsed.error.issues,
+    });
     return {
       error: NextResponse.json(
         {
