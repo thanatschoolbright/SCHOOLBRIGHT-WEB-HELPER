@@ -41,13 +41,17 @@ import { callApiService } from "@services/axios-instance/sb-helper.axios";
 import { ResponseGetLevel } from "@/app/api/v1/mobile/check-in-attendance/get-level/route";
 import { ResponseGetSubLevel } from "@/app/api/v1/mobile/check-in-attendance/get-sub-level/route";
 import { ResponseGetStudent } from "@/app/api/v1/mobile/check-in-attendance/get-student/route";
+import { ResponseGetSubject } from "@/app/api/v1/mobile/check-in-subject/get-subject/route";
 
 dayjs.extend(isBetween);
 
 export type RequestAttendanceReportParams = {
   school_id?: string;
-  level_id?: string;
   sub_level_id?: string;
+  level_id?: string;
+  subject_id?: string;
+  date?: string;
+  teacher_id?: string;
 };
 
 export default function Page() {
@@ -58,13 +62,19 @@ export default function Page() {
   const [levelOptions, setLevelOptions] = useState<any[]>([]);
   const [isLoadingLevels, setIsLoadingLevels] = useState(false);
   const [isLoadingSubLevels, setIsLoadingSubLevels] = useState(false);
+  const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
   const [subLevelOptions, setSubLevelOptions] = useState<any[]>([]);
+  const [subjectOptions, setSubjectOptions] = useState<any[]>([]);
   const [table, setTable] = useState<ResponseGetStudent[]>([]);
+  // allow toggling visibility of the subject selector
+  const [subjectHidden, setSubjectHidden] = useState(false);
 
   const [formValues, setFormValues] = useState<{
+    type?: string;
     school_id?: string;
     level_id?: string;
     sub_level_id?: string;
+    subject_id?: string;
   }>({});
 
   const isFormComplete = useMemo(() => {
@@ -74,6 +84,16 @@ export default function Page() {
       formValues?.sub_level_id
     );
   }, [formValues]);
+
+  // Small helper component that supports a `hidden` prop
+  const ConditionalCol: React.FC<{
+    hidden?: boolean;
+    span?: number;
+    children?: React.ReactNode;
+  }> = ({ hidden, span = 12, children }) => {
+    if (hidden) return null;
+    return <Col span={span}>{children}</Col>;
+  };
 
   const schoolOptions = useMemo(() => {
     try {
@@ -145,11 +165,65 @@ export default function Page() {
     }
   };
 
+  const GET_SUBJECT_API = async (subLevelId: string) => {
+    setIsLoadingSubjects(true);
+    try {
+      const response = await callApiService.post(
+        "/api/v1/mobile/check-in-subject/get-subject",
+        {
+          school_id: String(form.getFieldValue("school_id")),
+          sub_level_id: String(subLevelId),
+        }
+      );
+
+      const formattedOptions: ResponseGetSubject[] = response?.data?.data.map(
+        (item: ResponseGetSubject) => ({
+          label: `${item.schedule_name} (${item.plane_id}) เวลาเรียน ${item.timestart} - ${item.timeend}`,
+          value: String(item.plane_id),
+        })
+      );
+      setSubjectOptions(formattedOptions);
+    } catch (error) {
+      console.error("❌ Error fetching subjects:", error);
+      setSubjectOptions([]);
+    } finally {
+      setIsLoadingSubjects(false);
+    }
+  };
+
   const GET_STUDENT_API = async (request: RequestAttendanceReportParams) => {
     const toastId = toast.loading("กำลังโหลดข้อมูลนักเรียน...");
     try {
       const response = await callApiService.post(
         "/api/v1/mobile/check-in-attendance/get-student",
+        request
+      );
+      if (response?.data?.data.length === 0) {
+        toast.info("ไม่พบข้อมูลนักเรียนตามเงื่อนไขที่เลือก", {
+          id: toastId,
+        });
+      } else {
+        toast.success("โหลดข้อมูลนักเรียนสำเร็จ!", {
+          id: toastId,
+        });
+      }
+      setTable(response?.data?.data || []);
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลนักเรียน", {
+        id: toastId,
+      });
+      console.error("❌ Error fetching students:", error);
+    }
+  };
+
+  // ** เช็คชื่อรายวิชา / แก้ไขเช็คชื่อรายวิชา
+  const GET_SUBJECT_STUDENT_API = async (
+    request: RequestAttendanceReportParams
+  ) => {
+    const toastId = toast.loading("กำลังโหลดข้อมูลนักเรียน...");
+    try {
+      const response = await callApiService.post(
+        "/api/v1/mobile/check-in-subject/get-student",
         request
       );
       if (response?.data?.data.length === 0) {
@@ -189,14 +263,29 @@ export default function Page() {
     }
   };
 
+  const handleSubLevelChange = (value: string) => {
+    form.setFieldsValue({ subject_id: undefined });
+    setSubjectOptions([]);
+
+    if (value) {
+      GET_SUBJECT_API(value);
+    }
+  };
+
   const handleFormSubmit = async (values: RequestAttendanceReportParams) => {
     const formattedValues = {
       school_id: String(values.school_id || ""),
       level_id: String(values.level_id || ""),
       sub_level_id: String(values.sub_level_id || ""),
+      subject_id: String(values.subject_id || ""),
+      date: String(values.date || dayjs().format("YYYY-MM-DD")),
+      teacher_id: String(values.teacher_id || "999999999"),
     };
-
-    await GET_STUDENT_API(formattedValues);
+    if (formValues.type === "flag") {
+      await GET_STUDENT_API(formattedValues);
+    } else if (formValues.type === "checkin") {
+      await GET_SUBJECT_STUDENT_API(formattedValues);
+    }
   };
 
   const duplicateCounts = useMemo(() => {
@@ -208,13 +297,51 @@ export default function Page() {
     return counts;
   }, [table]);
 
+  // Build a deduplicated list where duplicates are shown once and include a duplicateCount
+  const uniqueTable = useMemo(() => {
+    // Map id -> { firstItem, count }
+    const map = new Map<
+      string,
+      { item: any; count: number; firstIndex: number }
+    >();
+    table.forEach((s, idx) => {
+      const id = String((s as any).user_id ?? (s as any).student_id ?? idx);
+      if (!map.has(id)) {
+        map.set(id, { item: s, count: 1, firstIndex: idx });
+      } else {
+        const entry = map.get(id)!;
+        entry.count += 1;
+      }
+    });
+
+    // Split into duplicates and non-duplicates while preserving first-seen order
+    const dup: Array<{ item: any; count: number; firstIndex: number }> = [];
+    const others: Array<{ item: any; count: number; firstIndex: number }> = [];
+    for (const [_, v] of map.entries()) {
+      if (v.count > 1) dup.push(v);
+      else others.push(v);
+    }
+
+    // Sort each group by the original firstIndex to preserve relative order
+    const sortByIndex = (a: any, b: any) => a.firstIndex - b.firstIndex;
+    dup.sort(sortByIndex);
+    others.sort(sortByIndex);
+
+    // Combine and return an array of items augmented with duplicateCount
+    return [...dup, ...others].map((v) => ({
+      ...v.item,
+      duplicateCount: v.count,
+    }));
+  }, [table]);
+
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
+        {/* หัวข้อ : ตรวจสอบการเข้าชั้นเรียน */}
         <HeaderBar
           icon={<TeamOutlined />}
-          title="ตรวจสอบการเข้าชั้นเรียน"
-          subTitle="รายละเอียดการเข้าชั้นเรียน"
+          title="ตรวจสอบการเข้าชั้นเรียนและหน้าเสาธง"
+          subTitle="รายละเอียดการเช็คชื่อเข้าเรียนและหน้าเสาธงของนักเรียน"
           color="none"
         />
 
@@ -227,6 +354,22 @@ export default function Page() {
             onValuesChange={(_, all) => setFormValues(all)}
           >
             <Row gutter={16}>
+              {/* Select เลือกประเภทการเช็กชื่อ */}
+              <Col span={12}>
+                <Form.Item label="ประเภทการเช็กชื่อ" name="type">
+                  <Select
+                    allowClear
+                    showSearch
+                    placeholder="เลือกประเภทการเช็กชื่อ"
+                    optionFilterProp="label"
+                    options={[
+                      { label: "เช็คชื่อเข้าเรียน", value: "checkin" },
+                      { label: "เช็คชื่อหน้าเสาธง", value: "flag" },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+              {/* Select โรงเรียน */}
               <Col span={12}>
                 <Form.Item label="โรงเรียน" name="school_id">
                   <Select
@@ -236,10 +379,12 @@ export default function Page() {
                     optionFilterProp="label"
                     options={schoolOptions}
                     onChange={handleSchoolChange}
+                    disabled={!formValues?.type}
                   />
                 </Form.Item>
               </Col>
 
+              {/* Select ระดับชั้น */}
               <Col span={12}>
                 <Form.Item label="ระดับชั้น" name="level_id">
                   <Select
@@ -255,6 +400,7 @@ export default function Page() {
                 </Form.Item>
               </Col>
 
+              {/* Select ห้องเรียน */}
               <Col span={12}>
                 <Form.Item label="ห้องเรียน" name="sub_level_id">
                   <Select
@@ -265,9 +411,27 @@ export default function Page() {
                     options={subLevelOptions}
                     loading={isLoadingSubLevels}
                     disabled={!formValues?.level_id || isLoadingSubLevels}
+                    onChange={handleSubLevelChange}
                   />
                 </Form.Item>
               </Col>
+
+              {/* Select วิชาเรียน */}
+              <ConditionalCol span={12} hidden={formValues?.type === "flag"}>
+                <Form.Item label="วิชาเรียน" name="subject_id">
+                  <Select
+                    allowClear
+                    showSearch
+                    placeholder="เลือกวิชาเรียน"
+                    optionFilterProp="label"
+                    options={subjectOptions}
+                    loading={isLoadingSubjects}
+                    disabled={!formValues?.level_id || isLoadingSubjects}
+                  />
+                </Form.Item>
+              </ConditionalCol>
+
+              {/* เลือกวันที่ */}
             </Row>
 
             <Form.Item>
@@ -289,15 +453,16 @@ export default function Page() {
             <>
               <List
                 grid={{ gutter: 12, column: 1 }}
-                dataSource={table}
+                dataSource={uniqueTable}
                 renderItem={(s, index) => {
-                  const id = (s as any).user_id ?? (s as any).student_id;
-                  const isDuplicate = (duplicateCounts[id] || 0) > 1;
+                  const id =
+                    (s as any).user_id ?? (s as any).student_id ?? index;
+                  const duplicateCount = (s as any).duplicateCount || 1;
                   return (
                     <AttendanceCard
                       student={s as any}
                       index={index}
-                      isDuplicate={isDuplicate}
+                      duplicateCount={duplicateCount}
                     />
                   );
                 }}
