@@ -1,6 +1,7 @@
 //** Component HeaderBar สำหรับแสดงหัวข้อหน้าแบบกำหนด icon, title, subTitle ได้ */
+"use client";
 import React from "react";
-import { Typography } from "antd";
+import { Typography, theme } from "antd";
 
 export type HeaderBarProps = {
   icon: React.ReactNode; // icon ที่จะแสดง
@@ -17,6 +18,7 @@ export type HeaderBarColor =
   | "green"
   | "red"
   | "pink"
+  | "none"
   | "teal";
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
@@ -25,8 +27,13 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   subTitle,
   color = "purple", // ค่าเริ่มต้นเป็นม่วง
 }) => {
+  // get antd theme tokens for light/dark adaptability
+  const { token } = theme.useToken();
   //** สร้าง HeaderBar ด้วย icon, title, subTitle, และสี gradient ที่รับมา */
-  const gradient = headerBarGradients[color] || headerBarGradients["purple"];
+  const gradient =
+    color && color !== "none"
+      ? headerBarGradients[color] || headerBarGradients["purple"]
+      : undefined;
   //** กำหนดสีตัวอักษรแต่ละ theme แบบ Clean ด้วย mapping */
   const titleColorMap: Record<HeaderBarColor, string> = {
     purple: "white",
@@ -36,6 +43,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
     red: "white",
     pink: "white",
     teal: "white",
+    none: token.colorText, // adapt to light/dark
   };
   const subTitleColorMap: Record<HeaderBarColor, string> = {
     purple: "rgba(255,255,255,0.9)",
@@ -45,16 +53,36 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
     red: "rgba(255,255,255,0.9)",
     pink: "rgba(255,255,255,0.9)",
     teal: "rgba(255,255,255,0.9)",
+    none: token.colorTextSecondary,
   };
   const titleStyle = { ...headerBarTitle, color: titleColorMap[color] };
   const subTitleStyle = {
     ...headerBarSubTitle,
     color: subTitleColorMap[color],
   };
+
+  const boxStyle: React.CSSProperties =
+    color === "none"
+      ? { ...headerBarBox, background: "transparent", boxShadow: "none" }
+      : { ...headerBarBox, background: gradient };
+
+  const iconStyle: React.CSSProperties =
+    color === "none"
+      ? {
+          ...headerBarIcon,
+          background: token.colorBgElevated,
+          color: token.colorText,
+        }
+      : {
+          ...headerBarIcon,
+          background: "rgba(255,255,255,0.2)",
+          color: "white",
+        };
+
   return (
     <div style={headerBarContainer}>
-      <div style={{ ...headerBarBox, background: gradient }}>
-        <div style={headerBarIcon}>{icon}</div>
+      <div style={boxStyle}>
+        <div style={iconStyle}>{icon}</div>
         <div>
           <Typography.Title level={4} style={titleStyle}>
             {title}
@@ -83,11 +111,10 @@ const headerBarBox: React.CSSProperties = {
   borderRadius: 16,
   padding: "24px 32px",
   color: "white",
-  boxShadow: "0 10px 30px rgba(102, 126, 234, 0.3)",
 };
 
 //** กำหนด gradient สำหรับแต่ละสี */
-const headerBarGradients: Record<HeaderBarColor, string> = {
+const headerBarGradients: Partial<Record<HeaderBarColor, string>> = {
   purple: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
   orange: "linear-gradient(135deg, #ff9800 0%, #ff5722 100%)",
   blue: "linear-gradient(135deg, #43cea2 0%, #185a9d 100%)",

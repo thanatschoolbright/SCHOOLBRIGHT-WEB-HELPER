@@ -6,6 +6,7 @@ import { API_URL } from "@services/api-url";
 import z from "zod";
 import { validateRequest } from "@helpers/api/validate.request";
 import { ATTENDANCE_STATUS } from "@constants/attendance-status";
+import { logger } from "@helpers/logger";
 
 // Type Definition
 export type ResponseGetStudent = {
@@ -43,8 +44,7 @@ const mapToDto = (item: any): ResponseGetStudent => ({
   student_name: item.studentName,
   student_name_en: item.studentNameEN,
   scan_status:
-    ATTENDANCE_STATUS.find((s) => s.value === item.scanstatus)
-      ?.text ?? "",
+    ATTENDANCE_STATUS.find((s) => s.value === item.scanstatus)?.text ?? "",
   authorized: item.authorized,
   teacher_name: item.teachername,
   teacher_id: item.teacherId,
@@ -76,11 +76,13 @@ const extractData = (response: any): any[] => {
 const validator = z.object({
   school_id: z.string().min(1, "school_id is required"),
   sub_level_id: z.string().min(1, "sub_level_id is required"),
+  url_type: z.enum(["DEV", "PROD"]),
 });
 
 export type RequestGetStudent = {
   school_id: string;
   sub_level_id: string;
+  url_type: "DEV" | "PROD";
 };
 
 // API Route
@@ -91,8 +93,12 @@ export async function POST(request: NextRequest) {
   try {
     const apiClient = await API_CLIENT_WITH_REFRESH_TOKEN();
     const payload: RequestGetStudent = data;
-    const target = `${API_URL.PROD_SB_API_URL}/api/School/getstudent/${payload.school_id}/${payload.sub_level_id}`;
+    const urlSelection = payload.url_type;
+    const apiUrl = urlSelection === "DEV" ? API_URL.DEV_SB_API_URL : API_URL.PROD_SB_API_URL;
+    const target = `${apiUrl}/api/School/getstudent/${payload.school_id}/${payload.sub_level_id}`;
+      logger.info("GET student target %s", target);
     const response = await apiClient.get(target);
+    
 
     const rawData = extractData(response);
     const mappedData = rawData.map(mapToDto);
