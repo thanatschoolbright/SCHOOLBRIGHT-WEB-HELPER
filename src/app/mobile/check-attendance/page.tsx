@@ -46,6 +46,7 @@ import { ResponseGetSubject } from "@/app/api/v1/mobile/check-in-subject/get-sub
 dayjs.extend(isBetween);
 
 export type RequestAttendanceReportParams = {
+  url_type?: string;
   school_id?: string;
   sub_level_id?: string;
   level_id?: string;
@@ -274,6 +275,7 @@ export default function Page() {
 
   const handleFormSubmit = async (values: RequestAttendanceReportParams) => {
     const formattedValues = {
+      url_type: String(values.url_type || "PROD"),
       school_id: String(values.school_id || ""),
       level_id: String(values.level_id || ""),
       sub_level_id: String(values.sub_level_id || ""),
@@ -354,6 +356,21 @@ export default function Page() {
             onValuesChange={(_, all) => setFormValues(all)}
           >
             <Row gutter={16}>
+              {/* Select : ประเภท URL Dev/Prod */}
+              <Col span={12}>
+                <Form.Item label="ประเภท URL" name="url_type" initialValue="PROD">
+                  <Select
+                    allowClear
+                    showSearch
+                    placeholder="เลือกประเภท URL"
+                    optionFilterProp="label"
+                    options={[
+                      { label: "โปรดักชัน (Production)", value: "PROD" },
+                      { label: "เซิฟทดสอบ (Development)", value: "DEV" },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
               {/* Select เลือกประเภทการเช็กชื่อ */}
               <Col span={12}>
                 <Form.Item label="ประเภทการเช็กชื่อ" name="type">
