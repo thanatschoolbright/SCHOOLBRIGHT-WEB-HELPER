@@ -229,7 +229,7 @@ jobs:
     needs: [pre-flight-checks, build]
     environment:
       name: production
-      url: https://your-domain.com
+      url: https://sb-helper.schoolbright.co
 
     steps:
       - name: Download Build Artifacts
@@ -358,6 +358,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: deploy
+    environment:
+      name: production
 
     steps:
       - name: Verify Service Status
