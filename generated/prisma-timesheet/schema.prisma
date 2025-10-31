@@ -94,3 +94,32 @@ model ApiLog {
   @@index([called_by])
   @@map("api_log")
 }
+
+model Overtime {
+  id           Int                   @id @default(autoincrement()) @map("id")
+  requesterId  String                @map("requester_id")
+  requestDate  DateTime              @map("request_date")
+  descriptions OvertimeDescription[] @relation("OvertimeDescriptions")
+  status       String                @map("status")
+  createdBy    String                @map("created_by")
+  updatedBy    String?               @map("updated_by")
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @updatedAt @map("updated_at")
+  isDeleted    Boolean               @default(false) @map("is_deleted")
+
+  @@map("timesheet_overtime_requests")
+}
+
+model OvertimeDescription {
+  id          Int      @id @default(autoincrement()) @map("id")
+  overtimeId  Int      @map("overtime_id")
+  date        DateTime @map("date")
+  duration    Decimal  @map("duration")
+  description String   @map("description")
+  assignee    String   @map("assignee")
+
+  // relation
+  overtime Overtime @relation("OvertimeDescriptions", fields: [overtimeId], references: [id], onDelete: Cascade)
+
+  @@map("timesheet_overtime_descriptions")
+}

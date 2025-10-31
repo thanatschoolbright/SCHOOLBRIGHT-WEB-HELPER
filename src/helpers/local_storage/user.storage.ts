@@ -1,4 +1,4 @@
-import {UserProfile} from "@/stores/type";
+import {UserProfile} from "@stores/type";
 
 export const getUserData = () => {
     const userData = localStorage.getItem("users");

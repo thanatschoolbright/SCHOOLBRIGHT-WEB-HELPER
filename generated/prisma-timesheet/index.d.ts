@@ -34,6 +34,16 @@ export type TimesheetEntry = $Result.DefaultSelection<Prisma.$TimesheetEntryPayl
  * ใช้สำหรับบันทึกข้อมูลการเรียกใช้งาน API พร้อมข้อมูลวิเคราะห์ประสิทธิภาพ
  */
 export type ApiLog = $Result.DefaultSelection<Prisma.$ApiLogPayload>
+/**
+ * Model Overtime
+ * 
+ */
+export type Overtime = $Result.DefaultSelection<Prisma.$OvertimePayload>
+/**
+ * Model OvertimeDescription
+ * 
+ */
+export type OvertimeDescription = $Result.DefaultSelection<Prisma.$OvertimeDescriptionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -192,6 +202,26 @@ export class PrismaClient<
     * ```
     */
   get apiLog(): Prisma.ApiLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.overtime`: Exposes CRUD operations for the **Overtime** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Overtimes
+    * const overtimes = await prisma.overtime.findMany()
+    * ```
+    */
+  get overtime(): Prisma.OvertimeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.overtimeDescription`: Exposes CRUD operations for the **OvertimeDescription** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OvertimeDescriptions
+    * const overtimeDescriptions = await prisma.overtimeDescription.findMany()
+    * ```
+    */
+  get overtimeDescription(): Prisma.OvertimeDescriptionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -635,7 +665,9 @@ export namespace Prisma {
     Project: 'Project',
     Feature: 'Feature',
     TimesheetEntry: 'TimesheetEntry',
-    ApiLog: 'ApiLog'
+    ApiLog: 'ApiLog',
+    Overtime: 'Overtime',
+    OvertimeDescription: 'OvertimeDescription'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -654,7 +686,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "project" | "feature" | "timesheetEntry" | "apiLog"
+      modelProps: "project" | "feature" | "timesheetEntry" | "apiLog" | "overtime" | "overtimeDescription"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -954,6 +986,154 @@ export namespace Prisma {
           }
         }
       }
+      Overtime: {
+        payload: Prisma.$OvertimePayload<ExtArgs>
+        fields: Prisma.OvertimeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OvertimeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OvertimeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload>
+          }
+          findFirst: {
+            args: Prisma.OvertimeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OvertimeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload>
+          }
+          findMany: {
+            args: Prisma.OvertimeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload>[]
+          }
+          create: {
+            args: Prisma.OvertimeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload>
+          }
+          createMany: {
+            args: Prisma.OvertimeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OvertimeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload>[]
+          }
+          delete: {
+            args: Prisma.OvertimeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload>
+          }
+          update: {
+            args: Prisma.OvertimeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload>
+          }
+          deleteMany: {
+            args: Prisma.OvertimeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OvertimeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OvertimeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload>[]
+          }
+          upsert: {
+            args: Prisma.OvertimeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimePayload>
+          }
+          aggregate: {
+            args: Prisma.OvertimeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOvertime>
+          }
+          groupBy: {
+            args: Prisma.OvertimeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OvertimeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OvertimeCountArgs<ExtArgs>
+            result: $Utils.Optional<OvertimeCountAggregateOutputType> | number
+          }
+        }
+      }
+      OvertimeDescription: {
+        payload: Prisma.$OvertimeDescriptionPayload<ExtArgs>
+        fields: Prisma.OvertimeDescriptionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OvertimeDescriptionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OvertimeDescriptionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload>
+          }
+          findFirst: {
+            args: Prisma.OvertimeDescriptionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OvertimeDescriptionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload>
+          }
+          findMany: {
+            args: Prisma.OvertimeDescriptionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload>[]
+          }
+          create: {
+            args: Prisma.OvertimeDescriptionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload>
+          }
+          createMany: {
+            args: Prisma.OvertimeDescriptionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OvertimeDescriptionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload>[]
+          }
+          delete: {
+            args: Prisma.OvertimeDescriptionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload>
+          }
+          update: {
+            args: Prisma.OvertimeDescriptionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload>
+          }
+          deleteMany: {
+            args: Prisma.OvertimeDescriptionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OvertimeDescriptionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OvertimeDescriptionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload>[]
+          }
+          upsert: {
+            args: Prisma.OvertimeDescriptionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeDescriptionPayload>
+          }
+          aggregate: {
+            args: Prisma.OvertimeDescriptionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOvertimeDescription>
+          }
+          groupBy: {
+            args: Prisma.OvertimeDescriptionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OvertimeDescriptionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OvertimeDescriptionCountArgs<ExtArgs>
+            result: $Utils.Optional<OvertimeDescriptionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1054,6 +1234,8 @@ export namespace Prisma {
     feature?: FeatureOmit
     timesheetEntry?: TimesheetEntryOmit
     apiLog?: ApiLogOmit
+    overtime?: OvertimeOmit
+    overtimeDescription?: OvertimeDescriptionOmit
   }
 
   /* Types for Logging */
@@ -1197,6 +1379,37 @@ export namespace Prisma {
    */
   export type FeatureCountOutputTypeCountTimesheetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TimesheetEntryWhereInput
+  }
+
+
+  /**
+   * Count Type OvertimeCountOutputType
+   */
+
+  export type OvertimeCountOutputType = {
+    descriptions: number
+  }
+
+  export type OvertimeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    descriptions?: boolean | OvertimeCountOutputTypeCountDescriptionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * OvertimeCountOutputType without action
+   */
+  export type OvertimeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeCountOutputType
+     */
+    select?: OvertimeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * OvertimeCountOutputType without action
+   */
+  export type OvertimeCountOutputTypeCountDescriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OvertimeDescriptionWhereInput
   }
 
 
@@ -6036,6 +6249,2275 @@ export namespace Prisma {
 
 
   /**
+   * Model Overtime
+   */
+
+  export type AggregateOvertime = {
+    _count: OvertimeCountAggregateOutputType | null
+    _avg: OvertimeAvgAggregateOutputType | null
+    _sum: OvertimeSumAggregateOutputType | null
+    _min: OvertimeMinAggregateOutputType | null
+    _max: OvertimeMaxAggregateOutputType | null
+  }
+
+  export type OvertimeAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type OvertimeSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type OvertimeMinAggregateOutputType = {
+    id: number | null
+    requesterId: string | null
+    requestDate: Date | null
+    status: string | null
+    createdBy: string | null
+    updatedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    isDeleted: boolean | null
+  }
+
+  export type OvertimeMaxAggregateOutputType = {
+    id: number | null
+    requesterId: string | null
+    requestDate: Date | null
+    status: string | null
+    createdBy: string | null
+    updatedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    isDeleted: boolean | null
+  }
+
+  export type OvertimeCountAggregateOutputType = {
+    id: number
+    requesterId: number
+    requestDate: number
+    status: number
+    createdBy: number
+    updatedBy: number
+    createdAt: number
+    updatedAt: number
+    isDeleted: number
+    _all: number
+  }
+
+
+  export type OvertimeAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type OvertimeSumAggregateInputType = {
+    id?: true
+  }
+
+  export type OvertimeMinAggregateInputType = {
+    id?: true
+    requesterId?: true
+    requestDate?: true
+    status?: true
+    createdBy?: true
+    updatedBy?: true
+    createdAt?: true
+    updatedAt?: true
+    isDeleted?: true
+  }
+
+  export type OvertimeMaxAggregateInputType = {
+    id?: true
+    requesterId?: true
+    requestDate?: true
+    status?: true
+    createdBy?: true
+    updatedBy?: true
+    createdAt?: true
+    updatedAt?: true
+    isDeleted?: true
+  }
+
+  export type OvertimeCountAggregateInputType = {
+    id?: true
+    requesterId?: true
+    requestDate?: true
+    status?: true
+    createdBy?: true
+    updatedBy?: true
+    createdAt?: true
+    updatedAt?: true
+    isDeleted?: true
+    _all?: true
+  }
+
+  export type OvertimeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Overtime to aggregate.
+     */
+    where?: OvertimeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Overtimes to fetch.
+     */
+    orderBy?: OvertimeOrderByWithRelationInput | OvertimeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OvertimeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Overtimes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Overtimes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Overtimes
+    **/
+    _count?: true | OvertimeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OvertimeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OvertimeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OvertimeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OvertimeMaxAggregateInputType
+  }
+
+  export type GetOvertimeAggregateType<T extends OvertimeAggregateArgs> = {
+        [P in keyof T & keyof AggregateOvertime]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOvertime[P]>
+      : GetScalarType<T[P], AggregateOvertime[P]>
+  }
+
+
+
+
+  export type OvertimeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OvertimeWhereInput
+    orderBy?: OvertimeOrderByWithAggregationInput | OvertimeOrderByWithAggregationInput[]
+    by: OvertimeScalarFieldEnum[] | OvertimeScalarFieldEnum
+    having?: OvertimeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OvertimeCountAggregateInputType | true
+    _avg?: OvertimeAvgAggregateInputType
+    _sum?: OvertimeSumAggregateInputType
+    _min?: OvertimeMinAggregateInputType
+    _max?: OvertimeMaxAggregateInputType
+  }
+
+  export type OvertimeGroupByOutputType = {
+    id: number
+    requesterId: string
+    requestDate: Date
+    status: string
+    createdBy: string
+    updatedBy: string | null
+    createdAt: Date
+    updatedAt: Date
+    isDeleted: boolean
+    _count: OvertimeCountAggregateOutputType | null
+    _avg: OvertimeAvgAggregateOutputType | null
+    _sum: OvertimeSumAggregateOutputType | null
+    _min: OvertimeMinAggregateOutputType | null
+    _max: OvertimeMaxAggregateOutputType | null
+  }
+
+  type GetOvertimeGroupByPayload<T extends OvertimeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OvertimeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OvertimeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OvertimeGroupByOutputType[P]>
+            : GetScalarType<T[P], OvertimeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OvertimeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requesterId?: boolean
+    requestDate?: boolean
+    status?: boolean
+    createdBy?: boolean
+    updatedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    isDeleted?: boolean
+    descriptions?: boolean | Overtime$descriptionsArgs<ExtArgs>
+    _count?: boolean | OvertimeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["overtime"]>
+
+  export type OvertimeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requesterId?: boolean
+    requestDate?: boolean
+    status?: boolean
+    createdBy?: boolean
+    updatedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    isDeleted?: boolean
+  }, ExtArgs["result"]["overtime"]>
+
+  export type OvertimeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requesterId?: boolean
+    requestDate?: boolean
+    status?: boolean
+    createdBy?: boolean
+    updatedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    isDeleted?: boolean
+  }, ExtArgs["result"]["overtime"]>
+
+  export type OvertimeSelectScalar = {
+    id?: boolean
+    requesterId?: boolean
+    requestDate?: boolean
+    status?: boolean
+    createdBy?: boolean
+    updatedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    isDeleted?: boolean
+  }
+
+  export type OvertimeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requesterId" | "requestDate" | "status" | "createdBy" | "updatedBy" | "createdAt" | "updatedAt" | "isDeleted", ExtArgs["result"]["overtime"]>
+  export type OvertimeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    descriptions?: boolean | Overtime$descriptionsArgs<ExtArgs>
+    _count?: boolean | OvertimeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type OvertimeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type OvertimeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $OvertimePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Overtime"
+    objects: {
+      descriptions: Prisma.$OvertimeDescriptionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      requesterId: string
+      requestDate: Date
+      status: string
+      createdBy: string
+      updatedBy: string | null
+      createdAt: Date
+      updatedAt: Date
+      isDeleted: boolean
+    }, ExtArgs["result"]["overtime"]>
+    composites: {}
+  }
+
+  type OvertimeGetPayload<S extends boolean | null | undefined | OvertimeDefaultArgs> = $Result.GetResult<Prisma.$OvertimePayload, S>
+
+  type OvertimeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OvertimeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OvertimeCountAggregateInputType | true
+    }
+
+  export interface OvertimeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Overtime'], meta: { name: 'Overtime' } }
+    /**
+     * Find zero or one Overtime that matches the filter.
+     * @param {OvertimeFindUniqueArgs} args - Arguments to find a Overtime
+     * @example
+     * // Get one Overtime
+     * const overtime = await prisma.overtime.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OvertimeFindUniqueArgs>(args: SelectSubset<T, OvertimeFindUniqueArgs<ExtArgs>>): Prisma__OvertimeClient<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Overtime that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OvertimeFindUniqueOrThrowArgs} args - Arguments to find a Overtime
+     * @example
+     * // Get one Overtime
+     * const overtime = await prisma.overtime.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OvertimeFindUniqueOrThrowArgs>(args: SelectSubset<T, OvertimeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OvertimeClient<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Overtime that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeFindFirstArgs} args - Arguments to find a Overtime
+     * @example
+     * // Get one Overtime
+     * const overtime = await prisma.overtime.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OvertimeFindFirstArgs>(args?: SelectSubset<T, OvertimeFindFirstArgs<ExtArgs>>): Prisma__OvertimeClient<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Overtime that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeFindFirstOrThrowArgs} args - Arguments to find a Overtime
+     * @example
+     * // Get one Overtime
+     * const overtime = await prisma.overtime.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OvertimeFindFirstOrThrowArgs>(args?: SelectSubset<T, OvertimeFindFirstOrThrowArgs<ExtArgs>>): Prisma__OvertimeClient<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Overtimes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Overtimes
+     * const overtimes = await prisma.overtime.findMany()
+     * 
+     * // Get first 10 Overtimes
+     * const overtimes = await prisma.overtime.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const overtimeWithIdOnly = await prisma.overtime.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OvertimeFindManyArgs>(args?: SelectSubset<T, OvertimeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Overtime.
+     * @param {OvertimeCreateArgs} args - Arguments to create a Overtime.
+     * @example
+     * // Create one Overtime
+     * const Overtime = await prisma.overtime.create({
+     *   data: {
+     *     // ... data to create a Overtime
+     *   }
+     * })
+     * 
+     */
+    create<T extends OvertimeCreateArgs>(args: SelectSubset<T, OvertimeCreateArgs<ExtArgs>>): Prisma__OvertimeClient<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Overtimes.
+     * @param {OvertimeCreateManyArgs} args - Arguments to create many Overtimes.
+     * @example
+     * // Create many Overtimes
+     * const overtime = await prisma.overtime.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OvertimeCreateManyArgs>(args?: SelectSubset<T, OvertimeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Overtimes and returns the data saved in the database.
+     * @param {OvertimeCreateManyAndReturnArgs} args - Arguments to create many Overtimes.
+     * @example
+     * // Create many Overtimes
+     * const overtime = await prisma.overtime.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Overtimes and only return the `id`
+     * const overtimeWithIdOnly = await prisma.overtime.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OvertimeCreateManyAndReturnArgs>(args?: SelectSubset<T, OvertimeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Overtime.
+     * @param {OvertimeDeleteArgs} args - Arguments to delete one Overtime.
+     * @example
+     * // Delete one Overtime
+     * const Overtime = await prisma.overtime.delete({
+     *   where: {
+     *     // ... filter to delete one Overtime
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OvertimeDeleteArgs>(args: SelectSubset<T, OvertimeDeleteArgs<ExtArgs>>): Prisma__OvertimeClient<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Overtime.
+     * @param {OvertimeUpdateArgs} args - Arguments to update one Overtime.
+     * @example
+     * // Update one Overtime
+     * const overtime = await prisma.overtime.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OvertimeUpdateArgs>(args: SelectSubset<T, OvertimeUpdateArgs<ExtArgs>>): Prisma__OvertimeClient<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Overtimes.
+     * @param {OvertimeDeleteManyArgs} args - Arguments to filter Overtimes to delete.
+     * @example
+     * // Delete a few Overtimes
+     * const { count } = await prisma.overtime.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OvertimeDeleteManyArgs>(args?: SelectSubset<T, OvertimeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Overtimes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Overtimes
+     * const overtime = await prisma.overtime.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OvertimeUpdateManyArgs>(args: SelectSubset<T, OvertimeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Overtimes and returns the data updated in the database.
+     * @param {OvertimeUpdateManyAndReturnArgs} args - Arguments to update many Overtimes.
+     * @example
+     * // Update many Overtimes
+     * const overtime = await prisma.overtime.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Overtimes and only return the `id`
+     * const overtimeWithIdOnly = await prisma.overtime.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OvertimeUpdateManyAndReturnArgs>(args: SelectSubset<T, OvertimeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Overtime.
+     * @param {OvertimeUpsertArgs} args - Arguments to update or create a Overtime.
+     * @example
+     * // Update or create a Overtime
+     * const overtime = await prisma.overtime.upsert({
+     *   create: {
+     *     // ... data to create a Overtime
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Overtime we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OvertimeUpsertArgs>(args: SelectSubset<T, OvertimeUpsertArgs<ExtArgs>>): Prisma__OvertimeClient<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Overtimes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeCountArgs} args - Arguments to filter Overtimes to count.
+     * @example
+     * // Count the number of Overtimes
+     * const count = await prisma.overtime.count({
+     *   where: {
+     *     // ... the filter for the Overtimes we want to count
+     *   }
+     * })
+    **/
+    count<T extends OvertimeCountArgs>(
+      args?: Subset<T, OvertimeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OvertimeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Overtime.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OvertimeAggregateArgs>(args: Subset<T, OvertimeAggregateArgs>): Prisma.PrismaPromise<GetOvertimeAggregateType<T>>
+
+    /**
+     * Group by Overtime.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OvertimeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OvertimeGroupByArgs['orderBy'] }
+        : { orderBy?: OvertimeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OvertimeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOvertimeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Overtime model
+   */
+  readonly fields: OvertimeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Overtime.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OvertimeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    descriptions<T extends Overtime$descriptionsArgs<ExtArgs> = {}>(args?: Subset<T, Overtime$descriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Overtime model
+   */
+  interface OvertimeFieldRefs {
+    readonly id: FieldRef<"Overtime", 'Int'>
+    readonly requesterId: FieldRef<"Overtime", 'String'>
+    readonly requestDate: FieldRef<"Overtime", 'DateTime'>
+    readonly status: FieldRef<"Overtime", 'String'>
+    readonly createdBy: FieldRef<"Overtime", 'String'>
+    readonly updatedBy: FieldRef<"Overtime", 'String'>
+    readonly createdAt: FieldRef<"Overtime", 'DateTime'>
+    readonly updatedAt: FieldRef<"Overtime", 'DateTime'>
+    readonly isDeleted: FieldRef<"Overtime", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Overtime findUnique
+   */
+  export type OvertimeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    /**
+     * Filter, which Overtime to fetch.
+     */
+    where: OvertimeWhereUniqueInput
+  }
+
+  /**
+   * Overtime findUniqueOrThrow
+   */
+  export type OvertimeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    /**
+     * Filter, which Overtime to fetch.
+     */
+    where: OvertimeWhereUniqueInput
+  }
+
+  /**
+   * Overtime findFirst
+   */
+  export type OvertimeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    /**
+     * Filter, which Overtime to fetch.
+     */
+    where?: OvertimeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Overtimes to fetch.
+     */
+    orderBy?: OvertimeOrderByWithRelationInput | OvertimeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Overtimes.
+     */
+    cursor?: OvertimeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Overtimes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Overtimes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Overtimes.
+     */
+    distinct?: OvertimeScalarFieldEnum | OvertimeScalarFieldEnum[]
+  }
+
+  /**
+   * Overtime findFirstOrThrow
+   */
+  export type OvertimeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    /**
+     * Filter, which Overtime to fetch.
+     */
+    where?: OvertimeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Overtimes to fetch.
+     */
+    orderBy?: OvertimeOrderByWithRelationInput | OvertimeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Overtimes.
+     */
+    cursor?: OvertimeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Overtimes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Overtimes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Overtimes.
+     */
+    distinct?: OvertimeScalarFieldEnum | OvertimeScalarFieldEnum[]
+  }
+
+  /**
+   * Overtime findMany
+   */
+  export type OvertimeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    /**
+     * Filter, which Overtimes to fetch.
+     */
+    where?: OvertimeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Overtimes to fetch.
+     */
+    orderBy?: OvertimeOrderByWithRelationInput | OvertimeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Overtimes.
+     */
+    cursor?: OvertimeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Overtimes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Overtimes.
+     */
+    skip?: number
+    distinct?: OvertimeScalarFieldEnum | OvertimeScalarFieldEnum[]
+  }
+
+  /**
+   * Overtime create
+   */
+  export type OvertimeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Overtime.
+     */
+    data: XOR<OvertimeCreateInput, OvertimeUncheckedCreateInput>
+  }
+
+  /**
+   * Overtime createMany
+   */
+  export type OvertimeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Overtimes.
+     */
+    data: OvertimeCreateManyInput | OvertimeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Overtime createManyAndReturn
+   */
+  export type OvertimeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * The data used to create many Overtimes.
+     */
+    data: OvertimeCreateManyInput | OvertimeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Overtime update
+   */
+  export type OvertimeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Overtime.
+     */
+    data: XOR<OvertimeUpdateInput, OvertimeUncheckedUpdateInput>
+    /**
+     * Choose, which Overtime to update.
+     */
+    where: OvertimeWhereUniqueInput
+  }
+
+  /**
+   * Overtime updateMany
+   */
+  export type OvertimeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Overtimes.
+     */
+    data: XOR<OvertimeUpdateManyMutationInput, OvertimeUncheckedUpdateManyInput>
+    /**
+     * Filter which Overtimes to update
+     */
+    where?: OvertimeWhereInput
+    /**
+     * Limit how many Overtimes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Overtime updateManyAndReturn
+   */
+  export type OvertimeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * The data used to update Overtimes.
+     */
+    data: XOR<OvertimeUpdateManyMutationInput, OvertimeUncheckedUpdateManyInput>
+    /**
+     * Filter which Overtimes to update
+     */
+    where?: OvertimeWhereInput
+    /**
+     * Limit how many Overtimes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Overtime upsert
+   */
+  export type OvertimeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Overtime to update in case it exists.
+     */
+    where: OvertimeWhereUniqueInput
+    /**
+     * In case the Overtime found by the `where` argument doesn't exist, create a new Overtime with this data.
+     */
+    create: XOR<OvertimeCreateInput, OvertimeUncheckedCreateInput>
+    /**
+     * In case the Overtime was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OvertimeUpdateInput, OvertimeUncheckedUpdateInput>
+  }
+
+  /**
+   * Overtime delete
+   */
+  export type OvertimeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    /**
+     * Filter which Overtime to delete.
+     */
+    where: OvertimeWhereUniqueInput
+  }
+
+  /**
+   * Overtime deleteMany
+   */
+  export type OvertimeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Overtimes to delete
+     */
+    where?: OvertimeWhereInput
+    /**
+     * Limit how many Overtimes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Overtime.descriptions
+   */
+  export type Overtime$descriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    where?: OvertimeDescriptionWhereInput
+    orderBy?: OvertimeDescriptionOrderByWithRelationInput | OvertimeDescriptionOrderByWithRelationInput[]
+    cursor?: OvertimeDescriptionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OvertimeDescriptionScalarFieldEnum | OvertimeDescriptionScalarFieldEnum[]
+  }
+
+  /**
+   * Overtime without action
+   */
+  export type OvertimeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OvertimeDescription
+   */
+
+  export type AggregateOvertimeDescription = {
+    _count: OvertimeDescriptionCountAggregateOutputType | null
+    _avg: OvertimeDescriptionAvgAggregateOutputType | null
+    _sum: OvertimeDescriptionSumAggregateOutputType | null
+    _min: OvertimeDescriptionMinAggregateOutputType | null
+    _max: OvertimeDescriptionMaxAggregateOutputType | null
+  }
+
+  export type OvertimeDescriptionAvgAggregateOutputType = {
+    id: number | null
+    overtimeId: number | null
+    duration: Decimal | null
+  }
+
+  export type OvertimeDescriptionSumAggregateOutputType = {
+    id: number | null
+    overtimeId: number | null
+    duration: Decimal | null
+  }
+
+  export type OvertimeDescriptionMinAggregateOutputType = {
+    id: number | null
+    overtimeId: number | null
+    date: Date | null
+    duration: Decimal | null
+    description: string | null
+    assignee: string | null
+  }
+
+  export type OvertimeDescriptionMaxAggregateOutputType = {
+    id: number | null
+    overtimeId: number | null
+    date: Date | null
+    duration: Decimal | null
+    description: string | null
+    assignee: string | null
+  }
+
+  export type OvertimeDescriptionCountAggregateOutputType = {
+    id: number
+    overtimeId: number
+    date: number
+    duration: number
+    description: number
+    assignee: number
+    _all: number
+  }
+
+
+  export type OvertimeDescriptionAvgAggregateInputType = {
+    id?: true
+    overtimeId?: true
+    duration?: true
+  }
+
+  export type OvertimeDescriptionSumAggregateInputType = {
+    id?: true
+    overtimeId?: true
+    duration?: true
+  }
+
+  export type OvertimeDescriptionMinAggregateInputType = {
+    id?: true
+    overtimeId?: true
+    date?: true
+    duration?: true
+    description?: true
+    assignee?: true
+  }
+
+  export type OvertimeDescriptionMaxAggregateInputType = {
+    id?: true
+    overtimeId?: true
+    date?: true
+    duration?: true
+    description?: true
+    assignee?: true
+  }
+
+  export type OvertimeDescriptionCountAggregateInputType = {
+    id?: true
+    overtimeId?: true
+    date?: true
+    duration?: true
+    description?: true
+    assignee?: true
+    _all?: true
+  }
+
+  export type OvertimeDescriptionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OvertimeDescription to aggregate.
+     */
+    where?: OvertimeDescriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OvertimeDescriptions to fetch.
+     */
+    orderBy?: OvertimeDescriptionOrderByWithRelationInput | OvertimeDescriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OvertimeDescriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OvertimeDescriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OvertimeDescriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OvertimeDescriptions
+    **/
+    _count?: true | OvertimeDescriptionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OvertimeDescriptionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OvertimeDescriptionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OvertimeDescriptionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OvertimeDescriptionMaxAggregateInputType
+  }
+
+  export type GetOvertimeDescriptionAggregateType<T extends OvertimeDescriptionAggregateArgs> = {
+        [P in keyof T & keyof AggregateOvertimeDescription]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOvertimeDescription[P]>
+      : GetScalarType<T[P], AggregateOvertimeDescription[P]>
+  }
+
+
+
+
+  export type OvertimeDescriptionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OvertimeDescriptionWhereInput
+    orderBy?: OvertimeDescriptionOrderByWithAggregationInput | OvertimeDescriptionOrderByWithAggregationInput[]
+    by: OvertimeDescriptionScalarFieldEnum[] | OvertimeDescriptionScalarFieldEnum
+    having?: OvertimeDescriptionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OvertimeDescriptionCountAggregateInputType | true
+    _avg?: OvertimeDescriptionAvgAggregateInputType
+    _sum?: OvertimeDescriptionSumAggregateInputType
+    _min?: OvertimeDescriptionMinAggregateInputType
+    _max?: OvertimeDescriptionMaxAggregateInputType
+  }
+
+  export type OvertimeDescriptionGroupByOutputType = {
+    id: number
+    overtimeId: number
+    date: Date
+    duration: Decimal
+    description: string
+    assignee: string
+    _count: OvertimeDescriptionCountAggregateOutputType | null
+    _avg: OvertimeDescriptionAvgAggregateOutputType | null
+    _sum: OvertimeDescriptionSumAggregateOutputType | null
+    _min: OvertimeDescriptionMinAggregateOutputType | null
+    _max: OvertimeDescriptionMaxAggregateOutputType | null
+  }
+
+  type GetOvertimeDescriptionGroupByPayload<T extends OvertimeDescriptionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OvertimeDescriptionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OvertimeDescriptionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OvertimeDescriptionGroupByOutputType[P]>
+            : GetScalarType<T[P], OvertimeDescriptionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OvertimeDescriptionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    overtimeId?: boolean
+    date?: boolean
+    duration?: boolean
+    description?: boolean
+    assignee?: boolean
+    overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["overtimeDescription"]>
+
+  export type OvertimeDescriptionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    overtimeId?: boolean
+    date?: boolean
+    duration?: boolean
+    description?: boolean
+    assignee?: boolean
+    overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["overtimeDescription"]>
+
+  export type OvertimeDescriptionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    overtimeId?: boolean
+    date?: boolean
+    duration?: boolean
+    description?: boolean
+    assignee?: boolean
+    overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["overtimeDescription"]>
+
+  export type OvertimeDescriptionSelectScalar = {
+    id?: boolean
+    overtimeId?: boolean
+    date?: boolean
+    duration?: boolean
+    description?: boolean
+    assignee?: boolean
+  }
+
+  export type OvertimeDescriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "overtimeId" | "date" | "duration" | "description" | "assignee", ExtArgs["result"]["overtimeDescription"]>
+  export type OvertimeDescriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
+  }
+  export type OvertimeDescriptionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
+  }
+  export type OvertimeDescriptionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
+  }
+
+  export type $OvertimeDescriptionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OvertimeDescription"
+    objects: {
+      overtime: Prisma.$OvertimePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      overtimeId: number
+      date: Date
+      duration: Prisma.Decimal
+      description: string
+      assignee: string
+    }, ExtArgs["result"]["overtimeDescription"]>
+    composites: {}
+  }
+
+  type OvertimeDescriptionGetPayload<S extends boolean | null | undefined | OvertimeDescriptionDefaultArgs> = $Result.GetResult<Prisma.$OvertimeDescriptionPayload, S>
+
+  type OvertimeDescriptionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OvertimeDescriptionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OvertimeDescriptionCountAggregateInputType | true
+    }
+
+  export interface OvertimeDescriptionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OvertimeDescription'], meta: { name: 'OvertimeDescription' } }
+    /**
+     * Find zero or one OvertimeDescription that matches the filter.
+     * @param {OvertimeDescriptionFindUniqueArgs} args - Arguments to find a OvertimeDescription
+     * @example
+     * // Get one OvertimeDescription
+     * const overtimeDescription = await prisma.overtimeDescription.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OvertimeDescriptionFindUniqueArgs>(args: SelectSubset<T, OvertimeDescriptionFindUniqueArgs<ExtArgs>>): Prisma__OvertimeDescriptionClient<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OvertimeDescription that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OvertimeDescriptionFindUniqueOrThrowArgs} args - Arguments to find a OvertimeDescription
+     * @example
+     * // Get one OvertimeDescription
+     * const overtimeDescription = await prisma.overtimeDescription.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OvertimeDescriptionFindUniqueOrThrowArgs>(args: SelectSubset<T, OvertimeDescriptionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OvertimeDescriptionClient<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OvertimeDescription that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeDescriptionFindFirstArgs} args - Arguments to find a OvertimeDescription
+     * @example
+     * // Get one OvertimeDescription
+     * const overtimeDescription = await prisma.overtimeDescription.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OvertimeDescriptionFindFirstArgs>(args?: SelectSubset<T, OvertimeDescriptionFindFirstArgs<ExtArgs>>): Prisma__OvertimeDescriptionClient<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OvertimeDescription that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeDescriptionFindFirstOrThrowArgs} args - Arguments to find a OvertimeDescription
+     * @example
+     * // Get one OvertimeDescription
+     * const overtimeDescription = await prisma.overtimeDescription.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OvertimeDescriptionFindFirstOrThrowArgs>(args?: SelectSubset<T, OvertimeDescriptionFindFirstOrThrowArgs<ExtArgs>>): Prisma__OvertimeDescriptionClient<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OvertimeDescriptions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeDescriptionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OvertimeDescriptions
+     * const overtimeDescriptions = await prisma.overtimeDescription.findMany()
+     * 
+     * // Get first 10 OvertimeDescriptions
+     * const overtimeDescriptions = await prisma.overtimeDescription.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const overtimeDescriptionWithIdOnly = await prisma.overtimeDescription.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OvertimeDescriptionFindManyArgs>(args?: SelectSubset<T, OvertimeDescriptionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OvertimeDescription.
+     * @param {OvertimeDescriptionCreateArgs} args - Arguments to create a OvertimeDescription.
+     * @example
+     * // Create one OvertimeDescription
+     * const OvertimeDescription = await prisma.overtimeDescription.create({
+     *   data: {
+     *     // ... data to create a OvertimeDescription
+     *   }
+     * })
+     * 
+     */
+    create<T extends OvertimeDescriptionCreateArgs>(args: SelectSubset<T, OvertimeDescriptionCreateArgs<ExtArgs>>): Prisma__OvertimeDescriptionClient<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OvertimeDescriptions.
+     * @param {OvertimeDescriptionCreateManyArgs} args - Arguments to create many OvertimeDescriptions.
+     * @example
+     * // Create many OvertimeDescriptions
+     * const overtimeDescription = await prisma.overtimeDescription.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OvertimeDescriptionCreateManyArgs>(args?: SelectSubset<T, OvertimeDescriptionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OvertimeDescriptions and returns the data saved in the database.
+     * @param {OvertimeDescriptionCreateManyAndReturnArgs} args - Arguments to create many OvertimeDescriptions.
+     * @example
+     * // Create many OvertimeDescriptions
+     * const overtimeDescription = await prisma.overtimeDescription.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OvertimeDescriptions and only return the `id`
+     * const overtimeDescriptionWithIdOnly = await prisma.overtimeDescription.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OvertimeDescriptionCreateManyAndReturnArgs>(args?: SelectSubset<T, OvertimeDescriptionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OvertimeDescription.
+     * @param {OvertimeDescriptionDeleteArgs} args - Arguments to delete one OvertimeDescription.
+     * @example
+     * // Delete one OvertimeDescription
+     * const OvertimeDescription = await prisma.overtimeDescription.delete({
+     *   where: {
+     *     // ... filter to delete one OvertimeDescription
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OvertimeDescriptionDeleteArgs>(args: SelectSubset<T, OvertimeDescriptionDeleteArgs<ExtArgs>>): Prisma__OvertimeDescriptionClient<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OvertimeDescription.
+     * @param {OvertimeDescriptionUpdateArgs} args - Arguments to update one OvertimeDescription.
+     * @example
+     * // Update one OvertimeDescription
+     * const overtimeDescription = await prisma.overtimeDescription.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OvertimeDescriptionUpdateArgs>(args: SelectSubset<T, OvertimeDescriptionUpdateArgs<ExtArgs>>): Prisma__OvertimeDescriptionClient<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OvertimeDescriptions.
+     * @param {OvertimeDescriptionDeleteManyArgs} args - Arguments to filter OvertimeDescriptions to delete.
+     * @example
+     * // Delete a few OvertimeDescriptions
+     * const { count } = await prisma.overtimeDescription.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OvertimeDescriptionDeleteManyArgs>(args?: SelectSubset<T, OvertimeDescriptionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OvertimeDescriptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeDescriptionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OvertimeDescriptions
+     * const overtimeDescription = await prisma.overtimeDescription.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OvertimeDescriptionUpdateManyArgs>(args: SelectSubset<T, OvertimeDescriptionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OvertimeDescriptions and returns the data updated in the database.
+     * @param {OvertimeDescriptionUpdateManyAndReturnArgs} args - Arguments to update many OvertimeDescriptions.
+     * @example
+     * // Update many OvertimeDescriptions
+     * const overtimeDescription = await prisma.overtimeDescription.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OvertimeDescriptions and only return the `id`
+     * const overtimeDescriptionWithIdOnly = await prisma.overtimeDescription.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OvertimeDescriptionUpdateManyAndReturnArgs>(args: SelectSubset<T, OvertimeDescriptionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OvertimeDescription.
+     * @param {OvertimeDescriptionUpsertArgs} args - Arguments to update or create a OvertimeDescription.
+     * @example
+     * // Update or create a OvertimeDescription
+     * const overtimeDescription = await prisma.overtimeDescription.upsert({
+     *   create: {
+     *     // ... data to create a OvertimeDescription
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OvertimeDescription we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OvertimeDescriptionUpsertArgs>(args: SelectSubset<T, OvertimeDescriptionUpsertArgs<ExtArgs>>): Prisma__OvertimeDescriptionClient<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OvertimeDescriptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeDescriptionCountArgs} args - Arguments to filter OvertimeDescriptions to count.
+     * @example
+     * // Count the number of OvertimeDescriptions
+     * const count = await prisma.overtimeDescription.count({
+     *   where: {
+     *     // ... the filter for the OvertimeDescriptions we want to count
+     *   }
+     * })
+    **/
+    count<T extends OvertimeDescriptionCountArgs>(
+      args?: Subset<T, OvertimeDescriptionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OvertimeDescriptionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OvertimeDescription.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeDescriptionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OvertimeDescriptionAggregateArgs>(args: Subset<T, OvertimeDescriptionAggregateArgs>): Prisma.PrismaPromise<GetOvertimeDescriptionAggregateType<T>>
+
+    /**
+     * Group by OvertimeDescription.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeDescriptionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OvertimeDescriptionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OvertimeDescriptionGroupByArgs['orderBy'] }
+        : { orderBy?: OvertimeDescriptionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OvertimeDescriptionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOvertimeDescriptionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OvertimeDescription model
+   */
+  readonly fields: OvertimeDescriptionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OvertimeDescription.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OvertimeDescriptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    overtime<T extends OvertimeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OvertimeDefaultArgs<ExtArgs>>): Prisma__OvertimeClient<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OvertimeDescription model
+   */
+  interface OvertimeDescriptionFieldRefs {
+    readonly id: FieldRef<"OvertimeDescription", 'Int'>
+    readonly overtimeId: FieldRef<"OvertimeDescription", 'Int'>
+    readonly date: FieldRef<"OvertimeDescription", 'DateTime'>
+    readonly duration: FieldRef<"OvertimeDescription", 'Decimal'>
+    readonly description: FieldRef<"OvertimeDescription", 'String'>
+    readonly assignee: FieldRef<"OvertimeDescription", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OvertimeDescription findUnique
+   */
+  export type OvertimeDescriptionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which OvertimeDescription to fetch.
+     */
+    where: OvertimeDescriptionWhereUniqueInput
+  }
+
+  /**
+   * OvertimeDescription findUniqueOrThrow
+   */
+  export type OvertimeDescriptionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which OvertimeDescription to fetch.
+     */
+    where: OvertimeDescriptionWhereUniqueInput
+  }
+
+  /**
+   * OvertimeDescription findFirst
+   */
+  export type OvertimeDescriptionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which OvertimeDescription to fetch.
+     */
+    where?: OvertimeDescriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OvertimeDescriptions to fetch.
+     */
+    orderBy?: OvertimeDescriptionOrderByWithRelationInput | OvertimeDescriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OvertimeDescriptions.
+     */
+    cursor?: OvertimeDescriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OvertimeDescriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OvertimeDescriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OvertimeDescriptions.
+     */
+    distinct?: OvertimeDescriptionScalarFieldEnum | OvertimeDescriptionScalarFieldEnum[]
+  }
+
+  /**
+   * OvertimeDescription findFirstOrThrow
+   */
+  export type OvertimeDescriptionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which OvertimeDescription to fetch.
+     */
+    where?: OvertimeDescriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OvertimeDescriptions to fetch.
+     */
+    orderBy?: OvertimeDescriptionOrderByWithRelationInput | OvertimeDescriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OvertimeDescriptions.
+     */
+    cursor?: OvertimeDescriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OvertimeDescriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OvertimeDescriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OvertimeDescriptions.
+     */
+    distinct?: OvertimeDescriptionScalarFieldEnum | OvertimeDescriptionScalarFieldEnum[]
+  }
+
+  /**
+   * OvertimeDescription findMany
+   */
+  export type OvertimeDescriptionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which OvertimeDescriptions to fetch.
+     */
+    where?: OvertimeDescriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OvertimeDescriptions to fetch.
+     */
+    orderBy?: OvertimeDescriptionOrderByWithRelationInput | OvertimeDescriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OvertimeDescriptions.
+     */
+    cursor?: OvertimeDescriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OvertimeDescriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OvertimeDescriptions.
+     */
+    skip?: number
+    distinct?: OvertimeDescriptionScalarFieldEnum | OvertimeDescriptionScalarFieldEnum[]
+  }
+
+  /**
+   * OvertimeDescription create
+   */
+  export type OvertimeDescriptionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OvertimeDescription.
+     */
+    data: XOR<OvertimeDescriptionCreateInput, OvertimeDescriptionUncheckedCreateInput>
+  }
+
+  /**
+   * OvertimeDescription createMany
+   */
+  export type OvertimeDescriptionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OvertimeDescriptions.
+     */
+    data: OvertimeDescriptionCreateManyInput | OvertimeDescriptionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OvertimeDescription createManyAndReturn
+   */
+  export type OvertimeDescriptionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * The data used to create many OvertimeDescriptions.
+     */
+    data: OvertimeDescriptionCreateManyInput | OvertimeDescriptionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OvertimeDescription update
+   */
+  export type OvertimeDescriptionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OvertimeDescription.
+     */
+    data: XOR<OvertimeDescriptionUpdateInput, OvertimeDescriptionUncheckedUpdateInput>
+    /**
+     * Choose, which OvertimeDescription to update.
+     */
+    where: OvertimeDescriptionWhereUniqueInput
+  }
+
+  /**
+   * OvertimeDescription updateMany
+   */
+  export type OvertimeDescriptionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OvertimeDescriptions.
+     */
+    data: XOR<OvertimeDescriptionUpdateManyMutationInput, OvertimeDescriptionUncheckedUpdateManyInput>
+    /**
+     * Filter which OvertimeDescriptions to update
+     */
+    where?: OvertimeDescriptionWhereInput
+    /**
+     * Limit how many OvertimeDescriptions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OvertimeDescription updateManyAndReturn
+   */
+  export type OvertimeDescriptionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * The data used to update OvertimeDescriptions.
+     */
+    data: XOR<OvertimeDescriptionUpdateManyMutationInput, OvertimeDescriptionUncheckedUpdateManyInput>
+    /**
+     * Filter which OvertimeDescriptions to update
+     */
+    where?: OvertimeDescriptionWhereInput
+    /**
+     * Limit how many OvertimeDescriptions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OvertimeDescription upsert
+   */
+  export type OvertimeDescriptionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OvertimeDescription to update in case it exists.
+     */
+    where: OvertimeDescriptionWhereUniqueInput
+    /**
+     * In case the OvertimeDescription found by the `where` argument doesn't exist, create a new OvertimeDescription with this data.
+     */
+    create: XOR<OvertimeDescriptionCreateInput, OvertimeDescriptionUncheckedCreateInput>
+    /**
+     * In case the OvertimeDescription was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OvertimeDescriptionUpdateInput, OvertimeDescriptionUncheckedUpdateInput>
+  }
+
+  /**
+   * OvertimeDescription delete
+   */
+  export type OvertimeDescriptionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+    /**
+     * Filter which OvertimeDescription to delete.
+     */
+    where: OvertimeDescriptionWhereUniqueInput
+  }
+
+  /**
+   * OvertimeDescription deleteMany
+   */
+  export type OvertimeDescriptionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OvertimeDescriptions to delete
+     */
+    where?: OvertimeDescriptionWhereInput
+    /**
+     * Limit how many OvertimeDescriptions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OvertimeDescription without action
+   */
+  export type OvertimeDescriptionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeDescription
+     */
+    select?: OvertimeDescriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeDescription
+     */
+    omit?: OvertimeDescriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeDescriptionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -6123,6 +8605,33 @@ export namespace Prisma {
   };
 
   export type ApiLogScalarFieldEnum = (typeof ApiLogScalarFieldEnum)[keyof typeof ApiLogScalarFieldEnum]
+
+
+  export const OvertimeScalarFieldEnum: {
+    id: 'id',
+    requesterId: 'requesterId',
+    requestDate: 'requestDate',
+    status: 'status',
+    createdBy: 'createdBy',
+    updatedBy: 'updatedBy',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    isDeleted: 'isDeleted'
+  };
+
+  export type OvertimeScalarFieldEnum = (typeof OvertimeScalarFieldEnum)[keyof typeof OvertimeScalarFieldEnum]
+
+
+  export const OvertimeDescriptionScalarFieldEnum: {
+    id: 'id',
+    overtimeId: 'overtimeId',
+    date: 'date',
+    duration: 'duration',
+    description: 'description',
+    assignee: 'assignee'
+  };
+
+  export type OvertimeDescriptionScalarFieldEnum = (typeof OvertimeDescriptionScalarFieldEnum)[keyof typeof OvertimeDescriptionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -6673,6 +9182,145 @@ export namespace Prisma {
     is_archived?: BoolWithAggregatesFilter<"ApiLog"> | boolean
   }
 
+  export type OvertimeWhereInput = {
+    AND?: OvertimeWhereInput | OvertimeWhereInput[]
+    OR?: OvertimeWhereInput[]
+    NOT?: OvertimeWhereInput | OvertimeWhereInput[]
+    id?: IntFilter<"Overtime"> | number
+    requesterId?: StringFilter<"Overtime"> | string
+    requestDate?: DateTimeFilter<"Overtime"> | Date | string
+    status?: StringFilter<"Overtime"> | string
+    createdBy?: StringFilter<"Overtime"> | string
+    updatedBy?: StringNullableFilter<"Overtime"> | string | null
+    createdAt?: DateTimeFilter<"Overtime"> | Date | string
+    updatedAt?: DateTimeFilter<"Overtime"> | Date | string
+    isDeleted?: BoolFilter<"Overtime"> | boolean
+    descriptions?: OvertimeDescriptionListRelationFilter
+  }
+
+  export type OvertimeOrderByWithRelationInput = {
+    id?: SortOrder
+    requesterId?: SortOrder
+    requestDate?: SortOrder
+    status?: SortOrder
+    createdBy?: SortOrder
+    updatedBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    isDeleted?: SortOrder
+    descriptions?: OvertimeDescriptionOrderByRelationAggregateInput
+  }
+
+  export type OvertimeWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: OvertimeWhereInput | OvertimeWhereInput[]
+    OR?: OvertimeWhereInput[]
+    NOT?: OvertimeWhereInput | OvertimeWhereInput[]
+    requesterId?: StringFilter<"Overtime"> | string
+    requestDate?: DateTimeFilter<"Overtime"> | Date | string
+    status?: StringFilter<"Overtime"> | string
+    createdBy?: StringFilter<"Overtime"> | string
+    updatedBy?: StringNullableFilter<"Overtime"> | string | null
+    createdAt?: DateTimeFilter<"Overtime"> | Date | string
+    updatedAt?: DateTimeFilter<"Overtime"> | Date | string
+    isDeleted?: BoolFilter<"Overtime"> | boolean
+    descriptions?: OvertimeDescriptionListRelationFilter
+  }, "id">
+
+  export type OvertimeOrderByWithAggregationInput = {
+    id?: SortOrder
+    requesterId?: SortOrder
+    requestDate?: SortOrder
+    status?: SortOrder
+    createdBy?: SortOrder
+    updatedBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    isDeleted?: SortOrder
+    _count?: OvertimeCountOrderByAggregateInput
+    _avg?: OvertimeAvgOrderByAggregateInput
+    _max?: OvertimeMaxOrderByAggregateInput
+    _min?: OvertimeMinOrderByAggregateInput
+    _sum?: OvertimeSumOrderByAggregateInput
+  }
+
+  export type OvertimeScalarWhereWithAggregatesInput = {
+    AND?: OvertimeScalarWhereWithAggregatesInput | OvertimeScalarWhereWithAggregatesInput[]
+    OR?: OvertimeScalarWhereWithAggregatesInput[]
+    NOT?: OvertimeScalarWhereWithAggregatesInput | OvertimeScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Overtime"> | number
+    requesterId?: StringWithAggregatesFilter<"Overtime"> | string
+    requestDate?: DateTimeWithAggregatesFilter<"Overtime"> | Date | string
+    status?: StringWithAggregatesFilter<"Overtime"> | string
+    createdBy?: StringWithAggregatesFilter<"Overtime"> | string
+    updatedBy?: StringNullableWithAggregatesFilter<"Overtime"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Overtime"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Overtime"> | Date | string
+    isDeleted?: BoolWithAggregatesFilter<"Overtime"> | boolean
+  }
+
+  export type OvertimeDescriptionWhereInput = {
+    AND?: OvertimeDescriptionWhereInput | OvertimeDescriptionWhereInput[]
+    OR?: OvertimeDescriptionWhereInput[]
+    NOT?: OvertimeDescriptionWhereInput | OvertimeDescriptionWhereInput[]
+    id?: IntFilter<"OvertimeDescription"> | number
+    overtimeId?: IntFilter<"OvertimeDescription"> | number
+    date?: DateTimeFilter<"OvertimeDescription"> | Date | string
+    duration?: DecimalFilter<"OvertimeDescription"> | Decimal | DecimalJsLike | number | string
+    description?: StringFilter<"OvertimeDescription"> | string
+    assignee?: StringFilter<"OvertimeDescription"> | string
+    overtime?: XOR<OvertimeScalarRelationFilter, OvertimeWhereInput>
+  }
+
+  export type OvertimeDescriptionOrderByWithRelationInput = {
+    id?: SortOrder
+    overtimeId?: SortOrder
+    date?: SortOrder
+    duration?: SortOrder
+    description?: SortOrder
+    assignee?: SortOrder
+    overtime?: OvertimeOrderByWithRelationInput
+  }
+
+  export type OvertimeDescriptionWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: OvertimeDescriptionWhereInput | OvertimeDescriptionWhereInput[]
+    OR?: OvertimeDescriptionWhereInput[]
+    NOT?: OvertimeDescriptionWhereInput | OvertimeDescriptionWhereInput[]
+    overtimeId?: IntFilter<"OvertimeDescription"> | number
+    date?: DateTimeFilter<"OvertimeDescription"> | Date | string
+    duration?: DecimalFilter<"OvertimeDescription"> | Decimal | DecimalJsLike | number | string
+    description?: StringFilter<"OvertimeDescription"> | string
+    assignee?: StringFilter<"OvertimeDescription"> | string
+    overtime?: XOR<OvertimeScalarRelationFilter, OvertimeWhereInput>
+  }, "id">
+
+  export type OvertimeDescriptionOrderByWithAggregationInput = {
+    id?: SortOrder
+    overtimeId?: SortOrder
+    date?: SortOrder
+    duration?: SortOrder
+    description?: SortOrder
+    assignee?: SortOrder
+    _count?: OvertimeDescriptionCountOrderByAggregateInput
+    _avg?: OvertimeDescriptionAvgOrderByAggregateInput
+    _max?: OvertimeDescriptionMaxOrderByAggregateInput
+    _min?: OvertimeDescriptionMinOrderByAggregateInput
+    _sum?: OvertimeDescriptionSumOrderByAggregateInput
+  }
+
+  export type OvertimeDescriptionScalarWhereWithAggregatesInput = {
+    AND?: OvertimeDescriptionScalarWhereWithAggregatesInput | OvertimeDescriptionScalarWhereWithAggregatesInput[]
+    OR?: OvertimeDescriptionScalarWhereWithAggregatesInput[]
+    NOT?: OvertimeDescriptionScalarWhereWithAggregatesInput | OvertimeDescriptionScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"OvertimeDescription"> | number
+    overtimeId?: IntWithAggregatesFilter<"OvertimeDescription"> | number
+    date?: DateTimeWithAggregatesFilter<"OvertimeDescription"> | Date | string
+    duration?: DecimalWithAggregatesFilter<"OvertimeDescription"> | Decimal | DecimalJsLike | number | string
+    description?: StringWithAggregatesFilter<"OvertimeDescription"> | string
+    assignee?: StringWithAggregatesFilter<"OvertimeDescription"> | string
+  }
+
   export type ProjectCreateInput = {
     categoryType?: string | null
     name: string
@@ -7119,6 +9767,150 @@ export namespace Prisma {
     is_success?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     is_archived?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type OvertimeCreateInput = {
+    requesterId: string
+    requestDate: Date | string
+    status: string
+    createdBy: string
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+    descriptions?: OvertimeDescriptionCreateNestedManyWithoutOvertimeInput
+  }
+
+  export type OvertimeUncheckedCreateInput = {
+    id?: number
+    requesterId: string
+    requestDate: Date | string
+    status: string
+    createdBy: string
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+    descriptions?: OvertimeDescriptionUncheckedCreateNestedManyWithoutOvertimeInput
+  }
+
+  export type OvertimeUpdateInput = {
+    requesterId?: StringFieldUpdateOperationsInput | string
+    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    descriptions?: OvertimeDescriptionUpdateManyWithoutOvertimeNestedInput
+  }
+
+  export type OvertimeUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    requesterId?: StringFieldUpdateOperationsInput | string
+    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    descriptions?: OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeNestedInput
+  }
+
+  export type OvertimeCreateManyInput = {
+    id?: number
+    requesterId: string
+    requestDate: Date | string
+    status: string
+    createdBy: string
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+  }
+
+  export type OvertimeUpdateManyMutationInput = {
+    requesterId?: StringFieldUpdateOperationsInput | string
+    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type OvertimeUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    requesterId?: StringFieldUpdateOperationsInput | string
+    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type OvertimeDescriptionCreateInput = {
+    date: Date | string
+    duration: Decimal | DecimalJsLike | number | string
+    description: string
+    assignee: string
+    overtime: OvertimeCreateNestedOneWithoutDescriptionsInput
+  }
+
+  export type OvertimeDescriptionUncheckedCreateInput = {
+    id?: number
+    overtimeId: number
+    date: Date | string
+    duration: Decimal | DecimalJsLike | number | string
+    description: string
+    assignee: string
+  }
+
+  export type OvertimeDescriptionUpdateInput = {
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: StringFieldUpdateOperationsInput | string
+    assignee?: StringFieldUpdateOperationsInput | string
+    overtime?: OvertimeUpdateOneRequiredWithoutDescriptionsNestedInput
+  }
+
+  export type OvertimeDescriptionUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    overtimeId?: IntFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: StringFieldUpdateOperationsInput | string
+    assignee?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type OvertimeDescriptionCreateManyInput = {
+    id?: number
+    overtimeId: number
+    date: Date | string
+    duration: Decimal | DecimalJsLike | number | string
+    description: string
+    assignee: string
+  }
+
+  export type OvertimeDescriptionUpdateManyMutationInput = {
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: StringFieldUpdateOperationsInput | string
+    assignee?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type OvertimeDescriptionUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    overtimeId?: IntFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: StringFieldUpdateOperationsInput | string
+    assignee?: StringFieldUpdateOperationsInput | string
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -7682,6 +10474,104 @@ export namespace Prisma {
     _max?: NestedBigIntFilter<$PrismaModel>
   }
 
+  export type OvertimeDescriptionListRelationFilter = {
+    every?: OvertimeDescriptionWhereInput
+    some?: OvertimeDescriptionWhereInput
+    none?: OvertimeDescriptionWhereInput
+  }
+
+  export type OvertimeDescriptionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OvertimeCountOrderByAggregateInput = {
+    id?: SortOrder
+    requesterId?: SortOrder
+    requestDate?: SortOrder
+    status?: SortOrder
+    createdBy?: SortOrder
+    updatedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    isDeleted?: SortOrder
+  }
+
+  export type OvertimeAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type OvertimeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    requesterId?: SortOrder
+    requestDate?: SortOrder
+    status?: SortOrder
+    createdBy?: SortOrder
+    updatedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    isDeleted?: SortOrder
+  }
+
+  export type OvertimeMinOrderByAggregateInput = {
+    id?: SortOrder
+    requesterId?: SortOrder
+    requestDate?: SortOrder
+    status?: SortOrder
+    createdBy?: SortOrder
+    updatedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    isDeleted?: SortOrder
+  }
+
+  export type OvertimeSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type OvertimeScalarRelationFilter = {
+    is?: OvertimeWhereInput
+    isNot?: OvertimeWhereInput
+  }
+
+  export type OvertimeDescriptionCountOrderByAggregateInput = {
+    id?: SortOrder
+    overtimeId?: SortOrder
+    date?: SortOrder
+    duration?: SortOrder
+    description?: SortOrder
+    assignee?: SortOrder
+  }
+
+  export type OvertimeDescriptionAvgOrderByAggregateInput = {
+    id?: SortOrder
+    overtimeId?: SortOrder
+    duration?: SortOrder
+  }
+
+  export type OvertimeDescriptionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    overtimeId?: SortOrder
+    date?: SortOrder
+    duration?: SortOrder
+    description?: SortOrder
+    assignee?: SortOrder
+  }
+
+  export type OvertimeDescriptionMinOrderByAggregateInput = {
+    id?: SortOrder
+    overtimeId?: SortOrder
+    date?: SortOrder
+    duration?: SortOrder
+    description?: SortOrder
+    assignee?: SortOrder
+  }
+
+  export type OvertimeDescriptionSumOrderByAggregateInput = {
+    id?: SortOrder
+    overtimeId?: SortOrder
+    duration?: SortOrder
+  }
+
   export type FeatureCreateNestedManyWithoutProjectInput = {
     create?: XOR<FeatureCreateWithoutProjectInput, FeatureUncheckedCreateWithoutProjectInput> | FeatureCreateWithoutProjectInput[] | FeatureUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: FeatureCreateOrConnectWithoutProjectInput | FeatureCreateOrConnectWithoutProjectInput[]
@@ -7900,6 +10790,62 @@ export namespace Prisma {
     decrement?: bigint | number
     multiply?: bigint | number
     divide?: bigint | number
+  }
+
+  export type OvertimeDescriptionCreateNestedManyWithoutOvertimeInput = {
+    create?: XOR<OvertimeDescriptionCreateWithoutOvertimeInput, OvertimeDescriptionUncheckedCreateWithoutOvertimeInput> | OvertimeDescriptionCreateWithoutOvertimeInput[] | OvertimeDescriptionUncheckedCreateWithoutOvertimeInput[]
+    connectOrCreate?: OvertimeDescriptionCreateOrConnectWithoutOvertimeInput | OvertimeDescriptionCreateOrConnectWithoutOvertimeInput[]
+    createMany?: OvertimeDescriptionCreateManyOvertimeInputEnvelope
+    connect?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+  }
+
+  export type OvertimeDescriptionUncheckedCreateNestedManyWithoutOvertimeInput = {
+    create?: XOR<OvertimeDescriptionCreateWithoutOvertimeInput, OvertimeDescriptionUncheckedCreateWithoutOvertimeInput> | OvertimeDescriptionCreateWithoutOvertimeInput[] | OvertimeDescriptionUncheckedCreateWithoutOvertimeInput[]
+    connectOrCreate?: OvertimeDescriptionCreateOrConnectWithoutOvertimeInput | OvertimeDescriptionCreateOrConnectWithoutOvertimeInput[]
+    createMany?: OvertimeDescriptionCreateManyOvertimeInputEnvelope
+    connect?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+  }
+
+  export type OvertimeDescriptionUpdateManyWithoutOvertimeNestedInput = {
+    create?: XOR<OvertimeDescriptionCreateWithoutOvertimeInput, OvertimeDescriptionUncheckedCreateWithoutOvertimeInput> | OvertimeDescriptionCreateWithoutOvertimeInput[] | OvertimeDescriptionUncheckedCreateWithoutOvertimeInput[]
+    connectOrCreate?: OvertimeDescriptionCreateOrConnectWithoutOvertimeInput | OvertimeDescriptionCreateOrConnectWithoutOvertimeInput[]
+    upsert?: OvertimeDescriptionUpsertWithWhereUniqueWithoutOvertimeInput | OvertimeDescriptionUpsertWithWhereUniqueWithoutOvertimeInput[]
+    createMany?: OvertimeDescriptionCreateManyOvertimeInputEnvelope
+    set?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+    disconnect?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+    delete?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+    connect?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+    update?: OvertimeDescriptionUpdateWithWhereUniqueWithoutOvertimeInput | OvertimeDescriptionUpdateWithWhereUniqueWithoutOvertimeInput[]
+    updateMany?: OvertimeDescriptionUpdateManyWithWhereWithoutOvertimeInput | OvertimeDescriptionUpdateManyWithWhereWithoutOvertimeInput[]
+    deleteMany?: OvertimeDescriptionScalarWhereInput | OvertimeDescriptionScalarWhereInput[]
+  }
+
+  export type OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeNestedInput = {
+    create?: XOR<OvertimeDescriptionCreateWithoutOvertimeInput, OvertimeDescriptionUncheckedCreateWithoutOvertimeInput> | OvertimeDescriptionCreateWithoutOvertimeInput[] | OvertimeDescriptionUncheckedCreateWithoutOvertimeInput[]
+    connectOrCreate?: OvertimeDescriptionCreateOrConnectWithoutOvertimeInput | OvertimeDescriptionCreateOrConnectWithoutOvertimeInput[]
+    upsert?: OvertimeDescriptionUpsertWithWhereUniqueWithoutOvertimeInput | OvertimeDescriptionUpsertWithWhereUniqueWithoutOvertimeInput[]
+    createMany?: OvertimeDescriptionCreateManyOvertimeInputEnvelope
+    set?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+    disconnect?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+    delete?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+    connect?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
+    update?: OvertimeDescriptionUpdateWithWhereUniqueWithoutOvertimeInput | OvertimeDescriptionUpdateWithWhereUniqueWithoutOvertimeInput[]
+    updateMany?: OvertimeDescriptionUpdateManyWithWhereWithoutOvertimeInput | OvertimeDescriptionUpdateManyWithWhereWithoutOvertimeInput[]
+    deleteMany?: OvertimeDescriptionScalarWhereInput | OvertimeDescriptionScalarWhereInput[]
+  }
+
+  export type OvertimeCreateNestedOneWithoutDescriptionsInput = {
+    create?: XOR<OvertimeCreateWithoutDescriptionsInput, OvertimeUncheckedCreateWithoutDescriptionsInput>
+    connectOrCreate?: OvertimeCreateOrConnectWithoutDescriptionsInput
+    connect?: OvertimeWhereUniqueInput
+  }
+
+  export type OvertimeUpdateOneRequiredWithoutDescriptionsNestedInput = {
+    create?: XOR<OvertimeCreateWithoutDescriptionsInput, OvertimeUncheckedCreateWithoutDescriptionsInput>
+    connectOrCreate?: OvertimeCreateOrConnectWithoutDescriptionsInput
+    upsert?: OvertimeUpsertWithoutDescriptionsInput
+    connect?: OvertimeWhereUniqueInput
+    update?: XOR<XOR<OvertimeUpdateToOneWithWhereWithoutDescriptionsInput, OvertimeUpdateWithoutDescriptionsInput>, OvertimeUncheckedUpdateWithoutDescriptionsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -8576,6 +11522,121 @@ export namespace Prisma {
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
   }
 
+  export type OvertimeDescriptionCreateWithoutOvertimeInput = {
+    date: Date | string
+    duration: Decimal | DecimalJsLike | number | string
+    description: string
+    assignee: string
+  }
+
+  export type OvertimeDescriptionUncheckedCreateWithoutOvertimeInput = {
+    id?: number
+    date: Date | string
+    duration: Decimal | DecimalJsLike | number | string
+    description: string
+    assignee: string
+  }
+
+  export type OvertimeDescriptionCreateOrConnectWithoutOvertimeInput = {
+    where: OvertimeDescriptionWhereUniqueInput
+    create: XOR<OvertimeDescriptionCreateWithoutOvertimeInput, OvertimeDescriptionUncheckedCreateWithoutOvertimeInput>
+  }
+
+  export type OvertimeDescriptionCreateManyOvertimeInputEnvelope = {
+    data: OvertimeDescriptionCreateManyOvertimeInput | OvertimeDescriptionCreateManyOvertimeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OvertimeDescriptionUpsertWithWhereUniqueWithoutOvertimeInput = {
+    where: OvertimeDescriptionWhereUniqueInput
+    update: XOR<OvertimeDescriptionUpdateWithoutOvertimeInput, OvertimeDescriptionUncheckedUpdateWithoutOvertimeInput>
+    create: XOR<OvertimeDescriptionCreateWithoutOvertimeInput, OvertimeDescriptionUncheckedCreateWithoutOvertimeInput>
+  }
+
+  export type OvertimeDescriptionUpdateWithWhereUniqueWithoutOvertimeInput = {
+    where: OvertimeDescriptionWhereUniqueInput
+    data: XOR<OvertimeDescriptionUpdateWithoutOvertimeInput, OvertimeDescriptionUncheckedUpdateWithoutOvertimeInput>
+  }
+
+  export type OvertimeDescriptionUpdateManyWithWhereWithoutOvertimeInput = {
+    where: OvertimeDescriptionScalarWhereInput
+    data: XOR<OvertimeDescriptionUpdateManyMutationInput, OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeInput>
+  }
+
+  export type OvertimeDescriptionScalarWhereInput = {
+    AND?: OvertimeDescriptionScalarWhereInput | OvertimeDescriptionScalarWhereInput[]
+    OR?: OvertimeDescriptionScalarWhereInput[]
+    NOT?: OvertimeDescriptionScalarWhereInput | OvertimeDescriptionScalarWhereInput[]
+    id?: IntFilter<"OvertimeDescription"> | number
+    overtimeId?: IntFilter<"OvertimeDescription"> | number
+    date?: DateTimeFilter<"OvertimeDescription"> | Date | string
+    duration?: DecimalFilter<"OvertimeDescription"> | Decimal | DecimalJsLike | number | string
+    description?: StringFilter<"OvertimeDescription"> | string
+    assignee?: StringFilter<"OvertimeDescription"> | string
+  }
+
+  export type OvertimeCreateWithoutDescriptionsInput = {
+    requesterId: string
+    requestDate: Date | string
+    status: string
+    createdBy: string
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+  }
+
+  export type OvertimeUncheckedCreateWithoutDescriptionsInput = {
+    id?: number
+    requesterId: string
+    requestDate: Date | string
+    status: string
+    createdBy: string
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+  }
+
+  export type OvertimeCreateOrConnectWithoutDescriptionsInput = {
+    where: OvertimeWhereUniqueInput
+    create: XOR<OvertimeCreateWithoutDescriptionsInput, OvertimeUncheckedCreateWithoutDescriptionsInput>
+  }
+
+  export type OvertimeUpsertWithoutDescriptionsInput = {
+    update: XOR<OvertimeUpdateWithoutDescriptionsInput, OvertimeUncheckedUpdateWithoutDescriptionsInput>
+    create: XOR<OvertimeCreateWithoutDescriptionsInput, OvertimeUncheckedCreateWithoutDescriptionsInput>
+    where?: OvertimeWhereInput
+  }
+
+  export type OvertimeUpdateToOneWithWhereWithoutDescriptionsInput = {
+    where?: OvertimeWhereInput
+    data: XOR<OvertimeUpdateWithoutDescriptionsInput, OvertimeUncheckedUpdateWithoutDescriptionsInput>
+  }
+
+  export type OvertimeUpdateWithoutDescriptionsInput = {
+    requesterId?: StringFieldUpdateOperationsInput | string
+    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type OvertimeUncheckedUpdateWithoutDescriptionsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    requesterId?: StringFieldUpdateOperationsInput | string
+    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type FeatureCreateManyProjectInput = {
     id?: number
     name: string
@@ -8737,6 +11798,37 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type OvertimeDescriptionCreateManyOvertimeInput = {
+    id?: number
+    date: Date | string
+    duration: Decimal | DecimalJsLike | number | string
+    description: string
+    assignee: string
+  }
+
+  export type OvertimeDescriptionUpdateWithoutOvertimeInput = {
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: StringFieldUpdateOperationsInput | string
+    assignee?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type OvertimeDescriptionUncheckedUpdateWithoutOvertimeInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: StringFieldUpdateOperationsInput | string
+    assignee?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: StringFieldUpdateOperationsInput | string
+    assignee?: StringFieldUpdateOperationsInput | string
   }
 
 
