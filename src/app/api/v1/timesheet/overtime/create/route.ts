@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     const created = await Service.create(payload);
     return NextResponse.json(
-      successResponse({ data: created, status: 201, message_en: "Created" }),
+      successResponse({ data: created, status: 201, message_en: "Created", message_th: "สร้างรายการสำเร็จ" }),
       { status: 201 }
     );
   } catch (err: any) {

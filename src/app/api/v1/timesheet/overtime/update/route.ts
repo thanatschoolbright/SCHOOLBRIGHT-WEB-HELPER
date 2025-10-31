@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
   const idParam = url.searchParams.get("id");
   if (!idParam) {
     return NextResponse.json(
-      errorResponse({ message_en: "Missing id parameter", status: 400 }),
+      errorResponse({ message_en: "Missing id parameter", message_th: "ต้องระบุพารามิเตอร์ id", status: 400 }),
       { status: 400 }
     );
   }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
   const id = Number(idParam);
   if (Number.isNaN(id) || id <= 0) {
     return NextResponse.json(
-      errorResponse({ message_en: "Invalid id", status: 400 }),
+      errorResponse({ message_en: "Invalid id", message_th: "ค่า id ไม่ถูกต้อง", status: 400 }),
       { status: 400 }
     );
   }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     const updated = await Service.update(id, payload);
 
     return NextResponse.json(
-      successResponse({ data: updated, status: 200, message_en: "Updated" }),
+      successResponse({ data: updated, status: 200, message_en: "Updated", message_th: "แก้ไขรายการสำเร็จ" }),
       { status: 200 }
     );
   } catch (err: any) {
