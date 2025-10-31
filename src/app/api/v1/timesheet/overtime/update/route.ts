@@ -95,6 +95,19 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (err: any) {
+    // If service threw a 404-style error object, return that as-is
+    if (err && typeof err === "object" && (err as any).status === 404) {
+      const e = err as any;
+      return NextResponse.json(
+        errorResponse({
+          message_en: e.message || "Not found",
+          status: 404,
+          error: e,
+        }),
+        { status: 404 }
+      );
+    }
+
     return handleError(err, "POST /api/v1/timesheet/overtime/update error");
   }
 }

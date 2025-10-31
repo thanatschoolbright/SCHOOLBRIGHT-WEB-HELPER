@@ -123,6 +123,15 @@ export const Service = {
     logger.info("UPDATE OVERTIME", id);
     if (!id || id <= 0) throw new Error("Invalid id for update");
 
+    // Ensure record exists; if not, throw a 404-style error so callers can respond accordingly
+    const exists = await Service.validatorID(id);
+    if (!exists) {
+      throw {
+        status: 404,
+        message: "Overtime not found",
+      };
+    }
+
     // prepare nested descriptions create array if present
     const descCreate = (data.descriptions || []).map((d) => ({
       date: d.date ? new Date(d.date) : undefined,
@@ -135,7 +144,8 @@ export const Service = {
       requesterId: data.requesterId,
       requestDate: data.requestDate ? new Date(data.requestDate) : undefined,
       status: data.status,
-      updatedBy: data.updatedBy ?? 0,
+      // Prisma expects string for createdBy/updatedBy in this schema; cast accordingly
+      updatedBy: data.updatedBy !== undefined ? String(data.updatedBy) : undefined,
     };
 
     // remove undefined keys
@@ -168,7 +178,7 @@ export const Service = {
   async delete(id: number, opts: { deletedBy?: number } = {}) {
     return (PrismaTimesheet as any).overtime.update({
       where: { id },
-      data: { isDeleted: true, updatedBy: opts.deletedBy ?? 0 },
+      data: { isDeleted: true, updatedBy: opts.deletedBy !== undefined ? String(opts.deletedBy) : undefined },
     });
   },
 
