@@ -306,8 +306,11 @@ jobs:
               echo "✅ Environment file restored"
             fi
 
-            echo "📦 Installing production dependencies..."
-            npm ci --production --prefer-offline --no-audit
+            echo "📦 Installing production dependencies (omitting devDependencies)..."
+            # Use --omit=dev (preferred) instead of the deprecated --production flag.
+            # If peer dependency resolution fails in some npm versions, retry with --legacy-peer-deps
+            npm ci --omit=dev --prefer-offline --no-audit || \
+            npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
 
             # Verify critical dependencies
             if [ ! -d "node_modules" ] || [ ! -f "node_modules/next/dist/bin/next" ]; then
