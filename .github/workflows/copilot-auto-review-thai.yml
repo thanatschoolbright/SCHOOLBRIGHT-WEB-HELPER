@@ -47,13 +47,23 @@ jobs:
       - name: 🤖 Copilot Review (Thai)
         uses: actions/github-script@v7
         continue-on-error: true
-        env:
-          FILES_JSON: ${{ steps.pr-files.outputs.files }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             try {
-              const files = JSON.parse(process.env.FILES_JSON || '[]');
+              // ดึงรายการไฟล์ของ PR โดยตรงภายในสคริปต์ (หลีกเลี่ยงการอ้างอิง outputs ที่อาจไม่ถูกต้อง)
+              const { data: filesData } = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+
+              const files = filesData.map(file => ({
+                filename: file.filename,
+                status: file.status,
+                additions: file.additions,
+                deletions: file.deletions,
+              }));
 
               const totalAdd = files.reduce((sum, f) => sum + f.additions, 0);
               const totalDel = files.reduce((sum, f) => sum + f.deletions, 0);
