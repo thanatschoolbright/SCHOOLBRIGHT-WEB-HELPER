@@ -100,6 +100,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         errorResponse({
           message_en: e.message || "Not found",
+          message_th: e.message_th || "ไม่พบรายการที่ร้องขอ",
           status: 404,
           error: e,
         }),

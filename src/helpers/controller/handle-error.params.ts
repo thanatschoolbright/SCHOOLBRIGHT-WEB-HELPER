@@ -15,9 +15,19 @@ export function handleError(err: unknown, contextMessage = "API error") {
   const status = error?.status || 500;
   const message = error?.message || "Internal Server Error";
 
+  // Provide a Thai message alongside English. Use sensible defaults per status.
+  let message_th = error?.message_th;
+  if (!message_th) {
+    if (status >= 500) message_th = "เกิดข้อผิดพลาดภายในระบบ";
+    else if (status === 404) message_th = "ไม่พบรายการที่ร้องขอ";
+    else if (status === 400) message_th = "คำขอไม่ถูกต้อง";
+    else message_th = message;
+  }
+
   return NextResponse.json(
     errorResponse({
       message_en: message,
+      message_th,
       status,
       error: error?.validationErrors || error,
     }),

@@ -129,6 +129,7 @@ export const Service = {
       throw {
         status: 404,
         message: "Overtime not found",
+        message_th: "ไม่พบรายการโอที",
       };
     }
 
