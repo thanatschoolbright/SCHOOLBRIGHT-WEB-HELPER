@@ -110,20 +110,10 @@ export const Service = {
     return (PrismaTimesheet as any).overtime.create({
       data: {
         requesterId: data.requesterId,
-        firstname: data.firstname,
-        lastname: data.lastname,
-        employee_code: data.employee_code,
-        role: data.role,
-        department: data.department,
         requestDate: data.requestDate ? new Date(data.requestDate) : new Date(),
-        startTime: data.startTime,
-        endTime: data.endTime,
-        overtimeType: data.overtimeType ?? "normal",
-        approverId: data.approverId,
         status: data.status ?? "pending",
-        descriptions:
-          descCreate.length > 0 ? { create: descCreate } : undefined,
-        createdBy: data.createdBy ?? 0,
+        descriptions: descCreate.length > 0 ? { create: descCreate } : undefined,
+        createdBy: String(data.createdBy ?? "0"),
       },
       include: { descriptions: true },
     });
@@ -143,16 +133,7 @@ export const Service = {
 
     const updateData: any = {
       requesterId: data.requesterId,
-      firstname: data.firstname,
-      lastname: data.lastname,
-      employee_code: data.employee_code,
-      role: data.role,
-      department: data.department,
       requestDate: data.requestDate ? new Date(data.requestDate) : undefined,
-      startTime: data.startTime,
-      endTime: data.endTime,
-      overtimeType: data.overtimeType,
-      approverId: data.approverId,
       status: data.status,
       updatedBy: data.updatedBy ?? 0,
     };
