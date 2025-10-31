@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import Service from "@/services/overtime/overtime.service";
-import { logger } from "@/helpers/logger";
+import { logger } from "@helpers/logger";
+import safeParseRequestBody from "@helpers/controller/safe-parse.params";
+import { handleError } from "@helpers/controller/handle-error.params";
 
-// list or create
-
-
-
-
-export async function DELETE(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const idParam = url.searchParams.get("id");
@@ -27,23 +24,16 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const body = await request.json().catch(() => ({}));
-    const deleted = await Service.delete(id, { deletedBy: body.deletedBy });
+    const body = await safeParseRequestBody(request);
+    const deleted = await Service.delete(id, {
+      deletedBy: (body as any).deletedBy,
+    });
 
     return NextResponse.json(
       successResponse({ data: deleted, status: 200, message_en: "Deleted" }),
       { status: 200 }
     );
   } catch (err: any) {
-    logger.error("DELETE /api/v1/timesheet/overtime error", err);
-    const status = err?.response?.status || err?.status || 500;
-    return NextResponse.json(
-      errorResponse({
-        message_en: err?.message || "Internal Server Error",
-        status,
-        error: err?.response?.data || err,
-      }),
-      { status }
-    );
+    return handleError(err, "POST /api/v1/timesheet/overtime/delete error");
   }
 }
