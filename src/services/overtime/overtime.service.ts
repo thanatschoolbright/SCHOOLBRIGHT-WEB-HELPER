@@ -47,12 +47,23 @@ export interface UpdateOvertimeInput {
 
 export const Service = {
   async validatorID(id: number) {
-    const find = await PrismaTimesheet.overtime.findUnique({ where: { id } });
+    const find = await (PrismaTimesheet as any).overtime.findUnique({
+      where: { id },
+    });
     return find !== null;
   },
 
   // list with pagination and optional filters
-  async findAll(query: { limit?: number; skip?: number; requesterId?: string; status?: string; from?: Date; to?: Date } = { limit: 50, skip: 0 }) {
+  async findAll(
+    query: {
+      limit?: number;
+      skip?: number;
+      requesterId?: string;
+      status?: string;
+      from?: Date;
+      to?: Date;
+    } = { limit: 50, skip: 0 }
+  ) {
     const where: any = { isDeleted: false };
     if (query.requesterId) where.requesterId = query.requesterId;
     if (query.status) where.status = query.status;
@@ -63,21 +74,21 @@ export const Service = {
     }
 
     const [items, total] = await Promise.all([
-      PrismaTimesheet.overtime.findMany({
+      (PrismaTimesheet as any).overtime.findMany({
         take: query.limit,
         skip: query.skip,
         where,
         orderBy: { createdAt: "desc" },
         include: { descriptions: true },
       }),
-      PrismaTimesheet.overtime.count({ where }),
+      (PrismaTimesheet as any).overtime.count({ where }),
     ]);
 
     return { items, total };
   },
 
   async findById(id: number) {
-    const data = await PrismaTimesheet.overtime.findFirst({
+    const data = await (PrismaTimesheet as any).overtime.findFirst({
       where: { id, isDeleted: false },
       include: { descriptions: true },
     });
@@ -96,7 +107,7 @@ export const Service = {
       assignee: d.assignee ? String(d.assignee) : undefined,
     }));
 
-    return PrismaTimesheet.overtime.create({
+    return (PrismaTimesheet as any).overtime.create({
       data: {
         requesterId: data.requesterId,
         firstname: data.firstname,
@@ -110,7 +121,8 @@ export const Service = {
         overtimeType: data.overtimeType ?? "normal",
         approverId: data.approverId,
         status: data.status ?? "pending",
-        descriptions: descCreate.length > 0 ? { create: descCreate } : undefined,
+        descriptions:
+          descCreate.length > 0 ? { create: descCreate } : undefined,
         createdBy: data.createdBy ?? 0,
       },
       include: { descriptions: true },
@@ -146,11 +158,13 @@ export const Service = {
     };
 
     // remove undefined keys
-    Object.keys(updateData).forEach((k) => updateData[k] === undefined && delete updateData[k]);
+    Object.keys(updateData).forEach(
+      (k) => updateData[k] === undefined && delete updateData[k]
+    );
 
     if (descCreate.length > 0) {
       // update with nested writes: delete existing descriptions and create new ones
-      return PrismaTimesheet.overtime.update({
+      return (PrismaTimesheet as any).overtime.update({
         where: { id },
         data: {
           ...updateData,
@@ -163,7 +177,7 @@ export const Service = {
       });
     }
 
-    return PrismaTimesheet.overtime.update({
+    return (PrismaTimesheet as any).overtime.update({
       where: { id },
       data: updateData,
       include: { descriptions: true },
@@ -171,15 +185,23 @@ export const Service = {
   },
 
   async delete(id: number, opts: { deletedBy?: number } = {}) {
-    return PrismaTimesheet.overtime.update({
+    return (PrismaTimesheet as any).overtime.update({
       where: { id },
       data: { isDeleted: true, updatedBy: opts.deletedBy ?? 0 },
     });
   },
 
   // helper: add a description item to existing overtime
-  async addDescription(overtimeId: number, desc: { date?: Date | string; duration: number | string; description?: string; assignee?: string | number }) {
-    return PrismaTimesheet.overtimeDescription.create({
+  async addDescription(
+    overtimeId: number,
+    desc: {
+      date?: Date | string;
+      duration: number | string;
+      description?: string;
+      assignee?: string | number;
+    }
+  ) {
+    return (PrismaTimesheet as any).overtimeDescription.create({
       data: {
         overtimeId,
         date: desc.date ? new Date(desc.date) : new Date(),
