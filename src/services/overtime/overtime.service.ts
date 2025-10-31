@@ -256,8 +256,6 @@ async function ensureOvertimeExists(id: number): Promise<void> {
   if (!exists) {
     throw {
       status: 404,
-      message: "Overtime not found",
-      message_th: "ไม่พบรายการโอที",
       error: {
         name: "PrismaClientKnownRequestError",
         code: "P2025",
