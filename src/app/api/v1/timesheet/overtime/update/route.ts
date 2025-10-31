@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import Service, {
   UpdateOvertimeInput,
@@ -6,6 +6,7 @@ import Service, {
 import { logger } from "@helpers/logger";
 import { z } from "zod";
 import { validateRequest } from "@/helpers/api/validate.request";
+import { handleError } from "@helpers/controller/handle-error.params";
 
 const DescriptionSchema = z.object({
   date: z.preprocess(
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
   const url = new URL(request.url);
   const idParam = url.searchParams.get("id");
   if (!idParam) {
-    return Response.json(
+    return NextResponse.json(
       errorResponse({ message_en: "Missing id parameter", status: 400 }),
       { status: 400 }
     );
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
 
   const id = Number(idParam);
   if (Number.isNaN(id) || id <= 0) {
-    return Response.json(
+    return NextResponse.json(
       errorResponse({ message_en: "Invalid id", status: 400 }),
       { status: 400 }
     );
@@ -89,19 +90,11 @@ export async function POST(request: NextRequest) {
 
     const updated = await Service.update(id, payload);
 
-    return Response.json(
-      successResponse({ data: updated, status: 200, message_en: "Updated" })
+    return NextResponse.json(
+      successResponse({ data: updated, status: 200, message_en: "Updated" }),
+      { status: 200 }
     );
   } catch (err: any) {
-    logger.error("POST /api/v1/timesheet/overtime/update error", err);
-    const status = err?.response?.status || err?.status || 500;
-    return Response.json(
-      errorResponse({
-        message_en: err?.message || "Internal Server Error",
-        status,
-        error: err?.response?.data || err,
-      }),
-      { status }
-    );
+    return handleError(err, "POST /api/v1/timesheet/overtime/update error");
   }
 }
