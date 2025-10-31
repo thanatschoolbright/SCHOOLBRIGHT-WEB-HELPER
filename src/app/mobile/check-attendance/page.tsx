@@ -358,7 +358,11 @@ export default function Page() {
             <Row gutter={16}>
               {/* Select : ประเภท URL Dev/Prod */}
               <Col span={12}>
-                <Form.Item label="ประเภท URL" name="url_type" initialValue="PROD">
+                <Form.Item
+                  label="ประเภท URL"
+                  name="url_type"
+                  initialValue="PROD"
+                >
                   <Select
                     allowClear
                     showSearch

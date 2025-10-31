@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios"
+import axios from "axios";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { API_URL } from "@/services/api-url";
 import { sanitizeForwardHeaders } from "@services/api-header";
+
+export type HeartbeatResponse = {
+  ID: number;
+  Description: string;
+  JobName: string;
+  Interval: number;
+  IsAlwaysRunning: boolean;
+  Status: string;
+  Remarks: string;
+  LastUpdatedTime: string; // ISO timestamp
+};
 
 export async function GET(request: NextRequest) {
   const apiUrl = API_URL.PROD_HARDWARE_API_URL;
