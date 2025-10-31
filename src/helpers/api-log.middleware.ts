@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ApiLogService } from "@/services/backend/api-log/api-log.service";
 import { ApiLogUtils } from "@/helpers/api-log.utils";
+import { logger } from '@/helpers/logger';
 
 /**
  * Middleware Helper สำหรับ Auto Logging API Requests
@@ -66,7 +67,7 @@ export class ApiLogMiddleware {
               }
             }
           } catch (error) {
-            console.warn("Failed to extract response body for logging:", error);
+            logger.warn("Failed to extract response body for logging:", error);
           }
         }
 
@@ -79,7 +80,7 @@ export class ApiLogMiddleware {
 
         //** การทำงาน: บันทึก log แบบ async (ไม่บล็อค response) */
         ApiLogService.createApiLog(finalLogData).catch((error) => {
-          console.error("Failed to create API log:", error);
+          logger.error("Failed to create API log:", error);
         });
 
         return response;
@@ -98,7 +99,7 @@ export class ApiLogMiddleware {
 
           // บันทึก error log
           ApiLogService.createApiLog(errorLogData).catch((logError) => {
-            console.error("Failed to create error log:", logError);
+            logger.error("Failed to create error log:", logError);
           });
         }
 
@@ -146,7 +147,7 @@ export class ApiLogMiddleware {
           }
         }
       } catch (error) {
-        console.warn("Failed to extract response body for logging:", error);
+          logger.warn("Failed to extract response body for logging:", error);
       }
 
       //** การทำงาน: อัปเดต log data ด้วยข้อมูล response */
@@ -161,7 +162,7 @@ export class ApiLogMiddleware {
       await ApiLogService.createApiLog(finalLogData);
 
     } catch (error) {
-      console.error("Failed to log API call:", error);
+        logger.error("Failed to log API call:", error);
     }
   }
 
@@ -199,7 +200,7 @@ export class ApiLogMiddleware {
       await ApiLogService.createApiLog(errorLogData);
 
     } catch (logError) {
-      console.error("Failed to log error:", logError);
+        logger.error("Failed to log error:", logError);
     }
   }
 
@@ -245,7 +246,7 @@ export class ApiLogMiddleware {
       await ApiLogService.createApiLog(logData);
 
     } catch (error) {
-      console.error("Failed to create custom log:", error);
+        logger.error("Failed to create custom log:", error);
     }
   }
 }

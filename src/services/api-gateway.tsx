@@ -3,6 +3,7 @@ import {callApiService as axios} from "@services/axios-instance/sb-helper.axios"
 import { APIMethodProps, API_METHOD } from "@services/api-method";
 import { store } from "@stores/store"; // assuming you have access to the redux store
 import { CallAPI } from "@/stores/actions/authentication/call-post-refresh-token";
+import { logger, createLogger } from '@/helpers/logger';
 
 export interface CallBackendAPIProps {
   method: APIMethodProps;
@@ -29,7 +30,7 @@ const refreshToken = async () => {
     }
     return null;
   } catch (error) {
-    console.error("❌ [API-GATEWAY] Error while refreshing token:", error);
+    logger.error("❌ [API-GATEWAY] Error while refreshing token:", error);
     return null;
   }
 };
@@ -48,10 +49,8 @@ export const callBackendAPI = async ({
     extendHeader,
     backendUrl,
   };
-  console.log(
-    "🌐 [API-GATEWAY] Sending request:",
-    JSON.stringify(defaultRequest, null, 2)
-  );
+  const lg = createLogger({ module: 'api-gateway' });
+  lg.info("🌐 [API-GATEWAY] Sending request:", JSON.stringify(defaultRequest, null, 2));
   const url = `${backendUrl}${
     endpoint.startsWith("/") ? endpoint : `/${endpoint}`
   }`;
@@ -98,10 +97,7 @@ export const callBackendAPI = async ({
         "Content-Type": "application/json",
       };
 
-      console.log(
-        "🔁 [API-GATEWAY] Retrying request with new token headers:",
-        retryHeaders
-      );
+      lg.info("🔁 [API-GATEWAY] Retrying request with new token headers:", JSON.stringify(retryHeaders));
 
       // 🔁 ลองเรียก API ใหม่อีกรอบ
       const retryConfig = { headers: retryHeaders };
@@ -120,15 +116,12 @@ export const callBackendAPI = async ({
           retryResponse = await axios.delete(url, retryConfig);
           break;
       }
-      console.log(
-        "✅ [API-GATEWAY] Retry success. Response data:",
-        retryResponse?.data
-      );
+      lg.info("✅ [API-GATEWAY] Retry success. Response data:", JSON.stringify(retryResponse?.data));
       return retryResponse?.data;
     }
 
     throw new Error(error.message);
   } finally {
-    console.log("📦 [API-GATEWAY] API call completed.");
+    lg.info("📦 [API-GATEWAY] API call completed.");
   }
 };

@@ -20,6 +20,8 @@ interface UpdateTimesheetEntryInput {
   updatedBy?: number;
 }
 
+import { logger } from '@/helpers/logger';
+
 export const Service = {
   async validatorID(id: number) {
     const find = await PrismaTimesheet.timesheetEntry.findUnique({
@@ -214,7 +216,7 @@ export const Service = {
 
   // * อัปเดต ตาม ID
   async update(id: number, data: UpdateTimesheetEntryInput) {
-    console.log("UPDATE ENTRY TIMESHEET");
+  logger.info("UPDATE ENTRY TIMESHEET");
     if (!id || id <= 0) {
       throw new Error("Invalid id for update");
     }
@@ -232,7 +234,7 @@ export const Service = {
       },
     });
 
-    console.info("[UPDATE TIMESHEET ENTRY]", response);
+  logger.info("[UPDATE TIMESHEET ENTRY]", response);
 
     return response;
   },

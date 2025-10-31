@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { logger } from '@/helpers/logger';
 
 // API Base URLs
 const API_BASE_URL = '/api/v1/hardware/canteen';
@@ -48,7 +49,7 @@ export const canteenAPI = {
             const response = await axios.get(`${API_BASE_URL}/application`);
             return response.data;
         } catch (error) {
-            console.error('Error fetching applications:', error);
+            logger.error('Error fetching applications:', error);
             throw error;
         }
     },
@@ -59,7 +60,7 @@ export const canteenAPI = {
             const response = await axios.get(`${API_BASE_URL}/version/${appId}`);
             return response.data;
         } catch (error) {
-            console.error('Error fetching versions:', error);
+            logger.error('Error fetching versions:', error);
             throw error;
         }
     },
@@ -91,7 +92,7 @@ export const canteenAPI = {
 
             return response.data;
         } catch (error) {
-            console.error('Error creating version:', error);
+            logger.error('Error creating version:', error);
             throw error;
         }
     },
@@ -124,7 +125,7 @@ export const canteenAPI = {
 
             return response.data;
         } catch (error) {
-            console.error('Error updating version:', error);
+            logger.error('Error updating version:', error);
             throw error;
         }
     },
@@ -135,7 +136,7 @@ export const canteenAPI = {
             const response = await axios.delete(`${API_BASE_URL}/version/${versionId}`);
             return response.data;
         } catch (error) {
-            console.error('Error deleting version:', error);
+            logger.error('Error deleting version:', error);
             throw error;
         }
     }

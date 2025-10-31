@@ -4,6 +4,7 @@
  */
 
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
+import { logger, createLogger } from '@/helpers/logger';
 
 export interface UserRankResponse {
   rank: number;              // อันดับ (order จาก API)
@@ -32,7 +33,7 @@ export const fetchUserRank = async (
     const requestMonth = month || (currentDate.getMonth() + 1).toString();
     const requestYear = year || currentDate.getFullYear().toString();
 
-    console.log(`📊 [UserRankService] Fetching rank for user: ${userId}, Month: ${requestMonth}, Year: ${requestYear}`);
+  logger.info(`📊 [UserRankService] Fetching rank for user: ${userId}, Month: ${requestMonth}, Year: ${requestYear}`);
 
     const response = await callApiService.post('/api/v1/timesheet/entry/check/summary-month', {
       month: requestMonth,
@@ -52,9 +53,9 @@ export const fetchUserRank = async (
         item.admin_id?.toString() === userId.toString()
       );
       
-      console.log(`🔍 [UserRankService] Looking for admin_id: ${userId}`);
-      console.log(`📊 [UserRankService] Found ${records.length} records in API response`);
-      console.log(`🎯 [UserRankService] User rank data:`, userRankData);
+  logger.info(`🔍 [UserRankService] Looking for admin_id: ${userId}`);
+  logger.info(`📊 [UserRankService] Found ${records.length} records in API response`);
+  logger.debug(`🎯 [UserRankService] User rank data: ${JSON.stringify(userRankData)}`);
 
       if (userRankData) {
         const result: UserRankResponse = {
@@ -71,19 +72,19 @@ export const fetchUserRank = async (
           rawData: userRankData
         };
 
-        console.log(`✅ [UserRankService] User rank found:`, result);
+        logger.info(`✅ [UserRankService] User rank found: ${JSON.stringify(result)}`);
         return result;
       } else {
-        console.warn(`⚠️ [UserRankService] No rank data found for admin_id: ${userId}`);
-        console.log(`📋 [UserRankService] Available admin_ids:`, records.map((r: any) => r.admin_id));
+        logger.warn(`⚠️ [UserRankService] No rank data found for admin_id: ${userId}`);
+        logger.info(`📋 [UserRankService] Available admin_ids: ${JSON.stringify(records.map((r: any) => r.admin_id))}`);
       }
     } else {
-      console.error(`❌ [UserRankService] API responded with status: ${response.status}`);
+      logger.error(`❌ [UserRankService] API responded with status: ${response.status}`);
     }
 
     return null;
   } catch (error) {
-    console.error("❌ [UserRankService] Error fetching user rank:", error);
+    logger.error("❌ [UserRankService] Error fetching user rank:", error);
     return null;
   }
 };
@@ -98,7 +99,7 @@ export const fetchMultipleUserRanks = async (
 ): Promise<Record<string, UserRankResponse | null>> => {
   const results: Record<string, UserRankResponse | null> = {};
   
-  console.log(`📊 [UserRankService] Fetching ranks for ${userIds.length} users`);
+  logger.info(`📊 [UserRankService] Fetching ranks for ${userIds.length} users`);
 
   // เรียก API แบบ parallel
   const promises = userIds.map(async (userId) => {
@@ -113,12 +114,12 @@ export const fetchMultipleUserRanks = async (
     if (response.status === 'fulfilled') {
       results[userId] = response.value.rankData;
     } else {
-      console.error(`❌ [UserRankService] Failed to fetch rank for user ${userId}:`, response.reason);
+      logger.error(`❌ [UserRankService] Failed to fetch rank for user ${userId}: ${response.reason}`);
       results[userId] = null;
     }
   });
 
-  console.log(`✅ [UserRankService] Retrieved ranks for ${Object.keys(results).length} users`);
+  logger.info(`✅ [UserRankService] Retrieved ranks for ${Object.keys(results).length} users`);
   return results;
 };
 
@@ -135,7 +136,7 @@ export const isUserInTopRank = async (
     const rankData = await fetchUserRank(userId, month, year);
     return rankData ? rankData.rank <= topN : false;
   } catch (error) {
-    console.error(`❌ [UserRankService] Error checking top rank for user ${userId}:`, error);
+    logger.error(`❌ [UserRankService] Error checking top rank for user ${userId}:`, error);
     return false;
   }
 };

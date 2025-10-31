@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {getUserByLocalStorage} from "@helpers/local_storage/user.storage";
+import { logger } from '@/helpers/logger';
 
 /* ============================================================
    🎨 Color Setup สำหรับ Console
@@ -37,7 +38,7 @@ function getCalledByFromHeader(): string {
     try {
         // ตรวจสอบว่าเป็น client side หรือไม่
         if (typeof window === 'undefined') {
-            console.log(`⚠️ [Axios] Server side - returning "axios-server"`);
+            logger.info(`⚠️ [Axios] Server side - returning "axios-server"`);
             return "axios-server";
         }
 
@@ -46,14 +47,14 @@ function getCalledByFromHeader(): string {
         const id = extractedUser?.user_data?.admin_id;
 
         if (id) {
-            console.log(`✅ [Axios] Using user ID: "${id}"`);
+            logger.info(`✅ [Axios] Using user ID: "${id}"`);
             return String(id);
         } else {
-            console.log(`⚠️ [Axios] No user ID found, returning "axios-unknown"`);
+            logger.warn(`⚠️ [Axios] No user ID found, returning "axios-unknown"`);
             return "axios-unknown";
         }
     } catch (error) {
-        console.log(`❌ [Axios] Error getting user ID: ${error}, returning "axios-error"`);
+        logger.error(`❌ [Axios] Error getting user ID: ${error}, returning "axios-error"`);
         return "axios-error";
     }
 }
@@ -92,22 +93,22 @@ function logRequest({
     const statusColor = getColorByStatus(status);
     const {boldRed, reset} = COLORS;
 
-    console.log("\n" + "═".repeat(100));
-    console.log(`${boldRed}📡  API Request Log (Axios)${reset}`);
-    console.log(`${boldRed}URL${reset}: ${config.url}`);
-    console.log(`${boldRed}Method${reset}: ${config.method?.toUpperCase()}`);
-    console.log(`${boldRed}Status${reset}: ${statusColor}${status}${reset}`);
-    console.log(`${boldRed}Response Time${reset}: ${duration}ms`);
-    console.log(`${boldRed}Headers${reset}: ${pretty(config.headers)}`);
-    console.log(`${boldRed}Body${reset}: ${pretty(config.data)}`);
-    console.log(`${boldRed}Response${reset}: ${pretty(responseData)}`);
-    console.log(`${boldRed}Called By${reset}: ${calledBy}`);
+    logger.info("\n" + "═".repeat(100));
+    logger.info(`${boldRed}📡  API Request Log (Axios)${reset}`);
+    logger.info(`${boldRed}URL${reset}: ${config.url}`);
+    logger.info(`${boldRed}Method${reset}: ${config.method?.toUpperCase()}`);
+    logger.info(`${boldRed}Status${reset}: ${statusColor}${status}${reset}`);
+    logger.info(`${boldRed}Response Time${reset}: ${duration}ms`);
+    logger.info(`${boldRed}Headers${reset}: ${pretty(config.headers)}`);
+    logger.info(`${boldRed}Body${reset}: ${pretty(config.data)}`);
+    logger.info(`${boldRed}Response${reset}: ${pretty(responseData)}`);
+    logger.info(`${boldRed}Called By${reset}: ${calledBy}`);
 
     if (error) {
-        console.log(`${boldRed}Error${reset}: ${pretty(error.message)}`);
+        logger.error(`${boldRed}Error${reset}: ${pretty(error.message)}`);
     }
 
-    console.log("═".repeat(100));
+    logger.info("═".repeat(100));
 }
 
 async function saveApiLog(config: any, response: any, duration: number, calledBy: string, error?: any) {
@@ -127,21 +128,21 @@ async function saveApiLog(config: any, response: any, duration: number, calledBy
             pathname = url.pathname;
         }
 
-        console.log(`🔍 [Axios] Processing URL: ${url.href}, pathname: ${pathname}`);
+    logger.info(`🔍 [Axios] Processing URL: ${url.href}, pathname: ${pathname}`);
 
         // Skip เฉพาะ logger API เพื่อป้องกัน infinite loop
         if (pathname.startsWith('/api/v1/logger/')) {
-            console.log(`🔍 [Axios] Logger API detected, calledBy: "${calledBy}" - Skip database logging`);
+            logger.info(`🔍 [Axios] Logger API detected, calledBy: "${calledBy}" - Skip database logging`);
             return;
         }
 
-        console.log(`🚀 [Axios] Starting saveApiLog for: ${url.href}, calledBy: ${calledBy}`);
+        logger.info(`🚀 [Axios] Starting saveApiLog for: ${url.href}, calledBy: ${calledBy}`);
 
         // Dynamic import เพื่อหลีกเลี่ยง circular dependency
         const {ApiLogUtils} = await import("@/helpers/api-log.utils");
         const {ApiLogService} = await import("@/services/backend/api-log/api-log.service");
 
-        console.log(`✅ [Axios] Dynamic imports successful`);
+    logger.info(`✅ [Axios] Dynamic imports successful`);
 
         // สร้าง mock NextRequest object ที่สมบูรณ์
         const headers = new Headers();
@@ -167,18 +168,14 @@ async function saveApiLog(config: any, response: any, duration: number, calledBy
             })
         } as any;
 
-        console.log(`✅ [Axios] Mock request created for: ${mockRequest.method} ${pathname}`);
+    logger.info(`✅ [Axios] Mock request created for: ${mockRequest.method} ${pathname}`);
 
         const logData = await ApiLogUtils.createLogData(mockRequest, {
             serviceName: extractServiceName(url.href),
             calledBy: calledBy,
         });
 
-        console.log(`✅ [Axios] Log data created:`, {
-            endpoint: logData.endpoint,
-            serviceName: logData.serviceName,
-            calledBy: logData.calledBy
-        });
+        logger.info(`✅ [Axios] Log data created: ${JSON.stringify({ endpoint: logData.endpoint, serviceName: logData.serviceName, calledBy: logData.calledBy })}`);
 
         const finalLogData = ApiLogUtils.updateLogDataWithResponse(
             logData,
@@ -187,14 +184,10 @@ async function saveApiLog(config: any, response: any, duration: number, calledBy
             error?.message
         );
 
-        console.log(`✅ [Axios] Final log data prepared:`, {
-            statusCode: finalLogData.statusCode,
-            isSuccess: finalLogData.isSuccess,
-            durationMs: finalLogData.durationMs
-        });
+        logger.info(`✅ [Axios] Final log data prepared: ${JSON.stringify({ statusCode: finalLogData.statusCode, isSuccess: finalLogData.isSuccess, durationMs: finalLogData.durationMs })}`);
 
         // บันทึกลงฐานข้อมูลผ่าน API endpoint (เพื่อหลีกเลี่ยง Prisma browser issue)
-        console.log(`🔄 [Axios] Saving to database via API...`);
+    logger.info(`🔄 [Axios] Saving to database via API...`);
 
         // ใช้ fetch แทน axios เพื่อหลีกเลี่ยง circular call
         fetch('/api/v1/logger/create', {
@@ -206,19 +199,19 @@ async function saveApiLog(config: any, response: any, duration: number, calledBy
         })
             .then(async (response) => {
                 if (response.ok) {
-                    console.log(`✅ [Axios] API Log saved successfully for: ${config.url}`);
+                    logger.info(`✅ [Axios] API Log saved successfully for: ${config.url}`);
                 } else {
                     const errorData = await response.text();
-                    console.error("❌ API Log creation failed - HTTP error:", response.status, errorData);
+                    logger.error("❌ API Log creation failed - HTTP error:", response.status, errorData);
                 }
             })
             .catch((logError) => {
-                console.error("❌ API Log creation failed in axios:", logError);
+                logger.error("❌ API Log creation failed in axios:", logError);
             });
 
     } catch (logError) {
-        console.error("❌ Error in saveApiLog:", logError);
-        console.error("❌ Stack trace:", logError instanceof Error ? logError.stack : 'No stack trace');
+        logger.error("❌ Error in saveApiLog:", logError);
+        logger.error("❌ Stack trace:", logError instanceof Error ? logError.stack : 'No stack trace');
     }
 }
 
@@ -246,14 +239,14 @@ callApiService.interceptors.request.use(
             // ตรวจสอบว่า userId มีค่าและไม่ใช่ null/undefined
             if (userId && userId !== null && userId !== undefined) {
                 config.headers["x-request-user"] = String(userId);
-                console.log("🔍 [Axios Interceptor] Adding header x-request-user:", config.headers["x-request-user"]);
+                    logger.info("🔍 [Axios Interceptor] Adding header x-request-user:", config.headers["x-request-user"]);
             } else {
                 // ไม่เพิ่ม header ถ้าไม่มี userId
-                console.log("⚠️ [Axios Interceptor] No valid userId found, skipping x-request-user header");
+                    logger.warn("⚠️ [Axios Interceptor] No valid userId found, skipping x-request-user header");
                 delete config.headers["x-request-user"];
             }
         } catch (error) {
-            console.error("❌ [Axios Interceptor] Error getting user from localStorage:", error);
+                logger.error("❌ [Axios Interceptor] Error getting user from localStorage:", error);
             delete config.headers["x-request-user"];
 
             (config as any).metadata = {
