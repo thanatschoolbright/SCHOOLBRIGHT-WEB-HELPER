@@ -184,6 +184,27 @@ exports.Prisma.ApiLogScalarFieldEnum = {
   is_archived: 'is_archived'
 };
 
+exports.Prisma.OvertimeScalarFieldEnum = {
+  id: 'id',
+  requesterId: 'requesterId',
+  requestDate: 'requestDate',
+  status: 'status',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  isDeleted: 'isDeleted'
+};
+
+exports.Prisma.OvertimeDescriptionScalarFieldEnum = {
+  id: 'id',
+  overtimeId: 'overtimeId',
+  date: 'date',
+  duration: 'duration',
+  description: 'description',
+  assignee: 'assignee'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -215,7 +236,9 @@ exports.Prisma.ModelName = {
   Project: 'Project',
   Feature: 'Feature',
   TimesheetEntry: 'TimesheetEntry',
-  ApiLog: 'ApiLog'
+  ApiLog: 'ApiLog',
+  Overtime: 'Overtime',
+  OvertimeDescription: 'OvertimeDescription'
 };
 
 /**

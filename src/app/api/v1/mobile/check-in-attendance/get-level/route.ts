@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
     const payload: RequestGetLevel = data;
     const target = `${API_URL.PROD_SB_API_URL}/api/sublevel/getLevel/${payload.school_id}`;
     const response = await apiClient.get(target);
-    console.log("API Response:", response.data);
 
     const rawData = extractData(response);
     const mappedData = rawData.map(mapToDto);

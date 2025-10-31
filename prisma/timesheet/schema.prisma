@@ -10,35 +10,35 @@ datasource timesheet {
 }
 
 model Project {
-  id          Int              @id @default(autoincrement()) @map("id")
-  categoryType  String?        @map("category_type")
-  name        String           @map("name")
-  createdAt   DateTime         @default(now()) @map("created_at")
-  createdBy   Int?             @map("created_by")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
-  updatedBy   Int?             @map("updated_by")
-  description String
-  is_deleted  Boolean          @default(false)
-  features    Feature[]
-  timesheets  TimesheetEntry[]
+  id           Int              @id @default(autoincrement()) @map("id")
+  categoryType String?          @map("category_type")
+  name         String           @map("name")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  createdBy    Int?             @map("created_by")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+  updatedBy    Int?             @map("updated_by")
+  description  String
+  is_deleted   Boolean          @default(false)
+  features     Feature[]
+  timesheets   TimesheetEntry[]
 
   @@map("project")
 }
 
 model Feature {
-  id         Int              @id @default(autoincrement()) @map("id")
-  projectId  Int              @map("project_id")
-  name       String           @map("name")
-  backlogDescription Json?  @map("backlog_description")
-  createdAt  DateTime         @default(now()) @map("created_at")
-  createdBy  Int?             @map("created_by")
-  updatedAt  DateTime         @updatedAt @map("updated_at")
-  updatedBy  Int?             @map("updated_by")
-  is_deleted Boolean          @default(false)
-  startDate  DateTime?        @map("start_date")
-  endDate    DateTime?        @map("end_date")
-  project    Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  timesheets TimesheetEntry[]
+  id                 Int              @id @default(autoincrement()) @map("id")
+  projectId          Int              @map("project_id")
+  name               String           @map("name")
+  backlogDescription Json?            @map("backlog_description")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  createdBy          Int?             @map("created_by")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  updatedBy          Int?             @map("updated_by")
+  is_deleted         Boolean          @default(false)
+  startDate          DateTime?        @map("start_date")
+  endDate            DateTime?        @map("end_date")
+  project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  timesheets         TimesheetEntry[]
 
   @@map("feature")
 }
@@ -65,26 +65,26 @@ model TimesheetEntry {
 /// API Log Table
 /// ใช้สำหรับบันทึกข้อมูลการเรียกใช้งาน API พร้อมข้อมูลวิเคราะห์ประสิทธิภาพ
 model ApiLog {
-  id             BigInt   @id @default(autoincrement()) @map("id")                     // รหัส Log (Primary Key)
-  request_time   DateTime @map("request_time")                                         // เวลาที่เรียก API
-  response_time  DateTime? @map("response_time")                                       // เวลาที่ตอบกลับ
-  duration_ms    Int?     @map("duration_ms")                                          // เวลาประมวลผล (ms)
-  method         String?  @map("method")                                               // HTTP Method เช่น GET, POST, PUT, DELETE
-  status_code    Int?     @map("status_code")                                          // HTTP Status เช่น 200, 400, 500
-  url            String?  @map("url")                                                  // URL เต็ม
-  endpoint       String?  @map("endpoint")                                             // Endpoint ที่ตัดพารามิเตอร์ออก เช่น /api/timesheet/submit
-  service_name   String?  @map("service_name")                                         // ชื่อ service เช่น timesheet, user, auth
-  request_header Json?    @map("request_header")                                       // Header ที่รับเข้า
-  request_body   Json?    @map("request_body")                                         // Body ของคำร้อง
-  response_body  Json?    @map("response_body")                                        // Response ที่ส่งออก
-  ip_address     String?  @map("ip_address")                                           // IP ของผู้เรียก
-  user_agent     String?  @map("user_agent")                                           // User Agent ของ client
-  called_by      String?  @map("called_by")                                            // ระบบ / ผู้ใช้ / Token ID ที่เรียก
-  trace_id       String?  @map("trace_id")                                             // รหัส trace สำหรับ distributed tracing
-  error_message  String?  @map("error_message")                                        // ข้อความ Error (ถ้ามี)
-  is_success     Boolean  @default(true) @map("is_success")                            // สำเร็จหรือไม่
-  created_at     DateTime @default(now()) @map("created_at")                           // วันที่สร้าง log
-  is_archived    Boolean  @default(false) @map("is_archived")                          // ใช้แยก log ที่ถูกย้ายไป archive
+  id             BigInt    @id @default(autoincrement()) @map("id") // รหัส Log (Primary Key)
+  request_time   DateTime  @map("request_time") // เวลาที่เรียก API
+  response_time  DateTime? @map("response_time") // เวลาที่ตอบกลับ
+  duration_ms    Int?      @map("duration_ms") // เวลาประมวลผล (ms)
+  method         String?   @map("method") // HTTP Method เช่น GET, POST, PUT, DELETE
+  status_code    Int?      @map("status_code") // HTTP Status เช่น 200, 400, 500
+  url            String?   @map("url") // URL เต็ม
+  endpoint       String?   @map("endpoint") // Endpoint ที่ตัดพารามิเตอร์ออก เช่น /api/timesheet/submit
+  service_name   String?   @map("service_name") // ชื่อ service เช่น timesheet, user, auth
+  request_header Json?     @map("request_header") // Header ที่รับเข้า
+  request_body   Json?     @map("request_body") // Body ของคำร้อง
+  response_body  Json?     @map("response_body") // Response ที่ส่งออก
+  ip_address     String?   @map("ip_address") // IP ของผู้เรียก
+  user_agent     String?   @map("user_agent") // User Agent ของ client
+  called_by      String?   @map("called_by") // ระบบ / ผู้ใช้ / Token ID ที่เรียก
+  trace_id       String?   @map("trace_id") // รหัส trace สำหรับ distributed tracing
+  error_message  String?   @map("error_message") // ข้อความ Error (ถ้ามี)
+  is_success     Boolean   @default(true) @map("is_success") // สำเร็จหรือไม่
+  created_at     DateTime  @default(now()) @map("created_at") // วันที่สร้าง log
+  is_archived    Boolean   @default(false) @map("is_archived") // ใช้แยก log ที่ถูกย้ายไป archive
 
   @@index([endpoint])
   @@index([service_name])
@@ -92,6 +92,34 @@ model ApiLog {
   @@index([request_time])
   @@index([trace_id])
   @@index([called_by])
-
   @@map("api_log")
+}
+
+model Overtime {
+  id           Int                   @id @default(autoincrement()) @map("id")
+  requesterId  String                @map("requester_id")
+  requestDate  DateTime              @map("request_date")
+  descriptions OvertimeDescription[] @relation("OvertimeDescriptions")
+  status       String                @map("status")
+  createdBy    String                @map("created_by")
+  updatedBy    String?               @map("updated_by")
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @updatedAt @map("updated_at")
+  isDeleted    Boolean               @default(false) @map("is_deleted")
+
+  @@map("timesheet_overtime_requests")
+}
+
+model OvertimeDescription {
+  id          Int      @id @default(autoincrement()) @map("id")
+  overtimeId  Int      @map("overtime_id")
+  date        DateTime @map("date")
+  duration    Decimal  @map("duration")
+  description String   @map("description")
+  assignee    String   @map("assignee")
+
+  // relation
+  overtime Overtime @relation("OvertimeDescriptions", fields: [overtimeId], references: [id], onDelete: Cascade)
+
+  @@map("timesheet_overtime_descriptions")
 }

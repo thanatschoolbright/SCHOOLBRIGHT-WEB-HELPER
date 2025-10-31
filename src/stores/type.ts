@@ -610,3 +610,8 @@ export type RefreshTokenResult = {
   header_key: string;
   token: string;
 };
+
+export type SelectOption = {
+  label: string;
+  value: string;
+};

@@ -226,6 +226,12 @@ export const useSidebarMenu = (): SidebarItem[] => {
             news: false,
             icon: <UnorderedListOutlined />,
           },
+          {
+            label: t("timesheet_system.children.overtime"),
+            href: "/timesheet/overtime",
+            news: true,
+            icon: <UnorderedListOutlined />,
+          },
         ],
       },
       {
