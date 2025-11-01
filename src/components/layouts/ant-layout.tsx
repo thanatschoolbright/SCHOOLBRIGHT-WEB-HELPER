@@ -314,7 +314,9 @@ const createThemeConfig = (
     },
     Pagination: {
       itemBg: palette.backgroundElevated,
-      itemActiveBg: palette.primary,
+      itemColor: palette.textPrimary,
+      itemActiveColor: "#ffffff",
+      itemHoverBg: palette.backgroundSubtle,
       itemLinkBg: palette.backgroundElevated,
       itemInputBg: palette.backgroundElevated,
       borderRadius: 8,

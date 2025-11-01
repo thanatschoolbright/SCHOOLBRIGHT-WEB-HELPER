@@ -150,10 +150,19 @@ export default function OTPreviewPage() {
 
   const totalHours = useMemo(() => {
     if (!data?.descriptions) return 0;
-    return data.descriptions.reduce(
-      (sum, item) => sum + (item?.duration || 0),
-      0
-    );
+
+    const sum = data.descriptions.reduce((acc, item) => {
+      // Ensure duration is treated as a number. This avoids string concatenation
+      // when durations are stored as strings like "02.5" and removes leading zeros.
+      const raw = item?.duration ?? 0;
+      const parsed = Number(String(raw));
+      if (Number.isNaN(parsed)) return acc;
+      return acc + parsed;
+    }, 0);
+
+    // Normalize to 1 decimal place when needed (e.g. 2.5 stays 2.5, 8.0 becomes 8)
+    const normalized = Math.round(sum * 10) / 10;
+    return Number.isInteger(normalized) ? normalized : normalized;
   }, [data]);
 
   const authUser = authentication?.response?.data?.user_data;
@@ -165,7 +174,7 @@ export default function OTPreviewPage() {
       : data?.requester_id ?? "-";
   const employeeCode = authUser?.employee_code ?? data?.created_by ?? "-";
   const position = authUser?.position ?? getPositionFromLocalStorage() ?? "-";
-  const department = data?.department ?? "-";
+  const department = data?.department ?? "IT";
   const headerDate = data?.request_date ?? data?.created_at ?? null;
 
   useEffect(() => {
@@ -432,7 +441,7 @@ export default function OTPreviewPage() {
                   }}
                 >
                   <div>
-                    <strong>รวมชั่วโมง:</strong> {totalHours}
+                    <strong>รวมชั่วโมง:</strong> {totalHours} ชั่วโมง
                   </div>
                   <div>
                     <strong>เหตุผล:</strong> {data.reason ?? "-"}
