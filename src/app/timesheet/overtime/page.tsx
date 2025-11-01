@@ -38,7 +38,7 @@ import {
 import dayjs from "dayjs";
 import { toast } from "sonner";
 import { useAppSelector } from "@/stores/store";
-import { getUserData } from "@helpers/local_storage/user.storage";
+import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -106,9 +106,13 @@ const ActionDropdown = ({
   onDelete: (id: string | number) => Promise<void>;
   onSendEmail: (id: string | number) => Promise<void>;
   fetchDetails: (id: string | number) => Promise<any[]>;
-  onApprove: (id: string | number) => Promise<void>;
+  onApprove: (id: string | number, status: string) => Promise<void>;
 }) => {
   const authentication = useAppSelector((state) => state.callAdminLogin);
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>(
+    (record.status as string) || "pending"
+  );
   const handleView = async () => {
     try {
       const items = await fetchDetails(record.id);
@@ -140,17 +144,13 @@ const ActionDropdown = ({
     }
   };
 
-  const handleApprove = async () => {
-    try {
-      const currentUserId = await getCurrentUserId(authentication);
-      if (currentUserId !== BYPASS_ADMIN_ID)
-        return toast.error("คุณไม่มีสิทธิ์อนุมัติ");
-      await onApprove(record.id);
-      toast.success("อนุมัติเรียบร้อยแล้ว");
-    } catch (error) {
-      console.error("Error approving overtime:", error);
-      toast.error("ไม่สามารถอนุมัติได้");
-    }
+  const handleOTChangeStatus = async () => {
+    // open status picker modal
+    const currentUserId = await getCurrentUserId(authentication);
+    if (currentUserId !== BYPASS_ADMIN_ID)
+      return toast.error("คุณไม่มีสิทธิ์ปรับสถานะ");
+    setSelectedStatus((record.status as string) || "pending");
+    setStatusModalVisible(true);
   };
 
   const menuItems: MenuProps["items"] = [
@@ -167,10 +167,10 @@ const ActionDropdown = ({
       onClick: handlePreview,
     },
     {
-      key: "approve",
-      label: "อนุมัติมาที",
+      key: "change_status",
+      label: "ปรับสถานะใบโอที",
       icon: <CheckOutlined style={{ fontSize: 14 }} />,
-      onClick: handleApprove,
+      onClick: handleOTChangeStatus,
     },
     {
       key: "email",
@@ -203,26 +203,58 @@ const ActionDropdown = ({
   ];
 
   return (
-    <Dropdown
-      menu={{ items: menuItems }}
-      trigger={["click"]}
-      placement="bottomRight"
-      overlayStyle={{ minWidth: 180 }}
-    >
-      <Button
-        type="text"
-        icon={<MoreOutlined />}
-        size="middle"
-        style={{
-          width: 32,
-          height: 32,
-          padding: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+    <>
+      <Dropdown
+        menu={{ items: menuItems }}
+        trigger={["click"]}
+        placement="bottomRight"
+        overlayStyle={{ minWidth: 180 }}
+      >
+        <Button
+          type="text"
+          icon={<MoreOutlined />}
+          size="middle"
+          style={{
+            width: 32,
+            height: 32,
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        />
+      </Dropdown>
+
+      <Modal
+        title="ปรับสถานะใบโอที"
+        open={statusModalVisible}
+        onCancel={() => setStatusModalVisible(false)}
+        onOk={async () => {
+          try {
+            setStatusModalVisible(false);
+            await onApprove(record.id, selectedStatus);
+          } catch (err) {
+            console.error(err);
+          }
         }}
-      />
-    </Dropdown>
+        okText="บันทึก"
+        cancelText="ยกเลิก"
+      >
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ minWidth: 120 }}>สถานะ</div>
+          <Select
+            value={selectedStatus}
+            onChange={(v) => setSelectedStatus(String(v))}
+            options={[
+              { label: "รออนุมัติ", value: "pending" },
+              { label: "อนุมัติ", value: "approved" },
+              { label: "ปฏิเสธ", value: "rejected" },
+            ]}
+            style={{ minWidth: 220 }}
+          />
+        </div>
+      </Modal>
+    </>
   );
 };
 
@@ -443,7 +475,10 @@ export default function OvertimeManagementPage() {
     }
   };
 
-  const approveOvertime = async (id?: string | number) => {
+  const approveOvertime = async (
+    id?: string | number,
+    status: string = "approved"
+  ) => {
     if (!id) {
       toast.error("ไม่พบ ID สำหรับอนุมัติ");
       return null;
@@ -454,8 +489,8 @@ export default function OvertimeManagementPage() {
 
       const approverId = await getCurrentUserId(authentication);
       const response = await callApiService.post(
-        `/api/v1/timesheet/overtime/approve?id=${id}`,
-        { approved_by: String(approverId) }
+        `/api/v1/timesheet/overtime/change-status?id=${id}`,
+        { status, updated_by: Number(approverId) }
       );
 
       const body = response?.data;
@@ -654,6 +689,12 @@ export default function OvertimeManagementPage() {
       dataIndex: "requester_id",
       key: "requester_id",
       ...getColumnSearchProps("requester_id"),
+      render : (value: string) => {
+        const firstname = getUserById(value)?.firstname ;
+        const lastname = getUserById(value)?.lastname;
+        const employee_code = getUserById(value)?.employee_code;
+        return <Typography.Text>{`${firstname ?? ""} ${lastname ?? ""} (${employee_code ?? ""})`.trim() || "-"}</Typography.Text>;
+      }
     },
     {
       title: "วันที่ขอ",
@@ -687,6 +728,13 @@ export default function OvertimeManagementPage() {
       title: "สร้างโดย",
       dataIndex: "created_by",
       key: "created_by",
+      render : (value: string) => {
+        const firstname = getUserById(value)?.firstname ;
+        const lastname = getUserById(value)?.lastname;
+        const employee_code = getUserById(value)?.employee_code;
+        return <Typography.Text>{`${firstname ?? ""} ${lastname ?? ""} (${employee_code ?? ""})`.trim() || "-"}</Typography.Text>;
+      },
+      ...getColumnSearchProps("created_by"),
     },
     {
       title: "วันที่สร้าง",
