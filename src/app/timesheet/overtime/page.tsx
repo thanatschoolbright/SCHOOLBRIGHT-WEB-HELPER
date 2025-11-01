@@ -74,7 +74,8 @@ interface PaginationState {
 }
 
 const BYPASS_ADMIN_ID = "117";
-const DEFAULT_HR_EMAIL = "lightofficialstudio@gmail.com";
+const DEFAULT_HR_EMAIL =
+  process.env.NEXT_PUBLIC_HR_EMAIL || "lightofficialstudio@gmail.com";
 
 const getCurrentUserId = async (authentication: any): Promise<string> => {
   try {
@@ -689,12 +690,18 @@ export default function OvertimeManagementPage() {
       dataIndex: "requester_id",
       key: "requester_id",
       ...getColumnSearchProps("requester_id"),
-      render : (value: string) => {
-        const firstname = getUserById(value)?.firstname ;
+      render: (value: string) => {
+        const firstname = getUserById(value)?.firstname;
         const lastname = getUserById(value)?.lastname;
         const employee_code = getUserById(value)?.employee_code;
-        return <Typography.Text>{`${firstname ?? ""} ${lastname ?? ""} (${employee_code ?? ""})`.trim() || "-"}</Typography.Text>;
-      }
+        return (
+          <Typography.Text>
+            {`${firstname ?? ""} ${lastname ?? ""} (${
+              employee_code ?? ""
+            })`.trim() || "-"}
+          </Typography.Text>
+        );
+      },
     },
     {
       title: "วันที่ขอ",
@@ -728,11 +735,17 @@ export default function OvertimeManagementPage() {
       title: "สร้างโดย",
       dataIndex: "created_by",
       key: "created_by",
-      render : (value: string) => {
-        const firstname = getUserById(value)?.firstname ;
+      render: (value: string) => {
+        const firstname = getUserById(value)?.firstname;
         const lastname = getUserById(value)?.lastname;
         const employee_code = getUserById(value)?.employee_code;
-        return <Typography.Text>{`${firstname ?? ""} ${lastname ?? ""} (${employee_code ?? ""})`.trim() || "-"}</Typography.Text>;
+        return (
+          <Typography.Text>
+            {`${firstname ?? ""} ${lastname ?? ""} (${
+              employee_code ?? ""
+            })`.trim() || "-"}
+          </Typography.Text>
+        );
       },
       ...getColumnSearchProps("created_by"),
     },

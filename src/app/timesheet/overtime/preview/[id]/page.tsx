@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import { usePathname, useRouter } from "next/navigation";
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import { toast } from "sonner";
+import { getUserById } from "@/helpers/local_storage/user.storage";
 
 interface OvertimeData {
   id?: string;
@@ -310,7 +311,9 @@ export default function OTPreviewPage() {
                     </div>
                   </div>
                   <div style={{ width: 220, textAlign: "right" }}>
-                    <div>ประจำเดือน: {data.period ?? "......"}</div>
+                    <div>
+                      ประจำเดือน: {data.period ?? "......................."}
+                    </div>
                     <div>
                       วันที่:{" "}
                       {headerDate
@@ -401,7 +404,7 @@ export default function OTPreviewPage() {
                               padding: 8,
                             }}
                           >
-                            {row?.duration ?? "-"}
+                            {row?.duration ?? "0"} ชั่วโมง
                           </td>
                           <td
                             style={{
@@ -422,7 +425,11 @@ export default function OTPreviewPage() {
                               padding: 8,
                             }}
                           >
-                            {row?.assignee ?? "-"}
+                            {(getUserById(row?.assignee ?? "")?.firstname ??
+                              "") +
+                              " " +
+                              (getUserById(row?.assignee ?? "")?.lastname ??
+                                "")}
                           </td>
                           <td style={{ border: "1px solid #000", padding: 8 }}>
                             -
