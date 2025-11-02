@@ -25,6 +25,7 @@ import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get
 import { CallAPI as POST_TO_GET_STATISTIC } from "@stores/actions/mobile/call-post-statistic";
 import formatDateToMMDDYYYY from "@helpers/convert-to-mm-dd-yyyy";
 import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 
 type AttendanceRow = {
   SchoolID: number;
@@ -290,7 +291,12 @@ export default function Page() {
   return (
     <DashboardLayout>
       <Space direction="vertical" size={24} style={{ width: "100%" }}>
-        <Typography.Title level={3}>สถิติการมาเรียน</Typography.Title>
+       <HeaderBar 
+          title="สถิติการมาเรียน (Mobile Attendance)"
+          subTitle="ดูสถิติการมาเรียนของนักเรียนและบุคลากรผ่านระบบ Mobile Attendance"
+          icon={<SearchOutlined />}
+          color="none"
+       />
 
         <Card title="ค้นหาข้อมูลการมาเรียน">
           <Form

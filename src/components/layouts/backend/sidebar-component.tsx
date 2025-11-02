@@ -47,6 +47,11 @@ export default function SidebarContent({
                     NEW
                   </Tag>
                 )}
+                {!collapsed && c.revamp && (
+                  <Tag color="red" style={{ marginLeft: 8, fontSize: 12 }}>
+                    REVAMP
+                  </Tag>
+                )}
               </>
             ),
           })),

@@ -1,10 +1,9 @@
 "use client";
+
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
-// (removed react-icons usage; using Ant Design icons instead)
-import { unwrapResult } from "@reduxjs/toolkit";
 import { ResponseGetServerStatusV2 } from "@/stores/type";
 import { CallAPI as GET_SERVER_STATUS_V2 } from "@/stores/actions/server/call-get-server-status.v2";
 import {
@@ -21,9 +20,10 @@ import {
   Space,
   Descriptions,
   Divider,
-  Collapse,
   Input,
-  Tooltip,
+  Statistic,
+  Grid,
+  Flex,
 } from "antd";
 import {
   CloudOutlined,
@@ -33,597 +33,486 @@ import {
   ReloadOutlined,
   CopyOutlined,
   EditOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { toast } from "sonner";
 
-const Page = () => {
+// ==================== Types ====================
+type ServerStatus = ResponseGetServerStatusV2["draftValues"]["Array"][number];
+
+// ==================== Constants ====================
+const RESPONSE_TIME_THRESHOLDS = {
+  GOOD: 1,
+  MODERATE: 2,
+} as const;
+
+const STATUS = {
+  ONLINE: "Online",
+  OFFLINE: "Offline",
+} as const;
+
+// ==================== Utility Functions ====================
+const getResponseTimeColor = (time: number): string => {
+  if (time < RESPONSE_TIME_THRESHOLDS.GOOD) return "success";
+  if (time < RESPONSE_TIME_THRESHOLDS.MODERATE) return "warning";
+  return "error";
+};
+
+const calculateStats = (servers: ServerStatus[]) => {
+  const online = servers.filter((s) => s.status === STATUS.ONLINE).length;
+  const offline = servers.length - online;
+  const avgResponseTime = servers.length
+    ? servers.reduce((sum, s) => sum + (Number(s.response_time) || 0), 0) /
+      servers.length
+    : 0;
+
+  return { online, offline, avgResponseTime };
+};
+
+const getLatestTimestamp = (servers: ServerStatus[]): string => {
+  if (!servers.length) return "-";
+  const sorted = [...servers].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+  return sorted[0]?.timestamp || "-";
+};
+
+const copyToClipboard = async (text: string): Promise<boolean> => {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// ==================== Custom Hooks ====================
+const useResponsive = () => {
+  const screens = Grid.useBreakpoint();
+  return {
+    isMobile: !screens.md,
+    isTablet: screens.md && !screens.lg,
+    isDesktop: screens.lg,
+  };
+};
+
+const useServerStatus = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const GET_SERVER_STATUS_STATE_V2 = useAppSelector(
+  const serverStatusState = useAppSelector(
     (state) => state.callGetServerStatusV2
   );
-
-  const [table, setTable] = useState<
-    ResponseGetServerStatusV2["draftValues"]["Array"]
-  >([]);
-  const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [servers, setServers] = useState<ServerStatus[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedRow, setSelectedRow] =
-    useState<ResponseGetServerStatusV2["draftValues"]["Array"][number]>();
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  // modal responsive flag
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-  useEffect(() => {
-    const handleResize = () =>
-      setIsMobile(
-        typeof window !== "undefined" ? window.innerWidth <= 768 : false
-      );
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [editValue, setEditValue] = useState<string>("");
 
-  const refresh = useCallback(() => {
+  const fetchServerStatus = useCallback(async () => {
     setIsLoading(true);
-    dispatch(GET_SERVER_STATUS_V2()).finally(() => {
+    try {
+      await dispatch(GET_SERVER_STATUS_V2());
+    } finally {
       setIsLoading(false);
-    });
-  }, [dispatch]);
-
-  const stats = useMemo(() => {
-    const online = (table || []).filter((r) => r.status === "Online").length;
-    const offline = (table || []).length - online;
-    const avg = (table || []).length
-      ? (table || []).reduce((s, r) => s + (Number(r.response_time) || 0), 0) /
-        (table || []).length
-      : 0;
-    return { online, offline, avg };
-  }, [table]);
-
-  const lastChecked = useMemo(() => {
-    if (!table || table.length === 0) return "-";
-    const sorted = (table || [])
-      .slice()
-      .sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
-    return sorted[0]?.timestamp || "-";
-  }, [table]);
-
-  useEffect(() => {
-    setIsLoading(true);
-    dispatch(GET_SERVER_STATUS_V2()).finally(() => {
-      setIsLoading(false);
-    });
+    }
   }, [dispatch]);
 
   useEffect(() => {
-    const response = GET_SERVER_STATUS_STATE_V2?.response?.data?.data;
-    setTable(response || []);
-  }, [GET_SERVER_STATUS_STATE_V2]);
+    fetchServerStatus();
+  }, [fetchServerStatus]);
 
-  const renderResponseTime = useCallback((time: number) => {
-    let color = time < 1 ? "green" : time < 2 ? "orange" : "red";
-    return <Tag color={color}>{time.toFixed(3)} ms</Tag>;
+  useEffect(() => {
+    const response = serverStatusState?.response?.data?.data;
+    setServers(response || []);
+  }, [serverStatusState]);
+
+  return { servers, isLoading, refresh: fetchServerStatus, setServers };
+};
+
+// ==================== Components ====================
+const ResponseTimeTag: React.FC<{ time: number }> = ({ time }) => (
+  <Tag color={getResponseTimeColor(time)} icon={<ClockCircleOutlined />}>
+    {time.toFixed(3)} ms
+  </Tag>
+);
+
+const ServerStatusTag: React.FC<{ isOnline: boolean }> = ({ isOnline }) => (
+  <Tag
+    color={isOnline ? "success" : "error"}
+    icon={isOnline ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+  >
+    {isOnline ? "ออนไลน์" : "ออฟไลน์"}
+  </Tag>
+);
+
+const StatisticsCard: React.FC<{
+  stats: ReturnType<typeof calculateStats>;
+  lastChecked: string;
+  onRefresh: () => void;
+  isLoading: boolean;
+}> = ({ stats, lastChecked, onRefresh, isLoading }) => {
+  const { isMobile } = useResponsive();
+
+  return (
+    <Card bordered={false}>
+      <Flex justify="space-between" align="center" wrap="wrap" gap="middle">
+        <Space size="large" align="center">
+          <Avatar size={56} icon={<CloudOutlined />} />
+          <Space direction="vertical" size={0}>
+            <Typography.Title level={4}>สถานะเซิร์ฟเวอร์</Typography.Title>
+            <Typography.Text type="secondary">
+              รายงานสถานะและความหน่วงของเซิร์ฟเวอร์ทั้งหมด
+            </Typography.Text>
+          </Space>
+        </Space>
+
+        <Space size="large" wrap>
+          <Statistic
+            title="ออนไลน์"
+            value={stats.online}
+            valueStyle={{ color: "#52c41a" }}
+            prefix={<CheckCircleOutlined />}
+          />
+          <Statistic
+            title="ออฟไลน์"
+            value={stats.offline}
+            valueStyle={{ color: "#ff4d4f" }}
+            prefix={<CloseCircleOutlined />}
+          />
+          <Statistic
+            title="เวลาตอบสนองเฉลี่ย"
+            value={stats.avgResponseTime.toFixed(3)}
+            suffix="ms"
+            valueStyle={{ color: "#1890ff" }}
+            prefix={<ClockCircleOutlined />}
+          />
+        </Space>
+
+        <Space direction="vertical" align="end" size={4}>
+          <Typography.Text type="secondary">อัพเดตล่าสุด</Typography.Text>
+          <Typography.Text strong>{lastChecked}</Typography.Text>
+          <Button
+            type="primary"
+            icon={<ReloadOutlined />}
+            onClick={onRefresh}
+            loading={isLoading}
+          >
+            รีเฟรช
+          </Button>
+        </Space>
+      </Flex>
+    </Card>
+  );
+};
+
+const ServerCard: React.FC<{
+  server: ServerStatus;
+  onViewDetails: () => void;
+  onEdit: () => void;
+}> = ({ server, onViewDetails, onEdit }) => {
+  const isOnline = server.status === STATUS.ONLINE;
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <Badge.Ribbon
+      text={!isOnline ? "ออฟไลน์" : undefined}
+      color="error"
+      placement="start"
+    >
+      <Card
+        hoverable
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        styles={{ body: { height: "100%" } }}
+      >
+        <Flex vertical justify="space-between" gap="middle">
+          <Flex justify="space-between" align="flex-start" gap="small">
+            <Flex gap="middle" align="center" style={{ flex: 1, minWidth: 0 }}>
+              <Avatar size={56} icon={<CloudOutlined />} />
+              <Space
+                direction="vertical"
+                size={0}
+                style={{ flex: 1, minWidth: 0 }}
+              >
+                <Typography.Title level={5} ellipsis>
+                  {server.server_name_th}
+                </Typography.Title>
+                <Typography.Text type="secondary" ellipsis>
+                  {server.description}
+                </Typography.Text>
+              </Space>
+            </Flex>
+
+            <Space direction="vertical" align="end" size={4}>
+              <ServerStatusTag isOnline={isOnline} />
+              <ResponseTimeTag time={server.response_time} />
+            </Space>
+          </Flex>
+
+          <Divider />
+
+          <Space direction="vertical" size="small" style={{ width: "100%" }}>
+            <Typography.Text type="secondary">
+              {server.timestamp}
+            </Typography.Text>
+            <Typography.Link
+              href={server.url}
+              target="_blank"
+              rel="noreferrer"
+              ellipsis
+            >
+              <LinkOutlined /> {server.url}
+            </Typography.Link>
+            <Typography.Text code ellipsis>
+              <CodeOutlined /> {server.endpoint}
+            </Typography.Text>
+          </Space>
+
+          <Flex justify="flex-end" gap="small">
+            <Button size="small" icon={<EditOutlined />} onClick={onEdit}>
+              แก้ไข
+            </Button>
+            <Button
+              size="small"
+              type="primary"
+              icon={<EyeOutlined />}
+              onClick={onViewDetails}
+            >
+              ดูรายละเอียด
+            </Button>
+          </Flex>
+        </Flex>
+      </Card>
+    </Badge.Ribbon>
+  );
+};
+
+const ServerDetailsModal: React.FC<{
+  server: ServerStatus | null;
+  visible: boolean;
+  onClose: () => void;
+}> = ({ server, visible, onClose }) => {
+  const { isMobile } = useResponsive();
+
+  if (!server) return null;
+
+  const isOnline = server.status === STATUS.ONLINE;
+
+  const handleCopy = async () => {
+    const success = await copyToClipboard(JSON.stringify(server, null, 2));
+    toast[success ? "success" : "error"](
+      success ? "คัดลอกข้อมูลเรียบร้อย" : "คัดลอกข้อมูลล้มเหลว"
+    );
+  };
+
+  return (
+    <Modal
+      title="รายละเอียดเซิร์ฟเวอร์"
+      open={visible}
+      onCancel={onClose}
+      footer={null}
+      width={isMobile ? "95%" : 820}
+      destroyOnClose
+    >
+      <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+        <Flex justify="space-between" align="center" wrap="wrap" gap="middle">
+          <Space align="center">
+            <Avatar size={52} icon={<CloudOutlined />} />
+            <Space direction="vertical" size={0}>
+              <Typography.Title level={5}>
+                {server.server_name_th || server.server_name}
+              </Typography.Title>
+              <Typography.Text type="secondary">
+                {server.description}
+              </Typography.Text>
+            </Space>
+          </Space>
+
+          <Space direction="vertical" align="end" size={4}>
+            <ServerStatusTag isOnline={isOnline} />
+            <ResponseTimeTag time={Number(server.response_time) || 0} />
+          </Space>
+        </Flex>
+
+        <Divider />
+
+        <Descriptions column={1} size="small">
+          <Descriptions.Item label="Server">{server.server}</Descriptions.Item>
+          <Descriptions.Item label="Environment">
+            {server.environment}
+          </Descriptions.Item>
+          <Descriptions.Item label="URL">
+            <Typography.Link href={server.url} target="_blank" rel="noreferrer">
+              <LinkOutlined /> {server.url}
+            </Typography.Link>
+          </Descriptions.Item>
+          <Descriptions.Item label="Endpoint">
+            <Typography.Text code>{server.endpoint}</Typography.Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="เวลาตรวจสอบล่าสุด">
+            {server.timestamp}
+          </Descriptions.Item>
+          <Descriptions.Item label="HTTP Status">
+            {(server as any)?.status_code ?? "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Severity">
+            {(server as any)?.response_time_severity_level ?? "-"}
+          </Descriptions.Item>
+        </Descriptions>
+
+        <Flex justify="flex-end" gap="small">
+          <Button icon={<CopyOutlined />} onClick={handleCopy}>
+            คัดลอก
+          </Button>
+          <Button type="primary" onClick={onClose}>
+            ปิด
+          </Button>
+        </Flex>
+      </Space>
+    </Modal>
+  );
+};
+
+const EditDescriptionModal: React.FC<{
+  server: ServerStatus | null;
+  visible: boolean;
+  onClose: () => void;
+  onSave: (description: string) => void;
+}> = ({ server, visible, onClose, onSave }) => {
+  const [editValue, setEditValue] = useState("");
+
+  useEffect(() => {
+    if (server && visible) {
+      setEditValue(server.description || "");
+    }
+  }, [server, visible]);
+
+  const handleSave = () => {
+    onSave(editValue);
+    onClose();
+  };
+
+  return (
+    <Modal
+      title="แก้ไขรายละเอียด"
+      open={visible}
+      onCancel={onClose}
+      footer={null}
+      width={760}
+      destroyOnClose
+    >
+      <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+        <Typography.Text type="secondary">
+          แก้ไขรายละเอียดของเซิร์ฟเวอร์ (ช่องนี้สำหรับ Developer ใส่การทำงานของ
+          Bot)
+        </Typography.Text>
+        <Input.TextArea
+          rows={8}
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          placeholder="กรอกรายละเอียด..."
+        />
+        <Flex justify="flex-end" gap="small">
+          <Button onClick={onClose}>ยกเลิก</Button>
+          <Button type="primary" onClick={handleSave}>
+            บันทึก
+          </Button>
+        </Flex>
+      </Space>
+    </Modal>
+  );
+};
+
+// ==================== Main Component ====================
+const ServerStatusPage: React.FC = () => {
+  const { servers, isLoading, refresh, setServers } = useServerStatus();
+  const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(
+    null
+  );
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+
+  const stats = useMemo(() => calculateStats(servers), [servers]);
+  const lastChecked = useMemo(() => getLatestTimestamp(servers), [servers]);
+
+  const handleViewDetails = useCallback((server: ServerStatus) => {
+    setSelectedServer(server);
+    setDetailsModalVisible(true);
   }, []);
 
-  // No table columns needed — UI renders each server as a Card in a responsive grid below.
+  const handleEdit = useCallback((server: ServerStatus) => {
+    setSelectedServer(server);
+    setEditModalVisible(true);
+  }, []);
+
+  const handleSaveDescription = useCallback(
+    (description: string) => {
+      if (!selectedServer) return;
+
+      setServers((prev) =>
+        prev.map((s) =>
+          s.server_name_th === selectedServer.server_name_th &&
+          s.timestamp === selectedServer.timestamp
+            ? { ...s, description }
+            : s
+        )
+      );
+
+      setSelectedServer((prev) => (prev ? { ...prev, description } : prev));
+      toast.success("บันทึกเรียบร้อย (ยังไม่ได้ส่งไปยัง API)");
+    },
+    [selectedServer, setServers]
+  );
 
   return (
     <DashboardLayout>
-      <Card
-        className="mb-4"
-        variant="outlined"
-        style={{
-          boxShadow: "0 6px 18px rgba(15, 23, 42, 0.06)",
-          borderRadius: 12,
-        }}
-        title={
-          <Row align="middle" justify="space-between" style={{ width: "100%" }}>
-            <Col>
-              <Space size={12} align="center">
-                <Avatar
-                  size={48}
-                  icon={<CloudOutlined />}
-                  style={{ background: "#f0f5ff", color: "#2f54eb" }}
-                />
-                <div>
-                  <Typography.Title level={4} style={{ margin: 0 }}>
-                    ทดสอบสถานะเซิฟเวอร์อีกครั้ง
-                  </Typography.Title>
-                  <Typography.Text type="secondary">
-                    รายงานสถานะและความหน่วงของเซิร์ฟเวอร์ทั้งหมด
-                  </Typography.Text>
-                </div>
-              </Space>
-            </Col>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <StatisticsCard
+          stats={stats}
+          lastChecked={lastChecked}
+          onRefresh={refresh}
+          isLoading={isLoading}
+        />
 
-            <Col>
-              <Space size={24} align="end">
-                <div style={{ textAlign: "right" }}>
-                  <div>
-                    <Typography.Text strong style={{ marginRight: 8 }}>
-                      {stats.online}
-                    </Typography.Text>
-                    <Tag color="green">Online</Tag>
-                  </div>
-                  <div>
-                    <Typography.Text strong style={{ marginRight: 8 }}>
-                      {stats.offline}
-                    </Typography.Text>
-                    <Tag color="red">Offline</Tag>
-                  </div>
-                </div>
-
-                <div style={{ textAlign: "right", minWidth: 120 }}>
-                  <Typography.Text
-                    type="secondary"
-                    style={{ display: "block" }}
-                  >
-                    Avg response
-                  </Typography.Text>
-                  <Typography.Text strong>
-                    {stats.avg.toFixed(3)} ms
-                  </Typography.Text>
-                  <div style={{ marginTop: 6 }}>
-                    <Typography.Text type="secondary">
-                      อัพเดตล่าสุด
-                    </Typography.Text>
-                    <div>
-                      <Typography.Text>{lastChecked}</Typography.Text>
-                    </div>
-                  </div>
-                </div>
-              </Space>
-            </Col>
-          </Row>
-        }
-        extra={
-          <Space size="middle" className="ml-8">
-            <Button type="primary" onClick={refresh} icon={<ReloadOutlined />}>
-              รีเฟรช
-            </Button>
-          </Space>
-        }
-      >
-        <p className="text-sm text-red-500"></p>
-      </Card>
-
-      <Card
-        title="การทำงานทุกระบบ"
-        className="w-full"
-        style={{
-          boxShadow: "0 6px 18px rgba(15, 23, 42, 0.04)",
-          borderRadius: 12,
-        }}
-      >
-        {isLoading ? (
-          <Skeleton active paragraph={{ rows: 6 }} />
-        ) : (
-          // Full width 4-column grid (wraps as needed)
-          <Space
-            direction="vertical"
-            style={{
-              width: "100%",
-              margin: 0,
-              padding: "16px 0",
-              background: "linear-gradient(180deg,#fbfdff 0%, #ffffff 100%)",
-            }}
-          >
-            <Row gutter={[16, 16]} justify="start" style={{ width: "100%" }}>
-              {table && table.length > 0 ? (
-                // show all items in a 4-column grid (multiple rows if needed)
-                table.map((row) => {
-                  const isOnline = row.status === "Online";
-                  const keyId = `${row.server_name_th}-${row.timestamp}`;
-                  const isHovered = hoveredId === keyId;
-                  return (
-                    <Col key={keyId} span={6} style={{ display: "flex" }}>
-                      <Space
-                        style={{
-                          width: "100%",
-                          padding: 8,
-                          boxSizing: "border-box",
-                        }}
-                      >
-                        <Badge.Ribbon
-                          text={!isOnline ? "ออฟไลน์" : undefined}
-                          color={!isOnline ? "red" : "green"}
-                          placement="start"
-                        >
-                          <Card
-                            hoverable
-                            onMouseEnter={() => setHoveredId(keyId)}
-                            onMouseLeave={() => setHoveredId(null)}
-                            style={{
-                              borderRadius: 12,
-                              height: "100%",
-                              minHeight: 320,
-                              display: "flex",
-                              flexDirection: "column",
-                              margin: 0,
-                              transition:
-                                "transform 0.18s ease, box-shadow 0.18s ease",
-                              transform: isHovered
-                                ? "translateY(-10px)"
-                                : "translateY(0)",
-                              boxShadow: isHovered
-                                ? "0 18px 40px rgba(15,23,42,0.14)"
-                                : "0 8px 22px rgba(15, 23, 42, 0.06)",
-                              background:
-                                "linear-gradient(180deg, #ffffff, #fbfdff)",
-                            }}
-                            styles={{
-                              body: {
-                                padding: 20,
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "space-between",
-                                gap: 12,
-                              },
-                            }}
-                          >
-                            <Row align="middle" gutter={12}>
-                              <Col>
-                                <Avatar
-                                  size={56}
-                                  icon={<CloudOutlined />}
-                                  style={{
-                                    backgroundColor: isOnline
-                                      ? "#f0f9eb"
-                                      : "#fff1f0",
-                                    color: isOnline ? "#52c41a" : "#ff4d4f",
-                                    boxShadow:
-                                      "inset 0 1px 0 rgba(255,255,255,0.6)",
-                                  }}
-                                />
-                              </Col>
-
-                              <Col flex="1">
-                                <div style={{ minWidth: 0 }}>
-                                  <Typography.Title
-                                    level={5}
-                                    style={{ margin: 0 }}
-                                  >
-                                    {row.server_name_th}
-                                  </Typography.Title>
-                                  <Typography.Text
-                                    type="secondary"
-                                    style={{
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      display: "-webkit-box",
-                                      WebkitLineClamp: 2,
-                                      WebkitBoxOrient: "vertical" as any,
-                                    }}
-                                  >
-                                    {row.description}
-                                  </Typography.Text>
-                                </div>
-                              </Col>
-
-                              <Col
-                                style={{
-                                  width: 120,
-                                  textAlign: "right",
-                                  minWidth: 92,
-                                }}
-                              >
-                                <div>
-                                  <Tag color={isOnline ? "green" : "red"}>
-                                    {isOnline ? "ออนไลน์" : "ออฟไลน์"}
-                                  </Tag>
-                                </div>
-                                <div style={{ marginTop: 8 }}>
-                                  <Typography.Text
-                                    type="secondary"
-                                    style={{ display: "block" }}
-                                  >
-                                    เวลา&nbsp;ตอบสนอง
-                                  </Typography.Text>
-                                  {renderResponseTime(row.response_time)}
-                                </div>
-                              </Col>
-                            </Row>
-
-                            <Row
-                              style={{ marginTop: 12 }}
-                              justify="space-between"
-                              align="bottom"
-                            >
-                              <Col
-                                flex="1"
-                                style={{
-                                  minWidth: 0,
-                                  maxWidth: "calc(100% - 140px)",
-                                }}
-                              >
-                                <Typography.Text type="secondary">
-                                  {row.timestamp}
-                                </Typography.Text>
-                                <Row style={{ marginTop: 6 }} align="middle">
-                                  <Col style={{ minWidth: 0 }}>
-                                    <a
-                                      href={row.url}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      <Space align="center">
-                                        <LinkOutlined />
-                                        <Typography.Text
-                                          ellipsis={{ tooltip: row.url }}
-                                          style={{ maxWidth: "100%" }}
-                                        >
-                                          {row.url}
-                                        </Typography.Text>
-                                      </Space>
-                                    </a>
-                                  </Col>
-                                </Row>
-                                <Typography.Text
-                                  code
-                                  ellipsis={{ tooltip: row.endpoint }}
-                                  style={{
-                                    display: "block",
-                                    marginTop: 8,
-                                    maxWidth: "100%",
-                                  }}
-                                >
-                                  <CodeOutlined /> {row.endpoint}
-                                </Typography.Text>
-                              </Col>
-
-                              <Col
-                                style={{
-                                  width: 140,
-                                  display: "flex",
-                                  justifyContent: "flex-end",
-                                  alignItems: "flex-end",
-                                }}
-                              >
-                                <Space>
-                                  <Button
-                                    size="small"
-                                    icon={<EditOutlined />}
-                                    onClick={() => {
-                                      setSelectedRow(row);
-                                      setEditValue(row.description || "");
-                                      setIsEditModalVisible(true);
-                                    }}
-                                  />
-
-                                  <Button
-                                    size="small"
-                                    type="primary"
-                                    icon={<EyeOutlined />}
-                                    onClick={() => {
-                                      setSelectedRow(row);
-                                      setModalVisible(true);
-                                    }}
-                                  />
-                                </Space>
-                              </Col>
-                            </Row>
-                          </Card>
-                        </Badge.Ribbon>
-                      </Space>
-                    </Col>
-                  );
-                })
-              ) : (
-                <Col span={24}>
-                  <Typography.Text type="secondary">
-                    ไม่มีข้อมูล
-                  </Typography.Text>
-                </Col>
-              )}
-            </Row>
-          </Space>
-        )}
-      </Card>
-
-      {/* Responsive modal: switch to viewport width on small screens to avoid layout overlap */}
-
-      <Modal
-        title="รายละเอียดเซิร์ฟเวอร์"
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-        width={isMobile ? "95vw" : 820}
-        destroyOnHidden
-        styles={{
-          body: {
-            maxHeight: isMobile ? "70vh" : "75vh",
-            overflowY: "auto",
-          },
-        }}
-      >
-        {selectedRow ? (
-          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 16,
-                alignItems: "flex-start",
-              }}
-            >
-              {/* use responsive Row/Col so on small screens header stacks instead of overlapping */}
-              <Row
-                justify="space-between"
-                style={{ width: "100%", flexWrap: "wrap" }}
-                gutter={16}
-              >
-                <Col xs={24} sm={24} md={14} lg={14}>
-                  <Space align="center" size={12}>
-                    <Avatar
-                      size={isMobile ? 44 : 52}
-                      icon={<CloudOutlined />}
-                      style={{ background: "#f0f5ff", color: "#2f54eb" }}
-                    />
-                    <div>
-                      <Typography.Title level={5} style={{ margin: 0 }}>
-                        {selectedRow.server_name_th || selectedRow.server_name}
-                      </Typography.Title>
-                      <Typography.Text type="secondary">
-                        {selectedRow.description}
-                      </Typography.Text>
-                    </div>
-                  </Space>
-                </Col>
-
+        <Card title="การทำงานทุกระบบ" bordered={false}>
+          {isLoading ? (
+            <Skeleton active paragraph={{ rows: 6 }} />
+          ) : servers.length > 0 ? (
+            <Row gutter={[16, 16]}>
+              {servers.map((server, index) => (
                 <Col
+                  key={`${server.server_name_th}-${index}`}
                   xs={24}
-                  sm={24}
-                  md={10}
-                  lg={10}
-                  style={{
-                    display: "flex",
-                    justifyContent: isMobile ? "flex-start" : "flex-end",
-                  }}
+                  sm={12}
+                  lg={8}
+                  xl={6}
                 >
-                  <div style={{ textAlign: isMobile ? "left" : "right" }}>
-                    <Tag
-                      color={selectedRow.status === "Online" ? "green" : "red"}
-                      style={{ fontSize: 14 }}
-                    >
-                      {selectedRow.status === "Online" ? "ออนไลน์" : "ออฟไลน์"}
-                    </Tag>
-                    <div style={{ marginTop: 8 }}>
-                      <Typography.Text type="secondary">
-                        เวลา ตอบสนอง
-                      </Typography.Text>
-                      <div>
-                        {renderResponseTime(
-                          Number(selectedRow.response_time) || 0
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <ServerCard
+                    server={server}
+                    onViewDetails={() => handleViewDetails(server)}
+                    onEdit={() => handleEdit(server)}
+                  />
                 </Col>
-              </Row>
-            </div>
+              ))}
+            </Row>
+          ) : (
+            <Typography.Text type="secondary">ไม่มีข้อมูล</Typography.Text>
+          )}
+        </Card>
+      </Space>
 
-            <Divider style={{ margin: 0 }} />
+      <ServerDetailsModal
+        server={selectedServer}
+        visible={detailsModalVisible}
+        onClose={() => setDetailsModalVisible(false)}
+      />
 
-            <Descriptions column={1} size="small" bordered={false}>
-              <Descriptions.Item label="Server">
-                {selectedRow.server}
-              </Descriptions.Item>
-              <Descriptions.Item label="Environment">
-                {selectedRow.environment}
-              </Descriptions.Item>
-              <Descriptions.Item label="URL">
-                <a href={selectedRow.url} target="_blank" rel="noreferrer">
-                  <LinkOutlined /> {selectedRow.url}
-                </a>
-              </Descriptions.Item>
-              <Descriptions.Item label="Endpoint">
-                <code>{selectedRow.endpoint}</code>
-              </Descriptions.Item>
-              <Descriptions.Item label="เวลาตรวจสอบล่าสุด">
-                {selectedRow.timestamp}
-              </Descriptions.Item>
-              <Descriptions.Item label="HTTP Status">
-                {(selectedRow as any)?.status_code ?? "-"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Severity">
-                {(selectedRow as any)?.response_time_severity_level ?? "-"}
-              </Descriptions.Item>
-            </Descriptions>
-
-            <div
-              style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
-            >
-              <Button
-                icon={<CopyOutlined />}
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(
-                      JSON.stringify(selectedRow, null, 2)
-                    );
-                    toast.success("คัดลอกข้อมูลเรียบร้อย");
-                  } catch (e) {
-                    toast.error("คัดลอกข้อมูลล้มเหลว");
-                  }
-                }}
-              >
-                คัดลอก
-              </Button>
-
-              <Button type="primary" onClick={() => setModalVisible(false)}>
-                ปิด
-              </Button>
-            </div>
-          </Space>
-        ) : null}
-      </Modal>
-
-      <Modal
-        title="แก้ไขรายละเอียด"
-        open={isEditModalVisible}
-        onCancel={() => setIsEditModalVisible(false)}
-        footer={null}
-        width={760}
-        destroyOnHidden
-      >
-        <Space direction="vertical" style={{ width: "100%" }}>
-          <Typography.Text type="secondary">
-            แก้ไขรายละเอียดของเซิร์ฟเวอร์ (ช่องนี้สำหรับ Developer
-            ใส่การทำงานของ Bot)
-          </Typography.Text>
-          <Input.TextArea
-            rows={8}
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-          />
-
-          <Row justify="end" gutter={8}>
-            <Col>
-              <Button onClick={() => setIsEditModalVisible(false)}>
-                ยกเลิก
-              </Button>
-            </Col>
-            <Col>
-              <Button
-                type="primary"
-                onClick={() => {
-                  // apply changes locally; real save to API can be implemented by developer
-                  if (!selectedRow) {
-                    setIsEditModalVisible(false);
-                    return;
-                  }
-
-                  setTable((prev) =>
-                    prev.map((r) => {
-                      if (
-                        r.server_name_th === selectedRow.server_name_th &&
-                        r.timestamp === selectedRow.timestamp
-                      ) {
-                        return { ...r, description: editValue };
-                      }
-                      return r;
-                    })
-                  );
-
-                  setSelectedRow((prev) =>
-                    prev ? { ...prev, description: editValue } : prev
-                  );
-                  setIsEditModalVisible(false);
-                  toast.success("บันทึกเรียบร้อย (ยังไม่ได้ส่งไปยัง API)");
-                }}
-              >
-                บันทึก
-              </Button>
-            </Col>
-          </Row>
-        </Space>
-      </Modal>
+      <EditDescriptionModal
+        server={selectedServer}
+        visible={editModalVisible}
+        onClose={() => setEditModalVisible(false)}
+        onSave={handleSaveDescription}
+      />
     </DashboardLayout>
   );
 };
 
-export default Page;
+export default ServerStatusPage;

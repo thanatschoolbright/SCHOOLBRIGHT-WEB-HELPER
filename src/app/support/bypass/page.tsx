@@ -2,57 +2,49 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { Card, Table, Select, Space, Dropdown, Button, Tag } from "antd";
+import { Card, Table, Select, Space, Dropdown, Button, Tag, Badge } from "antd";
 import {
-  AlertFilled,
-  CrownFilled,
-  RocketFilled,
-  SafetyCertificateFilled,
-  StarFilled,
+  AlertOutlined,
+  CrownOutlined,
+  RocketOutlined,
+  SafetyCertificateOutlined,
+  StarOutlined,
   ThunderboltOutlined,
   ToolOutlined,
   DownOutlined,
+  LoginOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import { CallAPI as GET_SCHOOL_LIST_DETAIL } from "@stores/actions/support/call-get-school-list-detail";
 import { CallAPI as GET_BYPASS_TOKEN } from "@stores/actions/support/call-get-bypass-token";
-import * as type from "@stores/type";
 import { toast } from "sonner";
 import type { MenuProps, TableProps } from "antd";
 import type { ColumnsType } from "antd/es/table/interface";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 
-const collator = new Intl.Collator("th", {
-  sensitivity: "base",
-  numeric: true,
-});
-
-const statusColorMap: Record<string, string> = {
-  active: "green",
-  inactive: "red",
+// ==================== Types ====================
+type SchoolDetail = {
+  school_id: string | number;
+  company_name?: string;
+  province?: string;
+  school_group?: string;
+  school_class?: string;
+  school_grade?: string;
+  isActive?: string;
 };
 
-const gradeAnimationStyles = `
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 12px rgba(255, 215, 0, 0.5); }
-  50% { box-shadow: 0 0 22px rgba(255, 215, 0, 0.85); }
-}
-
-@keyframes shine {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(120%); }
-}
-`;
+type Environment = {
+  label: string;
+  url: string;
+  extendPath?: string;
+};
 
 type BypassTarget = {
   label: string;
-  environments: Record<
-    string,
-    { label: string; url: string; extendPath?: string }
-  >;
+  environments: Record<string, Environment>;
 };
 
-type BypassLinkContext = {
+type BypassLinkParams = {
   schoolId: string;
   schoolName?: string;
   targetLabel: string;
@@ -61,13 +53,28 @@ type BypassLinkContext = {
   extendPath?: string;
 };
 
-const sanitizeTargetName = (label: string) => {
-  const trimmed = (label ?? "").trim();
-  const cleaned = trimmed.replace(/^[^A-Za-z0-9\u0E00-\u0E7F]+/, "").trim();
-  return cleaned || trimmed;
+// ==================== Constants ====================
+const COLLATOR = new Intl.Collator("th", {
+  sensitivity: "base",
+  numeric: true,
+});
+
+const STATUS_COLOR_MAP: Record<string, string> = {
+  active: "success",
+  inactive: "error",
 };
 
-const bypassTargets: Record<string, BypassTarget> = {
+const GRADE_CONFIG: Record<string, { color: string; icon: React.ReactNode }> = {
+  A: { color: "gold", icon: <CrownOutlined /> },
+  B: { color: "green", icon: <StarOutlined /> },
+  C: { color: "blue", icon: <RocketOutlined /> },
+  D: { color: "orange", icon: <ToolOutlined /> },
+  E: { color: "red", icon: <AlertOutlined /> },
+  F: { color: "purple", icon: <ThunderboltOutlined /> },
+  "-": { color: "default", icon: <SafetyCertificateOutlined /> },
+};
+
+const BYPASS_TARGETS: Record<string, BypassTarget> = {
   system: {
     label: "✨ System",
     environments: {
@@ -188,8 +195,28 @@ const bypassTargets: Record<string, BypassTarget> = {
   },
 };
 
-const buildMenuItems = (): MenuProps["items"] =>
-  Object.entries(bypassTargets).map(([targetKey, target]) => ({
+// ==================== Utility Functions ====================
+const compareValues = (a: unknown, b: unknown): number =>
+  COLLATOR.compare(String(a ?? ""), String(b ?? ""));
+
+const parseLocalStorage = <T,>(key: string, defaultValue: T): T => {
+  try {
+    const item = localStorage?.getItem(key);
+    if (!item) return defaultValue;
+    return JSON.parse(item);
+  } catch (error) {
+    console.error(`Failed to parse ${key} from localStorage:`, error);
+    return defaultValue;
+  }
+};
+
+const sanitizeTargetName = (label: string): string => {
+  const trimmed = (label ?? "").trim();
+  return trimmed.replace(/^[^A-Za-z0-9\u0E00-\u0E7F]+/, "").trim() || trimmed;
+};
+
+const buildBypassMenuItems = (): MenuProps["items"] =>
+  Object.entries(BYPASS_TARGETS).map(([targetKey, target]) => ({
     key: targetKey,
     label: target.label,
     children: Object.entries(target.environments).map(
@@ -200,88 +227,45 @@ const buildMenuItems = (): MenuProps["items"] =>
     ),
   }));
 
-const compareValues = (a: unknown, b: unknown) =>
-  collator.compare(String(a ?? ""), String(b ?? ""));
-
-type SchoolDetail =
-  type.ResponseSchoolListWithMoreDetail["data"]["data"][number];
-
-export default function Page() {
-  const dispatch = useDispatch<AppDispatch>();
-  const schoolListState = useAppSelector((state) => state.callSchoolList);
+// ==================== Hooks ====================
+const useSchoolData = () => {
   const schoolListWithDetail = useAppSelector(
     (state) => state.callGetSchooListDetail
   );
-  const userState = useAppSelector((state) => state.callAdminLogin);
-
-  const [selectedSchool, setSelectedSchool] = useState<string | undefined>();
-  const [pageSize, setPageSize] = useState<number>(100);
-  const [openDropdownFor, setOpenDropdownFor] = useState<string | null>(null);
 
   const schoolOptions = useMemo(() => {
-    try {
-      const schools = localStorage?.getItem("schools");
-      if (!schools) return [];
+    const schools = parseLocalStorage("schools", { data: [] });
+    if (!Array.isArray(schools?.data)) return [];
 
-      const parse = JSON.parse(schools);
-      if (Array.isArray(parse?.data)) {
-        return parse?.data?.map((item: any) => ({
-          label: `${item.SchoolName} (${item.SchoolID})`,
-          value: String(item.SchoolID),
-        }));
-      }
-    } catch (error: any) {
-      console.error("❌ Failed to parse schools from localStorage:", error);
-    }
+    return schools.data.map((item: any) => ({
+      label: `${item.SchoolName} (${item.SchoolID})`,
+      value: String(item.SchoolID),
+    }));
   }, [schoolListWithDetail?.response?.data?.data]);
 
   const schoolDetails = useMemo<SchoolDetail[]>(() => {
-    try {
-      const schools = localStorage?.getItem("school_details");
+    const schools = parseLocalStorage<any>("school_details", null);
 
-      if (!schools) return [];
+    if (Array.isArray(schools)) return schools;
+    if (
+      schools &&
+      typeof schools === "object" &&
+      Array.isArray(schools?.data?.data)
+    )
+      return schools.data.data;
 
-      const parsed = JSON.parse(schools);
-
-      // ✅ ตรวจสอบว่าข้อมูลเป็น array หรือ object ที่มี key "data"
-      if (Array.isArray(parsed)) {
-        console.log("✅ LocalStorage เป็น array ตรง ๆ", parsed);
-        return parsed as SchoolDetail[];
-      }
-
-      if (Array.isArray(parsed?.data?.data)) {
-        console.log("✅ LocalStorage มี key data:", parsed?.data?.data);
-        return parsed?.data?.data as SchoolDetail[];
-      }
-
-      console.warn("⚠️ LocalStorage.schools รูปแบบไม่ตรงที่คาดไว้:", parsed);
-      return [];
-    } catch (error: any) {
-      console.error("❌ Failed to parse schools from localStorage:", error);
-      toast.error("เกิดข้อผิดพลาดในการอ่านข้อมูลจากเครื่อง");
-      return [];
-    }
+    return [];
   }, []);
 
-  const filteredDetails = useMemo(() => {
-    if (!selectedSchool) {
-      return schoolDetails;
-    }
+  return { schoolOptions, schoolDetails };
+};
 
-    return schoolDetails.filter(
-      (detail) => String(detail.school_id) === String(selectedSchool)
-    );
-  }, [schoolDetails, selectedSchool]);
+const useBypassToken = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const userState = useAppSelector((state) => state.callAdminLogin);
 
-  const isLoading = useMemo(
-    () =>
-      Boolean(schoolListState?.loading) ||
-      Boolean(schoolListWithDetail?.loading),
-    [schoolListState?.loading, schoolListWithDetail?.loading]
-  );
-
-  const getBypassToken = useCallback(
-    async (schoolId: string) => {
+  return useCallback(
+    async (schoolId: string): Promise<string> => {
       const userEmail =
         userState?.response?.data?.user_data?.email ??
         "support@schoolbright.co";
@@ -292,99 +276,62 @@ export default function Page() {
     },
     [dispatch, userState?.response?.data?.user_data?.email]
   );
+};
+
+// ==================== Main Component ====================
+export default function SchoolManagementPage() {
+  const { schoolOptions, schoolDetails } = useSchoolData();
+  const getBypassToken = useBypassToken();
+
+  const [selectedSchool, setSelectedSchool] = useState<string | undefined>();
+  const [pageSize, setPageSize] = useState<number>(100);
+  const [openDropdownFor, setOpenDropdownFor] = useState<string | null>(null);
+
+  const filteredDetails = useMemo(() => {
+    if (!selectedSchool) return schoolDetails;
+    return schoolDetails.filter(
+      (detail) => String(detail.school_id) === selectedSchool
+    );
+  }, [schoolDetails, selectedSchool]);
 
   const openBypassLink = useCallback(
-    async ({
-      schoolId,
-      schoolName,
-      targetLabel,
-      environmentLabel,
-      url,
-      extendPath,
-    }: BypassLinkContext) => {
+    async (params: BypassLinkParams) => {
+      const {
+        schoolId,
+        schoolName,
+        targetLabel,
+        environmentLabel,
+        url,
+        extendPath,
+      } = params;
+
       try {
         const token = await getBypassToken(schoolId);
         const finalUrl = `${url}${token}${extendPath ?? ""}`;
         const plainTargetName = sanitizeTargetName(targetLabel);
-        const environmentDisplay = `${plainTargetName} · ${environmentLabel}`;
         const schoolDisplay = schoolName
           ? `${schoolName} (${schoolId})`
           : `รหัสโรงเรียน ${schoolId}`;
-        const copyPayload = [
-          schoolDisplay,
-          "",
-          `🚀 ลิงก์สำหรับเข้าสู่ระบบ (${environmentDisplay})`,
-          finalUrl,
-        ].join("\n");
 
-        const handleCopy = () => {
-          navigator.clipboard
-            .writeText(copyPayload)
-            .then(() => {
-              toast.success("คัดลอกลิงก์แล้ว", {
-                description: schoolDisplay,
-                duration: 2500,
-              });
-            })
-            .catch(() => {
-              toast.error("คัดลอกลิงก์ไม่สำเร็จ", {
-                description: "โปรดลองอีกครั้ง",
-                duration: 2500,
-              });
-            });
-        };
-
-        toast.success("ส่งลิงก์เข้าสู่ระบบสำเร็จ", {
-          description: (
-            <div style={{ display: "grid", gap: 8, color: "#0f172a" }}>
-              <div style={{ fontWeight: 600, fontSize: 15 }}>
-                {schoolDisplay}
-              </div>
-              <div style={{ fontSize: 14 }}>
-                <span aria-hidden style={{ marginRight: 6 }}>
-                  🚀
-                </span>
-                <strong>{`ลิงก์สำหรับเข้าสู่ระบบ (${environmentDisplay})`}</strong>
-              </div>
-              <a
-                href={finalUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  fontFamily:
-                    "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-                  fontSize: 13,
-                  color: "#0ea5e9",
-                  wordBreak: "break-all",
-                }}
-              >
-                {finalUrl}
-              </a>
-            </div>
-          ),
-          duration: 12000,
-
-          action: {
-            label: "คัดลอกลิงก์",
-            onClick: handleCopy,
-          },
+        toast.success(`เปิดลิงก์ ${plainTargetName} · ${environmentLabel}`, {
+          description: schoolDisplay,
+          duration: 3000,
         });
 
         window.open(finalUrl, "_blank", "noopener,noreferrer");
       } catch (error: any) {
         toast.error("ไม่สามารถสร้าง Bypass ได้", {
-          description: error?.message ?? "Unexpected error",
-          duration: 5000,
+          description: error?.message ?? "เกิดข้อผิดพลาด",
         });
       }
     },
     [getBypassToken]
   );
 
-  const handleMenuItemClick = useCallback(
+  const handleMenuClick = useCallback(
     async (compositeKey: string, record: SchoolDetail) => {
       const [targetKey, environmentKey] = compositeKey.split("|");
-      const target = bypassTargets[targetKey];
+      const target = BYPASS_TARGETS[targetKey];
       const environment = target?.environments?.[environmentKey];
 
       if (!target || !environment) {
@@ -392,16 +339,9 @@ export default function Page() {
         return;
       }
 
-      const schoolId = String(record?.school_id ?? "");
-
-      if (!schoolId) {
-        toast.error("ไม่พบรหัสโรงเรียน");
-        return;
-      }
-
       await openBypassLink({
-        schoolId,
-        schoolName: record?.company_name ?? undefined,
+        schoolId: String(record?.school_id ?? ""),
+        schoolName: record?.company_name,
         targetLabel: target.label,
         environmentLabel: environment.label,
         url: environment.url,
@@ -413,25 +353,6 @@ export default function Page() {
     [openBypassLink]
   );
 
-  const menuItems = useMemo(() => buildMenuItems(), []);
-
-  const gradeFilters = useMemo(
-    () =>
-      ["A", "B", "C", "D", "E", "F"].map((grade) => ({
-        text: grade,
-        value: grade,
-      })),
-    []
-  );
-
-  const statusFilters = useMemo(
-    () => [
-      { text: "Active", value: "active" },
-      { text: "Inactive", value: "inactive" },
-    ],
-    []
-  );
-
   const columns = useMemo<ColumnsType<SchoolDetail>>(
     () => [
       {
@@ -440,155 +361,89 @@ export default function Page() {
         width: 80,
         align: "center",
         fixed: "left",
-        render: (_value, _record, index) => index + 1,
+        render: (_value, _record, index) => (
+          <Badge count={index + 1} showZero color="blue" />
+        ),
       },
       {
         title: "รหัสโรงเรียน",
         dataIndex: "school_id",
         key: "school_id",
         sorter: (a, b) => compareValues(a.school_id, b.school_id),
-        render: (value?: string | number) =>
-          value !== undefined && value !== null && value !== ""
-            ? String(value)
-            : "-",
+        render: (value) => value ?? "-",
       },
       {
         title: "ชื่อโรงเรียน",
         dataIndex: "company_name",
         key: "company_name",
         sorter: (a, b) => compareValues(a.company_name, b.company_name),
-        render: (value?: string) => value || "-",
+        render: (value) => value || "-",
       },
       {
         title: "จังหวัด",
         dataIndex: "province",
         key: "province",
         sorter: (a, b) => compareValues(a.province, b.province),
-        render: (value?: string) => value || "-",
+        render: (value) => value || "-",
       },
       {
         title: "กลุ่มโรงเรียน",
         dataIndex: "school_group",
         key: "school_group",
         sorter: (a, b) => compareValues(a.school_group, b.school_group),
-        render: (value?: string) => value || "-",
+        render: (value) => value || "-",
       },
       {
         title: "ระดับชั้นที่เปิดสอน",
         dataIndex: "school_class",
         key: "school_class",
         sorter: (a, b) => compareValues(a.school_class, b.school_class),
-        render: (value?: string) => value || "-",
+        render: (value) => value || "-",
       },
       {
         title: "เกรดโรงเรียน",
         dataIndex: "school_grade",
         key: "school_grade",
         sorter: (a, b) => compareValues(a.school_grade, b.school_grade),
-        filters: gradeFilters,
-        render: (value?: string) => {
-          const normalized = (value ?? "-").trim().toUpperCase();
-          const gradeMap: Record<
-            string,
-            {
-              gradient: string;
-              glow: string;
-              icon: React.ReactNode;
-            }
-          > = {
-            A: {
-              gradient: "linear-gradient(135deg, #fffb7d 0%, #ffb347 100%)",
-              glow: "0 0 16px rgba(255, 180, 55, 0.75)",
-              icon: <CrownFilled style={{ color: "#d97706" }} />,
-            },
-            B: {
-              gradient: "linear-gradient(135deg, #d9f7be 0%, #73d13d 100%)",
-              glow: "0 0 14px rgba(115, 209, 61, 0.6)",
-              icon: <StarFilled style={{ color: "#16a34a" }} />,
-            },
-            C: {
-              gradient: "linear-gradient(135deg, #dbeafe 0%, #60a5fa 100%)",
-              glow: "0 0 12px rgba(96, 165, 250, 0.55)",
-              icon: <RocketFilled style={{ color: "#2563eb" }} />,
-            },
-            D: {
-              gradient: "linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%)",
-              glow: "0 0 10px rgba(251, 191, 36, 0.5)",
-              icon: <ToolOutlined style={{ color: "#d97706" }} />,
-            },
-            E: {
-              gradient: "linear-gradient(135deg, #fee2e2 0%, #f87171 100%)",
-              glow: "0 0 10px rgba(248, 113, 113, 0.45)",
-              icon: <AlertFilled style={{ color: "#dc2626" }} />,
-            },
-            F: {
-              gradient: "linear-gradient(135deg, #f3f4f6 0%, #cbd5f5 100%)",
-              glow: "0 0 10px rgba(99, 102, 241, 0.35)",
-              icon: <ThunderboltOutlined style={{ color: "#6366f1" }} />,
-            },
-            "-": {
-              gradient: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
-              glow: "0 0 8px rgba(148, 163, 184, 0.35)",
-              icon: <SafetyCertificateFilled style={{ color: "#64748b" }} />,
-            },
-          };
-
-          const config = gradeMap[normalized] ?? gradeMap["-"];
-
-          return (
-            <div
-              className="relative inline-flex items-center gap-2 px-3 py-1 rounded-full"
-              style={{
-                background: config.gradient,
-                boxShadow: config.glow,
-                color: "#1f2937",
-                fontWeight: 700,
-                position: "relative",
-                overflow: "hidden",
-                minWidth: 110,
-                justifyContent: "center",
-                animation: "pulseGlow 3s ease-in-out infinite",
-              }}
-            >
-              <span className="text-lg">{config.icon}</span>
-              <span>{normalized}</span>
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(120deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%)",
-                  transform: "translateX(-100%)",
-                  animation: "shine 4s ease-in-out infinite",
-                }}
-              />
-            </div>
-          );
-        },
-
+        filters: ["A", "B", "C", "D", "E", "F"].map((grade) => ({
+          text: grade,
+          value: grade,
+        })),
         onFilter: (value, record) =>
           (record.school_grade ?? "-").trim().toUpperCase() === value,
+        render: (value) => {
+          const normalized = (value ?? "-").trim().toUpperCase();
+          const config = GRADE_CONFIG[normalized] ?? GRADE_CONFIG["-"];
+          return (
+            <Tag color={config.color} icon={config.icon}>
+              {normalized}
+            </Tag>
+          );
+        },
       },
       {
         title: "สถานะการใช้งาน",
         dataIndex: "isActive",
         key: "isActive",
         sorter: (a, b) => compareValues(a.isActive, b.isActive),
-        filters: statusFilters,
-        render: (value?: string) => {
-          if (!value) {
-            return <Tag>-</Tag>;
-          }
-          const normalized = value.toLowerCase();
-          const color = statusColorMap[normalized] ?? "default";
-          return <Tag color={color}>{value}</Tag>;
-        },
+        filters: [
+          { text: "Active", value: "active" },
+          { text: "Inactive", value: "inactive" },
+        ],
         onFilter: (value, record) =>
           (record.isActive ?? "").toLowerCase() === String(value).toLowerCase(),
+        render: (value) => {
+          if (!value) return <Tag>-</Tag>;
+          const color = STATUS_COLOR_MAP[value.toLowerCase()] ?? "default";
+          return <Tag color={color}>{value}</Tag>;
+        },
       },
       {
         title: "เข้าสู่ระบบ",
         key: "actions",
         fixed: "right",
+        width: 160,
+        align: "center",
         render: (_value, record) => {
           const schoolId = String(record.school_id ?? "");
           const isOpen = openDropdownFor === schoolId;
@@ -596,30 +451,29 @@ export default function Page() {
           return (
             <Dropdown
               menu={{
-                items: menuItems,
-                onClick: ({ key }) => handleMenuItemClick(String(key), record),
+                items: buildBypassMenuItems(),
+                onClick: ({ key }) => handleMenuClick(String(key), record),
               }}
               trigger={["click"]}
               placement="bottomRight"
-              arrow
               open={isOpen}
-              onOpenChange={(open) => {
-                setOpenDropdownFor(open ? schoolId : null);
-              }}
+              onOpenChange={(open) =>
+                setOpenDropdownFor(open ? schoolId : null)
+              }
             >
               <Button
                 type="primary"
-                icon={<DownOutlined rotate={isOpen ? 180 : 0} />}
-                onClick={(e) => e.preventDefault()}
+                icon={<LoginOutlined />}
+                iconPosition="end"
               >
-                เลือกเซิร์ฟเวอร์
+                เลือกระบบ
               </Button>
             </Dropdown>
           );
         },
       },
     ],
-    [menuItems, handleMenuItemClick, openDropdownFor]
+    [handleMenuClick, openDropdownFor]
   );
 
   const handleTableChange: TableProps<SchoolDetail>["onChange"] = (
@@ -632,10 +486,15 @@ export default function Page() {
 
   return (
     <DashboardLayout>
-      <style>{gradeAnimationStyles}</style>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <HeaderBar 
+          title="บายพาสโรงเรียน"
+          subTitle="เครื่องมือสำหรับทีมซัพพอร์ตในการเข้าสู่ระบบโรงเรียนต่าง ๆ ได้อย่างรวดเร็ว"
+          icon={<LoginOutlined />}
+          color="none"
+        />
         <Card title="ค้นหาโรงเรียน" variant="outlined">
-          <div className="flex items-center gap-2">
+          <Space.Compact style={{ width: "100%" }}>
             <Select
               allowClear
               showSearch
@@ -643,24 +502,23 @@ export default function Page() {
               optionFilterProp="label"
               options={schoolOptions}
               value={selectedSchool}
-              onChange={(value) => setSelectedSchool(value || undefined)}
+              onChange={setSelectedSchool}
               style={{ width: "100%" }}
             />
-            <Button
-              danger
-              size="small"
-              onClick={() => setSelectedSchool(undefined)}
-              type="primary"
-            >
-              X
+            <Button danger onClick={() => setSelectedSchool(undefined)}>
+              ล้าง
             </Button>
-          </div>
+          </Space.Compact>
         </Card>
 
-        <Card title="ตารางแสดงรายละเอียดโรงเรียน" variant="outlined">
+        <Card
+          title="รายละเอียดโรงเรียน"
+          variant="outlined"
+          extra={<Badge count={filteredDetails.length} showZero />}
+        >
           <Table<SchoolDetail>
-            title={() => "รายละเอียดโรงเรียน"}
             columns={columns}
+            bordered={false}
             dataSource={filteredDetails}
             rowKey={(record) => String(record.school_id ?? record.company_name)}
             pagination={{
@@ -671,6 +529,7 @@ export default function Page() {
             }}
             scroll={{ x: 1200 }}
             onChange={handleTableChange}
+            size="middle"
           />
         </Card>
       </Space>
