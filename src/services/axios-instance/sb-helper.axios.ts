@@ -217,7 +217,7 @@ async function saveApiLog(config: any, response: any, duration: number, calledBy
 
 export const callApiService = axios.create({
     // baseURL: API_URL.SB_HELPER_URL,
-    timeout: 60000,
+    timeout: 120000, // 120 seconds
     // headers: {
     //     'Content-Type': 'application/json',
     // },
