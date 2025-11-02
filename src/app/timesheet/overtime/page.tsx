@@ -77,6 +77,12 @@ const BYPASS_ADMIN_ID = "117";
 const DEFAULT_HR_EMAIL =
   process.env.NEXT_PUBLIC_HR_EMAIL || "manager.hr@schoolbright.co";
 
+export const OT_STATUS = [
+  { text: "รออนุมัติ", value: "pending" },
+  { text: "อนุมัติ", value: "approved" },
+  { text: "ปฏิเสธ", value: "rejected" },
+];
+
 const getCurrentUserId = async (authentication: any): Promise<string> => {
   try {
     const authId = authentication?.response?.data?.user_data?.admin_id;
@@ -1098,7 +1104,7 @@ export default function OvertimeManagementPage() {
                   : "-"}
               </Descriptions.Item>
               <Descriptions.Item label="สถานะ">
-                {selectedDetail.status}
+                {OT_STATUS.find((data) => data.value === selectedDetail.status)?.text || ""}
               </Descriptions.Item>
               <Descriptions.Item label="สร้างโดย">
                 {selectedDetail.created_by}
