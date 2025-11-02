@@ -75,7 +75,7 @@ interface PaginationState {
 
 const BYPASS_ADMIN_ID = "117";
 const DEFAULT_HR_EMAIL =
-  process.env.NEXT_PUBLIC_HR_EMAIL || "lightofficialstudio@gmail.com";
+  process.env.NEXT_PUBLIC_HR_EMAIL || "manager.hr@schoolbright.co";
 
 const getCurrentUserId = async (authentication: any): Promise<string> => {
   try {
