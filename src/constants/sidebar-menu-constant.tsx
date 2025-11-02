@@ -234,7 +234,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("timesheet_system.children.overtime"),
             href: "/timesheet/overtime",
             news: true,
-            icon: <UnorderedListOutlined />,
+            icon: <ClockCircleOutlined />,
           },
         ],
       },
