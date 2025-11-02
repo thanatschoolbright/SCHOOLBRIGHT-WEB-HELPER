@@ -1104,7 +1104,8 @@ export default function OvertimeManagementPage() {
                   : "-"}
               </Descriptions.Item>
               <Descriptions.Item label="สถานะ">
-                {OT_STATUS.find((data) => data.value === selectedDetail.status)?.text || ""}
+                {OT_STATUS.find((data) => data.value === selectedDetail.status)
+                  ?.text || ""}
               </Descriptions.Item>
               <Descriptions.Item label="สร้างโดย">
                 {selectedDetail.created_by}
