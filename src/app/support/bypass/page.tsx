@@ -161,7 +161,7 @@ const BYPASS_TARGETS: Record<string, BypassTarget> = {
       },
       development: {
         label: "New Development",
-        url: "https://kindergarten-log.schoolbright.co/Home/ByPass?token=",
+        url: "https://kindergarten-dev.schoolbright.co/Home/ByPass?token=",
       },
     },
   },
@@ -487,7 +487,7 @@ export default function SchoolManagementPage() {
   return (
     <DashboardLayout>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        <HeaderBar 
+        <HeaderBar
           title="บายพาสโรงเรียน"
           subTitle="เครื่องมือสำหรับทีมซัพพอร์ตในการเข้าสู่ระบบโรงเรียนต่าง ๆ ได้อย่างรวดเร็ว"
           icon={<LoginOutlined />}

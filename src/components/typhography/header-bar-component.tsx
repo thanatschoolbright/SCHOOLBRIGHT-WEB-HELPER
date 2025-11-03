@@ -38,12 +38,19 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 }) => {
   const { token } = theme.useToken();
 
-  const background = color === "none" ? token.colorBgElevated : GRADIENTS[color];
+  const background =
+    color === "none" ? token.colorBgElevated : GRADIENTS[color];
   const titleColor = color === "none" ? token.colorText : token.colorWhite;
-  const subTitleColor = color === "none" ? token.colorTextSecondary : "rgba(255,255,255,0.9)";
+  const subTitleColor =
+    color === "none" ? token.colorTextSecondary : "rgba(255,255,255,0.9)";
 
   return (
-    <Row align="middle" justify="space-between" gutter={16} style={{ marginBottom: 24 }}>
+    <Row
+      align="middle"
+      justify="space-between"
+      gutter={16}
+      style={{ marginBottom: 24 }}
+    >
       <Col flex="auto">
         <div
           role="banner"
@@ -57,16 +64,31 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
             background,
           }}
         >
-          <Avatar size={56} shape="square" style={{ background: color === "none" ? token.colorBgElevated : "rgba(255,255,255,0.16)", color: titleColor }}>
+          <Avatar
+            size={56}
+            shape="square"
+            style={{
+              background:
+                color === "none"
+                  ? token.colorBgElevated
+                  : "rgba(255,255,255,0.16)",
+              color: titleColor,
+            }}
+          >
             {icon}
           </Avatar>
 
           <Space direction="vertical" size={0}>
-            <Typography.Title level={4} style={{ margin: 0, color: titleColor }}>
+            <Typography.Title
+              level={4}
+              style={{ margin: 0, color: titleColor }}
+            >
               {title}
             </Typography.Title>
             {subTitle && (
-              <Typography.Text style={{ color: subTitleColor }}>{subTitle}</Typography.Text>
+              <Typography.Text style={{ color: subTitleColor }}>
+                {subTitle}
+              </Typography.Text>
             )}
           </Space>
         </div>
@@ -74,7 +96,9 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
       <Col>
         <Tooltip title={title}>
-          <Typography.Text type="secondary">{/* helper area reserved */}</Typography.Text>
+          <Typography.Text type="secondary">
+            {/* helper area reserved */}
+          </Typography.Text>
         </Tooltip>
       </Col>
     </Row>
