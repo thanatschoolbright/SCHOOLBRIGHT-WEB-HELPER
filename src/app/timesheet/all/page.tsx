@@ -3,6 +3,7 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Card, Descriptions, Divider, Modal, Space, theme, Typography} from "antd";
+import { AreaChartOutlined } from "@ant-design/icons";
 import {utils, writeFile} from "xlsx";
 import dayjs from "dayjs";
 import {useDispatch} from "react-redux";
@@ -12,6 +13,7 @@ import "@/styles/timesheet-apple.css";
 
 import {HoursBadge, StatusBadge} from "@components/badge";
 import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 import PermissionLayout from "@components/layouts/permission-layout";
 import {
     TimesheetControlsSkeleton,
@@ -404,6 +406,7 @@ export default function TimesheetAllPage(): JSX.Element {
     return (
         <PermissionLayout role={["ADMIN"]}>
             <DashboardLayout>
+                <HeaderBar title="Timesheet • All" subTitle="จัดการบันทึกเวลาทั้งหมด" icon={<AreaChartOutlined />} color="none" />
                 {/* Modals */}
                 <GraphTimesheetModal
                     open={modalStates.graphModal}

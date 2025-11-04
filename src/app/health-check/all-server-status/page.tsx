@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { ResponseGetServerStatusV2 } from "@/stores/type";
@@ -464,6 +465,7 @@ const ServerStatusPage: React.FC = () => {
 
   return (
     <DashboardLayout>
+      <HeaderBar title="สถานะเซิร์ฟเวอร์" subTitle="ภาพรวมสถานะการออนไลน์ของทุกระบบ" icon={<CloudOutlined />} color="none" />
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <StatisticsCard
           stats={stats}

@@ -157,11 +157,11 @@ const BYPASS_TARGETS: Record<string, BypassTarget> = {
       },
       legacy: {
         label: "Old Course",
-        url: "https://kindergarten-log.schoolbright.co/Home/ByPass?token=",
+        url: "https://kindergarten-dev.schoolbright.co/Home/ByPass?token=",
       },
       development: {
         label: "New Development",
-        url: "https://kindergarten-dev.schoolbright.co/Home/ByPass?token=",
+        url: "https://kindergarten-log.schoolbright.co/Home/ByPass?token=",
       },
     },
   },
