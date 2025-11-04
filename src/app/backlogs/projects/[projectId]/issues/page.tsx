@@ -253,18 +253,36 @@ function ProjectIssuesPageContent() {
             <Divider />
 
             {/* Component: ตัวกรองข้อมูล (ซ่อน/แสดงได้เหมือน accordion) */}
-            <Collapse accordion defaultActiveKey={["filters"]}>
-              <Collapse.Panel header="ตัวกรอง" key="filters">
-                <IssueFilter onSearch={LOAD_ISSUES_FUNCTION} elevatedCardStyle={{}} />
-              </Collapse.Panel>
-            </Collapse>
+            <Collapse
+              accordion
+              defaultActiveKey={["filters"]}
+              items={[
+                {
+                  key: "filters",
+                  label: "ตัวกรอง",
+                  children: <IssueFilter onSearch={LOAD_ISSUES_FUNCTION} elevatedCardStyle={{}} />,
+                },
+              ]}
+            />
 
             {/* Component: การอัปเดตแบบกลุ่ม (ซ่อน/แสดงได้) */}
-            <Collapse>
-              <Collapse.Panel header="การอัปเดตแบบกลุ่ม" key="bulk-update">
-                <BulkUpdateSection elevatedCardStyle={{}} projectName={projectName} projectId={projectId} space={space} onUpdateComplete={LOAD_ISSUES_FUNCTION} />
-              </Collapse.Panel>
-            </Collapse>
+            <Collapse
+              items={[
+                {
+                  key: "bulk-update",
+                  label: "การอัปเดตแบบกลุ่ม",
+                  children: (
+                    <BulkUpdateSection
+                      elevatedCardStyle={{}}
+                      projectName={projectName}
+                      projectId={projectId}
+                      space={space}
+                      onUpdateComplete={LOAD_ISSUES_FUNCTION}
+                    />
+                  ),
+                },
+              ]}
+            />
 
             {/* Component: ตารางแสดงรายการงาน (ห่อด้วย Card เพื่อความสวยงาม) */}
             <Card bordered>
