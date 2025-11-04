@@ -196,8 +196,32 @@ const BYPASS_TARGETS: Record<string, BypassTarget> = {
 };
 
 // ==================== Utility Functions ====================
-const compareValues = (a: unknown, b: unknown): number =>
-  COLLATOR.compare(String(a ?? ""), String(b ?? ""));
+const compareValues = (a: unknown, b: unknown): number => {
+  const normalize = (v: unknown): string => {
+    if (v == null) {
+      return "";
+    }
+
+    const t = typeof v;
+    if (t === "string") {
+      return v as string;
+    } else if (t === "number") {
+      return (v as number).toString();
+    } else if (t === "boolean") {
+      return (v as boolean).toString();
+    } else if (t === "object") {
+      try {
+        return JSON.stringify(v as Record<string, unknown>);
+      } catch {
+        return Object.prototype.toString.call(v);
+      }
+    }
+
+    return Object.prototype.toString.call(v);
+  };
+
+  return COLLATOR.compare(normalize(a), normalize(b));
+};
 
 const parseLocalStorage = <T,>(key: string, defaultValue: T): T => {
   try {
@@ -313,9 +337,82 @@ export default function SchoolManagementPage() {
           ? `${schoolName} (${schoolId})`
           : `รหัสโรงเรียน ${schoolId}`;
 
+        const copyToClipboard = async (text: string) => {
+          try {
+            await navigator.clipboard.writeText(text);
+            toast.success("คัดลอกแล้ว");
+          } catch (copyError) {
+            toast.error("คัดลอกไม่สำเร็จ");
+          }
+        };
+
+        const extractTokenFromUrl = (fullUrl: string): string => {
+          try {
+            // token is the last query value after '=' or 'token=' or 'q='
+            const urlObj = new URL(fullUrl);
+            const params = urlObj.searchParams;
+            // try common param names
+            for (const key of ["token", "q"]) {
+              const v = params.get(key);
+              if (v) return v;
+            }
+            // fallback: take everything after the last '=' in the href
+            const href = fullUrl;
+            const idx = href.lastIndexOf("=");
+            return idx >= 0 ? href.slice(idx + 1) : "";
+          } catch {
+            // fallback string parse
+            const idx = fullUrl.lastIndexOf("=");
+            return idx >= 0 ? fullUrl.slice(idx + 1) : "";
+          }
+        };
+
         toast.success(`เปิดลิงก์ ${plainTargetName} · ${environmentLabel}`, {
           description: schoolDisplay,
           duration: 3000,
+          action: (
+            <Space direction="vertical" size={4}>
+              <Button
+                block
+                size="small"
+                type="default"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  copyToClipboard(finalUrl);
+                }}
+                style={{
+                  backgroundColor: "#000",
+                  color: "#fff",
+                  borderRadius: 999,
+                  border: "none",
+                  height: 28,
+                  padding: "0 10px",
+                }}
+              >
+                คัดลอกลิงก์
+              </Button>
+              <Button
+                block
+                size="small"
+                type="default"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const tokenOnly = extractTokenFromUrl(finalUrl);
+                  copyToClipboard(tokenOnly);
+                }}
+                style={{
+                  backgroundColor: "#000",
+                  color: "#fff",
+                  borderRadius: 999,
+                  border: "none",
+                  height: 28,
+                  padding: "0 10px",
+                }}
+              >
+                คัดลอก Token
+              </Button>
+            </Space>
+          ),
         });
 
         window.open(finalUrl, "_blank", "noopener,noreferrer");
@@ -449,10 +546,10 @@ export default function SchoolManagementPage() {
           const isOpen = openDropdownFor === schoolId;
 
           return (
-            <Dropdown
+              <Dropdown
               menu={{
                 items: buildBypassMenuItems(),
-                onClick: ({ key }) => handleMenuClick(String(key), record),
+                onClick: ({ key }) => void handleMenuClick(String(key), record),
               }}
               trigger={["click"]}
               placement="bottomRight"
