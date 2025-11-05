@@ -86,12 +86,6 @@ jobs:
         with:
           ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
       - name: Install Dependencies
         run: npm ci --prefer-offline --no-audit
 
@@ -134,17 +128,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Verify Bun Installation
         run: bun --version
