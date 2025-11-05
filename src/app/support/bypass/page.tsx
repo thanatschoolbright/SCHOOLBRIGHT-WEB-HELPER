@@ -369,7 +369,7 @@ export default function SchoolManagementPage() {
 
         toast.success(`เปิดลิงก์ ${plainTargetName} · ${environmentLabel}`, {
           description: schoolDisplay,
-          duration: 3000,
+          duration: 30000,
           action: (
             <Space direction="vertical" size={4}>
               <Button

@@ -29,6 +29,7 @@ import { AppDispatch, useAppSelector } from "@stores/store";
 import { RequestQRCodeGenerator } from "@stores/type";
 import { CallAPI as POST_QRCODE_HEALTH_CHECK } from "@stores/actions/mobile/qrcode-health-check/action";
 import BaseLoadingComponent from "@/components/loading/loading-component-1";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 
 export default function Page() {
   const dispatch = useDispatch<AppDispatch>();
@@ -159,6 +160,7 @@ export default function Page() {
 
   return (
     <DashboardLayout>
+      <HeaderBar title="QR Code Health Check" subTitle="เครื่องมือสร้าง QR Code สำหรับการตรวจสุขภาพ" icon={<CheckCircleFilled />} color="none" />
       {isLoading && <BaseLoadingComponent />}
 
       <Space direction="vertical" size={24} style={{ width: "100%" }}>

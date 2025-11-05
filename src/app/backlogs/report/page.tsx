@@ -22,6 +22,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@components/typhography/header-bar-component";
+import { FileTextOutlined } from "@ant-design/icons";
 import ProjectsTable from "@components/backlog/projects-table";
 import SpaceInputCard from "@components/backlog/space-input-card";
 import type { BacklogProject } from "@components/backlog/types";
@@ -126,6 +128,7 @@ export default function Page(): JSX.Element {
 
   return (
     <DashboardLayout>
+      <HeaderBar title="Backlogs Report" subTitle="รายงานโครงการและ Issues" icon={<FileTextOutlined />} color="none" />
       <Space
         direction="vertical"
         size={16}

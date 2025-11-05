@@ -3,6 +3,8 @@
 import React from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import {Card, Space, Typography} from "antd";
+import { HeaderBar } from "@components/typhography/header-bar-component";
+import { ThunderboltOutlined } from "@ant-design/icons";
 import ReleaseNoteGroupCard from "@components/release-note/release-note-group-card";
 import type {ReleaseNoteGroup} from "@components/release-note/types";
 
@@ -11,6 +13,7 @@ export default function DashboardPage() {
     return (
         <DashboardLayout>
             <Space direction="vertical" size={16} style={{width: "100%", marginTop: 16}}>
+                <HeaderBar title="Dashboard" subTitle="Release notes and overview" icon={<ThunderboltOutlined />} color="none" />
                 {/* 1) หัวเรื่องหน้า */}
                 <Card size="small">
                     <Space direction="vertical" size={4}>

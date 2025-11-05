@@ -31,12 +31,14 @@ import {
   DeleteOutlined,
   InfoCircleOutlined,
   ArrowRightOutlined,
+  ProjectOutlined,
 } from "@ant-design/icons";
 import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 import { categoryType } from "@data/timesheet.category.type";
 import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
 import { UserProfile } from "@/stores/type";
 import PermissionLayout from "@/components/layouts/permission-layout";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 
 // ประกาศ interface สำหรับข้อมูลโปรเจค
 interface Project {
@@ -343,6 +345,7 @@ export default function Page() {
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
+        <HeaderBar title="Projects" subTitle="จัดการโครงการ Timesheet" icon={<ProjectOutlined />} color="none" />
         <div className="w-full space-y-4">
           {/* ปุ่มเพิ่มโครงการใหม่ */}
           <div className="w-full flex justify-end">
