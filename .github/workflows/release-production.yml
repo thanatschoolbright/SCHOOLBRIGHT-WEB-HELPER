@@ -202,24 +202,24 @@ jobs:
           if [ -d "${{ env.DEPLOY_PATH }}" ]; then
             BACKUP_DIR="${{ env.DEPLOY_PATH }}.backup.$(date +%Y%m%d_%H%M%S)"
             echo "💾 Creating backup: ${BACKUP_DIR}"
-            cp -r "${{ env.DEPLOY_PATH }}" "${BACKUP_DIR}"
+            sudo cp -r "${{ env.DEPLOY_PATH }}" "${BACKUP_DIR}"
             
             # Keep only last 3 backups
-            ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | tail -n +4 | xargs rm -rf 2>/dev/null || true
+            ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | tail -n +4 | xargs sudo rm -rf 2>/dev/null || true
           fi
 
           # Prepare deployment directory
-          mkdir -p "${{ env.DEPLOY_PATH }}"
+          sudo mkdir -p "${{ env.DEPLOY_PATH }}"
           cd "${{ env.DEPLOY_PATH }}"
 
           # Backup environment file
           if [ -f ".env" ]; then
-            cp .env .env.backup
+            sudo cp .env .env.backup
             echo "✅ Environment file backed up"
           fi
 
           # Clean old files (except .env)
-          find . -mindepth 1 ! -name '.env*' -delete
+          sudo find . -mindepth 1 ! -name '.env*' -delete
           echo "✅ Deployment directory prepared"
 
       - name: Copy Build Files
@@ -228,24 +228,24 @@ jobs:
           echo "📦 Copying build files to deployment directory..."
 
           # Copy built files from GitHub Actions workspace to deployment directory
-          cp -r ${{ github.workspace }}/.next "${{ env.DEPLOY_PATH }}/"
-          cp -r ${{ github.workspace }}/public "${{ env.DEPLOY_PATH }}/"
+          sudo cp -r ${{ github.workspace }}/.next "${{ env.DEPLOY_PATH }}/"
+          sudo cp -r ${{ github.workspace }}/public "${{ env.DEPLOY_PATH }}/"
 
           # Copy Prisma generated files if they exist
           if [ -d "${{ github.workspace }}/generated/prisma" ]; then
-            mkdir -p "${{ env.DEPLOY_PATH }}/generated"
-            cp -r ${{ github.workspace }}/generated/prisma "${{ env.DEPLOY_PATH }}/generated/"
+            sudo mkdir -p "${{ env.DEPLOY_PATH }}/generated"
+            sudo cp -r ${{ github.workspace }}/generated/prisma "${{ env.DEPLOY_PATH }}/generated/"
           fi
 
           if [ -d "${{ github.workspace }}/generated/prisma-timesheet" ]; then
-            mkdir -p "${{ env.DEPLOY_PATH }}/generated"
-            cp -r ${{ github.workspace }}/generated/prisma-timesheet "${{ env.DEPLOY_PATH }}/generated/"
+            sudo mkdir -p "${{ env.DEPLOY_PATH }}/generated"
+            sudo cp -r ${{ github.workspace }}/generated/prisma-timesheet "${{ env.DEPLOY_PATH }}/generated/"
           fi
 
           # Copy configuration files
-          cp ${{ github.workspace }}/package.json "${{ env.DEPLOY_PATH }}/"
-          cp ${{ github.workspace }}/package-lock.json "${{ env.DEPLOY_PATH }}/"
-          cp ${{ github.workspace }}/next.config.mjs "${{ env.DEPLOY_PATH }}/"
+          sudo cp ${{ github.workspace }}/package.json "${{ env.DEPLOY_PATH }}/"
+          sudo cp ${{ github.workspace }}/package-lock.json "${{ env.DEPLOY_PATH }}/"
+          sudo cp ${{ github.workspace }}/next.config.mjs "${{ env.DEPLOY_PATH }}/"
 
           echo "✅ Build files copied successfully"
 
@@ -256,15 +256,15 @@ jobs:
 
           # Restore environment file
           if [ -f ".env.backup" ]; then
-            mv .env.backup .env
+            sudo mv .env.backup .env
             echo "✅ Environment file restored"
           fi
 
           echo "📦 Installing production dependencies (omitting devDependencies)..."
           # Use --omit=dev (preferred) instead of the deprecated --production flag.
           # If peer dependency resolution fails in some npm versions, retry with --legacy-peer-deps
-          npm ci --omit=dev --prefer-offline --no-audit || \
-          npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
+          sudo npm ci --omit=dev --prefer-offline --no-audit || \
+          sudo npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
 
           # Verify critical dependencies
           if [ ! -d "node_modules" ] || [ ! -f "node_modules/next/dist/bin/next" ]; then
@@ -275,7 +275,7 @@ jobs:
           echo "✅ Dependencies installed successfully"
 
           # Set proper permissions
-          chown -R www-data:www-data "${{ env.DEPLOY_PATH }}" || true
+          sudo chown -R www-data:www-data "${{ env.DEPLOY_PATH }}" || true
 
           echo "🔄 Restarting application service..."
           sudo systemctl restart sb-web-helper.service
@@ -382,11 +382,11 @@ jobs:
 
           # Backup failed deployment for investigation
           if [ -d "${{ env.DEPLOY_PATH }}" ]; then
-            mv "${{ env.DEPLOY_PATH }}" "${{ env.DEPLOY_PATH }}.failed.$(date +%Y%m%d_%H%M%S)"
+            sudo mv "${{ env.DEPLOY_PATH }}" "${{ env.DEPLOY_PATH }}.failed.$(date +%Y%m%d_%H%M%S)"
           fi
 
           # Restore backup
-          mv "${LATEST_BACKUP}" "${{ env.DEPLOY_PATH }}"
+          sudo mv "${LATEST_BACKUP}" "${{ env.DEPLOY_PATH }}"
 
           # Restart service
           sudo systemctl restart sb-web-helper.service
