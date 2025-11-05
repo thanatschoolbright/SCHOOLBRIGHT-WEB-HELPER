@@ -340,9 +340,10 @@ export default function SchoolManagementPage() {
         const copyToClipboard = async (text: string) => {
           try {
             await navigator.clipboard.writeText(text);
+            console.info("[COPY TO CLIPBOARD] \n", text);
             toast.success("คัดลอกแล้ว");
           } catch (copyError) {
-            toast.error("คัดลอกไม่สำเร็จ");
+            toast.error(`ไม่สามารถคัดลอกได้: ${copyError}`);
           }
         };
 
@@ -546,7 +547,7 @@ export default function SchoolManagementPage() {
           const isOpen = openDropdownFor === schoolId;
 
           return (
-              <Dropdown
+            <Dropdown
               menu={{
                 items: buildBypassMenuItems(),
                 onClick: ({ key }) => void handleMenuClick(String(key), record),
