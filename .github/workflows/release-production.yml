@@ -32,7 +32,7 @@ jobs:
   # ============================================
   pre_flight_checks:
     name: 🔍 Pre-flight Checks
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     timeout-minutes: 5
     environment:
       name: production
@@ -61,30 +61,14 @@ jobs:
           echo "sha=${SHA}" >> $GITHUB_OUTPUT
           echo "📍 Deploying: ${REF} (${SHA:0:8})"
 
-      - name: Validate SSH Configuration
+      - name: Validate Deployment Directory
         timeout-minutes: 2
         run: |
-          if [ -z "${{ secrets.HUAWEI_CLOUD_HOST }}" ] || \
-             [ -z "${{ secrets.HUAWEI_CLOUD_USERNAME }}" ] || \
-             [ -z "${{ secrets.HUAWEI_CLOUD_PASSWORD }}" ]; then
-            echo "❌ Missing required SSH secrets"
-            exit 1
+          if [ ! -d "${{ env.DEPLOY_PATH }}" ]; then
+            echo "⚠️ Deployment directory does not exist, creating..."
+            mkdir -p "${{ env.DEPLOY_PATH }}"
           fi
-          echo "✅ SSH configuration validated"
-
-      - name: Test Server Connectivity
-        timeout-minutes: 2
-        run: |
-          sshpass -p "${{ secrets.HUAWEI_CLOUD_PASSWORD }}" \
-            ssh -o StrictHostKeyChecking=no \
-                -o ConnectTimeout=10 \
-                -o ServerAliveInterval=5 \
-                -o ServerAliveCountMax=2 \
-                ${{ secrets.HUAWEI_CLOUD_USERNAME }}@${{ secrets.HUAWEI_CLOUD_HOST }} \
-                "echo '✅ Server connection successful'" || {
-            echo "❌ Failed to connect to production server"
-            exit 1
-          }
+          echo "✅ Deployment directory validated"
 
   # ============================================
   # Code Quality & Security
@@ -140,7 +124,7 @@ jobs:
   # ============================================
   build:
     name: 🔨 Build Application
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     timeout-minutes: 30
     needs: [pre_flight_checks]
 
@@ -196,35 +180,12 @@ jobs:
           fi
           echo "✅ Build output verified"
 
-      - name: Create Deployment Archive
-        run: |
-          echo "📦 Creating deployment package..."
-          zip -r -q ${{ env.ARTIFACT_NAME }}.zip \
-            .next \
-            public \
-            $([ -d "generated/prisma" ] && echo "generated/prisma") \
-            $([ -d "generated/prisma-timesheet" ] && echo "generated/prisma-timesheet") \
-            package.json \
-            package-lock.json \
-            next.config.mjs
-
-          SIZE=$(du -h "${{ env.ARTIFACT_NAME }}.zip" | cut -f1)
-          echo "✅ Archive created (${SIZE})"
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_NAME }}.zip
-          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
-          compression-level: 0
-
   # ============================================
   # Deploy to Production
   # ============================================
   deploy:
     name: 🚀 Deploy to Production
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     timeout-minutes: 20
     needs: [pre_flight_checks, build]
     environment:
@@ -232,133 +193,126 @@ jobs:
       url: https://sb-helper.schoolbright.co
 
     steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-
       - name: Prepare Deployment
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-          username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-          password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-          port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-          command_timeout: 10m
-          script: |
-            set -e
-            echo "🔧 Preparing deployment directory..."
+        run: |
+          set -e
+          echo "🔧 Preparing deployment directory..."
 
-            # Create backup of current deployment
-            if [ -d "${{ env.DEPLOY_PATH }}" ]; then
-              BACKUP_DIR="${{ env.DEPLOY_PATH }}.backup.$(date +%Y%m%d_%H%M%S)"
-              echo "💾 Creating backup: ${BACKUP_DIR}"
-              cp -r "${{ env.DEPLOY_PATH }}" "${BACKUP_DIR}"
-              
-              # Keep only last 3 backups
-              ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | tail -n +4 | xargs rm -rf 2>/dev/null || true
-            fi
+          # Create backup of current deployment
+          if [ -d "${{ env.DEPLOY_PATH }}" ]; then
+            BACKUP_DIR="${{ env.DEPLOY_PATH }}.backup.$(date +%Y%m%d_%H%M%S)"
+            echo "💾 Creating backup: ${BACKUP_DIR}"
+            cp -r "${{ env.DEPLOY_PATH }}" "${BACKUP_DIR}"
+            
+            # Keep only last 3 backups
+            ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | tail -n +4 | xargs rm -rf 2>/dev/null || true
+          fi
 
-            # Prepare deployment directory
-            mkdir -p "${{ env.DEPLOY_PATH }}"
-            cd "${{ env.DEPLOY_PATH }}"
+          # Prepare deployment directory
+          mkdir -p "${{ env.DEPLOY_PATH }}"
+          cd "${{ env.DEPLOY_PATH }}"
 
-            # Backup environment file
-            if [ -f ".env" ]; then
-              cp .env .env.backup
-              echo "✅ Environment file backed up"
-            fi
+          # Backup environment file
+          if [ -f ".env" ]; then
+            cp .env .env.backup
+            echo "✅ Environment file backed up"
+          fi
 
-            # Clean old files (except .env)
-            find . -mindepth 1 ! -name '.env*' -delete
-            echo "✅ Deployment directory prepared"
+          # Clean old files (except .env)
+          find . -mindepth 1 ! -name '.env*' -delete
+          echo "✅ Deployment directory prepared"
 
-      - name: Transfer Build to Server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-          username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-          password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-          port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-          source: "${{ env.ARTIFACT_NAME }}.zip"
-          target: ${{ env.DEPLOY_PATH }}
-          timeout: 10m
+      - name: Copy Build Files
+        run: |
+          set -e
+          echo "📦 Copying build files to deployment directory..."
+
+          # Copy built files from GitHub Actions workspace to deployment directory
+          cp -r ${{ github.workspace }}/.next "${{ env.DEPLOY_PATH }}/"
+          cp -r ${{ github.workspace }}/public "${{ env.DEPLOY_PATH }}/"
+
+          # Copy Prisma generated files if they exist
+          if [ -d "${{ github.workspace }}/generated/prisma" ]; then
+            mkdir -p "${{ env.DEPLOY_PATH }}/generated"
+            cp -r ${{ github.workspace }}/generated/prisma "${{ env.DEPLOY_PATH }}/generated/"
+          fi
+
+          if [ -d "${{ github.workspace }}/generated/prisma-timesheet" ]; then
+            mkdir -p "${{ env.DEPLOY_PATH }}/generated"
+            cp -r ${{ github.workspace }}/generated/prisma-timesheet "${{ env.DEPLOY_PATH }}/generated/"
+          fi
+
+          # Copy configuration files
+          cp ${{ github.workspace }}/package.json "${{ env.DEPLOY_PATH }}/"
+          cp ${{ github.workspace }}/package-lock.json "${{ env.DEPLOY_PATH }}/"
+          cp ${{ github.workspace }}/next.config.mjs "${{ env.DEPLOY_PATH }}/"
+
+          echo "✅ Build files copied successfully"
 
       - name: Deploy Application
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-          username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-          password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-          port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-          command_timeout: 15m
-          script: |
-            set -e
-            cd "${{ env.DEPLOY_PATH }}"
+        run: |
+          set -e
+          cd "${{ env.DEPLOY_PATH }}"
 
-            echo "📦 Extracting deployment package..."
-            unzip -oq "${{ env.ARTIFACT_NAME }}.zip"
-            rm "${{ env.ARTIFACT_NAME }}.zip"
+          # Restore environment file
+          if [ -f ".env.backup" ]; then
+            mv .env.backup .env
+            echo "✅ Environment file restored"
+          fi
 
-            # Restore environment file
-            if [ -f ".env.backup" ]; then
-              mv .env.backup .env
-              echo "✅ Environment file restored"
+          echo "📦 Installing production dependencies (omitting devDependencies)..."
+          # Use --omit=dev (preferred) instead of the deprecated --production flag.
+          # If peer dependency resolution fails in some npm versions, retry with --legacy-peer-deps
+          npm ci --omit=dev --prefer-offline --no-audit || \
+          npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
+
+          # Verify critical dependencies
+          if [ ! -d "node_modules" ] || [ ! -f "node_modules/next/dist/bin/next" ]; then
+            echo "❌ Critical dependencies missing!"
+            exit 1
+          fi
+
+          echo "✅ Dependencies installed successfully"
+
+          # Set proper permissions
+          chown -R www-data:www-data "${{ env.DEPLOY_PATH }}" || true
+
+          echo "🔄 Restarting application service..."
+          sudo systemctl restart sb-web-helper.service
+
+          # Wait for service to initialize
+          sleep 5
+
+          # Health check with retries
+          MAX_RETRIES=6
+          RETRY_COUNT=0
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if sudo systemctl is-active --quiet sb-web-helper.service; then
+              echo "✅ Service is running and healthy"
+              break
             fi
-
-            echo "📦 Installing production dependencies (omitting devDependencies)..."
-            # Use --omit=dev (preferred) instead of the deprecated --production flag.
-            # If peer dependency resolution fails in some npm versions, retry with --legacy-peer-deps
-            npm ci --omit=dev --prefer-offline --no-audit || \
-            npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
-
-            # Verify critical dependencies
-            if [ ! -d "node_modules" ] || [ ! -f "node_modules/next/dist/bin/next" ]; then
-              echo "❌ Critical dependencies missing!"
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+              echo "❌ Service failed health check after ${MAX_RETRIES} attempts"
+              echo "📋 Recent logs:"
+              sudo journalctl -u sb-web-helper.service -n 30 --no-pager
               exit 1
             fi
-
-            echo "✅ Dependencies installed successfully"
-
-            # Set proper permissions
-            chown -R www-data:www-data "${{ env.DEPLOY_PATH }}" || true
-
-            echo "🔄 Restarting application service..."
-            sudo systemctl restart sb-web-helper.service
-
-            # Wait for service to initialize
+            
+            echo "⏳ Waiting for service to start (attempt ${RETRY_COUNT}/${MAX_RETRIES})..."
             sleep 5
+          done
 
-            # Health check with retries
-            MAX_RETRIES=6
-            RETRY_COUNT=0
-
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              if sudo systemctl is-active --quiet sb-web-helper.service; then
-                echo "✅ Service is running and healthy"
-                break
-              fi
-              
-              RETRY_COUNT=$((RETRY_COUNT + 1))
-              if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-                echo "❌ Service failed health check after ${MAX_RETRIES} attempts"
-                echo "📋 Recent logs:"
-                sudo journalctl -u sb-web-helper.service -n 30 --no-pager
-                exit 1
-              fi
-              
-              echo "⏳ Waiting for service to start (attempt ${RETRY_COUNT}/${MAX_RETRIES})..."
-              sleep 5
-            done
-
-            echo "✅ Deployment completed successfully!"
+          echo "✅ Deployment completed successfully!"
 
   # ============================================
   # Post-deployment Verification
   # ============================================
   verify:
     name: ✅ Post-deployment Verification
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     timeout-minutes: 5
     needs: [deploy, pre_flight_checks]
     environment:
@@ -366,33 +320,27 @@ jobs:
 
     steps:
       - name: Verify Service Status
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-          username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-          password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-          port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-          script: |
-            set -e
+        run: |
+          set -e
 
-            echo "🔍 Verifying deployment..."
+          echo "🔍 Verifying deployment..."
 
-            # Check service status
-            if ! sudo systemctl is-active --quiet sb-web-helper.service; then
-              echo "❌ Service is not running!"
-              exit 1
-            fi
+          # Check service status
+          if ! sudo systemctl is-active --quiet sb-web-helper.service; then
+            echo "❌ Service is not running!"
+            exit 1
+          fi
 
-            # Check if application is responding
-            if ! curl -sf http://localhost:3000 > /dev/null 2>&1; then
-              echo "⚠️ Application may not be responding on localhost"
-            fi
+          # Check if application is responding
+          if ! curl -sf http://localhost:3000 > /dev/null 2>&1; then
+            echo "⚠️ Application may not be responding on localhost"
+          fi
 
-            # Display service info
-            echo "📊 Service Status:"
-            sudo systemctl status sb-web-helper.service --no-pager -l | head -n 15
+          # Display service info
+          echo "📊 Service Status:"
+          sudo systemctl status sb-web-helper.service --no-pager -l | head -n 15
 
-            echo "✅ Verification completed"
+          echo "✅ Verification completed"
 
       - name: Deployment Summary
         run: |
@@ -409,7 +357,7 @@ jobs:
   # ============================================
   rollback:
     name: 🔄 Rollback Deployment
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     timeout-minutes: 10
     needs: [deploy, verify]
     environment:
@@ -418,44 +366,38 @@ jobs:
 
     steps:
       - name: Restore Previous Version
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-          username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-          password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-          port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-          script: |
-            set -e
-            echo "🔄 Initiating rollback..."
+        run: |
+          set -e
+          echo "🔄 Initiating rollback..."
 
-            # Find most recent backup
-            LATEST_BACKUP=$(ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | head -n1)
+          # Find most recent backup
+          LATEST_BACKUP=$(ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | head -n1)
 
-            if [ -z "$LATEST_BACKUP" ]; then
-              echo "❌ No backup found for rollback!"
-              exit 1
-            fi
+          if [ -z "$LATEST_BACKUP" ]; then
+            echo "❌ No backup found for rollback!"
+            exit 1
+          fi
 
-            echo "📦 Restoring from: ${LATEST_BACKUP}"
+          echo "📦 Restoring from: ${LATEST_BACKUP}"
 
-            # Backup failed deployment for investigation
-            if [ -d "${{ env.DEPLOY_PATH }}" ]; then
-              mv "${{ env.DEPLOY_PATH }}" "${{ env.DEPLOY_PATH }}.failed.$(date +%Y%m%d_%H%M%S)"
-            fi
+          # Backup failed deployment for investigation
+          if [ -d "${{ env.DEPLOY_PATH }}" ]; then
+            mv "${{ env.DEPLOY_PATH }}" "${{ env.DEPLOY_PATH }}.failed.$(date +%Y%m%d_%H%M%S)"
+          fi
 
-            # Restore backup
-            mv "${LATEST_BACKUP}" "${{ env.DEPLOY_PATH }}"
+          # Restore backup
+          mv "${LATEST_BACKUP}" "${{ env.DEPLOY_PATH }}"
 
-            # Restart service
-            sudo systemctl restart sb-web-helper.service
-            sleep 5
+          # Restart service
+          sudo systemctl restart sb-web-helper.service
+          sleep 5
 
-            if sudo systemctl is-active --quiet sb-web-helper.service; then
-              echo "✅ Rollback completed successfully"
-            else
-              echo "❌ Rollback failed - manual intervention required!"
-              exit 1
-            fi
+          if sudo systemctl is-active --quiet sb-web-helper.service; then
+            echo "✅ Rollback completed successfully"
+          else
+            echo "❌ Rollback failed - manual intervention required!"
+            exit 1
+          fi
 
       - name: Notify Rollback
         run: |
