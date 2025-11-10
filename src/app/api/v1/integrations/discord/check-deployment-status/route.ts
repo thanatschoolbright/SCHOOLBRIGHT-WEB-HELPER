@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     let mentionUser = "<@692371893826879568>"; // default
     let discordWebhook =
-      process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
+      process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_CHECK_STATUS_DEPLOY_BOT;
 
     if (
       repoName === "Jabjai-Corporation/robodocs-api-main" ||
