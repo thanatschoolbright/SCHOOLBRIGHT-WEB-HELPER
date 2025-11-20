@@ -65,7 +65,7 @@ export const Service = {
     backlogDescription?: any;
     startDate: Date;
     endDate: Date;
-    assetCaptureType?: SubProjectAssetCaptureType
+    assetCaptureType?: SubProjectAssetCaptureType;
   }) {
     return await PrismaTimesheet.feature.create({
       data: {
@@ -75,7 +75,7 @@ export const Service = {
         backlogDescription: data.backlogDescription,
         startDate: data.startDate,
         endDate: data.endDate,
-        assetCaptureType: data.assetCaptureType ?? "CAPTUREABLE"
+        assetCaptureType: data.assetCaptureType ?? "CAPTUREABLE",
       },
     });
   },
@@ -89,7 +89,7 @@ export const Service = {
       backlogDescription?: any;
       startDate: Date;
       endDate: Date;
-      assetCaptureType?: SubProjectAssetCaptureType
+      assetCaptureType?: SubProjectAssetCaptureType;
     }
   ) {
     return await PrismaTimesheet.feature.update({
@@ -101,7 +101,7 @@ export const Service = {
           backlogDescription: data.backlogDescription,
           startDate: data.startDate,
           endDate: data.endDate,
-          assetCaptureType: data.assetCaptureType
+          assetCaptureType: data.assetCaptureType,
         }),
       },
     });
