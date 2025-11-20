@@ -143,7 +143,8 @@ exports.Prisma.FeatureScalarFieldEnum = {
   updatedBy: 'updatedBy',
   is_deleted: 'is_deleted',
   startDate: 'startDate',
-  endDate: 'endDate'
+  endDate: 'endDate',
+  assetCaptureType: 'assetCaptureType'
 };
 
 exports.Prisma.TimesheetEntryScalarFieldEnum = {
@@ -230,7 +231,10 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-
+exports.ProjectAssetCaptureType = exports.$Enums.ProjectAssetCaptureType = {
+  CAPTUREABLE: 'CAPTUREABLE',
+  UN_CAPTUREABLE: 'UN_CAPTUREABLE'
+};
 
 exports.Prisma.ModelName = {
   Project: 'Project',

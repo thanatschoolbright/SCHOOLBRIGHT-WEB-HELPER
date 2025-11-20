@@ -7,4 +7,5 @@ export const Schema = z.object({
   by: z.union([z.number().min(1), z.string().min(1)]),
   backlogDescription: z.any().optional(),
   dateRange: z.any().optional(),
+  assetCaptureType: z.enum(["CAPTUREABLE", "UN_CAPTUREABLE"]).optional(),
 });

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(request, Schema);
   if (error) return error;
 
-  const { id, name, project_id, by, backlogDescription, dateRange } = data;
+  const { id, name, project_id, by, backlogDescription, dateRange , assetCaptureType } = data;
 
   const startDate = dateRange[0];
   const endDate = dateRange[1];
@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
           name,
           updatedBy: Number(by),
           backlogDescription: backlogDescription,
+          assetCaptureType: assetCaptureType ?? "CAPTUREABLE",
           startDate,
           endDate,
         })

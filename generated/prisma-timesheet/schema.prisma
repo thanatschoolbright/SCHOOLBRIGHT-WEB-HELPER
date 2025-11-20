@@ -9,6 +9,11 @@ datasource timesheet {
   url      = env("DATABASE_TIMESHEET_URL")
 }
 
+enum ProjectAssetCaptureType {
+  CAPTUREABLE
+  UN_CAPTUREABLE
+}
+
 model Project {
   id           Int              @id @default(autoincrement()) @map("id")
   categoryType String?          @map("category_type")
@@ -26,18 +31,19 @@ model Project {
 }
 
 model Feature {
-  id                 Int              @id @default(autoincrement()) @map("id")
-  projectId          Int              @map("project_id")
-  name               String           @map("name")
-  backlogDescription Json?            @map("backlog_description")
-  createdAt          DateTime         @default(now()) @map("created_at")
-  createdBy          Int?             @map("created_by")
-  updatedAt          DateTime         @updatedAt @map("updated_at")
-  updatedBy          Int?             @map("updated_by")
-  is_deleted         Boolean          @default(false)
-  startDate          DateTime?        @map("start_date")
-  endDate            DateTime?        @map("end_date")
-  project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id                 Int                     @id @default(autoincrement()) @map("id")
+  projectId          Int                     @map("project_id")
+  name               String                  @map("name")
+  backlogDescription Json?                   @map("backlog_description")
+  createdAt          DateTime                @default(now()) @map("created_at")
+  createdBy          Int?                    @map("created_by")
+  updatedAt          DateTime                @updatedAt @map("updated_at")
+  updatedBy          Int?                    @map("updated_by")
+  is_deleted         Boolean                 @default(false)
+  startDate          DateTime?               @map("start_date")
+  endDate            DateTime?               @map("end_date")
+  project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assetCaptureType   ProjectAssetCaptureType @default(CAPTUREABLE) @map("asset_capture_type")
   timesheets         TimesheetEntry[]
 
   @@map("feature")
