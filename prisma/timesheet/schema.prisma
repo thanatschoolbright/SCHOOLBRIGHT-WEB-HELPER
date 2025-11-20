@@ -9,6 +9,11 @@ datasource timesheet {
   url      = env("DATABASE_TIMESHEET_URL")
 }
 
+enum FeatureType {
+  CAPTUREABLE
+  UN_CAPTUREABLE
+}
+
 model Project {
   id           Int              @id @default(autoincrement()) @map("id")
   categoryType String?          @map("category_type")
@@ -38,6 +43,7 @@ model Feature {
   startDate          DateTime?        @map("start_date")
   endDate            DateTime?        @map("end_date")
   project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  featureType        FeatureType      @default(CAPTUREABLE) @map("feature_type")
   timesheets         TimesheetEntry[]
 
   @@map("feature")
