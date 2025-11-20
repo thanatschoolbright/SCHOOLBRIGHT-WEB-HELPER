@@ -99,8 +99,10 @@ export const Service = {
         updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
         ...(data.backlogDescription && {
           backlogDescription: data.backlogDescription,
-          startDate: data.startDate,
-          endDate: data.endDate,
+        }),
+        ...(data.startDate && { startDate: data.startDate }),
+        ...(data.endDate && { endDate: data.endDate }),
+        ...(data.assetCaptureType && {
           assetCaptureType: data.assetCaptureType,
         }),
       },
