@@ -1,236 +1,313 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
 import { useTranslation } from "react-i18next";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import { InputFieldComponent } from "@/components/input-field/input-field-component";
-import MinimalButton from "@/components/button/minimal-button-component";
-import { FiCreditCard } from "react-icons/fi";
 import { CallAPI } from "@/stores/actions/form-card-nfc-action";
-import { Toaster, toast } from "sonner";
-import { SearchableSelectComponent } from "@/components/input-field/searchable-select-component";
+import { toast } from "sonner";
+import {
+  Card,
+  Form,
+  Input,
+  Select,
+  Button,
+  Space,
+  Typography,
+  Row,
+  Col,
+  Alert,
+  Spin,
+  Divider,
+  Flex,
+} from "antd";
+import {
+  CreditCardOutlined,
+  SearchOutlined,
+  ClearOutlined,
+  CopyOutlined,
+  CodeOutlined,
+} from "@ant-design/icons";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 
-export default function DashboardPage() {
-  const { t } = useTranslation("mock");
+// ==================== Types ====================
+type NFCFormData = {
+  nfc_card: string;
+  school_id: string;
+};
+
+type SchoolOption = {
+  label: string;
+  value: string;
+};
+
+// ==================== Constants ====================
+const FORM_LABELS = {
+  SCHOOL: "เลือกโรงเรียน",
+  NFC_CARD: "กรอกรหัส NFC Card",
+  SUBMIT: "ค้นหา",
+  CANCEL: "ล้างข้อมูล",
+  COPY_RESPONSE: "คัดลอก Response",
+  COPY_CURL: "คัดลอก CURL",
+} as const;
+
+const TOAST_MESSAGES = {
+  VALIDATION_ERROR: "กรุณากรอกข้อมูลให้ครบถ้วน",
+  SUCCESS: "ค้นหาข้อมูลสำเร็จ",
+  ERROR: "เกิดข้อผิดพลาด",
+  COPY_SUCCESS: "คัดลอกข้อมูลสำเร็จ",
+  COPY_ERROR: "คัดลอกข้อมูลล้มเหลว",
+} as const;
+
+const NOTES = [
+  {
+    title: "หมายเหตุ (1)",
+    content:
+      "กรณีที่บัตร NFC ไม่ถูกต้อง หรือไม่พบข้อมูลในระบบ จะมีการแสดงผลลัพธ์เป็น JSON ที่มี status เป็น 'not have number id'",
+  },
+  {
+    title: "หมายเหตุ (2)",
+    content:
+      "กรณีที่ไม่พบข้อมูลใน https://www.canteen.schoolbright.co แต่พบข้อมูลที่นี่ แปลว่าเป็นปัญหาที่ Memory Sharing ของระบบ Canteen Web ให้แจ้ง Vimal",
+  },
+] as const;
+
+// ==================== Utility Functions ====================
+const formatSchoolOption = (school: any): SchoolOption => ({
+  label: `${school.SchoolName} (${school.SchoolID})`,
+  value: String(school.SchoolID),
+});
+
+const copyToClipboard = async (text: string): Promise<boolean> => {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const formatJSON = (data: any): string => JSON.stringify(data, null, 2);
+
+// ==================== Custom Hooks ====================
+const useSchoolOptions = () => {
+  const schoolState = useAppSelector((state) => state.callSchoolList);
+
+  return useMemo<SchoolOption[]>(() => {
+    const schools = schoolState?.response?.data?.data;
+    if (!Array.isArray(schools)) return [];
+    return schools.map(formatSchoolOption);
+  }, [schoolState?.response?.data?.data]);
+};
+
+const useNFCForm = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const NFCstate = useAppSelector((state) => state.formCardNfc);
-  const SCHOOLstate = useAppSelector((state) => state.callSchoolList);
-  const [show, setShow] = useState<string | string[]>("");
-  const [formState, setFormState] = useState<any>({
-    nfc_card: NFCstate.draftValues.nfc_card,
-    school_id: NFCstate.draftValues.school_id,
-  });
-  const isLoading = NFCstate.loading;
-  const [modal, setModal] = useState<string>("");
-  const [schoolList, setSchoolList] = useState<any[]>([]);
+  const nfcState = useAppSelector((state) => state.formCardNfc);
+  const [form] = Form.useForm<NFCFormData>();
 
-  useEffect(() => {
-    switch (modal) {
-      case "error":
-        toast.error("Error", {
-          description: "กรุณากรอกข้อมูลให้ครบถ้วน",
-          duration: 5000,
+  const handleSubmit = useCallback(
+    async (values: NFCFormData) => {
+      try {
+        await dispatch(CallAPI({ draftValues: values })).unwrap();
+        toast.success(TOAST_MESSAGES.SUCCESS);
+      } catch (error: any) {
+        toast.error(TOAST_MESSAGES.ERROR, {
+          description: error.message || "ไม่สามารถดำเนินการได้",
         });
-        setModal("");
-        break;
-      case "success":
-        toast.success("Success", {
-          description: "ยิง API สำเร็จ",
-          duration: 4000,
-        });
-        setModal("");
-        break;
-      default:
-        break;
-    }
-  }, [modal]);
+      }
+    },
+    [dispatch]
+  );
 
-  useEffect(() => {
-    setSchoolList(
-      SCHOOLstate?.response?.data?.data?.map((item: any) => ({
-        label: item.SchoolName,
-        value: item.SchoolID,
-      })) || []
+  const handleReset = useCallback(() => {
+    form.resetFields();
+  }, [form]);
+
+  return {
+    form,
+    nfcState,
+    isLoading: nfcState.loading,
+    response: nfcState.response.data,
+    handleSubmit,
+    handleReset,
+  };
+};
+
+// ==================== Components ====================
+const PageHeader: React.FC = () => (
+  <HeaderBar
+    title="ทดสอบค้นหาบัตร NFC (Vimal)"
+    subTitle="ทดสอบค้นหาข้อมูลบัตร NFC ผ่านระบบ Vimal"
+    icon={<CreditCardOutlined />}
+    color="none"
+  />
+
+);
+
+const SearchForm: React.FC<{
+  form: any;
+  schoolOptions: SchoolOption[];
+  isLoading: boolean;
+  onSubmit: (values: NFCFormData) => void;
+  onReset: () => void;
+}> = ({ form, schoolOptions, isLoading, onSubmit, onReset }) => (
+  <Card title="ค้นหาบัตร NFC" variant="outlined">
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={onSubmit}
+      autoComplete="off"
+      requiredMark="optional"
+    >
+      <Form.Item
+        name="school_id"
+        label={FORM_LABELS.SCHOOL}
+        rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
+      >
+        <Select
+          showSearch
+          placeholder="เลือกโรงเรียน"
+          optionFilterProp="label"
+          options={schoolOptions}
+          size="large"
+          allowClear
+        />
+      </Form.Item>
+
+      <Form.Item
+        name="nfc_card"
+        label={FORM_LABELS.NFC_CARD}
+        rules={[{ required: true, message: "กรุณากรอกรหัส NFC Card" }]}
+      >
+        <Input
+          prefix={<CreditCardOutlined />}
+          placeholder="กรุณากรอกรหัส NFC Card"
+          size="large"
+        />
+      </Form.Item>
+
+      <Form.Item>
+        <Space>
+          <Button
+            type="primary"
+            htmlType="submit"
+            icon={<SearchOutlined />}
+            loading={isLoading}
+            size="large"
+          >
+            {FORM_LABELS.SUBMIT}
+          </Button>
+          <Button
+            htmlType="button"
+            icon={<ClearOutlined />}
+            onClick={onReset}
+            size="large"
+          >
+            {FORM_LABELS.CANCEL}
+          </Button>
+        </Space>
+      </Form.Item>
+    </Form>
+  </Card>
+);
+
+const ResponseCard: React.FC<{
+  response: any;
+}> = ({ response }) => {
+  const handleCopyResponse = async () => {
+    const success = await copyToClipboard(formatJSON(response?.data));
+    toast[success ? "success" : "error"](
+      success ? TOAST_MESSAGES.COPY_SUCCESS : TOAST_MESSAGES.COPY_ERROR
     );
-  }, [SCHOOLstate?.response]);
-
-  useEffect(() => {
-    console.log("schoolList", schoolList);
-  }, [schoolList]);
-
-  // #region : State
-  const handleSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!formState.nfc_card || !formState.school_id) {
-      return setModal("error");
-    }
-    try {
-      await dispatch(
-        CallAPI({
-          draftValues: formState,
-        })
-      ).unwrap(); // <== ดึงผลลัพธ์ออก หรือ throw error
-      setModal("success");
-    } catch (error: any) {
-      console.error("API error:", error);
-
-      // คุณสามารถแสดง error จาก response จริงได้ เช่น message
-      toast.error("เกิดข้อผิดพลาด", {
-        description: error.message || "ไม่สามารถดำเนินการได้",
-        duration: 6000,
-      });
-    }
   };
 
-  // #endregion
+  const handleCopyCURL = async () => {
+    const curlCommand = response?.curl?.toString() || "";
+    const success = await copyToClipboard(curlCommand);
+    toast[success ? "success" : "error"](
+      success ? TOAST_MESSAGES.COPY_SUCCESS : TOAST_MESSAGES.COPY_ERROR
+    );
+  };
+
+  if (!response) return null;
+
+  return (
+    <Card title="Response" bordered={false}>
+      <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+        <Input.TextArea
+          value={formatJSON(response?.data)}
+          readOnly
+          autoSize={{ minRows: 10, maxRows: 20 }}
+          style={{ fontFamily: "monospace" }}
+        />
+
+        <Space wrap>
+          <Button
+            icon={<CopyOutlined />}
+            onClick={handleCopyResponse}
+            type="primary"
+          >
+            {FORM_LABELS.COPY_RESPONSE}
+          </Button>
+          <Button
+            icon={<CodeOutlined />}
+            onClick={handleCopyCURL}
+            type="default"
+          >
+            {FORM_LABELS.COPY_CURL}
+          </Button>
+        </Space>
+      </Space>
+    </Card>
+  );
+};
+
+const NotesSection: React.FC = () => {
+  const { t } = useTranslation("mock");
+
+  return (
+    <Row gutter={[16, 16]}>
+      {NOTES.map((note, index) => (
+        <Col key={index} xs={24} md={12}>
+          <Alert
+            message={note.title}
+            description={t(note.content)}
+            type="warning"
+            showIcon
+          />
+        </Col>
+      ))}
+    </Row>
+  );
+};
+
+// ==================== Main Component ====================
+const NFCCardSearchPage: React.FC = () => {
+  const schoolOptions = useSchoolOptions();
+  const { form, isLoading, response, handleSubmit, handleReset } = useNFCForm();
 
   return (
     <DashboardLayout>
-      {isLoading && <BaseLoadingComponent />}
+      <Spin spinning={isLoading} size="large" tip="กำลังโหลด...">
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          <PageHeader />
 
-      <div className="w-full space-y-4">
-        {/* บังคับให้ card แรกอยู่เต็มความกว้างใน md และ xl */}
+          <SearchForm
+            form={form}
+            schoolOptions={schoolOptions}
+            isLoading={isLoading}
+            onSubmit={handleSubmit}
+            onReset={handleReset}
+          />
 
-        <ContentCard
-          title="ค้นหาบัตร NFC "
-          fullWidth
-          className="md:col-span-2 xl:col-span-4 w-full"
-        >
-          <form onSubmit={handleSubmitForm} className="space-y-4">
-            <div className="">
-              <SearchableSelectComponent
-                label="เลือกโรงเรียน"
-                options={[
-                  { label: "Select Option", value: "" },
-                  ...schoolList.map((school) => ({
-                    label: school.label + " (" + school.value + ")",
-                    value: school.value,
-                  })),
-                ]}
-                value={show}
-                onChange={(val) => {
-                  setFormState({ ...formState, school_id: val });
-                  setShow(val);
-                }}
-                placeholder="เลือกโรงเรียน"
-              />
-            </div>
+          <ResponseCard response={response} />
 
-            {/* Input NFC Card */}
-            <InputFieldComponent
-              label="กรอกรหัส NFC Card"
-              type="text"
-              required
-              icon={<FiCreditCard />}
-              value={formState.nfc_card}
-              onChange={(e) =>
-                setFormState({ ...formState, nfc_card: e.target.value })
-              }
-              error={
-                formState.nfc_card.length < 1 ? "กรุณากรอกรหัส NFC Card" : ""
-              }
-              placeholder="กรุณากรอกรหัส NFC Card"
-            />
-
-            {/* ปุ่ม ยืนยัน / ยกเลิก */}
-            <div className="flex items-center gap-4">
-              <MinimalButton
-                type="submit"
-                textSize="base"
-                className="bg-green-500 hover:bg-green-600"
-                isLoading={isLoading}
-              >
-                ยืนยัน
-              </MinimalButton>
-
-              <MinimalButton
-                type="button"
-                textSize="base"
-                className="bg-red-500 hover:bg-red-600"
-                isLoading={false}
-              >
-                ยกเลิก
-              </MinimalButton>
-            </div>
-          </form>
-        </ContentCard>
-
-        {/* Reponse From Server */}
-        <ContentCard
-          title="Response"
-          fullWidth
-          className={`md:col-span-2 xl:col-span-4 w-full overflow-hidden ${
-            NFCstate.response.data ? "block" : "hidden"
-          }`}
-        >
-          <div className="space-y-4 overflow-x-auto">
-            <pre className="whitespace-pre-wrap">
-              <code>
-                {JSON.stringify(NFCstate.response.data?.data, null, 2)}
-              </code>
-            </pre>
-            <div className="flex flex-col md:flex-row gap-4">
-              {/* COPY RESPONSE */}
-              <MinimalButton
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    JSON.stringify(NFCstate.response.data?.data, null, 2)
-                  );
-                  toast.success("Copied!", {
-                    description: "Response copied to clipboard.",
-                    duration: 2000,
-                  });
-                }}
-              >
-                Copy Response
-              </MinimalButton>
-
-              {/* CURL */}
-              <MinimalButton
-                className="mt-2 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                onClick={() => {
-                  const curlCommand = NFCstate.response.data?.curl;
-                  navigator.clipboard.writeText(curlCommand.toString());
-                  toast.success("Copied!", {
-                    description: "Copy CURL to clipboard.",
-                    duration: 2000,
-                  });
-                }}
-              >
-                Copy CURL
-              </MinimalButton>
-            </div>
-          </div>
-        </ContentCard>
-
-        {/* หมายเหตุ */}
-        <div className="grid grid-cols-2 gap-3">
-          <ContentCard
-            title="หมายเหตุ (1)"
-            className="col-span-1 row-span-1 w-full"
-          >
-            <p className="text-sm text-red-500">
-              {t(
-                "กรณีที่บัตร NFC ไม่ถูกต้อง หรือไม่พบข้อมูลในระบบ จะมีการแสดงผลลัพธ์เป็น JSON ที่มี status เป็น 'not have number id'"
-              )}
-            </p>
-          </ContentCard>
-          <ContentCard
-            title="หมายเหตุ (2)"
-            className="col-span-1 row-span-1 w-full"
-          >
-            <p className="text-sm text-red-500">
-              {t(
-                "กรณีที่ไม่พบข้อมูลใน https://www.canteen.schoolbright.co แต่พบข้อมูลที่นี่ แปลว่าเป็นปัญหาที่ Memory Sharing ของระบบ Canteen Web ให้แจ้ง Vimal"
-              )}
-            </p>
-          </ContentCard>
-        </div>
-      </div>
+          <NotesSection />
+        </Space>
+      </Spin>
     </DashboardLayout>
   );
-}
+};
+
+export default NFCCardSearchPage;

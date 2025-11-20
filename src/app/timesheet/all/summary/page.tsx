@@ -5,6 +5,7 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 import {
     Button,
     Card,
@@ -357,6 +358,12 @@ export default function Page() {
     return (
         <PermissionLayout role={["ALL"]}>
             <DashboardLayout>
+                <HeaderBar
+                    title="Timesheet • Summary"
+                    subTitle="สรุปชั่วโมงการทำงาน"
+                    icon={<AreaChartOutlined />}
+                    color="none"
+                />
                 <Space direction="vertical" size="large" style={{width: "100%"}}>
                     <Space
                         direction="horizontal"

@@ -18,9 +18,9 @@
   "support": {
     "title": "ฝ่ายสนับสนุน",
     "children": {
-      "bypass_school": "Bypass โรงเรียน",
-      "test_nfc_card": "ทดสอบค้นหาบัตร NFC (Vimal)",
-      "cancel_sales": "ยกเลิกรายการสินค้าเกิน 7 วัน",
+      "bypass_school": "บายพาสโรงเรียน",
+      "test_nfc_card": "NFC (Vimal)",
+      "cancel_sales": "ยกเลิกสินค้า > 7 วัน",
       "upload_student_migration": "อัปโหลดการย้ายข้อมูลนักเรียน (User Balance)"
     }
   },

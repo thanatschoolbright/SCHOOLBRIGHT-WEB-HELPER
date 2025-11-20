@@ -44,6 +44,7 @@ interface SidebarChild {
   label: string;
   href: string;
   news?: boolean;
+  revamp?: boolean;
   icon?: JSX.Element;
 }
 
@@ -110,11 +111,13 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("support.children.bypass_school"),
             href: "/support/bypass",
             icon: <ToolOutlined />,
+            revamp: true,
           },
           {
             label: t("support.children.test_nfc_card"),
             href: "/support/test/nfc",
             icon: <CreditCardOutlined />,
+            revamp: true,
           },
           {
             label: t("support.children.cancel_sales"),
@@ -131,6 +134,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("health_check.children.all_server_status"),
             href: "/health-check/all-server-status",
             icon: <DatabaseOutlined />,
+             revamp: true,
           },
           {
             label: t("health_check.children.online_status"),
@@ -230,7 +234,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("timesheet_system.children.overtime"),
             href: "/timesheet/overtime",
             news: true,
-            icon: <UnorderedListOutlined />,
+            icon: <ClockCircleOutlined />,
           },
         ],
       },

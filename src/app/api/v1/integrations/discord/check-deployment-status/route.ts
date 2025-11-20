@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios"
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
   const payload = await req.json();
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     let mentionUser = "<@692371893826879568>"; // default
     let discordWebhook =
-      process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
+      process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_CHECK_STATUS_DEPLOY_BOT;
 
     if (
       repoName === "Jabjai-Corporation/robodocs-api-main" ||
@@ -53,12 +53,11 @@ export async function POST(req: NextRequest) {
         process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_MARKACTIVITY_SERVER;
     } else if (repoName === "Jabjai-Corporation/sb-web-system") {
       mentionUser = discordIdUser.Joe;
-      discordWebhook =
-        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
+      discordWebhook = process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_SYSTEM_SERVER;
     } else if (repoName === "Jabjai-Corporation/sb-web-academic") {
       mentionUser = discordIdUser.Krishnan;
       discordWebhook =
-        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER || "";
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_ACADEMIC_SERVER || "";
     } else if (repoName === "Jabjai-Corporation/sb-web-accounting-system") {
       mentionUser = discordIdUser.Tuk;
       discordWebhook =
@@ -66,7 +65,7 @@ export async function POST(req: NextRequest) {
     } else if (repoName === "Jabjai-Corporation/sb-api-mobile") {
       mentionUser = discordIdUser.Joe;
       discordWebhook =
-        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER || "";
+        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_SBAPI_SERVER || "";
     } else {
       mentionUser = "<@692371893826879568>";
       discordWebhook = "";
@@ -101,7 +100,9 @@ export async function POST(req: NextRequest) {
       ? statusEmojiMap[jobConclusion] || "ℹ️"
       : statusEmojiMap[jobStatus] || "⏳";
 
-    const statusText = `${statusIcon} \`${(jobConclusion || jobStatus).toUpperCase()}\``;
+    const statusText = `${statusIcon} \`${(
+      jobConclusion || jobStatus
+    ).toUpperCase()}\``;
 
     const discordPayload = {
       content: `📡 **[Deployment Status]** มีอัปเดตสถานะใหม่จากระบบ Deploy`,

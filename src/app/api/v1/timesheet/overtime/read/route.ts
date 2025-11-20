@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { successResponse } from "@helpers/api/response";
 import Service from "@services/overtime/overtime.service";
-import { logger } from "@helpers/logger";
 import { z } from "zod";
 import { validateParams } from "@helpers/controller/validate.params";
 import safeParseRequestBody from "@helpers/controller/safe-parse.params";
-import {
-  handleError,
-  buildPagination,
-} from "@helpers/controller/handle-error.params";
+import { handleError } from "@helpers/controller/handle-error.params";
+import { buildPagination } from "@helpers/controller/build-pagination.params";
 import { formatDate } from "@helpers/controller/format-date.params";
 
 // Schema for validating overtime read request parameters
@@ -21,7 +18,7 @@ const ReadOvertimeSchema = z.object({
     (v) => (v === undefined ? undefined : Number(v)),
     z.number().int().nonnegative().optional()
   ),
-  skip: z.preprocess(
+  offset: z.preprocess(
     (v) => (v === undefined ? undefined : Number(v)),
     z.number().int().nonnegative().optional()
   ),
@@ -55,7 +52,8 @@ export async function POST(request: NextRequest) {
 // Fetches single overtime record by ID
 async function handleFindById(id: number) {
   const result = await Service.findById(id);
-  return NextResponse.json(successResponse({ data: result, status: 200 }), {
+  const data = result.items.map(transformOvertimeToSnakeCase);
+  return NextResponse.json(successResponse({ data, status: 200 }), {
     status: 200,
   });
 }
@@ -63,13 +61,13 @@ async function handleFindById(id: number) {
 // Fetches filtered overtime records with pagination
 async function handleFindAll(params: ReadOvertimeParams) {
   const limit = params.limit ?? DEFAULT_LIMIT;
-  const skip = params.skip ?? DEFAULT_SKIP;
+  const offset = params.offset ?? DEFAULT_SKIP;
   const from = params.from ? new Date(params.from) : undefined;
   const to = params.to ? new Date(params.to) : undefined;
 
   const result = await Service.findAll({
     limit,
-    skip,
+    skip: offset,
     requesterId: params.request_id,
     status: params.status,
     from,
@@ -77,7 +75,7 @@ async function handleFindAll(params: ReadOvertimeParams) {
   });
 
   const data = result.items.map(transformOvertimeToSnakeCase);
-  const pagination = buildPagination(skip, limit, result.total);
+  const pagination = buildPagination(offset, limit, result.total);
 
   return NextResponse.json(successResponse({ data, pagination, status: 200 }), {
     status: 200,

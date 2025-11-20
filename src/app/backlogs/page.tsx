@@ -12,6 +12,8 @@ import {useRouter} from "next/navigation";
 import {toast} from "sonner";
 
 import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@components/typhography/header-bar-component";
+import { ProjectOutlined } from "@ant-design/icons";
 
 /**
  * 🎯 Interface สำหรับสถิติ Backlogs
@@ -72,6 +74,7 @@ export default function BacklogsOverviewPage(): JSX.Element {
 
     return (
         <DashboardLayout>
+            <HeaderBar title="Backlogs" subTitle="ภาพรวม backlog และการกระทำด่วน" icon={<ProjectOutlined />} color="none" />
             <Space direction="vertical" size={16} style={{width: "100%", marginTop: 16}}>
                 {/* 🔸 Header */}
                 <Card size="small" style={{padding: 16}}>

@@ -92,6 +92,7 @@ import {
 } from "../entry/monthly-rank-board";
 import { useRouter } from "next/navigation";
 import { FiArrowRight } from "react-icons/fi";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 
 dayjs.extend(isBetween);
 
@@ -500,15 +501,8 @@ export default function Page() {
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
-        <div
-          style={{
-            padding: "24px",
-            minHeight: "100vh",
-          }}
-        >
-          {/* ปุ่มย้อนกลับ */}
-         <Space style={{ marginBottom: 24 }}>
-             <Button
+        <Space style={{ marginBottom: 24 }}>
+          <Button
             type="default"
             icon={<FiArrowRight className="w-5 h-5 rotate-180" />}
             onClick={() => router.back()}
@@ -516,60 +510,12 @@ export default function Page() {
           >
             ย้อนกลับ
           </Button>
-         </Space>
+        </Space>
 
+        <HeaderBar title="การลงเวลาทำงาน" subTitle="จัดการและติดตามเวลาทำงานอย่างมีประสิทธิภาพ" icon={<RocketOutlined />} color="none" />
+
+        <div style={{ paddingTop: 8 }}>
           <Space direction="vertical" size="large" style={{ width: "100%" }}>
-            {/* หัวข้อหน้า */}
-            <div style={{ marginBottom: 24 }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 16,
-                  marginBottom: 8,
-                  background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  borderRadius: 16,
-                  padding: "24px 32px",
-                  boxShadow: "0 10px 30px rgba(102, 126, 234, 0.3)",
-                }}
-              >
-                <div
-                  style={{
-                    background: "rgba(255,255,255,0.2)",
-                    padding: 16,
-                    borderRadius: 12,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <RocketOutlined style={{ fontSize: 28, color: "white" }} />
-                </div>
-                <div>
-                  <Typography.Title
-                    level={4}
-                    style={{
-                      margin: 0,
-                      fontWeight: 600,
-                      fontSize: 24,
-                      color: "white",
-                    }}
-                  >
-                    การลงเวลาทำงาน
-                  </Typography.Title>
-                  <Typography.Text
-                    style={{
-                      fontSize: 14,
-                      color: "rgba(255,255,255,0.9)",
-                    }}
-                  >
-                    จัดการและติดตามเวลาทำงานอย่างมีประสิทธิภาพ
-                  </Typography.Text>
-                </div>
-              </div>
-            </div>
-
             {/* การ์ดสถิติด้านบน */}
             <div
               style={{

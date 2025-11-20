@@ -32,6 +32,7 @@ import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get
 import { CallAPI as GET_LEAVE_LETTER_LIST } from "@stores/actions/mobile/call-get-leave-letter";
 import { CallAPI as FIX_LEAVE_LETTER_DETAIL } from "@stores/actions/mobile/call-get-fix-leave-letter-status";
 import type { ResponseLeaveLetter, ResponseUserList } from "@/stores/type";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 
 const PAGE_SIZE = 10;
 
@@ -410,6 +411,7 @@ export default function Page() {
 
   return (
     <DashboardLayout>
+      <HeaderBar title="Leave Letters" subTitle="ค้นหาและจัดการคำขอลาหยุด" icon={<></>} color="none" />
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <Card title="ค้นหาจดหมายลาหยุด" variant="borderless">
           <Form

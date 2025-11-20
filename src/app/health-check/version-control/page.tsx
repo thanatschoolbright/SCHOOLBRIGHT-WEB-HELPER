@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 import { useTranslation } from "react-i18next";
 import BaseLoadingComponent from "@components/loading/loading-component-1";
 import { useDispatch } from "react-redux";
@@ -178,6 +179,7 @@ export default function Page() {
 
   return (
     <DashboardLayout>
+      <HeaderBar title="Version Control" subTitle="สถานะเวอร์ชันของระบบ" icon={<CopyOutlined />} color="none" />
       {isLoading && <BaseLoadingComponent />}
 
       {/* Modal แสดงรายละเอียด */}

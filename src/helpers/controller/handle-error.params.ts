@@ -30,13 +30,4 @@ export function handleError(err: unknown, contextMessage = "API error") {
 
 export default handleError;
 
-export function buildPagination(skip: number, limit: number, total: number) {
-  const page = Math.floor(skip / limit) + 1;
 
-  return {
-    page,
-    page_size: limit,
-    total,
-    total_pages: Math.ceil(total / limit),
-  };
-}

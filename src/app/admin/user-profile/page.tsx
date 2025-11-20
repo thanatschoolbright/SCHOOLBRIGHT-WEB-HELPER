@@ -27,6 +27,7 @@ import {callApiService as axios} from "@services/axios-instance/sb-helper.axios"
 import FormData from "form-data";
 import {UpdateUserInput, UserProfile, UserProfileForm} from "@stores/type";
 import PermissionLayout from "@/components/layouts/permission-layout";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 
 export default function Page() {
     const [antdForm] = Form.useForm();
@@ -674,6 +675,7 @@ export default function Page() {
     return (
         <PermissionLayout role={["ADMIN"]}>
             <DashboardLayout>
+                <HeaderBar title="User Profile" subTitle="จัดการบัญชีผู้ใช้งาน" icon={<UserOutlined />} color="none" />
                 <div className="w-full space-y-4">
                     {/* ปุ่มเพิ่มโครงการใหม่ */}
                     <div className="w-full flex justify-end">

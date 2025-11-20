@@ -1,4 +1,4 @@
-name: Release Production (BUN)
+name: Production Deployment Pipeline
 
 on:
   push:
@@ -6,324 +6,387 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Git tag to deploy (optional). If empty, uses the selected ref in the UI or the commit that triggered the run"
+        description: "Git tag to deploy (leave empty to deploy latest commit)"
         required: false
+        type: string
+      skip_tests:
+        description: "Skip test execution (not recommended)"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "20"
+  BUN_VERSION: "latest"
+  DEPLOY_PATH: "/var/www/sb-web-helper"
+  ARTIFACT_NAME: "production-build"
+  ARTIFACT_RETENTION_DAYS: 30
 
 jobs:
-  remove-old-artifact:
-    name: 🗑️ Remove Old Artifacts
-    runs-on: ubuntu-latest
-    environment: production
+  # ============================================
+  # Pre-deployment Validation
+  # ============================================
+  pre_flight_checks:
+    name: 🔍 Pre-flight Checks
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
+    timeout-minutes: 5
+    environment:
+      name: production
+    outputs:
+      deployment_ref: ${{ steps.ref.outputs.ref }}
+      deployment_sha: ${{ steps.ref.outputs.sha }}
 
     steps:
-      - name: ⏱️ Start Timer
-        id: timer
-        run: echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
-
-      - name: 🧪 Test SSH Connection
-        run: |
-          echo "👉 Testing SSH connection to production server..."
-          sshpass -p "${{ secrets.HUAWEI_CLOUD_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HUAWEI_CLOUD_USERNAME }}@${{ secrets.HUAWEI_CLOUD_HOST }} "echo '✅ SSH Success'" || echo "❌ SSH Failed"
-
-      - name: ⏱️ Job Duration
-        run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.timer.outputs.start_time }}))
-          echo "⏱️ SSH Test completed in: ${DURATION}s"
-
-  build:
-    name: "🔨 Build on Runner"
-    needs: remove-old-artifact
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: ⏱️ Start Timer
-        id: timer
-        run: echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
-
-      - name: "📥 Checkout Code"
-        id: checkout
-        run: |
-          STEP_START=$(date +%s)
-          echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
-
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag != '' && format('refs/tags/{0}', inputs.tag) || github.ref }}
 
-      - name: ⏱️ Checkout Duration
+      - name: Determine Deployment Reference
+        id: ref
         run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.checkout.outputs.step_start }}))
-          echo "⏱️ Checkout completed in: ${DURATION}s"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.tag }}" ]; then
+            REF="${{ inputs.tag }}"
+            SHA=$(git rev-parse "refs/tags/${{ inputs.tag }}")
+          else
+            REF="${{ github.ref_name }}"
+            SHA="${{ github.sha }}"
+          fi
+          echo "ref=${REF}" >> $GITHUB_OUTPUT
+          echo "sha=${SHA}" >> $GITHUB_OUTPUT
+          echo "📍 Deploying: ${REF} (${SHA:0:8})"
 
-      - name: "⚙️ Setup Node.js"
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: "⚙️ Setup Bun"
-        id: setup_bun
+      - name: Validate Deployment Directory
+        timeout-minutes: 2
         run: |
-          echo "👉 Setting up Bun..."
-          STEP_START=$(date +%s)
-          echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
-          curl -fsSL https://bun.sh/install | bash
-          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+          if [ ! -d "${{ env.DEPLOY_PATH }}" ]; then
+            echo "⚠️ Deployment directory does not exist, creating..."
+            mkdir -p "${{ env.DEPLOY_PATH }}"
+          fi
+          echo "✅ Deployment directory validated"
 
-      - name: ⏱️ Bun Setup Duration
-        run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.setup_bun.outputs.step_start }}))
-          echo "⏱️ Bun setup completed in: ${DURATION}s"
-
-      - name: "🔍 Verify Bun Installation"
-        run: |
-          export PATH="$HOME/.bun/bin:$PATH"
-          bun --version
-
-      - name: "📦 Install Dependencies (NPM)"
-        id: install
-        run: |
-          echo "👉 Installing dependencies with npm ci..."
-          echo "⚠️ Using npm because bun install has git clone issues"
-          STEP_START=$(date +%s)
-          echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
-          npm ci
-
-      - name: ⏱️ Install Duration
-        run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.install.outputs.step_start }}))
-          echo "⏱️ Dependencies installed with npm in: ${DURATION}s"
-
-      - name: "❇️ Push Prisma into Database"
-        id: prisma_push
-        run: |
-          echo "👉 Pushing Prisma into database..."
-          STEP_START=$(date +%s)
-          echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
-          # npx prisma db push --schema=prisma/timesheet/schema.prisma
-
-      - name: ⏱️ Prisma Push Duration
-        run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.prisma_push.outputs.step_start }}))
-          echo "⏱️ Prisma push completed in: ${DURATION}s"
-
-      - name: "⚙️ Prisma Generate"
-        id: prisma_gen
-        run: |
-          echo "👉 Generating Prisma client with Bun..."
-          STEP_START=$(date +%s)
-          echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
-          export PATH="$HOME/.bun/bin:$PATH"
-          bun x prisma generate --schema=prisma/schema.prisma
-          bun x prisma generate --schema=prisma/timesheet/schema.prisma
-
-      - name: ⏱️ Prisma Generate Duration
-        run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.prisma_gen.outputs.step_start }}))
-          echo "⏱️ Prisma generate completed in: ${DURATION}s"
-
-      - name: "🏗️ Build Project"
-        id: build
-        run: |
-          echo "👉 Building project with Bun..."
-          STEP_START=$(date +%s)
-          echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
-          export PATH="$HOME/.bun/bin:$PATH"
-          bun run build
-
-      - name: ⏱️ Build Duration
-        run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.build.outputs.step_start }}))
-          echo "⏱️ Build completed in: ${DURATION}s"
-
-      - name: "📤 Archive Build Artifacts"
-        id: archive
-        run: |
-          echo "👉 Archiving build artifacts..."
-          STEP_START=$(date +%s)
-          echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
-          zip -r build.zip \
-            .next \
-            public \
-            generated/prisma \
-            generated/prisma-timesheet \
-            package.json \
-            package-lock.json \
-            next.config.mjs
-
-      - name: ⏱️ Archive Duration
-        run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.archive.outputs.step_start }}))
-          echo "⏱️ Archive completed in: ${DURATION}s"
-
-      - name: "⬆️ Upload Artifacts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: build.zip
-
-      - name: "✅ Total Build Job Duration"
-        run: |
-          END_TIME=$(date +%s)
-          TOTAL_DURATION=$((END_TIME - ${{ steps.timer.outputs.start_time }}))
-          echo "========================================"
-          echo "⏱️ TOTAL BUILD JOB: ${TOTAL_DURATION}s"
-          echo "========================================"
-
-  deploy:
-    name: "🚚 Deploy to Server"
+  # ============================================
+  # Code Quality & Security
+  # ============================================
+  quality-gates:
+    name: 🛡️ Quality & Security Gates
     runs-on: ubuntu-latest
-    needs: build
-    environment: production
+    timeout-minutes: 15
+    needs: pre_flight_checks
+    if: ${{ !inputs.skip_tests }}
 
     steps:
-      - name: ⏱️ Start Timer
-        id: timer
-        run: echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
-
-      - name: "🗑️ Delete old deployment folder"
-        id: cleanup
-        uses: appleboy/ssh-action@v0.1.8
+      - name: Checkout Code
+        uses: actions/checkout@v4
         with:
-          host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-          username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-          password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-          port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-          script: |
-            echo "👉 Removing old deployment files..."
-            STEP_START=$(date +%s)
-            rm -rf /var/www/sb-web-helper/*
-            STEP_END=$(date +%s)
-            echo "⏱️ Cleanup took: $((STEP_END - STEP_START))s"
+          ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
 
-      - name: "📥 Download Artifacts"
-        id: download
+      - name: Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Lint Code
         run: |
-          STEP_START=$(date +%s)
-          echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
+          if [ -f "package.json" ] && npm run --silent | grep -q "lint"; then
+            echo "📝 Running linter..."
+            npm run lint
+          else
+            echo "⚠️ No lint script found, skipping..."
+          fi
 
-      - uses: actions/download-artifact@v4
+      - name: Run Tests
+        run: |
+          if [ -f "package.json" ] && npm run --silent | grep -q "test"; then
+            echo "🧪 Running tests..."
+            npm test
+          else
+            echo "⚠️ No test script found, skipping..."
+          fi
+
+      - name: Security Audit
+        continue-on-error: true
+        run: |
+          echo "🔒 Running security audit..."
+          npm audit --audit-level=high || echo "⚠️ Security vulnerabilities detected"
+
+  # ============================================
+  # Build Application
+  # ============================================
+  build:
+    name: 🔨 Build Application
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
+    timeout-minutes: 30
+    needs: [pre_flight_checks]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
         with:
-          name: build-output
+          fetch-depth: 0
+          ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
 
-      - name: ⏱️ Download Duration
+      - name: Verify Bun Installation
+        run: bun --version
+
+      - name: Install Dependencies
         run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.download.outputs.step_start }}))
-          echo "⏱️ Download completed in: ${DURATION}s"
+          echo "📦 Installing dependencies..."
+          npm ci --prefer-offline --no-audit
+          echo "✅ Dependencies installed"
 
-      - name: "🔐 Copy to Server via SCP"
-        id: scp
+      - name: Generate Prisma Client
         run: |
-          STEP_START=$(date +%s)
-          echo "step_start=${STEP_START}" >> $GITHUB_OUTPUT
+          echo "⚙️ Generating Prisma clients..."
+          if [ -f "prisma/schema.prisma" ]; then
+            bun x prisma generate --schema=prisma/schema.prisma
+          fi
+          if [ -f "prisma/timesheet/schema.prisma" ]; then
+            bun x prisma generate --schema=prisma/timesheet/schema.prisma
+          fi
+          echo "✅ Prisma clients generated"
 
-      - uses: appleboy/scp-action@v0.1.5
-        with:
-          host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-          username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-          password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-          port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-          source: "build.zip"
-          target: "/var/www/sb-web-helper"
-
-      - name: ⏱️ SCP Duration
+      - name: Build Application
         run: |
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - ${{ steps.scp.outputs.step_start }}))
-          echo "⏱️ SCP completed in: ${DURATION}s"
+          echo "🏗️ Building application..."
+          bun run build
+          echo "✅ Build completed"
 
-      - name: "🗜️ Unzip & Install on Server"
-        uses: appleboy/ssh-action@v0.1.8
-        with:
-          host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-          username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-          password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-          port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-          script: |
-            set -e  # Exit on error
-            echo "👉 Extracting and installing..."
-            DEPLOY_START=$(date +%s)
+      - name: Verify Build Output
+        run: |
+          if [ ! -d ".next" ]; then
+            echo "❌ Build output (.next) not found!"
+            exit 1
+          fi
+          echo "✅ Build output verified"
+
+  # ============================================
+  # Deploy to Production
+  # ============================================
+  deploy:
+    name: 🚀 Deploy to Production
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
+    timeout-minutes: 20
+    needs: [pre_flight_checks, build]
+    environment:
+      name: production
+      url: https://sb-helper.schoolbright.co
+
+    steps:
+      - name: Prepare Deployment
+        run: |
+          set -e
+          echo "🔧 Preparing deployment directory..."
+
+          # Create backup of current deployment
+          if [ -d "${{ env.DEPLOY_PATH }}" ]; then
+            BACKUP_DIR="${{ env.DEPLOY_PATH }}.backup.$(date +%Y%m%d_%H%M%S)"
+            echo "💾 Creating backup: ${BACKUP_DIR}"
+            sudo cp -r "${{ env.DEPLOY_PATH }}" "${BACKUP_DIR}"
             
-            cd /var/www/sb-web-helper
-            
-            # Backup .env file
-            if [ -f .env ]; then
-              cp .env .env.backup
-              echo "✅ Backed up .env"
-            fi
-            
-            # Unzip
-            UNZIP_START=$(date +%s)
-            unzip -o build.zip
-            UNZIP_END=$(date +%s)
-            echo "⏱️ Unzip took: $((UNZIP_END - UNZIP_START))s"
-            
-            # Restore .env
-            if [ -f .env.backup ]; then
-              mv .env.backup .env
-              echo "✅ Restored .env"
-            fi
-            
-            # Install dependencies with npm
-            INSTALL_START=$(date +%s)
-            echo "👉 Installing dependencies..."
-            
-            # Use npm ci for production (faster and more reliable)
-            if [ -f package-lock.json ]; then
-              npm ci --production --legacy-peer-deps
-            else
-              npm install --production --legacy-peer-deps
-            fi
-            
-            INSTALL_END=$(date +%s)
-            echo "⏱️ npm install took: $((INSTALL_END - INSTALL_START))s"
-            
-            # Verify node_modules exists
-            if [ ! -d "node_modules" ] || [ ! -f "node_modules/next/dist/bin/next" ]; then
-              echo "❌ ERROR: node_modules/next not found!"
-              exit 1
-            fi
-            echo "✅ Dependencies installed successfully"
-            
-            # Restart service
-            RESTART_START=$(date +%s)
-            echo "👉 Restarting service..."
-            sudo systemctl restart sb-web-helper.service
-            RESTART_END=$(date +%s)
-            echo "⏱️ Service restart took: $((RESTART_END - RESTART_START))s"
-            
-            # Wait for service to start
-            sleep 3
-            
-            # Check service status
+            # Keep only last 3 backups
+            ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | tail -n +4 | xargs sudo rm -rf 2>/dev/null || true
+          fi
+
+          # Prepare deployment directory
+          sudo mkdir -p "${{ env.DEPLOY_PATH }}"
+          cd "${{ env.DEPLOY_PATH }}"
+
+          # Backup environment file
+          if [ -f ".env" ]; then
+            sudo cp .env .env.backup
+            echo "✅ Environment file backed up"
+          fi
+
+          # Clean old files (except .env)
+          sudo find . -mindepth 1 ! -name '.env*' -delete
+          echo "✅ Deployment directory prepared"
+
+      - name: Copy Build Files
+        run: |
+          set -e
+          echo "📦 Copying build files to deployment directory..."
+
+          # Copy built files from GitHub Actions workspace to deployment directory
+          sudo cp -r ${{ github.workspace }}/.next "${{ env.DEPLOY_PATH }}/"
+          sudo cp -r ${{ github.workspace }}/public "${{ env.DEPLOY_PATH }}/"
+
+          # Copy Prisma generated files if they exist
+          if [ -d "${{ github.workspace }}/generated/prisma" ]; then
+            sudo mkdir -p "${{ env.DEPLOY_PATH }}/generated"
+            sudo cp -r ${{ github.workspace }}/generated/prisma "${{ env.DEPLOY_PATH }}/generated/"
+          fi
+
+          if [ -d "${{ github.workspace }}/generated/prisma-timesheet" ]; then
+            sudo mkdir -p "${{ env.DEPLOY_PATH }}/generated"
+            sudo cp -r ${{ github.workspace }}/generated/prisma-timesheet "${{ env.DEPLOY_PATH }}/generated/"
+          fi
+
+          # Copy configuration files
+          sudo cp ${{ github.workspace }}/package.json "${{ env.DEPLOY_PATH }}/"
+          sudo cp ${{ github.workspace }}/package-lock.json "${{ env.DEPLOY_PATH }}/"
+          sudo cp ${{ github.workspace }}/next.config.mjs "${{ env.DEPLOY_PATH }}/"
+
+          echo "✅ Build files copied successfully"
+
+      - name: Deploy Application
+        run: |
+          set -e
+          cd "${{ env.DEPLOY_PATH }}"
+
+          # Restore environment file
+          if [ -f ".env.backup" ]; then
+            sudo mv .env.backup .env
+            echo "✅ Environment file restored"
+          fi
+
+          echo "📦 Installing production dependencies (omitting devDependencies)..."
+          # Use --omit=dev (preferred) instead of the deprecated --production flag.
+          # If peer dependency resolution fails in some npm versions, retry with --legacy-peer-deps
+          sudo npm ci --omit=dev --prefer-offline --no-audit || \
+          sudo npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
+
+          # Verify critical dependencies
+          if [ ! -d "node_modules" ] || [ ! -f "node_modules/next/dist/bin/next" ]; then
+            echo "❌ Critical dependencies missing!"
+            exit 1
+          fi
+
+          echo "✅ Dependencies installed successfully"
+
+          # Set proper permissions
+          sudo chown -R www-data:www-data "${{ env.DEPLOY_PATH }}" || true
+
+          echo "🔄 Restarting application service..."
+          sudo systemctl restart sb-web-helper.service
+
+          # Wait for service to initialize
+          sleep 5
+
+          # Health check with retries
+          MAX_RETRIES=6
+          RETRY_COUNT=0
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             if sudo systemctl is-active --quiet sb-web-helper.service; then
-              echo "✅ Service is running"
-            else  
-              echo "❌ Service failed to start!"
-              sudo journalctl -u sb-web-helper.service -n 20 --no-pager
+              echo "✅ Service is running and healthy"
+              break
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+              echo "❌ Service failed health check after ${MAX_RETRIES} attempts"
+              echo "📋 Recent logs:"
+              sudo journalctl -u sb-web-helper.service -n 30 --no-pager
               exit 1
             fi
             
-            DEPLOY_END=$(date +%s)
-            echo "========================================"
-            echo "⏱️ TOTAL DEPLOY TIME: $((DEPLOY_END - DEPLOY_START))s"
-            echo "========================================"
-            echo "✅ Deployment completed successfully!"
+            echo "⏳ Waiting for service to start (attempt ${RETRY_COUNT}/${MAX_RETRIES})..."
+            sleep 5
+          done
 
-      - name: "✅ Total Deploy Job Duration"
+          echo "✅ Deployment completed successfully!"
+
+  # ============================================
+  # Post-deployment Verification_
+  # ============================================
+  verify:
+    name: ✅ Post-deployment Verification
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
+    timeout-minutes: 5
+    needs: [deploy, pre_flight_checks]
+    environment:
+      name: production
+
+    steps:
+      - name: Verify Service Status
         run: |
-          END_TIME=$(date +%s)
-          TOTAL_DURATION=$((END_TIME - ${{ steps.timer.outputs.start_time }}))
-          echo "========================================"
-          echo "⏱️ TOTAL DEPLOY JOB: ${TOTAL_DURATION}s"
-          echo "========================================"
+          set -e
+
+          echo "🔍 Verifying deployment..."
+
+          # Check service status
+          if ! sudo systemctl is-active --quiet sb-web-helper.service; then
+            echo "❌ Service is not running!"
+            exit 1
+          fi
+
+          # Check if application is responding
+          if ! curl -sf http://localhost:3000 > /dev/null 2>&1; then
+            echo "⚠️ Application may not be responding on localhost"
+          fi
+
+          # Display service info
+          echo "📊 Service Status:"
+          sudo systemctl status sb-web-helper.service --no-pager -l | head -n 15
+
+          echo "✅ Verification completed"
+
+      - name: Deployment Summary
+        run: |
+          echo "============================================"
+          echo "🎉 DEPLOYMENT SUCCESSFUL"
+          echo "============================================"
+          echo "📍 Reference: ${{ needs.pre_flight_checks.outputs.deployment_ref }}"
+          echo "🔖 Commit: ${{ needs.pre_flight_checks.outputs.deployment_sha }}"
+          echo "🕐 Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "============================================"
+
+  # ============================================
+  # Rollback on Failure
+  # ============================================
+  rollback:
+    name: 🔄 Rollback Deployment
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
+    timeout-minutes: 10
+    needs: [deploy, verify]
+    environment:
+      name: production
+    if: failure()
+
+    steps:
+      - name: Restore Previous Version
+        run: |
+          set -e
+          echo "🔄 Initiating rollback..."
+
+          # Find most recent backup
+          LATEST_BACKUP=$(ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | head -n1)
+
+          if [ -z "$LATEST_BACKUP" ]; then
+            echo "❌ No backup found for rollback!"
+            exit 1
+          fi
+
+          echo "📦 Restoring from: ${LATEST_BACKUP}"
+
+          # Backup failed deployment for investigation
+          if [ -d "${{ env.DEPLOY_PATH }}" ]; then
+            sudo mv "${{ env.DEPLOY_PATH }}" "${{ env.DEPLOY_PATH }}.failed.$(date +%Y%m%d_%H%M%S)"
+          fi
+
+          # Restore backup
+          sudo mv "${LATEST_BACKUP}" "${{ env.DEPLOY_PATH }}"
+
+          # Restart service
+          sudo systemctl restart sb-web-helper.service
+          sleep 5
+
+          if sudo systemctl is-active --quiet sb-web-helper.service; then
+            echo "✅ Rollback completed successfully"
+          else
+            echo "❌ Rollback failed - manual intervention required!"
+            exit 1
+          fi
+
+      - name: Notify Rollback
+        run: |
+          echo "============================================"
+          echo "⚠️ DEPLOYMENT ROLLED BACK"
+          echo "============================================"
+          echo "Previous version has been restored"
+          echo "Please investigate the deployment failure"
+          echo "============================================"
