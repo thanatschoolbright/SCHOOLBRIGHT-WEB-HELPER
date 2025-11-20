@@ -17,6 +17,7 @@ import {
   Space,
   Table,
   Typography,
+  Badge,
 } from "antd";
 import {
   FiArrowRight,
@@ -234,6 +235,34 @@ export default function Page() {
     return result;
   };
 
+  // Determine project status (badge text and badge type) based on start/end vs today
+  const getProjectStatus = (
+    startDate: any,
+    endDate: any
+  ): { statusText: string; badgeStatus: "processing" | "default" } => {
+    const today = dayjs().startOf("day");
+    const s = startDate ? dayjs(startDate).startOf("day") : null;
+    const e = endDate ? dayjs(endDate).startOf("day") : null;
+
+    let statusText = "ยังไม่ได้กำหนดวันที่";
+    let badgeStatus: "processing" | "default" = "default";
+
+    if (s && e && s.isValid() && e.isValid()) {
+      if (!s.isAfter(e) && !today.isBefore(s) && !today.isAfter(e)) {
+        statusText = "กำลังดำเนินการ";
+        badgeStatus = "processing";
+      } else if (today.isAfter(e)) {
+        statusText = "สิ้นสุดแล้ว";
+        badgeStatus = "default";
+      } else {
+        statusText = "ยังไม่เริ่ม";
+        badgeStatus = "default";
+      }
+    }
+
+    return { statusText, badgeStatus };
+  };
+
   // Handler for RangePicker change to help debug and keep local state in sync
   const handleRangeChange = (dates: any, dateStrings: [string, string]) => {
     console.log("RangePicker onChange", { dates, dateStrings });
@@ -339,6 +368,7 @@ export default function Page() {
       key: "index",
       align: "center" as const,
       width: 80,
+      sorter: (a: SubProject, b: SubProject) => (a.id || 0) - (b.id || 0),
       render: (_: any, __: any, idx: number) =>
         idx + 1 + (currentPage - 1) * limit,
     },
@@ -347,6 +377,8 @@ export default function Page() {
       dataIndex: "name",
       key: "name",
       align: "left" as const,
+      sorter: (a: SubProject, b: SubProject) =>
+        (a.name || "").toString().localeCompare((b.name || "").toString()),
       render: (text: string) => <span>{text}</span>,
     },
     {
@@ -354,41 +386,61 @@ export default function Page() {
       dataIndex: "assetCaptureType",
       key: "assetCaptureType",
       align: "left" as const,
+      sorter: (a: SubProject, b: SubProject) => {
+        const av = (a as any).asset_capture_type || (a as any).assetCaptureType || "";
+        const bv = (b as any).asset_capture_type || (b as any).assetCaptureType || "";
+        return av.toString().localeCompare(bv.toString());
+      },
       render: (text: string) => (
         <span>{assetOption.find((item) => item.value === text)?.label}</span>
       ),
     },
     {
-      title: "วันเริ่มต้น",
-      dataIndex: "startDate",
-      key: "startDate",
+      title: "การดำเนินการณ์ของโปรเจ็ค",
+      dataIndex: "estimateTime",
+      key: "estimateTime",
       align: "left" as const,
-      render: (text: string) => (
-        <span>
-          {text
-            ? dayjs(text).format("DD/MM/YYYY")
-            : "ยังไม่ได้เลือกวันที่เริ่มต้น"}
-        </span>
-      ),
-    },
-    {
-      title: "วันสิ้นสุด",
-      dataIndex: "endDate",
-      key: "endDate",
-      align: "left" as const,
-      render: (text: string) => (
-        <span>
-          {text
-            ? dayjs(text).format("DD/MM/YYYY")
-            : "ยังไม่ได้เลือกวันที่สิ้นสุด"}
-        </span>
-      ),
+      sorter: (a: SubProject, b: SubProject) => {
+        const as = a.startDate ? dayjs(a.startDate).valueOf() : 0;
+        const bs = b.startDate ? dayjs(b.startDate).valueOf() : 0;
+        if (as !== bs) return as - bs;
+        const ae = a.endDate ? dayjs(a.endDate).valueOf() : 0;
+        const be = b.endDate ? dayjs(b.endDate).valueOf() : 0;
+        return ae - be;
+      },
+      render: (_: any, record: SubProject) => {
+        const start = record.startDate;
+        const end = record.endDate;
+
+        const computed = computeEstimateHours(start, end);
+        const { statusText, badgeStatus } = getProjectStatus(start, end);
+
+        return (
+          <Space direction="vertical" size={4} style={{ width: "100%" }}>
+            <Space align="center" size={8}>
+              <Badge status={badgeStatus} />
+              <Typography.Text strong>{statusText}</Typography.Text>
+              {start && end && (
+                <Typography.Text type="secondary">
+                  {`${dayjs(start).format("DD/MM/YYYY")} - ${dayjs(end).format("DD/MM/YYYY")}`}
+                </Typography.Text>
+              )}
+            </Space>
+            <Typography.Text type="secondary">{computed.text}</Typography.Text>
+          </Space>
+        );
+      },
     },
     {
       title: "เวลาที่ประมาณการ (ชั่วโมง)",
       dataIndex: "estimateTime",
       key: "estimateTime",
       align: "left" as const,
+      sorter: (a: SubProject, b: SubProject) => {
+        const ca = computeEstimateHours(a.startDate, a.endDate).hours;
+        const cb = computeEstimateHours(b.startDate, b.endDate).hours;
+        return ca - cb;
+      },
       render: (_: any, record: SubProject) => {
         const start = record.startDate;
         const end = record.endDate;
@@ -396,11 +448,13 @@ export default function Page() {
         return <span>{computed.text}</span>;
       },
     },
+
     {
       title: "จัดการ",
       key: "action",
       align: "center" as const,
       width: 200,
+      sorter: (a: SubProject, b: SubProject) => (a.id || 0) - (b.id || 0),
       render: (_: any, record: SubProject) => (
         <Space>
           <Button
