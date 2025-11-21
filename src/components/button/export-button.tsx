@@ -6,6 +6,7 @@ export interface ExportButtonProps extends Omit<ButtonProps, 'onClick'> {
   isExporting?: boolean;
   onExportTemplate?: () => void;
   onExportTemplate2?: () => void;
+  onExportTemplate3?: () => void;
   onExportAll?: () => void;
 }
 
@@ -16,6 +17,7 @@ export const ExportButton = ({
   isExporting = false,
   onExportTemplate,
   onExportTemplate2,
+  onExportTemplate3,
   onExportAll,
   ...props
 }: ExportButtonProps) => {
@@ -23,13 +25,18 @@ export const ExportButton = ({
   const exportMenuItems: MenuProps['items'] = [
     ...(onExportTemplate ? [{
       key: "export-template",
-      label: "Template Timesheet",
+      label: "Template Timesheet 1",
       onClick: onExportTemplate,
     }] : []),
     ...(onExportTemplate2 ? [{
       key: "export-template-2",
       label: "Template Timesheet 2",
       onClick: onExportTemplate2,
+    }] : []),
+    ...(onExportTemplate3 ? [{
+      key: "export-template-3",
+      label: "Template Timesheet 3",
+      onClick: onExportTemplate3,
     }] : []),
     ...(onExportAll ? [{
       key: "export-all", 

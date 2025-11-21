@@ -25,6 +25,7 @@ import {GraphTimesheetModal} from "@components/modal/graph-timesheet-modal-compo
 import {PieTimesheetModal} from "@components/modal/pie-timesheet-modal-component";
 import ExportModal from "@components/modal/timesheet-export-modal";
 import ExportModalByProject from "@components/modal/timesheet-export-modal-by-project";
+import ExportModalTemplate3 from "@components/modal/timesheet-export-modal-template3";
 import TimesheetControls from "@components/section/timesheet-controls";
 import TimesheetHeader from "@components/section/timesheet-header";
 import {TimesheetTable} from "@components/table";
@@ -36,7 +37,8 @@ import {
     GET_TIMESHEET_ENTRIES,
     POST_EXPORT_ALL_ENTRIES,
     POST_EXPORT_TEMPLATE,
-    POST_EXPORT_PROJECT_TEMPLATE
+    POST_EXPORT_PROJECT_TEMPLATE,
+    POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK,
 } from "@services/timesheet/timesheet-all.service";
 import type { ProjectExportData } from "@services/timesheet/timesheet-all.service";
 import {
@@ -186,6 +188,24 @@ export default function TimesheetAllPage(): JSX.Element {
         dispatch(setExportLoading(true));
         try {
             await POST_EXPORT_PROJECT_TEMPLATE(exportData);
+        } finally {
+            dispatch(setExportLoading(false));
+        }
+    }, [dispatch]);
+
+    //** ส่งออกไฟล์ Template 3 (week-by-week summary per sub-project) */
+    const HANDLE_EXPORT_TEMPLATE3 = useCallback(async ({from, to}: {from: string; to: string}) => {
+        dispatch(setExportLoading(true));
+        try {
+            // Convert MM/YYYY inputs to start_date and end_date in YYYY-MM-DD
+            const fromDate = dayjs(from, "MM/YYYY").startOf("month").format("YYYY-MM-DD");
+            const toDate = dayjs(to, "MM/YYYY").endOf("month").format("YYYY-MM-DD");
+
+            // Call the new template_3 export endpoint for week-by-week sub-project summary
+            await POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK({
+                start_date: fromDate,
+                end_date: toDate,
+            });
         } finally {
             dispatch(setExportLoading(false));
         }
@@ -464,6 +484,14 @@ export default function TimesheetAllPage(): JSX.Element {
                     users={users}
                 />
 
+                {/* Export Modal Template 3 */}
+                <ExportModalTemplate3
+                    visible={modalStates.exportModal3}
+                    loading={exportLoading}
+                    onClose={() => handleCloseModal("exportModal3")}
+                    onExport={HANDLE_EXPORT_TEMPLATE3}
+                />
+
                 {/* Main Content */}
                 <Space direction="vertical" size="large" style={{width: "100%"}}>
                     {/* Header */}
@@ -478,6 +506,7 @@ export default function TimesheetAllPage(): JSX.Element {
                             isExportingTemplate={exportLoading}
                             onExportTemplate={() => handleOpenModal("exportModal")}
                             onExportTemplate2={() => handleOpenModal("exportModal2")}
+                            onExportTemplate3={() => handleOpenModal("exportModal3")}
                             onExportAll={HANDLE_EXPORT_ALL}
                             onOpenGraphModal={(mode) => handleOpenModal("graphModal", mode)}
                             onOpenPieModal={(mode) => handleOpenModal("pieModal", mode)}

@@ -287,6 +287,20 @@ export default function Page() {
       },
     },
     {
+      title: "จำนวนโครงการย่อย",
+      dataIndex: "subProjectCount",
+      key: "subProjectCount",
+      align: "center" as const,
+      render: (_: any, record: any) => {
+        const features = Array.isArray(record.features) ? record.features : [];
+        // Count features that are not marked deleted
+        const count = features.filter((f: any) => !f?.is_deleted).length;
+        return (
+          <Tag color="green">{count}</Tag>
+        );
+      },
+    },
+    {
       title: "สร้างเมื่อ",
       dataIndex: "createdAt",
       key: "createdAt",

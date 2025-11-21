@@ -287,6 +287,14 @@ export default function OvertimeManagementPage() {
     pageSize: 20,
     total: 0,
   });
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [batchProcessing, setBatchProcessing] = useState(false);
+  const [processedItems, setProcessedItems] = useState<Set<React.Key>>(
+    new Set()
+  );
+  const [batchStatusModalVisible, setBatchStatusModalVisible] = useState(false);
+  const [batchSelectedStatus, setBatchSelectedStatus] =
+    useState<string>("approved");
 
   const fetchUserList = async () => {
     try {
@@ -561,6 +569,132 @@ export default function OvertimeManagementPage() {
     }
   };
 
+  const batchApproveOvertime = async (status: string = "approved") => {
+    if (selectedRowKeys.length === 0) {
+      toast.error("กรุณาเลือกรายการที่ต้องการปรับสถานะ");
+      return;
+    }
+
+    const currentUserId = await getCurrentUserId(authentication);
+    if (currentUserId !== BYPASS_ADMIN_ID) {
+      toast.error("คุณไม่มีสิทธิ์ปรับสถานะ");
+      return;
+    }
+
+    setBatchProcessing(true);
+    setProcessedItems(new Set());
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of selectedRowKeys) {
+      try {
+        const approverId = await getCurrentUserId(authentication);
+        const response = await callApiService.post(
+          `/api/v1/timesheet/overtime/change-status?id=${id}`,
+          { status, updated_by: Number(approverId) }
+        );
+
+        const body = response?.data;
+
+        if (body && body.status === 200) {
+          successCount++;
+          setProcessedItems((prev) => new Set([...prev, id]));
+        } else {
+          failCount++;
+          toast.error(
+            `รายการ #${id}: ${body?.message_th ?? "ไม่สามารถปรับสถานะได้"}`
+          );
+        }
+      } catch (error) {
+        failCount++;
+        console.error(`Error approving overtime ${id}:`, error);
+        toast.error(`รายการ #${id}: เกิดข้อผิดพลาด`);
+      }
+    }
+
+    setBatchProcessing(false);
+
+    if (successCount > 0) {
+      toast.success(
+        `ปรับสถานะสำเร็จ ${successCount} รายการ${
+          failCount > 0 ? `, ล้มเหลว ${failCount} รายการ` : ""
+        }`
+      );
+      await fetchOvertimeList({
+        page: paginationState.current,
+        pageSize: paginationState.pageSize,
+      });
+    }
+
+    setSelectedRowKeys([]);
+    setProcessedItems(new Set());
+  };
+
+  const batchSendEmail = async () => {
+    if (selectedRowKeys.length === 0) {
+      toast.error("กรุณาเลือกรายการที่ต้องการส่งอีเมล");
+      return;
+    }
+
+    const currentUserId = await getCurrentUserId(authentication);
+    if (currentUserId !== BYPASS_ADMIN_ID) {
+      toast.error("คุณไม่มีสิทธิ์ส่งอีเมล");
+      return;
+    }
+
+    setBatchProcessing(true);
+    setProcessedItems(new Set());
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of selectedRowKeys) {
+      try {
+        const previewLink = `${window.location.origin}/timesheet/overtime/preview/${id}`;
+        const payload = {
+          id: String(id),
+          link: previewLink,
+          to: DEFAULT_HR_EMAIL,
+        };
+
+        const response = await callApiService.post(
+          "/api/v1/timesheet/overtime/send-email",
+          payload
+        );
+
+        const body = response?.data;
+
+        if (body && (body.status === 200 || body.status === 201)) {
+          successCount++;
+          setProcessedItems((prev) => new Set([...prev, id]));
+        } else {
+          failCount++;
+          toast.error(
+            `รายการ #${id}: ${body?.message_th ?? "ไม่สามารถส่งอีเมลได้"}`
+          );
+        }
+      } catch (error) {
+        failCount++;
+        console.error(`Error sending email for overtime ${id}:`, error);
+        toast.error(`รายการ #${id}: เกิดข้อผิดพลาด`);
+      }
+    }
+
+    setBatchProcessing(false);
+
+    if (successCount > 0) {
+      toast.success(
+        `ส่งอีเมลสำเร็จ ${successCount} รายการ${
+          failCount > 0 ? `, ล้มเหลว ${failCount} รายการ` : ""
+        }`
+      );
+    }
+
+    setSelectedRowKeys([]);
+    setProcessedItems(new Set());
+  };
+
   const handleFormSubmit = async (values: any) => {
     const formattedValues = {
       ...values,
@@ -686,6 +820,26 @@ export default function OvertimeManagementPage() {
 
   const mainColumns = [
     {
+      title: "",
+      key: "processed",
+      width: 50,
+      align: "center" as const,
+      render: (_: any, record: OvertimeRecord) => {
+        if (processedItems.has(record.id)) {
+          return (
+            <CheckOutlined
+              style={{
+                color: "#52c41a",
+                fontSize: 18,
+                fontWeight: "bold",
+              }}
+            />
+          );
+        }
+        return null;
+      },
+    },
+    {
       title: "รหัส",
       dataIndex: "id",
       key: "id",
@@ -806,11 +960,51 @@ export default function OvertimeManagementPage() {
       <div
         style={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: 16,
+          gap: 12,
         }}
       >
-        <Button type="primary" onClick={() => setVisible(true)}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {selectedRowKeys.length > 0 && (
+            <>
+              <Button
+                type="primary"
+                icon={<CheckOutlined />}
+                onClick={() => setBatchStatusModalVisible(true)}
+                loading={batchProcessing}
+                disabled={batchProcessing}
+              >
+                ปรับสถานะ ({selectedRowKeys.length})
+              </Button>
+              <Button
+                icon={<MailOutlined />}
+                onClick={batchSendEmail}
+                loading={batchProcessing}
+                disabled={batchProcessing}
+              >
+                ส่งอีเมล ({selectedRowKeys.length})
+              </Button>
+              <Button
+                type="text"
+                danger
+                onClick={() => {
+                  setSelectedRowKeys([]);
+                  setProcessedItems(new Set());
+                }}
+                disabled={batchProcessing}
+              >
+                ยกเลิกการเลือก
+              </Button>
+            </>
+          )}
+        </div>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setVisible(true)}
+        >
           เพิ่มบันทึกโอที
         </Button>
       </div>
@@ -1052,6 +1246,16 @@ export default function OvertimeManagementPage() {
           columns={mainColumns}
           dataSource={dataSource}
           rowKey="id"
+          rowSelection={{
+            selectedRowKeys,
+            onChange: (keys) => {
+              setSelectedRowKeys(keys);
+              setProcessedItems(new Set());
+            },
+            getCheckboxProps: () => ({
+              disabled: batchProcessing,
+            }),
+          }}
           pagination={{
             current: paginationState.current,
             pageSize: paginationState.pageSize,

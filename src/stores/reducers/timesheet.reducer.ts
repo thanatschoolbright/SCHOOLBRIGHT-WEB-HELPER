@@ -32,6 +32,7 @@ interface TimesheetState {
   modalStates: {
     exportModal: boolean;
     exportModal2: boolean;
+    exportModal3: boolean;
     graphModal: boolean;
     pieModal: boolean;
     detailModal: boolean;
@@ -65,6 +66,7 @@ const initialState: TimesheetState = {
   modalStates: {
     exportModal: false,
     exportModal2: false,
+    exportModal3: false,
     graphModal: false,
     pieModal: false,
     detailModal: false,
@@ -152,6 +154,7 @@ const timesheetSlice = createSlice({
       state.modalStates = {
         exportModal: false,
         exportModal2: false,
+        exportModal3: false,
         graphModal: false,
         pieModal: false,
         detailModal: false,

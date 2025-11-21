@@ -351,3 +351,52 @@ export const POST_EXPORT_PROJECT_TEMPLATE = async (
     throw error;
   }
 };
+
+//** Service สำหรับส่งออกไฟล์ Template 3: Sub-project week-by-week summary */
+export const POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK = async (
+  params: { start_date: string; end_date: string }
+): Promise<void> => {
+  let toastId: string | number | undefined;
+
+  try {
+    toastId = toast.loading("กำลังสร้างรายงานสรุปแบบสัปดาห์ต่อสัปดาห์...");
+
+    const response = await fetch("/api/v1/timesheet/excel/template_3", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        start_date: params.start_date,
+        end_date: params.end_date,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData?.message_th || errorData?.message_en || "ไม่สามารถสร้างรายงานได้"
+      );
+    }
+
+    // Download file
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `timesheet-subproject-weekly_${params.start_date.replace(/-/g, '')}_${params.end_date.replace(/-/g, '')}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    toast.success("สร้างรายงานเรียบร้อย", { id: toastId });
+  } catch (error: any) {
+    const message = error?.message || "สร้างรายงานไม่สำเร็จ";
+    if (toastId !== undefined) {
+      toast.error(message, { id: toastId });
+    } else {
+      toast.error(message);
+    }
+    throw error;
+  }
+};
