@@ -5,7 +5,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import DashboardLayout from "@components/layouts/backend-layout";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import {
   Button,
   Card,
@@ -37,6 +37,10 @@ import {
   FireFilled,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
+import fetchUserRanking, {
+  SummaryRecord as RemoteSummaryRecord,
+} from "@/services/timesheet/find-ranking.service";
+import { Spin } from "antd";
 
 type SummaryRecord = {
   admin_id: number | string;
@@ -175,6 +179,8 @@ export default function Page() {
   const [keyword, setKeyword] = useState("");
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>(buildDefaultRange);
   const [records, setRecords] = useState<SummaryRecord[]>([]);
+  const [rankMap, setRankMap] = useState<Record<string, RemoteSummaryRecord | null | undefined>>({});
+  const fetchingRef = React.useRef(new Set<string>());
   const [metadata, setMetadata] = useState<SummaryMetadata | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -214,6 +220,36 @@ export default function Page() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Fetch per-user rank via API for each record when records or dateRange change
+  useEffect(() => {
+    if (!records || records.length === 0) return;
+    const month = String(dateRange[0].month() + 1).padStart(2, "0");
+    const year = String(dateRange[0].year());
+    let mounted = true;
+
+    records.forEach((r) => {
+      const id = String(r.admin_id);
+      if (fetchingRef.current.has(id) || Object.prototype.hasOwnProperty.call(rankMap, id)) return;
+      fetchingRef.current.add(id);
+      fetchUserRanking({ user_id: id, month, year })
+        .then((data) => {
+          if (!mounted) return;
+          setRankMap((prev) => ({ ...prev, [id]: data.record }));
+        })
+        .catch(() => {
+          if (!mounted) return;
+          setRankMap((prev) => ({ ...prev, [id]: null }));
+        })
+        .finally(() => {
+          fetchingRef.current.delete(id);
+        });
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [records, dateRange]);
 
   const filteredRecords = useMemo(() => {
     const term = keyword.trim().toLowerCase();
@@ -299,11 +335,28 @@ export default function Page() {
           { text: "E", value: "E" },
           { text: "F", value: "F" },
         ],
-        onFilter: (value, record) => record.rank === value,
-        sorter: (a, b) => a.rank.localeCompare(b.rank),
-        render: (_value, record) => (
-          <GradeTag rank={record.rank} description={record.rank_description} />
-        ),
+        onFilter: (value, record) => {
+          const cached = rankMap[String(record.admin_id)];
+          return (cached ? cached.rank : record.rank) === value;
+        },
+        sorter: (a, b) => {
+          const ar = rankMap[String(a.admin_id)]?.rank ?? a.rank;
+          const br = rankMap[String(b.admin_id)]?.rank ?? b.rank;
+          return String(ar).localeCompare(String(br));
+        },
+        render: (_value, record) => {
+          const id = String(record.admin_id);
+          const cached = rankMap[id];
+          if (cached === undefined) {
+            return <Spin size="small" />;
+          }
+          if (cached === null) {
+            return (
+              <GradeTag rank={record.rank} description={record.rank_description} />
+            );
+          }
+          return <GradeTag rank={cached.rank} description={cached.rank_description} />;
+        },
       },
       {
         title: "ชื่อ - สกุล",

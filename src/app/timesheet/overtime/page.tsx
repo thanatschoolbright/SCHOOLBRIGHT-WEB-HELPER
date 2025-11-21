@@ -1287,6 +1287,38 @@ export default function OvertimeManagementPage() {
       </Card>
 
       <Modal
+        title="ปรับสถานะใบโอทีแบบหลายรายการ"
+        open={batchStatusModalVisible}
+        onCancel={() => setBatchStatusModalVisible(false)}
+        onOk={async () => {
+          setBatchStatusModalVisible(false);
+          await batchApproveOvertime(batchSelectedStatus);
+        }}
+        okText="บันทึก"
+        cancelText="ยกเลิก"
+        confirmLoading={batchProcessing}
+      >
+        <div style={{ marginBottom: 16 }}>
+          <Typography.Text>
+            คุณกำลังจะปรับสถานะ <strong>{selectedRowKeys.length}</strong> รายการ
+          </Typography.Text>
+        </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ minWidth: 120 }}>สถานะ</div>
+          <Select
+            value={batchSelectedStatus}
+            onChange={(v) => setBatchSelectedStatus(String(v))}
+            options={[
+              { label: "รออนุมัติ", value: "pending" },
+              { label: "อนุมัติ", value: "approved" },
+              { label: "ปฏิเสธ", value: "rejected" },
+            ]}
+            style={{ minWidth: 220 }}
+          />
+        </div>
+      </Modal>
+
+      <Modal
         title="รายละเอียดคำขอโอที"
         open={detailVisible}
         onCancel={() => setDetailVisible(false)}
