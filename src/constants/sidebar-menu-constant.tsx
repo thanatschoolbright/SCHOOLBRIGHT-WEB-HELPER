@@ -228,7 +228,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.timeline"),
             href: "/timesheet/timeline",
-            news: false,
+            news: true,
             icon: <FieldTimeOutlined />,
           },
           {
