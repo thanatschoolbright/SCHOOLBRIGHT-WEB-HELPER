@@ -19,6 +19,8 @@ import {
   Badge,
   Tag,
   theme,
+  Radio,
+  RadioChangeEvent,
   Flex,
 } from "antd";
 import dayjs from "dayjs";
@@ -57,6 +59,7 @@ export default function TimelinePage() {
     new Set()
   );
   const [viewMode, setViewMode] = useState<"month" | "quarter">("month");
+  const [filterDuration, setFilterDuration] = useState<number | null>(null);
 
   // Fetch data
   useEffect(() => {
@@ -80,9 +83,48 @@ export default function TimelinePage() {
     fetchData();
   }, []);
 
+  // Filter projects based on duration
+  const filteredProjects = useMemo(() => {
+    if (!filterDuration) return projects;
+
+    const now = dayjs().startOf("day");
+    const end = now.add(filterDuration, "month").endOf("day");
+
+    return projects
+      .map((project) => {
+        // Check features overlap
+        const visibleFeatures = project.features.filter((f) => {
+          const fStart = dayjs(f.startDate);
+          const fEnd = dayjs(f.endDate);
+          // Overlap: start <= rangeEnd AND end >= rangeStart
+          return (
+            (fStart.isBefore(end) || fStart.isSame(end)) &&
+            (fEnd.isAfter(now) || fEnd.isSame(now))
+          );
+        });
+
+        // Check project overlap
+        const pStart = dayjs(project.startDate);
+        const pEnd = dayjs(project.endDate);
+        const isProjectVisible =
+          (pStart.isBefore(end) || pStart.isSame(end)) &&
+          (pEnd.isAfter(now) || pEnd.isSame(now));
+
+        if (visibleFeatures.length > 0 || isProjectVisible) {
+          return {
+            ...project,
+            features: visibleFeatures,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean) as TimelineProject[];
+  }, [projects, filterDuration]);
+
   // Calculate timeline range
   const { startDate, endDate, totalDays, months } = useMemo(() => {
-    if (projects.length === 0) {
+    // Use filteredProjects instead of projects
+    if (filteredProjects.length === 0) {
       const start = dayjs().startOf("year");
       const end = dayjs().endOf("year");
       return {
@@ -93,8 +135,12 @@ export default function TimelinePage() {
       };
     }
 
-    const allStartDates = projects.map((p) => new Date(p.startDate).getTime());
-    const allEndDates = projects.map((p) => new Date(p.endDate).getTime());
+    const allStartDates = filteredProjects.map((p) =>
+      new Date(p.startDate).getTime()
+    );
+    const allEndDates = filteredProjects.map((p) =>
+      new Date(p.endDate).getTime()
+    );
 
     // Include Today in the range
     const today = dayjs();
@@ -125,7 +171,7 @@ export default function TimelinePage() {
       totalDays: days,
       months: monthList,
     };
-  }, [projects]);
+  }, [filteredProjects]);
 
   const toggleProject = (id: number) => {
     const newSet = new Set(expandedProjects);
@@ -144,7 +190,7 @@ export default function TimelinePage() {
   // Auto-scroll to Today
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (scrollContainerRef.current && !loading && projects.length > 0) {
+    if (scrollContainerRef.current && !loading && filteredProjects.length > 0) {
       // Calculate position of Today
       const todayDiff = dayjs().diff(startDate, "day");
       const todayPos = todayDiff * PIXELS_PER_DAY;
@@ -158,7 +204,7 @@ export default function TimelinePage() {
         behavior: "smooth",
       });
     }
-  }, [loading, projects, startDate, PIXELS_PER_DAY]);
+  }, [loading, filteredProjects, startDate, PIXELS_PER_DAY]);
 
   const PROJECT_COLORS = [
     "#1890ff", // blue
@@ -235,6 +281,22 @@ export default function TimelinePage() {
               </Button>
             </Space>
             <Space>
+              <Typography.Text strong>Focus:</Typography.Text>
+              <Radio.Group
+                value={filterDuration}
+                onChange={(e: RadioChangeEvent) =>
+                  setFilterDuration(e.target.value)
+                }
+                buttonStyle="solid"
+                size="small"
+              >
+                <Radio.Button value={null}>All</Radio.Button>
+                <Radio.Button value={1}>1 Month</Radio.Button>
+                <Radio.Button value={3}>3 Months</Radio.Button>
+                <Radio.Button value={6}>6 Months</Radio.Button>
+              </Radio.Group>
+            </Space>
+            <Space>
               <Tag color="blue">Project</Tag>
               <Tag color="orange">Feature</Tag>
               <Tag color="green">Today</Tag>
@@ -245,8 +307,11 @@ export default function TimelinePage() {
             <Flex justify="center" align="center" style={{ padding: 100 }}>
               <Spin size="large" />
             </Flex>
-          ) : projects.length === 0 ? (
-            <Empty description="ไม่พบข้อมูลโครงการ" style={{ margin: 50 }} />
+          ) : filteredProjects.length === 0 ? (
+            <Empty
+              description="ไม่พบข้อมูลโครงการในช่วงเวลานี้"
+              style={{ margin: 50 }}
+            />
           ) : (
             <div
               ref={scrollContainerRef}
@@ -260,7 +325,7 @@ export default function TimelinePage() {
               <Flex
                 style={{
                   borderBottom: `1px solid ${token.colorBorderSecondary}`,
-                  backgroundColor: token.colorFillQuaternary,
+                  backgroundColor: token.colorBgLayout,
                   position: "sticky",
                   top: 0,
                   zIndex: 200,
@@ -279,7 +344,7 @@ export default function TimelinePage() {
                     position: "sticky",
                     left: 0,
                     zIndex: 300,
-                    backgroundColor: token.colorFillQuaternary,
+                    backgroundColor: token.colorBgLayout,
                   }}
                 >
                   <Typography.Text strong>Project Name</Typography.Text>
@@ -394,7 +459,7 @@ export default function TimelinePage() {
                   />
                 </div>
 
-                {projects.map((project, index) => {
+                {filteredProjects.map((project, index) => {
                   const isExpanded = expandedProjects.has(project.id);
                   const projectColor = getProjectColor(index);
                   const pPos = getBarPosition(
