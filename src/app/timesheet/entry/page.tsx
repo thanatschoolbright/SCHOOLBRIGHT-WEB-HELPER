@@ -797,19 +797,11 @@ export default function Page() {
               styles={{ body: { padding: 0 } }}
               title={
                 <div
-                  style={{
-                    padding: "20px 24px 0",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
+                 
+                  className="p-4 flex items-center my-3"
                 >
                   <div
-                    style={{
-                      backgroundColor: token.colorPrimaryBg,
-                      padding: 8,
-                      borderRadius: 8,
-                      marginRight: 12,
-                    }}
+                   className="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 mb-2"
                   >
                     <ClockCircleOutlined
                       style={{ color: token.colorPrimary, fontSize: 18 }}
