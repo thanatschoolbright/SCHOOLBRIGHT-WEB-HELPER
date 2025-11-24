@@ -647,14 +647,14 @@ export default function Page() {
             <Button
               type="text"
               icon={<EditOutlined />}
-              onClick={() => openEditForm(record)}
+              onClick={() => { openEditForm(record).catch(console.error); }}
               size="small"
               className="!rounded-md"
             />
             <Button
               type="text"
               icon={<CopyOutlined />}
-              onClick={() => openCopyForm(record)}
+              onClick={() => { openCopyForm(record).catch(console.error); }}
               size="small"
               className="!rounded-md"
             />
@@ -670,7 +670,7 @@ export default function Page() {
       <DashboardLayout>
         {/* Page animation wrapper */}
         <motion.div
-          className="p-6 min-h-screen bg-gray-50"
+          className="p-6 min-h-screen "
           initial="initial"
           animate="in"
           exit="out"
