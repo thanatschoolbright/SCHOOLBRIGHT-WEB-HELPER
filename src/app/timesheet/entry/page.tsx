@@ -16,14 +16,13 @@ import {
   Table,
   Tag,
   Typography,
-  Badge,
   theme,
   Tooltip,
   Avatar,
   Row,
   Col,
-  Statistic,
   Divider,
+  Progress,
 } from "antd";
 import {
   CopyOutlined,
@@ -31,7 +30,6 @@ import {
   EyeOutlined,
   PlusOutlined,
   SearchOutlined,
-  TeamOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
   ProjectOutlined,
@@ -39,9 +37,10 @@ import {
   SyncOutlined,
   CloseCircleOutlined,
   FileTextOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType, ColumnType } from "antd/es/table";
-import { motion, AnimatePresence } from "framer-motion"; // เพิ่ม animation
+import { motion } from "framer-motion"; // *ต้องติดตั้ง: npm install framer-motion
 
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import dayjs from "dayjs";
@@ -49,6 +48,7 @@ import isBetween from "dayjs/plugin/isBetween";
 import i18next from "i18next";
 import { toast } from "sonner";
 
+// --- Components Imports ---
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { TimesheetActions } from "@components/button/timesheet-actions";
@@ -57,6 +57,8 @@ import { TableSearch } from "@components/input-field/table-search";
 import { DeleteConfirmationModal } from "@components/modal/delete-confirmation-modal";
 import { DetailModal } from "@components/timesheet/detail-modal";
 import { WeeklySummary } from "@components/timesheet/weekly-summary";
+import { CreateModalForm } from "./create"; // ตรวจสอบ Path ให้ถูกต้อง
+import { MonthlyRankBoard, MonthlyRankBoardRef } from "./monthly-rank-board"; // ตรวจสอบ Path ให้ถูกต้อง
 import {
   useDailySummary,
   useTimesheetEntries,
@@ -76,13 +78,10 @@ import {
 import { useDispatch } from "react-redux";
 
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
-import { CreateModalForm } from "./create";
-import { MonthlyRankBoard, MonthlyRankBoardRef } from "./monthly-rank-board";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
 
 dayjs.extend(isBetween);
 
-// --- Interface & Types ---
+// --- Interfaces ---
 export interface TimesheetEntry {
   id: number;
   date: string;
@@ -112,13 +111,32 @@ type TableColumn = ColumnType<TimesheetEntry> & {
 const DATE_FORMAT = "DD/MM/YYYY";
 const DAILY_TARGET_HOURS = 8;
 
-// --- Helper Functions & Constants ---
+// --- Helper Functions ---
+
+// สร้างสีจากข้อความ (สำหรับ Avatar โปรเจกต์)
+const stringToColor = (string: string) => {
+  let hash = 0;
+  for (let i = 0; i < string.length; i++) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const c = (hash & 0x00ffffff).toString(16).toUpperCase();
+  return "#" + "00000".substring(0, 6 - c.length) + c;
+};
+
 const getStatusConfig = (status: string) => {
   switch (status) {
     case "DONE":
-      return { color: "success", icon: <CheckCircleOutlined />, text: "เสร็จสิ้น" };
+      return {
+        color: "success",
+        icon: <CheckCircleOutlined />,
+        text: "เสร็จสิ้น",
+      };
     case "IN_PROGRESS":
-      return { color: "processing", icon: <SyncOutlined spin />, text: "กำลังทำ" };
+      return {
+        color: "processing",
+        icon: <SyncOutlined spin />,
+        text: "กำลังทำ",
+      };
     case "REVIEW":
       return { color: "geekblue", icon: <EyeOutlined />, text: "รอตรวจสอบ" };
     case "CANCELLED":
@@ -135,17 +153,18 @@ const getGreeting = () => {
   return "สวัสดีตอนเย็น";
 };
 
+// --- Main Page Component ---
 export default function Page() {
   const dispatch = useDispatch();
   const i18n = i18next;
   const [form] = Form.useForm();
   const isMountedRef = useRef(true);
   const rankBoardRef = useRef<MonthlyRankBoardRef>(null);
-  
-  // ใช้ Design Token จาก AntD
+
+  // Enterprise Theme Token
   const { token } = theme.useToken();
 
-  // Redux Selectors
+  // Redux
   const authState = useAppSelector((state) => state.callAdminLogin);
   const timesheetState = useAppSelector((state) => state.timesheet);
 
@@ -153,16 +172,15 @@ export default function Page() {
     () => Number(authState?.response?.data?.user_data?.admin_id) || undefined,
     [authState?.response?.data?.user_data?.admin_id]
   );
-
   const adminName = authState?.response?.data?.user_data?.firstname || "User";
 
-  // State UI
+  // Local State
   const [actionLoading, setActionLoading] = useState(false);
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
 
-  // Custom Hooks
+  // Hooks Data
   const {
     entries,
     loading: tableLoading,
@@ -178,7 +196,6 @@ export default function Page() {
   const weeklySummary = useWeeklySummary(dailySummary);
   const { topProjectUsage, topFeatureUsage } = useTopUsage(entries);
 
-  // Lifecycle
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
@@ -186,27 +203,18 @@ export default function Page() {
     };
   }, []);
 
-  // --- API Functions (Same Logic) ---
+  // --- API Handlers ---
   const GET_PROJECTS_FUNCTION = useCallback(async () => {
-    const TOAST_ID = "fetch-projects";
     try {
-      // ใช้ toast loading แบบ silent หรือแสดงเฉพาะตอนโหลดครั้งแรกก็ได้
-      // toast.loading("กำลังโหลดรายการโปรเจ็ค...", { id: TOAST_ID }); 
       dispatch(setLoading(true));
-
       const response = await axios.post("/api/v1/timesheet/project/read/", {
         limit: 100,
         page: 1,
       });
-
       if (!isMountedRef.current) return;
       dispatch(setProjects(response.data?.data ?? []));
     } catch (error: any) {
       console.error("GET_PROJECTS_FUNCTION", error);
-      toast.error("โหลดรายการโปรเจ็คไม่สำเร็จ", {
-        id: TOAST_ID,
-        description: error?.message,
-      });
     } finally {
       dispatch(setLoading(false));
     }
@@ -218,32 +226,20 @@ export default function Page() {
         dispatch(setSubProjects([]));
         return [];
       }
-
       const TOAST_ID = "fetch-sub-projects";
       try {
         toast.loading("กำลังโหลดรายการฟีเจอร์...", { id: TOAST_ID });
-
         const response = await axios.post(
           "/api/v1/timesheet/project/sub-project/read/",
-          {
-            limit: 100,
-            page: 1,
-            project_id: Number(projectId),
-          }
+          { limit: 100, page: 1, project_id: Number(projectId) }
         );
-
         const items = response.data?.data?.items ?? [];
-        if (isMountedRef.current) {
-          dispatch(setSubProjects(items));
-        }
-
+        if (isMountedRef.current) dispatch(setSubProjects(items));
         toast.success("โหลดรายการฟีเจอร์สำเร็จ", { id: TOAST_ID });
         return items;
       } catch (error: any) {
         console.error("GET_SUB_PROJECTS_FUNCTION", error);
-        if (isMountedRef.current) {
-          dispatch(setSubProjects([]));
-        }
+        if (isMountedRef.current) dispatch(setSubProjects([]));
         toast.error("โหลดรายการฟีเจอร์ไม่สำเร็จ", {
           id: TOAST_ID,
           description: error?.message,
@@ -258,7 +254,7 @@ export default function Page() {
     GET_PROJECTS_FUNCTION();
   }, [GET_PROJECTS_FUNCTION]);
 
-  // --- Handlers (Same Logic) ---
+  // --- UI Action Handlers ---
   const closeModal = useCallback(() => {
     dispatch(setModalType(null));
     dispatch(setActiveRecord(null));
@@ -275,7 +271,7 @@ export default function Page() {
       sub_project_id: undefined,
       description: "",
       work_hour: undefined,
-      status: "IN_PROGRESS", // Default status suggestion
+      status: "IN_PROGRESS",
       date: dayjs(),
     });
     dispatch(setModalType("form"));
@@ -287,10 +283,11 @@ export default function Page() {
       dispatch(setActiveRecord(record));
       await GET_SUB_PROJECTS_FUNCTION(Number(record.project_id));
       if (!isMountedRef.current) return;
-
       form.setFieldsValue({
         project_id: Number(record.project_id),
-        sub_project_id: record.feature_id ? Number(record.feature_id) : undefined,
+        sub_project_id: record.feature_id
+          ? Number(record.feature_id)
+          : undefined,
         description: record.description ?? "",
         work_hour: Number(record.hours) || undefined,
         status: record.status,
@@ -307,10 +304,11 @@ export default function Page() {
       dispatch(setActiveRecord(null));
       await GET_SUB_PROJECTS_FUNCTION(Number(record.project_id));
       if (!isMountedRef.current) return;
-
       form.setFieldsValue({
         project_id: Number(record.project_id),
-        sub_project_id: record.feature_id ? Number(record.feature_id) : undefined,
+        sub_project_id: record.feature_id
+          ? Number(record.feature_id)
+          : undefined,
         description: record.description ?? "",
         work_hour: Number(record.hours) || undefined,
         status: record.status,
@@ -339,7 +337,6 @@ export default function Page() {
       const values = await form.validateFields();
       setActionLoading(true);
       toast.loading("กำลังบันทึกข้อมูล...", { id: TOAST_ID });
-
       const payload = {
         id:
           timesheetState.formMode === "edit"
@@ -353,44 +350,31 @@ export default function Page() {
         date: values.date ? dayjs(values.date).toDate() : undefined,
         by: adminId,
       };
-
       await axios.post("/api/v1/timesheet/entry/insert/", payload, {
         headers: { "Content-Type": "application/json" },
       });
-
       toast.success("บันทึกข้อมูลสำเร็จ", { id: TOAST_ID });
-
       if (!isMountedRef.current) return;
       closeModal();
       refetchEntries();
       rankBoardRef.current?.refetch();
     } catch (error: any) {
       if (error?.errorFields) return;
-      console.error("SUBMIT_TIMESHEET_FUNCTION", error);
       toast.error("บันทึกข้อมูลล้มเหลว", {
         id: TOAST_ID,
-        description: error?.message ?? "Unexpected error",
+        description: error?.message,
       });
     } finally {
       if (isMountedRef.current) setActionLoading(false);
     }
-  }, [
-    timesheetState?.activeRecord?.id,
-    timesheetState?.formMode,
-    adminId,
-    closeModal,
-    refetchEntries,
-    form,
-  ]);
+  }, [timesheetState, adminId, closeModal, refetchEntries, form]);
 
   const DELETE_TIMESHEET_FUNCTION = useCallback(async () => {
     if (!timesheetState.selectedRowKeys.length) return;
-
     const TOAST_ID = "bulk-delete";
     try {
       setActionLoading(true);
       toast.loading("กำลังลบรายการ...", { id: TOAST_ID });
-
       await axios.post(
         "/api/v1/timesheet/entry/delete/",
         {
@@ -399,9 +383,7 @@ export default function Page() {
         },
         { headers: { "Content-Type": "application/json" } }
       );
-
       toast.success("ลบรายการสำเร็จ", { id: TOAST_ID });
-
       if (isMountedRef.current) {
         dispatch(setSelectedRowKeys([]));
         closeModal();
@@ -409,10 +391,9 @@ export default function Page() {
         rankBoardRef.current?.refetch();
       }
     } catch (error: any) {
-      console.error("DELETE_TIMESHEET_FUNCTION", error);
       toast.error("ลบรายการล้มเหลว", {
         id: TOAST_ID,
-        description: error?.message ?? "Unexpected error",
+        description: error?.message,
       });
     } finally {
       if (isMountedRef.current) setActionLoading(false);
@@ -457,70 +438,114 @@ export default function Page() {
         );
       },
       filterIcon: (filtered) => (
-        <SearchOutlined style={{ color: filtered ? token.colorPrimary : undefined }} />
+        <SearchOutlined
+          style={{ color: filtered ? token.colorPrimary : undefined }}
+        />
       ),
       onFilter: (value, record) => {
         const raw = record[dataIndex];
         if (raw === undefined || raw === null) return false;
-        if (dataIndex === "date") {
+        if (dataIndex === "date")
           return dayjs(raw).format(DATE_FORMAT).includes(String(value));
-        }
         return String(raw).toLowerCase().includes(String(value).toLowerCase());
       },
       filterDropdownProps: {
         onOpenChange: (visible) => {
-          if (visible) {
+          if (visible)
             setTimeout(() => searchInputRefs.current[dataIndex]?.select(), 100);
-          }
         },
       },
     }),
     [token.colorPrimary]
   );
 
+  // Modern Enterprise Columns Definition
   const columns = useMemo<ColumnsType<TimesheetEntry>>(
     () => [
       {
         title: "วันที่",
         dataIndex: "date",
-        width: 140,
+        width: 100,
         align: "center",
-        defaultSortOrder: "descend",
-        sorter: (a, b) =>
-          dayjs(a.date).startOf("day").valueOf() -
-          dayjs(b.date).startOf("day").valueOf(),
+        responsive: ["md"], // ซ่อนบนมือถือ
+        sorter: (a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf(),
         render: (value: string) => (
-          <Space>
-            <CalendarOutlined style={{ color: token.colorTextSecondary }} />
-            <Typography.Text>{dayjs(value).format(DATE_FORMAT)}</Typography.Text>
-          </Space>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              lineHeight: 1.2,
+            }}
+          >
+            <Typography.Text strong style={{ fontSize: 16 }}>
+              {dayjs(value).format("DD")}
+            </Typography.Text>
+            <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+              {dayjs(value).format("MMM YY")}
+            </Typography.Text>
+          </div>
         ),
-        ...getColumnSearchProps("date", "วันที่"),
       },
       {
         title: "โครงการ",
         dataIndex: "project_name",
-        width: 250,
+        width: 280,
         sorter: (a, b) => a.project_name.localeCompare(b.project_name),
-        render: (value: string, record) => (
-          <Space direction="vertical" size={0}>
-            <Typography.Text strong style={{ fontSize: 15 }}>
-              <ProjectOutlined style={{ marginRight: 6, color: token.colorPrimary }} />
-              {value ?? "-"}
-            </Typography.Text>
-            {record.feature_name && (
-              <Tag bordered={false} style={{ marginTop: 4, marginLeft: 22 }}>
-                {record.feature_name}
-              </Tag>
-            )}
-          </Space>
-        ),
+        render: (value: string, record) => {
+          const avatarColor = stringToColor(value);
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <Avatar
+                shape="square"
+                size={38}
+                style={{
+                  backgroundColor: `${avatarColor}20`,
+                  color: avatarColor,
+                  border: `1px solid ${avatarColor}40`,
+                  borderRadius: 8,
+                }}
+              >
+                {value ? value.charAt(0).toUpperCase() : <UserOutlined />}
+              </Avatar>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
+                }}
+              >
+                <Typography.Text
+                  strong
+                  ellipsis
+                  style={{ maxWidth: 200, fontSize: 14 }}
+                >
+                  {value}
+                </Typography.Text>
+                {record.feature_name ? (
+                  <Typography.Text
+                    type="secondary"
+                    style={{ fontSize: 11 }}
+                    ellipsis
+                  >
+                    <ProjectOutlined style={{ fontSize: 10, marginRight: 4 }} />
+                    {record.feature_name}
+                  </Typography.Text>
+                ) : (
+                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                    -
+                  </Typography.Text>
+                )}
+              </div>
+            </div>
+          );
+        },
         ...getColumnSearchProps("project_name", "ชื่อโปรเจ็ค"),
       },
       {
         title: "สถานะ",
         dataIndex: "status",
-        width: 140,
+        width: 130,
         align: "center",
         sorter: (a, b) => (a.status ?? "").localeCompare(b.status ?? ""),
         render: (value: string) => {
@@ -531,102 +556,121 @@ export default function Page() {
               ? option.label_th
               : option.label_en
             : config.text;
-
           return (
             <Tag
               color={config.color}
               icon={config.icon}
               style={{
-                borderRadius: 20,
-                padding: "2px 10px",
+                borderRadius: 12,
                 border: "none",
-                fontSize: 12,
                 fontWeight: 600,
-                boxShadow: "0 2px 0 rgba(0,0,0,0.02)",
+                fontSize: 11,
+                padding: "2px 8px",
               }}
             >
               {label}
             </Tag>
           );
         },
-        ...getColumnSearchProps("status", "สถานะ"),
       },
       {
-        title: "เวลา",
+        title: "เวลา (ชม.)",
         dataIndex: "hours",
-        align: "right",
-        width: 120,
+        width: 160,
         sorter: (a, b) => Number(a.hours) - Number(b.hours),
-        render: (value: number) => (
-          <div style={{ textAlign: "right" }}>
-            <Typography.Text strong style={{ fontSize: 16, color: token.colorPrimary }}>
-              {Number(value).toFixed(2)}
-            </Typography.Text>
-            <Typography.Text type="secondary" style={{ fontSize: 12, marginLeft: 4 }}>
-              ชม.
-            </Typography.Text>
-          </div>
-        ),
-        ...getColumnSearchProps("hours", "ชั่วโมง"),
+        render: (value: number) => {
+          const percent = (value / DAILY_TARGET_HOURS) * 100;
+          const statusColor =
+            value > DAILY_TARGET_HOURS
+              ? token.colorWarning
+              : value >= DAILY_TARGET_HOURS
+              ? token.colorSuccess
+              : token.colorPrimary;
+          return (
+            <div style={{ paddingRight: 8 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 2,
+                }}
+              >
+                <Typography.Text
+                  strong
+                  style={{ color: statusColor, fontSize: 13 }}
+                >
+                  {Number(value).toFixed(2)}
+                </Typography.Text>
+                <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                  / {DAILY_TARGET_HOURS} ชม.
+                </Typography.Text>
+              </div>
+              <Progress
+                percent={percent > 100 ? 100 : percent}
+                steps={8}
+                size={["100%", 4]}
+                strokeColor={statusColor}
+                showInfo={false}
+                trailColor={token.colorFillSecondary}
+              />
+            </div>
+          );
+        },
       },
       {
         title: "คำอธิบาย",
         dataIndex: "description",
         ellipsis: true,
+        responsive: ["lg"],
         render: (value: string | null) => (
-          <Tooltip title={value} placement="topLeft">
-             <Typography.Text type="secondary" style={{ maxWidth: 300, display: 'inline-block' }} ellipsis>
-                {value || "-"}
-             </Typography.Text>
-          </Tooltip>
+          <Typography.Text
+            type="secondary"
+            ellipsis
+            style={{ maxWidth: 200, fontSize: 13 }}
+          >
+            {value || "-"}
+          </Typography.Text>
         ),
-        ...getColumnSearchProps("description", "คำอธิบาย"),
       },
       {
         title: "",
         key: "actions",
         fixed: "right",
-        width: 130,
+        width: 100,
+        align: "center",
         render: (_value, record) => (
-          <Space size={4}>
-            <Tooltip title="ดูรายละเอียด">
-              <Button
-                type="text"
-                shape="circle"
-                icon={<EyeOutlined />}
-                onClick={() => openDetailModal(record)}
-              />
-            </Tooltip>
+          <Space.Compact size="small">
             <Tooltip title="แก้ไข">
               <Button
                 type="text"
-                shape="circle"
-                style={{ color: token.colorPrimary }}
-                icon={<EditOutlined />}
-                onClick={() => openEditForm(record)}
+                size="small"
+                icon={
+                  <EditOutlined style={{ color: token.colorTextSecondary }} />
+                }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openEditForm(record);
+                }}
               />
             </Tooltip>
             <Tooltip title="คัดลอก">
               <Button
                 type="text"
-                shape="circle"
-                style={{ color: token.colorSuccess }}
-                icon={<CopyOutlined />}
-                onClick={() => openCopyForm(record)}
+                size="small"
+                icon={
+                  <CopyOutlined style={{ color: token.colorTextSecondary }} />
+                }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openCopyForm(record);
+                }}
               />
             </Tooltip>
-          </Space>
+          </Space.Compact>
         ),
       },
     ],
-    [
-      getColumnSearchProps,
-      openCopyForm,
-      openDetailModal,
-      openEditForm,
-      i18n.language,
-      token,
-    ]
+    [getColumnSearchProps, openCopyForm, openEditForm, i18n.language, token]
   );
 
   const rowSelection: TableProps<TimesheetEntry>["rowSelection"] = {
@@ -635,7 +679,7 @@ export default function Page() {
     columnWidth: 40,
   };
 
-  // --- Main Render ---
+  // --- Render ---
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
@@ -646,12 +690,11 @@ export default function Page() {
           style={{
             padding: "24px 32px",
             minHeight: "100vh",
-            background: token.colorBgLayout, // ใช้สี Background จาก Theme
+            background: token.colorBgLayout,
           }}
         >
           <Space direction="vertical" size="large" style={{ width: "100%" }}>
-            
-            {/* 1. Header Section with Greeting */}
+            {/* 1. Header Section */}
             <div
               style={{
                 display: "flex",
@@ -664,119 +707,145 @@ export default function Page() {
                 border: `1px solid ${token.colorBorderSecondary}`,
               }}
             >
-               <div>
-                  <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-                    {getGreeting()}, คุณ{adminName} 👋
-                  </Typography.Title>
-                  <Typography.Text type="secondary">
-                    จัดการเวลาทำงานและติดตามความคืบหน้าของโครงการได้ที่นี่
-                  </Typography.Text>
-               </div>
-               <Space>
-                   <Button 
-                      type="primary" 
-                      size="large" 
-                      icon={<PlusOutlined />} 
-                      onClick={openCreateForm}
-                      style={{ borderRadius: 8, height: 44, paddingInline: 24, boxShadow: '0 4px 10px rgba(22, 119, 255, 0.3)' }}
-                    >
-                      ลงเวลาใหม่
-                   </Button>
-               </Space>
+              <div>
+                <Typography.Title
+                  level={3}
+                  style={{ margin: 0, fontWeight: 700 }}
+                >
+                  {getGreeting()}, คุณ{adminName} 👋
+                </Typography.Title>
+                <Typography.Text type="secondary">
+                  จัดการเวลาทำงานและติดตามความคืบหน้าของโครงการได้ที่นี่
+                </Typography.Text>
+              </div>
+              <Button
+                type="primary"
+                size="large"
+                icon={<PlusOutlined />}
+                onClick={openCreateForm}
+                style={{
+                  borderRadius: 8,
+                  height: 44,
+                  paddingInline: 24,
+                }}
+              >
+                ลงเวลาใหม่
+              </Button>
             </div>
 
-            {/* 2. Stats & Analytics Section */}
+            {/* 2. Stats Section */}
             <Row gutter={[16, 16]}>
               <Col xs={24} xl={14}>
-                  {/* Monthly Rank Board with Glass Effect */}
-                  <div style={{ height: '100%' }}>
-                     <MonthlyRankBoard
-                      ref={rankBoardRef}
-                      currentAdminId={adminId}
-                      variant="wide"
-                    />
-                  </div>
+                <div style={{ height: "100%" }}>
+                  <MonthlyRankBoard
+                    ref={rankBoardRef}
+                    currentAdminId={adminId}
+                    variant="wide"
+                  />
+                </div>
               </Col>
               <Col xs={24} xl={10}>
                 <Row gutter={[16, 16]}>
-                    <Col span={24}>
-                        <WeeklySummary
-                          weeklySummary={weeklySummary}
-                          targetHours={DAILY_TARGET_HOURS}
-                          loading={tableLoading}
-                        />
-                    </Col>
-                    <Col span={12}>
-                        {topProjectUsage ? (
-                          <TimesheetStatCard
-                            title="โปรเจ็คยอดนิยม"
-                            value={topProjectUsage.hours}
-                            color="#52c41a"
-                            loading={tableLoading}
-                            description={topProjectUsage.name}
-                          />
-                        ) : (
-                          <Card loading style={{ height: 140, borderRadius: 16 }} />
-                        )}
-                    </Col>
-                    <Col span={12}>
-                        {topFeatureUsage ? (
-                           <TimesheetStatCard
-                            title="ฟีเจอร์ยอดนิยม"
-                            value={topFeatureUsage.hours}
-                            color="#ff4d4f"
-                            loading={tableLoading}
-                            description={topFeatureUsage.name}
-                          />
-                        ) : (
-                           <Card loading style={{ height: 140, borderRadius: 16 }} />
-                        )}
-                    </Col>
+                  <Col span={24}>
+                    <WeeklySummary
+                      weeklySummary={weeklySummary}
+                      targetHours={DAILY_TARGET_HOURS}
+                      loading={tableLoading}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    {topProjectUsage ? (
+                      <TimesheetStatCard
+                        title="โปรเจ็คยอดนิยม"
+                        value={topProjectUsage.hours}
+                        color="#52c41a"
+                        loading={tableLoading}
+                        description={topProjectUsage.name}
+                      />
+                    ) : (
+                      <Card loading style={{ height: 140, borderRadius: 16 }} />
+                    )}
+                  </Col>
+                  <Col span={12}>
+                    {topFeatureUsage ? (
+                      <TimesheetStatCard
+                        title="ฟีเจอร์ยอดนิยม"
+                        value={topFeatureUsage.hours}
+                        color="#ff4d4f"
+                        loading={tableLoading}
+                        description={topFeatureUsage.name}
+                      />
+                    ) : (
+                      <Card loading style={{ height: 140, borderRadius: 16 }} />
+                    )}
+                  </Col>
                 </Row>
               </Col>
             </Row>
 
-            <Divider dashed style={{ margin: '8px 0' }} />
+            <Divider dashed style={{ margin: "8px 0" }} />
 
-            {/* 3. Main Data Table */}
+            {/* 3. Main Data Table (Modern & Compact) */}
             <Card
-              bordered={false}
+              variant="outlined"
               style={{
                 borderRadius: 16,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
-                overflow: 'hidden'
+                boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
+                overflow: "hidden",
+                border: `1px solid ${token.colorBorderSecondary}`,
               }}
-              styles={{
-                body: { padding: 0 }
-              }}
+              styles={{ body: { padding: 0 } }}
               title={
-                <div style={{ padding: '20px 24px 0' }}>
-                  <Typography.Title level={4} style={{ margin: 0 }}>
-                    <ClockCircleOutlined style={{ marginRight: 8, color: token.colorPrimary }} />
-                    รายการลงเวลาล่าสุด
-                  </Typography.Title>
+                <div
+                  style={{
+                    padding: "20px 24px 0",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: token.colorPrimaryBg,
+                      padding: 8,
+                      borderRadius: 8,
+                      marginRight: 12,
+                    }}
+                  >
+                    <ClockCircleOutlined
+                      style={{ color: token.colorPrimary, fontSize: 18 }}
+                    />
+                  </div>
+                  <div>
+                    <Typography.Title level={5} style={{ margin: 0 }}>
+                      รายการลงเวลาล่าสุด
+                    </Typography.Title>
+                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                      ประวัติการทำงานทั้งหมดของคุณ
+                    </Typography.Text>
+                  </div>
                 </div>
               }
               extra={
-                 <div style={{ padding: '20px 24px 0' }}>
-                     <TimesheetActions
-                        selectedCount={timesheetState?.selectedRowKeys?.length}
-                        loading={actionLoading}
-                        refreshLoading={tableLoading}
-                        onRefresh={refetchEntries}
-                        onAdd={openCreateForm}
-                        onDelete={openDeleteModal}
-                        
-                      />
-                 </div>
+                <div style={{ padding: "20px 24px 0" }}>
+                  <TimesheetActions
+                    selectedCount={timesheetState?.selectedRowKeys?.length}
+                    loading={actionLoading}
+                    refreshLoading={tableLoading}
+                    onRefresh={refetchEntries}
+                    onAdd={openCreateForm}
+                    onDelete={openDeleteModal}
+                  />
+                </div>
               }
             >
-              <Table<TimesheetEntry>
+             <div className="p-6">
+               <Table<TimesheetEntry>
                 rowKey={(record) => String(record.id)}
                 columns={columns}
                 dataSource={entries}
                 loading={tableLoading}
                 rowSelection={rowSelection}
+                size="middle" // Compact Size
                 pagination={{
                   current: currentPage,
                   pageSize,
@@ -786,18 +855,25 @@ export default function Page() {
                     if (size && size !== pageSize) setPageSize(size);
                   },
                   showSizeChanger: true,
+                  size: "small",
                   pageSizeOptions: ["10", "20", "50", "100"],
                   showTotal: (total, range) => (
-                     <span style={{ color: token.colorTextSecondary }}>
-                        แสดง {range[0]}-{range[1]} จากทั้งหมด <b>{total}</b> รายการ
-                     </span>
+                    <span
+                      style={{ color: token.colorTextSecondary, fontSize: 12 }}
+                    >
+                      {range[0]}-{range[1]} / {total}
+                    </span>
                   ),
-                  style: { padding: "16px 24px" },
+                  style: { padding: "12px 24px" },
                 }}
-                scroll={{ x: 1000 }}
-                rowClassName={() => "timesheet-table-row"} // Custom CSS class for hover
-                style={{ marginTop: 16 }}
+                scroll={{ x: 800 }}
+                onRow={(record) => ({
+                  onClick: () => openDetailModal(record),
+                  style: { cursor: "pointer" },
+                })}
+                style={{ marginTop: 8 }}
               />
+             </div>
             </Card>
           </Space>
 
