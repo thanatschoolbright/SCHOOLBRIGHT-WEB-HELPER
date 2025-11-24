@@ -12,11 +12,11 @@ import english_menu from "@locales/eng-menu.json";
 
 const resources = {
   en: {
-    mock: en,
+    translate: en,
     menu: english_menu,
   },
   th: {
-    mock: th,
+    translate: th,
     menu: thai_menu,
   },
 };

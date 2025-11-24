@@ -6,11 +6,14 @@ import { BarChartOutlined, PieChartOutlined } from "@ant-design/icons";
 
 import { ExportButton } from "@components/button";
 import type { TimesheetMode } from "@/components/modal/graph-timesheet-modal-component";
+import { ExportDeliveryTracker } from "@components/loading/export-delivery-tracker";
 
 //** Interface สำหรับ Props ของ TimesheetControls */
 interface TimesheetControlsProps {
   /** สถานะการส่งออก */
   isExporting: boolean;
+  /** ขั้นตอนการส่งออก (0-3) */
+  exportStep?: number;
   /** สถานะการส่งออก Template */
   isExportingTemplate: boolean;
   /** ฟังก์ชันเปิด Modal ส่งออก Template */
@@ -40,6 +43,7 @@ const TIME_MODE_ITEMS: MenuProps["items"] = [
 //** Component Controls สำหรับหน้า Timesheet */
 const TimesheetControls: React.FC<TimesheetControlsProps> = ({
   isExporting,
+  exportStep = 0,
   isExportingTemplate,
   onExportTemplate,
   onExportTemplate2,
@@ -51,6 +55,25 @@ const TimesheetControls: React.FC<TimesheetControlsProps> = ({
 }) => {
   const { token } = theme.useToken();
   const router = useRouter();
+
+  //** ถ้ากำลัง Export ให้แสดง Delivery Tracker */
+  if (isExporting || isExportingTemplate) {
+    return (
+      <Card
+        size="small"
+        style={{
+          borderRadius: token.borderRadius,
+          marginBottom: token.marginMD,
+          border: "none",
+          boxShadow: "none",
+          background: "transparent",
+        }}
+        bodyStyle={{ padding: 0 }}
+      >
+        <ExportDeliveryTracker currentStep={exportStep} />
+      </Card>
+    );
+  }
 
   //** จัดการการเลือก Time Mode สำหรับ Graph */
   const handleGraphModeSelect: MenuProps["onClick"] = ({ key }) => {

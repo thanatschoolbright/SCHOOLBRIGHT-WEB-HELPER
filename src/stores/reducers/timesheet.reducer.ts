@@ -17,6 +17,7 @@ interface TimesheetState {
   projectsLoading: boolean;
   subProjectsLoading: boolean;
   exportLoading: boolean;
+  exportStep: number;
 
   //** ข้อมูล Pagination */
   currentPage: number;
@@ -54,6 +55,7 @@ const initialState: TimesheetState = {
   projectsLoading: false,
   subProjectsLoading: false,
   exportLoading: false,
+  exportStep: 0,
 
   currentPage: 1,
   pageSize: 100,
@@ -119,6 +121,10 @@ const timesheetSlice = createSlice({
 
     setExportLoading: (state, action: PayloadAction<boolean>) => {
       state.exportLoading = action.payload;
+    },
+
+    setExportStep: (state, action: PayloadAction<number>) => {
+      state.exportStep = action.payload;
     },
 
     //** อัพเดทข้อมูล Pagination */
@@ -196,6 +202,7 @@ export const {
   setProjectsLoading,
   setSubProjectsLoading,
   setExportLoading,
+  setExportStep,
   setPagination,
   setModalState,
   resetModalStates,

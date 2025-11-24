@@ -65,6 +65,7 @@ import {
   setSubProjects,
   setSubProjectsLoading,
   setUsers,
+  setExportStep,
 } from "@stores/reducers/timesheet.reducer";
 import { useAppSelector } from "@stores/store";
 import type {
@@ -100,6 +101,7 @@ export default function TimesheetAllPage(): JSX.Element {
     selectedRowKeys,
     detailRecord,
     filteredInfo,
+    exportStep,
   } = timesheetState;
 
   //** Local state สำหรับ Modal modes */
@@ -249,7 +251,12 @@ export default function TimesheetAllPage(): JSX.Element {
   const HANDLE_EXPORT_TEMPLATE4 = useCallback(
     async ({ from, to }: { from: string; to: string }) => {
       dispatch(setExportLoading(true));
+      dispatch(setExportStep(0));
+
       try {
+        // Step 1: Processing
+        setTimeout(() => dispatch(setExportStep(1)), 500);
+
         // Convert MM/YYYY inputs to start_date and end_date in YYYY-MM-DD
         const fromDate = dayjs(from, "MM/YYYY")
           .startOf("month")
@@ -261,8 +268,21 @@ export default function TimesheetAllPage(): JSX.Element {
           start_date: fromDate,
           end_date: toDate,
         });
-      } finally {
+
+        // Step 2: File Created
+        dispatch(setExportStep(2));
+
+        // Step 3: Download Ready
+        setTimeout(() => dispatch(setExportStep(3)), 800);
+
+        // Close after showing success
+        setTimeout(() => {
+          dispatch(setExportLoading(false));
+          dispatch(setExportStep(0));
+        }, 3000);
+      } catch (error) {
         dispatch(setExportLoading(false));
+        dispatch(setExportStep(0));
       }
     },
     [dispatch]
@@ -271,12 +291,18 @@ export default function TimesheetAllPage(): JSX.Element {
   //** ส่งออกข้อมูลทั้งหมด */
   const HANDLE_EXPORT_ALL = useCallback(async () => {
     dispatch(setExportLoading(true));
+    dispatch(setExportStep(0));
     try {
+      setTimeout(() => dispatch(setExportStep(1)), 500);
       const { entries: allEntries } = await POST_EXPORT_ALL_ENTRIES();
 
       if (!allEntries.length) {
+        dispatch(setExportLoading(false));
+        dispatch(setExportStep(0));
         return;
       }
+
+      dispatch(setExportStep(2));
 
       const dataset = allEntries.map((entry: TimesheetEntry) => {
         const user = users.find(
@@ -303,9 +329,16 @@ export default function TimesheetAllPage(): JSX.Element {
       )}.xlsx`;
       writeFile(workbook, filename);
 
+      dispatch(setExportStep(3));
       toast.success("ส่งออกข้อมูลสำเร็จ");
-    } finally {
+
+      setTimeout(() => {
+        dispatch(setExportLoading(false));
+        dispatch(setExportStep(0));
+      }, 2000);
+    } catch (error) {
       dispatch(setExportLoading(false));
+      dispatch(setExportStep(0));
     }
   }, [dispatch, users, statusLabelMap]);
 
@@ -593,6 +626,7 @@ export default function TimesheetAllPage(): JSX.Element {
           <div>
             <TimesheetControls
               isExporting={exportLoading}
+              exportStep={exportStep}
               isExportingTemplate={exportLoading}
               onExportTemplate={() => handleOpenModal("exportModal")}
               onExportTemplate2={() => handleOpenModal("exportModal2")}

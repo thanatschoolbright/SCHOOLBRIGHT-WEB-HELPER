@@ -70,28 +70,38 @@ Contains summary data with the following columns:
    - Format: `{projectId}-{featureId}` (e.g., "12-42")
    - Concatenates primary IDs from Project and Feature tables
 
-2. **ประเภทของสินทรัพย์** (Asset Type)
+2. **ชื่อโครงการ (รหัสโครงการ)** (Project Name (Project Code))
+
+   - Format: `{projectName} ({projectId})`
+
+3. **ชื่อโครงการย่อย (รหัสโครงการย่อย)** (Sub-Project Name (Sub-Project Code))
+
+   - Format: `{featureName} ({featureId})`
+
+4. **ประเภทของสินทรัพย์** (Asset Type)
 
    - Values: "CAPTUREABLE" or "UN_CAPTUREABLE"
    - Retrieved from `Feature.assetCaptureType` column
 
-3. **ผลรวมชั่วโมง** (Total Hours)
+5. **ผลรวมชั่วโมง** (Total Hours)
 
    - Sum of all timesheet entries for that feature
    - Counted from `TimesheetEntry` table grouped by `featureId`
 
-4. **เปอร์เซ็นต์** (Percentage)
+6. **เปอร์เซ็นต์** (Percentage)
    - Percentage of total hours spent on this feature
    - Formula: `(feature hours / total hours) × 100`
 
 ### Evidence Sheets
 
 - **One sheet per feature** (sub-project)
-- Sheet name: `{projectId}-{featureId}`
+- Sheet name: `{ProjectName}-{FeatureName} ({projectId}-{featureId})`
+  - Truncated to fit 31 character limit
 - Contains detailed timesheet entries with:
   - วันที่ (Date)
   - โครงการ (Project name)
   - โครงการย่อย (Feature name)
+  - ผู้จัดทำ (Creator) - Format: `{Firstname} {Lastname} ({admin_id})`
   - ชั่วโมง (Hours)
   - คำอธิบาย (Description)
   - สถานะ (Status)
