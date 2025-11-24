@@ -22,6 +22,8 @@ import {
   Select,
   Skeleton,
   Descriptions,
+  Tooltip,
+  Badge,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -33,6 +35,8 @@ import {
   ArrowRightOutlined,
   ProjectOutlined,
   StopOutlined,
+  CalendarOutlined,
+  NumberOutlined,
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { categoryType } from "@data/timesheet.category.type";
@@ -237,13 +241,21 @@ export default function Page() {
   // กำหนด columns สำหรับตารางโปรเจค
   const columns: ColumnsType<Project> = [
     {
-      title: "ลำดับ",
+      title: (
+        <Space>
+          <NumberOutlined />
+          ลำดับ
+        </Space>
+      ),
       dataIndex: "index",
       key: "index",
       align: "center" as const,
-      render: (_: any, __: any, idx: number) =>
-        idx + 1 + (currentPage - 1) * limit,
-      width: 80,
+      width: 90,
+      render: (_: any, __: any, idx: number) => (
+        <span style={{ fontWeight: 600, color: "#8c8c8c" }}>
+          {idx + 1 + (currentPage - 1) * limit}
+        </span>
+      ),
     },
     {
       title: "ชื่อโปรเจค",
@@ -257,25 +269,61 @@ export default function Page() {
         text: name,
         value: String(name),
       })),
-      render: (text: string) => <Typography.Text>{text}</Typography.Text>,
+      render: (text: string) => (
+        <Space>
+          <div
+            style={{
+              backgroundColor: "#e6f7ff",
+              padding: "8px",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid #91d5ff",
+            }}
+          >
+            <ProjectOutlined style={{ color: "#1890ff", fontSize: "16px" }} />
+          </div>
+          <Typography.Text
+            strong
+            style={{ fontSize: "15px", color: "#262626" }}
+          >
+            {text}
+          </Typography.Text>
+        </Space>
+      ),
     },
-
     {
       title: "คำอธิบาย",
       dataIndex: "description",
       key: "description",
       align: "left" as const,
+      width: 250,
       sorter: (a: Project, b: Project) =>
         (a.description || "").localeCompare(b.description || ""),
       render: (text: string) =>
         text ? (
-          <Typography.Text type="secondary">{text}</Typography.Text>
+          <Typography.Paragraph
+            ellipsis={{ rows: 2, tooltip: true }}
+            style={{ margin: 0, color: "#595959", fontSize: "13px" }}
+          >
+            {text}
+          </Typography.Paragraph>
         ) : (
-          <Tag color="default">-</Tag>
+          <Tag
+            color="default"
+            style={{
+              border: "none",
+              background: "transparent",
+              color: "#bfbfbf",
+            }}
+          >
+            -
+          </Tag>
         ),
     },
     {
-      title: "ประเภทโครงการ",
+      title: "ประเภท",
       dataIndex: "categoryType",
       key: "categoryType",
       align: "center" as const,
@@ -289,7 +337,17 @@ export default function Page() {
       render: (text: string) => {
         const category = categoryType.find((c) => c.id === text);
         return category ? (
-          <Tag color="blue">{category.name}</Tag>
+          <Tag
+            color="geekblue"
+            style={{
+              borderRadius: "12px",
+              padding: "2px 10px",
+              fontWeight: 500,
+              border: "1px solid #adc6ff",
+            }}
+          >
+            {category.name}
+          </Tag>
         ) : (
           <Tag color="default">ไม่ระบุ</Tag>
         );
@@ -300,6 +358,7 @@ export default function Page() {
       dataIndex: "status",
       key: "status",
       align: "center" as const,
+      width: 140,
       render: (text: string) => {
         const isOpen = text === "open";
         return (
@@ -314,34 +373,50 @@ export default function Page() {
               display: "inline-flex",
               alignItems: "center",
               gap: "4px",
-              fontWeight: 500,
+              fontWeight: 600,
+              boxShadow: isOpen
+                ? "0 2px 0 rgba(82, 196, 26, 0.1)"
+                : "0 2px 0 rgba(255, 77, 79, 0.1)",
             }}
           >
-            {isOpen ? "เปิดโครงการ" : "ปิดโครงการ"}
+            {isOpen ? "เปิด" : "ปิด"}
           </Tag>
         );
       },
     },
     {
-      title: "จำนวนโครงการย่อย",
+      title: "Sub-Projects",
       dataIndex: "subProjectCount",
       key: "subProjectCount",
       align: "center" as const,
       render: (_: any, record: any) => {
         const features = Array.isArray(record.features) ? record.features : [];
-        // Count features that are not marked deleted
         const count = features.filter((f: any) => !f?.is_deleted).length;
-        return <Tag color="green">{count}</Tag>;
+        return (
+          <Badge
+            count={count}
+            showZero
+            overflowCount={99}
+            style={{ backgroundColor: "#52c41a", boxShadow: "0 0 0 1px #fff" }}
+          />
+        );
       },
     },
     {
-      title: "สร้างเมื่อ",
+      title: "วันที่สร้าง",
       dataIndex: "createdAt",
       key: "createdAt",
       align: "center" as const,
       sorter: (a: Project, b: Project) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      render: (text: string) => convertToThaiDateDDMMYYY(text),
+      render: (text: string) => (
+        <Space>
+          <CalendarOutlined style={{ color: "#8c8c8c" }} />
+          <Typography.Text style={{ fontSize: "13px", color: "#595959" }}>
+            {convertToThaiDateDDMMYYY(text)}
+          </Typography.Text>
+        </Space>
+      ),
     },
     {
       title: "แก้ไขล่าสุด",
@@ -350,39 +425,52 @@ export default function Page() {
       align: "center" as const,
       sorter: (a: Project, b: Project) =>
         new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime(),
-      render: (text: string) => convertToThaiDateDDMMYYY(text),
+      render: (text: string) => (
+        <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
+          {convertToThaiDateDDMMYYY(text)}
+        </Typography.Text>
+      ),
     },
     {
       title: "จัดการ",
       key: "action",
       align: "center" as const,
-      width: 200,
+      width: 180,
       render: (_: any, record: Project) => (
-        <Space>
-          <Button
-            icon={<InfoCircleOutlined />}
-            onClick={() => openDetailModal(record)}
-            aria-label="View Details"
-          />
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => openEditModal(record)}
-            aria-label="Edit Project"
-            type="primary"
-          />
-          <Button
-            icon={<DeleteOutlined />}
-            danger
-            onClick={() => openDeleteModal(record.id)}
-            aria-label="Delete Project"
-          />
-          <Link href={`/timesheet/project/sub-project/${record.id}`}>
+        <Space size="small">
+          <Tooltip title="ดูรายละเอียด">
             <Button
-              icon={<ArrowRightOutlined />}
-              aria-label="Go to Sub Project"
-              type="default"
+              type="text"
+              shape="circle"
+              icon={<InfoCircleOutlined style={{ color: "#1890ff" }} />}
+              onClick={() => openDetailModal(record)}
             />
-          </Link>
+          </Tooltip>
+          <Tooltip title="แก้ไข">
+            <Button
+              type="text"
+              shape="circle"
+              icon={<EditOutlined style={{ color: "#faad14" }} />}
+              onClick={() => openEditModal(record)}
+            />
+          </Tooltip>
+          <Tooltip title="ลบ">
+            <Button
+              type="text"
+              shape="circle"
+              icon={<DeleteOutlined style={{ color: "#ff4d4f" }} />}
+              onClick={() => openDeleteModal(record.id)}
+            />
+          </Tooltip>
+          <Tooltip title="ไปยังโครงการย่อย">
+            <Link href={`/timesheet/project/sub-project/${record.id}`}>
+              <Button
+                type="text"
+                shape="circle"
+                icon={<ArrowRightOutlined style={{ color: "#52c41a" }} />}
+              />
+            </Link>
+          </Tooltip>
         </Space>
       ),
     },
