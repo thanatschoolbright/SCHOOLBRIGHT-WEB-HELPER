@@ -45,6 +45,7 @@ export const TimesheetActions: React.FC<TimesheetActionsProps> = ({
                 onClick={onAdd}
                 disabled={loading}
                 size="large"
+                hidden
             >
                 เพิ่มรายการ
             </Button>
