@@ -45,7 +45,7 @@ const nextConfig = {
         const TerserPlugin = require("terser-webpack-plugin");
         config.optimization.minimizer.push(
             new TerserPlugin({
-              terserOptions: { compress: { drop_console: true } },
+              // terserOptions: { compress: { drop_console: true } },
             })
         );
       } catch (error) {
