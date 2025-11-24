@@ -119,7 +119,7 @@ jobs:
   build:
     name: 🔨 Build Application
     runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
-    timeout-minutes: 30
+    timeout-minutes: 120
     needs: [pre_flight_checks]
 
     steps:
