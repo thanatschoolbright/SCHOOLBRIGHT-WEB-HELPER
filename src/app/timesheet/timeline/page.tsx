@@ -2,12 +2,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
-import {
-  FieldTimeOutlined,
-  DownOutlined,
-  RightOutlined,
-} from "@ant-design/icons";
 import {
   Card,
   Spin,
@@ -22,7 +16,26 @@ import {
   Radio,
   RadioChangeEvent,
   Flex,
+  Statistic,
+  Row,
+  Col,
+  Input,
+  Popover,
+  Avatar,
+  Descriptions,
+  Divider,
 } from "antd";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
+import {
+  FieldTimeOutlined,
+  DownOutlined,
+  RightOutlined,
+  SearchOutlined,
+  ReloadOutlined,
+  ProjectOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
@@ -60,66 +73,108 @@ export default function TimelinePage() {
   );
   const [viewMode, setViewMode] = useState<"month" | "quarter">("month");
   const [filterDuration, setFilterDuration] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [popupInfo, setPopupInfo] = useState<{
+    x: number;
+    y: number;
+    project: TimelineProject | null;
+  }>({ x: 0, y: 0, project: null });
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post("/api/v1/timesheet/timeline");
+      if (response.data.success) {
+        setProjects(response.data.data);
+        // Expand all by default
+        setExpandedProjects(new Set(response.data.data.map((p: any) => p.id)));
+      }
+    } catch (error) {
+      console.error("Failed to fetch timeline:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.post("/api/v1/timesheet/timeline");
-        if (response.data.success) {
-          setProjects(response.data.data);
-          // Expand all by default
-          setExpandedProjects(
-            new Set(response.data.data.map((p: any) => p.id))
-          );
-        }
-      } catch (error) {
-        console.error("Failed to fetch timeline:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
-  // Filter projects based on duration
+  const handleRefresh = () => {
+    fetchData();
+  };
+
+  // Filter projects based on duration and search term
   const filteredProjects = useMemo(() => {
-    if (!filterDuration) return projects;
+    let result = projects;
 
-    const now = dayjs().startOf("day");
-    const end = now.add(filterDuration, "month").endOf("day");
+    // 1. Filter by Duration
+    if (filterDuration) {
+      const now = dayjs().startOf("day");
+      const end = now.add(filterDuration, "month").endOf("day");
 
-    return projects
-      .map((project) => {
-        // Check features overlap
-        const visibleFeatures = project.features.filter((f) => {
-          const fStart = dayjs(f.startDate);
-          const fEnd = dayjs(f.endDate);
-          // Overlap: start <= rangeEnd AND end >= rangeStart
-          return (
-            (fStart.isBefore(end) || fStart.isSame(end)) &&
-            (fEnd.isAfter(now) || fEnd.isSame(now))
-          );
-        });
+      result = result
+        .map((project) => {
+          // Check features overlap
+          const visibleFeatures = project.features.filter((f) => {
+            const fStart = dayjs(f.startDate);
+            const fEnd = dayjs(f.endDate);
+            return (
+              (fStart.isBefore(end) || fStart.isSame(end)) &&
+              (fEnd.isAfter(now) || fEnd.isSame(now))
+            );
+          });
 
-        // Check project overlap
-        const pStart = dayjs(project.startDate);
-        const pEnd = dayjs(project.endDate);
-        const isProjectVisible =
-          (pStart.isBefore(end) || pStart.isSame(end)) &&
-          (pEnd.isAfter(now) || pEnd.isSame(now));
+          // Check project overlap
+          const pStart = dayjs(project.startDate);
+          const pEnd = dayjs(project.endDate);
+          const isProjectVisible =
+            (pStart.isBefore(end) || pStart.isSame(end)) &&
+            (pEnd.isAfter(now) || pEnd.isSame(now));
 
-        if (visibleFeatures.length > 0 || isProjectVisible) {
-          return {
-            ...project,
-            features: visibleFeatures,
-          };
-        }
-        return null;
-      })
-      .filter(Boolean) as TimelineProject[];
-  }, [projects, filterDuration]);
+          if (visibleFeatures.length > 0 || isProjectVisible) {
+            return {
+              ...project,
+              features: visibleFeatures,
+            };
+          }
+          return null;
+        })
+        .filter(Boolean) as TimelineProject[];
+    }
+
+    // 2. Filter by Search Term
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      result = result.filter((p) => p.name.toLowerCase().includes(lowerTerm));
+    }
+
+    return result;
+  }, [projects, filterDuration, searchTerm]);
+
+  // Calculate Statistics
+  const stats = useMemo(() => {
+    const total = filteredProjects.length;
+    const now = dayjs();
+    let active = 0;
+    let upcoming = 0;
+    let ended = 0;
+
+    filteredProjects.forEach((p) => {
+      const start = dayjs(p.startDate);
+      const end = dayjs(p.endDate);
+      if (now.isBetween(start, end, "day", "[]")) {
+        active++;
+      } else if (start.isAfter(now)) {
+        upcoming++;
+      } else {
+        ended++;
+      }
+    });
+
+    return { total, active, upcoming, ended };
+  }, [filteredProjects]);
 
   // Calculate timeline range
   const { startDate, endDate, totalDays, months } = useMemo(() => {
@@ -249,6 +304,58 @@ export default function TimelinePage() {
           color="none"
         />
 
+        {/* Executive Summary Cards */}
+        <Row gutter={16} style={{ marginBottom: 16 }}>
+          <Col span={6}>
+            <Card
+              bordered={false}
+              style={{ boxShadow: token.boxShadowTertiary }}
+            >
+              <Statistic
+                title="Total Projects"
+                value={stats.total}
+                valueStyle={{ color: token.colorText }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card
+              bordered={false}
+              style={{ boxShadow: token.boxShadowTertiary }}
+            >
+              <Statistic
+                title="Active Now"
+                value={stats.active}
+                valueStyle={{ color: token.colorSuccess }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card
+              bordered={false}
+              style={{ boxShadow: token.boxShadowTertiary }}
+            >
+              <Statistic
+                title="Upcoming"
+                value={stats.upcoming}
+                valueStyle={{ color: token.colorWarning }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card
+              bordered={false}
+              style={{ boxShadow: token.boxShadowTertiary }}
+            >
+              <Statistic
+                title="Ended"
+                value={stats.ended}
+                valueStyle={{ color: token.colorTextDisabled }}
+              />
+            </Card>
+          </Col>
+        </Row>
+
         <Card
           bodyStyle={{ padding: 0, overflow: "hidden" }}
           style={{
@@ -297,9 +404,25 @@ export default function TimelinePage() {
               </Radio.Group>
             </Space>
             <Space>
+              <Input
+                placeholder="Search Projects..."
+                prefix={
+                  <SearchOutlined style={{ color: token.colorTextTertiary }} />
+                }
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ width: 200 }}
+                allowClear
+              />
               <Tag color="blue">Project</Tag>
               <Tag color="orange">Feature</Tag>
               <Tag color="green">Today</Tag>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleRefresh}
+                loading={loading}
+                type="text"
+              />
             </Space>
           </Flex>
 
@@ -476,7 +599,7 @@ export default function TimelinePage() {
                         align="center"
                         style={{
                           borderBottom: `1px solid ${token.colorBorderSecondary}`,
-                          height: 44,
+                          height: 64,
                           backgroundColor: token.colorBgContainer,
                           width: "100%",
                         }}
@@ -488,7 +611,7 @@ export default function TimelinePage() {
                           style={{
                             width: SIDEBAR_WIDTH,
                             minWidth: SIDEBAR_WIDTH,
-                            padding: "0 16px",
+                            padding: "0 12px",
                             borderRight: `2px solid ${token.colorBorderSecondary}`,
                             position: "sticky",
                             left: 0,
@@ -497,7 +620,15 @@ export default function TimelinePage() {
                             height: "100%",
                           }}
                         >
-                          <Space>
+                          <Flex
+                            align="center"
+                            gap={8}
+                            style={{
+                              flex: 1,
+                              overflow: "hidden",
+                              marginRight: 8,
+                            }}
+                          >
                             <Button
                               type="text"
                               size="small"
@@ -509,20 +640,31 @@ export default function TimelinePage() {
                                 )
                               }
                               onClick={() => toggleProject(project.id)}
+                              style={{ flexShrink: 0 }}
+                            />
+                            <Avatar
+                              size="small"
+                              style={{
+                                backgroundColor: projectColor,
+                                verticalAlign: "middle",
+                                flexShrink: 0,
+                              }}
+                              icon={<ProjectOutlined />}
                             />
                             <Typography.Text
                               strong
-                              style={{ fontSize: 14 }}
+                              style={{ fontSize: 14, flex: 1 }}
                               ellipsis={{ tooltip: true }}
                             >
                               {project.name}
                             </Typography.Text>
-                          </Space>
+                          </Flex>
                           <Badge
                             count={project.features.length}
                             style={{
                               backgroundColor: token.colorFillSecondary,
                               color: token.colorTextSecondary,
+                              flexShrink: 0,
                             }}
                           />
                         </Flex>
@@ -533,44 +675,60 @@ export default function TimelinePage() {
                             flex: 1,
                             position: "relative",
                             height: "100%",
+                            backgroundColor:
+                              index % 2 === 0
+                                ? "transparent"
+                                : token.colorFillAlter, // Zebra striping
                           }}
                         >
-                          <Tooltip
-                            title={`${project.name}: ${dayjs(
-                              project.startDate
-                            ).format("DD/MM/YYYY")} - ${dayjs(
-                              project.endDate
-                            ).format("DD/MM/YYYY")}`}
+                          <div
+                            style={{
+                              position: "absolute",
+                              left: pLeft,
+                              width: pWidth,
+                              top: 10,
+                              height: 24,
+                              background: `linear-gradient(90deg, ${projectColor} 0%, ${token.colorPrimary} 100%)`, // Gradient
+                              borderRadius: 4,
+                              opacity: 1,
+                              cursor: "pointer",
+                              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                              transition: "all 0.3s",
+                            }}
+                            onClick={() => toggleProject(project.id)}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.transform =
+                                "translateY(-2px)";
+                              e.currentTarget.style.boxShadow =
+                                "0 4px 12px rgba(0,0,0,0.2)";
+                              setPopupInfo({
+                                x: e.clientX,
+                                y: e.clientY,
+                                project: project,
+                              });
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = "translateY(0)";
+                              e.currentTarget.style.boxShadow =
+                                "0 2px 6px rgba(0,0,0,0.15)";
+                              setPopupInfo({ x: 0, y: 0, project: null });
+                            }}
                           >
                             <div
                               style={{
-                                position: "absolute",
-                                left: pLeft,
-                                width: pWidth,
-                                top: 10,
-                                height: 24,
-                                backgroundColor: projectColor,
-                                borderRadius: 4,
-                                opacity: 1,
-                                cursor: "pointer",
-                                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                                padding: "0 8px",
+                                color: "white",
+                                fontSize: 11,
+                                lineHeight: "24px",
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                                textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                                fontWeight: 600,
                               }}
-                              onClick={() => toggleProject(project.id)}
                             >
-                              <div
-                                style={{
-                                  padding: "0 8px",
-                                  color: "white",
-                                  fontSize: 11,
-                                  lineHeight: "24px",
-                                  overflow: "hidden",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {project.name}
-                              </div>
+                              {project.name}
                             </div>
-                          </Tooltip>
+                          </div>
                         </div>
                       </Flex>
 
@@ -682,6 +840,103 @@ export default function TimelinePage() {
             </div>
           )}
         </Card>
+
+        {/* Global Popover Anchor */}
+        {popupInfo.project && (
+          <div
+            style={{
+              position: "fixed",
+              left: popupInfo.x,
+              top: popupInfo.y,
+              width: 1,
+              height: 1,
+              pointerEvents: "none",
+              zIndex: 9999,
+            }}
+          >
+            <Popover
+              open={true}
+              content={
+                <div style={{ width: 300 }}>
+                  <Typography.Paragraph type="secondary" ellipsis={{ rows: 2 }}>
+                    {popupInfo.project.description ||
+                      "No description available."}
+                  </Typography.Paragraph>
+                  <Divider style={{ margin: "12px 0" }} />
+                  <Space
+                    direction="vertical"
+                    style={{ width: "100%" }}
+                    size="small"
+                  >
+                    <Flex justify="space-between">
+                      <Space>
+                        <CalendarOutlined />
+                        <Typography.Text type="secondary">
+                          Start:
+                        </Typography.Text>
+                      </Space>
+                      <Typography.Text>
+                        {dayjs(popupInfo.project.startDate).format(
+                          "DD MMM YYYY"
+                        )}
+                      </Typography.Text>
+                    </Flex>
+                    <Flex justify="space-between">
+                      <Space>
+                        <CalendarOutlined />
+                        <Typography.Text type="secondary">End:</Typography.Text>
+                      </Space>
+                      <Typography.Text>
+                        {dayjs(popupInfo.project.endDate).format("DD MMM YYYY")}
+                      </Typography.Text>
+                    </Flex>
+                    <Flex justify="space-between">
+                      <Space>
+                        <ClockCircleOutlined />
+                        <Typography.Text type="secondary">
+                          Duration:
+                        </Typography.Text>
+                      </Space>
+                      <Typography.Text>
+                        {dayjs(popupInfo.project.endDate).diff(
+                          dayjs(popupInfo.project.startDate),
+                          "day"
+                        ) + 1}{" "}
+                        Days
+                      </Typography.Text>
+                    </Flex>
+                    <Flex justify="space-between">
+                      <Space>
+                        <ProjectOutlined />
+                        <Typography.Text type="secondary">
+                          Features:
+                        </Typography.Text>
+                      </Space>
+                      <Tag>{popupInfo.project.features.length}</Tag>
+                    </Flex>
+                  </Space>
+                </div>
+              }
+              title={
+                <Flex align="center" gap={8}>
+                  <Avatar
+                    shape="square"
+                    size="small"
+                    style={{ backgroundColor: token.colorPrimary }}
+                    icon={<ProjectOutlined />}
+                  />
+                  <Typography.Text strong>
+                    {popupInfo.project.name}
+                  </Typography.Text>
+                </Flex>
+              }
+              placement="topLeft"
+              arrow={false}
+            >
+              <div />
+            </Popover>
+          </div>
+        )}
       </DashboardLayout>
     </PermissionLayout>
   );

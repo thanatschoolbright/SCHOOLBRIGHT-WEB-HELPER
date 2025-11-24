@@ -14,6 +14,7 @@ interface ProjectData {
   description: string;
   categoryType: string;
   by: number;
+  status: string;
 }
 
 interface ResponseMessage {
@@ -30,36 +31,35 @@ interface DefaultSubProject {
 const DEFAULT_SUB_PROJECTS: DefaultSubProject[] = [
   {
     name: "เคสประจำวัน (Daily Case)",
-    note: "Auto-generated daily case sub-project"
+    note: "Auto-generated daily case sub-project",
   },
   {
     name: "อื่น ๆ",
-    note: "Auto-generated miscellaneous sub-project"
-  }
+    note: "Auto-generated miscellaneous sub-project",
+  },
 ];
 
 const PROJECT_DATE_RANGE = {
-  START_DATE: new Date('2025-01-01T00:00:00.000Z'),
-  END_DATE: new Date('2030-01-01T00:00:00.000Z')
+  START_DATE: new Date("2025-01-01T00:00:00.000Z"),
+  END_DATE: new Date("2030-01-01T00:00:00.000Z"),
 } as const;
-
-
 
 //** การทำงาน: จัดการการอัปเดตโครงการ */
 async function handleProjectUpdate(
-  projectId: number, 
-  projectData: Omit<ProjectData, 'id'>
+  projectId: number,
+  projectData: Omit<ProjectData, "id">
 ): Promise<NextResponse> {
   const updatedProject = await Service.update(projectId, {
     name: projectData.name,
     description: projectData.description,
     categoryType: projectData.categoryType,
+    status: projectData.status,
     updatedBy: projectData.by,
   });
 
   const responseMessage: ResponseMessage = {
     message_en: "Project updated successfully",
-    message_th: "อัปเดตโครงการสำเร็จ"
+    message_th: "อัปเดตโครงการสำเร็จ",
   };
 
   return NextResponse.json(
@@ -72,7 +72,7 @@ async function handleProjectUpdate(
 
 //** การทำงาน: จัดการการสร้างโครงการใหม่พร้อมโครงการย่อยเริ่มต้น */
 async function handleProjectCreation(
-  projectData: Omit<ProjectData, 'id'>
+  projectData: Omit<ProjectData, "id">
 ): Promise<NextResponse> {
   //** สร้างโครงการหลัก */
   const newProject = await Service.create({
@@ -80,6 +80,7 @@ async function handleProjectCreation(
     description: projectData.description,
     categoryType: projectData.categoryType,
     createdBy: projectData.by,
+    status: projectData.status,
   });
 
   //** สร้างโครงการย่อยเริ่มต้นแบบขนาน */
@@ -87,7 +88,7 @@ async function handleProjectCreation(
 
   const responseMessage: ResponseMessage = {
     message_en: "Project created successfully with default sub-projects",
-    message_th: "สร้างโครงการและโครงการย่อยเริ่มต้นสำเร็จ"
+    message_th: "สร้างโครงการและโครงการย่อยเริ่มต้นสำเร็จ",
   };
 
   return NextResponse.json(
@@ -100,10 +101,10 @@ async function handleProjectCreation(
 
 //** การทำงาน: สร้างโครงการย่อยเริ่มต้นทั้งหมดแบบขนาน */
 async function createDefaultSubProjects(
-  projectId: number, 
+  projectId: number,
   createdBy: number
 ): Promise<void> {
-  const subProjectPromises = DEFAULT_SUB_PROJECTS.map(subProject =>
+  const subProjectPromises = DEFAULT_SUB_PROJECTS.map((subProject) =>
     SubProjectService.create({
       projectId,
       name: subProject.name,
@@ -123,14 +124,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { data, error } = await validateRequest(request, Schema);
   if (error) return error;
 
-  const { id, name, description, categoryType, by }: ProjectData = data;
+  const { id, name, description, categoryType, by, status }: ProjectData = data;
 
   try {
     //** ตรวจสอบว่าเป็นการอัปเดตหรือสร้างใหม่ */
     if (id) {
-      return await handleProjectUpdate(id, { name, description, categoryType, by });
+      return await handleProjectUpdate(id, {
+        name,
+        description,
+        categoryType,
+        by,
+        status,
+      });
     } else {
-      return await handleProjectCreation({ name, description, categoryType, by });
+      return await handleProjectCreation({
+        name,
+        description,
+        categoryType,
+        by,
+        status,
+      });
     }
   } catch (error: any) {
     return NextResponse.json(

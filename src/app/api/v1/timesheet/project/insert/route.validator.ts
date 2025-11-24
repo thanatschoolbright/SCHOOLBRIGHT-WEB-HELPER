@@ -6,4 +6,5 @@ export const Schema = z.object({
   description: z.string(),
   by: z.number().min(1),
   categoryType: z.string(),
+  status: z.string(),
 });

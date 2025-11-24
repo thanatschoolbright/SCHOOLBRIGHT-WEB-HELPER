@@ -26,6 +26,7 @@ model Project {
   is_deleted   Boolean          @default(false)
   features     Feature[]
   timesheets   TimesheetEntry[]
+  status       String           @default("open") @map("status")
 
   @@map("project")
 }
@@ -46,6 +47,7 @@ model Feature {
   project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
   assetCaptureType   ProjectAssetCaptureType @default(CAPTUREABLE) @map("asset_capture_type")
   timesheets         TimesheetEntry[]
+  status             String                  @default("open") @map("status")
 
   @@map("feature")
 }

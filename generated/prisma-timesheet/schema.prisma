@@ -26,12 +26,14 @@ model Project {
   is_deleted   Boolean          @default(false)
   features     Feature[]
   timesheets   TimesheetEntry[]
+  status       String           @default("open") @map("status")
 
   @@map("project")
 }
 
 model Feature {
   id                 Int                     @id @default(autoincrement()) @map("id")
+  // boiType            String?                 @map("boi_type")
   projectId          Int                     @map("project_id")
   name               String                  @map("name")
   backlogDescription Json?                   @map("backlog_description")
@@ -45,6 +47,7 @@ model Feature {
   project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
   assetCaptureType   ProjectAssetCaptureType @default(CAPTUREABLE) @map("asset_capture_type")
   timesheets         TimesheetEntry[]
+  status             String                  @default("open") @map("status")
 
   @@map("feature")
 }

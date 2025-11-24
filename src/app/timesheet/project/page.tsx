@@ -32,13 +32,15 @@ import {
   InfoCircleOutlined,
   ArrowRightOutlined,
   ProjectOutlined,
+  StopOutlined,
 } from "@ant-design/icons";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { categoryType } from "@data/timesheet.category.type";
 import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
 import { UserProfile } from "@/stores/type";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import { useRouter } from "next/navigation";
 
 // ประกาศ interface สำหรับข้อมูลโปรเจค
 interface Project {
@@ -50,6 +52,7 @@ interface Project {
   by: number;
   createdBy: number;
   categoryType: string;
+  status: string;
 }
 
 interface ProjectForm {
@@ -58,9 +61,11 @@ interface ProjectForm {
   description: string;
   by: number;
   categoryType: string;
+  status: string;
 }
 
 export default function Page() {
+  const router = useRouter();
   const [antdForm] = Form.useForm();
   // ใช้ Redux store สำหรับข้อมูล authentication
   const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
@@ -81,6 +86,7 @@ export default function Page() {
     by: AUTHENTICATION.response.data.user_data.admin_id,
     confirmText: "",
     categoryType: "",
+    status: "",
   });
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [detailProject, setDetailProject] = useState<Project | null>(null);
@@ -171,6 +177,7 @@ export default function Page() {
       by: AUTHENTICATION.response.data.user_data.admin_id,
       confirmText: "",
       categoryType: "",
+      status: "open",
     });
     setModalType("create");
   };
@@ -183,6 +190,7 @@ export default function Page() {
       description: project.description,
       by: AUTHENTICATION.response.data.user_data.admin_id,
       categoryType: project.categoryType,
+      status: project.status,
     });
     setModalType("edit");
   };
@@ -251,6 +259,7 @@ export default function Page() {
       })),
       render: (text: string) => <Typography.Text>{text}</Typography.Text>,
     },
+
     {
       title: "คำอธิบาย",
       dataIndex: "description",
@@ -287,6 +296,33 @@ export default function Page() {
       },
     },
     {
+      title: "สถานะ",
+      dataIndex: "status",
+      key: "status",
+      align: "center" as const,
+      render: (text: string) => {
+        const isOpen = text === "open";
+        return (
+          <Tag
+            icon={isOpen ? <CheckCircleOutlined /> : <StopOutlined />}
+            color={isOpen ? "success" : "error"}
+            bordered={false}
+            style={{
+              fontSize: "13px",
+              padding: "4px 12px",
+              borderRadius: "20px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              fontWeight: 500,
+            }}
+          >
+            {isOpen ? "เปิดโครงการ" : "ปิดโครงการ"}
+          </Tag>
+        );
+      },
+    },
+    {
       title: "จำนวนโครงการย่อย",
       dataIndex: "subProjectCount",
       key: "subProjectCount",
@@ -295,9 +331,7 @@ export default function Page() {
         const features = Array.isArray(record.features) ? record.features : [];
         // Count features that are not marked deleted
         const count = features.filter((f: any) => !f?.is_deleted).length;
-        return (
-          <Tag color="green">{count}</Tag>
-        );
+        return <Tag color="green">{count}</Tag>;
       },
     },
     {
@@ -359,10 +393,26 @@ export default function Page() {
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
-        <HeaderBar title="Projects" subTitle="จัดการโครงการ Timesheet" icon={<ProjectOutlined />} color="none" />
+        <HeaderBar
+          title="Projects"
+          subTitle="จัดการโครงการ Timesheet"
+          icon={<ProjectOutlined />}
+          color="none"
+        />
         <div className="w-full space-y-4">
-          {/* ปุ่มเพิ่มโครงการใหม่ */}
-          <div className="w-full flex justify-end">
+          <div className="w-full flex justify-end gap-4">
+            {/* ปุ่มดู Project Timeline */}
+            <Button
+              type="link"
+              icon={<ArrowRightOutlined />}
+              size="large"
+              onClick={() => router.push("/timesheet/timeline")}
+              style={{ minWidth: 160 }}
+            >
+              ดู Project Timeline
+            </Button>
+
+            {/* ปุ่มเพิ่มโครงการใหม่ */}
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -418,6 +468,7 @@ export default function Page() {
                 name: formState.name,
                 description: formState.description,
                 categoryType: formState.categoryType,
+                status: formState.status,
               }}
               onFinish={handleSubmit}
             >
@@ -458,6 +509,20 @@ export default function Page() {
                     label: `${data.name} (${data.id})`,
                     value: String(data.id),
                   }))}
+                />
+              </Form.Item>
+              <Form.Item
+                label="สถานะ"
+                name="status"
+                rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="เลือกสถานะ"
+                  options={[
+                    { label: "เปิดโครงการ", value: "open" },
+                    { label: "ปิดโครงการ", value: "close" },
+                  ]}
                 />
               </Form.Item>
               <Form.Item>

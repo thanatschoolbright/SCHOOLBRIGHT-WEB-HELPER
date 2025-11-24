@@ -129,7 +129,8 @@ exports.Prisma.ProjectScalarFieldEnum = {
   updatedAt: 'updatedAt',
   updatedBy: 'updatedBy',
   description: 'description',
-  is_deleted: 'is_deleted'
+  is_deleted: 'is_deleted',
+  status: 'status'
 };
 
 exports.Prisma.FeatureScalarFieldEnum = {
@@ -144,7 +145,8 @@ exports.Prisma.FeatureScalarFieldEnum = {
   is_deleted: 'is_deleted',
   startDate: 'startDate',
   endDate: 'endDate',
-  assetCaptureType: 'assetCaptureType'
+  assetCaptureType: 'assetCaptureType',
+  status: 'status'
 };
 
 exports.Prisma.TimesheetEntryScalarFieldEnum = {
