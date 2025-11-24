@@ -8,24 +8,38 @@ import React, {
   useState,
 } from "react";
 import type { InputRef, TableProps } from "antd";
-import { Button, Card, Form, Space, Table, Tag, Typography, Badge } from "antd";
+import {
+  Button,
+  Card,
+  Form,
+  Space,
+  Table,
+  Tag,
+  Typography,
+  Progress,
+  Empty,
+  Row,
+  Col,
+} from "antd";
 import {
   CopyOutlined,
   EditOutlined,
   EyeOutlined,
   PlusOutlined,
-  RocketOutlined,
   SearchOutlined,
   TeamOutlined,
+  FireOutlined,
+  CodeSandboxOutlined,
+  TrophyOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType, ColumnType } from "antd/es/table";
-
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import { motion, AnimatePresence } from "framer-motion";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import i18next from "i18next";
 import { toast } from "sonner";
 
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { TimesheetActions } from "@components/button/timesheet-actions";
@@ -33,7 +47,6 @@ import { TimesheetStatCard } from "@components/card/timesheet-stat-card";
 import { TableSearch } from "@components/input-field/table-search";
 import { DeleteConfirmationModal } from "@components/modal/delete-confirmation-modal";
 import { DetailModal } from "@components/timesheet/detail-modal";
-import { WeeklySummary } from "@components/timesheet/weekly-summary";
 import {
   useDailySummary,
   useTimesheetEntries,
@@ -88,12 +101,145 @@ type TableColumn = ColumnType<TimesheetEntry> & {
 const DATE_FORMAT = "DD/MM/YYYY";
 const DAILY_TARGET_HOURS = 8;
 
-const statusColorMap: Record<string, string> = {
-  DONE: "green",
-  IN_PROGRESS: "orange",
-  REVIEW: "blue",
-  CANCELLED: "red",
-  DRAFT: "default",
+const statusMap: Record<
+  string,
+  { color: string; label_th: string; label_en: string }
+> = {
+  DONE: { color: "#4CAF50", label_th: "เสร็จสิ้น", label_en: "Done" },
+  IN_PROGRESS: {
+    color: "#FF9800",
+    label_th: "กำลังดำเนินการ",
+    label_en: "In Progress",
+  },
+  REVIEW: { color: "#2196F3", label_th: "รอรีวิว", label_en: "Review" },
+  CANCELLED: { color: "#F44336", label_th: "ยกเลิก", label_en: "Cancelled" },
+  DRAFT: { color: "#9E9E9E", label_th: "ร่าง", label_en: "Draft" },
+};
+
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: { opacity: 1, y: 0 },
+  out: { opacity: 0, y: -20 },
+};
+
+const cardVariants = {
+  offscreen: {
+    y: 50,
+    opacity: 0,
+  },
+  onscreen: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring" as "spring",
+      bounce: 0.4,
+      duration: 0.8,
+    },
+  },
+};
+
+//** Enhanced Weekly Summary Component */
+const EnhancedWeeklySummary = ({
+  entries,
+  targetHours,
+  loading,
+}: {
+  entries: TimesheetEntry[];
+  targetHours: number;
+  loading: boolean;
+}) => {
+  const dailySummary = useMemo(() => {
+    const summary: { [key: string]: number } = {};
+    if (entries) {
+      entries.forEach((entry) => {
+        const date = dayjs(entry.date).format("YYYY-MM-DD");
+        summary[date] = (summary[date] || 0) + Number(entry.hours);
+      });
+    }
+    return Object.entries(summary).map(([day, hours]) => ({ day, hours }));
+  }, [entries]);
+
+  const weeklySummary = useMemo(() => {
+    const startOfWeek = dayjs().startOf("isoWeek"); // Ensures week starts on Monday
+    const weekData = [];
+    for (let i = 0; i < 7; i++) {
+      const currentDay = startOfWeek.add(i, "day");
+      const dayStr = currentDay.format("YYYY-MM-DD");
+      const summaryForDay = dailySummary.find((d) => d.day === dayStr);
+      weekData.push({
+        day: dayStr,
+        hours: summaryForDay ? summaryForDay.hours : 0,
+      });
+    }
+    return weekData;
+  }, [dailySummary]);
+
+  const weekDays = ["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."];
+
+  return (
+    <motion.div
+      initial="offscreen"
+      whileInView="onscreen"
+      viewport={{ once: true, amount: 0.2 }}
+    >
+      <Card
+        bordered={false}
+        className="!rounded-xl !shadow-sm hover:!shadow-lg !transition-shadow"
+        loading={loading}
+      >
+        <Typography.Title level={4} className="!mb-4">
+          ภาพรวมการทำงานรายสัปดาห์
+        </Typography.Title>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          {weeklySummary.map((summary, index) => {
+            const percentage = Math.min(
+              (summary.hours / targetHours) * 100,
+              100
+            );
+            const isTargetMet = summary.hours >= targetHours;
+            const isFuture = dayjs(summary.day).isAfter(dayjs(), "day");
+            const isToday = dayjs(summary.day).isSame(dayjs(), "day");
+
+            return (
+              <div key={`${summary.day}-${index}`} className="text-center">
+                <Typography.Text
+                  strong
+                  className={`!text-sm ${
+                    isToday ? "!text-blue-500" : "!text-gray-600"
+                  }`}
+                >
+                  {weekDays[index]}
+                </Typography.Text>
+                <Typography.Text
+                  className={`!block !text-xs ${
+                    isToday ? "!text-blue-500" : "!text-gray-400"
+                  } !mb-2`}
+                >
+                  {dayjs(summary.day).format("D MMM")}
+                </Typography.Text>
+                <Progress
+                  type="circle"
+                  percent={percentage}
+                  size={80}
+                  strokeWidth={8}
+                  format={(percent) => (
+                    <span className="font-bold text-lg">
+                      {summary.hours}
+                      <span className="text-xs">h</span>
+                    </span>
+                  )}
+                  strokeColor={
+                    isTargetMet ? "#52c41a" : isFuture ? "#f0f0f0" : "#1677ff"
+                  }
+                  trailColor="#f0f0f0"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    </motion.div>
+  );
 };
 
 export default function Page() {
@@ -103,7 +249,6 @@ export default function Page() {
   const isMountedRef = useRef(true);
   const rankBoardRef = useRef<MonthlyRankBoardRef>(null);
 
-  //** ดึงข้อมูล Admin ID จาก Redux Store */
   const authState = useAppSelector((state) => state.callAdminLogin);
   const timesheetState = useAppSelector((state) => state.timesheet);
 
@@ -112,13 +257,11 @@ export default function Page() {
     [authState?.response?.data?.user_data?.admin_id]
   );
 
-  //** State สำหรับการจัดการ UI */
   const [actionLoading, setActionLoading] = useState(false);
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
 
-  //** ใช้ Custom Hooks สำหรับจัดการข้อมูล */
   const {
     entries,
     loading: tableLoading,
@@ -130,8 +273,6 @@ export default function Page() {
     refetch: refetchEntries,
   } = useTimesheetEntries(adminId);
 
-  const dailySummary = useDailySummary(entries);
-  const weeklySummary = useWeeklySummary(dailySummary);
   const { topProjectUsage, topFeatureUsage } = useTopUsage(entries);
 
   useEffect(() => {
@@ -141,7 +282,6 @@ export default function Page() {
     };
   }, []);
 
-  //** ฟังก์ชันเรียก API สำหรับโหลดโปรเจ็กต์ */
   const GET_PROJECTS_FUNCTION = useCallback(async () => {
     const TOAST_ID = "fetch-projects";
     try {
@@ -167,39 +307,26 @@ export default function Page() {
     }
   }, [dispatch]);
 
-  //** ฟังก์ชันเรียก API สำหรับโหลดโปรเจ็กต์ย่อย */
   const GET_SUB_PROJECTS_FUNCTION = useCallback(
     async (projectId: number) => {
       if (!projectId) {
         dispatch(setSubProjects([]));
         return [];
       }
-
       const TOAST_ID = "fetch-sub-projects";
       try {
         toast.loading("กำลังโหลดรายการฟีเจอร์...", { id: TOAST_ID });
-
         const response = await axios.post(
           "/api/v1/timesheet/project/sub-project/read/",
-          {
-            limit: 100,
-            page: 1,
-            project_id: Number(projectId),
-          }
+          { limit: 100, page: 1, project_id: Number(projectId) }
         );
-
         const items = response.data?.data?.items ?? [];
-        if (isMountedRef.current) {
-          dispatch(setSubProjects(items));
-        }
-
+        if (isMountedRef.current) dispatch(setSubProjects(items));
         toast.success("โหลดรายการฟีเจอร์สำเร็จ", { id: TOAST_ID });
         return items;
       } catch (error: any) {
         console.error("GET_SUB_PROJECTS_FUNCTION", error);
-        if (isMountedRef.current) {
-          dispatch(setSubProjects([]));
-        }
+        if (isMountedRef.current) dispatch(setSubProjects([]));
         toast.error("โหลดรายการฟีเจอร์ไม่สำเร็จ", {
           id: TOAST_ID,
           description: error?.message ?? "Unexpected error",
@@ -214,7 +341,6 @@ export default function Page() {
     GET_PROJECTS_FUNCTION();
   }, [GET_PROJECTS_FUNCTION]);
 
-  //** ปิด modal และรีเซ็ตค่า */
   const closeModal = useCallback(() => {
     dispatch(setModalType(null));
     dispatch(setActiveRecord(null));
@@ -222,7 +348,6 @@ export default function Page() {
     form.resetFields();
   }, [dispatch, form]);
 
-  //** เปิดฟอร์มโหมดสร้างใหม่ */
   const openCreateForm = useCallback(() => {
     dispatch(setFormMode("create"));
     dispatch(setActiveRecord(null));
@@ -238,14 +363,12 @@ export default function Page() {
     dispatch(setModalType("form"));
   }, [dispatch, form]);
 
-  //** เปิดฟอร์มโหมดแก้ไข */
   const openEditForm = useCallback(
     async (record: TimesheetEntry) => {
       dispatch(setFormMode("edit"));
       dispatch(setActiveRecord(record));
       await GET_SUB_PROJECTS_FUNCTION(Number(record.project_id));
       if (!isMountedRef.current) return;
-
       form.setFieldsValue({
         project_id: Number(record.project_id),
         sub_project_id: record.feature_id
@@ -261,14 +384,12 @@ export default function Page() {
     [dispatch, GET_SUB_PROJECTS_FUNCTION, form]
   );
 
-  //** เปิดฟอร์มโหมดคัดลอก */
   const openCopyForm = useCallback(
     async (record: TimesheetEntry) => {
       dispatch(setFormMode("copy"));
       dispatch(setActiveRecord(null));
       await GET_SUB_PROJECTS_FUNCTION(Number(record.project_id));
       if (!isMountedRef.current) return;
-
       form.setFieldsValue({
         project_id: Number(record.project_id),
         sub_project_id: record.feature_id
@@ -284,7 +405,6 @@ export default function Page() {
     [dispatch, GET_SUB_PROJECTS_FUNCTION, form]
   );
 
-  //** เปิด Modal รายละเอียด */
   const openDetailModal = useCallback(
     (record: TimesheetEntry) => {
       dispatch(setActiveRecord(record));
@@ -293,20 +413,16 @@ export default function Page() {
     [dispatch]
   );
 
-  //** เปิด Modal ยืนยันการลบ */
   const openDeleteModal = useCallback(() => {
     dispatch(setModalType("delete"));
   }, [dispatch]);
 
-  //** บันทึกข้อมูลฟอร์ม */
   const SUBMIT_TIMESHEET_FUNCTION = useCallback(async () => {
     const TOAST_ID = "submit-form";
     try {
       const values = await form.validateFields();
       setActionLoading(true);
-
       toast.loading("กำลังบันทึกข้อมูล...", { id: TOAST_ID });
-
       const payload = {
         id:
           timesheetState.formMode === "edit"
@@ -320,13 +436,10 @@ export default function Page() {
         date: values.date ? dayjs(values.date).toDate() : undefined,
         by: adminId,
       };
-
       await axios.post("/api/v1/timesheet/entry/insert/", payload, {
         headers: { "Content-Type": "application/json" },
       });
-
       toast.success("บันทึกข้อมูลสำเร็จ", { id: TOAST_ID });
-
       if (!isMountedRef.current) return;
       closeModal();
       refetchEntries();
@@ -339,9 +452,7 @@ export default function Page() {
         description: error?.message ?? "Unexpected error",
       });
     } finally {
-      if (isMountedRef.current) {
-        setActionLoading(false);
-      }
+      if (isMountedRef.current) setActionLoading(false);
     }
   }, [
     timesheetState?.activeRecord?.id,
@@ -352,26 +463,18 @@ export default function Page() {
     form,
   ]);
 
-  //** ลบหลายรายการ */
   const DELETE_TIMESHEET_FUNCTION = useCallback(async () => {
     if (!timesheetState.selectedRowKeys.length) return;
-
     const TOAST_ID = "bulk-delete";
     try {
       setActionLoading(true);
       toast.loading("กำลังลบรายการ...", { id: TOAST_ID });
-
       await axios.post(
         "/api/v1/timesheet/entry/delete/",
-        {
-          ids: timesheetState.selectedRowKeys.map((key: any) => Number(key)),
-          by: adminId,
-        },
+        { ids: timesheetState.selectedRowKeys.map(Number), by: adminId },
         { headers: { "Content-Type": "application/json" } }
       );
-
       toast.success("ลบรายการสำเร็จ", { id: TOAST_ID });
-
       if (isMountedRef.current) {
         dispatch(setSelectedRowKeys([]));
         closeModal();
@@ -385,9 +488,7 @@ export default function Page() {
         description: error?.message ?? "Unexpected error",
       });
     } finally {
-      if (isMountedRef.current) {
-        setActionLoading(false);
-      }
+      if (isMountedRef.current) setActionLoading(false);
     }
   }, [
     adminId,
@@ -397,7 +498,6 @@ export default function Page() {
     dispatch,
   ]);
 
-  //** ตั้งค่าการค้นหาในคอลัมน์ */
   const getColumnSearchProps = useCallback(
     (dataIndex: SearchableColumnKey, title: string): TableColumn => ({
       key: dataIndex,
@@ -406,52 +506,43 @@ export default function Page() {
         selectedKeys,
         confirm,
         clearFilters,
-      }) => {
-        const value = (selectedKeys[0] as string | undefined) ?? "";
-
-        return (
-          <TableSearch
-            value={value}
-            placeholder={`ค้นหา ${title}`}
-            inputRef={
-              searchInputRefs.current[dataIndex]
-                ? { current: searchInputRefs.current[dataIndex] }
-                : undefined
-            }
-            onChange={(inputValue) =>
-              setSelectedKeys(inputValue ? [inputValue] : [])
-            }
-            onConfirm={() => confirm()}
-            onReset={() => {
-              clearFilters?.();
-              confirm({ closeDropdown: true });
-            }}
-          />
-        );
-      },
+      }) => (
+        <TableSearch
+          value={(selectedKeys[0] as string | undefined) ?? ""}
+          placeholder={`ค้นหา ${title}`}
+          inputRef={
+            searchInputRefs.current[dataIndex]
+              ? { current: searchInputRefs.current[dataIndex] }
+              : undefined
+          }
+          onChange={(inputValue) =>
+            setSelectedKeys(inputValue ? [inputValue] : [])
+          }
+          onConfirm={() => confirm()}
+          onReset={() => {
+            clearFilters?.();
+            confirm({ closeDropdown: true });
+          }}
+        />
+      ),
       filterIcon: (filtered) => <SearchOutlined />,
       onFilter: (value, record) => {
         const raw = record[dataIndex];
         if (raw === undefined || raw === null) return false;
-
-        if (dataIndex === "date") {
+        if (dataIndex === "date")
           return dayjs(raw).format(DATE_FORMAT).includes(String(value));
-        }
-
         return String(raw).toLowerCase().includes(String(value).toLowerCase());
       },
       filterDropdownProps: {
         onOpenChange: (visible) => {
-          if (visible) {
+          if (visible)
             setTimeout(() => searchInputRefs.current[dataIndex]?.select(), 100);
-          }
         },
       },
     }),
     []
   );
 
-  //** คอลัมน์ของตาราง */
   const columns = useMemo<ColumnsType<TimesheetEntry>>(
     () => [
       {
@@ -459,11 +550,9 @@ export default function Page() {
         dataIndex: "date",
         width: 140,
         defaultSortOrder: "descend",
-        sorter: (a, b) =>
-          dayjs(a.date).startOf("day").valueOf() -
-          dayjs(b.date).startOf("day").valueOf(),
+        sorter: (a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf(),
         render: (value: string) => (
-          <Typography.Text style={{ fontWeight: 500 }}>
+          <Typography.Text strong>
             {dayjs(value).format(DATE_FORMAT)}
           </Typography.Text>
         ),
@@ -495,21 +584,17 @@ export default function Page() {
         dataIndex: "status",
         sorter: (a, b) => (a.status ?? "").localeCompare(b.status ?? ""),
         render: (value: string) => {
-          const option = STATUS_OPTIONS.find((item) => item.value === value);
-          const label = option
-            ? i18n.language === "th"
-              ? option.label_th
-              : option.label_en
-            : value;
-          const color = statusColorMap[value] ?? "default";
+          const statusInfo = statusMap[value] || {
+            color: "default",
+            label_th: value,
+            label_en: value,
+          };
+          const label =
+            i18n.language === "th" ? statusInfo.label_th : statusInfo.label_en;
           return (
             <Tag
-              color={color}
-              style={{
-                borderRadius: 6,
-                fontWeight: 500,
-                border: "none",
-              }}
+              color={statusInfo.color}
+              className="!rounded-md !font-semibold !border-none"
             >
               {label}
             </Tag>
@@ -523,7 +608,7 @@ export default function Page() {
         align: "right",
         sorter: (a, b) => Number(a.hours) - Number(b.hours),
         render: (value: number) => (
-          <Typography.Text strong style={{ color: "#1677ff" }}>
+          <Typography.Text strong className="!text-blue-500">
             {Number(value) || 0} ชม.
           </Typography.Text>
         ),
@@ -538,7 +623,7 @@ export default function Page() {
           <Typography.Text
             ellipsis={{ tooltip: value || "ไม่มีคำอธิบาย" }}
             type={value ? undefined : "secondary"}
-            style={{ maxWidth: 200 }}
+            className="max-w-[200px]"
           >
             {value || "-"}
           </Typography.Text>
@@ -552,29 +637,26 @@ export default function Page() {
         width: 140,
         render: (_value, record) => (
           <Space size="small">
-            {/* ปุ่มดูรายละเอียด */}
             <Button
               type="text"
               icon={<EyeOutlined />}
               onClick={() => openDetailModal(record)}
               size="small"
-              style={{ borderRadius: 6 }}
+              className="!rounded-md"
             />
-            {/* ปุ่มแก้ไข */}
             <Button
               type="text"
               icon={<EditOutlined />}
               onClick={() => openEditForm(record)}
               size="small"
-              style={{ borderRadius: 6 }}
+              className="!rounded-md"
             />
-            {/* ปุ่มคัดลอก */}
             <Button
               type="text"
               icon={<CopyOutlined />}
               onClick={() => openCopyForm(record)}
               size="small"
-              style={{ borderRadius: 6 }}
+              className="!rounded-md"
             />
           </Space>
         ),
@@ -591,128 +673,168 @@ export default function Page() {
 
   const rowSelection: TableProps<TimesheetEntry>["rowSelection"] = {
     selectedRowKeys: timesheetState?.selectedRowKeys,
-    onChange: (keys) => dispatch(setSelectedRowKeys(keys)),
+    onChange: (keys) => dispatch(setSelectedRowKeys(keys as React.Key[])),
   };
 
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
-        <div
-          style={{
-            padding: "24px",
-            minHeight: "100vh",
-          }}
+        <motion.div
+          className="p-6 min-h-screen bg-gray-50"
+          initial="initial"
+          animate="in"
+          exit="out"
+          variants={pageVariants}
+          transition={{ duration: 0.5 }}
         >
-          <Space direction="vertical" size="large" style={{ width: "100%" }}>
-            {/* หัวข้อหน้า */}
+          <Space direction="vertical" size="large" className="w-full">
             <HeaderBar
               title="การลงเวลาทำงาน"
               subTitle="จัดการและติดตามเวลาทำงานอย่างมีประสิทธิภาพ"
               icon={<TeamOutlined />}
+              actions={
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  size="large"
+                  className="!rounded-lg"
+                  onClick={openCreateForm}
+                >
+                  เพิ่มรายการ
+                </Button>
+              }
             />
 
-            {/* การ์ดสถิติด้านบน */}
-            <div
-              style={{
-                display: "flex",
-                gap: 16,
-                flexWrap: "wrap",
-                alignItems: "stretch",
-              }}
-            >
-              {/* บอร์ดอันดับรายเดือน */}
-              <MonthlyRankBoard
-                ref={rankBoardRef}
-                currentAdminId={adminId}
-                variant="wide"
-              />
+            <Row gutter={[24, 24]} align="stretch">
+              {/* Monthly Rank Board */}
+              <Col xs={24} lg={14}>
+                <motion.div
+                  className="h-full"
+                  initial="offscreen"
+                  whileInView="onscreen"
+                  viewport={{ once: true, amount: 0.2 }}
+                  variants={cardVariants}
+                >
+                  <MonthlyRankBoard
+                    ref={rankBoardRef}
+                    currentAdminId={adminId}
+                    variant="wide"
+                  />
+                </motion.div>
+              </Col>
 
-              {/* การ์ดโปรเจ็คที่ใช้เวลามากที่สุด */}
-              {topProjectUsage && (
-                <TimesheetStatCard
-                  title="โปรเจ็คยอดนิยม"
-                  value={topProjectUsage.hours}
-                  color="#52c41a"
-                  loading={tableLoading}
-                  description={topProjectUsage.name}
-                />
-              )}
+              {/* Stat Cards */}
+              <Col xs={24} lg={10}>
+                <Space direction="vertical" size="large" className="w-full">
+                  {topProjectUsage && (
+                    <motion.div
+                      initial="offscreen"
+                      whileInView="onscreen"
+                      viewport={{ once: true, amount: 0.3 }}
+                      variants={cardVariants}
+                    >
+                      <TimesheetStatCard
+                        title="โปรเจ็คยอดนิยม"
+                        value={topProjectUsage.hours}
+                        color="#52c41a"
+                        loading={tableLoading}
+                        description={topProjectUsage.name}
+                        icon={<FireOutlined />}
+                      />
+                    </motion.div>
+                  )}
+                  {topFeatureUsage && (
+                    <motion.div
+                      initial="offscreen"
+                      whileInView="onscreen"
+                      viewport={{ once: true, amount: 0.3 }}
+                      variants={cardVariants}
+                    >
+                      <TimesheetStatCard
+                        title="ฟีเจอร์ยอดนิยม"
+                        value={topFeatureUsage.hours}
+                        color="#ff4d4f"
+                        loading={tableLoading}
+                        description={topFeatureUsage.name}
+                        icon={<CodeSandboxOutlined />}
+                      />
+                    </motion.div>
+                  )}
+                </Space>
+              </Col>
+            </Row>
 
-              {/* การ์ดฟีเจอร์ที่ใช้เวลามากที่สุด */}
-              {topFeatureUsage && (
-                <TimesheetStatCard
-                  title="ฟีเจอร์ยอดนิยม"
-                  value={topFeatureUsage.hours}
-                  color="#ff4d4f"
-                  loading={tableLoading}
-                  description={topFeatureUsage.name}
-                />
-              )}
-            </div>
-
-            {/* สรุปชั่วโมงรายสัปดาห์ */}
-            <WeeklySummary
-              weeklySummary={weeklySummary}
+            <EnhancedWeeklySummary
+              entries={entries}
               targetHours={DAILY_TARGET_HOURS}
               loading={tableLoading}
             />
 
-            {/* ตารางการลงเวลา */}
-            <Card
-              title={
-                <Typography.Title level={4} style={{ margin: 0 }}>
-                  รายการลงเวลา
-                </Typography.Title>
-              }
-              loading={tableLoading && entries.length === 0}
-              extra={
-                <TimesheetActions
-                  selectedCount={timesheetState?.selectedRowKeys?.length}
-                  loading={actionLoading}
-                  refreshLoading={tableLoading}
-                  onRefresh={refetchEntries}
-                  onAdd={openCreateForm}
-                  onDelete={openDeleteModal}
-                />
-              }
-              style={{
-                borderRadius: 12,
-              }}
-              styles={{
-                body: {
-                  padding: 16,
-                },
-              }}
+            <motion.div
+              initial="offscreen"
+              whileInView="onscreen"
+              viewport={{ once: true, amount: 0.1 }}
             >
-              <Table<TimesheetEntry>
-                rowKey={(record) => String(record.id)}
-                bordered={true}
-                columns={columns}
-                dataSource={entries}
-                loading={tableLoading}
-                rowSelection={rowSelection}
-                pagination={{
-                  current: currentPage,
-                  pageSize,
-                  total: totalItems,
-                  onChange: (page, size) => {
-                    setCurrentPage(page);
-                    if (size && size !== pageSize) {
-                      setPageSize(size);
-                    }
-                  },
-                  showSizeChanger: true,
-                  pageSizeOptions: ["10", "20", "50", "100"],
-                  showTotal: (total, range) =>
-                    `แสดง ${range[0]}-${range[1]} จากทั้งหมด ${total} รายการ`,
-                  style: { margin: "16px 24px" },
-                }}
-                scroll={{ x: 1000 }}
-              />
-            </Card>
+              <Card
+                bordered={false}
+                className="!rounded-xl !shadow-sm hover:!shadow-lg !transition-shadow"
+                title={
+                  <Typography.Title level={4} className="!m-0">
+                    รายการลงเวลา
+                  </Typography.Title>
+                }
+                loading={tableLoading && entries.length === 0}
+                extra={
+                  <TimesheetActions
+                    selectedCount={timesheetState?.selectedRowKeys?.length}
+                    loading={actionLoading}
+                    refreshLoading={tableLoading}
+                    onRefresh={refetchEntries}
+                    onDelete={openDeleteModal}
+                  />
+                }
+              >
+                <Table<TimesheetEntry>
+                  rowKey="id"
+                  columns={columns}
+                  dataSource={entries}
+                  loading={tableLoading}
+                  rowSelection={rowSelection}
+                  pagination={{
+                    current: currentPage,
+                    pageSize,
+                    total: totalItems,
+                    onChange: (page, size) => {
+                      setCurrentPage(page);
+                      if (size && size !== pageSize) setPageSize(size);
+                    },
+                    showSizeChanger: true,
+                    pageSizeOptions: ["10", "20", "50", "100"],
+                    showTotal: (total, range) =>
+                      `แสดง ${range[0]}-${range[1]} จาก ${total} รายการ`,
+                  }}
+                  scroll={{ x: 1000 }}
+                  locale={{
+                    emptyText: (
+                      <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description="ยังไม่มีข้อมูลการลงเวลา"
+                      >
+                        <Button
+                          type="primary"
+                          onClick={openCreateForm}
+                          className="!rounded-lg"
+                        >
+                          สร้างรายการแรกของคุณ
+                        </Button>
+                      </Empty>
+                    ),
+                  }}
+                />
+              </Card>
+            </motion.div>
           </Space>
 
-          {/* Modal ฟอร์มสร้าง/แก้ไข */}
           <CreateModalForm
             open={timesheetState?.modalType === "form"}
             onCancel={closeModal}
@@ -724,8 +846,6 @@ export default function Page() {
             i18n={i18n}
             disabled={actionLoading}
           />
-
-          {/* Modal รายละเอียด */}
           <DetailModal
             open={
               timesheetState.modalType === "detail" &&
@@ -734,8 +854,6 @@ export default function Page() {
             onCancel={closeModal}
             record={timesheetState.activeRecord}
           />
-
-          {/* Modal ยืนยันการลบ */}
           <DeleteConfirmationModal
             open={timesheetState.modalType === "delete"}
             onCancel={closeModal}
@@ -743,7 +861,7 @@ export default function Page() {
             selectedCount={timesheetState.selectedRowKeys.length}
             loading={actionLoading}
           />
-        </div>
+        </motion.div>
       </DashboardLayout>
     </PermissionLayout>
   );
