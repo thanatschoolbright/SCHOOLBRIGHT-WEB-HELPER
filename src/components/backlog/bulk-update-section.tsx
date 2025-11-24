@@ -1,10 +1,11 @@
 "use client";
 
-import {Card, Skeleton, Space, Tabs, Typography} from "antd";
+import {Card, Skeleton, Space, Tabs, Typography, Modal, Table, Tag, Spin, Button} from "antd";
 import {useRouter} from "next/navigation";
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {toast} from "sonner";
+import {CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined} from '@ant-design/icons';
 import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 
 import AutoCategoryToggle from "@components/backlog/auto-category-toggle";
@@ -45,6 +46,36 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     const [autoDescriptionEnabled, setAutoDescriptionEnabled] = useState(false);
     const [autoCategoryLoading, setAutoCategoryLoading] = useState(false);
     const [bulkUpdating, setBulkUpdating] = useState(false);
+    const [resultsModalVisible, setResultsModalVisible] = useState(false);
+    const [processingResults, setProcessingResults] = useState<Array<{
+        issueKeyOrId: string | number;
+        title?: string;
+        summary?: string;
+        status: 'pending' | 'success' | 'error';
+        message?: string;
+        index: number;
+    }>>([]);
+    const perIssuePayloadsRef = React.useRef<any[] | null>(null);
+    const [saving, setSaving] = useState(false);
+
+    const processSingle = async (payload: any, selectedIssueMap: Map<string, Issue>) => {
+        const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
+        try {
+            if (!issue) throw new Error("ไม่พบข้อมูลงาน");
+            const response = await axios.post("/api/v1/ai/gemini/summarize", {
+                summary: issue.summary,
+                description: issue.description,
+            });
+            const markdown = response?.data?.data?.markdown || "";
+            payload.updates.description = markdown;
+            setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(payload.issueKeyOrId) ? {...r, status: 'success', summary: markdown} : r));
+            return { success: true, payload };
+        } catch (err: any) {
+            const msg = err?.response?.data?.message || err?.message || 'เกิดข้อผิดพลาด';
+            setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(payload.issueKeyOrId) ? {...r, status: 'error', message: msg} : r));
+            return { success: false, error: msg };
+        }
+    };
 
     const [bulkStatusId, setBulkStatusId] = useState<number | undefined>();
     const [bulkPriorityId, setBulkPriorityId] = useState<number | undefined>();
@@ -163,21 +194,44 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 }
 
                 if (autoDescriptionEnabled) {
-                    for (const payload of perIssuePayloads) {
-                        const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
-                        toast.loading(`กำลังสรุปรายละเอียดด้วย Gemini...`, {
-                            id: toastId,
-                            description: `Task: ${issue?.summary || payload.issueKeyOrId}`
-                        });
+                    // Prepare processing results and open modal
+                    // Save payloads for potential retry
+                    perIssuePayloadsRef.current = perIssuePayloads;
 
-                        if (issue) {
-                            const response = await axios.post("/api/v1/ai/gemini/summarize", {
-                                summary: issue.summary,
-                                description: issue.description,
-                            });
-                            payload.updates.description = response?.data?.data?.markdown || "";
-                        }
-                    }
+                    // Initialize processing results
+                    setProcessingResults(perIssuePayloads.map((p, i) => ({
+                        issueKeyOrId: p.issueKeyOrId,
+                        title: String(p.issueKeyOrId),
+                        status: 'pending' as const,
+                        index: i,
+                    })));
+                    setResultsModalVisible(true);
+
+                    // Concurrency-controlled runner
+                    const concurrency = 4; // adjust as needed
+                    const runWithConcurrency = async (items: any[], worker: (item: any, idx: number) => Promise<void>) => {
+                        let idx = 0;
+                        const runners = Array.from({ length: concurrency }).map(async () => {
+                            while (true) {
+                                const i = idx++;
+                                if (i >= items.length) break;
+                                await worker(items[i], i);
+                            }
+                        });
+                        await Promise.all(runners);
+                    };
+
+                    await runWithConcurrency(perIssuePayloads, async (payload, i) => {
+                        const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
+                        // mark pending (already pending by default) — ensure string comparison so UI updates
+                        setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(payload.issueKeyOrId) ? {...r, status: 'pending', message: undefined} : r));
+                        await processSingle(payload, selectedIssueMap);
+                    });
+
+                    // After all processing, show final notification
+                    const successCount = perIssuePayloads.filter(p => p.updates && p.updates.description).length;
+                    const failureCount = perIssuePayloads.length - successCount;
+                    toast.message(`สรุปรายการเสร็จสิ้น: สำเร็จ ${successCount} รายการ, ล้มเหลว ${failureCount} รายการ`);
                 }
 
 
@@ -300,8 +354,126 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                             !hasBulkUpdates ||
                                             bulkUpdating
                                         }
-                                        showAutoCategoryToggle={false}
                                     />
+                                    <Modal
+                                        title={
+                                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                                                <div>ผลการสรุปรายละเอียด (AI)</div>
+                                                <div style={{fontSize: 12, color: '#666'}}>
+                                                    {processingResults.length > 0 ? (
+                                                        <span>
+                                                            {processingResults.filter(r => r.status === 'success' || r.status === 'error').length}/{processingResults.length} processed
+                                                        </span>
+                                                    ) : null}
+                                                </div>
+                                            </div>
+                                        }
+                                        open={resultsModalVisible}
+                                        onCancel={() => setResultsModalVisible(false)}
+                                        footer={null}
+                                        width={900}
+                                        bodyStyle={{padding: 12}}
+                                    >
+                                        <div style={{maxHeight: '60vh', overflow: 'auto'}}>
+                                            <Table
+                                                dataSource={processingResults}
+                                                rowKey={(r) => String(r.issueKeyOrId)}
+                                                pagination={false}
+                                                scroll={{ y: 420 }}
+                                                columns={[
+                                                    {title: 'งาน', dataIndex: 'title', key: 'title', width: 220},
+                                                    {title: 'สถานะ', dataIndex: 'status', key: 'status', width: 120, render: (status: any) => {
+                                                            if (status === 'pending') return <Tag icon={<LoadingOutlined />} color="processing">กำลังทำ</Tag>;
+                                                            if (status === 'success') return <Tag icon={<CheckCircleOutlined />} color="success">สำเร็จ</Tag>;
+                                                            return <Tag icon={<CloseCircleOutlined />} color="error">ล้มเหลว</Tag>;
+                                                        }},
+                                                    {title: 'ข้อความ', dataIndex: 'message', key: 'message', render: (text: any) => text || '-'},
+                                                    {title: 'สรุป', dataIndex: 'summary', key: 'summary', render: (md: any) => md ? <div style={{maxHeight: 160, overflow: 'auto'}} dangerouslySetInnerHTML={{__html: md}} /> : '-'},
+                                                    {title: 'การกระทำ', key: 'action', width: 140, render: (_: any, row: any) => {
+                                                            const hasFailed = row.status === 'error';
+                                                            return (
+                                                                <Space>
+                                                                    {hasFailed && <Button size="small" onClick={async () => {
+                                                                        // find payload
+                                                                        const payloads = perIssuePayloadsRef.current || [];
+                                                                        const payload = payloads.find(p => String(p.issueKeyOrId) === String(row.issueKeyOrId));
+                                                                        if (!payload) return;
+                                                                        // mark pending (use string compare)
+                                                                        setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(row.issueKeyOrId) ? {...r, status: 'pending', message: undefined} : r));
+                                                                        // re-run single
+                                                                        const selectedIssueMap = new Map(
+                                                                            issues.map((issueItem) => [issueItem.issueKey || String(issueItem.id), issueItem])
+                                                                        );
+                                                                        await processSingle(payload, selectedIssueMap);
+                                                                        // after retry, if success, re-submit that single update
+                                                                        const entries = [payload].filter(p => Object.keys(p.updates || {}).length > 0);
+                                                                        if (entries.length) {
+                                                                            await axios.post("/api/v1/backlog/issues/bulk-update", {space, entries});
+                                                                        }
+                                                                    }}>Retry</Button>}
+                                                                </Space>
+                                                            );
+                                                        }}
+                                                ]}
+                                            />
+                                        </div>
+                                        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 12}}>
+                                            <div>
+                                                <Button
+                                                    type="default"
+                                                    onClick={async () => {
+                                                        // Retry all failed
+                                                        const failedRows = processingResults.filter(r => r.status === 'error');
+                                                        if (!failedRows.length) return;
+                                                        const payloads = perIssuePayloadsRef.current || [];
+                                                        const targets = failedRows.map(fr => payloads.find(p => String(p.issueKeyOrId) === String(fr.issueKeyOrId))).filter(Boolean) as any[];
+                                                        if (!targets.length) return;
+                                                        // mark all failed as pending so UI updates immediately
+                                                        const failedIds = failedRows.map(fr => String(fr.issueKeyOrId));
+                                                        setProcessingResults(prev => prev.map(r => failedIds.includes(String(r.issueKeyOrId)) ? {...r, status: 'pending', message: undefined} : r));
+
+                                                        // run with concurrency
+                                                        const concurrency = 4;
+                                                        let idx = 0;
+                                                        const runners = Array.from({length: concurrency}).map(async () => {
+                                                            while (true) {
+                                                                const i = idx++;
+                                                                if (i >= targets.length) break;
+                                                                await processSingle(targets[i], new Map(issues.map(issueItem => [issueItem.issueKey || String(issueItem.id), issueItem])));
+                                                            }
+                                                        });
+                                                        await Promise.all(runners);
+                                                        // After retries, submit any newly successful entries
+                                                        const entries = (perIssuePayloadsRef.current || []).filter(p => p.updates && p.updates.description);
+                                                        if (entries.length) await axios.post("/api/v1/backlog/issues/bulk-update", {space, entries});
+                                                        toast.success('Retry เสร็จสิ้น: Retry ดำเนินการเสร็จแล้ว');
+                                                    }}
+                                                >Retry Failed</Button>
+                                            </div>
+                                            <div>
+                                                <Button style={{marginRight: 8}} onClick={() => setResultsModalVisible(false)}>Close</Button>
+                                                <Button type="primary" loading={saving} disabled={saving} onClick={async () => {
+                                                    // Save all successful summaries
+                                                    const entries = (perIssuePayloadsRef.current || []).filter(p => p.updates && p.updates.description);
+                                                    if (!entries.length) {
+                                                        toast.error('ไม่มีรายการบันทึก: ไม่มีสรุปที่สำเร็จเพื่อบันทึก');
+                                                        return;
+                                                    }
+                                                    setSaving(true);
+                                                    const toastId = toast.loading(`กำลังบันทึก ${entries.length} รายการ...`);
+                                                    try {
+                                                        await axios.post("/api/v1/backlog/issues/bulk-update", {space, entries});
+                                                        toast.success(`บันทึกสำเร็จ: บันทึก ${entries.length} รายการเรียบร้อย`, {id: toastId});
+                                                        setResultsModalVisible(false);
+                                                    } catch (err: any) {
+                                                        toast.error(err?.message || 'เกิดข้อผิดพลาด', {id: toastId});
+                                                    } finally {
+                                                        setSaving(false);
+                                                    }
+                                                }}>Save Successful</Button>
+                                            </div>
+                                        </div>
+                                    </Modal>
                                 </Space>
                             ),
                         },

@@ -1,7 +1,18 @@
 "use client";
 
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, Layout, Space, Typography, Collapse, Input, Row, Col, Card, Divider } from "antd";
+import {
+  Button,
+  Layout,
+  Space,
+  Typography,
+  Collapse,
+  Input,
+  Row,
+  Col,
+  Card,
+  Divider,
+} from "antd";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useMemo } from "react";
@@ -38,7 +49,13 @@ function ProjectIssuesPageContent() {
   const dispatch = useDispatch<AppDispatch>();
 
   //** การจัดการ State ผ่าน Redux **/
-  const { page, pageSize, filters, total, loading: storeLoading } = useSelector((state: RootState) => state.issues);
+  const {
+    page,
+    pageSize,
+    filters,
+    total,
+    loading: storeLoading,
+  } = useSelector((state: RootState) => state.issues);
 
   const projectIdParam = params?.projectId;
   const projectId =
@@ -46,7 +63,8 @@ function ProjectIssuesPageContent() {
   const space = searchParams?.get("space") ?? "";
   const projectName = searchParams?.get("name") ?? "";
 
-  const projectReady = Number.isFinite(projectId) && projectId > 0 && Boolean(space);
+  const projectReady =
+    Number.isFinite(projectId) && projectId > 0 && Boolean(space);
 
   //** การทำงาน: โหลดรายการงานจาก Backlog API **/
   const LOAD_ISSUES_FUNCTION = useCallback(async () => {
@@ -187,9 +205,18 @@ function ProjectIssuesPageContent() {
       <Layout>
         <Content>
           <Space direction="vertical" size={12} align="center">
-            <Typography.Title level={3}>ไม่พบข้อมูลโปรเจ็กต์หรือ space</Typography.Title>
-            <Typography.Text type="secondary">โปรดกลับไปเลือกโปรเจ็กต์อีกครั้งจากหน้า Backlog</Typography.Text>
-            <Button type="primary" onClick={() => router.push("/backlogs/report")}>กลับไปหน้า Backlog</Button>
+            <Typography.Title level={3}>
+              ไม่พบข้อมูลโปรเจ็กต์หรือ space
+            </Typography.Title>
+            <Typography.Text type="secondary">
+              โปรดกลับไปเลือกโปรเจ็กต์อีกครั้งจากหน้า Backlog
+            </Typography.Text>
+            <Button
+              type="primary"
+              onClick={() => router.push("/backlogs/report")}
+            >
+              กลับไปหน้า Backlog
+            </Button>
           </Space>
         </Content>
       </Layout>
@@ -224,7 +251,9 @@ function ProjectIssuesPageContent() {
               <Row align="middle" justify="space-between">
                 <Col>
                   <Space direction="vertical" size={4}>
-                    <Typography.Text type="secondary">รวมงานทั้งหมด</Typography.Text>
+                    <Typography.Text type="secondary">
+                      รวมงานทั้งหมด
+                    </Typography.Text>
                     <Typography.Title level={4}>{total ?? 0}</Typography.Title>
                   </Space>
                 </Col>
@@ -241,10 +270,21 @@ function ProjectIssuesPageContent() {
                         LOAD_ISSUES_FUNCTION();
                       }}
                     />
-                    <Button onClick={() => { dispatch(resetFilters()); LOAD_ISSUES_FUNCTION(); }} ghost>
+                    <Button
+                      onClick={() => {
+                        dispatch(resetFilters());
+                        LOAD_ISSUES_FUNCTION();
+                      }}
+                      ghost
+                    >
                       รีเซ็ต
                     </Button>
-                    <Button type="primary" onClick={() => LOAD_ISSUES_FUNCTION()}>รีเฟรช</Button>
+                    <Button
+                      type="primary"
+                      onClick={() => LOAD_ISSUES_FUNCTION()}
+                    >
+                      รีเฟรช
+                    </Button>
                   </Space>
                 </Col>
               </Row>
@@ -260,7 +300,12 @@ function ProjectIssuesPageContent() {
                 {
                   key: "filters",
                   label: "ตัวกรอง",
-                  children: <IssueFilter onSearch={LOAD_ISSUES_FUNCTION} elevatedCardStyle={{}} />,
+                  children: (
+                    <IssueFilter
+                      onSearch={LOAD_ISSUES_FUNCTION}
+                      elevatedCardStyle={{}}
+                    />
+                  ),
                 },
               ]}
             />
@@ -286,7 +331,11 @@ function ProjectIssuesPageContent() {
 
             {/* Component: ตารางแสดงรายการงาน (ห่อด้วย Card เพื่อความสวยงาม) */}
             <Card bordered>
-              <IssuesTable listCardStyle={{}} onReload={LOAD_ISSUES_FUNCTION} space={space} />
+              <IssuesTable
+                listCardStyle={{}}
+                onReload={LOAD_ISSUES_FUNCTION}
+                space={space}
+              />
             </Card>
           </Space>
         </Content>
@@ -297,9 +346,5 @@ function ProjectIssuesPageContent() {
 
 //** การทำงาน: Provider สำหรับ Redux Store **/
 export default function ProjectIssuesPage() {
-  return (
-    <Provider store={store}>
-      <ProjectIssuesPageContent />
-    </Provider>
-  );
+  return <ProjectIssuesPageContent />;
 }

@@ -11,7 +11,15 @@ export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(request, Schema);
   if (error) return error;
 
-  const { id, name, project_id, by, backlogDescription, dateRange } = data;
+  const {
+    id,
+    name,
+    project_id,
+    by,
+    backlogDescription,
+    dateRange,
+    asset_capture_type,
+  } = data;
 
   const startDate = dateRange[0];
   const endDate = dateRange[1];
@@ -19,11 +27,13 @@ export async function POST(request: NextRequest) {
   try {
     const validationProject = await projectIdValidation(Number(project_id));
     if (validationProject !== true) return validationProject;
+    console.log("DATA", JSON.stringify(data, null, 2));
     const project = id
       ? await Service.update(Number(id), {
           name,
           updatedBy: Number(by),
           backlogDescription: backlogDescription,
+          assetCaptureType: asset_capture_type ?? "UN_CAPTUREABLE",
           startDate,
           endDate,
         })
@@ -32,6 +42,7 @@ export async function POST(request: NextRequest) {
           name,
           createdBy: Number(by),
           backlogDescription: backlogDescription,
+          assetCaptureType: asset_capture_type ?? "UN_CAPTUREABLE",
           startDate,
           endDate,
         });

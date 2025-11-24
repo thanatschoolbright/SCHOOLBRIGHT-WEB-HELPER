@@ -38,6 +38,7 @@ import {
   BugOutlined,
   ApiOutlined,
   GoogleOutlined,
+  FieldTimeOutlined,
 } from "@ant-design/icons";
 
 interface SidebarChild {
@@ -134,7 +135,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("health_check.children.all_server_status"),
             href: "/health-check/all-server-status",
             icon: <DatabaseOutlined />,
-             revamp: true,
+            revamp: true,
           },
           {
             label: t("health_check.children.online_status"),
@@ -194,7 +195,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             href: "/mobile/check-attendance",
             icon: <DesktopOutlined />,
             news: true,
-          }
+          },
         ],
       },
       {
@@ -223,6 +224,12 @@ export const useSidebarMenu = (): SidebarItem[] => {
             href: "/timesheet/entry",
             news: false,
             icon: <PlusOutlined />,
+          },
+          {
+            label: t("timesheet_system.children.timeline"),
+            href: "/timesheet/timeline",
+            news: false,
+            icon: <FieldTimeOutlined />,
           },
           {
             label: t("timesheet_system.children.all"),

@@ -1,5 +1,5 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
-
+export type SubProjectAssetCaptureType = "CAPTUREABLE" | "UN_CAPTUREABLE";
 export const Service = {
   async validateProjectId(projectId: number) {
     const project = await PrismaTimesheet.project.findUnique({
@@ -65,6 +65,7 @@ export const Service = {
     backlogDescription?: any;
     startDate: Date;
     endDate: Date;
+    assetCaptureType?: SubProjectAssetCaptureType;
   }) {
     return await PrismaTimesheet.feature.create({
       data: {
@@ -74,6 +75,7 @@ export const Service = {
         backlogDescription: data.backlogDescription,
         startDate: data.startDate,
         endDate: data.endDate,
+        assetCaptureType: data.assetCaptureType ?? "CAPTUREABLE",
       },
     });
   },
@@ -87,6 +89,7 @@ export const Service = {
       backlogDescription?: any;
       startDate: Date;
       endDate: Date;
+      assetCaptureType?: SubProjectAssetCaptureType;
     }
   ) {
     return await PrismaTimesheet.feature.update({
@@ -96,8 +99,11 @@ export const Service = {
         updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
         ...(data.backlogDescription && {
           backlogDescription: data.backlogDescription,
-          startDate: data.startDate,
-          endDate: data.endDate,
+        }),
+        ...(data.startDate && { startDate: data.startDate }),
+        ...(data.endDate && { endDate: data.endDate }),
+        ...(data.assetCaptureType && {
+          assetCaptureType: data.assetCaptureType,
         }),
       },
     });

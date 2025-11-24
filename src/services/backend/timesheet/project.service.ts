@@ -36,6 +36,7 @@ export const Service = {
     description: string;
     categoryType: string;
     createdBy?: number;
+    status?: string;
   }) {
     return await PrismaTimesheet.project.create({
       data: {
@@ -43,6 +44,7 @@ export const Service = {
         description: data.description,
         categoryType: data.categoryType,
         createdBy: data.createdBy !== undefined ? data.createdBy : 0,
+        status: data.status !== undefined ? data.status : "open",
       },
     });
   },
@@ -55,6 +57,7 @@ export const Service = {
       description?: string;
       updatedBy?: number;
       categoryType?: string;
+      status?: string;
     }
   ) {
     return await PrismaTimesheet.project.update({
@@ -64,6 +67,7 @@ export const Service = {
         ...(data.description && { description: data.description }),
         updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
         ...(data.categoryType && { categoryType: data.categoryType }),
+        ...(data.status && { status: data.status }),
       },
     });
   },

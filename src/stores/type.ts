@@ -1,3 +1,4 @@
+import { SubProjectAssetCaptureType } from "@/services/backend/timesheet/sub-project/sub-project.service";
 import { Dayjs, extend } from "dayjs";
 
 // types.ts
@@ -18,7 +19,8 @@ export interface SubProjectForm {
   name: string;
   backlogDescription: string | null;
   by: number;
-  dateRange?: any; // [startDate, endDate] in "YYYY-MM-DD" format
+  dateRange?: any; 
+  asset_capture_type?: SubProjectAssetCaptureType;
 }
 
 export interface ResponseHeartbeats extends DefaultRedux {
