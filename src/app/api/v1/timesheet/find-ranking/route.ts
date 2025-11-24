@@ -11,7 +11,7 @@ const validator = MonthlySummarySchema.extend({
   user_id: z.union([z.string(), z.number()]).transform((v) => String(v)),
 });
 
-export async function POST(request: NextRequest, response: NextResponse) {
+export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(request, validator);
   if (error) return error;
 
@@ -36,14 +36,14 @@ export async function POST(request: NextRequest, response: NextResponse) {
 
     const mappedData = found || null;
 
-    return Response.json(
+    return NextResponse.json(
       successResponse({
         data: { record: mappedData, metadata },
         status: 200,
       })
     );
   } catch (error: any) {
-    return Response.json(
+    return NextResponse.json(
       errorResponse({
         message_en: error.message || "Internal Server Error",
         message_th: "เกิดข้อผิดพลาดภายในระบบ",
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest, response: NextResponse) {
 }
 
 export async function GET(request: NextRequest) {
-  return Response.json(
+  return NextResponse.json(
     successResponse({ data: { ok: true }, status: 200 })
   );
 }
