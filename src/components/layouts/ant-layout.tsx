@@ -9,19 +9,26 @@ import "dayjs/locale/th";
 
 dayjs.locale("th");
 
-// School Bright Brand Colors
+// --- 1. MODERN COLOR PALETTE ---
+// ปรับสีส้มให้สดขึ้น (Electric Orange) และเพิ่ม Neutral Shades ที่ทันสมัย
 const BRAND_COLORS = {
-  orange: {
-    50: "#fff7ed",
-    100: "#ffedd5",
-    200: "#fed7aa",
-    300: "#fdba74",
-    400: "#fb923c",
-    500: "#f97316", // Primary
-    600: "#ea580c",
-    700: "#c2410c",
-    800: "#9a3412",
-    900: "#7c2d12",
+  primary: {
+    50: "#FFF7ED",
+    100: "#FFEDD5",
+    200: "#FED7AA",
+    300: "#FDBA74",
+    400: "#FB923C",
+    500: "#F97316", // Main Brand Color
+    600: "#EA580C",
+    700: "#C2410C",
+    800: "#9A3412",
+    900: "#7C2D12",
+  },
+  // สี Dark Mode แบบ Midnight (ไม่ดำสนิท แต่เป็นน้ำเงินเทาลึกๆ)
+  midnight: {
+    bg: "#0B0F19", // Background หลัก
+    card: "#111827", // Card
+    border: "#1F2937", // Border
   },
 } as const;
 
@@ -29,72 +36,76 @@ interface ColorPalette {
   primary: string;
   primaryHover: string;
   primaryActive: string;
-  primaryBg: string;
+  primaryBg: string; // สีพื้นหลังจางๆ ของ Primary
+  primaryShadow: string; // เงาฟุ้งๆ สีเดียวกับแบรนด์
   backgroundBase: string;
-  backgroundElevated: string;
-  backgroundSubtle: string;
+  backgroundElevated: string; // พื้นหลัง Card/Modal
+  backgroundSubtle: string; // พื้นหลัง Input/Table Header
   border: string;
   borderLight: string;
   textPrimary: string;
   textSecondary: string;
   textTertiary: string;
   modalMask: string;
+  shadowSoft: string; // เงาตกกระทบแบบนุ่ม
 }
 
+// --- 2. PALETTE GENERATORS ---
+
 const getLightPalette = (): ColorPalette => ({
-  primary: BRAND_COLORS.orange[500],
-  primaryHover: BRAND_COLORS.orange[400],
-  primaryActive: BRAND_COLORS.orange[600],
-  primaryBg: BRAND_COLORS.orange[50],
-  backgroundBase: "#fafbfc",
-  backgroundElevated: "#ffffff",
-  backgroundSubtle: "#f5f7fa",
-  border: "#e5e7eb",
-  borderLight: "#f0f2f5",
-  textPrimary: "#0f172a",
-  textSecondary: "#64748b",
-  textTertiary: "#94a3b8",
-  modalMask: "rgba(15, 23, 42, 0.35)",
+  primary: "#F97316", // Vibrant Orange
+  primaryHover: "#FB923C",
+  primaryActive: "#EA580C",
+  primaryBg: "#FFF7ED",
+  primaryShadow: "rgba(249, 115, 22, 0.25)", // เงาสีส้มฟุ้ง
+  backgroundBase: "#F8F9FB", // ขาวอมเทานิดๆ ดูสะอาดตา (Cool Gray)
+  backgroundElevated: "#FFFFFF",
+  backgroundSubtle: "#F1F5F9", // Slate-100
+  border: "#E2E8F0", // Slate-200
+  borderLight: "#F1F5F9",
+  textPrimary: "#0F172A", // Slate-900 (เข้มเกือบดำ แต่มีความน้ำเงินนิดๆ)
+  textSecondary: "#475569", // Slate-600
+  textTertiary: "#94A3B8", // Slate-400
+  modalMask: "rgba(15, 23, 42, 0.45)", // Blur backdrop color
+  shadowSoft: "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
 });
 
 const getDarkPalette = (): ColorPalette => ({
-  primary: BRAND_COLORS.orange[400],
-  primaryHover: BRAND_COLORS.orange[300],
-  primaryActive: BRAND_COLORS.orange[500],
-  primaryBg: "rgba(251, 146, 60, 0.12)",
-  backgroundBase: "#0a0a0a",
-  backgroundElevated: "#141414",
-  backgroundSubtle: "#1a1a1a",
-  border: "#262626",
-  borderLight: "#303030",
-  textPrimary: "rgba(255, 255, 255, 0.92)",
-  textSecondary: "rgba(255, 255, 255, 0.65)",
-  textTertiary: "rgba(255, 255, 255, 0.45)",
-  modalMask: "rgba(0, 0, 0, 0.65)",
+  primary: "#FB923C", // ส้มสว่างขึ้นใน Dark Mode
+  primaryHover: "#FDBA74",
+  primaryActive: "#F97316",
+  primaryBg: "rgba(249, 115, 22, 0.15)",
+  primaryShadow: "rgba(251, 146, 60, 0.2)",
+  backgroundBase: BRAND_COLORS.midnight.bg, // Midnight Dark
+  backgroundElevated: BRAND_COLORS.midnight.card,
+  backgroundSubtle: "#1F2937", // Gray-800
+  border: "#374151", // Gray-700
+  borderLight: "#1F2937",
+  textPrimary: "#F8FAFC", // Slate-50
+  textSecondary: "#CBD5E1", // Slate-300
+  textTertiary: "#64748B", // Slate-500
+  modalMask: "rgba(0, 0, 0, 0.75)",
+  shadowSoft: "0 10px 30px -4px rgba(0, 0, 0, 0.4)",
 });
 
+// --- 3. THEME DETECTOR HOOK ---
 const useThemeDetector = (): boolean => {
   const [isDark, setIsDark] = useState(false);
-
   useEffect(() => {
-    const updateTheme = () => {
+    const updateTheme = () =>
       setIsDark(document.documentElement.classList.contains("dark"));
-    };
-
     const observer = new MutationObserver(updateTheme);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-
     updateTheme();
-
     return () => observer.disconnect();
   }, []);
-
   return isDark;
 };
 
+// --- 4. CONFIG CREATOR ---
 const createThemeConfig = (
   isDark: boolean,
   palette: ColorPalette
@@ -106,372 +117,161 @@ const createThemeConfig = (
     colorPrimaryHover: palette.primaryHover,
     colorPrimaryActive: palette.primaryActive,
     colorPrimaryBg: palette.primaryBg,
-    colorPrimaryBgHover: isDark
-      ? "rgba(251, 146, 60, 0.18)"
-      : BRAND_COLORS.orange[100],
+
     colorText: palette.textPrimary,
     colorTextSecondary: palette.textSecondary,
     colorTextTertiary: palette.textTertiary,
-    colorLink: palette.primary,
-    colorLinkHover: palette.primaryHover,
-    colorBorder: palette.border,
-    colorBorderSecondary: palette.borderLight,
+
     colorBgBase: palette.backgroundBase,
     colorBgLayout: palette.backgroundBase,
     colorBgContainer: palette.backgroundElevated,
     colorBgElevated: palette.backgroundElevated,
-    colorBgSpotlight: palette.backgroundSubtle,
-    colorFillSecondary: palette.backgroundSubtle,
-    colorBgMask: palette.modalMask,
 
-    // Typography
+    colorBorder: palette.border,
+    colorBorderSecondary: palette.borderLight,
+
+    // Typography (Modern Fonts Stack)
     fontFamily:
-      '"Sukhumvit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      '"Prompt", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     fontSize: 14,
-    fontSizeHeading1: 32,
-    fontSizeHeading2: 26,
-    fontSizeHeading3: 22,
-    fontSizeHeading4: 18,
-    fontSizeHeading5: 16,
+    fontWeightStrong: 600,
 
-    // Border Radius
-    borderRadius: 12,
-    borderRadiusLG: 16,
-    borderRadiusSM: 8,
-    borderRadiusXS: 6,
+    // Radius (More rounded for modern feel)
+    borderRadius: 8,
+    borderRadiusLG: 12,
+    borderRadiusSM: 6,
+    borderRadiusXS: 4,
 
-    // Sizing
-    controlHeight: 40,
-    controlHeightLG: 48,
-    controlHeightSM: 32,
-    controlHeightXS: 24,
+    // Spacing & Height
+    controlHeight: 44, // ปุ่มและ Input สูงขึ้นเล็กน้อยเพื่อให้ดู Modern
+    controlHeightLG: 52,
+    controlHeightSM: 36,
 
-    // Spacing
-    padding: 16,
-    paddingLG: 24,
-    paddingSM: 12,
-    paddingXS: 8,
-    margin: 16,
-    marginLG: 24,
-    marginSM: 12,
-    marginXS: 8,
-
-    // Semantic Colors
-    colorSuccess: "#10b981",
-    colorWarning: "#f59e0b",
-    colorError: "#ef4444",
-    colorInfo: "#3b82f6",
-
-    // Effects
-    boxShadow: "none",
-    boxShadowSecondary: "none",
-    lineWidth: 1,
-    lineType: "solid",
+    // Shadows (Custom Soft Shadows)
+    boxShadow: palette.shadowSoft,
+    boxShadowSecondary: palette.shadowSoft,
   },
+
   components: {
     Layout: {
-      headerBg: "transparent",
-      headerPadding: "0 24px",
-      headerHeight: 64,
+      headerBg: isDark ? "rgba(17, 24, 39, 0.8)" : "rgba(255, 255, 255, 0.8)", // Semi-transparent
       bodyBg: palette.backgroundBase,
       siderBg: palette.backgroundElevated,
-      triggerBg: palette.backgroundSubtle,
-      triggerColor: palette.textPrimary,
     },
     Button: {
+      controlHeight: 42,
       borderRadius: 10,
-      controlHeight: 40,
-      controlHeightLG: 48,
-      controlHeightSM: 32,
       fontWeight: 500,
-      paddingContentHorizontal: 20,
-      primaryShadow: "none",
-      defaultShadow: "none",
-      dangerShadow: "none",
-      defaultBorderColor: palette.border,
-      defaultColor: palette.textPrimary,
+      defaultBorderColor: "transparent", // No border for default buttons (Surface style)
+      defaultBg: palette.backgroundElevated,
+      defaultShadow: "0 2px 8px rgba(0,0,0,0.04)", // Subtle shadow instead of border
+      primaryShadow: `0 4px 14px 0 ${palette.primaryShadow}`, // Glowing primary button
       textHoverBg: palette.backgroundSubtle,
+      contentFontSize: 14,
     },
     Input: {
+      controlHeight: 42,
       borderRadius: 10,
-      controlHeight: 40,
-      paddingBlock: 8,
-      paddingInline: 12,
-      colorBgContainer: palette.backgroundElevated,
-      colorBorder: palette.border,
-      hoverBorderColor: palette.primary,
+      colorBgContainer: isDark ? "#1F2937" : "#F8FAFC", // Filled Input Style
+      colorBorder: "transparent", // Remove default border
       activeBorderColor: palette.primary,
+      hoverBorderColor: isDark ? "#374151" : "#E2E8F0",
       activeShadow: `0 0 0 2px ${palette.primaryBg}`,
-    },
-    InputNumber: {
-      borderRadius: 10,
-      controlHeight: 40,
-      paddingBlock: 8,
-      paddingInline: 12,
-      colorBgContainer: palette.backgroundElevated,
-      colorBorder: palette.border,
-      hoverBorderColor: palette.primary,
-      activeBorderColor: palette.primary,
-      activeShadow: `0 0 0 2px ${palette.primaryBg}`,
+      addonBg: palette.backgroundSubtle,
     },
     Select: {
+      controlHeight: 42,
       borderRadius: 10,
-      controlHeight: 40,
-      colorBgContainer: palette.backgroundElevated,
-      colorBorder: palette.border,
-      optionSelectedBg: palette.primaryBg,
-      optionSelectedColor: palette.primary,
-      optionActiveBg: palette.backgroundSubtle,
-    },
-    DatePicker: {
-      borderRadius: 10,
-      controlHeight: 40,
-      colorBgContainer: palette.backgroundElevated,
-      colorBorder: palette.border,
-      cellHoverBg: palette.backgroundSubtle,
-      cellActiveWithRangeBg: palette.primaryBg,
-      cellRangeBorderColor: palette.primary,
+      colorBgContainer: isDark ? "#1F2937" : "#F8FAFC",
+      colorBorder: "transparent",
+      selectorBg: isDark ? "#1F2937" : "#F8FAFC",
     },
     Card: {
       borderRadiusLG: 16,
-      paddingLG: 24,
       colorBgContainer: palette.backgroundElevated,
-      colorBorderSecondary: palette.border,
-      headerHeight: 56,
-      boxShadow: "none",
-    },
-    Modal: {
-      borderRadiusLG: 16,
-      colorBgElevated: palette.backgroundElevated,
-      headerBg: palette.backgroundElevated,
-      contentBg: palette.backgroundElevated,
-      titleFontSize: 20,
-      titleLineHeight: 1.4,
-      bodyPadding: "24px",
-      footerPadding: "16px 24px",
-      boxShadow: isDark
-        ? "0 20px 25px -5px rgba(0, 0, 0, 0.5)"
-        : "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-    },
-    Drawer: {
-      colorBgElevated: palette.backgroundElevated,
-      paddingLG: 24,
-      footerPaddingBlock: 16,
-      footerPaddingInline: 24,
+      headerFontSize: 16,
+      headerFontWeight: 600,
+      boxShadow: palette.shadowSoft, // Floating Card Effect
+      colorBorderSecondary: palette.borderLight,
     },
     Table: {
-      borderRadius: 12,
       borderRadiusLG: 12,
-      headerBg: palette.backgroundSubtle,
-      headerColor: palette.textPrimary,
+      headerBg: "transparent", // Transparent Header
+      headerColor: palette.textSecondary,
       headerSplitColor: "transparent",
-      headerSortActiveBg: palette.backgroundSubtle,
-      headerSortHoverBg: palette.backgroundSubtle,
-      rowHoverBg: isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(0, 0, 0, 0.02)",
-      rowSelectedBg: palette.primaryBg,
-      rowSelectedHoverBg: isDark
-        ? "rgba(251, 146, 60, 0.18)"
-        : BRAND_COLORS.orange[100],
-      colorBgContainer: palette.backgroundElevated,
-      borderColor: palette.border,
-      headerBorderRadius: 12,
-      cellPaddingBlock: 16,
-      cellPaddingInline: 16,
-      cellFontSize: 14,
-      headerFontSize: 14,
-      footerBg: palette.backgroundSubtle,
-      footerColor: palette.textSecondary,
-    },
-    Tabs: {
-      itemColor: palette.textSecondary,
-      itemHoverColor: palette.textPrimary,
-      itemSelectedColor: palette.primary,
-      inkBarColor: palette.primary,
-      cardBg: palette.backgroundElevated,
-      cardGutter: 4,
-    },
-    Dropdown: {
-      borderRadiusLG: 12,
-      colorBgElevated: palette.backgroundElevated,
-      controlItemBgHover: palette.backgroundSubtle,
-      controlItemBgActive: palette.primaryBg,
-      paddingBlock: 8,
-      boxShadow: isDark
-        ? "0 10px 15px -3px rgba(0, 0, 0, 0.3)"
-        : "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+      rowHoverBg: palette.backgroundSubtle,
+      borderColor: isDark ? "#374151" : "#F1F5F9", // เส้นตารางจางมากๆ
     },
     Menu: {
-      itemBg: "transparent",
-      itemColor: palette.textSecondary,
-      itemHoverColor: palette.textPrimary,
-      itemHoverBg: palette.backgroundSubtle,
-      itemSelectedColor: palette.primary,
+      itemBorderRadius: 8,
       itemSelectedBg: palette.primaryBg,
+      itemSelectedColor: palette.primary,
       itemActiveBg: palette.backgroundSubtle,
       subMenuItemBg: "transparent",
-      borderRadius: 8,
-      itemBorderRadius: 8,
     },
-    Pagination: {
-      itemBg: palette.backgroundElevated,
-      itemColor: palette.textPrimary,
-      itemActiveColor: "#ffffff",
-      itemHoverBg: palette.backgroundSubtle,
-      itemLinkBg: palette.backgroundElevated,
-      itemInputBg: palette.backgroundElevated,
-      borderRadius: 8,
+    Modal: {
+      borderRadiusLG: 20, // โค้งมากเป็นพิเศษสำหรับ Modal
+      headerBg: "transparent",
+      contentBg: palette.backgroundElevated,
+      boxShadow: isDark
+        ? "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
+        : "0 25px 50px -12px rgba(0, 0, 0, 0.15)", // Deep Shadow
     },
     Tag: {
       borderRadiusSM: 6,
-      defaultBg: palette.backgroundSubtle,
-      defaultColor: palette.textPrimary,
     },
-    Tooltip: {
-      borderRadius: 8,
-      colorBgSpotlight: isDark
-        ? "rgba(0, 0, 0, 0.92)"
-        : "rgba(15, 23, 42, 0.92)",
-      colorTextLightSolid: "#ffffff",
-    },
-    Popover: {
-      borderRadiusLG: 12,
-      colorBgElevated: palette.backgroundElevated,
-      boxShadow: isDark
-        ? "0 10px 15px -3px rgba(0, 0, 0, 0.3)"
-        : "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-    },
-    Alert: {
-      borderRadiusLG: 12,
-      colorInfoBg: isDark ? "rgba(59, 130, 246, 0.12)" : "#eff6ff",
-      colorSuccessBg: isDark ? "rgba(16, 185, 129, 0.12)" : "#f0fdf4",
-      colorWarningBg: isDark ? "rgba(245, 158, 11, 0.12)" : "#fffbeb",
-      colorErrorBg: isDark ? "rgba(239, 68, 68, 0.12)" : "#fef2f2",
-    },
-    Badge: {
-      dotSize: 8,
-      indicatorHeight: 20,
-    },
-    Breadcrumb: {
-      itemColor: palette.textSecondary,
-      lastItemColor: palette.textPrimary,
-      linkColor: palette.textSecondary,
-      linkHoverColor: palette.primary,
-      separatorColor: palette.textTertiary,
-      fontSize: 14,
-    },
-    Steps: {
-      iconSize: 32,
-      iconSizeSM: 24,
-    },
-    Form: {
-      labelFontSize: 14,
-      labelColor: palette.textPrimary,
-      labelHeight: 40,
-      itemMarginBottom: 24,
-      verticalLabelPadding: "0 0 8px",
+    Tabs: {
+      itemSelectedColor: palette.primary,
+      inkBarColor: palette.primary,
+      itemHoverColor: palette.primaryHover,
+      cardBg: palette.backgroundSubtle,
     },
     Segmented: {
-      borderRadius: 10,
-      itemSelectedBg: palette.primary,
-      itemSelectedColor: "#ffffff",
-      itemHoverBg: palette.backgroundSubtle,
+      itemSelectedBg: palette.backgroundElevated,
+      itemSelectedShadow: "0 2px 8px rgba(0,0,0,0.08)", // Floating Segment
       trackBg: palette.backgroundSubtle,
-    },
-    Switch: {
-      handleSize: 18,
-      trackHeight: 24,
-      trackMinWidth: 44,
-    },
-    Checkbox: {
-      borderRadiusSM: 4,
-      size: 18,
-    },
-    Radio: {
-      size: 18,
-      dotSize: 10,
-    },
-    Skeleton: {
-      colorBgBase: palette.backgroundSubtle,
-      colorFill: isDark ? palette.backgroundElevated : "#e5e7eb",
-      borderRadiusLG: 12,
-    },
-    Spin: {
-      dotSize: 24,
-      dotSizeSM: 16,
-      dotSizeLG: 32,
-    },
-    Upload: {
-      colorBorder: palette.border,
-      colorFillAlter: palette.backgroundSubtle,
-    },
-    Avatar: {
-      borderRadius: 100,
-      containerSize: 40,
-      containerSizeLG: 48,
-      containerSizeSM: 32,
-    },
-    Timeline: {
-      dotBg: palette.backgroundElevated,
-      itemPaddingBottom: 24,
-    },
-    Collapse: {
-      borderRadiusLG: 12,
-      headerBg: palette.backgroundSubtle,
-      contentBg: palette.backgroundElevated,
-      headerPadding: "12px 16px",
-      contentPadding: "16px",
-    },
-    Progress: {
-      defaultColor: palette.primary,
-      remainingColor: palette.backgroundSubtle,
-      circleTextColor: palette.textPrimary,
-      lineBorderRadius: 100,
-    },
-    Result: {
-      titleFontSize: 24,
-      subtitleFontSize: 14,
-      iconFontSize: 72,
+      borderRadius: 10,
+      borderRadiusLG: 10,
     },
     Statistic: {
-      titleFontSize: 14,
-      contentFontSize: 24,
+      contentFontSize: 26,
+      titleFontSize: 13,
+      titleColor: palette.textSecondary,
     },
-    Descriptions: {
-      labelBg: palette.backgroundSubtle,
-      itemPaddingBottom: 16,
-      titleMarginBottom: 20,
-    },
-    Empty: {
-      colorTextDisabled: palette.textTertiary,
-    },
-    Notification: {
-      width: 384,
-      borderRadiusLG: 12,
-    },
-    Message: {
-      contentBg: palette.backgroundElevated,
-      borderRadiusLG: 10,
+    Typography: {
+      fontSizeHeading1: 36,
+      fontSizeHeading2: 28,
+      fontSizeHeading3: 24,
+      fontWeightStrong: 600,
     },
   } as any,
 });
 
+// --- 5. THEME PROVIDER COMPONENT ---
 export default function AntThemeProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const isDark = useThemeDetector();
+
   const palette = useMemo(
     () => (isDark ? getDarkPalette() : getLightPalette()),
     [isDark]
   );
+
   const themeConfig = useMemo(
     () => createThemeConfig(isDark, palette),
     [isDark, palette]
   );
 
   return (
-    <ConfigProvider locale={thTH} theme={themeConfig}>
+    <ConfigProvider
+      locale={thTH}
+      theme={themeConfig}
+      // เพิ่ม Global Class สำหรับ Typography เพื่อให้ Font สวยงาม
+      componentSize="middle"
+    >
       {children}
     </ConfigProvider>
   );
