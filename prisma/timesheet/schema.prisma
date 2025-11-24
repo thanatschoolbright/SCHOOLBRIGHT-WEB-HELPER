@@ -32,6 +32,7 @@ model Project {
 
 model Feature {
   id                 Int                     @id @default(autoincrement()) @map("id")
+  // boiType            String?                 @map("boi_type")
   projectId          Int                     @map("project_id")
   name               String                  @map("name")
   backlogDescription Json?                   @map("backlog_description")

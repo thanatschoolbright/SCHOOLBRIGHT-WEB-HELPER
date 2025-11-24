@@ -1,9 +1,9 @@
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { toast } from "sonner";
 
-import type { 
-  TimesheetEntry, 
-  TimesheetExportData 
+import type {
+  TimesheetEntry,
+  TimesheetExportData,
 } from "@/types/timesheet-table.types";
 import type { Project, SubProject } from "@/stores/type";
 
@@ -36,7 +36,7 @@ export const GET_TIMESHEET_ENTRIES = async (params: {
   pageSize: number;
 }> => {
   const toastId = toast.loading("กำลังโหลดข้อมูลลงเวลา...");
-  
+
   try {
     const response = await axios.post<ApiResponse<TimesheetEntry[]>>(
       "/api/v1/timesheet/entry/read/",
@@ -61,7 +61,7 @@ export const GET_TIMESHEET_ENTRIES = async (params: {
     toast.error(error?.message ?? "ไม่สามารถโหลดข้อมูลลงเวลาได้", {
       id: toastId,
     });
-    
+
     return {
       entries: [],
       total: 0,
@@ -76,7 +76,7 @@ export const GET_PROJECTS = async (params: {
   page: number;
 }): Promise<Project[]> => {
   const toastId = toast.loading("กำลังโหลดโปรเจ็กต์...");
-  
+
   try {
     const response = await axios.post<ApiResponse<Project[]>>(
       "/api/v1/timesheet/project/read/",
@@ -97,15 +97,17 @@ export const GET_PROJECTS = async (params: {
     toast.error(error?.message ?? "ไม่สามารถโหลดโปรเจ็กต์ได้", {
       id: toastId,
     });
-    
+
     return [];
   }
 };
 
 //** Service สำหรับจัดการข้อมูลโปรเจ็กต์ย่อย */
-export const GET_SUB_PROJECTS_BY_PROJECT = async (projectId: number): Promise<SubProject[]> => {
+export const GET_SUB_PROJECTS_BY_PROJECT = async (
+  projectId: number
+): Promise<SubProject[]> => {
   const toastId = toast.loading("กำลังโหลดโครงการย่อย...");
-  
+
   try {
     const response = await axios.post<SubProjectResponse>(
       "/api/v1/timesheet/project/sub-project/read/",
@@ -124,7 +126,7 @@ export const GET_SUB_PROJECTS_BY_PROJECT = async (projectId: number): Promise<Su
     toast.error(error?.message ?? "ไม่สามารถโหลดโครงการย่อยได้", {
       id: toastId,
     });
-    
+
     return [];
   }
 };
@@ -161,30 +163,30 @@ export const POST_EXPORT_TEMPLATE = async (
       const payload = await response.json();
       const statusUrl = payload.statusUrl as string;
       const downloadUrl = payload.downloadUrl as string;
-      
+
       if (!statusUrl || !downloadUrl) {
         throw new Error("ระบบไม่ได้ส่งข้อมูลสถานะการดาวน์โหลดกลับมา");
       }
 
       const seenSteps = new Set<string>();
       let attempts = 0;
-      
+
       while (attempts < maxAttempts) {
         attempts += 1;
         const statusResponse = await fetch(statusUrl, { cache: "no-store" });
-        
+
         if (!statusResponse.ok) {
           const statusError = await statusResponse.json().catch(() => ({}));
           throw new Error(
             statusError?.message_th ||
-            statusError?.message_en ||
-            "ส่งออกไฟล์ไม่สำเร็จ"
+              statusError?.message_en ||
+              "ส่งออกไฟล์ไม่สำเร็จ"
           );
         }
 
         const statusData = await statusResponse.json();
         const steps = Array.isArray(statusData.steps) ? statusData.steps : [];
-        
+
         if (steps.length) {
           const latestStep = steps[steps.length - 1];
           if (latestStep?.key && !seenSteps.has(latestStep.key)) {
@@ -205,20 +207,25 @@ export const POST_EXPORT_TEMPLATE = async (
           });
 
           if (!downloadResponse.ok) {
-            const downloadError = await downloadResponse.json().catch(() => ({}));
+            const downloadError = await downloadResponse
+              .json()
+              .catch(() => ({}));
             throw new Error(
               downloadError?.message_th ||
-              downloadError?.message_en ||
-              "ไม่สามารถดาวน์โหลดไฟล์ได้"
+                downloadError?.message_en ||
+                "ไม่สามารถดาวน์โหลดไฟล์ได้"
             );
           }
 
           const blob = await downloadResponse.blob();
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement("a");
-          
+
           link.href = url;
-          link.download = `timesheet-export_${exportData.start_date.replace(/-/g, '')}_${exportData.end_date.replace(/-/g, '')}.xlsx`;
+          link.download = `timesheet-export_${exportData.start_date.replace(
+            /-/g,
+            ""
+          )}_${exportData.end_date.replace(/-/g, "")}.xlsx`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -242,9 +249,12 @@ export const POST_EXPORT_TEMPLATE = async (
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
-    
+
     link.href = url;
-    link.download = `timesheet-export_${exportData.start_date.replace(/-/g, '')}_${exportData.end_date.replace(/-/g, '')}.xlsx`;
+    link.download = `timesheet-export_${exportData.start_date.replace(
+      /-/g,
+      ""
+    )}_${exportData.end_date.replace(/-/g, "")}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -267,7 +277,7 @@ export const POST_EXPORT_ALL_ENTRIES = async (): Promise<{
   entries: TimesheetEntry[];
 }> => {
   const toastId = toast.loading("กำลังส่งออกข้อมูล...");
-  
+
   try {
     const response = await axios.post<ApiResponse<TimesheetEntry[]>>(
       "/api/v1/timesheet/entry/read/",
@@ -278,7 +288,7 @@ export const POST_EXPORT_ALL_ENTRIES = async (): Promise<{
     );
 
     const entries = response.data?.data ?? [];
-    
+
     if (!entries.length) {
       toast.info("ไม่มีข้อมูลสำหรับส่งออก", { id: toastId });
       return { entries: [] };
@@ -321,9 +331,9 @@ export const POST_EXPORT_PROJECT_TEMPLATE = async (
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData?.message_th || 
-        errorData?.message_en || 
-        "ไม่สามารถสร้างรายงานได้"
+        errorData?.message_th ||
+          errorData?.message_en ||
+          "ไม่สามารถสร้างรายงานได้"
       );
     }
 
@@ -331,10 +341,14 @@ export const POST_EXPORT_PROJECT_TEMPLATE = async (
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
-    
+
     link.href = url;
-    const typeLabel = exportData.export_type === "project" ? "project" : "subproject";
-    link.download = `timesheet-${typeLabel}-summary_${exportData.start_date.replace(/-/g, '')}_${exportData.end_date.replace(/-/g, '')}.xlsx`;
+    const typeLabel =
+      exportData.export_type === "project" ? "project" : "subproject";
+    link.download = `timesheet-${typeLabel}-summary_${exportData.start_date.replace(
+      /-/g,
+      ""
+    )}_${exportData.end_date.replace(/-/g, "")}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -353,9 +367,10 @@ export const POST_EXPORT_PROJECT_TEMPLATE = async (
 };
 
 //** Service สำหรับส่งออกไฟล์ Template 3: Sub-project week-by-week summary */
-export const POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK = async (
-  params: { start_date: string; end_date: string }
-): Promise<void> => {
+export const POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK = async (params: {
+  start_date: string;
+  end_date: string;
+}): Promise<void> => {
   let toastId: string | number | undefined;
 
   try {
@@ -373,7 +388,9 @@ export const POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK = async (
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData?.message_th || errorData?.message_en || "ไม่สามารถสร้างรายงานได้"
+        errorData?.message_th ||
+          errorData?.message_en ||
+          "ไม่สามารถสร้างรายงานได้"
       );
     }
 
@@ -383,13 +400,71 @@ export const POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK = async (
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = `timesheet-subproject-weekly_${params.start_date.replace(/-/g, '')}_${params.end_date.replace(/-/g, '')}.xlsx`;
+    link.download = `timesheet-subproject-weekly_${params.start_date.replace(
+      /-/g,
+      ""
+    )}_${params.end_date.replace(/-/g, "")}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
     toast.success("สร้างรายงานเรียบร้อย", { id: toastId });
+  } catch (error: any) {
+    const message = error?.message || "สร้างรายงานไม่สำเร็จ";
+    if (toastId !== undefined) {
+      toast.error(message, { id: toastId });
+    } else {
+      toast.error(message);
+    }
+    throw error;
+  }
+};
+
+//** Service สำหรับส่งออกไฟล์ Template 4: Audit Report with Overview and Evidence */
+export const POST_EXPORT_AUDIT_REPORT = async (params: {
+  start_date: string;
+  end_date: string;
+}): Promise<void> => {
+  let toastId: string | number | undefined;
+
+  try {
+    toastId = toast.loading("กำลังสร้างรายงานสำหรับ Audit...");
+
+    const response = await fetch("/api/v1/timesheet/excel/template_4", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        start_date: params.start_date,
+        end_date: params.end_date,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData?.message_th ||
+          errorData?.message_en ||
+          "ไม่สามารถสร้างรายงานได้"
+      );
+    }
+
+    // Download file
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `timesheet-audit-report_${params.start_date.replace(
+      /-/g,
+      ""
+    )}_${params.end_date.replace(/-/g, "")}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    toast.success("สร้างรายงานสำหรับ Audit เรียบร้อย", { id: toastId });
   } catch (error: any) {
     const message = error?.message || "สร้างรายงานไม่สำเร็จ";
     if (toastId !== undefined) {
