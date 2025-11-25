@@ -303,7 +303,12 @@ export default function SubProjectPage() {
       setActionLoading(true);
 
       // Prepare payload
-      const payload = { ...formData, ...antdForm.getFieldsValue() };
+      const formValues = antdForm.getFieldsValue();
+      const payload = {
+        ...formData,
+        ...formValues,
+        project_id: formData.project_id ?? Number(project_id),
+      };
 
       const res = await fetch(`/api/v1/timesheet/project/sub-project/insert`, {
         method: "POST",
@@ -507,7 +512,7 @@ export default function SubProjectPage() {
                   setFormData({
                     id: record.id,
                     name: record.name,
-                    project_id: record.project_id,
+                    project_id: record.project_id ?? Number(project_id),
                     by: AUTHENTICATION.response.data.user_data.admin_id,
                     backlogDescription: record.backlogDescription,
                     dateRange:
