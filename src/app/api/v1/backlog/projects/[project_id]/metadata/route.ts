@@ -8,10 +8,6 @@ const BACKLOG_DOMAINS = [
     "backlog.jp",
 ] as const;
 
-type RouteParams = {
-    projectId: string;
-};
-
 type BacklogMetadata = {
     categories: Array<{ id: number; name: string }>;
     milestones: Array<{ id: number; name: string }>;
@@ -32,8 +28,11 @@ export async function GET(request: NextRequest, context: any) {
             );
         }
 
-        const {project_id} = context.params;
-        const projectIdOrKey = project_id;
+        const params = context.params || {};
+        const projectIdRaw = params.project_id ?? params.projectId;
+        const projectIdOrKey = Array.isArray(projectIdRaw)
+            ? projectIdRaw[0]
+            : projectIdRaw;
         if (!projectIdOrKey) {
             return NextResponse.json(
                 errorResponse({

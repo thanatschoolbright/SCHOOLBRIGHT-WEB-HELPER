@@ -1,7 +1,7 @@
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Tag, Tooltip } from "antd";
+import { Menu, Tag, Tooltip, theme } from "antd";
 
 function MenuTooltip({
   label,
@@ -27,7 +27,17 @@ export default function SidebarContent({
   const menu = useSidebarMenu();
   const pathname = usePathname();
   const router = useRouter();
+  const { token } = theme.useToken();
   const [openKeys, setOpenKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    const parent = menu.find(
+      (m) => m.children && m.children.some((c) => c.href === pathname)
+    );
+    if (parent && !collapsed) {
+      setOpenKeys([parent.label]);
+    }
+  }, [menu, pathname, collapsed]);
 
   const items = useMemo(() => {
     return menu.map((m) => {
@@ -36,9 +46,11 @@ export default function SidebarContent({
           key: m.label,
           icon: m.icon,
           label: m.label,
+          title: m.label,
           children: m.children.map((c) => ({
             key: c.href,
             icon: c.icon,
+            title: c.label,
             label: (
               <>
                 <MenuTooltip label={c.label}>{c.label}</MenuTooltip>
@@ -60,6 +72,7 @@ export default function SidebarContent({
       return {
         key: m.href || m.label,
         icon: m.icon,
+        title: m.label,
         label: (
           <>
             {m.label}
@@ -72,9 +85,9 @@ export default function SidebarContent({
         ),
       };
     });
-  }, [menu]);
+  }, [menu, collapsed]);
 
-  const onOpenChange = (keys: string[]) => setOpenKeys(keys);
+  const onOpenChange = (keys: string[]) => !collapsed && setOpenKeys(keys);
   const onClick: Parameters<typeof Menu>[0]["onClick"] = (info) => {
     const key = String(info.key);
     if (key.startsWith("/")) router.push(key);
@@ -85,14 +98,17 @@ export default function SidebarContent({
       mode="inline"
       inlineCollapsed={collapsed}
       selectedKeys={[pathname]}
-      openKeys={collapsed ? [] : openKeys}
+      openKeys={!collapsed ? openKeys : undefined}
       onOpenChange={onOpenChange}
       onClick={onClick}
       triggerSubMenuAction={collapsed ? "hover" : "click"}
-      getPopupContainer={(triggerNode: HTMLElement) =>
-        typeof document !== "undefined" ? document.body : triggerNode
-      }
       items={items as any}
+      style={{
+        borderInlineEnd: "none",
+        padding: collapsed ? 8 : 12,
+        borderRadius: 14,
+      }}
+      rootClassName="sb-modern-sidebar"
     />
   );
 }

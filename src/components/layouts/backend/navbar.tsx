@@ -5,8 +5,10 @@
  * ใช้ Ant Design สำหรับ UI minimal, รองรับ Dark Mode
  */
 
+import {useState} from "react";
 import {useRouter} from "next/navigation";
-import {Card, Flex, Space, theme, Typography} from "antd";
+import {Badge, Button, Card, Divider, Flex, Space, Tag, Tooltip, theme, Typography} from "antd";
+import {BellOutlined, CompassOutlined, HomeOutlined, PlusOutlined, ThunderboltFilled} from "@ant-design/icons";
 import UserDropdown from "@components/layouts/backend/user-dropdown";
 
 /**
@@ -17,39 +19,82 @@ import UserDropdown from "@components/layouts/backend/user-dropdown";
 export default function MainHeader(): JSX.Element {
     const router = useRouter();
     const {token} = theme.useToken();
+    const [brandHover, setBrandHover] = useState(false);
 
     return (
         <Card
             variant="borderless"
             styles={{
                 body: {
-                    paddingBlock: 14,
-                    paddingInline: 24,
+                  
                 },
             }}
             style={{
-                borderRadius: 0,
+                borderRadius: 14,
                 marginBottom: 12,
-                background: token.colorBgContainer, // รองรับ Dark Mode
+                background: `linear-gradient(120deg, ${token.colorPrimaryBg} 0%, ${token.colorBgContainer} 55%)`,
+                border: `1px solid ${token.colorBorderSecondary}`,
+                boxShadow: token.boxShadowSecondary,
             }}
         >
             <Flex align="center" justify="space-between">
                 {/* 🔸 โลโก้ */}
-                <Typography.Title
-                    level={4}
+                <Flex
+                    align="center"
+                    gap={12}
                     onClick={() => router.push("/main")}
                     style={{
-                        margin: 0,
+                        paddingInline: 12,
+                        paddingBlock: 8,
+                        borderRadius: 12,
                         cursor: "pointer",
-                        fontWeight: 700,
-                        color: token.colorPrimary, // รองรับ Dark Mode
+                        transition: "transform 160ms ease, background 200ms ease, box-shadow 200ms ease",
+                        background: brandHover ? token.colorFillSecondary : token.colorFillTertiary,
+                        transform: brandHover ? "translateY(-1px)" : "translateY(0)",
+                        boxShadow: brandHover ? token.boxShadowSecondary : "none",
                     }}
+                    onMouseEnter={() => setBrandHover(true)}
+                    onMouseLeave={() => setBrandHover(false)}
                 >
-                    สคูลไบรท์
-                </Typography.Title>
+                    <CompassOutlined style={{fontSize: 22, color: token.colorPrimary}}/>
+                    <div style={{display: "flex", flexDirection: "column", gap: 2}}>
+                        <Typography.Title
+                            level={5}
+                            style={{
+                                margin: 0,
+                                fontWeight: 800,
+                                color: token.colorText,
+                                letterSpacing: 0.1,
+                            }}
+                        >
+                            สคูลไบรท์
+                        </Typography.Title>
+                        
+                    </div>
+                </Flex>
 
                 {/* 🔹 เมนูผู้ใช้ */}
-                <Space>
+                <Space size={10} align="center">
+                    <Button
+                        type="primary"
+                        icon={<HomeOutlined/>}
+                        shape="round"
+                        onClick={() => router.push("/main")}
+                        style={{boxShadow: token.boxShadowSecondary}}
+                    >
+                        กลับหน้าหลัก
+                    </Button>
+                    <Divider type="vertical" style={{height: 32, marginInline: 4}}/>
+                    <Tooltip title="แจ้งเตือนล่าสุด">
+                        <Badge dot color={token.colorWarning} offset={[-2, 2]}>
+                            <Button
+                                type="text"
+                                shape="circle"
+                                icon={<BellOutlined style={{fontSize: 18}}/>}
+                                style={{color: token.colorTextSecondary}}
+                            />
+                        </Badge>
+                    </Tooltip>
                     <UserDropdown/>
                 </Space>
             </Flex>

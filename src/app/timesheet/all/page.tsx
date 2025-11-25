@@ -128,7 +128,12 @@ export default function TimesheetAllPage() {
           )}
 
           {/* Timesheet Table */}
-          <TimesheetTable records={filteredRecords} loading={loading} />
+          <TimesheetTable
+            records={filteredRecords}
+            loading={loading}
+            metadata={metadata}
+            onRefetch={refetch}
+          />
 
           {/* Notes */}
           {metadata?.notes && (

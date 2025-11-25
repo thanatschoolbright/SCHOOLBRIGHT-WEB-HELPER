@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {toast} from "sonner";
-import {CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined} from '@ant-design/icons';
+import {CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined, RobotOutlined, ReloadOutlined} from '@ant-design/icons';
 import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
 
 import AutoCategoryToggle from "@components/backlog/auto-category-toggle";
@@ -27,7 +27,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                                                  projectName,
                                                                  projectId,
                                                                  space,
-                                                                 onUpdateComplete
+        onUpdateComplete
                                                              }) => {
     const router = useRouter();
     const dispatch = useDispatch();
@@ -263,9 +263,21 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     return (
         <Card
             size="small"
-            styles={{body: {padding: 16}}}
+            styles={{body: {padding: 16 }}}
             style={elevatedCardStyle}
-            title="การอัปเดตแบบกลุ่ม"
+            title={
+                <Space align="center" size={10}>
+                    <Typography.Title level={5} style={{margin: 0}}>
+                        การอัปเดตแบบกลุ่ม
+                    </Typography.Title>
+                    <Tag color="blue" bordered={false} style={{borderRadius: 10}}>
+                        เลือกแล้ว {selectedRowKeys.length} งาน
+                    </Tag>
+                    <Tag color="geekblue" bordered={false} style={{borderRadius: 10}}>
+                        AI Assist
+                    </Tag>
+                </Space>
+            }
         >
             <Skeleton
                 active
@@ -281,258 +293,226 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                             key: "ai",
                             label: "อัปเดตด้วย AI",
                             children: (
-                                <Space
-                                    direction="vertical"
-                                    size={12}
-                                    style={{width: "100%"}}
-                                >
-                                    <Typography.Text type="secondary">
-                                        เปิดใช้งานเพื่อให้ Gemini
-                                        ช่วยเลือกหมวดหมู่และสรุปรายละเอียดก่อนส่งคำสั่งอัปเดตแบบกลุ่ม
-                                    </Typography.Text>
-                                    <AutoCategoryToggle
-                                        disabled={
-                                            autoCategoryLoading ||
-                                            bulkUpdating ||
-                                            !categoryOptions.length
-                                        }
-                                        enabled={autoCategoryEnabled}
-                                        onChange={handleAutoCategoryToggle}
-                                    />
-                                    <AutoAiDescriptionToggle enabled={autoDescriptionEnabled}
-                                                             onChange={handleAutoDescriptionToggle}
-                                                             disabled={bulkUpdating}/>
-                                    <BulkUpdatePanel
-                                        autoCategoryEnabled={autoCategoryEnabled}
-                                        autoAiDescriptionEnabled={autoDescriptionEnabled}
-                                        autoCategoryLoading={autoCategoryLoading}
-                                        bulkCategoryIds={bulkCategoryIds}
-                                        bulkDueDate={bulkDueDate}
-                                        bulkMilestoneIds={bulkMilestoneIds}
-                                        bulkPriorityId={bulkPriorityId}
-                                        bulkStartDate={bulkStartDate}
-                                        bulkStatusId={bulkStatusId}
+                                <Space direction="vertical" size={16} style={{width: "100%"}}>
+                                    <Card
+                                        size="small"
+                                        bordered={false}
+                                        style={{
+                                            
+                                            borderRadius: 12,
+                                        }}
+                                    >
+                                        <Space direction="vertical" size={6} style={{width: "100%"}}>
+                                            <Typography.Text strong>Smart Filters</Typography.Text>
+                                            <Typography.Text type="secondary">
+                                                เปิดใช้งาน Gemini เพื่อช่วยเลือก Category และสรุป Description โดยอัตโนมัติ
+                                            </Typography.Text>
+                                            <Space wrap>
+                                                <AutoCategoryToggle
+                                                    disabled={
+                                                        autoCategoryLoading ||
+                                                        bulkUpdating ||
+                                                        !categoryOptions.length
+                                                    }
+                                                    enabled={autoCategoryEnabled}
+                                                    onChange={handleAutoCategoryToggle}
+                                                />
+                                                <AutoAiDescriptionToggle
+                                                    enabled={autoDescriptionEnabled}
+                                                    onChange={handleAutoDescriptionToggle}
+                                                    disabled={bulkUpdating}
+                                                />
+                                            </Space>
+                                        </Space>
+                                    </Card>
+
+                                    <Card
+                                        size="small"
+                                        bordered={false}
+                                        style={{borderRadius: 12, boxShadow: "0 4px 12px rgba(15,23,42,0.06)"}}
+                                    >
+                                        <BulkUpdatePanel
+                                            autoCategoryEnabled={autoCategoryEnabled}
+                                            autoAiDescriptionEnabled={autoDescriptionEnabled}
+                                            autoCategoryLoading={autoCategoryLoading}
+                                            bulkCategoryIds={bulkCategoryIds}
+                                            bulkDueDate={bulkDueDate}
+                                            bulkMilestoneIds={bulkMilestoneIds}
+                                            bulkPriorityId={bulkPriorityId}
+                                            bulkStartDate={bulkStartDate}
+                                            bulkStatusId={bulkStatusId}
                                         bulkUpdating={bulkUpdating}
                                         categoryOptions={categoryOptions}
                                         milestoneOptions={milestoneOptions}
-                                        onAutoCategoryChange={handleAutoCategoryToggle}
-                                        onAutoAiDescriptionChange={handleAutoDescriptionToggle}
                                         onCategoryChange={(values) =>
-                                            setBulkCategoryIds(
-                                                values && values.length ? values : []
-                                            )
+                                            setBulkCategoryIds(values && values.length ? values : [])
                                         }
-                                        onClear={clearBulkForm}
-                                        onDueDateChange={(value) =>
-                                            setBulkDueDate(value ?? null)
-                                        }
-                                        onManageMilestone={() => {
-                                            router.push(
-                                                `/backlogs/projects/${projectId}/milestones?space=${encodeURIComponent(
-                                                    space
-                                                )}&name=${encodeURIComponent(projectName)}`
-                                            );
-                                        }}
-                                        onMilestoneChange={(values) =>
-                                            setBulkMilestoneIds(
-                                                values && values.length ? values : []
-                                            )
-                                        }
-                                        onPriorityChange={(value) =>
-                                            setBulkPriorityId(value)
-                                        }
-                                        onStartDateChange={(value) =>
-                                            setBulkStartDate(value ?? null)
-                                        }
-                                        onStatusChange={(value) => setBulkStatusId(value)}
-                                        onSubmit={handleBulkUpdate}
-                                        priorityOptions={priorityOptions}
-                                        selectedCount={selectedRowKeys.length}
-                                        statusOptions={statusOptions}
-                                        submitDisabled={
-                                            !selectedRowKeys.length ||
-                                            !hasBulkUpdates ||
-                                            bulkUpdating
-                                        }
-                                    />
+                                            onClear={clearBulkForm}
+                                            onDueDateChange={(value) => setBulkDueDate(value ?? null)}
+                                            onManageMilestone={() => {
+                                                router.push(
+                                                    `/backlogs/projects/${projectId}/milestones?space=${encodeURIComponent(
+                                                        space
+                                                    )}&name=${encodeURIComponent(projectName)}`
+                                                );
+                                            }}
+                                            onMilestoneChange={(values) =>
+                                                setBulkMilestoneIds(values && values.length ? values : [])
+                                            }
+                                            onPriorityChange={(value) => setBulkPriorityId(value)}
+                                            onStartDateChange={(value) => setBulkStartDate(value ?? null)}
+                                            onStatusChange={(value) => setBulkStatusId(value)}
+                                            onSubmit={handleBulkUpdate}
+                                            priorityOptions={priorityOptions}
+                                            selectedCount={selectedRowKeys.length}
+                                            statusOptions={statusOptions}
+                                            submitDisabled={
+                                                !selectedRowKeys.length || !hasBulkUpdates || bulkUpdating
+                                            }
+                                        />
+                                    </Card>
                                     <Modal
                                         title={
-                                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                                                <div>ผลการสรุปรายละเอียด (AI)</div>
-                                                <div style={{fontSize: 12, color: '#666'}}>
-                                                    {processingResults.length > 0 ? (
-                                                        <span>
-                                                            {processingResults.filter(r => r.status === 'success' || r.status === 'error').length}/{processingResults.length} processed
-                                                        </span>
-                                                    ) : null}
+                                            <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12}}>
+                                                <div style={{display: "flex", alignItems: "center", gap: 8}}>
+                                                    <RobotOutlined style={{color: "#1677ff"}}/>
+                                                    <div>
+                                                        <div style={{fontWeight: 700, fontSize: 15}}>ผลการสรุปรายละเอียด (AI)</div>
+                                                        <div style={{fontSize: 12, color: "#666"}}>
+                                                            {processingResults.length > 0 ? (
+                                                                <span>
+                                                                    {processingResults.filter(r => r.status === 'success' || r.status === 'error').length}/{processingResults.length} processed
+                                                                </span>
+                                                            ) : null}
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                                <Space size={6}>
+                                                    <Tag color="processing" bordered={false} style={{padding: "2px 8px", borderRadius: 12}}>Live</Tag>
+                                                </Space>
                                             </div>
                                         }
                                         open={resultsModalVisible}
                                         onCancel={() => setResultsModalVisible(false)}
                                         footer={null}
-                                        width={900}
-                                        bodyStyle={{padding: 12}}
+                                        width={1000}
+                                        styles={{
+                                            body: {
+                                                padding: 0,
+                                                
+                                            },
+                                        }}
                                     >
-                                        <div style={{maxHeight: '60vh', overflow: 'auto'}}>
-                                            <Table
-                                                dataSource={processingResults}
-                                                rowKey={(r) => String(r.issueKeyOrId)}
-                                                pagination={false}
-                                                scroll={{ y: 420 }}
-                                                columns={[
-                                                    {title: 'งาน', dataIndex: 'title', key: 'title', width: 220},
-                                                    {title: 'สถานะ', dataIndex: 'status', key: 'status', width: 120, render: (status: any) => {
-                                                            if (status === 'pending') return <Tag icon={<LoadingOutlined />} color="processing">กำลังทำ</Tag>;
-                                                            if (status === 'success') return <Tag icon={<CheckCircleOutlined />} color="success">สำเร็จ</Tag>;
-                                                            return <Tag icon={<CloseCircleOutlined />} color="error">ล้มเหลว</Tag>;
-                                                        }},
-                                                    {title: 'ข้อความ', dataIndex: 'message', key: 'message', render: (text: any) => text || '-'},
-                                                    {title: 'สรุป', dataIndex: 'summary', key: 'summary', render: (md: any) => md ? <div style={{maxHeight: 160, overflow: 'auto'}} dangerouslySetInnerHTML={{__html: md}} /> : '-'},
-                                                    {title: 'การกระทำ', key: 'action', width: 140, render: (_: any, row: any) => {
-                                                            const hasFailed = row.status === 'error';
-                                                            return (
-                                                                <Space>
-                                                                    {hasFailed && <Button size="small" onClick={async () => {
-                                                                        // find payload
-                                                                        const payloads = perIssuePayloadsRef.current || [];
-                                                                        const payload = payloads.find(p => String(p.issueKeyOrId) === String(row.issueKeyOrId));
-                                                                        if (!payload) return;
-                                                                        // mark pending (use string compare)
-                                                                        setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(row.issueKeyOrId) ? {...r, status: 'pending', message: undefined} : r));
-                                                                        // re-run single
-                                                                        const selectedIssueMap = new Map(
-                                                                            issues.map((issueItem) => [issueItem.issueKey || String(issueItem.id), issueItem])
-                                                                        );
-                                                                        await processSingle(payload, selectedIssueMap);
-                                                                        // after retry, if success, re-submit that single update
-                                                                        const entries = [payload].filter(p => Object.keys(p.updates || {}).length > 0);
-                                                                        if (entries.length) {
-                                                                            await axios.post("/api/v1/backlog/issues/bulk-update", {space, entries});
-                                                                        }
-                                                                    }}>Retry</Button>}
-                                                                </Space>
-                                                            );
-                                                        }}
-                                                ]}
-                                            />
-                                        </div>
-                                        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 12}}>
-                                            <div>
-                                                <Button
-                                                    type="default"
-                                                    onClick={async () => {
-                                                        // Retry all failed
-                                                        const failedRows = processingResults.filter(r => r.status === 'error');
-                                                        if (!failedRows.length) return;
-                                                        const payloads = perIssuePayloadsRef.current || [];
-                                                        const targets = failedRows.map(fr => payloads.find(p => String(p.issueKeyOrId) === String(fr.issueKeyOrId))).filter(Boolean) as any[];
-                                                        if (!targets.length) return;
-                                                        // mark all failed as pending so UI updates immediately
-                                                        const failedIds = failedRows.map(fr => String(fr.issueKeyOrId));
-                                                        setProcessingResults(prev => prev.map(r => failedIds.includes(String(r.issueKeyOrId)) ? {...r, status: 'pending', message: undefined} : r));
-
-                                                        // run with concurrency
-                                                        const concurrency = 4;
-                                                        let idx = 0;
-                                                        const runners = Array.from({length: concurrency}).map(async () => {
-                                                            while (true) {
-                                                                const i = idx++;
-                                                                if (i >= targets.length) break;
-                                                                await processSingle(targets[i], new Map(issues.map(issueItem => [issueItem.issueKey || String(issueItem.id), issueItem])));
-                                                            }
-                                                        });
-                                                        await Promise.all(runners);
-                                                        // After retries, submit any newly successful entries
-                                                        const entries = (perIssuePayloadsRef.current || []).filter(p => p.updates && p.updates.description);
-                                                        if (entries.length) await axios.post("/api/v1/backlog/issues/bulk-update", {space, entries});
-                                                        toast.success('Retry เสร็จสิ้น: Retry ดำเนินการเสร็จแล้ว');
-                                                    }}
-                                                >Retry Failed</Button>
+                                        <div style={{padding: 16}}>
+                                            <div style={{display: "flex", justifyContent: "space-between", marginBottom: 10}}>
+                                                <Space size={8}>
+                                                    <Tag color="blue" bordered={false}>AI SUMMARY</Tag>
+                                                    <Tag color="geekblue" bordered={false}>MD</Tag>
+                                                </Space>
+                                                <Space>
+                                                    <Button
+                                                        type="text"
+                                                        icon={<ReloadOutlined/>}
+                                                        onClick={() => setResultsModalVisible(false)}
+                                                    >
+                                                        ปิด/เปิดใหม่
+                                                    </Button>
+                                                </Space>
                                             </div>
-                                            <div>
-                                                <Button style={{marginRight: 8}} onClick={() => setResultsModalVisible(false)}>Close</Button>
-                                                <Button type="primary" loading={saving} disabled={saving} onClick={async () => {
-                                                    // Save all successful summaries
-                                                    const entries = (perIssuePayloadsRef.current || []).filter(p => p.updates && p.updates.description);
-                                                    if (!entries.length) {
-                                                        toast.error('ไม่มีรายการบันทึก: ไม่มีสรุปที่สำเร็จเพื่อบันทึก');
-                                                        return;
-                                                    }
-                                                    setSaving(true);
-                                                    const toastId = toast.loading(`กำลังบันทึก ${entries.length} รายการ...`);
-                                                    try {
-                                                        await axios.post("/api/v1/backlog/issues/bulk-update", {space, entries});
-                                                        toast.success(`บันทึกสำเร็จ: บันทึก ${entries.length} รายการเรียบร้อย`, {id: toastId});
-                                                        setResultsModalVisible(false);
-                                                    } catch (err: any) {
-                                                        toast.error(err?.message || 'เกิดข้อผิดพลาด', {id: toastId});
-                                                    } finally {
-                                                        setSaving(false);
-                                                    }
-                                                }}>Save Successful</Button>
+                                            <div style={{maxHeight: "60vh", overflow: "auto"}}>
+                                                <Table
+                                                    dataSource={processingResults}
+                                                    rowKey={(r) => String(r.issueKeyOrId)}
+                                                    pagination={false}
+                                                    scroll={{ y: 420 }}
+                                                    columns={[
+                                                        {title: 'งาน', dataIndex: 'title', key: 'title', width: 240},
+                                                        {title: 'สถานะ', dataIndex: 'status', key: 'status', width: 120, render: (status: any) => {
+                                                                if (status === 'pending') return <Tag icon={<LoadingOutlined />} color="processing">กำลังทำ</Tag>;
+                                                                if (status === 'success') return <Tag icon={<CheckCircleOutlined />} color="success">สำเร็จ</Tag>;
+                                                                return <Tag icon={<CloseCircleOutlined />} color="error">ล้มเหลว</Tag>;
+                                                            }},
+                                                        {title: 'ข้อความ', dataIndex: 'message', key: 'message', render: (text: any) => text || '-'},
+                                                        {title: 'สรุป', dataIndex: 'summary', key: 'summary', render: (md: any) => md ? <div style={{maxHeight: 160, overflow: 'auto'}} dangerouslySetInnerHTML={{__html: md}} /> : '-'},
+                                                        {title: 'การกระทำ', key: 'action', width: 140, render: (_: any, row: any) => {
+                                                                const hasFailed = row.status === 'error';
+                                                                return (
+                                                                    <Space>
+                                                                        {hasFailed && <Button size="small" type="link" onClick={async () => {
+                                                                            const payloads = perIssuePayloadsRef.current || [];
+                                                                            const payload = payloads.find(p => String(p.issueKeyOrId) === String(row.issueKeyOrId));
+                                                                            if (!payload) return;
+                                                                            setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(row.issueKeyOrId) ? {...r, status: 'pending', message: undefined} : r));
+                                                                            const selectedIssueMap = new Map(
+                                                                                issues.map((issueItem) => [issueItem.issueKey || String(issueItem.id), issueItem])
+                                                                            );
+                                                                            await processSingle(payload, selectedIssueMap);
+                                                                            const entries = [payload].filter(p => Object.keys(p.updates || {}).length > 0);
+                                                                            if (entries.length) {
+                                                                                await axios.post("/api/v1/backlog/issues/bulk-update", {space, entries});
+                                                                            }
+                                                                        }}>Retry</Button>}
+                                                                    </Space>
+                                                                );
+                                                            }}
+                                                    ]}
+                                                />
+                                            </div>
+                                            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 12}}>
+                                                <div>
+                                                    <Button
+                                                        type="default"
+                                                        onClick={async () => {
+                                                            const failedRows = processingResults.filter(r => r.status === 'error');
+                                                            if (!failedRows.length) return;
+                                                            const payloads = perIssuePayloadsRef.current || [];
+                                                            const targets = failedRows.map(fr => payloads.find(p => String(p.issueKeyOrId) === String(fr.issueKeyOrId))).filter(Boolean) as any[];
+                                                            if (!targets.length) return;
+                                                            const failedIds = failedRows.map(fr => String(fr.issueKeyOrId));
+                                                            setProcessingResults(prev => prev.map(r => failedIds.includes(String(r.issueKeyOrId)) ? {...r, status: 'pending', message: undefined} : r));
+                                                            const concurrency = 4;
+                                                            let idx = 0;
+                                                            const runners = Array.from({length: concurrency}).map(async () => {
+                                                                while (true) {
+                                                                    const i = idx++;
+                                                                    if (i >= targets.length) break;
+                                                                    await processSingle(targets[i], new Map(issues.map(issueItem => [issueItem.issueKey || String(issueItem.id), issueItem])));
+                                                                }
+                                                            });
+                                                            await Promise.all(runners);
+                                                            const entries = (perIssuePayloadsRef.current || []).filter(p => p.updates && p.updates.description);
+                                                            if (entries.length) await axios.post("/api/v1/backlog/issues/bulk-update", {space, entries});
+                                                            toast.success('Retry เสร็จสิ้น: Retry ดำเนินการเสร็จแล้ว');
+                                                        }}
+                                                    >Retry Failed</Button>
+                                                </div>
+                                                <div>
+                                                    <Space>
+                                                        <Button onClick={() => setResultsModalVisible(false)}>Close</Button>
+                                                        <Button type="primary" loading={saving} disabled={saving} onClick={async () => {
+                                                            const entries = (perIssuePayloadsRef.current || []).filter(p => p.updates && p.updates.description);
+                                                            if (!entries.length) {
+                                                                toast.error('ไม่มีรายการบันทึก: ไม่มีสรุปที่สำเร็จเพื่อบันทึก');
+                                                                return;
+                                                            }
+                                                            setSaving(true);
+                                                            const toastId = toast.loading(`กำลังบันทึก ${entries.length} รายการ...`);
+                                                            try {
+                                                                await axios.post("/api/v1/backlog/issues/bulk-update", {space, entries});
+                                                                toast.success(`บันทึกสำเร็จ: บันทึก ${entries.length} รายการเรียบร้อย`, {id: toastId});
+                                                                setResultsModalVisible(false);
+                                                            } catch (err: any) {
+                                                                toast.error(err?.message || 'เกิดข้อผิดพลาด', {id: toastId});
+                                                            } finally {
+                                                                setSaving(false);
+                                                            }
+                                                        }}>Save Successful</Button>
+                                                    </Space>
+                                                </div>
                                             </div>
                                         </div>
                                     </Modal>
                                 </Space>
-                            ),
-                        },
-                        {
-                            key: "manual",
-                            label: "อัปเดตแบบกลุ่ม",
-                            children: (
-                                <BulkUpdatePanel
-                                    autoCategoryEnabled={false}
-                                    autoCategoryLoading={false}
-                                    autoAiDescriptionEnabled={false}
-                                    bulkCategoryIds={bulkCategoryIds}
-                                    bulkDueDate={bulkDueDate}
-                                    bulkMilestoneIds={bulkMilestoneIds}
-                                    bulkPriorityId={bulkPriorityId}
-                                    bulkStartDate={bulkStartDate}
-                                    bulkStatusId={bulkStatusId}
-                                    bulkUpdating={bulkUpdating}
-                                    categoryOptions={categoryOptions}
-                                    milestoneOptions={milestoneOptions}
-                                    onAutoCategoryChange={handleAutoCategoryToggle}
-                                    onAutoAiDescriptionChange={handleAutoDescriptionToggle}
-                                    onCategoryChange={(values) =>
-                                        setBulkCategoryIds(
-                                            values && values.length ? values : []
-                                        )
-                                    }
-                                    onClear={clearBulkForm}
-                                    onDueDateChange={(value) =>
-                                        setBulkDueDate(value ?? null)
-                                    }
-                                    onManageMilestone={() => {
-                                        router.push(
-                                            `/backlogs/projects/${projectId}/milestones?space=${encodeURIComponent(
-                                                space
-                                            )}&name=${encodeURIComponent(projectName)}`
-                                        );
-                                    }}
-                                    onMilestoneChange={(values) =>
-                                        setBulkMilestoneIds(
-                                            values && values.length ? values : []
-                                        )
-                                    }
-                                    onPriorityChange={(value) => setBulkPriorityId(value)}
-                                    onStartDateChange={(value) =>
-                                        setBulkStartDate(value ?? null)
-                                    }
-                                    onStatusChange={(value) => setBulkStatusId(value)}
-                                    onSubmit={handleBulkUpdate}
-                                    priorityOptions={priorityOptions}
-                                    selectedCount={selectedRowKeys.length}
-                                    statusOptions={statusOptions}
-                                    submitDisabled={
-                                        !selectedRowKeys.length ||
-                                        !hasBulkUpdates ||
-                                        bulkUpdating
-                                    }
-                                    showAutoCategoryToggle={false}
-                                />
                             ),
                         },
                     ]}
@@ -543,4 +523,3 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 };
 
 export default BulkUpdateSection;
-

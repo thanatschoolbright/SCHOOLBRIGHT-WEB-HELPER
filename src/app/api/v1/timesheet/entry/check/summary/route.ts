@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { Service } from "@/services/backend/timesheet/entry.service";
-import axios from "axios"
+import axios from "axios";
 import { API_URL } from "@services/api-url";
 import { z } from "zod";
 
-const TARGET_POSITIONS = new Set(["developer", "tester"]);
+const TARGET_POSITIONS = new Set([
+  "developer",
+  "tester",
+  "business development",
+  "admin",
+  "business analyst",
+]);
 const WORKING_HOURS_PER_DAY = 8;
 const WEEKDAY_LABEL_TH = [
   "อาทิตย์",
