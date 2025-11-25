@@ -1,25 +1,88 @@
 {
-  "testing": "Testing",
-  "automated_testing": "Automated Testing",
-  "load_testing": "Load Testing",
-  "support": "Support",
-  "bypass_school": "Bypass School",
-  "test_nfc_card": "Test NFC Card (Vimal)",
-  "cancel_sales": "Cancel Sales Over 7 Days",
-  "upload_student_migration": "Upload Student Migration (User Balance)",
-  "health_check": "System Health Check",
-  "version_control": "System Version Control",
-  "all_server_status": "All System Status Report",
-  "online_status": "Online System Connection Report",
-  "offline_sync_status": "Latest Offline Sync Report",
-  "mobile_app": "Mobile Application",
-  "app_notification": "App Notification",
-  "leave_letter": "Leave Letter",
-  "app_hardware": "Hardware App",
-  "app_canteen": "Canteen App",
-  "statistics": "Attendance Statistics",
-  "qrcode_health_check": "QR Code Health Check",
-  "app_control": "App Control",
-  "sheets": "Sheets",
-  "project_planning": "Project Planning"
+  "admin_system": {
+    "title": "Admin System",
+    "children": {
+      "user_profile": "User Profile",
+      "user_management": "User Management",
+      "role_management": "Role Management",
+      "system_log": "System Logs"
+    }
+  },
+  "testing": {
+    "title": "Testing",
+    "children": {
+      "automated_testing": "Automated Testing",
+      "load_testing": "Load Testing"
+    }
+  },
+  "support": {
+    "title": "Support",
+    "children": {
+      "bypass_school": "Bypass School",
+      "test_nfc_card": "NFC Test (Vimal)",
+      "cancel_sales": "Cancel Sales > 7 Days",
+      "upload_student_migration": "Upload Student Migration (User Balance)"
+    }
+  },
+  "health_check": {
+    "title": "System Health Check",
+    "children": {
+      "version_control": "Check All System Versions",
+      "all_server_status": "All Server Status Report",
+      "online_status": "Online Connection Report",
+      "offline_sync_status": "Offline Sync Status",
+      "transaction_log": "School Transaction Logs",
+      "heartbeats": "Bot Heartbeat Monitoring"
+    }
+  },
+  "mobile_app": {
+    "title": "Mobile Application",
+    "children": {
+      "app_notification": "In-app Notifications",
+      "leave_letter": "Leave Letter",
+      "statistics": "Attendance Statistics",
+      "qrcode_health_check": "QR Code Health Check",
+      "mobile_notification": "Mobile App Notification",
+      "mobile_leave_letter": "Mobile Leave Letter",
+      "mobile_check_attendance": "Attendance Report / Morning Check-in"
+    }
+  },
+  "app_hardware": {
+    "title": "App Hardware",
+    "children": {
+      "app_canteen": "Canteen App",
+      "app_control": "App Control"
+    }
+  },
+  "timesheet_system": {
+    "title": "Timesheet System",
+    "children": {
+      "project": "Project Management",
+      "entry": "Work Time Entry",
+      "sub_project": "Sub-Projects",
+      "all": "All Reports",
+      "overtime": "Overtime System",
+      "timeline": "Project Timeline"
+    }
+  },
+  "backlogs": {
+    "title": "Backlog System",
+    "children": {
+      "report": "Reports"
+    }
+  },
+  "logger": {
+    "title": "API Logger",
+    "children": {
+      "api_logs": "API Logs"
+    }
+  },
+  "sheets": {
+    "title": "Sheets",
+    "children": {
+      "project_planning": "Project Planning",
+      "project_training": "New Employee Training Plan",
+      "project_release_note": "System Release/Note Plan"
+    }
+  }
 }
