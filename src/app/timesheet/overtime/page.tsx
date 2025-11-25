@@ -896,7 +896,9 @@ export default function OvertimeManagementPage() {
                     onChange={(val) =>
                       handleTableChange(
                         { current: 1, pageSize: paginationState.pageSize },
-                        { status: val ? [val] : [] }
+                        { status: val ? [val] : [] },
+                        undefined as any,
+                        undefined as any
                       )
                     }
                   />

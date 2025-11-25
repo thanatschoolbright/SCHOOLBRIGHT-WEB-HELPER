@@ -10,9 +10,9 @@ import {
   Avatar,
   Progress,
   theme,
+  InputRef,
 } from "antd";
-import type { ColumnsType as AntColumnsType, TableProps, InputRef } from "antd";
-import type { ColumnType } from "antd/es/table";
+import type { ColumnProps, ColumnType } from "antd/es/table";
 import {
   EditOutlined,
   CopyOutlined,
@@ -37,6 +37,7 @@ import {
   stringToColor,
   getStatusConfig,
 } from "../utils/timesheet-entry.helpers";
+import { TableProps } from "antd/lib";
 
 interface TimesheetTableProps {
   entries: TimesheetEntry[];
@@ -135,7 +136,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
     [token.colorPrimary, t]
   );
 
-  const columns = useMemo<AntColumnsType<TimesheetEntry>>(
+  const columns = useMemo<any>(
     () => [
       {
         title: t("timesheet_entry_page.table_date"),

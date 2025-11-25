@@ -21,10 +21,8 @@ import {
   POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK,
   POST_EXPORT_AUDIT_REPORT,
 } from "@services/timesheet/timesheet-all.service";
-import type {
-  TimesheetExportData,
-  ProjectExportData,
-} from "@services/timesheet/timesheet-all.service";
+import type { ProjectExportData } from "@services/timesheet/timesheet-all.service";
+import type { TimesheetExportData } from "@/types/timesheet-table.types";
 import type { TimesheetEntry } from "@/types/timesheet-table.types";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 
