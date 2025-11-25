@@ -555,6 +555,7 @@ export interface UserProfile {
   tel: string;
   username: string;
   lastname?: string;
+  backlog_email?: string;
   firstname?: string;
   position: string;
   nickname?: string;
