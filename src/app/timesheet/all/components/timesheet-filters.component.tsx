@@ -53,8 +53,7 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
       <Card
         className="mb-6 rounded-xl shadow-md border-0"
         style={{
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,1) 100%)",
+         
           backdropFilter: "blur(10px)",
         }}
       >

@@ -164,11 +164,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         loading={loading}
         onChange={handleTableChange}
         className="timesheet-table"
-        rowClassName={(_, index) =>
-          index % 2 === 0
-            ? "bg-white hover:bg-blue-50 transition-colors duration-200"
-            : "bg-gray-50 hover:bg-blue-50 transition-colors duration-200"
-        }
+        
         expandable={{
           expandedRowRender: (record) => (
             <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">

@@ -90,10 +90,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
         <Col key={index} xs={24} sm={12} lg={6}>
           <Card
             className="rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border-0"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)",
-            }}
+            
           >
             <Space align="center" size="middle">
               <div
