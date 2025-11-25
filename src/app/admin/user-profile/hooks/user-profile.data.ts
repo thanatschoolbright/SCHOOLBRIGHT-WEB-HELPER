@@ -81,16 +81,38 @@ export const useUserProfileData = (
 
   const fetchUserDetail = useCallback(
     async (userId: string | number) => {
+      if (!userId) {
+        setSelectedUser(null);
+        return;
+      }
+
       try {
         const response = await axios.get(`/api/v1/admin/user/read/${userId}`);
-        const result: UserProfile | undefined = response?.data?.data?.[0];
+        const payload: UserProfile[] = response?.data?.data ?? [];
+        console.debug("fetchUserDetail: requested", userId, "payload length", payload?.length);
+        let result: UserProfile | undefined;
+        if (Array.isArray(payload)) {
+          result = payload.find((u) =>
+            String(u.admin_id) === String(userId) || String((u as any).id) === String(userId) || String(u.email) === String(userId)
+          );
+          // fallback to first item if only one returned
+          if (!result && payload.length === 1) result = payload[0];
+        } else {
+          result = payload as unknown as UserProfile;
+        }
+
         if (result) {
+          console.debug("fetchUserDetail: matched user", result?.admin_id ?? result?.id ?? result?.email);
           setSelectedUser(result);
           setHasError(false);
+        } else {
+          console.debug("fetchUserDetail: no match, keeping current selectedUser");
+          // keep current selectedUser (do not overwrite) when API doesn't return matching user
         }
       } catch (error) {
         showErrorModal(translation, "user_profile_page.error_load_user_detail", error);
         setHasError(true);
+        // do not clear selectedUser on error to avoid losing clicked item
       }
     },
     [translation]
@@ -143,8 +165,14 @@ export const useUserProfileData = (
   };
 
   const openEditModal = async (user: UserProfile) => {
+    // Set clicked user immediately to avoid showing stale data in modal
+    setSelectedUser(user);
     setModalState({ type: "edit" });
-    await fetchUserDetail(user.admin_id);
+
+    // If we have a definitive admin_id, try to fetch latest details from API
+    if (user.admin_id) {
+      await fetchUserDetail(user.admin_id);
+    }
   };
 
   const openDeleteModal = (id: number) => {

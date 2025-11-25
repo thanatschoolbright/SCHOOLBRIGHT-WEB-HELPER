@@ -65,8 +65,12 @@ export default function Page() {
           {/* Filters */}
           <Filters
             title={TRANSLATION("user_profile_page.filter_title")}
-            searchPlaceholder={TRANSLATION("user_profile_page.search_placeholder")}
-            positionPlaceholder={TRANSLATION("user_profile_page.position_placeholder")}
+            searchPlaceholder={TRANSLATION(
+              "user_profile_page.search_placeholder"
+            )}
+            positionPlaceholder={TRANSLATION(
+              "user_profile_page.position_placeholder"
+            )}
             dateRangeLabel={TRANSLATION("user_profile_page.date_range_label")}
             resetLabel={TRANSLATION("user_profile_page.reset_filters")}
             filters={filters}
@@ -107,7 +111,11 @@ export default function Page() {
               <Skeleton active paragraph={{ rows: 8 }} />
             ) : filteredUsers.length === 0 ? (
               <EmptyState
-                title={hasError ? TRANSLATION("user_profile_page.error_title") : TRANSLATION("user_profile_page.empty_title")}
+                title={
+                  hasError
+                    ? TRANSLATION("user_profile_page.error_title")
+                    : TRANSLATION("user_profile_page.empty_title")
+                }
                 description={
                   hasError
                     ? TRANSLATION("user_profile_page.error_description")
@@ -129,7 +137,9 @@ export default function Page() {
                   position: TRANSLATION("user_profile_page.table_position"),
                   phone: TRANSLATION("user_profile_page.table_phone"),
                   actions: TRANSLATION("user_profile_page.table_actions"),
-                  employeeCode: TRANSLATION("user_profile_page.table_employee_code"),
+                  employeeCode: TRANSLATION(
+                    "user_profile_page.table_employee_code"
+                  ),
                   empty: TRANSLATION("user_profile_page.empty_description"),
                   edit: TRANSLATION("user_profile_page.edit_action"),
                   delete: TRANSLATION("user_profile_page.delete_action"),

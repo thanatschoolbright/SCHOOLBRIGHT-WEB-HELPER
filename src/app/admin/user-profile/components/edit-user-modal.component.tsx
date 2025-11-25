@@ -43,6 +43,7 @@ export const EditUserModal = ({
   const [form] = Form.useForm<EditFormValues>();
 
   useEffect(() => {
+   console.info("user", user);
     if (open && user) {
       form.setFieldsValue({
         admin_id: user.admin_id,

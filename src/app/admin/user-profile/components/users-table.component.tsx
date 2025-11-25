@@ -85,7 +85,9 @@ export const UsersTable = ({
       render: (_value, record) => (
         <Space>
           <Avatar className="bg-indigo-500">
-            {(record.firstname ?? record.lastname ?? "U").charAt(0).toUpperCase()}
+            {(record.firstname ?? record.lastname ?? "U")
+              .charAt(0)
+              .toUpperCase()}
           </Avatar>
           <Typography.Text strong>
             {record.firstname} {record.lastname}
@@ -107,7 +109,10 @@ export const UsersTable = ({
       title: titles.position,
       dataIndex: "position",
       render: (value: string | undefined) => (
-        <Tag color={getPositionTagColor(value)} className="px-3 py-1 font-medium">
+        <Tag
+          color={getPositionTagColor(value)}
+          className="px-3 py-1 font-medium"
+        >
           {value || "-"}
         </Tag>
       ),
@@ -135,7 +140,12 @@ export const UsersTable = ({
       render: (_value, record) => (
         <Space>
           <Tooltip title={titles.edit}>
-            <Button type="primary" ghost icon={<EditOutlined />} onClick={() => onEdit(record)} />
+            <Button
+              type="primary"
+              ghost
+              icon={<EditOutlined />}
+              onClick={() => onEdit(record)}
+            />
           </Tooltip>
           <Tooltip title={titles.delete}>
             <Button
@@ -146,7 +156,11 @@ export const UsersTable = ({
             />
           </Tooltip>
           <Tooltip title={titles.copy}>
-            <Button type="default" icon={<MailOutlined />} onClick={() => onCopy(record)} />
+            <Button
+              type="default"
+              icon={<MailOutlined />}
+              onClick={() => onCopy(record)}
+            />
           </Tooltip>
         </Space>
       ),
@@ -159,7 +173,9 @@ export const UsersTable = ({
       dataSource={data}
       loading={loading}
       rowKey={(record) =>
-        record.admin_id ? `user-${record.admin_id}` : `user-${record.id ?? record.email}`
+        record.admin_id
+          ? `user-${record.admin_id}`
+          : `user-${record.id ?? record.email}`
       }
       pagination={{
         pageSize,
