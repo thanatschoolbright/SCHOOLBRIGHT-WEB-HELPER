@@ -46,6 +46,16 @@ const PRINT_STYLES = `
     body * { visibility: hidden; }
     .ot-print, .ot-print * { visibility: visible; }
     .ot-print { position: absolute; left: 0; top: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    /* Show full descriptions when printing (disable screen-only ellipsis) */
+    .ot-print .ot-desc {
+      display: block !important;
+      -webkit-line-clamp: unset !important;
+      -webkit-box-orient: unset !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+    }
   }
 `;
 
@@ -397,7 +407,39 @@ export default function OTPreviewPage() {
                               : "-"}
                           </td>
                           <td style={{ border: "1px solid #000", padding: 8 }}>
-                            {row?.description ?? "-"}
+                            {row?.description ? (
+                              <div
+                                className="ot-desc"
+                                style={{
+                                  maxWidth: "100%",
+                                  overflowWrap: "anywhere",
+                                  wordBreak: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                  // Ensure content can expand vertically but won't force container wider
+                                  display: "block",
+                                }}
+                              >
+                                {/^https?:\/\//.test(
+                                  String(row.description)
+                                ) ? (
+                                  <a
+                                    href={String(row.description)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    style={{
+                                      color: "#096dd9",
+                                      textDecoration: "underline",
+                                    }}
+                                  >
+                                    {String(row.description)}
+                                  </a>
+                                ) : (
+                                  String(row.description)
+                                )}
+                              </div>
+                            ) : (
+                              "-"
+                            )}
                           </td>
                           <td
                             style={{
@@ -538,7 +580,38 @@ export default function OTPreviewPage() {
                               : "-"}
                           </td>
                           <td style={{ border: "1px solid #000", padding: 8 }}>
-                            {row?.description ?? "-"}
+                            {row?.description ? (
+                              <div
+                                className="ot-desc"
+                                style={{
+                                  maxWidth: "100%",
+                                  overflowWrap: "anywhere",
+                                  wordBreak: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                  display: "block",
+                                }}
+                              >
+                                {/^https?:\/\//.test(
+                                  String(row.description)
+                                ) ? (
+                                  <a
+                                    href={String(row.description)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    style={{
+                                      color: "#096dd9",
+                                      textDecoration: "underline",
+                                    }}
+                                  >
+                                    {String(row.description)}
+                                  </a>
+                                ) : (
+                                  String(row.description)
+                                )}
+                              </div>
+                            ) : (
+                              "-"
+                            )}
                           </td>
                           <td
                             style={{
