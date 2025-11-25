@@ -445,7 +445,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         
         expandable={{
           expandedRowRender: (record) => (
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+            <div className="p-4  from-blue-50 to-indigo-50 rounded-lg">
               <Typography.Text strong className="block mb-2">
                 {t("timesheet_page.breakdown_title")}
               </Typography.Text>
