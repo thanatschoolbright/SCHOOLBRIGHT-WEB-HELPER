@@ -1,12 +1,15 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import DashboardLayout from "@components/layouts/backend-layout";
+
+import React, { useEffect, useState, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
 import dayjs from "dayjs";
+import { toast } from "sonner";
 import {
   Button,
   Card,
   Col,
   DatePicker,
+  Divider,
   Dropdown,
   Form,
   Input,
@@ -15,49 +18,59 @@ import {
   Select,
   Skeleton,
   Space,
-  Table,
-  Typography,
-  Badge,
-  Breadcrumb,
   Statistic,
-  Progress,
+  Table,
   Tag,
   Tooltip,
+  Typography,
+  Badge,
+  Progress,
   Avatar,
-  Divider,
+  theme,
+  Empty,
 } from "antd";
 import {
-  HomeOutlined,
-  ProjectOutlined,
-  ClockCircleOutlined,
-  CheckCircleOutlined,
-  SyncOutlined,
-  FileTextOutlined,
-  LinkOutlined,
-  PlusOutlined,
   ArrowLeftOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
   DeleteOutlined,
   EditOutlined,
+  FileTextOutlined,
   InfoCircleOutlined,
-  CalendarOutlined,
+  LinkOutlined,
+  PlusOutlined,
+  ProjectOutlined,
+  SyncOutlined,
+  SearchOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
-import { useAppSelector } from "@stores/store";
-import { toast } from "sonner";
-import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
-import { useParams, useRouter } from "next/navigation";
-import { Project, SubProject, SubProjectForm } from "@stores/type";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
 
-const assetOption = [
-  { value: "CAPTUREABLE", label: "สามารถแคปทรัพย์สินได้" },
+import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
+import { useAppSelector } from "@stores/store";
+import { Project, SubProject, SubProjectForm } from "@stores/type";
+
+// * ----------------------------------------------------------------------
+// * Constants & Helpers
+// * ----------------------------------------------------------------------
+
+const { RangePicker } = DatePicker;
+const { Title, Text, Paragraph } = Typography;
+const { useToken } = theme;
+
+const ASSET_OPTIONS = [
+  { value: "CAPTUREABLE", label: "สามารถแคปทรัพย์สินได้", color: "cyan" },
   {
     value: "UN_CAPTUREABLE",
     label: "ไม่สามารถแคปทรัพย์สินได้",
+    color: "orange",
   },
 ];
 
-// Compute estimated hours between two dates (inclusive), counting only weekdays (Mon-Fri).
-// Each working day counts as 8 hours.
+/**
+ * * Helper: Compute estimated hours (Mon-Fri, 8 hours/day)
+ */
 const computeEstimateHours = (
   startDate: any,
   endDate: any
@@ -84,70 +97,184 @@ const computeEstimateHours = (
   }
 
   const hours = workingDays * 8;
-  const result = { hours, text: `${hours} ชั่วโมง` };
-  return result;
+  return { hours, text: `${hours} ชั่วโมง` };
 };
 
-// Determine project status (badge text and badge type) based on start/end vs today
+/**
+ * * Helper: Determine project status based on dates
+ */
 const getProjectStatus = (
   startDate: any,
   endDate: any
-): { statusText: string; badgeStatus: "processing" | "default" } => {
+): {
+  statusText: string;
+  badgeStatus: "processing" | "default" | "success" | "error";
+} => {
   const today = dayjs().startOf("day");
   const s = startDate ? dayjs(startDate).startOf("day") : null;
   const e = endDate ? dayjs(endDate).startOf("day") : null;
 
-  let statusText = "ยังไม่ได้กำหนดวันที่";
-  let badgeStatus: "processing" | "default" = "default";
-
   if (s && e && s.isValid() && e.isValid()) {
     if (!s.isAfter(e) && !today.isBefore(s) && !today.isAfter(e)) {
-      statusText = "กำลังดำเนินการ";
-      badgeStatus = "processing";
+      return { statusText: "กำลังดำเนินการ", badgeStatus: "processing" };
     } else if (today.isAfter(e)) {
-      statusText = "สิ้นสุดแล้ว";
-      badgeStatus = "default";
+      return { statusText: "สิ้นสุดแล้ว", badgeStatus: "success" }; // Changed to success for completed
     } else {
-      statusText = "ยังไม่เริ่ม";
-      badgeStatus = "default";
+      return { statusText: "ยังไม่เริ่ม", badgeStatus: "default" };
     }
   }
-
-  return { statusText, badgeStatus };
+  return { statusText: "ยังไม่ได้กำหนดวันที่", badgeStatus: "default" };
 };
 
-export default function Page() {
-  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
+// * ----------------------------------------------------------------------
+// * Sub-Components (Enterprise Level Extraction)
+// * ----------------------------------------------------------------------
 
-  const { project_id } = useParams() as { project_id: string };
+/**
+ * * Component: StatCard
+ * * Displays a single statistic with an icon and hover effect.
+ */
+const StatCard = ({
+  title,
+  value,
+  icon,
+  color,
+  suffix,
+  loading,
+}: {
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
+  color: string;
+  suffix?: string;
+  loading?: boolean;
+}) => {
+  const { token } = useToken();
+  return (
+    <Card
+      bordered={false}
+      className="shadow-sm hover:shadow-md transition-all duration-300"
+      style={{ borderRadius: token.borderRadiusLG, height: "100%" }}
+    >
+      <Skeleton loading={loading} active paragraph={{ rows: 1 }}>
+        <Statistic
+          title={<Text type="secondary">{title}</Text>}
+          value={value}
+          prefix={
+            <span style={{ color, marginRight: 8, fontSize: 20 }}>{icon}</span>
+          }
+          suffix={
+            suffix && (
+              <span style={{ fontSize: 14, color: "#999" }}>{suffix}</span>
+            )
+          }
+          valueStyle={{ fontWeight: 700, color: token.colorTextHeading }}
+        />
+      </Skeleton>
+    </Card>
+  );
+};
 
+// * ----------------------------------------------------------------------
+// * Main Page Component
+// * ----------------------------------------------------------------------
+
+export default function SubProjectPage() {
+  // * Hooks
+  const { token } = useToken();
   const router = useRouter();
+  const { project_id } = useParams() as { project_id: string };
+  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
+  const [antdForm] = Form.useForm();
+  const watchedDateRange = Form.useWatch("dateRange", antdForm);
+
+  // * State
   const [subProjects, setSubProjects] = useState<SubProject[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [form, setForm] = useState<
-    SubProjectForm & { confirmText?: string; backlogDescription?: any }
+  const [loading, setLoading] = useState<boolean>(true);
+  const [actionLoading, setActionLoading] = useState<boolean>(false);
+
+  // * Pagination State
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const pageSize = 10;
+
+  // * Modal State
+  const [modalType, setModalType] = useState<
+    "create" | "edit" | "delete" | "detail" | null
+  >(null);
+  const [selectedProject, setSelectedProject] = useState<SubProject | null>(
+    null
+  );
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  // * Form State
+  const [formData, setFormData] = useState<
+    SubProjectForm & { backlogDescription?: any }
   >({
     name: "",
     by: AUTHENTICATION.response.data.user_data.admin_id,
-    confirmText: "",
     project_id: Number(project_id),
     backlogDescription: null,
     dateRange: ["", ""],
   });
-  const [antdForm] = Form.useForm();
-  const watchedDateRange = Form.useWatch("dateRange", antdForm);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [actionLoading, setActionLoading] = useState<boolean>(false);
-  const [modal, setModal] = useState<string>(""); // replaced modalOpen and deleteModalOpen
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [detailProject, setDetailProject] = useState<SubProject | null>(null);
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [total_pages, settotal_pages] = useState<number>(1);
-  const limit = 10;
+  // * ----------------------------------------------------------------------
+  // * Data Fetching
+  // * ----------------------------------------------------------------------
 
-  // Calculate Statistics
-  const stats = React.useMemo(() => {
+  const fetchSubProjects = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/v1/timesheet/project/sub-project/read/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          limit: pageSize,
+          page: currentPage,
+          project_id: Number(project_id),
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to fetch sub-projects");
+      const data = await res.json();
+      setSubProjects(data?.data || []);
+      setTotalPages(data.pagination?.total_pages || 1);
+    } catch (error) {
+      console.error(error);
+      toast.error("โหลดข้อมูลล้มเหลว");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProjectDetails = async () => {
+    try {
+      const res = await fetch("/api/v1/timesheet/project/read/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: 1, page: 1, id: Number(project_id) }),
+      });
+      if (!res.ok) throw new Error("Failed to fetch project details");
+      const data = await res.json();
+      setProjects(data.data.items || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubProjects();
+  }, [currentPage]);
+
+  useEffect(() => {
+    fetchProjectDetails();
+  }, []);
+
+  // * ----------------------------------------------------------------------
+  // * Computed Values (Statistics)
+  // * ----------------------------------------------------------------------
+
+  const stats = useMemo(() => {
     const total = subProjects.length;
     const processing = subProjects.filter((p) => {
       const { badgeStatus } = getProjectStatus(p.startDate, p.endDate);
@@ -166,724 +293,501 @@ export default function Page() {
     return { total, processing, completed, totalHours };
   }, [subProjects]);
 
-  const fetchSubProjects = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/v1/timesheet/project/sub-project/read/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          limit,
-          page: currentPage,
-          project_id: Number(project_id),
-        }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch projects");
-      }
-      const data = await res.json();
-      console.log("Fetched projects:", data);
-      setSubProjects(data?.data || []);
-      settotal_pages(data.pagination?.total_pages || 1);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-      setSubProjects([]);
-      toast.error("โหลดโปรเจคล้มเหลว", { duration: 5000 });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // * ----------------------------------------------------------------------
+  // * Event Handlers
+  // * ----------------------------------------------------------------------
 
-  const fetchProjectsById = async (project_id: string | number) => {
-    setLoading(true);
+  const handleCreateOrUpdate = async () => {
     try {
-      const res = await fetch("/api/v1/timesheet/project/read/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          limit: 10,
-          page: 1,
-          id: Number(project_id),
-        }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch projects");
-      }
-      const data = await res.json();
-      setProjects(data.data.items || []);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-      setProjects([]);
-      toast.error("โหลดโปรเจคล้มเหลว", { duration: 5000 });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createOrUpdateProject = async (project: SubProjectForm) => {
-    try {
+      await antdForm.validateFields();
       setActionLoading(true);
+
+      // Prepare payload
+      const payload = { ...formData, ...antdForm.getFieldsValue() };
+
       const res = await fetch(`/api/v1/timesheet/project/sub-project/insert`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(project),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) {
-        throw new Error("Failed to create or update project");
-      }
-      toast.success("สร้าง/อัปเดตฟีเจอร์สำเร็จ", { duration: 5000 });
+
+      if (!res.ok) throw new Error("Operation failed");
+
+      toast.success(formData.id ? "อัปเดตข้อมูลสำเร็จ" : "สร้างข้อมูลสำเร็จ");
+      setModalType(null);
+      antdForm.resetFields();
+      fetchSubProjects();
     } catch (error) {
-      console.error("Error creating or updating project:", error);
-      toast.error("สร้าง/อัปเดตโปรเจคล้มเหลว", { duration: 5000 });
+      console.error(error);
+      toast.error("เกิดข้อผิดพลาด โปรดลองอีกครั้ง");
     } finally {
       setActionLoading(false);
     }
   };
 
-  const deleteProject = async (id: number) => {
+  const handleDelete = async () => {
+    if (!deleteId) return;
     try {
       const res = await fetch(`/api/v1/timesheet/project/sub-project/delete/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id,
+          id: deleteId,
           by: AUTHENTICATION.response.data.user_data.admin_id,
         }),
       });
-      if (!res.ok) {
-        throw new Error("Failed to delete project");
-      }
-      toast.success("ลบข้อมูลสำเร็จ", { duration: 5000 });
+
+      if (!res.ok) throw new Error("Delete failed");
+
+      toast.success("ลบข้อมูลสำเร็จ");
+      setModalType(null);
+      setDeleteId(null);
+      fetchSubProjects();
     } catch (error) {
-      console.error("Error deleting project:", error);
-      toast.error("ลบข้อมูลล้มเหลว", { duration: 5000 });
+      console.error(error);
+      toast.error("ลบข้อมูลล้มเหลว");
     }
   };
 
+  // * Watch Date Range for Estimate Calculation
   useEffect(() => {
-    fetchSubProjects();
-  }, [currentPage]);
-
-  useEffect(() => {
-    fetchProjectsById(project_id);
-  }, []);
-
-  const handleSubmit = async () => {
-    if (!form.name.trim()) return;
-
-    await createOrUpdateProject(form);
-    setForm({
-      name: "",
-      project_id: Number(project_id),
-      by: AUTHENTICATION.response.data.user_data.admin_id,
-      backlogDescription: null,
-      dateRange: [],
-      asset_capture_type: "CAPTUREABLE",
-    });
-    setModal("");
-    setCurrentPage(1);
-    await fetchSubProjects();
-  };
-
-  // Handler for RangePicker change to help debug and keep local state in sync
-  const handleRangeChange = (dates: any, dateStrings: [string, string]) => {
-    console.log("RangePicker onChange", { dates, dateStrings });
-    try {
-      antdForm.setFieldsValue({ dateRange: dates });
-    } catch (e) {
-      // ignore
+    const start = watchedDateRange?.[0];
+    const end = watchedDateRange?.[1];
+    if (start && end) {
+      const { text } = computeEstimateHours(start, end);
+      antdForm.setFieldValue("estimate_time", text);
     }
-    setForm((prev) => ({ ...prev, dateRange: dates }));
-  };
+  }, [watchedDateRange, antdForm]);
 
-  // Log watchedDateRange changes for debugging
-  useEffect(() => {
-    console.log("watchedDateRange changed", watchedDateRange);
-  }, [watchedDateRange]);
+  // * ----------------------------------------------------------------------
+  // * Table Configuration
+  // * ----------------------------------------------------------------------
 
-  // When the watched date range changes, compute estimate and set it into the Antd form
-  useEffect(() => {
-    try {
-      const start = watchedDateRange?.[0] ?? form.dateRange?.[0];
-      const end = watchedDateRange?.[1] ?? form.dateRange?.[1];
-      const computed = computeEstimateHours(start, end);
-      antdForm.setFieldsValue({ estimate_time: computed.text });
-    } catch (e) {
-      // ignore errors from form when not mounted
-    }
-  }, [watchedDateRange, form.dateRange, antdForm]);
-
-  const openCreateModal = () => {
-    setForm({
-      name: "",
-      project_id: Number(project_id),
-      by: AUTHENTICATION.response.data.user_data.admin_id,
-      backlogDescription: null,
-      dateRange: [],
-    });
-    // populate the Antd Form so Form.useWatch sees the values immediately
-    antdForm.setFieldsValue({
-      name: "",
-      backlogDescription: null,
-      dateRange: [],
-      asset_capture_type: "CAPTUREABLE",
-      project_id: Number(project_id),
-    });
-    setModal("create");
-  };
-
-  const openEditModal = (project: SubProject) => {
-    setForm({
-      id: project.id,
-      name: project.name,
-      project_id: project.project_id,
-      by: AUTHENTICATION.response.data.user_data.admin_id,
-      backlogDescription: project.backlogDescription ?? null,
-      dateRange:
-        project.startDate && project.endDate
-          ? [dayjs(project.startDate), dayjs(project.endDate)] // ✅ ใช้ dayjs ตรง ๆ
-          : [],
-    });
-    // set Antd Form fields so the RangePicker and watch hook update immediately
-    antdForm.setFieldsValue({
-      name: project.name,
-      backlogDescription: project.backlogDescription ?? null,
-      dateRange:
-        project.startDate && project.endDate
-          ? [dayjs(project.startDate), dayjs(project.endDate)]
-          : [],
-      asset_capture_type: (project as any).asset_capture_type ?? "CAPTUREABLE",
-      project_id: project.project_id,
-    });
-    setModal("edit");
-  };
-
-  // When modal closes, reset Antd form fields to keep state in sync
-  useEffect(() => {
-    if (modal === "") {
-      try {
-        antdForm.resetFields();
-      } catch (e) {
-        // ignore
-      }
-    }
-  }, [modal, antdForm]);
-
-  const openDeleteModal = (id: number) => {
-    setDeleteId(id);
-    setModal("delete");
-  };
-
-  const confirmDelete = async () => {
-    if (deleteId === null) return;
-    await deleteProject(deleteId);
-    setModal("");
-    setDeleteId(null);
-    setCurrentPage(1);
-    await fetchSubProjects();
-  };
-
-  const columns = React.useMemo(
-    () => [
-      {
-        title: "ลำดับ",
-        dataIndex: "index",
-        key: "index",
-        align: "center" as const,
-        width: 80,
-        render: (_: any, __: any, idx: number) => (
-          <span style={{ fontWeight: 600, color: "#8c8c8c" }}>
-            {idx + 1 + (currentPage - 1) * limit}
-          </span>
-        ),
-      },
-      {
-        title: "ชื่อฟีเจอร์",
-        dataIndex: "name",
-        key: "name",
-        align: "left" as const,
-        sorter: (a: SubProject, b: SubProject) =>
-          (a.name || "").toString().localeCompare((b.name || "").toString()),
-        render: (text: string, record: SubProject) => (
-          <Space align="start">
-            <Avatar
-              shape="square"
-              size="small"
-              icon={<FileTextOutlined />}
-              style={{ backgroundColor: "#e6f7ff", color: "#1890ff" }}
-            />
-            <Space direction="vertical" size={0}>
-              <Typography.Text strong style={{ fontSize: 15 }}>
-                {text}
-              </Typography.Text>
-              {record.backlogDescription?.note && (
-                <Typography.Text
-                  type="secondary"
-                  style={{ fontSize: 12 }}
-                  ellipsis={{ tooltip: true }}
-                >
-                  {record.backlogDescription.note}
-                </Typography.Text>
-              )}
-            </Space>
-          </Space>
-        ),
-      },
-      {
-        title: "ประเภท Assets",
-        dataIndex: "assetCaptureType",
-        key: "assetCaptureType",
-        align: "center" as const,
-        width: 180,
-        sorter: (a: SubProject, b: SubProject) => {
-          const av =
-            (a as any).asset_capture_type || (a as any).assetCaptureType || "";
-          const bv =
-            (b as any).asset_capture_type || (b as any).assetCaptureType || "";
-          return av.toString().localeCompare(bv.toString());
-        },
-        render: (text: string) => {
-          const isCaptureable = text === "CAPTUREABLE";
-          return (
-            <Tag
-              color={isCaptureable ? "cyan" : "orange"}
-              style={{ borderRadius: 12, padding: "2px 10px", fontWeight: 500 }}
-            >
-              {assetOption.find((item) => item.value === text)?.label || text}
-            </Tag>
-          );
-        },
-      },
-      {
-        title: "สถานะ & ระยะเวลา",
-        dataIndex: "status",
-        key: "status",
-        align: "left" as const,
-        width: 280,
-        render: (_: any, record: SubProject) => {
-          const start = record.startDate;
-          const end = record.endDate;
-          const { statusText, badgeStatus } = getProjectStatus(start, end);
-
-          // Calculate progress percentage based on today's date vs start/end
-          let percent = 0;
-          if (start && end) {
-            const totalDuration = dayjs(end).diff(dayjs(start), "day");
-            const elapsed = dayjs().diff(dayjs(start), "day");
-            if (totalDuration > 0) {
-              percent = Math.max(
-                0,
-                Math.min(100, Math.round((elapsed / totalDuration) * 100))
-              );
-            } else if (dayjs().isAfter(dayjs(end))) {
-              percent = 100;
-            }
-          }
-
-          return (
-            <Space direction="vertical" size={4} style={{ width: "100%" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
+  const columns = [
+    {
+      title: "#",
+      key: "index",
+      width: 60,
+      align: "center" as const,
+      render: (_: any, __: any, idx: number) => (
+        <Text type="secondary">{(currentPage - 1) * pageSize + idx + 1}</Text>
+      ),
+    },
+    {
+      title: "ฟีเจอร์ / Feature",
+      dataIndex: "name",
+      key: "name",
+      render: (text: string, record: SubProject) => (
+        <Space align="start">
+          <Avatar
+            shape="square"
+            icon={<FileTextOutlined />}
+            style={{
+              backgroundColor: token.colorPrimaryBg,
+              color: token.colorPrimary,
+            }}
+          />
+          <Space direction="vertical" size={0}>
+            <Text strong>{text}</Text>
+            {record.backlogDescription?.note && (
+              <Text
+                type="secondary"
+                style={{ fontSize: 12 }}
+                ellipsis={{ tooltip: true }}
               >
-                <Badge
-                  status={badgeStatus}
-                  text={<span style={{ fontWeight: 500 }}>{statusText}</span>}
-                />
-                {start && end && (
-                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-                    {dayjs(start).format("DD MMM")} -{" "}
-                    {dayjs(end).format("DD MMM")}
-                  </Typography.Text>
-                )}
-              </div>
-              <Progress
-                percent={percent}
-                size="small"
-                showInfo={false}
-                strokeColor={
-                  badgeStatus === "processing" ? "#1890ff" : "#d9d9d9"
-                }
-              />
-            </Space>
-          );
-        },
-      },
-      {
-        title: "เวลาที่ใช้",
-        dataIndex: "estimateTime",
-        key: "estimateTime",
-        align: "center" as const,
-        width: 150,
-        sorter: (a: SubProject, b: SubProject) => {
-          const ca = computeEstimateHours(a.startDate, a.endDate).hours;
-          const cb = computeEstimateHours(b.startDate, b.endDate).hours;
-          return ca - cb;
-        },
-        render: (_: any, record: SubProject) => {
-          const computed = computeEstimateHours(
-            record.startDate,
-            record.endDate
-          );
-          return (
-            <Tag
-              icon={<ClockCircleOutlined />}
-              color="default"
-              style={{ fontSize: 13, padding: "4px 8px" }}
-            >
-              {computed.text}
-            </Tag>
-          );
-        },
-      },
-      {
-        title: "จัดการ",
-        key: "action",
-        align: "center" as const,
-        width: 150,
-        render: (_: any, record: SubProject) => (
-          <Space size="small">
-            <Tooltip title="ดูรายละเอียด">
-              <Button
-                type="text"
-                shape="circle"
-                icon={<InfoCircleOutlined style={{ color: "#1890ff" }} />}
-                onClick={() => {
-                  setDetailProject(record);
-                  setModal("detail");
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="แก้ไข">
-              <Button
-                type="text"
-                shape="circle"
-                icon={<EditOutlined style={{ color: "#faad14" }} />}
-                onClick={() => openEditModal(record)}
-              />
-            </Tooltip>
-            <Tooltip title="ลบ">
-              <Button
-                type="text"
-                shape="circle"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={() => openDeleteModal(record.id)}
-              />
-            </Tooltip>
+                {record.backlogDescription.note}
+              </Text>
+            )}
           </Space>
-        ),
+        </Space>
+      ),
+    },
+    {
+      title: "ประเภท / Type",
+      dataIndex: "assetCaptureType",
+      key: "assetCaptureType",
+      width: 180,
+      align: "center" as const,
+      render: (text: string) => {
+        const option = ASSET_OPTIONS.find((o) => o.value === text);
+        return (
+          <Tag color={option?.color || "default"} style={{ borderRadius: 12 }}>
+            {option?.label || text}
+          </Tag>
+        );
       },
-    ],
-    [currentPage, limit, assetOption]
-  );
+    },
+    {
+      title: "สถานะ / Status",
+      key: "status",
+      width: 250,
+      render: (_: any, record: SubProject) => {
+        const { statusText, badgeStatus } = getProjectStatus(
+          record.startDate,
+          record.endDate
+        );
+
+        // Calculate Progress
+        let percent = 0;
+        if (record.startDate && record.endDate) {
+          const total = dayjs(record.endDate).diff(
+            dayjs(record.startDate),
+            "day"
+          );
+          const elapsed = dayjs().diff(dayjs(record.startDate), "day");
+          if (total > 0)
+            percent = Math.max(
+              0,
+              Math.min(100, Math.round((elapsed / total) * 100))
+            );
+          else if (dayjs().isAfter(dayjs(record.endDate))) percent = 100;
+        }
+
+        return (
+          <Space direction="vertical" size={2} style={{ width: "100%" }}>
+            <div className="flex justify-between items-center">
+              <Badge status={badgeStatus as any} text={statusText} />
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                {record.startDate
+                  ? dayjs(record.startDate).format("DD MMM")
+                  : "-"}{" "}
+                -{" "}
+                {record.endDate ? dayjs(record.endDate).format("DD MMM") : "-"}
+              </Text>
+            </div>
+            <Progress
+              percent={percent}
+              size="small"
+              showInfo={false}
+              strokeColor={
+                badgeStatus === "processing" ? token.colorPrimary : undefined
+              }
+            />
+          </Space>
+        );
+      },
+    },
+    {
+      title: "เวลา / Est.",
+      key: "estimate",
+      width: 120,
+      align: "center" as const,
+      render: (_: any, record: SubProject) => {
+        const { text } = computeEstimateHours(record.startDate, record.endDate);
+        return (
+          <Tag icon={<ClockCircleOutlined />} bordered={false}>
+            {text}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "จัดการ",
+      key: "action",
+      width: 120,
+      align: "center" as const,
+      render: (_: any, record: SubProject) => (
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: "view",
+                label: "ดูรายละเอียด",
+                icon: <InfoCircleOutlined />,
+                onClick: () => {
+                  setSelectedProject(record);
+                  setModalType("detail");
+                },
+              },
+              {
+                key: "edit",
+                label: "แก้ไข",
+                icon: <EditOutlined />,
+                onClick: () => {
+                  setFormData({
+                    id: record.id,
+                    name: record.name,
+                    project_id: record.project_id,
+                    by: AUTHENTICATION.response.data.user_data.admin_id,
+                    backlogDescription: record.backlogDescription,
+                    dateRange:
+                      record.startDate && record.endDate
+                        ? [dayjs(record.startDate), dayjs(record.endDate)]
+                        : [],
+                  });
+                  antdForm.setFieldsValue({
+                    name: record.name,
+                    asset_capture_type: (record as any).assetCaptureType,
+                    dateRange:
+                      record.startDate && record.endDate
+                        ? [dayjs(record.startDate), dayjs(record.endDate)]
+                        : [],
+                    backlogDescription: record.backlogDescription,
+                  });
+                  setModalType("edit");
+                },
+              },
+              {
+                type: "divider",
+              },
+              {
+                key: "delete",
+                label: "ลบข้อมูล",
+                icon: <DeleteOutlined />,
+                danger: true,
+                onClick: () => {
+                  setDeleteId(record.id);
+                  setModalType("delete");
+                },
+              },
+            ],
+          }}
+          trigger={["click"]}
+        >
+          <Button type="text" shape="circle" icon={<MoreOutlined />} />
+        </Dropdown>
+      ),
+    },
+  ];
+
+  // * ----------------------------------------------------------------------
+  // * Render
+  // * ----------------------------------------------------------------------
 
   return (
     <DashboardLayout>
-      <div className="w-full space-y-6">
-        {/* Back Navigation */}
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => router.back()}
-        >
-          กลับไปหน้าโครงการ
-        </Button>
-        {/* Header & Stats */}
+      <div className="w-full space-y-6 animate-fade-in">
+        {/* Header Section */}
         <div className="flex flex-col gap-4">
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => router.back()}
+            className="w-fit hover:bg-gray-100"
+          >
+            กลับไปหน้าโครงการ
+          </Button>
+
           <HeaderBar
             title={projects[0]?.name || "Project Details"}
             subTitle="จัดการฟีเจอร์และติดตามสถานะโครงการย่อย"
             icon={<ProjectOutlined />}
             color="none"
           />
-
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} md={6}>
-              <Card
-                bordered={false}
-                className="shadow-sm hover:shadow-md transition-all"
-              >
-                <Statistic
-                  title="ฟีเจอร์ทั้งหมด"
-                  value={stats.total}
-                  prefix={<FileTextOutlined style={{ color: "#1890ff" }} />}
-                  valueStyle={{ color: "#1890ff", fontWeight: 600 }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card
-                bordered={false}
-                className="shadow-sm hover:shadow-md transition-all"
-              >
-                <Statistic
-                  title="กำลังดำเนินการ"
-                  value={stats.processing}
-                  prefix={<SyncOutlined spin style={{ color: "#faad14" }} />}
-                  valueStyle={{ color: "#faad14", fontWeight: 600 }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card
-                bordered={false}
-                className="shadow-sm hover:shadow-md transition-all"
-              >
-                <Statistic
-                  title="เสร็จสิ้น"
-                  value={stats.completed}
-                  prefix={<CheckCircleOutlined style={{ color: "#52c41a" }} />}
-                  valueStyle={{ color: "#52c41a", fontWeight: 600 }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card
-                bordered={false}
-                className="shadow-sm hover:shadow-md transition-all"
-              >
-                <Statistic
-                  title="ชั่วโมงรวม (ประมาณการ)"
-                  value={stats.totalHours}
-                  prefix={<ClockCircleOutlined style={{ color: "#722ed1" }} />}
-                  suffix="ชม."
-                  valueStyle={{ color: "#722ed1", fontWeight: 600 }}
-                />
-              </Card>
-            </Col>
-          </Row>
         </div>
-        {/* Toolbar */}
-        <div className="w-full flex justify-end">
+
+        {/* Statistics Section */}
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={6}>
+            <StatCard
+              title="ฟีเจอร์ทั้งหมด"
+              value={stats.total}
+              icon={<FileTextOutlined />}
+              color={token.colorPrimary}
+              loading={loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <StatCard
+              title="กำลังดำเนินการ"
+              value={stats.processing}
+              icon={<SyncOutlined spin />}
+              color="#faad14"
+              loading={loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <StatCard
+              title="เสร็จสิ้น"
+              value={stats.completed}
+              icon={<CheckCircleOutlined />}
+              color="#52c41a"
+              loading={loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <StatCard
+              title="ชั่วโมงรวม (ประมาณการ)"
+              value={stats.totalHours}
+              icon={<ClockCircleOutlined />}
+              color="#722ed1"
+              suffix="ชม."
+              loading={loading}
+            />
+          </Col>
+        </Row>
+
+        {/* Action Toolbar */}
+        <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+          <Space>
+            <Text strong style={{ fontSize: 16 }}>
+              รายการฟีเจอร์ ({stats.total})
+            </Text>
+          </Space>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             size="large"
-            onClick={openCreateModal}
-            style={{ minWidth: 160, borderRadius: 8 }}
+            onClick={() => {
+              setFormData({
+                name: "",
+                project_id: Number(project_id),
+                by: AUTHENTICATION.response.data.user_data.admin_id,
+                backlogDescription: null,
+                dateRange: [],
+              });
+              antdForm.resetFields();
+              antdForm.setFieldValue("asset_capture_type", "CAPTUREABLE");
+              setModalType("create");
+            }}
+            className="shadow-md hover:shadow-lg transition-all"
           >
             เพิ่มฟีเจอร์ใหม่
           </Button>
         </div>
-        {/* Main Table Card */}
+
+        {/* Data Table */}
         <Card
           bordered={false}
-          className="shadow-sm"
-          bodyStyle={{ padding: "0" }}
+          className="shadow-sm overflow-hidden"
+          bodyStyle={{ padding: 0 }}
         >
-          {loading ? (
-            <div style={{ padding: 24 }}>
-              <Skeleton active paragraph={{ rows: 5 }} />
-            </div>
-          ) : (
-            <Table
-              columns={columns}
-              dataSource={subProjects}
-              rowKey="id"
-              pagination={{
-                current: currentPage,
-                total: total_pages * limit,
-                pageSize: limit,
-                onChange: (page) => setCurrentPage(page),
-                showSizeChanger: false,
-              }}
-              className="ant-table-striped"
-            />
-          )}
+          <Table
+            columns={columns}
+            dataSource={subProjects}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalPages * pageSize,
+              onChange: setCurrentPage,
+              showSizeChanger: false,
+            }}
+            locale={{ emptyText: <Empty description="ไม่พบข้อมูลฟีเจอร์" /> }}
+          />
         </Card>
-        {/* Create/Edit Modal */}
+
+        {/* Modals */}
         <Modal
-          open={modal === "create" || modal === "edit"}
-          onCancel={() => setModal("")}
+          open={modalType === "create" || modalType === "edit"}
+          onCancel={() => setModalType(null)}
           title={
             <Space>
-              {modal === "create" ? <PlusOutlined /> : <EditOutlined />}
-              <span>{form.id ? "แก้ไขฟีเจอร์" : "เพิ่มฟีเจอร์ใหม่"}</span>
+              {modalType === "create" ? <PlusOutlined /> : <EditOutlined />}
+              <Text strong>
+                {modalType === "create" ? "เพิ่มฟีเจอร์ใหม่" : "แก้ไขฟีเจอร์"}
+              </Text>
             </Space>
           }
+          width={720}
           footer={null}
           destroyOnHidden
-          width={700}
+          centered
         >
           <Form
             form={antdForm}
             layout="vertical"
-            initialValues={{
-              name: form.name,
-              backlogDescription: form.backlogDescription,
-              dateRange: form.dateRange,
-            }}
-            onValuesChange={(_, allValues) =>
-              setForm({ ...form, ...allValues })
-            }
-            onFinish={async () => {
-              await handleSubmit();
-              antdForm.resetFields();
-            }}
+            onFinish={handleCreateOrUpdate}
+            initialValues={{ asset_capture_type: "CAPTUREABLE" }}
+            className="pt-4"
           >
-            <Form.Item
-              name="project_id"
-              initialValue={Number(project_id)}
-              hidden
-            >
-              <Input type="hidden" />
-            </Form.Item>
-
             <Row gutter={16}>
-              <Col span={12}>
+              <Col span={16}>
                 <Form.Item
                   label="ชื่อฟีเจอร์"
                   name="name"
-                  rules={[{ required: true, message: "กรุณากรอกชื่อฟีเจอร์" }]}
+                  rules={[{ required: true, message: "กรุณาระบุชื่อฟีเจอร์" }]}
                 >
                   <Input
                     placeholder="ระบุชื่อฟีเจอร์"
+                    size="large"
                     prefix={<FileTextOutlined />}
                   />
                 </Form.Item>
               </Col>
-              <Col span={12}>
+              <Col span={8}>
                 <Form.Item
-                  label="ประเภทของ Assets"
+                  label="ประเภท Assets"
                   name="asset_capture_type"
-                  initialValue={form.asset_capture_type}
-                  rules={[
-                    { required: true, message: "กรุณาเลือกประเภทของ Assets" },
-                  ]}
+                  rules={[{ required: true }]}
                 >
-                  <Select
-                    onChange={(value) =>
-                      setForm({
-                        ...form,
-                        asset_capture_type: value,
-                      })
-                    }
-                    options={assetOption}
-                    placeholder="เลือกประเภท"
-                  />
+                  <Select options={ASSET_OPTIONS} size="large" />
                 </Form.Item>
               </Col>
             </Row>
 
-            {/* Start Date & End Date */}
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
                   label="ช่วงเวลาดำเนินงาน"
                   name="dateRange"
-                  rules={[{ required: true, message: "กรุณาเลือกช่วงวันที่" }]}
+                  rules={[{ required: true, message: "กรุณาระบุช่วงเวลา" }]}
                 >
-                  <DatePicker.RangePicker
-                    format="DD/MM/YYYY"
+                  <RangePicker
                     style={{ width: "100%" }}
-                    placeholder={["เริ่มต้น", "สิ้นสุด"]}
-                    onChange={handleRangeChange}
+                    size="large"
+                    format="DD/MM/YYYY"
                   />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item
-                  label="เวลาที่ประมาณการ (ชั่วโมง)"
-                  name="estimate_time"
-                >
+                <Form.Item label="เวลาที่ใช้ (ประมาณการ)" name="estimate_time">
                   <Input
-                    placeholder="คำนวณอัตโนมัติ"
-                    disabled
+                    readOnly
                     prefix={<ClockCircleOutlined />}
-                    style={{ backgroundColor: "#f5f5f5", color: "#595959" }}
+                    size="large"
+                    className="bg-gray-50"
                   />
                 </Form.Item>
               </Col>
             </Row>
 
-            <Divider orientation="left" plain>
-              รายละเอียดเพิ่มเติม
-            </Divider>
+            <Divider orientation="left">รายละเอียดเพิ่มเติม</Divider>
 
-            {/* Backlog Description: note and backlogs */}
             <Form.Item
               label="หมายเหตุ / Note"
               name={["backlogDescription", "note"]}
             >
-              <Input.TextArea
-                rows={3}
-                placeholder="รายละเอียดเพิ่มเติมเกี่ยวกับฟีเจอร์นี้"
-              />
+              <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม..." />
             </Form.Item>
 
             <Form.List name={["backlogDescription", "backlogs"]}>
               {(fields, { add, remove }) => (
-                <div
-                  style={{
-                    backgroundColor: "#fafafa",
-                    padding: 16,
-                    borderRadius: 8,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 12,
-                    }}
-                  >
-                    <Typography.Text strong>
-                      <LinkOutlined /> เอกสารแนบ / Links
-                    </Typography.Text>
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="flex justify-between mb-2">
+                    <Text strong>
+                      <LinkOutlined /> เอกสารแนบ
+                    </Text>
                     <Button
                       type="dashed"
+                      size="small"
                       onClick={() => add()}
                       icon={<PlusOutlined />}
-                      size="small"
                     >
-                      เพิ่มรายการ
+                      เพิ่มลิ้งค์
                     </Button>
                   </div>
-
-                  {fields.length === 0 && (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: "16px 0",
-                        color: "#999",
-                      }}
-                    >
-                      ไม่มีเอกสารแนบ
-                    </div>
-                  )}
-
-                  {fields.map((field, idx) => (
-                    <Row key={field.key} gutter={8} style={{ marginBottom: 8 }}>
+                  {fields.map((field) => (
+                    <Row key={field.key} gutter={8} className="mb-2">
                       <Col span={10}>
                         <Form.Item
+                          {...field}
                           name={[field.name, "title"]}
                           rules={[{ required: true, message: "ระบุชื่อ" }]}
-                          style={{ marginBottom: 0 }}
+                          noStyle
                         >
                           <Input placeholder="ชื่อเอกสาร" />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
                         <Form.Item
+                          {...field}
                           name={[field.name, "link"]}
-                          style={{ marginBottom: 0 }}
+                          rules={[{ required: true, message: "ระบุลิ้งค์" }]}
+                          noStyle
                         >
-                          <Input
-                            placeholder="URL ลิงก์"
-                            prefix={<LinkOutlined />}
-                          />
+                          <Input placeholder="URL" prefix={<LinkOutlined />} />
                         </Form.Item>
                       </Col>
                       <Col span={2}>
@@ -896,211 +800,147 @@ export default function Page() {
                       </Col>
                     </Row>
                   ))}
+                  {fields.length === 0 && (
+                    <div className="text-center text-gray-400 py-2">
+                      ไม่มีเอกสารแนบ
+                    </div>
+                  )}
                 </div>
               )}
             </Form.List>
 
-            <div style={{ marginTop: 24, textAlign: "right" }}>
-              <Space>
-                <Button onClick={() => setModal("")}>ยกเลิก</Button>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={<CheckCircleOutlined />}
-                  loading={actionLoading}
-                >
-                  บันทึกข้อมูล
-                </Button>
-              </Space>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button onClick={() => setModalType(null)}>ยกเลิก</Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={actionLoading}
+                icon={<CheckCircleOutlined />}
+              >
+                บันทึกข้อมูล
+              </Button>
             </div>
           </Form>
         </Modal>
-        {/* Delete Modal */}
+
+        {/* Delete Confirmation Modal */}
         <Modal
-          open={modal === "delete"}
-          onCancel={() => setModal("")}
+          open={modalType === "delete"}
+          onCancel={() => setModalType(null)}
           title={
             <Space>
-              <DeleteOutlined style={{ color: "red" }} />
-              <span>ยืนยันการลบ</span>
+              <DeleteOutlined className="text-red-500" /> ยืนยันการลบ
             </Space>
           }
-          onOk={confirmDelete}
+          onOk={handleDelete}
           okText="ลบข้อมูล"
           okType="danger"
           cancelText="ยกเลิก"
-          okButtonProps={{
-            icon: <DeleteOutlined />,
-          }}
-          destroyOnHidden
+          centered
         >
-          <div style={{ padding: "20px 0", textAlign: "center" }}>
-            <Typography.Title level={5}>
-              คุณแน่ใจหรือไม่ที่จะลบฟีเจอร์นี้?
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              การกระทำนี้ไม่สามารถย้อนกลับได้
-              ข้อมูลที่เกี่ยวข้องทั้งหมดจะถูกลบถาวร
-            </Typography.Text>
+          <div className="text-center py-4">
+            <Title level={5}>คุณแน่ใจหรือไม่ที่จะลบฟีเจอร์นี้?</Title>
+            <Text type="secondary">
+              การกระทำนี้ไม่สามารถย้อนกลับได้ ข้อมูลที่เกี่ยวข้องทั้งหมดจะถูกลบ
+            </Text>
           </div>
         </Modal>
+
         {/* Detail Modal */}
         <Modal
-          open={modal === "detail" && !!detailProject}
-          onCancel={() => {
-            setModal("");
-            setDetailProject(null);
-          }}
+          open={modalType === "detail" && !!selectedProject}
+          onCancel={() => setModalType(null)}
           title={
             <Space>
-              <InfoCircleOutlined style={{ color: "#1890ff" }} />
-              <span>รายละเอียดฟีเจอร์</span>
+              <InfoCircleOutlined className="text-blue-500" /> รายละเอียดฟีเจอร์
             </Space>
           }
-          footer={[
-            <Button
-              key="close"
-              onClick={() => {
-                setModal("");
-                setDetailProject(null);
-              }}
-            >
-              ปิด
-            </Button>,
-          ]}
-          destroyOnHidden
+          footer={<Button onClick={() => setModalType(null)}>ปิด</Button>}
           width={600}
+          centered
         >
-          {detailProject && (
-            <div className="space-y-4 pt-2">
-              <div
-                style={{
-                  backgroundColor: "#f9f9f9",
-                  padding: 16,
-                  borderRadius: 8,
-                  border: "1px solid #f0f0f0",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <div>
-                    <Typography.Title
-                      level={5}
-                      style={{ margin: 0, color: "#262626" }}
-                    >
-                      {detailProject.name}
-                    </Typography.Title>
-                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                      ID: {detailProject.id}
-                    </Typography.Text>
-                  </div>
-                  <Tag color="cyan">
-                    {assetOption.find(
-                      (item) =>
-                        item.value === (detailProject as any).asset_capture_type
-                    )?.label || (detailProject as any).asset_capture_type}
-                  </Tag>
+          {selectedProject && (
+            <div className="space-y-6 pt-4">
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex justify-between items-start">
+                <div>
+                  <Title level={4} style={{ margin: 0 }}>
+                    {selectedProject.name}
+                  </Title>
+                  <Text type="secondary">ID: {selectedProject.id}</Text>
                 </div>
+                <Tag
+                  color={
+                    ASSET_OPTIONS.find(
+                      (o) =>
+                        o.value === (selectedProject as any).assetCaptureType
+                    )?.color
+                  }
+                >
+                  {
+                    ASSET_OPTIONS.find(
+                      (o) =>
+                        o.value === (selectedProject as any).assetCaptureType
+                    )?.label
+                  }
+                </Tag>
               </div>
 
-              <Row gutter={[16, 16]}>
+              <Row gutter={16}>
                 <Col span={12}>
-                  <div className="p-3 bg-white border border-gray-100 rounded-lg">
-                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                      วันที่เริ่มต้น
-                    </Typography.Text>
-                    <div style={{ fontWeight: 500 }}>
-                      <CalendarOutlined
-                        style={{ marginRight: 6, color: "#1890ff" }}
-                      />
-                      {detailProject.startDate
-                        ? dayjs(detailProject.startDate).format("DD/MM/YYYY")
+                  <Card size="small" bordered={false} className="bg-blue-50">
+                    <Text type="secondary">วันเริ่มต้น</Text>
+                    <div className="font-semibold text-blue-600 flex items-center gap-2">
+                      <CalendarOutlined />
+                      {selectedProject.startDate
+                        ? dayjs(selectedProject.startDate).format("DD/MM/YYYY")
                         : "-"}
                     </div>
-                  </div>
+                  </Card>
                 </Col>
                 <Col span={12}>
-                  <div className="p-3 bg-white border border-gray-100 rounded-lg">
-                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                      วันที่สิ้นสุด
-                    </Typography.Text>
-                    <div style={{ fontWeight: 500 }}>
-                      <CalendarOutlined
-                        style={{ marginRight: 6, color: "#ff4d4f" }}
-                      />
-                      {detailProject.endDate
-                        ? dayjs(detailProject.endDate).format("DD/MM/YYYY")
+                  <Card size="small" bordered={false} className="bg-red-50">
+                    <Text type="secondary">วันสิ้นสุด</Text>
+                    <div className="font-semibold text-red-600 flex items-center gap-2">
+                      <CalendarOutlined />
+                      {selectedProject.endDate
+                        ? dayjs(selectedProject.endDate).format("DD/MM/YYYY")
                         : "-"}
                     </div>
-                  </div>
+                  </Card>
                 </Col>
               </Row>
 
-              <Divider style={{ margin: "12px 0" }} />
-
               <div>
-                <Typography.Text strong style={{ fontSize: 14 }}>
-                  หมายเหตุ / Note
-                </Typography.Text>
-                <div
-                  style={{
-                    marginTop: 8,
-                    padding: 12,
-                    backgroundColor: "#fff",
-                    border: "1px solid #f0f0f0",
-                    borderRadius: 6,
-                    minHeight: 60,
-                  }}
-                >
-                  <Typography.Text type="secondary">
-                    {detailProject.backlogDescription?.note || "-"}
-                  </Typography.Text>
+                <Text strong>หมายเหตุ</Text>
+                <div className="bg-white border border-gray-200 p-3 rounded mt-1 min-h-[60px]">
+                  {selectedProject.backlogDescription?.note || (
+                    <Text type="secondary">-</Text>
+                  )}
                 </div>
               </div>
 
               <div>
-                <Typography.Text strong style={{ fontSize: 14 }}>
-                  เอกสารแนบ / Attachments
-                </Typography.Text>
-                <div style={{ marginTop: 8 }}>
-                  {detailProject.backlogDescription?.backlogs &&
-                  detailProject.backlogDescription.backlogs.length > 0 ? (
-                    <div className="grid gap-2">
-                      {detailProject.backlogDescription.backlogs.map(
-                        (item: any, idx: number) => (
-                          <a
-                            key={idx}
-                            href={item.link}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center p-3 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg transition-colors text-blue-600"
-                            style={{ textDecoration: "none" }}
-                          >
-                            <LinkOutlined
-                              style={{ marginRight: 8, fontSize: 16 }}
-                            />
-                            <span style={{ fontWeight: 500 }}>
-                              {item.title}
-                            </span>
-                          </a>
-                        )
-                      )}
-                    </div>
+                <Text strong>เอกสารแนบ</Text>
+                <div className="mt-2 space-y-2">
+                  {selectedProject.backlogDescription?.backlogs?.length ? (
+                    selectedProject.backlogDescription.backlogs.map(
+                      (item: any, idx: number) => (
+                        <a
+                          key={idx}
+                          href={item.link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center p-3 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 rounded transition-all group no-underline"
+                        >
+                          <LinkOutlined className="mr-3 text-gray-400 group-hover:text-blue-500" />
+                          <span className="text-gray-700 group-hover:text-blue-700 font-medium">
+                            {item.title}
+                          </span>
+                        </a>
+                      )
+                    )
                   ) : (
-                    <div
-                      style={{
-                        padding: 12,
-                        textAlign: "center",
-                        backgroundColor: "#f5f5f5",
-                        borderRadius: 6,
-                        color: "#999",
-                      }}
-                    >
+                    <div className="text-center py-4 bg-gray-50 rounded text-gray-400">
                       ไม่มีเอกสารแนบ
                     </div>
                   )}
