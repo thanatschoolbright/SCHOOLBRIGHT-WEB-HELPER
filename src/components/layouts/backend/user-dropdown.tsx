@@ -20,22 +20,19 @@ import {
   Space,
   Card,
   Tag,
+  Flex,
 } from "antd";
 import {
   DownOutlined,
   LogoutOutlined,
   TranslationOutlined,
-  TrophyOutlined,
   StarOutlined,
   FireOutlined,
 } from "@ant-design/icons";
 import i18n from "@/i18n";
 import { useAppSelector } from "@stores/store";
 import { toast } from "sonner";
-import {
-  getUserRankFromStorage,
-  getDisciplineLevel,
-} from "@/helpers/user-rank.helper";
+import { getUserRankFromStorage } from "@/helpers/user-rank.helper";
 import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 
 /**
@@ -52,6 +49,24 @@ export default function UserDropdown(): JSX.Element {
   const [userRank, setUserRank] = useState<any>(null);
 
   const userData = AUTHENTICATION?.response?.data?.user_data || {};
+  const resolveDisciplineScore = (value: any): string => {
+    if (value === null || value === undefined) return "-";
+    if (typeof value === "number") return value.toFixed(1);
+    if (typeof value === "string") return value;
+    if (typeof value === "object") {
+      const candidate =
+        value.score ??
+        value.value ??
+        value.discipline_score ??
+        value.level ??
+        value.status;
+      if (candidate === null || candidate === undefined) return "-";
+      return typeof candidate === "number"
+        ? candidate.toFixed(1)
+        : String(candidate);
+    }
+    return "-";
+  };
 
   // โหลด/รีเฟรช rank ทุกครั้งที่มี user_id
   useEffect(() => {
@@ -240,8 +255,43 @@ export default function UserDropdown(): JSX.Element {
    * 📋 Overlay สำหรับ Dropdown Menu (ใช้ Ant Design + Tailwind)
    */
   const dropdownOverlay = (
-    <Card className="min-w-[280px] p-3 shadow-sm">
+    <Card
+      className="min-w-[320px] shadow-lg"
+      bodyStyle={{ padding: 16 }}
+      style={{
+        borderRadius: 16,
+        background: `linear-gradient(140deg, ${token.colorPrimaryBg} 0%, ${token.colorBgContainer} 80%)`,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        boxShadow: token.boxShadowSecondary,
+      }}
+    >
       <Space direction="vertical" size="middle" className="w-full">
+        <Flex align="center" gap={12}>
+          <Badge dot color={token.colorWarning}>
+            <Avatar
+              size={50}
+              src={
+                (() => {
+                  const adminId = userData.admin_id || 1;
+                  const avatarSeed = `${userData.firstname}_${userData.lastname}_${adminId}`;
+                  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
+                    avatarSeed
+                  )}&backgroundColor=b6e3f4,c0aede,d1d4f9&radius=50`;
+                })()
+              }
+            />
+          </Badge>
+          <Space direction="vertical" size={2} className="flex-1">
+            <Typography.Text strong>
+              {`${userData.firstname ?? "Name"} ${userData.lastname ?? ""}`}
+            </Typography.Text>
+            <Typography.Text type="secondary" className="text-xs">
+              ขยันวันนี้ สำเร็จขึ้นอีกนิด
+            </Typography.Text>
+          </Space>
+          <StarOutlined style={{ color: token.colorWarning, fontSize: 16 }} />
+        </Flex>
+
         {userRank &&
           (() => {
             const rankInfo = getRankGrade(userRank.rankLetter || "F");
@@ -249,15 +299,26 @@ export default function UserDropdown(): JSX.Element {
             const currentMonth = currentDate.getMonth() + 1;
             const currentYear = currentDate.getFullYear();
             const isHighRank = ["S", "A"].includes(rankInfo.grade);
+            const completionRate = Math.min(
+              Math.round(userRank.completion_rate || 0),
+              100
+            );
+            const totalHours = Number(userRank.total_hours || 0);
+            const expectedHours = Number(userRank.expected_hours || 0);
+            const disciplineScore = resolveDisciplineScore(
+              userRank.discipline_score
+            );
+
             return (
-              <Card
-                size="small"
-                className="w-full border border-slate-200/60 shadow-sm"
+              <div
                 style={{
-                  background: `linear-gradient(135deg, ${rankInfo.color}15, ${rankInfo.color}05)`,
+                  padding: 12,
+                  borderRadius: 12,
+                  background: `linear-gradient(135deg, ${rankInfo.color}1a, ${rankInfo.color}08)`,
+                  border: `1px solid ${token.colorBorderSecondary}`,
                 }}
               >
-                <Space align="start" className="w-full" size="middle">
+                <Flex align="center" gap={12} wrap>
                   <Tag
                     className={`text-white text-lg font-bold px-3 py-2 rounded-md ${
                       isHighRank ? "animate-pulse" : ""
@@ -272,11 +333,10 @@ export default function UserDropdown(): JSX.Element {
                     {rankInfo.grade}
                   </Tag>
                   <Space direction="vertical" size={4} className="flex-1">
-                    <Typography.Text
-                      strong
-                      className="text-[13px] flex items-center gap-2"
-                    >
-                      {rankInfo.description}
+                    <Space align="center" size={6}>
+                      <Typography.Text strong className="text-[13px]">
+                        {rankInfo.description}
+                      </Typography.Text>
                       {isHighRank && (
                         <Tag
                           color="gold"
@@ -285,7 +345,7 @@ export default function UserDropdown(): JSX.Element {
                           {rankInfo.grade === "S" ? "LEGEND" : "ELITE"}
                         </Tag>
                       )}
-                    </Typography.Text>
+                    </Space>
                     <Typography.Text
                       type="secondary"
                       className="text-xs flex items-center gap-2"
@@ -300,12 +360,48 @@ export default function UserDropdown(): JSX.Element {
                       )}
                     </Typography.Text>
                   </Space>
-                </Space>
-              </Card>
+                  <Progress
+                    type="circle"
+                    percent={completionRate}
+                    size={64}
+                    strokeColor={rankInfo.color}
+                    format={(p) => `${p}%`}
+                  />
+                </Flex>
+
+                <Divider style={{ margin: "10px 0" }} />
+
+                <Flex gap={10} justify="space-between" wrap>
+                  <div>
+                    <Typography.Text className="text-xs" type="secondary">
+                      ชั่วโมงทั้งหมด
+                    </Typography.Text>
+                    <Typography.Title level={5} style={{ margin: 0 }}>
+                      {totalHours.toFixed(1)} ชม.
+                    </Typography.Title>
+                  </div>
+                  <div>
+                    <Typography.Text className="text-xs" type="secondary">
+                      เป้าหมายเดือนนี้
+                    </Typography.Text>
+                    <Typography.Title level={5} style={{ margin: 0 }}>
+                      {expectedHours.toFixed(1)} ชม.
+                    </Typography.Title>
+                  </div>
+                  <div>
+                    <Typography.Text className="text-xs" type="secondary">
+                      อัตราการตรงเวลา
+                    </Typography.Text>
+                    <Typography.Title level={5} style={{ margin: 0 }}>
+                      {disciplineScore}
+                    </Typography.Title>
+                  </div>
+                </Flex>
+              </div>
             );
           })()}
 
-        <Space direction="vertical" size={4} className="w-full">
+        <Space direction="vertical" size={6} className="w-full">
           <Typography.Text
             strong
             className="text-xs text-gray-500 flex items-center gap-2"
@@ -327,11 +423,11 @@ export default function UserDropdown(): JSX.Element {
         <Divider className="my-1" />
 
         <Button
-          type="text"
           danger
           icon={<LogoutOutlined />}
           onClick={handleLogout}
           className="w-full"
+          block
         >
           ออกจากระบบ
         </Button>
