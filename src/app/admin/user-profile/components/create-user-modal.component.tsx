@@ -1,5 +1,6 @@
 import { CheckCircleOutlined, EditOutlined, InfoCircleOutlined, LockOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Space } from "antd";
+import { toast } from "sonner";
 import { useEffect } from "react";
 import { TFunction } from "i18next";
 import { UpsertUserPayload } from "../types/user-profile.types";
@@ -26,12 +27,18 @@ export const CreateUserModal = ({
   }, [open, form]);
 
   const handleFinish = async (values: UpsertUserPayload) => {
-    await onSubmit({
-      username: values.username.trim(),
-      password: values.password?.trim(),
-      name: values.name.trim(),
-      lastname: values.lastname.trim(),
-    });
+    try {
+      await onSubmit({
+        username: values.username.trim(),
+        password: values.password?.trim(),
+        name: values.name.trim(),
+        lastname: values.lastname.trim(),
+      });
+      toast.success(translation("user_profile_page.toast_create_success"));
+    } catch (err) {
+      toast.error(translation("user_profile_page.toast_create_error"));
+      throw err;
+    }
   };
 
   return (
@@ -42,6 +49,7 @@ export const CreateUserModal = ({
       footer={null}
       destroyOnClose
     >
+      
       <Form form={form} layout="vertical" onFinish={handleFinish}>
         <Form.Item
           label={translation("user_profile_page.username_label")}

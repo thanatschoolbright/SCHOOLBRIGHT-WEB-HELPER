@@ -1,7 +1,7 @@
 "use client";
 
 import {InboxOutlined, UploadOutlined} from "@ant-design/icons";
-import {Button, message, Skeleton, Upload, UploadProps} from "antd";
+import {Button, Skeleton, Upload, UploadProps} from "antd";
 import React, {useState} from "react";
 import {toast} from "sonner";
 
@@ -64,7 +64,7 @@ export const UploadFileComponent: React.FC<UploadFileComponentProps> = ({
         //** ตรวจสอบขนาดไฟล์ */
         const isValidSize = file.size / 1024 / 1024 < maxSize;
         if (!isValidSize) {
-            message.error(`ขนาดไฟล์ต้องไม่เกิน ${maxSize}MB`);
+            toast.error(`ขนาดไฟล์ต้องไม่เกิน ${maxSize}MB`);
             return false;
         }
 
@@ -82,7 +82,7 @@ export const UploadFileComponent: React.FC<UploadFileComponentProps> = ({
             });
 
             if (!isValidType) {
-                message.error(`รองรับเฉพาะไฟล์ประเภท: ${accept}`);
+                toast.error(`รองรับเฉพาะไฟล์ประเภท: ${accept}`);
                 return false;
             }
         }

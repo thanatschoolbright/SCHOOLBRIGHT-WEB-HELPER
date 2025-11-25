@@ -7,6 +7,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Select, Space } from "antd";
+import { toast } from "sonner";
 import { useEffect } from "react";
 import { TFunction } from "i18next";
 import { UpdateUserInput, UserProfile } from "../types/user-profile.types";
@@ -63,17 +64,23 @@ export const EditUserModal = ({
 
   const handleFinish = async (values: EditFormValues) => {
     if (!user) return;
-    await onSubmit({
-      admin_id: Number(values.admin_id),
-      employee_code: values.employee_code ?? "",
-      firstname: values.firstname ?? "",
-      lastname: values.lastname ?? "",
-      nickname: values.nickname ?? "",
-      position: values.position ?? "",
-      email: values.email ?? "",
-      backlog_email: values.backlog_email ?? "",
-      tel: values.tel ?? "",
-    });
+    try {
+      await onSubmit({
+        admin_id: Number(values.admin_id),
+        employee_code: values.employee_code ?? "",
+        firstname: values.firstname ?? "",
+        lastname: values.lastname ?? "",
+        nickname: values.nickname ?? "",
+        position: values.position ?? "",
+        email: values.email ?? "",
+        backlog_email: values.backlog_email ?? "",
+        tel: values.tel ?? "",
+      });
+      toast.success(translation("user_profile_page.toast_update_success"));
+    } catch (err) {
+      toast.error(translation("user_profile_page.toast_update_error"));
+      throw err;
+    }
   };
 
   return (
@@ -84,6 +91,7 @@ export const EditUserModal = ({
       footer={null}
       destroyOnClose
     >
+      
       <Form form={form} layout="vertical" onFinish={handleFinish}>
         <Form.Item name="admin_id" hidden>
           <Input type="hidden" />

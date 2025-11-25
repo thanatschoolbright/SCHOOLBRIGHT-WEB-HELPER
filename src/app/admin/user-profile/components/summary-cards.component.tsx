@@ -10,7 +10,7 @@ export const SummaryCards = ({ metrics }: SummaryCardsProps) => (
     {metrics.map((metric) => (
       <Card
         key={metric.key}
-        className="group border-none bg-gradient-to-br from-slate-50 to-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+        className="group border-none shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
       >
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-1">

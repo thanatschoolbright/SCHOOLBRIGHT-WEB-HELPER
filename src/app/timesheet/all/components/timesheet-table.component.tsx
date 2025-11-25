@@ -8,13 +8,13 @@ import {
   Progress,
   Empty,
   Button,
-  message,
   Modal,
   Select,
   DatePicker,
   InputNumber,
   Steps,
 } from "antd";
+import { toast } from "sonner";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { InboxOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
@@ -105,18 +105,18 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
 
   const handleSubmitAutoFill = async () => {
     if (!metadata) {
-      message.error("ไม่พบช่วงวันที่สำหรับการกรอกอัตโนมัติ");
+      toast.error("ไม่พบช่วงวันที่สำหรับการกรอกอัตโนมัติ");
       return;
     }
 
     if (!selectedUser) {
-      message.warning("กรุณาเลือกผู้ใช้");
+      toast.error("กรุณาเลือกผู้ใช้");
       return;
     }
 
     const [start, end] = selectedRange;
     if (!start || !end) {
-      message.warning("กรุณาเลือกช่วงวันที่");
+      toast.error("กรุณาเลือกช่วงวันที่");
       return;
     }
 
@@ -159,7 +159,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         (rec) => String(rec.admin_id) === String(selectedUser)
       );
       if (!record) {
-        message.error("ไม่พบข้อมูลผู้ใช้ที่เลือก");
+        toast.error("ไม่พบข้อมูลผู้ใช้ที่เลือก");
         return;
       }
 
@@ -185,7 +185,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
       });
 
       if (!tasks.length) {
-        message.info("ไม่มีวันที่ต้องกรอกเพิ่ม");
+        toast('ไม่มีวันที่ต้องกรอกเพิ่ม');
         return;
       }
 
@@ -217,7 +217,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           )
         );
       }
-      message.success("อัปเดต Timesheet อัตโนมัติสำเร็จ");
+      toast.success("อัปเดต Timesheet อัตโนมัติสำเร็จ");
       onRefetch?.();
       setAutoFillOpen(false);
     } catch (error: any) {
@@ -227,7 +227,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         error?.response?.data?.message_en ||
         error?.message ||
         "ไม่สามารถอัปเดต Timesheet อัตโนมัติได้";
-      message.error(msg);
+      toast.error(msg);
       setAutoFillProgress((prev) =>
         prev.map((item) =>
           item.status === "process"

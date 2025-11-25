@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { message, Modal } from "antd";
+import { Modal } from "antd";
+import { toast } from "sonner";
 import { Dayjs } from "dayjs";
 import React from "react";
 import {
@@ -78,7 +79,7 @@ export const useTimesheetData = (dateRange: [Dayjs, Dayjs]) => {
         ),
       });
 
-      message.error(error?.message || "ไม่สามารถโหลดข้อมูลได้");
+      toast.error(error?.message || "ไม่สามารถโหลดข้อมูลได้");
     } finally {
       setLoading(false);
     }

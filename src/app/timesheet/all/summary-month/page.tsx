@@ -19,9 +19,9 @@ import {
   Table,
   Tag,
   Typography,
-  message,
   Badge,
 } from "antd";
+import { toast } from "sonner";
 import type { ColumnsType } from "antd/es/table";
 import {
   AreaChartOutlined,
@@ -211,7 +211,7 @@ export default function Page() {
       setMetadata(body.data?.metadata ?? null);
     } catch (error: any) {
       console.error("[Timesheet][summary]", error);
-      message.error(error?.message || "ไม่สามารถโหลดข้อมูลได้");
+      toast.error(error?.message || "ไม่สามารถโหลดข้อมูลได้");
     } finally {
       setLoading(false);
     }

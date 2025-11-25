@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Dayjs } from "dayjs";
-import { message } from "antd";
+import { toast } from "sonner";
 import { TFunction } from "i18next";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { useAppSelector } from "@stores/store";
@@ -75,7 +75,11 @@ export const useUserProfileData = (
       setPositions(result);
     } catch (error) {
       setPositions([]);
-      showErrorModal(translation, "user_profile_page.error_load_positions", error);
+      showErrorModal(
+        translation,
+        "user_profile_page.error_load_positions",
+        error
+      );
     }
   }, [translation]);
 
@@ -89,11 +93,19 @@ export const useUserProfileData = (
       try {
         const response = await axios.get(`/api/v1/admin/user/read/${userId}`);
         const payload: UserProfile[] = response?.data?.data ?? [];
-        console.debug("fetchUserDetail: requested", userId, "payload length", payload?.length);
+        console.debug(
+          "fetchUserDetail: requested",
+          userId,
+          "payload length",
+          payload?.length
+        );
         let result: UserProfile | undefined;
         if (Array.isArray(payload)) {
-          result = payload.find((u) =>
-            String(u.admin_id) === String(userId) || String((u as any).id) === String(userId) || String(u.email) === String(userId)
+          result = payload.find(
+            (u) =>
+              String(u.admin_id) === String(userId) ||
+              String((u as any).id) === String(userId) ||
+              String(u.email) === String(userId)
           );
           // fallback to first item if only one returned
           if (!result && payload.length === 1) result = payload[0];
@@ -102,15 +114,24 @@ export const useUserProfileData = (
         }
 
         if (result) {
-          console.debug("fetchUserDetail: matched user", result?.admin_id ?? result?.id ?? result?.email);
+          console.debug(
+            "fetchUserDetail: matched user",
+            result?.admin_id ?? result?.id ?? result?.email
+          );
           setSelectedUser(result);
           setHasError(false);
         } else {
-          console.debug("fetchUserDetail: no match, keeping current selectedUser");
+          console.debug(
+            "fetchUserDetail: no match, keeping current selectedUser"
+          );
           // keep current selectedUser (do not overwrite) when API doesn't return matching user
         }
       } catch (error) {
-        showErrorModal(translation, "user_profile_page.error_load_user_detail", error);
+        showErrorModal(
+          translation,
+          "user_profile_page.error_load_user_detail",
+          error
+        );
         setHasError(true);
         // do not clear selectedUser on error to avoid losing clicked item
       }
@@ -196,11 +217,14 @@ export const useUserProfileData = (
           "JabjaiKey-0-0": "",
         },
       });
-      message.success(translation("user_profile_page.toast_create_success"));
       closeModal();
       await fetchUsers();
     } catch (error) {
-      showErrorModal(translation, "user_profile_page.toast_create_error", error);
+      showErrorModal(
+        translation,
+        "user_profile_page.toast_create_error",
+        error
+      );
     }
   };
 
@@ -216,18 +240,25 @@ export const useUserProfileData = (
           "Content-Type": "multipart/form-data",
         },
       });
-      message.success(translation("user_profile_page.toast_update_success"));
       closeModal();
       await fetchUsers();
     } catch (error) {
-      showErrorModal(translation, "user_profile_page.toast_update_error", error);
+      showErrorModal(
+        translation,
+        "user_profile_page.toast_update_error",
+        error
+      );
     }
   };
 
   const submitDeleteUser = async () => {
     if (!deleteUserId) return;
     if (!adminId) {
-      showErrorModal(translation, "user_profile_page.error_missing_admin", "Missing admin id");
+      showErrorModal(
+        translation,
+        "user_profile_page.error_missing_admin",
+        "Missing admin id"
+      );
       return;
     }
 
@@ -244,12 +275,16 @@ export const useUserProfileData = (
           },
         }
       );
-      message.success(translation("user_profile_page.toast_delete_success"));
+      toast.success(translation("user_profile_page.toast_delete_success"));
       closeModal();
       setDeleteUserId(null);
       await fetchUsers();
     } catch (error) {
-      showErrorModal(translation, "user_profile_page.toast_delete_error", error);
+      showErrorModal(
+        translation,
+        "user_profile_page.toast_delete_error",
+        error
+      );
     }
   };
 
@@ -262,7 +297,7 @@ export const useUserProfileData = (
     try {
       const textFormat = formatUserCopyText(user, translation);
       await navigator.clipboard.writeText(textFormat);
-      message.success(translation("user_profile_page.toast_copy_success"));
+      toast.success(translation("user_profile_page.toast_copy_success"));
     } catch (error) {
       showErrorModal(translation, "user_profile_page.toast_copy_error", error);
     }

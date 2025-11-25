@@ -34,11 +34,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         externalFormData.append("username", username);
         externalFormData.append("password", password);
 
+        console.info("Sending login request to external API:", apiUrl);
+
         // เรียก API ภายนอกด้วย axios พร้อมตั้งค่า timeout และ headers
         const response = await axios.post(apiUrl, externalFormData, {
             headers: externalFormData.getHeaders(),
             timeout: 5000, // กำหนด timeout 5 วินาที
         });
+
+        console.info("Received response from external API:", response.data);
 
         const endTime = performance.now();
         const responseTime = Number((endTime - startTime).toFixed(2)); // เวลาในการตอบสนอง (ms)

@@ -5,4 +5,5 @@ export const Schema = z.object({
   password: z.string().min(6),
   name: z.string().min(1),
   lastname: z.string().min(1),
+  code: z.string().optional(),
 });

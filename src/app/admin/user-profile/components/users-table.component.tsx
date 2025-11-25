@@ -185,9 +185,6 @@ export const UsersTable = ({
       }}
       locale={{ emptyText: titles.empty }}
       className="hover:shadow-md"
-      rowClassName={(_, index) =>
-        index % 2 === 0 ? "bg-white" : "bg-slate-50/60 hover:!bg-indigo-50"
-      }
       scroll={{ x: "max-content" }}
     />
   );
