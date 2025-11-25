@@ -76,21 +76,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             href: "/admin/user-profile",
             icon: <ProfileOutlined />,
           },
-          {
-            label: t("admin_system.children.user_management"),
-            href: "/admin/user-management",
-            icon: <TeamOutlined />,
-          },
-          {
-            label: t("admin_system.children.role_management"),
-            href: "/admin/role-management",
-            icon: <SafetyOutlined />,
-          },
-          {
-            label: t("admin_system.children.system_log"),
-            href: "/admin/system-log",
-            icon: <HistoryOutlined />,
-          },
+          
         ],
       },
       {

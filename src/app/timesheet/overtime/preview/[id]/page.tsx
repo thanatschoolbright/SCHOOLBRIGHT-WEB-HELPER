@@ -166,15 +166,17 @@ export default function OTPreviewPage() {
     return Number.isInteger(normalized) ? normalized : normalized;
   }, [data]);
 
-  const authUser = authentication?.response?.data?.user_data;
+  const userData = getUserById(data?.requester_id ?? "");
+  console.info("Overtime requester data:", userData);
+
   const requesterId =
-    authUser?.admin_id ?? getAdminIdFromLocalStorage() ?? "system";
+    userData?.admin_id ?? getAdminIdFromLocalStorage() ?? "system";
   const requesterName =
-    authUser && (authUser.firstname || authUser.lastname)
-      ? `${authUser.firstname ?? ""} ${authUser.lastname ?? ""}`.trim()
+    userData && (userData.firstname || userData.lastname)
+      ? `${userData.firstname ?? ""} ${userData.lastname ?? ""}`.trim()
       : data?.requester_id ?? "-";
-  const employeeCode = authUser?.employee_code ?? data?.created_by ?? "-";
-  const position = authUser?.position ?? getPositionFromLocalStorage() ?? "-";
+  const employeeCode = userData?.employee_code ?? data?.created_by ?? "-";
+  const position = userData?.position ?? getPositionFromLocalStorage() ?? "-";
   const department = data?.department ?? "IT";
   const headerDate = data?.request_date ?? data?.created_at ?? null;
 
