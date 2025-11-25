@@ -59,5 +59,33 @@
     "delete_confirm_message": "คุณแน่ใจหรือไม่ว่าต้องการลบรายการที่เลือก?",
     "cancel_button": "ยกเลิก",
     "confirm_button": "ยืนยัน"
+  },
+  "timeline_page": {
+    "title": "Project Timeline",
+    "subtitle": "แผนภาพไทม์ไลน์โครงการ (Enterprise View)",
+    "stats_total": "โครงการทั้งหมด",
+    "stats_active": "กำลังดำเนินการ",
+    "stats_upcoming": "กำลังจะเริ่ม",
+    "stats_ended": "สิ้นสุดแล้ว",
+    "view_month": "มุมมองรายเดือน",
+    "view_quarter": "มุมมองรายไตรมาส (ซูมออก)",
+    "focus_label": "โฟกัส",
+    "filter_all": "ทั้งหมด",
+    "filter_1month": "1 เดือน",
+    "filter_3months": "3 เดือน",
+    "filter_6months": "6 เดือน",
+    "search_placeholder": "ค้นหาโครงการ...",
+    "tag_project": "โครงการ",
+    "tag_feature": "ฟีเจอร์",
+    "tag_today": "วันนี้",
+    "header_project_name": "ชื่อโครงการ",
+    "today_label": "วันนี้",
+    "no_data": "ไม่พบข้อมูลโครงการในช่วงเวลานี้",
+    "no_description": "ไม่มีคำอธิบาย",
+    "popup_start": "เริ่มต้น",
+    "popup_end": "สิ้นสุด",
+    "popup_duration": "ระยะเวลา",
+    "popup_days": "วัน",
+    "popup_features": "ฟีเจอร์"
   }
 }

@@ -59,5 +59,33 @@
     "delete_confirm_message": "Are you sure you want to delete the selected items?",
     "cancel_button": "Cancel",
     "confirm_button": "Confirm"
+  },
+  "timeline_page": {
+    "title": "Project Timeline",
+    "subtitle": "Enterprise Project Timeline View",
+    "stats_total": "Total Projects",
+    "stats_active": "Active Now",
+    "stats_upcoming": "Upcoming",
+    "stats_ended": "Ended",
+    "view_month": "Month View",
+    "view_quarter": "Quarter View (Zoom Out)",
+    "focus_label": "Focus",
+    "filter_all": "All",
+    "filter_1month": "1 Month",
+    "filter_3months": "3 Months",
+    "filter_6months": "6 Months",
+    "search_placeholder": "Search Projects...",
+    "tag_project": "Project",
+    "tag_feature": "Feature",
+    "tag_today": "Today",
+    "header_project_name": "Project Name",
+    "today_label": "Today",
+    "no_data": "No projects found in this time period",
+    "no_description": "No description available",
+    "popup_start": "Start",
+    "popup_end": "End",
+    "popup_duration": "Duration",
+    "popup_days": "Days",
+    "popup_features": "Features"
   }
 }

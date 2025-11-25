@@ -217,7 +217,8 @@ export const useProjectData = (
           "/api/v1/timesheet/project/sub-project/read/",
           { limit: 100, page: 1, project_id: Number(projectId) }
         );
-        const items = response.data?.data?.items ?? [];
+        // API returns { data: [...] } not { data: { items: [...] } }
+        const items = response.data?.data ?? [];
         if (isMountedRef.current) dispatch(setSubProjects(items));
         toast.success("โหลดรายการฟีเจอร์สำเร็จ", { id: TOAST_ID });
         return items;

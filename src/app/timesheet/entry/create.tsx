@@ -256,8 +256,12 @@ export function CreateModalForm({
                   showSearch
                   placeholder="ค้นหาโครงการ..."
                   onChange={(value) => {
-                    fetchSubProjects(String(value));
+                    // Reset sub-project when project changes
                     form.setFieldsValue({ sub_project_id: undefined });
+                    // Fetch sub-projects for selected project
+                    if (value) {
+                      fetchSubProjects(String(value));
+                    }
                   }}
                   options={projectOptions}
                   size="large"
@@ -282,17 +286,28 @@ export function CreateModalForm({
                   placeholder={
                     !form.getFieldValue("project_id")
                       ? "กรุณาเลือกโครงการหลักก่อน"
+                      : subProjectOptions.length === 0
+                      ? "กำลังโหลดงานย่อย..."
                       : "ค้นหางานย่อย..."
                   }
                   options={subProjectOptions}
                   size="large"
-                  disabled={!subProjectOptions.length}
+                  disabled={!form.getFieldValue("project_id")}
+                  loading={
+                    form.getFieldValue("project_id") &&
+                    subProjectOptions.length === 0
+                  }
                   filterOption={(input, option) =>
                     (option?.labelString ?? "")
                       .toLowerCase()
                       .includes(input.toLowerCase())
                   }
                   variant="filled"
+                  notFoundContent={
+                    form.getFieldValue("project_id")
+                      ? "ไม่พบงานย่อยในโครงการนี้"
+                      : "กรุณาเลือกโครงการหลักก่อน"
+                  }
                 />
               </Form.Item>
             </Col>
