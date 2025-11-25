@@ -123,6 +123,11 @@ jobs:
     needs: [pre_flight_checks]
 
     steps:
+      - name: Fix Workspace Permissions
+        run: |
+          sudo chown -R githubrunner:githubrunner "${GITHUB_WORKSPACE%/*}" || true
+          sudo chmod -R u+rwX "${GITHUB_WORKSPACE%/*}" || true
+
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
@@ -149,10 +154,10 @@ jobs:
           fi
           echo "✅ Prisma clients generated"
 
-      - name: Build Application
+      - name: Build Application (NPM)
         run: |
           echo "🏗️ Building application..."
-          bun run build
+          npm run build
           echo "✅ Build completed"
 
       - name: Verify Build Output
