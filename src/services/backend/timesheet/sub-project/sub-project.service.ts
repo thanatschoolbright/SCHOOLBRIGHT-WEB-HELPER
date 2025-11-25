@@ -44,10 +44,15 @@ export const Service = {
   },
 
   // * ดึงข้อมูล Feature ทั้งหมดใน Project เดียวกัน
-  async findByProjectId(projectId: number) {
+  async findByProjectId(
+    projectId: number,
+    opts: { limit?: number; skip?: number } = { limit: undefined, skip: 0 }
+  ) {
     const [items, total] = await Promise.all([
       PrismaTimesheet.feature.findMany({
         where: { projectId, is_deleted: false },
+        take: opts.limit,
+        skip: opts.skip,
         orderBy: { createdAt: "desc" },
       }),
       PrismaTimesheet.feature.count({

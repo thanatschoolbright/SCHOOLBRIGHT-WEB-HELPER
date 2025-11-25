@@ -20,14 +20,18 @@ export async function POST(request: NextRequest) {
     const { project_id, limit = 10, page = 1 } = data;
     const take = Number(limit);
     const currentPage = Number(page);
+    const skip = (currentPage - 1) * take;
     let dataResult;
     let total = 0;
 
     if (project_id) {
-      dataResult = await Service.findByProjectId(Number(project_id));
-      total = dataResult ? 1 : 0;
+      const result = await Service.findByProjectId(Number(project_id), {
+        limit: take,
+        skip,
+      });
+      dataResult = result.items;
+      total = result.total;
     } else {
-      const skip = (currentPage - 1) * take;
       const result = await Service.findAll({ limit: take, skip });
       dataResult = result.items;
       total = result.total;

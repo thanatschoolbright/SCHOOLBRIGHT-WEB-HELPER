@@ -185,7 +185,7 @@ export default function Page() {
       }
       const data = await res.json();
       console.log("Fetched projects:", data);
-      setSubProjects(data?.data?.items || []);
+      setSubProjects(data?.data || []);
       settotal_pages(data.pagination?.total_pages || 1);
     } catch (error) {
       console.error("Error fetching projects:", error);
