@@ -247,6 +247,8 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
   const stripMarkdown = (value?: string | null): string => {
     if (!value) return "-";
     return value
+      .replace(/```[\s\S]*?```/g, "")
+      .replace(/^>{1,6}\s+/gm, "")
       .replace(/^#{1,6}\s+/gm, "")
       .replace(/\*\*(.*?)\*\*/g, "$1")
       .replace(/\*(.*?)\*/g, "$1")
@@ -256,6 +258,130 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
       .replace(/^\s*-\s+/gm, "• ")
       .replace(/^\s*\*\s+/gm, "• ")
       .replace(/\r\n/g, "\n");
+  };
+
+  const markdownToHtml = (value?: string | null) => {
+    const md = value || "";
+    const lines = md.replace(/\r\n/g, "\n").split("\n");
+    let html = "";
+
+    const renderInline = (text: string) =>
+      text
+        .replace(
+          /!\[([^\]]*)\]\(([^)]+)\)/g,
+          '<img alt="$1" src="$2" style="max-width:100%; border-radius:8px;" />'
+        )
+        .replace(
+          /\[([^\]]+)\]\(([^)]+)\)/g,
+          '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+        )
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+
+    const flushParagraph = (buffer: string[]) => {
+      if (!buffer.length) return;
+      html += `<p style="margin:0;">${renderInline(buffer.join(" ").trim())}</p>`;
+      buffer.length = 0;
+    };
+
+    const parseTable = (start: number) => {
+      const headerLine = lines[start];
+      const rows: string[] = [];
+      let idx = start + 2;
+      while (idx < lines.length && /^\|.*\|$/.test(lines[idx].trim())) {
+        rows.push(lines[idx]);
+        idx += 1;
+      }
+
+      const cells = (line: string) =>
+        line
+          .trim()
+          .replace(/^\||\|$/g, "")
+          .split("|")
+          .map((cell) => renderInline(cell.trim()));
+
+      const headers = cells(headerLine);
+      const bodyRows = rows.map((row) => cells(row));
+
+      html += `<table style="width:100%; border-collapse:collapse; margin:6px 0;">`;
+      html += `<thead><tr>`;
+      headers.forEach((h) => {
+        html += `<th style="border:1px solid #e5e5e5; padding:8px; background:#f7f7f7; text-align:left;">${h}</th>`;
+      });
+      html += `</tr></thead><tbody>`;
+      bodyRows.forEach((r) => {
+        html += `<tr>`;
+        r.forEach((c) => {
+          html += `<td style="border:1px solid #e5e5e5; padding:8px; text-align:left;">${c}</td>`;
+        });
+        html += `</tr>`;
+      });
+      html += `</tbody></table>`;
+
+      return idx - 1;
+    };
+
+    const buffer: string[] = [];
+    for (let i = 0; i < lines.length; i += 1) {
+      const line = lines[i];
+      const trimmed = line.trim();
+
+      if (!trimmed) {
+        flushParagraph(buffer);
+        continue;
+      }
+
+      const headingMatch = /^#{1,6}\s+(.*)/.exec(trimmed);
+      if (headingMatch) {
+        flushParagraph(buffer);
+        const level = trimmed.indexOf(" ");
+        html += `<h${level} style="margin:0 0 6px;">${renderInline(
+          headingMatch[1].trim()
+        )}</h${level}>`;
+        continue;
+      }
+
+      const isTableHeader =
+        /^\|.*\|$/.test(trimmed) &&
+        i + 1 < lines.length &&
+        /\|?\s*:?-{3,}\s*\|/.test(lines[i + 1]);
+      if (isTableHeader) {
+        flushParagraph(buffer);
+        i = parseTable(i);
+        continue;
+      }
+
+      if (/^[-*]\s+/.test(trimmed)) {
+        flushParagraph(buffer);
+        const items: string[] = [];
+        let j = i;
+        while (j < lines.length && /^[-*]\s+/.test(lines[j].trim())) {
+          items.push(lines[j].trim().replace(/^[-*]\s+/, ""));
+          j += 1;
+        }
+        html += `<ul style="margin:0; padding-left:18px; display:grid; gap:4px;">${items
+          .map((item) => `<li>${renderInline(item)}</li>`)
+          .join("")}</ul>`;
+        i = j - 1;
+        continue;
+      }
+
+      buffer.push(renderInline(trimmed));
+    }
+
+    flushParagraph(buffer);
+    return html || "<p>-</p>";
+  };
+
+  const renderDescriptionContent = (value?: string | null) => {
+    const html = markdownToHtml(value);
+    return (
+      <div
+        style={{ width: "100%", display: "grid", gap: 8, lineHeight: 1.6 }}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
   };
 
   const formatDate = (value?: string | null) =>

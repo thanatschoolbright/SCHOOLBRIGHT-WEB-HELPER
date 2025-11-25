@@ -11,7 +11,7 @@ export type MilestoneCardProps = {
   deleting?: boolean;
   milestone: Milestone;
   onDelete: (milestoneId: number) => void;
-  onEdit: (milestone: Milestone) => void;
+  onEdit: (milestone: any) => void;
 };
 
 //** การ์ดแสดงรายละเอียดไมล์สโตนแต่ละตัว พร้อมปุ่มแก้ไข/ลบ **

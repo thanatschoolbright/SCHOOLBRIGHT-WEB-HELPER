@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios"
+import axios from "axios";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 
 const BACKLOG_DOMAINS = [
@@ -7,10 +7,6 @@ const BACKLOG_DOMAINS = [
   "backlogtool.com",
   "backlog.jp",
 ] as const;
-
-type RouteParams = {
-  projectId: string;
-};
 
 type MilestonePayload = {
   name: string;
@@ -39,7 +35,10 @@ const buildMilestoneForm = (payload: any) => {
 };
 
 //** ดึงรายการ Milestone/Version ของโปรเจ็กต์จาก Backlog
-export async function GET(request: NextRequest, context: any) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ project_id?: string }> }
+) {
   try {
     const apiKeyFromEnvironment = process.env.BACKLOG_API_KEY;
     if (!apiKeyFromEnvironment) {
@@ -53,8 +52,8 @@ export async function GET(request: NextRequest, context: any) {
       );
     }
 
-    const { projectId } = context.params;
-    const projectIdOrKey = projectId;
+    const { project_id } = await params;
+    const projectIdOrKey = project_id;
     if (!projectIdOrKey) {
       return NextResponse.json(
         errorResponse({
@@ -123,7 +122,10 @@ export async function GET(request: NextRequest, context: any) {
 }
 
 //** เพิ่ม Milestone ใหม่ให้โปรเจ็กต์บน Backlog
-export async function POST(request: NextRequest, context: any) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ project_id?: string }> }
+) {
   try {
     const apiKeyFromEnvironment = process.env.BACKLOG_API_KEY;
     if (!apiKeyFromEnvironment) {
@@ -137,8 +139,8 @@ export async function POST(request: NextRequest, context: any) {
       );
     }
 
-    const { projectId } = context.params;
-    const projectIdOrKey = projectId;
+    const { project_id } = await params;
+    const projectIdOrKey = project_id;
     if (!projectIdOrKey) {
       return NextResponse.json(
         errorResponse({

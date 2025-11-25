@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios"
+import axios from "axios";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 
 const BACKLOG_DOMAINS = [
@@ -7,11 +7,6 @@ const BACKLOG_DOMAINS = [
   "backlogtool.com",
   "backlog.jp",
 ] as const;
-
-type RouteParams = {
-  projectId: string;
-  milestoneId: string;
-};
 
 type UpdateMilestonePayload = {
   name?: string;
@@ -36,7 +31,10 @@ const buildMilestoneForm = (payload: UpdateMilestonePayload) => {
 };
 
 //** แก้ไขรายละเอียด Milestone บน Backlog
-export async function PATCH(request: NextRequest, context: any) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ project_id?: string; milestoneId?: string }> }
+) {
   try {
     const apiKeyFromEnvironment = process.env.BACKLOG_API_KEY;
     if (!apiKeyFromEnvironment) {
@@ -50,9 +48,8 @@ export async function PATCH(request: NextRequest, context: any) {
       );
     }
 
-    const params = context.params as { projectId: string; milestoneId: string };
-    const { projectId, milestoneId } = params;
-    if (!projectId || !milestoneId) {
+    const { project_id, milestoneId } = await params;
+    if (!project_id || !milestoneId) {
       return NextResponse.json(
         errorResponse({
           status: 400,
@@ -95,7 +92,7 @@ export async function PATCH(request: NextRequest, context: any) {
     let lastError: unknown;
     for (const domain of BACKLOG_DOMAINS) {
       try {
-        const url = `https://${space}.${domain}/api/v2/projects/${projectId}/versions/${milestoneId}`;
+        const url = `https://${space}.${domain}/api/v2/projects/${project_id}/versions/${milestoneId}`;
         const backlogResponse = await axios.patch(url, form.toString(), {
           params: { apiKey: apiKeyFromEnvironment },
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -131,7 +128,10 @@ export async function PATCH(request: NextRequest, context: any) {
 }
 
 //** ลบ Milestone ออกจาก Backlog
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ project_id?: string; milestoneId?: string }> }
+) {
   try {
     const apiKeyFromEnvironment = process.env.BACKLOG_API_KEY;
     if (!apiKeyFromEnvironment) {
@@ -145,9 +145,8 @@ export async function DELETE(request: NextRequest, context: any) {
       );
     }
 
-    const params = context.params as { projectId: string; milestoneId: string };
-    const { projectId, milestoneId } = params;
-    if (!projectId || !milestoneId) {
+    const { project_id, milestoneId } = await params;
+    if (!project_id || !milestoneId) {
       return NextResponse.json(
         errorResponse({
           status: 400,
@@ -174,7 +173,7 @@ export async function DELETE(request: NextRequest, context: any) {
     let lastError: unknown;
     for (const domain of BACKLOG_DOMAINS) {
       try {
-        const url = `https://${space}.${domain}/api/v2/projects/${projectId}/versions/${milestoneId}`;
+        const url = `https://${space}.${domain}/api/v2/projects/${project_id}/versions/${milestoneId}`;
         await axios.delete(url, {
           params: { apiKey: apiKeyFromEnvironment },
         });
