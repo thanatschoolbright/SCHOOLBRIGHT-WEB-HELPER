@@ -813,9 +813,7 @@ export default function OvertimeManagementPage() {
         theme={{
           components: {
             Table: {
-              headerBg: "#fafafa",
-              headerColor: "#595959",
-              rowHoverBg: "#f0f7ff",
+              
               borderRadiusLG: 12,
             },
             Card: {
@@ -984,11 +982,7 @@ export default function OvertimeManagementPage() {
               loading={loading}
               onChange={handleTableChange}
               scroll={{ x: 1000 }}
-              rowClassName={(record, index) =>
-                index % 2 === 0
-                  ? "bg-white hover:bg-blue-50 transition-colors"
-                  : "bg-gray-50 hover:bg-blue-50 transition-colors"
-              }
+              
               expandable={{
                 expandedRowRender: (record) => (
                   <div className="p-4 bg-gray-50 rounded-lg mx-4 mb-4 border border-gray-200">
