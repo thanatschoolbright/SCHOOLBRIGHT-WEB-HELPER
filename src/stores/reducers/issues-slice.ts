@@ -16,11 +16,13 @@ interface IssuesState {
   issueTypeOptions: OptionItem[];
   milestoneOptions: OptionItem[];
   categoryOptions: OptionItem[];
+  assigneeOptions: OptionItem[];
   filters: {
     keyword: string;
     statusIds: number[];
     priorityIds: number[];
     issueTypeIds: number[];
+    assigneeIds: number[];
     dateRange: DateRangeValue;
   };
   selectedRowKeys: React.Key[];
@@ -38,11 +40,13 @@ const initialState: IssuesState = {
   issueTypeOptions: [],
   milestoneOptions: [],
   categoryOptions: [],
+  assigneeOptions: [],
   filters: {
     keyword: "",
     statusIds: [],
     priorityIds: [],
     issueTypeIds: [],
+    assigneeIds: [],
     dateRange: null,
   },
   selectedRowKeys: [],
@@ -92,6 +96,7 @@ const issuesSlice = createSlice({
             | "issueTypeOptions"
             | "milestoneOptions"
             | "categoryOptions"
+            | "assigneeOptions"
           >
         >
       >
@@ -105,6 +110,8 @@ const issuesSlice = createSlice({
         action.payload.milestoneOptions ?? state.milestoneOptions;
       state.categoryOptions =
         action.payload.categoryOptions ?? state.categoryOptions;
+      state.assigneeOptions =
+        action.payload.assigneeOptions ?? state.assigneeOptions;
     },
     setSelectedRowKeys: (state, action: PayloadAction<React.Key[]>) => {
       state.selectedRowKeys = action.payload;

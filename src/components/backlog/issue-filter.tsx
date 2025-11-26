@@ -8,8 +8,10 @@ import {
   Select,
   Skeleton,
   Space,
-  Tabs,
   Typography,
+  Row,
+  Col,
+  Divider,
 } from "antd";
 import type { RangePickerProps } from "antd/es/date-picker";
 import type { Dayjs } from "dayjs";
@@ -17,6 +19,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetFilters, setFilters } from "@stores/reducers/issues-slice";
 import { RootState } from "@stores/store";
+import { SearchOutlined, ClearOutlined } from "@ant-design/icons";
 
 type DateRangeValue = [Dayjs | null, Dayjs | null] | null;
 
@@ -36,8 +39,16 @@ const IssueFilter: React.FC<IssueFilterProps> = ({
     statusOptions,
     priorityOptions,
     issueTypeOptions,
+    assigneeOptions,
   } = useSelector((state: RootState) => state.issues);
-  const { keyword, statusIds, priorityIds, issueTypeIds, dateRange } = filters;
+  const {
+    keyword,
+    statusIds,
+    priorityIds,
+    issueTypeIds,
+    assigneeIds,
+    dateRange,
+  } = filters;
 
   const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setFilters({ keyword: e.target.value }));
@@ -55,6 +66,10 @@ const IssueFilter: React.FC<IssueFilterProps> = ({
     dispatch(setFilters({ issueTypeIds: values }));
   };
 
+  const handleAssigneeChange = (values: number[]) => {
+    dispatch(setFilters({ assigneeIds: values }));
+  };
+
   const handleDateRangeChange: RangePickerProps["onChange"] = (range) => {
     const normalizedRange: DateRangeValue =
       range && Array.isArray(range) && range.length === 2 ? range : null;
@@ -66,21 +81,31 @@ const IssueFilter: React.FC<IssueFilterProps> = ({
     onSearch();
   };
 
-  const wideFilterItemStyle: React.CSSProperties = {
-    flex: "1 1 320px",
-    minWidth: 280,
-  };
-
   return (
     <Card
       size="small"
       styles={{
         body: {
-          padding: 16,
+          padding: 20,
         },
       }}
-      style={elevatedCardStyle}
-      title="ตัวกรองข้อมูล"
+      style={{ ...elevatedCardStyle, borderRadius: 16 }}
+      title={
+        <Space>
+          <SearchOutlined />
+          <span>ตัวกรองข้อมูล (Filters)</span>
+        </Space>
+      }
+      extra={
+        <Button
+          type="text"
+          icon={<ClearOutlined />}
+          onClick={handleReset}
+          danger
+        >
+          ล้างค่า
+        </Button>
+      }
     >
       <Skeleton
         active
@@ -88,117 +113,113 @@ const IssueFilter: React.FC<IssueFilterProps> = ({
         paragraph={{ rows: 4 }}
         title={false}
       >
-        <Tabs
-          defaultActiveKey="primary"
-          items={[
-            {
-              key: "primary",
-              label: "ตัวกรองหลัก",
-              children: (
-                <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                  <Space size={12} style={{ width: "100%" }} wrap>
-                    <Space
-                      direction="vertical"
-                      size={6}
-                      style={{ flex: "1 1 240px", minWidth: 200 }}
-                    >
-                      <Typography.Text type="secondary">
-                        คำค้นหา
-                      </Typography.Text>
-                      <Input
-                        placeholder="ค้นหา (คีย์เวิร์ด)"
-                        value={keyword}
-                        onChange={handleKeywordChange}
-                      />
-                    </Space>
-                    <Space
-                      direction="vertical"
-                      size={6}
-                      style={{ flex: "1 1 260px", minWidth: 240 }}
-                    >
-                      <Typography.Text type="secondary">สถานะ</Typography.Text>
-                      <Select
-                        mode="multiple"
-                        allowClear
-                        placeholder="เลือกสถานะ"
-                        value={statusIds}
-                        onChange={handleStatusChange}
-                        options={statusOptions}
-                      />
-                    </Space>
-                    <Space
-                      direction="vertical"
-                      size={6}
-                      style={wideFilterItemStyle}
-                    >
-                      <Typography.Text type="secondary">
-                        ความสำคัญ
-                      </Typography.Text>
-                      <Select
-                        mode="multiple"
-                        allowClear
-                        placeholder="เลือกความสำคัญ"
-                        value={priorityIds}
-                        onChange={handlePriorityChange}
-                        options={priorityOptions}
-                      />
-                    </Space>
-                  </Space>
-                </Space>
-              ),
-            },
-            {
-              key: "advanced",
-              label: "ตัวกรองเพิ่มเติม",
-              children: (
-                <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                  <Space size={12} style={{ width: "100%" }} wrap>
-                    <Space
-                      direction="vertical"
-                      size={6}
-                      style={wideFilterItemStyle}
-                    >
-                      <Typography.Text type="secondary">
-                        ประเภทงาน
-                      </Typography.Text>
-                      <Select
-                        mode="multiple"
-                        allowClear
-                        placeholder="เลือกประเภทงาน"
-                        value={issueTypeIds}
-                        onChange={handleIssueTypeChange}
-                        options={issueTypeOptions}
-                      />
-                    </Space>
-                    <Space
-                      direction="vertical"
-                      size={6}
-                      style={{ flex: "1 1 260px", minWidth: 200 }}
-                    >
-                      <Typography.Text type="secondary">
-                        ช่วงวันที่อัปเดต
-                      </Typography.Text>
-                      <DatePicker.RangePicker
-                        value={dateRange ?? null}
-                        onChange={handleDateRangeChange}
-                      />
-                    </Space>
-                  </Space>
-                </Space>
-              ),
-            },
-          ]}
-        />
-        {/* * ปุ่มล้างค่าและแสดงผล * */}
-        <Space
-          align="center"
-          size={8}
-          style={{ marginLeft: "auto", marginTop: 12 }}
-        >
-          <Button onClick={handleReset}>ล้างค่า</Button>
-          <Button type="primary" onClick={onSearch}>
-            แสดงผล
-          </Button>
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          {/* Row 1: Keyword & Date Range */}
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={12} lg={8}>
+              <Typography.Text type="secondary" className="block mb-1">
+                คำค้นหา (Keyword)
+              </Typography.Text>
+              <Input
+                placeholder="ค้นหา Title, Key, หรือ Description"
+                value={keyword}
+                onChange={handleKeywordChange}
+                prefix={<SearchOutlined className="text-gray-400" />}
+                allowClear
+              />
+            </Col>
+            <Col xs={24} md={12} lg={8}>
+              <Typography.Text type="secondary" className="block mb-1">
+                ช่วงวันที่อัปเดต (Updated Date)
+              </Typography.Text>
+              <DatePicker.RangePicker
+                value={dateRange ?? null}
+                onChange={handleDateRangeChange}
+                style={{ width: "100%" }}
+              />
+            </Col>
+            <Col xs={24} md={12} lg={8}>
+              <Typography.Text type="secondary" className="block mb-1">
+                ผู้รับผิดชอบ (Assignee)
+              </Typography.Text>
+              <Select
+                mode="multiple"
+                allowClear
+                placeholder="เลือกผู้รับผิดชอบ"
+                value={assigneeIds}
+                onChange={handleAssigneeChange}
+                options={assigneeOptions}
+                style={{ width: "100%" }}
+                maxTagCount="responsive"
+              />
+            </Col>
+          </Row>
+
+          <Divider style={{ margin: "12px 0" }} dashed />
+
+          {/* Row 2: Status, Priority, Issue Type */}
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={8}>
+              <Typography.Text type="secondary" className="block mb-1">
+                สถานะ (Status)
+              </Typography.Text>
+              <Select
+                mode="multiple"
+                allowClear
+                placeholder="เลือกสถานะ"
+                value={statusIds}
+                onChange={handleStatusChange}
+                options={statusOptions}
+                style={{ width: "100%" }}
+                maxTagCount="responsive"
+              />
+            </Col>
+            <Col xs={24} md={8}>
+              <Typography.Text type="secondary" className="block mb-1">
+                ความสำคัญ (Priority)
+              </Typography.Text>
+              <Select
+                mode="multiple"
+                allowClear
+                placeholder="เลือกความสำคัญ"
+                value={priorityIds}
+                onChange={handlePriorityChange}
+                options={priorityOptions}
+                style={{ width: "100%" }}
+                maxTagCount="responsive"
+              />
+            </Col>
+            <Col xs={24} md={8}>
+              <Typography.Text type="secondary" className="block mb-1">
+                ประเภทงาน (Issue Type)
+              </Typography.Text>
+              <Select
+                mode="multiple"
+                allowClear
+                placeholder="เลือกประเภทงาน"
+                value={issueTypeIds}
+                onChange={handleIssueTypeChange}
+                options={issueTypeOptions}
+                style={{ width: "100%" }}
+                maxTagCount="responsive"
+              />
+            </Col>
+          </Row>
+
+          {/* Action Buttons */}
+          <Row justify="end" style={{ marginTop: 8 }}>
+            <Col>
+              <Button
+                type="primary"
+                onClick={onSearch}
+                icon={<SearchOutlined />}
+                size="large"
+                style={{ minWidth: 120 }}
+              >
+                ค้นหา (Search)
+              </Button>
+            </Col>
+          </Row>
         </Space>
       </Skeleton>
     </Card>

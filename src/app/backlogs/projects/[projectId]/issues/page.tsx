@@ -7,8 +7,11 @@ import { useTranslation } from "react-i18next";
 import DashboardLayout from "@/components/layouts/backend-layout";
 import HeaderSection from "./components/header.component";
 import SummaryCards from "./components/summary-cards.component";
-import FiltersToolbar from "./components/filters.component";
-import FiltersSection from "./components/filters-section.component";
+import React, { useState } from "react";
+import { PieChartOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+import IssueFilter from "@/components/backlog/issue-filter";
+import IssueSummaryModal from "./components/issue-summary-modal.component";
 import BulkUpdateSection from "./components/bulk-update-section.component";
 import TableSection from "./components/table-section.component";
 import FallbackError from "./components/fallback-error.component";
@@ -30,6 +33,7 @@ function ProjectIssuesPageContent(): JSX.Element {
   const projectReady =
     Number.isFinite(projectId) && projectId > 0 && Boolean(space);
   const [modalApi, contextHolder] = Modal.useModal();
+  const [showSummary, setShowSummary] = useState(false); // New state
 
   const { state, loadIssues, loadOptions, resetAll, handleSearchKeyword } =
     useIssuesPageData({
@@ -98,6 +102,15 @@ function ProjectIssuesPageContent(): JSX.Element {
               }
               subtitle={`${TRANSLATION("backlog_issues_page.space")}: ${space}`}
               onBack={onBack}
+              extra={
+                <Button
+                  icon={<PieChartOutlined />}
+                  onClick={() => setShowSummary(true)}
+                  type="default"
+                >
+                  ดูรายงานสรุป
+                </Button>
+              }
             />
 
             {/* Summary Cards */}
@@ -107,18 +120,11 @@ function ProjectIssuesPageContent(): JSX.Element {
               projectName={projectName}
             />
 
-            {/* Filters */}
-            <FiltersToolbar
-              total={state.total}
-              keyword={state.filters.keyword ?? ""}
-              onSearch={handleSearch}
-              onReset={resetAll}
-              onRefresh={loadIssues}
-              loading={state.loading}
+            {/* New Unified Filter */}
+            <IssueFilter
+              onSearch={loadIssues}
+              elevatedCardStyle={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
             />
-
-            {/* Advanced Filters */}
-            <FiltersSection onSearch={loadIssues} />
 
             {/* Bulk Update */}
             <BulkUpdateSection
@@ -137,6 +143,14 @@ function ProjectIssuesPageContent(): JSX.Element {
           </Space>
         </Content>
       </Layout>
+
+      {/* Summary Modal */}
+      <IssueSummaryModal
+        open={showSummary}
+        onClose={() => setShowSummary(false)}
+        issues={state.issues || []}
+        total={state.total}
+      />
     </DashboardLayout>
   );
 }

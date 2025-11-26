@@ -21,12 +21,12 @@ const { Title, Text } = Typography;
 
 export default function BypassPage(): JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
-  const { state, handlers } = useBypassPageData(); // Original hook usage
+  const { state, handlers } = useBypassPageData();
   const [showProvinceRanking, setShowProvinceRanking] = useState(false);
-  const [showSaleRanking, setShowSaleRanking] = useState(false); // New state
+  const [showSaleRanking, setShowSaleRanking] = useState(false);
 
-  const provinceStatistics = useMemo<ProvinceStatistics[]>( // Renamed for consistency with original, added type
-    () => calculateProvinceStatistics(state.filteredSchools), // Using state.filteredSchools from original
+  const provinceStatistics = useMemo<ProvinceStatistics[]>(
+    () => calculateProvinceStatistics(state.filteredSchools),
     [state.filteredSchools]
   );
 

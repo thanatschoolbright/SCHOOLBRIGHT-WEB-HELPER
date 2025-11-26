@@ -33,8 +33,22 @@ export const useIssuesPageData = ({
   const dispatch = useDispatch<AppDispatch>();
   const { t: TRANSLATION } = useTranslation("translate");
 
-  const { page, pageSize, filters, total, loading } = useSelector(
+  const { page, pageSize, filters, total, loading, issues } = useSelector(
     (state: RootState) => state.issues
+  );
+
+  // ... (existing code)
+
+  const state = useMemo(
+    () => ({
+      page,
+      pageSize,
+      filters,
+      total,
+      loading,
+      issues,
+    }),
+    [filters, loading, page, pageSize, total, issues]
   );
 
   const showErrorModal = useCallback(
@@ -74,8 +88,14 @@ export const useIssuesPageData = ({
     );
     dispatch(setLoading(true));
     try {
-      const { keyword, statusIds, priorityIds, issueTypeIds, dateRange } =
-        filters;
+      const {
+        keyword,
+        statusIds,
+        priorityIds,
+        issueTypeIds,
+        assigneeIds,
+        dateRange,
+      } = filters;
 
       const apiParams: Record<string, unknown> = {
         space,
@@ -89,6 +109,7 @@ export const useIssuesPageData = ({
       if (statusIds?.length) apiParams.statusId = statusIds;
       if (priorityIds?.length) apiParams.priorityId = priorityIds;
       if (issueTypeIds?.length) apiParams.issueTypeId = issueTypeIds;
+      if (assigneeIds?.length) apiParams.assigneeId = assigneeIds;
       if (dateRange?.[0] && dateRange?.[1]) {
         apiParams.updatedSince = dateRange[0].toISOString();
         apiParams.updatedUntil = dateRange[1].toISOString();
@@ -133,15 +154,19 @@ export const useIssuesPageData = ({
     );
 
     try {
-      const [statusesRes, prioritiesRes, issueTypesRes] = await Promise.all([
-        axios.get("/api/v1/backlog/project-statuses", {
-          params: { space, projectId },
-        }),
-        axios.get("/api/v1/backlog/priorities", { params: { space } }),
-        axios.get("/api/v1/backlog/issue-types", {
-          params: { space, projectId },
-        }),
-      ]);
+      const [statusesRes, prioritiesRes, issueTypesRes, usersRes] =
+        await Promise.all([
+          axios.get("/api/v1/backlog/project-statuses", {
+            params: { space, projectId },
+          }),
+          axios.get("/api/v1/backlog/priorities", { params: { space } }),
+          axios.get("/api/v1/backlog/issue-types", {
+            params: { space, projectId },
+          }),
+          axios.get("/api/v1/backlog/users", {
+            params: { space, projectId },
+          }),
+        ]);
 
       const statusOptions: any[] = (statusesRes?.data?.data || []).map(
         (s: any) => ({
@@ -158,9 +183,20 @@ export const useIssuesPageData = ({
           value: it.id,
         })
       );
+      const assigneeOptions: any[] = (usersRes?.data?.data || []).map(
+        (u: any) => ({
+          label: u.name,
+          value: u.id,
+        })
+      );
 
       dispatch(
-        setOptions({ statusOptions, priorityOptions, issueTypeOptions })
+        setOptions({
+          statusOptions,
+          priorityOptions,
+          issueTypeOptions,
+          assigneeOptions,
+        })
       );
       const openStatusIds = (statusesRes?.data?.data || [])
         .filter((s: any) => !/closed/i.test(s?.name ?? ""))
@@ -222,17 +258,6 @@ export const useIssuesPageData = ({
   const resetAll = useCallback(() => {
     dispatch(resetFilters());
   }, [dispatch]);
-
-  const state = useMemo(
-    () => ({
-      page,
-      pageSize,
-      filters,
-      total,
-      loading,
-    }),
-    [filters, loading, page, pageSize, total]
-  );
 
   return {
     state,
