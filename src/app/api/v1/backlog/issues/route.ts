@@ -1,31 +1,32 @@
-import axios from "axios"
+import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { errorResponse, successResponse } from "@/helpers/api/response";
 
-// Build domain candidates for Backlog (supports .com/.backlogtool.com/.jp)
-const DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;
+// Backlog API domain
+const BACKLOG_DOMAIN = "backlog.com";
 
-async function callWithDomains<T>(
+async function callBacklogAPI<T>(
   space: string,
   path: string,
-  params: Record<string, any>,
-  preferredDomain?: string
+  params: Record<string, any>
 ) {
-  let lastError: any;
-  const domainsToTry = preferredDomain
-    ? [preferredDomain, ...DOMAINS.filter((entry) => entry !== preferredDomain)]
-    : [...DOMAINS];
+  const baseUrl = `https://${space}.${BACKLOG_DOMAIN}${path}`;
 
-  for (const domain of domainsToTry) {
-    try {
-      const url = `https://${space}.${domain}${path}`;
-      const resp = await axios.get<T>(url, { params });
-      return { data: resp.data, domain };
-    } catch (e) {
-      lastError = e;
+  // Manually build query string to ensure proper array serialization
+  // Backlog API expects array parameters as: key[]=value1&key[]=value2
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (Array.isArray(value)) {
+      // For arrays, add each value separately with the same key
+      value.forEach((v) => searchParams.append(key, String(v)));
+    } else if (value !== undefined && value !== null) {
+      searchParams.append(key, String(value));
     }
   }
-  throw lastError;
+
+  const url = `${baseUrl}?${searchParams.toString()}`;
+  const resp = await axios.get<T>(url);
+  return resp.data;
 }
 
 export async function GET(req: NextRequest) {
@@ -48,9 +49,15 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const space = searchParams.get("space");
     const projectId = searchParams.get("projectId");
-    const requestedCount = Math.max(1, Math.min(Number(searchParams.get("count") || 20), 500));
+    const requestedCount = Math.max(
+      1,
+      Math.min(Number(searchParams.get("count") || 20), 500)
+    );
     const page = Number(searchParams.get("page") || 1);
-    const offset = Math.max(0, Number(searchParams.get("offset") || (page - 1) * requestedCount));
+    const offset = Math.max(
+      0,
+      Number(searchParams.get("offset") || (page - 1) * requestedCount)
+    );
 
     if (!space || !projectId) {
       return NextResponse.json(
@@ -65,12 +72,20 @@ export async function GET(req: NextRequest) {
 
     // Build params for Backlog API — note: array params must use [] suffix.
     const filterParams: Record<string, any> = { apiKey };
-    // Project filter (Backlog expects projectId[])
-    if (projectId) filterParams["projectId[]"] = [Number(projectId)];
 
-    // Single-value filters
+    // Project filter (Backlog expects projectId[] as array)
+    if (projectId) {
+      filterParams["projectId[]"] = Number(projectId);
+    }
+
+    // Search keyword - frontend sends 'q', Backlog API expects 'keyword'
+    const searchQuery = searchParams.get("q");
+    if (searchQuery !== null) {
+      filterParams["keyword"] = searchQuery;
+    }
+
+    // Single-value filters (date and sort parameters)
     const singleKeys = [
-      "q",
       "createdSince",
       "createdUntil",
       "updatedSince",
@@ -83,9 +98,9 @@ export async function GET(req: NextRequest) {
       if (v !== null) filterParams[key] = v;
     }
 
-    // Multi-value filters map (client sends keys without [], server converts)
-    // รองรับทั้ง key ปกติ และรูปแบบ [] จาก client/axios
-    const baseKeys = [
+    // Multi-value filters - collect all values for array parameters
+    // Frontend sends as statusId[]=1&statusId[]=2, we need to preserve the [] in key name
+    const arrayKeys = [
       "issueKey",
       "statusId",
       "priorityId",
@@ -96,20 +111,26 @@ export async function GET(req: NextRequest) {
       "versionId",
       "createdUserId",
     ];
-    for (const base of baseKeys) {
+
+    for (const base of arrayKeys) {
+      // Get values from both formats: key and key[]
       const normal = searchParams.getAll(base);
       const bracket = searchParams.getAll(`${base}[]`);
       const merged = [...normal, ...bracket];
-      if (merged.length) {
-        filterParams[`${base}[]`] = merged.map((x) =>
-          Number.isNaN(Number(x)) ? x : Number(x)
-        );
+
+      if (merged.length > 0) {
+        // Convert to numbers if possible, keep as string otherwise
+        const values = merged.map((x) => {
+          const num = Number(x);
+          return Number.isNaN(num) ? x : num;
+        });
+        // Store with [] suffix for Backlog API
+        filterParams[`${base}[]`] = values;
       }
     }
 
     const MAX_BACKLOG_COUNT = 100;
     let issues: any[] = [];
-    let preferredDomain: string | undefined;
     let fetched = 0;
 
     while (fetched < requestedCount) {
@@ -119,24 +140,21 @@ export async function GET(req: NextRequest) {
         count: batchCount,
         offset: offset + fetched,
       };
-      const { data: batchItems, domain } = await callWithDomains<any[]>(
+      const batchItems = await callBacklogAPI<any[]>(
         space,
         "/api/v2/issues",
-        batchParams,
-        preferredDomain
+        batchParams
       );
-      preferredDomain = domain;
       issues = issues.concat(batchItems);
       fetched += batchCount;
       if (batchItems.length < batchCount) break;
     }
 
     // Fetch total count with same filters
-    const { data: countObj } = await callWithDomains<{ count: number }>(
+    const countObj = await callBacklogAPI<{ count: number }>(
       space,
       "/api/v2/issues/count",
-      { ...filterParams },
-      preferredDomain
+      { ...filterParams }
     );
 
     return NextResponse.json(
