@@ -280,7 +280,8 @@
     "bypass_failed": "Failed to create bypass",
     "error_occurred": "An error occurred",
     "server_config_not_found": "Server configuration not found",
-    "view_province_ranking": "View Top 10 Provinces with Most Schools"
+    "view_province_ranking": "View Top 10 Provinces with Most Schools",
+    "view_sale_ranking": "View Top Sales Ranking"
   },
   "province_ranking_modal": {
     "title": "Top 10 Provinces with Most Schools",
@@ -298,8 +299,28 @@
     "col_single_authen": "Single Authen",
     "stat_total_provinces": "Total Provinces",
     "stat_total_schools": "Total Schools",
-    "stat_active_schools": "Active Schools",
+    "stat_active_schools": "Active",
     "stat_grade_a_total": "Total Grade A",
-    "table_title": "Province Rankings"
+    "table_title": "Province Ranking Table"
+  },
+  "sale_ranking_modal": {
+    "title": "Top Sales Ranking (Most Schools Sold)",
+    "col_rank": "Rank",
+    "col_sale_name": "Sale Name",
+    "col_total_schools": "Total Schools",
+    "col_active_schools": "Active",
+    "col_inactive_schools": "Inactive",
+    "col_activation_rate": "Activation Rate",
+    "col_grade_a": "Grade A",
+    "col_grade_b": "Grade B",
+    "col_grade_c": "Grade C",
+    "col_average_grade": "Avg. Grade",
+    "col_software_type": "Software",
+    "col_single_authen": "Single Authen",
+    "stat_total_sales": "Total Sales",
+    "stat_total_schools": "Total Schools",
+    "stat_active_schools": "Active",
+    "stat_grade_a_total": "Total Grade A",
+    "table_title": "Sales Ranking Table"
   }
 }
