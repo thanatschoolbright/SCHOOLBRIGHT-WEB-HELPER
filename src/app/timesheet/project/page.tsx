@@ -258,6 +258,33 @@ export default function Page() {
       ),
     },
     {
+      title: "รหัสโครงการ",
+      dataIndex: "id",
+      key: "id",
+      align: "center" as const,
+      width: 120,
+      sorter: (a: Project, b: Project) => a.id - b.id,
+      render: (text: number) => (
+        <Tag
+          color="cyan"
+          style={{
+            borderRadius: "14px",
+            padding: "4px 18px",
+            fontWeight: 700,
+            fontSize: "1.15em",
+            letterSpacing: "0.15em",
+            border: "1.5px solid #13c2c2",
+            background: "linear-gradient(90deg, #e6fffb 0%, #b5f5ec 100%)",
+            color: "#08979c",
+            boxShadow: "0 2px 8px 0 #b5f5ec55",
+            fontFamily: 'Fira Mono, Menlo, monospace',
+          }}
+        >
+          {text.toString().padStart(4, "0")}
+        </Tag>
+      ),
+    },
+    {
       title: "ชื่อโปรเจค",
       dataIndex: "name",
       key: "name",
@@ -286,7 +313,7 @@ export default function Page() {
           </div>
           <Typography.Text
             strong
-            style={{ fontSize: "15px", color: "#262626" }}
+            style={{ fontSize: "15px"}}
           >
             {text}
           </Typography.Text>
