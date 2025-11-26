@@ -186,7 +186,7 @@ export const useBypassPageData = () => {
   }, []);
 
   const handleTableChange: TableProps<SchoolDetail>["onChange"] = useCallback(
-    (pagination) => {
+    (pagination: any) => {
       if (pagination?.pageSize) {
         setPageSize(pagination.pageSize);
       }
