@@ -31,18 +31,13 @@ function ProjectIssuesPageContent(): JSX.Element {
     Number.isFinite(projectId) && projectId > 0 && Boolean(space);
   const [modalApi, contextHolder] = Modal.useModal();
 
-  const {
-    state,
-    loadIssues,
-    loadOptions,
-    resetAll,
-    handleSearchKeyword,
-  } = useIssuesPageData({
-    projectId,
-    space,
-    projectReady,
-    modalApi,
-  });
+  const { state, loadIssues, loadOptions, resetAll, handleSearchKeyword } =
+    useIssuesPageData({
+      projectId,
+      space,
+      projectReady,
+      modalApi,
+    });
 
   const onBack = useCallback(() => router.back(), [router]);
   const handleSearch = useCallback(
@@ -54,13 +49,16 @@ function ProjectIssuesPageContent(): JSX.Element {
 
   useEffect(() => {
     if (!projectReady) return;
-    loadOptions();
-  }, [projectReady, loadOptions]);
 
-  useEffect(() => {
-    if (!projectReady) return;
-    loadIssues();
-  }, [projectReady, loadIssues]);
+    const initializeData = async () => {
+      await loadOptions();
+      // Load issues after options are loaded (only on initial mount)
+      loadIssues();
+    };
+
+    initializeData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectReady]);
 
   useEffect(() => {
     resetAll();
@@ -94,7 +92,9 @@ function ProjectIssuesPageContent(): JSX.Element {
             <HeaderSection
               title={
                 projectName ||
-                `${TRANSLATION("backlog_issues_page.project_prefix")} ${projectId}`
+                `${TRANSLATION(
+                  "backlog_issues_page.project_prefix"
+                )} ${projectId}`
               }
               subtitle={`${TRANSLATION("backlog_issues_page.space")}: ${space}`}
               onBack={onBack}

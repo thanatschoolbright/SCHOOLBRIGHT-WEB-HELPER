@@ -1,9 +1,13 @@
 "use client";
 
-import { ReloadOutlined, SearchOutlined, UndoOutlined } from "@ant-design/icons";
+import {
+  ReloadOutlined,
+  SearchOutlined,
+  UndoOutlined,
+} from "@ant-design/icons";
 import { Button, Card, Input, Space, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 type FiltersToolbarProps = {
   total: number;
@@ -23,7 +27,6 @@ export default function FiltersToolbar({
   onRefresh,
 }: FiltersToolbarProps): JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const placeholder = useMemo(
     () => TRANSLATION("backlog_issues_page.search_placeholder"),
@@ -50,16 +53,7 @@ export default function FiltersToolbar({
           prefix={<SearchOutlined />}
           placeholder={placeholder}
           value={keyword}
-          onPressEnter={(e) =>
-            onSearch((e.target as HTMLInputElement).value || "")
-          }
-          onChange={(e) => {
-            const value = e.target.value;
-            if (debounceRef.current) {
-              clearTimeout(debounceRef.current);
-            }
-            debounceRef.current = setTimeout(() => onSearch(value), 300);
-          }}
+          onChange={(e) => onSearch(e.target.value)}
           className="flex-1 min-w-[240px]"
         />
         <Space>
