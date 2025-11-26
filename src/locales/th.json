@@ -279,6 +279,27 @@
     "copy_token": "คัดลอก Token",
     "bypass_failed": "ไม่สามารถสร้าง Bypass ได้",
     "error_occurred": "เกิดข้อผิดพลาด",
-    "server_config_not_found": "ไม่พบการตั้งค่าเซิร์ฟเวอร์"
+    "server_config_not_found": "ไม่พบการตั้งค่าเซิร์ฟเวอร์",
+    "view_province_ranking": "ดูอันดับ 10 จังหวัดที่มีโรงเรียนในระบบมากที่สุด"
+  },
+  "province_ranking_modal": {
+    "title": "อันดับ 10 จังหวัดที่มีโรงเรียนในระบบมากที่สุด",
+    "col_rank": "อันดับ",
+    "col_province": "จังหวัด",
+    "col_total_schools": "จำนวนโรงเรียน",
+    "col_active_schools": "ใช้งานอยู่",
+    "col_inactive_schools": "ไม่ได้ใช้งาน",
+    "col_activation_rate": "อัตราการใช้งาน",
+    "col_grade_a": "เกรด A",
+    "col_grade_b": "เกรด B",
+    "col_grade_c": "เกรด C",
+    "col_average_grade": "เกรดเฉลี่ย",
+    "col_software_type": "Software",
+    "col_single_authen": "Single Authen",
+    "stat_total_provinces": "จำนวนจังหวัด",
+    "stat_total_schools": "โรงเรียนทั้งหมด",
+    "stat_active_schools": "ใช้งานอยู่",
+    "stat_grade_a_total": "เกรด A ทั้งหมด",
+    "table_title": "ตารางอันดับจังหวัด"
   }
 }

@@ -283,6 +283,7 @@ export default function OvertimeManagementPage() {
   const [batchSelectedStatus, setBatchSelectedStatus] =
     useState<string>("approved");
   const [searchText, setSearchText] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState<dayjs.Dayjs | null>(null);
 
   // * Computed Stats
   const stats = useMemo(() => {
@@ -631,8 +632,17 @@ export default function OvertimeManagementPage() {
   ) => {
     const { current, pageSize } = pagination;
     const payloadFilters: any = {};
+
     if (filters.status && filters.status.length > 0)
       payloadFilters.status = filters.status[0];
+
+    if (selectedMonth) {
+      const startOfMonth = selectedMonth.startOf("month").format("YYYY-MM-DD");
+      const endOfMonth = selectedMonth.endOf("month").format("YYYY-MM-DD");
+      payloadFilters.start_date = startOfMonth;
+      payloadFilters.end_date = endOfMonth;
+    }
+
     fetchOvertimeList({
       page: current || 1,
       pageSize,
@@ -813,7 +823,6 @@ export default function OvertimeManagementPage() {
         theme={{
           components: {
             Table: {
-              
               borderRadiusLG: 12,
             },
             Card: {
@@ -900,9 +909,29 @@ export default function OvertimeManagementPage() {
                       )
                     }
                   />
+                  <DatePicker
+                    picker="month"
+                    placeholder="เลือกเดือน"
+                    value={selectedMonth}
+                    onChange={(date) => {
+                      setSelectedMonth(date);
+                      handleTableChange(
+                        { current: 1, pageSize: paginationState.pageSize },
+                        {},
+                        undefined as any,
+                        undefined as any
+                      );
+                    }}
+                    style={{ width: 150 }}
+                    allowClear
+                    format="MM/YYYY"
+                  />
                   <Button
                     icon={<ReloadOutlined />}
-                    onClick={() => fetchOvertimeList({ page: 1 })}
+                    onClick={() => {
+                      setSelectedMonth(null);
+                      fetchOvertimeList({ page: 1 });
+                    }}
                     loading={loading}
                   >
                     รีโหลด
@@ -913,6 +942,18 @@ export default function OvertimeManagementPage() {
                 <Space wrap>
                   {selectedRowKeys.length > 0 && (
                     <>
+                      <Button
+                        type="primary"
+                        icon={<FilePdfOutlined />}
+                        onClick={() => {
+                          const ids = selectedRowKeys.join(",");
+                          router.push(
+                            `/timesheet/overtime/preview/bulk?ids=${ids}`
+                          );
+                        }}
+                      >
+                        ดู PDF หลายรายการ ({selectedRowKeys.length})
+                      </Button>
                       <Button
                         type="primary"
                         icon={<CheckOutlined />}
@@ -982,7 +1023,6 @@ export default function OvertimeManagementPage() {
               loading={loading}
               onChange={handleTableChange}
               scroll={{ x: 1000 }}
-              
               expandable={{
                 expandedRowRender: (record) => (
                   <div className="p-4 bg-gray-50 rounded-lg mx-4 mb-4 border border-gray-200">
