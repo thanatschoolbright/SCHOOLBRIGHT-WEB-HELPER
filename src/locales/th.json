@@ -321,6 +321,12 @@
     "stat_total_schools": "โรงเรียนทั้งหมด",
     "stat_active_schools": "ใช้งานอยู่",
     "stat_grade_a_total": "เกรด A ทั้งหมด",
-    "table_title": "ตารางอันดับเซลล์"
+    "table_title": "ตารางอันดับเซลล์",
+    "view_metrics": "ดูวิเคราะห์เชิงลึก",
+    "view_table": "ดูตารางอันดับ",
+    "metrics_title": "แดชบอร์ดวิเคราะห์ผลงาน",
+    "metric_top_quality": "คุณภาพงานขายยอดเยี่ยม",
+    "metric_high_value": "พอร์ตโฟลิโอเกรด A",
+    "metric_critical": "ต้องเร่งติดตาม (Inactive)"
   }
 }

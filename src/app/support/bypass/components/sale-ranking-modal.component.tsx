@@ -10,6 +10,7 @@ import {
   Col,
   Card,
   Divider,
+  Button,
 } from "antd";
 import {
   TrophyOutlined,
@@ -20,6 +21,8 @@ import {
   StarOutlined,
   RocketOutlined,
   UserOutlined,
+  TableOutlined,
+  AlertOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { ColumnsType } from "antd/es/table";
@@ -38,7 +41,30 @@ export default function SaleRankingModal({
 }: SaleRankingModalProps): JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
 
-  const topData = useMemo(() => data, [data]); // Show all sales, sorted by total schools
+  const [showMetrics, setShowMetrics] = React.useState(false);
+
+  const topData = useMemo(() => data, [data]);
+
+  // Metrics Calculation
+  const metricsData = useMemo(() => {
+    // Top Quality: High Activation Rate (min 5 schools)
+    const topQuality = [...data]
+      .filter((s) => s.totalSchools >= 5)
+      .sort((a, b) => b.activationRate - a.activationRate)
+      .slice(0, 3);
+
+    // High Value: Most Grade A Schools
+    const highValue = [...data]
+      .sort((a, b) => b.gradeACount - a.gradeACount)
+      .slice(0, 3);
+
+    // Critical: Most Inactive Schools
+    const critical = [...data]
+      .sort((a, b) => b.inactiveSchools - a.inactiveSchools)
+      .slice(0, 3);
+
+    return { topQuality, highValue, critical };
+  }, [data]);
 
   const totalSchools = useMemo(
     () => data.reduce((sum, item) => sum + item.totalSchools, 0),
@@ -55,6 +81,7 @@ export default function SaleRankingModal({
     [data]
   );
 
+  // ... (Keep existing columns definition)
   const columns = useMemo<ColumnsType<SaleStatistics>>(
     () => [
       {
@@ -262,12 +289,28 @@ export default function SaleRankingModal({
   return (
     <Modal
       title={
-        <Space>
-          <TrophyOutlined style={{ color: "#FFD700", fontSize: 24 }} />
-          <span style={{ fontSize: 18, fontWeight: "bold" }}>
-            {TRANSLATION("sale_ranking_modal.title")}
-          </span>
-        </Space>
+        <div className="flex justify-between items-center w-full pr-8">
+          <Space>
+            <TrophyOutlined style={{ color: "#FFD700", fontSize: 24 }} />
+            <span style={{ fontSize: 18, fontWeight: "bold" }}>
+              {TRANSLATION("sale_ranking_modal.title")}
+            </span>
+          </Space>
+          <Button
+            type={showMetrics ? "default" : "primary"}
+            icon={showMetrics ? <TableOutlined /> : <RiseOutlined />}
+            onClick={() => setShowMetrics(!showMetrics)}
+            className={
+              showMetrics
+                ? ""
+                : "bg-gradient-to-r from-blue-500 to-purple-600 border-none"
+            }
+          >
+            {showMetrics
+              ? TRANSLATION("sale_ranking_modal.view_table")
+              : TRANSLATION("sale_ranking_modal.view_metrics")}
+          </Button>
+        </div>
       }
       open={open}
       onCancel={onClose}
@@ -277,7 +320,7 @@ export default function SaleRankingModal({
       destroyOnClose
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        {/* Summary Statistics */}
+        {/* Summary Statistics (Always Visible) */}
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={6}>
             <Card bordered={false} className="shadow-sm">
@@ -322,25 +365,124 @@ export default function SaleRankingModal({
         </Row>
 
         <Divider orientation="left">
-          {TRANSLATION("sale_ranking_modal.table_title")}
+          {showMetrics
+            ? TRANSLATION("sale_ranking_modal.metrics_title")
+            : TRANSLATION("sale_ranking_modal.table_title")}
         </Divider>
 
-        {/* Ranking Table */}
-        <Table<SaleStatistics>
-          columns={columns}
-          dataSource={topData}
-          rowKey={(record) => record.saleName}
-          pagination={false}
-          scroll={{ x: 1600 }}
-          size="middle"
-          bordered
-          rowClassName={(record, index) => {
-            if (index === 0) return "bg-yellow-50";
-            if (index === 1) return "bg-gray-50";
-            if (index === 2) return "bg-orange-50";
-            return "";
-          }}
-        />
+        {showMetrics ? (
+          <div className="animate-fade-in">
+            <Row gutter={[24, 24]}>
+              {/* Top Quality Sales */}
+              <Col xs={24} md={8}>
+                <Card
+                  title={
+                    <Space>
+                      <StarOutlined style={{ color: "#52c41a" }} />
+                      {TRANSLATION("sale_ranking_modal.metric_top_quality")}
+                    </Space>
+                  }
+                  className="shadow-sm h-full"
+                >
+                  <Space direction="vertical" className="w-full">
+                    {metricsData.topQuality.map((sale, index) => (
+                      <div
+                        key={sale.saleName}
+                        className="flex justify-between items-center p-2 bg-green-50 rounded-lg"
+                      >
+                        <Space>
+                          <div className="w-6 h-6 rounded-full bg-green-200 flex items-center justify-center text-xs font-bold text-green-800">
+                            {index + 1}
+                          </div>
+                          <span className="font-medium">{sale.saleName}</span>
+                        </Space>
+                        <Tag color="success">
+                          {sale.activationRate.toFixed(1)}% Active
+                        </Tag>
+                      </div>
+                    ))}
+                  </Space>
+                </Card>
+              </Col>
+
+              {/* High Value Portfolio */}
+              <Col xs={24} md={8}>
+                <Card
+                  title={
+                    <Space>
+                      <CrownOutlined style={{ color: "#faad14" }} />
+                      {TRANSLATION("sale_ranking_modal.metric_high_value")}
+                    </Space>
+                  }
+                  className="shadow-sm h-full"
+                >
+                  <Space direction="vertical" className="w-full">
+                    {metricsData.highValue.map((sale, index) => (
+                      <div
+                        key={sale.saleName}
+                        className="flex justify-between items-center p-2 bg-yellow-50 rounded-lg"
+                      >
+                        <Space>
+                          <div className="w-6 h-6 rounded-full bg-yellow-200 flex items-center justify-center text-xs font-bold text-yellow-800">
+                            {index + 1}
+                          </div>
+                          <span className="font-medium">{sale.saleName}</span>
+                        </Space>
+                        <Tag color="gold">{sale.gradeACount} Grade A</Tag>
+                      </div>
+                    ))}
+                  </Space>
+                </Card>
+              </Col>
+
+              {/* Critical Attention */}
+              <Col xs={24} md={8}>
+                <Card
+                  title={
+                    <Space>
+                      <AlertOutlined style={{ color: "#ff4d4f" }} />
+                      {TRANSLATION("sale_ranking_modal.metric_critical")}
+                    </Space>
+                  }
+                  className="shadow-sm h-full"
+                >
+                  <Space direction="vertical" className="w-full">
+                    {metricsData.critical.map((sale, index) => (
+                      <div
+                        key={sale.saleName}
+                        className="flex justify-between items-center p-2 bg-red-50 rounded-lg"
+                      >
+                        <Space>
+                          <div className="w-6 h-6 rounded-full bg-red-200 flex items-center justify-center text-xs font-bold text-red-800">
+                            {index + 1}
+                          </div>
+                          <span className="font-medium">{sale.saleName}</span>
+                        </Space>
+                        <Tag color="error">{sale.inactiveSchools} Inactive</Tag>
+                      </div>
+                    ))}
+                  </Space>
+                </Card>
+              </Col>
+            </Row>
+          </div>
+        ) : (
+          <Table<SaleStatistics>
+            columns={columns}
+            dataSource={topData}
+            rowKey={(record) => record.saleName}
+            pagination={false}
+            scroll={{ x: 1600 }}
+            size="middle"
+            bordered
+            rowClassName={(record, index) => {
+              if (index === 0) return "bg-yellow-50";
+              if (index === 1) return "bg-gray-50";
+              if (index === 2) return "bg-orange-50";
+              return "";
+            }}
+          />
+        )}
       </Space>
     </Modal>
   );

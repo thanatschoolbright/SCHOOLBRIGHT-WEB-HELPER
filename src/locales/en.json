@@ -321,6 +321,12 @@
     "stat_total_schools": "Total Schools",
     "stat_active_schools": "Active",
     "stat_grade_a_total": "Total Grade A",
-    "table_title": "Sales Ranking Table"
+    "table_title": "Sales Ranking Table",
+    "view_metrics": "View Metrics",
+    "view_table": "View Ranking Table",
+    "metrics_title": "Performance Dashboard",
+    "metric_top_quality": "Top Quality Sales",
+    "metric_high_value": "High Value Portfolio",
+    "metric_critical": "Critical Attention Needed"
   }
 }
