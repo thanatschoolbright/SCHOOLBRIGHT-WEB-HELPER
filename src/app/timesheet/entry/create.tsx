@@ -265,11 +265,12 @@ export function CreateModalForm({
                   }}
                   options={projectOptions}
                   size="large"
-                  filterOption={(input, option) =>
-                    (option?.labelString ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+                  filterOption={(input, option) => {
+                    const term = input.toLowerCase();
+                    const label = (option?.labelString ?? "").toLowerCase();
+                    const id = String(option?.value ?? "");
+                    return label.includes(term) || id.includes(term);
+                  }}
                   variant="filled" // Modern Input style
                 />
               </Form.Item>
@@ -297,11 +298,12 @@ export function CreateModalForm({
                     form.getFieldValue("project_id") &&
                     subProjectOptions.length === 0
                   }
-                  filterOption={(input, option) =>
-                    (option?.labelString ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+                  filterOption={(input, option) => {
+                    const term = input.toLowerCase();
+                    const label = (option?.labelString ?? "").toLowerCase();
+                    const id = String(option?.value ?? "");
+                    return label.includes(term) || id.includes(term);
+                  }}
                   variant="filled"
                   notFoundContent={
                     form.getFieldValue("project_id")
