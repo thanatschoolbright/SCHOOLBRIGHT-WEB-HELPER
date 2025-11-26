@@ -8,7 +8,7 @@ import { z } from "zod";
 const TARGET_POSITIONS = new Set([
   "developer",
   "tester",
-  "business development",
+  // "business development",
   "admin",
   "business analyst",
 ]);

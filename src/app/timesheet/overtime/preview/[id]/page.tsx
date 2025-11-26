@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAppSelector } from "@stores/store";
 import { Button } from "antd";
 import dayjs from "dayjs";
+import "dayjs/locale/th";
 import { usePathname, useRouter } from "next/navigation";
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import { toast } from "sonner";
 import { getUserById } from "@/helpers/local_storage/user.storage";
 
+// --- Interfaces ---
 interface OvertimeData {
   id?: string;
   request_date?: string;
@@ -32,42 +34,377 @@ interface OvertimeDescription {
   end_time?: string;
 }
 
-const PRINT_STYLES = `
-  :root { color-scheme: light; }
-  .ot-print, .ot-print .ot-form { background: #ffffff !important; color: #000000 !important; }
-  .ot-form { font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
-  .ot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .ot-title { text-align: center; font-weight: bold; border: 1px solid #000; padding: 6px; }
-  .ot-table { width: 100%; border-collapse: collapse; }
-  .ot-table th, .ot-table td { border: 1px solid #000; padding: 6px; background: #ffffff !important; color: #000000 !important; }
-  .ot-print * { background-color: transparent !important; }
-  .ot-table th, .ot-table td { background-color: #ffffff !important; }
-  @media print {
-    body * { visibility: hidden; }
-    .ot-print, .ot-print * { visibility: visible; }
-    .ot-print { position: absolute; left: 0; top: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    /* Show full descriptions when printing (disable screen-only ellipsis) */
-    .ot-print .ot-desc {
-      display: block !important;
-      -webkit-line-clamp: unset !important;
-      -webkit-box-orient: unset !important;
-      overflow: visible !important;
-      text-overflow: clip !important;
-      white-space: normal !important;
-      word-break: break-word !important;
+// --- Component: Editable Text Field ---
+const EditableField = ({
+  initialValue,
+  placeholder = ".......................",
+  className = "",
+  inputStyle = {},
+  editHint = null,
+}: {
+  initialValue?: string | null;
+  placeholder?: string;
+  className?: string;
+  inputStyle?: React.CSSProperties;
+  editHint?: string | null;
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [value, setValue] = useState(initialValue || "");
+
+  useEffect(() => {
+    if (initialValue) setValue(initialValue);
+  }, [initialValue]);
+
+  if (isEditing) {
+    return (
+      <div
+        style={{
+          display: "inline-flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%", // ให้ Input เต็มพื้นที่ Cell
+        }}
+      >
+        {editHint && (
+          <span
+            className="no-print"
+            style={{
+              fontSize: "10px",
+              color: "#999",
+              marginBottom: "2px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {editHint}
+          </span>
+        )}
+        <input
+          autoFocus
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={() => setIsEditing(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") setIsEditing(false);
+          }}
+          style={{
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            textAlign: "center",
+            fontWeight: "inherit",
+            color: "#000",
+            background: "#fff",
+            border: "none",
+            borderBottom: "1px dashed #000",
+            outline: "none",
+            padding: "0 4px",
+            minWidth: "80px", // ปรับลด Min-width ลงเล็กน้อยเพื่อให้ดูไม่กว้างเกินในบรรทัดเดียวกัน
+            width: "auto",
+            display: "inline-block",
+            ...inputStyle,
+          }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <span
+      onClick={() => setIsEditing(true)}
+      className={className}
+      title="คลิกเพื่อแก้ไขข้อความ"
+      style={{
+        cursor: "pointer",
+        padding: "0 4px",
+        minWidth: "20px",
+        display: "inline-block",
+        borderBottom: "1px dashed transparent",
+        textAlign: "center",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderBottom = "1px dashed #ccc";
+        e.currentTarget.style.backgroundColor = "#f0f8ff";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderBottom = "1px dashed transparent";
+        e.currentTarget.style.backgroundColor = "transparent";
+      }}
+    >
+      {value ? (
+        value
+      ) : (
+        <span className="no-print" style={{ color: "#a0a0a0" }}>
+          {placeholder}
+        </span>
+      )}
+    </span>
+  );
+};
+
+// --- Component: Editable Signature (Image Upload) ---
+const EditableSignature = ({
+  initialImageSrc = null,
+}: {
+  initialImageSrc?: string | null;
+}) => {
+  const [imageSrc, setImageSrc] = useState<string | null>(initialImageSrc);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          setImageSrc(ev.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div
+      onClick={handleClick}
+      title="คลิกเพื่ออัปโหลดลายเซ็น"
+      className="signature-wrapper"
+    >
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImageUpload}
+        accept="image/*"
+        style={{ display: "none" }}
+      />
+
+      {imageSrc ? (
+        <img
+          src={imageSrc}
+          alt="signature"
+          style={{
+            height: "100%",
+            width: "auto",
+            objectFit: "contain",
+          }}
+        />
+      ) : (
+        <div
+          className="signature-placeholder"
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "10px",
+            color: "#999",
+            border: "1px dashed transparent",
+          }}
+        >
+          <span className="no-print">คลิกเพื่อใส่ลายเซ็น</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// --- CSS Styles ---
+const PRINT_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+
+  :root { 
+    --border-color: #333;
+    --header-bg: #f0f0f0;
+  }
+
+  .ot-print { 
+    font-family: 'Sarabun', Arial, sans-serif; 
+    font-size: 13px; 
+    line-height: 1.3;
+    color: #000;
+    background: #fff;
+    box-sizing: border-box;
+  }
+
+  .ot-container { padding: 24px 32px; }
+  .ot-section { margin-bottom: 20px; }
+
+  /* Header - ปรับปรุง Meta Data ให้อยู่บรรทัดเดียวกัน */
+  .ot-header-box {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+  }
+  .ot-logo { width: 140px; }
+  .ot-logo img { max-height: 40px; object-fit: contain; }
+  
+  .ot-doc-title {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  /* จุดสำคัญ: ปรับ CSS ให้เรียงแนวนอน */
+  .ot-doc-meta {
+    width: auto; /* ปล่อยให้กว้างตามเนื้อหา */
+    font-size: 12px;
+    display: flex;
+    flex-direction: row; /* เรียงแนวนอน */
+    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
+    gap: 16px; /* เว้นระยะห่างระหว่าง "ประจำเดือน" กับ "วันที่" */
+    white-space: nowrap; /* ห้ามตัดบรรทัด */
+  }
+
+  .ot-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+  }
+  .ot-info-item { display: flex; align-items: baseline; }
+  .ot-label { font-weight: 600; margin-right: 8px; min-width: 90px; color: #444; }
+  .ot-value { flex: 1; border-bottom: 1px dotted #999; padding-bottom: 2px; }
+
+  .ot-table {
+    width: 100%;
+    table-layout: fixed; 
+    border-collapse: collapse;
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
+  .ot-table th, .ot-table td {
+    border: 1px solid var(--border-color);
+    padding: 6px 8px;
+    vertical-align: middle;
+  }
+  .ot-table th {
+    background-color: var(--header-bg) !important;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .ot-table td.center { text-align: center; }
+  .ot-desc {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+    line-height: 1.2;
+  }
+
+  .ot-summary {
+    display: flex;
+    justify-content: flex-end;
+    gap: 24px;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: #fafafa;
+    border: 1px dashed #ccc;
+  }
+
+  .ot-signature-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    page-break-inside: avoid;
+  }
+  .ot-sign-box { width: 45%; text-align: center; }
+  .ot-sign-title { font-weight: 600; margin-bottom: 8px; font-size: 13px; }
+  .ot-sign-line { 
+    border-bottom: 1px dotted #000; 
+    height: 1px; 
+    margin: 0 auto 4px; 
+    width: 85%; 
+  }
+  .ot-sign-date { margin-top: 4px; font-size: 11px; }
+
+  .signature-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 55px;
+    margin-bottom: -5px;
+    cursor: pointer;
+    position: relative;
+  }
+  .signature-wrapper:hover .signature-placeholder {
+    border: 1px dashed #ccc !important;
+    background-color: #f0f8ff;
+  }
+
+  .ot-sub-form {
+    margin-top: 20px;
+    border-top: 2px dashed #999;
+    padding-top: 16px;
+  }
+  .ot-sub-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 12px;
+    padding: 6px;
+    background: var(--header-bg);
+    border: 1px solid var(--border-color);
+    -webkit-print-color-adjust: exact;
+  }
+
+  @media print {
+    @page { size: A4; margin: 10mm; }
+    body { margin: 0; }
+    .ot-print, .ot-print * { visibility: visible; }
+    .ot-print { 
+      position: absolute; left: 0; top: 0; 
+      width: 100%; margin: 0; padding: 0;
+      transform: scale(0.98); transform-origin: top center;
+    }
+    .ot-print { font-size: 11px; }
+    .ot-doc-title { font-size: 14px; }
+    .ot-sign-title { font-size: 11px; }
+    .ot-table { font-size: 10px; margin-bottom: 8px; }
+    
+    .ot-info-grid, .ot-summary, .ot-sub-title { background-color: transparent !important; border-color: #000 !important; }
+    .ot-header-box, .ot-table th, .ot-table td { border-color: #000 !important; }
+    
+    .ot-container { padding: 0 10px; }
+    .ot-header-box { padding: 6px; margin-bottom: 10px; }
+    .ot-info-grid { padding: 6px; margin-bottom: 10px; gap: 4px 16px; }
+    .ot-section { margin-bottom: 10px; }
+    .ot-sub-form { margin-top: 10px; padding-top: 10px; }
+    .ot-sub-title { margin-bottom: 8px; padding: 4px; }
+    .ot-table th, .ot-table td { padding: 3px 4px; }
+    .signature-wrapper { height: 40px !important; } 
+    .ot-signature-section { margin-top: 10px; }
+
+    .no-print { display: none !important; }
+    span[title="คลิกเพื่อแก้ไขข้อความ"] { background-color: transparent !important; border-bottom: none !important; }
   }
 `;
 
+// --- Helpers ---
 const getAdminIdFromLocalStorage = (): string | null => {
   if (typeof window === "undefined") return null;
-
   try {
     const rawData =
       localStorage.getItem("AUTHENTICATION") ||
       localStorage.getItem("authentication");
     if (!rawData) return null;
-
     const parsed = JSON.parse(rawData);
     return (
       parsed?.response?.data?.user_data?.admin_id ??
@@ -81,13 +418,11 @@ const getAdminIdFromLocalStorage = (): string | null => {
 
 const getPositionFromLocalStorage = (): string | null => {
   if (typeof window === "undefined") return null;
-
   try {
     const rawData =
       localStorage.getItem("AUTHENTICATION") ||
       localStorage.getItem("authentication");
     if (!rawData) return null;
-
     const parsed = JSON.parse(rawData);
     return (
       parsed?.user_data?.position ??
@@ -111,34 +446,49 @@ const handlePrintDocument = () => {
     window.print();
     return;
   }
-
   const html = `
     <!doctype html>
     <html>
       <head>
         <meta charset="utf-8">
-        <title>Preview</title>
-        <style>${PRINT_STYLES}</style>
+        <title>แบบคำขอทำงานล่วงเวลา</title>
+        <style>
+          ${PRINT_STYLES}
+        </style>
       </head>
-      <body>${printArea.innerHTML}</body>
+      <body>
+        <div class="ot-print">${printArea.innerHTML}</div>
+      </body>
     </html>
   `;
-
   try {
-    const printWindow = window.open("", "_blank", "noopener,noreferrer");
-    if (!printWindow) {
+    const existing = document.getElementById("print-iframe");
+    if (existing) document.body.removeChild(existing);
+    const iframe = document.createElement("iframe");
+    iframe.id = "print-iframe";
+    Object.assign(iframe.style, {
+      position: "fixed",
+      left: "0",
+      top: "0",
+      width: "0",
+      height: "0",
+      border: "none",
+    });
+    document.body.appendChild(iframe);
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(html);
+      doc.close();
+      setTimeout(() => {
+        if (iframe.contentWindow) {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        }
+      }, 500);
+    } else {
       window.print();
-      return;
     }
-
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-
-    setTimeout(() => {
-      printWindow.focus();
-      printWindow.print();
-    }, 300);
   } catch (error) {
     console.error("Print failed:", error);
     window.print();
@@ -148,9 +498,11 @@ const handlePrintDocument = () => {
 const generateEmptyRows = (count: number) =>
   Array.from({ length: count }).map(() => null);
 
+// --- Main Component ---
 export default function OTPreviewPage() {
   const router = useRouter();
   const pathname = usePathname();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const authentication = useAppSelector((state) => state.callAdminLogin);
 
   const [data, setData] = useState<OvertimeData | null>(null);
@@ -161,24 +513,16 @@ export default function OTPreviewPage() {
 
   const totalHours = useMemo(() => {
     if (!data?.descriptions) return 0;
-
     const sum = data.descriptions.reduce((acc, item) => {
-      // Ensure duration is treated as a number. This avoids string concatenation
-      // when durations are stored as strings like "02.5" and removes leading zeros.
       const raw = item?.duration ?? 0;
       const parsed = Number(String(raw));
-      if (Number.isNaN(parsed)) return acc;
-      return acc + parsed;
+      return Number.isNaN(parsed) ? acc : acc + parsed;
     }, 0);
-
-    // Normalize to 1 decimal place when needed (e.g. 2.5 stays 2.5, 8.0 becomes 8)
     const normalized = Math.round(sum * 10) / 10;
     return Number.isInteger(normalized) ? normalized : normalized;
   }, [data]);
 
   const userData = getUserById(data?.requester_id ?? "");
-  console.info("Overtime requester data:", userData);
-
   const requesterId =
     userData?.admin_id ?? getAdminIdFromLocalStorage() ?? "system";
   const requesterName =
@@ -196,17 +540,12 @@ export default function OTPreviewPage() {
         setLoading(false);
         return;
       }
-
       setLoading(true);
       try {
         const response = await callApiService.post(
           "/api/v1/timesheet/overtime/read",
-          {
-            id: String(idParam),
-            request_id: String(requesterId),
-          }
+          { id: String(idParam), request_id: String(requesterId) }
         );
-
         const body = response?.data;
         if (!body || body.status !== 200) {
           toast.error("ไม่สามารถโหลดข้อมูลได้");
@@ -214,7 +553,6 @@ export default function OTPreviewPage() {
           setNotFound(false);
           return;
         }
-
         const items = Array.isArray(body.data) ? body.data : [];
         if (items.length === 0) {
           setData(null);
@@ -231,459 +569,332 @@ export default function OTPreviewPage() {
         setLoading(false);
       }
     };
-
     fetchOvertimeData();
   }, [idParam, requesterId]);
 
-  if (loading) {
+  if (loading)
     return (
-      <div style={{ padding: 24, textAlign: "center" }}>กำลังโหลดข้อมูล...</div>
+      <div className="p-8 text-center text-gray-500">กำลังโหลดข้อมูล...</div>
     );
-  }
+  if (notFound)
+    return <div className="p-8 text-center text-red-500">ไม่พบข้อมูล</div>;
+  if (!data)
+    return <div className="p-8 text-center">ไม่มีข้อมูลสำหรับพรีวิว</div>;
 
-  if (notFound) {
-    return <div style={{ padding: 24, textAlign: "center" }}>ไม่พบข้อมูล</div>;
-  }
-
-  if (!data) {
-    return <div style={{ padding: 24 }}>ไม่มีข้อมูลสำหรับพรีวิว</div>;
-  }
-
-  const hasDescriptions =
-    Array.isArray(data.descriptions) && data.descriptions.length > 0;
-  const requestRows = hasDescriptions
-    ? data.descriptions!
-    : generateEmptyRows(6);
-  const approvalRows = hasDescriptions
-    ? data.descriptions!
-    : generateEmptyRows(5);
+  const requestRows = data?.descriptions || [];
+  const approvalRows = data?.descriptions || [];
 
   return (
-    <div style={{ padding: 24, backgroundColor: "#ffffff", color: "#000000" }}>
+    <div style={{ padding: "24px", background: "#f3f4f6", minHeight: "100vh" }}>
+      {/* Action Header */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          marginBottom: 16,
+          alignItems: "center",
+          marginBottom: "20px",
+          maxWidth: "210mm",
+          margin: "0 auto 20px auto",
         }}
       >
-        <h2>แบบคำขอ ทำงานล่วงเวลา (โอที) — Preview</h2>
-        <div>
-          <Button style={{ marginRight: 8 }} onClick={() => router.back()}>
-            กลับ
-          </Button>
+        <h2
+          style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#1f2937" }}
+        >
+          พรีวิวเอกสารโอที
+        </h2>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Button onClick={() => router.back()}>กลับ</Button>
           <Button type="primary" onClick={handlePrintDocument}>
-            พิมพ์ / ดาวน์โหลด
+            พิมพ์ / ดาวน์โหลด PDF
           </Button>
         </div>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center", marginTop: 12 }}>
+      {/* Main Paper Preview */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
         <div
           style={{
             width: "210mm",
             minHeight: "297mm",
-            maxWidth: "100%",
-            boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-            border: "1px solid #ccc",
-            backgroundColor: "#ffffff",
-            padding: 8,
+            backgroundColor: "#fff",
+            boxShadow: "0 10px 30px -5px rgba(0, 0, 0, 0.1)",
+            padding: "0",
           }}
         >
-          <div
-            id="print-area"
-            className="ot-print"
-            style={{
-              padding: 16,
-              backgroundColor: "#ffffff",
-              color: "#000000",
-            }}
-          >
+          <div id="print-area" className="ot-print">
             <style>{PRINT_STYLES}</style>
+            <div className="ot-container">
+              {/* --- HEADER SECTION --- */}
+              <div className="ot-header-box">
+                <div className="ot-logo">
+                  <img
+                    src="/sb_logo.webp"
+                    alt="School Bright"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                </div>
+                <div className="ot-doc-title">แบบคำขอทำงานล่วงเวลา (OT)</div>
 
-            <div className="ot-form">
-              <div style={{ border: "2px solid #000", padding: 8 }}>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{ width: 180 }}>
-                    <img
-                      src="/sb_logo.webp"
-                      alt="School Bright"
-                      style={{ height: 36 }}
+                {/* --- META DATA SECTION (ปรับปรุงใหม่) --- */}
+                <div className="ot-doc-meta">
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <strong style={{ marginRight: "4px" }}>ประจำเดือน:</strong>
+                    <EditableField
+                      initialValue={
+                        headerDate
+                          ? dayjs(headerDate).locale("th").format("MMMM")
+                          : ""
+                      }
+                      placeholder="......................."
                     />
                   </div>
-                  <div style={{ flex: 1, textAlign: "center" }}>
-                    <div
-                      style={{
-                        border: "2px solid #000",
-                        padding: 6,
-                        fontWeight: 700,
-                      }}
-                    >
-                      แบบคำขอ ทำงานล่วงเวลา (โอที)
-                    </div>
-                  </div>
-                  <div style={{ width: 220, textAlign: "right" }}>
-                    <div>
-                      ประจำเดือน: {data.period ?? "......................."}
-                    </div>
-                    <div>
-                      วันที่:{" "}
-                      {headerDate
-                        ? dayjs(headerDate).format("DD/MM/YYYY")
-                        : "-"}
-                    </div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <strong style={{ marginRight: "4px" }}>วันที่:</strong>
+                    <EditableField
+                      initialValue={
+                        headerDate ? dayjs(headerDate).format("DD/MM/YYYY") : ""
+                      }
+                      placeholder="......./......./.........."
+                    />
                   </div>
                 </div>
+                {/* ------------------------------------- */}
+              </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 12,
-                    marginTop: 12,
-                    marginBottom: 12,
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <div>
-                      <strong>ชื่อ - สกุล:</strong> {requesterName}
-                    </div>
-                    <div>
-                      <strong>ตำแหน่ง:</strong> {position}
-                    </div>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div>
-                      <strong>รหัสพนักงาน:</strong> {employeeCode}
-                    </div>
-                    <div>
-                      <strong>ฝ่าย:</strong> {department}
-                    </div>
-                  </div>
+              {/* --- INFO GRID --- */}
+              <div className="ot-info-grid">
+                <div className="ot-info-item">
+                  <span className="ot-label">ชื่อ - สกุล:</span>
+                  <span className="ot-value">{requesterName}</span>
                 </div>
+                <div className="ot-info-item">
+                  <span className="ot-label">รหัสพนักงาน:</span>
+                  <span className="ot-value">{employeeCode}</span>
+                </div>
+                <div className="ot-info-item">
+                  <span className="ot-label">ตำแหน่ง:</span>
+                  <span className="ot-value">{position}</span>
+                </div>
+                <div className="ot-info-item">
+                  <span className="ot-label">ฝ่าย/แผนก:</span>
+                  <span className="ot-value">{department}</span>
+                </div>
+              </div>
 
-                <table
-                  className="ot-table"
-                  style={{
-                    width: "100%",
-                    border: "2px solid #000",
-                    marginBottom: 8,
-                  }}
-                >
+              {/* --- REQUEST TABLE --- */}
+              <div className="ot-section">
+                <table className="ot-table">
                   <thead>
                     <tr>
-                      <th style={{ width: "10%", border: "2px solid #000" }}>
-                        วันที่
-                      </th>
-                      <th style={{ border: "2px solid #000" }}>
-                        รายละเอียดงาน
-                      </th>
-                      <th style={{ width: "10%", border: "2px solid #000" }}>
-                        จำนวน โอที
-                      </th>
-                      <th style={{ width: "18%", border: "2px solid #000" }}>
-                        ประเภท ทำงานล่วงเวลา (โอที)
-                      </th>
-                      <th style={{ width: "14%", border: "2px solid #000" }}>
-                        ผู้มอบหมาย
-                      </th>
-                      <th style={{ width: "18%", border: "2px solid #000" }}>
-                        หมายเหตุ
-                      </th>
+                      <th style={{ width: "12%" }}>วันที่</th>
+                      <th>รายละเอียดงาน / กิจกรรม</th>
+                      <th style={{ width: "10%" }}>ชั่วโมง</th>
+                      <th style={{ width: "15%" }}>ประเภท OT</th>
+                      <th style={{ width: "18%" }}>ผู้มอบหมาย</th>
+                      <th style={{ width: "15%" }}>หมายเหตุ</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {requestRows.map(
-                      (row: OvertimeDescription | null, index: number) => (
-                        <tr key={index}>
-                          <td
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid #000",
-                              padding: 8,
-                            }}
-                          >
-                            {row?.date
-                              ? dayjs(row.date).format("DD/MM/YYYY")
-                              : "-"}
-                          </td>
-                          <td style={{ border: "1px solid #000", padding: 8 }}>
+                    {requestRows.map((row, idx) => (
+                      <tr key={`req-${idx}`}>
+                        <td className="center">
+                          {row?.date
+                            ? dayjs(row.date).format("DD/MM/YYYY")
+                            : ""}
+                        </td>
+                        <td>
+                          <div className="ot-desc">
                             {row?.description ? (
-                              <div
-                                className="ot-desc"
-                                style={{
-                                  maxWidth: "100%",
-                                  overflowWrap: "anywhere",
-                                  wordBreak: "break-word",
-                                  whiteSpace: "pre-wrap",
-                                  // Ensure content can expand vertically but won't force container wider
-                                  display: "block",
-                                }}
-                              >
-                                {/^https?:\/\//.test(
-                                  String(row.description)
-                                ) ? (
-                                  <a
-                                    href={String(row.description)}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    style={{
-                                      color: "#096dd9",
-                                      textDecoration: "underline",
-                                    }}
-                                  >
-                                    {String(row.description)}
-                                  </a>
-                                ) : (
-                                  String(row.description)
-                                )}
-                              </div>
+                              /^https?:\/\//.test(String(row.description)) ? (
+                                <a
+                                  href={String(row.description)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  ลิงก์แนบ
+                                </a>
+                              ) : (
+                                String(row.description)
+                              )
                             ) : (
-                              "-"
+                              ""
                             )}
-                          </td>
-                          <td
-                            style={{
-                              textAlign: "right",
-                              border: "1px solid #000",
-                              padding: 8,
-                            }}
-                          >
-                            {row?.duration ?? "0"} ชั่วโมง
-                          </td>
-                          <td
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid #000",
-                              padding: 8,
-                            }}
-                          >
-                            {row?.type ??
+                          </div>
+                        </td>
+                        <td className="center">{row?.duration ?? ""}</td>
+                        <td className="center">
+                          {row
+                            ? row.type ??
                               (data.overtimeType === "holiday"
                                 ? "วันหยุด"
-                                : "วันทำงาน")}
-                          </td>
-                          <td
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid #000",
-                              padding: 8,
-                            }}
-                          >
-                            {(getUserById(row?.assignee ?? "")?.firstname ??
-                              "") +
-                              " " +
-                              (getUserById(row?.assignee ?? "")?.lastname ??
-                                "")}
-                          </td>
-                          <td style={{ border: "1px solid #000", padding: 8 }}>
-                            -
-                          </td>
-                        </tr>
-                      )
-                    )}
+                                : "วันทำงาน")
+                            : ""}
+                        </td>
+                        <td className="center">
+                          {row?.assignee
+                            ? `${getUserById(row.assignee)?.firstname ?? ""} ${
+                                getUserById(row.assignee)?.lastname ?? ""
+                              }`
+                            : ""}
+                        </td>
+                        <td></td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: 8,
-                  }}
-                >
+                <div className="ot-summary">
                   <div>
-                    <strong>รวมชั่วโมง:</strong> {totalHours} ชั่วโมง
+                    เหตุผลการขอ:{" "}
+                    <span
+                      style={{
+                        fontWeight: 400,
+                        borderBottom: "1px dotted #333",
+                        padding: "0 8px",
+                      }}
+                    >
+                      {data.reason || "-"}
+                    </span>
                   </div>
-                  <div>
-                    <strong>เหตุผล:</strong> {data.reason ?? "-"}
+                  <div style={{ marginLeft: "auto" }}>
+                    รวมเวลาทั้งหมด:{" "}
+                    <span style={{ fontSize: "16px", color: "#000" }}>
+                      {totalHours}
+                    </span>{" "}
+                    ชั่วโมง
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: 28,
-                  }}
-                >
-                  <div style={{ textAlign: "center" }}>
-                    <div>ผู้ขอ</div>
-                    <div style={{ marginTop: 48 }}>
-                      __________________________
+                {/* --- SIGNATURES (ROW 1) --- */}
+                <div className="ot-signature-section">
+                  <div className="ot-sign-box">
+                    <div className="ot-sign-title">ผู้ขออนุมัติ</div>
+                    <EditableSignature />
+                    <div className="ot-sign-line"></div>
+                    <div className="ot-sign-name">
+                      <EditableField
+                        initialValue={`(${requesterName})`}
+                        placeholder="(.......................................................)"
+                      />
                     </div>
-                    <div>
-                      วันที่:{" "}
-                      {headerDate
-                        ? dayjs(headerDate).format("DD/MM/YYYY")
-                        : "-"}
+                    <div className="ot-sign-date">
+                      วันที่{" "}
+                      <EditableField
+                        initialValue={
+                          headerDate
+                            ? dayjs(headerDate).format("DD / MM / YYYY")
+                            : ""
+                        }
+                        placeholder="....... / ....... / ..........."
+                      />
                     </div>
                   </div>
-                  <div style={{ textAlign: "center" }}>
-                    <div>ผู้อนุมัติ</div>
-                    <div style={{ marginTop: 48 }}>
-                      __________________________
+                  <div className="ot-sign-box">
+                    <div className="ot-sign-title">ผู้อนุมัติ (หัวหน้างาน)</div>
+                    <EditableSignature initialImageSrc="/signatures/THANAT.png" />
+                    <div className="ot-sign-line"></div>
+                    <div className="ot-sign-name">
+                      <EditableField placeholder="(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)" />
                     </div>
-                    <div>วันที่: ___________________</div>
+                    <div className="ot-sign-date">
+                      วันที่{" "}
+                      <EditableField placeholder="....... / ....... / ..........." />
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div
-                style={{ border: "2px solid #000", padding: 8, marginTop: 12 }}
-              >
-                <div style={{ textAlign: "center", fontWeight: 700 }}>
-                  แบบฟอร์ม อนุมัติทำงานล่วงเวลา (โอที)
+              {/* --- APPROVAL TABLE --- */}
+              <div className="ot-sub-form">
+                <div className="ot-sub-title">
+                  ส่วนสำหรับบันทึกการปฏิบัติงานจริง (สำหรับเจ้าหน้าที่)
                 </div>
-
-                <table
-                  style={{
-                    width: "100%",
-                    border: "2px solid #000",
-                    marginTop: 8,
-                  }}
-                >
+                <table className="ot-table">
                   <thead>
                     <tr>
-                      <th style={{ width: "12%", border: "2px solid #000" }}>
-                        วันที่
-                      </th>
-                      <th style={{ border: "2px solid #000" }}>
-                        รายละเอียดงาน
-                      </th>
-                      <th style={{ width: "12%", border: "2px solid #000" }}>
-                        เริ่มต้น
-                      </th>
-                      <th style={{ width: "12%", border: "2px solid #000" }}>
-                        สิ้นสุด
-                      </th>
-                      <th style={{ width: "12%", border: "2px solid #000" }}>
-                        จำนวนชั่วโมง
-                      </th>
-                      <th style={{ width: "20%", border: "2px solid #000" }}>
-                        หมายเหตุ
-                      </th>
+                      <th style={{ width: "12%" }}>วันที่</th>
+                      <th>รายละเอียดงานที่ปฏิบัติจริง</th>
+                      <th style={{ width: "12%" }}>เวลาเริ่ม</th>
+                      <th style={{ width: "12%" }}>เวลาสิ้นสุด</th>
+                      <th style={{ width: "12%" }}>รวม (ชม.)</th>
+                      <th style={{ width: "15%" }}>หมายเหตุ</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {approvalRows.map(
-                      (row: OvertimeDescription | null, index: number) => (
-                        <tr key={index}>
-                          <td
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid #000",
-                              padding: 8,
-                            }}
-                          >
-                            {row?.date
-                              ? dayjs(row.date).format("DD/MM/YYYY")
-                              : "-"}
-                          </td>
-                          <td style={{ border: "1px solid #000", padding: 8 }}>
-                            {row?.description ? (
-                              <div
-                                className="ot-desc"
-                                style={{
-                                  maxWidth: "100%",
-                                  overflowWrap: "anywhere",
-                                  wordBreak: "break-word",
-                                  whiteSpace: "pre-wrap",
-                                  display: "block",
-                                }}
-                              >
-                                {/^https?:\/\//.test(
-                                  String(row.description)
-                                ) ? (
-                                  <a
-                                    href={String(row.description)}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    style={{
-                                      color: "#096dd9",
-                                      textDecoration: "underline",
-                                    }}
-                                  >
-                                    {String(row.description)}
-                                  </a>
-                                ) : (
-                                  String(row.description)
-                                )}
-                              </div>
-                            ) : (
-                              "-"
-                            )}
-                          </td>
-                          <td
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid #000",
-                              padding: 8,
-                            }}
-                          >
-                            {row?.start_time ??
-                              (data.request_date
-                                ? dayjs(data.request_date).format("DD/MM/YYYY")
-                                : "-")}
-                          </td>
-                          <td
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid #000",
-                              padding: 8,
-                            }}
-                          >
-                            {row?.end_time ??
-                              (data.request_date
-                                ? dayjs(data.request_date).format("DD/MM/YYYY")
-                                : "-")}
-                          </td>
-                          <td
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid #000",
-                              padding: 8,
-                            }}
-                          >
-                            {row?.duration ?? "-"}
-                          </td>
-                          <td style={{ border: "1px solid #000", padding: 8 }}>
-                            -
-                          </td>
-                        </tr>
-                      )
-                    )}
+                    {approvalRows.map((row, idx) => (
+                      <tr key={`app-${idx}`}>
+                        <td className="center">
+                          {row?.date
+                            ? dayjs(row.date).format("DD/MM/YYYY")
+                            : ""}
+                        </td>
+                        <td>
+                          <div className="ot-desc">
+                            {row?.description ?? ""}
+                          </div>
+                        </td>
+                        <td className="center">
+                          <EditableField
+                            initialValue={row?.start_time || ""}
+                            placeholder="xx:xx"
+                            inputStyle={{ minWidth: "50px" }}
+                            editHint="คลิกเพื่อใส่เวลา"
+                          />
+                        </td>
+                        <td className="center">
+                          <EditableField
+                            initialValue={row?.end_time || ""}
+                            placeholder="xx:xx"
+                            inputStyle={{ minWidth: "50px" }}
+                            editHint="คลิกเพื่อใส่เวลา"
+                          />
+                        </td>
+                        <td className="center">{row?.duration || ""}</td>
+                        <td className="center">
+                          <EditableField
+                            initialValue=""
+                            placeholder="-"
+                            inputStyle={{ minWidth: "80px" }}
+                          />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: 12,
-                  }}
-                >
-                  <div style={{ textAlign: "center" }}>
-                    <div>ผู้รับ</div>
-                    <div style={{ marginTop: 48 }}>
-                      __________________________
+                {/* --- SIGNATURES (ROW 2) --- */}
+                <div className="ot-signature-section">
+                  <div className="ot-sign-box">
+                    <div className="ot-sign-title">ผู้ขออนุมัติ</div>
+                    <EditableSignature />
+                    <div className="ot-sign-line"></div>
+                    <div className="ot-sign-name">
+                      <EditableField
+                        initialValue={`(${requesterName})`}
+                        placeholder="(.......................................................)"
+                      />
                     </div>
-                    <div>
-                      วันที่:{" "}
-                      {headerDate
-                        ? dayjs(headerDate).format("DD/MM/YYYY")
-                        : "-"}
+                    <div className="ot-sign-date">
+                      วันที่{" "}
+                      <EditableField
+                        initialValue={
+                          headerDate
+                            ? dayjs(headerDate).format("DD / MM / YYYY")
+                            : ""
+                        }
+                        placeholder="....... / ....... / ..........."
+                      />
                     </div>
                   </div>
-                  <div style={{ textAlign: "center" }}>
-                    <div>ผู้อนุมัติ</div>
-                    <div style={{ marginTop: 48 }}>
-                      __________________________
+                  <div className="ot-sign-box">
+                    <div className="ot-sign-title">ผู้ตรวจสอบ / รับทราบ</div>
+                    <EditableSignature initialImageSrc="/signatures/THANAT.png" />
+                    <div className="ot-sign-line"></div>
+                    <div className="ot-sign-name">
+                      <EditableField placeholder="(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)" />
                     </div>
-                    <div>
-                      วันที่:{" "}
-                      {headerDate
-                        ? dayjs(headerDate).format("DD/MM/YYYY")
-                        : "-"}
+                    <div className="ot-sign-date">
+                      วันที่{" "}
+                      <EditableField placeholder="....... / ....... / ..........." />
                     </div>
                   </div>
                 </div>
