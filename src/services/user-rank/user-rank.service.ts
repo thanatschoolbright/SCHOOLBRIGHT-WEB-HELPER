@@ -4,12 +4,11 @@
  */
 
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
-import { logger, createLogger } from '@/helpers/logger';
 
 export interface UserRankResponse {
-  rank: number;              // อันดับ (order จาก API)
-  rankLetter: string;        // เกรด rank (S, A, B, C, D, E, F)
-  rankDescription: string;   // คำอธิบาย rank
+  rank: number; // อันดับ (order จาก API)
+  rankLetter: string; // เกรด rank (S, A, B, C, D, E, F)
+  rankDescription: string; // คำอธิบาย rank
   admin_id: number;
   fullName: string;
   completion_rate: number;
@@ -24,8 +23,8 @@ export interface UserRankResponse {
  * เรียก API สำหรับดึงข้อมูล rank ของ user
  */
 export const fetchUserRank = async (
-  userId: string, 
-  month?: string, 
+  userId: string,
+  month?: string,
   year?: string
 ): Promise<UserRankResponse | null> => {
   try {
@@ -33,58 +32,54 @@ export const fetchUserRank = async (
     const requestMonth = month || (currentDate.getMonth() + 1).toString();
     const requestYear = year || currentDate.getFullYear().toString();
 
-  logger.info(`📊 [UserRankService] Fetching rank for user: ${userId}, Month: ${requestMonth}, Year: ${requestYear}`);
-
-    const response = await callApiService.post('/api/v1/timesheet/entry/check/summary-month', {
-      month: requestMonth,
-      year: requestYear
-    }, {
-      headers: {
-        'x-request-user': userId,
+    const response = await callApiService.post(
+      "/api/v1/timesheet/entry/check/summary-month",
+      {
+        month: requestMonth,
+        year: requestYear,
+      },
+      {
+        headers: {
+          "x-request-user": userId,
+        },
       }
-    });
+    );
 
     if (response.status === 200) {
       const data = response.data;
       const records = data?.data?.records || [];
-      
+
       // หาข้อมูล rank ของ user ที่ต้องการ โดยเปรียบเทียบ admin_id
-      const userRankData = records.find((item: any) => 
-        item.admin_id?.toString() === userId.toString()
+      const userRankData = records.find(
+        (item: any) => item.admin_id?.toString() === userId.toString()
       );
-      
-  logger.info(`🔍 [UserRankService] Looking for admin_id: ${userId}`);
-  logger.info(`📊 [UserRankService] Found ${records.length} records in API response`);
-  logger.debug(`🎯 [UserRankService] User rank data: ${JSON.stringify(userRankData)}`);
 
       if (userRankData) {
         const result: UserRankResponse = {
           rank: userRankData.order || 999, // ใช้ order จาก API
-          rankLetter: userRankData.rank || 'F', // ใช้ rank letter จาก API
-          rankDescription: userRankData.rank_description || 'ไม่มีข้อมูล',
+          rankLetter: userRankData.rank || "F", // ใช้ rank letter จาก API
+          rankDescription: userRankData.rank_description || "ไม่มีข้อมูล",
           admin_id: userRankData.admin_id,
-          fullName: userRankData.full_name || '',
+          fullName: userRankData.full_name || "",
           completion_rate: userRankData.completion_rate || 0,
           total_hours: userRankData.total_hours || 0,
           expected_hours: userRankData.expected_hours || 0,
           month: requestMonth,
           year: requestYear,
-          rawData: userRankData
+          rawData: userRankData,
         };
 
-        logger.info(`✅ [UserRankService] User rank found: ${JSON.stringify(result)}`);
         return result;
       } else {
-        logger.warn(`⚠️ [UserRankService] No rank data found for admin_id: ${userId}`);
-        logger.info(`📋 [UserRankService] Available admin_ids: ${JSON.stringify(records.map((r: any) => r.admin_id))}`);
+        // No rank data found
       }
     } else {
-      logger.error(`❌ [UserRankService] API responded with status: ${response.status}`);
+      // API responded with error status
     }
 
     return null;
   } catch (error) {
-    logger.error("❌ [UserRankService] Error fetching user rank:", error);
+    // Error fetching user rank
     return null;
   }
 };
@@ -93,13 +88,11 @@ export const fetchUserRank = async (
  * เรียก API สำหรับดึงข้อมูล rank ของหลาย users พร้อมกัน
  */
 export const fetchMultipleUserRanks = async (
-  userIds: string[], 
-  month?: string, 
+  userIds: string[],
+  month?: string,
   year?: string
 ): Promise<Record<string, UserRankResponse | null>> => {
   const results: Record<string, UserRankResponse | null> = {};
-  
-  logger.info(`📊 [UserRankService] Fetching ranks for ${userIds.length} users`);
 
   // เรียก API แบบ parallel
   const promises = userIds.map(async (userId) => {
@@ -108,18 +101,17 @@ export const fetchMultipleUserRanks = async (
   });
 
   const responses = await Promise.allSettled(promises);
-  
+
   responses.forEach((response, index) => {
     const userId = userIds[index];
-    if (response.status === 'fulfilled') {
+    if (response.status === "fulfilled") {
       results[userId] = response.value.rankData;
     } else {
-      logger.error(`❌ [UserRankService] Failed to fetch rank for user ${userId}: ${response.reason}`);
+      // Failed to fetch rank
       results[userId] = null;
     }
   });
 
-  logger.info(`✅ [UserRankService] Retrieved ranks for ${Object.keys(results).length} users`);
   return results;
 };
 
@@ -127,16 +119,16 @@ export const fetchMultipleUserRanks = async (
  * ตรวจสอบว่า user มี rank ใน top N หรือไม่
  */
 export const isUserInTopRank = async (
-  userId: string, 
+  userId: string,
   topN: number = 10,
-  month?: string, 
+  month?: string,
   year?: string
 ): Promise<boolean> => {
   try {
     const rankData = await fetchUserRank(userId, month, year);
     return rankData ? rankData.rank <= topN : false;
   } catch (error) {
-    logger.error(`❌ [UserRankService] Error checking top rank for user ${userId}:`, error);
+    // Error checking top rank
     return false;
   }
 };
