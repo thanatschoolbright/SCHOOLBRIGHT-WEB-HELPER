@@ -168,7 +168,10 @@
       "view_full": "Full Detail",
       "view_project": "Projects Only",
       "refresh": "Refresh",
-      "new_project": "New Project"
+      "new_project": "New Project",
+      "zoom_day": "Day",
+      "zoom_week": "Week",
+      "zoom_month": "Month"
     },
     "chart": {
       "project_task": "Project / Task",

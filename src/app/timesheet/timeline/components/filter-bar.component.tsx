@@ -71,6 +71,25 @@ export const FilterBarComponent: React.FC<FilterBarProps> = ({
                 },
               ]}
             />
+            <Select
+              defaultValue="day"
+              style={{ width: 120 }}
+              value={filters.zoomLevel}
+              onChange={(val) =>
+                setFilters({
+                  ...filters,
+                  zoomLevel: val as "day" | "week" | "month",
+                })
+              }
+              options={[
+                { value: "day", label: t("timeline_page.filters.zoom_day") },
+                { value: "week", label: t("timeline_page.filters.zoom_week") },
+                {
+                  value: "month",
+                  label: t("timeline_page.filters.zoom_month"),
+                },
+              ]}
+            />
             <RangePicker
               style={{ width: 250 }}
               value={filters.dateRange}

@@ -25,6 +25,7 @@ interface TimelineChartProps {
   onAddSubProject?: (projectId: number) => void;
   loading?: boolean;
   showChildren?: boolean;
+  zoomLevel: "day" | "week" | "month";
 }
 
 export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
@@ -33,6 +34,7 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
   onAddSubProject,
   loading,
   showChildren = true,
+  zoomLevel,
 }) => {
   const { t } = useTranslation("translate");
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(
@@ -40,6 +42,18 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
   );
   const [isFullScreen, setIsFullScreen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Calculate dynamic cell width based on zoom level
+  const currentCellWidth = useMemo(() => {
+    switch (zoomLevel) {
+      case "week":
+        return 15; // Smaller width for week view
+      case "month":
+        return 5; // Even smaller for month view
+      default:
+        return CELL_WIDTH; // Default 40
+    }
+  }, [zoomLevel]);
 
   React.useEffect(() => {
     if (showChildren) {
@@ -83,21 +97,58 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
     };
   }, [data]);
 
+  // Calculate month blocks for the header
+  const monthBlocks = useMemo(() => {
+    const blocks: { date: dayjs.Dayjs; width: number; label: string }[] = [];
+    if (days.length === 0) return blocks;
+
+    let currentMonth = days[0];
+    let count = 0;
+
+    days.forEach((day) => {
+      if (
+        day.month() !== currentMonth.month() ||
+        day.year() !== currentMonth.year()
+      ) {
+        blocks.push({
+          date: currentMonth,
+          width: count * currentCellWidth,
+          label: currentMonth.format("MMMM YYYY"),
+        });
+        currentMonth = day;
+        count = 0;
+      }
+      count++;
+    });
+
+    // Push the last block
+    if (count > 0) {
+      blocks.push({
+        date: currentMonth,
+        width: count * currentCellWidth,
+        label: currentMonth.format("MMMM YYYY"),
+      });
+    }
+
+    return blocks;
+  }, [days, currentCellWidth]);
+
   React.useEffect(() => {
     if (scrollContainerRef.current && startDate) {
       const today = dayjs();
       const todayDiff = today.diff(startDate, "day");
       if (todayDiff >= 0) {
-        const todayPos = todayDiff * CELL_WIDTH;
+        const todayPos = todayDiff * currentCellWidth;
         const containerWidth = scrollContainerRef.current.clientWidth;
-        const scrollLeft = todayPos - containerWidth / 2 + CELL_WIDTH / 2 + 300;
+        const scrollLeft =
+          todayPos - containerWidth / 2 + currentCellWidth / 2 + 300;
         scrollContainerRef.current.scrollTo({
           left: Math.max(0, scrollLeft),
           behavior: "smooth",
         });
       }
     }
-  }, [startDate, data]);
+  }, [startDate, data, currentCellWidth]);
 
   const toggleExpand = (id: string) => {
     const newSet = new Set(expandedProjects);
@@ -116,8 +167,8 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
     const durationDays = e.diff(s, "day") + 1;
 
     return {
-      left: offsetDays * CELL_WIDTH,
-      width: durationDays * CELL_WIDTH,
+      left: offsetDays * currentCellWidth,
+      width: durationDays * currentCellWidth,
     };
   };
 
@@ -131,11 +182,11 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
     return <Empty description={t("timeline_page.chart.no_data")} />;
   }
 
-  const totalWidth = totalDays * CELL_WIDTH;
+  const totalWidth = totalDays * currentCellWidth;
   const today = dayjs();
   const todayDiff = today.diff(startDate, "day");
   const showTodayLine = todayDiff >= 0 && todayDiff < totalDays;
-  const todayLeft = todayDiff * CELL_WIDTH + CELL_WIDTH / 2;
+  const todayLeft = todayDiff * currentCellWidth + currentCellWidth / 2;
 
   return (
     <div
@@ -167,36 +218,80 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
 
       <div style={{ minWidth: 300 + totalWidth }}>
         {/* Header Row */}
-        <div className="flex sticky top-0 z-30 bg-gray-50 border-b h-[50px]">
-          <div className="sticky left-0 z-40 w-[300px] flex-shrink-0 bg-gray-50 border-r p-3 font-bold text-gray-600 flex items-center shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-            {t("timeline_page.chart.project_task")}
-          </div>
-          <div className="flex relative">
-            {days.map((day, i) => {
-              const isMonthStart = day.date() === 1 || i === 0;
-              return (
-                <div
-                  key={i}
-                  className={`flex-shrink-0 border-r text-xs text-center flex flex-col justify-center ${
-                    day.day() === 0 || day.day() === 6 ? "bg-gray-100" : ""
-                  }`}
-                  style={{ width: CELL_WIDTH, height: HEADER_HEIGHT }}
-                >
-                  {isMonthStart && (
-                    <span className="font-bold text-blue-600 block">
-                      {day.format("MMM")}
-                    </span>
-                  )}
-                  <span className="text-gray-500">{day.format("D")}</span>
-                </div>
-              );
-            })}
+        <div className="sticky top-0 z-30 bg-gray-50 border-b shadow-sm">
+          <div className="flex">
+            {/* Sidebar Header */}
+            <div
+              className="sticky left-0 z-40 w-[300px] flex-shrink-0 bg-gray-50 border-r p-3 font-bold text-gray-600 flex items-center shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]"
+              style={{ height: HEADER_HEIGHT * 2 }}
+            >
+              {t("timeline_page.chart.project_task")}
+            </div>
+
+            {/* Timeline Headers */}
+            <div className="flex flex-col">
+              {/* Month Row */}
+              <div className="flex border-b" style={{ height: HEADER_HEIGHT }}>
+                {monthBlocks.map((block, i) => (
+                  <div
+                    key={i}
+                    className="flex-shrink-0 border-r text-sm font-bold text-gray-700 flex items-center justify-center bg-gray-100"
+                    style={{ width: block.width, height: HEADER_HEIGHT }}
+                  >
+                    {block.label}
+                  </div>
+                ))}
+              </div>
+
+              {/* Day Row */}
+              <div className="flex" style={{ height: HEADER_HEIGHT }}>
+                {days.map((day, i) => {
+                  const isWeekStart = day.day() === 1 || i === 0; // Monday
+
+                  let showLabel = false;
+                  let labelText = "";
+                  let labelClass = "text-gray-500";
+
+                  if (zoomLevel === "day") {
+                    showLabel = true;
+                    labelText = day.format("D");
+                  } else if (zoomLevel === "week") {
+                    if (isWeekStart) {
+                      showLabel = true;
+                      labelText = day.format("D");
+                      labelClass = "text-xs font-bold";
+                    }
+                  } else if (zoomLevel === "month") {
+                    // In month view, days are very small, maybe don't show day numbers
+                  }
+
+                  return (
+                    <div
+                      key={i}
+                      className={`flex-shrink-0 border-r text-xs text-center flex flex-col justify-center ${
+                        day.day() === 0 || day.day() === 6 ? "bg-gray-50" : ""
+                      }`}
+                      style={{ width: currentCellWidth, height: HEADER_HEIGHT }}
+                    >
+                      {showLabel && (
+                        <span className={labelClass}>{labelText}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Today Line Indicator (Header) */}
             {showTodayLine && (
               <div
                 className="absolute top-0 bottom-0 flex items-center justify-center pointer-events-none z-50"
-                style={{ left: todayLeft, transform: "translateX(-50%)" }}
+                style={{
+                  left: todayLeft + 300, // +300 for sidebar offset
+                  transform: "translateX(-50%)",
+                }}
               >
-                <div className="bg-red-500 text-white text-[10px] px-1 rounded-sm -mt-8">
+                <div className="bg-red-500 text-white text-[10px] px-1 rounded-sm mt-8">
                   {t("timeline_page.chart.today")}
                 </div>
               </div>
@@ -276,7 +371,7 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
                   className={`flex-shrink-0 border-r h-full ${
                     day.day() === 0 || day.day() === 6 ? "bg-gray-50" : ""
                   }`}
-                  style={{ width: CELL_WIDTH }}
+                  style={{ width: currentCellWidth }}
                 />
               ))}
               {showTodayLine && (
@@ -311,7 +406,7 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
                                 className={`absolute top-2 h-8 rounded-md flex items-center px-2 cursor-pointer transition-colors ${color.bg} ${color.border} border`}
                                 style={{
                                   left: pos.left,
-                                  width: Math.max(pos.width, CELL_WIDTH),
+                                  width: Math.max(pos.width, currentCellWidth),
                                 }}
                                 onClick={() => onItemClick(project)}
                               >
@@ -354,7 +449,10 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
                                     }`}
                                     style={{
                                       left: pos.left,
-                                      width: Math.max(pos.width, CELL_WIDTH),
+                                      width: Math.max(
+                                        pos.width,
+                                        currentCellWidth
+                                      ),
                                     }}
                                     onClick={() => onItemClick(sub)}
                                   >

@@ -76,6 +76,7 @@ export default function TimelinePage() {
             onAddSubProject={handleAddSubProject}
             loading={loading}
             showChildren={filters.viewType === "all"}
+            zoomLevel={filters.zoomLevel}
           />
         </div>
 

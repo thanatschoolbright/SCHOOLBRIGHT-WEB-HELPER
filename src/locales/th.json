@@ -168,7 +168,10 @@
       "view_full": "รายละเอียดเต็ม",
       "view_project": "เฉพาะโครงการ",
       "refresh": "รีเฟรช",
-      "new_project": "โครงการใหม่"
+      "new_project": "โครงการใหม่",
+      "zoom_day": "รายวัน",
+      "zoom_week": "รายสัปดาห์",
+      "zoom_month": "รายเดือน"
     },
     "chart": {
       "project_task": "โครงการ / งาน",

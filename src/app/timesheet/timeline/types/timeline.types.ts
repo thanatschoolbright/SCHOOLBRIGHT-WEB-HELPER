@@ -27,6 +27,7 @@ export interface TimelineFilters {
   keyword: string;
   viewType: "all" | "project";
   dateRange: [any, any] | null;
+  zoomLevel: "day" | "week" | "month";
 }
 
 export interface ModalState {

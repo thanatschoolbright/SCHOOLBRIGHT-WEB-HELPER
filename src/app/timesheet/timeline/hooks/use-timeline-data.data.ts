@@ -22,6 +22,7 @@ export const useTimelineData = () => {
     keyword: "",
     viewType: "all",
     dateRange: [dayjs().startOf("month"), dayjs().endOf("month")],
+    zoomLevel: "day",
   });
 
   const fetchData = useCallback(async () => {
