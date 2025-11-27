@@ -1,8 +1,10 @@
 import React from "react";
 import { Typography, theme } from "antd";
 import { useTranslation } from "react-i18next";
-import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "../utils/timeline.helpers";
+import { HEADER_HEIGHT } from "../utils/timeline.helpers";
 import dayjs from "dayjs";
+
+const SIDEBAR_WIDTH = 240;
 
 interface TimelineHeaderProps {
   months: any[];

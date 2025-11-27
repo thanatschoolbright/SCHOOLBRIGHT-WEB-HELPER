@@ -7,7 +7,20 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-import { PopupInfo } from "../types/timeline.types";
+
+interface PopupInfo {
+  x: number;
+  y: number;
+  project:
+    | {
+        name: string;
+        description?: string | null;
+        startDate: string | Date;
+        endDate: string | Date;
+        features: unknown[];
+      }
+    | null;
+}
 
 interface ProjectPopoverProps {
   popupInfo: PopupInfo;

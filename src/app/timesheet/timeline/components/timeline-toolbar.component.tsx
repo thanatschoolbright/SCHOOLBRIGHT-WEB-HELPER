@@ -3,7 +3,9 @@ import { Space, Button, Radio, Input, Tag, theme } from "antd";
 import type { RadioChangeEvent } from "antd";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { ViewMode } from "../types/timeline.types";
+
+// ViewMode is not exported from ../types/timeline.types, define locally:
+type ViewMode = "month" | "quarter";
 
 interface TimelineToolbarProps {
   viewMode: ViewMode;
