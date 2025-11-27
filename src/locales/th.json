@@ -484,6 +484,60 @@
       "metrics_snapshot": "Metrics Snapshot",
       "log_latest": "Log (ล่าสุด 50 บรรทัด)",
       "show_less": "Show less"
+    },
+    "tabs": {
+      "profiles": "โปรไฟล์การทดสอบ",
+      "basic": "การตั้งค่าพื้นฐาน",
+      "advanced": "ตัวเลือกขั้นสูง"
+    },
+    "profiles": {
+      "title": "สถานการณ์การทดสอบที่กำหนดไว้ล่วงหน้า",
+      "description": "เลือกโปรไฟล์การทดสอบเพื่อตั้งค่าการทดสอบโหลดอย่างรวดเร็วด้วยพารามิเตอร์มาตรฐานอุตสาหกรรม",
+      "quick_start": "เริ่มต้นอย่างรวดเร็ว",
+      "vus": "VUs",
+      "duration": "ระยะเวลา",
+      "stages": "ขั้นตอน",
+      "rps": "RPS",
+      "selected": "เลือกแล้ว"
+    },
+    "advanced": {
+      "title": "การตั้งค่าขั้นสูง",
+      "enterprise": "Enterprise",
+      "ramping_stages": "ขั้นตอนการเพิ่มโหลด",
+      "stages_description": "กำหนดขั้นตอนการเพิ่ม/ลดผู้ใช้แบบค่อยเป็นค่อยไป",
+      "no_stages": "ยังไม่มีการตั้งค่าขั้นตอน",
+      "add_stage": "เพิ่มขั้นตอน",
+      "stage_duration": "ระยะเวลา (วินาที)",
+      "stage_target": "เป้าหมาย VUs",
+      "actions": "การจัดการ",
+      "performance_options": "ตัวเลือกประสิทธิภาพ",
+      "timeout": "Timeout คำขอ",
+      "timeout_tooltip": "เวลาสูงสุดที่รอการตอบกลับ",
+      "think_time": "เวลาคิด",
+      "think_time_tooltip": "หยุดพักระหว่างคำขอเพื่อจำลองพฤติกรรมผู้ใช้จริง",
+      "rps": "จำกัดอัตรา (RPS)",
+      "rps_tooltip": "จำนวนคำขอสูงสุดต่อวินาที",
+      "iterations": "จำนวนรอบทั้งหมด",
+      "iterations_tooltip": "จำนวนรอบการทดสอบทั้งหมด",
+      "max_redirects": "Redirect สูงสุด",
+      "max_redirects_tooltip": "จำนวน HTTP redirect สูงสุดที่จะติดตาม",
+      "graceful_stop": "หยุดอย่างสุภาพ",
+      "graceful_stop_tooltip": "เวลารอให้รอบทำงานเสร็จก่อนหยุด",
+      "custom_headers": "HTTP Headers กำหนดเอง",
+      "headers_description": "เพิ่ม headers กำหนดเองให้กับคำขอทั้งหมด",
+      "header_key": "ชื่อ Header",
+      "header_value": "ค่า Header",
+      "add": "เพิ่ม",
+      "connection_options": "ตัวเลือกการเชื่อมต่อ",
+      "no_connection_reuse": "ปิดการใช้ Connection ซ้ำ",
+      "no_connection_reuse_tooltip": "สร้าง connection ใหม่สำหรับแต่ละคำขอ",
+      "no_vu_connection_reuse": "ปิดการใช้ VU Connection ซ้ำ",
+      "no_vu_connection_reuse_tooltip": "แต่ละ VU สร้าง connection ใหม่"
+    },
+    "messages": {
+      "test_completed": "การทดสอบโหลดเสร็จสมบูรณ์",
+      "test_failed": "การทดสอบโหลดล้มเหลว",
+      "profile_applied": "ใช้โปรไฟล์ '{{name}}' สำเร็จแล้ว"
     }
   }
 }

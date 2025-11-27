@@ -484,6 +484,60 @@
       "metrics_snapshot": "Metrics Snapshot",
       "log_latest": "Log (Latest 50 lines)",
       "show_less": "Show less"
+    },
+    "tabs": {
+      "profiles": "Test Profiles",
+      "basic": "Basic Config",
+      "advanced": "Advanced Options"
+    },
+    "profiles": {
+      "title": "Predefined Test Scenarios",
+      "description": "Select a test profile to quickly configure your load test with industry-standard parameters",
+      "quick_start": "Quick Start",
+      "vus": "VUs",
+      "duration": "Duration",
+      "stages": "Stages",
+      "rps": "RPS",
+      "selected": "Selected"
+    },
+    "advanced": {
+      "title": "Advanced Configuration",
+      "enterprise": "Enterprise",
+      "ramping_stages": "Ramping Stages",
+      "stages_description": "Define load ramping stages for gradual user increase/decrease",
+      "no_stages": "No stages configured",
+      "add_stage": "Add Stage",
+      "stage_duration": "Duration (seconds)",
+      "stage_target": "Target VUs",
+      "actions": "Actions",
+      "performance_options": "Performance Options",
+      "timeout": "Request Timeout",
+      "timeout_tooltip": "Maximum time to wait for a response",
+      "think_time": "Think Time",
+      "think_time_tooltip": "Pause between requests to simulate real user behavior",
+      "rps": "Rate Limit (RPS)",
+      "rps_tooltip": "Maximum requests per second",
+      "iterations": "Total Iterations",
+      "iterations_tooltip": "Total number of test iterations",
+      "max_redirects": "Max Redirects",
+      "max_redirects_tooltip": "Maximum number of HTTP redirects to follow",
+      "graceful_stop": "Graceful Stop",
+      "graceful_stop_tooltip": "Time to wait for iterations to finish before stopping",
+      "custom_headers": "Custom HTTP Headers",
+      "headers_description": "Add custom headers to all requests",
+      "header_key": "Header Name",
+      "header_value": "Header Value",
+      "add": "Add",
+      "connection_options": "Connection Options",
+      "no_connection_reuse": "Disable Connection Reuse",
+      "no_connection_reuse_tooltip": "Create new connection for each request",
+      "no_vu_connection_reuse": "Disable VU Connection Reuse",
+      "no_vu_connection_reuse_tooltip": "Each VU creates new connections"
+    },
+    "messages": {
+      "test_completed": "Load test completed successfully",
+      "test_failed": "Load test failed",
+      "profile_applied": "Profile '{{name}}' applied successfully"
     }
   }
 }

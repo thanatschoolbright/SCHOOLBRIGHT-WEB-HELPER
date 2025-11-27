@@ -26,6 +26,9 @@ import {
   Descriptions,
   Divider,
   Progress,
+  Tabs,
+  Select,
+  message,
 } from "antd";
 import {
   PlayCircleOutlined,
@@ -41,6 +44,8 @@ import {
   FileTextOutlined,
   ApiOutlined,
   CloseCircleOutlined,
+  ExperimentOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import {
   Chart as ChartJS,
@@ -54,6 +59,11 @@ import {
   Legend,
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
+import { AdvancedConfigComponent } from "./components/advanced-config.component";
+import { TestProfileSelectorComponent } from "./components/test-profile-selector.component";
+import { LoadTestConfig, LoadTestProfile } from "./types/load-test.types";
+import { TEST_PROFILES } from "./utils/test-profiles";
+
 // Register Chart.js components
 ChartJS.register(
   CategoryScale,
@@ -661,6 +671,13 @@ export default function Page() {
   const [showFullReportLog, setShowFullReportLog] = useState(false);
   const { token } = theme.useToken();
 
+  // Advanced configuration state
+  const [advancedConfig, setAdvancedConfig] = useState<Partial<LoadTestConfig>>(
+    {}
+  );
+  const [selectedProfile, setSelectedProfile] = useState<string | undefined>();
+  const [activeTab, setActiveTab] = useState<string>("basic");
+
   //** runTest: เรียก API /api/v1/load-test และอ่านผลแบบสตรีมทีละ chunk
   const runTest = async () => {
     try {
@@ -668,15 +685,21 @@ export default function Page() {
       setShowMetrics(false);
       setOutput("");
       setRunStatus("running");
+
+      const payload: any = {
+        script: scriptName,
+        baseURL: targetUrl,
+        request: vus,
+        second: durationSeconds,
+        ...advancedConfig,
+      };
+
+      console.log("🚀 Sending load test request:", payload);
+
       const response = await fetch("/api/v1/load-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          script: scriptName,
-          baseURL: targetUrl,
-          request: vus,
-          second: durationSeconds,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.body) throw new Error("No response body");
@@ -698,12 +721,56 @@ export default function Page() {
       setParsedStats(parseTestStats(accumulated));
       setRunStatus("done");
       setLastRunAt(new Date().toLocaleString());
+      message.success(t("load_test_page.messages.test_completed"));
     } catch (error: any) {
       setOutput(`Load test failed: ${error.message}`);
       setRunStatus("error");
+      message.error(t("load_test_page.messages.test_failed"));
     } finally {
       setIsLoading(false);
     }
+  };
+
+  //** handleProfileSelect: Apply selected test profile
+  const handleProfileSelect = (profile: LoadTestProfile) => {
+    setSelectedProfile(profile.name);
+    setVus(profile.vus);
+    setDurationSeconds(profile.duration);
+
+    if (profile.stages) {
+      setAdvancedConfig((prev) => ({
+        ...prev,
+        stages: profile.stages,
+      }));
+    } else {
+      setAdvancedConfig((prev) => {
+        const { stages, ...rest } = prev;
+        return rest;
+      });
+    }
+
+    if (profile.rps) {
+      setAdvancedConfig((prev) => ({
+        ...prev,
+        rps: profile.rps,
+      }));
+    }
+
+    if (profile.iterations) {
+      setAdvancedConfig((prev) => ({
+        ...prev,
+        iterations: profile.iterations,
+      }));
+    }
+
+    message.success(
+      t("load_test_page.messages.profile_applied", { name: profile.name })
+    );
+  };
+
+  //** handleAdvancedConfigChange: Update advanced configuration
+  const handleAdvancedConfigChange = (config: any) => {
+    setAdvancedConfig(config);
   };
 
   //** downloadLog: ดาวน์โหลดไฟล์ Log ปัจจุบัน
@@ -1331,7 +1398,7 @@ export default function Page() {
             {t("load_test_page.playground.title")}
           </Space>
         }
-        extra={<Tag color="cyan">Ant Design</Tag>}
+        extra={<Tag color="cyan">Enterprise Edition</Tag>}
         style={{ marginBottom: 16 }}
       >
         <Alert
@@ -1340,107 +1407,166 @@ export default function Page() {
           style={{ marginBottom: 16 }}
           message={t("load_test_page.playground.alert_message")}
         />
-        <Form layout="vertical" onFinish={runTest}>
-          <Row gutter={[16, 16]}>
-            <Col xs={24} md={12}>
-              <Form.Item
-                label={t("load_test_page.playground.form.script_name_label")}
-              >
-                <Input
-                  placeholder={t(
-                    "load_test_page.playground.form.script_name_placeholder"
-                  )}
-                  value={scriptName}
-                  onChange={(e) => setScriptName(e.target.value)}
+
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={[
+            {
+              key: "profiles",
+              label: (
+                <Space>
+                  <ExperimentOutlined />
+                  {t("load_test_page.tabs.profiles")}
+                </Space>
+              ),
+              children: (
+                <TestProfileSelectorComponent
+                  onSelectProfile={handleProfileSelect}
+                  selectedProfile={selectedProfile}
                 />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item
-                label={t("load_test_page.playground.form.base_url_label")}
-              >
-                <Input
-                  placeholder={t(
-                    "load_test_page.playground.form.base_url_placeholder"
-                  )}
-                  value={targetUrl}
-                  onChange={(e) => setTargetUrl(e.target.value)}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item
-                label={
-                  <Space>
-                    {t("load_test_page.playground.form.vus_label")}
-                    <AntTooltip
-                      title={t("load_test_page.playground.form.vus_tooltip")}
-                    >
-                      <Tag color="blue">VUs</Tag>
-                    </AntTooltip>
+              ),
+            },
+            {
+              key: "basic",
+              label: (
+                <Space>
+                  <SettingOutlined />
+                  {t("load_test_page.tabs.basic")}
+                </Space>
+              ),
+              children: (
+                <Form layout="vertical" onFinish={runTest}>
+                  <Row gutter={[16, 16]}>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={t(
+                          "load_test_page.playground.form.script_name_label"
+                        )}
+                      >
+                        <Input
+                          placeholder={t(
+                            "load_test_page.playground.form.script_name_placeholder"
+                          )}
+                          value={scriptName}
+                          onChange={(e) => setScriptName(e.target.value)}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={t(
+                          "load_test_page.playground.form.base_url_label"
+                        )}
+                      >
+                        <Input
+                          placeholder={t(
+                            "load_test_page.playground.form.base_url_placeholder"
+                          )}
+                          value={targetUrl}
+                          onChange={(e) => setTargetUrl(e.target.value)}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={
+                          <Space>
+                            {t("load_test_page.playground.form.vus_label")}
+                            <AntTooltip
+                              title={t(
+                                "load_test_page.playground.form.vus_tooltip"
+                              )}
+                            >
+                              <Tag color="blue">VUs</Tag>
+                            </AntTooltip>
+                          </Space>
+                        }
+                      >
+                        <InputNumber
+                          min={1}
+                          style={{ width: "100%" }}
+                          value={vus}
+                          onChange={(val) => setVus(val || 1)}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={
+                          <Space>
+                            {t("load_test_page.playground.form.duration_label")}
+                            <AntTooltip
+                              title={t(
+                                "load_test_page.playground.form.duration_tooltip"
+                              )}
+                            >
+                              <Tag color="purple">sec</Tag>
+                            </AntTooltip>
+                          </Space>
+                        }
+                      >
+                        <InputNumber
+                          min={1}
+                          style={{ width: "100%" }}
+                          value={durationSeconds}
+                          onChange={(val) => setDurationSeconds(val || 1)}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Space
+                    style={{ width: "100%", justifyContent: "space-between" }}
+                  >
+                    <Typography.Text type="secondary">
+                      {t("load_test_page.playground.footer_text")}
+                    </Typography.Text>
+                    <Space>
+                      <Button
+                        icon={<FileSearchOutlined />}
+                        onClick={openReportPreview}
+                        disabled={!output}
+                      >
+                        {t("load_test_page.playground.buttons.preview_report")}
+                      </Button>
+                      <Button onClick={downloadLog} disabled={!output}>
+                        {t("load_test_page.playground.buttons.download_log")}
+                      </Button>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        icon={<PlayCircleOutlined />}
+                        loading={isLoading}
+                      >
+                        {isLoading
+                          ? t("load_test_page.playground.buttons.testing")
+                          : t("load_test_page.playground.buttons.run_test")}
+                      </Button>
+                    </Space>
                   </Space>
-                }
-              >
-                <InputNumber
-                  min={1}
-                  style={{ width: "100%" }}
-                  value={vus}
-                  onChange={(val) => setVus(val || 1)}
+                </Form>
+              ),
+            },
+            {
+              key: "advanced",
+              label: (
+                <Space>
+                  <ThunderboltOutlined />
+                  {t("load_test_page.tabs.advanced")}
+                  {Object.keys(advancedConfig).length > 0 && (
+                    <Badge count={Object.keys(advancedConfig).length} />
+                  )}
+                </Space>
+              ),
+              children: (
+                <AdvancedConfigComponent
+                  onConfigChange={handleAdvancedConfigChange}
+                  initialConfig={advancedConfig}
                 />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item
-                label={
-                  <Space>
-                    {t("load_test_page.playground.form.duration_label")}
-                    <AntTooltip
-                      title={t(
-                        "load_test_page.playground.form.duration_tooltip"
-                      )}
-                    >
-                      <Tag color="purple">sec</Tag>
-                    </AntTooltip>
-                  </Space>
-                }
-              >
-                <InputNumber
-                  min={1}
-                  style={{ width: "100%" }}
-                  value={durationSeconds}
-                  onChange={(val) => setDurationSeconds(val || 1)}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Space style={{ width: "100%", justifyContent: "space-between" }}>
-            <Typography.Text type="secondary">
-              {t("load_test_page.playground.footer_text")}
-            </Typography.Text>
-            <Space>
-              <Button
-                icon={<FileSearchOutlined />}
-                onClick={openReportPreview}
-                disabled={!output}
-              >
-                {t("load_test_page.playground.buttons.preview_report")}
-              </Button>
-              <Button onClick={downloadLog} disabled={!output}>
-                {t("load_test_page.playground.buttons.download_log")}
-              </Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                icon={<PlayCircleOutlined />}
-                loading={isLoading}
-              >
-                {isLoading
-                  ? t("load_test_page.playground.buttons.testing")
-                  : t("load_test_page.playground.buttons.run_test")}
-              </Button>
-            </Space>
-          </Space>
-        </Form>
+              ),
+            },
+          ]}
+        />
       </Card>
 
       <Card
