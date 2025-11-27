@@ -28,7 +28,6 @@ import {
   Progress,
   Tabs,
   Select,
-  message,
 } from "antd";
 import {
   PlayCircleOutlined,
@@ -59,6 +58,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
+import { toast } from "sonner";
 import { AdvancedConfigComponent } from "./components/advanced-config.component";
 import { TestProfileSelectorComponent } from "./components/test-profile-selector.component";
 import { LoadTestConfig, LoadTestProfile } from "./types/load-test.types";
@@ -721,11 +721,11 @@ export default function Page() {
       setParsedStats(parseTestStats(accumulated));
       setRunStatus("done");
       setLastRunAt(new Date().toLocaleString());
-      message.success(t("load_test_page.messages.test_completed"));
+      toast.success(t("load_test_page.messages.test_completed"));
     } catch (error: any) {
       setOutput(`Load test failed: ${error.message}`);
       setRunStatus("error");
-      message.error(t("load_test_page.messages.test_failed"));
+      toast.error(t("load_test_page.messages.test_failed"));
     } finally {
       setIsLoading(false);
     }
@@ -763,7 +763,7 @@ export default function Page() {
       }));
     }
 
-    message.success(
+    toast.success(
       t("load_test_page.messages.profile_applied", { name: profile.name })
     );
   };

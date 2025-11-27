@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Space, Button, Typography } from "antd";
+import { Space, Button, Typography, Collapse } from "antd";
 import { LoginOutlined, TrophyOutlined } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
@@ -86,15 +86,35 @@ export default function BypassPage(): JSX.Element {
           </Space>
         </div>
 
-        {/* Statistics Section */}
-        <StatisticsSection statistics={state.statistics} />
+        {/* Statistics Section - Collapsed by default */}
+        <Collapse
+          defaultActiveKey={[]}
+          items={[
+            {
+              key: "statistics",
+              label: TRANSLATION("bypass_page.statistics_section"),
+              children: <StatisticsSection statistics={state.statistics} />,
+            },
+          ]}
+        />
 
-        {/* Filters Section */}
-        <FiltersSection
-          filters={state.filters}
-          filterOptions={state.filterOptions}
-          onFilterChange={handlers.handleFilterChange}
-          onClearFilters={handlers.handleClearFilters}
+        {/* Filters Section - Expanded by default */}
+        <Collapse
+          defaultActiveKey={["filters"]}
+          items={[
+            {
+              key: "filters",
+              label: TRANSLATION("bypass_page.filters_title"),
+              children: (
+                <FiltersSection
+                  filters={state.filters}
+                  filterOptions={state.filterOptions}
+                  onFilterChange={handlers.handleFilterChange}
+                  onClearFilters={handlers.handleClearFilters}
+                />
+              ),
+            },
+          ]}
         />
 
         {/* Table Section */}

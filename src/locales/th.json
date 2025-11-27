@@ -279,6 +279,7 @@
     "stat_total_students": "จำนวนนักเรียนรวม",
     "stat_average_students": "จำนวนนักเรียน/โรงเรียน (เฉลี่ย)",
     "stat_active_students": "นักเรียนในโรงเรียนที่ Active",
+    "statistics_section": "ภาพรวมสถิติ",
     "filters_title": "ตัวกรองข้อมูล",
     "clear_filters": "ล้างตัวกรอง",
     "search_placeholder": "ค้นหาชื่อโรงเรียน, รหัสโรงเรียน, รหัสสถานศึกษา...",

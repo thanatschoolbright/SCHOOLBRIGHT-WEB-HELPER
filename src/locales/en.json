@@ -279,6 +279,7 @@
     "stat_total_students": "Total Students",
     "stat_average_students": "Avg. Students / School",
     "stat_active_students": "Students in Active Schools",
+    "statistics_section": "Statistics Overview",
     "filters_title": "Data Filters",
     "clear_filters": "Clear Filters",
     "search_placeholder": "Search school name, school ID, education code...",
