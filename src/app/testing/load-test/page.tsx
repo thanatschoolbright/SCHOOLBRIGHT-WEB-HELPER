@@ -644,6 +644,7 @@ export default function Page() {
   >("idle");
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportText, setReportText] = useState("");
+  const [showFullReportLog, setShowFullReportLog] = useState(false);
   const { token } = theme.useToken();
 
   //** runTest: เรียก API /api/v1/load-test และอ่านผลแบบสตรีมทีละ chunk
@@ -725,6 +726,7 @@ export default function Page() {
       ) || ""
     ] || "N/A";
   const httpReqFailedPct = parsePercentStat(httpReqFailed);
+  
   const httpReqCounts = parseCountAndRate(httpReqs);
   const httpReqDurationStats = parseDurationStat(httpReqDuration);
   const iterationsLine =
@@ -770,6 +772,13 @@ export default function Page() {
     : "ยังไม่มี log";
   const timeline = parseTimeline(output);
   const hasTimeline = timeline.labels.length > 0;
+  const reportLogPreviewLimit = 1200;
+  const reportLogDisplay =
+    showFullReportLog || !logTail
+      ? logTail
+      : logTail.length > reportLogPreviewLimit
+      ? `${logTail.slice(0, reportLogPreviewLimit)}\n...\n(See more to view full log)`
+      : logTail;
 
   const buildReportText = () => {
     const generatedAt = lastRunAt || new Date().toLocaleString();
@@ -860,9 +869,7 @@ export default function Page() {
             <li>HTTP Duration: ${httpReqDuration || "N/A"}</li>
             <li>Success Rate: ${successRate ? `${successRate}%` : "N/A"}</li>
             <li>Failure Rate: ${
-              Number.isFinite(httpReqFailedPct)
-                ? `${httpReqFailedPct}%`
-                : failureRate
+              failureRate
                 ? `${failureRate}%`
                 : "N/A"
             }</li>
@@ -920,9 +927,7 @@ export default function Page() {
       {
         label: "Failure Rate",
         value:
-          Number.isFinite(httpReqFailedPct) && httpReqFailedPct !== undefined
-            ? `${httpReqFailedPct}%`
-            : failureRate
+          failureRate
             ? `${failureRate}%`
             : "N/A",
       },
@@ -1187,11 +1192,9 @@ export default function Page() {
                 <Statistic
                   title="Failure Rate"
                   value={
-                    Number.isFinite(httpReqFailedPct)
-                      ? httpReqFailedPct
-                      : failureRate
+                    failureRate
                       ? Number(failureRate)
-                      : 0
+                      : "N/A"
                   }
                   suffix="%"
                   valueStyle={{ color: token.colorError }}
@@ -1542,7 +1545,7 @@ export default function Page() {
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
                     title="Failure Rate (rate)"
-                    value={httpReqFailed}
+                    value={failureRate ? `${failureRate}%` : "N/A"}
                     prefix={<CloseCircleOutlined />}
                     valueStyle={{ color: token.colorError }}
                   />
@@ -1596,11 +1599,7 @@ export default function Page() {
                 {requestRate}
               </Descriptions.Item>
               <Descriptions.Item label="Failure Rate">
-                {Number.isFinite(httpReqFailedPct)
-                  ? `${httpReqFailedPct}%`
-                  : failureRate
-                  ? `${failureRate}%`
-                  : "N/A"}
+                {failureRate ? `${failureRate}%` : "N/A"}
               </Descriptions.Item>
               <Descriptions.Item label="Success Rate">
                 {successRate ? `${successRate}%` : "N/A"}
@@ -1729,24 +1728,34 @@ export default function Page() {
           />
         )}
 
-        <Divider />
-        <Typography.Title level={5} style={{ marginBottom: 8 }}>
-          Log (ล่าสุด 50 บรรทัด)
-        </Typography.Title>
-        <Card size="small" style={{ background: token.colorBgContainer }}>
-          <pre
-            style={{
-              margin: 0,
-              whiteSpace: "pre-wrap",
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-              maxHeight: 280,
-              overflow: "auto",
-            }}
+      <Divider />
+      <Typography.Title level={5} style={{ marginBottom: 8 }}>
+        Log (ล่าสุด 50 บรรทัด)
+      </Typography.Title>
+      <Card size="small" style={{ background: token.colorBgContainer }}>
+        <pre
+          style={{
+            margin: 0,
+            whiteSpace: "pre-wrap",
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+            maxHeight: 280,
+            overflow: "auto",
+          }}
+        >
+          {reportLogDisplay}
+        </pre>
+        {logTail.length > reportLogPreviewLimit && (
+          <Button
+            type="link"
+            size="small"
+            style={{ paddingLeft: 0 }}
+            onClick={() => setShowFullReportLog((prev) => !prev)}
           >
-            {logTail}
-          </pre>
-        </Card>
-      </Modal>
+            {showFullReportLog ? "Show less" : "See more"}
+          </Button>
+        )}
+      </Card>
+    </Modal>
     </DashboardLayout>
   );
 }
