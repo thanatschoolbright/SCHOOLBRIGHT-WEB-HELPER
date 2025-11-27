@@ -3,14 +3,13 @@
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig = {
-
   // * Enable strict mode for better development experience
   reactStrictMode: false,
 
   // * Configure body size limits for API routes and proxy
   experimental: {
-    serverActions: { bodySizeLimit: '50mb' },
-    proxyClientMaxBodySize: '200mb',
+    serverActions: { bodySizeLimit: "50mb" },
+    proxyClientMaxBodySize: "200mb",
     // ✅ Memory Optimization for Build Process
     workerThreads: false,
     cpus: 1,
@@ -34,10 +33,8 @@ const nextConfig = {
   // * Disable source maps in production for better performance
   productionBrowserSourceMaps: false,
 
-  // ✅ Ignore linting and type checking during build to save RAM and Time
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // ✅ Ignore type checking during build to save RAM and Time
+  // (ESLint config removed as it is not supported in Next.js 16+)
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -55,9 +52,9 @@ const nextConfig = {
       try {
         const TerserPlugin = require("terser-webpack-plugin");
         config.optimization.minimizer.push(
-            new TerserPlugin({
-              // terserOptions: { compress: { drop_console: true } },
-            })
+          new TerserPlugin({
+            // terserOptions: { compress: { drop_console: true } },
+          })
         );
       } catch (error) {
         // ! Fallback to Next.js built-in optimization
