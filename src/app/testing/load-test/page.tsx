@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import DashboardLayout from "@/components/layouts/backend-layout";
 import {
   Card,
@@ -78,8 +79,9 @@ const SummaryChart = ({
   const { total, success, failed } = getCheckCounts(stats);
 
   // Chart.js v3+ supports context-based backgroundColor for gradients
+  const { t } = useTranslation("translate");
   const data = {
-    labels: ["ผลการทดสอบ"],
+    labels: [t("load_test_page.graph_summary.chart_label")],
     datasets: [
       {
         label: "Success",
@@ -227,7 +229,8 @@ const renderFormattedMetricValue = (
   expandedLines: Record<number, boolean>,
   setExpandedLines: React.Dispatch<
     React.SetStateAction<Record<number, boolean>>
-  >
+  >,
+  t: any
 ) => {
   let formattedValue = value;
   let jsonParsed: any = null;
@@ -273,7 +276,9 @@ const renderFormattedMetricValue = (
           }
           style={{ padding: 0, width: "fit-content" }}
         >
-          {isExpanded ? "See less" : "See more"}
+          {isExpanded
+            ? t("load_test_page.log_report.see_less")
+            : t("load_test_page.log_report.see_more")}
         </Button>
       )}
     </div>
@@ -314,6 +319,7 @@ const LogViewer = ({
   setExpandedLines,
   maxLength = 100,
 }: LogViewerProps) => {
+  const { t } = useTranslation("translate");
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const { token } = theme.useToken();
 
@@ -326,7 +332,7 @@ const LogViewer = ({
   return (
     <div style={{ marginTop: 16 }}>
       <Typography.Title level={5} style={{ marginBottom: 8 }}>
-        Real-time Logs
+        {t("load_test_page.log_report.realtime_logs")}
       </Typography.Title>
       <Card
         size="small"
@@ -339,7 +345,7 @@ const LogViewer = ({
       >
         {!output && (
           <Empty
-            description="ยังไม่มี Log แสดงผล"
+            description={t("load_test_page.log_report.empty_logs")}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         )}
@@ -387,7 +393,9 @@ const LogViewer = ({
                   }
                   style={{ paddingInline: 0 }}
                 >
-                  {isExpanded ? "See less" : "See more"}
+                  {isExpanded
+                    ? t("load_test_page.log_report.see_less")
+                    : t("load_test_page.log_report.see_more")}
                 </Button>
               )}
             </div>
@@ -413,6 +421,7 @@ const MetricsTable = ({
   expandedLines,
   setExpandedLines,
 }: MetricsTableProps) => {
+  const { t } = useTranslation("translate");
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -421,7 +430,7 @@ const MetricsTable = ({
 
   const columns = [
     {
-      title: "Metric",
+      title: t("load_test_page.metrics_report.metric_col"),
       dataIndex: "key",
       key: "key",
       width: 320,
@@ -430,7 +439,7 @@ const MetricsTable = ({
       ),
     },
     {
-      title: "Value",
+      title: t("load_test_page.metrics_report.value_col"),
       dataIndex: "value",
       key: "value",
       render: (_: any, record: Metric, idx: number) => (
@@ -439,7 +448,8 @@ const MetricsTable = ({
             record.value,
             idx,
             expandedLines,
-            setExpandedLines
+            setExpandedLines,
+            t
           )}
         </div>
       ),
@@ -453,7 +463,7 @@ const MetricsTable = ({
         title={
           <Space>
             <LineChartOutlined />
-            สรุปผลการทดสอบ (Metrics Report)
+            {t("load_test_page.metrics_report.title")}
           </Space>
         }
       >
@@ -478,22 +488,25 @@ const SelectedTargetSummary = ({
 }: {
   script: string;
   env: string;
-}) => (
-  <Alert
-    type="success"
-    showIcon
-    message={
-      <Space direction="vertical" size={2}>
-        <Typography.Text strong>
-          <ApiOutlined /> Target Under Test
-        </Typography.Text>
-        <Typography.Text code>{env}</Typography.Text>
-        <Typography.Text type="secondary">script: {script}</Typography.Text>
-      </Space>
-    }
-    style={{ marginBottom: 16 }}
-  />
-);
+}) => {
+  const { t } = useTranslation("translate");
+  return (
+    <Alert
+      type="success"
+      showIcon
+      message={
+        <Space direction="vertical" size={2}>
+          <Typography.Text strong>
+            <ApiOutlined /> {t("load_test_page.target_summary.title")}
+          </Typography.Text>
+          <Typography.Text code>{env}</Typography.Text>
+          <Typography.Text type="secondary">script: {script}</Typography.Text>
+        </Space>
+      }
+      style={{ marginBottom: 16 }}
+    />
+  );
+};
 
 //** getCheckCounts: คำนวณจำนวน Total/Success/Failed จากสถิติ
 const getCheckCounts = (stats: Record<string, any>) => {
@@ -624,6 +637,7 @@ const parseTimeline = (text: string) => {
 };
 
 export default function Page() {
+  const { t } = useTranslation("translate");
   //** State หลักของหน้า (Log, ขยายบรรทัด, แสดง Metrics, เลือก Script/Env, โหลด)
   const [output, setOutput] = useState("");
   const [expandedLines, setExpandedLines] = useState<Record<number, boolean>>(
@@ -726,7 +740,7 @@ export default function Page() {
       ) || ""
     ] || "N/A";
   const httpReqFailedPct = parsePercentStat(httpReqFailed);
-  
+
   const httpReqCounts = parseCountAndRate(httpReqs);
   const httpReqDurationStats = parseDurationStat(httpReqDuration);
   const iterationsLine =
@@ -777,7 +791,10 @@ export default function Page() {
     showFullReportLog || !logTail
       ? logTail
       : logTail.length > reportLogPreviewLimit
-      ? `${logTail.slice(0, reportLogPreviewLimit)}\n...\n(See more to view full log)`
+      ? `${logTail.slice(
+          0,
+          reportLogPreviewLimit
+        )}\n...\n(See more to view full log)`
       : logTail;
 
   const buildReportText = () => {
@@ -868,11 +885,7 @@ export default function Page() {
             <li>HTTP Requests: ${httpReqs || "N/A"}</li>
             <li>HTTP Duration: ${httpReqDuration || "N/A"}</li>
             <li>Success Rate: ${successRate ? `${successRate}%` : "N/A"}</li>
-            <li>Failure Rate: ${
-              failureRate
-                ? `${failureRate}%`
-                : "N/A"
-            }</li>
+            <li>Failure Rate: ${failureRate ? `${failureRate}%` : "N/A"}</li>
             <li>Requests/sec: ${requestRate}</li>
             <li>p95 Duration: ${
               httpReqDurationStats.p95 || httpReqDurationP95
@@ -918,7 +931,10 @@ export default function Page() {
       { label: "Script", value: scriptName },
       { label: "Status", value: runStatus },
       { label: "Generated At", value: generatedAt },
-      { label: "Parameters", value: `VUs=${vus}, Duration=${durationSeconds}s` },
+      {
+        label: "Parameters",
+        value: `VUs=${vus}, Duration=${durationSeconds}s`,
+      },
       {
         label: "Checks",
         value: `total=${checks.total}, success=${checks.success}, failed=${checks.failed}`,
@@ -926,10 +942,7 @@ export default function Page() {
       { label: "Success Rate", value: successRate ? `${successRate}%` : "N/A" },
       {
         label: "Failure Rate",
-        value:
-          failureRate
-            ? `${failureRate}%`
-            : "N/A",
+        value: failureRate ? `${failureRate}%` : "N/A",
       },
       { label: "HTTP Requests", value: httpReqs || "N/A" },
       { label: "Request Rate (rps)", value: requestRate },
@@ -996,7 +1009,9 @@ export default function Page() {
           <div class="grid">
             <div class="card" style="padding:12px;">
               <strong>Checks</strong><br/>
-              Total: ${checks.total} | Success: ${checks.success} | Failed: ${checks.failed}
+              Total: ${checks.total} | Success: ${checks.success} | Failed: ${
+      checks.failed
+    }
             </div>
             <div class="card" style="padding:12px;">
               <strong>Rates</strong><br/>
@@ -1092,16 +1107,17 @@ export default function Page() {
           <Col xs={24} md={14}>
             <Space direction="vertical" size={4}>
               <Typography.Title level={3} style={{ margin: 0 }}>
-                Load Testing Control Center
+                {t("load_test_page.title")}
               </Typography.Title>
               <Typography.Text type="secondary">
-                ตั้งค่าการทดสอบ k6 แบบอิสระ ดู log เรียลไทม์ และสรุปผลแบบ
-                enterprise-ready
+                {t("load_test_page.subtitle")}
               </Typography.Text>
               <Space wrap>
-                <Tag color="blue">k6</Tag>
-                <Tag color="geekblue">Streaming Log</Tag>
-                <Tag color="green">Ant Design</Tag>
+                <Tag color="blue">{t("load_test_page.tags.k6")}</Tag>
+                <Tag color="geekblue">
+                  {t("load_test_page.tags.streaming_log")}
+                </Tag>
+                <Tag color="green">{t("load_test_page.tags.ant_design")}</Tag>
               </Space>
             </Space>
           </Col>
@@ -1110,7 +1126,7 @@ export default function Page() {
               <Col span={12}>
                 <Card size="small" bordered>
                   <Statistic
-                    title="Concurrent Users"
+                    title={t("load_test_page.stats.concurrent_users")}
                     value={vus}
                     suffix="vus"
                     valueStyle={{ fontWeight: 600 }}
@@ -1120,7 +1136,7 @@ export default function Page() {
               <Col span={12}>
                 <Card size="small" bordered>
                   <Statistic
-                    title="Duration"
+                    title={t("load_test_page.stats.duration")}
                     value={durationSeconds}
                     suffix="sec"
                     valueStyle={{ fontWeight: 600 }}
@@ -1141,17 +1157,17 @@ export default function Page() {
                     }
                     text={
                       runStatus === "running"
-                        ? "Running..."
+                        ? t("load_test_page.stats.status_running")
                         : runStatus === "done"
-                        ? "Completed"
+                        ? t("load_test_page.stats.status_completed")
                         : runStatus === "error"
-                        ? "Failed"
-                        : "Idle"
+                        ? t("load_test_page.stats.status_failed")
+                        : t("load_test_page.stats.status_idle")
                     }
                   />
                   {lastRunAt && (
                     <Typography.Text type="secondary">
-                      Last run: {lastRunAt}
+                      {t("load_test_page.stats.last_run", { time: lastRunAt })}
                     </Typography.Text>
                   )}
                 </Space>
@@ -1167,7 +1183,7 @@ export default function Page() {
           title={
             <Space>
               <LineChartOutlined />
-              Enterprise KPI Snapshot
+              {t("load_test_page.kpi_snapshot.title")}
             </Space>
           }
         >
@@ -1175,7 +1191,7 @@ export default function Page() {
             <Col xs={24} md={12} lg={6}>
               <Card size="small" bordered>
                 <Statistic
-                  title="Success Rate"
+                  title={t("load_test_page.kpi_snapshot.success_rate")}
                   value={successRate ? Number(successRate) : 0}
                   suffix="%"
                 />
@@ -1190,23 +1206,13 @@ export default function Page() {
             <Col xs={24} md={12} lg={6}>
               <Card size="small" bordered>
                 <Statistic
-                  title="Failure Rate"
-                  value={
-                    failureRate
-                      ? Number(failureRate)
-                      : "N/A"
-                  }
+                  title={t("load_test_page.kpi_snapshot.failure_rate")}
+                  value={failureRate ? Number(failureRate) : "N/A"}
                   suffix="%"
                   valueStyle={{ color: token.colorError }}
                 />
                 <Progress
-                  percent={
-                    Number.isFinite(httpReqFailedPct)
-                      ? httpReqFailedPct
-                      : failureRate
-                      ? Number(failureRate)
-                      : 0
-                  }
+                  percent={failureRate ? Number(failureRate) : 0}
                   status="exception"
                   size="small"
                   style={{ marginTop: 8 }}
@@ -1216,22 +1222,26 @@ export default function Page() {
             <Col xs={24} md={12} lg={6}>
               <Card size="small" bordered>
                 <Statistic
-                  title="Requests / sec"
+                  title={t("load_test_page.kpi_snapshot.requests_per_sec")}
                   value={requestRate || "N/A"}
                 />
                 <Typography.Text type="secondary">
-                  Total: {requestTotal}
+                  {t("load_test_page.kpi_snapshot.total", {
+                    count: requestTotal,
+                  })}
                 </Typography.Text>
               </Card>
             </Col>
             <Col xs={24} md={12} lg={6}>
               <Card size="small" bordered>
                 <Statistic
-                  title="p95 Duration"
+                  title={t("load_test_page.kpi_snapshot.p95_duration")}
                   value={httpReqDurationStats.p95 || httpReqDurationP95}
                 />
                 <Typography.Text type="secondary">
-                  Avg: {httpReqDurationStats.avg || httpReqDurationAvg}
+                  {t("load_test_page.kpi_snapshot.avg", {
+                    value: httpReqDurationStats.avg || httpReqDurationAvg,
+                  })}
                 </Typography.Text>
               </Card>
             </Col>
@@ -1245,12 +1255,12 @@ export default function Page() {
           title={
             <Space>
               <LineChartOutlined />
-              Real-time Performance Timeline
+              {t("load_test_page.timeline.title")}
             </Space>
           }
           extra={
             <Typography.Text type="secondary">
-              Iterations & approx RPS by second from streaming log
+              {t("load_test_page.timeline.subtitle")}
             </Typography.Text>
           }
         >
@@ -1259,7 +1269,7 @@ export default function Page() {
               labels: timeline.labels,
               datasets: [
                 {
-                  label: "Iterations (cumulative)",
+                  label: t("load_test_page.timeline.iterations_label"),
                   data: timeline.cumulative,
                   borderColor: token.colorPrimary,
                   backgroundColor: `${token.colorPrimary}44`,
@@ -1267,7 +1277,7 @@ export default function Page() {
                   yAxisID: "y",
                 },
                 {
-                  label: "RPS (approx)",
+                  label: t("load_test_page.timeline.rps_label"),
                   data: timeline.rps,
                   borderColor: token.colorWarning,
                   backgroundColor: `${token.colorWarning}44`,
@@ -1289,14 +1299,20 @@ export default function Page() {
                   type: "linear",
                   position: "left",
                   ticks: { color: token.colorText },
-                  title: { display: true, text: "Iterations" },
+                  title: {
+                    display: true,
+                    text: t("load_test_page.timeline.iterations_label"),
+                  },
                 },
                 y1: {
                   type: "linear",
                   position: "right",
                   grid: { drawOnChartArea: false },
                   ticks: { color: token.colorWarning },
-                  title: { display: true, text: "RPS (approx)" },
+                  title: {
+                    display: true,
+                    text: t("load_test_page.timeline.rps_label"),
+                  },
                 },
                 x: {
                   ticks: { color: token.colorTextSecondary },
@@ -1312,7 +1328,7 @@ export default function Page() {
         title={
           <Space>
             <CloudOutlined />
-            Load Testing Playground
+            {t("load_test_page.playground.title")}
           </Space>
         }
         extra={<Tag color="cyan">Ant Design</Tag>}
@@ -1322,23 +1338,31 @@ export default function Page() {
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
-          message="กรอกค่าต่างๆ เพื่อสั่งรันทดสอบ k6 และดู log แบบเรียลไทม์"
+          message={t("load_test_page.playground.alert_message")}
         />
         <Form layout="vertical" onFinish={runTest}>
           <Row gutter={[16, 16]}>
             <Col xs={24} md={12}>
-              <Form.Item label="Script Name (public/scripts)">
+              <Form.Item
+                label={t("load_test_page.playground.form.script_name_label")}
+              >
                 <Input
-                  placeholder="เช่น example-load-test"
+                  placeholder={t(
+                    "load_test_page.playground.form.script_name_placeholder"
+                  )}
                   value={scriptName}
                   onChange={(e) => setScriptName(e.target.value)}
                 />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
-              <Form.Item label="Base URL (ส่งเป็น BASE_URL)">
+              <Form.Item
+                label={t("load_test_page.playground.form.base_url_label")}
+              >
                 <Input
-                  placeholder="https://..."
+                  placeholder={t(
+                    "load_test_page.playground.form.base_url_placeholder"
+                  )}
                   value={targetUrl}
                   onChange={(e) => setTargetUrl(e.target.value)}
                 />
@@ -1348,8 +1372,10 @@ export default function Page() {
               <Form.Item
                 label={
                   <Space>
-                    Concurrent Users (request)
-                    <AntTooltip title="จำนวน virtual users ที่จะยิงพร้อมกัน">
+                    {t("load_test_page.playground.form.vus_label")}
+                    <AntTooltip
+                      title={t("load_test_page.playground.form.vus_tooltip")}
+                    >
                       <Tag color="blue">VUs</Tag>
                     </AntTooltip>
                   </Space>
@@ -1367,8 +1393,12 @@ export default function Page() {
               <Form.Item
                 label={
                   <Space>
-                    Duration (second)
-                    <AntTooltip title="ระยะเวลาทดสอบทั้งหมด">
+                    {t("load_test_page.playground.form.duration_label")}
+                    <AntTooltip
+                      title={t(
+                        "load_test_page.playground.form.duration_tooltip"
+                      )}
+                    >
                       <Tag color="purple">sec</Tag>
                     </AntTooltip>
                   </Space>
@@ -1385,7 +1415,7 @@ export default function Page() {
           </Row>
           <Space style={{ width: "100%", justifyContent: "space-between" }}>
             <Typography.Text type="secondary">
-              ตอบกลับด้วย log แบบสตรีมทันทีที่เซิร์ฟเวอร์ส่งมา
+              {t("load_test_page.playground.footer_text")}
             </Typography.Text>
             <Space>
               <Button
@@ -1393,10 +1423,10 @@ export default function Page() {
                 onClick={openReportPreview}
                 disabled={!output}
               >
-                Preview Report
+                {t("load_test_page.playground.buttons.preview_report")}
               </Button>
               <Button onClick={downloadLog} disabled={!output}>
-                ดาวน์โหลด Log
+                {t("load_test_page.playground.buttons.download_log")}
               </Button>
               <Button
                 type="primary"
@@ -1404,7 +1434,9 @@ export default function Page() {
                 icon={<PlayCircleOutlined />}
                 loading={isLoading}
               >
-                {isLoading ? "กำลังทดสอบ..." : "Run Load Test"}
+                {isLoading
+                  ? t("load_test_page.playground.buttons.testing")
+                  : t("load_test_page.playground.buttons.run_test")}
               </Button>
             </Space>
           </Space>
@@ -1415,7 +1447,7 @@ export default function Page() {
         title={
           <Space>
             <FileTextOutlined />
-            ตัวอย่าง cURL (ปรับตามค่าปัจจุบัน)
+            {t("load_test_page.curl_example.title")}
           </Space>
         }
         style={{ marginBottom: 16 }}
@@ -1441,13 +1473,13 @@ export default function Page() {
             title={
               <Space>
                 <LineChartOutlined />
-                กราฟสรุปผลการทดสอบ
+                {t("load_test_page.graph_summary.title")}
               </Space>
             }
             style={{ marginBottom: 16 }}
             extra={
               <Typography.Text type="secondary">
-                แสดงสัดส่วน Success vs Failed จากค่า checks ของ k6
+                {t("load_test_page.graph_summary.subtitle")}
               </Typography.Text>
             }
           >
@@ -1455,7 +1487,9 @@ export default function Page() {
               <SummaryChart stats={parsedStats} isLoading={isLoading} />
             ) : (
               <Empty
-                description="ยังไม่มีข้อมูล checks จาก k6"
+                description={t(
+                  "load_test_page.graph_summary.empty_description"
+                )}
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               />
             )}
@@ -1465,20 +1499,19 @@ export default function Page() {
             title={
               <Space>
                 <DatabaseOutlined />
-                {`สรุปผลของการทดสอบที่ ${targetUrl}`}
+                {t("load_test_page.result_summary.title", { url: targetUrl })}
               </Space>
             }
             style={{ marginBottom: 16 }}
           >
             <Typography.Paragraph type="secondary" style={{ marginBottom: 12 }}>
-              ใช้ข้อมูลสรุปจาก k6 summary
-              เพื่อให้อ่านง่ายในมุมมองผู้ไม่คุ้นเคยกับ CLI
+              {t("load_test_page.result_summary.description")}
             </Typography.Paragraph>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="Checks Total"
+                    title={t("load_test_page.result_summary.checks_total")}
                     value={checks.total || "N/A"}
                     prefix={<DatabaseOutlined />}
                   />
@@ -1487,7 +1520,7 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="Succeeded"
+                    title={t("load_test_page.result_summary.succeeded")}
                     value={checks.success || "N/A"}
                     valueStyle={{ color: token.colorSuccess }}
                   />
@@ -1496,7 +1529,7 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="Failed"
+                    title={t("load_test_page.result_summary.failed")}
                     value={checks.failed || "N/A"}
                     valueStyle={{ color: token.colorError }}
                   />
@@ -1505,7 +1538,7 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="HTTP Requests"
+                    title={t("load_test_page.result_summary.http_requests")}
                     value={httpReqs || "N/A"}
                     prefix={<CloudOutlined />}
                   />
@@ -1517,7 +1550,7 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="Avg Duration"
+                    title={t("load_test_page.result_summary.avg_duration")}
                     value={httpReqDurationAvg}
                     prefix={<ClockCircleOutlined />}
                   />
@@ -1526,7 +1559,7 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="p95 Duration"
+                    title={t("load_test_page.kpi_snapshot.p95_duration")}
                     value={httpReqDurationP95}
                     prefix={<LineChartOutlined />}
                   />
@@ -1535,7 +1568,7 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="Throughput (req/s)"
+                    title={t("load_test_page.result_summary.throughput")}
                     value={requestRate}
                     prefix={<LineChartOutlined />}
                   />
@@ -1544,7 +1577,7 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="Failure Rate (rate)"
+                    title={t("load_test_page.result_summary.failure_rate_stat")}
                     value={failureRate ? `${failureRate}%` : "N/A"}
                     prefix={<CloseCircleOutlined />}
                     valueStyle={{ color: token.colorError }}
@@ -1557,7 +1590,7 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="Iterations"
+                    title={t("load_test_page.result_summary.iterations")}
                     value={iterations}
                     prefix={<ThunderboltOutlined />}
                   />
@@ -1566,7 +1599,9 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="Iteration Duration"
+                    title={t(
+                      "load_test_page.result_summary.iteration_duration"
+                    )}
                     value={iterationDuration}
                     prefix={<ClockCircleOutlined />}
                   />
@@ -1575,7 +1610,7 @@ export default function Page() {
               <Col xs={24} sm={12} md={12} lg={6}>
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
-                    title="Data Transfer"
+                    title={t("load_test_page.result_summary.data_transfer")}
                     value={`Received: ${dataReceived} | Sent: ${dataSent}`}
                     prefix={<CloudOutlined />}
                   />
@@ -1590,24 +1625,36 @@ export default function Page() {
               bordered
               labelStyle={{ width: 220 }}
             >
-              <Descriptions.Item label="Response Time (avg / p95 / max)">
+              <Descriptions.Item
+                label={t("load_test_page.result_summary.response_time_desc")}
+              >
                 {(httpReqDurationStats.avg || httpReqDurationAvg) ?? "N/A"} /{" "}
                 {(httpReqDurationStats.p95 || httpReqDurationP95) ?? "N/A"} /{" "}
                 {httpReqDurationStats.max ?? "N/A"}
               </Descriptions.Item>
-              <Descriptions.Item label="Request Rate (rps)">
+              <Descriptions.Item
+                label={t("load_test_page.result_summary.request_rate_desc")}
+              >
                 {requestRate}
               </Descriptions.Item>
-              <Descriptions.Item label="Failure Rate">
+              <Descriptions.Item
+                label={t("load_test_page.result_summary.failure_rate_desc")}
+              >
                 {failureRate ? `${failureRate}%` : "N/A"}
               </Descriptions.Item>
-              <Descriptions.Item label="Success Rate">
+              <Descriptions.Item
+                label={t("load_test_page.result_summary.success_rate_desc")}
+              >
                 {successRate ? `${successRate}%` : "N/A"}
               </Descriptions.Item>
-              <Descriptions.Item label="Data Received / Sent">
+              <Descriptions.Item
+                label={t("load_test_page.result_summary.data_received_sent")}
+              >
                 {dataReceived} / {dataSent}
               </Descriptions.Item>
-              <Descriptions.Item label="Iterations (total)">
+              <Descriptions.Item
+                label={t("load_test_page.result_summary.iterations_total")}
+              >
                 {iterations}
               </Descriptions.Item>
             </Descriptions>
@@ -1619,7 +1666,7 @@ export default function Page() {
           title={
             <Space>
               <FileTextOutlined />
-              รายงาน Log จากเซิร์ฟเวอร์
+              {t("load_test_page.log_report.title")}
             </Space>
           }
           style={{ marginBottom: 16 }}
@@ -1641,13 +1688,13 @@ export default function Page() {
       )}
 
       <Modal
-        title="Enterprise Load Test Report"
+        title={t("load_test_page.modal.title")}
         open={isReportOpen}
         onCancel={() => setIsReportOpen(false)}
         width={960}
         footer={[
           <Button key="close" onClick={() => setIsReportOpen(false)}>
-            ปิด
+            {t("load_test_page.modal.close")}
           </Button>,
           <Button
             key="download-doc"
@@ -1655,14 +1702,14 @@ export default function Page() {
             icon={<DownloadOutlined />}
             onClick={downloadReportDoc}
           >
-            ดาวน์โหลด .doc
+            {t("load_test_page.modal.download_doc")}
           </Button>,
           <Button
             key="download-pdf"
             icon={<DownloadOutlined />}
             onClick={downloadReportPdf}
           >
-            พิมพ์/บันทึก PDF
+            {t("load_test_page.modal.print_pdf")}
           </Button>,
         ]}
       >
@@ -1672,14 +1719,19 @@ export default function Page() {
           bordered
           style={{ marginBottom: 16 }}
         >
-          <Descriptions.Item label="Target URL" span={2}>
+          <Descriptions.Item
+            label={t("load_test_page.modal.target_url")}
+            span={2}
+          >
             {targetUrl}
           </Descriptions.Item>
-          <Descriptions.Item label="Script">{scriptName}</Descriptions.Item>
-          <Descriptions.Item label="Generated At">
+          <Descriptions.Item label={t("load_test_page.modal.script")}>
+            {scriptName}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("load_test_page.modal.generated_at")}>
             {lastRunAt || "-"}
           </Descriptions.Item>
-          <Descriptions.Item label="Status">
+          <Descriptions.Item label={t("load_test_page.modal.status")}>
             <Badge
               status={
                 runStatus === "running"
@@ -1693,69 +1745,99 @@ export default function Page() {
               text={runStatus}
             />
           </Descriptions.Item>
-          <Descriptions.Item label="Parameters" span={2}>
+          <Descriptions.Item
+            label={t("load_test_page.modal.parameters")}
+            span={2}
+          >
             VUs: {vus} / Duration: {durationSeconds}s
           </Descriptions.Item>
-          <Descriptions.Item label="Checks">
+          <Descriptions.Item label={t("load_test_page.modal.checks")}>
             {`Total ${checks.total} | Success ${checks.success} | Failed ${checks.failed}`}
           </Descriptions.Item>
-          <Descriptions.Item label="HTTP Requests">
+          <Descriptions.Item
+            label={t("load_test_page.result_summary.http_requests")}
+          >
             {httpReqs || "N/A"}
           </Descriptions.Item>
-          <Descriptions.Item label="Avg Duration">
+          <Descriptions.Item
+            label={t("load_test_page.result_summary.avg_duration")}
+          >
             {httpReqDurationAvg}
           </Descriptions.Item>
         </Descriptions>
 
         <Typography.Title level={5} style={{ marginTop: 12 }}>
-          Metrics Snapshot
+          {t("load_test_page.modal.metrics_snapshot")}
         </Typography.Title>
         {metrics.length ? (
           <Table
             size="small"
             pagination={false}
-            dataSource={metrics.map((m, idx) => ({ ...m, key: idx }))}
+            dataSource={metrics
+              .slice(0, 50)
+              .map((m, idx) => ({ ...m, key: idx }))}
             columns={[
-              { title: "Metric", dataIndex: "key", width: 320 },
-              { title: "Value", dataIndex: "value" },
+              {
+                title: t("load_test_page.metrics_report.metric_col"),
+                dataIndex: "key",
+                width: 320,
+              },
+              {
+                title: t("load_test_page.metrics_report.value_col"),
+                dataIndex: "value",
+              },
             ]}
             style={{ marginBottom: 16 }}
+            footer={() =>
+              metrics.length > 50 ? (
+                <Typography.Text
+                  type="secondary"
+                  style={{ textAlign: "center", display: "block" }}
+                >
+                  {t("load_test_page.metrics_report.more_items", {
+                    count: metrics.length - 50,
+                  })}
+                </Typography.Text>
+              ) : undefined
+            }
           />
         ) : (
           <Empty
-            description="ยังไม่มี Metrics จากการทดสอบ"
+            description={t("load_test_page.metrics_report.empty_metrics")}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         )}
 
-      <Divider />
-      <Typography.Title level={5} style={{ marginBottom: 8 }}>
-        Log (ล่าสุด 50 บรรทัด)
-      </Typography.Title>
-      <Card size="small" style={{ background: token.colorBgContainer }}>
-        <pre
-          style={{
-            margin: 0,
-            whiteSpace: "pre-wrap",
-            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-            maxHeight: 280,
-            overflow: "auto",
-          }}
-        >
-          {reportLogDisplay}
-        </pre>
-        {logTail.length > reportLogPreviewLimit && (
-          <Button
-            type="link"
-            size="small"
-            style={{ paddingLeft: 0 }}
-            onClick={() => setShowFullReportLog((prev) => !prev)}
+        <Divider />
+        <Typography.Title level={5} style={{ marginBottom: 8 }}>
+          {t("load_test_page.modal.log_latest")}
+        </Typography.Title>
+        <Card size="small" style={{ background: token.colorBgContainer }}>
+          <pre
+            style={{
+              margin: 0,
+              whiteSpace: "pre-wrap",
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+              maxHeight: 280,
+              overflow: "auto",
+            }}
           >
-            {showFullReportLog ? "Show less" : "See more"}
-          </Button>
-        )}
-      </Card>
-    </Modal>
+            {reportLogDisplay}
+          </pre>
+          {logTail.length > reportLogPreviewLimit && (
+            <Button
+              type="link"
+              size="small"
+              style={{ paddingLeft: 0 }}
+              onClick={() => setShowFullReportLog((prev) => !prev)}
+            >
+              {showFullReportLog
+                ? t("load_test_page.modal.show_less")
+                : t("load_test_page.log_report.see_more")}
+            </Button>
+          )}
+        </Card>
+      </Modal>
     </DashboardLayout>
   );
 }
