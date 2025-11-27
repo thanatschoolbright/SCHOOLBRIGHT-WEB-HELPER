@@ -1,249 +1,226 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Card, Spin, Empty, theme } from "antd";
-import { FieldTimeOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import isBetween from "dayjs/plugin/isBetween";
-
+import {
+  Button,
+  Card,
+  Input,
+  Select,
+  DatePicker,
+  Space,
+  Typography,
+  Row,
+  Col,
+} from "antd";
+import {
+  PlusOutlined,
+  SearchOutlined,
+  FilterOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import { useAppSelector } from "@stores/store";
+import { MetricSummary } from "./components/MetricSummary";
+import { TimelineChart } from "./components/TimelineChart";
+import { ProjectEditModal } from "./components/ProjectEditModal";
 
-import { StatsCards } from "./components/stats-cards.component";
-import { TimelineToolbar } from "./components/timeline-toolbar.component";
-import { TimelineHeader } from "./components/timeline-header.component";
-import { TimelineRow } from "./components/timeline-row.component";
-import { ProjectPopover } from "./components/project-popover.component";
-
-import { useTimelineData } from "./hooks/use-timeline.data";
-import {
-  calculateStats,
-  calculateTimelineRange,
-  filterProjectsByDuration,
-  filterProjectsBySearch,
-  getProjectColor,
-  SIDEBAR_WIDTH,
-} from "./utils/timeline.helpers";
-
-import { ViewMode, PopupInfo } from "./types/timeline.types";
-import { useTranslation } from "react-i18next";
-
-dayjs.extend(isBetween);
+const { Title } = Typography;
+const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 export default function TimelinePage() {
-  const { token } = theme.useToken();
-  const { t } = useTranslation("translate");
-  const { loading, projects, refetch } = useTimelineData();
+  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
+  const currentAdminId = AUTHENTICATION?.response?.data?.user_data?.admin_id;
 
-  const [expandedProjects, setExpandedProjects] = useState<Set<number>>(
-    new Set()
-  );
-  const [viewMode, setViewMode] = useState<ViewMode>("month");
-  const [filterDuration, setFilterDuration] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [popupInfo, setPopupInfo] = useState<PopupInfo>({
-    x: 0,
-    y: 0,
-    project: null,
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState({
+    totalProjects: 0,
+    totalSubProjects: 0,
+    overdue: 0,
+    completed: 0,
+    inProgress: 0,
   });
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // Filters
+  const [filters, setFilters] = useState({
+    status: "All",
+    keyword: "",
+    viewType: "all", // 'all' | 'project'
+    dateRange: [dayjs().startOf("month"), dayjs().endOf("month")] as any,
+  });
 
-  useEffect(() => {
-    if (projects.length > 0) {
-      setExpandedProjects(new Set(projects.map((p) => p.id)));
+  // Modal State
+  const [modal, setModal] = useState<{
+    open: boolean;
+    mode: "create" | "edit";
+    type: "project" | "sub-project";
+    initialValues?: any;
+    parentId?: number;
+  }>({
+    open: false,
+    mode: "create",
+    type: "project",
+  });
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filters.status !== "All") params.append("status", filters.status);
+      if (filters.keyword) params.append("keyword", filters.keyword);
+      // Add date range params if needed
+      if (filters.dateRange && filters.dateRange.length === 2) {
+        params.append("startDate", filters.dateRange[0].toISOString());
+        params.append("endDate", filters.dateRange[1].toISOString());
+      }
+
+      const res = await fetch(
+        `/api/v1/timesheet/project/timeline?${params.toString()}`
+      );
+      const json = await res.json();
+      if (json.data) {
+        setData(json.data);
+        setMetrics(json.metrics);
+      }
+    } catch (error) {
+      console.error("Failed to fetch timeline data", error);
+    } finally {
+      setLoading(false);
     }
-  }, [projects]);
-
-  const filteredProjects = useMemo(() => {
-    let result = filterProjectsByDuration(projects, filterDuration);
-    result = filterProjectsBySearch(result, searchTerm);
-    return result;
-  }, [projects, filterDuration, searchTerm]);
-
-  const stats = useMemo(
-    () => calculateStats(filteredProjects),
-    [filteredProjects]
-  );
-
-  const { startDate, endDate, totalDays, months } = useMemo(
-    () => calculateTimelineRange(filteredProjects),
-    [filteredProjects]
-  );
-
-  const toggleProject = (id: number) => {
-    const newSet = new Set(expandedProjects);
-    if (newSet.has(id)) {
-      newSet.delete(id);
-    } else {
-      newSet.add(id);
-    }
-    setExpandedProjects(newSet);
   };
 
-  const PIXELS_PER_DAY = viewMode === "month" ? 15 : 5;
-  const TOTAL_WIDTH = totalDays * PIXELS_PER_DAY;
-
   useEffect(() => {
-    if (scrollContainerRef.current && !loading && filteredProjects.length > 0) {
-      const todayDiff = dayjs().diff(startDate, "day");
-      const todayPos = todayDiff * PIXELS_PER_DAY;
-      const containerWidth = scrollContainerRef.current.clientWidth;
-      const scrollPos = todayPos + SIDEBAR_WIDTH - containerWidth / 2;
+    fetchData();
+  }, [filters]);
 
-      scrollContainerRef.current.scrollTo({
-        left: Math.max(0, scrollPos),
-        behavior: "smooth",
-      });
-    }
-  }, [loading, filteredProjects, startDate, PIXELS_PER_DAY]);
+  const handleCreateProject = () => {
+    setModal({
+      open: true,
+      mode: "create",
+      type: "project",
+    });
+  };
+
+  const handleAddSubProject = (projectId: number) => {
+    setModal({
+      open: true,
+      mode: "create",
+      type: "sub-project",
+      parentId: projectId,
+    });
+  };
+
+  const handleItemClick = (item: any) => {
+    setModal({
+      open: true,
+      mode: "edit",
+      type: item.type,
+      initialValues: item,
+    });
+  };
 
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
-        {/* Header */}
         <HeaderBar
-          title={t("timeline_page.title")}
-          subTitle={t("timeline_page.subtitle")}
-          icon={<FieldTimeOutlined />}
+          title="Enterprise Project Timeline"
+          subTitle="Overview of all projects and sub-projects"
+          icon={<FilterOutlined />}
           color="none"
         />
 
-        {/* Stats Cards */}
-        <StatsCards stats={stats} />
+        <div className="space-y-6">
+          {/* Metrics */}
+          <MetricSummary metrics={metrics} loading={loading} />
 
-        {/* Main Timeline Card */}
-        <Card
-          bodyStyle={{ padding: 0, overflow: "hidden" }}
-          style={{
-            borderRadius: token.borderRadiusLG,
-            border: "none",
-            boxShadow: token.boxShadowTertiary,
-          }}
-        >
-          {/* Toolbar */}
-          <TimelineToolbar
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            filterDuration={filterDuration}
-            onFilterDurationChange={setFilterDuration}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            onRefresh={refetch}
-            loading={loading}
-          />
-
-          {/* Content */}
-          {loading ? (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 100,
-              }}
-            >
-              <Spin size="large" />
-            </div>
-          ) : filteredProjects.length === 0 ? (
-            <Empty
-              description={t("timeline_page.no_data")}
-              style={{ margin: 50 }}
-            />
-          ) : (
-            <div
-              ref={scrollContainerRef}
-              style={{
-                height: "calc(100vh - 250px)",
-                overflow: "auto",
-                position: "relative",
-              }}
-            >
-              {/* Header Row */}
-              <TimelineHeader
-                months={months}
-                startDate={startDate}
-                pixelsPerDay={PIXELS_PER_DAY}
-                totalWidth={TOTAL_WIDTH}
-              />
-
-              {/* Body */}
-              <div
-                style={{
-                  position: "relative",
-                  width: SIDEBAR_WIDTH + TOTAL_WIDTH,
-                }}
-              >
-                {/* Today Marker Line */}
-                <div
-                  style={{
-                    position: "absolute",
-                    left:
-                      SIDEBAR_WIDTH +
-                      dayjs().diff(startDate, "day") * PIXELS_PER_DAY,
-                    top: 0,
-                    bottom: 0,
-                    width: 2,
-                    zIndex: 5,
-                    pointerEvents: "none",
-                    transform: "translateX(-50%)",
-                  }}
+          {/* Filters & Actions */}
+          <Card bordered={false} className="shadow-sm">
+            <Row gutter={[16, 16]} align="middle" justify="space-between">
+              <Col xs={24} md={18}>
+                <Space wrap>
+                  <Input
+                    placeholder="Search projects..."
+                    prefix={<SearchOutlined />}
+                    style={{ width: 200 }}
+                    allowClear
+                    onChange={(e) =>
+                      setFilters({ ...filters, keyword: e.target.value })
+                    }
+                  />
+                  <Select
+                    defaultValue="All"
+                    style={{ width: 150 }}
+                    onChange={(val) => setFilters({ ...filters, status: val })}
+                  >
+                    <Option value="All">All Status</Option>
+                    <Option value="open">Open</Option>
+                    <Option value="close">Closed</Option>
+                  </Select>
+                  <Select
+                    defaultValue="all"
+                    style={{ width: 150 }}
+                    onChange={(val) =>
+                      setFilters({ ...filters, viewType: val })
+                    }
+                  >
+                    <Option value="all">Full Detail</Option>
+                    <Option value="project">Projects Only</Option>
+                  </Select>
+                  <RangePicker
+                    style={{ width: 250 }}
+                    value={filters.dateRange}
+                    onChange={(dates) =>
+                      setFilters({ ...filters, dateRange: dates })
+                    }
+                  />
+                  <Button
+                    icon={<ReloadOutlined />}
+                    onClick={fetchData}
+                    loading={loading}
+                  />
+                </Space>
+              </Col>
+              <Col xs={24} md={6} style={{ textAlign: "right" }}>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  size="large"
+                  onClick={handleCreateProject}
                 >
-                  <div
-                    style={{
-                      width: 4,
-                      height: "100%",
-                      backgroundColor: token.colorError,
-                      opacity: 0.8,
-                      margin: "0 auto",
-                    }}
-                  />
-                </div>
+                  New Project
+                </Button>
+              </Col>
+            </Row>
+          </Card>
 
-                {/* Project Rows */}
-                {filteredProjects.map((project, index) => (
-                  <TimelineRow
-                    key={project.id}
-                    project={project}
-                    index={index}
-                    isExpanded={expandedProjects.has(project.id)}
-                    projectColor={getProjectColor(index)}
-                    startDate={startDate}
-                    pixelsPerDay={PIXELS_PER_DAY}
-                    onToggle={toggleProject}
-                    onHover={setPopupInfo}
-                  />
-                ))}
+          {/* Timeline Chart */}
+          <TimelineChart
+            data={data}
+            onItemClick={handleItemClick}
+            onAddSubProject={handleAddSubProject}
+            loading={loading}
+            showChildren={filters.viewType === "all"}
+          />
+        </div>
 
-                {/* Grid Lines */}
-                {months.map((month, index) => {
-                  const left =
-                    SIDEBAR_WIDTH +
-                    month.diff(startDate, "day") * PIXELS_PER_DAY;
-                  return (
-                    <div
-                      key={`line-${index}`}
-                      style={{
-                        position: "absolute",
-                        left,
-                        top: 0,
-                        bottom: 0,
-                        width: 1,
-                        backgroundColor: token.colorBorderSecondary,
-                        zIndex: 0,
-                        pointerEvents: "none",
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </Card>
-
-        {/* Project Popover */}
-        <ProjectPopover popupInfo={popupInfo} />
+        {/* Edit Modal */}
+        <ProjectEditModal
+          open={modal.open}
+          mode={modal.mode}
+          type={modal.type}
+          initialValues={modal.initialValues}
+          parentId={modal.parentId}
+          currentAdminId={currentAdminId}
+          onCancel={() => setModal({ ...modal, open: false })}
+          onSuccess={() => {
+            setModal({ ...modal, open: false });
+            fetchData();
+          }}
+        />
       </DashboardLayout>
     </PermissionLayout>
   );
