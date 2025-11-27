@@ -7,6 +7,8 @@ import {
   RightOutlined,
   DownOutlined,
   PlusOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
 } from "@ant-design/icons";
 
 interface TimelineItem {
@@ -97,6 +99,7 @@ export const TimelineChart: React.FC<TimelineChartProps> = ({
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(
     new Set(data.map((p) => p.id)) // Default expand all
   );
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Effect to handle showChildren prop changes
@@ -203,8 +206,26 @@ export const TimelineChart: React.FC<TimelineChartProps> = ({
   return (
     <div
       ref={scrollContainerRef}
-      className="border rounded-lg bg-white shadow-sm overflow-auto h-[600px] relative"
+      className={`border rounded-lg bg-white shadow-sm overflow-auto relative transition-all duration-300 ${
+        isFullScreen ? "fixed inset-0 z-50 h-screen w-screen" : "h-[600px]"
+      }`}
     >
+      {/* Full Screen Button */}
+      <div className="fixed bottom-8 right-8 z-[60]">
+        <Tooltip title={isFullScreen ? "Exit Full Screen" : "Full Screen"}>
+          <button
+            onClick={() => setIsFullScreen(!isFullScreen)}
+            className="bg-white p-3 rounded-full shadow-lg border hover:bg-gray-50 transition-colors text-gray-600 flex items-center justify-center"
+          >
+            {isFullScreen ? (
+              <FullscreenExitOutlined style={{ fontSize: 20 }} />
+            ) : (
+              <FullscreenOutlined style={{ fontSize: 20 }} />
+            )}
+          </button>
+        </Tooltip>
+      </div>
+
       <div style={{ minWidth: 300 + totalWidth }}>
         {/* Header Row */}
         <div className="flex sticky top-0 z-30 bg-gray-50 border-b h-[50px]">
