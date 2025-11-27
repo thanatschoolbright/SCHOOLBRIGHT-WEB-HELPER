@@ -1,3 +1,7 @@
+export interface TimelineProject {
+  
+}
+
 export interface TimelineItem {
   id: string;
   realId: number;
