@@ -14,6 +14,7 @@ export type SchoolDetail = {
   SchoolTypes?: string;
   school_pass?: string;
   PROVINCE_NAME?: string;
+  student_count?: number;
 };
 
 export type Environment = {
@@ -57,6 +58,9 @@ export type Statistics = {
   active: number;
   inactive: number;
   gradeA: number;
+  totalStudents: number;
+  averageStudentsPerSchool: number;
+  activeStudents: number;
 };
 
 export type BypassPageState = {

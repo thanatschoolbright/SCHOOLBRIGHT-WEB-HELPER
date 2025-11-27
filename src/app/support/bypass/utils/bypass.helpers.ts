@@ -134,5 +134,36 @@ export const calculateStatistics = (schools: SchoolDetail[]): Statistics => {
     (s) => s.school_grade?.trim().toUpperCase() === "A"
   ).length;
 
-  return { total, active, inactive, gradeA };
+  const normalizeStudentCount = (school: SchoolDetail): number => {
+    const value = (school.student_count as number | string | undefined) ?? 0;
+    const parsed =
+      typeof value === "string"
+        ? Number(value.replace(/[^0-9.-]/g, ""))
+        : Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const totalStudents = schools.reduce(
+    (sum, school) => sum + normalizeStudentCount(school),
+    0
+  );
+  const activeStudents = schools.reduce((sum, school) => {
+    if (school.isActive === "active") {
+      return sum + normalizeStudentCount(school);
+    }
+    return sum;
+  }, 0);
+
+  const averageStudentsPerSchool =
+    total > 0 ? Number((totalStudents / total).toFixed(2)) : 0;
+
+  return {
+    total,
+    active,
+    inactive,
+    gradeA,
+    totalStudents,
+    averageStudentsPerSchool,
+    activeStudents,
+  };
 };

@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
 import {
   TimelineItem,
   TimelineMetrics,
   TimelineFilters,
 } from "../types/timeline.types";
+
+dayjs.extend(isBetween);
 
 export const useTimelineData = () => {
   const [loading, setLoading] = useState(false);
@@ -42,7 +45,25 @@ export const useTimelineData = () => {
       );
       const json = await res.json();
       if (json.data) {
-        setData(json.data);
+        const today = dayjs();
+        const sortedData = json.data.sort((a: TimelineItem, b: TimelineItem) => {
+          const aStart = a.start ? dayjs(a.start) : null;
+          const aEnd = a.end ? dayjs(a.end) : null;
+          const bStart = b.start ? dayjs(b.start) : null;
+          const bEnd = b.end ? dayjs(b.end) : null;
+
+          const isAToday = aStart && aEnd && today.isBetween(aStart, aEnd, "day", "[]");
+          const isBToday = bStart && bEnd && today.isBetween(bStart, bEnd, "day", "[]");
+
+          if (isAToday && !isBToday) {
+            return -1;
+          }
+          if (!isAToday && isBToday) {
+            return 1;
+          }
+          return 0;
+        });
+        setData(sortedData);
         setMetrics(json.metrics);
       }
     } catch (error) {

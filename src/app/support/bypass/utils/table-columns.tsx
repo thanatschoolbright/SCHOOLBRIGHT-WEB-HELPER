@@ -90,6 +90,31 @@ export const buildTableColumns = (
     },
   },
   {
+    title: TRANSLATION("bypass_page.col_student_count"),
+    dataIndex: "student_count",
+    key: "student_count",
+    width: 150,
+    align: "right",
+    sorter: (a, b) => {
+      const parse = (v: unknown): number => {
+        const num =
+          typeof v === "string"
+            ? Number(v.replace(/[^0-9.-]/g, ""))
+            : Number(v);
+        return Number.isFinite(num) ? num : 0;
+      };
+      return parse(a.student_count) - parse(b.student_count);
+    },
+    render: (value) => {
+      const num =
+        typeof value === "string"
+          ? Number(value.replace(/[^0-9.-]/g, ""))
+          : Number(value);
+      const safeValue = Number.isFinite(num) ? num : 0;
+      return safeValue.toLocaleString("th-TH");
+    },
+  },
+  {
     title: TRANSLATION("bypass_page.col_school_group"),
     dataIndex: "school_group",
     key: "school_group",

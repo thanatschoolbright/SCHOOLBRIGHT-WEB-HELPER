@@ -69,7 +69,7 @@ export default function SchoolTableSection({
           showTotal: (total) =>
             `${TRANSLATION("bypass_page.total_items", { count: total })}`,
         }}
-        scroll={{ x: 1400 }}
+        scroll={{ x: 1600 }}
         onChange={onTableChange}
         size="middle"
       />

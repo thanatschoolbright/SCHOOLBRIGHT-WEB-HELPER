@@ -5,6 +5,8 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   CrownOutlined,
+  TeamOutlined,
+  DashboardOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { Statistics } from "../types/bypass.types";
@@ -21,7 +23,7 @@ export default function StatisticsSection({
   return (
     <Row gutter={[16, 16]}>
       {/* Total Schools */}
-      <Col xs={24} sm={12} md={6}>
+      <Col xs={24} sm={12} md={8}>
         <Card bordered={false} className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_total_schools")}
@@ -33,7 +35,7 @@ export default function StatisticsSection({
       </Col>
 
       {/* Active Schools */}
-      <Col xs={24} sm={12} md={6}>
+      <Col xs={24} sm={12} md={8}>
         <Card bordered={false} className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_active")}
@@ -45,7 +47,7 @@ export default function StatisticsSection({
       </Col>
 
       {/* Inactive Schools */}
-      <Col xs={24} sm={12} md={6}>
+      <Col xs={24} sm={12} md={8}>
         <Card bordered={false} className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_inactive")}
@@ -57,13 +59,60 @@ export default function StatisticsSection({
       </Col>
 
       {/* Grade A Schools */}
-      <Col xs={24} sm={12} md={6}>
+      <Col xs={24} sm={12} md={8}>
         <Card bordered={false} className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_grade_a")}
             value={statistics.gradeA}
             prefix={<CrownOutlined />}
             valueStyle={{ color: "#faad14" }}
+          />
+        </Card>
+      </Col>
+
+      {/* Total Students */}
+      <Col xs={24} sm={12} md={8}>
+        <Card bordered={false} className="shadow-sm">
+          <Statistic
+            title={TRANSLATION("bypass_page.stat_total_students")}
+            value={statistics.totalStudents}
+            prefix={<TeamOutlined />}
+            valueStyle={{ color: "#722ed1" }}
+            formatter={(value) =>
+              typeof value === "number"
+                ? value.toLocaleString("th-TH")
+                : value
+            }
+          />
+        </Card>
+      </Col>
+
+      {/* Average Students per School */}
+      <Col xs={24} sm={12} md={8}>
+        <Card bordered={false} className="shadow-sm">
+          <Statistic
+            title={TRANSLATION("bypass_page.stat_average_students")}
+            value={statistics.averageStudentsPerSchool}
+            prefix={<DashboardOutlined />}
+            precision={2}
+            valueStyle={{ color: "#13c2c2" }}
+          />
+        </Card>
+      </Col>
+
+      {/* Active Students */}
+      <Col xs={24} sm={12} md={8}>
+        <Card bordered={false} className="shadow-sm">
+          <Statistic
+            title={TRANSLATION("bypass_page.stat_active_students")}
+            value={statistics.activeStudents}
+            prefix={<CheckCircleOutlined />}
+            valueStyle={{ color: "#237804" }}
+            formatter={(value) =>
+              typeof value === "number"
+                ? value.toLocaleString("th-TH")
+                : value
+            }
           />
         </Card>
       </Col>

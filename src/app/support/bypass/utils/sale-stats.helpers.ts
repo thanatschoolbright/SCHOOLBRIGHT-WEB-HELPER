@@ -18,6 +18,15 @@ export const calculateSaleStatistics = (
 
   const statistics: SaleStatistics[] = [];
 
+  const normalizeStudentCount = (school: SchoolDetail): number => {
+    const value = (school.student_count as number | string | undefined) ?? 0;
+    const parsed =
+      typeof value === "string"
+        ? Number(value.replace(/[^0-9.-]/g, ""))
+        : Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
   saleMap.forEach((schoolsInSale, saleName) => {
     const totalSchools = schoolsInSale.length;
     const activeSchools = schoolsInSale.filter(
@@ -60,6 +69,21 @@ export const calculateSaleStatistics = (
     const activationRate =
       totalSchools > 0 ? (activeSchools / totalSchools) * 100 : 0;
 
+    const totalStudents = schoolsInSale.reduce(
+      (sum, school) => sum + normalizeStudentCount(school),
+      0
+    );
+    const activeStudents = schoolsInSale.reduce((sum, school) => {
+      if (school.isActive === "active") {
+        return sum + normalizeStudentCount(school);
+      }
+      return sum;
+    }, 0);
+    const averageStudentsPerSchool =
+      totalSchools > 0 ? totalStudents / totalSchools : 0;
+    const studentCoverageRate =
+      totalStudents > 0 ? (activeStudents / totalStudents) * 100 : 0;
+
     statistics.push({
       saleName,
       totalSchools,
@@ -72,8 +96,17 @@ export const calculateSaleStatistics = (
       singleAuthenCount,
       averageGrade,
       activationRate,
+      totalStudents,
+      activeStudents,
+      averageStudentsPerSchool,
+      studentCoverageRate,
     });
   });
 
-  return statistics.sort((a, b) => b.totalSchools - a.totalSchools);
+  return statistics.sort((a, b) => {
+    if (b.totalStudents !== a.totalStudents) {
+      return b.totalStudents - a.totalStudents;
+    }
+    return b.totalSchools - a.totalSchools;
+  });
 };

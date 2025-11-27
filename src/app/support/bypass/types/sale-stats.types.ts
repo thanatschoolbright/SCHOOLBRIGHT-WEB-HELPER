@@ -10,4 +10,8 @@ export type SaleStatistics = {
   singleAuthenCount: number;
   averageGrade: string;
   activationRate: number;
+  totalStudents: number;
+  averageStudentsPerSchool: number;
+  activeStudents: number;
+  studentCoverageRate: number;
 };

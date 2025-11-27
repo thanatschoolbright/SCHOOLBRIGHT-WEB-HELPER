@@ -23,6 +23,9 @@ import {
   UserOutlined,
   TableOutlined,
   AlertOutlined,
+  TeamOutlined,
+  DashboardOutlined,
+  FundOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { ColumnsType } from "antd/es/table";
@@ -63,7 +66,19 @@ export default function SaleRankingModal({
       .sort((a, b) => b.inactiveSchools - a.inactiveSchools)
       .slice(0, 3);
 
-    return { topQuality, highValue, critical };
+    // Student Reach: Highest student footprint
+    const topStudentReach = [...data]
+      .filter((s) => s.totalStudents > 0)
+      .sort((a, b) => b.totalStudents - a.totalStudents)
+      .slice(0, 3);
+
+    // Coverage: % of students in active schools
+    const bestCoverage = [...data]
+      .filter((s) => s.totalStudents > 0)
+      .sort((a, b) => b.studentCoverageRate - a.studentCoverageRate)
+      .slice(0, 3);
+
+    return { topQuality, highValue, critical, topStudentReach, bestCoverage };
   }, [data]);
 
   const totalSchools = useMemo(
@@ -80,6 +95,26 @@ export default function SaleRankingModal({
     () => data.reduce((sum, item) => sum + item.gradeACount, 0),
     [data]
   );
+
+  const totalStudents = useMemo(
+    () => data.reduce((sum, item) => sum + item.totalStudents, 0),
+    [data]
+  );
+
+  const activeStudents = useMemo(
+    () => data.reduce((sum, item) => sum + item.activeStudents, 0),
+    [data]
+  );
+
+  const averageStudentsAll = useMemo(() => {
+    const overallSchools = data.reduce(
+      (sum, item) => sum + item.totalSchools,
+      0
+    );
+    return overallSchools > 0
+      ? Number((totalStudents / overallSchools).toFixed(2))
+      : 0;
+  }, [data, totalStudents]);
 
   // ... (Keep existing columns definition)
   const columns = useMemo<ColumnsType<SaleStatistics>>(
@@ -140,6 +175,19 @@ export default function SaleRankingModal({
         ),
       },
       {
+        title: TRANSLATION("sale_ranking_modal.col_total_students"),
+        dataIndex: "totalStudents",
+        key: "totalStudents",
+        width: 160,
+        align: "center",
+        sorter: (a, b) => a.totalStudents - b.totalStudents,
+        render: (value) => (
+          <Tag color="purple" icon={<TeamOutlined />} style={{ fontSize: 14 }}>
+            {value.toLocaleString()}
+          </Tag>
+        ),
+      },
+      {
         title: TRANSLATION("sale_ranking_modal.col_active_schools"),
         dataIndex: "activeSchools",
         key: "activeSchools",
@@ -149,6 +197,19 @@ export default function SaleRankingModal({
         render: (value) => (
           <Tag color="success" icon={<CheckCircleOutlined />}>
             {value}
+          </Tag>
+        ),
+      },
+      {
+        title: TRANSLATION("sale_ranking_modal.col_active_students"),
+        dataIndex: "activeStudents",
+        key: "activeStudents",
+        width: 150,
+        align: "center",
+        sorter: (a, b) => a.activeStudents - b.activeStudents,
+        render: (value) => (
+          <Tag color="success" icon={<TeamOutlined />}>
+            {value.toLocaleString()}
           </Tag>
         ),
       },
@@ -183,6 +244,43 @@ export default function SaleRankingModal({
               value >= 80 ? "#52c41a" : value >= 50 ? "#1890ff" : "#ff4d4f"
             }
           />
+        ),
+      },
+      {
+        title: TRANSLATION("sale_ranking_modal.col_student_coverage"),
+        dataIndex: "studentCoverageRate",
+        key: "studentCoverageRate",
+        width: 180,
+        align: "center",
+        sorter: (a, b) => a.studentCoverageRate - b.studentCoverageRate,
+        render: (value) => (
+          <Progress
+            percent={Number(value.toFixed(1))}
+            size="small"
+            status={
+              value >= 80 ? "success" : value >= 50 ? "normal" : "exception"
+            }
+            strokeColor={
+              value >= 80 ? "#722ed1" : value >= 50 ? "#1890ff" : "#ff4d4f"
+            }
+          />
+        ),
+      },
+      {
+        title: TRANSLATION("sale_ranking_modal.col_average_students"),
+        dataIndex: "averageStudentsPerSchool",
+        key: "averageStudentsPerSchool",
+        width: 160,
+        align: "center",
+        sorter: (a, b) =>
+          a.averageStudentsPerSchool - b.averageStudentsPerSchool,
+        render: (value) => (
+          <Tag color="cyan" icon={<DashboardOutlined />}>
+            {value.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 0,
+            })}
+          </Tag>
         ),
       },
       {
@@ -362,6 +460,49 @@ export default function SaleRankingModal({
               />
             </Card>
           </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card bordered={false} className="shadow-sm">
+              <Statistic
+                title={TRANSLATION("sale_ranking_modal.stat_total_students")}
+                value={totalStudents}
+                prefix={<TeamOutlined />}
+                valueStyle={{ color: "#722ed1" }}
+                formatter={(value) =>
+                  typeof value === "number"
+                    ? value.toLocaleString("th-TH")
+                    : value
+                }
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card bordered={false} className="shadow-sm">
+              <Statistic
+                title={TRANSLATION("sale_ranking_modal.stat_active_students")}
+                value={activeStudents}
+                prefix={<FundOutlined />}
+                valueStyle={{ color: "#237804" }}
+                formatter={(value) =>
+                  typeof value === "number"
+                    ? value.toLocaleString("th-TH")
+                    : value
+                }
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card bordered={false} className="shadow-sm">
+              <Statistic
+                title={
+                  TRANSLATION("sale_ranking_modal.stat_average_students_per_school")
+                }
+                value={averageStudentsAll}
+                prefix={<DashboardOutlined />}
+                precision={2}
+                valueStyle={{ color: "#13c2c2" }}
+              />
+            </Card>
+          </Col>
         </Row>
 
         <Divider orientation="left">
@@ -398,6 +539,70 @@ export default function SaleRankingModal({
                         </Space>
                         <Tag color="success">
                           {sale.activationRate.toFixed(1)}% Active
+                        </Tag>
+                      </div>
+                    ))}
+                  </Space>
+                </Card>
+              </Col>
+
+              {/* Student Reach */}
+              <Col xs={24} md={8}>
+                <Card
+                  title={
+                    <Space>
+                      <TeamOutlined style={{ color: "#722ed1" }} />
+                      {TRANSLATION("sale_ranking_modal.metric_student_reach")}
+                    </Space>
+                  }
+                  className="shadow-sm h-full"
+                >
+                  <Space direction="vertical" className="w-full">
+                    {metricsData.topStudentReach.map((sale, index) => (
+                      <div
+                        key={sale.saleName}
+                        className="flex justify-between items-center p-2 bg-purple-50 rounded-lg"
+                      >
+                        <Space>
+                          <div className="w-6 h-6 rounded-full bg-purple-200 flex items-center justify-center text-xs font-bold text-purple-800">
+                            {index + 1}
+                          </div>
+                          <span className="font-medium">{sale.saleName}</span>
+                        </Space>
+                        <Tag color="purple">
+                          {sale.totalStudents.toLocaleString()} {TRANSLATION("sale_ranking_modal.metric_students")}
+                        </Tag>
+                      </div>
+                    ))}
+                  </Space>
+                </Card>
+              </Col>
+
+              {/* Best Coverage */}
+              <Col xs={24} md={8}>
+                <Card
+                  title={
+                    <Space>
+                      <FundOutlined style={{ color: "#13c2c2" }} />
+                      {TRANSLATION("sale_ranking_modal.metric_best_coverage")}
+                    </Space>
+                  }
+                  className="shadow-sm h-full"
+                >
+                  <Space direction="vertical" className="w-full">
+                    {metricsData.bestCoverage.map((sale, index) => (
+                      <div
+                        key={sale.saleName}
+                        className="flex justify-between items-center p-2 bg-cyan-50 rounded-lg"
+                      >
+                        <Space>
+                          <div className="w-6 h-6 rounded-full bg-cyan-200 flex items-center justify-center text-xs font-bold text-cyan-800">
+                            {index + 1}
+                          </div>
+                          <span className="font-medium">{sale.saleName}</span>
+                        </Space>
+                        <Tag color="cyan">
+                          {sale.studentCoverageRate.toFixed(1)}% {TRANSLATION("sale_ranking_modal.metric_active_students")}
                         </Tag>
                       </div>
                     ))}
@@ -472,7 +677,7 @@ export default function SaleRankingModal({
             dataSource={topData}
             rowKey={(record) => record.saleName}
             pagination={false}
-            scroll={{ x: 1600 }}
+            scroll={{ x: 2000 }}
             size="middle"
             bordered
             rowClassName={(record, index) => {
