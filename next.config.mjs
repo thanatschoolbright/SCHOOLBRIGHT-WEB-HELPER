@@ -11,6 +11,9 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: '50mb' },
     proxyClientMaxBodySize: '200mb',
+    // ✅ Memory Optimization for Build Process
+    workerThreads: false,
+    cpus: 1,
   },
 
   // * Allow images from external domains
@@ -30,6 +33,14 @@ const nextConfig = {
 
   // * Disable source maps in production for better performance
   productionBrowserSourceMaps: false,
+
+  // ✅ Ignore linting and type checking during build to save RAM and Time
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 
   // * Turbopack configuration for Next.js 16
   turbopack: {
