@@ -623,7 +623,7 @@ export default function SubProjectPage() {
         </Row>
 
         {/* Action Toolbar */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+        <div className="flex justify-between items-center p-4 rounded-lg shadow-sm ">
           <Space>
             <Text strong style={{ fontSize: 16 }}>
               รายการฟีเจอร์ ({stats.total})

@@ -132,7 +132,7 @@ const createThemeConfig = (
 
     // Typography (Modern Fonts Stack)
     fontFamily:
-      '"Prompt", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      '"LINESeedSansTH", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     fontSize: 14,
     fontWeightStrong: 600,
 
