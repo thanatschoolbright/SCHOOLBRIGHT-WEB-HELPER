@@ -53,10 +53,53 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
         summary?: string;
         status: 'pending' | 'success' | 'error';
         message?: string;
+        detail?: string;
+        statusCode?: number;
         index: number;
     }>>([]);
     const perIssuePayloadsRef = React.useRef<any[] | null>(null);
     const [saving, setSaving] = useState(false);
+    const [detailModal, setDetailModal] = useState<{
+        open: boolean;
+        title?: string;
+        content?: string;
+        statusCode?: number;
+    }>({open: false});
+
+    const formatErrorDetail = (value: any): string => {
+        if (!value) return "";
+        if (typeof value === "string") return value;
+        try {
+            return JSON.stringify(value, null, 2);
+        } catch {
+            return String(value);
+        }
+    };
+
+    const extractErrorMessage = (error: any) => {
+        const data = error?.response?.data;
+        const message =
+            data?.message_th ||
+            data?.message_en ||
+            data?.message ||
+            data?.error?.message ||
+            error?.message ||
+            "เกิดข้อผิดพลาด";
+        const detailSource = data?.error ?? data ?? error?.response ?? error;
+        const detail = formatErrorDetail(detailSource);
+        const statusCode = error?.response?.status || data?.status;
+
+        return {message, detail, statusCode};
+    };
+
+    const openDetailModal = (title: string, content?: string, statusCode?: number) => {
+        setDetailModal({
+            open: true,
+            title,
+            content: content || "",
+            statusCode,
+        });
+    };
 
     const processSingle = async (payload: any, selectedIssueMap: Map<string, Issue>) => {
         const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
@@ -68,12 +111,25 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             });
             const markdown = response?.data?.data?.markdown || "";
             payload.updates.description = markdown;
-            setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(payload.issueKeyOrId) ? {...r, status: 'success', summary: markdown} : r));
+            setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(payload.issueKeyOrId) ? {
+                ...r,
+                status: 'success',
+                summary: markdown,
+                message: undefined,
+                detail: undefined,
+                statusCode: undefined,
+            } : r));
             return { success: true, payload };
         } catch (err: any) {
-            const msg = err?.response?.data?.message || err?.message || 'เกิดข้อผิดพลาด';
-            setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(payload.issueKeyOrId) ? {...r, status: 'error', message: msg} : r));
-            return { success: false, error: msg };
+            const {message, detail, statusCode} = extractErrorMessage(err);
+            setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(payload.issueKeyOrId) ? {
+                ...r,
+                status: 'error',
+                message,
+                detail,
+                statusCode,
+            } : r));
+            return { success: false, error: message, detail };
         }
     };
 
@@ -224,7 +280,13 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     await runWithConcurrency(perIssuePayloads, async (payload, i) => {
                         const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
                         // mark pending (already pending by default) — ensure string comparison so UI updates
-                        setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(payload.issueKeyOrId) ? {...r, status: 'pending', message: undefined} : r));
+                        setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(payload.issueKeyOrId) ? {
+                            ...r,
+                            status: 'pending',
+                            message: undefined,
+                            detail: undefined,
+                            statusCode: undefined,
+                        } : r));
                         await processSingle(payload, selectedIssueMap);
                     });
 
@@ -253,7 +315,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             onUpdateComplete();
             clearBulkForm();
         } catch (error: any) {
-            toast.error(error?.response?.data?.message || error?.message || "อัปเดตไม่สำเร็จ", {id: toastId});
+            const {message} = extractErrorMessage(error);
+            toast.error(message || "อัปเดตไม่สำเร็จ", {id: toastId});
         } finally {
             setBulkUpdating(false);
         }
@@ -432,7 +495,35 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                                                 if (status === 'success') return <Tag icon={<CheckCircleOutlined />} color="success">สำเร็จ</Tag>;
                                                                 return <Tag icon={<CloseCircleOutlined />} color="error">ล้มเหลว</Tag>;
                                                             }},
-                                                        {title: 'ข้อความ', dataIndex: 'message', key: 'message', render: (text: any) => text || '-'},
+                                                        {title: 'ข้อความ', dataIndex: 'message', key: 'message', render: (_: any, row: any) => {
+                                                                const displayText = row.message || '-';
+                                                                const detailText = typeof row.detail === "string" ? row.detail : displayText;
+                                                                const shouldShowMore = detailText && detailText.length > 120;
+                                                                return (
+                                                                    <Space direction="vertical" size={4}>
+                                                                        <Typography.Paragraph
+                                                                            style={{margin: 0}}
+                                                                            ellipsis={shouldShowMore ? {rows: 2, tooltip: displayText} : false}
+                                                                        >
+                                                                            {displayText}
+                                                                        </Typography.Paragraph>
+                                                                        {shouldShowMore ? (
+                                                                            <Button
+                                                                                size="small"
+                                                                                type="link"
+                                                                                style={{padding: 0}}
+                                                                                onClick={() => openDetailModal(
+                                                                                    String(row.title || row.issueKeyOrId),
+                                                                                    detailText,
+                                                                                    row.statusCode
+                                                                                )}
+                                                                            >
+                                                                                ดูรายละเอียดเพิ่มเติม
+                                                                            </Button>
+                                                                        ) : null}
+                                                                    </Space>
+                                                                );
+                                                            }},
                                                         {title: 'สรุป', dataIndex: 'summary', key: 'summary', render: (md: any) => md ? <div style={{maxHeight: 160, overflow: 'auto'}} dangerouslySetInnerHTML={{__html: md}} /> : '-'},
                                                         {title: 'การกระทำ', key: 'action', width: 140, render: (_: any, row: any) => {
                                                                 const hasFailed = row.status === 'error';
@@ -442,7 +533,13 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                                                             const payloads = perIssuePayloadsRef.current || [];
                                                                             const payload = payloads.find(p => String(p.issueKeyOrId) === String(row.issueKeyOrId));
                                                                             if (!payload) return;
-                                                                            setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(row.issueKeyOrId) ? {...r, status: 'pending', message: undefined} : r));
+                                                                            setProcessingResults(prev => prev.map(r => String(r.issueKeyOrId) === String(row.issueKeyOrId) ? {
+                                                                                ...r,
+                                                                                status: 'pending',
+                                                                                message: undefined,
+                                                                                detail: undefined,
+                                                                                statusCode: undefined,
+                                                                            } : r));
                                                                             const selectedIssueMap = new Map(
                                                                                 issues.map((issueItem) => [issueItem.issueKey || String(issueItem.id), issueItem])
                                                                             );
@@ -469,7 +566,13 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                                             const targets = failedRows.map(fr => payloads.find(p => String(p.issueKeyOrId) === String(fr.issueKeyOrId))).filter(Boolean) as any[];
                                                             if (!targets.length) return;
                                                             const failedIds = failedRows.map(fr => String(fr.issueKeyOrId));
-                                                            setProcessingResults(prev => prev.map(r => failedIds.includes(String(r.issueKeyOrId)) ? {...r, status: 'pending', message: undefined} : r));
+                                                            setProcessingResults(prev => prev.map(r => failedIds.includes(String(r.issueKeyOrId)) ? {
+                                                                ...r,
+                                                                status: 'pending',
+                                                                message: undefined,
+                                                                detail: undefined,
+                                                                statusCode: undefined,
+                                                            } : r));
                                                             const concurrency = 4;
                                                             let idx = 0;
                                                             const runners = Array.from({length: concurrency}).map(async () => {
@@ -511,6 +614,40 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                                 </div>
                                             </div>
                                         </div>
+                                    </Modal>
+                                    <Modal
+                                        open={detailModal.open}
+                                        footer={null}
+                                        width={720}
+                                        onCancel={() => setDetailModal({open: false})}
+                                        title={
+                                            <div style={{display: "flex", flexDirection: "column", gap: 2}}>
+                                                <Typography.Text strong>
+                                                    รายละเอียดข้อผิดพลาด
+                                                    {detailModal.statusCode ? ` (Status ${detailModal.statusCode})` : ""}
+                                                </Typography.Text>
+                                                {detailModal.title ? (
+                                                    <Typography.Text type="secondary">
+                                                        {detailModal.title}
+                                                    </Typography.Text>
+                                                ) : null}
+                                            </div>
+                                        }
+                                    >
+                                        <pre
+                                            style={{
+                                                background: "#f5f5f5",
+                                                padding: 12,
+                                                borderRadius: 8,
+                                                maxHeight: 360,
+                                                overflow: "auto",
+                                                whiteSpace: "pre-wrap",
+                                                wordBreak: "break-word",
+                                                margin: 0,
+                                            }}
+                                        >
+                                            {detailModal.content || "ไม่มีรายละเอียด"}
+                                        </pre>
                                     </Modal>
                                 </Space>
                             ),
