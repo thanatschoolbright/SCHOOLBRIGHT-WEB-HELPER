@@ -18,6 +18,7 @@ import {
   FilePdfOutlined,
   CheckOutlined,
   MailOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { PaginationState } from "../types/overtime.types";
@@ -166,6 +167,18 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 <Divider type="vertical" />
               </>
             )}
+            <Button
+              icon={<FileTextOutlined />}
+              onClick={() =>
+                window.open(
+                  "https://docs.google.com/document/d/12eEuCzFtCxE3C_CfhkGZ9J8yo3jiKVD2uANYBMXXnUE/edit?usp=sharing",
+                  "_blank"
+                )
+              }
+              danger
+            >
+              ระเบียบการขอทำงานล่วงเวลา (ต้องอ่านก่อนขอ)
+            </Button>
             <Button
               type="primary"
               icon={<PlusOutlined />}
