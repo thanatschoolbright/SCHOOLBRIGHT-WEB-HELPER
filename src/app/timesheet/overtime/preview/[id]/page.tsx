@@ -26,6 +26,8 @@ interface OvertimeData {
 
 interface OvertimeDescription {
   date?: string;
+  start_date?: string;
+  end_date?: string;
   description?: string;
   duration?: number;
   type?: string;
@@ -638,7 +640,7 @@ export default function OTPreviewPage() {
                 {/* --- META DATA SECTION (ปรับปรุงใหม่) --- */}
                 <div className="ot-doc-meta">
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <strong style={{ marginRight: "4px" }}>ประจำเดือน:</strong>
+                    <p style={{ marginRight: "4px" }}>ประจำเดือน:</p>
                     <EditableField
                       initialValue={
                         headerDate
@@ -649,7 +651,7 @@ export default function OTPreviewPage() {
                     />
                   </div>
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <strong style={{ marginRight: "4px" }}>วันที่:</strong>
+                    <p style={{ marginRight: "4px" }}>วันที่:</p>
                     <EditableField
                       initialValue={
                         headerDate ? dayjs(headerDate).format("DD/MM/YYYY") : ""
@@ -683,73 +685,202 @@ export default function OTPreviewPage() {
 
               {/* --- REQUEST TABLE --- */}
               <div className="ot-section">
+                <div
+                  style={{
+                    marginBottom: "12px",
+                    padding: "8px",
+                    border: "1px solid #000",
+                    borderLeft: "4px solid #000",
+                  }}
+                >
+                  <strong style={{ color: "#000" }}>
+                    รายละเอียดการทำงานล่วงเวลา
+                  </strong>
+                </div>
                 <table className="ot-table">
                   <thead>
                     <tr>
-                      <th style={{ width: "12%" }}>วันที่</th>
-                      <th>รายละเอียดงาน / กิจกรรม</th>
-                      <th style={{ width: "10%" }}>ชั่วโมง</th>
-                      <th style={{ width: "15%" }}>ประเภท OT</th>
-                      <th style={{ width: "18%" }}>ผู้มอบหมาย</th>
-                      <th style={{ width: "15%" }}>หมายเหตุ</th>
+                      <th
+                        style={{
+                          width: "5%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        ลำดับ
+                      </th>
+                      <th
+                        style={{
+                          width: "12%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        วันที่
+                      </th>
+                      <th
+                        style={{
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                      >
+                        รายละเอียดงานที่ปฏิบัติจริง
+                      </th>
+                      <th
+                        style={{
+                          width: "12%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        เวลาเริ่ม
+                      </th>
+                      <th
+                        style={{
+                          width: "12%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        เวลาสิ้นสุด
+                      </th>
+                      <th
+                        style={{
+                          width: "10%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        รวม (ชม.)
+                      </th>
+                      <th
+                        style={{
+                          width: "15%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        หมายเหตุ
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {requestRows.map((row, idx) => (
-                      <tr key={`req-${idx}`}>
-                        <td className="center">
-                          {row?.date
-                            ? dayjs(row.date).format("DD/MM/YYYY")
-                            : ""}
-                        </td>
-                        <td>
-                          <div className="ot-desc">
-                            {row?.description ? (
-                              /^https?:\/\//.test(String(row.description)) ? (
-                                <a
-                                  href={String(row.description)}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  ลิงก์แนบ
-                                </a>
-                              ) : (
-                                String(row.description)
-                              )
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        </td>
-                        <td className="center">{row?.duration ?? ""}</td>
-                        <td className="center">
-                          {row
-                            ? row.type ??
-                              (data.overtimeType === "holiday"
-                                ? "วันหยุด"
-                                : "วันทำงาน")
-                            : ""}
-                        </td>
-                        <td className="center">
-                          {row?.assignee
-                            ? `${getUserById(row.assignee)?.firstname ?? ""} ${
-                                getUserById(row.assignee)?.lastname ?? ""
-                              }`
-                            : ""}
-                        </td>
-                        <td></td>
-                      </tr>
-                    ))}
+                    {approvalRows.map((row, idx) => {
+                      const hasTimeRange = row?.start_date && row?.end_date;
+                      const startTimeStr = hasTimeRange
+                        ? dayjs(row.start_date).format("HH:mm")
+                        : "";
+                      const endTimeStr = hasTimeRange
+                        ? dayjs(row.end_date).format("HH:mm")
+                        : "";
+
+                      return (
+                        <tr key={`app-${idx}`}>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            {idx + 1}
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            {row?.date
+                              ? dayjs(row.date).format("DD/MM/YYYY")
+                              : "-"}
+                          </td>
+                          <td
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <div className="ot-desc">
+                              {row?.description ?? ""}
+                            </div>
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <EditableField
+                              initialValue={startTimeStr}
+                              placeholder="xx:xx"
+                              inputStyle={{
+                                minWidth: "50px",
+                                textAlign: "center",
+                                color: "#000",
+                              }}
+                              editHint="เวลาเริ่ม"
+                            />
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <EditableField
+                              initialValue={endTimeStr}
+                              placeholder="xx:xx"
+                              inputStyle={{
+                                minWidth: "50px",
+                                textAlign: "center",
+                                color: "#000",
+                              }}
+                              editHint="เวลาสิ้นสุด"
+                            />
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <EditableField
+                              initialValue={String(row?.duration || "")}
+                              placeholder="-"
+                              inputStyle={{
+                                minWidth: "40px",
+                                textAlign: "center",
+                                color: "#000",
+                              }}
+                            />
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <EditableField
+                              initialValue=""
+                              placeholder="-"
+                              inputStyle={{ minWidth: "80px", color: "#000" }}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
-                <div className="ot-summary">
+                <div
+                  className="ot-summary"
+                  style={{ border: "1px solid #000", backgroundColor: "#fff" }}
+                >
                   <div>
                     เหตุผลการขอ:{" "}
                     <span
                       style={{
                         fontWeight: 400,
-                        borderBottom: "1px dotted #333",
+                        borderBottom: "1px dotted #000",
                         padding: "0 8px",
+                        color: "#000",
                       }}
                     >
                       {data.reason || "-"}
@@ -757,7 +888,13 @@ export default function OTPreviewPage() {
                   </div>
                   <div style={{ marginLeft: "auto" }}>
                     รวมเวลาทั้งหมด:{" "}
-                    <span style={{ fontSize: "16px", color: "#000" }}>
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        color: "#000",
+                        fontWeight: "bold",
+                      }}
+                    >
                       {totalHours}
                     </span>{" "}
                     ชั่วโมง
@@ -797,67 +934,206 @@ export default function OTPreviewPage() {
                     </div>
                     <div className="ot-sign-date">
                       วันที่{" "}
-                      <EditableField placeholder="....... / ....... / ..........." />
+                      <EditableField
+                        placeholder="....... / ....... / ..........."
+                        initialValue={
+                          headerDate
+                            ? dayjs(headerDate).format("DD / MM / YYYY")
+                            : ""
+                        }
+                      />
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* --- APPROVAL TABLE --- */}
-              <div className="ot-sub-form">
-                <div className="ot-sub-title">
-                  ส่วนสำหรับบันทึกการปฏิบัติงานจริง (สำหรับเจ้าหน้าที่)
+              <div
+                className="ot-sub-form"
+                style={{ borderTop: "2px solid #000" }}
+              >
+                <div
+                  style={{
+                    marginBottom: "12px",
+                    padding: "8px",
+                    border: "1px solid #000",
+                    borderLeft: "4px solid #000",
+                  }}
+                >
+                  <strong style={{ color: "#000" }}>
+                    ส่วนสำหรับบันทึกการปฏิบัติงานจริง
+                  </strong>
                 </div>
                 <table className="ot-table">
                   <thead>
                     <tr>
-                      <th style={{ width: "12%" }}>วันที่</th>
-                      <th>รายละเอียดงานที่ปฏิบัติจริง</th>
-                      <th style={{ width: "12%" }}>เวลาเริ่ม</th>
-                      <th style={{ width: "12%" }}>เวลาสิ้นสุด</th>
-                      <th style={{ width: "12%" }}>รวม (ชม.)</th>
-                      <th style={{ width: "15%" }}>หมายเหตุ</th>
+                      <th
+                        style={{
+                          width: "5%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        ลำดับ
+                      </th>
+                      <th
+                        style={{
+                          width: "12%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        วันที่
+                      </th>
+                      <th
+                        style={{
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                      >
+                        รายละเอียดงานที่ปฏิบัติจริง
+                      </th>
+                      <th
+                        style={{
+                          width: "12%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        เวลาเริ่ม
+                      </th>
+                      <th
+                        style={{
+                          width: "12%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        เวลาสิ้นสุด
+                      </th>
+                      <th
+                        style={{
+                          width: "10%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        รวม (ชม.)
+                      </th>
+                      <th
+                        style={{
+                          width: "15%",
+                          color: "#000",
+                          backgroundColor: "#fff",
+                          border: "1px solid #000",
+                        }}
+                        className="center"
+                      >
+                        หมายเหตุ
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {approvalRows.map((row, idx) => (
-                      <tr key={`app-${idx}`}>
-                        <td className="center">
-                          {row?.date
-                            ? dayjs(row.date).format("DD/MM/YYYY")
-                            : ""}
-                        </td>
-                        <td>
-                          <div className="ot-desc">
-                            {row?.description ?? ""}
-                          </div>
-                        </td>
-                        <td className="center">
-                          <EditableField
-                            initialValue={row?.start_time || ""}
-                            placeholder="xx:xx"
-                            inputStyle={{ minWidth: "50px" }}
-                            editHint="คลิกเพื่อใส่เวลา"
-                          />
-                        </td>
-                        <td className="center">
-                          <EditableField
-                            initialValue={row?.end_time || ""}
-                            placeholder="xx:xx"
-                            inputStyle={{ minWidth: "50px" }}
-                            editHint="คลิกเพื่อใส่เวลา"
-                          />
-                        </td>
-                        <td className="center">{row?.duration || ""}</td>
-                        <td className="center">
-                          <EditableField
-                            initialValue=""
-                            placeholder="-"
-                            inputStyle={{ minWidth: "80px" }}
-                          />
-                        </td>
-                      </tr>
-                    ))}
+                    {approvalRows.map((row, idx) => {
+                      const hasTimeRange = row?.start_date && row?.end_date;
+                      const startTimeStr = hasTimeRange
+                        ? dayjs(row.start_date).format("HH:mm")
+                        : "";
+                      const endTimeStr = hasTimeRange
+                        ? dayjs(row.end_date).format("HH:mm")
+                        : "";
+
+                      return (
+                        <tr key={`app-${idx}`}>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            {idx + 1}
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            {row?.date
+                              ? dayjs(row.date).format("DD/MM/YYYY")
+                              : "-"}
+                          </td>
+                          <td
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <div className="ot-desc">
+                              {row?.description ?? ""}
+                            </div>
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <EditableField
+                              initialValue={startTimeStr}
+                              placeholder="xx:xx"
+                              inputStyle={{
+                                minWidth: "50px",
+                                textAlign: "center",
+                                color: "#000",
+                              }}
+                              editHint="เวลาเริ่ม"
+                            />
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <EditableField
+                              initialValue={endTimeStr}
+                              placeholder="xx:xx"
+                              inputStyle={{
+                                minWidth: "50px",
+                                textAlign: "center",
+                                color: "#000",
+                              }}
+                              editHint="เวลาสิ้นสุด"
+                            />
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <EditableField
+                              initialValue={String(row?.duration || "")}
+                              placeholder="-"
+                              inputStyle={{
+                                minWidth: "40px",
+                                textAlign: "center",
+                                color: "#000",
+                              }}
+                            />
+                          </td>
+                          <td
+                            className="center"
+                            style={{ border: "1px solid #000", color: "#000" }}
+                          >
+                            <EditableField
+                              initialValue=""
+                              placeholder="-"
+                              inputStyle={{ minWidth: "80px", color: "#000" }}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
 
@@ -894,7 +1170,14 @@ export default function OTPreviewPage() {
                     </div>
                     <div className="ot-sign-date">
                       วันที่{" "}
-                      <EditableField placeholder="....... / ....... / ..........." />
+                      <EditableField
+                        placeholder="....... / ....... / ..........."
+                        initialValue={
+                          headerDate
+                            ? dayjs(headerDate).format("DD / MM / YYYY")
+                            : ""
+                        }
+                      />
                     </div>
                   </div>
                 </div>

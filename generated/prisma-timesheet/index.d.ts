@@ -7488,6 +7488,8 @@ export namespace Prisma {
     id: number | null
     overtimeId: number | null
     date: Date | null
+    startDate: Date | null
+    endDate: Date | null
     duration: Decimal | null
     description: string | null
     assignee: string | null
@@ -7497,6 +7499,8 @@ export namespace Prisma {
     id: number | null
     overtimeId: number | null
     date: Date | null
+    startDate: Date | null
+    endDate: Date | null
     duration: Decimal | null
     description: string | null
     assignee: string | null
@@ -7506,6 +7510,8 @@ export namespace Prisma {
     id: number
     overtimeId: number
     date: number
+    startDate: number
+    endDate: number
     duration: number
     description: number
     assignee: number
@@ -7529,6 +7535,8 @@ export namespace Prisma {
     id?: true
     overtimeId?: true
     date?: true
+    startDate?: true
+    endDate?: true
     duration?: true
     description?: true
     assignee?: true
@@ -7538,6 +7546,8 @@ export namespace Prisma {
     id?: true
     overtimeId?: true
     date?: true
+    startDate?: true
+    endDate?: true
     duration?: true
     description?: true
     assignee?: true
@@ -7547,6 +7557,8 @@ export namespace Prisma {
     id?: true
     overtimeId?: true
     date?: true
+    startDate?: true
+    endDate?: true
     duration?: true
     description?: true
     assignee?: true
@@ -7642,7 +7654,9 @@ export namespace Prisma {
   export type OvertimeDescriptionGroupByOutputType = {
     id: number
     overtimeId: number
-    date: Date
+    date: Date | null
+    startDate: Date | null
+    endDate: Date | null
     duration: Decimal
     description: string
     assignee: string
@@ -7671,6 +7685,8 @@ export namespace Prisma {
     id?: boolean
     overtimeId?: boolean
     date?: boolean
+    startDate?: boolean
+    endDate?: boolean
     duration?: boolean
     description?: boolean
     assignee?: boolean
@@ -7681,6 +7697,8 @@ export namespace Prisma {
     id?: boolean
     overtimeId?: boolean
     date?: boolean
+    startDate?: boolean
+    endDate?: boolean
     duration?: boolean
     description?: boolean
     assignee?: boolean
@@ -7691,6 +7709,8 @@ export namespace Prisma {
     id?: boolean
     overtimeId?: boolean
     date?: boolean
+    startDate?: boolean
+    endDate?: boolean
     duration?: boolean
     description?: boolean
     assignee?: boolean
@@ -7701,12 +7721,14 @@ export namespace Prisma {
     id?: boolean
     overtimeId?: boolean
     date?: boolean
+    startDate?: boolean
+    endDate?: boolean
     duration?: boolean
     description?: boolean
     assignee?: boolean
   }
 
-  export type OvertimeDescriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "overtimeId" | "date" | "duration" | "description" | "assignee", ExtArgs["result"]["overtimeDescription"]>
+  export type OvertimeDescriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "overtimeId" | "date" | "startDate" | "endDate" | "duration" | "description" | "assignee", ExtArgs["result"]["overtimeDescription"]>
   export type OvertimeDescriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
   }
@@ -7725,7 +7747,9 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       overtimeId: number
-      date: Date
+      date: Date | null
+      startDate: Date | null
+      endDate: Date | null
       duration: Prisma.Decimal
       description: string
       assignee: string
@@ -8156,6 +8180,8 @@ export namespace Prisma {
     readonly id: FieldRef<"OvertimeDescription", 'Int'>
     readonly overtimeId: FieldRef<"OvertimeDescription", 'Int'>
     readonly date: FieldRef<"OvertimeDescription", 'DateTime'>
+    readonly startDate: FieldRef<"OvertimeDescription", 'DateTime'>
+    readonly endDate: FieldRef<"OvertimeDescription", 'DateTime'>
     readonly duration: FieldRef<"OvertimeDescription", 'Decimal'>
     readonly description: FieldRef<"OvertimeDescription", 'String'>
     readonly assignee: FieldRef<"OvertimeDescription", 'String'>
@@ -8685,6 +8711,8 @@ export namespace Prisma {
     id: 'id',
     overtimeId: 'overtimeId',
     date: 'date',
+    startDate: 'startDate',
+    endDate: 'endDate',
     duration: 'duration',
     description: 'description',
     assignee: 'assignee'
@@ -9353,7 +9381,9 @@ export namespace Prisma {
     NOT?: OvertimeDescriptionWhereInput | OvertimeDescriptionWhereInput[]
     id?: IntFilter<"OvertimeDescription"> | number
     overtimeId?: IntFilter<"OvertimeDescription"> | number
-    date?: DateTimeFilter<"OvertimeDescription"> | Date | string
+    date?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
+    startDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
     duration?: DecimalFilter<"OvertimeDescription"> | Decimal | DecimalJsLike | number | string
     description?: StringFilter<"OvertimeDescription"> | string
     assignee?: StringFilter<"OvertimeDescription"> | string
@@ -9363,7 +9393,9 @@ export namespace Prisma {
   export type OvertimeDescriptionOrderByWithRelationInput = {
     id?: SortOrder
     overtimeId?: SortOrder
-    date?: SortOrder
+    date?: SortOrderInput | SortOrder
+    startDate?: SortOrderInput | SortOrder
+    endDate?: SortOrderInput | SortOrder
     duration?: SortOrder
     description?: SortOrder
     assignee?: SortOrder
@@ -9376,7 +9408,9 @@ export namespace Prisma {
     OR?: OvertimeDescriptionWhereInput[]
     NOT?: OvertimeDescriptionWhereInput | OvertimeDescriptionWhereInput[]
     overtimeId?: IntFilter<"OvertimeDescription"> | number
-    date?: DateTimeFilter<"OvertimeDescription"> | Date | string
+    date?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
+    startDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
     duration?: DecimalFilter<"OvertimeDescription"> | Decimal | DecimalJsLike | number | string
     description?: StringFilter<"OvertimeDescription"> | string
     assignee?: StringFilter<"OvertimeDescription"> | string
@@ -9386,7 +9420,9 @@ export namespace Prisma {
   export type OvertimeDescriptionOrderByWithAggregationInput = {
     id?: SortOrder
     overtimeId?: SortOrder
-    date?: SortOrder
+    date?: SortOrderInput | SortOrder
+    startDate?: SortOrderInput | SortOrder
+    endDate?: SortOrderInput | SortOrder
     duration?: SortOrder
     description?: SortOrder
     assignee?: SortOrder
@@ -9403,7 +9439,9 @@ export namespace Prisma {
     NOT?: OvertimeDescriptionScalarWhereWithAggregatesInput | OvertimeDescriptionScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"OvertimeDescription"> | number
     overtimeId?: IntWithAggregatesFilter<"OvertimeDescription"> | number
-    date?: DateTimeWithAggregatesFilter<"OvertimeDescription"> | Date | string
+    date?: DateTimeNullableWithAggregatesFilter<"OvertimeDescription"> | Date | string | null
+    startDate?: DateTimeNullableWithAggregatesFilter<"OvertimeDescription"> | Date | string | null
+    endDate?: DateTimeNullableWithAggregatesFilter<"OvertimeDescription"> | Date | string | null
     duration?: DecimalWithAggregatesFilter<"OvertimeDescription"> | Decimal | DecimalJsLike | number | string
     description?: StringWithAggregatesFilter<"OvertimeDescription"> | string
     assignee?: StringWithAggregatesFilter<"OvertimeDescription"> | string
@@ -9964,7 +10002,9 @@ export namespace Prisma {
   }
 
   export type OvertimeDescriptionCreateInput = {
-    date: Date | string
+    date?: Date | string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     duration: Decimal | DecimalJsLike | number | string
     description: string
     assignee: string
@@ -9974,14 +10014,18 @@ export namespace Prisma {
   export type OvertimeDescriptionUncheckedCreateInput = {
     id?: number
     overtimeId: number
-    date: Date | string
+    date?: Date | string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     duration: Decimal | DecimalJsLike | number | string
     description: string
     assignee: string
   }
 
   export type OvertimeDescriptionUpdateInput = {
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: StringFieldUpdateOperationsInput | string
     assignee?: StringFieldUpdateOperationsInput | string
@@ -9991,7 +10035,9 @@ export namespace Prisma {
   export type OvertimeDescriptionUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     overtimeId?: IntFieldUpdateOperationsInput | number
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: StringFieldUpdateOperationsInput | string
     assignee?: StringFieldUpdateOperationsInput | string
@@ -10000,14 +10046,18 @@ export namespace Prisma {
   export type OvertimeDescriptionCreateManyInput = {
     id?: number
     overtimeId: number
-    date: Date | string
+    date?: Date | string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     duration: Decimal | DecimalJsLike | number | string
     description: string
     assignee: string
   }
 
   export type OvertimeDescriptionUpdateManyMutationInput = {
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: StringFieldUpdateOperationsInput | string
     assignee?: StringFieldUpdateOperationsInput | string
@@ -10016,7 +10066,9 @@ export namespace Prisma {
   export type OvertimeDescriptionUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     overtimeId?: IntFieldUpdateOperationsInput | number
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: StringFieldUpdateOperationsInput | string
     assignee?: StringFieldUpdateOperationsInput | string
@@ -10672,6 +10724,8 @@ export namespace Prisma {
     id?: SortOrder
     overtimeId?: SortOrder
     date?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
     duration?: SortOrder
     description?: SortOrder
     assignee?: SortOrder
@@ -10687,6 +10741,8 @@ export namespace Prisma {
     id?: SortOrder
     overtimeId?: SortOrder
     date?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
     duration?: SortOrder
     description?: SortOrder
     assignee?: SortOrder
@@ -10696,6 +10752,8 @@ export namespace Prisma {
     id?: SortOrder
     overtimeId?: SortOrder
     date?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
     duration?: SortOrder
     description?: SortOrder
     assignee?: SortOrder
@@ -11701,7 +11759,9 @@ export namespace Prisma {
   }
 
   export type OvertimeDescriptionCreateWithoutOvertimeInput = {
-    date: Date | string
+    date?: Date | string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     duration: Decimal | DecimalJsLike | number | string
     description: string
     assignee: string
@@ -11709,7 +11769,9 @@ export namespace Prisma {
 
   export type OvertimeDescriptionUncheckedCreateWithoutOvertimeInput = {
     id?: number
-    date: Date | string
+    date?: Date | string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     duration: Decimal | DecimalJsLike | number | string
     description: string
     assignee: string
@@ -11747,7 +11809,9 @@ export namespace Prisma {
     NOT?: OvertimeDescriptionScalarWhereInput | OvertimeDescriptionScalarWhereInput[]
     id?: IntFilter<"OvertimeDescription"> | number
     overtimeId?: IntFilter<"OvertimeDescription"> | number
-    date?: DateTimeFilter<"OvertimeDescription"> | Date | string
+    date?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
+    startDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
     duration?: DecimalFilter<"OvertimeDescription"> | Decimal | DecimalJsLike | number | string
     description?: StringFilter<"OvertimeDescription"> | string
     assignee?: StringFilter<"OvertimeDescription"> | string
@@ -11988,14 +12052,18 @@ export namespace Prisma {
 
   export type OvertimeDescriptionCreateManyOvertimeInput = {
     id?: number
-    date: Date | string
+    date?: Date | string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     duration: Decimal | DecimalJsLike | number | string
     description: string
     assignee: string
   }
 
   export type OvertimeDescriptionUpdateWithoutOvertimeInput = {
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: StringFieldUpdateOperationsInput | string
     assignee?: StringFieldUpdateOperationsInput | string
@@ -12003,7 +12071,9 @@ export namespace Prisma {
 
   export type OvertimeDescriptionUncheckedUpdateWithoutOvertimeInput = {
     id?: IntFieldUpdateOperationsInput | number
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: StringFieldUpdateOperationsInput | string
     assignee?: StringFieldUpdateOperationsInput | string
@@ -12011,7 +12081,9 @@ export namespace Prisma {
 
   export type OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeInput = {
     id?: IntFieldUpdateOperationsInput | number
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     duration?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: StringFieldUpdateOperationsInput | string
     assignee?: StringFieldUpdateOperationsInput | string

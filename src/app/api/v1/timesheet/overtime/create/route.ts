@@ -13,6 +13,14 @@ const DescriptionSchema = z.object({
     (v) => (typeof v === "string" && v.trim() ? v : v),
     z.string().optional()
   ),
+  startDate: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() ? v : v),
+    z.string().optional()
+  ),
+  endDate: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() ? v : v),
+    z.string().optional()
+  ),
   duration: z.preprocess((v) => {
     if (typeof v === "string" && v.trim() !== "") return Number(v);
     return v;

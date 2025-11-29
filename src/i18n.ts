@@ -28,6 +28,8 @@ i18n
   .init({
     resources,
     lng: lang, // Default language
+    defaultNS: "translate", // Set default namespace
+    ns: ["translate", "menu"], // Available namespaces
     interpolation: {
       escapeValue: false, // React already escapes values
     },

@@ -108,6 +108,8 @@ function transformDescriptions(descriptions: any[]): any[] {
     id: desc.id,
     overtime_id: desc.overtimeId,
     date: formatDate(desc.date),
+    start_date: formatDate(desc.startDate),
+    end_date: formatDate(desc.endDate),
     duration:
       typeof desc.duration === "number" ? String(desc.duration) : desc.duration,
     description: desc.description,
