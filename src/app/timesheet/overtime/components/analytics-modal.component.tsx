@@ -14,6 +14,7 @@ import { Bar, Doughnut } from "react-chartjs-2";
 import { OvertimeRecord } from "../types/overtime.types";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { getUserById } from "@helpers/local_storage/user.storage";
 import {
   ClockCircleOutlined,
   CheckCircleOutlined,
@@ -51,6 +52,21 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
     let rejectedCount = 0;
     const monthlyHours: Record<string, number> = {};
     const requesterHours: Record<string, number> = {};
+    const requesterNameCache = new Map<string, string>();
+
+    const resolveRequesterName = (requesterId?: string) => {
+      if (!requesterId) return "Unknown";
+      if (requesterNameCache.has(requesterId)) {
+        return requesterNameCache.get(requesterId) || "Unknown";
+      }
+      const user = getUserById(requesterId);
+      const fullName =
+        [user?.firstname, user?.lastname].filter(Boolean).join(" ") ||
+        user?.name ||
+        requesterId;
+      requesterNameCache.set(requesterId, fullName);
+      return fullName;
+    };
 
     dataSource.forEach((record) => {
       // 1. Status Counts
@@ -73,9 +89,9 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
       monthlyHours[monthKey] = (monthlyHours[monthKey] || 0) + recordHours;
 
       // 4. Top Requesters
-      const requesterName = record.created_by || "Unknown";
-      requesterHours[requesterName] =
-        (requesterHours[requesterName] || 0) + recordHours;
+      const requesterId = record.requester_id || record.created_by || "Unknown";
+      requesterHours[requesterId] =
+        (requesterHours[requesterId] || 0) + recordHours;
     });
 
     // Sort Monthly Data
@@ -89,7 +105,12 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
     // Sort Top Requesters
     const topRequesters = Object.entries(requesterHours)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 5);
+      .slice(0, 5)
+      .map(([requesterId, hours]) => ({
+        requesterId,
+        displayName: resolveRequesterName(requesterId),
+        hours,
+      }));
 
     return {
       totalHours,
@@ -99,8 +120,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
       rejectedCount,
       monthlyLabels: sortedMonths,
       monthlyData: sortedMonths.map((m) => monthlyHours[m]),
-      topRequesterLabels: topRequesters.map(([name]) => name),
-      topRequesterData: topRequesters.map(([, hours]) => hours),
+      topRequesters,
     };
   }, [dataSource]);
 
@@ -151,11 +171,11 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
   };
 
   const topRequesterData = {
-    labels: analyticsData.topRequesterLabels,
+    labels: analyticsData.topRequesters.map((r) => r.displayName),
     datasets: [
       {
         label: "ชั่วโมงสะสม",
-        data: analyticsData.topRequesterData,
+        data: analyticsData.topRequesters.map((r) => r.hours),
         backgroundColor: "rgba(153, 102, 255, 0.6)",
         borderColor: "rgba(153, 102, 255, 1)",
         borderWidth: 1,
