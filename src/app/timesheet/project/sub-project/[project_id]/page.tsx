@@ -382,6 +382,7 @@ export default function SubProjectPage() {
       title: "ฟีเจอร์ / Feature",
       dataIndex: "name",
       key: "name",
+      width: 300,
       render: (text: string, record: SubProject) => (
         <Space align="start">
           <Avatar
