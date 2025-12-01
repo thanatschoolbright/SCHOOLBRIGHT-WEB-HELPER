@@ -30,6 +30,8 @@ import {
   CodeOutlined,
 } from "@ant-design/icons";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import { FiHome } from "react-icons/fi";
+import { CallAPI as GetSchoolList } from "@/stores/actions/call-school-list";
 
 // ==================== Types ====================
 type NFCFormData = {
@@ -73,6 +75,45 @@ const NOTES = [
   },
 ] as const;
 
+//** คอมโพเนนต์ Select พร้อมไอคอนซ้ายเพื่อให้เว้นระยะได้สม่ำเสมอ
+const FieldIconSelect = ({ icon, className, style, ...props }: any) => {
+  const composedClassName = ["field-select", className]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div className="field-with-icon">
+      <span className="field-icon">{icon}</span>
+      <Select
+        {...props}
+        className={composedClassName}
+        style={{ width: "100%", ...style }}
+      />
+      <style jsx>{`
+        .field-with-icon {
+          position: relative;
+          width: 100%;
+        }
+
+        .field-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #8c8c8c;
+          pointer-events: none;
+          font-size: 18px;
+          z-index: 2;
+        }
+
+        .field-with-icon :global(.ant-select-selector) {
+          padding-left: 36px !important;
+        }
+      `}</style>
+    </div>
+  );
+};
+
 // ==================== Utility Functions ====================
 const formatSchoolOption = (school: any): SchoolOption => ({
   label: `${school.SchoolName} (${school.SchoolID})`,
@@ -95,10 +136,16 @@ const useSchoolOptions = () => {
   const schoolState = useAppSelector((state) => state.callSchoolList);
 
   return useMemo<SchoolOption[]>(() => {
-    const schools = schoolState?.response?.data?.data;
-    if (!Array.isArray(schools)) return [];
+    const schoolsFromResponse = schoolState?.response?.data?.data;
+    const schoolsFromDraft = schoolState?.draftValues?.data;
+    const schools = Array.isArray(schoolsFromResponse)
+      ? schoolsFromResponse
+      : Array.isArray(schoolsFromDraft)
+      ? schoolsFromDraft
+      : [];
+
     return schools.map(formatSchoolOption);
-  }, [schoolState?.response?.data?.data]);
+  }, [schoolState?.response?.data?.data, schoolState?.draftValues?.data]);
 };
 
 const useNFCForm = () => {
@@ -124,6 +171,8 @@ const useNFCForm = () => {
     form.resetFields();
   }, [form]);
 
+  
+
   return {
     form,
     nfcState,
@@ -142,7 +191,6 @@ const PageHeader: React.FC = () => (
     icon={<CreditCardOutlined />}
     color="none"
   />
-
 );
 
 const SearchForm: React.FC<{
@@ -162,16 +210,16 @@ const SearchForm: React.FC<{
     >
       <Form.Item
         name="school_id"
-        label={FORM_LABELS.SCHOOL}
+        label="เลือกโรงเรียน"
         rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
       >
-        <Select
+        <FieldIconSelect
+          icon={<FiHome />}
           showSearch
-          placeholder="เลือกโรงเรียน"
-          optionFilterProp="label"
-          options={schoolOptions}
-          size="large"
           allowClear
+          placeholder="เลือกโรงเรียน"
+          options={[{ label: "เลือกรายการ", value: "" }, ...schoolOptions]}
+          optionFilterProp="label"
         />
       </Form.Item>
 
@@ -284,8 +332,13 @@ const NotesSection: React.FC = () => {
 
 // ==================== Main Component ====================
 const NFCCardSearchPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const schoolOptions = useSchoolOptions();
   const { form, isLoading, response, handleSubmit, handleReset } = useNFCForm();
+
+  useEffect(() => {
+    dispatch(GetSchoolList());
+  }, [dispatch]);
 
   return (
     <DashboardLayout>
