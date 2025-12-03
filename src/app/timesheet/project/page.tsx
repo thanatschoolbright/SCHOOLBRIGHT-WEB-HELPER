@@ -277,7 +277,7 @@ export default function Page() {
             background: "linear-gradient(90deg, #e6fffb 0%, #b5f5ec 100%)",
             color: "#08979c",
             boxShadow: "0 2px 8px 0 #b5f5ec55",
-            fontFamily: 'Fira Mono, Menlo, monospace',
+            fontFamily: "Fira Mono, Menlo, monospace",
           }}
         >
           {text.toString().padStart(4, "0")}
@@ -311,10 +311,7 @@ export default function Page() {
           >
             <ProjectOutlined style={{ color: "#1890ff", fontSize: "16px" }} />
           </div>
-          <Typography.Text
-            strong
-            style={{ fontSize: "15px"}}
-          >
+          <Typography.Text strong style={{ fontSize: "15px" }}>
             {text}
           </Typography.Text>
         </Space>
