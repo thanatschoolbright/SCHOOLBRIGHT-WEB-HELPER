@@ -165,7 +165,7 @@ export default function Page() {
         allowEscapeKey: false,
         showCancelButton: false,
       }).then((result) => {
-        if (result.isConfirmed && result.value !== "NARIN") {
+        if (result.isConfirmed && result.value !== "LIGHT") {
           window.location.href = "/";
         }
       });
