@@ -400,6 +400,28 @@ export default function ProjectManagementPage() {
         },
       },
       {
+        title: "สถานะการเปิดใช้งาน",
+        key: "is_deleted",
+        width: 160,
+        render: (_, record) => {
+          const status = record.is_deleted === true;
+
+          return (
+            <div className="flex flex-col gap-2 items-start">
+              {/* is_deleted status */}
+              <Badge
+                status={status ? "default" : "success"}
+                text={
+                  <span className={status ? "text-red-600 " : "font-medium"}>
+                    {status ? "ลบ" : "เปิดใช้งาน"}
+                  </span>
+                }
+              />
+            </div>
+          );
+        },
+      },
+      {
         title: "",
         key: "action",
         align: "center",

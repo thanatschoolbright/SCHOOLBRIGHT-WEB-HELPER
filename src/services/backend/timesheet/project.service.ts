@@ -7,13 +7,12 @@ export const Service = {
   ) {
     const [items, total] = await Promise.all([
       PrismaTimesheet.project.findMany({
-        where: { is_deleted: false },
         take: opts.limit,
         skip: opts.skip,
         orderBy: { createdAt: "desc" },
         include: { features: true },
       }),
-      PrismaTimesheet.project.count({ where: { is_deleted: false } }),
+      PrismaTimesheet.project.count(),
     ]);
     return { items, total };
   },
@@ -21,7 +20,7 @@ export const Service = {
   // * ดึงข้อมูล Project ตาม ID พร้อมโครงสร้างข้อมูลแบบเดียวกับ findAll
   async findById(id: number) {
     const project = await PrismaTimesheet.project.findFirst({
-      where: { id, is_deleted: false },
+      where: { id },
     });
     if (project) {
       return { items: [project], total: 1 };
