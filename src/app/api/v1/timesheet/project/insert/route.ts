@@ -5,7 +5,6 @@ import { Service } from "@services/backend/timesheet/project.service";
 import { Service as SubProjectService } from "@services/backend/timesheet/sub-project/sub-project.service";
 import { Schema } from "./route.validator";
 
-// --- Constants ---
 const DEFAULT_SUB_PROJECTS = [
   {
     name: "เคสประจำวัน (Daily Case)",
@@ -16,10 +15,9 @@ const DEFAULT_SUB_PROJECTS = [
 
 const DATE_CONFIG = {
   START: new Date("2025-01-01T00:00:00.000Z"),
-  END: new Date("2030-01-01T00:00:00.000Z"),
+  END: new Date("2025-12-31T23:59:59.999Z"),
 } as const;
 
-// --- Helper: Create Default Sub-Projects ---
 async function createDefaultSubProjects(projectId: number, userId: number) {
   await Promise.all(
     DEFAULT_SUB_PROJECTS.map(({ name, note }) =>
@@ -35,20 +33,17 @@ async function createDefaultSubProjects(projectId: number, userId: number) {
   );
 }
 
-// --- Main Handler ---
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const { data, error } = await validateRequest(request, Schema);
   if (error) return error;
 
-  // แยก id และ by (userId) ออกมา ส่วนที่เหลือคือข้อมูล Project เพียวๆ
   const { id, by, ...projectDetails } = data;
 
   try {
-    // CASE 1: UPDATE
     if (id) {
       const updatedProject = await Service.update(id, {
         ...projectDetails,
-        updatedBy: by, // Map 'by' -> 'updatedBy'
+        updatedBy: by,
       });
 
       return NextResponse.json(
@@ -60,13 +55,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // CASE 2: CREATE
     const newProject = await Service.create({
       ...projectDetails,
-      createdBy: by, // Map 'by' -> 'createdBy'
+      createdBy: by,
     });
 
-    // Side Effect: Create Sub-projects
     await createDefaultSubProjects(newProject.id, by);
 
     return NextResponse.json(

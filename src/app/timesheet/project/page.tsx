@@ -3,11 +3,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import dayjs from "dayjs"; // แนะนำให้ใช้ dayjs คู่กับ Antd DatePicker
+import dayjs, { Dayjs } from "dayjs";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 
-// Layouts & Stores
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
@@ -15,11 +14,8 @@ import { useAppSelector } from "@stores/store";
 import { getUserById } from "@helpers/local_storage/user.storage";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-
-// Data & Constants
 import { categoryType } from "@data/timesheet.category.type";
 
-// Ant Design
 import {
   Card,
   Table,
@@ -28,10 +24,8 @@ import {
   Form,
   Input,
   Typography,
-  Space,
   Tag,
   Select,
-  Skeleton,
   Descriptions,
   Tooltip,
   Badge,
@@ -48,15 +42,12 @@ import {
   InfoCircleOutlined,
   ArrowRightOutlined,
   ProjectOutlined,
-  StopOutlined,
   CalendarOutlined,
-  NumberOutlined,
   MoreOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { MenuProps } from "antd/lib";
 
-// --- Types ---
 interface Project {
   id: number;
   name: string;
@@ -64,49 +55,59 @@ interface Project {
   description: string;
   createdAt: string;
   updatedAt: string;
-  by: number;
   createdBy: number;
   categoryType: string;
   status: string;
-  features?: any[]; // สำหรับนับ sub-projects
+  features?: Array<{ is_deleted: boolean }>;
   start_date?: string;
   end_date?: string;
 }
 
-// --- Constants ---
+interface ModalState {
+  type: "" | "create" | "edit" | "delete" | "detail";
+  data?: Project | null;
+}
+
+interface PaginationState {
+  current: number;
+  pageSize: number;
+  total: number;
+}
+
+interface FormValues {
+  name: string;
+  name_en?: string;
+  description?: string;
+  categoryType: string;
+  status: string;
+  start_date?: Dayjs;
+  end_date?: Dayjs;
+}
+
 const PAGE_SIZE_OPTIONS = ["10", "20", "50", "100"];
+const PASSCODE = "LIGHT";
 
 export default function ProjectManagementPage() {
   const router = useRouter();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
 
-  // Redux & User Info
   const userAuth = useAppSelector((state) => state.callAdminLogin);
   const adminId = userAuth?.response?.data?.user_data?.admin_id || 0;
   const userRole = userAuth?.response?.data?.user_data?.position;
 
-  // State Management
-  const [loading, setLoading] = useState<boolean>(false);
-  const [actionLoading, setActionLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
-
-  // Pagination State
-  const [pagination, setPagination] = useState({
+  const [pagination, setPagination] = useState<PaginationState>({
     current: 1,
     pageSize: 20,
     total: 0,
   });
-
-  // Modal State Control (รวม type และ data ไว้ด้วยกันเพื่อลดจำนวน state)
-  const [modalState, setModalState] = useState<{
-    type: "" | "create" | "edit" | "delete" | "detail";
-    data?: Project | null;
-  }>({ type: "", data: null });
-
-  // Delete Confirmation Text State
+  const [modalState, setModalState] = useState<ModalState>({
+    type: "",
+    data: null,
+  });
   const [confirmDeleteText, setConfirmDeleteText] = useState("");
-
-  // --- API Handlers ---
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -120,7 +121,7 @@ export default function ProjectManagementPage() {
         ...prev,
         total: response.data.pagination?.total || 0,
       }));
-    } catch (error) {
+    } catch {
       toast.error("ไม่สามารถโหลดข้อมูลโครงการได้");
       setProjects([]);
     } finally {
@@ -128,20 +129,16 @@ export default function ProjectManagementPage() {
     }
   }, [pagination.current, pagination.pageSize]);
 
-  const handleSubmitForm = async (values: any) => {
+  const handleSubmitForm = async (values: FormValues) => {
     setActionLoading(true);
     try {
       const payload = {
         ...values,
-        by: adminId, // ส่งคนแก้ไข/สร้างเสมอ
-        // แปลง dayjs กลับเป็น Date object หรือ string ตามที่ backend ต้องการ
-        start_date: values.start_date
-          ? values.start_date.toISOString()
-          : undefined,
-        end_date: values.end_date ? values.end_date.toISOString() : undefined,
+        by: adminId,
+        start_date: values.start_date?.toISOString(),
+        end_date: values.end_date?.toISOString(),
       };
 
-      // ถ้ามี ID แสดงว่าเป็น Edit
       if (modalState.data?.id) {
         await axios.post("/api/v1/timesheet/project/insert/", {
           ...payload,
@@ -149,14 +146,13 @@ export default function ProjectManagementPage() {
         });
         toast.success("อัปเดตโครงการสำเร็จ");
       } else {
-        // Create
         await axios.post("/api/v1/timesheet/project/insert/", payload);
         toast.success("สร้างโครงการสำเร็จ");
       }
 
       closeModal();
       fetchProjects();
-    } catch (error) {
+    } catch {
       toast.error("ทำรายการล้มเหลว กรุณาลองใหม่");
     } finally {
       setActionLoading(false);
@@ -165,20 +161,19 @@ export default function ProjectManagementPage() {
 
   const handleDelete = async () => {
     if (!modalState.data?.id) return;
+
     try {
-      await axios.post(`/api/v1/timesheet/project/delete/`, {
+      await axios.post("/api/v1/timesheet/project/delete/", {
         id: modalState.data.id,
         by: adminId,
       });
       toast.success("ลบโครงการเรียบร้อยแล้ว");
       closeModal();
       fetchProjects();
-    } catch (error) {
+    } catch {
       toast.error("ลบข้อมูลล้มเหลว");
     }
   };
-
-  // --- Utility Functions ---
 
   const closeModal = () => {
     setModalState({ type: "", data: null });
@@ -187,7 +182,6 @@ export default function ProjectManagementPage() {
   };
 
   const openCreateModal = () => {
-    // Set Default Values
     form.setFieldsValue({
       status: "open",
       start_date: dayjs(),
@@ -197,26 +191,42 @@ export default function ProjectManagementPage() {
   };
 
   const openEditModal = (record: Project) => {
-    // Map data to form fields
     form.setFieldsValue({
       name: record.name,
       name_en: record.name_en,
       description: record.description,
       categoryType: record.categoryType,
       status: record.status,
-      start_date: record.start_date ? dayjs(record.start_date) : null,
-      end_date: record.end_date ? dayjs(record.end_date) : null,
+      start_date: record.start_date ? dayjs(record.start_date) : undefined,
+      end_date: record.end_date ? dayjs(record.end_date) : undefined,
     });
     setModalState({ type: "edit", data: record });
   };
 
-  // --- Effects ---
+  const calculateProjectProgress = (startDate: string, endDate: string) => {
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+    const now = dayjs();
+    const total = end.diff(start, "day");
+    const elapsed = now.diff(start, "day");
+    return Math.min(Math.max((elapsed / total) * 100, 0), 100);
+  };
+
+  const getCategoryName = (categoryId: string) => {
+    return (
+      categoryType.find((c) => String(c.id) === String(categoryId))?.name ||
+      categoryId
+    );
+  };
+
+  const getSubProjectCount = (features?: Array<{ is_deleted: boolean }>) => {
+    return features?.filter((f) => !f.is_deleted).length || 0;
+  };
 
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
 
-  // Permission Check
   useEffect(() => {
     if (userRole && userRole.trim().toLowerCase() !== "admin") {
       Swal.fire({
@@ -226,12 +236,10 @@ export default function ProjectManagementPage() {
         input: "password",
         allowOutsideClick: false,
       }).then((result) => {
-        if (result.value !== "LIGHT") window.location.href = "/";
+        if (result.value !== PASSCODE) window.location.href = "/";
       });
     }
   }, [userRole]);
-
-  // ...
 
   const columns: ColumnsType<Project> = useMemo(
     () => [
@@ -241,7 +249,7 @@ export default function ProjectManagementPage() {
         align: "center",
         width: 60,
         render: (_, __, idx) => (
-          <span className="text-gray-400 font-medium">
+          <span className=" font-medium">
             {(pagination.current - 1) * pagination.pageSize + idx + 1}
           </span>
         ),
@@ -252,7 +260,7 @@ export default function ProjectManagementPage() {
         key: "id",
         align: "center",
         width: 80,
-        render: (id) => (
+        render: (id: number) => (
           <Typography.Text copyable={{ text: String(id) }} code>
             {String(id).padStart(4, "0")}
           </Typography.Text>
@@ -264,15 +272,16 @@ export default function ProjectManagementPage() {
         width: 280,
         render: (_, record) => (
           <div className="flex items-start gap-3">
-            {/* Icon Box สวยๆ */}
-            <div className="min-w-[40px] h-[40px] rounded-lg  flex items-center justify-center border border-blue-100">
+            {/* Project Icon */}
+            <div className="min-w-[40px] h-[40px] rounded-lg flex items-center justify-center border border-blue-100">
               <ProjectOutlined className="text-blue-500 text-lg" />
             </div>
 
+            {/* Project Names */}
             <div className="flex flex-col">
               <Typography.Text
                 strong
-                className="text-gray-800 text-[15px] leading-tight hover:text-blue-600 transition-colors cursor-pointer"
+                className=" text-[15px] leading-tight hover:text-blue-600 transition-colors cursor-pointer"
               >
                 {record.name}
               </Typography.Text>
@@ -283,7 +292,7 @@ export default function ProjectManagementPage() {
               ) : (
                 <Typography.Text
                   type="secondary"
-                  className="text-xs mt-1 italic text-gray-300"
+                  className="text-xs mt-1 italic "
                 >
                   - No English Name -
                 </Typography.Text>
@@ -297,18 +306,20 @@ export default function ProjectManagementPage() {
         key: "duration",
         width: 200,
         render: (_, record) => {
-          if (!record.start_date || !record.end_date)
-            return <span className="text-gray-300">-</span>;
+          if (!record.start_date || !record.end_date) {
+            return <span className="">-</span>;
+          }
 
           const isExpired = dayjs(record.end_date).isBefore(dayjs());
+          const progress = calculateProjectProgress(
+            record.start_date,
+            record.end_date
+          );
 
           return (
             <div className="flex flex-col gap-1">
-              <div
-                className={`flex items-center text-xs ${
-                  isExpired ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              {/* Date Range */}
+              <div className={`flex items-center text-xs`}>
                 <CalendarOutlined className="mr-2 opacity-70" />
                 <span>{convertToThaiDateDDMMYYY(record.start_date)}</span>
                 <ArrowRightOutlined className="mx-2 text-[10px] opacity-50" />
@@ -316,13 +327,14 @@ export default function ProjectManagementPage() {
                   {convertToThaiDateDDMMYYY(record.end_date)}
                 </span>
               </div>
-              {/* Progress Visual Bar เล็กๆ (Optional) */}
+
+              {/* Progress Bar */}
               <div className="w-full h-1 rounded-full overflow-hidden mt-1">
                 <div
                   className={`h-full ${
                     isExpired ? "bg-gray-300" : "bg-blue-400"
                   }`}
-                  style={{ width: isExpired ? "100%" : "40%" }} // คำนวณ % จริงได้ถ้าต้องการ
+                  style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
@@ -335,19 +347,15 @@ export default function ProjectManagementPage() {
         align: "center",
         width: 80,
         render: (_, record) => {
-          const count =
-            record.features?.filter((f) => !f.is_deleted).length || 0;
+          const count = getSubProjectCount(record.features);
           return (
             <Tooltip title={`${count} โครงการย่อย`}>
               <div
-                className={`
-              inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold transition-all
-              ${
-                count > 0
-                  ? "bg-indigo-50 text-indigo-600 border border-indigo-100"
-                  : "bg-gray-50 text-gray-400 border border-gray-100"
-              }
-            `}
+                className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                  count > 0
+                    ? "border border-indigo-100"
+                    : " border border-gray-100"
+                }`}
               >
                 {count}
               </div>
@@ -356,19 +364,16 @@ export default function ProjectManagementPage() {
         },
       },
       {
-        title: "สถานะ & ประเภท", // รวม Column เพื่อประหยัดที่
+        title: "สถานะ & ประเภท",
         key: "status_type",
         width: 160,
         render: (_, record) => {
-          const cat =
-            categoryType.find(
-              (c) => String(c.id) === String(record.categoryType)
-            )?.name || record.categoryType;
+          const categoryName = getCategoryName(record.categoryType);
           const isOpen = record.status === "open";
 
           return (
             <div className="flex flex-col gap-2 items-start">
-              {/* Status แบบ Dot Indicator ดู Modern กว่า Tag ก้อนๆ */}
+              {/* Status Badge */}
               <Badge
                 status={isOpen ? "processing" : "default"}
                 text={
@@ -381,8 +386,10 @@ export default function ProjectManagementPage() {
                   </span>
                 }
               />
+
+              {/* Category Tag */}
               <Tag bordered={false} className="m-0 text-[10px] rounded-md px-2">
-                {cat || "Unknown"}
+                {categoryName}
               </Tag>
             </div>
           );
@@ -395,7 +402,6 @@ export default function ProjectManagementPage() {
         width: 140,
         fixed: "right",
         render: (_, record) => {
-          // กำหนดรายการเมนูสำหรับปุ่ม More
           const menuItems: MenuProps["items"] = [
             {
               key: "detail",
@@ -410,27 +416,26 @@ export default function ProjectManagementPage() {
               key: "delete",
               label: "ลบโครงการ",
               icon: <DeleteOutlined />,
-              danger: true, // สีแดงอัตโนมัติ
+              danger: true,
               onClick: () => setModalState({ type: "delete", data: record }),
             },
           ];
 
           return (
             <div className="flex items-center justify-center gap-2">
-              {/* กลุ่มปุ่มจัดการ (Edit + More Menu) */}
-              <div className="flex gap-1 p-1 px-2 rounded-full bg-white border border-gray-200 shadow-sm">
+              {/* Action Buttons Group */}
+              <div className="flex gap-1 p-1 px-2 rounded-full border border-gray-200 shadow-sm">
                 <Tooltip title="แก้ไข">
                   <Button
                     type="text"
                     size="small"
                     shape="circle"
-                    className="text-gray-500 hover:text-orange-500 hover:bg-orange-50"
+                    className=" hover:text-orange-500"
                     icon={<EditOutlined />}
                     onClick={() => openEditModal(record)}
                   />
                 </Tooltip>
 
-                {/* ใช้ Dropdown ตรงนี้ครับ */}
                 <Dropdown
                   menu={{ items: menuItems }}
                   trigger={["click"]}
@@ -441,14 +446,14 @@ export default function ProjectManagementPage() {
                       type="text"
                       size="small"
                       shape="circle"
-                      className="text-gray-400 hover:text-blue-500 hover:bg-blue-50"
+                      className=" hover:text-blue-500"
                       icon={<MoreOutlined />}
                     />
                   </Tooltip>
                 </Dropdown>
               </div>
 
-              {/* ปุ่ม Primary Action แยกออกมา */}
+              {/* Primary Action */}
               <Tooltip title="เข้าสู่โครงการย่อย">
                 <Link href={`/timesheet/project/sub-project/${record.id}`}>
                   <Button
@@ -456,7 +461,7 @@ export default function ProjectManagementPage() {
                     size="small"
                     shape="circle"
                     icon={<ArrowRightOutlined />}
-                    className="bg-blue-500 shadow-md hover:scale-105 transition-transform"
+                    className="shadow-md hover:scale-105 transition-transform"
                   />
                 </Link>
               </Tooltip>
@@ -468,7 +473,14 @@ export default function ProjectManagementPage() {
     [pagination]
   );
 
-  // --- Render ---
+  const handlePaginationChange = (page: number, size: number) => {
+    setPagination({
+      ...pagination,
+      current: page,
+      pageSize: size,
+    });
+  };
+
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
@@ -498,10 +510,10 @@ export default function ProjectManagementPage() {
             </Button>
           </div>
 
-          {/* Table */}
+          {/* Projects Table */}
           <Card className="shadow-sm">
             <Table
-              rowKey="id"
+              rowKey={(r) => r.id}
               columns={columns}
               dataSource={projects}
               loading={loading}
@@ -509,20 +521,13 @@ export default function ProjectManagementPage() {
                 ...pagination,
                 showSizeChanger: true,
                 pageSizeOptions: PAGE_SIZE_OPTIONS,
-                onChange: (page, size) =>
-                  setPagination({
-                    ...pagination,
-                    current: page,
-                    pageSize: size,
-                  }),
+                onChange: handlePaginationChange,
               }}
             />
           </Card>
         </div>
 
-        {/* --- Modals Zone --- */}
-
-        {/* 1. Create / Edit Modal */}
+        {/* Create/Edit Modal */}
         <Modal
           open={modalState.type === "create" || modalState.type === "edit"}
           title={
@@ -552,7 +557,9 @@ export default function ProjectManagementPage() {
                 <Form.Item
                   name="name_en"
                   label="ชื่อโครงการ (EN)"
-                  rules={[{ required: true }]}
+                  rules={[
+                    { required: true, message: "กรุณากรอกชื่อภาษาอังกฤษ" },
+                  ]}
                 >
                   <Input
                     prefix={<InfoCircleOutlined />}
@@ -567,7 +574,7 @@ export default function ProjectManagementPage() {
                 <Form.Item
                   name="categoryType"
                   label="ประเภท"
-                  rules={[{ required: true }]}
+                  rules={[{ required: true, message: "กรุณาเลือกประเภท" }]}
                 >
                   <Select
                     placeholder="เลือกประเภท"
@@ -582,7 +589,7 @@ export default function ProjectManagementPage() {
                 <Form.Item
                   name="status"
                   label="สถานะ"
-                  rules={[{ required: true }]}
+                  rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
                 >
                   <Select
                     options={[
@@ -625,7 +632,7 @@ export default function ProjectManagementPage() {
           </Form>
         </Modal>
 
-        {/* 2. Delete Modal */}
+        {/* Delete Confirmation Modal */}
         <Modal
           title="ยืนยันการลบโครงการ"
           open={modalState.type === "delete"}
@@ -650,7 +657,7 @@ export default function ProjectManagementPage() {
           </div>
         </Modal>
 
-        {/* 3. Detail Modal */}
+        {/* Detail Modal */}
         <Modal
           title="รายละเอียดโครงการ"
           open={modalState.type === "detail"}
