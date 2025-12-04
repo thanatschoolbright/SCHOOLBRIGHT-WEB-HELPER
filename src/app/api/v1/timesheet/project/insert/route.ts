@@ -15,6 +15,9 @@ interface ProjectData {
   categoryType: string;
   by: number;
   status: string;
+  name_en?: string;
+  start_date?: string;
+  end_date?: string;
 }
 
 interface ResponseMessage {
@@ -74,6 +77,7 @@ async function handleProjectUpdate(
 async function handleProjectCreation(
   projectData: Omit<ProjectData, "id">
 ): Promise<NextResponse> {
+  console.info("REQUEST", JSON.stringify(projectData, null, 2));
   //** สร้างโครงการหลัก */
   const newProject = await Service.create({
     name: projectData.name,
@@ -81,6 +85,9 @@ async function handleProjectCreation(
     categoryType: projectData.categoryType,
     createdBy: projectData.by,
     status: projectData.status,
+    name_en: projectData.name_en,
+    start_date: projectData.start_date,
+    end_date: projectData.end_date,
   });
 
   //** สร้างโครงการย่อยเริ่มต้นแบบขนาน */
@@ -124,7 +131,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { data, error } = await validateRequest(request, Schema);
   if (error) return error;
 
-  const { id, name, description, categoryType, by, status }: ProjectData = data;
+  const {
+    id,
+    name,
+    description,
+    categoryType,
+    by,
+    status,
+    name_en,
+    start_date,
+    end_date,
+  }: ProjectData = data;
 
   try {
     //** ตรวจสอบว่าเป็นการอัปเดตหรือสร้างใหม่ */
@@ -135,6 +152,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         categoryType,
         by,
         status,
+        name_en,
+        start_date,
+        end_date,
       });
     } else {
       return await handleProjectCreation({
@@ -143,6 +163,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         categoryType,
         by,
         status,
+        name_en,
+        start_date,
+        end_date,
       });
     }
   } catch (error: any) {

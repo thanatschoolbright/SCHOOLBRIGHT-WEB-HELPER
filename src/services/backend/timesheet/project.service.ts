@@ -35,6 +35,9 @@ export const Service = {
     name: string;
     description: string;
     categoryType: string;
+    name_en?: string;
+    start_date?: string;
+    end_date?: string;
     createdBy?: number;
     status?: string;
   }) {
@@ -43,6 +46,9 @@ export const Service = {
         name: data.name,
         description: data.description,
         categoryType: data.categoryType,
+        name_en: data.name_en,
+        start_date: data.start_date,
+        end_date: data.end_date,
         createdBy: data.createdBy !== undefined ? data.createdBy : 0,
         status: data.status !== undefined ? data.status : "open",
       },

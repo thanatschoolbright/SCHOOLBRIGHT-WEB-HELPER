@@ -30,8 +30,7 @@ export type Feature = $Result.DefaultSelection<Prisma.$FeaturePayload>
 export type TimesheetEntry = $Result.DefaultSelection<Prisma.$TimesheetEntryPayload>
 /**
  * Model ApiLog
- * API Log Table
- * ใช้สำหรับบันทึกข้อมูลการเรียกใช้งาน API พร้อมข้อมูลวิเคราะห์ประสิทธิภาพ
+ * 
  */
 export type ApiLog = $Result.DefaultSelection<Prisma.$ApiLogPayload>
 /**
@@ -1462,6 +1461,9 @@ export namespace Prisma {
     id: number | null
     categoryType: string | null
     name: string | null
+    name_en: string | null
+    start_date: Date | null
+    end_date: Date | null
     createdAt: Date | null
     createdBy: number | null
     updatedAt: Date | null
@@ -1475,6 +1477,9 @@ export namespace Prisma {
     id: number | null
     categoryType: string | null
     name: string | null
+    name_en: string | null
+    start_date: Date | null
+    end_date: Date | null
     createdAt: Date | null
     createdBy: number | null
     updatedAt: Date | null
@@ -1488,6 +1493,9 @@ export namespace Prisma {
     id: number
     categoryType: number
     name: number
+    name_en: number
+    start_date: number
+    end_date: number
     createdAt: number
     createdBy: number
     updatedAt: number
@@ -1515,6 +1523,9 @@ export namespace Prisma {
     id?: true
     categoryType?: true
     name?: true
+    name_en?: true
+    start_date?: true
+    end_date?: true
     createdAt?: true
     createdBy?: true
     updatedAt?: true
@@ -1528,6 +1539,9 @@ export namespace Prisma {
     id?: true
     categoryType?: true
     name?: true
+    name_en?: true
+    start_date?: true
+    end_date?: true
     createdAt?: true
     createdBy?: true
     updatedAt?: true
@@ -1541,6 +1555,9 @@ export namespace Prisma {
     id?: true
     categoryType?: true
     name?: true
+    name_en?: true
+    start_date?: true
+    end_date?: true
     createdAt?: true
     createdBy?: true
     updatedAt?: true
@@ -1641,6 +1658,9 @@ export namespace Prisma {
     id: number
     categoryType: string | null
     name: string
+    name_en: string | null
+    start_date: Date | null
+    end_date: Date | null
     createdAt: Date
     createdBy: number | null
     updatedAt: Date
@@ -1673,6 +1693,9 @@ export namespace Prisma {
     id?: boolean
     categoryType?: boolean
     name?: boolean
+    name_en?: boolean
+    start_date?: boolean
+    end_date?: boolean
     createdAt?: boolean
     createdBy?: boolean
     updatedAt?: boolean
@@ -1689,6 +1712,9 @@ export namespace Prisma {
     id?: boolean
     categoryType?: boolean
     name?: boolean
+    name_en?: boolean
+    start_date?: boolean
+    end_date?: boolean
     createdAt?: boolean
     createdBy?: boolean
     updatedAt?: boolean
@@ -1702,6 +1728,9 @@ export namespace Prisma {
     id?: boolean
     categoryType?: boolean
     name?: boolean
+    name_en?: boolean
+    start_date?: boolean
+    end_date?: boolean
     createdAt?: boolean
     createdBy?: boolean
     updatedAt?: boolean
@@ -1715,6 +1744,9 @@ export namespace Prisma {
     id?: boolean
     categoryType?: boolean
     name?: boolean
+    name_en?: boolean
+    start_date?: boolean
+    end_date?: boolean
     createdAt?: boolean
     createdBy?: boolean
     updatedAt?: boolean
@@ -1724,7 +1756,7 @@ export namespace Prisma {
     status?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "categoryType" | "name" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "description" | "is_deleted" | "status", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "categoryType" | "name" | "name_en" | "start_date" | "end_date" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "description" | "is_deleted" | "status", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     features?: boolean | Project$featuresArgs<ExtArgs>
     timesheets?: boolean | Project$timesheetsArgs<ExtArgs>
@@ -1743,6 +1775,9 @@ export namespace Prisma {
       id: number
       categoryType: string | null
       name: string
+      name_en: string | null
+      start_date: Date | null
+      end_date: Date | null
       createdAt: Date
       createdBy: number | null
       updatedAt: Date
@@ -2178,6 +2213,9 @@ export namespace Prisma {
     readonly id: FieldRef<"Project", 'Int'>
     readonly categoryType: FieldRef<"Project", 'String'>
     readonly name: FieldRef<"Project", 'String'>
+    readonly name_en: FieldRef<"Project", 'String'>
+    readonly start_date: FieldRef<"Project", 'DateTime'>
+    readonly end_date: FieldRef<"Project", 'DateTime'>
     readonly createdAt: FieldRef<"Project", 'DateTime'>
     readonly createdBy: FieldRef<"Project", 'Int'>
     readonly updatedAt: FieldRef<"Project", 'DateTime'>
@@ -2669,6 +2707,7 @@ export namespace Prisma {
     id: number | null
     projectId: number | null
     name: string | null
+    name_en: string | null
     createdAt: Date | null
     createdBy: number | null
     updatedAt: Date | null
@@ -2684,6 +2723,7 @@ export namespace Prisma {
     id: number | null
     projectId: number | null
     name: string | null
+    name_en: string | null
     createdAt: Date | null
     createdBy: number | null
     updatedAt: Date | null
@@ -2699,6 +2739,7 @@ export namespace Prisma {
     id: number
     projectId: number
     name: number
+    name_en: number
     backlogDescription: number
     createdAt: number
     createdBy: number
@@ -2731,6 +2772,7 @@ export namespace Prisma {
     id?: true
     projectId?: true
     name?: true
+    name_en?: true
     createdAt?: true
     createdBy?: true
     updatedAt?: true
@@ -2746,6 +2788,7 @@ export namespace Prisma {
     id?: true
     projectId?: true
     name?: true
+    name_en?: true
     createdAt?: true
     createdBy?: true
     updatedAt?: true
@@ -2761,6 +2804,7 @@ export namespace Prisma {
     id?: true
     projectId?: true
     name?: true
+    name_en?: true
     backlogDescription?: true
     createdAt?: true
     createdBy?: true
@@ -2864,6 +2908,7 @@ export namespace Prisma {
     id: number
     projectId: number
     name: string
+    name_en: string | null
     backlogDescription: JsonValue | null
     createdAt: Date
     createdBy: number | null
@@ -2899,6 +2944,7 @@ export namespace Prisma {
     id?: boolean
     projectId?: boolean
     name?: boolean
+    name_en?: boolean
     backlogDescription?: boolean
     createdAt?: boolean
     createdBy?: boolean
@@ -2918,6 +2964,7 @@ export namespace Prisma {
     id?: boolean
     projectId?: boolean
     name?: boolean
+    name_en?: boolean
     backlogDescription?: boolean
     createdAt?: boolean
     createdBy?: boolean
@@ -2935,6 +2982,7 @@ export namespace Prisma {
     id?: boolean
     projectId?: boolean
     name?: boolean
+    name_en?: boolean
     backlogDescription?: boolean
     createdAt?: boolean
     createdBy?: boolean
@@ -2952,6 +3000,7 @@ export namespace Prisma {
     id?: boolean
     projectId?: boolean
     name?: boolean
+    name_en?: boolean
     backlogDescription?: boolean
     createdAt?: boolean
     createdBy?: boolean
@@ -2964,7 +3013,7 @@ export namespace Prisma {
     status?: boolean
   }
 
-  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "backlogDescription" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "is_deleted" | "startDate" | "endDate" | "assetCaptureType" | "status", ExtArgs["result"]["feature"]>
+  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "name_en" | "backlogDescription" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "is_deleted" | "startDate" | "endDate" | "assetCaptureType" | "status", ExtArgs["result"]["feature"]>
   export type FeatureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     timesheets?: boolean | Feature$timesheetsArgs<ExtArgs>
@@ -2987,6 +3036,7 @@ export namespace Prisma {
       id: number
       projectId: number
       name: string
+      name_en: string | null
       backlogDescription: Prisma.JsonValue | null
       createdAt: Date
       createdBy: number | null
@@ -3425,6 +3475,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Feature", 'Int'>
     readonly projectId: FieldRef<"Feature", 'Int'>
     readonly name: FieldRef<"Feature", 'String'>
+    readonly name_en: FieldRef<"Feature", 'String'>
     readonly backlogDescription: FieldRef<"Feature", 'Json'>
     readonly createdAt: FieldRef<"Feature", 'DateTime'>
     readonly createdBy: FieldRef<"Feature", 'Int'>
@@ -8591,6 +8642,9 @@ export namespace Prisma {
     id: 'id',
     categoryType: 'categoryType',
     name: 'name',
+    name_en: 'name_en',
+    start_date: 'start_date',
+    end_date: 'end_date',
     createdAt: 'createdAt',
     createdBy: 'createdBy',
     updatedAt: 'updatedAt',
@@ -8607,6 +8661,7 @@ export namespace Prisma {
     id: 'id',
     projectId: 'projectId',
     name: 'name',
+    name_en: 'name_en',
     backlogDescription: 'backlogDescription',
     createdAt: 'createdAt',
     createdBy: 'createdBy',
@@ -8868,6 +8923,9 @@ export namespace Prisma {
     id?: IntFilter<"Project"> | number
     categoryType?: StringNullableFilter<"Project"> | string | null
     name?: StringFilter<"Project"> | string
+    name_en?: StringNullableFilter<"Project"> | string | null
+    start_date?: DateTimeNullableFilter<"Project"> | Date | string | null
+    end_date?: DateTimeNullableFilter<"Project"> | Date | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     createdBy?: IntNullableFilter<"Project"> | number | null
     updatedAt?: DateTimeFilter<"Project"> | Date | string
@@ -8883,6 +8941,9 @@ export namespace Prisma {
     id?: SortOrder
     categoryType?: SortOrderInput | SortOrder
     name?: SortOrder
+    name_en?: SortOrderInput | SortOrder
+    start_date?: SortOrderInput | SortOrder
+    end_date?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
     updatedAt?: SortOrder
@@ -8901,6 +8962,9 @@ export namespace Prisma {
     NOT?: ProjectWhereInput | ProjectWhereInput[]
     categoryType?: StringNullableFilter<"Project"> | string | null
     name?: StringFilter<"Project"> | string
+    name_en?: StringNullableFilter<"Project"> | string | null
+    start_date?: DateTimeNullableFilter<"Project"> | Date | string | null
+    end_date?: DateTimeNullableFilter<"Project"> | Date | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     createdBy?: IntNullableFilter<"Project"> | number | null
     updatedAt?: DateTimeFilter<"Project"> | Date | string
@@ -8916,6 +8980,9 @@ export namespace Prisma {
     id?: SortOrder
     categoryType?: SortOrderInput | SortOrder
     name?: SortOrder
+    name_en?: SortOrderInput | SortOrder
+    start_date?: SortOrderInput | SortOrder
+    end_date?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
     updatedAt?: SortOrder
@@ -8937,6 +9004,9 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Project"> | number
     categoryType?: StringNullableWithAggregatesFilter<"Project"> | string | null
     name?: StringWithAggregatesFilter<"Project"> | string
+    name_en?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    start_date?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
+    end_date?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
     createdBy?: IntNullableWithAggregatesFilter<"Project"> | number | null
     updatedAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
@@ -8953,6 +9023,7 @@ export namespace Prisma {
     id?: IntFilter<"Feature"> | number
     projectId?: IntFilter<"Feature"> | number
     name?: StringFilter<"Feature"> | string
+    name_en?: StringNullableFilter<"Feature"> | string | null
     backlogDescription?: JsonNullableFilter<"Feature">
     createdAt?: DateTimeFilter<"Feature"> | Date | string
     createdBy?: IntNullableFilter<"Feature"> | number | null
@@ -8971,6 +9042,7 @@ export namespace Prisma {
     id?: SortOrder
     projectId?: SortOrder
     name?: SortOrder
+    name_en?: SortOrderInput | SortOrder
     backlogDescription?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
@@ -8992,6 +9064,7 @@ export namespace Prisma {
     NOT?: FeatureWhereInput | FeatureWhereInput[]
     projectId?: IntFilter<"Feature"> | number
     name?: StringFilter<"Feature"> | string
+    name_en?: StringNullableFilter<"Feature"> | string | null
     backlogDescription?: JsonNullableFilter<"Feature">
     createdAt?: DateTimeFilter<"Feature"> | Date | string
     createdBy?: IntNullableFilter<"Feature"> | number | null
@@ -9010,6 +9083,7 @@ export namespace Prisma {
     id?: SortOrder
     projectId?: SortOrder
     name?: SortOrder
+    name_en?: SortOrderInput | SortOrder
     backlogDescription?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrderInput | SortOrder
@@ -9034,6 +9108,7 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Feature"> | number
     projectId?: IntWithAggregatesFilter<"Feature"> | number
     name?: StringWithAggregatesFilter<"Feature"> | string
+    name_en?: StringNullableWithAggregatesFilter<"Feature"> | string | null
     backlogDescription?: JsonNullableWithAggregatesFilter<"Feature">
     createdAt?: DateTimeWithAggregatesFilter<"Feature"> | Date | string
     createdBy?: IntNullableWithAggregatesFilter<"Feature"> | number | null
@@ -9412,6 +9487,9 @@ export namespace Prisma {
   export type ProjectCreateInput = {
     categoryType?: string | null
     name: string
+    name_en?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
     createdAt?: Date | string
     createdBy?: number | null
     updatedAt?: Date | string
@@ -9427,6 +9505,9 @@ export namespace Prisma {
     id?: number
     categoryType?: string | null
     name: string
+    name_en?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
     createdAt?: Date | string
     createdBy?: number | null
     updatedAt?: Date | string
@@ -9441,6 +9522,9 @@ export namespace Prisma {
   export type ProjectUpdateInput = {
     categoryType?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9456,6 +9540,9 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     categoryType?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9471,6 +9558,9 @@ export namespace Prisma {
     id?: number
     categoryType?: string | null
     name: string
+    name_en?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
     createdAt?: Date | string
     createdBy?: number | null
     updatedAt?: Date | string
@@ -9483,6 +9573,9 @@ export namespace Prisma {
   export type ProjectUpdateManyMutationInput = {
     categoryType?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9496,6 +9589,9 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     categoryType?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9507,6 +9603,7 @@ export namespace Prisma {
 
   export type FeatureCreateInput = {
     name: string
+    name_en?: string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     createdBy?: number | null
@@ -9525,6 +9622,7 @@ export namespace Prisma {
     id?: number
     projectId: number
     name: string
+    name_en?: string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     createdBy?: number | null
@@ -9540,6 +9638,7 @@ export namespace Prisma {
 
   export type FeatureUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -9558,6 +9657,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -9575,6 +9675,7 @@ export namespace Prisma {
     id?: number
     projectId: number
     name: string
+    name_en?: string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     createdBy?: number | null
@@ -9589,6 +9690,7 @@ export namespace Prisma {
 
   export type FeatureUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -9605,6 +9707,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -10063,6 +10166,17 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -10119,6 +10233,9 @@ export namespace Prisma {
     id?: SortOrder
     categoryType?: SortOrder
     name?: SortOrder
+    name_en?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrder
     updatedAt?: SortOrder
@@ -10138,6 +10255,9 @@ export namespace Prisma {
     id?: SortOrder
     categoryType?: SortOrder
     name?: SortOrder
+    name_en?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrder
     updatedAt?: SortOrder
@@ -10151,6 +10271,9 @@ export namespace Prisma {
     id?: SortOrder
     categoryType?: SortOrder
     name?: SortOrder
+    name_en?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrder
     updatedAt?: SortOrder
@@ -10218,6 +10341,20 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -10279,17 +10416,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type EnumProjectAssetCaptureTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
     in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
@@ -10306,6 +10432,7 @@ export namespace Prisma {
     id?: SortOrder
     projectId?: SortOrder
     name?: SortOrder
+    name_en?: SortOrder
     backlogDescription?: SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrder
@@ -10329,6 +10456,7 @@ export namespace Prisma {
     id?: SortOrder
     projectId?: SortOrder
     name?: SortOrder
+    name_en?: SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrder
     updatedAt?: SortOrder
@@ -10344,6 +10472,7 @@ export namespace Prisma {
     id?: SortOrder
     projectId?: SortOrder
     name?: SortOrder
+    name_en?: SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrder
     updatedAt?: SortOrder
@@ -10386,20 +10515,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type EnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -10743,6 +10858,10 @@ export namespace Prisma {
     set?: string
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -10841,10 +10960,6 @@ export namespace Prisma {
     connectOrCreate?: TimesheetEntryCreateOrConnectWithoutFeatureInput | TimesheetEntryCreateOrConnectWithoutFeatureInput[]
     createMany?: TimesheetEntryCreateManyFeatureInputEnvelope
     connect?: TimesheetEntryWhereUniqueInput | TimesheetEntryWhereUniqueInput[]
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type EnumProjectAssetCaptureTypeFieldUpdateOperationsInput = {
@@ -11026,6 +11141,17 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -11114,6 +11240,20 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -11163,17 +11303,6 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
     in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
@@ -11202,20 +11331,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -11284,6 +11399,7 @@ export namespace Prisma {
 
   export type FeatureCreateWithoutProjectInput = {
     name: string
+    name_en?: string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     createdBy?: number | null
@@ -11300,6 +11416,7 @@ export namespace Prisma {
   export type FeatureUncheckedCreateWithoutProjectInput = {
     id?: number
     name: string
+    name_en?: string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     createdBy?: number | null
@@ -11383,6 +11500,7 @@ export namespace Prisma {
     id?: IntFilter<"Feature"> | number
     projectId?: IntFilter<"Feature"> | number
     name?: StringFilter<"Feature"> | string
+    name_en?: StringNullableFilter<"Feature"> | string | null
     backlogDescription?: JsonNullableFilter<"Feature">
     createdAt?: DateTimeFilter<"Feature"> | Date | string
     createdBy?: IntNullableFilter<"Feature"> | number | null
@@ -11432,6 +11550,9 @@ export namespace Prisma {
   export type ProjectCreateWithoutFeaturesInput = {
     categoryType?: string | null
     name: string
+    name_en?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
     createdAt?: Date | string
     createdBy?: number | null
     updatedAt?: Date | string
@@ -11446,6 +11567,9 @@ export namespace Prisma {
     id?: number
     categoryType?: string | null
     name: string
+    name_en?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
     createdAt?: Date | string
     createdBy?: number | null
     updatedAt?: Date | string
@@ -11512,6 +11636,9 @@ export namespace Prisma {
   export type ProjectUpdateWithoutFeaturesInput = {
     categoryType?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11526,6 +11653,9 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     categoryType?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11554,6 +11684,7 @@ export namespace Prisma {
 
   export type FeatureCreateWithoutTimesheetsInput = {
     name: string
+    name_en?: string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     createdBy?: number | null
@@ -11571,6 +11702,7 @@ export namespace Prisma {
     id?: number
     projectId: number
     name: string
+    name_en?: string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     createdBy?: number | null
@@ -11591,6 +11723,9 @@ export namespace Prisma {
   export type ProjectCreateWithoutTimesheetsInput = {
     categoryType?: string | null
     name: string
+    name_en?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
     createdAt?: Date | string
     createdBy?: number | null
     updatedAt?: Date | string
@@ -11605,6 +11740,9 @@ export namespace Prisma {
     id?: number
     categoryType?: string | null
     name: string
+    name_en?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
     createdAt?: Date | string
     createdBy?: number | null
     updatedAt?: Date | string
@@ -11633,6 +11771,7 @@ export namespace Prisma {
 
   export type FeatureUpdateWithoutTimesheetsInput = {
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -11650,6 +11789,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -11676,6 +11816,9 @@ export namespace Prisma {
   export type ProjectUpdateWithoutTimesheetsInput = {
     categoryType?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11690,6 +11833,9 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     categoryType?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11818,6 +11964,7 @@ export namespace Prisma {
   export type FeatureCreateManyProjectInput = {
     id?: number
     name: string
+    name_en?: string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     createdBy?: number | null
@@ -11846,6 +11993,7 @@ export namespace Prisma {
 
   export type FeatureUpdateWithoutProjectInput = {
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -11862,6 +12010,7 @@ export namespace Prisma {
   export type FeatureUncheckedUpdateWithoutProjectInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -11878,6 +12027,7 @@ export namespace Prisma {
   export type FeatureUncheckedUpdateManyWithoutProjectInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null

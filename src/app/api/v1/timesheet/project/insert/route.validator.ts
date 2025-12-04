@@ -7,4 +7,7 @@ export const Schema = z.object({
   by: z.number().min(1),
   categoryType: z.string(),
   status: z.string(),
+  name_en: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
 });
