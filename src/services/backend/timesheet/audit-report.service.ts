@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { logger } from "@/helpers/logger";
 import { API_URL } from "@/services/api-url";
 import axios from "axios";
+import { formatFullProjectCode } from "@/helpers/project/convert-code.helper";
 
 const prisma = new TimesheetPrismaClient();
 
@@ -164,9 +165,16 @@ export const TimesheetAuditReportService = {
       );
 
       sortedFeatures.forEach((feature) => {
-        const code = `${feature.projectId}-${feature.featureId}`;
-        const projectNameWithId = `${feature.projectName} (${feature.projectId})`;
-        const featureNameWithId = `${feature.featureName} (${feature.featureId})`;
+        const code = formatFullProjectCode(
+          feature.projectId,
+          feature.featureId
+        );
+        const projectNameWithId = `${
+          feature.projectName
+        } (${formatFullProjectCode(feature.projectId)})`;
+        const featureNameWithId = `${
+          feature.featureName
+        } (${formatFullProjectCode(feature.projectId, feature.featureId)})`;
         const assetTypeLabel =
           feature.assetCaptureType === "CAPTUREABLE"
             ? "CAPTUREABLE"
@@ -270,8 +278,12 @@ export const TimesheetAuditReportService = {
 
       // ===== Evidence Sheets: One per Feature =====
       sortedFeatures.forEach((feature) => {
-        const idPart = ` (${feature.projectId}-${feature.featureId})`;
-        // Excel sheet name limit is 31 chars
+        const formattedCode = formatFullProjectCode(
+          feature.projectId,
+          feature.featureId
+        );
+        const safeFormattedCode = formattedCode.replace(/\//g, "-");
+        const idPart = ` (${safeFormattedCode})`;
         const maxNameLength = 31 - idPart.length;
 
         const safeProjectName = (feature.projectName || "").replace(
@@ -332,9 +344,7 @@ export const TimesheetAuditReportService = {
           feature.assetCaptureType === "CAPTUREABLE"
             ? "CAPTUREABLE"
             : "UN_CAPTUREABLE";
-        subtitleCell.value = `รหัส: ${feature.projectId}-${
-          feature.featureId
-        } | ประเภทสินทรัพย์: ${assetTypeLabel} | รวม: ${feature.hours.toFixed(
+        subtitleCell.value = `รหัส: ${formattedCode} | ประเภทสินทรัพย์: ${assetTypeLabel} | รวม: ${feature.hours.toFixed(
           2
         )} ชั่วโมง`;
         subtitleCell.font = {
