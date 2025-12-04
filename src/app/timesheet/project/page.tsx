@@ -133,10 +133,14 @@ export default function ProjectManagementPage() {
     setActionLoading(true);
     try {
       const payload = {
-        ...values,
+        name: values.name || "",
+        name_en: values.name_en || "",
+        description: values.description || "",
+        categoryType: values.categoryType || "",
+        status: values.status || "",
         by: adminId,
-        start_date: values.start_date?.toISOString(),
-        end_date: values.end_date?.toISOString(),
+        start_date: values.start_date?.toISOString() || "",
+        end_date: values.end_date?.toISOString() || "",
       };
 
       if (modalState.data?.id) {
@@ -488,6 +492,7 @@ export default function ProjectManagementPage() {
           title="Projects Management"
           subTitle="จัดการข้อมูลโครงการ"
           icon={<ProjectOutlined />}
+          color="none"
         />
 
         <div className="flex flex-col gap-4 w-full">
