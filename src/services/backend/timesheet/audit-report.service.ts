@@ -8,6 +8,12 @@ import { formatFullProjectCode } from "@/helpers/project/convert-code.helper";
 
 const prisma = new TimesheetPrismaClient();
 
+const getAssetTypeLabel = (assetType: string): string => {
+  return assetType === "CAPTUREABLE"
+    ? "สามารถแคปทรัพย์สินได้"
+    : "ไม่สามารถแคปทรัพย์สินได้";
+};
+
 export const TimesheetAuditReportService = {
   generateAuditReport: async (params: {
     start_date: string;
@@ -175,10 +181,7 @@ export const TimesheetAuditReportService = {
         const featureNameWithId = `${
           feature.featureName
         } (${formatFullProjectCode(feature.projectId, feature.featureId)})`;
-        const assetTypeLabel =
-          feature.assetCaptureType === "CAPTUREABLE"
-            ? "CAPTUREABLE"
-            : "UN_CAPTUREABLE";
+        const assetTypeLabel = getAssetTypeLabel(feature.assetCaptureType);
         const percentage =
           totalHours > 0
             ? ((feature.hours / totalHours) * 100).toFixed(2) + "%"
@@ -340,10 +343,7 @@ export const TimesheetAuditReportService = {
         // Subtitle with code and asset type
         evidenceSheet.mergeCells("A2:G2");
         const subtitleCell = evidenceSheet.getCell("A2");
-        const assetTypeLabel =
-          feature.assetCaptureType === "CAPTUREABLE"
-            ? "CAPTUREABLE"
-            : "UN_CAPTUREABLE";
+        const assetTypeLabel = getAssetTypeLabel(feature.assetCaptureType);
         subtitleCell.value = `รหัส: ${formattedCode} | ประเภทสินทรัพย์: ${assetTypeLabel} | รวม: ${feature.hours.toFixed(
           2
         )} ชั่วโมง`;
