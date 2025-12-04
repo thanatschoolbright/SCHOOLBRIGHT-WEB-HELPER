@@ -382,6 +382,7 @@ export default function SubProjectPage() {
       title: "ฟีเจอร์ / Feature",
       dataIndex: "name",
       key: "name",
+      width: 300,
       render: (text: string, record: SubProject) => (
         <Space align="start">
           <Avatar
@@ -623,7 +624,7 @@ export default function SubProjectPage() {
         </Row>
 
         {/* Action Toolbar */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+        <div className="flex justify-between items-center p-4 rounded-lg shadow-sm ">
           <Space>
             <Text strong style={{ fontSize: 16 }}>
               รายการฟีเจอร์ ({stats.total})

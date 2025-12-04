@@ -6,7 +6,8 @@ import { API_URL } from "@services/api-url";
 import { HeartbeatResponse } from "@api/v1/health-check/server/heartbeats/route";
 import { logger } from "@/helpers/logger";
 
-const WEBHOOK_DISCORD = process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_HEARTBEAT_BOT ?? ""; 
+const WEBHOOK_DISCORD =
+  process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_HEARTBEAT_BOT ?? "";
 
 const DISCORD_ALERT_USER = "<@692372441699319900>";
 
@@ -110,64 +111,108 @@ function buildHeartbeatEmbeds(items: HeartbeatResponse[]) {
 /**
  * สร้าง embeds จาก summary object เพื่อให้โค้ดอ่านง่ายและแยกความรับผิดชอบ
  */
+/**
+ * สร้าง embeds จาก summary object เพื่อให้โค้ดอ่านง่ายและแยกความรับผิดชอบ
+ */
 function buildEmbedsFromSummary(s: ReturnType<typeof summarize>) {
   const pct =
     s.activeTotal === 0
       ? 100
       : Math.round((s.onlineActive / s.activeTotal) * 100);
 
-  const summaryFields: any[] = [
-    { name: "รวมงานทั้งหมด", value: String(s.total), inline: true },
-    { name: "ออนไลน์", value: String(s.onlineActive), inline: true },
-    { name: "ออฟไลน์", value: String(s.offlineItems.length), inline: true },
-    { name: "สถานะสุขภาพ", value: makeProgress(pct), inline: true },
-    {
-      name: "ยกเลิกการใช้งาน",
-      value: String(s.deprecatedCount || 0),
-      inline: true,
-    },
-  ];
+  // Determine status color and mood
+  let color = 0x2ecc71; // Green (Excellent)
+  let moodIcon = "🟢";
+  let moodTitle = "All Systems Operational";
+  let moodImage =
+    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56L2dpZg/3o7abKhOpu0NwenH3O/giphy.gif"; // Happy robot/system
 
-  const color = s.offlineItems.length > 0 ? 0xff4d4f : 0x2ecc71; // red : green
+  if (s.offlineItems.length > 0) {
+    color = 0xff4d4f; // Red (Critical)
+    moodIcon = "🔴";
+    moodTitle = "System Critical Alert";
+    moodImage =
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56L2dpZg/13d2jHlSlFQyo0/giphy.gif"; // Alarm/Panic
+  } else if (pct < 100) {
+    color = 0xfaad14; // Orange (Warning)
+    moodIcon = "jq";
+    moodTitle = "System Degraded";
+  }
 
   const summaryEmbed = {
-    title: "สรุปสถานะ Heartbeat",
-    description: `ตรวจเช็คสถานะระบบล่าสุด \n ${new Date().toLocaleString()}`,
+    title: `${moodIcon} **${moodTitle}**`,
+    description: `> *รายงานสถานะระบบประจำวัน* \n> 📅 **${dayjs().format(
+      "DD MMMM YYYY"
+    )}** | 🕒 **${dayjs().format("HH:mm")}**`,
     color,
-    fields: summaryFields,
+    thumbnail: {
+      url: "https://static.schoolbright.io/logo.png",
+    },
+    image: {
+      url:
+        s.offlineItems.length > 0
+          ? "https://media1.tenor.com/m/0z9x9X5X5XAAAAAC/error.gif"
+          : "https://media1.tenor.com/m/9X5X5X5X5XAAAAAC/check.gif", // Placeholder for dynamic image based on status if needed, or keep simple
+    },
+    fields: [
+      {
+        name: "🤖 **Total Bots**",
+        value: `\`${s.total}\` Jobs`,
+        inline: true,
+      },
+      {
+        name: "✅ **Online**",
+        value: `\`${s.onlineActive}\` Active`,
+        inline: true,
+      },
+      {
+        name: "💀 **Offline**",
+        value: `\`${s.offlineItems.length}\` Issues`,
+        inline: true,
+      },
+      {
+        name: "📊 **System Health**",
+        value: `${makeProgress(pct)}`,
+        inline: false,
+      },
+      {
+        name: "🗑️ **Deprecated**",
+        value: `\`${s.deprecatedCount}\` Jobs`,
+        inline: true,
+      },
+    ],
     footer: {
-      text: "SB Health Check",
+      text: "🚀 SchoolBright Bot Monitor | Powered by SB-Helper",
       icon_url: "https://static.schoolbright.io/logo.png",
     },
     timestamp: new Date().toISOString(),
   };
 
-  const offlinePreviewDecorated = s.offlineItems
-    .slice(0, 10)
-    .map((i) => {
-      const name = s.deprecatedNames.has(i.JobName)
-        ? `${i.JobName} (ยกเลิกการใช้งานแล้ว)`
-        : i.JobName;
-      return `**${name}** — ${translateStatus(
-        i.Status
-      )}\n> _อัพเดต: ${formatDate(i.LastUpdatedTime)}_`;
-    })
-    .join("\n");
+  const embeds: any[] = [summaryEmbed];
 
-  const offlineEmbed = {
-    title: `รายการออฟไลน์ / ปัญหา (${s.offlineItems.length})`,
-    description: offlinePreviewDecorated || "ระบบปกติ — ไม่มีงานออฟไลน์",
-    color,
-    fields: [
-      {
-        name: "แสดง (สูงสุด 10)",
-        value: s.offlineItems.length > 0 ? "ดูรายการด้านล่าง" : "—",
+  if (s.offlineItems.length > 0) {
+    const offlineList = s.offlineItems
+      .slice(0, 15) // Show a bit more
+      .map((i) => {
+        const name = s.deprecatedNames.has(i.JobName)
+          ? `~~${i.JobName}~~ (Deprecated)`
+          : `**${i.JobName}**`;
+        return `❌ ${name}\n└ 🕒 Last seen: ${formatDate(i.LastUpdatedTime)}`;
+      })
+      .join("\n\n");
+
+    const offlineEmbed = {
+      title: `🚨 **Offline Services Detected** (${s.offlineItems.length})`,
+      description: offlineList || "No active offline services.",
+      color: 0xff4d4f,
+      footer: {
+        text: "Please investigate immediately.",
       },
-    ],
-    timestamp: new Date().toISOString(),
-  };
+    };
+    embeds.push(offlineEmbed);
+  }
 
-  return [summaryEmbed, offlineEmbed];
+  return embeds;
 }
 
 /**

@@ -1,9 +1,13 @@
 {
+<<<<<<< HEAD
 <<<<<<< Updated upstream
   "name": "prisma-client-dfb15820286d1b649307294d9b703ac782120e571e6204baffd1476da7f4b7a0",
 =======
   "name": "prisma-client-aa46aca4c5e7c30cc24e3eece656f9919f80a1277ac81c7d082e135d86fd28c5",
 >>>>>>> Stashed changes
+=======
+  "name": "prisma-client-1200383c9d7f089f9f4c7a1281ace824c2eb0a7ae96103bb65d834652c362962",
+>>>>>>> release/production
   "main": "index.js",
   "types": "index.d.ts",
   "browser": "default.js",

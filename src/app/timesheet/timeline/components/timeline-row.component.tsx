@@ -6,12 +6,38 @@ import {
   ProjectOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import {
-  TimelineProject,
-  TimelineFeature,
-  PopupInfo,
-} from "../types/timeline.types";
-import { SIDEBAR_WIDTH, getBarPosition } from "../utils/timeline.helpers";
+// Fallback local types because the module "../types/timeline.types" does not export these names.
+// Replace `any` with concrete types if you add or find the correct type definitions later.
+type TimelineProject = any;
+type TimelineFeature = any;
+type PopupInfo = {
+  x: number;
+  y: number;
+  project: any | null;
+};
+// SIDEBAR_WIDTH was not exported from ../utils/timeline.helpers; provide a local fallback.
+const SIDEBAR_WIDTH = 240;
+
+function getBarPosition(
+  startDate: any,
+  endDate: any,
+  viewStartDate: any,
+  pixelsPerDay: number
+) {
+  const s = dayjs(startDate);
+  const e = dayjs(endDate);
+  const vs = dayjs(viewStartDate);
+
+  // number of days from the view start to the bar start
+  const offsetDays = s.diff(vs, "day");
+  const left = Math.max(0, offsetDays * pixelsPerDay);
+
+  // width in pixels (inclusive of start and end day)
+  const durationDays = Math.max(0, e.diff(s, "day") + 1);
+  const width = Math.max(4, durationDays * pixelsPerDay);
+
+  return { left, width };
+}
 
 interface TimelineRowProps {
   project: TimelineProject;

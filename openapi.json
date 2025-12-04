@@ -1,0 +1,74 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SchoolBright Web Helper API",
+    "version": "1.0.0",
+    "description": "API documentation for SchoolBright Web Helper application",
+    "contact": {
+      "name": "API Support",
+      "email": "support@schoolbright.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.schoolbright.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/api/docs": {
+      "get": {
+        "summary": "Get OpenAPI Specification",
+        "description": "Returns the OpenAPI specification document",
+        "tags": ["Documentation"],
+        "responses": {
+          "200": {
+            "description": "OpenAPI specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "code": {
+            "type": "string",
+            "description": "Error code"
+          }
+        },
+        "required": ["message"]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Documentation",
+      "description": "API documentation endpoints"
+    }
+  ]
+}

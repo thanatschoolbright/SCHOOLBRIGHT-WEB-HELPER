@@ -207,6 +207,8 @@ exports.Prisma.OvertimeDescriptionScalarFieldEnum = {
   id: 'id',
   overtimeId: 'overtimeId',
   date: 'date',
+  startDate: 'startDate',
+  endDate: 'endDate',
   duration: 'duration',
   description: 'description',
   assignee: 'assignee'

@@ -1,7 +1,13 @@
 import React from "react";
 import { Row, Col, Card, Statistic, theme } from "antd";
 import { useTranslation } from "react-i18next";
-import { TimelineStats } from "../types/timeline.types";
+
+type TimelineStats = {
+  total: number;
+  active: number;
+  upcoming: number;
+  ended: number;
+};
 
 interface StatsCardsProps {
   stats: TimelineStats;

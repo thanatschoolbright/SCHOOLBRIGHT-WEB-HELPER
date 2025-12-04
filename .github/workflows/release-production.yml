@@ -186,28 +186,15 @@ jobs:
           set -e
           echo "🔧 Preparing deployment directory..."
 
-          # Create backup of current deployment
-          if [ -d "${{ env.DEPLOY_PATH }}" ]; then
-            BACKUP_DIR="${{ env.DEPLOY_PATH }}.backup.$(date +%Y%m%d_%H%M%S)"
-            echo "💾 Creating backup: ${BACKUP_DIR}"
-            sudo cp -r "${{ env.DEPLOY_PATH }}" "${BACKUP_DIR}"
-            
-            # Keep only last 3 backups
-            ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | tail -n +4 | xargs sudo rm -rf 2>/dev/null || true
-          fi
-
           # Prepare deployment directory
           sudo mkdir -p "${{ env.DEPLOY_PATH }}"
           cd "${{ env.DEPLOY_PATH }}"
 
-          # Backup environment file
-          if [ -f ".env" ]; then
-            sudo cp .env .env.backup
-            echo "✅ Environment file backed up"
-          fi
+          # Clean old files (BUT KEEP .env)
+          # Note: We removed the folder backup logic to save space.
+          echo "🧹 Cleaning old files (preserving .env)..."
+          sudo find . -mindepth 1 ! -name '.env' -delete
 
-          # Clean old files (except .env)
-          sudo find . -mindepth 1 ! -name '.env*' -delete
           echo "✅ Deployment directory prepared"
 
       - name: Copy Build Files
@@ -241,12 +228,6 @@ jobs:
         run: |
           set -e
           cd "${{ env.DEPLOY_PATH }}"
-
-          # Restore environment file
-          if [ -f ".env.backup" ]; then
-            sudo mv .env.backup .env
-            echo "✅ Environment file restored"
-          fi
 
           echo "📦 Installing production dependencies (omitting devDependencies)..."
           # Use --omit=dev (preferred) instead of the deprecated --production flag.
@@ -296,7 +277,7 @@ jobs:
           echo "✅ Deployment completed successfully!"
 
   # ============================================
-  # Post-deployment Verification_
+  # Post-deployment Verification
   # ============================================
   verify:
     name: ✅ Post-deployment Verification
@@ -338,60 +319,4 @@ jobs:
           echo "📍 Reference: ${{ needs.pre_flight_checks.outputs.deployment_ref }}"
           echo "🔖 Commit: ${{ needs.pre_flight_checks.outputs.deployment_sha }}"
           echo "🕐 Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-          echo "============================================"
-
-  # ============================================
-  # Rollback on Failure
-  # ============================================
-  rollback:
-    name: 🔄 Rollback Deployment
-    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
-    timeout-minutes: 10
-    needs: [deploy, verify]
-    environment:
-      name: production
-    if: failure()
-
-    steps:
-      - name: Restore Previous Version
-        run: |
-          set -e
-          echo "🔄 Initiating rollback..."
-
-          # Find most recent backup
-          LATEST_BACKUP=$(ls -dt ${{ env.DEPLOY_PATH }}.backup.* 2>/dev/null | head -n1)
-
-          if [ -z "$LATEST_BACKUP" ]; then
-            echo "❌ No backup found for rollback!"
-            exit 1
-          fi
-
-          echo "📦 Restoring from: ${LATEST_BACKUP}"
-
-          # Backup failed deployment for investigation
-          if [ -d "${{ env.DEPLOY_PATH }}" ]; then
-            sudo mv "${{ env.DEPLOY_PATH }}" "${{ env.DEPLOY_PATH }}.failed.$(date +%Y%m%d_%H%M%S)"
-          fi
-
-          # Restore backup
-          sudo mv "${LATEST_BACKUP}" "${{ env.DEPLOY_PATH }}"
-
-          # Restart service
-          sudo systemctl restart sb-web-helper.service
-          sleep 5
-
-          if sudo systemctl is-active --quiet sb-web-helper.service; then
-            echo "✅ Rollback completed successfully"
-          else
-            echo "❌ Rollback failed - manual intervention required!"
-            exit 1
-          fi
-
-      - name: Notify Rollback
-        run: |
-          echo "============================================"
-          echo "⚠️ DEPLOYMENT ROLLED BACK"
-          echo "============================================"
-          echo "Previous version has been restored"
-          echo "Please investigate the deployment failure"
           echo "============================================"

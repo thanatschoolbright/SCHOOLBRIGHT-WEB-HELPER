@@ -1,39 +1,43 @@
-export interface TimelineFeature {
-  id: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  assetCaptureType: string;
-}
-
 export interface TimelineProject {
-  id: number;
+  
+}
+
+export interface TimelineItem {
+  id: string;
+  realId: number;
+  type: "project" | "sub-project";
   name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  categoryType: string;
-  features: TimelineFeature[];
+  start: string | null;
+  end: string | null;
+  status: string;
+  progress?: number;
+  children?: TimelineItem[];
+  projectId?: number;
+  description?: string;
+  categoryType?: number;
+  assetCaptureType?: string;
 }
 
-export interface PopupInfo {
-  x: number;
-  y: number;
-  project: TimelineProject | null;
+export interface TimelineMetrics {
+  totalProjects: number;
+  totalSubProjects: number;
+  overdue: number;
+  completed: number;
+  inProgress: number;
 }
 
-export interface TimelineStats {
-  total: number;
-  active: number;
-  upcoming: number;
-  ended: number;
+export interface TimelineFilters {
+  status: string;
+  keyword: string;
+  viewType: "all" | "project";
+  dateRange: [any, any] | null;
+  zoomLevel: "day" | "week" | "month";
 }
 
-export interface TimelineRange {
-  startDate: any;
-  endDate: any;
-  totalDays: number;
-  months: any[];
+export interface ModalState {
+  open: boolean;
+  mode: "create" | "edit";
+  type: "project" | "sub-project";
+  initialValues?: any;
+  parentId?: number;
 }
-
-export type ViewMode = "month" | "quarter";

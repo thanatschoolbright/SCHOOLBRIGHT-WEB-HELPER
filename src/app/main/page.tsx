@@ -11,6 +11,11 @@ const { Title, Text } = Typography;
 
 export default function Page() {
   const router = useRouter();
+
+  useEffect(() => {
+    router.push("/support/bypass");
+  }, [router]);
+
   const { i18n } = useTranslation();
   const menuItems = useSidebarMenu();
 
@@ -671,7 +676,8 @@ export default function Page() {
                       tabIndex={0}
                       onClick={() => handleSubMenuClick(child)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") handleSubMenuClick(child);
+                        if (e.key === "Enter" || e.key === " ")
+                          handleSubMenuClick(child);
                       }}
                       style={{
                         position: "relative",
@@ -679,10 +685,16 @@ export default function Page() {
                         transition: "all 0.2s ease",
                         background: "transparent",
                         display: "flex",
-                        padding: isMobile ? "8px 12px" : screenSize === "desktop" ? "20px" : screenSize === "tablet" ? "16px" : "12px",
-                        
+                        padding: isMobile
+                          ? "8px 12px"
+                          : screenSize === "desktop"
+                          ? "20px"
+                          : screenSize === "tablet"
+                          ? "16px"
+                          : "12px",
+
                         borderRadius: 16,
-                        
+
                         flexDirection: "column",
                         justifyContent: "center",
                         alignItems: "center",
@@ -690,102 +702,110 @@ export default function Page() {
                         gap: isMobile ? "8px" : "12px",
                       }}
                     >
-
-                        {/* Sub Menu Icon: separated into its own rounded square container */}
-                        {child.icon && (
+                      {/* Sub Menu Icon: separated into its own rounded square container */}
+                      {child.icon && (
+                        <div
+                          onMouseEnter={() => setHoveredSubIndex(index)}
+                          onMouseLeave={() => setHoveredSubIndex(null)}
+                          onFocus={() => setHoveredSubIndex(index)}
+                          onBlur={() => setHoveredSubIndex(null)}
+                          style={{
+                            width: isMobile
+                              ? 44
+                              : screenSize === "desktop"
+                              ? 64
+                              : 56,
+                            height: isMobile
+                              ? 44
+                              : screenSize === "desktop"
+                              ? 64
+                              : 56,
+                            borderRadius: 12,
+                            background: "#fff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginBottom: 8,
+                            flexShrink: 0,
+                            transition:
+                              "box-shadow 160ms ease, transform 160ms ease",
+                            boxShadow:
+                              hoveredSubIndex === index
+                                ? "0 6px 18px rgba(0,0,0,0.12)"
+                                : "0 2px 6px rgba(0,0,0,0.04)",
+                            transform:
+                              hoveredSubIndex === index
+                                ? "translateY(-3px)"
+                                : "none",
+                          }}
+                        >
                           <div
-                            onMouseEnter={() => setHoveredSubIndex(index)}
-                            onMouseLeave={() => setHoveredSubIndex(null)}
-                            onFocus={() => setHoveredSubIndex(index)}
-                            onBlur={() => setHoveredSubIndex(null)}
                             style={{
-                              width: isMobile ? 44 : screenSize === "desktop" ? 64 : 56,
-                              height: isMobile ? 44 : screenSize === "desktop" ? 64 : 56,
-                              borderRadius: 12,
-                              background: "#fff",
+                              fontSize: isMobile
+                                ? Math.round(20 * 1.2)
+                                : screenSize === "desktop"
+                                ? Math.round(32 * 1.2)
+                                : screenSize === "tablet"
+                                ? Math.round(28 * 1.2)
+                                : Math.round(24 * 1.2),
+                              color: "#0f1724",
+                              opacity: 0.85,
+                              // hint to SVG icons to use thinner strokes where possible
+                              strokeWidth: 1,
+                              vectorEffect: "non-scaling-stroke",
+                              lineHeight: 1,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              marginBottom: 8,
-                              flexShrink: 0,
-                              transition: "box-shadow 160ms ease, transform 160ms ease",
-                              boxShadow:
-                                hoveredSubIndex === index
-                                  ? "0 6px 18px rgba(0,0,0,0.12)"
-                                  : "0 2px 6px rgba(0,0,0,0.04)",
-                              transform: hoveredSubIndex === index ? "translateY(-3px)" : "none",
                             }}
                           >
-                            <div
-                              style={{
-                                fontSize: isMobile
-                                  ? Math.round(20 * 1.2)
-                                  : screenSize === "desktop"
-                                  ? Math.round(32 * 1.2)
-                                  : screenSize === "tablet"
-                                  ? Math.round(28 * 1.2)
-                                  : Math.round(24 * 1.2),
-                                color: "#0f1724",
-                                opacity: 0.85,
-                                // hint to SVG icons to use thinner strokes where possible
-                                strokeWidth: 1,
-                                vectorEffect: "non-scaling-stroke",
-                                lineHeight: 1,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              {child.icon}
-                            </div>
+                            {child.icon}
                           </div>
-                        )}
-
-                        <Text
-                          style={{
-                            fontSize: isMobile
-                              ? 12
-                              : screenSize === "desktop"
-                              ? 14
-                              : screenSize === "tablet"
-                              ? 13
-                              : 11,
-                            color: "#374151",
-                            lineHeight: 1.2,
-                            textAlign: "center",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                            flex: "none",
-                            fontWeight: 400,
-                          }}
-                        >
-                          {child.label}
-                           {/* New Badge for Sub Menu */}
-                      {child.news && (
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: 12,
-                            right: 64,
-                            zIndex: 15,
-                            backgroundColor: "#10b981",
-                            color: "white",
-                            fontSize: 12,
-                            fontWeight: "bold",
-                            padding: "1px 4px",
-                            borderRadius: 4,
-                            lineHeight: 1,
-                          }}
-                        >
-                          NEW
                         </div>
                       )}
-                          
-                        </Text>
 
-                     
+                      <Text
+                        style={{
+                          fontSize: isMobile
+                            ? 12
+                            : screenSize === "desktop"
+                            ? 14
+                            : screenSize === "tablet"
+                            ? 13
+                            : 11,
+                          color: "#374151",
+                          lineHeight: 1.2,
+                          textAlign: "center",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          flex: "none",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {child.label}
+                        {/* New Badge for Sub Menu */}
+                        {child.news && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 12,
+                              right: 64,
+                              zIndex: 15,
+                              backgroundColor: "#10b981",
+                              color: "white",
+                              fontSize: 12,
+                              fontWeight: "bold",
+                              padding: "1px 4px",
+                              borderRadius: 4,
+                              lineHeight: 1,
+                            }}
+                          >
+                            NEW
+                          </div>
+                        )}
+                      </Text>
                     </div>
                   </Col>
                 ))}

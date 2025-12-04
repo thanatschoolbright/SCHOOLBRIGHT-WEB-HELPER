@@ -1,0 +1,77 @@
+import { NextRequest, NextResponse } from "next/server";
+import { successResponse, errorResponse } from "@/helpers/api/response";
+import axios from "axios";
+import { API_URL } from "@/services/api-url";
+
+/**
+ * @swagger
+ * /api/v1/admin/user:
+ *   get:
+ *     summary: Get user profile
+ *     description: Retrieves user profile information from the admin system
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   description: User profile data
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message_en:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ *                 message_th:
+ *                   type: string
+ *                   example: "เกิดข้อผิดพลาดภายในระบบ"
+ */
+export async function GET() {
+  try {
+    const url = API_URL.PROD_ADMIN_JABJAI_API_URL;
+    const endpoint = `${url}/v1/api/get-profile/0`;
+
+    const data = await axios.get(endpoint, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return NextResponse.json(
+      successResponse({
+        data: data.data,
+        status: data.status,
+      })
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      errorResponse({
+        message_en: error.message || "Internal Server Error",
+        message_th: "เกิดข้อผิดพลาดภายในระบบ",
+        error,
+      }),
+      { status: 500 }
+    );
+  }
+}

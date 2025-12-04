@@ -32,6 +32,7 @@ import {
   ReloadOutlined,
   SearchOutlined,
   ClockCircleOutlined,
+  NotificationOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType, ColumnType } from "antd/es/table";
 import type { InputRef } from "antd";
@@ -94,6 +95,7 @@ export default function Page() {
   const [form] = Form.useForm<{ description: string }>();
   const [editingRow, setEditingRow] = useState<ApiTableData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTestingDiscord, setIsTestingDiscord] = useState(false);
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
@@ -172,6 +174,28 @@ export default function Page() {
       setIsSubmitting(false);
     }
   }, [closeEditModal, dispatch, editingRow, form]);
+
+  const handleTestDiscordNotification = useCallback(async () => {
+    try {
+      setIsTestingDiscord(true);
+      const response = await fetch(
+        "/api/v1/health-check/server/heartbeats/notification/discord"
+      );
+      if (!response.ok) {
+        throw new Error("Failed to send Discord notification");
+      }
+      toast.success("ส่งแจ้งเตือนไปยัง Discord สำเร็จ", {
+        duration: 3000,
+      });
+    } catch (error: any) {
+      toast.error("ส่งแจ้งเตือนล้มเหลว", {
+        description: error?.message ?? "Unexpected error",
+        duration: 3000,
+      });
+    } finally {
+      setIsTestingDiscord(false);
+    }
+  }, []);
 
   const getColumnSearchProps = useCallback(
     (dataIndex: SearchableColumnKey, title: string): TableColumn => ({
@@ -368,14 +392,24 @@ export default function Page() {
     <DashboardLayout>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <Card title="ทดสอบสถานะเซิร์ฟเวอร์อีกครั้ง" variant="borderless">
-          <Button
-            type="primary"
-            icon={<ReloadOutlined />}
-            loading={isLoading}
-            onClick={() => void refreshHeartbeats()}
-          >
-            รีเฟรช
-          </Button>
+          <Space>
+            <Button
+              type="primary"
+              icon={<ReloadOutlined />}
+              loading={isLoading}
+              onClick={() => void refreshHeartbeats()}
+            >
+              รีเฟรช
+            </Button>
+            <Button
+              type="default"
+              icon={<NotificationOutlined />}
+              onClick={handleTestDiscordNotification}
+              loading={isTestingDiscord}
+            >
+              แจ้งเตือนการทำงานของบอทผ่าน Discord
+            </Button>
+          </Space>
         </Card>
 
         <Card title="เช็กเวอร์ชันทุกระบบ" variant="borderless">

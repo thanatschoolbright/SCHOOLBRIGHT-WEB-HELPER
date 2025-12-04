@@ -14,6 +14,8 @@ export interface CreateOvertimeInput {
   overtimeType?: string;
   descriptions?: Array<{
     date?: Date | string;
+    startDate?: Date | string;
+    endDate?: Date | string;
     duration: number | string;
     description?: string;
     assignee?: string | number;
@@ -36,6 +38,8 @@ export interface UpdateOvertimeInput {
   overtimeType?: string;
   descriptions?: Array<{
     date?: Date | string;
+    startDate?: Date | string;
+    endDate?: Date | string;
     duration: number | string;
     description?: string;
     assignee?: string | number;
@@ -56,6 +60,8 @@ interface FindAllQuery {
 
 interface DescriptionInput {
   date?: Date | string;
+  startDate?: Date | string;
+  endDate?: Date | string;
   duration: number | string;
   description?: string;
   assignee?: string | number;
@@ -178,15 +184,27 @@ export const Service = {
 
   // เพิ่ม description ให้ OT ที่มีอยู่
   async addDescription(overtimeId: number, desc: DescriptionInput) {
-    return (PrismaTimesheet as any).overtimeDescription.create({
-      data: {
-        overtimeId,
-        date: desc.date ? new Date(desc.date) : new Date(),
-        duration: Number(desc.duration),
-        description: desc.description ?? "",
-        assignee: desc.assignee ? String(desc.assignee) : undefined,
-      },
-    });
+    const data: any = {
+      overtimeId,
+      duration: Number(desc.duration),
+      description: desc.description ?? "",
+      assignee: desc.assignee ? String(desc.assignee) : undefined,
+    };
+
+    if (desc.startDate) {
+      data.startDate = new Date(desc.startDate);
+      data.date = new Date(desc.startDate);
+    }
+
+    if (desc.endDate) {
+      data.endDate = new Date(desc.endDate);
+    }
+
+    if (desc.date && !desc.startDate) {
+      data.date = new Date(desc.date);
+    }
+
+    return (PrismaTimesheet as any).overtimeDescription.create({ data });
   },
 };
 
@@ -215,12 +233,28 @@ function buildWhereClause(query: FindAllQuery) {
 function prepareDescriptions(descriptions?: DescriptionInput[]) {
   if (!descriptions) return [];
 
-  return descriptions.map((desc) => ({
-    date: desc.date ? new Date(desc.date) : undefined,
-    duration: Number(desc.duration),
-    description: desc.description ?? "",
-    assignee: desc.assignee ? String(desc.assignee) : undefined,
-  }));
+  return descriptions.map((desc) => {
+    const result: any = {
+      duration: Number(desc.duration),
+      description: desc.description ?? "",
+      assignee: desc.assignee ? String(desc.assignee) : undefined,
+    };
+
+    if (desc.startDate) {
+      result.startDate = new Date(desc.startDate);
+      result.date = new Date(desc.startDate);
+    }
+
+    if (desc.endDate) {
+      result.endDate = new Date(desc.endDate);
+    }
+
+    if (desc.date && !desc.startDate) {
+      result.date = new Date(desc.date);
+    }
+
+    return result;
+  });
 }
 
 // สร้าง update data โดยลบ undefined fields
