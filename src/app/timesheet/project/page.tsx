@@ -61,6 +61,7 @@ interface Project {
   features?: Array<{ is_deleted: boolean }>;
   start_date?: string;
   end_date?: string;
+  is_deleted?: boolean;
 }
 
 interface ModalState {
@@ -264,6 +265,7 @@ export default function ProjectManagementPage() {
         key: "id",
         align: "center",
         width: 80,
+        sorter: (a, b) => a.id - b.id,
         render: (id: number) => (
           <Typography.Text copyable={{ text: String(id) }} code>
             {String(id).padStart(4, "0")}
@@ -274,6 +276,15 @@ export default function ProjectManagementPage() {
         title: "โครงการ",
         key: "project_name",
         width: 280,
+        sorter: (a, b) => a.name.localeCompare(b.name),
+        filterSearch: true,
+        filters: Array.from(new Set(projects.map((p) => p.name))).map(
+          (name) => ({
+            text: name,
+            value: name,
+          })
+        ),
+        onFilter: (value, record) => record.name === value,
         render: (_, record) => (
           <div className="flex items-start gap-3">
             {/* Project Icon */}
@@ -309,6 +320,11 @@ export default function ProjectManagementPage() {
         title: "ระยะเวลาดำเนินการ",
         key: "duration",
         width: 200,
+        sorter: (a, b) => {
+          const dateA = a.start_date ? dayjs(a.start_date).valueOf() : 0;
+          const dateB = b.start_date ? dayjs(b.start_date).valueOf() : 0;
+          return dateA - dateB;
+        },
         render: (_, record) => {
           if (!record.start_date || !record.end_date) {
             return <span className="">-</span>;
@@ -350,6 +366,8 @@ export default function ProjectManagementPage() {
         key: "features",
         align: "center",
         width: 80,
+        sorter: (a, b) =>
+          getSubProjectCount(a.features) - getSubProjectCount(b.features),
         render: (_, record) => {
           const count = getSubProjectCount(record.features);
           return (
@@ -371,6 +389,21 @@ export default function ProjectManagementPage() {
         title: "สถานะ & ประเภท",
         key: "status_type",
         width: 160,
+        filters: [
+          { text: "Active", value: "open" },
+          { text: "Closed", value: "close" },
+          ...categoryType.map((cat) => ({
+            text: cat.name,
+            value: `cat_${cat.id}`,
+          })),
+        ],
+        onFilter: (value, record) => {
+          if (value === "open" || value === "close") {
+            return record.status === value;
+          }
+          const catId = String(value).replace("cat_", "");
+          return String(record.categoryType) === catId;
+        },
         render: (_, record) => {
           const categoryName = getCategoryName(record.categoryType);
           const isOpen = record.status === "open";
@@ -403,6 +436,12 @@ export default function ProjectManagementPage() {
         title: "สถานะการเปิดใช้งาน",
         key: "is_deleted",
         width: 160,
+        filters: [
+          { text: "เปิดใช้งาน", value: false },
+          { text: "ถูกลบ", value: true },
+        ],
+        onFilter: (value, record) => record.is_deleted === value,
+        sorter: (a, b) => Number(a.is_deleted) - Number(b.is_deleted),
         render: (_, record) => {
           const status = record.is_deleted === true;
 
@@ -496,7 +535,7 @@ export default function ProjectManagementPage() {
         },
       },
     ],
-    [pagination]
+    [pagination, projects]
   );
 
   const handlePaginationChange = (page: number, size: number) => {
