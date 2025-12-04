@@ -56,6 +56,7 @@ export const Service = {
   },
 
   // * อัปเดต Project ตาม ID
+  // * อัปเดต Project ตาม ID
   async update(
     id: number,
     data: {
@@ -64,16 +65,16 @@ export const Service = {
       updatedBy?: number;
       categoryType?: string;
       status?: string;
+      start_date?: string;
+      end_date?: string;
+      name_en?: string;
     }
   ) {
     return await PrismaTimesheet.project.update({
       where: { id },
       data: {
-        ...(data.name && { name: data.name }),
-        ...(data.description && { description: data.description }),
-        updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
-        ...(data.categoryType && { categoryType: data.categoryType }),
-        ...(data.status && { status: data.status }),
+        ...data,
+        updatedBy: data.updatedBy ?? 0,
       },
     });
   },

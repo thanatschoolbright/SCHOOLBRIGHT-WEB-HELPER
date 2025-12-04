@@ -24,6 +24,9 @@ import {
   Descriptions,
   Tooltip,
   Badge,
+  DatePicker,
+  Row,
+  Col,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -46,7 +49,7 @@ import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import { useRouter } from "next/navigation";
 
-// ประกาศ interface สำหรับข้อมูลโปรเจค
+// ประกาศ interface สำหรับข้อมูลโครงการ
 interface Project {
   id: number;
   name: string;
@@ -62,10 +65,13 @@ interface Project {
 interface ProjectForm {
   id?: number;
   name: string;
+  name_en?: string;
   description: string;
   by: number;
   categoryType: string;
   status: string;
+  start_date?: Date;
+  end_date?: Date;
 }
 
 export default function Page() {
@@ -96,7 +102,7 @@ export default function Page() {
   const [detailProject, setDetailProject] = useState<Project | null>(null);
   const [actionLoading, setActionLoading] = useState<boolean>(false);
 
-  // ฟังก์ชันโหลดข้อมูลโปรเจค
+  // ฟังก์ชันโหลดข้อมูลโครงการ
   const fetchProjects = async () => {
     setLoading(true);
     try {
@@ -115,7 +121,7 @@ export default function Page() {
     }
   };
 
-  // ฟังก์ชันสร้างหรือแก้ไขโปรเจค
+  // ฟังก์ชันสร้างหรือแก้ไขโครงการ
   const createOrUpdateProject = async (project: ProjectForm) => {
     try {
       setActionLoading(true);
@@ -131,7 +137,7 @@ export default function Page() {
     }
   };
 
-  // ฟังก์ชันลบโปรเจค
+  // ฟังก์ชันลบโครงการ
   const deleteProject = async (id: number) => {
     try {
       const response = await axios.post(`/api/v1/timesheet/project/delete/`, {
@@ -144,7 +150,7 @@ export default function Page() {
     }
   };
 
-  // โหลดข้อมูลโปรเจคเมื่อเปลี่ยนหน้า หรือ limit
+  // โหลดข้อมูลโครงการเมื่อเปลี่ยนหน้า หรือ limit
   useEffect(() => {
     fetchProjects();
   }, [currentPage, limit]);
@@ -173,20 +179,23 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [AUTHENTICATION]);
 
-  // เมื่อเปิด modal สร้างโปรเจค
+  // เมื่อเปิด modal สร้างโครงการ
   const openCreateModal = () => {
     setFormState({
       name: "",
+      name_en: "",
       description: "",
       by: AUTHENTICATION.response.data.user_data.admin_id,
       confirmText: "",
       categoryType: "",
       status: "open",
+      start_date: new Date(),
+      end_date: new Date(),
     });
     setModalType("create");
   };
 
-  // เมื่อเปิด modal แก้ไขโปรเจค
+  // เมื่อเปิด modal แก้ไขโครงการ
   const openEditModal = (project: Project) => {
     setFormState({
       id: project.id,
@@ -199,20 +208,20 @@ export default function Page() {
     setModalType("edit");
   };
 
-  // เมื่อเปิด modal ลบโปรเจค
+  // เมื่อเปิด modal ลบโครงการ
   const openDeleteModal = (id: number) => {
     setDeleteId(id);
     setFormState((prev) => ({ ...prev, confirmText: "" }));
     setModalType("delete");
   };
 
-  // เมื่อเปิด modal ดูรายละเอียดโปรเจค
+  // เมื่อเปิด modal ดูรายละเอียดโครงการ
   const openDetailModal = (project: Project) => {
     setDetailProject(project);
     setModalType("detail");
   };
 
-  // ฟังก์ชัน submit สำหรับสร้าง/แก้ไขโปรเจค
+  // ฟังก์ชัน submit สำหรับสร้าง/แก้ไขโครงการ
   const handleSubmit = async (values: {
     name: string;
     description: string;
@@ -229,7 +238,7 @@ export default function Page() {
     await fetchProjects();
   };
 
-  // ฟังก์ชันยืนยันลบโปรเจค
+  // ฟังก์ชันยืนยันลบโครงการ
   const confirmDelete = async () => {
     if (deleteId === null) return;
     await deleteProject(deleteId);
@@ -238,7 +247,7 @@ export default function Page() {
     await fetchProjects();
   };
 
-  // กำหนด columns สำหรับตารางโปรเจค
+  // กำหนด columns สำหรับตารางโครงการ
   const columns: ColumnsType<Project> = [
     {
       title: (
@@ -285,7 +294,7 @@ export default function Page() {
       ),
     },
     {
-      title: "ชื่อโปรเจค",
+      title: "ชื่อโครงการ",
       dataIndex: "name",
       key: "name",
       align: "left" as const,
@@ -558,49 +567,166 @@ export default function Page() {
                   },
                 }}
                 locale={{
-                  emptyText: "ไม่พบข้อมูลโปรเจค",
+                  emptyText: "ไม่พบข้อมูลโครงการ",
                 }}
               />
             </Skeleton>
           </Card>
 
-          {/* Modal สร้าง/แก้ไขโปรเจค */}
+          {/* Modal สร้าง/แก้ไขโครงการ */}
           <Modal
             open={modalType === "create" || modalType === "edit"}
             onCancel={() => setModalType("")}
-            title={formState.id ? "แก้ไขโปรเจค" : "เพิ่มโปรเจคใหม่"}
+            title={formState.id ? "แก้ไขโครงการ" : "เพิ่มโครงการใหม่"}
             footer={null}
             destroyOnHidden
+            width={800} // 1. เพิ่มความกว้าง Modal เพื่อให้จัด 2 คอลัมน์ได้สวยไม่อึดอัด
+            centered // จัดกึ่งกลางหน้าจอ
           >
-            {/* ฟอร์มโปรเจค */}
             <Form
               form={antdForm}
               layout="vertical"
               initialValues={{
                 name: formState.name,
+                name_en: formState.name_en, // อย่าลืมใส่ initialValue ของ name_en
                 description: formState.description,
                 categoryType: formState.categoryType,
                 status: formState.status,
+                // start_date และ end_date ควรจัดการ format ให้เป็น dayjs object ก่อนส่งเข้า initialValues
               }}
               onFinish={handleSubmit}
             >
-              <Form.Item
-                label="ชื่อโครงการ"
-                name="name"
-                rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
-              >
-                <Input
-                  placeholder="กรอกชื่อโปรเจค"
-                  prefix={<InfoCircleOutlined />}
-                  onChange={(e) =>
-                    setFormState((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                />
-              </Form.Item>
+              {/* แถวที่ 1: ชื่อโครงการ (ไทย - อังกฤษ) */}
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="ชื่อโครงการ (TH)"
+                    name="name"
+                    rules={[
+                      { required: true, message: "กรุณากรอกชื่อโครงการ" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="ชื่อโครงการภาษาไทย"
+                      prefix={
+                        <InfoCircleOutlined className="site-form-item-icon" />
+                      }
+                      onChange={(e) =>
+                        setFormState((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="ชื่อโครงการ (EN)"
+                    name="name_en"
+                    rules={[
+                      {
+                        required: true,
+                        message: "กรุณากรอกชื่อโครงการ (ภาษาอังกฤษ)",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Project Name (English)"
+                      prefix={
+                        <InfoCircleOutlined className="site-form-item-icon" />
+                      }
+                      // แก้ไข logic: ต้อง set เป็น name_en ไม่ใช่ name
+                      onChange={(e) =>
+                        setFormState((prev) => ({
+                          ...prev,
+                          name_en: e.target.value,
+                        }))
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              {/* แถวที่ 2: ประเภทและสถานะ */}
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="ประเภทโครงการ"
+                    name="categoryType"
+                    rules={[
+                      { required: true, message: "กรุณาเลือกประเภทโครงการ" },
+                    ]}
+                  >
+                    <Select
+                      showSearch
+                      placeholder="เลือกประเภทโครงการ"
+                      options={categoryType.map((data) => ({
+                        label: `${data.name} (${data.id})`,
+                        value: String(data.id),
+                      }))}
+                      onChange={(value) =>
+                        setFormState((prev) => ({
+                          ...prev,
+                          categoryType: value,
+                        }))
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="สถานะ"
+                    name="status"
+                    rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
+                  >
+                    <Select
+                      placeholder="เลือกสถานะ"
+                      options={[
+                        { label: "เปิดโครงการ", value: "open" },
+                        { label: "ปิดโครงการ", value: "close" },
+                      ]}
+                      onChange={(value) =>
+                        setFormState((prev) => ({ ...prev, status: value }))
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              {/* แถวที่ 3: วันที่เริ่ม - สิ้นสุด */}
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
+                  <Form.Item label="วันที่เปิดโครงการ" name="start_date">
+                    <DatePicker
+                      style={{ width: "100%" }} // DatePicker ต้องสั่ง width 100% ถึงจะเต็มช่อง
+                      placeholder="วว/ดด/ปปปป"
+                      format="DD/MM/YYYY"
+                      onChange={(date) =>
+                        setFormState((prev) => ({ ...prev, start_date: date }))
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item label="วันที่ปิดโครงการ" name="end_date">
+                    <DatePicker
+                      style={{ width: "100%" }}
+                      placeholder="วว/ดด/ปปปป"
+                      format="DD/MM/YYYY"
+                      onChange={(date) =>
+                        setFormState((prev) => ({ ...prev, end_date: date }))
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              {/* แถวที่ 4: คำอธิบาย (เต็มบรรทัด) */}
               <Form.Item label="คำอธิบายโครงการ" name="description">
-                <Input
-                  placeholder="กรอกคำอธิบายโครงการ (ถ้ามี)"
-                  prefix={<EditOutlined />}
+                <Input.TextArea
+                  rows={4} // ใช้ TextArea แทน Input ธรรมดา เพื่อความสวยงาม
+                  placeholder="รายละเอียดเพิ่มเติมเกี่ยวกับโครงการ..."
                   onChange={(e) =>
                     setFormState((prev) => ({
                       ...prev,
@@ -609,36 +735,15 @@ export default function Page() {
                   }
                 />
               </Form.Item>
-              <Form.Item
-                label="ประเภทโครงการ"
-                name="categoryType"
-                rules={[{ required: true, message: "กรุณาเลือกประเภทโครงการ" }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="เลือกประเภทโครงการ"
-                  options={categoryType.map((data) => ({
-                    label: `${data.name} (${data.id})`,
-                    value: String(data.id),
-                  }))}
-                />
-              </Form.Item>
-              <Form.Item
-                label="สถานะ"
-                name="status"
-                rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="เลือกสถานะ"
-                  options={[
-                    { label: "เปิดโครงการ", value: "open" },
-                    { label: "ปิดโครงการ", value: "close" },
-                  ]}
-                />
-              </Form.Item>
+
               <Form.Item>
-                <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+                <Space
+                  style={{
+                    width: "100%",
+                    justifyContent: "flex-end",
+                    marginTop: 16,
+                  }}
+                >
                   <Button onClick={() => setModalType("")}>ยกเลิก</Button>
                   <Button
                     type="primary"
@@ -653,7 +758,7 @@ export default function Page() {
             </Form>
           </Modal>
 
-          {/* Modal ยืนยันลบโปรเจค */}
+          {/* Modal ยืนยันลบโครงการ */}
           <Modal
             open={modalType === "delete"}
             onCancel={() => setModalType("")}
@@ -669,7 +774,7 @@ export default function Page() {
           >
             <div style={{ marginBottom: 16 }}>
               <Typography.Text type="danger" strong>
-                คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
+                คุณต้องการยืนยันที่จะลบโครงการนี้จริงหรือไม่
               </Typography.Text>
               <br />
               <Typography.Text>
@@ -689,14 +794,14 @@ export default function Page() {
             </div>
           </Modal>
 
-          {/* Modal รายละเอียดโปรเจค */}
+          {/* Modal รายละเอียดโครงการ */}
           <Modal
             open={modalType === "detail" && !!detailProject}
             onCancel={() => {
               setModalType("");
               setDetailProject(null);
             }}
-            title="รายละเอียดโปรเจค"
+            title="รายละเอียดโครงการ"
             footer={[
               <Button
                 key="close"
