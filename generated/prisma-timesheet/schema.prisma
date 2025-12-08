@@ -14,22 +14,35 @@ enum ProjectAssetCaptureType {
   UN_CAPTUREABLE
 }
 
+model Group {
+  id       Int       @id @default(autoincrement()) @map("id")
+  name_th  String    @map("name_th")
+  name_en  String?   @map("name_en")
+  projects Project[]
+
+  @@map("group")
+}
+
 model Project {
-  id           Int              @id @default(autoincrement()) @map("id")
-  categoryType String?          @map("category_type")
-  name         String           @map("name")
-  name_en      String?          @map("name_en")
-  start_date   DateTime?        @map("start_date")
-  end_date     DateTime?        @map("end_date")
-  createdAt    DateTime         @default(now()) @map("created_at")
-  createdBy    Int?             @map("created_by")
-  updatedAt    DateTime         @updatedAt @map("updated_at")
-  updatedBy    Int?             @map("updated_by")
-  description  String
-  is_deleted   Boolean          @default(false)
-  features     Feature[]
-  timesheets   TimesheetEntry[]
-  status       String           @default("open") @map("status")
+  id              Int              @id @default(autoincrement()) @map("id")
+  categoryType    String?          @map("category_type")
+  name            String           @map("name")
+  name_en         String?          @map("name_en")
+  start_date      DateTime?        @map("start_date")
+  end_date        DateTime?        @map("end_date")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  createdBy       Int?             @map("created_by")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  updatedBy       Int?             @map("updated_by")
+  description     String
+  is_deleted      Boolean          @default(false)
+  features        Feature[]
+  timesheets      TimesheetEntry[]
+  status          String           @default("open") @map("status")
+  approval_status String           @default("pending") @map("approval_status")
+  approval        String           @default("pending") @map("approval")
+  group_id        Int?             @map("group_id")
+  group           Group?           @relation(fields: [group_id], references: [id])
 
   @@map("project")
 }
