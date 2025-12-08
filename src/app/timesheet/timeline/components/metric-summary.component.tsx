@@ -25,7 +25,7 @@ export const MetricSummaryComponent: React.FC<MetricSummaryProps> = ({
     <div className="mb-6">
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={4}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title={t("timeline_page.metrics.total_projects")}
               value={metrics.totalProjects}
@@ -36,7 +36,7 @@ export const MetricSummaryComponent: React.FC<MetricSummaryProps> = ({
           </Card>
         </Col>
         <Col xs={24} sm={12} md={5}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title={t("timeline_page.metrics.total_sub_projects")}
               value={metrics.totalSubProjects}
@@ -47,7 +47,7 @@ export const MetricSummaryComponent: React.FC<MetricSummaryProps> = ({
           </Card>
         </Col>
         <Col xs={24} sm={12} md={5}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title={t("timeline_page.metrics.in_progress")}
               value={metrics.inProgress}
@@ -58,7 +58,7 @@ export const MetricSummaryComponent: React.FC<MetricSummaryProps> = ({
           </Card>
         </Col>
         <Col xs={24} sm={12} md={5}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title={t("timeline_page.metrics.completed")}
               value={metrics.completed}
@@ -69,7 +69,7 @@ export const MetricSummaryComponent: React.FC<MetricSummaryProps> = ({
           </Card>
         </Col>
         <Col xs={24} sm={12} md={5}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title={t("timeline_page.metrics.overdue")}
               value={metrics.overdue}

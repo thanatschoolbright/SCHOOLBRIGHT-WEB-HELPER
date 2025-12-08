@@ -203,7 +203,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
       {/* Key Metrics */}
       <Row gutter={[16, 16]}>
         <Col span={6}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title="Total Requests"
               value={analyticsData.totalRequests}
@@ -213,7 +213,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
           </Card>
         </Col>
         <Col span={6}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title="Total OT Hours"
               value={analyticsData.totalHours.toFixed(2)}
@@ -225,7 +225,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
           </Card>
         </Col>
         <Col span={6}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title="Approval Rate"
               value={
@@ -244,7 +244,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
           </Card>
         </Col>
         <Col span={6}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title="Pending Review"
               value={analyticsData.pendingCount}
@@ -260,7 +260,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
       <Row gutter={[16, 16]}>
         {/* Monthly Trend */}
         <Col span={16}>
-          <Card title="Monthly OT Trend" bordered={false} className="shadow-sm">
+          <Card title="Monthly OT Trend"  className="shadow-sm">
             <Bar options={barOptions} data={barData} height={120} />
           </Card>
         </Col>
@@ -269,7 +269,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
         <Col span={8}>
           <Card
             title="Status Distribution"
-            bordered={false}
+            
             className="shadow-sm"
           >
             <div
@@ -293,7 +293,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
         <Col span={24}>
           <Card
             title="Top 5 OT Requesters (Burnout Risk)"
-            bordered={false}
+            
             className="shadow-sm"
           >
             <Bar

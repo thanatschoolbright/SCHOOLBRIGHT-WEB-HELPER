@@ -89,7 +89,7 @@ export const EditUserModal = ({
       onCancel={onCancel}
       title={translation("user_profile_page.edit_modal_title")}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       
       <Form form={form} layout="vertical" onFinish={handleFinish}>

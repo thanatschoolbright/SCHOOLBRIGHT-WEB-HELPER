@@ -148,7 +148,7 @@ const StatCard: React.FC<StatCardProps> = ({
   const { token } = theme.useToken();
   return (
     <Card
-      bordered={false}
+      
       className="shadow-sm hover:shadow-md transition-all duration-300 h-full"
       style={{ borderRadius: token.borderRadiusLG }}
     >
@@ -440,7 +440,7 @@ export default function SubProjectPage() {
         width: 120,
         align: "center",
         render: (_, record) => (
-          <Tag icon={<ClockCircleOutlined />} bordered={false}>
+          <Tag icon={<ClockCircleOutlined />} >
             {
               calculateWorkingHours(
                 record.startDate || "",
@@ -580,7 +580,7 @@ export default function SubProjectPage() {
         </div>
 
         <Card
-          bordered={false}
+          
           className="shadow-sm overflow-hidden"
           bodyStyle={{ padding: 0 }}
         >
@@ -796,7 +796,7 @@ export default function SubProjectPage() {
 
               <Row gutter={16}>
                 <Col span={12}>
-                  <Card size="small" bordered={false} className="bg-blue-50">
+                  <Card size="small"  className="bg-blue-50">
                     <Text type="secondary">วันเริ่มต้น</Text>
                     <div className="font-semibold text-blue-600 flex items-center gap-2">
                       <CalendarOutlined />
@@ -807,7 +807,7 @@ export default function SubProjectPage() {
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Card size="small" bordered={false} className="bg-red-50">
+                  <Card size="small"  className="bg-red-50">
                     <Text type="secondary">วันสิ้นสุด</Text>
                     <div className="font-semibold text-red-600 flex items-center gap-2">
                       <CalendarOutlined />

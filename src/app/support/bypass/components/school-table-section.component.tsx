@@ -53,12 +53,12 @@ export default function SchoolTableSection({
           style={{ backgroundColor: "#52c41a" }}
         />
       }
-      bordered={false}
+      
       className="shadow-sm"
     >
       <Table<SchoolDetail>
         columns={columns}
-        bordered={false}
+        
         dataSource={dataSource}
         loading={loading}
         rowKey={(record) => String(record.school_id ?? record.company_name)}

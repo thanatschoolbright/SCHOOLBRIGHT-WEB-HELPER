@@ -24,7 +24,7 @@ export default function StatisticsSection({
     <Row gutter={[16, 16]}>
       {/* Total Schools */}
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} className="shadow-sm">
+        <Card  className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_total_schools")}
             value={statistics.total}
@@ -36,7 +36,7 @@ export default function StatisticsSection({
 
       {/* Active Schools */}
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} className="shadow-sm">
+        <Card  className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_active")}
             value={statistics.active}
@@ -48,7 +48,7 @@ export default function StatisticsSection({
 
       {/* Inactive Schools */}
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} className="shadow-sm">
+        <Card  className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_inactive")}
             value={statistics.inactive}
@@ -60,7 +60,7 @@ export default function StatisticsSection({
 
       {/* Grade A Schools */}
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} className="shadow-sm">
+        <Card  className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_grade_a")}
             value={statistics.gradeA}
@@ -72,7 +72,7 @@ export default function StatisticsSection({
 
       {/* Total Students */}
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} className="shadow-sm">
+        <Card  className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_total_students")}
             value={statistics.totalStudents}
@@ -87,7 +87,7 @@ export default function StatisticsSection({
 
       {/* Average Students per School */}
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} className="shadow-sm">
+        <Card  className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_average_students")}
             value={statistics.averageStudentsPerSchool}
@@ -100,7 +100,7 @@ export default function StatisticsSection({
 
       {/* Active Students */}
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} className="shadow-sm">
+        <Card  className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_active_students")}
             value={statistics.activeStudents}

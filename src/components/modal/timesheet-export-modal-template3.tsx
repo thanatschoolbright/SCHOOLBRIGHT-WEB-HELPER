@@ -38,7 +38,7 @@ export default function ExportModalTemplate3({visible, loading, onClose, onExpor
             open={visible}
             onCancel={onClose}
             footer={null}
-            destroyOnClose
+            destroyOnHidden
         >
             <Space direction="vertical" style={{width: "100%"}} size="middle">
                 <div>

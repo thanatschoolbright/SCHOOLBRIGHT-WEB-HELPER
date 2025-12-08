@@ -62,7 +62,7 @@ export default function ProjectsTable({
                 const label = archived ? "ปิดใช้งาน" : "ใช้งาน";
                 return (
                     <Tag
-                        bordered={false}
+                        
                         style={{
                             color,
                             background: archived ? token.colorBgContainerDisabled : token.colorSuccessBg,

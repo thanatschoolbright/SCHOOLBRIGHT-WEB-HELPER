@@ -47,7 +47,7 @@ export const CreateUserModal = ({
       onCancel={onCancel}
       title={translation("user_profile_page.create_modal_title")}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       
       <Form form={form} layout="vertical" onFinish={handleFinish}>

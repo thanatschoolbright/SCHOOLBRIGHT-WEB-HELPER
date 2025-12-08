@@ -333,10 +333,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     <Typography.Title level={5} style={{margin: 0}}>
                         การอัปเดตแบบกลุ่ม
                     </Typography.Title>
-                    <Tag color="blue" bordered={false} style={{borderRadius: 10}}>
+                    <Tag color="blue"  style={{borderRadius: 10}}>
                         เลือกแล้ว {selectedRowKeys.length} งาน
                     </Tag>
-                    <Tag color="geekblue" bordered={false} style={{borderRadius: 10}}>
+                    <Tag color="geekblue"  style={{borderRadius: 10}}>
                         AI Assist
                     </Tag>
                 </Space>
@@ -359,7 +359,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                 <Space direction="vertical" size={16} style={{width: "100%"}}>
                                     <Card
                                         size="small"
-                                        bordered={false}
+                                        
                                         style={{
                                             
                                             borderRadius: 12,
@@ -391,7 +391,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
                                     <Card
                                         size="small"
-                                        bordered={false}
+                                        
                                         style={{borderRadius: 12, boxShadow: "0 4px 12px rgba(15,23,42,0.06)"}}
                                     >
                                         <BulkUpdatePanel
@@ -451,7 +451,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                                     </div>
                                                 </div>
                                                 <Space size={6}>
-                                                    <Tag color="processing" bordered={false} style={{padding: "2px 8px", borderRadius: 12}}>Live</Tag>
+                                                    <Tag color="processing"  style={{padding: "2px 8px", borderRadius: 12}}>Live</Tag>
                                                 </Space>
                                             </div>
                                         }
@@ -469,8 +469,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                         <div style={{padding: 16}}>
                                             <div style={{display: "flex", justifyContent: "space-between", marginBottom: 10}}>
                                                 <Space size={8}>
-                                                    <Tag color="blue" bordered={false}>AI SUMMARY</Tag>
-                                                    <Tag color="geekblue" bordered={false}>MD</Tag>
+                                                    <Tag color="blue" >AI SUMMARY</Tag>
+                                                    <Tag color="geekblue" >MD</Tag>
                                                 </Space>
                                                 <Space>
                                                     <Button

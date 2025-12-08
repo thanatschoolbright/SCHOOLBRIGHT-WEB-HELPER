@@ -415,13 +415,13 @@ export default function SaleRankingModal({
       width="95%"
       style={{ top: 20 }}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Summary Statistics (Always Visible) */}
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION("sale_ranking_modal.stat_total_sales")}
                 value={data.length}
@@ -431,7 +431,7 @@ export default function SaleRankingModal({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION("sale_ranking_modal.stat_total_schools")}
                 value={totalSchools}
@@ -441,7 +441,7 @@ export default function SaleRankingModal({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION("sale_ranking_modal.stat_active_schools")}
                 value={totalActive}
@@ -451,7 +451,7 @@ export default function SaleRankingModal({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION("sale_ranking_modal.stat_grade_a_total")}
                 value={totalGradeA}
@@ -461,7 +461,7 @@ export default function SaleRankingModal({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION("sale_ranking_modal.stat_total_students")}
                 value={totalStudents}
@@ -476,7 +476,7 @@ export default function SaleRankingModal({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION("sale_ranking_modal.stat_active_students")}
                 value={activeStudents}
@@ -491,7 +491,7 @@ export default function SaleRankingModal({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={
                   TRANSLATION("sale_ranking_modal.stat_average_students_per_school")

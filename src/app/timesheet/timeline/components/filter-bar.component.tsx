@@ -28,7 +28,7 @@ export const FilterBarComponent: React.FC<FilterBarProps> = ({
   const { t } = useTranslation("translate");
 
   return (
-    <Card bordered={false} className="shadow-sm">
+    <Card  className="shadow-sm">
       <Row gutter={[16, 16]} align="middle" justify="space-between">
         <Col xs={24} md={18}>
           <Space wrap>

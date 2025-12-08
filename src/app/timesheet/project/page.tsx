@@ -425,7 +425,7 @@ export default function ProjectManagementPage() {
               />
 
               {/* Category Tag */}
-              <Tag bordered={false} className="m-0 text-[10px] rounded-md px-2">
+              <Tag  className="m-0 text-[10px] rounded-md px-2">
                 {categoryName}
               </Tag>
             </div>

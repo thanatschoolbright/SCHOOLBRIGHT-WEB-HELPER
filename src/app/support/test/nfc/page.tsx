@@ -281,7 +281,7 @@ const ResponseCard: React.FC<{
   if (!response) return null;
 
   return (
-    <Card title="Response" bordered={false}>
+    <Card title="Response" >
       <Space direction="vertical" size="middle" style={{ width: "100%" }}>
         <Input.TextArea
           value={formatJSON(response?.data)}

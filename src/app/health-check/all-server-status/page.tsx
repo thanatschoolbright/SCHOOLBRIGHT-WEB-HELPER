@@ -153,7 +153,7 @@ const StatisticsCard: React.FC<{
   const { isMobile } = useResponsive();
 
   return (
-    <Card bordered={false}>
+    <Card >
       <Flex justify="space-between" align="center" wrap="wrap" gap="middle">
         <Space size="large" align="center">
           <Avatar size={56} icon={<CloudOutlined />} />
@@ -311,7 +311,7 @@ const ServerDetailsModal: React.FC<{
       onCancel={onClose}
       footer={null}
       width={isMobile ? "95%" : 820}
-      destroyOnClose
+      destroyOnHidden
     >
       <Space direction="vertical" size="middle" style={{ width: "100%" }}>
         <Flex justify="space-between" align="center" wrap="wrap" gap="middle">
@@ -398,7 +398,7 @@ const EditDescriptionModal: React.FC<{
       onCancel={onClose}
       footer={null}
       width={760}
-      destroyOnClose
+      destroyOnHidden
     >
       <Space direction="vertical" size="middle" style={{ width: "100%" }}>
         <Typography.Text type="secondary">
@@ -474,7 +474,7 @@ const ServerStatusPage: React.FC = () => {
           isLoading={isLoading}
         />
 
-        <Card title="การทำงานทุกระบบ" bordered={false}>
+        <Card title="การทำงานทุกระบบ" >
           {isLoading ? (
             <Skeleton active paragraph={{ rows: 6 }} />
           ) : servers.length > 0 ? (

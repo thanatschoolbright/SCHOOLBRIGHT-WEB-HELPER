@@ -169,7 +169,7 @@ export default function IssueSummaryModal({
       onCancel={onClose}
       width={1100}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       style={{ top: 20 }}
     >
       <Space
@@ -180,7 +180,7 @@ export default function IssueSummaryModal({
         {/* Key Metrics Cards */}
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={6}>
-            <Card bordered={false} className="shadow-sm bg-blue-50 h-full">
+            <Card  className="shadow-sm bg-blue-50 h-full">
               <Statistic
                 title="Total Issues"
                 value={overallStats.totalLoaded}
@@ -191,7 +191,7 @@ export default function IssueSummaryModal({
             </Card>
           </Col>
           <Col xs={24} sm={6}>
-            <Card bordered={false} className="shadow-sm bg-green-50 h-full">
+            <Card  className="shadow-sm bg-green-50 h-full">
               <Statistic
                 title="Completion Rate"
                 value={overallStats.completionRate}
@@ -208,7 +208,7 @@ export default function IssueSummaryModal({
             </Card>
           </Col>
           <Col xs={24} sm={6}>
-            <Card bordered={false} className="shadow-sm bg-red-50 h-full">
+            <Card  className="shadow-sm bg-red-50 h-full">
               <Statistic
                 title="Overdue Issues"
                 value={overallStats.totalOverdue}
@@ -222,7 +222,7 @@ export default function IssueSummaryModal({
           </Col>
           <Col xs={24} sm={6}>
             <Card
-              bordered={false}
+              
               className="shadow-sm bg-gold-50 h-full"
               style={{ background: "#fffbe6" }}
             >
@@ -247,7 +247,7 @@ export default function IssueSummaryModal({
               <span>ประสิทธิภาพรายบุคคล (Individual Performance)</span>
             </Space>
           }
-          bordered={false}
+          
           className="shadow-sm"
         >
           <Table

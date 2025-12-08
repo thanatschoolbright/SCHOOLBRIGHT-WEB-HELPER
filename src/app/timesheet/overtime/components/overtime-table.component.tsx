@@ -233,7 +233,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
 
   return (
     <Card
-      bordered={false}
+      
       className="shadow-sm rounded-xl overflow-hidden"
       bodyStyle={{ padding: 0 }}
     >

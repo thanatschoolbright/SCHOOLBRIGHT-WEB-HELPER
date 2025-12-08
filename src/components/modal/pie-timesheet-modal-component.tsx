@@ -247,7 +247,7 @@ export function PieTimesheetModal({
             {/* Chart Section */}
             <Col span={14}>
               <Card
-                bordered={false}
+                
                 className="shadow-sm rounded-xl h-full flex items-center justify-center"
               >
                 <div
@@ -261,7 +261,7 @@ export function PieTimesheetModal({
             {/* Legend Section */}
             <Col span={10}>
               <Card
-                bordered={false}
+                
                 className="shadow-sm rounded-xl h-full overflow-y-auto"
                 style={{ maxHeight: 368 }}
               >
