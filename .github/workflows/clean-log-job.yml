@@ -1,74 +1,134 @@
-name: Weekly Log Cleanup
+name: System Log Cleanup
 
 on:
-    schedule:
-        # รันทุกอาทิตย์ 01:00 Asia/Bangkok (UTC+7) = 18:00 UTC วันเสาร์
-        - cron: "0 18 * * 6"
-    workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * 0" # รันทุกวันอาทิตย์ เวลา 02:00 UTC (เวลาที่ระบบมี load น้อย)
+  workflow_dispatch: # สามารถรันด้วยตนเองได้
 
 jobs:
-    cleanup:
-        name: "🧹 Cleanup Logs on Production"
-        runs-on: ubuntu-latest
-        environment: production
+  clean-logs:
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
+    timeout-minutes: 30
 
-        steps:
-            - name: "🧪 Test SSH Connection"
-              run: |
-                  echo "👉 Testing SSH connection to production server..."
-                  sshpass -p "${{ secrets.HUAWEI_CLOUD_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HUAWEI_CLOUD_USERNAME }}@${{ secrets.HUAWEI_CLOUD_HOST }} "echo '✅ SSH Success'" || echo "❌ SSH Failed"
+    steps:
+      - name: Check disk space before cleanup
+        id: disk-before
+        run: |
+          echo "=== Disk usage before cleanup ==="
+          df -h /var/log
+          USAGE_BEFORE=$(df /var/log | awk 'NR==2 {print $5}' | sed 's/%//')
+          echo "usage_before=$USAGE_BEFORE" >> $GITHUB_OUTPUT
 
-            - name: "🗑️ Run Log Cleanup on Server"
-              uses: appleboy/ssh-action@v0.1.8
-              with:
-                  host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-                  username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-                  password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-                  port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-                  script: |
-                      echo "👉 Starting log cleanup..."
-                      TS="$(date +'%Y%m%d-%H%M%S')"
-                      LOGDIR="/var/log/maintenance"
-                      LOGFILE="$LOGDIR/cleanup-$TS.log"
+      - name: Clean rotated log files
+        run: |
+          echo "Removing compressed and rotated log files..."
 
-                      sudo mkdir -p "$LOGDIR"
+          # นับจำนวนไฟล์ก่อนลบ
+          GZ_COUNT=$(sudo find /var/log -type f -name "*.gz" 2>/dev/null | wc -l)
+          NUM_COUNT=$(sudo find /var/log -type f -name "*.[0-9]" -o -name "*.[0-9].gz" 2>/dev/null | wc -l)
 
-                      # เก็บสภาพก่อน cleanup
-                      {
-                        echo "=== BEFORE ==="
-                        sudo du -sh /var/log || true
-                        sudo journalctl --disk-usage || true
-                        df -h
-                      } | sudo tee "$LOGFILE"
+          echo "Found $GZ_COUNT compressed files and $NUM_COUNT rotated files"
 
-                      # ทำความสะอาด
-                      sudo truncate -s 0 /var/log/syslog.1 2>/dev/null || true
-                      sudo rm -f /var/log/*.gz || true
-                      sudo journalctl --vacuum-size=500M || true
+          # ลบไฟล์ที่ถูก rotate แล้ว (ปลอดภัย)
+          sudo find /var/log -type f -name "*.gz" -delete
+          sudo find /var/log -type f \( -name "*.[0-9]" -o -name "*.[0-9].gz" \) -delete
 
-                      # เก็บสภาพหลัง cleanup
-                      {
-                        echo "=== AFTER ==="
-                        sudo du -sh /var/log || true
-                        sudo journalctl --disk-usage || true
-                        df -h
-                      } | sudo tee -a "$LOGFILE"
+          echo "Rotated log files removed successfully"
 
-                      echo "✅ Cleanup completed. Log saved at $LOGFILE"
+      - name: Clean journal logs
+        run: |
+          echo "Cleaning systemd journal logs..."
 
-            - name: "📥 Download Cleanup Logs"
-              uses: appleboy/scp-action@v0.1.5
-              with:
-                  host: ${{ secrets.HUAWEI_CLOUD_HOST }}
-                  username: ${{ secrets.HUAWEI_CLOUD_USERNAME }}
-                  password: ${{ secrets.HUAWEI_CLOUD_PASSWORD }}
-                  port: ${{ secrets.HUAWEI_CLOUD_SSH_PORT }}
-                  source: "/var/log/maintenance/*.log"
-                  target: "artifacts/maintenance-logs"
+          # แสดงขนาด journal ปัจจุบัน
+          sudo journalctl --disk-usage
 
-            - name: "⬆️ Upload Logs as Artifact"
-              uses: actions/upload-artifact@v4
-              with:
-                  name: maintenance-logs
-                  path: artifacts/maintenance-logs
-                  retention-days: 120
+          # ลบ log เก่ากว่า 7 วัน และเก็บไว้ไม่เกิน 500MB
+          sudo journalctl --vacuum-time=7d
+          sudo journalctl --vacuum-size=500M
+
+          # แสดงขนาดหลังทำความสะอาด
+          echo "After cleanup:"
+          sudo journalctl --disk-usage
+
+      - name: Clean large application logs
+        run: |
+          echo "Removing large application log files..."
+
+          # หา log files ที่ใหญ่กว่า 100MB
+          LARGE_LOGS=$(sudo find /var/log -type f -name "*.log" -size +100M 2>/dev/null)
+
+          if [ -n "$LARGE_LOGS" ]; then
+            echo "Large log files found:"
+            echo "$LARGE_LOGS" | while read -r file; do
+              SIZE=$(du -h "$file" | cut -f1)
+              echo "  - $file ($SIZE)"
+            done
+            
+            # ลบ log files ที่ใหญ่กว่า 100MB
+            echo "$LARGE_LOGS" | xargs -r sudo rm -f
+            echo "Large log files removed"
+          else
+            echo "No large log files found (>100MB)"
+          fi
+
+      - name: Clean old log files
+        run: |
+          echo "Removing old log files (>30 days)..."
+
+          # ลบไฟล์ .log ที่เก่ากว่า 30 วัน
+          DELETED=$(sudo find /var/log -type f -name "*.log" -mtime +30 -print -delete 2>/dev/null | wc -l)
+          echo "Removed $DELETED old log files"
+
+      - name: Truncate active logs (optional)
+        run: |
+          echo "Truncating specific active log files if needed..."
+
+          # ตัวอย่าง: truncate log files ที่ระบุ (ถ้าจำเป็น)
+          # แทนที่จะลบ ให้ truncate เพื่อไม่ให้ service error
+
+          LOG_FILES=(
+            "/var/log/syslog"
+            "/var/log/auth.log"
+          )
+
+          for log in "${LOG_FILES[@]}"; do
+            if [ -f "$log" ] && [ $(stat -f%z "$log" 2>/dev/null || stat -c%s "$log" 2>/dev/null) -gt 104857600 ]; then
+              echo "Truncating $log (>100MB)..."
+              sudo truncate -s 10M "$log"
+            fi
+          done
+
+      - name: Check disk space after cleanup
+        id: disk-after
+        run: |
+          echo "=== Disk usage after cleanup ==="
+          df -h /var/log
+          USAGE_AFTER=$(df /var/log | awk 'NR==2 {print $5}' | sed 's/%//')
+          echo "usage_after=$USAGE_AFTER" >> $GITHUB_OUTPUT
+
+          SAVED=$((USAGE_BEFORE - USAGE_AFTER))
+          echo "Freed up approximately $SAVED% disk space"
+
+      - name: Verify system stability
+        run: |
+          echo "Verifying system services are running..."
+
+          # ตรวจสอบ services สำคัญ
+          SERVICES=("nginx" "ssh")
+
+          for service in "${SERVICES[@]}"; do
+            if sudo systemctl is-active --quiet "$service"; then
+              echo "✓ $service is running"
+            else
+              echo "✗ Warning: $service is not running!"
+            fi
+          done
+
+      - name: Create cleanup report
+        if: always()
+        run: |
+          echo "=== Cleanup Summary ==="
+          echo "Job completed at: $(date)"
+          echo "Disk usage before: ${{ steps.disk-before.outputs.usage_before }}%"
+          echo "Disk usage after: ${{ steps.disk-after.outputs.usage_after }}%"
+          echo "Status: ${{ job.status }}"

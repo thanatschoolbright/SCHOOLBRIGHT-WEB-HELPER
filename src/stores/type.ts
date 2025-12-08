@@ -17,9 +17,10 @@ export interface SubProjectForm {
   id?: number;
   project_id: number;
   name: string;
+  name_en?: string;
   backlogDescription: string | null;
   by: number;
-  dateRange?: any; 
+  dateRange?: any;
   asset_capture_type?: SubProjectAssetCaptureType;
 }
 
@@ -63,6 +64,7 @@ export interface SubProject {
   id: number;
   project_id: number;
   name: string;
+  name_en?: string | null;
   backlogDescription?: any;
   description?: string;
   created_at?: string;

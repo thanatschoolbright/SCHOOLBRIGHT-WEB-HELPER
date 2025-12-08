@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { toast } from "sonner";
 import {
   Button,
@@ -21,13 +21,13 @@ import {
   Statistic,
   Table,
   Tag,
-  Tooltip,
   Typography,
   Badge,
   Progress,
   Avatar,
   theme,
   Empty,
+  Popconfirm,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -42,21 +42,17 @@ import {
   PlusOutlined,
   ProjectOutlined,
   SyncOutlined,
-  SearchOutlined,
   MoreOutlined,
 } from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
 
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import { useAppSelector } from "@stores/store";
-import { Project, SubProject, SubProjectForm } from "@stores/type";
-
-// * ----------------------------------------------------------------------
-// * Constants & Helpers
-// * ----------------------------------------------------------------------
+import { Project, SubProject } from "@stores/type";
 
 const { RangePicker } = DatePicker;
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 const { useToken } = theme;
 
 const ASSET_OPTIONS = [
@@ -68,16 +64,12 @@ const ASSET_OPTIONS = [
   },
 ];
 
-/**
- * * Helper: Compute estimated hours (Mon-Fri, 8 hours/day)
- */
-const computeEstimateHours = (
-  startDate: any,
-  endDate: any
-): { hours: number; text: string } => {
-  if (!startDate || !endDate) {
+const calculateWorkingHours = (
+  startDate?: string | Date,
+  endDate?: string | Date
+) => {
+  if (!startDate || !endDate)
     return { hours: 0, text: "ระบบคำนวณให้อัตโนมัติ" };
-  }
 
   const start = dayjs(startDate).startOf("day");
   const end = dayjs(endDate).startOf("day");
@@ -88,11 +80,10 @@ const computeEstimateHours = (
 
   let current = start.clone();
   let workingDays = 0;
+
   while (current.isBefore(end) || current.isSame(end, "day")) {
-    const day = current.day(); // 0 = Sunday, 6 = Saturday
-    if (day !== 0 && day !== 6) {
-      workingDays += 1;
-    }
+    const day = current.day();
+    if (day !== 0 && day !== 6) workingDays += 1;
     current = current.add(1, "day");
   }
 
@@ -100,61 +91,66 @@ const computeEstimateHours = (
   return { hours, text: `${hours} ชั่วโมง` };
 };
 
-/**
- * * Helper: Determine project status based on dates
- */
-const getProjectStatus = (
-  startDate: any,
-  endDate: any
-): {
-  statusText: string;
-  badgeStatus: "processing" | "default" | "success" | "error";
-} => {
+const determineProjectStatus = (
+  startDate?: string | Date,
+  endDate?: string | Date
+) => {
   const today = dayjs().startOf("day");
   const s = startDate ? dayjs(startDate).startOf("day") : null;
   const e = endDate ? dayjs(endDate).startOf("day") : null;
 
   if (s && e && s.isValid() && e.isValid()) {
-    if (!s.isAfter(e) && !today.isBefore(s) && !today.isAfter(e)) {
-      return { statusText: "กำลังดำเนินการ", badgeStatus: "processing" };
-    } else if (today.isAfter(e)) {
-      return { statusText: "สิ้นสุดแล้ว", badgeStatus: "success" }; // Changed to success for completed
-    } else {
-      return { statusText: "ยังไม่เริ่ม", badgeStatus: "default" };
-    }
+    if (today.isAfter(e))
+      return { label: "สิ้นสุดแล้ว", status: "success", color: "green" };
+    if (!s.isAfter(e) && !today.isBefore(s))
+      return { label: "กำลังดำเนินการ", status: "processing", color: "blue" };
+    return { label: "ยังไม่เริ่ม", status: "default", color: "default" };
   }
-  return { statusText: "ยังไม่ได้กำหนดวันที่", badgeStatus: "default" };
+  return { label: "ยังไม่ระบุ", status: "default", color: "default" };
 };
 
-// * ----------------------------------------------------------------------
-// * Sub-Components (Enterprise Level Extraction)
-// * ----------------------------------------------------------------------
+const calculateProgress = (
+  startDate?: string | Date,
+  endDate?: string | Date
+) => {
+  if (!startDate || !endDate) return 0;
 
-/**
- * * Component: StatCard
- * * Displays a single statistic with an icon and hover effect.
- */
-const StatCard = ({
-  title,
-  value,
-  icon,
-  color,
-  suffix,
-  loading,
-}: {
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+  const today = dayjs();
+
+  if (today.isAfter(end)) return 100;
+  if (today.isBefore(start)) return 0;
+
+  const totalDuration = end.diff(start, "day");
+  const elapsed = today.diff(start, "day");
+
+  return totalDuration > 0 ? Math.round((elapsed / totalDuration) * 100) : 0;
+};
+
+interface StatCardProps {
   title: string;
   value: number | string;
   icon: React.ReactNode;
   color: string;
   suffix?: string;
   loading?: boolean;
+}
+
+const StatCard: React.FC<StatCardProps> = ({
+  title,
+  value,
+  icon,
+  color,
+  suffix,
+  loading,
 }) => {
-  const { token } = useToken();
+  const { token } = theme.useToken();
   return (
     <Card
       bordered={false}
-      className="shadow-sm hover:shadow-md transition-all duration-300"
-      style={{ borderRadius: token.borderRadiusLG, height: "100%" }}
+      className="shadow-sm hover:shadow-md transition-all duration-300 h-full"
+      style={{ borderRadius: token.borderRadiusLG }}
     >
       <Skeleton loading={loading} active paragraph={{ rows: 1 }}>
         <Statistic
@@ -164,9 +160,7 @@ const StatCard = ({
             <span style={{ color, marginRight: 8, fontSize: 20 }}>{icon}</span>
           }
           suffix={
-            suffix && (
-              <span style={{ fontSize: 14, color: "#999" }}>{suffix}</span>
-            )
+            suffix && <span className="text-sm text-gray-400">{suffix}</span>
           }
           valueStyle={{ fontWeight: 700, color: token.colorTextHeading }}
         />
@@ -175,142 +169,119 @@ const StatCard = ({
   );
 };
 
-// * ----------------------------------------------------------------------
-// * Main Page Component
-// * ----------------------------------------------------------------------
-
 export default function SubProjectPage() {
-  // * Hooks
   const { token } = useToken();
   const router = useRouter();
-  const { project_id } = useParams() as { project_id: string };
-  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
-  const [antdForm] = Form.useForm();
-  const watchedDateRange = Form.useWatch("dateRange", antdForm);
+  const params = useParams();
+  const projectId = Number(params?.project_id);
 
-  // * State
+  const userAuth = useAppSelector((state) => state.callAdminLogin);
+  const adminId = userAuth?.response?.data?.user_data?.admin_id;
+
+  const [form] = Form.useForm();
+  const watchedDateRange = Form.useWatch("dateRange", form);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const [projectData, setProjectData] = useState<Project | null>(null);
   const [subProjects, setSubProjects] = useState<SubProject[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [actionLoading, setActionLoading] = useState<boolean>(false);
 
-  // * Pagination State
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const pageSize = 10;
-
-  // * Modal State
-  const [modalType, setModalType] = useState<
-    "create" | "edit" | "delete" | "detail" | null
-  >(null);
-  const [selectedProject, setSelectedProject] = useState<SubProject | null>(
-    null
-  );
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-
-  // * Form State
-  const [formData, setFormData] = useState<
-    SubProjectForm & { backlogDescription?: any }
-  >({
-    name: "",
-    by: AUTHENTICATION.response.data.user_data.admin_id,
-    project_id: Number(project_id),
-    backlogDescription: null,
-    dateRange: ["", ""],
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
   });
+  const [modalState, setModalState] = useState<{
+    type: "create" | "edit" | "detail" | null;
+    data: SubProject | null;
+  }>({ type: null, data: null });
 
-  // * ----------------------------------------------------------------------
-  // * Data Fetching
-  // * ----------------------------------------------------------------------
-
-  const fetchSubProjects = async () => {
-    setLoading(true);
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const res = await fetch("/api/v1/timesheet/project/sub-project/read/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          limit: pageSize,
-          page: currentPage,
-          project_id: Number(project_id),
+      const [projectRes, subProjectRes] = await Promise.all([
+        fetch("/api/v1/timesheet/project/read/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ limit: 1, page: 1, id: projectId }),
         }),
-      });
-      if (!res.ok) throw new Error("Failed to fetch sub-projects");
-      const data = await res.json();
-      setSubProjects(data?.data || []);
-      setTotalPages(data.pagination?.total_pages || 1);
+        fetch("/api/v1/timesheet/project/sub-project/read/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            limit: pagination.pageSize,
+            page: pagination.current,
+            project_id: projectId,
+          }),
+        }),
+      ]);
+
+      const projectJson = await projectRes.json();
+      const subProjectJson = await subProjectRes.json();
+
+      if (projectJson?.data?.items?.length)
+        setProjectData(projectJson.data.items[0]);
+
+      setSubProjects(subProjectJson?.data || []);
+      setPagination((prev) => ({
+        ...prev,
+        total: (subProjectJson.pagination?.total_pages || 1) * prev.pageSize,
+      }));
     } catch (error) {
-      console.error(error);
-      toast.error("โหลดข้อมูลล้มเหลว");
+      toast.error("ไม่สามารถโหลดข้อมูลได้");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  };
-
-  const fetchProjectDetails = async () => {
-    try {
-      const res = await fetch("/api/v1/timesheet/project/read/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ limit: 1, page: 1, id: Number(project_id) }),
-      });
-      if (!res.ok) throw new Error("Failed to fetch project details");
-      const data = await res.json();
-      setProjects(data.data.items || []);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  }, [projectId, pagination.current, pagination.pageSize]);
 
   useEffect(() => {
-    fetchSubProjects();
-  }, [currentPage]);
+    fetchData();
+  }, [fetchData]);
 
   useEffect(() => {
-    fetchProjectDetails();
-  }, []);
-
-  // * ----------------------------------------------------------------------
-  // * Computed Values (Statistics)
-  // * ----------------------------------------------------------------------
+    if (watchedDateRange) {
+      const { text } = calculateWorkingHours(
+        watchedDateRange[0],
+        watchedDateRange[1]
+      );
+      form.setFieldValue("estimate_time", text);
+    }
+  }, [watchedDateRange, form]);
 
   const stats = useMemo(() => {
-    const total = subProjects.length;
-    const processing = subProjects.filter((p) => {
-      const { badgeStatus } = getProjectStatus(p.startDate, p.endDate);
-      return badgeStatus === "processing";
-    }).length;
-    const completed = subProjects.filter((p) => {
-      const { statusText } = getProjectStatus(p.startDate, p.endDate);
-      return statusText === "สิ้นสุดแล้ว";
-    }).length;
+    return subProjects.reduce(
+      (acc, curr) => {
+        const { status } = determineProjectStatus(
+          curr.startDate || "",
+          curr.endDate || ""
+        );
+        const { hours } = calculateWorkingHours(
+          curr.startDate || "",
+          curr.endDate || ""
+        );
 
-    const totalHours = subProjects.reduce((acc, curr) => {
-      const { hours } = computeEstimateHours(curr.startDate, curr.endDate);
-      return acc + hours;
-    }, 0);
+        acc.total++;
+        acc.totalHours += hours;
+        if (status === "processing") acc.processing++;
+        if (status === "success") acc.completed++;
 
-    return { total, processing, completed, totalHours };
+        return acc;
+      },
+      { total: 0, processing: 0, completed: 0, totalHours: 0 }
+    );
   }, [subProjects]);
 
-  // * ----------------------------------------------------------------------
-  // * Event Handlers
-  // * ----------------------------------------------------------------------
-
-  const handleCreateOrUpdate = async () => {
+  const handleSubmit = async (values: any) => {
+    setIsActionLoading(true);
     try {
-      await antdForm.validateFields();
-      setActionLoading(true);
-
-      // Prepare payload
-      const formValues = antdForm.getFieldsValue();
       const payload = {
-        ...formData,
-        ...formValues,
-        project_id: formData.project_id ?? Number(project_id),
+        ...values,
+        id: modalState.data?.id,
+        project_id: projectId,
+        by: adminId,
       };
 
-      const res = await fetch(`/api/v1/timesheet/project/sub-project/insert`, {
+      const res = await fetch("/api/v1/timesheet/project/sub-project/insert", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -318,271 +289,241 @@ export default function SubProjectPage() {
 
       if (!res.ok) throw new Error("Operation failed");
 
-      toast.success(formData.id ? "อัปเดตข้อมูลสำเร็จ" : "สร้างข้อมูลสำเร็จ");
-      setModalType(null);
-      antdForm.resetFields();
-      fetchSubProjects();
+      toast.success(
+        modalState.data ? "อัปเดตข้อมูลสำเร็จ" : "สร้างข้อมูลสำเร็จ"
+      );
+      handleCloseModal();
+      fetchData();
     } catch (error) {
-      console.error(error);
-      toast.error("เกิดข้อผิดพลาด โปรดลองอีกครั้ง");
+      toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     } finally {
-      setActionLoading(false);
+      setIsActionLoading(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
+  const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/v1/timesheet/project/sub-project/delete/`, {
+      const res = await fetch("/api/v1/timesheet/project/sub-project/delete/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: deleteId,
-          by: AUTHENTICATION.response.data.user_data.admin_id,
-        }),
+        body: JSON.stringify({ id, by: adminId }),
       });
 
       if (!res.ok) throw new Error("Delete failed");
 
       toast.success("ลบข้อมูลสำเร็จ");
-      setModalType(null);
-      setDeleteId(null);
-      fetchSubProjects();
+      fetchData();
     } catch (error) {
-      console.error(error);
       toast.error("ลบข้อมูลล้มเหลว");
     }
   };
 
-  // * Watch Date Range for Estimate Calculation
-  useEffect(() => {
-    const start = watchedDateRange?.[0];
-    const end = watchedDateRange?.[1];
-    if (start && end) {
-      const { text } = computeEstimateHours(start, end);
-      antdForm.setFieldValue("estimate_time", text);
-    }
-  }, [watchedDateRange, antdForm]);
+  const handleOpenCreate = () => {
+    form.resetFields();
+    form.setFieldsValue({ asset_capture_type: "CAPTUREABLE" });
+    setModalState({ type: "create", data: null });
+  };
 
-  // * ----------------------------------------------------------------------
-  // * Table Configuration
-  // * ----------------------------------------------------------------------
+  const handleOpenEdit = (record: SubProject) => {
+    const range =
+      record.startDate && record.endDate
+        ? [dayjs(record.startDate), dayjs(record.endDate)]
+        : [];
 
-  const columns = [
-    {
-      title: "#",
-      key: "index",
-      width: 60,
-      align: "center" as const,
-      render: (_: any, __: any, idx: number) => (
-        <Text type="secondary">{(currentPage - 1) * pageSize + idx + 1}</Text>
-      ),
-    },
-    {
-      title: "ฟีเจอร์ / Feature",
-      dataIndex: "name",
-      key: "name",
-      width: 300,
-      render: (text: string, record: SubProject) => (
-        <Space align="start">
-          <Avatar
-            shape="square"
-            icon={<FileTextOutlined />}
-            style={{
-              backgroundColor: token.colorPrimaryBg,
-              color: token.colorPrimary,
-            }}
-          />
-          <Space direction="vertical" size={0}>
-            <Text strong>{text}</Text>
-            {record.backlogDescription?.note && (
-              <Text
-                type="secondary"
-                style={{ fontSize: 12 }}
-                ellipsis={{ tooltip: true }}
-              >
-                {record.backlogDescription.note}
-              </Text>
-            )}
-          </Space>
-        </Space>
-      ),
-    },
-    {
-      title: "ประเภท / Type",
-      dataIndex: "assetCaptureType",
-      key: "assetCaptureType",
-      width: 180,
-      align: "center" as const,
-      render: (text: string) => {
-        const option = ASSET_OPTIONS.find((o) => o.value === text);
-        return (
-          <Tag color={option?.color || "default"} style={{ borderRadius: 12 }}>
-            {option?.label || text}
-          </Tag>
-        );
+    form.setFieldsValue({
+      ...record,
+      dateRange: range,
+      estimate_time: calculateWorkingHours(
+        record.startDate || "",
+        record.endDate || ""
+      ).text,
+    });
+    setModalState({ type: "edit", data: record });
+  };
+
+  const handleCloseModal = () => {
+    setModalState({ type: null, data: null });
+    form.resetFields();
+  };
+
+  const columns: ColumnsType<SubProject> = useMemo(
+    () => [
+      {
+        title: "#",
+        key: "index",
+        width: 60,
+        align: "center",
+        render: (_, __, idx) =>
+          (pagination.current - 1) * pagination.pageSize + idx + 1,
       },
-    },
-    {
-      title: "สถานะ / Status",
-      key: "status",
-      width: 250,
-      render: (_: any, record: SubProject) => {
-        const { statusText, badgeStatus } = getProjectStatus(
-          record.startDate,
-          record.endDate
-        );
-
-        // Calculate Progress
-        let percent = 0;
-        if (record.startDate && record.endDate) {
-          const total = dayjs(record.endDate).diff(
-            dayjs(record.startDate),
-            "day"
-          );
-          const elapsed = dayjs().diff(dayjs(record.startDate), "day");
-          if (total > 0)
-            percent = Math.max(
-              0,
-              Math.min(100, Math.round((elapsed / total) * 100))
-            );
-          else if (dayjs().isAfter(dayjs(record.endDate))) percent = 100;
-        }
-
-        return (
-          <Space direction="vertical" size={2} style={{ width: "100%" }}>
-            <div className="flex justify-between items-center">
-              <Badge status={badgeStatus as any} text={statusText} />
-              <Text type="secondary" style={{ fontSize: 11 }}>
-                {record.startDate
-                  ? dayjs(record.startDate).format("DD MMM")
-                  : "-"}{" "}
-                -{" "}
-                {record.endDate ? dayjs(record.endDate).format("DD MMM") : "-"}
-              </Text>
-            </div>
-            <Progress
-              percent={percent}
-              size="small"
-              showInfo={false}
-              strokeColor={
-                badgeStatus === "processing" ? token.colorPrimary : undefined
-              }
+      {
+        title: "ฟีเจอร์",
+        dataIndex: "name",
+        key: "name",
+        width: 300,
+        render: (name, record) => (
+          <Space align="start">
+            <Avatar
+              shape="square"
+              icon={<FileTextOutlined />}
+              className="bg-blue-50 text-blue-500"
             />
+            <div className="flex flex-col">
+              <Text strong>{name}</Text>
+              {record.name_en && (
+                <Text type="secondary" className="text-xs">
+                  {record.name_en}
+                </Text>
+              )}
+              {record.backlogDescription?.note && (
+                <Text
+                  type="secondary"
+                  className="text-xs italic truncate max-w-[200px]"
+                >
+                  {record.backlogDescription.note}
+                </Text>
+              )}
+            </div>
           </Space>
-        );
+        ),
       },
-    },
-    {
-      title: "เวลา / Est.",
-      key: "estimate",
-      width: 120,
-      align: "center" as const,
-      render: (_: any, record: SubProject) => {
-        const { text } = computeEstimateHours(record.startDate, record.endDate);
-        return (
-          <Tag icon={<ClockCircleOutlined />} bordered={false}>
-            {text}
-          </Tag>
-        );
+      {
+        title: "ประเภท",
+        dataIndex: "assetCaptureType",
+        key: "type",
+        width: 150,
+        align: "center",
+        render: (type) => {
+          const option = ASSET_OPTIONS.find((o) => o.value === type);
+          return <Tag color={option?.color}>{option?.label || type}</Tag>;
+        },
       },
-    },
-    {
-      title: "จัดการ",
-      key: "action",
-      width: 120,
-      align: "center" as const,
-      render: (_: any, record: SubProject) => (
-        <Dropdown
-          menu={{
-            items: [
-              {
-                key: "view",
-                label: "ดูรายละเอียด",
-                icon: <InfoCircleOutlined />,
-                onClick: () => {
-                  setSelectedProject(record);
-                  setModalType("detail");
-                },
-              },
-              {
-                key: "edit",
-                label: "แก้ไข",
-                icon: <EditOutlined />,
-                onClick: () => {
-                  setFormData({
-                    id: record.id,
-                    name: record.name,
-                    project_id: record.project_id ?? Number(project_id),
-                    by: AUTHENTICATION.response.data.user_data.admin_id,
-                    backlogDescription: record.backlogDescription,
-                    dateRange:
-                      record.startDate && record.endDate
-                        ? [dayjs(record.startDate), dayjs(record.endDate)]
-                        : [],
-                  });
-                  antdForm.setFieldsValue({
-                    name: record.name,
-                    asset_capture_type: (record as any).assetCaptureType,
-                    dateRange:
-                      record.startDate && record.endDate
-                        ? [dayjs(record.startDate), dayjs(record.endDate)]
-                        : [],
-                    backlogDescription: record.backlogDescription,
-                  });
-                  setModalType("edit");
-                },
-              },
-              {
-                type: "divider",
-              },
-              {
-                key: "delete",
-                label: "ลบข้อมูล",
-                icon: <DeleteOutlined />,
-                danger: true,
-                onClick: () => {
-                  setDeleteId(record.id);
-                  setModalType("delete");
-                },
-              },
-            ],
-          }}
-          trigger={["click"]}
-        >
-          <Button type="text" shape="circle" icon={<MoreOutlined />} />
-        </Dropdown>
-      ),
-    },
-  ];
+      {
+        title: "สถานะ",
+        key: "status",
+        width: 200,
+        render: (_, record) => {
+          const { label, status } = determineProjectStatus(
+            record.startDate || "",
+            record.endDate || ""
+          );
+          const percent = calculateProgress(
+            record.startDate || "",
+            record.endDate || ""
+          );
 
-  // * ----------------------------------------------------------------------
-  // * Render
-  // * ----------------------------------------------------------------------
+          return (
+            <div className="w-full">
+              <div className="flex justify-between items-center mb-1">
+                <Badge status={status as any} text={label} />
+                <Text type="secondary" className="text-xs">
+                  {record.endDate
+                    ? dayjs(record.endDate).format("DD MMM")
+                    : "-"}
+                </Text>
+              </div>
+              <Progress
+                percent={percent}
+                size="small"
+                showInfo={false}
+                strokeColor={
+                  status === "processing" ? token.colorPrimary : undefined
+                }
+              />
+            </div>
+          );
+        },
+      },
+      {
+        title: "เวลา (Est.)",
+        key: "estimate",
+        width: 120,
+        align: "center",
+        render: (_, record) => (
+          <Tag icon={<ClockCircleOutlined />} bordered={false}>
+            {
+              calculateWorkingHours(
+                record.startDate || "",
+                record.endDate || ""
+              ).text
+            }
+          </Tag>
+        ),
+      },
+      {
+        title: "จัดการ",
+        key: "action",
+        width: 100,
+        align: "center",
+        render: (_, record) => (
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: "view",
+                  label: "ดูรายละเอียด",
+                  icon: <InfoCircleOutlined />,
+                  onClick: () =>
+                    setModalState({ type: "detail", data: record }),
+                },
+                {
+                  key: "edit",
+                  label: "แก้ไข",
+                  icon: <EditOutlined />,
+                  onClick: () => handleOpenEdit(record),
+                },
+                { type: "divider" },
+                {
+                  key: "delete",
+                  label: (
+                    <Popconfirm
+                      title="ลบข้อมูล"
+                      description="ยืนยันการลบฟีเจอร์นี้หรือไม่?"
+                      onConfirm={() => handleDelete(record.id)}
+                      okText="ลบ"
+                      cancelText="ยกเลิก"
+                      okButtonProps={{ danger: true }}
+                    >
+                      <span className="w-full inline-block">ลบข้อมูล</span>
+                    </Popconfirm>
+                  ),
+                  icon: <DeleteOutlined className="text-red-500" />,
+                  danger: true,
+                },
+              ],
+            }}
+            trigger={["click"]}
+          >
+            <Button type="text" shape="circle" icon={<MoreOutlined />} />
+          </Dropdown>
+        ),
+      },
+    ],
+    [pagination.current, pagination.pageSize, token.colorPrimary]
+  );
 
   return (
     <DashboardLayout>
       <div className="w-full space-y-6 animate-fade-in">
-        {/* Header Section */}
+        {/* Header & Navigation */}
         <div className="flex flex-col gap-4">
           <Button
             type="text"
             icon={<ArrowLeftOutlined />}
             onClick={() => router.back()}
-            className="w-fit hover:bg-gray-100"
+            className="w-fit"
           >
             กลับไปหน้าโครงการ
           </Button>
-
           <HeaderBar
-            title={projects[0]?.name || "Project Details"}
+            title={projectData?.name || "Project Details"}
             subTitle="จัดการฟีเจอร์และติดตามสถานะโครงการย่อย"
             icon={<ProjectOutlined />}
             color="none"
           />
         </div>
 
-        {/* Statistics Section */}
+        {/* Statistics Dashboard */}
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={6}>
             <StatCard
@@ -590,7 +531,7 @@ export default function SubProjectPage() {
               value={stats.total}
               icon={<FileTextOutlined />}
               color={token.colorPrimary}
-              loading={loading}
+              loading={isLoading}
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
@@ -599,7 +540,7 @@ export default function SubProjectPage() {
               value={stats.processing}
               icon={<SyncOutlined spin />}
               color="#faad14"
-              loading={loading}
+              loading={isLoading}
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
@@ -608,51 +549,36 @@ export default function SubProjectPage() {
               value={stats.completed}
               icon={<CheckCircleOutlined />}
               color="#52c41a"
-              loading={loading}
+              loading={isLoading}
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
             <StatCard
-              title="ชั่วโมงรวม (ประมาณการ)"
+              title="ชั่วโมงรวม (Est.)"
               value={stats.totalHours}
               icon={<ClockCircleOutlined />}
               color="#722ed1"
               suffix="ชม."
-              loading={loading}
+              loading={isLoading}
             />
           </Col>
         </Row>
 
-        {/* Action Toolbar */}
-        <div className="flex justify-between items-center p-4 rounded-lg shadow-sm ">
-          <Space>
-            <Text strong style={{ fontSize: 16 }}>
-              รายการฟีเจอร์ ({stats.total})
-            </Text>
-          </Space>
+        {/* Data Table Section */}
+        <div className="flex justify-between items-center p-4 bg-white rounded-lg shadow-sm border border-gray-100">
+          <Text strong className="text-lg">
+            รายการฟีเจอร์ ({stats.total})
+          </Text>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             size="large"
-            onClick={() => {
-              setFormData({
-                name: "",
-                project_id: Number(project_id),
-                by: AUTHENTICATION.response.data.user_data.admin_id,
-                backlogDescription: null,
-                dateRange: [],
-              });
-              antdForm.resetFields();
-              antdForm.setFieldValue("asset_capture_type", "CAPTUREABLE");
-              setModalType("create");
-            }}
-            className="shadow-md hover:shadow-lg transition-all"
+            onClick={handleOpenCreate}
           >
             เพิ่มฟีเจอร์ใหม่
           </Button>
         </div>
 
-        {/* Data Table */}
         <Card
           bordered={false}
           className="shadow-sm overflow-hidden"
@@ -662,27 +588,34 @@ export default function SubProjectPage() {
             columns={columns}
             dataSource={subProjects}
             rowKey="id"
-            loading={loading}
+            loading={isLoading}
             pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total: totalPages * pageSize,
-              onChange: setCurrentPage,
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              onChange: (page) =>
+                setPagination((prev) => ({ ...prev, current: page })),
               showSizeChanger: false,
             }}
             locale={{ emptyText: <Empty description="ไม่พบข้อมูลฟีเจอร์" /> }}
           />
         </Card>
 
-        {/* Modals */}
+        {/* Create/Edit Modal */}
         <Modal
-          open={modalType === "create" || modalType === "edit"}
-          onCancel={() => setModalType(null)}
+          open={modalState.type === "create" || modalState.type === "edit"}
+          onCancel={handleCloseModal}
           title={
             <Space>
-              {modalType === "create" ? <PlusOutlined /> : <EditOutlined />}
+              {modalState.type === "create" ? (
+                <PlusOutlined />
+              ) : (
+                <EditOutlined />
+              )}
               <Text strong>
-                {modalType === "create" ? "เพิ่มฟีเจอร์ใหม่" : "แก้ไขฟีเจอร์"}
+                {modalState.type === "create"
+                  ? "เพิ่มฟีเจอร์ใหม่"
+                  : "แก้ไขฟีเจอร์"}
               </Text>
             </Space>
           }
@@ -692,30 +625,33 @@ export default function SubProjectPage() {
           centered
         >
           <Form
-            form={antdForm}
+            form={form}
             layout="vertical"
-            onFinish={handleCreateOrUpdate}
-            initialValues={{ asset_capture_type: "CAPTUREABLE" }}
+            onFinish={handleSubmit}
             className="pt-4"
           >
+            <Form.Item
+              name="name"
+              label="ชื่อฟีเจอร์ (TH)"
+              rules={[{ required: true, message: "กรุณาระบุชื่อฟีเจอร์" }]}
+            >
+              <Input
+                placeholder="ระบุชื่อฟีเจอร์ภาษาไทย"
+                size="large"
+                prefix={<FileTextOutlined />}
+              />
+            </Form.Item>
+
             <Row gutter={16}>
               <Col span={16}>
-                <Form.Item
-                  label="ชื่อฟีเจอร์"
-                  name="name"
-                  rules={[{ required: true, message: "กรุณาระบุชื่อฟีเจอร์" }]}
-                >
-                  <Input
-                    placeholder="ระบุชื่อฟีเจอร์"
-                    size="large"
-                    prefix={<FileTextOutlined />}
-                  />
+                <Form.Item name="name_en" label="ชื่อฟีเจอร์ (EN)">
+                  <Input placeholder="Feature Name (English)" size="large" />
                 </Form.Item>
               </Col>
               <Col span={8}>
                 <Form.Item
-                  label="ประเภท Assets"
                   name="asset_capture_type"
+                  label="ประเภท Assets"
                   rules={[{ required: true }]}
                 >
                   <Select options={ASSET_OPTIONS} size="large" />
@@ -726,42 +662,41 @@ export default function SubProjectPage() {
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
-                  label="ช่วงเวลาดำเนินงาน"
                   name="dateRange"
+                  label="ช่วงเวลาดำเนินงาน"
                   rules={[{ required: true, message: "กรุณาระบุช่วงเวลา" }]}
                 >
                   <RangePicker
-                    style={{ width: "100%" }}
+                    className="w-full"
                     size="large"
                     format="DD/MM/YYYY"
                   />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="เวลาที่ใช้ (ประมาณการ)" name="estimate_time">
+                <Form.Item name="estimate_time" label="เวลาที่ใช้ (ประมาณการ)">
                   <Input
                     readOnly
                     prefix={<ClockCircleOutlined />}
                     size="large"
-                    className="bg-gray-50"
+                    className="bg-gray-50 text-gray-500"
                   />
                 </Form.Item>
               </Col>
             </Row>
 
-            <Divider orientation="left">รายละเอียดเพิ่มเติม</Divider>
+            <Divider orientation="left" plain>
+              รายละเอียดเพิ่มเติม
+            </Divider>
 
-            <Form.Item
-              label="หมายเหตุ / Note"
-              name={["backlogDescription", "note"]}
-            >
+            <Form.Item name={["backlogDescription", "note"]} label="หมายเหตุ">
               <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม..." />
             </Form.Item>
 
             <Form.List name={["backlogDescription", "backlogs"]}>
               {(fields, { add, remove }) => (
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                  <div className="flex justify-between mb-2">
+                <div className="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300">
+                  <div className="flex justify-between mb-3">
                     <Text strong>
                       <LinkOutlined /> เอกสารแนบ
                     </Text>
@@ -790,7 +725,7 @@ export default function SubProjectPage() {
                         <Form.Item
                           {...field}
                           name={[field.name, "link"]}
-                          rules={[{ required: true, message: "ระบุลิ้งค์" }]}
+                          rules={[{ required: true, message: "ระบุ URL" }]}
                           noStyle
                         >
                           <Input placeholder="URL" prefix={<LinkOutlined />} />
@@ -806,7 +741,7 @@ export default function SubProjectPage() {
                       </Col>
                     </Row>
                   ))}
-                  {fields.length === 0 && (
+                  {!fields.length && (
                     <div className="text-center text-gray-400 py-2">
                       ไม่มีเอกสารแนบ
                     </div>
@@ -816,11 +751,11 @@ export default function SubProjectPage() {
             </Form.List>
 
             <div className="flex justify-end gap-2 mt-6">
-              <Button onClick={() => setModalType(null)}>ยกเลิก</Button>
+              <Button onClick={handleCloseModal}>ยกเลิก</Button>
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={actionLoading}
+                loading={isActionLoading}
                 icon={<CheckCircleOutlined />}
               >
                 บันทึกข้อมูล
@@ -829,66 +764,34 @@ export default function SubProjectPage() {
           </Form>
         </Modal>
 
-        {/* Delete Confirmation Modal */}
-        <Modal
-          open={modalType === "delete"}
-          onCancel={() => setModalType(null)}
-          title={
-            <Space>
-              <DeleteOutlined className="text-red-500" /> ยืนยันการลบ
-            </Space>
-          }
-          onOk={handleDelete}
-          okText="ลบข้อมูล"
-          okType="danger"
-          cancelText="ยกเลิก"
-          centered
-        >
-          <div className="text-center py-4">
-            <Title level={5}>คุณแน่ใจหรือไม่ที่จะลบฟีเจอร์นี้?</Title>
-            <Text type="secondary">
-              การกระทำนี้ไม่สามารถย้อนกลับได้ ข้อมูลที่เกี่ยวข้องทั้งหมดจะถูกลบ
-            </Text>
-          </div>
-        </Modal>
-
         {/* Detail Modal */}
         <Modal
-          open={modalType === "detail" && !!selectedProject}
-          onCancel={() => setModalType(null)}
+          open={modalState.type === "detail" && !!modalState.data}
+          onCancel={handleCloseModal}
           title={
             <Space>
               <InfoCircleOutlined className="text-blue-500" /> รายละเอียดฟีเจอร์
             </Space>
           }
-          footer={<Button onClick={() => setModalType(null)}>ปิด</Button>}
+          footer={<Button onClick={handleCloseModal}>ปิด</Button>}
           width={600}
           centered
         >
-          {selectedProject && (
+          {modalState.data && (
             <div className="space-y-6 pt-4">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex justify-between items-start">
                 <div>
-                  <Title level={4} style={{ margin: 0 }}>
-                    {selectedProject.name}
+                  <Title level={4} className="m-0">
+                    {modalState.data.name}
                   </Title>
-                  <Text type="secondary">ID: {selectedProject.id}</Text>
+                  <Text type="secondary">ID: {modalState.data.id}</Text>
                 </div>
-                <Tag
-                  color={
-                    ASSET_OPTIONS.find(
-                      (o) =>
-                        o.value === (selectedProject as any).assetCaptureType
-                    )?.color
-                  }
-                >
-                  {
-                    ASSET_OPTIONS.find(
-                      (o) =>
-                        o.value === (selectedProject as any).assetCaptureType
-                    )?.label
-                  }
-                </Tag>
+                {(() => {
+                  const option = ASSET_OPTIONS.find(
+                    (o) => o.value === (modalState.data as any).assetCaptureType
+                  );
+                  return <Tag color={option?.color}>{option?.label}</Tag>;
+                })()}
               </div>
 
               <Row gutter={16}>
@@ -897,8 +800,8 @@ export default function SubProjectPage() {
                     <Text type="secondary">วันเริ่มต้น</Text>
                     <div className="font-semibold text-blue-600 flex items-center gap-2">
                       <CalendarOutlined />
-                      {selectedProject.startDate
-                        ? dayjs(selectedProject.startDate).format("DD/MM/YYYY")
+                      {modalState.data.startDate
+                        ? dayjs(modalState.data.startDate).format("DD/MM/YYYY")
                         : "-"}
                     </div>
                   </Card>
@@ -908,8 +811,8 @@ export default function SubProjectPage() {
                     <Text type="secondary">วันสิ้นสุด</Text>
                     <div className="font-semibold text-red-600 flex items-center gap-2">
                       <CalendarOutlined />
-                      {selectedProject.endDate
-                        ? dayjs(selectedProject.endDate).format("DD/MM/YYYY")
+                      {modalState.data.endDate
+                        ? dayjs(modalState.data.endDate).format("DD/MM/YYYY")
                         : "-"}
                     </div>
                   </Card>
@@ -919,7 +822,7 @@ export default function SubProjectPage() {
               <div>
                 <Text strong>หมายเหตุ</Text>
                 <div className="bg-white border border-gray-200 p-3 rounded mt-1 min-h-[60px]">
-                  {selectedProject.backlogDescription?.note || (
+                  {modalState.data.backlogDescription?.note || (
                     <Text type="secondary">-</Text>
                   )}
                 </div>
@@ -928,8 +831,8 @@ export default function SubProjectPage() {
               <div>
                 <Text strong>เอกสารแนบ</Text>
                 <div className="mt-2 space-y-2">
-                  {selectedProject.backlogDescription?.backlogs?.length ? (
-                    selectedProject.backlogDescription.backlogs.map(
+                  {modalState.data.backlogDescription?.backlogs?.length ? (
+                    modalState.data.backlogDescription.backlogs.map(
                       (item: any, idx: number) => (
                         <a
                           key={idx}
