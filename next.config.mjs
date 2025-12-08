@@ -3,6 +3,9 @@
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig = {
+  // ✅ ใช้ SWC Minifier ของ Next.js เอง (เร็วกว่าและกินแรมน้อยกว่า Terser)
+  swcMinify: true,
+
   // * Enable strict mode for better development experience
   reactStrictMode: false,
 
@@ -10,7 +13,9 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "50mb" },
     proxyClientMaxBodySize: "200mb",
-    // ✅ Memory Optimization for Build Process
+
+    // ✅ ส่วนนี้สำคัญมาก! สำหรับเครื่อง RAM น้อย
+    // บังคับให้ทำงานแค่ Thread เดียว ไม่ให้แตก Process ลูกจนเครื่องน็อค
     workerThreads: false,
     cpus: 1,
   },
@@ -25,44 +30,27 @@ const nextConfig = {
     ],
   },
 
-  // * Remove console logs in production, keep errors and warnings
+  // * Remove console logs in production
   compiler: {
     removeConsole: isProd ? { exclude: ["error", "warn"] } : false,
   },
 
-  // * Disable source maps in production for better performance
+  // * Disable source maps in production to save Huge RAM/Disk space
   productionBrowserSourceMaps: false,
 
   // ✅ Ignore type checking during build to save RAM and Time
-  // (ESLint config removed as it is not supported in Next.js 16+)
   typescript: {
     ignoreBuildErrors: true,
   },
 
-  // * Turbopack configuration for Next.js 16
-  turbopack: {
-    // Enable Turbopack optimizations
-    rules: {},
-    resolveAlias: {},
+  // ✅ Ignore ESLint during build to save RAM
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 
-  // * Custom webpack optimization for production builds (fallback for webpack mode)
-  webpack(config, { dev, isServer }) {
-    if (!dev && !isServer) {
-      try {
-        const TerserPlugin = require("terser-webpack-plugin");
-        config.optimization.minimizer.push(
-          new TerserPlugin({
-            // terserOptions: { compress: { drop_console: true } },
-          })
-        );
-      } catch (error) {
-        // ! Fallback to Next.js built-in optimization
-        console.log("Using Next.js built-in Terser optimization");
-      }
-    }
-    return config;
-  },
+  // ❌ ลบส่วน Webpack ที่เรียก TerserPlugin ออก
+  // เพราะ Next.js มี SWC ที่จัดการเรื่องนี้ให้อยู่แล้ว การไปเพิ่ม Terser
+  // จะทำให้กิน RAM เพิ่มขึ้นอีกเท่าตัวโดยไม่จำเป็น
 };
 
 export default nextConfig;
