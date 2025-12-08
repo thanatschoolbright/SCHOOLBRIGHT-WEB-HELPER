@@ -5019,8 +5019,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.17.1
-   * Query Engine version: 272a37d34178c2894197e17273bf937f25acdeac
+   * Prisma Client JS version: 6.19.0
+   * Query Engine version: 2ba551f319ab1df4bc874a89965d8b3641056773
    */
   export type PrismaVersion = {
     client: string
@@ -5033,6 +5033,7 @@ export namespace Prisma {
    */
 
 
+  export import Bytes = runtime.Bytes
   export import JsonObject = runtime.JsonObject
   export import JsonArray = runtime.JsonArray
   export import JsonValue = runtime.JsonValue
@@ -38835,13 +38836,13 @@ export namespace Prisma {
 
   export type Aspnet_PersonalizationAllUsersMinAggregateOutputType = {
     PathId: string | null
-    PageSettings: Uint8Array | null
+    PageSettings: Bytes | null
     LastUpdatedDate: Date | null
   }
 
   export type Aspnet_PersonalizationAllUsersMaxAggregateOutputType = {
     PathId: string | null
-    PageSettings: Uint8Array | null
+    PageSettings: Bytes | null
     LastUpdatedDate: Date | null
   }
 
@@ -38946,7 +38947,7 @@ export namespace Prisma {
 
   export type Aspnet_PersonalizationAllUsersGroupByOutputType = {
     PathId: string
-    PageSettings: Uint8Array
+    PageSettings: Bytes
     LastUpdatedDate: Date
     _count: Aspnet_PersonalizationAllUsersCountAggregateOutputType | null
     _min: Aspnet_PersonalizationAllUsersMinAggregateOutputType | null
@@ -38988,7 +38989,7 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       PathId: string
-      PageSettings: Uint8Array
+      PageSettings: Prisma.Bytes
       LastUpdatedDate: Date
     }, ExtArgs["result"]["aspnet_PersonalizationAllUsers"]>
     composites: {}
@@ -39696,7 +39697,7 @@ export namespace Prisma {
     Id: string | null
     PathId: string | null
     UserId: string | null
-    PageSettings: Uint8Array | null
+    PageSettings: Bytes | null
     LastUpdatedDate: Date | null
   }
 
@@ -39704,7 +39705,7 @@ export namespace Prisma {
     Id: string | null
     PathId: string | null
     UserId: string | null
-    PageSettings: Uint8Array | null
+    PageSettings: Bytes | null
     LastUpdatedDate: Date | null
   }
 
@@ -39819,7 +39820,7 @@ export namespace Prisma {
     Id: string
     PathId: string | null
     UserId: string | null
-    PageSettings: Uint8Array
+    PageSettings: Bytes
     LastUpdatedDate: Date
     _count: Aspnet_PersonalizationPerUserCountAggregateOutputType | null
     _min: Aspnet_PersonalizationPerUserMinAggregateOutputType | null
@@ -39867,7 +39868,7 @@ export namespace Prisma {
       Id: string
       PathId: string | null
       UserId: string | null
-      PageSettings: Uint8Array
+      PageSettings: Prisma.Bytes
       LastUpdatedDate: Date
     }, ExtArgs["result"]["aspnet_PersonalizationPerUser"]>
     composites: {}
@@ -40577,7 +40578,7 @@ export namespace Prisma {
     UserId: string | null
     PropertyNames: string | null
     PropertyValuesString: string | null
-    PropertyValuesBinary: Uint8Array | null
+    PropertyValuesBinary: Bytes | null
     LastUpdatedDate: Date | null
   }
 
@@ -40585,7 +40586,7 @@ export namespace Prisma {
     UserId: string | null
     PropertyNames: string | null
     PropertyValuesString: string | null
-    PropertyValuesBinary: Uint8Array | null
+    PropertyValuesBinary: Bytes | null
     LastUpdatedDate: Date | null
   }
 
@@ -40700,7 +40701,7 @@ export namespace Prisma {
     UserId: string
     PropertyNames: string
     PropertyValuesString: string
-    PropertyValuesBinary: Uint8Array
+    PropertyValuesBinary: Bytes
     LastUpdatedDate: Date
     _count: Aspnet_ProfileCountAggregateOutputType | null
     _min: Aspnet_ProfileMinAggregateOutputType | null
@@ -40748,7 +40749,7 @@ export namespace Prisma {
       UserId: string
       PropertyNames: string
       PropertyValuesString: string
-      PropertyValuesBinary: Uint8Array
+      PropertyValuesBinary: Prisma.Bytes
       LastUpdatedDate: Date
     }, ExtArgs["result"]["aspnet_Profile"]>
     composites: {}
@@ -75788,7 +75789,7 @@ export namespace Prisma {
     principal_id: number | null
     diagram_id: number | null
     version: number | null
-    definition: Uint8Array | null
+    definition: Bytes | null
   }
 
   export type SysdiagramsMaxAggregateOutputType = {
@@ -75796,7 +75797,7 @@ export namespace Prisma {
     principal_id: number | null
     diagram_id: number | null
     version: number | null
-    definition: Uint8Array | null
+    definition: Bytes | null
   }
 
   export type SysdiagramsCountAggregateOutputType = {
@@ -75937,7 +75938,7 @@ export namespace Prisma {
     principal_id: number
     diagram_id: number
     version: number | null
-    definition: Uint8Array | null
+    definition: Bytes | null
     _count: SysdiagramsCountAggregateOutputType | null
     _avg: SysdiagramsAvgAggregateOutputType | null
     _sum: SysdiagramsSumAggregateOutputType | null
@@ -75987,7 +75988,7 @@ export namespace Prisma {
       principal_id: number
       diagram_id: number
       version: number | null
-      definition: Uint8Array | null
+      definition: Prisma.Bytes | null
     }, ExtArgs["result"]["sysdiagrams"]>
     composites: {}
   }
@@ -378769,7 +378770,7 @@ export namespace Prisma {
     OR?: aspnet_PersonalizationAllUsersWhereInput[]
     NOT?: aspnet_PersonalizationAllUsersWhereInput | aspnet_PersonalizationAllUsersWhereInput[]
     PathId?: StringFilter<"aspnet_PersonalizationAllUsers"> | string
-    PageSettings?: BytesFilter<"aspnet_PersonalizationAllUsers"> | Uint8Array
+    PageSettings?: BytesFilter<"aspnet_PersonalizationAllUsers"> | Bytes
     LastUpdatedDate?: DateTimeFilter<"aspnet_PersonalizationAllUsers"> | Date | string
   }
 
@@ -378784,7 +378785,7 @@ export namespace Prisma {
     AND?: aspnet_PersonalizationAllUsersWhereInput | aspnet_PersonalizationAllUsersWhereInput[]
     OR?: aspnet_PersonalizationAllUsersWhereInput[]
     NOT?: aspnet_PersonalizationAllUsersWhereInput | aspnet_PersonalizationAllUsersWhereInput[]
-    PageSettings?: BytesFilter<"aspnet_PersonalizationAllUsers"> | Uint8Array
+    PageSettings?: BytesFilter<"aspnet_PersonalizationAllUsers"> | Bytes
     LastUpdatedDate?: DateTimeFilter<"aspnet_PersonalizationAllUsers"> | Date | string
   }, "PathId">
 
@@ -378802,7 +378803,7 @@ export namespace Prisma {
     OR?: aspnet_PersonalizationAllUsersScalarWhereWithAggregatesInput[]
     NOT?: aspnet_PersonalizationAllUsersScalarWhereWithAggregatesInput | aspnet_PersonalizationAllUsersScalarWhereWithAggregatesInput[]
     PathId?: StringWithAggregatesFilter<"aspnet_PersonalizationAllUsers"> | string
-    PageSettings?: BytesWithAggregatesFilter<"aspnet_PersonalizationAllUsers"> | Uint8Array
+    PageSettings?: BytesWithAggregatesFilter<"aspnet_PersonalizationAllUsers"> | Bytes
     LastUpdatedDate?: DateTimeWithAggregatesFilter<"aspnet_PersonalizationAllUsers"> | Date | string
   }
 
@@ -378813,7 +378814,7 @@ export namespace Prisma {
     Id?: StringFilter<"aspnet_PersonalizationPerUser"> | string
     PathId?: StringNullableFilter<"aspnet_PersonalizationPerUser"> | string | null
     UserId?: StringNullableFilter<"aspnet_PersonalizationPerUser"> | string | null
-    PageSettings?: BytesFilter<"aspnet_PersonalizationPerUser"> | Uint8Array
+    PageSettings?: BytesFilter<"aspnet_PersonalizationPerUser"> | Bytes
     LastUpdatedDate?: DateTimeFilter<"aspnet_PersonalizationPerUser"> | Date | string
   }
 
@@ -378832,7 +378833,7 @@ export namespace Prisma {
     NOT?: aspnet_PersonalizationPerUserWhereInput | aspnet_PersonalizationPerUserWhereInput[]
     PathId?: StringNullableFilter<"aspnet_PersonalizationPerUser"> | string | null
     UserId?: StringNullableFilter<"aspnet_PersonalizationPerUser"> | string | null
-    PageSettings?: BytesFilter<"aspnet_PersonalizationPerUser"> | Uint8Array
+    PageSettings?: BytesFilter<"aspnet_PersonalizationPerUser"> | Bytes
     LastUpdatedDate?: DateTimeFilter<"aspnet_PersonalizationPerUser"> | Date | string
   }, "Id">
 
@@ -378854,7 +378855,7 @@ export namespace Prisma {
     Id?: StringWithAggregatesFilter<"aspnet_PersonalizationPerUser"> | string
     PathId?: StringNullableWithAggregatesFilter<"aspnet_PersonalizationPerUser"> | string | null
     UserId?: StringNullableWithAggregatesFilter<"aspnet_PersonalizationPerUser"> | string | null
-    PageSettings?: BytesWithAggregatesFilter<"aspnet_PersonalizationPerUser"> | Uint8Array
+    PageSettings?: BytesWithAggregatesFilter<"aspnet_PersonalizationPerUser"> | Bytes
     LastUpdatedDate?: DateTimeWithAggregatesFilter<"aspnet_PersonalizationPerUser"> | Date | string
   }
 
@@ -378865,7 +378866,7 @@ export namespace Prisma {
     UserId?: StringFilter<"aspnet_Profile"> | string
     PropertyNames?: StringFilter<"aspnet_Profile"> | string
     PropertyValuesString?: StringFilter<"aspnet_Profile"> | string
-    PropertyValuesBinary?: BytesFilter<"aspnet_Profile"> | Uint8Array
+    PropertyValuesBinary?: BytesFilter<"aspnet_Profile"> | Bytes
     LastUpdatedDate?: DateTimeFilter<"aspnet_Profile"> | Date | string
   }
 
@@ -378884,7 +378885,7 @@ export namespace Prisma {
     NOT?: aspnet_ProfileWhereInput | aspnet_ProfileWhereInput[]
     PropertyNames?: StringFilter<"aspnet_Profile"> | string
     PropertyValuesString?: StringFilter<"aspnet_Profile"> | string
-    PropertyValuesBinary?: BytesFilter<"aspnet_Profile"> | Uint8Array
+    PropertyValuesBinary?: BytesFilter<"aspnet_Profile"> | Bytes
     LastUpdatedDate?: DateTimeFilter<"aspnet_Profile"> | Date | string
   }, "UserId">
 
@@ -378906,7 +378907,7 @@ export namespace Prisma {
     UserId?: StringWithAggregatesFilter<"aspnet_Profile"> | string
     PropertyNames?: StringWithAggregatesFilter<"aspnet_Profile"> | string
     PropertyValuesString?: StringWithAggregatesFilter<"aspnet_Profile"> | string
-    PropertyValuesBinary?: BytesWithAggregatesFilter<"aspnet_Profile"> | Uint8Array
+    PropertyValuesBinary?: BytesWithAggregatesFilter<"aspnet_Profile"> | Bytes
     LastUpdatedDate?: DateTimeWithAggregatesFilter<"aspnet_Profile"> | Date | string
   }
 
@@ -382050,7 +382051,7 @@ export namespace Prisma {
     principal_id?: IntFilter<"sysdiagrams"> | number
     diagram_id?: IntFilter<"sysdiagrams"> | number
     version?: IntNullableFilter<"sysdiagrams"> | number | null
-    definition?: BytesNullableFilter<"sysdiagrams"> | Uint8Array | null
+    definition?: BytesNullableFilter<"sysdiagrams"> | Bytes | null
   }
 
   export type sysdiagramsOrderByWithRelationInput = {
@@ -382070,7 +382071,7 @@ export namespace Prisma {
     name?: StringFilter<"sysdiagrams"> | string
     principal_id?: IntFilter<"sysdiagrams"> | number
     version?: IntNullableFilter<"sysdiagrams"> | number | null
-    definition?: BytesNullableFilter<"sysdiagrams"> | Uint8Array | null
+    definition?: BytesNullableFilter<"sysdiagrams"> | Bytes | null
   }, "diagram_id" | "principal_id_name">
 
   export type sysdiagramsOrderByWithAggregationInput = {
@@ -382094,7 +382095,7 @@ export namespace Prisma {
     principal_id?: IntWithAggregatesFilter<"sysdiagrams"> | number
     diagram_id?: IntWithAggregatesFilter<"sysdiagrams"> | number
     version?: IntNullableWithAggregatesFilter<"sysdiagrams"> | number | null
-    definition?: BytesNullableWithAggregatesFilter<"sysdiagrams"> | Uint8Array | null
+    definition?: BytesNullableWithAggregatesFilter<"sysdiagrams"> | Bytes | null
   }
 
   export type T_FSDQ_AnswerWhereInput = {
@@ -414861,43 +414862,43 @@ export namespace Prisma {
 
   export type aspnet_PersonalizationAllUsersCreateInput = {
     PathId: string
-    PageSettings: Uint8Array
+    PageSettings: Bytes
     LastUpdatedDate: Date | string
   }
 
   export type aspnet_PersonalizationAllUsersUncheckedCreateInput = {
     PathId: string
-    PageSettings: Uint8Array
+    PageSettings: Bytes
     LastUpdatedDate: Date | string
   }
 
   export type aspnet_PersonalizationAllUsersUpdateInput = {
     PathId?: StringFieldUpdateOperationsInput | string
-    PageSettings?: BytesFieldUpdateOperationsInput | Uint8Array
+    PageSettings?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type aspnet_PersonalizationAllUsersUncheckedUpdateInput = {
     PathId?: StringFieldUpdateOperationsInput | string
-    PageSettings?: BytesFieldUpdateOperationsInput | Uint8Array
+    PageSettings?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type aspnet_PersonalizationAllUsersCreateManyInput = {
     PathId: string
-    PageSettings: Uint8Array
+    PageSettings: Bytes
     LastUpdatedDate: Date | string
   }
 
   export type aspnet_PersonalizationAllUsersUpdateManyMutationInput = {
     PathId?: StringFieldUpdateOperationsInput | string
-    PageSettings?: BytesFieldUpdateOperationsInput | Uint8Array
+    PageSettings?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type aspnet_PersonalizationAllUsersUncheckedUpdateManyInput = {
     PathId?: StringFieldUpdateOperationsInput | string
-    PageSettings?: BytesFieldUpdateOperationsInput | Uint8Array
+    PageSettings?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -414905,7 +414906,7 @@ export namespace Prisma {
     Id: string
     PathId?: string | null
     UserId?: string | null
-    PageSettings: Uint8Array
+    PageSettings: Bytes
     LastUpdatedDate: Date | string
   }
 
@@ -414913,7 +414914,7 @@ export namespace Prisma {
     Id: string
     PathId?: string | null
     UserId?: string | null
-    PageSettings: Uint8Array
+    PageSettings: Bytes
     LastUpdatedDate: Date | string
   }
 
@@ -414921,7 +414922,7 @@ export namespace Prisma {
     Id?: StringFieldUpdateOperationsInput | string
     PathId?: NullableStringFieldUpdateOperationsInput | string | null
     UserId?: NullableStringFieldUpdateOperationsInput | string | null
-    PageSettings?: BytesFieldUpdateOperationsInput | Uint8Array
+    PageSettings?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -414929,7 +414930,7 @@ export namespace Prisma {
     Id?: StringFieldUpdateOperationsInput | string
     PathId?: NullableStringFieldUpdateOperationsInput | string | null
     UserId?: NullableStringFieldUpdateOperationsInput | string | null
-    PageSettings?: BytesFieldUpdateOperationsInput | Uint8Array
+    PageSettings?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -414937,7 +414938,7 @@ export namespace Prisma {
     Id: string
     PathId?: string | null
     UserId?: string | null
-    PageSettings: Uint8Array
+    PageSettings: Bytes
     LastUpdatedDate: Date | string
   }
 
@@ -414945,7 +414946,7 @@ export namespace Prisma {
     Id?: StringFieldUpdateOperationsInput | string
     PathId?: NullableStringFieldUpdateOperationsInput | string | null
     UserId?: NullableStringFieldUpdateOperationsInput | string | null
-    PageSettings?: BytesFieldUpdateOperationsInput | Uint8Array
+    PageSettings?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -414953,7 +414954,7 @@ export namespace Prisma {
     Id?: StringFieldUpdateOperationsInput | string
     PathId?: NullableStringFieldUpdateOperationsInput | string | null
     UserId?: NullableStringFieldUpdateOperationsInput | string | null
-    PageSettings?: BytesFieldUpdateOperationsInput | Uint8Array
+    PageSettings?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -414961,7 +414962,7 @@ export namespace Prisma {
     UserId: string
     PropertyNames: string
     PropertyValuesString: string
-    PropertyValuesBinary: Uint8Array
+    PropertyValuesBinary: Bytes
     LastUpdatedDate: Date | string
   }
 
@@ -414969,7 +414970,7 @@ export namespace Prisma {
     UserId: string
     PropertyNames: string
     PropertyValuesString: string
-    PropertyValuesBinary: Uint8Array
+    PropertyValuesBinary: Bytes
     LastUpdatedDate: Date | string
   }
 
@@ -414977,7 +414978,7 @@ export namespace Prisma {
     UserId?: StringFieldUpdateOperationsInput | string
     PropertyNames?: StringFieldUpdateOperationsInput | string
     PropertyValuesString?: StringFieldUpdateOperationsInput | string
-    PropertyValuesBinary?: BytesFieldUpdateOperationsInput | Uint8Array
+    PropertyValuesBinary?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -414985,7 +414986,7 @@ export namespace Prisma {
     UserId?: StringFieldUpdateOperationsInput | string
     PropertyNames?: StringFieldUpdateOperationsInput | string
     PropertyValuesString?: StringFieldUpdateOperationsInput | string
-    PropertyValuesBinary?: BytesFieldUpdateOperationsInput | Uint8Array
+    PropertyValuesBinary?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -414993,7 +414994,7 @@ export namespace Prisma {
     UserId: string
     PropertyNames: string
     PropertyValuesString: string
-    PropertyValuesBinary: Uint8Array
+    PropertyValuesBinary: Bytes
     LastUpdatedDate: Date | string
   }
 
@@ -415001,7 +415002,7 @@ export namespace Prisma {
     UserId?: StringFieldUpdateOperationsInput | string
     PropertyNames?: StringFieldUpdateOperationsInput | string
     PropertyValuesString?: StringFieldUpdateOperationsInput | string
-    PropertyValuesBinary?: BytesFieldUpdateOperationsInput | Uint8Array
+    PropertyValuesBinary?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -415009,7 +415010,7 @@ export namespace Prisma {
     UserId?: StringFieldUpdateOperationsInput | string
     PropertyNames?: StringFieldUpdateOperationsInput | string
     PropertyValuesString?: StringFieldUpdateOperationsInput | string
-    PropertyValuesBinary?: BytesFieldUpdateOperationsInput | Uint8Array
+    PropertyValuesBinary?: BytesFieldUpdateOperationsInput | Bytes
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -418658,7 +418659,7 @@ export namespace Prisma {
     name: string
     principal_id: number
     version?: number | null
-    definition?: Uint8Array | null
+    definition?: Bytes | null
   }
 
   export type sysdiagramsUncheckedCreateInput = {
@@ -418666,14 +418667,14 @@ export namespace Prisma {
     principal_id: number
     diagram_id?: number
     version?: number | null
-    definition?: Uint8Array | null
+    definition?: Bytes | null
   }
 
   export type sysdiagramsUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     principal_id?: IntFieldUpdateOperationsInput | number
     version?: NullableIntFieldUpdateOperationsInput | number | null
-    definition?: NullableBytesFieldUpdateOperationsInput | Uint8Array | null
+    definition?: NullableBytesFieldUpdateOperationsInput | Bytes | null
   }
 
   export type sysdiagramsUncheckedUpdateInput = {
@@ -418681,21 +418682,21 @@ export namespace Prisma {
     principal_id?: IntFieldUpdateOperationsInput | number
     diagram_id?: IntFieldUpdateOperationsInput | number
     version?: NullableIntFieldUpdateOperationsInput | number | null
-    definition?: NullableBytesFieldUpdateOperationsInput | Uint8Array | null
+    definition?: NullableBytesFieldUpdateOperationsInput | Bytes | null
   }
 
   export type sysdiagramsCreateManyInput = {
     name: string
     principal_id: number
     version?: number | null
-    definition?: Uint8Array | null
+    definition?: Bytes | null
   }
 
   export type sysdiagramsUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
     principal_id?: IntFieldUpdateOperationsInput | number
     version?: NullableIntFieldUpdateOperationsInput | number | null
-    definition?: NullableBytesFieldUpdateOperationsInput | Uint8Array | null
+    definition?: NullableBytesFieldUpdateOperationsInput | Bytes | null
   }
 
   export type sysdiagramsUncheckedUpdateManyInput = {
@@ -418703,7 +418704,7 @@ export namespace Prisma {
     principal_id?: IntFieldUpdateOperationsInput | number
     diagram_id?: IntFieldUpdateOperationsInput | number
     version?: NullableIntFieldUpdateOperationsInput | number | null
-    definition?: NullableBytesFieldUpdateOperationsInput | Uint8Array | null
+    definition?: NullableBytesFieldUpdateOperationsInput | Bytes | null
   }
 
   export type T_FSDQ_AnswerCreateInput = {
@@ -458078,10 +458079,10 @@ export namespace Prisma {
   }
 
   export type BytesFilter<$PrismaModel = never> = {
-    equals?: Uint8Array | BytesFieldRefInput<$PrismaModel>
-    in?: Uint8Array[]
-    notIn?: Uint8Array[]
-    not?: NestedBytesFilter<$PrismaModel> | Uint8Array
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel>
+    in?: Bytes[]
+    notIn?: Bytes[]
+    not?: NestedBytesFilter<$PrismaModel> | Bytes
   }
 
   export type aspnet_PersonalizationAllUsersCountOrderByAggregateInput = {
@@ -458103,10 +458104,10 @@ export namespace Prisma {
   }
 
   export type BytesWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Uint8Array | BytesFieldRefInput<$PrismaModel>
-    in?: Uint8Array[]
-    notIn?: Uint8Array[]
-    not?: NestedBytesWithAggregatesFilter<$PrismaModel> | Uint8Array
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel>
+    in?: Bytes[]
+    notIn?: Bytes[]
+    not?: NestedBytesWithAggregatesFilter<$PrismaModel> | Bytes
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBytesFilter<$PrismaModel>
     _max?: NestedBytesFilter<$PrismaModel>
@@ -460357,10 +460358,10 @@ export namespace Prisma {
   }
 
   export type BytesNullableFilter<$PrismaModel = never> = {
-    equals?: Uint8Array | BytesFieldRefInput<$PrismaModel> | null
-    in?: Uint8Array[] | null
-    notIn?: Uint8Array[] | null
-    not?: NestedBytesNullableFilter<$PrismaModel> | Uint8Array | null
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel> | null
+    in?: Bytes[] | null
+    notIn?: Bytes[] | null
+    not?: NestedBytesNullableFilter<$PrismaModel> | Bytes | null
   }
 
   export type sysdiagramsPrincipal_idNameCompoundUniqueInput = {
@@ -460405,10 +460406,10 @@ export namespace Prisma {
   }
 
   export type BytesNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Uint8Array | BytesFieldRefInput<$PrismaModel> | null
-    in?: Uint8Array[] | null
-    notIn?: Uint8Array[] | null
-    not?: NestedBytesNullableWithAggregatesFilter<$PrismaModel> | Uint8Array | null
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel> | null
+    in?: Bytes[] | null
+    notIn?: Bytes[] | null
+    not?: NestedBytesNullableWithAggregatesFilter<$PrismaModel> | Bytes | null
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBytesNullableFilter<$PrismaModel>
     _max?: NestedBytesNullableFilter<$PrismaModel>
@@ -484487,7 +484488,7 @@ export namespace Prisma {
   }
 
   export type BytesFieldUpdateOperationsInput = {
-    set?: Uint8Array
+    set?: Bytes
   }
 
   export type DecimalFieldUpdateOperationsInput = {
@@ -484511,7 +484512,7 @@ export namespace Prisma {
   }
 
   export type NullableBytesFieldUpdateOperationsInput = {
-    set?: Uint8Array | null
+    set?: Bytes | null
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
@@ -484748,17 +484749,17 @@ export namespace Prisma {
   }
 
   export type NestedBytesFilter<$PrismaModel = never> = {
-    equals?: Uint8Array | BytesFieldRefInput<$PrismaModel>
-    in?: Uint8Array[]
-    notIn?: Uint8Array[]
-    not?: NestedBytesFilter<$PrismaModel> | Uint8Array
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel>
+    in?: Bytes[]
+    notIn?: Bytes[]
+    not?: NestedBytesFilter<$PrismaModel> | Bytes
   }
 
   export type NestedBytesWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Uint8Array | BytesFieldRefInput<$PrismaModel>
-    in?: Uint8Array[]
-    notIn?: Uint8Array[]
-    not?: NestedBytesWithAggregatesFilter<$PrismaModel> | Uint8Array
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel>
+    in?: Bytes[]
+    notIn?: Bytes[]
+    not?: NestedBytesWithAggregatesFilter<$PrismaModel> | Bytes
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBytesFilter<$PrismaModel>
     _max?: NestedBytesFilter<$PrismaModel>
@@ -484832,17 +484833,17 @@ export namespace Prisma {
   }
 
   export type NestedBytesNullableFilter<$PrismaModel = never> = {
-    equals?: Uint8Array | BytesFieldRefInput<$PrismaModel> | null
-    in?: Uint8Array[] | null
-    notIn?: Uint8Array[] | null
-    not?: NestedBytesNullableFilter<$PrismaModel> | Uint8Array | null
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel> | null
+    in?: Bytes[] | null
+    notIn?: Bytes[] | null
+    not?: NestedBytesNullableFilter<$PrismaModel> | Bytes | null
   }
 
   export type NestedBytesNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Uint8Array | BytesFieldRefInput<$PrismaModel> | null
-    in?: Uint8Array[] | null
-    notIn?: Uint8Array[] | null
-    not?: NestedBytesNullableWithAggregatesFilter<$PrismaModel> | Uint8Array | null
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel> | null
+    in?: Bytes[] | null
+    notIn?: Bytes[] | null
+    not?: NestedBytesNullableWithAggregatesFilter<$PrismaModel> | Bytes | null
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBytesNullableFilter<$PrismaModel>
     _max?: NestedBytesNullableFilter<$PrismaModel>

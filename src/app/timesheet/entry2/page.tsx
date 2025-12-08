@@ -606,7 +606,7 @@ export default function Page() {
               }
             >
               <Collapse
-                bordered={false}
+                
                 style={{ background: "transparent" }}
                 expandIcon={({ isActive }) => (
                   <FilterOutlined rotate={isActive ? 90 : 0} />

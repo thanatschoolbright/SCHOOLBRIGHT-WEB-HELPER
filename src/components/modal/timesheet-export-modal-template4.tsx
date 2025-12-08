@@ -2,6 +2,9 @@
 import React, { useMemo, useState } from "react";
 import { Modal, Select, Space, Button, Typography } from "antd";
 import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
+
+dayjs.extend(isoWeek);
 
 type Props = {
   visible: boolean;
@@ -10,7 +13,25 @@ type Props = {
   onExport: (payload: { from: string; to: string }) => Promise<void> | void;
 };
 
-const formatOption = (d: dayjs.Dayjs) => d.format("MM/YYYY");
+interface WeekOption {
+  label: string;
+  value: string;
+  startDate: string;
+  endDate: string;
+}
+
+const formatWeekOption = (weekStart: dayjs.Dayjs): WeekOption => {
+  const weekEnd = weekStart.endOf("isoWeek");
+  const label = `สัปดาห์ ${weekStart.format("DD/MM/YYYY")} - ${weekEnd.format(
+    "DD/MM/YYYY"
+  )}`;
+  return {
+    label,
+    value: weekStart.format("YYYY-MM-DD"),
+    startDate: weekStart.format("YYYY-MM-DD"),
+    endDate: weekEnd.format("YYYY-MM-DD"),
+  };
+};
 
 export default function ExportModalTemplate4({
   visible,
@@ -18,24 +39,35 @@ export default function ExportModalTemplate4({
   onClose,
   onExport,
 }: Props) {
-  const months = useMemo(() => {
-    const list: string[] = [];
+  const weeks = useMemo(() => {
+    const list: WeekOption[] = [];
     const now = dayjs();
-    // build last 36 months
-    for (let i = 0; i < 36; i++) {
-      list.push(formatOption(now.subtract(i, "month")));
+    for (let i = 0; i < 52; i++) {
+      const weekStart = now.subtract(i, "week").startOf("isoWeek");
+      list.push(formatWeekOption(weekStart));
     }
     return list;
   }, []);
 
-  const [from, setFrom] = useState<string | undefined>(
-    months[months.length - 1]
+  const [selectedFromWeek, setSelectedFromWeek] = useState<string | undefined>(
+    weeks[weeks.length - 1]?.value
   );
-  const [to, setTo] = useState<string | undefined>(months[0]);
+  const [selectedToWeek, setSelectedToWeek] = useState<string | undefined>(
+    weeks[0]?.value
+  );
 
   const handleExport = async () => {
-    if (!from || !to) return;
-    await onExport({ from, to });
+    if (!selectedFromWeek || !selectedToWeek) return;
+
+    const fromWeek = weeks.find((w) => w.value === selectedFromWeek);
+    const toWeek = weeks.find((w) => w.value === selectedToWeek);
+
+    if (!fromWeek || !toWeek) return;
+
+    await onExport({
+      from: fromWeek.startDate,
+      to: toWeek.endDate,
+    });
     onClose();
   };
 
@@ -45,7 +77,7 @@ export default function ExportModalTemplate4({
       open={visible}
       onCancel={onClose}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       <Space direction="vertical" style={{ width: "100%" }} size="middle">
         <div>
@@ -55,29 +87,47 @@ export default function ExportModalTemplate4({
           <Typography.Text type="secondary">
             รายงานนี้จะแสดงข้อมูลภาพรวมและหลักฐานการลงเวลาแยกตามโครงการย่อย
             พร้อมรหัสโครงการ ประเภทสินทรัพย์ และสัดส่วนการใช้เวลา
+            (เลือกเป็นรายสัปดาห์)
           </Typography.Text>
         </div>
         <div>
           <Typography.Text strong>
-            เลือกช่วงเวลา (เริ่มต้น MM/YYYY - สิ้นสุด MM/YYYY)
+            เลือกช่วงสัปดาห์ (เริ่มต้น - สิ้นสุด)
           </Typography.Text>
         </div>
-        <Space style={{ width: "100%" }}>
-          <Select
-            style={{ width: 180 }}
-            value={from}
-            onChange={(v) => setFrom(v)}
-            options={months.map((m) => ({ label: m, value: m }))}
-            placeholder="เริ่มต้น"
-          />
-          <Typography.Text>ถึง</Typography.Text>
-          <Select
-            style={{ width: 180 }}
-            value={to}
-            onChange={(v) => setTo(v)}
-            options={months.map((m) => ({ label: m, value: m }))}
-            placeholder="สิ้นสุด"
-          />
+        <Space style={{ width: "100%" }} direction="vertical">
+          <div>
+            <Typography.Text type="secondary">สัปดาห์เริ่มต้น:</Typography.Text>
+            <Select
+              style={{ width: "100%", marginTop: 8 }}
+              value={selectedFromWeek}
+              onChange={(v) => setSelectedFromWeek(v)}
+              options={weeks.map((w) => ({ label: w.label, value: w.value }))}
+              placeholder="เลือกสัปดาห์เริ่มต้น"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+            />
+          </div>
+          <div>
+            <Typography.Text type="secondary">สัปดาห์สิ้นสุด:</Typography.Text>
+            <Select
+              style={{ width: "100%", marginTop: 8 }}
+              value={selectedToWeek}
+              onChange={(v) => setSelectedToWeek(v)}
+              options={weeks.map((w) => ({ label: w.label, value: w.value }))}
+              placeholder="เลือกสัปดาห์สิ้นสุด"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+            />
+          </div>
         </Space>
         <Space style={{ width: "100%", justifyContent: "flex-end" }}>
           <Button onClick={onClose}>ยกเลิก</Button>

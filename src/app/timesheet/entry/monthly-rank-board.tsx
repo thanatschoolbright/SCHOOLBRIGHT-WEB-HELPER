@@ -159,7 +159,6 @@ export const MonthlyRankBoard = forwardRef<
           gap: 16,
         },
       }}
-      bordered={false}
     >
       {/* --- Header Section --- 
          ส่วนหัวของ Card ประกอบด้วยชื่อเดือน การเลือกเดือน และปุ่ม Refresh 

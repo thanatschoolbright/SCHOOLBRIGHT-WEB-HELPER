@@ -315,7 +315,7 @@ export function GraphTimesheetModal({
     >
       <div className="bg-gray-50/50 p-6">
         {userNames.length > 0 ? (
-          <Card bordered={false} className="shadow-sm rounded-xl">
+          <Card  className="shadow-sm rounded-xl">
             <div className="flex justify-between items-center mb-6">
               <Space size="large">
                 <div className="flex items-center gap-2">

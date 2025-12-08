@@ -39,7 +39,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
   return (
     <Card
-      bordered={false}
+      
       className="shadow-md rounded-xl mb-6"
       bodyStyle={{ padding: "16px 24px" }}
     >

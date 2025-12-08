@@ -204,7 +204,7 @@ export const DailyCard: React.FC<DailyCardProps> = ({
 
           {/* Status Tag: ใช้สีที่คำนวณมา (accentColor) เพื่อให้ Badge ตรงกับ Theme ของการ์ด */}
           <Tag
-            bordered={false}
+            
             color={addAlpha(computedData.accentColor, 0.15)}
             style={{
               color: computedData.accentColor,

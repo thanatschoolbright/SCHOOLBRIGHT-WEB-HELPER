@@ -20,7 +20,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
   return (
     <Row gutter={16} style={{ marginBottom: 16 }}>
       <Col span={6}>
-        <Card bordered={false} style={{ boxShadow: token.boxShadowTertiary }}>
+        <Card  style={{ boxShadow: token.boxShadowTertiary }}>
           <Statistic
             title={t("timeline_page.stats_total")}
             value={stats.total}
@@ -29,7 +29,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
         </Card>
       </Col>
       <Col span={6}>
-        <Card bordered={false} style={{ boxShadow: token.boxShadowTertiary }}>
+        <Card  style={{ boxShadow: token.boxShadowTertiary }}>
           <Statistic
             title={t("timeline_page.stats_active")}
             value={stats.active}
@@ -38,7 +38,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
         </Card>
       </Col>
       <Col span={6}>
-        <Card bordered={false} style={{ boxShadow: token.boxShadowTertiary }}>
+        <Card  style={{ boxShadow: token.boxShadowTertiary }}>
           <Statistic
             title={t("timeline_page.stats_upcoming")}
             value={stats.upcoming}
@@ -47,7 +47,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
         </Card>
       </Col>
       <Col span={6}>
-        <Card bordered={false} style={{ boxShadow: token.boxShadowTertiary }}>
+        <Card  style={{ boxShadow: token.boxShadowTertiary }}>
           <Statistic
             title={t("timeline_page.stats_ended")}
             value={stats.ended}

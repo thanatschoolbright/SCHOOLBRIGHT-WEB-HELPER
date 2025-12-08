@@ -18,6 +18,9 @@ model Project {
   id           Int              @id @default(autoincrement()) @map("id")
   categoryType String?          @map("category_type")
   name         String           @map("name")
+  name_en      String?          @map("name_en")
+  start_date   DateTime?        @map("start_date")
+  end_date     DateTime?        @map("end_date")
   createdAt    DateTime         @default(now()) @map("created_at")
   createdBy    Int?             @map("created_by")
   updatedAt    DateTime         @updatedAt @map("updated_at")
@@ -36,6 +39,7 @@ model Feature {
   // boiType            String?                 @map("boi_type")
   projectId          Int                     @map("project_id")
   name               String                  @map("name")
+  name_en            String?                 @map("name_en")
   backlogDescription Json?                   @map("backlog_description")
   createdAt          DateTime                @default(now()) @map("created_at")
   createdBy          Int?                    @map("created_by")
@@ -71,29 +75,27 @@ model TimesheetEntry {
   @@map("timesheet_entry")
 }
 
-/// API Log Table
-/// ใช้สำหรับบันทึกข้อมูลการเรียกใช้งาน API พร้อมข้อมูลวิเคราะห์ประสิทธิภาพ
 model ApiLog {
-  id             BigInt    @id @default(autoincrement()) @map("id") // รหัส Log (Primary Key)
-  request_time   DateTime  @map("request_time") // เวลาที่เรียก API
-  response_time  DateTime? @map("response_time") // เวลาที่ตอบกลับ
-  duration_ms    Int?      @map("duration_ms") // เวลาประมวลผล (ms)
-  method         String?   @map("method") // HTTP Method เช่น GET, POST, PUT, DELETE
-  status_code    Int?      @map("status_code") // HTTP Status เช่น 200, 400, 500
-  url            String?   @map("url") // URL เต็ม
-  endpoint       String?   @map("endpoint") // Endpoint ที่ตัดพารามิเตอร์ออก เช่น /api/timesheet/submit
-  service_name   String?   @map("service_name") // ชื่อ service เช่น timesheet, user, auth
-  request_header Json?     @map("request_header") // Header ที่รับเข้า
-  request_body   Json?     @map("request_body") // Body ของคำร้อง
-  response_body  Json?     @map("response_body") // Response ที่ส่งออก
-  ip_address     String?   @map("ip_address") // IP ของผู้เรียก
-  user_agent     String?   @map("user_agent") // User Agent ของ client
-  called_by      String?   @map("called_by") // ระบบ / ผู้ใช้ / Token ID ที่เรียก
-  trace_id       String?   @map("trace_id") // รหัส trace สำหรับ distributed tracing
-  error_message  String?   @map("error_message") // ข้อความ Error (ถ้ามี)
-  is_success     Boolean   @default(true) @map("is_success") // สำเร็จหรือไม่
-  created_at     DateTime  @default(now()) @map("created_at") // วันที่สร้าง log
-  is_archived    Boolean   @default(false) @map("is_archived") // ใช้แยก log ที่ถูกย้ายไป archive
+  id             BigInt    @id @default(autoincrement()) @map("id")
+  request_time   DateTime  @map("request_time")
+  response_time  DateTime? @map("response_time")
+  duration_ms    Int?      @map("duration_ms")
+  method         String?   @map("method")
+  status_code    Int?      @map("status_code")
+  url            String?   @map("url")
+  endpoint       String?   @map("endpoint")
+  service_name   String?   @map("service_name")
+  request_header Json?     @map("request_header")
+  request_body   Json?     @map("request_body")
+  response_body  Json?     @map("response_body")
+  ip_address     String?   @map("ip_address")
+  user_agent     String?   @map("user_agent")
+  called_by      String?   @map("called_by")
+  trace_id       String?   @map("trace_id")
+  error_message  String?   @map("error_message")
+  is_success     Boolean   @default(true) @map("is_success")
+  created_at     DateTime  @default(now()) @map("created_at")
+  is_archived    Boolean   @default(false) @map("is_archived")
 
   @@index([endpoint])
   @@index([service_name])

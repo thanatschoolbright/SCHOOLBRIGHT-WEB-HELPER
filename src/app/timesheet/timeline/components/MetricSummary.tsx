@@ -29,7 +29,7 @@ export const MetricSummary: React.FC<MetricSummaryProps> = ({
     <div className="mb-6">
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={4}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title="Total Projects"
               value={metrics.totalProjects}
@@ -40,7 +40,7 @@ export const MetricSummary: React.FC<MetricSummaryProps> = ({
           </Card>
         </Col>
         <Col xs={24} sm={12} md={5}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title="Total Sub-Projects"
               value={metrics.totalSubProjects}
@@ -51,7 +51,7 @@ export const MetricSummary: React.FC<MetricSummaryProps> = ({
           </Card>
         </Col>
         <Col xs={24} sm={12} md={5}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title="In Progress"
               value={metrics.inProgress}
@@ -62,7 +62,7 @@ export const MetricSummary: React.FC<MetricSummaryProps> = ({
           </Card>
         </Col>
         <Col xs={24} sm={12} md={5}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title="Completed"
               value={metrics.completed}
@@ -73,7 +73,7 @@ export const MetricSummary: React.FC<MetricSummaryProps> = ({
           </Card>
         </Col>
         <Col xs={24} sm={12} md={5}>
-          <Card bordered={false} className="shadow-sm">
+          <Card  className="shadow-sm">
             <Statistic
               title="Overdue"
               value={metrics.overdue}

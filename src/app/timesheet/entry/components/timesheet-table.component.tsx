@@ -260,13 +260,15 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataIndex: "hours",
         width: 160,
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
-          Number(a.hours) - Number(b.hours),
+          Number(a.hours || 0) - Number(b.hours || 0),
         render: (value: number) => {
-          const percent = (value / DAILY_TARGET_HOURS) * 100;
+          const hours = Number(value) || 0;
+          const percent = (hours / DAILY_TARGET_HOURS) * 100;
+          const safePercent = isNaN(percent) ? 0 : Math.min(percent, 100);
           const statusColor =
-            value > DAILY_TARGET_HOURS
+            hours > DAILY_TARGET_HOURS
               ? token.colorWarning
-              : value >= DAILY_TARGET_HOURS
+              : hours >= DAILY_TARGET_HOURS
               ? token.colorSuccess
               : token.colorPrimary;
           return (
@@ -282,14 +284,14 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   strong
                   style={{ color: statusColor, fontSize: 13 }}
                 >
-                  {Number(value).toFixed(2)}
+                  {hours.toFixed(2)}
                 </Typography.Text>
                 <Typography.Text type="secondary" style={{ fontSize: 11 }}>
                   / {DAILY_TARGET_HOURS} {t("timesheet_entry_page.hours_unit")}
                 </Typography.Text>
               </div>
               <Progress
-                percent={percent > 100 ? 100 : percent}
+                percent={safePercent}
                 steps={8}
                 size={["100%", 4]}
                 strokeColor={statusColor}

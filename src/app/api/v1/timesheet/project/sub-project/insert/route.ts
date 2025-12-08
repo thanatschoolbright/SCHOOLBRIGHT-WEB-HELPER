@@ -2,58 +2,68 @@ import { NextRequest, NextResponse } from "next/server";
 import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
-import { date, z } from "zod";
 import { projectIdValidation } from "@api/v1/timesheet/helper/timesheet.validation";
 import { Schema } from "./route.validator";
 
-// ใช้สำหรับสร้างหรืออัปเดตโครงการ
 export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(request, Schema);
   if (error) return error;
 
   const {
     id,
-    name,
     project_id,
     by,
+    name,
+    name_en,
     backlogDescription,
     dateRange,
     asset_capture_type,
   } = data;
 
-  const startDate = dateRange[0];
-  const endDate = dateRange[1];
+  const projectId = Number(project_id);
+  const userId = Number(by);
+  const [startDate, endDate] = dateRange;
+  const assetCaptureType = asset_capture_type ?? "UN_CAPTUREABLE";
 
   try {
-    const validationProject = await projectIdValidation(Number(project_id));
-    if (validationProject !== true) return validationProject;
-    console.log("DATA", JSON.stringify(data, null, 2));
-    const project = id
-      ? await Service.update(Number(id), {
-          name,
-          updatedBy: Number(by),
-          backlogDescription: backlogDescription,
-          assetCaptureType: asset_capture_type ?? "UN_CAPTUREABLE",
-          startDate,
-          endDate,
+    const isProjectValid = await projectIdValidation(projectId);
+    if (isProjectValid !== true) return isProjectValid;
+
+    const commonPayload = {
+      name,
+      name_en,
+      backlogDescription,
+      assetCaptureType,
+      startDate,
+      endDate,
+    };
+
+    if (id) {
+      const updatedProject = await Service.update(Number(id), {
+        ...commonPayload,
+        updatedBy: userId,
+      });
+
+      return NextResponse.json(
+        successResponse({
+          data: updatedProject,
+          message_en: "Sub Project updated successfully",
+          message_th: "อัปเดตโครงการย่อยสำเร็จ",
         })
-      : await Service.create({
-          projectId: Number(project_id),
-          name,
-          createdBy: Number(by),
-          backlogDescription: backlogDescription,
-          assetCaptureType: asset_capture_type ?? "UN_CAPTUREABLE",
-          startDate,
-          endDate,
-        });
+      );
+    }
+
+    const newProject = await Service.create({
+      ...commonPayload,
+      projectId,
+      createdBy: userId,
+    });
 
     return NextResponse.json(
       successResponse({
-        data: project,
-        message_en: id
-          ? "Sub Project updated successfully"
-          : "Sub Project created successfully",
-        message_th: id ? "อัปเดตโครงการย่อยสำเร็จ" : "สร้างโครงการย่อยสำเร็จ",
+        data: newProject,
+        message_en: "Sub Project created successfully",
+        message_th: "สร้างโครงการย่อยสำเร็จ",
       })
     );
   } catch (error: any) {

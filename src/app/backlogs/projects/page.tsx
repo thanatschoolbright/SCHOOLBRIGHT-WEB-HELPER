@@ -118,7 +118,7 @@ export default function ProjectsListPage(): JSX.Element {
                 const label = archived ? "ปิดใช้งาน" : "ใช้งาน";
                 return (
                     <Tag
-                        bordered={false}
+                        
                         style={{
                             color,
                             background: archived ? token.colorBgContainerDisabled : token.colorSuccessBg,

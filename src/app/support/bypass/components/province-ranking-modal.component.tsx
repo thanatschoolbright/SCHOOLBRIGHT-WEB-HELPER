@@ -270,13 +270,13 @@ export default function ProvinceRankingModal({
       width="95%"
       style={{ top: 20 }}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Summary Statistics */}
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION(
                   "province_ranking_modal.stat_total_provinces"
@@ -288,7 +288,7 @@ export default function ProvinceRankingModal({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION("province_ranking_modal.stat_total_schools")}
                 value={totalSchools}
@@ -298,7 +298,7 @@ export default function ProvinceRankingModal({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION(
                   "province_ranking_modal.stat_active_schools"
@@ -310,7 +310,7 @@ export default function ProvinceRankingModal({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} className="shadow-sm">
+            <Card  className="shadow-sm">
               <Statistic
                 title={TRANSLATION("province_ranking_modal.stat_grade_a_total")}
                 value={totalGradeA}

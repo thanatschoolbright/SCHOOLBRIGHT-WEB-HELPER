@@ -27,7 +27,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
 
   return (
     <Card
-      bordered={false}
+      
       className="shadow-sm hover:shadow-md transition-all duration-300 h-full border-b-4"
       style={{ borderBottomColor: color, borderRadius: token.borderRadiusLG }}
       bodyStyle={{ padding: "20px 24px" }}

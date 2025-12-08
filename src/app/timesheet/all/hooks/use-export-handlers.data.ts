@@ -135,14 +135,9 @@ export const useExportHandlers = () => {
       try {
         setTimeout(() => dispatch(setExportStep(1)), 500);
 
-        const fromDate = dayjs(from, "MM/YYYY")
-          .startOf("month")
-          .format("YYYY-MM-DD");
-        const toDate = dayjs(to, "MM/YYYY").endOf("month").format("YYYY-MM-DD");
-
         await POST_EXPORT_AUDIT_REPORT({
-          start_date: fromDate,
-          end_date: toDate,
+          start_date: from,
+          end_date: to,
         });
 
         dispatch(setExportStep(2));

@@ -138,7 +138,7 @@ export function CreateModalForm({
         const label = i18n.language === "th" ? s.label_th : s.label_en;
         return {
           label: (
-            <Tag bordered={false} color={getStatusColor(s.value)}>
+            <Tag  color={getStatusColor(s.value)}>
               {label}
             </Tag>
           ),

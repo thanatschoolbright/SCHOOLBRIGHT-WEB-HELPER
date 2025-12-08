@@ -85,7 +85,7 @@ const TimesheetFormModal: React.FC<TimesheetFormModalProps> = ({open, onCancel, 
             open={open}
             title={modalTitleMap[formMode]}
             onCancel={onCancel}
-            destroyOnClose
+            destroyOnHidden
             footer={[
                 <Button key="back" onClick={onCancel} disabled={actionLoading}>
                     ยกเลิก

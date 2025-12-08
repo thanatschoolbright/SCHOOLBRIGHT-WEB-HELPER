@@ -101,11 +101,11 @@ export default function BulkUpdatePanel({
           <Typography.Text type="secondary">
             เลือกงานด้วย Checkbox เพื่ออัปเดตแบบกลุ่ม ({selectedCount})
           </Typography.Text>
-          <Tag color={autoCategoryEnabled ? "green" : "default"} bordered={false}>
+          <Tag color={autoCategoryEnabled ? "green" : "default"} >
             Auto Category: {autoCategoryEnabled ? "ON" : "OFF"}
             {autoCategoryLoading ? " (กำลังประมวลผล)" : ""}
           </Tag>
-          <Tag color={autoAiDescriptionEnabled ? "geekblue" : "default"} bordered={false}>
+          <Tag color={autoAiDescriptionEnabled ? "geekblue" : "default"} >
             AI Description: {autoAiDescriptionEnabled ? "ON" : "OFF"}
           </Tag>
         </Space>

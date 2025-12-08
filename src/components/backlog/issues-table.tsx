@@ -425,7 +425,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
     return (
       <Tag
         color={color}
-        bordered={false}
+        
         icon={<PushpinOutlined />}
         style={{ marginRight: 0 }}
       >

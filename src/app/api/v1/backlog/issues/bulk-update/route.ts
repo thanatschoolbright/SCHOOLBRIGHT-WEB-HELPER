@@ -63,12 +63,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ตรวจสอบและเพิ่ม [AI 🤖] ต่อท้าย summary
+    const ensureAiPrefix = (summary: string | null | undefined): string => {
+      if (!summary) return "";
+      const hasAiPrefix = summary.includes("AI") || summary.includes("🤖");
+      return hasAiPrefix ? summary : summary + " " + "[AI 🤖]";
+    };
+
     // เตรียมฟอร์มข้อมูลที่จะส่งให้ Backlog (x-www-form-urlencoded)
     const buildForm = (updateSet: BulkUpdateBody["updates"]) => {
       const form = new URLSearchParams();
       if (!updateSet) return form;
       if (updateSet.startDate !== undefined)
         form.set("startDate", updateSet.startDate ?? "");
+      if (updateSet.summary !== undefined)
+        form.set("summary", ensureAiPrefix(updateSet.summary));
       if (updateSet.description !== undefined)
         form.set("description", updateSet.description ?? "");
       if (updateSet.dueDate !== undefined)

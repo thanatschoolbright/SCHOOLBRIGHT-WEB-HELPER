@@ -53,7 +53,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <Affix offsetTop={20}>
       <Card
-        bordered={false}
+        
         className="shadow-md rounded-xl"
         bodyStyle={{ padding: "12px 24px" }}
       >

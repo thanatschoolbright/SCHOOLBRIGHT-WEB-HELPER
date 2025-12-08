@@ -325,7 +325,7 @@ const VersionFormStep1: React.FC<{
   schoolOptions: any[];
   applicationList: ApplicationRecord[];
 }> = ({ mode, schoolOptions, applicationList }) => (
-  <Card size="small" title="ข้อมูลพื้นฐาน" bordered={false}>
+  <Card size="small" title="ข้อมูลพื้นฐาน" >
     <Row gutter={[16, 16]}>
       <Col span={12}>
         <Form.Item label="เลือกโรงเรียน" name="schoolID">
@@ -396,7 +396,7 @@ const VersionFormStep2: React.FC<{
   mode: "add" | "edit";
   onChange: (info: UploadChangeParam<UploadFile>) => void;
 }> = ({ mode, onChange }) => (
-  <Card size="small" title="อัปโหลดไฟล์เวอร์ชัน" bordered={false}>
+  <Card size="small" title="อัปโหลดไฟล์เวอร์ชัน" >
     <Form.Item
       label="เลือกไฟล์เวอร์ชัน"
       name="file"
@@ -435,7 +435,7 @@ const VersionFormStep2: React.FC<{
 );
 
 const VersionFormStep3: React.FC = () => (
-  <Card size="small" title="การตั้งค่าเพิ่มเติม" bordered={false}>
+  <Card size="small" title="การตั้งค่าเพิ่มเติม" >
     <Space direction="vertical" size="middle" style={{ width: "100%" }}>
       <Card size="small">
         <Flex justify="space-between" align="center">

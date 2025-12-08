@@ -1,124 +1,118 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+
 export type SubProjectAssetCaptureType = "CAPTUREABLE" | "UN_CAPTUREABLE";
+
+interface PaginationOptions {
+  limit?: number;
+  skip?: number;
+}
+
+interface CreateFeatureDto {
+  projectId: number;
+  name: string;
+  name_en?: string;
+  createdBy?: number;
+  backlogDescription?: any;
+  startDate: Date;
+  endDate: Date;
+  assetCaptureType?: SubProjectAssetCaptureType;
+}
+
+interface UpdateFeatureDto {
+  name?: string;
+  name_en?: string;
+  updatedBy?: number;
+  backlogDescription?: any;
+  startDate?: Date;
+  endDate?: Date;
+  assetCaptureType?: SubProjectAssetCaptureType;
+}
+
 export const Service = {
   async validateProjectId(projectId: number) {
     const project = await PrismaTimesheet.project.findUnique({
       where: { id: projectId },
     });
-    return project !== null;
+    return !!project;
   },
 
   async validateSubProjectId(subProjectId: number) {
-    const find = await PrismaTimesheet.feature.findUnique({
+    const feature = await PrismaTimesheet.feature.findUnique({
       where: { id: subProjectId },
     });
-    return find !== null;
+    return !!feature;
   },
 
-  // * ดึงข้อมูล Feature ทั้งหมด พร้อม pagination
-  async findAll(
-    opts: { limit?: number; skip?: number } = { limit: 50, skip: 0 }
-  ) {
+  async findAll({ limit = 50, skip = 0 }: PaginationOptions = {}) {
+    const where = { is_deleted: false };
+
     const [items, total] = await Promise.all([
       PrismaTimesheet.feature.findMany({
-        take: opts.limit,
-        skip: opts.skip,
+        where,
+        take: limit,
+        skip,
         orderBy: { createdAt: "desc" },
-        where: { is_deleted: false },
       }),
-      PrismaTimesheet.feature.count({ where: { is_deleted: false } }),
+      PrismaTimesheet.feature.count({ where }),
     ]);
+
     return { items, total };
   },
 
-  // * ดึงข้อมูล Feature ตาม ID พร้อมโครงสร้างข้อมูลแบบเดียวกับ findAll
   async findById(id: number) {
     const feature = await PrismaTimesheet.feature.findFirst({
       where: { id, is_deleted: false },
     });
-    if (feature) {
-      return { items: [feature], total: 1 };
-    } else {
-      return { items: [], total: 0 };
-    }
+
+    return feature ? { items: [feature], total: 1 } : { items: [], total: 0 };
   },
 
-  // * ดึงข้อมูล Feature ทั้งหมดใน Project เดียวกัน
   async findByProjectId(
     projectId: number,
-    opts: { limit?: number; skip?: number } = { limit: undefined, skip: 0 }
+    { limit, skip = 0 }: PaginationOptions = {}
   ) {
+    const where = { projectId, is_deleted: false };
+
     const [items, total] = await Promise.all([
       PrismaTimesheet.feature.findMany({
-        where: { projectId, is_deleted: false },
-        take: opts.limit,
-        skip: opts.skip,
+        where,
+        take: limit,
+        skip,
         orderBy: { createdAt: "desc" },
       }),
-      PrismaTimesheet.feature.count({
-        where: { projectId, is_deleted: false },
-      }),
+      PrismaTimesheet.feature.count({ where }),
     ]);
+
     return { items, total };
   },
 
-  // * สร้าง Feature ใหม่
-  async create(data: {
-    projectId: number;
-    name: string;
-    createdBy?: number;
-    backlogDescription?: any;
-    startDate: Date;
-    endDate: Date;
-    assetCaptureType?: SubProjectAssetCaptureType;
-  }) {
+  async create(data: CreateFeatureDto) {
     return await PrismaTimesheet.feature.create({
       data: {
-        projectId: data.projectId,
-        name: data.name,
-        createdBy: data.createdBy !== undefined ? data.createdBy : 0,
-        backlogDescription: data.backlogDescription,
-        startDate: data.startDate,
-        endDate: data.endDate,
+        ...data,
+        createdBy: data.createdBy ?? 0,
         assetCaptureType: data.assetCaptureType ?? "CAPTUREABLE",
       },
     });
   },
 
-  // * อัปเดต Feature ตาม ID
-  async update(
-    id: number,
-    data: {
-      name?: string;
-      updatedBy?: number;
-      backlogDescription?: any;
-      startDate: Date;
-      endDate: Date;
-      assetCaptureType?: SubProjectAssetCaptureType;
-    }
-  ) {
+  async update(id: number, data: UpdateFeatureDto) {
     return await PrismaTimesheet.feature.update({
       where: { id },
       data: {
-        ...(data.name && { name: data.name }),
-        updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
-        ...(data.backlogDescription && {
-          backlogDescription: data.backlogDescription,
-        }),
-        ...(data.startDate && { startDate: data.startDate }),
-        ...(data.endDate && { endDate: data.endDate }),
-        ...(data.assetCaptureType && {
-          assetCaptureType: data.assetCaptureType,
-        }),
+        ...data,
+        updatedBy: data.updatedBy ?? 0,
       },
     });
   },
 
-  // * ลบ Feature ตาม ID
-  async delete(id: number, p0: { deletedBy: number }) {
+  async delete(id: number, { deletedBy }: { deletedBy: number }) {
     return await PrismaTimesheet.feature.update({
       where: { id },
-      data: { is_deleted: true, updatedBy: p0.deletedBy },
+      data: {
+        is_deleted: true,
+        updatedBy: deletedBy,
+      },
     });
   },
 };

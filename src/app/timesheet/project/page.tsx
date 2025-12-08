@@ -1,13 +1,21 @@
-// ใช้ client side
 "use client";
-import React, { useState, useEffect } from "react";
-import DashboardLayout from "@components/layouts/backend-layout";
-import { useAppSelector } from "@stores/store";
-import { toast } from "sonner";
-import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
+
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dayjs, { Dayjs } from "dayjs";
 import Swal from "sweetalert2";
-// นำเข้า Ant Design Components
+import { toast } from "sonner";
+
+import DashboardLayout from "@components/layouts/backend-layout";
+import PermissionLayout from "@/components/layouts/permission-layout";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
+import { useAppSelector } from "@stores/store";
+import { getUserById } from "@helpers/local_storage/user.storage";
+import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import { categoryType } from "@data/timesheet.category.type";
+
 import {
   Card,
   Table,
@@ -16,16 +24,16 @@ import {
   Form,
   Input,
   Typography,
-  Space,
   Tag,
-  Spin,
   Select,
-  Skeleton,
   Descriptions,
   Tooltip,
   Badge,
+  DatePicker,
+  Row,
+  Col,
+  Dropdown,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
 import {
   PlusOutlined,
   CheckCircleOutlined,
@@ -34,706 +42,718 @@ import {
   InfoCircleOutlined,
   ArrowRightOutlined,
   ProjectOutlined,
-  StopOutlined,
   CalendarOutlined,
-  NumberOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-import { categoryType } from "@data/timesheet.category.type";
-import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
-import { UserProfile } from "@/stores/type";
-import PermissionLayout from "@/components/layouts/permission-layout";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
-import { useRouter } from "next/navigation";
+import type { ColumnsType } from "antd/es/table";
+import { MenuProps } from "antd/lib";
 
-// ประกาศ interface สำหรับข้อมูลโปรเจค
 interface Project {
   id: number;
   name: string;
+  name_en?: string;
   description: string;
   createdAt: string;
   updatedAt: string;
-  by: number;
   createdBy: number;
   categoryType: string;
   status: string;
+  features?: Array<{ is_deleted: boolean }>;
+  start_date?: string;
+  end_date?: string;
+  is_deleted?: boolean;
 }
 
-interface ProjectForm {
-  id?: number;
+interface ModalState {
+  type: "" | "create" | "edit" | "delete" | "detail";
+  data?: Project | null;
+}
+
+interface PaginationState {
+  current: number;
+  pageSize: number;
+  total: number;
+}
+
+interface FormValues {
   name: string;
-  description: string;
-  by: number;
+  name_en?: string;
+  description?: string;
   categoryType: string;
   status: string;
+  start_date?: Dayjs;
+  end_date?: Dayjs;
 }
 
-export default function Page() {
-  const router = useRouter();
-  const [antdForm] = Form.useForm();
-  // ใช้ Redux store สำหรับข้อมูล authentication
-  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
-  const [limit, setLimit] = useState<number>(20);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [modalType, setModalType] = useState<
-    "" | "create" | "edit" | "delete" | "detail"
-  >("");
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [formState, setFormState] = useState<
-    ProjectForm & { confirmText?: string }
-  >({
-    name: "",
-    description: "",
-    by: AUTHENTICATION.response.data.user_data.admin_id,
-    confirmText: "",
-    categoryType: "",
-    status: "",
-  });
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [detailProject, setDetailProject] = useState<Project | null>(null);
-  const [actionLoading, setActionLoading] = useState<boolean>(false);
+const PAGE_SIZE_OPTIONS = ["10", "20", "50", "100"];
+const PASSCODE = "LIGHT";
 
-  // ฟังก์ชันโหลดข้อมูลโปรเจค
-  const fetchProjects = async () => {
+export default function ProjectManagementPage() {
+  const router = useRouter();
+  const [form] = Form.useForm<FormValues>();
+
+  const userAuth = useAppSelector((state) => state.callAdminLogin);
+  const adminId = userAuth?.response?.data?.user_data?.admin_id || 0;
+  const userRole = userAuth?.response?.data?.user_data?.position;
+
+  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    current: 1,
+    pageSize: 20,
+    total: 0,
+  });
+  const [modalState, setModalState] = useState<ModalState>({
+    type: "",
+    data: null,
+  });
+  const [confirmDeleteText, setConfirmDeleteText] = useState("");
+
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.post("/api/v1/timesheet/project/read/", {
-        limit,
-        page: currentPage,
+        limit: pagination.pageSize,
+        page: pagination.current,
       });
-      const data = response.data;
-      setProjects(data.data || []);
-      setTotalItems(data.pagination?.total || 0);
-    } catch (error) {
+      setProjects(response.data.data || []);
+      setPagination((prev) => ({
+        ...prev,
+        total: response.data.pagination?.total || 0,
+      }));
+    } catch {
+      toast.error("ไม่สามารถโหลดข้อมูลโครงการได้");
       setProjects([]);
-      toast.error("โหลดข้อมูลล้มเหลว", { duration: 5000 });
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.current, pagination.pageSize]);
 
-  // ฟังก์ชันสร้างหรือแก้ไขโปรเจค
-  const createOrUpdateProject = async (project: ProjectForm) => {
+  const handleSubmitForm = async (values: FormValues) => {
+    setActionLoading(true);
     try {
-      setActionLoading(true);
-      const response = await axios.post(
-        `/api/v1/timesheet/project/insert/`,
-        project
-      );
-      toast.success("สร้าง/อัปเดต ข้อมูลสำเร็จ", { duration: 5000 });
-    } catch (error) {
-      toast.error("สร้าง/อัปเดต ข้อมูลล้มเหลว", { duration: 5000 });
+      const payload = {
+        name: values.name || "",
+        name_en: values.name_en || "",
+        description: values.description || "",
+        categoryType: values.categoryType || "",
+        status: values.status || "",
+        by: adminId,
+        start_date: values.start_date?.toISOString() || "",
+        end_date: values.end_date?.toISOString() || "",
+      };
+
+      if (modalState.data?.id) {
+        await axios.post("/api/v1/timesheet/project/insert/", {
+          ...payload,
+          id: modalState.data.id,
+        });
+        toast.success("อัปเดตโครงการสำเร็จ");
+      } else {
+        await axios.post("/api/v1/timesheet/project/insert/", payload);
+        toast.success("สร้างโครงการสำเร็จ");
+      }
+
+      closeModal();
+      fetchProjects();
+    } catch {
+      toast.error("ทำรายการล้มเหลว กรุณาลองใหม่");
     } finally {
       setActionLoading(false);
     }
   };
 
-  // ฟังก์ชันลบโปรเจค
-  const deleteProject = async (id: number) => {
+  const handleDelete = async () => {
+    if (!modalState.data?.id) return;
+
     try {
-      const response = await axios.post(`/api/v1/timesheet/project/delete/`, {
-        id,
-        by: AUTHENTICATION.response.data.user_data.admin_id,
+      await axios.post("/api/v1/timesheet/project/delete/", {
+        id: modalState.data.id,
+        by: adminId,
       });
-      toast.success("ลบข้อมูลสำเร็จ", { duration: 5000 });
-    } catch (error) {
-      toast.error("ลบข้อมูลล้มเหลว", { duration: 5000 });
+      toast.success("ลบโครงการเรียบร้อยแล้ว");
+      closeModal();
+      fetchProjects();
+    } catch {
+      toast.error("ลบข้อมูลล้มเหลว");
     }
   };
 
-  // โหลดข้อมูลโปรเจคเมื่อเปลี่ยนหน้า หรือ limit
+  const closeModal = () => {
+    setModalState({ type: "", data: null });
+    setConfirmDeleteText("");
+    form.resetFields();
+  };
+
+  const openCreateModal = () => {
+    form.setFieldsValue({
+      status: "open",
+      start_date: dayjs(),
+      end_date: dayjs(),
+    });
+    setModalState({ type: "create" });
+  };
+
+  const openEditModal = (record: Project) => {
+    form.setFieldsValue({
+      name: record.name,
+      name_en: record.name_en,
+      description: record.description,
+      categoryType: record.categoryType,
+      status: record.status,
+      start_date: record.start_date ? dayjs(record.start_date) : undefined,
+      end_date: record.end_date ? dayjs(record.end_date) : undefined,
+    });
+    setModalState({ type: "edit", data: record });
+  };
+
+  const calculateProjectProgress = (startDate: string, endDate: string) => {
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+    const now = dayjs();
+    const total = end.diff(start, "day");
+    const elapsed = now.diff(start, "day");
+    return Math.min(Math.max((elapsed / total) * 100, 0), 100);
+  };
+
+  const getCategoryName = (categoryId: string) => {
+    return (
+      categoryType.find((c) => String(c.id) === String(categoryId))?.name ||
+      categoryId
+    );
+  };
+
+  const getSubProjectCount = (features?: Array<{ is_deleted: boolean }>) => {
+    return features?.filter((f) => !f.is_deleted).length || 0;
+  };
+
   useEffect(() => {
     fetchProjects();
-  }, [currentPage, limit]);
+  }, [fetchProjects]);
 
-  // ตรวจสอบสิทธิ์การเข้าถึง
   useEffect(() => {
-    const role = AUTHENTICATION?.response?.data?.user_data?.position;
-    if (!role) return;
-    if (role.trim().toLowerCase() !== "admin") {
+    if (userRole && userRole.trim().toLowerCase() !== "admin") {
       Swal.fire({
         icon: "warning",
-        title: "ต้องการรหัสผ่าน",
-        input: "text",
-        inputLabel: "กรอกรหัสเพื่อเข้าถึง",
-        inputPlaceholder: "พิมพ์รหัสที่นี่",
-        confirmButtonText: "ยืนยัน",
+        title: "Restricted Access",
+        text: "Please enter passcode",
+        input: "password",
         allowOutsideClick: false,
-        allowEscapeKey: false,
-        showCancelButton: false,
       }).then((result) => {
-        if (result.isConfirmed && result.value !== "LIGHT") {
-          window.location.href = "/";
-        }
+        if (result.value !== PASSCODE) window.location.href = "/";
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [AUTHENTICATION]);
+  }, [userRole]);
 
-  // เมื่อเปิด modal สร้างโปรเจค
-  const openCreateModal = () => {
-    setFormState({
-      name: "",
-      description: "",
-      by: AUTHENTICATION.response.data.user_data.admin_id,
-      confirmText: "",
-      categoryType: "",
-      status: "open",
-    });
-    setModalType("create");
-  };
-
-  // เมื่อเปิด modal แก้ไขโปรเจค
-  const openEditModal = (project: Project) => {
-    setFormState({
-      id: project.id,
-      name: project.name,
-      description: project.description,
-      by: AUTHENTICATION.response.data.user_data.admin_id,
-      categoryType: project.categoryType,
-      status: project.status,
-    });
-    setModalType("edit");
-  };
-
-  // เมื่อเปิด modal ลบโปรเจค
-  const openDeleteModal = (id: number) => {
-    setDeleteId(id);
-    setFormState((prev) => ({ ...prev, confirmText: "" }));
-    setModalType("delete");
-  };
-
-  // เมื่อเปิด modal ดูรายละเอียดโปรเจค
-  const openDetailModal = (project: Project) => {
-    setDetailProject(project);
-    setModalType("detail");
-  };
-
-  // ฟังก์ชัน submit สำหรับสร้าง/แก้ไขโปรเจค
-  const handleSubmit = async (values: {
-    name: string;
-    description: string;
-    categoryType: string;
-  }) => {
-    if (!values.name.trim()) return;
-    await createOrUpdateProject({
-      ...formState,
-      name: values.name,
-      description: values.description,
-      categoryType: values.categoryType,
-    });
-    setModalType("");
-    await fetchProjects();
-  };
-
-  // ฟังก์ชันยืนยันลบโปรเจค
-  const confirmDelete = async () => {
-    if (deleteId === null) return;
-    await deleteProject(deleteId);
-    setModalType("");
-    setDeleteId(null);
-    await fetchProjects();
-  };
-
-  // กำหนด columns สำหรับตารางโปรเจค
-  const columns: ColumnsType<Project> = [
-    {
-      title: (
-        <Space>
-          <NumberOutlined />
-          ลำดับ
-        </Space>
-      ),
-      dataIndex: "index",
-      key: "index",
-      align: "center" as const,
-      width: 90,
-      render: (_: any, __: any, idx: number) => (
-        <span style={{ fontWeight: 600, color: "#8c8c8c" }}>
-          {idx + 1 + (currentPage - 1) * limit}
-        </span>
-      ),
-    },
-    {
-      title: "รหัสโครงการ",
-      dataIndex: "id",
-      key: "id",
-      align: "center" as const,
-      width: 120,
-      sorter: (a: Project, b: Project) => a.id - b.id,
-      render: (text: number) => (
-        <Tag
-          color="cyan"
-          style={{
-            borderRadius: "14px",
-            padding: "4px 18px",
-            fontWeight: 700,
-            fontSize: "1.15em",
-            letterSpacing: "0.15em",
-            border: "1.5px solid #13c2c2",
-            background: "linear-gradient(90deg, #e6fffb 0%, #b5f5ec 100%)",
-            color: "#08979c",
-            boxShadow: "0 2px 8px 0 #b5f5ec55",
-            fontFamily: "Fira Mono, Menlo, monospace",
-          }}
-        >
-          {text.toString().padStart(4, "0")}
-        </Tag>
-      ),
-    },
-    {
-      title: "ชื่อโปรเจค",
-      dataIndex: "name",
-      key: "name",
-      align: "left" as const,
-      sorter: (a: Project, b: Project) => a.name.localeCompare(b.name),
-      filterSearch: true,
-      onFilter: (value, record) => record.name === String(value),
-      filters: Array.from(new Set(projects.map((p) => p.name))).map((name) => ({
-        text: name,
-        value: String(name),
-      })),
-      render: (text: string) => (
-        <Space>
-          <div
-            style={{
-              backgroundColor: "#e6f7ff",
-              padding: "8px",
-              borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid #91d5ff",
-            }}
-          >
-            <ProjectOutlined style={{ color: "#1890ff", fontSize: "16px" }} />
-          </div>
-          <Typography.Text strong style={{ fontSize: "15px" }}>
-            {text}
-          </Typography.Text>
-        </Space>
-      ),
-    },
-    {
-      title: "คำอธิบาย",
-      dataIndex: "description",
-      key: "description",
-      align: "left" as const,
-      width: 250,
-      sorter: (a: Project, b: Project) =>
-        (a.description || "").localeCompare(b.description || ""),
-      render: (text: string) =>
-        text ? (
-          <Typography.Paragraph
-            ellipsis={{ rows: 2, tooltip: true }}
-            style={{ margin: 0, color: "#595959", fontSize: "13px" }}
-          >
-            {text}
-          </Typography.Paragraph>
-        ) : (
-          <Tag
-            color="default"
-            style={{
-              border: "none",
-              background: "transparent",
-              color: "#bfbfbf",
-            }}
-          >
-            -
-          </Tag>
+  const columns: ColumnsType<Project> = useMemo(
+    () => [
+      {
+        title: "ลำดับ",
+        key: "index",
+        align: "center",
+        width: 60,
+        render: (_, __, idx) => (
+          <span className=" font-medium">
+            {(pagination.current - 1) * pagination.pageSize + idx + 1}
+          </span>
         ),
-    },
-    {
-      title: "ประเภท",
-      dataIndex: "categoryType",
-      key: "categoryType",
-      align: "center" as const,
-      filters: categoryType.map((data) => ({
-        text: data.name,
-        value: String(data.id),
-      })),
-      onFilter: (value, record) => record.categoryType === String(value),
-      sorter: (a: Project, b: Project) =>
-        a.categoryType.localeCompare(b.categoryType),
-      render: (text: string) => {
-        const category = categoryType.find((c) => c.id === text);
-        return category ? (
-          <Tag
-            color="geekblue"
-            style={{
-              borderRadius: "12px",
-              padding: "2px 10px",
-              fontWeight: 500,
-              border: "1px solid #adc6ff",
-            }}
-          >
-            {category.name}
-          </Tag>
-        ) : (
-          <Tag color="default">ไม่ระบุ</Tag>
-        );
       },
-    },
-    {
-      title: "สถานะ",
-      dataIndex: "status",
-      key: "status",
-      align: "center" as const,
-      width: 140,
-      render: (text: string) => {
-        const isOpen = text === "open";
-        return (
-          <Tag
-            icon={isOpen ? <CheckCircleOutlined /> : <StopOutlined />}
-            color={isOpen ? "success" : "error"}
-            bordered={false}
-            style={{
-              fontSize: "13px",
-              padding: "4px 12px",
-              borderRadius: "20px",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-              fontWeight: 600,
-              boxShadow: isOpen
-                ? "0 2px 0 rgba(82, 196, 26, 0.1)"
-                : "0 2px 0 rgba(255, 77, 79, 0.1)",
-            }}
-          >
-            {isOpen ? "เปิด" : "ปิด"}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Sub-Projects",
-      dataIndex: "subProjectCount",
-      key: "subProjectCount",
-      align: "center" as const,
-      render: (_: any, record: any) => {
-        const features = Array.isArray(record.features) ? record.features : [];
-        const count = features.filter((f: any) => !f?.is_deleted).length;
-        return (
-          <Badge
-            count={count}
-            showZero
-            overflowCount={99}
-            style={{ backgroundColor: "#52c41a", boxShadow: "0 0 0 1px #fff" }}
-          />
-        );
-      },
-    },
-    {
-      title: "วันที่สร้าง",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      align: "center" as const,
-      sorter: (a: Project, b: Project) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      render: (text: string) => (
-        <Space>
-          <CalendarOutlined style={{ color: "#8c8c8c" }} />
-          <Typography.Text style={{ fontSize: "13px", color: "#595959" }}>
-            {convertToThaiDateDDMMYYY(text)}
+      {
+        title: "ID",
+        dataIndex: "id",
+        key: "id",
+        align: "center",
+        width: 80,
+        sorter: (a, b) => a.id - b.id,
+        render: (id: number) => (
+          <Typography.Text copyable={{ text: String(id) }} code>
+            {String(id).padStart(4, "0")}
           </Typography.Text>
-        </Space>
-      ),
-    },
-    {
-      title: "แก้ไขล่าสุด",
-      dataIndex: "updatedAt",
-      key: "updatedAt",
-      align: "center" as const,
-      sorter: (a: Project, b: Project) =>
-        new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime(),
-      render: (text: string) => (
-        <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
-          {convertToThaiDateDDMMYYY(text)}
-        </Typography.Text>
-      ),
-    },
-    {
-      title: "จัดการ",
-      key: "action",
-      align: "center" as const,
-      width: 180,
-      render: (_: any, record: Project) => (
-        <Space size="small">
-          <Tooltip title="ดูรายละเอียด">
-            <Button
-              type="text"
-              shape="circle"
-              icon={<InfoCircleOutlined style={{ color: "#1890ff" }} />}
-              onClick={() => openDetailModal(record)}
-            />
-          </Tooltip>
-          <Tooltip title="แก้ไข">
-            <Button
-              type="text"
-              shape="circle"
-              icon={<EditOutlined style={{ color: "#faad14" }} />}
-              onClick={() => openEditModal(record)}
-            />
-          </Tooltip>
-          <Tooltip title="ลบ">
-            <Button
-              type="text"
-              shape="circle"
-              icon={<DeleteOutlined style={{ color: "#ff4d4f" }} />}
-              onClick={() => openDeleteModal(record.id)}
-            />
-          </Tooltip>
-          <Tooltip title="ไปยังโครงการย่อย">
-            <Link href={`/timesheet/project/sub-project/${record.id}`}>
-              <Button
-                type="text"
-                shape="circle"
-                icon={<ArrowRightOutlined style={{ color: "#52c41a" }} />}
-              />
-            </Link>
-          </Tooltip>
-        </Space>
-      ),
-    },
-  ];
+        ),
+      },
+      {
+        title: "โครงการ",
+        key: "project_name",
+        width: 280,
+        sorter: (a, b) => a.name.localeCompare(b.name),
+        filterSearch: true,
+        filters: Array.from(new Set(projects.map((p) => p.name))).map(
+          (name) => ({
+            text: name,
+            value: name,
+          })
+        ),
+        onFilter: (value, record) => record.name === value,
+        render: (_, record) => (
+          <div className="flex items-start gap-3">
+            {/* Project Icon */}
+            <div className="min-w-[40px] h-[40px] rounded-lg flex items-center justify-center border border-blue-100">
+              <ProjectOutlined className="text-blue-500 text-lg" />
+            </div>
 
-  // ยกเลิก Spin loading เต็มหน้า, ใช้ Skeleton ใน Card แทน
+            {/* Project Names */}
+            <div className="flex flex-col">
+              <Typography.Text
+                strong
+                className=" text-[15px] leading-tight hover:text-blue-600 transition-colors cursor-pointer"
+              >
+                {record.name}
+              </Typography.Text>
+              {record.name_en ? (
+                <Typography.Text type="secondary" className="text-xs mt-1">
+                  {record.name_en}
+                </Typography.Text>
+              ) : (
+                <Typography.Text
+                  type="secondary"
+                  className="text-xs mt-1 italic "
+                >
+                  - No English Name -
+                </Typography.Text>
+              )}
+            </div>
+          </div>
+        ),
+      },
+      {
+        title: "ระยะเวลาดำเนินการ",
+        key: "duration",
+        width: 200,
+        sorter: (a, b) => {
+          const dateA = a.start_date ? dayjs(a.start_date).valueOf() : 0;
+          const dateB = b.start_date ? dayjs(b.start_date).valueOf() : 0;
+          return dateA - dateB;
+        },
+        render: (_, record) => {
+          if (!record.start_date || !record.end_date) {
+            return <span className="">-</span>;
+          }
+
+          const isExpired = dayjs(record.end_date).isBefore(dayjs());
+          const progress = calculateProjectProgress(
+            record.start_date,
+            record.end_date
+          );
+
+          return (
+            <div className="flex flex-col gap-1">
+              {/* Date Range */}
+              <div className={`flex items-center text-xs`}>
+                <CalendarOutlined className="mr-2 opacity-70" />
+                <span>{convertToThaiDateDDMMYYY(record.start_date)}</span>
+                <ArrowRightOutlined className="mx-2 text-[10px] opacity-50" />
+                <span className={isExpired ? "line-through" : ""}>
+                  {convertToThaiDateDDMMYYY(record.end_date)}
+                </span>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full h-1 rounded-full overflow-hidden mt-1">
+                <div
+                  className={`h-full ${
+                    isExpired ? "bg-gray-300" : "bg-blue-400"
+                  }`}
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        title: "ย่อย",
+        key: "features",
+        align: "center",
+        width: 80,
+        sorter: (a, b) =>
+          getSubProjectCount(a.features) - getSubProjectCount(b.features),
+        render: (_, record) => {
+          const count = getSubProjectCount(record.features);
+          return (
+            <Tooltip title={`${count} โครงการย่อย`}>
+              <div
+                className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                  count > 0
+                    ? "border border-indigo-100"
+                    : " border border-gray-100"
+                }`}
+              >
+                {count}
+              </div>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        title: "สถานะ & ประเภท",
+        key: "status_type",
+        width: 160,
+        filters: [
+          { text: "Active", value: "open" },
+          { text: "Closed", value: "close" },
+          ...categoryType.map((cat) => ({
+            text: cat.name,
+            value: `cat_${cat.id}`,
+          })),
+        ],
+        onFilter: (value, record) => {
+          if (value === "open" || value === "close") {
+            return record.status === value;
+          }
+          const catId = String(value).replace("cat_", "");
+          return String(record.categoryType) === catId;
+        },
+        render: (_, record) => {
+          const categoryName = getCategoryName(record.categoryType);
+          const isOpen = record.status === "open";
+
+          return (
+            <div className="flex flex-col gap-2 items-start">
+              {/* Status Badge */}
+              <Badge
+                status={isOpen ? "processing" : "default"}
+                text={
+                  <span
+                    className={
+                      isOpen ? "text-green-600 font-medium" : "text-gray-400"
+                    }
+                  >
+                    {isOpen ? "Active" : "Closed"}
+                  </span>
+                }
+              />
+
+              {/* Category Tag */}
+              <Tag  className="m-0 text-[10px] rounded-md px-2">
+                {categoryName}
+              </Tag>
+            </div>
+          );
+        },
+      },
+      {
+        title: "สถานะการเปิดใช้งาน",
+        key: "is_deleted",
+        width: 160,
+        filters: [
+          { text: "เปิดใช้งาน", value: false },
+          { text: "ถูกลบ", value: true },
+        ],
+        onFilter: (value, record) => record.is_deleted === value,
+        sorter: (a, b) => Number(a.is_deleted) - Number(b.is_deleted),
+        render: (_, record) => {
+          const status = record.is_deleted === true;
+
+          return (
+            <div className="flex flex-col gap-2 items-start">
+              {/* is_deleted status */}
+              <Badge
+                status={status ? "default" : "success"}
+                text={
+                  <span className={status ? "text-red-600 " : "font-medium"}>
+                    {status ? "ลบ" : "เปิดใช้งาน"}
+                  </span>
+                }
+              />
+            </div>
+          );
+        },
+      },
+      {
+        title: "",
+        key: "action",
+        align: "center",
+        width: 140,
+        fixed: "right",
+        render: (_, record) => {
+          const menuItems: MenuProps["items"] = [
+            {
+              key: "detail",
+              label: "ดูรายละเอียด",
+              icon: <InfoCircleOutlined />,
+              onClick: () => setModalState({ type: "detail", data: record }),
+            },
+            {
+              type: "divider",
+            },
+            {
+              key: "delete",
+              label: "ลบโครงการ",
+              icon: <DeleteOutlined />,
+              danger: true,
+              onClick: () => setModalState({ type: "delete", data: record }),
+            },
+          ];
+
+          return (
+            <div className="flex items-center justify-center gap-2">
+              {/* Action Buttons Group */}
+              <div className="flex gap-1 p-1 px-2 rounded-full border border-gray-200 shadow-sm">
+                <Tooltip title="แก้ไข">
+                  <Button
+                    type="text"
+                    size="small"
+                    shape="circle"
+                    className=" hover:text-orange-500"
+                    icon={<EditOutlined />}
+                    onClick={() => openEditModal(record)}
+                  />
+                </Tooltip>
+
+                <Dropdown
+                  menu={{ items: menuItems }}
+                  trigger={["click"]}
+                  placement="bottomRight"
+                >
+                  <Tooltip title="เพิ่มเติม">
+                    <Button
+                      type="text"
+                      size="small"
+                      shape="circle"
+                      className=" hover:text-blue-500"
+                      icon={<MoreOutlined />}
+                    />
+                  </Tooltip>
+                </Dropdown>
+              </div>
+
+              {/* Primary Action */}
+              <Tooltip title="เข้าสู่โครงการย่อย">
+                <Link href={`/timesheet/project/sub-project/${record.id}`}>
+                  <Button
+                    type="primary"
+                    size="small"
+                    shape="circle"
+                    icon={<ArrowRightOutlined />}
+                    className="shadow-md hover:scale-105 transition-transform"
+                  />
+                </Link>
+              </Tooltip>
+            </div>
+          );
+        },
+      },
+    ],
+    [pagination, projects]
+  );
+
+  const handlePaginationChange = (page: number, size: number) => {
+    setPagination({
+      ...pagination,
+      current: page,
+      pageSize: size,
+    });
+  };
 
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
         <HeaderBar
-          title="Projects"
-          subTitle="จัดการโครงการ Timesheet"
+          title="Projects Management"
+          subTitle="จัดการข้อมูลโครงการ"
           icon={<ProjectOutlined />}
           color="none"
         />
-        <div className="w-full space-y-4">
-          <div className="w-full flex justify-end gap-4">
-            {/* ปุ่มดู Project Timeline */}
+
+        <div className="flex flex-col gap-4 w-full">
+          {/* Action Toolbar */}
+          <div className="flex justify-end gap-3">
             <Button
-              type="link"
               icon={<ArrowRightOutlined />}
               size="large"
               onClick={() => router.push("/timesheet/timeline")}
-              style={{ minWidth: 160 }}
             >
-              ดู Project Timeline
+              Timeline View
             </Button>
-
-            {/* ปุ่มเพิ่มโครงการใหม่ */}
             <Button
               type="primary"
               icon={<PlusOutlined />}
               size="large"
               onClick={openCreateModal}
-              style={{ minWidth: 160 }}
             >
-              เพิ่มโครงการใหม่
+              สร้างโครงการใหม่
             </Button>
           </div>
 
-          {/* Card รายการโครงการ */}
-          <Card title="รายการโครงการ" className="w-full">
-            {/* ตารางโครงการ */}
-            <Skeleton active loading={loading}>
-              <Table
-                columns={columns}
-                dataSource={projects}
-                rowKey="id"
-                pagination={{
-                  current: currentPage,
-                  pageSize: limit,
-                  total: totalItems,
-                  showSizeChanger: true,
-                  pageSizeOptions: ["10", "20", "50", "100"],
-                  onChange: (page, pageSize) => {
-                    setCurrentPage(page);
-                    if (typeof pageSize === "number") {
-                      setLimit(pageSize);
-                    }
-                  },
-                }}
-                locale={{
-                  emptyText: "ไม่พบข้อมูลโปรเจค",
-                }}
-              />
-            </Skeleton>
-          </Card>
-
-          {/* Modal สร้าง/แก้ไขโปรเจค */}
-          <Modal
-            open={modalType === "create" || modalType === "edit"}
-            onCancel={() => setModalType("")}
-            title={formState.id ? "แก้ไขโปรเจค" : "เพิ่มโปรเจคใหม่"}
-            footer={null}
-            destroyOnHidden
-          >
-            {/* ฟอร์มโปรเจค */}
-            <Form
-              form={antdForm}
-              layout="vertical"
-              initialValues={{
-                name: formState.name,
-                description: formState.description,
-                categoryType: formState.categoryType,
-                status: formState.status,
+          {/* Projects Table */}
+          <Card className="shadow-sm">
+            <Table
+              rowKey={(r) => r.id}
+              columns={columns}
+              dataSource={projects}
+              loading={loading}
+              pagination={{
+                ...pagination,
+                showSizeChanger: true,
+                pageSizeOptions: PAGE_SIZE_OPTIONS,
+                onChange: handlePaginationChange,
               }}
-              onFinish={handleSubmit}
-            >
-              <Form.Item
-                label="ชื่อโครงการ"
-                name="name"
-                rules={[{ required: true, message: "กรุณากรอกชื่อโปรเจค" }]}
-              >
-                <Input
-                  placeholder="กรอกชื่อโปรเจค"
-                  prefix={<InfoCircleOutlined />}
-                  onChange={(e) =>
-                    setFormState((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                />
-              </Form.Item>
-              <Form.Item label="คำอธิบายโครงการ" name="description">
-                <Input
-                  placeholder="กรอกคำอธิบายโครงการ (ถ้ามี)"
-                  prefix={<EditOutlined />}
-                  onChange={(e) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                />
-              </Form.Item>
-              <Form.Item
-                label="ประเภทโครงการ"
-                name="categoryType"
-                rules={[{ required: true, message: "กรุณาเลือกประเภทโครงการ" }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="เลือกประเภทโครงการ"
-                  options={categoryType.map((data) => ({
-                    label: `${data.name} (${data.id})`,
-                    value: String(data.id),
-                  }))}
-                />
-              </Form.Item>
-              <Form.Item
-                label="สถานะ"
-                name="status"
-                rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="เลือกสถานะ"
-                  options={[
-                    { label: "เปิดโครงการ", value: "open" },
-                    { label: "ปิดโครงการ", value: "close" },
-                  ]}
-                />
-              </Form.Item>
-              <Form.Item>
-                <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-                  <Button onClick={() => setModalType("")}>ยกเลิก</Button>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    icon={<CheckCircleOutlined />}
-                    disabled={actionLoading}
-                  >
-                    บันทึก
-                  </Button>
-                </Space>
-              </Form.Item>
-            </Form>
-          </Modal>
-
-          {/* Modal ยืนยันลบโปรเจค */}
-          <Modal
-            open={modalType === "delete"}
-            onCancel={() => setModalType("")}
-            title="ยืนยันการลบ"
-            onOk={confirmDelete}
-            okText="ลบ"
-            okType="danger"
-            cancelText="ยกเลิก"
-            okButtonProps={{
-              disabled: formState.confirmText !== "Delete",
-            }}
-            destroyOnHidden
-          >
-            <div style={{ marginBottom: 16 }}>
-              <Typography.Text type="danger" strong>
-                คุณต้องการยืนยันที่จะลบโปรเจคนี้จริงหรือไม่
-              </Typography.Text>
-              <br />
-              <Typography.Text>
-                โปรดพิมพ์ <b style={{ color: "#f5222d" }}>Delete</b> เพื่อยืนยัน
-              </Typography.Text>
-              <Input
-                style={{ marginTop: 10 }}
-                placeholder="พิมพ์ Delete เพื่อยืนยัน"
-                value={formState.confirmText}
-                onChange={(e) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    confirmText: e.target.value,
-                  }))
-                }
-              />
-            </div>
-          </Modal>
-
-          {/* Modal รายละเอียดโปรเจค */}
-          <Modal
-            open={modalType === "detail" && !!detailProject}
-            onCancel={() => {
-              setModalType("");
-              setDetailProject(null);
-            }}
-            title="รายละเอียดโปรเจค"
-            footer={[
-              <Button
-                key="close"
-                onClick={() => {
-                  setModalType("");
-                  setDetailProject(null);
-                }}
-              >
-                ปิด
-              </Button>,
-            ]}
-            destroyOnHidden
-          >
-            {detailProject && (
-              <div className="mt-4">
-                <Descriptions bordered column={1} size="middle">
-                  <Descriptions.Item label="ชื่อโครงการ">
-                    {detailProject.name}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="คำอธิบาย">
-                    {detailProject.description}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="สร้างโดย (ID)">
-                    {getUserById(detailProject.createdBy)?.firstname}{" "}
-                    {getUserById(detailProject.createdBy)?.lastname}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="สร้างเมื่อ">
-                    {convertToThaiDateDDMMYYY(detailProject.createdAt)}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="แก้ไขล่าสุด">
-                    {convertToThaiDateDDMMYYY(detailProject.updatedAt)}
-                  </Descriptions.Item>
-                </Descriptions>
-              </div>
-            )}
-          </Modal>
+            />
+          </Card>
         </div>
+
+        {/* Create/Edit Modal */}
+        <Modal
+          open={modalState.type === "create" || modalState.type === "edit"}
+          title={
+            modalState.type === "edit" ? "แก้ไขโครงการ" : "เพิ่มโครงการใหม่"
+          }
+          onCancel={closeModal}
+          footer={null}
+          destroyOnHidden
+          width={800}
+          centered
+        >
+          <Form form={form} layout="vertical" onFinish={handleSubmitForm}>
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="name"
+                  label="ชื่อโครงการ (TH)"
+                  rules={[{ required: true, message: "กรุณากรอกชื่อโครงการ" }]}
+                >
+                  <Input
+                    prefix={<InfoCircleOutlined />}
+                    placeholder="ระบุชื่อโครงการ"
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="name_en"
+                  label="ชื่อโครงการ (EN)"
+                  rules={[
+                    { required: true, message: "กรุณากรอกชื่อภาษาอังกฤษ" },
+                  ]}
+                >
+                  <Input
+                    prefix={<InfoCircleOutlined />}
+                    placeholder="English Name"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="categoryType"
+                  label="ประเภท"
+                  rules={[{ required: true, message: "กรุณาเลือกประเภท" }]}
+                >
+                  <Select
+                    placeholder="เลือกประเภท"
+                    options={categoryType.map((c) => ({
+                      label: c.name,
+                      value: String(c.id),
+                    }))}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="status"
+                  label="สถานะ"
+                  rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
+                >
+                  <Select
+                    options={[
+                      { label: "เปิดโครงการ", value: "open" },
+                      { label: "ปิดโครงการ", value: "close" },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item name="start_date" label="วันเริ่มโครงการ">
+                  <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item name="end_date" label="วันสิ้นสุดโครงการ">
+                  <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item name="description" label="คำอธิบาย">
+              <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม..." />
+            </Form.Item>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <Button onClick={closeModal}>ยกเลิก</Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={actionLoading}
+                icon={<CheckCircleOutlined />}
+              >
+                บันทึกข้อมูล
+              </Button>
+            </div>
+          </Form>
+        </Modal>
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          title="ยืนยันการลบโครงการ"
+          open={modalState.type === "delete"}
+          onCancel={closeModal}
+          onOk={handleDelete}
+          okButtonProps={{
+            danger: true,
+            disabled: confirmDeleteText !== "Delete",
+          }}
+          okText="ยืนยันลบ"
+        >
+          <div className="space-y-3">
+            <Typography.Text type="danger">
+              การกระทำนี้ไม่สามารถย้อนกลับได้ กรุณาพิมพ์ <b>Delete</b>{" "}
+              เพื่อยืนยัน
+            </Typography.Text>
+            <Input
+              placeholder="Type 'Delete' to confirm"
+              value={confirmDeleteText}
+              onChange={(e) => setConfirmDeleteText(e.target.value)}
+            />
+          </div>
+        </Modal>
+
+        {/* Detail Modal */}
+        <Modal
+          title="รายละเอียดโครงการ"
+          open={modalState.type === "detail"}
+          onCancel={closeModal}
+          footer={[
+            <Button key="close" onClick={closeModal}>
+              ปิด
+            </Button>,
+          ]}
+        >
+          {modalState.data && (
+            <Descriptions column={1} bordered size="small">
+              <Descriptions.Item label="ชื่อโครงการ">
+                {modalState.data.name}
+              </Descriptions.Item>
+              <Descriptions.Item label="English Name">
+                {modalState.data.name_en || "-"}
+              </Descriptions.Item>
+              <Descriptions.Item label="รายละเอียด">
+                {modalState.data.description || "-"}
+              </Descriptions.Item>
+              <Descriptions.Item label="สร้างเมื่อ">
+                {convertToThaiDateDDMMYYY(modalState.data.createdAt)}
+              </Descriptions.Item>
+              <Descriptions.Item label="โดย">
+                {getUserById(modalState.data.createdBy)?.firstname ?? "Unknown"}
+              </Descriptions.Item>
+            </Descriptions>
+          )}
+        </Modal>
       </DashboardLayout>
     </PermissionLayout>
   );

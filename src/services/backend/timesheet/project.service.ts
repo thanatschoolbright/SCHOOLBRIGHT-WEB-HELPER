@@ -7,13 +7,12 @@ export const Service = {
   ) {
     const [items, total] = await Promise.all([
       PrismaTimesheet.project.findMany({
-        where: { is_deleted: false },
         take: opts.limit,
         skip: opts.skip,
         orderBy: { createdAt: "desc" },
         include: { features: true },
       }),
-      PrismaTimesheet.project.count({ where: { is_deleted: false } }),
+      PrismaTimesheet.project.count(),
     ]);
     return { items, total };
   },
@@ -21,7 +20,7 @@ export const Service = {
   // * ดึงข้อมูล Project ตาม ID พร้อมโครงสร้างข้อมูลแบบเดียวกับ findAll
   async findById(id: number) {
     const project = await PrismaTimesheet.project.findFirst({
-      where: { id, is_deleted: false },
+      where: { id },
     });
     if (project) {
       return { items: [project], total: 1 };
@@ -35,6 +34,9 @@ export const Service = {
     name: string;
     description: string;
     categoryType: string;
+    name_en?: string;
+    start_date?: string;
+    end_date?: string;
     createdBy?: number;
     status?: string;
   }) {
@@ -43,12 +45,16 @@ export const Service = {
         name: data.name,
         description: data.description,
         categoryType: data.categoryType,
+        name_en: data.name_en,
+        start_date: data.start_date,
+        end_date: data.end_date,
         createdBy: data.createdBy !== undefined ? data.createdBy : 0,
         status: data.status !== undefined ? data.status : "open",
       },
     });
   },
 
+  // * อัปเดต Project ตาม ID
   // * อัปเดต Project ตาม ID
   async update(
     id: number,
@@ -58,16 +64,16 @@ export const Service = {
       updatedBy?: number;
       categoryType?: string;
       status?: string;
+      start_date?: string;
+      end_date?: string;
+      name_en?: string;
     }
   ) {
     return await PrismaTimesheet.project.update({
       where: { id },
       data: {
-        ...(data.name && { name: data.name }),
-        ...(data.description && { description: data.description }),
-        updatedBy: data.updatedBy !== undefined ? data.updatedBy : 0,
-        ...(data.categoryType && { categoryType: data.categoryType }),
-        ...(data.status && { status: data.status }),
+        ...data,
+        updatedBy: data.updatedBy ?? 0,
       },
     });
   },

@@ -48,7 +48,7 @@ export default function FiltersSection({
           {TRANSLATION("bypass_page.clear_filters")}
         </Button>
       }
-      bordered={false}
+      
       className="shadow-sm"
     >
       <Space direction="vertical" size="middle" style={{ width: "100%" }}>

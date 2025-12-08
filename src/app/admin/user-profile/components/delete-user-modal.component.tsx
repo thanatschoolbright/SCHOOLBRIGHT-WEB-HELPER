@@ -29,7 +29,7 @@ export const DeleteUserModal = ({
     cancelText={translation("user_profile_page.cancel_button")}
     title={translation("user_profile_page.delete_modal_title")}
     okButtonProps={{ disabled: confirmText !== keyword, className: "bg-rose-500" }}
-    destroyOnClose
+    destroyOnHidden
   >
     <div className="space-y-2">
       <Typography.Text type="danger" className="flex items-center gap-2">
