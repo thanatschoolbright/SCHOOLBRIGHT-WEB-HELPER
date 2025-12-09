@@ -229,16 +229,14 @@ jobs:
           cd "${{ env.DEPLOY_PATH }}"
 
           echo "📦 Installing Prod Dependencies..."
-          # ตอนนี้เราเป็นเจ้าของโฟลเดอร์แล้ว รัน npm ci ได้เลยโดยไม่ต้อง sudo ก็ได้ 
-          # หรือถ้าจะใช้ sudo ก็ไม่มีปัญหา แต่ต้องระวังเรื่อง cache
-          sudo npm ci --omit=dev --prefer-offline --no-audit
+          # ✅ FIX: เพิ่ม --legacy-peer-deps เพื่อข้ามปัญหา ERESOLVE ของ ESLint
+          sudo npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
 
           echo "⚙️ Regenerating Prisma (Server OS)..."
           if [ -f "prisma/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/schema.prisma; fi
           if [ -f "prisma/timesheet/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
           echo "🔐 Re-locking Permissions (Give back to www-data)..."
-          # ✅ คืนสิทธิ์ให้ www-data (Web Server) หลังลงของเสร็จ
           sudo chown -R www-data:www-data "${{ env.DEPLOY_PATH }}"
           sudo chmod -R 755 "${{ env.DEPLOY_PATH }}"
 
