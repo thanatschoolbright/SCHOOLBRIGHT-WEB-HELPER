@@ -144,205 +144,110 @@ jobs:
   # ============================================
   # Build Application
   # ============================================
+  # ============================================
+  # Build Application (ย้ายไปทำบน GitHub Cloud)
+  # ============================================
   build:
-    name: 🔨 Build Application
-    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
-    timeout-minutes: 120
+    name: 🔨 Build on GitHub Runner
+    runs-on: ubuntu-latest # ✅ เปลี่ยนจาก self-hosted เป็น ubuntu-latest
+    timeout-minutes: 30
     needs: [pre_flight_checks]
 
     steps:
-      - name: Fix Workspace Permissions
-        run: |
-          echo "🔵 [DEBUG] Fixing workspace permissions..."
-          echo "   - Target: ${GITHUB_WORKSPACE%/*}"
-          sudo chown -R githubrunner:githubrunner "${GITHUB_WORKSPACE%/*}" || true
-          sudo chmod -R u+rwX "${GITHUB_WORKSPACE%/*}" || true
-          echo "✅ [INFO] Permissions applied."
-
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
 
-      - name: Verify Environment
-        run: |
-          echo "🔵 [DEBUG] Environment Verification:"
-          echo "   - Node Version: $(node -v)"
-          echo "   - NPM Version: $(npm -v)"
-          echo "   - Bun Version: $(bun --version)"
-          echo "   - Workspace: ${{ github.workspace }}"
+      # ✅ ต้องเพิ่ม Setup Node เพราะเครื่อง GitHub เป็นเครื่องเปล่า
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
 
       - name: Install Dependencies
-        run: |
-          echo "📦 [ACTION] Installing dependencies (npm ci)..."
-          npm ci --prefer-offline --no-audit
-          echo "✅ [SUCCESS] Dependencies installed."
+        run: npm ci --prefer-offline --no-audit
 
       - name: Generate Prisma Client
         run: |
-          echo "⚙️ [DEBUG] Checking for Prisma schemas..."
+          # Generate เพื่อให้ TypeScript รู้จัก Type ตอน Build
+          if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
+          if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
-          if [ -f "prisma/schema.prisma" ]; then
-            echo "   - Found: prisma/schema.prisma -> Generating..."
-            bun x prisma generate --schema=prisma/schema.prisma
-          else
-             echo "   - Missing: prisma/schema.prisma"
-          fi
+      - name: Build Application
+        run: npm run build
 
-          if [ -f "prisma/timesheet/schema.prisma" ]; then
-            echo "   - Found: prisma/timesheet/schema.prisma -> Generating..."
-            bun x prisma generate --schema=prisma/timesheet/schema.prisma
-          else
-             echo "   - Missing: prisma/timesheet/schema.prisma"
-          fi
-
-          echo "✅ [SUCCESS] Prisma generation phase complete."
-
-      - name: Build Application (NPM)
-        run: |
-          echo "🏗️ [ACTION] Starting Next.js Build..."
-          echo "   - Command: npm run build"
-          npm run build
-          echo "✅ [SUCCESS] Build process finished."
-
-      - name: Verify Build Output
-        run: |
-          echo "🔍 [DEBUG] Verifying .next directory..."
-          if [ ! -d ".next" ]; then
-            echo "❌ [ERROR] Build output (.next) NOT found!"
-            exit 1
-          else
-            SIZE=$(du -sh .next | cut -f1)
-            echo "✅ [SUCCESS] Build output verified. Size: $SIZE"
-            ls -F .next | head -n 5
-          fi
+      # ✅ ขั้นตอนสำคัญ: อัปโหลดไฟล์ที่ Build เสร็จแล้วเก็บไว้ส่งให้เครื่อง Server
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          retention-days: 1
+          path: |
+            .next
+            public
+            package.json
+            package-lock.json
+            next.config.mjs
+            prisma
+            generated
 
   # ============================================
-  # Deploy to Production
-  # ============================================
-  # ============================================
-  # Deploy to Production
+  # Deploy to Production (ดึงไฟล์มาลงเครื่อง Server)
   # ============================================
   deploy:
     name: 🚀 Deploy to Production
     runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
-    timeout-minutes: 20
     needs: [pre_flight_checks, build]
     environment:
       name: production
       url: https://sb-helper.schoolbright.co
 
     steps:
-      - name: Prepare Deployment
+      - name: Prepare Deployment Directory
         run: |
-          set -e
-          echo "🔧 [ACTION] Preparing deployment directory: $DEPLOY_PATH"
+          echo "🔧 [ACTION] Cleaning and Preparing: ${{ env.DEPLOY_PATH }}"
+          sudo mkdir -p "${{ env.DEPLOY_PATH }}"
+          # ลบไฟล์เก่าทิ้ง ยกเว้น .env และ node_modules (เก็บ node_modules ไว้จะได้ไม่ต้องโหลดใหม่ทั้งหมดถ้าไม่จำเป็น)
+          sudo find "${{ env.DEPLOY_PATH }}" -mindepth 1 ! -name '.env' ! -name 'node_modules' -delete
 
-          # Prepare deployment directory
-          echo "   - Checking existence..."
-          sudo mkdir -p "$DEPLOY_PATH"
-          cd "$DEPLOY_PATH"
+      # ✅ ขั้นตอนสำคัญ: ดาวน์โหลดไฟล์ที่ Build จาก GitHub ลงมาที่ Server
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.DEPLOY_PATH }} # โหลดลงโฟลเดอร์ปลายทางเลย
 
-          # Clean old files
-          echo "🧹 [ACTION] Cleaning old files (Preserving .env)..."
-          sudo find . -mindepth 1 ! -name '.env' -delete
-
-          echo "   - Remaining files:"
-          ls -la
-          echo "✅ [SUCCESS] Directory prepared."
-
-      - name: Copy Build Files
+      - name: Fix Permissions & Install Prod Deps
         run: |
-          set -e
-          echo "📦 [ACTION] Copying build artifacts..."
-
-          # ✅ FIX: ใช้ $GITHUB_WORKSPACE และ $DEPLOY_PATH แทน 
-          echo "   - Copying .next folder..."
-          sudo cp -r "$GITHUB_WORKSPACE/.next" "$DEPLOY_PATH/"
-
-          echo "   - Copying public folder..."
-          sudo cp -r "$GITHUB_WORKSPACE/public" "$DEPLOY_PATH/"
-
-          echo "   - Checking for Prisma generated files..."
-          if [ -d "$GITHUB_WORKSPACE/generated/prisma" ]; then
-            echo "     > Found prisma generated files. Copying..."
-            sudo mkdir -p "$DEPLOY_PATH/generated"
-            sudo cp -r "$GITHUB_WORKSPACE/generated/prisma" "$DEPLOY_PATH/generated/"
-          fi
-
-          if [ -d "$GITHUB_WORKSPACE/generated/prisma-timesheet" ]; then
-            echo "     > Found prisma-timesheet generated files. Copying..."
-            sudo mkdir -p "$DEPLOY_PATH/generated"
-            sudo cp -r "$GITHUB_WORKSPACE/generated/prisma-timesheet" "$DEPLOY_PATH/generated/"
-          fi
-
-          echo "   - Copying Config files (package.json, locks, next.config)..."
-          sudo cp "$GITHUB_WORKSPACE/package.json" "$DEPLOY_PATH/"
-          sudo cp "$GITHUB_WORKSPACE/package-lock.json" "$DEPLOY_PATH/"
-          sudo cp "$GITHUB_WORKSPACE/next.config.mjs" "$DEPLOY_PATH/"
-
-          echo "✅ [SUCCESS] All files copied."
-
-      - name: Deploy Application
-        run: |
-          set -e
-          # ✅ FIX: ใช้ $DEPLOY_PATH
-          cd "$DEPLOY_PATH"
+          cd "${{ env.DEPLOY_PATH }}"
 
           echo "📦 [ACTION] Installing Production Dependencies..."
-          echo "   - Path: $(pwd)"
+          # ติดตั้งเฉพาะ dependencies ที่จำเป็นสำหรับรัน (ไม่เอา devDependencies)
+          sudo npm ci --omit=dev --prefer-offline --no-audit
 
-          if sudo npm ci --omit=dev --prefer-offline --no-audit; then
-             echo "   > Standard install successful."
-          else
-             echo "⚠️ [WARN] Standard install failed. Retrying with --legacy-peer-deps..."
-             sudo npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
-          fi
-
-          # Verify critical dependencies
-          echo "🔍 [DEBUG] Verifying node_modules..."
-          if [ ! -d "node_modules" ] || [ ! -f "node_modules/next/dist/bin/next" ]; then
-            echo "❌ [ERROR] Critical dependencies missing (Next.js binary not found)!"
-            exit 1
-          fi
+          echo "⚙️ [ACTION] Regenerating Prisma Client (For Server OS)..."
+          # ⚠️ สำคัญ: ต้อง Generate ใหม่บน Server เพื่อให้ Binary ตรงกับ OS ของ Server (Linux/Debian)
+          if [ -f "prisma/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/schema.prisma; fi
+          if [ -f "prisma/timesheet/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
           echo "🔐 [ACTION] Setting file permissions (www-data)..."
-          sudo chown -R www-data:www-data "$DEPLOY_PATH" || true
+          sudo chown -R www-data:www-data "${{ env.DEPLOY_PATH }}"
+          sudo chmod -R 755 "${{ env.DEPLOY_PATH }}"
 
-          echo "🔄 [ACTION] Restarting Systemd Service: sb-web-helper.service..."
+      - name: Restart Service
+        run: |
+          echo "🔄 [ACTION] Restarting Service..."
           sudo systemctl restart sb-web-helper.service
-          echo "   - Restart command sent."
 
-          # Wait for service to initialize
-          echo "⏳ [WAIT] Waiting 5s for initialization..."
+          # รอและตรวจสอบสถานะเหมือนเดิม
           sleep 5
-
-          # Health check with retries
-          MAX_RETRIES=6
-          RETRY_COUNT=0
-
-          echo "💓 [ACTION] Starting Health Check..."
-          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            if sudo systemctl is-active --quiet sb-web-helper.service; then
-              echo "✅ [SUCCESS] Service is ACTIVE."
-              break
-            fi
-            
-            RETRY_COUNT=$((RETRY_COUNT + 1))
-            echo "⚠️ [RETRY] Service not ready yet ($RETRY_COUNT/$MAX_RETRIES). Waiting 5s..."
-            
-            if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-              echo "❌ [ERROR] Service failed health check after ${MAX_RETRIES} attempts."
-              echo "📋 [LOGS] Recent System Logs:"
-              sudo journalctl -u sb-web-helper.service -n 30 --no-pager
-              exit 1
-            fi
-            
-            sleep 5
-          done
-
-          echo "✅ [COMPLETE] Deployment Logic Finished."
+          if sudo systemctl is-active --quiet sb-web-helper.service; then
+            echo "✅ [SUCCESS] Service is ACTIVE."
+          else
+            echo "❌ [ERROR] Service failed to start."
+            sudo journalctl -u sb-web-helper.service -n 20 --no-pager
+            exit 1
+          fi
   # ============================================
   # Post-deployment Verification
   # ============================================
