@@ -6,21 +6,19 @@ const isProd = process.env.NODE_ENV === "production";
 const nextConfig = {
   reactStrictMode: false,
 
-  // ✅ 1. ย้ายการตั้งค่า TypeScript มาตรงนี้ (เพื่อข้าม error ตอน build)
+  // ✅ 1. ส่วน TypeScript ยังเก็บไว้ได้ (เพื่อข้าม error ตอน build)
   typescript: {
     ignoreBuildErrors: true,
   },
 
-  // ✅ 2. ย้ายการตั้งค่า ESLint มาตรงนี้ (เพื่อข้าม error ตอน build)
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // ❌ 2. ลบส่วน ESLint ออก เพราะ Next.js 16 ไม่รองรับในไฟล์นี้แล้ว
+  // ถ้าไม่ลบ Build จะพังทันที
 
   experimental: {
     serverActions: { bodySizeLimit: "50mb" },
     proxyClientMaxBodySize: "200mb",
     
-    // ✅ ถ้า RAM เต็มจริงๆ ให้ Uncomment 2 บรรทัดล่างนี้ (ช่วยลดการกิน RAM แลกกับ Build ช้าลงนิดหน่อย)
+    // ✅ ถ้า RAM เต็มจริงๆ ให้ Uncomment 2 บรรทัดล่างนี้
     // workerThreads: false,
     // cpus: 1,
   },
@@ -37,8 +35,6 @@ const nextConfig = {
   compiler: {
     removeConsole: isProd ? { exclude: ["error", "warn"] } : false,
   },
-
-  // ❌ ลบส่วน build: { ... } ทิ้ง เพราะ Next.js ไม่รู้จัก key นี้
   
   productionBrowserSourceMaps: false,
 };
