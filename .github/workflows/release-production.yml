@@ -208,50 +208,48 @@ jobs:
           echo "🔧 [ACTION] Cleaning and Preparing: ${{ env.DEPLOY_PATH }}"
           sudo mkdir -p "${{ env.DEPLOY_PATH }}"
 
-          # เปลี่ยน directory ไปที่หน้างานก่อน
           cd "${{ env.DEPLOY_PATH }}"
 
-          # ✅ FIX: ใช้ logic นี้แทนครับ
-          # 1. -maxdepth 1 : ดูแค่ไฟล์/โฟลเดอร์ชั้นนอกสุด ไม่ต้องมุดเข้าไป
-          # 2. -not -name : ยกเว้นชื่อเหล่านี้
-          # 3. -exec rm -rf : สั่งลบตัวที่เหลือ (rm -rf จะจัดการลบไส้ในให้เอง)
+          # ลบไฟล์เก่า (ใช้โค้ดที่แก้ให้เมื่อกี้)
           sudo find . -maxdepth 1 -mindepth 1 -not -name 'node_modules' -not -name '.env' -exec rm -rf {} +
 
-      # ✅ ขั้นตอนสำคัญ: ดาวน์โหลดไฟล์ที่ Build จาก GitHub ลงมาที่ Server
+          # ✅ [เพิ่มบรรทัดนี้] แก้ Permission ให้ Runner เขียนไฟล์ได้
+          # $USER คือ user ปัจจุบันที่รัน Service runner อยู่
+          echo "🔐 granting write permission to current user: $USER"
+          sudo chown -R $USER:$USER "${{ env.DEPLOY_PATH }}"
+
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.DEPLOY_PATH }} # โหลดลงโฟลเดอร์ปลายทางเลย
+          path: ${{ env.DEPLOY_PATH }}
 
-      - name: Fix Permissions & Install Prod Deps
+      - name: Install Deps & Regenerate Prisma
         run: |
           cd "${{ env.DEPLOY_PATH }}"
 
-          echo "📦 [ACTION] Installing Production Dependencies..."
-          # ติดตั้งเฉพาะ dependencies ที่จำเป็นสำหรับรัน (ไม่เอา devDependencies)
+          echo "📦 Installing Prod Dependencies..."
+          # ตอนนี้เราเป็นเจ้าของโฟลเดอร์แล้ว รัน npm ci ได้เลยโดยไม่ต้อง sudo ก็ได้ 
+          # หรือถ้าจะใช้ sudo ก็ไม่มีปัญหา แต่ต้องระวังเรื่อง cache
           sudo npm ci --omit=dev --prefer-offline --no-audit
 
-          echo "⚙️ [ACTION] Regenerating Prisma Client (For Server OS)..."
-          # ⚠️ สำคัญ: ต้อง Generate ใหม่บน Server เพื่อให้ Binary ตรงกับ OS ของ Server (Linux/Debian)
+          echo "⚙️ Regenerating Prisma (Server OS)..."
           if [ -f "prisma/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/schema.prisma; fi
           if [ -f "prisma/timesheet/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
-          echo "🔐 [ACTION] Setting file permissions (www-data)..."
+          echo "🔐 Re-locking Permissions (Give back to www-data)..."
+          # ✅ คืนสิทธิ์ให้ www-data (Web Server) หลังลงของเสร็จ
           sudo chown -R www-data:www-data "${{ env.DEPLOY_PATH }}"
           sudo chmod -R 755 "${{ env.DEPLOY_PATH }}"
 
       - name: Restart Service
         run: |
-          echo "🔄 [ACTION] Restarting Service..."
           sudo systemctl restart sb-web-helper.service
-
-          # รอและตรวจสอบสถานะเหมือนเดิม
           sleep 5
           if sudo systemctl is-active --quiet sb-web-helper.service; then
-            echo "✅ [SUCCESS] Service is ACTIVE."
+            echo "✅ Service Active"
           else
-            echo "❌ [ERROR] Service failed to start."
+            echo "❌ Service Failed"
             sudo journalctl -u sb-web-helper.service -n 20 --no-pager
             exit 1
           fi
