@@ -21,25 +21,21 @@ concurrency:
 
 env:
   NODE_VERSION: "20"
-  BUN_VERSION: "latest"
   DEPLOY_PATH: "/var/www/sb-web-helper"
   ARTIFACT_NAME: "production-build"
-  ARTIFACT_RETENTION_DAYS: 30
 
 jobs:
   # ============================================
-  # Pre-deployment Validation
+  # 1. Pre-flight Checks
   # ============================================
   pre_flight_checks:
     name: 🔍 Pre-flight Checks
     runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     timeout-minutes: 5
-    environment:
-      name: production
+    environment: production
     outputs:
       deployment_ref: ${{ steps.ref.outputs.ref }}
       deployment_sha: ${{ steps.ref.outputs.sha }}
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -50,56 +46,51 @@ jobs:
       - name: Determine Deployment Reference
         id: ref
         run: |
-          echo "🔵 [DEBUG] Starting Reference Determination..."
-          echo "   - Event Name: ${{ github.event_name }}"
-          echo "   - Input Tag: ${{ inputs.tag }}"
-
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.tag }}" ]; then
-            echo "   - Mode: Manual Tag Deployment"
             REF="${{ inputs.tag }}"
             SHA=$(git rev-parse "refs/tags/${{ inputs.tag }}")
           else
-            echo "   - Mode: Automatic/Branch Deployment"
             REF="${{ github.ref_name }}"
             SHA="${{ github.sha }}"
           fi
-
           echo "ref=${REF}" >> $GITHUB_OUTPUT
           echo "sha=${SHA}" >> $GITHUB_OUTPUT
 
-          echo "✅ [RESULT] Reference Determined:"
-          echo "   - Ref: ${REF}"
-          echo "   - SHA: ${SHA:0:8}"
-
-      - name: Validate Deployment Directory
-        timeout-minutes: 2
-        run: |
-          echo "🔵 [DEBUG] Checking Deployment Path: ${{ env.DEPLOY_PATH }}"
-
-          if [ ! -d "${{ env.DEPLOY_PATH }}" ]; then
-            echo "⚠️ [WARN] Directory does not exist. Attempting to create..."
-            mkdir -p "${{ env.DEPLOY_PATH }}"
-            
-            if [ -d "${{ env.DEPLOY_PATH }}" ]; then
-               echo "✅ [SUCCESS] Directory created successfully."
-            else
-               echo "❌ [ERROR] Failed to create directory."
-               exit 1
-            fi
-          else
-            echo "✅ [INFO] Directory exists. Checking permissions..."
-            ls -ld "${{ env.DEPLOY_PATH }}"
-          fi
+      - name: Validate Directory
+        run: mkdir -p "${{ env.DEPLOY_PATH }}"
 
   # ============================================
-  # Code Quality & Security
+  # 2. Quality & Security
   # ============================================
   quality-gates:
-    name: 🛡️ Quality & Security Gates
+    name: 🛡️ Quality & Security
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     needs: pre_flight_checks
     if: ${{ !inputs.skip_tests }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci --prefer-offline --no-audit
+      - run: if npm run --silent | grep -q "lint"; then npm run lint; fi
+      - run: if npm run --silent | grep -q "test"; then npm test; fi
+      - run: npm audit --audit-level=high || echo "⚠️ Audit warning"
+
+  # ============================================
+  # 3. Build on GitHub Cloud
+  # ============================================
+  build:
+    name: 🔨 Build on GitHub
+    runs-on: ubuntu-latest
+    needs: [pre_flight_checks, quality-gates]
+    if: |
+      always() && 
+      (needs.quality-gates.result == 'success' || needs.quality-gates.result == 'skipped') &&
+      needs.pre_flight_checks.result == 'success'
 
     steps:
       - name: Checkout Code
@@ -107,57 +98,6 @@ jobs:
         with:
           ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
 
-      - name: Install Dependencies
-        run: |
-          echo "🔵 [DEBUG] Installing dependencies for quality checks..."
-          npm ci --prefer-offline --no-audit
-          echo "✅ [SUCCESS] Dependencies installed."
-
-      - name: Lint Code
-        run: |
-          echo "🔵 [DEBUG] Checking for lint script..."
-          if [ -f "package.json" ] && npm run --silent | grep -q "lint"; then
-            echo "📝 [ACTION] Running linter..."
-            npm run lint
-            echo "✅ [SUCCESS] Lint checks passed."
-          else
-            echo "⚠️ [SKIP] No 'lint' script found in package.json."
-          fi
-
-      - name: Run Tests
-        run: |
-          echo "🔵 [DEBUG] Checking for test script..."
-          if [ -f "package.json" ] && npm run --silent | grep -q "test"; then
-            echo "🧪 [ACTION] Running tests..."
-            npm test
-            echo "✅ [SUCCESS] All tests passed."
-          else
-            echo "⚠️ [SKIP] No 'test' script found in package.json."
-          fi
-
-      - name: Security Audit
-        continue-on-error: true
-        run: |
-          echo "🔒 [ACTION] Running security audit (Level: High)..."
-          npm audit --audit-level=high || echo "⚠️ [WARN] Security vulnerabilities detected (Non-blocking)"
-
-  # ============================================
-  # Build Application
-  # ============================================
-  # ============================================
-  # Build Application (ย้ายไปทำบน GitHub Cloud)
-  # ============================================
-  build:
-    name: 🔨 Build on GitHub Runner
-    runs-on: ubuntu-latest # ✅ เปลี่ยนจาก self-hosted เป็น ubuntu-latest
-    timeout-minutes: 30
-    needs: [pre_flight_checks]
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      # ✅ ต้องเพิ่ม Setup Node เพราะเครื่อง GitHub เป็นเครื่องเปล่า
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -167,32 +107,28 @@ jobs:
       - name: Install Dependencies
         run: npm ci --prefer-offline --no-audit
 
-      - name: Generate Prisma Client
+      - name: Generate Prisma Client (Build Time)
         run: |
-          # Generate เพื่อให้ TypeScript รู้จัก Type ตอน Build
           if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
           if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
       - name: Build Application
         run: npm run build
 
-      # ✅ ขั้นตอนสำคัญ: อัปโหลดไฟล์ที่ Build เสร็จแล้วเก็บไว้ส่งให้เครื่อง Server
+      # ✅ Pack ไฟล์เป็นก้อนเดียว (Tarball)
+      - name: 📦 Pack Artifacts
+        run: |
+          tar -czf artifact.tar.gz .next public package.json package-lock.json next.config.mjs prisma
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           retention-days: 1
-          path: |
-            .next
-            public
-            package.json
-            package-lock.json
-            next.config.mjs
-            prisma
-            generated
+          path: artifact.tar.gz
 
   # ============================================
-  # Deploy to Production (ดึงไฟล์มาลงเครื่อง Server)
+  # 4. Deploy to Production (Self-hosted)
   # ============================================
   deploy:
     name: 🚀 Deploy to Production
@@ -205,45 +141,59 @@ jobs:
     steps:
       - name: Prepare Deployment Directory
         run: |
-          echo "🔧 [ACTION] Cleaning and Preparing: ${{ env.DEPLOY_PATH }}"
+          echo "🔧 Cleaning: ${{ env.DEPLOY_PATH }}"
           sudo mkdir -p "${{ env.DEPLOY_PATH }}"
 
-          cd "${{ env.DEPLOY_PATH }}"
-
-          # ลบไฟล์เก่า (ใช้โค้ดที่แก้ให้เมื่อกี้)
-          sudo find . -maxdepth 1 -mindepth 1 -not -name 'node_modules' -not -name '.env' -exec rm -rf {} +
-
-          # ✅ [เพิ่มบรรทัดนี้] แก้ Permission ให้ Runner เขียนไฟล์ได้
-          # $USER คือ user ปัจจุบันที่รัน Service runner อยู่
-          echo "🔐 granting write permission to current user: $USER"
+          # เปลี่ยนเจ้าของชั่วคราวให้ Runner เขียนไฟล์ได้
+          echo "🔐 Granting write access to runner..."
           sudo chown -R $USER:$USER "${{ env.DEPLOY_PATH }}"
 
+          # ล้างไฟล์เก่าทิ้ง
+          cd "${{ env.DEPLOY_PATH }}"
+          rm -rf *
+
+      # ✅ แยก Step ออกมาถูกต้องแล้ว
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.DEPLOY_PATH }}
 
+      # ✅ แตกไฟล์ Tarball
+      - name: 📦 Extract Artifacts
+        run: |
+          cd "${{ env.DEPLOY_PATH }}"
+          echo "📂 Extracting artifact..."
+          tar -xzf artifact.tar.gz
+          rm artifact.tar.gz
+
+          # ตรวจสอบทันทีว่า .next มาจริงไหม
+          if [ -d ".next" ]; then
+             echo "✅ .next folder found!"
+          else
+             echo "❌ Error: .next folder is missing!"
+             exit 1
+          fi
+
       - name: Install Deps & Regenerate Prisma
         run: |
           cd "${{ env.DEPLOY_PATH }}"
 
           echo "📦 Installing Prod Dependencies..."
-          # ลงเฉพาะ dependencies หลักเพื่อใช้รันเว็บ
-          sudo npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
+          # ✅ ใช้ --legacy-peer-deps แก้ปัญหา ESLint Conflict
+          npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
 
-          echo "🔧 Installing Prisma CLI (Matching project version)..."
-          # ✅ FIX: สั่งลง prisma แยกต่างหาก โดยให้อ่าน version จาก package.json 
-          # --no-save คือลงเพื่อใช้เฉยๆ ไม่ต้องแก้ไฟล์ package.json
-          sudo npm install --no-save --legacy-peer-deps prisma
+          echo "🔧 Installing Prisma CLI..."
+          # ✅ ลง Prisma แยกเพื่อให้ npx หา version เจอ
+          npm install --no-save --legacy-peer-deps prisma
 
           echo "⚙️ Regenerating Prisma (Server OS)..."
-          # ตอนนี้ npx จะเจอ prisma ใน node_modules และใช้ version ที่ถูกต้อง
-          if [ -f "prisma/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/schema.prisma; fi
-          if [ -f "prisma/timesheet/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
+          if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
+          if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
-          echo "🔐 Re-locking Permissions (Give back to www-data)..."
-          sudo chown -R www-data:www-data "${{ env.DEPLOY_PATH }}"
+          echo "🔐 Setting Permissions for Service..."
+          # ✅ ตั้ง Owner เป็น root ให้ตรงกับ Service File ของคุณ
+          sudo chown -R root:root "${{ env.DEPLOY_PATH }}"
           sudo chmod -R 755 "${{ env.DEPLOY_PATH }}"
 
       - name: Restart Service
@@ -257,53 +207,16 @@ jobs:
             sudo journalctl -u sb-web-helper.service -n 20 --no-pager
             exit 1
           fi
+
   # ============================================
-  # Post-deployment Verification
+  # 5. Verification
   # ============================================
   verify:
-    name: ✅ Post-deployment Verification
+    name: ✅ Verify
     runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
-    timeout-minutes: 5
-    needs: [deploy, pre_flight_checks]
-    environment:
-      name: production
-
+    needs: deploy
     steps:
-      - name: Verify Service Status
+      - name: Check HTTP
         run: |
-          set -e
-          echo "🔍 [ACTION] Performing Post-Deployment Verification..."
-
-          # Check service status
-          echo "   - Checking systemctl status..."
-          if ! sudo systemctl is-active --quiet sb-web-helper.service; then
-            echo "❌ [ERROR] Service is NOT running!"
-            exit 1
-          fi
-          echo "   > Service is Active."
-
-          # Check if application is responding
-          echo "   - Checking HTTP Response (localhost:3000)..."
           HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:3000 || echo "FAILED")
-
-          if [ "$HTTP_STATUS" == "200" ]; then
-             echo "✅ [SUCCESS] Application responded with HTTP 200."
-          else
-             echo "⚠️ [WARN] Application responded with HTTP $HTTP_STATUS (Expected 200)."
-          fi
-
-          # Display service info
-          echo "📊 [INFO] Service Details:"
-          sudo systemctl status sb-web-helper.service --no-pager -l | head -n 15
-
-          echo "✅ [COMPLETE] Verification passed."
-
-      - name: Deployment Summary
-        run: |
-          echo "============================================"
-          echo "🎉 DEPLOYMENT SUCCESSFUL"
-          echo "============================================"
-          echo "📍 Reference: ${{ needs.pre_flight_checks.outputs.deployment_ref }}"
-          echo "🔖 Commit: ${{ needs.pre_flight_checks.outputs.deployment_sha }}"
-          echo "🕐 Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-          echo "============================================"
+          if [ "$HTTP_STATUS" == "200" ]; then echo "✅ OK"; else echo "⚠️ Status: $HTTP_STATUS"; fi
