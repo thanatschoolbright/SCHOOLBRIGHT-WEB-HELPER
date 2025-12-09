@@ -207,8 +207,15 @@ jobs:
         run: |
           echo "🔧 [ACTION] Cleaning and Preparing: ${{ env.DEPLOY_PATH }}"
           sudo mkdir -p "${{ env.DEPLOY_PATH }}"
-          # ลบไฟล์เก่าทิ้ง ยกเว้น .env และ node_modules (เก็บ node_modules ไว้จะได้ไม่ต้องโหลดใหม่ทั้งหมดถ้าไม่จำเป็น)
-          sudo find "${{ env.DEPLOY_PATH }}" -mindepth 1 ! -name '.env' ! -name 'node_modules' -delete
+
+          # เปลี่ยน directory ไปที่หน้างานก่อน
+          cd "${{ env.DEPLOY_PATH }}"
+
+          # ✅ FIX: ใช้ logic นี้แทนครับ
+          # 1. -maxdepth 1 : ดูแค่ไฟล์/โฟลเดอร์ชั้นนอกสุด ไม่ต้องมุดเข้าไป
+          # 2. -not -name : ยกเว้นชื่อเหล่านี้
+          # 3. -exec rm -rf : สั่งลบตัวที่เหลือ (rm -rf จะจัดการลบไส้ในให้เอง)
+          sudo find . -maxdepth 1 -mindepth 1 -not -name 'node_modules' -not -name '.env' -exec rm -rf {} +
 
       # ✅ ขั้นตอนสำคัญ: ดาวน์โหลดไฟล์ที่ Build จาก GitHub ลงมาที่ Server
       - name: Download Build Artifacts
