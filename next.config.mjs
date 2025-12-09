@@ -22,8 +22,8 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "50mb" },
     proxyClientMaxBodySize: "200mb",
-    workerThreads: false,
-    cpus: 1,
+    // workerThreads: false,
+    // cpus: 1,
   },
 
   images: {
