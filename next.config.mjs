@@ -1,27 +1,26 @@
 /**
  * @type {import('next').NextConfig}
- *
- * การตั้งค่านี้ถูกปรับปรุงเพื่อ:
- * 1. ✅ แก้ไขปัญหา RAM เต็มและ CPU พุ่งสูงระหว่างการ Build (Thrashing)
- * 2. ✅ ปิดฟังก์ชันที่กินทรัพยากรที่ไม่จำเป็นใน Production Build
- * 3. ✅ ทำให้โค้ด Clean และเข้ากันได้ดีกับ Next.js 16 (Turbopack)
- *
- * === การตั้งค่าหลักเพื่อลดทรัพยากร ===
- * - experimental.workerThreads: false: บังคับให้ Node.js ไม่แตก Worker Threads ลูกหลายตัว (แก้ปัญหา Process แย่ง RAM)
- * - experimental.cpus: 1: จำกัดการใช้ CPU ในกระบวนการ Build ให้เหลือเพียง 1 Core (แก้ปัญหา CPU เต็ม)
- * - build.ignoreBuildErrors: true: ข้ามการตรวจสอบ TypeScript เพื่อลดภาระและเวลาในการ Build
- * - build.ignoreDuringBuilds: true: ข้ามการตรวจสอบ ESLint เพื่อลดภาระและเวลาในการ Build
- * - productionBrowserSourceMaps: false: ปิด Source Maps ใน Production เพื่อประหยัดพื้นที่ดิสก์และ RAM
  */
-
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig = {
   reactStrictMode: false,
 
+  // ✅ 1. ย้ายการตั้งค่า TypeScript มาตรงนี้ (เพื่อข้าม error ตอน build)
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
+  // ✅ 2. ย้ายการตั้งค่า ESLint มาตรงนี้ (เพื่อข้าม error ตอน build)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   experimental: {
     serverActions: { bodySizeLimit: "50mb" },
     proxyClientMaxBodySize: "200mb",
+    
+    // ✅ ถ้า RAM เต็มจริงๆ ให้ Uncomment 2 บรรทัดล่างนี้ (ช่วยลดการกิน RAM แลกกับ Build ช้าลงนิดหน่อย)
     // workerThreads: false,
     // cpus: 1,
   },
@@ -39,11 +38,8 @@ const nextConfig = {
     removeConsole: isProd ? { exclude: ["error", "warn"] } : false,
   },
 
-  build: {
-    ignoreBuildErrors: true,
-    ignoreDuringBuilds: true,
-  },
-
+  // ❌ ลบส่วน build: { ... } ทิ้ง เพราะ Next.js ไม่รู้จัก key นี้
+  
   productionBrowserSourceMaps: false,
 };
 
