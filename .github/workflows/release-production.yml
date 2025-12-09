@@ -50,25 +50,46 @@ jobs:
       - name: Determine Deployment Reference
         id: ref
         run: |
+          echo "🔵 [DEBUG] Starting Reference Determination..."
+          echo "   - Event Name: ${{ github.event_name }}"
+          echo "   - Input Tag: ${{ inputs.tag }}"
+
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.tag }}" ]; then
+            echo "   - Mode: Manual Tag Deployment"
             REF="${{ inputs.tag }}"
             SHA=$(git rev-parse "refs/tags/${{ inputs.tag }}")
           else
+            echo "   - Mode: Automatic/Branch Deployment"
             REF="${{ github.ref_name }}"
             SHA="${{ github.sha }}"
           fi
+
           echo "ref=${REF}" >> $GITHUB_OUTPUT
           echo "sha=${SHA}" >> $GITHUB_OUTPUT
-          echo "📍 Deploying: ${REF} (${SHA:0:8})"
+
+          echo "✅ [RESULT] Reference Determined:"
+          echo "   - Ref: ${REF}"
+          echo "   - SHA: ${SHA:0:8}"
 
       - name: Validate Deployment Directory
         timeout-minutes: 2
         run: |
+          echo "🔵 [DEBUG] Checking Deployment Path: ${{ env.DEPLOY_PATH }}"
+
           if [ ! -d "${{ env.DEPLOY_PATH }}" ]; then
-            echo "⚠️ Deployment directory does not exist, creating..."
+            echo "⚠️ [WARN] Directory does not exist. Attempting to create..."
             mkdir -p "${{ env.DEPLOY_PATH }}"
+            
+            if [ -d "${{ env.DEPLOY_PATH }}" ]; then
+               echo "✅ [SUCCESS] Directory created successfully."
+            else
+               echo "❌ [ERROR] Failed to create directory."
+               exit 1
+            fi
+          else
+            echo "✅ [INFO] Directory exists. Checking permissions..."
+            ls -ld "${{ env.DEPLOY_PATH }}"
           fi
-          echo "✅ Deployment directory validated"
 
   # ============================================
   # Code Quality & Security
@@ -87,31 +108,38 @@ jobs:
           ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
 
       - name: Install Dependencies
-        run: npm ci --prefer-offline --no-audit
+        run: |
+          echo "🔵 [DEBUG] Installing dependencies for quality checks..."
+          npm ci --prefer-offline --no-audit
+          echo "✅ [SUCCESS] Dependencies installed."
 
       - name: Lint Code
         run: |
+          echo "🔵 [DEBUG] Checking for lint script..."
           if [ -f "package.json" ] && npm run --silent | grep -q "lint"; then
-            echo "📝 Running linter..."
+            echo "📝 [ACTION] Running linter..."
             npm run lint
+            echo "✅ [SUCCESS] Lint checks passed."
           else
-            echo "⚠️ No lint script found, skipping..."
+            echo "⚠️ [SKIP] No 'lint' script found in package.json."
           fi
 
       - name: Run Tests
         run: |
+          echo "🔵 [DEBUG] Checking for test script..."
           if [ -f "package.json" ] && npm run --silent | grep -q "test"; then
-            echo "🧪 Running tests..."
+            echo "🧪 [ACTION] Running tests..."
             npm test
+            echo "✅ [SUCCESS] All tests passed."
           else
-            echo "⚠️ No test script found, skipping..."
+            echo "⚠️ [SKIP] No 'test' script found in package.json."
           fi
 
       - name: Security Audit
         continue-on-error: true
         run: |
-          echo "🔒 Running security audit..."
-          npm audit --audit-level=high || echo "⚠️ Security vulnerabilities detected"
+          echo "🔒 [ACTION] Running security audit (Level: High)..."
+          npm audit --audit-level=high || echo "⚠️ [WARN] Security vulnerabilities detected (Non-blocking)"
 
   # ============================================
   # Build Application
@@ -125,8 +153,11 @@ jobs:
     steps:
       - name: Fix Workspace Permissions
         run: |
+          echo "🔵 [DEBUG] Fixing workspace permissions..."
+          echo "   - Target: ${GITHUB_WORKSPACE%/*}"
           sudo chown -R githubrunner:githubrunner "${GITHUB_WORKSPACE%/*}" || true
           sudo chmod -R u+rwX "${GITHUB_WORKSPACE%/*}" || true
+          echo "✅ [INFO] Permissions applied."
 
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -134,40 +165,62 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
 
-      - name: Verify Bun Installation
-        run: bun --version
+      - name: Verify Environment
+        run: |
+          echo "🔵 [DEBUG] Environment Verification:"
+          echo "   - Node Version: $(node -v)"
+          echo "   - NPM Version: $(npm -v)"
+          echo "   - Bun Version: $(bun --version)"
+          echo "   - Workspace: ${{ github.workspace }}"
 
       - name: Install Dependencies
         run: |
-          echo "📦 Installing dependencies..."
+          echo "📦 [ACTION] Installing dependencies (npm ci)..."
           npm ci --prefer-offline --no-audit
-          echo "✅ Dependencies installed"
+          echo "✅ [SUCCESS] Dependencies installed."
 
       - name: Generate Prisma Client
         run: |
-          echo "⚙️ Generating Prisma clients..."
+          echo "⚙️ [DEBUG] Checking for Prisma schemas..."
+
           if [ -f "prisma/schema.prisma" ]; then
+            echo "   - Found: prisma/schema.prisma -> Generating..."
             bun x prisma generate --schema=prisma/schema.prisma
+          else
+             echo "   - Missing: prisma/schema.prisma"
           fi
+
           if [ -f "prisma/timesheet/schema.prisma" ]; then
+            echo "   - Found: prisma/timesheet/schema.prisma -> Generating..."
             bun x prisma generate --schema=prisma/timesheet/schema.prisma
+          else
+             echo "   - Missing: prisma/timesheet/schema.prisma"
           fi
-          echo "✅ Prisma clients generated"
+
+          echo "✅ [SUCCESS] Prisma generation phase complete."
 
       - name: Build Application (NPM)
         run: |
-          echo "🏗️ Building application..."
+          echo "🏗️ [ACTION] Starting Next.js Build..."
+          echo "   - Command: npm run build"
           npm run build
-          echo "✅ Build completed"
+          echo "✅ [SUCCESS] Build process finished."
 
       - name: Verify Build Output
         run: |
+          echo "🔍 [DEBUG] Verifying .next directory..."
           if [ ! -d ".next" ]; then
-            echo "❌ Build output (.next) not found!"
+            echo "❌ [ERROR] Build output (.next) NOT found!"
             exit 1
+          else
+            SIZE=$(du -sh .next | cut -f1)
+            echo "✅ [SUCCESS] Build output verified. Size: $SIZE"
+            ls -F .next | head -n 5
           fi
-          echo "✅ Build output verified"
 
+  # ============================================
+  # Deploy to Production
+  # ============================================
   # ============================================
   # Deploy to Production
   # ============================================
@@ -184,98 +237,112 @@ jobs:
       - name: Prepare Deployment
         run: |
           set -e
-          echo "🔧 Preparing deployment directory..."
+          echo "🔧 [ACTION] Preparing deployment directory: $DEPLOY_PATH"
 
           # Prepare deployment directory
-          sudo mkdir -p "${{ env.DEPLOY_PATH }}"
-          cd "${{ env.DEPLOY_PATH }}"
+          echo "   - Checking existence..."
+          sudo mkdir -p "$DEPLOY_PATH"
+          cd "$DEPLOY_PATH"
 
-          # Clean old files (BUT KEEP .env)
-          # Note: We removed the folder backup logic to save space.
-          echo "🧹 Cleaning old files (preserving .env)..."
+          # Clean old files
+          echo "🧹 [ACTION] Cleaning old files (Preserving .env)..."
           sudo find . -mindepth 1 ! -name '.env' -delete
 
-          echo "✅ Deployment directory prepared"
+          echo "   - Remaining files:"
+          ls -la
+          echo "✅ [SUCCESS] Directory prepared."
 
       - name: Copy Build Files
         run: |
           set -e
-          echo "📦 Copying build files to deployment directory..."
+          echo "📦 [ACTION] Copying build artifacts..."
 
-          # Copy built files from GitHub Actions workspace to deployment directory
-          sudo cp -r ${{ github.workspace }}/.next "${{ env.DEPLOY_PATH }}/"
-          sudo cp -r ${{ github.workspace }}/public "${{ env.DEPLOY_PATH }}/"
+          # ✅ FIX: ใช้ $GITHUB_WORKSPACE และ $DEPLOY_PATH แทน 
+          echo "   - Copying .next folder..."
+          sudo cp -r "$GITHUB_WORKSPACE/.next" "$DEPLOY_PATH/"
 
-          # Copy Prisma generated files if they exist
-          if [ -d "${{ github.workspace }}/generated/prisma" ]; then
-            sudo mkdir -p "${{ env.DEPLOY_PATH }}/generated"
-            sudo cp -r ${{ github.workspace }}/generated/prisma "${{ env.DEPLOY_PATH }}/generated/"
+          echo "   - Copying public folder..."
+          sudo cp -r "$GITHUB_WORKSPACE/public" "$DEPLOY_PATH/"
+
+          echo "   - Checking for Prisma generated files..."
+          if [ -d "$GITHUB_WORKSPACE/generated/prisma" ]; then
+            echo "     > Found prisma generated files. Copying..."
+            sudo mkdir -p "$DEPLOY_PATH/generated"
+            sudo cp -r "$GITHUB_WORKSPACE/generated/prisma" "$DEPLOY_PATH/generated/"
           fi
 
-          if [ -d "${{ github.workspace }}/generated/prisma-timesheet" ]; then
-            sudo mkdir -p "${{ env.DEPLOY_PATH }}/generated"
-            sudo cp -r ${{ github.workspace }}/generated/prisma-timesheet "${{ env.DEPLOY_PATH }}/generated/"
+          if [ -d "$GITHUB_WORKSPACE/generated/prisma-timesheet" ]; then
+            echo "     > Found prisma-timesheet generated files. Copying..."
+            sudo mkdir -p "$DEPLOY_PATH/generated"
+            sudo cp -r "$GITHUB_WORKSPACE/generated/prisma-timesheet" "$DEPLOY_PATH/generated/"
           fi
 
-          # Copy configuration files
-          sudo cp ${{ github.workspace }}/package.json "${{ env.DEPLOY_PATH }}/"
-          sudo cp ${{ github.workspace }}/package-lock.json "${{ env.DEPLOY_PATH }}/"
-          sudo cp ${{ github.workspace }}/next.config.mjs "${{ env.DEPLOY_PATH }}/"
+          echo "   - Copying Config files (package.json, locks, next.config)..."
+          sudo cp "$GITHUB_WORKSPACE/package.json" "$DEPLOY_PATH/"
+          sudo cp "$GITHUB_WORKSPACE/package-lock.json" "$DEPLOY_PATH/"
+          sudo cp "$GITHUB_WORKSPACE/next.config.mjs" "$DEPLOY_PATH/"
 
-          echo "✅ Build files copied successfully"
+          echo "✅ [SUCCESS] All files copied."
 
       - name: Deploy Application
         run: |
           set -e
-          cd "${{ env.DEPLOY_PATH }}"
+          # ✅ FIX: ใช้ $DEPLOY_PATH
+          cd "$DEPLOY_PATH"
 
-          echo "📦 Installing production dependencies (omitting devDependencies)..."
-          # Use --omit=dev (preferred) instead of the deprecated --production flag.
-          # If peer dependency resolution fails in some npm versions, retry with --legacy-peer-deps
-          sudo npm ci --omit=dev --prefer-offline --no-audit || \
-          sudo npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
+          echo "📦 [ACTION] Installing Production Dependencies..."
+          echo "   - Path: $(pwd)"
+
+          if sudo npm ci --omit=dev --prefer-offline --no-audit; then
+             echo "   > Standard install successful."
+          else
+             echo "⚠️ [WARN] Standard install failed. Retrying with --legacy-peer-deps..."
+             sudo npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
+          fi
 
           # Verify critical dependencies
+          echo "🔍 [DEBUG] Verifying node_modules..."
           if [ ! -d "node_modules" ] || [ ! -f "node_modules/next/dist/bin/next" ]; then
-            echo "❌ Critical dependencies missing!"
+            echo "❌ [ERROR] Critical dependencies missing (Next.js binary not found)!"
             exit 1
           fi
 
-          echo "✅ Dependencies installed successfully"
+          echo "🔐 [ACTION] Setting file permissions (www-data)..."
+          sudo chown -R www-data:www-data "$DEPLOY_PATH" || true
 
-          # Set proper permissions
-          sudo chown -R www-data:www-data "${{ env.DEPLOY_PATH }}" || true
-
-          echo "🔄 Restarting application service..."
+          echo "🔄 [ACTION] Restarting Systemd Service: sb-web-helper.service..."
           sudo systemctl restart sb-web-helper.service
+          echo "   - Restart command sent."
 
           # Wait for service to initialize
+          echo "⏳ [WAIT] Waiting 5s for initialization..."
           sleep 5
 
           # Health check with retries
           MAX_RETRIES=6
           RETRY_COUNT=0
 
+          echo "💓 [ACTION] Starting Health Check..."
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             if sudo systemctl is-active --quiet sb-web-helper.service; then
-              echo "✅ Service is running and healthy"
+              echo "✅ [SUCCESS] Service is ACTIVE."
               break
             fi
             
             RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "⚠️ [RETRY] Service not ready yet ($RETRY_COUNT/$MAX_RETRIES). Waiting 5s..."
+            
             if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-              echo "❌ Service failed health check after ${MAX_RETRIES} attempts"
-              echo "📋 Recent logs:"
+              echo "❌ [ERROR] Service failed health check after ${MAX_RETRIES} attempts."
+              echo "📋 [LOGS] Recent System Logs:"
               sudo journalctl -u sb-web-helper.service -n 30 --no-pager
               exit 1
             fi
             
-            echo "⏳ Waiting for service to start (attempt ${RETRY_COUNT}/${MAX_RETRIES})..."
             sleep 5
           done
 
-          echo "✅ Deployment completed successfully!"
-
+          echo "✅ [COMPLETE] Deployment Logic Finished."
   # ============================================
   # Post-deployment Verification
   # ============================================
@@ -291,25 +358,31 @@ jobs:
       - name: Verify Service Status
         run: |
           set -e
-
-          echo "🔍 Verifying deployment..."
+          echo "🔍 [ACTION] Performing Post-Deployment Verification..."
 
           # Check service status
+          echo "   - Checking systemctl status..."
           if ! sudo systemctl is-active --quiet sb-web-helper.service; then
-            echo "❌ Service is not running!"
+            echo "❌ [ERROR] Service is NOT running!"
             exit 1
           fi
+          echo "   > Service is Active."
 
           # Check if application is responding
-          if ! curl -sf http://localhost:3000 > /dev/null 2>&1; then
-            echo "⚠️ Application may not be responding on localhost"
+          echo "   - Checking HTTP Response (localhost:3000)..."
+          HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:3000 || echo "FAILED")
+
+          if [ "$HTTP_STATUS" == "200" ]; then
+             echo "✅ [SUCCESS] Application responded with HTTP 200."
+          else
+             echo "⚠️ [WARN] Application responded with HTTP $HTTP_STATUS (Expected 200)."
           fi
 
           # Display service info
-          echo "📊 Service Status:"
+          echo "📊 [INFO] Service Details:"
           sudo systemctl status sb-web-helper.service --no-pager -l | head -n 15
 
-          echo "✅ Verification completed"
+          echo "✅ [COMPLETE] Verification passed."
 
       - name: Deployment Summary
         run: |
