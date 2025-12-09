@@ -1,26 +1,31 @@
-/** @type {import('next').NextConfig} */
+/**
+ * @type {import('next').NextConfig}
+ *
+ * การตั้งค่านี้ถูกปรับปรุงเพื่อ:
+ * 1. ✅ แก้ไขปัญหา RAM เต็มและ CPU พุ่งสูงระหว่างการ Build (Thrashing)
+ * 2. ✅ ปิดฟังก์ชันที่กินทรัพยากรที่ไม่จำเป็นใน Production Build
+ * 3. ✅ ทำให้โค้ด Clean และเข้ากันได้ดีกับ Next.js 16 (Turbopack)
+ *
+ * === การตั้งค่าหลักเพื่อลดทรัพยากร ===
+ * - experimental.workerThreads: false: บังคับให้ Node.js ไม่แตก Worker Threads ลูกหลายตัว (แก้ปัญหา Process แย่ง RAM)
+ * - experimental.cpus: 1: จำกัดการใช้ CPU ในกระบวนการ Build ให้เหลือเพียง 1 Core (แก้ปัญหา CPU เต็ม)
+ * - build.ignoreBuildErrors: true: ข้ามการตรวจสอบ TypeScript เพื่อลดภาระและเวลาในการ Build
+ * - build.ignoreDuringBuilds: true: ข้ามการตรวจสอบ ESLint เพื่อลดภาระและเวลาในการ Build
+ * - productionBrowserSourceMaps: false: ปิด Source Maps ใน Production เพื่อประหยัดพื้นที่ดิสก์และ RAM
+ */
 
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig = {
-  // ✅ ใช้ SWC Minifier ของ Next.js เอง (เร็วกว่าและกินแรมน้อยกว่า Terser)
-  swcMinify: true,
-
-  // * Enable strict mode for better development experience
   reactStrictMode: false,
 
-  // * Configure body size limits for API routes and proxy
   experimental: {
     serverActions: { bodySizeLimit: "50mb" },
     proxyClientMaxBodySize: "200mb",
-
-    // ✅ ส่วนนี้สำคัญมาก! สำหรับเครื่อง RAM น้อย
-    // บังคับให้ทำงานแค่ Thread เดียว ไม่ให้แตก Process ลูกจนเครื่องน็อค
     workerThreads: false,
     cpus: 1,
   },
 
-  // * Allow images from external domains
   images: {
     remotePatterns: [
       {
@@ -30,27 +35,16 @@ const nextConfig = {
     ],
   },
 
-  // * Remove console logs in production
   compiler: {
     removeConsole: isProd ? { exclude: ["error", "warn"] } : false,
   },
 
-  // * Disable source maps in production to save Huge RAM/Disk space
-  productionBrowserSourceMaps: false,
-
-  // ✅ Ignore type checking during build to save RAM and Time
-  typescript: {
+  build: {
     ignoreBuildErrors: true,
-  },
-
-  // ✅ Ignore ESLint during build to save RAM
-  eslint: {
     ignoreDuringBuilds: true,
   },
 
-  // ❌ ลบส่วน Webpack ที่เรียก TerserPlugin ออก
-  // เพราะ Next.js มี SWC ที่จัดการเรื่องนี้ให้อยู่แล้ว การไปเพิ่ม Terser
-  // จะทำให้กิน RAM เพิ่มขึ้นอีกเท่าตัวโดยไม่จำเป็น
+  productionBrowserSourceMaps: false,
 };
 
 export default nextConfig;
