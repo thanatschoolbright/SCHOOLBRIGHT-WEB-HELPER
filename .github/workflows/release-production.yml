@@ -229,10 +229,16 @@ jobs:
           cd "${{ env.DEPLOY_PATH }}"
 
           echo "📦 Installing Prod Dependencies..."
-          # ✅ FIX: เพิ่ม --legacy-peer-deps เพื่อข้ามปัญหา ERESOLVE ของ ESLint
+          # ลงเฉพาะ dependencies หลักเพื่อใช้รันเว็บ
           sudo npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
 
+          echo "🔧 Installing Prisma CLI (Matching project version)..."
+          # ✅ FIX: สั่งลง prisma แยกต่างหาก โดยให้อ่าน version จาก package.json 
+          # --no-save คือลงเพื่อใช้เฉยๆ ไม่ต้องแก้ไฟล์ package.json
+          sudo npm install --no-save --legacy-peer-deps prisma
+
           echo "⚙️ Regenerating Prisma (Server OS)..."
+          # ตอนนี้ npx จะเจอ prisma ใน node_modules และใช้ version ที่ถูกต้อง
           if [ -f "prisma/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/schema.prisma; fi
           if [ -f "prisma/timesheet/schema.prisma" ]; then sudo npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
