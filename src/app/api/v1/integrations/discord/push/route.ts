@@ -1,186 +1,330 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios"
+import axios from "axios";
 
-const RepoConfig: Record<
-  string,
-  {
-    name: string;
-    description: string;
-    icon_url: string;
-    color: number;
-    webhooks: Record<string, string>;
-  }
-> = {
-  "my-org/my-repo": {
-    name: "My Repo",
-    description: "Repository for My Project",
-    icon_url:
-      "https://raw.githubusercontent.com/my-org/my-repo/main/assets/icon.png",
-    color: 0x7289da,
-    webhooks: {
-      "release/development":
-        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_DEVELOPMENT_SERVER ||
-        "",
-      "release/beta":
-        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_BETA_SERVER || "",
-      "release/production":
-        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_PRODUCTION_SERVER || "",
-      default:
-        process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER || "",
-    },
-  },
-  // Add more repos as needed
+// --- Configuration: Organization Level ---
+
+type OrgConfig = {
+  webhooks: Record<string, string>; // Maps branch names to ENV variable keys
 };
 
-function summarizeCommit(commit: any): string {
-  const shortId = commit.id.substring(0, 7);
-  const message = commit.message.split("\n")[0];
-  const author = commit.author?.name || "unknown";
-  return `> • [${shortId}](${commit.url}) - ${message} (by ${author})`;
-}
+// Define configuration by Organization Name
+const ORG_CONFIG: Record<string, OrgConfig> = {
+  "Jabjai-Corporation": {
+    webhooks: {
+      "release/development":
+        "NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_DEVELOPMENT_SERVER",
+      "release/beta": "NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_BETA_SERVER",
+      "release/production":
+        "NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_PRODUCTION_SERVER",
+      default: "NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER",
+    },
+  },
+};
 
-function buildCommitTimeline(commits: any[]): string {
+// --- Styles & Helpers ---
+
+type BranchStyle = {
+  label: string;
+  color: number;
+  emoji: string;
+  description: string;
+};
+
+const getBranchStyle = (branch: string): BranchStyle => {
+  if (branch.includes("production")) {
+    return {
+      label: "Production Environment",
+      color: 0x2ecc71, // Green
+      emoji: "🚀",
+      description: "Stable version deployed to live users.",
+    };
+  } else if (branch.includes("beta")) {
+    return {
+      label: "Beta Environment",
+      color: 0xf39c12, // Orange
+      emoji: "🧪",
+      description: "New features deployed for UAT/Testing.",
+    };
+  } else if (branch.includes("development")) {
+    return {
+      label: "Development",
+      color: 0x3498db, // Blue
+      emoji: "🛠️",
+      description: "Daily build / Work in progress.",
+    };
+  }
+  return {
+    label: branch,
+    color: 0x95a5a6, // Grey
+    emoji: "📦",
+    description: "Repository update.",
+  };
+};
+
+const getFileSummary = (commits: any[]) => {
+  const allModified = new Set<string>();
+
+  commits.forEach((c) => {
+    c.modified?.forEach((f: string) => allModified.add(f));
+    c.added?.forEach((f: string) => allModified.add(f));
+    c.removed?.forEach((f: string) => allModified.add(f));
+  });
+
+  const files = Array.from(allModified);
+  if (files.length === 0) return "No specific files listed.";
+
+  const topFiles = files
+    .slice(0, 5)
+    .map((f) => `• \`${f}\``)
+    .join("\n");
+  const remaining = files.length - 5;
+
+  return remaining > 0
+    ? `${topFiles}\n...and ${remaining} more files.`
+    : topFiles;
+};
+
+const formatCommitList = (commits: any[]) => {
+  if (!commits || commits.length === 0) return "_No commit details._";
+
   return commits
-    .map((commit) => {
-      const date = new Date(commit.timestamp).toLocaleString();
-      return `> • ${commit.message.split("\n")[0]} (${date})`;
+    .map((c) => {
+      const msg = c.message.split("\n")[0];
+      return `> [\`${c.id.substring(0, 7)}\`](${c.url}) ${msg} - **${
+        c.author.name
+      }**`;
     })
     .join("\n");
-}
+};
 
-function buildDiscordPayload(
-  repoName: string,
+// --- Main Builder Function ---
+
+const buildDiscordPayload = (
+  repoData: any,
   branch: string,
   payload: any,
-  repoConfig: (typeof RepoConfig)[string],
-  compareUrl?: string
-) {
+  webhookUrl: string
+) => {
   const pusher = payload.pusher.name;
   const commits = payload.commits || [];
-  const before = payload.before?.substring(0, 7) || "-";
-  const after = payload.after?.substring(0, 7) || "-";
+  const compareUrl = payload.compare;
 
-  const commitMessages = commits.length
-    ? commits.map(summarizeCommit).join("\n")
-    : "ไม่มี commit message ที่สามารถแสดงได้";
+  const style = getBranchStyle(branch);
+  const fileSummary = getFileSummary(commits);
+  const commitLog = formatCommitList(commits);
 
-  const timeline = commits.length ? buildCommitTimeline(commits) : "";
+  const iconUrl =
+    repoData.owner?.avatar_url ||
+    "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
+  const repoDescription = repoData.description || "No description provided.";
 
-  return {
-    content: `🚀 **[Push Event]** ระบบได้รับการอัปเดตใหม่แล้ว!`,
-    embeds: [
+  const components = [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 5,
+          label: "View Changes (Diff)",
+          url: compareUrl,
+          emoji: { name: "📜" },
+        },
+        {
+          type: 2,
+          style: 5,
+          label: "Open Repository",
+          url: repoData.html_url,
+          emoji: { name: "📂" },
+        },
+      ],
+    },
+  ];
+
+  const embed = {
+    title: `${style.emoji} Deployed: ${repoData.name}`,
+    description: `**${style.description}**\n${repoDescription}`,
+    url: compareUrl,
+    color: style.color,
+    author: {
+      name: `${pusher} deployed updates`,
+      icon_url: payload.sender?.avatar_url,
+      url: payload.sender?.html_url,
+    },
+    thumbnail: {
+      url: iconUrl,
+    },
+    fields: [
       {
-        title: `${repoConfig.name} (${branch})`,
-        url: compareUrl,
-        description: repoConfig.description,
-        color: repoConfig.color,
-        thumbnail: {
-          url: repoConfig.icon_url,
-        },
-        image: {
-          url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-        },
-        fields: [
-          {
-            name: "📌 Branch",
-            value: `\`${branch}\`: \`${before}\` → \`${after}\``,
-            inline: true,
-          },
-          {
-            name: "📝 Commits",
-            value: commitMessages,
-            inline: false,
-          },
-          ...(timeline
-            ? [
-                {
-                  name: "⏰ Timeline",
-                  value: timeline,
-                  inline: false,
-                },
-              ]
-            : []),
-        ],
-        footer: {
-          text: `Pushed by ${pusher}`,
-          icon_url: "https://cdn-icons-png.flaticon.com/512/25/25231.png",
-        },
-        timestamp: new Date().toISOString(),
+        name: "🌿 Environment / Branch",
+        value: `\`${style.label}\` (\`${branch}\`)`,
+        inline: false,
+      },
+      {
+        name: "📝 What's New? (Changelog)",
+        value: commitLog,
+        inline: false,
+      },
+      {
+        name: "📂 Impacted Files",
+        value: fileSummary,
+        inline: false,
+      },
+      {
+        name: "⏱️ Deployed At",
+        value: `<t:${Math.floor(Date.now() / 1000)}:f> (<t:${Math.floor(
+          Date.now() / 1000
+        )}:R>)`,
+        inline: false,
       },
     ],
+    footer: {
+      text: `${repoData.full_name} • Auto-Deployment System`,
+      icon_url:
+        "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+    },
+    timestamp: new Date().toISOString(),
   };
-}
+
+  return {
+    content: `📢 **Update Alert:** New code arrived in **${repoData.name}** (${style.label})!`,
+    embeds: [embed],
+    components: components,
+  };
+};
+
+// --- API Handler (Enhanced Debugging) ---
 
 export async function POST(req: NextRequest) {
-  const payload = await req.json();
   const event = req.headers.get("x-github-event");
 
+  // 1. Validate Event Type
   if (event !== "push") {
-    return NextResponse.json({
-      message: "Not a push event",
-      status: 200,
-    });
+    return NextResponse.json(
+      {
+        status: "ignored",
+        reason: "Event type mismatch",
+        details: {
+          received_event: event,
+          expected_event: "push",
+        },
+      },
+      { status: 200 }
+    );
   }
 
-  console.log("Received push event:", payload);
+  const payload = await req.json();
 
   try {
-    const repoName = payload.repository.full_name;
-    const branch = payload.ref.replace("refs/heads/", "");
-    if (!payload.ref?.startsWith("refs/heads/release/")) {
-      return NextResponse.json({
-        message: "Not a release branch",
-        status: 200,
-      });
+    const repository = payload.repository;
+    if (!repository) {
+      return NextResponse.json(
+        {
+          status: "error",
+          reason: "Invalid payload structure",
+          details: "Missing 'repository' object in JSON payload",
+        },
+        { status: 400 }
+      );
     }
 
-    const repoConfig = RepoConfig[repoName];
-    if (!repoConfig) {
-      return NextResponse.json({
-        message: `No configuration found for repo: ${repoName}`,
-        status: 500,
-      });
+    const [orgName, repoName] = repository.full_name.split("/");
+    const ref = payload.ref || "";
+    const branchName = ref.replace("refs/heads/", "");
+
+    // 2. Validate Organization Configuration
+    const orgConfig = ORG_CONFIG[orgName];
+    if (!orgConfig) {
+      return NextResponse.json(
+        {
+          status: "ignored",
+          reason: "Organization not configured",
+          details: {
+            received_org: orgName,
+            known_orgs: Object.keys(ORG_CONFIG),
+          },
+        },
+        { status: 200 }
+      );
     }
 
-    const discordWebhook =
-      repoConfig.webhooks[branch] || repoConfig.webhooks["default"];
-
-    if (!discordWebhook || !discordWebhook.startsWith("http")) {
-      return NextResponse.json({
-        message: "Invalid Discord webhook URL",
-        status: 500,
-      });
+    // 3. Validate Branch (Must start with release/)
+    if (!ref.startsWith("refs/heads/release/")) {
+      return NextResponse.json(
+        {
+          status: "ignored",
+          reason: "Branch filter mismatch",
+          details: {
+            received_ref: ref,
+            branch_name: branchName,
+            requirement: "Ref must start with 'refs/heads/release/'",
+          },
+        },
+        { status: 200 }
+      );
     }
 
-    const compareUrl =
-      typeof payload.compare === "string" && payload.compare.startsWith("http")
-        ? payload.compare
-        : undefined;
+    // 4. Resolve Webhook URL
+    const envKey =
+      orgConfig.webhooks[branchName] || orgConfig.webhooks["default"];
+    const webhookUrl = process.env[envKey];
 
+    if (!webhookUrl) {
+      console.error(
+        `[Webhook Error] URL missing for EnvKey: ${envKey} | Org: ${orgName}`
+      );
+      return NextResponse.json(
+        {
+          status: "error",
+          reason: "Server configuration error",
+          details: {
+            env_variable_key: envKey,
+            message:
+              "The environment variable for this webhook is missing or empty.",
+          },
+        },
+        { status: 500 }
+      );
+    }
+
+    // 5. Send Notification
     const discordPayload = buildDiscordPayload(
-      repoName,
-      branch,
+      repository,
+      branchName,
       payload,
-      repoConfig,
-      compareUrl
+      webhookUrl
     );
 
-    const response = await axios.post(discordWebhook, discordPayload, {
-      headers: {
-        "Content-Type": "application/json",
+    const response = await axios.post(webhookUrl, discordPayload, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    // 6. Success Response
+    return NextResponse.json(
+      {
+        status: "success",
+        message: "Notification sent to Discord",
+        details: {
+          repository: repository.full_name,
+          branch: branchName,
+          target_env: envKey,
+          discord_response_status: response.status,
+        },
       },
-    });
-
-    console.log("Discord response:", response.data);
-
-    return NextResponse.json({
-      message: "Push notification sent to Discord",
-      status: response.status,
-    });
+      { status: 200 }
+    );
   } catch (err: any) {
-    return NextResponse.json({
-      message: err.message || "Internal Server Error",
-      status: err.response?.status || 500,
-    });
+    console.error("Webhook processing error:", err);
+    return NextResponse.json(
+      {
+        status: "error",
+        reason: "Internal Server Error",
+        details: {
+          error_message: err.message || "Unknown error",
+          // Only show stack trace in development if needed
+          stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+        },
+      },
+      { status: 500 }
+    );
   }
 }
