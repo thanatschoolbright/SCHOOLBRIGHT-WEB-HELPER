@@ -302,21 +302,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           );
         },
       },
-      {
-        title: t("timesheet_entry_page.table_description"),
-        dataIndex: "description",
-        ellipsis: true,
-        responsive: ["lg"],
-        render: (value: string | null) => (
-          <Typography.Text
-            type="secondary"
-            ellipsis
-            style={{ maxWidth: 200, fontSize: 13 }}
-          >
-            {value || "-"}
-          </Typography.Text>
-        ),
-      },
+
       {
         title: "",
         key: "actions",
