@@ -1,126 +1,146 @@
-# 🏫 SB Helper – SchoolBright Back-Office Tool
+<div align="center">
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.5-blue?logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![SchoolBright](https://img.shields.io/badge/SchoolBright-BackOffice-orange?logo=google-classroom)](https://schoolbright.co/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+  <img src="https://via.placeholder.com/150/F26522/FFFFFF?text=SB+Helper" alt="SB Helper Logo" width="120" height="120">
+  
+  <h1 align="center">🏫 SB Helper : SchoolBright Back-Office Tool</h1>
 
-**Web Application ช่วยเหลือการทำงานฝั่ง Back-Office ของระบบ SchoolBright**  
-สร้างด้วย **Next.js** เพื่อช่วยตรวจสอบสุขภาพระบบ, จัดการ Mobile App, และทำ Load Testing ได้จากเว็บโดยตรง
+  <a href="https://git.io/typing-svg">
+    <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=24&pause=1000&color=F26522&center=true&vCenter=true&width=500&lines=System+Health+Check;Mobile+App+Management;Load+Testing+%26+Bypass;For+SchoolBright+Super+Team+🚀" alt="Typing SVG" />
+  </a>
 
----
+  <p align="center">
+    <b>สุดยอดเครื่องมือหลังบ้าน สำหรับทีม Developer และ Support</b>
+    <br />
+    <i>"เพราะงานหลังบ้านที่ลื่นไหล คือหัวใจของ SchoolBright"</i>
+  </p>
 
-## 🌟 จุดประสงค์ของโปรเจกต์
+  <p align="center">
+    <a href="https://nextjs.org/">
+      <img src="https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js" alt="Next.js">
+    </a>
+    <a href="https://www.typescriptlang.org/">
+      <img src="https://img.shields.io/badge/TypeScript-5.5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+    </a>
+    <a href="https://schoolbright.co/">
+      <img src="https://img.shields.io/badge/SchoolBright-BackOffice-F26522?style=for-the-badge&logo=google-classroom&logoColor=white" alt="SchoolBright">
+    </a>
+    <br/>
+    <img src="https://img.shields.io/badge/Status-Stable-success?style=flat-square" alt="Status" />
+    <img src="https://img.shields.io/badge/Maintenance-Active-blue?style=flat-square" alt="Maintenance" />
+    <img src="https://komarev.com/ghpvc/?username=sb-helper-repo&label=VIEWS&color=orange&style=flat-square" alt="Visitor Count" />
+  </p>
 
-SB Helper ถูกพัฒนามาเพื่อช่วย **ทีมพัฒนาและทีมซัพพอร์ตของ SchoolBright**  
-ในการตรวจสอบ ติดตาม และจัดการระบบหลังบ้านได้ง่ายขึ้น โดยไม่ต้องพึ่งพาผู้ใช้งานจริง
+  <br />
 
----
+  <p align="center">
+    <a href="#-demo-preview">👀 ดูตัวอย่าง</a> •
+    <a href="#-ฟีเจอร์เด็ด-key-features">✨ ฟีเจอร์</a> •
+    <a href="https://sb-helper.schoolbright.co/">🚀 เปิดใช้งานจริง</a> •
+    <a href="https://docs.google.com/document/d/1jbOf7cC3Q_PnKJ-prawZKnN6IGQxFLdUOQfOmwvQSZU/edit">📚 เอกสาร</a>
+  </p>
 
-## 🔑 ฟีเจอร์หลัก
-
-### 🩺 ตรวจสุขภาพระบบ (System Health Check)
-- ✅ รายงานการทำงานของทุกระบบ  
-- 🌐 ตรวจสอบการเชื่อมต่อออนไลน์  
-- 🔄 ตรวจสอบการซิงก์ข้อมูลออฟไลน์ล่าสุด  
-- 🖥️ เช็คเซิร์ฟเวอร์และ Service ที่เกี่ยวข้องทั้งหมด  
-
-### 📱 แอปพลิเคชันมือถือ (Mobile App Support)
-- 🔔 ตรวจสอบ **In-App Notification**  
-- 📩 เช็ค **จดหมายลาหยุด**  
-- 📊 ดู **สถิติการมาเรียน**  
-- ⚡ จัดการ **App Version Control** ได้จากหลังบ้าน  
-
-### ⚙️ ระบบฮาร์ดแวร์แอป (Hardware Integration)
-- 📡 ตรวจสอบการทำงานของอุปกรณ์ที่เชื่อมกับ SchoolBright  
-- ⏱️ Monitor สถานะการเชื่อมต่อแบบ **Real-time**  
-
-### 🚀 Load Testing & Bypass
-- 📈 ระบบทดสอบโหลด (Load Testing) ผ่านเว็บ  
-- 🔑 **Bypass ระดับโรงเรียน** เพื่อจำลองการใช้งานจริง โดยไม่ต้องใช้ User/Password  
-
----
-
-## 🛠️ Tech Stack
-
-| เทคโนโลยี | รายละเอียด |
-|------------|------------|
-| ![Next.js](https://skillicons.dev/icons?i=nextjs) **Next.js** | Web Framework ที่ทันสมัย รองรับ Full-Stack |
-| ![TS](https://skillicons.dev/icons?i=ts) **TypeScript** | เพิ่มความปลอดภัย ลด Bug |
-| ![API](https://img.shields.io/badge/API-Integration-purple?logo=fastapi) | เชื่อมต่อกับระบบหลักของ SchoolBright |
-| ![UI](https://img.shields.io/badge/UI%2FUX-Friendly-pink?logo=figma) | ออกแบบเพื่อให้ Dev/Support ใช้งานง่าย |
+</div>
 
 ---
 
-## 📌 Highlights
+## 📸 Demo Preview
 
-- 🔍 ตรวจสอบระบบได้ครบ จบในที่เดียว  
-- ⚡ ช่วยทีมงาน SchoolBright ทำงานเร็วขึ้น ไม่ต้องรอผู้ใช้รีพอร์ต  
-- 📱 Mobile Friendly ใช้งานได้สะดวกทั้งบน Desktop และ Mobile  
-- 🚀 รองรับ Load Testing ที่รันได้ทันทีจากเว็บ  
+> *พื้นที่สำหรับใส่ GIF หรือ Screenshot การใช้งาน เพื่อให้เห็นภาพชัดเจน*
 
----
-
-## 📖 Documentation
-
-📑 **เอกสาร Project Documentation**:  
-[👉 เปิดอ่านที่นี่](https://docs.google.com/document/d/1jbOf7cC3Q_PnKJ-prawZKnN6IGQxFLdUOQfOmwvQSZU/edit?tab=t.3hwpaveznfxd#heading=h.6kz1shnecd9d)
+<div align="center">
+  <img src="https://via.placeholder.com/800x400/eeeeee/999999?text=Insert+Dashboard+GIF+Here" alt="Dashboard Demo" style="border-radius: 10px; box-shadow: 0px 4px 20px rgba(0,0,0,0.1);">
+</div>
 
 ---
 
-## 🔗 Production
+## 🌟 จุดประสงค์ (Mission)
 
-🌍 [https://sb-helper.schoolbright.co/](https://sb-helper.schoolbright.co/)
-
----
-
-## 📂 ฟีเจอร์ย่อย (Accordion)
-
-<details>
-  <summary>🩺 System Health Check</summary>
-  <ul>
-    <li>รายงานสถานะเซิร์ฟเวอร์</li>
-    <li>ตรวจสอบ Online/Offline</li>
-    <li>ตรวจสอบ Service ของแต่ละระบบ</li>
-  </ul>
-</details>
-
-<details>
-  <summary>📱 Mobile App Support</summary>
-  <ul>
-    <li>ตรวจสอบ In-App Notification</li>
-    <li>ดูจดหมายลาหยุด</li>
-    <li>จัดการ App Version Control</li>
-  </ul>
-</details>
-
-<details>
-  <summary>⚙️ Hardware Integration</summary>
-  <ul>
-    <li>ตรวจสอบอุปกรณ์ Hardware ที่เชื่อมกับ SchoolBright</li>
-    <li>Realtime Monitoring</li>
-  </ul>
-</details>
-
-<details>
-  <summary>🚀 Load Testing & Bypass</summary>
-  <ul>
-    <li>ทดสอบโหลดระบบ</li>
-    <li>Bypass ระดับโรงเรียน</li>
-  </ul>
-</details>
+**SB Helper** ถูกสร้างขึ้นมาเพื่อแก้ Pain Point ของทีมงาน:
+* ❌ ไม่ต้องรอ User แจ้งปัญหา
+* ❌ ไม่ต้อง Remote เข้าเครื่องเซิร์ฟเวอร์เพื่อเช็ค Log
+* ❌ ไม่ต้องขอยืม Account จริงเพื่อเทสระบบ
+* ✅ **จบงานไว รู้ปัญหาก่อนใคร แก้ไขได้ทันที**
 
 ---
 
-## 👨‍💻 Contributors
+## ⚡ ฟีเจอร์เด็ด (Key Features)
 
-| Name | Role |
-|------|------|
-| [@Thanat-Light](https://github.com/Thanat-Light) | Tech Lead / Fullstack |
-| SchoolBright Dev Team | Support & QA |
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🩺 1. System Health Check</h3>
+      <p>หมอประจำระบบ ตรวจเช็คชีพจรเซิร์ฟเวอร์</p>
+      <ul>
+        <li>✅ รายงาน Status Online/Offline แบบ Real-time</li>
+        <li>🔄 ตรวจสอบการ Sync ข้อมูลล่าสุด</li>
+        <li>🖥️ Monitor Service ทั้ง Backend & Database</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>📱 2. Mobile App Support</h3>
+      <p>จัดการแอปฯ โรงเรียนได้ดั่งใจนึก</p>
+      <ul>
+        <li>🔔 ตรวจสอบ In-App Notification (ยิงเข้า/ไม่เข้า)</li>
+        <li>📩 เช็ค Log จดหมายลาหยุด</li>
+        <li>📊 ดูสถิติ Version ผู้ใช้งาน (Adoption Rate)</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>⚙️ 3. Hardware Integration</h3>
+      <p>ควบคุมอุปกรณ์ IoT ในโรงเรียน</p>
+      <ul>
+        <li>📡 ดูสถานะ Gate/Turnstile</li>
+        <li>⏱️ เช็ค Latency การส่งข้อมูลบัตรนักเรียน</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🚀 4. Load Test & God Mode</h3>
+      <p>เครื่องมือสำหรับ Power User</p>
+      <ul>
+        <li>📈 ยิง Load Test จำลองคนใช้งาน 1,000+ คน</li>
+        <li>🔑 <b>School Bypass:</b> เข้าระบบโรงเรียนไหนก็ได้ (Dev Only)</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 📜 License
+## 🛠️ Tech Stack & Architecture
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+เราเลือกใช้เทคโนโลยีที่ทันสมัยที่สุด เพื่อประสิทธิภาพและความรวดเร็ว
+
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=nextjs,ts,tailwind,prisma,postgres,docker,vercel" alt="Tech Stack Icons" />
+  <br/><br/>
+</div>
+
+| Technology | Usage |
+| :--- | :--- |
+| **Next.js 15.5** | Core Framework (Server Components enabled) |
+| **TypeScript** | Type Safety & Scalability |
+| **Tailwind CSS** | Styling System (Rapid UI Development) |
+| **SWR** | Data Fetching & Caching |
+| **Axios** | API Integration with Core System |
+
+---
+
+## 📂 Project Structure (Gimmick 2)
+
+โครงสร้างโปรเจกต์ถูกจัดวางอย่างเป็นระเบียบเพื่อให้ง่ายต่อการ Scale
+
+```bash
+sb-helper/
+├── 📂 public/          # Static assets
+├── 📂 src/
+│   ├── 📂 components/  # Reusable UI Components
+│   ├── 📂 hooks/       # Custom React Hooks
+│   ├── 📂 pages/       # Next.js Pages & Routes
+│   ├── 📂 services/    # API Connectors (Health, Mobile, HW)
+│   ├── 📂 styles/      # Global Styles & Tailwind Config
+│   └── 📂 utils/       # Helper Functions
+├── 📄 next.config.js   # Configuration
+├── 📄 package.json     # Dependencies
+└── 📄 README.md        # You are here!
