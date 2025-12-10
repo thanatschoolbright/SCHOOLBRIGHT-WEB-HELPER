@@ -191,8 +191,16 @@ export const useProjectData = (
         limit: 100,
         page: 1,
       });
+
       if (!isMountedRef.current) return;
-      dispatch(setProjects(response.data?.data ?? []));
+
+      const rawProjects = response.data?.data ?? [];
+
+      const activeProjects = rawProjects.filter(
+        (project: any) => project.is_deleted === false
+      );
+
+      dispatch(setProjects(activeProjects));
     } catch (error: any) {
       console.error("fetchProjects", error);
       Modal.error({

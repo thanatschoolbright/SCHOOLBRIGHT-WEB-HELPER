@@ -15,22 +15,30 @@ import {
   theme,
   Tag,
   Space,
+  Card,
 } from "antd";
 import {
   ApartmentOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
-  FileTextOutlined,
   ProjectOutlined,
   SaveOutlined,
   TagOutlined,
   CloseOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { STATUS_OPTIONS } from "@constants/timesheet.constants";
+// สมมติว่า import constants มาจาก path นี้
+// import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 
-// --- Enterprise Type Definitions ---
-// นิยาม Type ให้ชัดเจนแทนการใช้ any
+// Mock constants เพื่อให้ Code ทำงานได้ในตัวอย่างนี้
+const STATUS_OPTIONS = [
+  { value: "IN_PROGRESS", label_th: "กำลังดำเนินการ", label_en: "In Progress" },
+  { value: "DONE", label_th: "เสร็จสิ้น", label_en: "Done" },
+  { value: "REVIEW", label_th: "รอตรวจสอบ", label_en: "Review" },
+  { value: "CANCELLED", label_th: "ยกเลิก", label_en: "Cancelled" },
+];
+
 interface ProjectData {
   id: number | string;
   name: string;
@@ -53,7 +61,6 @@ interface CreateModalProps {
   disabled: boolean;
 }
 
-// --- Helper for Status Colors ---
 const getStatusColor = (status: string) => {
   switch (status) {
     case "DONE":
@@ -80,36 +87,34 @@ export function CreateModalForm({
   i18n,
   disabled,
 }: CreateModalProps) {
-  // ใช้ Design Token เพื่อความสวยงามที่สม่ำเสมอ
   const { token } = theme.useToken();
 
   // Set Default Values
   useEffect(() => {
     if (open) {
+      form.resetFields(); // Reset เก่าก่อน
       form.setFieldsValue({
         status: "IN_PROGRESS",
-        // แนะนำให้ set date เป็นวันนี้เป็นค่าเริ่มต้นเพื่อ UX ที่ดี
         date: dayjs(),
       });
     }
   }, [open, form]);
 
-  // --- Memoized Options (Performance) ---
-  // แปลงข้อมูลเตรียมไว้ เพื่อไม่ให้ map ใหม่ทุกครั้งที่ render
+  // --- Memoized Options ---
   const projectOptions = useMemo(
     () =>
       projects.map((p) => ({
         label: (
           <Space>
             <ProjectOutlined style={{ color: token.colorPrimary }} />
-            <span>{p.name}</span>
+            <span style={{ fontWeight: 500 }}>{p.name}</span>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              (#{p.id})
+              (ID: {p.id})
             </Typography.Text>
           </Space>
         ),
         value: Number(p.id),
-        labelString: p.name, // ใช้สำหรับ search
+        labelString: p.name,
       })),
     [projects, token.colorPrimary]
   );
@@ -121,9 +126,6 @@ export function CreateModalForm({
           <Space>
             <ApartmentOutlined style={{ color: token.colorWarning }} />
             <span>{s.name}</span>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              (#{s.id})
-            </Typography.Text>
           </Space>
         ),
         value: Number(s.id),
@@ -138,7 +140,7 @@ export function CreateModalForm({
         const label = i18n.language === "th" ? s.label_th : s.label_en;
         return {
           label: (
-            <Tag  color={getStatusColor(s.value)}>
+            <Tag bordered={false} color={getStatusColor(s.value)}>
               {label}
             </Tag>
           ),
@@ -150,7 +152,6 @@ export function CreateModalForm({
   );
 
   // --- Custom Footer ---
-  // ย้ายปุ่มมาจัดการที่นี่เพื่อให้ Modal จัด Layout ได้ถูกต้องตาม Design System
   const modalFooter = (
     <div
       style={{
@@ -158,33 +159,36 @@ export function CreateModalForm({
         justifyContent: "space-between",
         alignItems: "center",
         width: "100%",
+        paddingTop: 12,
       }}
     >
       <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-        * กรุณากรอกข้อมูลให้ครบถ้วน
+        * กรุณาตรวจสอบความถูกต้องก่อนบันทึก
       </Typography.Text>
       <Space>
         <Button
           onClick={onCancel}
           size="large"
-          icon={<CloseOutlined />}
-          style={{ borderRadius: token.borderRadiusLG }}
+          style={{
+            borderRadius: token.borderRadiusLG,
+            border: "none",
+            background: token.colorFillAlter,
+          }}
         >
           ยกเลิก
         </Button>
         <Button
           type="primary"
-          onClick={form.submit} // Trigger form submit
+          onClick={form.submit}
           size="large"
           loading={disabled}
-          disabled={disabled}
           icon={<SaveOutlined />}
           style={{
             borderRadius: token.borderRadiusLG,
             boxShadow: token.boxShadowSecondary,
           }}
         >
-          บันทึกรายการ
+          บันทึก Timesheet
         </Button>
       </Space>
     </div>
@@ -194,142 +198,125 @@ export function CreateModalForm({
     <Modal
       open={open}
       title={
-        <Space>
+        <Space align="center" style={{ marginBottom: 8 }}>
           <div
             style={{
               width: 4,
-              height: 20,
-              backgroundColor: token.colorPrimary,
-              borderRadius: 2,
+              height: 24,
+              background: `linear-gradient(to bottom, ${token.colorPrimary}, ${token.colorPrimaryActive})`,
+              borderRadius: 4,
             }}
           />
           <Typography.Title level={4} style={{ margin: 0 }}>
-            ลงเวลาทำงานใหม่
+            ลงเวลาทำงาน
           </Typography.Title>
         </Space>
       }
       footer={modalFooter}
       onCancel={onCancel}
-      forceRender
-      width={720}
+      width={700}
       centered
       maskClosable={false}
-      styles={{
-        body: { padding: "24px 0 0 0" },
-      }}
+      styles={{ body: { padding: "20px 0 0 0" } }} // Modern padding reset
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={onSubmit}
-        requiredMark="optional" // Modern style: ซ่อนดอกจันสีแดงแบบเก่า (ใช้ validation message แทน)
+        requiredMark={false}
       >
-        {/* Section 1: Project Context */}
-        <div
+        {/* Section 1: Context (Project Selection) - Highlighted Box */}
+        <Card
+          bordered={false}
           style={{
             backgroundColor: token.colorFillAlter,
-            padding: 24,
-            borderRadius: token.borderRadiusLG,
             marginBottom: 24,
-            border: `1px solid ${token.colorBorderSecondary}`,
+            borderRadius: token.borderRadiusLG,
           }}
+          bodyStyle={{ padding: 24 }}
         >
-          <Typography.Text
-            strong
-            style={{
-              display: "block",
-              marginBottom: 16,
-              color: token.colorTextSecondary,
-            }}
-          >
-            <ProjectOutlined /> ข้อมูลโครงการ
-          </Typography.Text>
-
           <Row gutter={16}>
+            <Col span={24}>
+              <Typography.Text
+                strong
+                style={{
+                  color: token.colorTextSecondary,
+                  display: "block",
+                  marginBottom: 12,
+                }}
+              >
+                <ProjectOutlined /> โครงการที่รับผิดชอบ
+              </Typography.Text>
+            </Col>
             <Col xs={24} md={12}>
               <Form.Item
                 label="โครงการหลัก"
                 name="project_id"
-                rules={[{ required: true, message: "โปรดระบุโครงการหลัก" }]}
+                rules={[{ required: true, message: "ระบุโครงการ" }]}
+                style={{ marginBottom: 0 }} // Remove bottom margin for alignment inside card
               >
                 <Select
                   showSearch
-                  placeholder="ค้นหาโครงการ..."
-                  onChange={(value) => {
-                    // Reset sub-project when project changes
-                    form.setFieldsValue({ sub_project_id: undefined });
-                    // Fetch sub-projects for selected project
-                    if (value) {
-                      fetchSubProjects(String(value));
-                    }
-                  }}
-                  options={projectOptions}
+                  placeholder="เลือกโครงการ..."
                   size="large"
-                  filterOption={(input, option) => {
-                    const term = input.toLowerCase();
-                    const label = (option?.labelString ?? "").toLowerCase();
-                    const id = String(option?.value ?? "");
-                    return label.includes(term) || id.includes(term);
+                  variant="filled" // Modern Style
+                  options={projectOptions}
+                  onChange={(val) => {
+                    form.setFieldsValue({ sub_project_id: undefined });
+                    if (val) fetchSubProjects(String(val));
                   }}
-                  variant="filled" // Modern Input style
+                  filterOption={(input, option) =>
+                    (option?.labelString ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
                 />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
-                label="ฟีเจอร์ / งานย่อย"
+                label="งานย่อย / ฟีเจอร์"
                 name="sub_project_id"
-                dependencies={["project_id"]} // Re-render when project changes
-                rules={[{ required: true, message: "โปรดระบุงานย่อย" }]}
+                rules={[{ required: true, message: "ระบุงานย่อย" }]}
+                style={{ marginBottom: 0 }}
+                dependencies={["project_id"]}
               >
                 <Select
                   showSearch
-                  placeholder={
-                    !form.getFieldValue("project_id")
-                      ? "กรุณาเลือกโครงการหลักก่อน"
-                      : subProjectOptions.length === 0
-                      ? "กำลังโหลดงานย่อย..."
-                      : "ค้นหางานย่อย..."
-                  }
-                  options={subProjectOptions}
+                  placeholder="เลือกงานย่อย..."
                   size="large"
+                  variant="filled" // Modern Style
+                  options={subProjectOptions}
                   disabled={!form.getFieldValue("project_id")}
                   loading={
                     form.getFieldValue("project_id") &&
                     subProjectOptions.length === 0
                   }
-                  filterOption={(input, option) => {
-                    const term = input.toLowerCase();
-                    const label = (option?.labelString ?? "").toLowerCase();
-                    const id = String(option?.value ?? "");
-                    return label.includes(term) || id.includes(term);
-                  }}
-                  variant="filled"
-                  notFoundContent={
-                    form.getFieldValue("project_id")
-                      ? "ไม่พบงานย่อยในโครงการนี้"
-                      : "กรุณาเลือกโครงการหลักก่อน"
+                  filterOption={(input, option) =>
+                    (option?.labelString ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
                 />
               </Form.Item>
             </Col>
           </Row>
-        </div>
+        </Card>
 
-        {/* Section 2: Time & Details */}
+        {/* Section 2: Details (Time & Status) */}
         <div style={{ paddingInline: 8 }}>
-          <Row gutter={24}>
-            <Col xs={24} sm={8}>
+          <Row gutter={20}>
+            <Col xs={12} sm={8}>
               <Form.Item
-                label="วันที่ทำงาน"
+                label="วันที่"
                 name="date"
-                rules={[{ required: true, message: "โปรดระบุวันที่" }]}
+                rules={[{ required: true, message: "ระบุวันที่" }]}
               >
                 <DatePicker
                   format="DD/MM/YYYY"
                   style={{ width: "100%" }}
                   size="large"
-                  placeholder="เลือกวันที่"
+                  variant="filled"
                   suffixIcon={
                     <CalendarOutlined
                       style={{ color: token.colorTextDescription }}
@@ -338,55 +325,65 @@ export function CreateModalForm({
                 />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={8}>
+            <Col xs={12} sm={8}>
               <Form.Item
-                label="ระยะเวลา (ชั่วโมง)"
+                label="ระยะเวลา (ชม.)"
                 name="work_hour"
                 rules={[
-                  { required: true, message: "ระบุชั่วโมง" },
-                  { type: "number", min: 0.1, message: "> 0" },
-                  { type: "number", max: 8, message: "สูงสุด 8 ชม." },
+                  { required: true, message: "ระบุเวลา" },
+                  { type: "number", min: 0.1, max: 24, message: "ไม่ถูกต้อง" },
                 ]}
               >
                 <InputNumber
-                  min={0}
-                  max={8}
-                  step={0.5} // เพิ่ม Step ให้กดง่ายขึ้น
-                  placeholder="0.0"
-                  size="large"
                   style={{ width: "100%" }}
-                  addonAfter={<ClockCircleOutlined />}
+                  placeholder="0.0"
+                  min={0}
+                  step={0.5}
+                  size="large"
+                  variant="filled"
+                  addonAfter={
+                    <ClockCircleOutlined
+                      style={{ color: token.colorTextDescription }}
+                    />
+                  }
                 />
               </Form.Item>
             </Col>
             <Col xs={24} sm={8}>
-              <Form.Item
-                label="สถานะงาน"
-                name="status"
-                rules={[{ required: true, message: "ระบุสถานะ" }]}
-              >
+              <Form.Item label="สถานะ" name="status">
                 <Select
                   options={statusOptions}
-                  placeholder="เลือกสถานะ"
                   size="large"
-                  suffixIcon={<TagOutlined />}
-                  optionFilterProp="rawLabel"
+                  variant="filled"
+                  suffixIcon={
+                    <TagOutlined
+                      style={{ color: token.colorTextDescription }}
+                    />
+                  }
                 />
               </Form.Item>
             </Col>
           </Row>
 
-          <Divider dashed style={{ margin: "8px 0 24px 0" }} />
+          <Divider style={{ margin: "4px 0 24px 0" }} />
 
-          <Form.Item label="รายละเอียดการทำงาน" name="description">
+          <Form.Item
+            label={
+              <Space>
+                <EditOutlined />
+                <span>รายละเอียดการทำงาน</span>
+              </Space>
+            }
+            name="description"
+          >
             <Input.TextArea
+              placeholder="อธิบายรายละเอียดงานที่ทำในวันนี้..."
               rows={4}
-              placeholder="ระบุสิ่งที่ทำไปในวันนี้..."
               size="large"
+              variant="filled"
               showCount
               maxLength={500}
-              style={{ resize: "none" }}
-              allowClear
+              style={{ resize: "none", borderRadius: token.borderRadiusLG }}
             />
           </Form.Item>
         </div>
