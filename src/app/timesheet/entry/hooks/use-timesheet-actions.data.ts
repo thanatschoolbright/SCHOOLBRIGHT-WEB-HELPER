@@ -188,7 +188,7 @@ export const useProjectData = (
     try {
       dispatch(setLoading(true));
       const response = await axios.post("/api/v1/timesheet/project/read/", {
-        limit: 100,
+        limit: 300,
         page: 1,
       });
 
