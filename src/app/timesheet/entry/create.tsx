@@ -59,6 +59,7 @@ interface CreateModalProps {
   fetchSubProjects: (id: string) => void;
   i18n: { language: string };
   disabled: boolean;
+  formMode?: "create" | "edit" | "copy"; // เพิ่ม prop นี้
 }
 
 const getStatusColor = (status: string) => {
@@ -86,19 +87,21 @@ export function CreateModalForm({
   fetchSubProjects,
   i18n,
   disabled,
+  formMode = "create", // เพิ่ม prop นี้
 }: CreateModalProps) {
   const { token } = theme.useToken();
 
-  // Set Default Values
+  // Set Default Values - เฉพาะโหมด create เท่านั้น
   useEffect(() => {
-    if (open) {
-      form.resetFields(); // Reset เก่าก่อน
+    if (open && formMode === "create") {
+      // ✅ เช็คว่าเป็นโหมด create เท่านั้น
+      form.resetFields();
       form.setFieldsValue({
         status: "IN_PROGRESS",
         date: dayjs(),
       });
     }
-  }, [open, form]);
+  }, [open, formMode, form]);
 
   // --- Memoized Options ---
   const projectOptions = useMemo(

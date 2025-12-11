@@ -280,6 +280,7 @@ export default function TimesheetEntryPage() {
             fetchSubProjects={(id) => fetchSubProjects(Number(id))}
             i18n={i18n}
             disabled={actionLoading}
+            formMode={timesheetState.formMode} // ✅ เพิ่ม prop นี้
           />
 
           <DetailModal
