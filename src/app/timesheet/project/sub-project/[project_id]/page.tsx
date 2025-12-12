@@ -148,7 +148,6 @@ const StatCard: React.FC<StatCardProps> = ({
   const { token } = theme.useToken();
   return (
     <Card
-      
       className="shadow-sm hover:shadow-md transition-all duration-300 h-full"
       style={{ borderRadius: token.borderRadiusLG }}
     >
@@ -440,7 +439,7 @@ export default function SubProjectPage() {
         width: 120,
         align: "center",
         render: (_, record) => (
-          <Tag icon={<ClockCircleOutlined />} >
+          <Tag icon={<ClockCircleOutlined />}>
             {
               calculateWorkingHours(
                 record.startDate || "",
@@ -579,11 +578,7 @@ export default function SubProjectPage() {
           </Button>
         </div>
 
-        <Card
-          
-          className="shadow-sm overflow-hidden"
-          bodyStyle={{ padding: 0 }}
-        >
+        <Card className="shadow-sm overflow-hidden" bodyStyle={{ padding: 0 }}>
           <Table
             columns={columns}
             dataSource={subProjects}
@@ -679,7 +674,7 @@ export default function SubProjectPage() {
                     readOnly
                     prefix={<ClockCircleOutlined />}
                     size="large"
-                    className="bg-gray-50 text-gray-500"
+                    className=""
                   />
                 </Form.Item>
               </Col>
@@ -695,7 +690,7 @@ export default function SubProjectPage() {
 
             <Form.List name={["backlogDescription", "backlogs"]}>
               {(fields, { add, remove }) => (
-                <div className="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300">
+                <div className=" p-4 rounded-lg border border-dashed border-gray-300">
                   <div className="flex justify-between mb-3">
                     <Text strong>
                       <LinkOutlined /> เอกสารแนบ
@@ -779,7 +774,7 @@ export default function SubProjectPage() {
         >
           {modalState.data && (
             <div className="space-y-6 pt-4">
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex justify-between items-start">
+              <div className=" p-4 rounded-lg border border-gray-100 flex justify-between items-start">
                 <div>
                   <Title level={4} className="m-0">
                     {modalState.data.name}
@@ -796,7 +791,7 @@ export default function SubProjectPage() {
 
               <Row gutter={16}>
                 <Col span={12}>
-                  <Card size="small"  className="bg-blue-50">
+                  <Card size="small" className="">
                     <Text type="secondary">วันเริ่มต้น</Text>
                     <div className="font-semibold text-blue-600 flex items-center gap-2">
                       <CalendarOutlined />
@@ -807,7 +802,7 @@ export default function SubProjectPage() {
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Card size="small"  className="bg-red-50">
+                  <Card size="small" className="">
                     <Text type="secondary">วันสิ้นสุด</Text>
                     <div className="font-semibold text-red-600 flex items-center gap-2">
                       <CalendarOutlined />
@@ -821,7 +816,7 @@ export default function SubProjectPage() {
 
               <div>
                 <Text strong>หมายเหตุ</Text>
-                <div className="bg-white border border-gray-200 p-3 rounded mt-1 min-h-[60px]">
+                <div className="border border-gray-200 p-3 rounded mt-1 min-h-[60px]">
                   {modalState.data.backlogDescription?.note || (
                     <Text type="secondary">-</Text>
                   )}
@@ -839,7 +834,7 @@ export default function SubProjectPage() {
                           href={item.link}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center p-3 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 rounded transition-all group no-underline"
+                          className="flex items-center p-3  border border-gray-200 hover:border-blue-200 rounded transition-all group no-underline"
                         >
                           <LinkOutlined className="mr-3 text-gray-400 group-hover:text-blue-500" />
                           <span className="text-gray-700 group-hover:text-blue-700 font-medium">
@@ -849,7 +844,7 @@ export default function SubProjectPage() {
                       )
                     )
                   ) : (
-                    <div className="text-center py-4 bg-gray-50 rounded text-gray-400">
+                    <div className="text-center py-4 bg-gray-5 rounded text-gray-400">
                       ไม่มีเอกสารแนบ
                     </div>
                   )}
