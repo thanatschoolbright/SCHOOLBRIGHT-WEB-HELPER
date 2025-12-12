@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
   const projectId = Number(project_id);
   const userId = Number(by);
-  const [startDate, endDate] = dateRange;
+  const [startDate, endDate] = dateRange ?? [undefined, undefined];
   const assetCaptureType = asset_capture_type ?? "UN_CAPTUREABLE";
 
   try {
