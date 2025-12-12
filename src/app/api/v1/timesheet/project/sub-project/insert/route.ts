@@ -16,13 +16,13 @@ export async function POST(request: NextRequest) {
     name,
     name_en,
     backlogDescription,
-    dateRange,
+    startDate,
+    endDate,
     asset_capture_type,
   } = data;
 
   const projectId = Number(project_id);
   const userId = Number(by);
-  const [startDate, endDate] = dateRange ?? [undefined, undefined];
   const assetCaptureType = asset_capture_type ?? "UN_CAPTUREABLE";
 
   try {

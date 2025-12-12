@@ -7,6 +7,7 @@ export const Schema = z.object({
   project_id: z.union([z.number().min(1), z.string().min(1)]),
   by: z.union([z.number().min(1), z.string().min(1)]),
   backlogDescription: z.any().optional(),
-  dateRange: z.any().optional(),
   asset_capture_type: z.enum(["CAPTUREABLE", "UN_CAPTUREABLE"]).optional(),
+  startDate: z.date(),
+  endDate: z.date(),
 });
