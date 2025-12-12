@@ -38,7 +38,7 @@ export default function TableComponent({
           </tr>
         </thead>
         <tbody
-          className={`bg-white dark:bg-gray-900 divide-y divide-gray-100 ${
+          className={` dark:bg-gray-900 divide-y divide-gray-100 ${
             striped ? "odd:bg-gray-50 dark:odd:bg-gray-800" : ""
           }`}
         >

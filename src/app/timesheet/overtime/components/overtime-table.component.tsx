@@ -125,7 +125,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
             return {
               color: "blue",
               dot: (
-                <div className="bg-blue-500 w-3 h-3 rounded-full border-2 border-white shadow-md" />
+                <div className="bg-blue-500 w-3 h-3 rounded-full border-2  shadow-md" />
               ),
               label: (
                 <div className="text-right pr-4">
@@ -233,7 +233,6 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
 
   return (
     <Card
-      
       className="shadow-sm rounded-xl overflow-hidden"
       bodyStyle={{ padding: 0 }}
     >

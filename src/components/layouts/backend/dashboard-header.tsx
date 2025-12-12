@@ -12,7 +12,7 @@ export default function DashboardHeader() {
       </div>
 
       {/* Right - Total Balance */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl px-4 py-2 shadow text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-300">
+      <div className=" dark:bg-gray-800 rounded-xl px-4 py-2 shadow text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-300">
         Total balance
         <span className="block text-lg text-right text-black dark:text-gray-200">
           $23,651

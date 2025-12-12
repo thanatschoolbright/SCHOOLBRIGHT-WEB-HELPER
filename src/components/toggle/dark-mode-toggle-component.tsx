@@ -52,7 +52,7 @@ export default function DarkModeToggle() {
           }`}
         >
           <span
-            className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+            className={`w-4 h-4  rounded-full shadow-md transform transition-transform duration-300 ${
               isDark ? "translate-x-6" : "translate-x-0"
             }`}
           />

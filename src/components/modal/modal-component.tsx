@@ -46,7 +46,7 @@ export default function ModalComponent({
               damping: 20,
             }}
           >
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full overflow-hidden">
+            <div className=" dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full overflow-hidden">
               {/* 🔵 Header */}
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-gray-800 dark:text-white">

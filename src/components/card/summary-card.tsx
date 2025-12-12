@@ -22,14 +22,14 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
       <div className="relative z-10">
         <p className="text-sm font-semibold mb-2 tracking-wide">
           {isLoading ? (
-            <span className="inline-block h-4 w-3/4 bg-white/20 rounded animate-pulse" />
+            <span className="inline-block h-4 w-3/4 /20 rounded animate-pulse" />
           ) : (
             title
           )}
         </p>
         <h2 className="text-4xl font-extrabold leading-snug drop-shadow-sm">
           {isLoading ? (
-            <span className="inline-block h-10 w-1/2 bg-white/30 rounded animate-pulse" />
+            <span className="inline-block h-10 w-1/2 /30 rounded animate-pulse" />
           ) : (
             value
           )}
@@ -37,7 +37,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         {subtitle && (
           <p className="text-xs mt-2 text-white/90 italic">
             {isLoading ? (
-              <span className="inline-block h-3 w-2/3 bg-white/10 rounded animate-pulse" />
+              <span className="inline-block h-3 w-2/3 /10 rounded animate-pulse" />
             ) : (
               subtitle
             )}

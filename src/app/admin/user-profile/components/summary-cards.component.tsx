@@ -32,7 +32,7 @@ export const SummaryCards = ({ metrics }: SummaryCardsProps) => (
               {metric.description}
             </Typography.Text>
           </div>
-          <div className="rounded-full bg-white px-3 py-2 text-lg shadow-inner">
+          <div className="rounded-full  px-3 py-2 text-lg shadow-inner">
             {metric.icon}
           </div>
         </div>

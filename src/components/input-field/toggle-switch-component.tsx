@@ -38,7 +38,7 @@ const ToggleSwitchComponent: React.FC<ToggleSwitchProps> = ({
         }`}
       >
         <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
+          className={`inline-block h-4 w-4 transform rounded-full  transition-transform duration-300 ${
             checked ? "translate-x-6" : "translate-x-1"
           }`}
         />

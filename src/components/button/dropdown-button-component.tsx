@@ -42,7 +42,7 @@ export default function DropdownButtonComponent({
       </button>
       <div
         id={`dropdown-${id}`}
-        className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl overflow-hidden z-10 animate-dropdownSlide transition-all duration-300 origin-top-right scale-95 opacity-0 pointer-events-none transform -translate-y-2"
+        className="absolute right-0 mt-2 w-40  dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl overflow-hidden z-10 animate-dropdownSlide transition-all duration-300 origin-top-right scale-95 opacity-0 pointer-events-none transform -translate-y-2"
       >
         {items.map((item, index) => (
           <button

@@ -44,7 +44,7 @@ export default function ContentCard({
       <div
         className={`
         
-        bg-white dark:bg-gray-700
+         dark:bg-gray-700
         rounded-2xl shadow-sm border
         border-white/20 dark:border-white/10
         transition-colors duration-300 ease-in-out

@@ -1,0 +1,72 @@
+export interface SubProject {
+  id: number;
+  name: string;
+  name_en?: string;
+  project_id: number;
+  startDate?: string | Date;
+  endDate?: string | Date;
+  assetCaptureType: "CAPTUREABLE" | "UN_CAPTUREABLE";
+  backlogDescription?: {
+    note?: string;
+    backlogs?: Array<{
+      title: string;
+      link: string;
+    }>;
+  };
+}
+
+export interface Project {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+export interface SubProjectFormValues {
+  name: string;
+  name_en?: string;
+  asset_capture_type: "CAPTUREABLE" | "UN_CAPTUREABLE";
+  dateRange: [any, any];
+  estimate_time?: string;
+  backlogDescription?: {
+    note?: string;
+    backlogs?: Array<{
+      title: string;
+      link: string;
+    }>;
+  };
+}
+
+export interface SubProjectStats {
+  total: number;
+  processing: number;
+  completed: number;
+  totalHours: number;
+}
+
+export interface PaginationState {
+  current: number;
+  pageSize: number;
+  total: number;
+}
+
+export interface ModalState {
+  type: "create" | "edit" | "detail" | null;
+  data: SubProject | null;
+}
+
+export interface ProjectStatus {
+  label: string;
+  status: "success" | "processing" | "default";
+  color: string;
+}
+
+export interface WorkingHoursResult {
+  hours: number;
+  text: string;
+}
+
+export interface FilterState {
+  searchText: string;
+  assetType: string | null;
+  statusFilter: string | null;
+}

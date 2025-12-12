@@ -8,7 +8,7 @@ interface InputComponentProps {
   name?: string; // Add the name property
   value?: any; // Add the value property for controlled components
   onChange?: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void; // Define onChange explicitly
   error?: string;
   required?: boolean;
@@ -34,7 +34,7 @@ const InputComponent: React.FC<InputComponentProps> = ({
   const [fileName, setFileName] = useState<string>("");
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     if (
       type === "file" &&
@@ -55,7 +55,7 @@ const InputComponent: React.FC<InputComponentProps> = ({
     rounded-lg
     border
     border-gray-300
-    // bg-white
+    // 
     // dark:bg-gray-900
     dark:border-gray-700
     text-gray-900
@@ -82,8 +82,8 @@ const InputComponent: React.FC<InputComponentProps> = ({
     textAlign === "right"
       ? "text-right"
       : textAlign === "center"
-        ? "text-center"
-        : "text-left";
+      ? "text-center"
+      : "text-left";
 
   return (
     <div className="w-full flex flex-col">

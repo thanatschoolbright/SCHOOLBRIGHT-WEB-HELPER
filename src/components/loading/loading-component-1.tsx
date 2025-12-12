@@ -34,7 +34,7 @@ export default function BaseLoadingComponent({
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
           <motion.div
-            className="bg-white dark:bg-gray-800 px-8 py-8 rounded-2xl shadow-2xl text-center"
+            className=" dark:bg-gray-800 px-8 py-8 rounded-2xl shadow-2xl text-center"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}

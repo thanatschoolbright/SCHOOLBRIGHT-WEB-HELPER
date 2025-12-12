@@ -45,7 +45,7 @@ export default function MinimalButton({
         ${textSizeClass[textSize]} ${className}`}
     >
       {isLoading ? (
-        <span className="w-20 h-4 bg-white/40 rounded animate-pulse" />
+        <span className="w-20 h-4 /40 rounded animate-pulse" />
       ) : (
         <>
           {iconLeft && <span className="flex items-center">{iconLeft}</span>}

@@ -206,7 +206,7 @@ export const TimelineChart: React.FC<TimelineChartProps> = ({
   return (
     <div
       ref={scrollContainerRef}
-      className={`border rounded-lg bg-white shadow-sm overflow-auto relative transition-all duration-300 ${
+      className={`border rounded-lg  shadow-sm overflow-auto relative transition-all duration-300 ${
         isFullScreen ? "fixed inset-0 z-50 h-screen w-screen" : "h-[600px]"
       }`}
     >
@@ -215,7 +215,7 @@ export const TimelineChart: React.FC<TimelineChartProps> = ({
         <Tooltip title={isFullScreen ? "Exit Full Screen" : "Full Screen"}>
           <button
             onClick={() => setIsFullScreen(!isFullScreen)}
-            className="bg-white p-3 rounded-full shadow-lg border hover:bg-gray-50 transition-colors text-gray-600 flex items-center justify-center"
+            className=" p-3 rounded-full shadow-lg border hover:bg-gray-50 transition-colors text-gray-600 flex items-center justify-center"
           >
             {isFullScreen ? (
               <FullscreenExitOutlined style={{ fontSize: 20 }} />
@@ -271,7 +271,7 @@ export const TimelineChart: React.FC<TimelineChartProps> = ({
         {/* Body Row */}
         <div className="flex">
           {/* Sidebar Column */}
-          <div className="sticky left-0 z-20 w-[300px] flex-shrink-0 bg-white border-r shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+          <div className="sticky left-0 z-20 w-[300px] flex-shrink-0  border-r shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
             {data.map((project) => (
               <React.Fragment key={project.id}>
                 {/* Project Row */}

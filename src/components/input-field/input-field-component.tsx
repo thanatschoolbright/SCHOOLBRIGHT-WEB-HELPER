@@ -42,7 +42,7 @@ export function InputFieldComponent({
   const focusBorder =
     "focus-within:border-purple-500 dark:focus-within:border-purple-400";
   const errorBorder = "border-red-500";
-  const bg = "bg-white dark:bg-gray-800";
+  const bg = " dark:bg-gray-800";
   const text = "text-gray-900 dark:text-gray-100";
   const placeholder = "placeholder-gray-400 dark:placeholder-gray-500";
 
