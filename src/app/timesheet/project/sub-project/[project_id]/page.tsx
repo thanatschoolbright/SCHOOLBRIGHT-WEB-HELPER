@@ -7,12 +7,14 @@ import {
   ArrowLeftOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
+  CopyOutlined,
   FileTextOutlined,
   PlusOutlined,
   ProjectOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
@@ -78,6 +80,29 @@ export default function SubProjectPage() {
       assetType: null,
       statusFilter: null,
     });
+  };
+
+  const handleCopyAllFeatures = async () => {
+    try {
+      const projectName =
+        projectData?.name || t("sub_project_page.default_title");
+
+      const featureList = subProjects
+        .map((item, index) => {
+          const featureName = item.name_en
+            ? `${item.name} (${item.name_en})`
+            : item.name;
+          return `${index + 1}. ${featureName}`;
+        })
+        .join("\n");
+
+      const textToCopy = `${projectName}\n${featureList}\n\n---------------------------------------`;
+
+      await navigator.clipboard.writeText(textToCopy);
+      toast.success(t("sub_project_page.copy_all_success"));
+    } catch (error) {
+      toast.error(t("sub_project_page.copy_error"));
+    }
   };
 
   return (
@@ -154,9 +179,18 @@ export default function SubProjectPage() {
               alignItems: "center",
             }}
           >
-            <Title level={4} style={{ margin: 0 }}>
-              {t("sub_project_page.table_title")} ({stats.total})
-            </Title>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Title level={4} style={{ margin: 0 }}>
+                {t("sub_project_page.table_title")} ({stats.total})
+              </Title>
+              <Button
+                type="text"
+                icon={<CopyOutlined />}
+                onClick={handleCopyAllFeatures}
+                disabled={subProjects.length === 0}
+                title={t("sub_project_page.copy_all_tooltip")}
+              />
+            </div>
             <Button
               type="primary"
               icon={<PlusOutlined />}

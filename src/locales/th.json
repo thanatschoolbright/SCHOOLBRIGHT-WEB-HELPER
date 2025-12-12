@@ -678,6 +678,10 @@
     "detail_end_date": "วันสิ้นสุด",
     "detail_note": "หมายเหตุ",
     "detail_attachments": "เอกสารแนบ",
-    "detail_no_attachments": "ไม่มีเอกสารแนบ"
+    "detail_no_attachments": "ไม่มีเอกสารแนบ",
+    "copy_success": "คัดลอกชื่อฟีเจอร์แล้ว",
+    "copy_error": "ไม่สามารถคัดลอกได้",
+    "copy_all_success": "คัดลอกรายการฟีเจอร์ทั้งหมดแล้ว",
+    "copy_all_tooltip": "คัดลอกรายการฟีเจอร์ทั้งหมด"
   }
 }

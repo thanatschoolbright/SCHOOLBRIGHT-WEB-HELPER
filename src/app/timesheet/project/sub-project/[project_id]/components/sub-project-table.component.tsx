@@ -20,10 +20,12 @@ import {
   EditOutlined,
   DeleteOutlined,
   MoreOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import type { SubProject, PaginationState } from "../types/sub-project.types";
 import {
   calculateWorkingHours,
@@ -71,36 +73,58 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
         dataIndex: "name",
         key: "name",
         width: 300,
-        render: (name, record) => (
-          <Space align="start">
-            <Avatar
-              shape="square"
-              icon={<FileTextOutlined />}
-              style={{
-                backgroundColor: token.colorPrimaryBg,
-                color: token.colorPrimary,
-              }}
-            />
-            <div className="flex flex-col">
-              <Text strong>{name}</Text>
-              {record.name_en && (
-                <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
-                  {record.name_en}
-                </Text>
-              )}
-              {record.backlogDescription?.note && (
-                <Text
-                  type="secondary"
-                  italic
-                  ellipsis
-                  style={{ fontSize: token.fontSizeSM, maxWidth: 200 }}
-                >
-                  {record.backlogDescription.note}
-                </Text>
-              )}
-            </div>
-          </Space>
-        ),
+        render: (name, record) => {
+          const handleCopy = async () => {
+            try {
+              const textToCopy = record.name_en
+                ? `${name} (${record.name_en})`
+                : name;
+              await navigator.clipboard.writeText(textToCopy);
+              toast.success(t("sub_project_page.copy_success"));
+            } catch (error) {
+              toast.error(t("sub_project_page.copy_error"));
+            }
+          };
+
+          return (
+            <Space align="start" className="w-full group">
+              <Avatar
+                shape="square"
+                icon={<FileTextOutlined />}
+                style={{
+                  backgroundColor: token.colorPrimaryBg,
+                  color: token.colorPrimary,
+                }}
+              />
+              <div className="flex flex-col flex-1">
+                <Text strong>{name}</Text>
+                {record.name_en && (
+                  <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
+                    {record.name_en}
+                  </Text>
+                )}
+                {record.backlogDescription?.note && (
+                  <Text
+                    type="secondary"
+                    italic
+                    ellipsis
+                    style={{ fontSize: token.fontSizeSM, maxWidth: 200 }}
+                  >
+                    {record.backlogDescription.note}
+                  </Text>
+                )}
+              </div>
+              <Button
+                type="text"
+                size="small"
+                icon={<CopyOutlined />}
+                onClick={handleCopy}
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ flexShrink: 0 }}
+              />
+            </Space>
+          );
+        },
       },
       {
         title: t("sub_project_page.table_type"),

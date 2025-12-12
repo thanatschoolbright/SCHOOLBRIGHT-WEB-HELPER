@@ -678,6 +678,10 @@
     "detail_end_date": "End Date",
     "detail_note": "Notes",
     "detail_attachments": "Attachments",
-    "detail_no_attachments": "No attachments"
+    "detail_no_attachments": "No attachments",
+    "copy_success": "Feature name copied",
+    "copy_error": "Failed to copy",
+    "copy_all_success": "All features copied to clipboard",
+    "copy_all_tooltip": "Copy all features"
   }
 }
