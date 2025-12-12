@@ -67,12 +67,15 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
             : [];
 
         form.setFieldsValue({
-          ...data,
+          name: data.name,
+          name_en: data.name_en,
+          asset_capture_type: data.assetCaptureType,
           dateRange: range,
           estimate_time: calculateWorkingHours(
             data.startDate || "",
             data.endDate || ""
           ).text,
+          backlogDescription: data.backlogDescription,
         });
       }
     }
@@ -90,13 +93,16 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
 
   const handleFinish = async (values: SubProjectFormValues) => {
     const payload = {
-      ...values,
       id: data?.id,
+      name: values.name,
+      name_en: values.name_en,
+      assetCaptureType: values.asset_capture_type,
       startDate: values.dateRange?.[0]?.toISOString(),
       endDate: values.dateRange?.[1]?.toISOString(),
+      backlogDescription: values.backlogDescription,
     };
 
-    const success = await onSubmit(payload);
+    const success = await onSubmit(payload as any);
     if (success) {
       form.resetFields();
       onCancel();
