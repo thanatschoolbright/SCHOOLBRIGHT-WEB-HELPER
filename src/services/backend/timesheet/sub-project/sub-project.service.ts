@@ -13,8 +13,8 @@ interface CreateFeatureDto {
   name_en?: string;
   createdBy?: number;
   backlogDescription?: any;
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | string;
+  endDate: Date | string;
   assetCaptureType?: SubProjectAssetCaptureType;
 }
 
@@ -23,8 +23,8 @@ interface UpdateFeatureDto {
   name_en?: string;
   updatedBy?: number;
   backlogDescription?: any;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: Date | string;
+  endDate?: Date | string;
   assetCaptureType?: SubProjectAssetCaptureType;
 }
 
