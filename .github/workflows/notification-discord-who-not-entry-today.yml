@@ -1,0 +1,90 @@
+name: Notification Discord Who Not Entry Today
+
+on:
+    schedule:
+        # รันทุกวันเวลา 11:00 UTC (เท่ากับ 18:00 ประเทศไทย UTC+7)
+        - cron: "0 11 * * *"
+
+    # เปิดให้รัน manual ได้
+    workflow_dispatch:
+
+jobs:
+    notify-discord:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Send Notification & Debug
+              run: |
+                  # ==========================================
+                  # 1. SETUP & CONFIGURATION
+                  # ==========================================
+                  URL="https://sb-helper.schoolbright.co/api/v1/timesheet/report/not-entry/today"
+                  PAYLOAD='{"mode": "discord"}'
+
+                  echo "---------------------------------------------------"
+                  echo "🚀 STEP 1: INITIALIZING JOB"
+                  echo "---------------------------------------------------"
+                  echo "📅 Time (UTC): $(date)"
+                  echo "🎯 Target URL: $URL"
+                  echo "📦 Payload Data: $PAYLOAD"
+                  echo ""
+
+                  # ==========================================
+                  # 2. EXECUTE REQUEST
+                  # ==========================================
+                  echo "---------------------------------------------------"
+                  echo "📡 STEP 2: SENDING REQUEST..."
+                  echo "---------------------------------------------------"
+
+                  # ใช้ curl เก็บ response body ลงไฟล์ temp และเก็บ http_code ลงตัวแปร
+                  # -s : Silent mode
+                  # -w "%{http_code}" : Write out HTTP code
+                  # -o response.json : Output response body to file
+                  http_code=$(curl -s -w "%{http_code}" -o response.json -X POST \
+                    -H "Content-Type: application/json" \
+                    -d "$PAYLOAD" \
+                    "$URL")
+
+                  echo "✅ Request sent."
+                  echo ""
+
+                  # ==========================================
+                  # 3. ANALYZE RESPONSE
+                  # ==========================================
+                  echo "---------------------------------------------------"
+                  echo "🔍 STEP 3: DEBUGGING RESPONSE"
+                  echo "---------------------------------------------------"
+                  echo "📊 HTTP Status Code: $http_code"
+                  echo "📄 Response Body:"
+                  cat response.json
+                  echo "" 
+                  echo ""
+
+                  # ==========================================
+                  # 4. FINAL SUMMARY
+                  # ==========================================
+                  echo "---------------------------------------------------"
+                  echo "🏁 STEP 4: JOB SUMMARY"
+                  echo "---------------------------------------------------"
+
+                  if [ "$http_code" -eq 200 ]; then
+                    echo "✅ STATUS: SUCCESS"
+                    echo "📝 Message: The API accepted the request successfully."
+                    echo "🕒 Finished at (Thai Time): $(TZ=Asia/Bangkok date)"
+                    exit 0
+                  else
+                    echo "❌ STATUS: FAILED"
+                    echo "📝 Message: The API returned an error status ($http_code)."
+                    echo "🕒 Finished at (Thai Time): $(TZ=Asia/Bangkok date)"
+                    
+                    # Debug Tip
+                    if [ "$http_code" -ge 500 ]; then
+                        echo "💡 Hint: Server Error. Check backend logs."
+                    elif [ "$http_code" -eq 404 ]; then
+                        echo "💡 Hint: URL might be wrong."
+                    elif [ "$http_code" -eq 400 ]; then
+                        echo "💡 Hint: Bad Request. Check payload JSON."
+                    fi
+                    
+                    exit 1
+                  fi

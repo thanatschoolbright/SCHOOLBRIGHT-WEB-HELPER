@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Service } from "@/services/backend/timesheet/capturable/capturable.service";
+import { Service } from "@/services/backend/timesheet/report/capturable/capturable.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@/helpers/api/validate.request";
 import { ReportDateSchema } from "../capturable.type";

@@ -35,7 +35,7 @@ export const TimesheetHeader: React.FC = () => {
           type="primary"
           icon={<PieChartOutlined />}
           size="large"
-          onClick={() => router.push("/timesheet/all/capturable-report")}
+          onClick={() => router.push("/timesheet/all/report/capturable")}
           style={{
             borderRadius: 8,
             height: 44,
@@ -43,6 +43,20 @@ export const TimesheetHeader: React.FC = () => {
           }}
         >
           ระบบรายงานตามทรัพย์สิน
+        </Button>
+
+        <Button
+          type="primary"
+          icon={<PieChartOutlined />}
+          size="large"
+          onClick={() => router.push("/timesheet/all/report/not-entry/today")}
+          style={{
+            borderRadius: 8,
+            height: 44,
+            paddingInline: 24,
+          }}
+        >
+          ระบบรายงานผู้ไม่กรอกไทม์ชีท (วันนี้)
         </Button>
       </div>
     </div>

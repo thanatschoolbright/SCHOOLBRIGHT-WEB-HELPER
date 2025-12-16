@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ExcelService } from "@/services/backend/timesheet/capturable/capturable.report.service";
+import { ExcelService } from "@/services/backend/timesheet/report/capturable/capturable.report.service";
 import { validateRequest } from "@/helpers/api/validate.request";
 import { errorResponse } from "@/helpers/api/response";
-import { Service } from "@/services/backend/timesheet/capturable/capturable.service";
+import { Service } from "@/services/backend/timesheet/report/capturable/capturable.service";
 import { ReportDateSchema } from "../../capturable.type";
 
 export async function POST(request: NextRequest) {
