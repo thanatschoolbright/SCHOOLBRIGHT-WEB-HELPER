@@ -134,6 +134,7 @@
     "greeting_prefix": "คุณ",
     "subtitle": "จัดการเวลาทำงานและติดตามความคืบหน้าของโครงการได้ที่นี่",
     "add_entry_button": "ลงเวลาใหม่",
+    "user_guide_button": "วิธีการกรอก Timesheet",
     "table_title": "รายการลงเวลาล่าสุด",
     "table_subtitle": "ประวัติการทำงานทั้งหมดของคุณ",
     "table_date": "วันที่",

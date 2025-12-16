@@ -134,6 +134,7 @@
     "greeting_prefix": "",
     "subtitle": "Manage your work time and track project progress here",
     "add_entry_button": "Add New Entry",
+    "user_guide_button": "Timesheet User Guide",
     "table_title": "Recent Time Entries",
     "table_subtitle": "All your work history",
     "table_date": "Date",

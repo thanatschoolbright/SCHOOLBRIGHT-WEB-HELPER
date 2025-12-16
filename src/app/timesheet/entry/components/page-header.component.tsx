@@ -1,6 +1,6 @@
 import React from "react";
-import { Typography, Button } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Typography, Button, Space } from "antd";
+import { PlusOutlined, BookOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { getGreeting } from "../utils/timesheet-entry.helpers";
 
@@ -16,6 +16,14 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   token,
 }) => {
   const { t } = useTranslation("translate");
+
+  const handleOpenGuide = () => {
+    window.open(
+      "https://docs.google.com/document/d/1bfkhcYs_X79c5j2uZ5pH-C5QAeIjN91aSVNNZEf2guI/edit?usp=sharing",
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
 
   return (
     <div
@@ -39,19 +47,33 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           {t("timesheet_entry_page.subtitle")}
         </Typography.Text>
       </div>
-      <Button
-        type="primary"
-        size="large"
-        icon={<PlusOutlined />}
-        onClick={onAddClick}
-        style={{
-          borderRadius: 8,
-          height: 44,
-          paddingInline: 24,
-        }}
-      >
-        {t("timesheet_entry_page.add_entry_button")}
-      </Button>
+      <Space size="middle">
+        <Button
+          size="large"
+          icon={<BookOutlined />}
+          onClick={handleOpenGuide}
+          style={{
+            borderRadius: 8,
+            height: 44,
+            paddingInline: 24,
+          }}
+        >
+          {t("timesheet_entry_page.user_guide_button")}
+        </Button>
+        <Button
+          type="primary"
+          size="large"
+          icon={<PlusOutlined />}
+          onClick={onAddClick}
+          style={{
+            borderRadius: 8,
+            height: 44,
+            paddingInline: 24,
+          }}
+        >
+          {t("timesheet_entry_page.add_entry_button")}
+        </Button>
+      </Space>
     </div>
   );
 };
