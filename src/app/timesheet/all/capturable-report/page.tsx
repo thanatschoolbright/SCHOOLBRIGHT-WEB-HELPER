@@ -23,10 +23,12 @@ import {
   ToolOutlined,
   InfoCircleOutlined,
   SettingOutlined,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 
@@ -64,6 +66,7 @@ const columnOptions = [
 ];
 
 export default function CapturableReportPage() {
+  const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
 
   const [loading, setLoading] = useState(false);
@@ -184,7 +187,7 @@ export default function CapturableReportPage() {
       render: (code: string) => (
         <Tag
           color="blue"
-          className="rounded-md font-medium border-none px-2 py-0.5 bg-blue-50 text-blue-600"
+          className="rounded-md font-medium border-none px-2 py-0.5 text-blue-600"
         >
           {code}
         </Tag>
@@ -350,21 +353,31 @@ export default function CapturableReportPage() {
       {contextHolder}
       <DashboardLayout>
         {/* Main Container */}
-        <div className="min-h-screen p-6 md:p-8  font-sans">
+        <div className="min-h-screen p-6 md:p-8 font-sans">
           <div className="flex flex-col gap-8 w-full mx-auto">
             {/* 1. Header & Filter */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-              <div>
-                <h2 className="text-2xl font-bold m-0 flex items-center gap-3 text-slate-800">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <PieChartOutlined className="text-blue-600 text-xl" />
-                  </div>
-                  Capturable Analytics
-                </h2>
-                <p className="text-slate-500 mt-2 text-sm pl-[52px]">
-                  วิเคราะห์สัดส่วนงานสร้างใหม่ (Asset)
-                  เปรียบเทียบกับงานซ่อมสร้าง (Maintenance)
-                </p>
+              <div className="flex items-start gap-4">
+                {/* Back Button */}
+                <Button
+                  type="text"
+                  icon={<ArrowLeftOutlined />}
+                  onClick={() => router.push("/timesheet/all")}
+                  className="mt-1 hover:bg-slate-100 h-10 w-10 p-0 flex items-center justify-center rounded-lg"
+                />
+
+                <div>
+                  <h2 className="text-2xl font-bold m-0 flex items-center gap-3 text-slate-800">
+                    <div className="p-2  rounded-lg">
+                      <PieChartOutlined className="text-blue-600 text-xl" />
+                    </div>
+                    Capturable Analytics
+                  </h2>
+                  <p className="text-slate-500 mt-2 text-sm pl-[52px]">
+                    วิเคราะห์สัดส่วนงานสร้างใหม่ (Asset)
+                    เปรียบเทียบกับงานซ่อมสร้าง (Maintenance)
+                  </p>
+                </div>
               </div>
 
               {/* Filter Section */}
