@@ -1,91 +1,37 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import dayjs, { Dayjs } from "dayjs";
-import Swal from "sweetalert2";
-import { toast } from "sonner";
-
-import DashboardLayout from "@components/layouts/backend-layout";
-import PermissionLayout from "@/components/layouts/permission-layout";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
-import { useAppSelector } from "@stores/store";
-import { getUserById } from "@helpers/local_storage/user.storage";
-import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-import { categoryType } from "@data/timesheet.category.type";
-
 import {
-  Card,
-  Table,
-  Button,
-  Modal,
   Form,
+  Modal,
   Input,
-  Typography,
-  Tag,
   Select,
-  Descriptions,
-  Tooltip,
-  Badge,
   DatePicker,
   Row,
   Col,
-  Dropdown,
+  Button,
+  Typography,
+  Descriptions,
+  Space,
 } from "antd";
-import {
-  PlusOutlined,
-  CheckCircleOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  InfoCircleOutlined,
-  ArrowRightOutlined,
-  ProjectOutlined,
-  CalendarOutlined,
-  MoreOutlined,
-} from "@ant-design/icons";
-import type { ColumnsType } from "antd/es/table";
-import { MenuProps } from "antd/lib";
+import { CheckCircleOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+import Swal from "sweetalert2";
 
-interface Project {
-  id: number;
-  name: string;
-  name_en?: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: number;
-  categoryType: string;
-  status: string;
-  features?: Array<{ is_deleted: boolean }>;
-  start_date?: string;
-  end_date?: string;
-  is_deleted?: boolean;
-}
+import DashboardLayout from "@components/layouts/backend-layout";
+import PermissionLayout from "@/components/layouts/permission-layout";
+import { useAppSelector } from "@stores/store";
+import { getUserById } from "@helpers/local_storage/user.storage";
+import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
+import { categoryType } from "@data/timesheet.category.type";
 
-interface ModalState {
-  type: "" | "create" | "edit" | "delete" | "detail";
-  data?: Project | null;
-}
+import { StatsCards } from "./components/stats-cards.component";
+import { ActionBar } from "./components/action-bar.component";
+import { ProjectTable } from "./components/project-table.component";
+import { useProjectData } from "./hooks/use-project-data";
+import type { ModalState, FormValues, Project } from "./types/project.types";
 
-interface PaginationState {
-  current: number;
-  pageSize: number;
-  total: number;
-}
-
-interface FormValues {
-  name: string;
-  name_en?: string;
-  description?: string;
-  categoryType: string;
-  status: string;
-  start_date?: Dayjs;
-  end_date?: Dayjs;
-}
-
-const PAGE_SIZE_OPTIONS = ["10", "20", "50", "100"];
 const PASSCODE = "LIGHT";
 
 export default function ProjectManagementPage() {
@@ -96,88 +42,40 @@ export default function ProjectManagementPage() {
   const adminId = userAuth?.response?.data?.user_data?.admin_id || 0;
   const userRole = userAuth?.response?.data?.user_data?.position;
 
-  const [loading, setLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [pagination, setPagination] = useState<PaginationState>({
-    current: 1,
-    pageSize: 20,
-    total: 0,
-  });
+  const {
+    loading,
+    projects,
+    pagination,
+    setPagination,
+    fetchProjects,
+    createProject,
+    updateProject,
+    deleteProject,
+  } = useProjectData(adminId);
+
   const [modalState, setModalState] = useState<ModalState>({
     type: "",
     data: null,
   });
   const [confirmDeleteText, setConfirmDeleteText] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchProjects = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post("/api/v1/timesheet/project/read/", {
-        limit: pagination.pageSize,
-        page: pagination.current,
-      });
-      setProjects(response.data.data || []);
-      setPagination((prev) => ({
-        ...prev,
-        total: response.data.pagination?.total || 0,
-      }));
-    } catch {
-      toast.error("ไม่สามารถโหลดข้อมูลโครงการได้");
-      setProjects([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [pagination.current, pagination.pageSize]);
+  const stats = useMemo(() => {
+    const total = projects.length;
+    const active = projects.filter((p) => p.status === "open").length;
+    const closed = projects.filter((p) => p.status === "close").length;
+    const totalSubProjects = projects.reduce(
+      (sum, p) => sum + (p.features?.filter((f) => !f.is_deleted).length || 0),
+      0
+    );
+    return { total, active, closed, totalSubProjects };
+  }, [projects]);
 
-  const handleSubmitForm = async (values: FormValues) => {
-    setActionLoading(true);
-    try {
-      const payload = {
-        name: values.name || "",
-        name_en: values.name_en || "",
-        description: values.description || "",
-        categoryType: values.categoryType || "",
-        status: values.status || "",
-        by: adminId,
-        start_date: values.start_date?.toISOString() || "",
-        end_date: values.end_date?.toISOString() || "",
-      };
-
-      if (modalState.data?.id) {
-        await axios.post("/api/v1/timesheet/project/insert/", {
-          ...payload,
-          id: modalState.data.id,
-        });
-        toast.success("อัปเดตโครงการสำเร็จ");
-      } else {
-        await axios.post("/api/v1/timesheet/project/insert/", payload);
-        toast.success("สร้างโครงการสำเร็จ");
-      }
-
-      closeModal();
-      fetchProjects();
-    } catch {
-      toast.error("ทำรายการล้มเหลว กรุณาลองใหม่");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!modalState.data?.id) return;
-
-    try {
-      await axios.post("/api/v1/timesheet/project/delete/", {
-        id: modalState.data.id,
-        by: adminId,
-      });
-      toast.success("ลบโครงการเรียบร้อยแล้ว");
-      closeModal();
-      fetchProjects();
-    } catch {
-      toast.error("ลบข้อมูลล้มเหลว");
-    }
+  const getCategoryName = (categoryId: string) => {
+    return (
+      categoryType.find((c) => String(c.id) === String(categoryId))?.name ||
+      categoryId
+    );
   };
 
   const closeModal = () => {
@@ -208,29 +106,49 @@ export default function ProjectManagementPage() {
     setModalState({ type: "edit", data: record });
   };
 
-  const calculateProjectProgress = (startDate: string, endDate: string) => {
-    const start = dayjs(startDate);
-    const end = dayjs(endDate);
-    const now = dayjs();
-    const total = end.diff(start, "day");
-    const elapsed = now.diff(start, "day");
-    return Math.min(Math.max((elapsed / total) * 100, 0), 100);
+  const handleSubmitForm = async (values: FormValues) => {
+    setActionLoading(true);
+    try {
+      const payload = {
+        name: values.name || "",
+        name_en: values.name_en || "",
+        description: values.description || "",
+        categoryType: values.categoryType || "",
+        status: values.status || "",
+        start_date: values.start_date?.toISOString() || "",
+        end_date: values.end_date?.toISOString() || "",
+      };
+
+      const success = modalState.data?.id
+        ? await updateProject(modalState.data.id, payload)
+        : await createProject(payload);
+
+      if (success) {
+        closeModal();
+        fetchProjects();
+      }
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const getCategoryName = (categoryId: string) => {
-    return (
-      categoryType.find((c) => String(c.id) === String(categoryId))?.name ||
-      categoryId
-    );
+  const handleDelete = async () => {
+    if (!modalState.data?.id) return;
+
+    const success = await deleteProject(modalState.data.id);
+    if (success) {
+      closeModal();
+      fetchProjects();
+    }
   };
 
-  const getSubProjectCount = (features?: Array<{ is_deleted: boolean }>) => {
-    return features?.filter((f) => !f.is_deleted).length || 0;
+  const handlePaginationChange = (page: number, size: number) => {
+    setPagination({
+      ...pagination,
+      current: page,
+      pageSize: size,
+    });
   };
-
-  useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
 
   useEffect(() => {
     if (userRole && userRole.trim().toLowerCase() !== "admin") {
@@ -246,352 +164,42 @@ export default function ProjectManagementPage() {
     }
   }, [userRole]);
 
-  const columns: ColumnsType<Project> = useMemo(
-    () => [
-      {
-        title: "ลำดับ",
-        key: "index",
-        align: "center",
-        width: 60,
-        render: (_, __, idx) => (
-          <span className=" font-medium">
-            {(pagination.current - 1) * pagination.pageSize + idx + 1}
-          </span>
-        ),
-      },
-      {
-        title: "ID",
-        dataIndex: "id",
-        key: "id",
-        align: "center",
-        width: 80,
-        sorter: (a, b) => a.id - b.id,
-        render: (id: number) => (
-          <Typography.Text copyable={{ text: String(id) }} code>
-            {String(id).padStart(4, "0")}
-          </Typography.Text>
-        ),
-      },
-      {
-        title: "โครงการ",
-        key: "project_name",
-        width: 280,
-        sorter: (a, b) => a.name.localeCompare(b.name),
-        filterSearch: true,
-        filters: Array.from(new Set(projects.map((p) => p.name))).map(
-          (name) => ({
-            text: name,
-            value: name,
-          })
-        ),
-        onFilter: (value, record) => record.name === value,
-        render: (_, record) => (
-          <div className="flex items-start gap-3">
-            {/* Project Icon */}
-            <div className="min-w-[40px] h-[40px] rounded-lg flex items-center justify-center border border-blue-100">
-              <ProjectOutlined className="text-blue-500 text-lg" />
-            </div>
-
-            {/* Project Names */}
-            <div className="flex flex-col">
-              <Typography.Text
-                strong
-                className=" text-[15px] leading-tight hover:text-blue-600 transition-colors cursor-pointer"
-              >
-                {record.name}
-              </Typography.Text>
-              {record.name_en ? (
-                <Typography.Text type="secondary" className="text-xs mt-1">
-                  {record.name_en}
-                </Typography.Text>
-              ) : (
-                <Typography.Text
-                  type="secondary"
-                  className="text-xs mt-1 italic "
-                >
-                  - No English Name -
-                </Typography.Text>
-              )}
-            </div>
-          </div>
-        ),
-      },
-      {
-        title: "ระยะเวลาดำเนินการ",
-        key: "duration",
-        width: 200,
-        sorter: (a, b) => {
-          const dateA = a.start_date ? dayjs(a.start_date).valueOf() : 0;
-          const dateB = b.start_date ? dayjs(b.start_date).valueOf() : 0;
-          return dateA - dateB;
-        },
-        render: (_, record) => {
-          if (!record.start_date || !record.end_date) {
-            return <span className="">-</span>;
-          }
-
-          const isExpired = dayjs(record.end_date).isBefore(dayjs());
-          const progress = calculateProjectProgress(
-            record.start_date,
-            record.end_date
-          );
-
-          return (
-            <div className="flex flex-col gap-1">
-              {/* Date Range */}
-              <div className={`flex items-center text-xs`}>
-                <CalendarOutlined className="mr-2 opacity-70" />
-                <span>{convertToThaiDateDDMMYYY(record.start_date)}</span>
-                <ArrowRightOutlined className="mx-2 text-[10px] opacity-50" />
-                <span className={isExpired ? "line-through" : ""}>
-                  {convertToThaiDateDDMMYYY(record.end_date)}
-                </span>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="w-full h-1 rounded-full overflow-hidden mt-1">
-                <div
-                  className={`h-full ${
-                    isExpired ? "bg-gray-300" : "bg-blue-400"
-                  }`}
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        title: "ย่อย",
-        key: "features",
-        align: "center",
-        width: 80,
-        sorter: (a, b) =>
-          getSubProjectCount(a.features) - getSubProjectCount(b.features),
-        render: (_, record) => {
-          const count = getSubProjectCount(record.features);
-          return (
-            <Tooltip title={`${count} โครงการย่อย`}>
-              <div
-                className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                  count > 0
-                    ? "border border-indigo-100"
-                    : " border border-gray-100"
-                }`}
-              >
-                {count}
-              </div>
-            </Tooltip>
-          );
-        },
-      },
-      {
-        title: "สถานะ & ประเภท",
-        key: "status_type",
-        width: 160,
-        filters: [
-          { text: "Active", value: "open" },
-          { text: "Closed", value: "close" },
-          ...categoryType.map((cat) => ({
-            text: cat.name,
-            value: `cat_${cat.id}`,
-          })),
-        ],
-        onFilter: (value, record) => {
-          if (value === "open" || value === "close") {
-            return record.status === value;
-          }
-          const catId = String(value).replace("cat_", "");
-          return String(record.categoryType) === catId;
-        },
-        render: (_, record) => {
-          const categoryName = getCategoryName(record.categoryType);
-          const isOpen = record.status === "open";
-
-          return (
-            <div className="flex flex-col gap-2 items-start">
-              {/* Status Badge */}
-              <Badge
-                status={isOpen ? "processing" : "default"}
-                text={
-                  <span
-                    className={
-                      isOpen ? "text-green-600 font-medium" : "text-gray-400"
-                    }
-                  >
-                    {isOpen ? "Active" : "Closed"}
-                  </span>
-                }
-              />
-
-              {/* Category Tag */}
-              <Tag className="m-0 text-[10px] rounded-md px-2">
-                {categoryName}
-              </Tag>
-            </div>
-          );
-        },
-      },
-      {
-        title: "สถานะการเปิดใช้งาน",
-        key: "is_deleted",
-        width: 160,
-        filters: [
-          { text: "เปิดใช้งาน", value: false },
-          { text: "ถูกลบ", value: true },
-        ],
-        onFilter: (value, record) => record.is_deleted === value,
-        sorter: (a, b) => Number(a.is_deleted) - Number(b.is_deleted),
-        render: (_, record) => {
-          const status = record.is_deleted === true;
-
-          return (
-            <div className="flex flex-col gap-2 items-start">
-              {/* is_deleted status */}
-              <Badge
-                status={status ? "default" : "success"}
-                text={
-                  <span className={status ? "text-red-600 " : "font-medium"}>
-                    {status ? "ลบ" : "เปิดใช้งาน"}
-                  </span>
-                }
-              />
-            </div>
-          );
-        },
-      },
-      {
-        title: "",
-        key: "action",
-        align: "center",
-        width: 140,
-        fixed: "right",
-        render: (_, record) => {
-          const menuItems: MenuProps["items"] = [
-            {
-              key: "detail",
-              label: "ดูรายละเอียด",
-              icon: <InfoCircleOutlined />,
-              onClick: () => setModalState({ type: "detail", data: record }),
-            },
-            {
-              type: "divider",
-            },
-            {
-              key: "delete",
-              label: "ลบโครงการ",
-              icon: <DeleteOutlined />,
-              danger: true,
-              onClick: () => setModalState({ type: "delete", data: record }),
-            },
-          ];
-
-          return (
-            <div className="flex items-center justify-center gap-2">
-              {/* Action Buttons Group */}
-              <div className="flex gap-1 p-1 px-2 rounded-full border border-gray-200 shadow-sm">
-                <Tooltip title="แก้ไข">
-                  <Button
-                    type="text"
-                    size="small"
-                    shape="circle"
-                    className=" hover:text-orange-500"
-                    icon={<EditOutlined />}
-                    onClick={() => openEditModal(record)}
-                  />
-                </Tooltip>
-
-                <Dropdown
-                  menu={{ items: menuItems }}
-                  trigger={["click"]}
-                  placement="bottomRight"
-                >
-                  <Tooltip title="เพิ่มเติม">
-                    <Button
-                      type="text"
-                      size="small"
-                      shape="circle"
-                      className=" hover:text-blue-500"
-                      icon={<MoreOutlined />}
-                    />
-                  </Tooltip>
-                </Dropdown>
-              </div>
-
-              {/* Primary Action */}
-              <Tooltip title="เข้าสู่โครงการย่อย">
-                <Link href={`/timesheet/project/sub-project/${record.id}`}>
-                  <Button
-                    type="primary"
-                    size="small"
-                    shape="circle"
-                    icon={<ArrowRightOutlined />}
-                    className="shadow-md hover:scale-105 transition-transform"
-                  />
-                </Link>
-              </Tooltip>
-            </div>
-          );
-        },
-      },
-    ],
-    [pagination, projects]
-  );
-
-  const handlePaginationChange = (page: number, size: number) => {
-    setPagination({
-      ...pagination,
-      current: page,
-      pageSize: size,
-    });
-  };
-
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
-        <HeaderBar
-          title="Projects Management"
-          subTitle="จัดการข้อมูลโครงการ"
-          icon={<ProjectOutlined />}
-          color="none"
-        />
+        <Space
+          direction="vertical"
+          size="large"
+          style={{ width: "100%", padding: "24px" }}
+        >
+          <ActionBar
+            onCreateProject={openCreateModal}
+            onViewTimeline={() => router.push("/timesheet/timeline")}
+          />
 
-        <div className="flex flex-col gap-4 w-full">
-          {/* Action Toolbar */}
-          <div className="flex justify-end gap-3">
-            <Button
-              icon={<ArrowRightOutlined />}
-              size="large"
-              onClick={() => router.push("/timesheet/timeline")}
-            >
-              Timeline View
-            </Button>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              size="large"
-              onClick={openCreateModal}
-            >
-              สร้างโครงการใหม่
-            </Button>
-          </div>
+          <StatsCards
+            totalProjects={stats.total}
+            activeProjects={stats.active}
+            closedProjects={stats.closed}
+            totalSubProjects={stats.totalSubProjects}
+            loading={loading}
+          />
 
-          {/* Projects Table */}
-          <Card className="shadow-sm">
-            <Table
-              rowKey={(r) => r.id}
-              columns={columns}
-              dataSource={projects}
-              loading={loading}
-              pagination={{
-                ...pagination,
-                showSizeChanger: true,
-                pageSizeOptions: PAGE_SIZE_OPTIONS,
-                onChange: handlePaginationChange,
-              }}
-            />
-          </Card>
-        </div>
+          <ProjectTable
+            projects={projects}
+            loading={loading}
+            pagination={pagination}
+            onPaginationChange={handlePaginationChange}
+            onEdit={openEditModal}
+            onDelete={(record) =>
+              setModalState({ type: "delete", data: record })
+            }
+            onViewDetail={(record) =>
+              setModalState({ type: "detail", data: record })
+            }
+            getCategoryName={getCategoryName}
+          />
+        </Space>
 
         {/* Create/Edit Modal */}
         <Modal
@@ -601,7 +209,6 @@ export default function ProjectManagementPage() {
           }
           onCancel={closeModal}
           footer={null}
-          destroyOnHidden
           width={800}
           centered
         >
@@ -613,10 +220,7 @@ export default function ProjectManagementPage() {
                   label="ชื่อโครงการ (TH)"
                   rules={[{ required: true, message: "กรุณากรอกชื่อโครงการ" }]}
                 >
-                  <Input
-                    prefix={<InfoCircleOutlined />}
-                    placeholder="ระบุชื่อโครงการ"
-                  />
+                  <Input placeholder="ระบุชื่อโครงการ" />
                 </Form.Item>
               </Col>
               <Col xs={24} md={12}>
@@ -627,10 +231,7 @@ export default function ProjectManagementPage() {
                     { required: true, message: "กรุณากรอกชื่อภาษาอังกฤษ" },
                   ]}
                 >
-                  <Input
-                    prefix={<InfoCircleOutlined />}
-                    placeholder="English Name"
-                  />
+                  <Input placeholder="English Name" />
                 </Form.Item>
               </Col>
             </Row>
@@ -684,7 +285,14 @@ export default function ProjectManagementPage() {
               <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม..." />
             </Form.Item>
 
-            <div className="flex justify-end gap-2 mt-4">
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 8,
+                marginTop: 16,
+              }}
+            >
               <Button onClick={closeModal}>ยกเลิก</Button>
               <Button
                 type="primary"
@@ -710,7 +318,7 @@ export default function ProjectManagementPage() {
           }}
           okText="ยืนยันลบ"
         >
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <Typography.Text type="danger">
               การกระทำนี้ไม่สามารถย้อนกลับได้ กรุณาพิมพ์ <b>Delete</b>{" "}
               เพื่อยืนยัน
