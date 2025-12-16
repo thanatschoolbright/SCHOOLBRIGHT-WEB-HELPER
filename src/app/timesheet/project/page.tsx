@@ -15,7 +15,11 @@ import {
   Descriptions,
   Space,
 } from "antd";
-import { CheckCircleOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  FileExcelOutlined,
+  BarChartOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
 
@@ -29,7 +33,10 @@ import { categoryType } from "@data/timesheet.category.type";
 import { StatsCards } from "./components/stats-cards.component";
 import { ActionBar } from "./components/action-bar.component";
 import { ProjectTable } from "./components/project-table.component";
+import { FilterBar } from "./components/filter-bar.component";
+import { AnalyticsDashboard } from "./components/analytics-dashboard.component";
 import { useProjectData } from "./hooks/use-project-data";
+import { exportProjectsToExcel } from "./utils/export-excel";
 import type { ModalState, FormValues, Project } from "./types/project.types";
 
 const PASSCODE = "LIGHT";
@@ -59,23 +66,63 @@ export default function ProjectManagementPage() {
   });
   const [confirmDeleteText, setConfirmDeleteText] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState("open");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [deletedFilter, setDeletedFilter] = useState("false");
+
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      const matchSearch =
+        !searchText ||
+        project.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        project.name_en?.toLowerCase().includes(searchText.toLowerCase()) ||
+        project.description?.toLowerCase().includes(searchText.toLowerCase());
+
+      const matchStatus = !statusFilter || project.status === statusFilter;
+      const matchCategory =
+        !categoryFilter || String(project.categoryType) === categoryFilter;
+
+      let matchDeleted = true;
+      if (deletedFilter === "true") {
+        matchDeleted = project.is_deleted === true;
+      } else if (deletedFilter === "false") {
+        matchDeleted = project.is_deleted === false || !project.is_deleted;
+      }
+
+      return matchSearch && matchStatus && matchCategory && matchDeleted;
+    });
+  }, [projects, searchText, statusFilter, categoryFilter, deletedFilter]);
 
   const stats = useMemo(() => {
-    const total = projects.length;
-    const active = projects.filter((p) => p.status === "open").length;
-    const closed = projects.filter((p) => p.status === "close").length;
-    const totalSubProjects = projects.reduce(
+    const total = filteredProjects.length;
+    const active = filteredProjects.filter((p) => p.status === "open").length;
+    const closed = filteredProjects.filter((p) => p.status === "close").length;
+    const totalSubProjects = filteredProjects.reduce(
       (sum, p) => sum + (p.features?.filter((f) => !f.is_deleted).length || 0),
       0
     );
     return { total, active, closed, totalSubProjects };
-  }, [projects]);
+  }, [filteredProjects]);
 
   const getCategoryName = (categoryId: string) => {
     return (
       categoryType.find((c) => String(c.id) === String(categoryId))?.name ||
       categoryId
     );
+  };
+
+  const handleResetFilters = () => {
+    setSearchText("");
+    setStatusFilter("open");
+    setCategoryFilter("");
+    setDeletedFilter("false");
+  };
+
+  const handleExportExcel = () => {
+    exportProjectsToExcel(filteredProjects, getCategoryName);
   };
 
   const closeModal = () => {
@@ -177,6 +224,23 @@ export default function ProjectManagementPage() {
             onViewTimeline={() => router.push("/timesheet/timeline")}
           />
 
+          <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+            <Button
+              icon={<BarChartOutlined />}
+              onClick={() => setShowAnalytics(!showAnalytics)}
+            >
+              {showAnalytics ? "ซ่อนกราฟ" : "แสดงกราฟ"}
+            </Button>
+            <Button
+              type="primary"
+              icon={<FileExcelOutlined />}
+              onClick={handleExportExcel}
+              disabled={filteredProjects.length === 0}
+            >
+              ส่งออก Excel
+            </Button>
+          </Space>
+
           <StatsCards
             totalProjects={stats.total}
             activeProjects={stats.active}
@@ -185,8 +249,27 @@ export default function ProjectManagementPage() {
             loading={loading}
           />
 
+          {showAnalytics && (
+            <AnalyticsDashboard
+              projects={filteredProjects}
+              getCategoryName={getCategoryName}
+            />
+          )}
+
+          <FilterBar
+            onSearch={setSearchText}
+            onStatusFilter={setStatusFilter}
+            onCategoryFilter={setCategoryFilter}
+            onDeletedFilter={setDeletedFilter}
+            onReset={handleResetFilters}
+            categories={categoryType.map((c) => ({
+              id: String(c.id),
+              name: c.name,
+            }))}
+          />
+
           <ProjectTable
-            projects={projects}
+            projects={filteredProjects}
             loading={loading}
             pagination={pagination}
             onPaginationChange={handlePaginationChange}
