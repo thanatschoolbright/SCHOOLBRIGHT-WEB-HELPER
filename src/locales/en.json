@@ -683,5 +683,20 @@
     "copy_error": "Failed to copy",
     "copy_all_success": "All features copied to clipboard",
     "copy_all_tooltip": "Copy all features"
+  },
+  "export_controls": {
+    "title": "Export Excel Data",
+    "description": "Select your preferred export format",
+    "select_template": "Select Export Format",
+    "template_1": "Template 1: Summary by Person",
+    "template_2": "Template 2: Summary by Project",
+    "template_3": "Template 3: Weekly Summary",
+    "template_4": "Template 4: Audit Report",
+    "export_all": "Export All",
+    "step_preparing": "Preparing data...",
+    "step_processing": "Processing...",
+    "step_success": "File created successfully",
+    "step_completed": "Download completed",
+    "completed": "Completed"
   }
 }

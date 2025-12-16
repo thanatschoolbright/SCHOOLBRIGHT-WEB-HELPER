@@ -1,10 +1,15 @@
 import React from "react";
-import { Card, Space, Button, Progress, Typography } from "antd";
+import { Card, Space, Dropdown, Button, Progress, Typography, Tag } from "antd";
+import type { MenuProps } from "antd";
 import {
   FileExcelOutlined,
   DownloadOutlined,
   LoadingOutlined,
   CheckCircleOutlined,
+  UserOutlined,
+  ProjectOutlined,
+  CalendarOutlined,
+  AuditOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 
@@ -32,13 +37,13 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
   const getExportStepLabel = () => {
     switch (exportStep) {
       case 0:
-        return "เตรียมข้อมูล...";
+        return t("export_controls.step_preparing");
       case 1:
-        return "กำลังประมวลผล...";
+        return t("export_controls.step_processing");
       case 2:
-        return "สร้างไฟล์สำเร็จ";
+        return t("export_controls.step_success");
       case 3:
-        return "ดาวน์โหลดเสร็จสิ้น";
+        return t("export_controls.step_completed");
       default:
         return "";
     }
@@ -46,25 +51,76 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
 
   const getExportIcon = () => {
     if (exportStep === 3) return <CheckCircleOutlined />;
-    if (isExporting) return <LoadingOutlined />;
+    if (isExporting) return <LoadingOutlined spin />;
     return <FileExcelOutlined />;
   };
 
+  const menuItems: MenuProps["items"] = [
+    {
+      key: "template1",
+      label: t("export_controls.template_1"),
+      icon: <UserOutlined />,
+      onClick: onExportTemplate,
+      disabled: isExporting,
+    },
+    {
+      key: "template2",
+      label: t("export_controls.template_2"),
+      icon: <ProjectOutlined />,
+      onClick: onExportTemplate2,
+      disabled: isExporting,
+    },
+    {
+      key: "template3",
+      label: t("export_controls.template_3"),
+      icon: <CalendarOutlined />,
+      onClick: onExportTemplate3,
+      disabled: isExporting,
+    },
+    {
+      key: "template4",
+      label: t("export_controls.template_4"),
+      icon: <AuditOutlined />,
+      onClick: onExportTemplate4,
+      disabled: isExporting,
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "all",
+      label: t("export_controls.export_all"),
+      icon: <DownloadOutlined />,
+      onClick: onExportAll,
+      disabled: isExporting,
+    },
+  ];
+
   return (
     <Card
-      className="mb-6 rounded-xl shadow-md border-0"
+      className="mb-6"
       title={
         <Space>
-          <FileExcelOutlined className="text-green-600" />
-          <span>ส่งออกข้อมูล Excel</span>
+          <FileExcelOutlined />
+          <Typography.Text strong>{t("export_controls.title")}</Typography.Text>
         </Space>
       }
+      extra={
+        exportStep === 3 && (
+          <Tag icon={<CheckCircleOutlined />} color="success">
+            {t("export_controls.completed")}
+          </Tag>
+        )
+      }
     >
-      <Space direction="vertical" size="middle" className="w-full">
+      <Space direction="vertical" size="large" className="w-full">
         {isExporting && (
-          <div className="p-4 bg-blue-50 rounded-lg">
+          <Card size="small" type="inner">
             <Space direction="vertical" size="small" className="w-full">
-              <Typography.Text strong>{getExportStepLabel()}</Typography.Text>
+              <Space>
+                <LoadingOutlined spin />
+                <Typography.Text strong>{getExportStepLabel()}</Typography.Text>
+              </Space>
               <Progress
                 percent={exportStep * 33.33}
                 status={exportStep === 3 ? "success" : "active"}
@@ -72,64 +128,32 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
                   "0%": "#1890ff",
                   "100%": "#52c41a",
                 }}
+                showInfo={false}
               />
             </Space>
-          </div>
+          </Card>
         )}
 
-        <div className="flex flex-wrap gap-3">
-          <Button
-            type="primary"
-            icon={getExportIcon()}
-            onClick={onExportTemplate}
-            loading={isExporting}
-            className="rounded-lg"
+        <Space size="middle">
+          <Dropdown
+            menu={{ items: menuItems }}
+            placement="bottomLeft"
+            disabled={isExporting}
           >
-            Template 1: สรุปตามบุคคล
-          </Button>
+            <Button
+              type="primary"
+              size="large"
+              icon={getExportIcon()}
+              loading={isExporting}
+            >
+              {t("export_controls.select_template")}
+            </Button>
+          </Dropdown>
 
-          <Button
-            type="primary"
-            icon={getExportIcon()}
-            onClick={onExportTemplate2}
-            loading={isExporting}
-            className="rounded-lg"
-            style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
-          >
-            Template 2: สรุปตามโปรเจ็ค
-          </Button>
-
-          <Button
-            type="primary"
-            icon={getExportIcon()}
-            onClick={onExportTemplate3}
-            loading={isExporting}
-            className="rounded-lg"
-            style={{ backgroundColor: "#faad14", borderColor: "#faad14" }}
-          >
-            Template 3: สรุปรายสัปดาห์
-          </Button>
-
-          <Button
-            type="primary"
-            icon={getExportIcon()}
-            onClick={onExportTemplate4}
-            loading={isExporting}
-            className="rounded-lg"
-            style={{ backgroundColor: "#722ed1", borderColor: "#722ed1" }}
-          >
-            Template 4: Audit Report
-          </Button>
-
-          <Button
-            icon={<DownloadOutlined />}
-            onClick={onExportAll}
-            loading={isExporting}
-            className="rounded-lg"
-          >
-            ส่งออกทั้งหมด
-          </Button>
-        </div>
+          <Typography.Text type="secondary">
+            {t("export_controls.description")}
+          </Typography.Text>
+        </Space>
       </Space>
     </Card>
   );

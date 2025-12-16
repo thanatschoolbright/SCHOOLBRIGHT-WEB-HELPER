@@ -683,5 +683,20 @@
     "copy_error": "ไม่สามารถคัดลอกได้",
     "copy_all_success": "คัดลอกรายการฟีเจอร์ทั้งหมดแล้ว",
     "copy_all_tooltip": "คัดลอกรายการฟีเจอร์ทั้งหมด"
+  },
+  "export_controls": {
+    "title": "ส่งออกข้อมูล Excel",
+    "description": "เลือกรูปแบบการส่งออกที่ต้องการ",
+    "select_template": "เลือกรูปแบบการส่งออก",
+    "template_1": "Template 1: สรุปตามบุคคล",
+    "template_2": "Template 2: สรุปตามโปรเจ็ค",
+    "template_3": "Template 3: สรุปรายสัปดาห์",
+    "template_4": "Template 4: Audit Report",
+    "export_all": "ส่งออกทั้งหมด",
+    "step_preparing": "เตรียมข้อมูล...",
+    "step_processing": "กำลังประมวลผล...",
+    "step_success": "สร้างไฟล์สำเร็จ",
+    "step_completed": "ดาวน์โหลดเสร็จสิ้น",
+    "completed": "เสร็จสมบูรณ์"
   }
 }
