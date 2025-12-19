@@ -1,7 +1,11 @@
 import dayjs from "dayjs";
 import { Collapse, Modal, Typography } from "antd";
 import { TFunction } from "i18next";
-import { UserFilters, UserProfile, UserSummaryMetric } from "../types/user-profile.types";
+import {
+  UserFilters,
+  UserProfile,
+  UserSummaryMetric,
+} from "../types/user-profile.types";
 
 export const getPositionTagColor = (position?: string): string => {
   const colorMap: Record<string, string> = {
@@ -30,17 +34,27 @@ export const filterUsers = (
   return users.filter((user) => {
     const matchesSearch =
       !query ||
-      [user.email, user.employee_code, user.firstname, user.lastname, user.nickname]
+      [
+        user.email,
+        user.employee_code,
+        user.firstname,
+        user.lastname,
+        user.nickname,
+      ]
         .filter(Boolean)
         .some((field) => field?.toLowerCase().includes(query));
 
-    const matchesPosition = filters.position ? user.position === filters.position : true;
+    const matchesPosition = filters.position
+      ? user.position === filters.position
+      : true;
 
     const matchesDate = (() => {
       if (!filters.dateRange) return true;
       const [start, end] = filters.dateRange;
       if (!start || !end) return true;
-      const createdAt = (user as Partial<UserProfile>).createdAt ?? (user as Partial<UserProfile>).updatedAt;
+      const createdAt =
+        (user as Partial<UserProfile>).createdAt ??
+        (user as Partial<UserProfile>).updatedAt;
       if (!createdAt) return true;
       const targetDate = dayjs(createdAt);
       if (!targetDate.isValid()) return true;
@@ -63,7 +77,9 @@ export const buildSummaryMetrics = (
 ): UserSummaryMetric[] => {
   const total = users.length;
   const withEmail = users.filter((user) => Boolean(user.email)).length;
-  const uniquePositions = new Set(users.map((user) => user.position).filter(Boolean)).size;
+  const uniquePositions = new Set(
+    users.map((user) => user.position).filter(Boolean)
+  ).size;
 
   return [
     {
@@ -88,7 +104,9 @@ export const buildSummaryMetrics = (
       value: uniquePositions,
       tone: "warning",
       icon: "📌",
-      description: translation("user_profile_page.summary_unique_positions_desc"),
+      description: translation(
+        "user_profile_page.summary_unique_positions_desc"
+      ),
     },
   ];
 };
@@ -98,21 +116,38 @@ export const formatUserCopyText = (
   translation: TFunction<"translate">
 ): string =>
   [
-    translation("user_profile_page.copy_header"),
-    translation("user_profile_page.copy_platforms"),
-    `• https://sb-helper.schoolbright.co`,
-    `• https://adminsystem.schoolbright.co`,
-    "----------------",
-    `${translation("user_profile_page.copy_name")} : ${user.firstname ?? "-"} ${user.lastname ?? "-"}`,
-    `${translation("user_profile_page.copy_id")} : ${user.admin_id ?? "-"}`,
-    `${translation("user_profile_page.copy_email")} : ${user.email ?? "-"}`,
-    `${translation("user_profile_page.copy_phone")} : ${user.tel ?? "-"}`,
-    `${translation("user_profile_page.copy_position")} : ${user.position ?? "-"}`,
-    `${translation("user_profile_page.copy_employee_code")} : ${user.employee_code ?? "-"}`,
-    "----------------",
+    `╔═══════════════════════════════════════════╗`,
+    `   ${translation("user_profile_page.copy_header")}`,
+    `╚═══════════════════════════════════════════╝`,
+    "",
+    `🌐 ${translation("user_profile_page.copy_platforms")}`,
+    `   • https://sb-helper.schoolbright.co`,
+    `   • https://adminsystem.schoolbright.co`,
+    "",
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `👤 ${translation("user_profile_page.copy_name")}`,
+    `   ${user.firstname ?? "-"} ${user.lastname ?? "-"}`,
+    "",
+    `🆔 ${translation("user_profile_page.copy_id")}`,
+    `   ${user.admin_id ?? "-"}`,
+    "",
+    `📧 ${translation("user_profile_page.copy_email")}`,
+    `   ${user.email ?? "-"}`,
+    "",
+    `📱 ${translation("user_profile_page.copy_phone")}`,
+    `   ${user.tel ?? "-"}`,
+    "",
+    `💼 ${translation("user_profile_page.copy_position")}`,
+    `   ${user.position ?? "-"}`,
+    "",
+    `🏷️ ${translation("user_profile_page.copy_employee_code")}`,
+    `   ${user.employee_code ?? "-"}`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
   ].join("\n");
 
-const extractErrorMessage = (error: unknown): { message: string; stack?: string } => {
+const extractErrorMessage = (
+  error: unknown
+): { message: string; stack?: string } => {
   if (error instanceof Error) {
     return { message: error.message, stack: error.stack };
   }
