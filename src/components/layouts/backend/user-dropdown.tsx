@@ -1,433 +1,350 @@
 "use client";
 
-/**
- * 👤 UserDropdown: Dropdown เมนูผู้ใช้
- * ใช้ Ant Design สำหรับ UI minimal, รองรับ Dark Mode
- */
-
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Avatar,
-  Button,
-  Divider,
-  Popover,
-  Segmented,
-  Spin,
-  theme,
-  Typography,
   Badge,
-  Progress,
-  Space,
+  Button,
   Card,
-  Tag,
+  Divider,
   Flex,
+  Popover,
+  Progress,
+  Segmented,
+  Space,
+  Spin,
+  Tag,
+  Typography,
+  theme,
 } from "antd";
 import {
   DownOutlined,
+  FireFilled,
   LogoutOutlined,
+  StarFilled,
   TranslationOutlined,
-  StarOutlined,
-  FireOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import i18n from "@/i18n";
 import { useAppSelector } from "@stores/store";
 import { toast } from "sonner";
+import i18n from "@/i18n";
+
+// Services & Helpers
 import { getUserRankFromStorage } from "@/helpers/user-rank.helper";
 import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 
-/**
- * 📦 UserDropdown: Component Dropdown สำหรับเมนูผู้ใช้
- * - แสดงชื่อและรูปโปรไฟล์
- * - เมนูเปลี่ยนภาษาและออกจากระบบ
- * - ใช้ Toast สำหรับสถานะ logout
- */
-export default function UserDropdown(): JSX.Element {
-  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
+const { Text, Title } = Typography;
+
+// ==========================================
+// 🎨 Constants & Configs (ส่วนตั้งค่าสีและข้อมูลคงที่)
+// ==========================================
+
+/** ตั้งค่าสีและข้อความสำหรับแต่ละ Rank */
+const RANK_THEME: Record<string, { color: string; bg: string; label: string }> =
+  {
+    S: {
+      color: "#FFD700",
+      bg: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+      label: "ระดับเทพ (Legend)",
+    },
+    A: {
+      color: "#52C41A",
+      bg: "linear-gradient(135deg, #52C41A 0%, #389E0D 100%)",
+      label: "ระดับเยี่ยม (Elite)",
+    },
+    B: {
+      color: "#1890FF",
+      bg: "linear-gradient(135deg, #1890FF 0%, #096DD9 100%)",
+      label: "ระดับดี (Pro)",
+    },
+    C: {
+      color: "#FAAD14",
+      bg: "linear-gradient(135deg, #FAAD14 0%, #D48806 100%)",
+      label: "ระดับปานกลาง",
+    },
+    D: {
+      color: "#FA8C16",
+      bg: "linear-gradient(135deg, #FA8C16 0%, #D46B08 100%)",
+      label: "ระดับพอใช้",
+    },
+    E: {
+      color: "#FF7875",
+      bg: "linear-gradient(135deg, #FF7875 0%, #F5222D 100%)",
+      label: "ต้องปรับปรุง",
+    },
+    F: {
+      color: "#CF1322",
+      bg: "linear-gradient(135deg, #CF1322 0%, #A8071A 100%)",
+      label: "ต้องเร่งด่วน",
+    },
+  };
+
+/** Helper: สร้าง URL รูปโปรไฟล์จาก DiceBear */
+const getAvatarUrl = (user: any) => {
+  const seed = `${user?.firstname ?? "User"}_${user?.lastname ?? ""}_${
+    user?.admin_id ?? "0"
+  }`;
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
+    seed
+  )}&backgroundColor=b6e3f4,c0aede,d1d4f9&radius=50`;
+};
+
+// ==========================================
+// 🧩 Sub-Components (แยกส่วนแสดงผลเพื่อให้อ่านง่าย)
+// ==========================================
+
+/** ส่วนแสดงรายละเอียด Rank และ Stat ใน Dropdown */
+const UserRankCard = ({ rankData }: { rankData: any }) => {
   const { token } = theme.useToken();
-  const [currentLanguage, setCurrentLanguage] = useState<string>(i18n.language);
-  const [isChangingLanguage, setIsChangingLanguage] = useState<boolean>(false);
-  const [userRank, setUserRank] = useState<any>(null);
 
-  const userData = AUTHENTICATION?.response?.data?.user_data || {};
-  const resolveDisciplineScore = (value: any): string => {
-    if (value === null || value === undefined) return "-";
-    if (typeof value === "number") return value.toFixed(1);
-    if (typeof value === "string") return value;
-    if (typeof value === "object") {
-      const candidate =
-        value.score ??
-        value.value ??
-        value.discipline_score ??
-        value.level ??
-        value.status;
-      if (candidate === null || candidate === undefined) return "-";
-      return typeof candidate === "number"
-        ? candidate.toFixed(1)
-        : String(candidate);
-    }
-    return "-";
-  };
+  // ดึงค่า Config ตาม Rank Letter (ถ้าไม่มีให้ Default เป็น F)
+  const rankKey = rankData?.rankLetter?.toUpperCase() || "F";
+  const themeInfo = RANK_THEME[rankKey] || RANK_THEME.F;
 
-  // โหลด/รีเฟรช rank ทุกครั้งที่มี user_id
-  useEffect(() => {
-    const loadRank = async () => {
-      const userId = userData?.admin_id;
-      if (!userId) return;
-      try {
-        const latest = await fetchUserRank(String(userId));
-        if (latest) {
-          const mapped = {
-            rank: latest.rank,
-            rankLetter: latest.rankLetter,
-            rankDescription: latest.rankDescription,
-            admin_id: latest.admin_id,
-            fullName: latest.fullName,
-            completion_rate: latest.completion_rate,
-            total_hours: latest.total_hours,
-            expected_hours: latest.expected_hours,
-            month: latest.month,
-            year: latest.year,
-            updated_at: new Date().toISOString(),
-            discipline_score: latest.rawData,
-          };
-          setUserRank(mapped);
-          // เก็บ cache ไว้เพื่อลด latency รอบถัดไป
-          try {
-            const existingAuth = JSON.parse(
-              localStorage.getItem("AUTH_USER") || "{}"
-            );
-            localStorage.setItem(
-              "AUTH_USER",
-              JSON.stringify({
-                ...existingAuth,
-                user_rank: mapped,
-              })
-            );
-            localStorage.setItem("USER_RANK_DATA", JSON.stringify(mapped));
-          } catch {
-            // ignore storage errors
-          }
-        } else {
-          // fallback จาก storage หาก API ไม่มีข้อมูล
-          const stored = getUserRankFromStorage();
-          if (stored) setUserRank(stored);
-        }
-      } catch (err) {
-        console.error("[UserDropdown] fetchUserRank failed", err);
-        const stored = getUserRankFromStorage();
-        if (stored) setUserRank(stored);
-      }
-    };
-    loadRank();
-  }, [userData?.admin_id]);
+  // คำนวณค่าต่างๆ
+  const completionRate = Math.min(
+    Math.round(rankData?.completion_rate || 0),
+    100
+  );
+  const totalHours = Number(rankData?.total_hours || 0).toFixed(1);
+  const expectedHours = Number(rankData?.expected_hours || 0).toFixed(1);
 
-  /**
-   * 🏆 แปลง rank letter เป็น display info
-   */
-  const getRankGrade = (
-    rankLetter: string
-  ): {
-    grade: string;
-    color: string;
-    bgColor: string;
-    description: string;
-  } => {
-    switch (rankLetter?.toUpperCase()) {
-      case "S":
-        return {
-          grade: "S",
-          color: "#FFD700",
-          bgColor: "linear-gradient(135deg, #FFD700, #FFA500)",
-          description: "ระดับเทพ",
-        };
-      case "A":
-        return {
-          grade: "A",
-          color: "#52C41A",
-          bgColor: "linear-gradient(135deg, #52C41A, #389E0D)",
-          description: "ระดับเยี่ยม",
-        };
-      case "B":
-        return {
-          grade: "B",
-          color: "#1890FF",
-          bgColor: "linear-gradient(135deg, #1890FF, #096DD9)",
-          description: "ระดับดี",
-        };
-      case "C":
-        return {
-          grade: "C",
-          color: "#FAAD14",
-          bgColor: "linear-gradient(135deg, #FAAD14, #D48806)",
-          description: "ระดับปานกลาง",
-        };
-      case "D":
-        return {
-          grade: "D",
-          color: "#FA8C16",
-          bgColor: "linear-gradient(135deg, #FA8C16, #D46B08)",
-          description: "ระดับพอใช้",
-        };
-      case "E":
-        return {
-          grade: "E",
-          color: "#FF7875",
-          bgColor: "linear-gradient(135deg, #FF7875, #F5222D)",
-          description: "ต้องปรับปรุง",
-        };
-      default: // 'F' or anything else
-        return {
-          grade: "F",
-          color: "#CF1322",
-          bgColor: "linear-gradient(135deg, #CF1322, #A8071A)",
-          description: "ต้องเร่งด่วน",
-        };
-    }
-  };
+  // Helper แสดงคะแนนวินัย
+  const disciplineScore = (() => {
+    const val = rankData?.discipline_score;
+    // Logic การแกะค่า (ตาม Code เดิม)
+    if (val === null || val === undefined) return "-";
+    if (typeof val === "number") return val.toFixed(1);
+    if (typeof val === "object")
+      return (val.score ?? val.value ?? val.discipline_score ?? 0).toFixed(1);
+    return val;
+  })();
 
-  /**
-   * 🌐 เปลี่ยนภาษา
-   */
-  const changeLanguage = async (lng: string): Promise<void> => {
-    if (lng === currentLanguage) return; // ไม่เปลี่ยนถ้าเป็นภาษาเดียวกัน
-    setIsChangingLanguage(true);
-    const toastId = toast.loading(
-      `กำลังเปลี่ยนภาษาเป็น ${lng === "th" ? "ไทย" : "English"}...`
-    );
-    try {
-      await i18n.changeLanguage(lng);
-      setCurrentLanguage(lng);
-      toast.success(
-        `เปลี่ยนภาษาเป็น ${lng === "th" ? "ไทย" : "English"} สำเร็จ`,
-        { id: toastId }
-      );
-    } catch (error) {
-      toast.error("เปลี่ยนภาษาไม่สำเร็จ", { id: toastId });
-    } finally {
-      setIsChangingLanguage(false);
-    }
-  };
-
-  /**
-   * ⏳ Sleep function สำหรับ delay
-   */
-  const sleep = (ms: number): Promise<void> =>
-    new Promise((resolve) => setTimeout(resolve, ms));
-
-  /**
-   * 🗑️ ลบข้อมูลใน Storage
-   */
-  const clearStorage = (): void => {
-    try {
-      localStorage.clear();
-    } catch {}
-    try {
-      sessionStorage.clear();
-    } catch {}
-  };
-
-  /**
-   * 🚪 จัดการการออกจากระบบ
-   */
-  const handleLogout = async (): Promise<void> => {
-    const toastId = toast.loading("1/2 กำลังโหลด...", { duration: Infinity });
-    try {
-      await sleep(400);
-      toast.loading("2/2 กำลังลบข้อมูล...", {
-        id: toastId,
-        duration: Infinity,
-      });
-      clearStorage();
-      await sleep(300);
-      toast.success("ออกจากระบบสำเร็จ", { id: toastId, duration: 2000 });
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 400);
-    } catch {
-      toast.error("ออกจากระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", {
-        id: toastId,
-        duration: 4000,
-      });
-    }
-  };
-
-  /**
-   * 📋 Overlay สำหรับ Dropdown Menu (ใช้ Ant Design + Tailwind)
-   */
-  const dropdownOverlay = (
-    <Card
-      className="min-w-[320px] shadow-lg"
-      bodyStyle={{ padding: 16 }}
+  return (
+    <div
       style={{
-        borderRadius: 16,
-        background: `linear-gradient(140deg, ${token.colorPrimaryBg} 0%, ${token.colorBgContainer} 80%)`,
+        marginTop: 12,
+        padding: 16,
+        borderRadius: token.borderRadiusLG,
+        background: token.colorFillQuaternary, // สีพื้นหลังจางๆ ตาม Theme
         border: `1px solid ${token.colorBorderSecondary}`,
-        boxShadow: token.boxShadowSecondary,
       }}
     >
-      <Space direction="vertical" size="middle" className="w-full">
-        <Flex align="center" gap={12}>
-          <Badge dot color={token.colorWarning}>
-            <Avatar
-              size={50}
-              src={
-                (() => {
-                  const adminId = userData.admin_id || 1;
-                  const avatarSeed = `${userData.firstname}_${userData.lastname}_${adminId}`;
-                  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-                    avatarSeed
-                  )}&backgroundColor=b6e3f4,c0aede,d1d4f9&radius=50`;
-                })()
-              }
-            />
-          </Badge>
-          <Space direction="vertical" size={2} className="flex-1">
-            <Typography.Text strong>
-              {`${userData.firstname ?? "Name"} ${userData.lastname ?? ""}`}
-            </Typography.Text>
-            <Typography.Text type="secondary" className="text-xs">
-              ขยันวันนี้ สำเร็จขึ้นอีกนิด
-            </Typography.Text>
+      {/* Header Rank */}
+      <Flex align="center" gap={12}>
+        <div
+          style={{
+            background: themeInfo.bg,
+            padding: "4px 10px",
+            borderRadius: 8,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            color: "#fff",
+            fontWeight: "bold",
+            fontSize: 16,
+            minWidth: 40,
+            textAlign: "center",
+          }}
+        >
+          {rankKey}
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <Space size={4} align="center">
+            <Text strong>{themeInfo.label}</Text>
+            {["S", "A"].includes(rankKey) && (
+              <FireFilled style={{ color: "#FF4D4F" }} />
+            )}
           </Space>
-          <StarOutlined style={{ color: token.colorWarning, fontSize: 16 }} />
-        </Flex>
+          <div style={{ fontSize: 12, color: token.colorTextSecondary }}>
+            อันดับที่ {rankData?.rank ?? "-"} • ประจำเดือนนี้
+          </div>
+        </div>
 
-        {userRank &&
-          (() => {
-            const rankInfo = getRankGrade(userRank.rankLetter || "F");
-            const currentDate = new Date();
-            const currentMonth = currentDate.getMonth() + 1;
-            const currentYear = currentDate.getFullYear();
-            const isHighRank = ["S", "A"].includes(rankInfo.grade);
-            const completionRate = Math.min(
-              Math.round(userRank.completion_rate || 0),
-              100
-            );
-            const totalHours = Number(userRank.total_hours || 0);
-            const expectedHours = Number(userRank.expected_hours || 0);
-            const disciplineScore = resolveDisciplineScore(
-              userRank.discipline_score
-            );
+        <Progress
+          type="circle"
+          percent={completionRate}
+          // 🛠️ [FIX] เปลี่ยนจาก width เป็น size
+          size={45}
+          strokeColor={themeInfo.color}
+          format={() => (
+            <span style={{ fontSize: 10, color: token.colorTextSecondary }}>
+              {completionRate}%
+            </span>
+          )}
+        />
+      </Flex>
 
-            return (
-              <div
-                style={{
-                  padding: 12,
-                  borderRadius: 12,
-                  background: `linear-gradient(135deg, ${rankInfo.color}1a, ${rankInfo.color}08)`,
-                  border: `1px solid ${token.colorBorderSecondary}`,
-                }}
-              >
-                <Flex align="center" gap={12} wrap>
-                  <Tag
-                    className={`text-white text-lg font-bold px-3 py-2 rounded-md ${
-                      isHighRank ? "animate-pulse" : ""
-                    }`}
-                    style={{
-                      background: rankInfo.bgColor,
-                      boxShadow: isHighRank
-                        ? `0 4px 16px ${rankInfo.color}60, inset 0 1px 0 rgba(255,255,255,0.3)`
-                        : `0 2px 8px ${rankInfo.color}40`,
-                    }}
-                  >
-                    {rankInfo.grade}
-                  </Tag>
-                  <Space direction="vertical" size={4} className="flex-1">
-                    <Space align="center" size={6}>
-                      <Typography.Text strong className="text-[13px]">
-                        {rankInfo.description}
-                      </Typography.Text>
-                      {isHighRank && (
-                        <Tag
-                          color="gold"
-                          className="text-[11px] font-bold rounded"
-                        >
-                          {rankInfo.grade === "S" ? "LEGEND" : "ELITE"}
-                        </Tag>
-                      )}
-                    </Space>
-                    <Typography.Text
-                      type="secondary"
-                      className="text-xs flex items-center gap-2"
-                    >
-                      <span>อันดับ {userRank.rank}</span>
-                      <span className="text-gray-400">•</span>
-                      <span>
-                        {currentMonth}/{currentYear}
-                      </span>
-                      {isHighRank && (
-                        <FireOutlined style={{ color: rankInfo.color }} />
-                      )}
-                    </Typography.Text>
-                  </Space>
-                  <Progress
-                    type="circle"
-                    percent={completionRate}
-                    size={64}
-                    strokeColor={rankInfo.color}
-                    format={(p) => `${p}%`}
-                  />
-                </Flex>
+      <Divider style={{ margin: "12px 0" }} />
 
-                <Divider style={{ margin: "10px 0" }} />
+      {/* Stats Grid */}
+      <Flex justify="space-between">
+        <StatItem label="ชั่วโมงรวม" value={totalHours} suffix="ชม." />
+        <StatItem label="เป้าหมาย" value={expectedHours} suffix="ชม." />
+        <StatItem label="คะแนนวินัย" value={disciplineScore} highlight />
+      </Flex>
+    </div>
+  );
+};
 
-                <Flex gap={10} justify="space-between" wrap>
-                  <div>
-                    <Typography.Text className="text-xs" type="secondary">
-                      ชั่วโมงทั้งหมด
-                    </Typography.Text>
-                    <Typography.Title level={5} style={{ margin: 0 }}>
-                      {totalHours.toFixed(1)} ชม.
-                    </Typography.Title>
-                  </div>
-                  <div>
-                    <Typography.Text className="text-xs" type="secondary">
-                      เป้าหมายเดือนนี้
-                    </Typography.Text>
-                    <Typography.Title level={5} style={{ margin: 0 }}>
-                      {expectedHours.toFixed(1)} ชม.
-                    </Typography.Title>
-                  </div>
-                  <div>
-                    <Typography.Text className="text-xs" type="secondary">
-                      อัตราการตรงเวลา
-                    </Typography.Text>
-                    <Typography.Title level={5} style={{ margin: 0 }}>
-                      {disciplineScore}
-                    </Typography.Title>
-                  </div>
-                </Flex>
-              </div>
-            );
-          })()}
+/** Helper Component สำหรับแสดงค่า Stat เล็กๆ */
+const StatItem = ({
+  label,
+  value,
+  suffix,
+  highlight,
+}: {
+  label: string;
+  value: string | number;
+  suffix?: string;
+  highlight?: boolean;
+}) => {
+  const { token } = theme.useToken();
+  return (
+    <div style={{ textAlign: "center" }}>
+      <div style={{ fontSize: 10, color: token.colorTextSecondary }}>
+        {label}
+      </div>
+      <div
+        style={{
+          fontWeight: 600,
+          color: highlight ? token.colorPrimary : token.colorText,
+        }}
+      >
+        {value} <span style={{ fontSize: 10 }}>{suffix}</span>
+      </div>
+    </div>
+  );
+};
 
-        <Space direction="vertical" size={6} className="w-full">
-          <Typography.Text
-            strong
-            className="text-xs text-gray-500 flex items-center gap-2"
-          >
-            เปลี่ยนภาษา {isChangingLanguage && <Spin size="small" />}
-          </Typography.Text>
+// ==========================================
+// 🚀 Main Component
+// ==========================================
+
+export default function UserDropdown(): JSX.Element {
+  const { token } = theme.useToken();
+  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
+  const userData = AUTHENTICATION?.response?.data?.user_data || {};
+
+  // State
+  const [currentLanguage, setCurrentLanguage] = useState<string>(i18n.language);
+  const [isChangingLang, setIsChangingLang] = useState(false);
+  const [userRank, setUserRank] = useState<any>(null);
+
+  // 1. Load User Rank (Logic เดิมแต่ Clean ขึ้น)
+  useEffect(() => {
+    const userId = userData?.admin_id;
+    if (!userId) return;
+
+    const loadData = async () => {
+      try {
+        const apiData = await fetchUserRank(String(userId));
+        if (apiData) {
+          // Map Data ให้เหลือเฉพาะที่ใช้
+          const mapped = {
+            ...apiData,
+            discipline_score: apiData.rawData, // Mapping field ตาม logic เดิม
+          };
+          setUserRank(mapped);
+          // Save Cache
+          localStorage.setItem("USER_RANK_DATA", JSON.stringify(mapped));
+        } else {
+          // Fallback
+          setUserRank(getUserRankFromStorage());
+        }
+      } catch (err) {
+        console.error("Failed to load rank:", err);
+        setUserRank(getUserRankFromStorage());
+      }
+    };
+
+    loadData();
+  }, [userData?.admin_id]);
+
+  // 2. Change Language Handler
+  const handleChangeLanguage = async (val: string) => {
+    if (val === currentLanguage) return;
+    setIsChangingLang(true);
+    const toastId = toast.loading("กำลังเปลี่ยนภาษา...");
+
+    try {
+      await i18n.changeLanguage(val);
+      setCurrentLanguage(val);
+      toast.success("เปลี่ยนภาษาสำเร็จ", { id: toastId });
+    } catch {
+      toast.error("เกิดข้อผิดพลาด", { id: toastId });
+    } finally {
+      setIsChangingLang(false);
+    }
+  };
+
+  // 3. Logout Handler
+  const handleLogout = async () => {
+    toast.info("กำลังออกจากระบบ...", { duration: 2000 });
+    // Clear Storage
+    localStorage.clear();
+    sessionStorage.clear();
+    // Redirect
+    setTimeout(() => (window.location.href = "/"), 500);
+  };
+
+  // 4. Render Overlay Content (เนื้อหาใน Dropdown)
+  const menuContent = (
+    <Card
+      // 🛠️ [FIX] เปลี่ยนจาก bordered={false} เป็น variant="borderless"
+      variant="borderless"
+      style={{
+        width: 300,
+        boxShadow: "none",
+        background: "transparent", // ให้สีพื้นหลังจัดการโดย Popover
+      }}
+    >
+      {/* Profile Header */}
+      <Flex align="center" gap={12} style={{ padding: "0 4px" }}>
+        <Avatar
+          size={48}
+          src={getAvatarUrl(userData)}
+          style={{ border: `2px solid ${token.colorBgContainer}` }}
+        />
+        <div style={{ overflow: "hidden" }}>
+          <Text strong style={{ fontSize: 16, display: "block" }} ellipsis>
+            {userData.firstname} {userData.lastname}
+          </Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            <StarFilled style={{ color: "#faad14", marginRight: 4 }} />
+            ขยันวันนี้ สำเร็จวันหน้า
+          </Text>
+        </div>
+      </Flex>
+
+      {/* Rank Section */}
+      {userRank && <UserRankCard rankData={userRank} />}
+
+      <Divider style={{ margin: "16px 0" }} />
+
+      {/* Settings Section */}
+      <Space direction="vertical" style={{ width: "100%" }} size={12}>
+        <div>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            ภาษา / Language
+          </Text>
           <Segmented
+            block
             options={[
               { label: "ไทย", value: "th", icon: <TranslationOutlined /> },
               { label: "English", value: "en", icon: <TranslationOutlined /> },
             ]}
             value={currentLanguage}
-            onChange={(value) => changeLanguage(value as string)}
-            disabled={isChangingLanguage}
-            className="w-full"
+            onChange={(val) => handleChangeLanguage(val as string)}
+            disabled={isChangingLang}
           />
-        </Space>
-
-        <Divider className="my-1" />
+        </div>
 
         <Button
+          type="primary"
           danger
+          block
           icon={<LogoutOutlined />}
           onClick={handleLogout}
-          className="w-full"
-          block
         >
           ออกจากระบบ
         </Button>
@@ -435,84 +352,66 @@ export default function UserDropdown(): JSX.Element {
     </Card>
   );
 
-  useEffect(() => {
-    console.log("AUTHENTICATION", AUTHENTICATION);
-  }, [AUTHENTICATION]);
-
-  //** 🔄 Listen สำหรับการเปลี่ยนภาษา
-  useEffect(() => {
-    const handleLanguageChange = (lng: string) => {
-      setCurrentLanguage(lng);
-    };
-    i18n.on("languageChanged", handleLanguageChange);
-    return () => {
-      i18n.off("languageChanged", handleLanguageChange);
-    };
-  }, []);
+  // คำนวณสี Badge ตาม Rank
+  const rankLetter = userRank?.rankLetter?.toUpperCase() || "F";
+  const rankColor = RANK_THEME[rankLetter]?.color || "#ccc";
 
   return (
-    <>
-      <Popover content={dropdownOverlay} trigger={["click"]}>
-        <Space
-          align="center"
-          className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-200"
-          size="small"
-        >
-          <Space align="center" size={6}>
-            <span>
-              สวัสดีคุณ{" "}
-              {`${userData.firstname ?? "Name"} ${userData.lastname ?? ""}`}
-            </span>
-            {userRank &&
-              (() => {
-                const rankInfo = getRankGrade(userRank.rankLetter || "F");
-                const isHighRank = ["S", "A"].includes(rankInfo.grade);
-                return (
-                  <Tag
-                    className={`px-2 py-1 rounded-full text-white text-xs font-bold ${
-                      isHighRank ? "animate-pulse" : ""
-                    }`}
-                    style={{
-                      background: rankInfo.bgColor,
-                      boxShadow: `0 2px 8px ${rankInfo.color}40`,
-                      border: "1px solid rgba(255,255,255,0.3)",
-                    }}
-                  >
-                    {rankInfo.grade}
-                  </Tag>
-                );
-              })()}
-          </Space>
+    <Popover
+      content={menuContent}
+      trigger="click"
+      placement="bottomRight"
+      // 🛠️ [FIX] ใช้ styles.body แทน overlayInnerStyle
+      styles={{
+        body: {
+          padding: 20,
+          borderRadius: 16,
+        },
+      }}
+    >
+      {/* Trigger Button (ส่วนที่แสดงบน Navbar) */}
+      <Space
+        style={{
+          cursor: "pointer",
+          padding: "4px 8px",
+          borderRadius: 20,
+          transition: "background 0.3s",
+        }}
+        className=""
+      >
+        <Flex vertical align="end" style={{ marginRight: 4 }}>
+          <Text strong style={{ lineHeight: 1.2 }}>
+            {userData.firstname}
+          </Text>
+          <Tag
+            bordered={false}
+            color={rankColor}
+            style={{
+              margin: 0,
+              fontSize: 10,
+              lineHeight: "14px",
+              padding: "0 6px",
+            }}
+          >
+            Rank {rankLetter}
+          </Tag>
+        </Flex>
 
-          <Badge dot>
-            {(() => {
-              const rankInfo = userRank
-                ? getRankGrade(userRank.rankLetter || "F")
-                : null;
-              const isHighRank =
-                rankInfo && ["S", "A"].includes(rankInfo.grade);
-              const getAvatarUrl = () => {
-                const adminId = userData.admin_id || 1;
-                const avatarSeed = `${userData.firstname}_${userData.lastname}_${adminId}`;
-                return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-                  avatarSeed
-                )}&backgroundColor=b6e3f4,c0aede,d1d4f9&radius=50`;
-              };
-              return (
-                <Avatar
-                  src={getAvatarUrl()}
-                  alt={`${userData.firstname} ${userData.lastname}`}
-                  size={36}
-                  className={`border ${
-                    isHighRank ? "border-white shadow-lg" : "border-gray-200"
-                  }`}
-                />
-              );
-            })()}
-          </Badge>
-          <DownOutlined className="text-gray-400" />
-        </Space>
-      </Popover>
-    </>
+        <Badge dot color={rankColor} offset={[-4, 4]}>
+          <Avatar
+            size={40}
+            icon={<UserOutlined />}
+            src={getAvatarUrl(userData)}
+            style={{
+              border: `2px solid ${token.colorBgContainer}`,
+              boxShadow: token.boxShadowTertiary,
+            }}
+          />
+        </Badge>
+        <DownOutlined
+          style={{ fontSize: 10, color: token.colorTextQuaternary }}
+        />
+      </Space>
+    </Popover>
   );
 }

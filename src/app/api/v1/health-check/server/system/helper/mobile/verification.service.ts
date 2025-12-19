@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "./health-check.type";
-import { generateCurlCommand } from "./generate-curl.helper";
+import { HealthCheckResult } from "../health-check.type";
+import { generateCurlCommand } from "../generate-curl.helper";
 
 const VERIFICATION_CONFIG = {
   url: `${API_URL.PROD_SB_API_URL}/api/verification`,
