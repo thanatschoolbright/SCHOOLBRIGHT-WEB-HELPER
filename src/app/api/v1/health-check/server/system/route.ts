@@ -2,62 +2,71 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { logger } from "@/helpers/logger";
-
-// Import Service ที่แยกออกไป
 import { checkLoginService, HealthCheckResult } from "./helper/login.service";
 import { checkVerificationService } from "./helper/verification.service";
 import { checkServerStatusService } from "./helper/server-status.service";
 
-const WEBHOOK_DISCORD =
-  process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_HEARTBEAT_BOT ?? "";
-const DISCORD_ALERT_USER = "<@692372441699319900>";
+const DISCORD_CONFIG = {
+  WEBHOOK_URL: process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_HEARTBEAT_BOT ?? "",
+  ALERT_USER_ID: "<@692372441699319900>",
+  BOT_USERNAME: "SB-System-Monitor",
+};
 
-// --- Discord Helper ---
-
-async function sendDiscordWebhook(content: string) {
-  try {
-    await axios.post(
-      WEBHOOK_DISCORD,
-      { content, username: "SB-System-Monitor" },
-      { headers: { "Content-Type": "application/json" } }
-    );
-  } catch (err: any) {
-    logger.error("Failed to send Discord webhook", err?.message ?? err);
-  }
+async function executeHealthChecks(): Promise<HealthCheckResult[]> {
+  return Promise.all([
+    checkLoginService(),
+    checkVerificationService(),
+    checkServerStatusService(),
+  ]);
 }
 
-// --- Main Handler ---
+function generateDiscordAlertMessage(
+  failedServices: HealthCheckResult[]
+): string {
+  const errorDetails = failedServices
+    .map(
+      (service) =>
+        `❌ **${service.module}** (${service.service}) : Status ${service.status}\n\`\`\`bash\n${service.curl}\n\`\`\``
+    )
+    .join("\n\n");
+
+  return `🔥 **System Alert!**\n${errorDetails}\nรบกวนตรวจสอบทันที ${DISCORD_CONFIG.ALERT_USER_ID}`;
+}
+
+async function sendDiscordNotification(failedServices: HealthCheckResult[]) {
+  if (failedServices.length === 0) return;
+
+  const content = generateDiscordAlertMessage(failedServices);
+
+  try {
+    await axios.post(
+      DISCORD_CONFIG.WEBHOOK_URL,
+      {
+        content,
+        username: DISCORD_CONFIG.BOT_USERNAME,
+      },
+      { headers: { "Content-Type": "application/json" } }
+    );
+  } catch (error: any) {
+    logger.error("Failed to send Discord webhook", error?.message ?? error);
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { mode } = body;
+    const shouldNotifyDiscord = body.mode === "discord";
 
-    // เรียกใช้ Service ต่างๆ ผ่าน Promise.all
-    const results: HealthCheckResult[] = await Promise.all([
-      checkLoginService(),
-      checkVerificationService(),
-      checkServerStatusService(),
-    ]);
+    const healthCheckResults = await executeHealthChecks();
 
-    // กรองหา Service ที่มีปัญหา
-    const failedServices = results.filter((r) => r.status !== "200");
-
-    // แจ้งเตือน Discord หากโหมดเป็น discord และมี service พัง
-    if (mode === "discord" && failedServices.length > 0) {
-      const errorMsg = failedServices
-        .map(
-          (s) =>
-            `❌ **${s.module}** (${s.service}) : Status ${s.status}\n\`\`\`bash\n${s.curl}\n\`\`\``
-        )
-        .join("\n\n");
-
-      await sendDiscordWebhook(
-        `🔥 **System Alert!**\n${errorMsg}\nรบกวนตรวจสอบทันที ${DISCORD_ALERT_USER}`
+    if (shouldNotifyDiscord) {
+      const failedServices = healthCheckResults.filter(
+        (result) => result.status !== "200"
       );
+      await sendDiscordNotification(failedServices);
     }
 
-    return NextResponse.json(successResponse({ data: results }), {
+    return NextResponse.json(successResponse({ data: healthCheckResults }), {
       status: 200,
     });
   } catch (error: any) {

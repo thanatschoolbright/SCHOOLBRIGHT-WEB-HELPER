@@ -2,6 +2,8 @@ import axios from "axios";
 
 export interface HealthCheckResult {
   module: string;
+  name_th: string;
+  name_en: string;
   status: string;
   service: string;
   curl: string;
@@ -72,6 +74,8 @@ export async function checkVerificationService(): Promise<HealthCheckResult> {
 
     return {
       module: "verification",
+      name_th: "ระบบยืนยันตัวตน",
+      name_en: "Verification Service",
       status: String(res.status),
       service: domain,
       curl: curlCommand,
@@ -81,6 +85,8 @@ export async function checkVerificationService(): Promise<HealthCheckResult> {
   } catch (error: any) {
     return {
       module: "verification",
+      name_th: "ระบบยืนยันตัวตน",
+      name_en: "Verification Service",
       status: String(error.response?.status || 500),
       service: domain,
       curl: curlCommand,

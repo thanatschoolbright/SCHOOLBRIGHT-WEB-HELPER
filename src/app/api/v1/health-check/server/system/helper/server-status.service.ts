@@ -2,6 +2,8 @@ import axios from "axios";
 
 export interface HealthCheckResult {
   module: string;
+  name_th: string;
+  name_en: string;
   status: string;
   service: string;
   curl: string;
@@ -49,6 +51,8 @@ export async function checkServerStatusService(): Promise<HealthCheckResult> {
 
     return {
       module: "server-status-v1",
+      name_th: "สถานะเซิร์ฟเวอร์หลัก",
+      name_en: "Core API Server Status",
       status: String(res.status),
       service: domain,
       curl: curlCommand,
@@ -58,6 +62,8 @@ export async function checkServerStatusService(): Promise<HealthCheckResult> {
   } catch (error: any) {
     return {
       module: "server-status-v1",
+      name_th: "สถานะเซิร์ฟเวอร์หลัก",
+      name_en: "Core API Server Status",
       status: String(error.response?.status || 500),
       service: domain,
       curl: curlCommand,
