@@ -1,18 +1,10 @@
 import axios from "axios";
-
-export interface HealthCheckResult {
-  module: string;
-  name_th: string;
-  name_en: string;
-  status: string;
-  service: string;
-  curl: string;
-  request: any;
-  response: any;
-}
+import { API_URL } from "@/services/api-url";
+import { HealthCheckResult } from "./health-check.type";
+import { generateCurlCommand } from "./generate-curl.helper"; // เรียกใช้ Helper
 
 const LOGIN_CONFIG = {
-  url: "https://sbapi.schoolbright.co/api/login",
+  url: `${API_URL.PROD_SB_API_URL}/api/login`,
   method: "GET",
   params: {
     user: "2250",
@@ -20,79 +12,39 @@ const LOGIN_CONFIG = {
     schoolid: "849",
     imei: "",
   },
-  headers: {
-    Cookie: "HWWAFSESID=338158557dbf249f84; HWWAFSESTIME=1766118216669",
-  },
-  data: null,
+  headers: {}, // ไม่ใส่ Cookie ตาม Requirement
 };
 
-function generateCurl(config: typeof LOGIN_CONFIG): string {
-  let curl = `curl --location --request ${config.method} '${config.url}`;
-
-  if (config.method === "GET" && config.params) {
-    const searchParams = new URLSearchParams(config.params).toString();
-    const separator = config.url.includes("?") ? "&" : "?";
-    curl += `${separator}${searchParams}`;
-  }
-
-  curl += "'";
-
-  if (config.headers) {
-    Object.entries(config.headers).forEach(([key, value]) => {
-      curl += ` \\\n--header '${key}: ${value}'`;
-    });
-  }
-
-  if (config.method !== "GET" && config.data) {
-    const dataStr =
-      typeof config.data === "object"
-        ? JSON.stringify(config.data)
-        : config.data;
-    curl += ` \\\n--data '${dataStr}'`;
-  }
-
-  return curl;
-}
-
 export async function checkLoginService(): Promise<HealthCheckResult> {
-  const domain = new URL(LOGIN_CONFIG.url).hostname;
-  const curlCommand = generateCurl(LOGIN_CONFIG);
+  let domain = "localhost";
+  try {
+    domain = new URL(LOGIN_CONFIG.url).hostname;
+  } catch {}
 
-  const requestInfo = {
-    url: LOGIN_CONFIG.url,
-    method: LOGIN_CONFIG.method,
-    params: LOGIN_CONFIG.params,
-    headers: LOGIN_CONFIG.headers,
+  const curlCommand = generateCurlCommand(LOGIN_CONFIG);
+
+  // สร้าง Base Object เพื่อลด Code ซ้ำใน try/catch
+  const baseResult = {
+    module: "login",
+    name_th: "ระบบเข้าสู่ระบบ",
+    name_en: "Login Service",
+    service: domain,
+    curl: curlCommand,
+    request: LOGIN_CONFIG,
   };
 
   try {
-    const res = await axios({
-      method: LOGIN_CONFIG.method,
-      url: LOGIN_CONFIG.url,
-      params: LOGIN_CONFIG.params,
-      headers: LOGIN_CONFIG.headers,
-    });
-
+    const res = await axios(LOGIN_CONFIG);
     return {
-      module: "login",
-      name_th: "ระบบเข้าสู่ระบบ",
-      name_en: "Login Service",
+      ...baseResult,
       status: String(res.status),
-      service: domain,
-      curl: curlCommand,
-      request: requestInfo,
       response: res.data,
     };
   } catch (error: any) {
     return {
-      module: "login",
-      name_th: "ระบบเข้าสู่ระบบ",
-      name_en: "Login Service",
+      ...baseResult,
       status: String(error.response?.status || 500),
-      service: domain,
-      curl: curlCommand,
-      request: requestInfo,
-      response: error.response?.data || error.message,
+      response: error.response?.data || error.message || "Unknown Error",
     };
   }
 }

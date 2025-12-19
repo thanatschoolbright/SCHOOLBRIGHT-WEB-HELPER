@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { logger } from "@/helpers/logger";
-import { checkLoginService, HealthCheckResult } from "./helper/login.service";
+import { checkLoginService } from "./helper/login.service";
 import { checkVerificationService } from "./helper/verification.service";
 import { checkServerStatusService } from "./helper/server-status.service";
+import { checkFacialScanService } from "./helper/facial-scan.service";
+import { HealthCheckResult } from "./helper/health-check.type";
 
 const DISCORD_CONFIG = {
   WEBHOOK_URL: process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_HEARTBEAT_BOT ?? "",
@@ -17,6 +19,7 @@ async function executeHealthChecks(): Promise<HealthCheckResult[]> {
     checkLoginService(),
     checkVerificationService(),
     checkServerStatusService(),
+    checkFacialScanService(),
   ]);
 }
 
