@@ -3,18 +3,13 @@ import { API_URL } from "@/services/api-url";
 import { HealthCheckResult } from "../health-check.type";
 import { generateCurlCommand } from "../generate-curl.helper";
 
-// Configuration สำหรับ Facial Scan (Direct Hardware API)
 const FACIAL_SCAN_CONFIG = {
-  // เปลี่ยน URL ไปยิง Hardware โดยตรง
   url: `${API_URL.PROD_HARDWARE_API_URL}/api/jobscan/TimeStamp`,
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    // หมายเหตุ: หาก API นี้จำเป็นต้องใช้ 'JabjaiKey' หรือ 'Cookie' ในการ Auth
-    // คุณอาจต้องเพิ่ม Header กลับเข้ามาตามความเหมาะสมของ Server ปลายทาง
   },
   data: {
-    // เปลี่ยน Key ให้ตรงกับ cURL ใหม่ (PascalCase/camelCase)
     schoolId: "39",
     UserCode: "1233762",
     sID: "1233762",
