@@ -417,7 +417,7 @@ export default function ServerStatusPage() {
             <div className="w-full md:w-1/3">
               <Input
                 placeholder="ค้นหาชื่อระบบ, URL หรือ Domain..."
-                prefix={<SearchOutlined className="text-gray-400" />}
+                prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 allowClear
@@ -435,9 +435,6 @@ export default function ServerStatusPage() {
               showTotal: (total) => `แสดงผล ${total} รายการ`,
             }}
             bordered
-            rowClassName={(record) =>
-              record.status !== "200" ? "bg-red-50" : ""
-            }
           />
         </Card>
       </div>
@@ -446,10 +443,9 @@ export default function ServerStatusPage() {
       <Modal
         title={
           <Space>
-            <div
-              className={`w-2 h-2 rounded-full ${
-                selectedItem?.status === "200" ? "bg-green-500" : "bg-red-500"
-              }`}
+            {/* ใช้ Ant Design Badge แทน div classname สี เพื่อให้เป็น Clean Code ตาม Theme */}
+            <Badge
+              status={selectedItem?.status === "200" ? "success" : "error"}
             />
             {`ตรวจสอบ: ${selectedItem?.name_th || ""}`}
           </Space>
@@ -522,7 +518,7 @@ export default function ServerStatusPage() {
                         value={selectedItem.curl}
                         autoSize={{ minRows: 4, maxRows: 8 }}
                         readOnly
-                        className="font-mono text-xs bg-gray-50"
+                        className="font-mono text-xs"
                       />
                       <Button
                         type="primary"
@@ -541,8 +537,8 @@ export default function ServerStatusPage() {
                 key: "3",
                 label: "Full Response (JSON)",
                 children: (
-                  <div className="max-h-[400px] overflow-auto rounded border p-4 bg-gray-50">
-                    <pre className="text-xs font-mono text-gray-700">
+                  <div className="max-h-[400px] overflow-auto rounded border p-4">
+                    <pre className="text-xs font-mono">
                       {JSON.stringify(selectedItem.response, null, 2)}
                     </pre>
                   </div>
@@ -552,8 +548,8 @@ export default function ServerStatusPage() {
                 key: "4",
                 label: "Request Headers/Body",
                 children: (
-                  <div className="max-h-[400px] overflow-auto rounded border p-4 bg-gray-50">
-                    <pre className="text-xs font-mono text-gray-700">
+                  <div className="max-h-[400px] overflow-auto rounded border p-4">
+                    <pre className="text-xs font-mono">
                       {JSON.stringify(selectedItem.request, null, 2)}
                     </pre>
                   </div>

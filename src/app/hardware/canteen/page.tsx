@@ -11,13 +11,17 @@ import { useRouter } from "next/navigation";
 import type { InputRef } from "antd";
 import {
   Alert,
+  Badge,
   Button,
   Card,
   Col,
+  Drawer,
+  Empty,
   Flex,
   Form,
   Input,
   Modal,
+  Result, // เพิ่ม Result สำหรับแสดงผลลัพธ์
   Row,
   Select,
   Space,
@@ -25,22 +29,31 @@ import {
   Switch,
   Table,
   Tag,
+  Tooltip,
   Typography,
   Upload,
   Skeleton,
+  Spin,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { UploadChangeParam, UploadFile } from "antd/es/upload/interface";
 import {
-  CheckCircleOutlined,
+  AndroidOutlined,
+  AppleOutlined,
   CloudUploadOutlined,
+  CodeOutlined,
+  CopyOutlined,
   DeleteOutlined,
-  DownloadOutlined,
   EditOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
+  GlobalOutlined,
+  LockOutlined,
   PlusOutlined,
+  RocketOutlined,
   SearchOutlined,
+  WindowsOutlined,
+  LoadingOutlined, // เพิ่ม Icon Loading
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { toast } from "sonner";
@@ -55,7 +68,6 @@ import {
   POST_UPDATE_APPLICATION_VERSION,
 } from "@/app/hardware/canteen/canteen-api.helper";
 import {
-  buildFormData,
   buildSchoolOptions,
   copyToClipboard,
   validatePassword,
@@ -70,32 +82,95 @@ import type {
   VersionRecord,
 } from "@/types/canteen.type";
 
-// ==================== Constants ====================
+// ==================== Constants & Helpers ====================
 const PASSWORD = "SB_ADMIN";
 const PAGE_SIZE = 10;
 
 const ENVIRONMENTS = [
-  { label: "Production", value: "Production" },
-  { label: "Beta", value: "Beta" },
-  { label: "Development", value: "Development" },
+  { label: "Production", value: "Production", color: "green" },
+  { label: "Beta", value: "Beta", color: "orange" },
+  { label: "Development", value: "Development", color: "blue" },
 ];
 
 const FORM_STEPS = [
-  {
-    title: "ข้อมูลพื้นฐาน",
-    description: "แอป และเวอร์ชัน",
-  },
-  {
-    title: "อัปโหลดไฟล์",
-    description: "ไฟล์เวอร์ชันใหม่",
-  },
-  {
-    title: "การตั้งค่า",
-    description: "ตัวเลือกเพิ่มเติม",
-  },
+  { title: "ข้อมูลพื้นฐาน", description: "รายละเอียดแอป" },
+  { title: "อัปโหลดไฟล์", description: "ไฟล์ .apk/.zip" },
+  { title: "การตั้งค่า", description: "Config เพิ่มเติม" },
 ];
 
+const getPlatformIcon = (type: string) => {
+  const lower = type?.toLowerCase() || "";
+  if (lower.includes("android"))
+    return <AndroidOutlined style={{ color: "#3DDC84" }} />;
+  if (lower.includes("ios") || lower.includes("apple"))
+    return <AppleOutlined style={{ color: "#000000" }} />;
+  if (lower.includes("windows"))
+    return <WindowsOutlined style={{ color: "#0078D7" }} />;
+  if (lower.includes("web"))
+    return <GlobalOutlined style={{ color: "#1890ff" }} />;
+  return <CodeOutlined />;
+};
+
+const getEnvColor = (env: string) => {
+  return ENVIRONMENTS.find((e) => e.value === env)?.color || "default";
+};
+
 // ==================== Custom Hooks ====================
+// (Keep original hooks: usePasswordProtection, useColumnSearch, useApplications, useVersions)
+const usePasswordProtection = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
+  const requestAccess = useCallback(
+    (callback: () => void) => {
+      if (isAuthenticated) {
+        callback();
+      } else {
+        setPendingAction(() => callback);
+        setModalVisible(true);
+      }
+    },
+    [isAuthenticated]
+  );
+
+  const handleSubmit = useCallback(() => {
+    if (validatePassword(password, PASSWORD)) {
+      setIsAuthenticated(true);
+      setModalVisible(false);
+      setPassword("");
+      toast.success("ยืนยันตัวตนสำเร็จ");
+      if (pendingAction) {
+        pendingAction();
+        setPendingAction(null);
+      }
+    } else {
+      setError("รหัสผ่านไม่ถูกต้อง");
+    }
+  }, [password, pendingAction]);
+
+  const handleCancel = useCallback(() => {
+    setModalVisible(false);
+    setPassword("");
+    setError("");
+    setPendingAction(null);
+  }, []);
+
+  return {
+    isAuthenticated,
+    modalVisible,
+    password,
+    error,
+    setPassword,
+    setError,
+    requestAccess,
+    handleSubmit,
+    handleCancel,
+  };
+};
+
 const useColumnSearch = <T,>(
   searchInputRefs: React.MutableRefObject<
     Partial<Record<SearchableColumnKey, InputRef | null>>
@@ -112,39 +187,41 @@ const useColumnSearch = <T,>(
       }) => {
         const value = (selectedKeys[0] as string | undefined) ?? "";
         return (
-          <Space direction="vertical">
+          <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
             <Input
               ref={(node) => {
                 searchInputRefs.current[dataIndex] = node as InputRef;
               }}
               placeholder={`ค้นหา ${title}`}
               value={value}
-              onChange={(event) => {
-                const { value: inputValue } = event.target;
-                setSelectedKeys(inputValue ? [inputValue] : []);
-              }}
+              onChange={(e) =>
+                setSelectedKeys(e.target.value ? [e.target.value] : [])
+              }
               onPressEnter={() => confirm()}
+              style={{ marginBottom: 8, display: "block" }}
             />
             <Space>
               <Button
                 type="primary"
+                onClick={() => confirm()}
                 icon={<SearchOutlined />}
                 size="small"
-                onClick={() => confirm()}
+                style={{ width: 90 }}
               >
                 ค้นหา
               </Button>
               <Button
-                size="small"
                 onClick={() => {
                   clearFilters?.();
                   confirm({ closeDropdown: true });
                 }}
+                size="small"
+                style={{ width: 90 }}
               >
                 รีเซ็ต
               </Button>
             </Space>
-          </Space>
+          </div>
         );
       },
       filterIcon: (filtered) => (
@@ -152,49 +229,13 @@ const useColumnSearch = <T,>(
       ),
       onFilter: (value, record) => {
         const raw = (record as any)[dataIndex];
-        if (!raw) return false;
-        return String(raw).toLowerCase().includes(String(value).toLowerCase());
-      },
-      filterDropdownProps: {
-        onOpenChange: (visible) => {
-          if (visible) {
-            setTimeout(() => searchInputRefs.current[dataIndex]?.select(), 100);
-          }
-        },
+        return raw
+          ? String(raw).toLowerCase().includes(String(value).toLowerCase())
+          : false;
       },
     }),
     [searchInputRefs]
   );
-
-const usePasswordProtection = () => {
-  const router = useRouter();
-  const [visible, setVisible] = useState(true);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  const handleSubmit = useCallback(() => {
-    if (validatePassword(password, PASSWORD)) {
-      setVisible(false);
-      toast.success("เข้าสู่ระบบสำเร็จ");
-    } else {
-      setError("รหัสผ่านไม่ถูกต้อง");
-    }
-  }, [password]);
-
-  const handleCancel = useCallback(() => {
-    router.push("/backend");
-  }, [router]);
-
-  return {
-    visible,
-    password,
-    error,
-    setPassword,
-    setError,
-    handleSubmit,
-    handleCancel,
-  };
-};
 
 const useApplications = () => {
   const [list, setList] = useState<ApplicationRecord[]>([]);
@@ -202,18 +243,12 @@ const useApplications = () => {
   const [selected, setSelected] = useState<ApplicationRecord | null>(null);
 
   const load = useCallback(async () => {
-    const toastId = toast.loading("กำลังโหลดรายการแอปพลิเคชัน...");
     setLoading(true);
-
     try {
       const response = await GET_APPLICATION_LIST();
-      const applications = response?.data?.data ?? [];
-      setList(applications);
-      toast.success("โหลดรายการแอปพลิเคชันสำเร็จ", { id: toastId });
+      setList(response?.data?.data ?? []);
     } catch (error: any) {
-      toast.error(error?.message ?? "ไม่สามารถโหลดรายการแอปพลิเคชันได้", {
-        id: toastId,
-      });
+      toast.error(error?.message ?? "โหลดรายการแอปไม่สำเร็จ");
     } finally {
       setLoading(false);
     }
@@ -222,12 +257,6 @@ const useApplications = () => {
   useEffect(() => {
     load();
   }, [load]);
-
-  useEffect(() => {
-    if (!selected && list.length > 0) {
-      setSelected(list[0]);
-    }
-  }, [list, selected]);
 
   return { list, loading, selected, setSelected };
 };
@@ -238,720 +267,779 @@ const useVersions = (appId?: string | number, shouldLoad?: boolean) => {
     loading: false,
     curl: "",
   });
-
   const load = useCallback(async (id: string | number) => {
-    const toastId = toast.loading("กำลังโหลดเวอร์ชันแอป...");
     setDataset((prev) => ({ ...prev, loading: true }));
-
     try {
       const response = await GET_APPLICATION_VERSION_BY_APPID(id);
-      const versions = response?.data?.data ?? [];
       setDataset({
-        data: versions,
+        data: response?.data?.data ?? [],
         loading: false,
         curl: response?.curl ?? "",
       });
-      toast.success("โหลดเวอร์ชันสำเร็จ", { id: toastId });
     } catch (error: any) {
       setDataset((prev) => ({ ...prev, loading: false }));
-      toast.error(error?.message ?? "ไม่สามารถโหลดเวอร์ชันได้", {
-        id: toastId,
-      });
+      toast.error("โหลดเวอร์ชันไม่สำเร็จ");
     }
   }, []);
-
   useEffect(() => {
-    if (appId && shouldLoad) {
-      load(appId);
-    }
+    if (appId && shouldLoad) load(appId);
   }, [appId, shouldLoad, load]);
-
   return { dataset, load };
 };
 
-// ==================== Components ====================
-const PasswordModal: React.FC<{
-  visible: boolean;
-  password: string;
-  error: string;
-  onPasswordChange: (value: string) => void;
-  onErrorClear: () => void;
-  onSubmit: () => void;
-  onCancel: () => void;
-}> = ({
-  visible,
-  password,
-  error,
-  onPasswordChange,
-  onErrorClear,
-  onSubmit,
-  onCancel,
-}) => (
+// ==================== Sub-Components ====================
+
+const PasswordModal: React.FC<ReturnType<typeof usePasswordProtection>> = (
+  props
+) => (
   <Modal
-    title="กรุณาใส่รหัสผ่านก่อนเข้าใช้งาน"
-    open={visible}
-    closable={false}
+    title={
+      <Space>
+        <LockOutlined style={{ color: "#faad14" }} />
+        <span>ยืนยันสิทธิ์ผู้ดูแลระบบ</span>
+      </Space>
+    }
+    open={props.modalVisible}
+    onCancel={props.handleCancel}
     footer={null}
+    width={400}
+    centered
   >
-    <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-      <Input.Password
-        placeholder="กรอกรหัสผ่าน"
-        value={password}
-        onChange={(e) => {
-          onPasswordChange(e.target.value);
-          onErrorClear();
-        }}
-      />
-      {error && <Typography.Text type="danger">{error}</Typography.Text>}
-
-      <Alert
-        type="warning"
-        showIcon
-        message="กรณีไม่ทราบรหัสผ่าน กรุณาติดต่อคุณไลท์ (Tech Lead)"
-      />
-
-      <Flex justify="flex-end" gap="small">
-        <Button onClick={onCancel}>ยกเลิก</Button>
-        <Button type="primary" onClick={onSubmit} disabled={!password}>
-          ตกลง
+    <Space
+      direction="vertical"
+      size="large"
+      style={{ width: "100%", paddingTop: 16 }}
+    >
+      <div>
+        <Typography.Text type="secondary">
+          กรุณากรอกรหัสผ่านเพื่อดำเนินการต่อ
+        </Typography.Text>
+        <Input.Password
+          placeholder="รหัสผ่าน"
+          value={props.password}
+          onChange={(e) => {
+            props.setPassword(e.target.value);
+            props.setError("");
+          }}
+          onPressEnter={props.handleSubmit}
+          status={props.error ? "error" : ""}
+          style={{ marginTop: 8 }}
+          autoFocus
+        />
+        {props.error && (
+          <Typography.Text type="danger" style={{ fontSize: 12 }}>
+            {props.error}
+          </Typography.Text>
+        )}
+      </div>
+      <Flex justify="end" gap="small">
+        <Button onClick={props.handleCancel}>ยกเลิก</Button>
+        <Button
+          type="primary"
+          onClick={props.handleSubmit}
+          disabled={!props.password}
+        >
+          ยืนยัน
         </Button>
       </Flex>
     </Space>
   </Modal>
 );
 
-const VersionFormStep1: React.FC<{
+// --- Component: Process Result Modal ---
+// Modal นี้จะแสดงสถานะการทำงาน (Loading / Success / Error)
+const ProcessResultModal: React.FC<{
+  status: "idle" | "loading" | "success" | "error";
+  onClose: () => void;
+  message?: string;
+}> = ({ status, onClose, message }) => {
+  return (
+    <Modal
+      open={status !== "idle"}
+      footer={null}
+      closable={status !== "loading"}
+      onCancel={status !== "loading" ? onClose : undefined}
+      centered
+      maskClosable={false}
+    >
+      {status === "loading" && (
+        <Flex vertical align="center" gap="large" style={{ padding: 32 }}>
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+          <Typography.Title level={4}>กำลังบันทึกข้อมูล...</Typography.Title>
+          <Typography.Text type="secondary">
+            กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้
+          </Typography.Text>
+        </Flex>
+      )}
+
+      {status === "success" && (
+        <Result
+          status="success"
+          title="ดำเนินการสำเร็จ"
+          subTitle={message || "ข้อมูลถูกบันทึกเรียบร้อยแล้ว"}
+          extra={[
+            <Button type="primary" key="console" onClick={onClose}>
+              ตกลง
+            </Button>,
+          ]}
+        />
+      )}
+
+      {status === "error" && (
+        <Result
+          status="error"
+          title="เกิดข้อผิดพลาด"
+          subTitle={message || "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง"}
+          extra={[
+            <Button key="buy" onClick={onClose}>
+              ปิด
+            </Button>,
+          ]}
+        />
+      )}
+    </Modal>
+  );
+};
+
+// --- Component: Version Form Steps (Modified to Preserve Values) ---
+const VersionFormSteps: React.FC<{
+  currentStep: number;
   mode: "add" | "edit";
   schoolOptions: any[];
   applicationList: ApplicationRecord[];
-}> = ({ mode, schoolOptions, applicationList }) => (
-  <Card size="small" title="ข้อมูลพื้นฐาน" >
-    <Row gutter={[16, 16]}>
-      <Col span={12}>
-        <Form.Item label="เลือกโรงเรียน" name="schoolID">
-          <Select
-            allowClear
-            placeholder="เลือกโรงเรียน"
-            options={schoolOptions}
-            showSearch
-            filterOption={(input, option) =>
-              String(option?.label ?? "")
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          />
-        </Form.Item>
-      </Col>
-      <Col span={12}>
-        <Form.Item
-          label="เลือกแอปพลิเคชัน"
-          name="appID"
-          rules={[{ required: true, message: "กรุณาเลือกแอปพลิเคชัน" }]}
-        >
-          <Select
-            placeholder="เลือกแอปพลิเคชัน"
-            disabled={mode === "edit"}
-            options={applicationList.map((item) => ({
-              label: item.app_name,
-              value: String(item.app_id),
-            }))}
-          />
-        </Form.Item>
-      </Col>
-      {mode === "edit" && (
-        <Col span={12}>
-          <Form.Item label="Version ID" name="versionID">
-            <Input disabled />
-          </Form.Item>
-        </Col>
-      )}
-      <Col span={12}>
-        <Form.Item
-          label="ชื่อเวอร์ชัน"
-          name="versionName"
-          rules={[{ required: true, message: "กรุณาระบุชื่อเวอร์ชัน" }]}
-        >
-          <Input placeholder="เช่น 1.0.0" />
-        </Form.Item>
-      </Col>
-      <Col span={12}>
-        <Form.Item
-          label="สภาพแวดล้อม"
-          name="env"
-          rules={[{ required: true, message: "กรุณาเลือกสภาพแวดล้อม" }]}
-        >
-          <Select placeholder="เลือกสภาพแวดล้อม" options={ENVIRONMENTS} />
-        </Form.Item>
-      </Col>
-      <Col span={24}>
-        <Form.Item label="หมายเหตุ" name="note">
-          <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม" />
-        </Form.Item>
-      </Col>
-    </Row>
-  </Card>
-);
+  onFileChange: (info: UploadChangeParam<UploadFile>) => void;
+}> = ({ currentStep, mode, schoolOptions, applicationList, onFileChange }) => (
+  <>
+    <Steps
+      current={currentStep}
+      items={FORM_STEPS}
+      style={{ marginBottom: 24 }}
+    />
 
-const VersionFormStep2: React.FC<{
-  mode: "add" | "edit";
-  onChange: (info: UploadChangeParam<UploadFile>) => void;
-}> = ({ mode, onChange }) => (
-  <Card size="small" title="อัปโหลดไฟล์เวอร์ชัน" >
-    <Form.Item
-      label="เลือกไฟล์เวอร์ชัน"
-      name="file"
-      valuePropName="fileList"
-      getValueFromEvent={(info: UploadChangeParam<UploadFile>) => info.fileList}
-      rules={[
-        {
-          required: mode === "add",
-          validator: (_, fileList) => {
-            if (mode === "add" && (!fileList || fileList.length === 0)) {
-              return Promise.reject(
-                "กรุณาอัปโหลดไฟล์เวอร์ชัน (.apk หรือ .zip)"
-              );
-            }
-            return Promise.resolve();
-          },
-        },
-      ]}
-    >
-      <Upload.Dragger
-        beforeUpload={() => false}
-        maxCount={1}
-        onChange={onChange}
-        accept=".apk,.zip"
-      >
-        <Space direction="vertical" size="small">
-          <CloudUploadOutlined style={{ fontSize: 48, color: "#1677ff" }} />
-          <Typography.Text>คลิกหรือลากไฟล์มาที่นี่</Typography.Text>
-          <Typography.Text type="secondary">
-            รองรับไฟล์ .apk และ .zip เท่านั้น
-          </Typography.Text>
-        </Space>
-      </Upload.Dragger>
-    </Form.Item>
-  </Card>
-);
+    <div style={{ minHeight: 300 }}>
+      {/* ใช้ style={{ display: ... }} แทนการ && เพื่อไม่ให้ Component ถูก Unmount ค่าจึงไม่หาย */}
+      <div style={{ display: currentStep === 0 ? "block" : "none" }}>
+        <Row gutter={[16, 16]}>
+          <Col span={24}>
+            <Alert
+              message="ข้อมูลพื้นฐาน"
+              description="ระบุข้อมูลเวอร์ชันและสภาพแวดล้อมให้ถูกต้อง"
+              type="info"
+              showIcon
+            />
+          </Col>
+          <Col span={12}>
+            <Form.Item label="โรงเรียน" name="schoolID">
+              <Select
+                allowClear
+                placeholder="ทั้งหมด (หรือระบุโรงเรียน)"
+                options={schoolOptions}
+                showSearch
+                filterOption={(input, option) =>
+                  String(option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="แอปพลิเคชัน"
+              name="appID"
+              rules={[{ required: true, message: "Required" }]}
+            >
+              <Select
+                placeholder="เลือกแอป"
+                disabled={mode === "edit"}
+                options={applicationList.map((item) => ({
+                  label: item.app_name,
+                  value: String(item.app_id),
+                }))}
+              />
+            </Form.Item>
+          </Col>
+          {mode === "edit" && (
+            <Col span={12}>
+              <Form.Item label="Version ID" name="versionID">
+                <Input disabled />
+              </Form.Item>
+            </Col>
+          )}
+          <Col span={12}>
+            <Form.Item
+              label="ชื่อเวอร์ชัน"
+              name="versionName"
+              rules={[{ required: true, message: "Required" }]}
+            >
+              <Input
+                placeholder="เช่น 1.0.0"
+                prefix={<Tag color="blue">v</Tag>}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="สภาพแวดล้อม"
+              name="env"
+              rules={[{ required: true, message: "Required" }]}
+            >
+              <Select placeholder="เลือก Env" options={ENVIRONMENTS} />
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item label="หมายเหตุ" name="note">
+              <Input.TextArea
+                rows={3}
+                placeholder="Release notes หรือรายละเอียดเพิ่มเติม"
+                showCount
+                maxLength={255}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      </div>
 
-const VersionFormStep3: React.FC = () => (
-  <Card size="small" title="การตั้งค่าเพิ่มเติม" >
-    <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-      <Card size="small">
-        <Flex justify="space-between" align="center">
-          <Space direction="vertical" size={0}>
-            <Typography.Text strong>เวอร์ชันล่าสุด</Typography.Text>
-            <Typography.Text type="secondary">
-              กำหนดให้เป็นเวอร์ชันล่าสุดของแอป
-            </Typography.Text>
-          </Space>
-          <Form.Item name="isLatestVersion" valuePropName="checked" noStyle>
-            <Switch />
-          </Form.Item>
+      <div style={{ display: currentStep === 1 ? "block" : "none" }}>
+        <Form.Item
+          name="file"
+          valuePropName="fileList"
+          getValueFromEvent={(e: any) => (Array.isArray(e) ? e : e?.fileList)}
+          rules={[{ required: mode === "add", message: "กรุณาอัปโหลดไฟล์" }]}
+        >
+          <Upload.Dragger
+            beforeUpload={() => false}
+            maxCount={1}
+            onChange={onFileChange}
+            accept=".apk,.zip"
+            height={250}
+          >
+            <p className="ant-upload-drag-icon">
+              <CloudUploadOutlined />
+            </p>
+            <p className="ant-upload-text">คลิกหรือลากไฟล์มาที่นี่</p>
+            <p className="ant-upload-hint">
+              รองรับไฟล์ .apk หรือ .zip สำหรับติดตั้ง
+            </p>
+          </Upload.Dragger>
+        </Form.Item>
+      </div>
+
+      <div style={{ display: currentStep === 2 ? "block" : "none" }}>
+        <Flex vertical gap="middle">
+          <Alert message="การตั้งค่าการอัปเดต" type="warning" showIcon />
+          <Card size="small" hoverable>
+            <Flex justify="space-between" align="center">
+              <span>
+                <Typography.Text strong>Set as Latest Version</Typography.Text>
+                <br />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  ผู้ใช้จะเห็นเวอร์ชันนี้เป็นตัวล่าสุด
+                </Typography.Text>
+              </span>
+              <Form.Item name="isLatestVersion" valuePropName="checked" noStyle>
+                <Switch />
+              </Form.Item>
+            </Flex>
+          </Card>
+          <Card size="small" hoverable>
+            <Flex justify="space-between" align="center">
+              <span>
+                <Typography.Text strong>Force Update</Typography.Text>
+                <br />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  บังคับให้ผู้ใช้อัปเดตทันทีที่เปิดแอป
+                </Typography.Text>
+              </span>
+              <Form.Item name="forceUpdate" valuePropName="checked" noStyle>
+                <Switch />
+              </Form.Item>
+            </Flex>
+          </Card>
         </Flex>
-      </Card>
-
-      <Card size="small">
-        <Flex justify="space-between" align="center">
-          <Space direction="vertical" size={0}>
-            <Typography.Text strong>บังคับอัปเดต</Typography.Text>
-            <Typography.Text type="secondary">
-              ผู้ใช้จะต้องอัปเดตก่อนใช้งาน
-            </Typography.Text>
-          </Space>
-          <Form.Item name="forceUpdate" valuePropName="checked" noStyle>
-            <Switch />
-          </Form.Item>
-        </Flex>
-      </Card>
-    </Space>
-  </Card>
+      </div>
+    </div>
+  </>
 );
 
-// ==================== Main Component ====================
+// ==================== Main Page Component ====================
+
 export default function CanteenAppManager() {
-  const router = useRouter();
   const schoolState = useAppSelector((state) => state.callSchoolList);
 
-  const passwordProtection = usePasswordProtection();
+  const auth = usePasswordProtection();
   const applications = useApplications();
-  const [versionModalVisible, setVersionModalVisible] = useState(false);
-  const versions = useVersions(
-    applications.selected?.app_id,
-    versionModalVisible
-  );
 
+  // States
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const [versionFormVisible, setVersionFormVisible] = useState(false);
   const [versionFormMode, setVersionFormMode] = useState<"add" | "edit">("add");
   const [currentStep, setCurrentStep] = useState(0);
-  const [versionForm] = Form.useForm<VersionFormValues>();
   const [deleteTarget, setDeleteTarget] = useState<VersionRecord | null>(null);
 
+  // Status State สำหรับ Process Result Modal
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [submitMessage, setSubmitMessage] = useState("");
+
+  const versions = useVersions(applications.selected?.app_id, drawerVisible);
+  const [versionForm] = Form.useForm<VersionFormValues>();
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
+
+  // Helpers
   const getColumnSearchProps =
     useColumnSearch<ApplicationRecord>(searchInputRefs);
   const getVersionColumnSearchProps =
     useColumnSearch<VersionRecord>(searchInputRefs);
-
-  const schoolOptions = useMemo(() => {
-    return buildSchoolOptions(schoolState?.response?.data ?? []);
-  }, [schoolState]);
-
-  const openVersionForm = useCallback(
-    (mode: "add" | "edit", version?: VersionRecord) => {
-      setVersionFormMode(mode);
-      setCurrentStep(0);
-      if (mode === "add") {
-        versionForm.resetFields();
-        versionForm.setFieldsValue({
-          appID: String(applications.selected?.app_id ?? ""),
-          isLatestVersion: false,
-          forceUpdate: false,
-          file: null,
-        });
-      } else if (version) {
-        versionForm.setFieldsValue({
-          appID: String(applications.selected?.app_id ?? ""),
-          versionID: String(version.version_id ?? ""),
-          versionName: version.version_name ?? "",
-          env: version.env ?? "",
-          note: version.note ?? "",
-          schoolID: "",
-          isLatestVersion: version.is_lastest_version === 1,
-          forceUpdate: version.force_update === 1,
-          file: null,
-        });
-      }
-      setVersionFormVisible(true);
-    },
-    [applications.selected?.app_id, versionForm]
+  const schoolOptions = useMemo(
+    () => buildSchoolOptions(schoolState?.response?.data ?? []),
+    [schoolState]
   );
 
-  const handleNext = useCallback(async () => {
-    try {
-      if (currentStep === 0) {
-        await versionForm.validateFields(["appID", "versionName", "env"]);
-      } else if (currentStep === 1 && versionFormMode === "add") {
-        await versionForm.validateFields(["file"]);
-      }
-      setCurrentStep((prev) => prev + 1);
-    } catch (error) {
-      // Validation failed
-    }
-  }, [currentStep, versionForm, versionFormMode]);
+  // Actions
+  const openVersionDrawer = (record: ApplicationRecord) => {
+    applications.setSelected(record);
+    setDrawerVisible(true);
+  };
 
-  const handlePrev = useCallback(() => {
-    setCurrentStep((prev) => prev - 1);
-  }, []);
+  const handleAddVersionClick = () => {
+    auth.requestAccess(() => {
+      openVersionForm("add");
+    });
+  };
 
-  const handleVersionSubmit = useCallback(async () => {
-    try {
-      const values = await versionForm.validateFields();
-      const formData = buildFormData(values);
-      const toastId = toast.loading(
-        versionFormMode === "add"
-          ? "กำลังสร้างเวอร์ชัน..."
-          : "กำลังอัปเดตเวอร์ชัน..."
-      );
+  const handleEditVersionClick = (record: VersionRecord) => {
+    auth.requestAccess(() => {
+      openVersionForm("edit", record);
+    });
+  };
 
-      const response = await (versionFormMode === "add"
-        ? POST_CREATE_APPLICATION_VERSION(formData)
-        : POST_UPDATE_APPLICATION_VERSION(formData));
+  const handleDeleteVersionClick = (record: VersionRecord) => {
+    auth.requestAccess(() => {
+      setDeleteTarget(record);
+    });
+  };
 
-      toast.success("ดำเนินการสำเร็จ", {
-        id: toastId,
-        description: response?.data?.message ?? "บันทึกข้อมูลสำเร็จ",
+  const openVersionForm = (mode: "add" | "edit", version?: VersionRecord) => {
+    setVersionFormMode(mode);
+    setCurrentStep(0);
+    versionForm.resetFields();
+
+    const baseValues = {
+      appID: String(applications.selected?.app_id ?? ""),
+      isLatestVersion: false,
+      forceUpdate: false,
+      file: null,
+      schoolID: undefined,
+    };
+
+    if (mode === "edit" && version) {
+      versionForm.setFieldsValue({
+        ...baseValues,
+        versionID: String(version.version_id),
+        versionName: version.version_name,
+        env: version.env,
+        note: version.note,
+        isLatestVersion: version.is_lastest_version === 1,
+        forceUpdate: version.force_update === 1,
       });
+    } else {
+      versionForm.setFieldsValue(baseValues);
+    }
+    setVersionFormVisible(true);
+  };
 
-      setVersionFormVisible(false);
-      setCurrentStep(0);
+  // !!! จุดสำคัญ: แก้ไข Logic Submit เพื่อไม่ให้ค่าเป็น undefined !!!
+  const handleFormSubmit = async () => {
+    try {
+      // 1. Validate Form
+      const values = await versionForm.validateFields();
 
-      if (applications.selected) {
-        await versions.load(applications.selected.app_id);
+      // 2. Set Loading State
+      setVersionFormVisible(false); // ปิด Form Modal ก่อน
+      setSubmitStatus("loading");
+
+      // 3. Manual FormData Construction (Fix undefined issue)
+      const formData = new FormData();
+
+      // Map Form Values to API Snake_Case
+      if (values.schoolID)
+        formData.append("school_id", String(values.schoolID));
+      formData.append("app_id", String(values.appID));
+      if (values.versionID)
+        formData.append("version_id", String(values.versionID));
+      formData.append("version_name", String(values.versionName));
+      formData.append("env", String(values.env));
+      formData.append("note", values.note || "");
+      formData.append("is_lastest_version", values.isLatestVersion ? "1" : "0");
+      formData.append("force_update", values.forceUpdate ? "1" : "0");
+
+      // Handle File
+      if (values.file && values.file.length > 0) {
+        const fileOrigin = values.file[0].originFileObj;
+        if (fileOrigin) {
+          formData.append("file", fileOrigin);
+        }
       }
+
+      // 4. Call API
+      const apiCall =
+        versionFormMode === "add"
+          ? POST_CREATE_APPLICATION_VERSION
+          : POST_UPDATE_APPLICATION_VERSION;
+      const response = await apiCall(formData);
+
+      // 5. Success State
+      setSubmitStatus("success");
+      setSubmitMessage(response?.data?.message ?? "บันทึกข้อมูลสำเร็จ");
+
+      if (applications.selected) versions.load(applications.selected.app_id);
     } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message ?? "ไม่สามารถบันทึกเวอร์ชันได้",
-        {
-          description: "กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง",
-        }
+      // 6. Error State
+      console.error(error);
+      setSubmitStatus("error");
+      setSubmitMessage(
+        error?.response?.data?.message ?? "เกิดข้อผิดพลาดในการบันทึก"
       );
+      // ถ้า Error อาจจะเปิด Form กลับมาเพื่อให้แก้
+      // setVersionFormVisible(true);
     }
-  }, [versionForm, versionFormMode, applications.selected, versions]);
+  };
 
-  const handleDeleteVersion = useCallback(
-    async (version: VersionRecord) => {
-      const toastId = toast.loading("กำลังลบเวอร์ชัน...");
+  const handleProcessModalClose = () => {
+    setSubmitStatus("idle");
+    setSubmitMessage("");
+  };
 
-      try {
-        const response = await DELETE_APPLICATION_VERSION(version.version_id);
-        toast.success(response?.data?.message ?? "ลบเวอร์ชันสำเร็จ", {
-          id: toastId,
-        });
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    const toastId = toast.loading("กำลังลบ...");
+    try {
+      await DELETE_APPLICATION_VERSION(deleteTarget.version_id);
+      toast.success("ลบเวอร์ชันสำเร็จ", { id: toastId });
+      setDeleteTarget(null);
+      if (applications.selected) versions.load(applications.selected.app_id);
+    } catch (error: any) {
+      toast.error("ลบไม่สำเร็จ", { id: toastId });
+    }
+  };
 
-        if (applications.selected) {
-          await versions.load(applications.selected.app_id);
-        }
-      } catch (error: any) {
-        toast.error(
-          error?.response?.data?.message ?? "เกิดข้อผิดพลาดระหว่างลบเวอร์ชัน",
-          {
-            id: toastId,
-          }
-        );
-      }
+  // Columns Definitions
+  const appColumns: ColumnsType<ApplicationRecord> = [
+    {
+      title: "App Name",
+      dataIndex: "app_name",
+      width: 250,
+      render: (text, record) => (
+        <Space>
+          {getPlatformIcon(record.app_type)}
+          <Typography.Text strong>{text}</Typography.Text>
+        </Space>
+      ),
+      sorter: (a, b) => a.app_name.localeCompare(b.app_name),
+      ...getColumnSearchProps("app_name", "ชื่อแอป"),
     },
-    [applications.selected, versions]
-  );
+    {
+      title: "App ID",
+      dataIndex: "app_id",
+      width: 150,
+      render: (text) => (
+        <Typography.Text type="secondary" code>
+          {text}
+        </Typography.Text>
+      ),
+      ...getColumnSearchProps("app_id", "ID"),
+    },
+    {
+      title: "Platform",
+      dataIndex: "app_type",
+      width: 150,
+      align: "center",
+      render: (text) => <Tag icon={getPlatformIcon(text)}>{text}</Tag>,
+      filters: applications.list
+        .map((i) => ({ text: i.app_type, value: i.app_type }))
+        .filter((v, i, a) => a.findIndex((t) => t.value === v.value) === i),
+      onFilter: (value, record) => record.app_type === value,
+    },
+    {
+      title: "Action",
+      key: "action",
+      align: "center",
+      width: 120,
+      render: (_, record) => (
+        <Button
+          type="default"
+          size="small"
+          icon={<EyeOutlined />}
+          onClick={() => openVersionDrawer(record)}
+        >
+          ดูเวอร์ชัน
+        </Button>
+      ),
+    },
+  ];
 
-  const handleCopyCurl = useCallback(async () => {
-    if (!versions.dataset.curl) {
-      toast.info("ไม่พบคำสั่ง CURL");
-      return;
-    }
-
-    const success = await copyToClipboard(versions.dataset.curl);
-    toast[success ? "success" : "error"](
-      success ? "คัดลอก CURL แล้ว" : "ไม่สามารถคัดลอกได้"
-    );
-  }, [versions.dataset.curl]);
-
-  const renderLatestVersionTag = useCallback((record: VersionRecord) => {
-    const isLatest = Boolean(record.is_lastest_version);
-    return (
-      <Tag
-        color={isLatest ? "success" : "default"}
-        icon={isLatest ? <CheckCircleOutlined /> : undefined}
-      >
-        {isLatest ? "ล่าสุด" : "เวอร์ชันเก่า"}
-      </Tag>
-    );
-  }, []);
-
-  const renderForceUpdateTag = useCallback((record: VersionRecord) => {
-    const isForced = Boolean(record.force_update);
-    return (
-      <Tag
-        color={isForced ? "error" : "default"}
-        icon={isForced ? <ExclamationCircleOutlined /> : undefined}
-      >
-        {isForced ? "บังคับอัปเดต" : "ไม่บังคับ"}
-      </Tag>
-    );
-  }, []);
-
-  const applicationColumns = useMemo<ColumnsType<ApplicationRecord>>(
-    () => [
-      {
-        title: "ชื่อแอปพลิเคชัน",
-        dataIndex: "app_name",
-        width: 400,
-        sorter: (a, b) => String(a.app_name).localeCompare(String(b.app_name)),
-        ...getColumnSearchProps("app_name", "ชื่อแอปพลิเคชัน"),
-      },
-      {
-        title: "รหัสแอปพลิเคชัน",
-        dataIndex: "app_id",
-        width: 400,
-        sorter: (a, b) => String(a.app_id).localeCompare(String(b.app_id)),
-        ...getColumnSearchProps("app_id", "รหัสแอปพลิเคชัน"),
-      },
-      {
-        title: "แพลตฟอร์ม",
-        dataIndex: "app_type",
-        width: 200,
-        sorter: (a, b) => String(a.app_type).localeCompare(String(b.app_type)),
-        filters: Array.from(
-          new Set(applications.list.map((item) => item.app_type))
-        ).map((type) => ({ text: String(type), value: type })),
-        onFilter: (value, record) => record.app_type === value,
-        render: (value: string) => <Tag color="blue">{value}</Tag>,
-        ...getColumnSearchProps("app_type", "แพลตฟอร์ม"),
-      },
-      {
-        title: "การจัดการ",
-        key: "actions",
-        width: 150,
-        render: (_, record) => (
-          <Button
-            icon={<EyeOutlined />}
-            onClick={() => {
-              applications.setSelected(record);
-              setVersionModalVisible(true);
-            }}
-          >
-            ดูเวอร์ชัน
-          </Button>
-        ),
-      },
-    ],
-    [applications.list, applications.setSelected, getColumnSearchProps]
-  );
-
-  const versionColumns = useMemo<ColumnsType<VersionRecord>>(
-    () => [
-      {
-        title: "เวอร์ชัน",
-        dataIndex: "version_name",
-        sorter: (a, b) =>
-          String(a.version_name).localeCompare(String(b.version_name)),
-        defaultSortOrder: "ascend",
-        ...getVersionColumnSearchProps("version_name", "เวอร์ชัน"),
-      },
-      {
-        title: "สภาพแวดล้อม",
-        dataIndex: "env",
-        filters: Array.from(
-          new Set((versions.dataset.data ?? []).map((item) => item.env))
-        ).map((env) => ({ text: env, value: env })),
-        onFilter: (value, record) => record.env === value,
-        sorter: (a, b) => String(a.env).localeCompare(String(b.env)),
-        ...getVersionColumnSearchProps("env", "สภาพแวดล้อม"),
-      },
-      {
-        title: "อัปเดตล่าสุด",
-        dataIndex: "updated_at",
-        sorter: (a, b) =>
-          dayjs(a.updated_at).valueOf() - dayjs(b.updated_at).valueOf(),
-        render: (value: string) =>
-          value ? dayjs(value).format("DD/MM/YYYY HH:mm") : "-",
-      },
-      {
-        title: "หมายเหตุ",
-        dataIndex: "note",
-        ellipsis: true,
-      },
-      {
-        title: "เวอร์ชันล่าสุด",
-        dataIndex: "is_lastest_version",
-        align: "center",
-        width: 120,
-        filters: [
-          { text: "เวอร์ชันล่าสุด", value: true },
-          { text: "เวอร์ชันเก่า", value: false },
-        ],
-        onFilter: (value, record) => {
-          const isLatest = Boolean(record.is_lastest_version);
-          return value === true ? isLatest : !isLatest;
-        },
-        render: (_value, record) => renderLatestVersionTag(record),
-      },
-      {
-        title: "บังคับอัปเดต",
-        dataIndex: "force_update",
-        align: "center",
-        width: 130,
-        filters: [
-          { text: "บังคับอัปเดต", value: true },
-          { text: "ไม่บังคับ", value: false },
-        ],
-        onFilter: (value, record) => {
-          const isForced = Boolean(record.force_update);
-          return value === true ? isForced : !isForced;
-        },
-        render: (_value, record) => renderForceUpdateTag(record),
-      },
-      {
-        title: "การจัดการ",
-        key: "actions",
-        width: 200,
-        render: (_, record) => (
-          <Space size="small">
+  const versionColumns: ColumnsType<VersionRecord> = [
+    {
+      title: "Version",
+      dataIndex: "version_name",
+      width: 120,
+      fixed: "left",
+      render: (text, record) => (
+        <Badge
+          dot
+          status={record.is_lastest_version ? "success" : "default"}
+          offset={[5, 0]}
+        >
+          <Typography.Text strong>{text}</Typography.Text>
+        </Badge>
+      ),
+      sorter: (a, b) => a.version_name.localeCompare(b.version_name),
+      ...getVersionColumnSearchProps("version_name", "เวอร์ชัน"),
+    },
+    {
+      title: "Environment",
+      dataIndex: "env",
+      width: 120,
+      render: (text) => <Tag color={getEnvColor(text)}>{text}</Tag>,
+      filters: ENVIRONMENTS.map((e) => ({ text: e.label, value: e.value })),
+      onFilter: (value, record) => record.env === value,
+    },
+    {
+      title: "Updated",
+      dataIndex: "updated_at",
+      width: 160,
+      render: (val) => (
+        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+          {val ? dayjs(val).format("DD MMM YYYY HH:mm") : "-"}
+        </Typography.Text>
+      ),
+      sorter: (a, b) =>
+        dayjs(a.updated_at).valueOf() - dayjs(b.updated_at).valueOf(),
+    },
+    {
+      title: "Note",
+      dataIndex: "note",
+      render: (text) => (
+        <Typography.Text type="secondary" ellipsis style={{ maxWidth: 200 }}>
+          {text || "-"}
+        </Typography.Text>
+      ),
+    },
+    {
+      title: "Tags",
+      key: "tags",
+      width: 180,
+      render: (_, record) => (
+        <Space size={4} wrap>
+          {record.is_lastest_version === 1 && (
+            <Tag color="success" bordered={false}>
+              Latest
+            </Tag>
+          )}
+          {record.force_update === 1 && (
+            <Tag color="red" bordered={false}>
+              Force
+            </Tag>
+          )}
+        </Space>
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      width: 100,
+      fixed: "right",
+      render: (_, record) => (
+        <Space size={0}>
+          <Tooltip title="แก้ไข">
             <Button
-              type="primary"
-              icon={<DownloadOutlined />}
-              onClick={() => toast.info("ฟีเจอร์ดาวน์โหลดอยู่ระหว่างพัฒนา")}
-            />
-            <Button
+              type="text"
+              size="small"
               icon={<EditOutlined />}
-              onClick={() => openVersionForm("edit", record)}
+              onClick={() => handleEditVersionClick(record)}
             />
+          </Tooltip>
+          <Tooltip title="ลบ">
             <Button
+              type="text"
               danger
+              size="small"
               icon={<DeleteOutlined />}
-              onClick={() => setDeleteTarget(record)}
+              onClick={() => handleDeleteVersionClick(record)}
             />
-          </Space>
-        ),
-      },
-    ],
-    [
-      getVersionColumnSearchProps,
-      openVersionForm,
-      versions.dataset.data,
-      renderLatestVersionTag,
-      renderForceUpdateTag,
-    ]
-  );
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <DashboardLayout>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <HeaderBar
-          icon={<CloudUploadOutlined />}
-          title="จัดการแอปพลิเคชัน Canteen"
-          subTitle="เพิ่ม แก้ไข หรือลบเวอร์ชันของแอปพลิเคชัน Canteen"
-          color={"none"}
+          icon={<RocketOutlined />}
+          title="App Version Control"
+          subTitle="ตรวจสอบและจัดการเวอร์ชันของแอปพลิเคชัน Canteen"
         />
 
-        <Card title="รายการแอปพลิเคชัน" variant={"outlined"}>
+        <Card variant="borderless" className="shadow-sm">
           <Table<ApplicationRecord>
             dataSource={applications.list}
+            columns={appColumns}
             loading={applications.loading}
-            columns={applicationColumns}
-            rowKey={(record) => String(record.app_id)}
+            rowKey="app_id"
             pagination={{ pageSize: PAGE_SIZE }}
             scroll={{ x: 800 }}
           />
         </Card>
       </Space>
 
-      <PasswordModal
-        visible={passwordProtection.visible}
-        password={passwordProtection.password}
-        error={passwordProtection.error}
-        onPasswordChange={passwordProtection.setPassword}
-        onErrorClear={() => passwordProtection.setError("")}
-        onSubmit={passwordProtection.handleSubmit}
-        onCancel={passwordProtection.handleCancel}
+      <PasswordModal {...auth} />
+
+      {/* Process Result Modal: แสดงสถานะการทำงานแบบชัดเจน */}
+      <ProcessResultModal
+        status={submitStatus}
+        message={submitMessage}
+        onClose={handleProcessModalClose}
       />
 
-      <Modal
-        title={`เวอร์ชันของ ${applications.selected?.app_name ?? "-"}`}
-        open={versionModalVisible}
-        onCancel={() => setVersionModalVisible(false)}
-        width={1080}
-        footer={
+      <Drawer
+        title={
           <Space>
-            <Button onClick={handleCopyCurl}>คัดลอก CURL</Button>
-            <Button type="primary" onClick={() => openVersionForm("add")}>
-              เพิ่มเวอร์ชัน
+            {getPlatformIcon(applications.selected?.app_type || "")}
+            <Typography.Title level={5} style={{ margin: 0 }}>
+              {applications.selected?.app_name}
+            </Typography.Title>
+            <Tag>{applications.selected?.app_id}</Tag>
+          </Space>
+        }
+        placement="right"
+        width={850}
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        extra={
+          <Space>
+            <Button
+              icon={<CopyOutlined />}
+              onClick={() => {
+                if (versions.dataset.curl) {
+                  copyToClipboard(versions.dataset.curl);
+                  toast.success("คัดลอก cURL แล้ว");
+                } else {
+                  toast.info("ไม่พบข้อมูล cURL");
+                }
+              }}
+            >
+              cURL
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddVersionClick}
+            >
+              เพิ่มเวอร์ชันใหม่
             </Button>
           </Space>
         }
       >
         {versions.dataset.loading ? (
-          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-            <Skeleton active paragraph={{ rows: 4 }} />
-            <Skeleton active paragraph={{ rows: 4 }} />
-            <Skeleton active paragraph={{ rows: 4 }} />
-          </Space>
+          <Skeleton active paragraph={{ rows: 5 }} />
         ) : (
           <Table<VersionRecord>
             dataSource={versions.dataset.data}
             columns={versionColumns}
-            rowKey={(record) => String(record.version_id)}
-            pagination={false}
-            scroll={{ x: 1000 }}
+            rowKey="version_id"
+            pagination={{ pageSize: 10 }}
+            size="small"
+            scroll={{ x: 800 }}
+            locale={{
+              emptyText: <Empty description="ยังไม่มีประวัติเวอร์ชัน" />,
+            }}
           />
         )}
-      </Modal>
+      </Drawer>
 
       <Modal
         title={
-          versionFormMode === "add" ? "เพิ่มเวอร์ชันแอป" : "แก้ไขเวอร์ชันแอป"
+          versionFormMode === "add"
+            ? "New Version Release"
+            : "Edit Version Details"
         }
         open={versionFormVisible}
-        onCancel={() => {
-          setVersionFormVisible(false);
-          setCurrentStep(0);
-        }}
-        width={800}
-        footer={null}
-      >
-        <Form<VersionFormValues>
-          layout="vertical"
-          form={versionForm}
-          initialValues={{
-            appID: applications.selected
-              ? String(applications.selected.app_id)
-              : "",
-            env: "",
-            isLatestVersion: false,
-            forceUpdate: false,
-            file: null,
-          }}
-        >
-          <Steps current={currentStep} items={FORM_STEPS} />
-
-          <Space
-            direction="vertical"
-            size="large"
-            style={{ width: "100%", marginTop: 24 }}
-          >
-            {currentStep === 0 && (
-              <VersionFormStep1
-                mode={versionFormMode}
-                schoolOptions={schoolOptions}
-                applicationList={applications.list}
-              />
-            )}
-
-            {currentStep === 1 && (
-              <VersionFormStep2
-                mode={versionFormMode}
-                onChange={(info) => {
-                  if (info.file.status === "removed") {
-                    versionForm.setFieldsValue({ file: [] });
-                  }
-                }}
-              />
-            )}
-
-            {currentStep === 2 && <VersionFormStep3 />}
-          </Space>
-
-          <Flex
-            justify="space-between"
-            style={{ marginTop: 24, paddingTop: 16 }}
-          >
-            <Button
-              onClick={() => {
-                setVersionFormVisible(false);
-                setCurrentStep(0);
-              }}
-            >
-              ยกเลิก
-            </Button>
-
+        onCancel={() => setVersionFormVisible(false)}
+        width={700}
+        footer={
+          <Flex justify="space-between">
+            <Button onClick={() => setVersionFormVisible(false)}>ยกเลิก</Button>
             <Space>
               {currentStep > 0 && (
-                <Button onClick={handlePrev}>ย้อนกลับ</Button>
+                <Button onClick={() => setCurrentStep((c) => c - 1)}>
+                  ย้อนกลับ
+                </Button>
               )}
-
               {currentStep < 2 ? (
-                <Button type="primary" onClick={handleNext}>
+                <Button
+                  type="primary"
+                  onClick={async () => {
+                    try {
+                      if (currentStep === 0)
+                        await versionForm.validateFields([
+                          "appID",
+                          "versionName",
+                          "env",
+                        ]);
+                      if (currentStep === 1 && versionFormMode === "add")
+                        await versionForm.validateFields(["file"]);
+                      setCurrentStep((c) => c + 1);
+                    } catch {}
+                  }}
+                >
                   ถัดไป
                 </Button>
               ) : (
-                <Button type="primary" onClick={handleVersionSubmit}>
-                  บันทึกเวอร์ชัน
+                <Button type="primary" onClick={handleFormSubmit}>
+                  บันทึกข้อมูล
                 </Button>
               )}
             </Space>
           </Flex>
+        }
+      >
+        <Form form={versionForm} layout="vertical">
+          <VersionFormSteps
+            currentStep={currentStep}
+            mode={versionFormMode}
+            schoolOptions={schoolOptions}
+            applicationList={applications.list}
+            onFileChange={(info) => {
+              if (info.file.status === "removed")
+                versionForm.setFieldsValue({ file: [] });
+            }}
+          />
         </Form>
       </Modal>
 
       <Modal
-        title="ยืนยันการลบเวอร์ชัน"
-        open={Boolean(deleteTarget)}
+        title={
+          <Space>
+            <ExclamationCircleOutlined style={{ color: "red" }} /> ยืนยันการลบ
+          </Space>
+        }
+        open={!!deleteTarget}
+        onOk={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
-        onOk={async () => {
-          if (deleteTarget) {
-            await handleDeleteVersion(deleteTarget);
-            setDeleteTarget(null);
-          }
-        }}
+        okText="ลบเวอร์ชัน"
         okButtonProps={{ danger: true }}
-        okText="ลบ"
-        cancelText="ยกเลิก"
       >
-        <Typography.Paragraph>
-          ต้องการลบเวอร์ชัน {deleteTarget?.version_name ?? "-"} หรือไม่?
-        </Typography.Paragraph>
+        คุณแน่ใจหรือไม่ที่จะลบเวอร์ชัน <b>{deleteTarget?.version_name}</b>?
+        <br />
+        <Typography.Text type="secondary">
+          การกระทำนี้ไม่สามารถกู้คืนได้
+        </Typography.Text>
       </Modal>
     </DashboardLayout>
   );
