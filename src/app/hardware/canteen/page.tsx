@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation"; // Uncomment if needed
 import type { InputRef } from "antd";
 import {
   Alert,
@@ -15,13 +15,14 @@ import {
   Button,
   Card,
   Col,
+  Descriptions,
   Drawer,
   Empty,
   Flex,
   Form,
   Input,
   Modal,
-  Result, // เพิ่ม Result สำหรับแสดงผลลัพธ์
+  Result,
   Row,
   Select,
   Space,
@@ -40,6 +41,7 @@ import type { UploadChangeParam, UploadFile } from "antd/es/upload/interface";
 import {
   AndroidOutlined,
   AppleOutlined,
+  CheckCircleOutlined,
   CloudUploadOutlined,
   CodeOutlined,
   CopyOutlined,
@@ -53,7 +55,7 @@ import {
   RocketOutlined,
   SearchOutlined,
   WindowsOutlined,
-  LoadingOutlined, // เพิ่ม Icon Loading
+  LoadingOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { toast } from "sonner";
@@ -116,7 +118,7 @@ const getEnvColor = (env: string) => {
 };
 
 // ==================== Custom Hooks ====================
-// (Keep original hooks: usePasswordProtection, useColumnSearch, useApplications, useVersions)
+
 const usePasswordProtection = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -315,7 +317,7 @@ const PasswordModal: React.FC<ReturnType<typeof usePasswordProtection>> = (
           กรุณากรอกรหัสผ่านเพื่อดำเนินการต่อ
         </Typography.Text>
         <Input.Password
-          placeholder="รหัสผ่าน"
+          placeholder="รหัสผ่าน (SB_ADMIN)"
           value={props.password}
           onChange={(e) => {
             props.setPassword(e.target.value);
@@ -347,12 +349,25 @@ const PasswordModal: React.FC<ReturnType<typeof usePasswordProtection>> = (
 );
 
 // --- Component: Process Result Modal ---
-// Modal นี้จะแสดงสถานะการทำงาน (Loading / Success / Error)
-const ProcessResultModal: React.FC<{
+interface ProcessResultModalProps {
   status: "idle" | "loading" | "success" | "error";
   onClose: () => void;
   message?: string;
-}> = ({ status, onClose, message }) => {
+  data?: any; // API Response Data
+}
+
+const ProcessResultModal: React.FC<ProcessResultModalProps> = ({
+  status,
+  onClose,
+  message,
+  data,
+}) => {
+  // Helper: Extract Version Data (ถ้ามี)
+  // Structure: response.data.data.data[0] (Axios response.data -> API data -> array of versions)
+  // ปรับตาม Structure ที่คุณให้มา: { data: { status: "success", data: [...] }, curl: "..." }
+  const versionData = data?.data?.data?.[0] || null;
+  const curlCommand = data?.curl || "";
+
   return (
     <Modal
       open={status !== "idle"}
@@ -361,6 +376,7 @@ const ProcessResultModal: React.FC<{
       onCancel={status !== "loading" ? onClose : undefined}
       centered
       maskClosable={false}
+      width={650}
     >
       {status === "loading" && (
         <Flex vertical align="center" gap="large" style={{ padding: 32 }}>
@@ -382,7 +398,90 @@ const ProcessResultModal: React.FC<{
               ตกลง
             </Button>,
           ]}
-        />
+        >
+          {versionData && (
+            <div
+              style={{
+                marginTop: 20,
+                textAlign: "left",
+                background: "#f9f9f9",
+                padding: 16,
+                borderRadius: 8,
+                border: "1px solid #f0f0f0",
+              }}
+            >
+              <Descriptions
+                title="รายละเอียดเวอร์ชัน"
+                bordered
+                column={1}
+                size="small"
+                style={{ background: "#fff" }}
+              >
+                <Descriptions.Item label="Version Name">
+                  <Typography.Text strong>
+                    {versionData.version_name}
+                  </Typography.Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="Environment">
+                  <Tag color={getEnvColor(versionData.env)}>
+                    {versionData.env}
+                  </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Status">
+                  <Space>
+                    {versionData.is_lastest_version && (
+                      <Tag color="success" icon={<CheckCircleOutlined />}>
+                        Latest
+                      </Tag>
+                    )}
+                    {versionData.force_update && (
+                      <Tag color="red" icon={<ExclamationCircleOutlined />}>
+                        Force Update
+                      </Tag>
+                    )}
+                    {!versionData.is_lastest_version &&
+                      !versionData.force_update &&
+                      "Standard Update"}
+                  </Space>
+                </Descriptions.Item>
+                <Descriptions.Item label="Download URL">
+                  <Typography.Paragraph
+                    copyable={{ text: versionData.url }}
+                    style={{ marginBottom: 0, fontSize: 12 }}
+                    ellipsis={{ rows: 2, expandable: true, symbol: "more" }}
+                  >
+                    {versionData.url}
+                  </Typography.Paragraph>
+                </Descriptions.Item>
+                <Descriptions.Item label="ID">
+                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                    {versionData.version_id}
+                  </Typography.Text>
+                </Descriptions.Item>
+              </Descriptions>
+
+              {curlCommand && (
+                <div style={{ marginTop: 16 }}>
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    <CodeOutlined /> cURL Command (For Debug):
+                  </Typography.Text>
+                  <Input.TextArea
+                    readOnly
+                    value={curlCommand}
+                    autoSize={{ minRows: 2, maxRows: 4 }}
+                    style={{
+                      marginTop: 4,
+                      fontSize: 10,
+                      fontFamily: "monospace",
+                      background: "#fafafa",
+                      color: "#666",
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </Result>
       )}
 
       {status === "error" && (
@@ -395,13 +494,29 @@ const ProcessResultModal: React.FC<{
               ปิด
             </Button>,
           ]}
-        />
+        >
+          {data?.curl && (
+            <div style={{ textAlign: "left", marginTop: 16 }}>
+              <Typography.Text type="secondary">
+                Debug Info (cURL):
+              </Typography.Text>
+              <Typography.Paragraph
+                code
+                copyable
+                ellipsis={{ rows: 3, expandable: true }}
+                style={{ fontSize: 11 }}
+              >
+                {data.curl}
+              </Typography.Paragraph>
+            </div>
+          )}
+        </Result>
       )}
     </Modal>
   );
 };
 
-// --- Component: Version Form Steps (Modified to Preserve Values) ---
+// --- Component: Version Form Steps (Value Persistence Fix) ---
 const VersionFormSteps: React.FC<{
   currentStep: number;
   mode: "add" | "edit";
@@ -417,7 +532,7 @@ const VersionFormSteps: React.FC<{
     />
 
     <div style={{ minHeight: 300 }}>
-      {/* ใช้ style={{ display: ... }} แทนการ && เพื่อไม่ให้ Component ถูก Unmount ค่าจึงไม่หาย */}
+      {/* Step 0: Basic Info */}
       <div style={{ display: currentStep === 0 ? "block" : "none" }}>
         <Row gutter={[16, 16]}>
           <Col span={24}>
@@ -500,6 +615,7 @@ const VersionFormSteps: React.FC<{
         </Row>
       </div>
 
+      {/* Step 1: File Upload */}
       <div style={{ display: currentStep === 1 ? "block" : "none" }}>
         <Form.Item
           name="file"
@@ -525,6 +641,7 @@ const VersionFormSteps: React.FC<{
         </Form.Item>
       </div>
 
+      {/* Step 2: Config */}
       <div style={{ display: currentStep === 2 ? "block" : "none" }}>
         <Flex vertical gap="middle">
           <Alert message="การตั้งค่าการอัปเดต" type="warning" showIcon />
@@ -577,11 +694,12 @@ export default function CanteenAppManager() {
   const [currentStep, setCurrentStep] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<VersionRecord | null>(null);
 
-  // Status State สำหรับ Process Result Modal
+  // Submit Result Logic
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [submitMessage, setSubmitMessage] = useState("");
+  const [submitResultData, setSubmitResultData] = useState<any>(null); // For storing API response
 
   const versions = useVersions(applications.selected?.app_id, drawerVisible);
   const [versionForm] = Form.useForm<VersionFormValues>();
@@ -652,20 +770,17 @@ export default function CanteenAppManager() {
     setVersionFormVisible(true);
   };
 
-  // !!! จุดสำคัญ: แก้ไข Logic Submit เพื่อไม่ให้ค่าเป็น undefined !!!
+  // Main Submit Logic
   const handleFormSubmit = async () => {
     try {
-      // 1. Validate Form
       const values = await versionForm.validateFields();
 
-      // 2. Set Loading State
-      setVersionFormVisible(false); // ปิด Form Modal ก่อน
+      setVersionFormVisible(false);
       setSubmitStatus("loading");
+      setSubmitResultData(null);
 
-      // 3. Manual FormData Construction (Fix undefined issue)
       const formData = new FormData();
-
-      // Map Form Values to API Snake_Case
+      // Manual FormData Mapping
       if (values.schoolID)
         formData.append("school_id", String(values.schoolID));
       formData.append("app_id", String(values.appID));
@@ -677,7 +792,6 @@ export default function CanteenAppManager() {
       formData.append("is_lastest_version", values.isLatestVersion ? "1" : "0");
       formData.append("force_update", values.forceUpdate ? "1" : "0");
 
-      // Handle File
       if (values.file && values.file.length > 0) {
         const fileOrigin = values.file[0].originFileObj;
         if (fileOrigin) {
@@ -685,49 +799,82 @@ export default function CanteenAppManager() {
         }
       }
 
-      // 4. Call API
       const apiCall =
         versionFormMode === "add"
           ? POST_CREATE_APPLICATION_VERSION
           : POST_UPDATE_APPLICATION_VERSION;
       const response = await apiCall(formData);
 
-      // 5. Success State
+      // --- Error Handling based on 'status' field ---
+      // Check response body structure: { data: { status: "failed" }, ... } or { status: "failed" }
+      const statusCheck =
+        response?.data?.data?.status || response?.data?.status;
+
+      if (statusCheck === "failed") {
+        setSubmitResultData(response.data); // Keep response for debug
+        throw new Error(
+          response.data.message ||
+            response.data.data?.message ||
+            "การดำเนินการล้มเหลว (Status: Failed)"
+        );
+      }
+
+      // --- Success ---
+      setSubmitResultData(response.data); // Store response for Modal display
       setSubmitStatus("success");
       setSubmitMessage(response?.data?.message ?? "บันทึกข้อมูลสำเร็จ");
 
       if (applications.selected) versions.load(applications.selected.app_id);
     } catch (error: any) {
-      // 6. Error State
-      console.error(error);
+      console.error("Submit Error:", error);
       setSubmitStatus("error");
-      setSubmitMessage(
-        error?.response?.data?.message ?? "เกิดข้อผิดพลาดในการบันทึก"
-      );
-      // ถ้า Error อาจจะเปิด Form กลับมาเพื่อให้แก้
-      // setVersionFormVisible(true);
+      // Extract error message
+      const errorMsg =
+        error.message ||
+        error?.response?.data?.message ||
+        "เกิดข้อผิดพลาดในการบันทึก";
+      setSubmitMessage(errorMsg);
+
+      // If error has response data, keep it for debug display
+      if (error?.response?.data) {
+        setSubmitResultData(error.response.data);
+      }
     }
   };
 
   const handleProcessModalClose = () => {
     setSubmitStatus("idle");
     setSubmitMessage("");
+    setSubmitResultData(null);
   };
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     const toastId = toast.loading("กำลังลบ...");
     try {
-      await DELETE_APPLICATION_VERSION(deleteTarget.version_id);
+      const response = await DELETE_APPLICATION_VERSION(
+        deleteTarget.version_id
+      );
+
+      // Check for logical error in delete response too
+      const statusCheck =
+        response?.data?.data?.status || response?.data?.status;
+      if (statusCheck === "failed") {
+        throw new Error(response.data.message || "ลบไม่สำเร็จ");
+      }
+
       toast.success("ลบเวอร์ชันสำเร็จ", { id: toastId });
       setDeleteTarget(null);
       if (applications.selected) versions.load(applications.selected.app_id);
     } catch (error: any) {
-      toast.error("ลบไม่สำเร็จ", { id: toastId });
+      toast.error(
+        error.message || error?.response?.data?.message || "ลบไม่สำเร็จ",
+        { id: toastId }
+      );
     }
   };
 
-  // Columns Definitions
+  // Table Columns
   const appColumns: ColumnsType<ApplicationRecord> = [
     {
       title: "App Name",
@@ -900,10 +1047,10 @@ export default function CanteenAppManager() {
 
       <PasswordModal {...auth} />
 
-      {/* Process Result Modal: แสดงสถานะการทำงานแบบชัดเจน */}
       <ProcessResultModal
         status={submitStatus}
         message={submitMessage}
+        data={submitResultData}
         onClose={handleProcessModalClose}
       />
 

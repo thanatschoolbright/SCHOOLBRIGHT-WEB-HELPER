@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation"; // 1. Import useRouter
 import DashboardLayout from "@components/layouts/backend-layout";
 import axios from "axios";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ import {
   Badge,
   Alert,
   Dropdown,
+  Skeleton,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -39,6 +41,7 @@ import {
   DownloadOutlined,
   DownOutlined,
   FileExcelOutlined,
+  ArrowLeftOutlined, // 2. Import Arrow Icon
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -54,6 +57,7 @@ interface ApiResponse {
 }
 
 export default function ServerStatusPage() {
+  const router = useRouter(); // 3. Initialize Router
   const [data, setData] = useState<ServerStatusData[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
@@ -167,12 +171,13 @@ export default function ServerStatusPage() {
     return { total, online, offline, healthScore };
   }, [data]);
 
+  // Menu items for Dropdown
   const actionMenuItems = useMemo<MenuProps["items"]>(
     () => [
       {
         key: "discord",
         label: "ทดสอบแจ้งเตือน Discord",
-        icon: <NotificationOutlined spin={isDiscordLoading} />,
+        icon: <NotificationOutlined />,
         onClick: () => fetchServerStatus("discord"),
         disabled: isDiscordLoading,
       },
@@ -182,7 +187,7 @@ export default function ServerStatusPage() {
       {
         key: "export",
         label: "Export Excel Report",
-        icon: <FileExcelOutlined spin={isExporting} />,
+        icon: <FileExcelOutlined />,
         onClick: handleExportExcel,
         disabled: isExporting || data.length === 0,
       },
@@ -294,33 +299,61 @@ export default function ServerStatusPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6 w-full">
-        {/* Header Section with Split Button Dropdown */}
+        <Tooltip title={"ตรวจสอบมอนิเตอร์ระบบหลังบ้าน SB App"}>
+          <Typography.Text type="secondary"></Typography.Text>
+        </Tooltip>
+        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <Typography.Title level={3} style={{ margin: 0 }}>
-              System Health Monitor
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              <Space>
-                <SyncOutlined spin={isLoading} />
-                อัปเดตล่าสุด:{" "}
-                {lastUpdated ? lastUpdated.toLocaleTimeString("th-TH") : "-"}
-              </Space>
-            </Typography.Text>
+          <div className="flex items-start gap-4">
+            {/* 4. ปุ่มย้อนกลับ */}
+            <Button
+              shape="circle"
+              icon={<ArrowLeftOutlined />}
+              onClick={() => router.back()}
+              size="large"
+            />
+            <div>
+              <Typography.Title level={3} style={{ margin: 0 }}>
+                System Health Monitor
+              </Typography.Title>
+              <Typography.Text type="secondary">
+                <Space>
+                  {isLoading ? (
+                    <Skeleton.Input
+                      active
+                      size="small"
+                      style={{ width: 100 }}
+                    />
+                  ) : (
+                    <>
+                      <SyncOutlined />
+                      อัปเดตล่าสุด:{" "}
+                      {lastUpdated
+                        ? lastUpdated.toLocaleTimeString("th-TH")
+                        : "-"}
+                    </>
+                  )}
+                </Space>
+              </Typography.Text>
+            </div>
           </div>
+
           <Space>
-            <Dropdown.Button
-              type="primary"
-              loading={isLoading}
-              icon={<DownOutlined />}
-              menu={{ items: actionMenuItems }}
-              onClick={() => fetchServerStatus("normal")}
-            >
-              <Space>
-                <ReloadOutlined />
-                อัปเดตข้อมูลทันที
-              </Space>
-            </Dropdown.Button>
+            {isLoading || isExporting || isDiscordLoading ? (
+              <Skeleton.Button active shape="default" style={{ width: 150 }} />
+            ) : (
+              <Dropdown.Button
+                type="primary"
+                icon={<DownOutlined />}
+                menu={{ items: actionMenuItems }}
+                onClick={() => fetchServerStatus("normal")}
+              >
+                <Space>
+                  <ReloadOutlined />
+                  อัปเดตข้อมูลทันที
+                </Space>
+              </Dropdown.Button>
+            )}
           </Space>
         </div>
 
@@ -328,60 +361,82 @@ export default function ServerStatusPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card variant="borderless" className="shadow-sm">
             <div className="flex items-center justify-between">
-              <Statistic
-                title="ภาพรวมความสมบูรณ์ของระบบ"
-                value={stats.healthScore}
-                suffix="%"
-                valueStyle={{
-                  color: stats.healthScore === 100 ? "#3f8600" : "#cf1322",
-                }}
-              />
-              <Progress
-                type="circle"
-                percent={stats.healthScore}
-                size={50}
-                status={stats.healthScore === 100 ? "success" : "exception"}
-                showInfo={false}
-              />
+              {isLoading ? (
+                <Skeleton active paragraph={{ rows: 1 }} />
+              ) : (
+                <>
+                  <Statistic
+                    title="ภาพรวมความสมบูรณ์ของระบบ"
+                    value={stats.healthScore}
+                    suffix="%"
+                    valueStyle={{
+                      color: stats.healthScore === 100 ? "#3f8600" : "#cf1322",
+                    }}
+                  />
+                  <Progress
+                    type="circle"
+                    percent={stats.healthScore}
+                    size={50}
+                    status={stats.healthScore === 100 ? "success" : "exception"}
+                    showInfo={false}
+                  />
+                </>
+              )}
             </div>
           </Card>
 
           <Card variant="borderless" className="shadow-sm">
-            <Statistic
-              title="จำนวน Module ทั้งหมด"
-              value={stats.total}
-              prefix={<ApiOutlined />}
-            />
+            {isLoading ? (
+              <Skeleton active paragraph={{ rows: 1 }} />
+            ) : (
+              <Statistic
+                title="จำนวน Module ทั้งหมด"
+                value={stats.total}
+                prefix={<ApiOutlined />}
+              />
+            )}
           </Card>
 
           <Card variant="borderless" className="shadow-sm">
-            <Statistic
-              title="ทำงานปกติ"
-              value={stats.online}
-              valueStyle={{ color: "#3f8600" }}
-              prefix={<SafetyCertificateOutlined />}
-            />
+            {isLoading ? (
+              <Skeleton active paragraph={{ rows: 1 }} />
+            ) : (
+              <Statistic
+                title="ทำงานปกติ"
+                value={stats.online}
+                valueStyle={{ color: "#3f8600" }}
+                prefix={<SafetyCertificateOutlined />}
+              />
+            )}
           </Card>
 
           <Card
             variant="borderless"
             className="shadow-sm"
             style={{
-              border: stats.offline > 0 ? "1px solid #ffccc7" : undefined,
-              background: stats.offline > 0 ? "#fff1f0" : undefined,
+              border:
+                !isLoading && stats.offline > 0
+                  ? "1px solid #ffccc7"
+                  : undefined,
+              background:
+                !isLoading && stats.offline > 0 ? "#fff1f0" : undefined,
             }}
           >
-            <Statistic
-              title="พบปัญหา"
-              value={stats.offline}
-              valueStyle={{ color: "#cf1322" }}
-              prefix={<BugOutlined />}
-            />
+            {isLoading ? (
+              <Skeleton active paragraph={{ rows: 1 }} />
+            ) : (
+              <Statistic
+                title="พบปัญหา"
+                value={stats.offline}
+                valueStyle={{ color: "#cf1322" }}
+                prefix={<BugOutlined />}
+              />
+            )}
           </Card>
         </div>
 
         {/* Alert Section */}
-        {stats.offline > 0 && (
+        {!isLoading && stats.offline > 0 && (
           <Alert
             message="พบความผิดปกติในระบบ"
             description={`มี ${stats.offline} รายการที่ไม่สามารถใช้งานได้ โปรดตรวจสอบและแจ้งทีม Developer ทันที`}
@@ -412,6 +467,7 @@ export default function ServerStatusPage() {
                 ]}
                 value={statusFilter}
                 onChange={(val) => setStatusFilter(val as any)}
+                disabled={isLoading}
               />
             </div>
             <div className="w-full md:w-1/3">
@@ -421,21 +477,29 @@ export default function ServerStatusPage() {
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 allowClear
+                disabled={isLoading}
               />
             </div>
           </div>
 
-          <Table<ServerStatusData>
-            columns={columns}
-            dataSource={filteredData}
-            loading={isLoading}
-            rowKey={(record) => record.module}
-            pagination={{
-              pageSize: 10,
-              showTotal: (total) => `แสดงผล ${total} รายการ`,
-            }}
-            bordered
-          />
+          {/* 5. ใช้ Skeleton แทน Table Loading Spinner */}
+          {isLoading ? (
+            <div style={{ padding: "20px" }}>
+              <Skeleton active paragraph={{ rows: 10 }} />
+            </div>
+          ) : (
+            <Table<ServerStatusData>
+              columns={columns}
+              dataSource={filteredData}
+              loading={false} // Disable default table spinner
+              rowKey={(record) => record.module}
+              pagination={{
+                pageSize: 10,
+                showTotal: (total) => `แสดงผล ${total} รายการ`,
+              }}
+              bordered
+            />
+          )}
         </Card>
       </div>
 
@@ -443,7 +507,6 @@ export default function ServerStatusPage() {
       <Modal
         title={
           <Space>
-            {/* ใช้ Ant Design Badge แทน div classname สี เพื่อให้เป็น Clean Code ตาม Theme */}
             <Badge
               status={selectedItem?.status === "200" ? "success" : "error"}
             />
