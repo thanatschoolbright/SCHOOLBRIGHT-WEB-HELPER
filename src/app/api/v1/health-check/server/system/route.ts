@@ -6,6 +6,7 @@ import { logger } from "@/helpers/logger";
 // Import Service ที่แยกออกไป
 import { checkLoginService, HealthCheckResult } from "./helper/login.service";
 import { checkVerificationService } from "./helper/verification.service";
+import { checkServerStatusService } from "./helper/server-status.service";
 
 const WEBHOOK_DISCORD =
   process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_HEARTBEAT_BOT ?? "";
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
     const results: HealthCheckResult[] = await Promise.all([
       checkLoginService(),
       checkVerificationService(),
+      checkServerStatusService(),
     ]);
 
     // กรองหา Service ที่มีปัญหา
