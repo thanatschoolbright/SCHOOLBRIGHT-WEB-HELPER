@@ -76,7 +76,6 @@ export const useSidebarMenu = (): SidebarItem[] => {
             href: "/admin/user-profile",
             icon: <ProfileOutlined />,
           },
-          
         ],
       },
       {
@@ -128,11 +127,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             href: "/health-check/online-status",
             icon: <GlobalOutlined />,
           },
-          {
-            label: t("health_check.children.offline_sync_status"),
-            href: "/health-check/offline-sync-status",
-            icon: <SyncOutlined />,
-          },
+
           {
             label: t("health_check.children.version_control"),
             href: "/health-check/version-control",
