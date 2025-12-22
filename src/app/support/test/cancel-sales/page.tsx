@@ -9,8 +9,29 @@ import {
   Skeleton,
   Space,
   Typography,
+  theme,
+  Alert,
+  Steps,
+  Badge,
+  Divider,
+  Tooltip,
+  Progress,
 } from "antd";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
+import {
+  HomeOutlined,
+  UserOutlined,
+  TeamOutlined,
+  CreditCardOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  CopyOutlined,
+  ReloadOutlined,
+  RocketOutlined,
+  SafetyOutlined,
+  ThunderboltOutlined,
+  FileTextOutlined,
+} from "@ant-design/icons";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import Link from "next/link";
 import {
   useCallback,
@@ -22,8 +43,8 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
-import { FiCreditCard, FiHome, FiUser, FiUserCheck } from "react-icons/fi";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 import AiChatWidget, {
   type CancellationExtraction,
@@ -81,50 +102,6 @@ interface DropdownOption {
 
 type IconSelectProps = SelectProps<string> & { icon: ReactNode };
 
-//** คอมโพเนนต์ Select พร้อมไอคอนซ้ายเพื่อให้เว้นระยะได้สม่ำเสมอ
-const FieldIconSelect = ({
-  icon,
-  className,
-  style,
-  ...props
-}: IconSelectProps) => {
-  const composedClassName = ["field-select", className]
-    .filter(Boolean)
-    .join(" ");
-
-  return (
-    <div className="field-with-icon">
-      <span className="field-icon">{icon}</span>
-      <Select
-        {...props}
-        className={composedClassName}
-        style={{ width: "100%", ...style }}
-      />
-      <style jsx>{`
-        .field-with-icon {
-          position: relative;
-          width: 100%;
-        }
-
-        .field-icon {
-          position: absolute;
-          left: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #8c8c8c;
-          pointer-events: none;
-          font-size: 18px;
-          z-index: 2;
-        }
-
-        .field-with-icon :global(.ant-select-selector) {
-          padding-left: 36px !important;
-        }
-      `}</style>
-    </div>
-  );
-};
-
 const initialFormValues: CancelSalesState["draftValues"] = {
   SchoolID: "",
   sID: "",
@@ -135,6 +112,7 @@ const initialFormValues: CancelSalesState["draftValues"] = {
 export default function Page() {
   const dispatch = useDispatch<AppDispatch>();
   const [form] = Form.useForm<CancelSalesState["draftValues"]>();
+  const { token } = theme.useToken();
 
   const cancelSalesState = useAppSelector((state) => state.callCancelSales);
   const schoolListState = useAppSelector((state) => state.callSchoolList);
@@ -146,6 +124,7 @@ export default function Page() {
     {}
   );
   const [isFetchingUsers, setIsFetchingUsers] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
   const skipUserFetchRef = useRef(false);
   const cachedUsersRef = useRef<ResponseUserList["draftValues"][]>([]);
   const schoolListCacheRef = useRef<ResponseSchoolList["draftValues"] | null>(
@@ -281,6 +260,7 @@ export default function Page() {
 
       toast.success("ขั้นตอนที่ 3/3: ยกเลิกรายการสำเร็จ", { id: toastId });
       matchedContextRef.current = null;
+      setCurrentStep(3);
       return response;
     } catch (error: any) {
       const errorResponse = error?.response;
@@ -564,6 +544,7 @@ export default function Page() {
     form,
     normalizeText,
     cleanSchoolLabel,
+    schoolOptions,
   ]);
 
   const handleCancellationInfo = useCallback(
@@ -623,13 +604,10 @@ export default function Page() {
     [form]
   );
 
-  //** สร้างรายการโรงเรียนจากสถานะที่ดึงมาล่าสุด
-  //** ตั้งค่าเริ่มต้นให้ฟอร์มเมื่อเปิดหน้า
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
   }, [form]);
 
-  //** ดึงรายชื่อผู้ใช้ทุกครั้งที่เลือกโรงเรียนใหม่
   useEffect(() => {
     if (!selectedSchoolId) {
       setUserList([]);
@@ -649,7 +627,6 @@ export default function Page() {
     });
   }, [fetchUsersForSchool, selectedSchoolId]);
 
-  //** ส่งคำขอยกเลิกธุรกรรมไปยังระบบหลัก
   const handleSubmitForm = async (values: CancelSalesState["draftValues"]) => {
     await submitCancellationRequest(values);
   };
@@ -679,16 +656,15 @@ export default function Page() {
     }
   };
 
-  //** ล้างค่าในฟอร์มและรีเซ็ตสถานะผู้ใช้ที่เลือกไว้
   const handleResetForm = () => {
     form.setFieldsValue(initialFormValues);
     setUserList([]);
     cachedUsersRef.current = [];
     setExtractedInfo({});
+    setCurrentStep(0);
     toast.success("ล้างข้อมูลฟอร์มแล้ว");
   };
 
-  //** คัดลอกข้อมูลตอบกลับขึ้นคลิปบอร์ดเพื่อไปใช้งานต่อ
   const handleCopyResponse = async (content: string, successText: string) => {
     try {
       await navigator.clipboard.writeText(content);
@@ -704,9 +680,28 @@ export default function Page() {
       curl?: string;
     }) ?? {};
 
+  const getFormProgress = () => {
+    const values = form.getFieldsValue();
+    let filled = 0;
+    if (values.SchoolID) filled++;
+    if (values.sID) filled++;
+    if (values.sID2) filled++;
+    if (values.sSellID) filled++;
+    return (filled / 4) * 100;
+  };
+
   return (
     <DashboardLayout>
-      <div className="">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{
+          padding: "32px",
+          background: `linear-gradient(135deg, ${token.colorBgLayout} 0%, ${token.colorBgContainer} 100%)`,
+          minHeight: "100vh",
+        }}
+      >
         <AiChatWidget
           title="AI Assistant สำหรับยกเลิกรายการ"
           placeholder="พิมพ์คำสั่ง เช่น ยกเลิกการขายให้โรงเรียน ... พร้อมข้อมูลที่จำเป็น"
@@ -716,244 +711,415 @@ export default function Page() {
         />
 
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          <Card
-            className="glass-card"
-            title={
-              <Typography.Title level={4} className="card-title">
-                Cancel Sales เกิน 7 วัน
-              </Typography.Title>
-            }
-            variant="outlined"
+          {/* Header Card */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
           >
-            <Skeleton
-              active
-              loading={isResourceLoading}
-              paragraph={{ rows: 8 }}
-              title={false}
-            >
-              <Form
-                form={form}
-                layout="vertical"
-                initialValues={initialFormValues}
-                onFinish={handleSubmitForm}
-              >
-                <Form.Item
-                  name="SchoolID"
-                  label="เลือกโรงเรียน"
-                  rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
-                >
-                  <FieldIconSelect
-                    icon={<FiHome />}
-                    showSearch
-                    allowClear
-                    placeholder="เลือกโรงเรียน"
-                    options={[
-                      { label: "เลือกรายการ", value: "" },
-                      ...schoolOptions,
-                    ]}
-                    optionFilterProp="label"
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="sID"
-                  label="กรอกรหัส User ID (ของผู้ซื้อสินค้า)"
-                  rules={[{ required: true, message: "กรุณาเลือกผู้ซื้อ" }]}
-                >
-                  <FieldIconSelect
-                    icon={<FiUser />}
-                    showSearch
-                    allowClear
-                    placeholder="กรอกรหัส User ID (ของผู้ซื้อสินค้า)"
-                    options={[{ label: "เลือกรายการ", value: "" }, ...userList]}
-                    optionFilterProp="label"
-                    disabled={!selectedSchoolId}
-                    loading={isFetchingUsers}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="sID2"
-                  label="กรอกรหัส User ID (ของผู้ขายสินค้า)"
-                  rules={[{ required: true, message: "กรุณาเลือกผู้ขาย" }]}
-                >
-                  <FieldIconSelect
-                    icon={<FiUserCheck />}
-                    showSearch
-                    allowClear
-                    placeholder="กรอกรหัส User ID (ของผู้ขายสินค้า)"
-                    options={[{ label: "เลือกรายการ", value: "" }, ...userList]}
-                    optionFilterProp="label"
-                    disabled={!selectedSchoolId}
-                    loading={isFetchingUsers}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="sSellID"
-                  label="รหัส Transaction Id (sSellID)"
-                  rules={[
-                    { required: true, message: "กรุณากรอก Transaction ID" },
-                  ]}
-                >
-                  <Input
-                    placeholder="กรุณากรอกรหัส Transaction ID"
-                    prefix={<FiCreditCard />}
-                  />
-                </Form.Item>
-
-                <Form.Item>
-                  <Space>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      loading={isSubmitting}
-                    >
-                      ยืนยัน
-                    </Button>
-                    <Button htmlType="button" danger onClick={handleResetForm}>
-                      ล้างข้อมูล
-                    </Button>
-                  </Space>
-                </Form.Item>
-              </Form>
-            </Skeleton>
-          </Card>
-
-          {responsePayload.data && (
             <Card
-              className="glass-card"
-              title={
-                <Typography.Title level={5} className="card-title">
-                  Response
-                </Typography.Title>
-              }
               variant="borderless"
+              style={{
+                background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorPrimaryActive} 100%)`,
+                borderRadius: 16,
+                boxShadow: `0 8px 32px ${token.colorPrimary}30`,
+              }}
+              styles={{ body: { padding: "32px" } }}
             >
               <Space
                 direction="vertical"
-                size="middle"
+                size="small"
                 style={{ width: "100%" }}
               >
-                <pre className="response-block">
-                  <code>{JSON.stringify(responsePayload.data, null, 2)}</code>
-                </pre>
-
-                <Space wrap>
-                  <Button
-                    type="primary"
-                    onClick={() =>
-                      handleCopyResponse(
-                        JSON.stringify(responsePayload.data, null, 2),
-                        "คัดลอก Response แล้ว"
-                      )
-                    }
+                <Space align="center">
+                  <SafetyOutlined style={{ fontSize: 32, color: "white" }} />
+                  <Typography.Title
+                    level={2}
+                    style={{ margin: 0, color: "white", fontWeight: 700 }}
                   >
-                    Copy Response
-                  </Button>
-
-                  <Button
-                    onClick={() =>
-                      responsePayload.curl &&
-                      handleCopyResponse(
-                        responsePayload.curl.toString(),
-                        "คัดลอก CURL แล้ว"
-                      )
-                    }
-                    disabled={!responsePayload.curl}
-                  >
-                    Copy CURL
-                  </Button>
+                    ยกเลิกรายการขาย เกิน 7 วัน
+                  </Typography.Title>
                 </Space>
+                <Typography.Text
+                  style={{ color: "rgba(255,255,255,0.9)", fontSize: 16 }}
+                >
+                  ระบบยกเลิกรายการขายที่เกินกำหนดเวลา พร้อม AI Assistant
+                </Typography.Text>
               </Space>
             </Card>
+          </motion.div>
+
+          {/* Progress Steps */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card
+              bordered={false}
+              style={{
+                borderRadius: 16,
+                boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+              }}
+            >
+              <Steps
+                current={currentStep}
+                items={[
+                  {
+                    title: "เลือกโรงเรียน",
+                    icon: <HomeOutlined />,
+                  },
+                  {
+                    title: "ระบุผู้ซื้อ/ผู้ขาย",
+                    icon: <TeamOutlined />,
+                  },
+                  {
+                    title: "กรอก Transaction ID",
+                    icon: <CreditCardOutlined />,
+                  },
+                  {
+                    title: "เสร็จสิ้น",
+                    icon: <CheckCircleOutlined />,
+                  },
+                ]}
+              />
+              <Divider />
+              <div>
+                <Typography.Text type="secondary">
+                  ความคืบหน้าการกรอกข้อมูล
+                </Typography.Text>
+                <Progress
+                  percent={Math.round(getFormProgress())}
+                  strokeColor={{
+                    "0%": token.colorPrimary,
+                    "100%": token.colorSuccess,
+                  }}
+                  size={8}
+                />
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Main Form Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card
+              variant="borderless"
+              title={
+                <Space>
+                  <FileTextOutlined style={{ color: token.colorPrimary }} />
+                  <Typography.Title level={4} style={{ margin: 0 }}>
+                    แบบฟอร์มยกเลิกรายการ
+                  </Typography.Title>
+                </Space>
+              }
+              style={{
+                borderRadius: 16,
+                boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+              }}
+            >
+              <Skeleton
+                active
+                loading={isResourceLoading}
+                paragraph={{ rows: 8 }}
+                title={false}
+              >
+                <Form
+                  form={form}
+                  layout="vertical"
+                  initialValues={initialFormValues}
+                  onFinish={handleSubmitForm}
+                  onValuesChange={() => {
+                    const values = form.getFieldsValue();
+                    let step = 0;
+                    if (values.SchoolID) step = 1;
+                    if (values.sID && values.sID2) step = 2;
+                    if (values.sSellID) step = 2;
+                    setCurrentStep(step);
+                  }}
+                >
+                  <Form.Item
+                    name="SchoolID"
+                    label={
+                      <Space>
+                        <HomeOutlined style={{ color: token.colorPrimary }} />
+                        <span style={{ fontWeight: 600 }}>เลือกโรงเรียน</span>
+                      </Space>
+                    }
+                    rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
+                  >
+                    <Select
+                      showSearch
+                      allowClear
+                      placeholder="🏫 เลือกโรงเรียน"
+                      size="large"
+                      options={[
+                        { label: "เลือกรายการ", value: "" },
+                        ...schoolOptions,
+                      ]}
+                      optionFilterProp="label"
+                      style={{
+                        boxShadow: `0 2px 8px ${token.colorPrimary}10`,
+                      }}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="sID"
+                    label={
+                      <Space>
+                        <UserOutlined style={{ color: token.colorSuccess }} />
+                        <span style={{ fontWeight: 600 }}>
+                          กรอกรหัส User ID (ของผู้ซื้อสินค้า)
+                        </span>
+                      </Space>
+                    }
+                    rules={[{ required: true, message: "กรุณาเลือกผู้ซื้อ" }]}
+                  >
+                    <Select
+                      showSearch
+                      allowClear
+                      placeholder="👤 เลือกผู้ซื้อสินค้า"
+                      size="large"
+                      options={[
+                        { label: "เลือกรายการ", value: "" },
+                        ...userList,
+                      ]}
+                      optionFilterProp="label"
+                      disabled={!selectedSchoolId}
+                      loading={isFetchingUsers}
+                      style={{
+                        boxShadow: `0 2px 8px ${token.colorSuccess}10`,
+                      }}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="sID2"
+                    label={
+                      <Space>
+                        <TeamOutlined style={{ color: token.colorWarning }} />
+                        <span style={{ fontWeight: 600 }}>
+                          กรอกรหัส User ID (ของผู้ขายสินค้า)
+                        </span>
+                      </Space>
+                    }
+                    rules={[{ required: true, message: "กรุณาเลือกผู้ขาย" }]}
+                  >
+                    <Select
+                      showSearch
+                      allowClear
+                      placeholder="👥 เลือกผู้ขายสินค้า"
+                      size="large"
+                      options={[
+                        { label: "เลือกรายการ", value: "" },
+                        ...userList,
+                      ]}
+                      optionFilterProp="label"
+                      disabled={!selectedSchoolId}
+                      loading={isFetchingUsers}
+                      style={{
+                        boxShadow: `0 2px 8px ${token.colorWarning}10`,
+                      }}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="sSellID"
+                    label={
+                      <Space>
+                        <CreditCardOutlined
+                          style={{ color: token.colorError }}
+                        />
+                        <span style={{ fontWeight: 600 }}>
+                          รหัส Transaction Id (sSellID)
+                        </span>
+                      </Space>
+                    }
+                    rules={[
+                      { required: true, message: "กรุณากรอก Transaction ID" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="💳 กรุณากรอกรหัส Transaction ID"
+                      size="large"
+                      prefix={<CreditCardOutlined />}
+                      style={{
+                        boxShadow: `0 2px 8px ${token.colorError}10`,
+                      }}
+                    />
+                  </Form.Item>
+
+                  <Form.Item>
+                    <Space size="middle">
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={isSubmitting}
+                        size="large"
+                        icon={<ThunderboltOutlined />}
+                        style={{
+                          borderRadius: 8,
+                          background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorPrimaryActive})`,
+                          border: "none",
+                          boxShadow: `0 4px 16px ${token.colorPrimary}40`,
+                          fontWeight: 600,
+                        }}
+                      >
+                        ยืนยันยกเลิกรายการ
+                      </Button>
+                      <Button
+                        htmlType="button"
+                        danger
+                        size="large"
+                        icon={<ReloadOutlined />}
+                        onClick={handleResetForm}
+                        style={{
+                          borderRadius: 8,
+                          fontWeight: 600,
+                        }}
+                      >
+                        ล้างข้อมูล
+                      </Button>
+                    </Space>
+                  </Form.Item>
+                </Form>
+              </Skeleton>
+            </Card>
+          </motion.div>
+
+          {/* Response Card */}
+          {responsePayload.data && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Card
+                bordered={false}
+                title={
+                  <Space>
+                    <CheckCircleOutlined
+                      style={{ color: token.colorSuccess, fontSize: 20 }}
+                    />
+                    <Typography.Title level={4} style={{ margin: 0 }}>
+                      ผลลัพธ์การดำเนินการ
+                    </Typography.Title>
+                  </Space>
+                }
+                style={{
+                  borderRadius: 16,
+                  boxShadow: `0 4px 16px ${token.colorSuccess}20`,
+                  border: `2px solid ${token.colorSuccess}30`,
+                }}
+              >
+                <Space
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: "100%" }}
+                >
+                  <Alert
+                    message="ยกเลิกรายการสำเร็จ"
+                    description="ระบบได้ดำเนินการยกเลิกรายการเรียบร้อยแล้ว"
+                    type="success"
+                    showIcon
+                  />
+
+                  <div
+                    style={{
+                      padding: 16,
+                      borderRadius: 12,
+                      background: token.colorFillAlter,
+                      maxHeight: 300,
+                      overflow: "auto",
+                    }}
+                  >
+                    <pre style={{ margin: 0, fontSize: 12 }}>
+                      <code>
+                        {JSON.stringify(responsePayload.data, null, 2)}
+                      </code>
+                    </pre>
+                  </div>
+
+                  <Space wrap>
+                    <Tooltip title="คัดลอก Response">
+                      <Button
+                        type="primary"
+                        icon={<CopyOutlined />}
+                        onClick={() =>
+                          handleCopyResponse(
+                            JSON.stringify(responsePayload.data, null, 2),
+                            "คัดลอก Response แล้ว"
+                          )
+                        }
+                      >
+                        Copy Response
+                      </Button>
+                    </Tooltip>
+
+                    <Tooltip title="คัดลอก CURL Command">
+                      <Button
+                        icon={<CopyOutlined />}
+                        onClick={() =>
+                          responsePayload.curl &&
+                          handleCopyResponse(
+                            responsePayload.curl.toString(),
+                            "คัดลอก CURL แล้ว"
+                          )
+                        }
+                        disabled={!responsePayload.curl}
+                      >
+                        Copy CURL
+                      </Button>
+                    </Tooltip>
+                  </Space>
+                </Space>
+              </Card>
+            </motion.div>
           )}
 
-          <Card
-            title={
-              <Typography.Title level={5} className="card-title">
-                หมายเหตุ (1)
-              </Typography.Title>
-            }
-            variant="outlined"
+          {/* Help Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
           >
-            <Space direction="vertical">
-              <Typography.Text type="danger">
-                วิธีการใช้งาน Cancel Sales
-              </Typography.Text>
-              <Link
-                href="https://drive.google.com/file/d/11JeMTt22jWK12BjsW07fFYteuZgDGjAe/view?usp=sharing"
-                className="external-link"
-              >
-                คลิกที่นี่เพื่อดูคลิปสอนการใช้งานภายใน 2 นาที!
-              </Link>
-            </Space>
-          </Card>
+            <Card
+              bordered={false}
+              style={{
+                borderRadius: 16,
+                background: `linear-gradient(135deg, ${token.colorInfoBg} 0%, ${token.colorBgContainer} 100%)`,
+                border: `1px solid ${token.colorInfoBorder}`,
+              }}
+            >
+              <Space direction="vertical" size="small">
+                <Space>
+                  <RocketOutlined
+                    style={{ fontSize: 20, color: token.colorInfo }}
+                  />
+                  <Typography.Text strong style={{ fontSize: 16 }}>
+                    วิธีการใช้งาน Cancel Sales
+                  </Typography.Text>
+                </Space>
+                <Link
+                  href="https://drive.google.com/file/d/11JeMTt22jWK12BjsW07fFYteuZgDGjAe/view?usp=sharing"
+                  target="_blank"
+                  style={{
+                    color: token.colorPrimary,
+                    textDecoration: "underline",
+                    fontSize: 15,
+                  }}
+                >
+                  📺 คลิกที่นี่เพื่อดูคลิปสอนการใช้งานภายใน 2 นาที!
+                </Link>
+              </Space>
+            </Card>
+          </motion.div>
         </Space>
-      </div>
-
-      <style jsx>{`
-        .cancel-sales-page {
-          width: 100%;
-          padding: 32px;
-          background: linear-gradient(
-            135deg,
-            rgba(248, 250, 252, 0.9),
-            rgba(255, 255, 255, 0.8)
-          );
-        }
-
-        .glass-card {
-          border-radius: 20px;
-          border: none;
-          background: rgba(255, 255, 255, 0.92);
-          box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
-        }
-
-        .card-title {
-          margin-bottom: 0 !important;
-          font-weight: 600;
-        }
-
-        .response-block {
-          padding: 16px;
-          border-radius: 16px;
-          background: rgba(15, 23, 42, 0.05);
-          font-size: 12px;
-          max-height: 260px;
-          overflow-y: auto;
-          white-space: pre-wrap;
-        }
-
-        .external-link {
-          color: #2563eb;
-          text-decoration: underline;
-        }
-
-        .external-link:hover {
-          color: #1d4ed8;
-        }
-
-        @media (prefers-color-scheme: dark) {
-          .glass-card {
-            background: rgba(15, 23, 42, 0.88);
-            box-shadow: 0 20px 40px rgba(2, 6, 23, 0.6);
-          }
-
-          .response-block {
-            background: rgba(148, 163, 184, 0.18);
-            color: #e2e8f0;
-          }
-
-          .external-link {
-            color: #93c5fd;
-          }
-
-          .external-link:hover {
-            color: #bfdbfe;
-          }
-        }
-      `}</style>
+      </motion.div>
     </DashboardLayout>
   );
 }
