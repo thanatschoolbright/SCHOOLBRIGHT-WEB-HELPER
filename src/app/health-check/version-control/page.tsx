@@ -40,6 +40,7 @@ import {
   BranchesOutlined,
   GlobalOutlined,
   WarningOutlined,
+  CodeOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -59,10 +60,26 @@ type SystemGroup = {
   last_updated: string;
 };
 
-// ✅ FIX: ย้าย Helper function ออกมาข้างนอก เพื่อให้ EnvSlot เรียกใช้ได้
+// --- Helper Functions ---
+
+// เช็คว่าเป็นรายการใหม่ (น้อยกว่า 24 ชม.)
 const isRecent = (dateStr: string) => {
   if (!dateStr) return false;
-  return dayjs().diff(dayjs(dateStr), "hour") < 24; // น้อยกว่า 24 ชม. ถือว่าใหม่
+  return dayjs().diff(dayjs(dateStr), "hour") < 24;
+};
+
+// แปลงชื่อ Environment เป็นภาษาไทย
+const getThaiEnvName = (env: string) => {
+  switch (env.toLowerCase()) {
+    case "production":
+      return "เซิร์ฟเวอร์โปรดักชัน";
+    case "beta":
+      return "เซิร์ฟเวอร์เบต้า";
+    case "development":
+      return "เซิร์ฟเวอร์พัฒนา";
+    default:
+      return env.toUpperCase();
+  }
 };
 
 export default function OperationsDashboardPage() {
@@ -170,7 +187,7 @@ export default function OperationsDashboardPage() {
   return (
     <DashboardLayout>
       <HeaderBar
-        title="Operations Monitor"
+        title="ระบบตรวจสอบการทำงาน (Operations Monitor)"
         subTitle="ติดตามการ Deploy และตรวจสอบเวอร์ชันรายระบบ"
         icon={<GlobalOutlined />}
         color="none"
@@ -181,14 +198,14 @@ export default function OperationsDashboardPage() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
           <Space>
             <Statistic
-              title="Systems"
+              title="ระบบทั้งหมด"
               value={groupedSystems.length}
               prefix={<DeploymentUnitOutlined />}
               valueStyle={{ fontSize: 18, fontWeight: 600 }}
             />
             <Divider type="vertical" className="h-8" />
             <Statistic
-              title="Deploys (24h)"
+              title="การอัปเดต (24 ชม.)"
               value={rawData.filter((r) => isRecent(r.updated_at)).length}
               prefix={<HistoryOutlined />}
               valueStyle={{
@@ -216,7 +233,7 @@ export default function OperationsDashboardPage() {
                 toast.success("ดึงข้อมูลล่าสุดเรียบร้อย");
               }}
             >
-              Refresh
+              รีเฟรชข้อมูล
             </Button>
           </Space>
         </div>
@@ -225,7 +242,7 @@ export default function OperationsDashboardPage() {
           {/* LEFT COLUMN: Main System Grid */}
           <Col xs={24} xl={16}>
             <Typography.Title level={5} className="mb-4 text-slate-500">
-              <BranchesOutlined /> System Status Overview
+              <BranchesOutlined /> ภาพรวมสถานะระบบ (System Status)
             </Typography.Title>
 
             <div className="grid grid-cols-1 gap-4">
@@ -258,25 +275,25 @@ export default function OperationsDashboardPage() {
                       </div>
                     </Space>
                     <Typography.Text type="secondary" className="text-xs">
-                      Updated {dayjs(group.last_updated).fromNow()}
+                      อัปเดต {dayjs(group.last_updated).fromNow()}
                     </Typography.Text>
                   </div>
 
                   <div className="grid grid-cols-3 divide-x">
                     <EnvSlot
-                      title="Development"
+                      title="เซิร์ฟเวอร์พัฒนา"
                       data={group.development}
                       color="blue"
                       onClick={() => handleOpenDetail(group.development)}
                     />
                     <EnvSlot
-                      title="Beta"
+                      title="เซิร์ฟเวอร์เบต้า"
                       data={group.beta}
                       color="orange"
                       onClick={() => handleOpenDetail(group.beta)}
                     />
                     <EnvSlot
-                      title="Production"
+                      title="เซิร์ฟเวอร์โปรดักชัน"
                       data={group.production}
                       color="green"
                       onClick={() => handleOpenDetail(group.production)}
@@ -324,22 +341,33 @@ export default function OperationsDashboardPage() {
                         className="cursor-pointer hover:bg-slate-50 p-2 -ml-2 rounded transition-colors group"
                         onClick={() => handleOpenDetail(item)}
                       >
-                        <div className="flex justify-between items-start">
-                          <Typography.Text strong style={{ fontSize: 13 }}>
+                        <div className="flex justify-between items-start gap-2">
+                          <Typography.Text
+                            strong
+                            style={{ fontSize: 13 }}
+                            className="truncate"
+                          >
                             {item.system}
                           </Typography.Text>
-                          <Tag bordered={false} className="mr-0 text-[10px]">
-                            {dayjs(item.updated_at).format("HH:mm")}
+
+                          {/* ✅ แสดง วัน/เดือน/ปี และเวลา */}
+                          <Tag
+                            bordered={false}
+                            className="mr-0 text-[10px] text-slate-500 whitespace-nowrap"
+                          >
+                            {dayjs(item.updated_at).format("DD/MM/YYYY HH:mm")}
                           </Tag>
                         </div>
 
                         <div className="flex items-center gap-2 mt-1">
+                          {/* ✅ แสดงชื่อเซิร์ฟเวอร์เป็นภาษาไทยเต็มๆ */}
                           <Tag
                             color={getEnvColor(item.environment)}
-                            className="mr-0 text-[10px] px-1"
+                            className="mr-0 text-[10px] px-2"
                           >
-                            {item.environment.toUpperCase().substring(0, 3)}
+                            {getThaiEnvName(item.environment)}
                           </Tag>
+
                           <span className="text-xs text-gray-400">
                             Build: {item.build.substring(0, 6)}
                           </span>
@@ -370,7 +398,7 @@ export default function OperationsDashboardPage() {
       </div>
 
       <Drawer
-        title="Deployment Details"
+        title="รายละเอียดการติดตั้ง (Deployment Details)"
         placement="right"
         onClose={() => setDrawerOpen(false)}
         open={drawerOpen}
@@ -381,9 +409,9 @@ export default function OperationsDashboardPage() {
             <div className="text-center py-6 bg-slate-50 rounded-lg border border-slate-100">
               <Tag
                 color={getEnvColor(selectedItem.environment)}
-                className="mb-2"
+                className="mb-2 text-sm px-3 py-1"
               >
-                {selectedItem.environment.toUpperCase()}
+                {getThaiEnvName(selectedItem.environment)}
               </Tag>
               <Typography.Title level={4} style={{ margin: 0 }}>
                 {selectedItem.system}
@@ -395,21 +423,21 @@ export default function OperationsDashboardPage() {
 
             <div className="space-y-4">
               <DetailRow
-                label="Deployed By"
+                label="ผู้ดำเนินการ"
                 value={selectedItem.deployed_by}
                 icon={<UserOutlined />}
                 highlight
               />
               <DetailRow
-                label="Version"
+                label="เวอร์ชัน"
                 value={selectedItem.version || "N/A"}
                 icon={<RocketOutlined />}
               />
               <DetailRow
-                label="Build Hash"
+                label="รหัส Build"
                 value={selectedItem.build}
                 code
-                icon={<DeploymentUnitOutlined />}
+                icon={<CodeOutlined />}
               />
               <DetailRow
                 label="Branch"
@@ -418,7 +446,7 @@ export default function OperationsDashboardPage() {
                 icon={<BranchesOutlined />}
               />
               <DetailRow
-                label="Deployed Time"
+                label="เวลาที่ติดตั้ง"
                 value={`${dayjs(selectedItem.updated_at).format(
                   "DD/MM/YYYY HH:mm"
                 )} (${dayjs(selectedItem.updated_at).fromNow()})`}
@@ -426,7 +454,9 @@ export default function OperationsDashboardPage() {
               />
             </div>
 
-            <Divider>Message</Divider>
+            <Divider orientation="left" style={{ margin: "12px 0" }}>
+              ข้อความ / รายละเอียด
+            </Divider>
             <div className="bg-slate-800 text-green-400 p-4 rounded-md font-mono text-sm">
               {">"} {selectedItem.description}
             </div>
@@ -437,7 +467,7 @@ export default function OperationsDashboardPage() {
   );
 }
 
-// ✅ Sub-components เรียกใช้ isRecent ได้แล้ว
+// ✅ Sub-components
 const EnvSlot = ({
   title,
   data,
@@ -458,13 +488,13 @@ const EnvSlot = ({
     >
       <div className="flex justify-between mb-2">
         <span
-          className={`text-[10px] font-bold uppercase text-${color}-600 bg-${color}-50 px-2 py-0.5 rounded`}
+          className={`text-[10px] font-bold text-${color}-600 bg-${color}-50 px-2 py-0.5 rounded border border-${color}-100`}
         >
           {title}
         </span>
         {data && isRecent(data.updated_at) && (
           <Badge dot color="red" offset={[0, 0]}>
-            <span className="text-[10px] text-red-400">New</span>
+            <span className="text-[10px] text-red-400 ml-1">ใหม่</span>
           </Badge>
         )}
       </div>
@@ -492,7 +522,7 @@ const EnvSlot = ({
       ) : (
         <div className="flex flex-col items-center justify-center h-full opacity-30">
           <span className="text-2xl">-</span>
-          <span className="text-xs">No Deploy</span>
+          <span className="text-xs">ไม่มีข้อมูล</span>
         </div>
       )}
     </div>
