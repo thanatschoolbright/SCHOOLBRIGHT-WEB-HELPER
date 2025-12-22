@@ -33,6 +33,8 @@ export interface ResponseHeartbeats extends DefaultRedux {
       JobName: string;
       Interval: number;
       LastUpdatedTime: string; // ISO datetime string
+      Status?: string;
+      Remarks?: string;
     }[];
   };
 }
