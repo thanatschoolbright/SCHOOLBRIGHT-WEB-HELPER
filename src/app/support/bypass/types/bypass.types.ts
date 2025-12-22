@@ -15,6 +15,9 @@ export type SchoolDetail = {
   school_pass?: string;
   PROVINCE_NAME?: string;
   student_count?: number;
+  Status?: string;
+  Grade?: string;
+  SchoolGroup?: string;
 };
 
 export type Environment = {
