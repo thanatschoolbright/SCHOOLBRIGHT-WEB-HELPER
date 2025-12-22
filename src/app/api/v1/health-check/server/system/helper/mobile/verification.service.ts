@@ -14,7 +14,7 @@ const VERIFICATION_CONFIG = {
   data: {
     // แทนที่ Token ใน Body (ตามที่เคยทำใน Step ก่อนหน้า)
     Token: process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "",
-    UserID: 1400761,
+    UserID: 1230336,
     SchoolID: 849,
     Imei: "B1199AF3-36D9-416F-BB0D-4D334E3BE43B",
     IPAddress: "",

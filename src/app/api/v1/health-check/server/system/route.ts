@@ -9,6 +9,7 @@ import { checkFacialScanService } from "./helper/hardware/facial-scan.service";
 import { HealthCheckResult } from "./helper/health-check.type";
 import { checkNotificationService } from "./helper/mobile/notification.service";
 import { checkFlagPoleAttendanceService } from "./helper/mobile/attendance-student.service";
+import { checkFlagPoleScanService } from "./helper/mobile/attendance-scan.service";
 
 // Config
 const DISCORD_CONFIG = {
@@ -32,6 +33,7 @@ async function executeHealthChecks(): Promise<HealthCheckResult[]> {
     checkFacialScanService(),
     checkNotificationService(),
     checkFlagPoleAttendanceService(),
+    checkFlagPoleScanService(),
   ]);
 }
 
