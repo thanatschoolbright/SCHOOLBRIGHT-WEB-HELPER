@@ -1,18 +1,24 @@
 import React from "react";
 import { Typography, Button, Space } from "antd";
-import { PlusOutlined, BookOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  BookOutlined,
+  AppstoreAddOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { getGreeting } from "../utils/timesheet-entry.helpers";
 
 interface PageHeaderProps {
   adminName: string;
   onAddClick: () => void;
+  onAddMultiClick: () => void;
   token: any;
 }
 
 export const PageHeader: React.FC<PageHeaderProps> = ({
   adminName,
   onAddClick,
+  onAddMultiClick,
   token,
 }) => {
   const { t } = useTranslation("translate");
@@ -72,6 +78,21 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           }}
         >
           {t("timesheet_entry_page.add_entry_button")}
+        </Button>
+        <Button
+          type="primary"
+          size="large"
+          icon={<AppstoreAddOutlined />}
+          onClick={onAddMultiClick}
+          style={{
+            borderRadius: 8,
+            height: 44,
+            paddingInline: 24,
+            background: token.colorSuccess,
+            borderColor: token.colorSuccess,
+          }}
+        >
+          {t("timesheet_entry_page.add_multi_entry_button")}
         </Button>
       </Space>
     </div>

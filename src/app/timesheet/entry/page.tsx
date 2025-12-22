@@ -24,6 +24,7 @@ import { MonthlyRankBoardRef } from "./monthly-rank-board";
 import { PageHeader } from "./components/page-header.component";
 import { StatsGrid } from "./components/stats-grid.component";
 import { TimesheetTable } from "./components/timesheet-table.component";
+import { MultiEntryModal } from "./components/multi-entry-modal.component";
 
 import {
   useDailySummary,
@@ -62,6 +63,12 @@ export default function TimesheetEntryPage() {
 
   const authState = useAppSelector((state) => state.callAdminLogin);
   const timesheetState = useAppSelector((state) => state.timesheet);
+
+  // State for multi-entry modal
+  const [multiEntryModalOpen, setMultiEntryModalOpen] = useState(false);
+  const [subProjectsCache, setSubProjectsCache] = useState<
+    Record<string, any[]>
+  >({});
 
   const adminId = useMemo(
     () => Number(authState?.response?.data?.user_data?.admin_id) || undefined,
@@ -216,6 +223,74 @@ export default function TimesheetEntryPage() {
     [pageSize, setCurrentPage, setPageSize]
   );
 
+  // Multi-entry modal handlers
+  const openMultiEntryForm = useCallback(() => {
+    setMultiEntryModalOpen(true);
+  }, []);
+
+  const closeMultiEntryModal = useCallback(() => {
+    setMultiEntryModalOpen(false);
+    setSubProjectsCache({});
+  }, []);
+
+  const fetchSubProjectsForMulti = useCallback(
+    async (projectId: string) => {
+      if (subProjectsCache[projectId]) {
+        return;
+      }
+      await fetchSubProjects(Number(projectId));
+      if (isMountedRef.current && timesheetState.subProjects) {
+        setSubProjectsCache((prev) => ({
+          ...prev,
+          [projectId]: timesheetState.subProjects,
+        }));
+      }
+    },
+    [fetchSubProjects, subProjectsCache, timesheetState.subProjects]
+  );
+
+  const handleSubmitMultipleTimesheets = useCallback(
+    async (entries: any[]) => {
+      if (!adminId) return;
+
+      const toast = await import("sonner");
+      toast.toast.loading("กำลังบันทึก Timesheet ทั้งหมด...");
+
+      try {
+        const promises = entries.map((entry) => {
+          const values = {
+            project_id: entry.project_id,
+            sub_project_id: entry.sub_project_id,
+            description: entry.description || "",
+            work_hour: entry.work_hour,
+            status: entry.status,
+            date: entry.date,
+          };
+          return submitTimesheet(values, "create", undefined);
+        });
+
+        const results = await Promise.all(promises);
+        const successCount = results.filter((r) => r).length;
+
+        toast.toast.dismiss();
+        if (successCount === entries.length) {
+          toast.toast.success(
+            `บันทึก Timesheet สำเร็จทั้งหมด ${successCount} รายการ`
+          );
+          closeMultiEntryModal();
+        } else {
+          toast.toast.warning(
+            `บันทึกสำเร็จ ${successCount} จาก ${entries.length} รายการ`
+          );
+        }
+      } catch (error) {
+        toast.toast.dismiss();
+        toast.toast.error("เกิดข้อผิดพลาดในการบันทึก");
+      }
+    },
+    [adminId, submitTimesheet, closeMultiEntryModal]
+  );
+
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
@@ -234,6 +309,7 @@ export default function TimesheetEntryPage() {
             <PageHeader
               adminName={adminName}
               onAddClick={openCreateForm}
+              onAddMultiClick={openMultiEntryForm}
               token={token}
             />
 
@@ -298,6 +374,16 @@ export default function TimesheetEntryPage() {
             onConfirm={handleDeleteTimesheet}
             selectedCount={timesheetState.selectedRowKeys.length}
             loading={actionLoading}
+          />
+
+          <MultiEntryModal
+            open={multiEntryModalOpen}
+            onCancel={closeMultiEntryModal}
+            onSubmit={handleSubmitMultipleTimesheets}
+            projects={timesheetState.projects}
+            subProjects={subProjectsCache}
+            fetchSubProjects={fetchSubProjectsForMulti}
+            disabled={actionLoading}
           />
         </motion.div>
       </DashboardLayout>
