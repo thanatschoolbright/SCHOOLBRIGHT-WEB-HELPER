@@ -146,11 +146,13 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("health_check.children.online_status"),
             href: "/health-check/online-status",
             icon: <SignalFilled />, // สัญญาณเน็ตเต็ม
+            revamp: true,
           },
           {
             label: t("health_check.children.version_control"),
             href: "/health-check/version-control",
             icon: <BranchesOutlined />, // กิ่งก้าน Git Branch
+            revamp: true,
           },
           {
             label: t("health_check.children.transaction_log"),

@@ -1,28 +1,33 @@
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Tag, Tooltip, ConfigProvider } from "antd";
+import { Menu, Tag, Tooltip, ConfigProvider, Grid } from "antd";
 import type { MenuProps } from "antd";
 
-// --- School Bright Theme Colors ---
-const SB_ORANGE_PRIMARY = "#FF7F00"; // ส้มหลัก
-const SB_ORANGE_LIGHT = "#FFF2E8"; // ส้มพาสเทล (พื้นหลัง)
+const SB_ORANGE_PRIMARY = "#FF7F00";
+const SB_ORANGE_LIGHT = "#FFF2E8";
 const SB_ORANGE_GRADIENT_START = "#FF9933";
 const SB_ORANGE_GRADIENT_END = "#FF6600";
-const TEXT_DARK = "#4A4A4A"; // เทาเข้ม
+const TEXT_DARK = "#4A4A4A";
 
-// --- Components ---
+const { useBreakpoint } = Grid;
 
 function MenuTooltip({
   label,
   children,
+  className,
 }: {
   label: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <Tooltip title={label} placement="right" mouseEnterDelay={0.5}>
-      <span className="truncate block font-medium tracking-wide">
+    <Tooltip title={label} placement="right" mouseEnterDelay={0.3}>
+      <span
+        className={`truncate block font-medium tracking-wide w-full ${
+          className || ""
+        }`}
+      >
         {children}
       </span>
     </Tooltip>
@@ -37,7 +42,7 @@ function StatusTag({ type }: { type: "new" | "revamp" | string }) {
       style={{
         marginLeft: "auto",
         marginRight: 0,
-        fontSize: 9, // ปรับให้อ่านง่ายขึ้นนิดนึง
+        fontSize: 9,
         fontWeight: 600,
         letterSpacing: "0.5px",
         lineHeight: "14px",
@@ -58,23 +63,23 @@ function StatusTag({ type }: { type: "new" | "revamp" | string }) {
   );
 }
 
-// --- Main Component ---
-
 type SidebarContentProps = {
   collapsed?: boolean;
+  onMobileClose?: () => void;
 };
 
 export default function SidebarContent({
   collapsed = false,
+  onMobileClose,
 }: SidebarContentProps) {
   const menu = useSidebarMenu();
   const pathname = usePathname();
   const router = useRouter();
   const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const screens = useBreakpoint();
 
-  // Auto-open parent submenu based on pathname (Only when Expanded)
   useEffect(() => {
-    if (collapsed) return; // ไม่ต้อง Auto open ตอนหุบ
+    if (collapsed) return;
     const parent = menu.find(
       (m) => m.children && m.children.some((c) => c.href === pathname)
     );
@@ -83,32 +88,60 @@ export default function SidebarContent({
     }
   }, [menu, pathname, collapsed]);
 
-  // Generate Menu Items
   const items: MenuProps["items"] = useMemo(() => {
     return menu.map((m) => {
-      // 1. กรณีมี Submenu (ลูกเมนู)
+      // Logic: ชื่อเมนู
+      const labelContent = (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            // เพิ่มสีให้ชัดเจน เพื่อป้องกันกรณี Parent CSS สั่งให้สีจาง
+            color: TEXT_DARK,
+          }}
+        >
+          {/* Tooltip */}
+          {!collapsed ? (
+            <MenuTooltip label={m.label}>
+              <span style={{ fontWeight: 500, letterSpacing: "0.3px" }}>
+                {m.label}
+              </span>
+            </MenuTooltip>
+          ) : (
+            <span style={{ fontWeight: 500, letterSpacing: "0.3px" }}>
+              {m.label}
+            </span>
+          )}
+
+          {/* Tag */}
+          {m.tag && (
+            <Tag
+              color="orange"
+              bordered={false}
+              style={{
+                borderRadius: 6,
+                fontSize: 10,
+                color: SB_ORANGE_PRIMARY,
+                background: "rgba(255, 127, 0, 0.1)",
+                marginLeft: 8,
+              }}
+            >
+              {m.tag}
+            </Tag>
+          )}
+        </div>
+      );
+
       if (m.children && m.children.length) {
         return {
           key: m.label,
           icon: m.icon,
-          // [Fix Bug] ตอนหุบ ส่งแค่ Text (String) ไป เพื่อให้ Antd จัดการ Tooltip เอง
-          // ตอนกาง ส่ง JSX เพื่อความสวยงาม
-          label: collapsed ? (
-            m.label
-          ) : (
-            <span
-              style={{
-                fontWeight: 500,
-                letterSpacing: "0.3px",
-              }}
-            >
-              {m.label}
-            </span>
-          ),
+          label: labelContent,
           children: m.children.map((c) => ({
             key: c.href,
             icon: c.icon,
-            // ใน Popup (Submenu) แสดงผลเต็มรูปแบบเสมอ เพราะ Popup มีพื้นที่เยอะ
             label: (
               <div
                 style={{
@@ -116,9 +149,13 @@ export default function SidebarContent({
                   alignItems: "center",
                   justifyContent: "space-between",
                   width: "100%",
+                  color: TEXT_DARK, // บังคับสี Text ใน Submenu
                 }}
               >
-                <MenuTooltip label={c.label}>{c.label}</MenuTooltip>
+                <MenuTooltip label={c.label}>
+                  {/* ใช้ span ปกติแทน custom component ในระดับลึกสุดเพื่อลดความซับซ้อน */}
+                  <span>{c.label}</span>
+                </MenuTooltip>
                 <>
                   {c.news && <StatusTag type="new" />}
                   {c.revamp && <StatusTag type="revamp" />}
@@ -129,54 +166,22 @@ export default function SidebarContent({
         };
       }
 
-      // 2. กรณีเมนูชั้นเดียว (Single Item)
       return {
         key: m.href || m.label,
         icon: m.icon,
-        // [Fix Bug] Logic เดียวกัน: หุบส่ง Text / กางส่ง Div Flexbox
-        label: collapsed ? (
-          m.label
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-            }}
-          >
-            <span
-              style={{
-                fontWeight: 400,
-                color: TEXT_DARK,
-                letterSpacing: "0.3px",
-              }}
-            >
-              {m.label}
-            </span>
-            {m.tag && (
-              <Tag
-                color="orange"
-                bordered={false}
-                style={{
-                  borderRadius: 6,
-                  fontSize: 10,
-                  color: SB_ORANGE_PRIMARY,
-                  background: "rgba(255, 127, 0, 0.1)",
-                }}
-              >
-                {m.tag}
-              </Tag>
-            )}
-          </div>
-        ),
+        label: labelContent,
       };
     });
   }, [menu, collapsed]);
 
   const onClick: MenuProps["onClick"] = (info) => {
     const key = String(info.key);
-    if (key.startsWith("/")) router.push(key);
+    if (key.startsWith("/")) {
+      router.push(key);
+      if (!screens.md && onMobileClose) {
+        onMobileClose();
+      }
+    }
   };
 
   return (
@@ -184,26 +189,17 @@ export default function SidebarContent({
       theme={{
         components: {
           Menu: {
-            // Theme Config
             itemBorderRadius: 8,
-            // [Fix Design] ตอนหุบให้ระยะขอบน้อยลง (4px) เพื่อให้ Icon ไม่ตกขอบ
             itemMarginInline: collapsed ? 4 : 12,
             itemHeight: 42,
-
-            // Colors (School Bright Orange)
             itemSelectedBg: SB_ORANGE_LIGHT,
             itemSelectedColor: SB_ORANGE_PRIMARY,
-
-            // Hover
             itemHoverBg: "rgba(0, 0, 0, 0.02)",
             itemHoverColor: SB_ORANGE_PRIMARY,
-
-            // Typography
             fontSize: 14,
             iconSize: 18,
-
-            // Submenu
             subMenuItemBg: "transparent",
+            popupBg: "#ffffff",
           },
         },
       }}
@@ -222,9 +218,6 @@ export default function SidebarContent({
           mode="inline"
           inlineCollapsed={collapsed}
           selectedKeys={[pathname]}
-          // [Fix Bug สำคัญ]
-          // ถ้า collapsed ให้เป็น undefined เพื่อให้ Antd จัดการ Popup Hover เอง
-          // ถ้า !collapsed ให้ใช้ state openKeys ที่เราคุมเอง
           openKeys={!collapsed ? openKeys : undefined}
           onOpenChange={(keys) => !collapsed && setOpenKeys(keys)}
           onClick={onClick}
@@ -235,15 +228,12 @@ export default function SidebarContent({
           }}
         />
 
-        {/* Global Styles for Animations & Orange Theme */}
         <style jsx global>{`
-          /* Smooth transition */
           .ant-menu-item,
           .ant-menu-submenu-title {
             transition: all 0.25s ease-in-out !important;
           }
 
-          /* Active Item Style */
           .ant-menu-item-selected {
             position: relative;
             font-weight: 500 !important;
@@ -254,7 +244,6 @@ export default function SidebarContent({
             ) !important;
           }
 
-          /* Orange Bar Indicator (ซ่อนเมื่อหุบ) */
           .ant-menu-item-selected::before {
             content: "";
             position: absolute;
@@ -268,36 +257,56 @@ export default function SidebarContent({
             box-shadow: 2px 0 8px rgba(255, 127, 0, 0.3);
           }
 
-          /* Icon Colors */
           .ant-menu-item .anticon,
           .ant-menu-submenu-title .anticon {
             color: #8c8c8c;
             transition: color 0.3s;
           }
 
-          /* เปลี่ยนสีไอคอนเมื่อ Select หรือ Hover */
           .ant-menu-item-selected .anticon,
           .ant-menu-item:hover .anticon,
           .ant-menu-submenu-title:hover .anticon {
             color: ${SB_ORANGE_PRIMARY};
           }
 
-          /* จัด Icon ให้อยู่กึ่งกลางเป๊ะๆ ตอนหุบ */
+          /* --- FIX: บังคับแสดง Text ใน Popup Submenu --- */
+
+          /* 1. บังคับให้ ant-menu-title-content แสดงผล */
+          .ant-menu-submenu-popup .ant-menu-item-title-content,
+          .ant-menu-submenu-popup .ant-menu-title-content {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            width: 100%;
+            overflow: visible !important; /* ป้องกันการซ่อนส่วนเกิน */
+          }
+
+          /* 2. บังคับสี Text ใน Popup ให้ชัดเจน */
+          .ant-menu-submenu-popup .ant-menu-item,
+          .ant-menu-submenu-popup .ant-menu-submenu-title {
+            color: ${TEXT_DARK} !important;
+          }
+
+          /* 3. ปรับขนาด Popup ให้กว้างพอ */
+          .ant-menu-submenu-popup .ant-menu {
+            min-width: 200px;
+          }
+
+          /* ------------------------------------------- */
+
           .ant-menu-inline-collapsed .ant-menu-item-icon,
           .ant-menu-inline-collapsed .anticon {
             min-width: 18px;
             line-height: 1;
             vertical-align: middle;
-            margin-right: 0 !important; /* บังคับลบ margin ขวา */
+            margin-right: 0 !important;
           }
 
-          /* Submenu Arrow Color */
           .ant-menu-submenu-expand-icon,
           .ant-menu-submenu-arrow {
             color: #bfbfbf !important;
           }
 
-          /* Custom Scrollbar */
           .sb-modern-sidebar-wrapper::-webkit-scrollbar {
             width: 3px;
           }
@@ -307,6 +316,12 @@ export default function SidebarContent({
           }
           .sb-modern-sidebar-wrapper::-webkit-scrollbar-track {
             background: transparent;
+          }
+
+          @media (max-width: 768px) {
+            .ant-menu-item-selected::before {
+              opacity: 1;
+            }
           }
         `}</style>
       </div>
