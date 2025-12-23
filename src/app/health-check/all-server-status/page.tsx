@@ -166,7 +166,6 @@ const StatisticsCard: React.FC<{
     <Card
       styles={{ body: { padding: "24px" } }}
       className="shadow-sm hover:shadow-md transition-shadow duration-300 rounded-xl"
-      bordered={false}
     >
       <Flex justify="space-between" align="center" wrap="wrap" gap="middle">
         <Space size="large" align="center">

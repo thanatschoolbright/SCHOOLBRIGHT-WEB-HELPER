@@ -1,337 +1,522 @@
 "use client";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
-import {useTranslation} from "react-i18next";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
-import {useDispatch} from "react-redux";
-import {AppDispatch, useAppSelector} from "@stores/store";
-import MinimalButton from "@/components/button/minimal-button-component";
-import {toast} from "sonner";
-import {SearchableSelectComponent} from "@/components/input-field/searchable-select-component";
-import {MinimalRow} from "@components/table/minimal-row-component";
-import MinimalTable from "@components/table/minimal-table-component";
-import {findSchoolName} from "@helpers/find-school-id";
-import {convertTimeZoneToThai} from "@helpers/convert-time-zone-to-thai";
-import {InputFieldComponent} from "@components/input-field/input-field-component";
-import {FiSearch} from "react-icons/fi";
-import {isOnline} from "@helpers/check-online-device-status";
-import {unwrapResult} from "@reduxjs/toolkit";
-import {CallAPI as GET_ONLINE_DEVICE} from "@stores/actions/hardware/call-get-online-device";
-import {CallAPI as POST_CHECK_ONLINE_DEVICE} from "@stores/actions/hardware/call-post-online-device";
-import {RequestDeviceDailyStatusTypes} from "@/types/device-daily-status.types";
-import {DeviceDailyStatus as ResponseOnlineDeviceType} from "generated/prisma";
+import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { AppDispatch, useAppSelector } from "@stores/store";
+import { toast } from "sonner";
+import { findSchoolName } from "@helpers/find-school-id";
+import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
+import { isOnline } from "@helpers/check-online-device-status";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { CallAPI as getSchoolList } from "@/stores/actions/call-school-list";
+import { CallAPI as getOnlineDevice } from "@stores/actions/hardware/call-get-online-device";
+import { CallAPI as postCheckOnlineDevice } from "@stores/actions/hardware/call-post-online-device";
+import { RequestDeviceDailyStatusTypes } from "@/types/device-daily-status.types";
+import { DeviceDailyStatus as ResponseOnlineDeviceType } from "generated/prisma";
+import {
+  Card,
+  Table,
+  Tag,
+  Button,
+  Select,
+  Input,
+  DatePicker,
+  Space,
+  Row,
+  Col,
+  Typography,
+  Alert,
+  Tooltip,
+  Form,
+  Badge,
+  Skeleton,
+} from "antd";
+import {
+  SearchOutlined,
+  ReloadOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  WifiOutlined,
+  DisconnectOutlined,
+  DesktopOutlined,
+  FilterOutlined,
+  TableOutlined,
+  InfoCircleOutlined,
+  SyncOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
 
-const columns: { key: string; label: string }[] = [
-    {key: "SchoolID", label: "โรงเรียน"},
-    {key: "DeviceID", label: "รหัสอุปกรณ์ (Device ID)"},
-    {key: "Login", label: "สถานะการเข้าสู่ระบบ"},
-    {key: "Tstamp", label: "ออนไลน์ล่าสุดเมื่อ"},
-    {key: "BusinessDate", label: "ทำรายการขายล่าสุดเมื่อ"},
-    {key: "OnlineStatus", label: "สถานะออนไลน์"},
+const { Title, Text } = Typography;
+const { RangePicker } = DatePicker;
 
-    {key: "CallAPI", label: "ทดสอบออนไลน์"},
-];
+export default function OnlineDeviceDashboard() {
+  const { t } = useTranslation("mock");
+  const dispatch = useDispatch<AppDispatch>();
+  const [form] = Form.useForm();
 
-export default function Page() {
-    const {t} = useTranslation("mock");
-    const dispatch = useDispatch<AppDispatch>();
-    const SCHOOL_LIST_STATE = useAppSelector((state) => state.callSchoolList);
-    const REGISTER_DEVICE_STATE = useAppSelector(
-        (state) => state.callGetOnlineDevice
-    );
-    const CHECK_ONLINE_DEVICE_STATE = useAppSelector(
-        (state) => state.callPostOnlineDevice
-    );
-    const [selectedSchool, setSelectedSchool] = useState<string | string[]>("");
-    // filter by selected school
-    const isLoading = [
-        SCHOOL_LIST_STATE.loading,
-        REGISTER_DEVICE_STATE.loading,
-        CHECK_ONLINE_DEVICE_STATE.loading,
-    ].some(Boolean);
-    const [table, setTable] = useState<ResponseOnlineDeviceType[]>([]);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [schoolList, setSchoolList] = useState<any[]>([]);
-    const [fromDate, setFromDate] = useState<string>("");
-    const [toDate, setToDate] = useState<string>("");
-    const [deviceIdSearch, setDeviceIdSearch] = useState<string>("");
+  // Redux States
+  const schoolListState = useAppSelector((state) => state.callSchoolList);
+  const onlineDeviceState = useAppSelector(
+    (state) => state.callGetOnlineDevice
+  );
+  const checkDeviceState = useAppSelector(
+    (state) => state.callPostOnlineDevice
+  );
 
-    const filteredTable = (table ?? [])
-        .filter((row) =>
-            deviceIdSearch
-                ? row.DeviceID.toLowerCase().includes(deviceIdSearch.toLowerCase())
-                : true
-        )
-        .filter((row) =>
-            // กรองโรงเรียนเหมือนเดิม
-            selectedSchool ? String(row.SchoolID) === selectedSchool : true
-        )
-        .filter((row) => {
-            if (!fromDate && !toDate) return true;
-            const ts = new Date(row.Tstamp).getTime();
-            const fromTs = fromDate ? new Date(fromDate).getTime() : -Infinity;
-            // วันสุดท้าย ให้ตีเป็นเที่ยงคืนถัดไป เพื่อรวมทั้งวัน
-            const toTs = toDate
-                ? new Date(
-                    new Date(toDate).setDate(new Date(toDate).getDate() + 1)
-                ).getTime()
-                : Infinity;
-            return ts >= fromTs && ts < toTs;
-        });
+  // Local States
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string | undefined>(
+    undefined
+  );
+  const [deviceIdSearch, setDeviceIdSearch] = useState<string>("");
+  const [dateRange, setDateRange] = useState<
+    [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
+  >(null);
+  const [tableData, setTableData] = useState<ResponseOnlineDeviceType[]>([]);
+  const [schoolOptions, setSchoolOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
 
-    useEffect(() => {
-        setSchoolList(
-            SCHOOL_LIST_STATE?.response?.data?.data?.map((item: any) => ({
-                label: item.SchoolName,
-                value: item.SchoolID,
-            })) || []
-        );
-    }, [SCHOOL_LIST_STATE?.response]);
+  // เช็คว่ากำลังโหลดอยู่หรือไม่
+  const isLoading =
+    schoolListState.loading ||
+    onlineDeviceState.loading ||
+    checkDeviceState.loading;
 
-    useEffect(() => {
-        const defaultRequest: RequestDeviceDailyStatusTypes = {
-            schoolId: selectedSchool as string,
-            deviceId: deviceIdSearch,
-            limit: rowsPerPage.toString(),
-        };
-        dispatch(GET_ONLINE_DEVICE(defaultRequest));
-    }, [selectedSchool, deviceIdSearch, rowsPerPage]);
+  // Initial loading state
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    useEffect(() => {
-        const data = REGISTER_DEVICE_STATE?.response?.data?.data;
-        setTable(data);
-    }, [REGISTER_DEVICE_STATE]);
+  // Fetch School List on Mount
+  useEffect(() => {
+    dispatch(getSchoolList()).then(() => setIsInitialLoading(false));
+  }, [dispatch]);
 
-    //* ฟังก์ชันสำหรับตรวจสอบสถานะออนไลน์ของอุปกรณ์
-    const CHECK_ONLINE_DEVICE = async (schoolId: number, deviceId: string) => {
-        try {
-            const response = await dispatch(
-                POST_CHECK_ONLINE_DEVICE({
-                    SchoolID: schoolId,
-                    DeviceID: deviceId,
-                    Status: "Online",
-                })
-            );
-            const result: {
-                data: {
-                    success: boolean;
-                    statusCode: number;
-                    message: string;
-                };
-                curl: string;
-            } = unwrapResult(response);
+  // Prepare School Options
+  useEffect(() => {
+    if (schoolListState?.response?.data?.data) {
+      setSchoolOptions(
+        schoolListState.response.data.data.map((item: any) => ({
+          label: `${item.SchoolName} (${item.SchoolID})`,
+          value: String(item.SchoolID),
+        }))
+      );
+    }
+  }, [schoolListState?.response]);
 
-            if (result?.data?.statusCode === 200) {
-                const message = `อุปกรณ์ ${deviceId}  \n${findSchoolName(
-                    schoolId,
-                    schoolList
-                )} สามารถออนไลน์ได้`;
-
-                toast.success("ระบบสามารถออนไลน์ได้ตามปกติ", {
-                    description: message,
-                    duration: 5000,
-
-                    action: {
-                        label: "Copy CURL",
-                        onClick: () => {
-                            navigator.clipboard.writeText(result.curl).then(() => {
-                                toast.success("Copied!", {
-                                    description: "CURL copied to clipboard.",
-                                    duration: 1500,
-                                });
-                            });
-                        },
-                    },
-                });
-            } else {
-                toast.error("ไม่สามารถออนไลน์ได้", {
-                    description:
-                        result?.data?.message || "ไม่สามารถเชื่อมต่อกับอุปกรณ์ได้",
-                    duration: 6000,
-
-                    action: {
-                        label: "Copy CURL",
-                        onClick: () => {
-                            navigator.clipboard.writeText(result.curl).then(() => {
-                                toast.success("Copied!", {
-                                    description: "CURL copied to clipboard.",
-                                    duration: 1500,
-                                });
-                            });
-                        },
-                    },
-                });
-            }
-        } catch (error: any) {
-            toast.error("เกิดข้อผิดพลาด", {
-                description: error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
-                duration: 6000,
-            });
-            console.error("Error posting online device:", error);
-            return false;
-        }
+  // Fetch Data
+  const fetchData = () => {
+    const request: RequestDeviceDailyStatusTypes = {
+      schoolId: selectedSchoolId || "",
+      deviceId: deviceIdSearch,
+      limit: "100",
     };
+    dispatch(getOnlineDevice(request));
+  };
 
-    const renderTableData = (data: ResponseOnlineDeviceType[]) =>
-        data.map((row, idx) => (
-            <MinimalRow key={idx}>
-                {({index, row}: { index: number; row: ResponseOnlineDeviceType }) => (
-                    <>
-                        <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-                            {index}
-                        </td>
-                        <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-                            {findSchoolName(row.SchoolID, schoolList)} ({row.SchoolID})
-                        </td>
-                        <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-                            {row.DeviceID}
-                        </td>
+  useEffect(() => {
+    fetchData();
+  }, [selectedSchoolId, deviceIdSearch]);
 
-                        <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-                            {row.Login ? "เข้าสู่ระบบแล้ว" : "ยังไม่ได้เข้าสู่ระบบ"}
-                        </td>
-                        <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-                            {convertTimeZoneToThai(new Date(row.Tstamp))}
-                        </td>
-                        <td className="p-4 font-medium text-sm text-gray-900 dark:text-gray-200">
-                            {convertTimeZoneToThai(new Date(row.BusinessDate))}
-                        </td>
-                        <td className="p-4">
-                            {isOnline(row.OnlineTime) ? (
-                                <span className="inline-block w-3 h-3 bg-green-500 rounded-full"/>
-                            ) : (
-                                <span className="inline-block w-3 h-3 bg-red-500 rounded-full"/>
-                            )}
-                        </td>
-                        <td className="p-4 font-medium text-sm  text-gray-900 dark:text-gray-200">
-                            <MinimalButton
-                                className="bg-green-500"
-                                onClick={() => {
-                                    CHECK_ONLINE_DEVICE(row.SchoolID, row.DeviceID);
-                                }}
-                            >
-                                ทดสอบ
-                            </MinimalButton>
-                        </td>
-                    </>
-                )}
-            </MinimalRow>
-        ));
+  // Update Table Data
+  useEffect(() => {
+    const data = onlineDeviceState?.response?.data?.data || [];
+    setTableData(data);
+  }, [onlineDeviceState]);
 
-    return (
-        <DashboardLayout>
-            {isLoading && <BaseLoadingComponent/>}
+  // Filter Logic
+  const filteredTableData = useMemo(() => {
+    return tableData.filter((row) => {
+      const matchDevice = deviceIdSearch
+        ? row.DeviceID.toLowerCase().includes(deviceIdSearch.toLowerCase())
+        : true;
+      const matchSchool = selectedSchoolId
+        ? String(row.SchoolID) === selectedSchoolId
+        : true;
 
-            <div className="w-full space-y-4">
-                {/* หมายเหตุ */}
-                <div className="grid grid-cols-2 grid-rows-1 gap-6 w-full">
-                    <ContentCard
-                        title="หมายเหตุ (1)"
-                        fullWidth
-                        className="w-full col-span-1 row-span-2"
-                    >
-                        <p className="text-sm text-red-500">
-                            {t("ค้นหาด้วยชื่อโรงเรียน หรือ Device ID ก่อนแล้วข้อมูลจะขึ้น")}
-                        </p>
-                    </ContentCard>
-                    {/* <ContentCard
-            title="หมายเหตุ (2)"
-            fullWidth
-            className="w-full col-span-1 row-span-2"
-          >
-            <p className="text-sm text-red-500">
-              {t(
-                "กรณีที่ไม่พบข้อมูลใน https://www.canteen.schoolbright.co แต่พบข้อมูลที่นี่ แปลว่าเป็นปัญหาที่ Memory Sharing ของระบบ Canteen Web ให้แจ้ง Vimal"
-              )}
-            </p>
-          </ContentCard> */}
-                </div>
+      let matchDate = true;
+      if (dateRange && dateRange[0] && dateRange[1]) {
+        const rowDate = dayjs(row.Tstamp);
+        matchDate =
+          rowDate.isAfter(dateRange[0].startOf("day")) &&
+          rowDate.isBefore(dateRange[1].endOf("day"));
+      }
 
-                <ContentCard
-                    title="รายงานการเชื่อมต่อเครื่อง Canteen Online"
-                    fullWidth
-                    className="md:col-span-2 xl:col-span-4 w-full "
-                >
-                    {/* -- ใน <ContentCard> ส่วนฟอร์ม -- */}
-                    <form className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            {/* เลือกโรงเรียน */}
-                            <div className="flex-1">
-                                <SearchableSelectComponent
-                                    label="เลือกโรงเรียน"
-                                    options={[
-                                        {label: "เลือกรายการ", value: ""},
-                                        ...schoolList.map((s) => ({
-                                            label: s.label + " (" + s.value + ")",
-                                            value: String(s.value),
-                                        })),
-                                    ]}
-                                    value={selectedSchool}
-                                    onChange={setSelectedSchool}
-                                    placeholder="เลือกโรงเรียน"
-                                />
-                            </div>
+      return matchDevice && matchSchool && matchDate;
+    });
+  }, [tableData, deviceIdSearch, selectedSchoolId, dateRange]);
 
-                            {/* ค้นหา Device ID */}
-                            <div>
-                                <InputFieldComponent
-                                    label="ค้นหา Device ID"
-                                    placeholder="พิมพ์ Device ID"
-                                    icon={
-                                        <FiSearch className="text-gray-400 dark:text-gray-500"/>
-                                    }
-                                    value={deviceIdSearch}
-                                    onChange={(e) => setDeviceIdSearch(e.target.value)}
-                                    className="w-full"
-                                />
-                            </div>
+  // Handle Check Status
+  const handleCheckOnlineStatus = async (
+    schoolId: number,
+    deviceId: string
+  ) => {
+    try {
+      const actionResult = await dispatch(
+        postCheckOnlineDevice({
+          SchoolID: schoolId,
+          DeviceID: deviceId,
+          Status: "Online",
+        })
+      );
+      const result = unwrapResult(actionResult);
 
-                            {/* จากวันที่ */}
-                            {/* <div>
-                <DatePickerComponent
-                  label="จากวันที่"
-                  value={fromDate}
-                  onChange={setFromDate}
-                  className="w-full"
+      if (result?.data?.statusCode === 200) {
+        toast.success("อุปกรณ์ออนไลน์อยู่", {
+          description: `อุปกรณ์ ${deviceId} ที่โรงเรียน ${schoolId} สามารถติดต่อได้`,
+          action: {
+            label: "คัดลอก CURL",
+            onClick: () => navigator.clipboard.writeText(result.curl),
+          },
+        });
+      } else {
+        toast.error("ไม่สามารถติดต่ออุปกรณ์ได้", {
+          description: result?.data?.message || "การเชื่อมต่อล้มเหลว",
+          action: {
+            label: "คัดลอก CURL",
+            onClick: () => navigator.clipboard.writeText(result.curl),
+          },
+        });
+      }
+    } catch (error: any) {
+      toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อ", {
+        description: error.message || "ข้อผิดพลาดจากเซิร์ฟเวอร์",
+      });
+    }
+  };
+
+  // Columns Configuration
+  const columns = [
+    {
+      title: "โรงเรียน",
+      dataIndex: "SchoolID",
+      key: "SchoolID",
+      render: (schoolId: number) => (
+        <Space>
+          <Badge status="processing" />
+          <Text strong>{findSchoolName(schoolId, schoolOptions)}</Text>
+        </Space>
+      ),
+    },
+    {
+      title: "รหัสอุปกรณ์",
+      dataIndex: "DeviceID",
+      key: "DeviceID",
+      render: (text: string) => (
+        <Tag icon={<DesktopOutlined />} color="geekblue" bordered={false}>
+          {text}
+        </Tag>
+      ),
+    },
+    {
+      title: "การเข้าสู่ระบบ",
+      dataIndex: "Login",
+      key: "Login",
+      align: "center" as const,
+      render: (login: boolean) =>
+        login ? (
+          <Tooltip title="พนักงาน Login เข้าใช้งานแล้ว">
+            <Tag
+              color="success"
+              icon={<CheckCircleOutlined />}
+              bordered={false}
+              style={{ borderRadius: "20px" }}
+            >
+              LOGIN
+            </Tag>
+          </Tooltip>
+        ) : (
+          <Tooltip title="ยังไม่มีการ Login เข้าใช้งาน">
+            <Tag
+              color="warning"
+              icon={<CloseCircleOutlined />}
+              bordered={false}
+              style={{ borderRadius: "20px" }}
+            >
+              LOGOUT
+            </Tag>
+          </Tooltip>
+        ),
+    },
+    {
+      title: "ออนไลน์ล่าสุด",
+      dataIndex: "Tstamp",
+      key: "Tstamp",
+      render: (date: string) => (
+        <span style={{ fontSize: 13, color: "#666" }}>
+          {convertTimeZoneToThai(new Date(date))}
+        </span>
+      ),
+    },
+    {
+      title: "ขายล่าสุด",
+      dataIndex: "BusinessDate",
+      key: "BusinessDate",
+      render: (date: string) => (
+        <span style={{ fontSize: 13, color: "#666" }}>
+          {convertTimeZoneToThai(new Date(date))}
+        </span>
+      ),
+    },
+    {
+      title: "สถานะ",
+      key: "OnlineStatus",
+      align: "center" as const,
+      render: (_: any, record: ResponseOnlineDeviceType) => {
+        const online = isOnline(record.OnlineTime);
+        return (
+          <Badge
+            status={online ? "success" : "error"}
+            text={
+              <span
+                style={{
+                  color: online ? "#52c41a" : "#ff4d4f",
+                  fontWeight: 500,
+                }}
+              >
+                {online ? "ออนไลน์" : "ออฟไลน์"}
+              </span>
+            }
+          />
+        );
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      align: "center" as const,
+      width: 100,
+      render: (_: any, record: ResponseOnlineDeviceType) => (
+        <Tooltip title="ยิงสัญญาณ Ping เพื่อตรวจสอบ">
+          <Button
+            type="dashed"
+            shape="circle"
+            icon={<SyncOutlined />}
+            onClick={() =>
+              handleCheckOnlineStatus(record.SchoolID, record.DeviceID)
+            }
+            loading={checkDeviceState.loading}
+            style={{ color: "#1890ff", borderColor: "#1890ff" }}
+          />
+        </Tooltip>
+      ),
+    },
+  ];
+
+  return (
+    <DashboardLayout>
+      <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+        {/* Header & Alert Section */}
+        <div style={{ marginBottom: 16 }}>
+          <Title level={3} style={{ marginBottom: 4 }}>
+            <Space align="center">
+              <DesktopOutlined style={{ color: "#1890ff" }} />
+              Device Monitor Dashboard
+            </Space>
+          </Title>
+          <Text type="secondary" style={{ display: "block", marginBottom: 16 }}>
+            ตรวจสอบสถานะการเชื่อมต่อของเครื่อง Canteen แบบ Real-time สำหรับทีม
+            CS และ QA
+          </Text>
+
+          <Alert
+            message="Tips"
+            description="เลือก 'โรงเรียน' เพื่อดูข้อมูลเฉพาะเจาะจง หรือใส่ 'Device ID' เพื่อค้นหาเครื่องที่ต้องการตรวจสอบทันที"
+            type="info"
+            showIcon
+            icon={<InfoCircleOutlined />}
+            style={{ borderRadius: 8, border: "none", background: "#e6f7ff" }}
+          />
+        </div>
+
+        {/* Filter Section */}
+        <Card
+          variant="borderless"
+          style={{
+            borderRadius: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            marginBottom: 8,
+          }}
+          className="hover:shadow-md transition-all duration-300"
+        >
+          <div style={{ marginBottom: 24 }}>
+            <Space>
+              <FilterOutlined style={{ color: "#1890ff" }} />
+              <Text strong>ตัวกรองการค้นหา</Text>
+            </Space>
+          </div>
+
+          {isInitialLoading ? (
+            // Skeleton for Filter Form
+            <Row gutter={[24, 16]}>
+              <Col xs={24} md={12}>
+                <Skeleton.Input
+                  active
+                  size="large"
+                  block
+                  style={{ borderRadius: 6 }}
                 />
-              </div> */}
-
-                            {/* ถึงวันที่ */}
-                            {/* <div>
-                <DatePickerComponent
-                  label="ถึงวันที่"
-                  value={toDate}
-                  onChange={setToDate}
-                  className="w-full"
+              </Col>
+              <Col xs={24} md={12}>
+                <Skeleton.Input
+                  active
+                  size="large"
+                  block
+                  style={{ borderRadius: 6 }}
                 />
-              </div> */}
-                        </div>
-                    </form>
-                </ContentCard>
+              </Col>
+              <Col xs={24} md={12}>
+                <Skeleton.Input
+                  active
+                  size="large"
+                  block
+                  style={{ borderRadius: 6 }}
+                />
+              </Col>
+              <Col
+                xs={24}
+                md={12}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Skeleton.Button
+                  active
+                  size="large"
+                  style={{ width: 150, borderRadius: 6 }}
+                />
+              </Col>
+            </Row>
+          ) : (
+            <Form layout="vertical" form={form}>
+              <Row gutter={[24, 16]}>
+                <Col xs={24} md={12}>
+                  <Form.Item label="โรงเรียน" style={{ marginBottom: 0 }}>
+                    <Select
+                      showSearch
+                      placeholder="พิมพ์ชื่อหรือรหัสโรงเรียน..."
+                      optionFilterProp="label"
+                      options={schoolOptions}
+                      value={selectedSchoolId}
+                      onChange={setSelectedSchoolId}
+                      allowClear
+                      loading={schoolListState.loading}
+                      size="large"
+                      suffixIcon={<SearchOutlined />}
+                    />
+                  </Form.Item>
+                </Col>
 
-                {/* Reponse From Server */}
-                {/* <ResponseCardComponent
-          responseData={SCHOOL_LIST_STATE.response.data?.data}
-          curlCommand={SCHOOL_LIST_STATE.response.data?.curl}
-        /> */}
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="รหัสอุปกรณ์ (Device ID)"
+                    style={{ marginBottom: 0 }}
+                  >
+                    <Input
+                      placeholder="ระบุ Device ID..."
+                      prefix={<DesktopOutlined style={{ color: "#bfbfbf" }} />}
+                      value={deviceIdSearch}
+                      onChange={(e) => setDeviceIdSearch(e.target.value)}
+                      allowClear
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
 
-                {/* ตาราง */}
-                <ContentCard
-                    title="ตารางการเชื่อมต่อเครื่อง Canteen Online"
-                    className="xl:col-span-4 w-full"
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="ช่วงเวลาที่ออนไลน์"
+                    style={{ marginBottom: 0 }}
+                  >
+                    <RangePicker
+                      style={{ width: "100%" }}
+                      value={dateRange}
+                      onChange={(dates) =>
+                        setDateRange(
+                          dates as [dayjs.Dayjs | null, dayjs.Dayjs | null]
+                        )
+                      }
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col
+                  xs={24}
+                  md={12}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                    justifyContent: "flex-end",
+                  }}
                 >
-                    <MinimalTable
-                        isLoading={isLoading}
-                        header={columns}
-                        data={filteredTable}
-                        rowsPerPage={rowsPerPage}
-                        onRowsPerPageChange={setRowsPerPage}
-                    >
-                        {filteredTable ? renderTableData(filteredTable) : null}
-                    </MinimalTable>
-                </ContentCard>
-            </div>
-        </DashboardLayout>
-    );
+                  <Button
+                    type="primary"
+                    onClick={fetchData}
+                    icon={<SearchOutlined />}
+                    loading={isLoading && !isInitialLoading} // Show button spinner only on subsequent loads
+                    size="large"
+                    style={{
+                      borderRadius: 6,
+                      paddingLeft: 32,
+                      paddingRight: 32,
+                      width: "100%",
+                    }}
+                  >
+                    ค้นหาข้อมูล
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+          )}
+        </Card>
+
+        {/* Data Table Section */}
+        <Card
+          variant="borderless"
+          style={{
+            borderRadius: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            overflow: "hidden",
+          }}
+          // ✅ ลบ bodyStyle padding 0 ออก เพื่อให้ตารางไม่ชิดขอบ
+          title={
+            <Space>
+              <TableOutlined style={{ color: "#1890ff" }} />
+              <Text strong>รายการอุปกรณ์ทั้งหมด</Text>
+            </Space>
+          }
+          extra={
+            !isLoading && (
+              <Badge
+                count={filteredTableData.length}
+                overflowCount={999}
+                style={{ backgroundColor: "#52c41a" }}
+              />
+            )
+          }
+        >
+          {isLoading ? (
+            // Skeleton for Table
+            <Skeleton active paragraph={{ rows: 8 }} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={filteredTableData}
+              rowKey={(record) => `${record.SchoolID}-${record.DeviceID}`}
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showTotal: (total) => `แสดงทั้งหมด ${total} รายการ`,
+              }}
+              scroll={{ x: 1000 }}
+              locale={{ emptyText: "ไม่พบข้อมูลอุปกรณ์" }}
+              rowClassName="hover:bg-gray-50 transition-colors"
+            />
+          )}
+        </Card>
+      </Space>
+    </DashboardLayout>
+  );
 }

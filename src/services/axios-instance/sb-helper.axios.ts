@@ -98,8 +98,6 @@ function logRequest({
     calledBy: calledBy,
     error: error ? error.message : undefined,
   };
-
-  console.log("📡 API Request Log (Axios)", logObject);
 }
 
 async function saveApiLog(
