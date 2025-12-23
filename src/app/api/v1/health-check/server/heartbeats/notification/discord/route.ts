@@ -8,259 +8,218 @@ import { logger } from "@/helpers/logger";
 
 const WEBHOOK_DISCORD =
   process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_HEARTBEAT_BOT ?? "";
-
 const DISCORD_ALERT_USER = "<@692372441699319900>";
 
-/**
- * ส่ง payload ไปยัง Discord webhook
- * - ไม่โยน error ให้ caller (log แล้ว return null) เพื่อไม่ให้กระทบ flow หลัก
- */
-async function sendDiscordWebhook(payload: {
-  content?: string;
-  username?: string;
-  embeds?: any[];
-}) {
-  try {
-    return await axios.post(WEBHOOK_DISCORD, payload, {
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (err: any) {
-    logger.error("Failed to send Discord webhook", err?.message ?? err);
-    return null;
-  }
-}
+// --- Configuration & Assets ---
 
-/**
- * คำนวณสถิติพื้นฐานจากรายการ heartbeat
- * - แยก jobs ที่ deprecated (ไม่สนใจในการคำนวณ health)
- */
-function summarize(items: HeartbeatResponse[]) {
-  const total = items.length;
-  const deprecatedNames = new Set(["KPaymentCheckChargeApp", "Job_TShop_Bot"]);
+const STATUS_THEMES = {
+  HEALTHY: {
+    color: 0x2ecc71, // Emerald Green
+    title: "All Systems Operational",
+    icon: "✅",
+    // รูปหุ่นยนต์ทำงานปกติ หรือ Server สีเขียว
+    image:
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56L2dpZg/3o7abKhOpu0NwenH3O/giphy.gif",
+  },
+  DEGRADED: {
+    color: 0xf1c40f, // Sunflower Yellow
+    title: "System Degraded",
+    icon: "⚠️",
+    // รูปหุ่นยนต์กำลังซ่อมแซม หรือกราฟสีเหลือง
+    image:
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56L2dpZg/l0HlHFRbmaZtBRhXG/giphy.gif",
+  },
+  CRITICAL: {
+    color: 0xe74c3c, // Alizarin Red
+    title: "Critical System Failure",
+    icon: "🚨",
+    // รูปไฟไหม้ หรือ Error ตัวใหญ่
+    image:
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56L2dpZg/13d2jHlSlFQyo0/giphy.gif",
+  },
+};
 
-  const deprecatedCount = items.filter((i) =>
-    deprecatedNames.has(i.JobName)
-  ).length;
-  // รายการชื่อ job ที่ถูกทำเครื่องหมายว่า deprecated (ไม่ซ้ำ)
-  const deprecatedList = Array.from(
-    new Set(
-      items.filter((i) => deprecatedNames.has(i.JobName)).map((i) => i.JobName)
-    )
-  );
-  const activeTotal = Math.max(0, total - deprecatedCount);
-  const onlineActive = items.filter(
-    (i) =>
-      !deprecatedNames.has(i.JobName) &&
-      String(i.Status).toLowerCase() === "online"
-  ).length;
+// --- Utility Functions ---
 
-  // คืนค่า: offlineItems จะเป็นเฉพาะ jobs ที่ offline และยังไม่ถูกยกเลิก (เพื่อไม่ให้นับ deprecated เป็น offline)
-  return {
-    total,
-    deprecatedCount,
-    deprecatedList,
-    activeTotal,
-    onlineActive,
-    offlineItems: items.filter(
-      (i) =>
-        String(i.Status).toLowerCase() !== "online" &&
-        !deprecatedNames.has(i.JobName)
-    ),
-    deprecatedNames,
-  };
-}
-
-// Small utility: render a progress bar string
-function makeProgress(p: number) {
-  const totalBlocks = 10;
-  const filled = Math.round((p / 100) * totalBlocks);
-  const empty = totalBlocks - filled;
-  return `${"▰".repeat(filled)}${"▱".repeat(empty)} ${p}%`;
-}
-
-// ฟอร์แมตวันที่เป็น DD/MM/YYYY HH:mm (รองรับ microseconds)
-function formatDate(raw?: string) {
+const formatDate = (raw?: string) => {
   if (!raw) return "-";
   try {
-    const normalized = raw.replace(/\.(\d{3})\d+/, ".$1");
-    return dayjs(normalized).format("DD/MM/YYYY HH:mm");
-  } catch (e) {
+    // Format: 23 Dec 2025 | 14:30
+    return dayjs(raw.replace(/\.(\d{3})\d+/, ".$1")).format(
+      "DD MMM YYYY | HH:mm"
+    );
+  } catch {
     return raw;
   }
-}
+};
 
-// แปลงสถานะเป็นข้อความภาษาไทย
-function translateStatus(raw?: string) {
-  if (!raw) return raw ?? "-";
-  const v = String(raw).toLowerCase();
-  if (v === "online") return "ออนไลน์";
-  if (v === "offline") return "ออฟไลน์";
-  return raw;
-}
+const calculateHealth = (online: number, total: number) => {
+  return total === 0 ? 100 : Math.round((online / total) * 100);
+};
 
-/**
- * สร้าง array ของ Discord embeds (summary + offline details)
- * - ตกแต่งชื่อ job บางตัวเป็น (ยกเลิกการใช้งานแล้ว)
- */
-function buildHeartbeatEmbeds(items: HeartbeatResponse[]) {
-  // Delegate: compute summary once, then build embeds from the summary object
-  const s = summarize(items);
-  return buildEmbedsFromSummary(s);
-}
+const getProgressBar = (percentage: number) => {
+  const blocks = 10;
+  const filled = Math.round((percentage / 100) * blocks);
+  // ใช้ Character ที่ดูเรียบเนียนขึ้น
+  return `[${"▓".repeat(filled)}${"░".repeat(blocks - filled)}] ${percentage}%`;
+};
 
-/**
- * สร้าง embeds จาก summary object เพื่อให้โค้ดอ่านง่ายและแยกความรับผิดชอบ
- */
-/**
- * สร้าง embeds จาก summary object เพื่อให้โค้ดอ่านง่ายและแยกความรับผิดชอบ
- */
-function buildEmbedsFromSummary(s: ReturnType<typeof summarize>) {
-  const pct =
-    s.activeTotal === 0
-      ? 100
-      : Math.round((s.onlineActive / s.activeTotal) * 100);
+// --- Core Logic ---
 
-  // Determine status color and mood
-  let color = 0x2ecc71; // Green (Excellent)
-  let moodIcon = "🟢";
-  let moodTitle = "All Systems Operational";
-  let moodImage =
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56L2dpZg/3o7abKhOpu0NwenH3O/giphy.gif"; // Happy robot/system
+const analyzeHeartbeats = (items: HeartbeatResponse[]) => {
+  const total = items.length;
+  const onlineItems = items.filter(
+    (i) => String(i.Status).toLowerCase() === "online"
+  );
+  const offlineItems = items.filter(
+    (i) => String(i.Status).toLowerCase() !== "online"
+  );
 
-  if (s.offlineItems.length > 0) {
-    color = 0xff4d4f; // Red (Critical)
-    moodIcon = "🔴";
-    moodTitle = "System Critical Alert";
-    moodImage =
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56dGZ5ZHR4aW56L2dpZg/13d2jHlSlFQyo0/giphy.gif"; // Alarm/Panic
-  } else if (pct < 100) {
-    color = 0xfaad14; // Orange (Warning)
-    moodIcon = "jq";
-    moodTitle = "System Degraded";
-  }
+  return {
+    total,
+    onlineCount: onlineItems.length,
+    offlineCount: offlineItems.length,
+    offlineItems,
+    healthScore: calculateHealth(onlineItems.length, total),
+  };
+};
+
+const buildEmbeds = (stats: ReturnType<typeof analyzeHeartbeats>) => {
+  const isCritical = stats.offlineCount > 0;
+  const isDegraded = stats.healthScore < 100 && !isCritical;
+
+  // Select Theme based on status
+  const theme = isCritical
+    ? STATUS_THEMES.CRITICAL
+    : isDegraded
+    ? STATUS_THEMES.DEGRADED
+    : STATUS_THEMES.HEALTHY;
 
   const summaryEmbed = {
-    title: `${moodIcon} **${moodTitle}**`,
-    description: `> *รายงานสถานะระบบประจำวัน* \n> 📅 **${dayjs().format(
-      "DD MMMM YYYY"
-    )}** | 🕒 **${dayjs().format("HH:mm")}**`,
-    color,
+    title: `${theme.icon} ${theme.title}`,
+    // ใช้ Blockquote และ Markdown เพื่อความสวยงาม
+    description: `>>> **Bot Monitor Report**\nRequested on: \`${dayjs().format(
+      "DD MMM YYYY HH:mm:ss"
+    )}\`\nEnvironment: \`Production\``,
+    color: theme.color,
     thumbnail: {
-      url: "https://static.schoolbright.io/logo.png",
-    },
-    image: {
-      url:
-        s.offlineItems.length > 0
-          ? "https://media1.tenor.com/m/0z9x9X5X5XAAAAAC/error.gif"
-          : "https://media1.tenor.com/m/9X5X5X5X5XAAAAAC/check.gif", // Placeholder for dynamic image based on status if needed, or keep simple
-    },
+      url: "https://img2.pic.in.th/pic/Google-Gemini.th.jpg",
+    }, // Logo บริษัทเล็กๆ มุมขวาบน
+    image: { url: theme.image }, // รูปใหญ่ด้านล่าง
     fields: [
       {
-        name: "🤖 **Total Bots**",
-        value: `\`${s.total}\` Jobs`,
+        name: "🤖 Total Bots",
+        value: `\` ${stats.total} \` Jobs`,
         inline: true,
       },
       {
-        name: "✅ **Online**",
-        value: `\`${s.onlineActive}\` Active`,
+        name: "✅ Online",
+        value: `\` ${stats.onlineCount} \` Active`,
         inline: true,
       },
       {
-        name: "💀 **Offline**",
-        value: `\`${s.offlineItems.length}\` Issues`,
+        name: "💀 Offline",
+        value: `\` ${stats.offlineCount} \` Issues`,
         inline: true,
       },
       {
-        name: "📊 **System Health**",
-        value: `${makeProgress(pct)}`,
+        name: "📊 System Health",
+        value: `\`\`\`ini\n${getProgressBar(stats.healthScore)}\n\`\`\``, // ใช้ Code block เพื่อให้ Progress bar เท่ากันทุกบรรทัด
         inline: false,
-      },
-      {
-        name: "🗑️ **Deprecated**",
-        value: `\`${s.deprecatedCount}\` Jobs`,
-        inline: true,
       },
     ],
     footer: {
-      text: "🚀 SchoolBright Bot Monitor | Powered by SB-Helper",
-      icon_url: "https://static.schoolbright.io/logo.png",
+      text: "🚀 SchoolBright Bot Monitor System",
+      icon_url:
+        "https://play-lh.googleusercontent.com/5tMDW7qOj174fR8MVrUOC1xBRx6a8jYg97yYzMw0JwlcS13gazRD8J3HmumEhFi3aQ",
     },
     timestamp: new Date().toISOString(),
   };
 
   const embeds: any[] = [summaryEmbed];
 
-  if (s.offlineItems.length > 0) {
-    const offlineList = s.offlineItems
-      .slice(0, 15) // Show a bit more
-      .map((i) => {
-        const name = s.deprecatedNames.has(i.JobName)
-          ? `~~${i.JobName}~~ (Deprecated)`
-          : `**${i.JobName}**`;
-        return `❌ ${name}\n└ 🕒 Last seen: ${formatDate(i.LastUpdatedTime)}`;
-      })
-      .join("\n\n");
+  // ถ้ามี Error ให้เพิ่ม Embed แยก เพื่อไม่ให้แย่งซีนกัน และอ่านง่าย
+  if (isCritical) {
+    const offlineList = stats.offlineItems
+      .slice(0, 15) // Limit เพื่อไม่ให้ข้อความยาวเกิน limit ของ Discord
+      .map(
+        (i) =>
+          `❌ **${i.JobName}**\n   └── 🕒 Last Check: \`${formatDate(
+            i.LastUpdatedTime
+          )}\``
+      )
+      .join("\n");
 
-    const offlineEmbed = {
-      title: `🚨 **Offline Services Detected** (${s.offlineItems.length})`,
-      description: offlineList || "No active offline services.",
-      color: 0xff4d4f,
-      footer: {
-        text: "Please investigate immediately.",
-      },
-    };
-    embeds.push(offlineEmbed);
+    embeds.push({
+      title: `🚨 Detected ${stats.offlineCount} Offline Services`,
+      description: offlineList || "No specific data available.",
+      color: STATUS_THEMES.CRITICAL.color,
+      fields: [
+        {
+          name: "🛠️ Action Required",
+          value:
+            "Please restart the service or check the server logs immediately.",
+          inline: false,
+        },
+      ],
+    });
   }
 
   return embeds;
-}
+};
 
-/**
- * GET handler: ดึงข้อมูล heartbeat จาก SB helper, ส่งสรุปไปยัง Discord และตอบ JSON
- */
-export async function GET(request: NextRequest) {
-  const url = API_URL.SB_HELPER_URL;
-  const endpoint = `/api/v1/health-check/server/heartbeats/`;
-  const fullUrl = `${url}${endpoint}`;
+async function sendDiscordNotification(embeds: any[], hasErrors: boolean) {
+  if (!WEBHOOK_DISCORD) return;
+
+  const content = hasErrors
+    ? `# 🔥 CRITICAL ALERT!\nAttention: ${DISCORD_ALERT_USER}, systems are down!`
+    : undefined;
 
   try {
-    const response = await axios.get(fullUrl, {
-      headers: { accept: "application/json" },
-    });
-    const result: HeartbeatResponse[] = response?.data?.data || [];
-
-    try {
-      const embeds = buildHeartbeatEmbeds(result);
-      // ตัดสินใจข้อความแจ้งเตือน: ถ้ามี offline มากกว่า 0 ให้ส่งข้อความภาษาไทยพร้อม mention
-      const s = summarize(result);
-      let content: string | undefined;
-      if (s.offlineItems.length > 0) {
-        content = `🔥 เกิดข้อผิดพลาด บางอย่าง!!! รบกวนคุณดีน ช่วยตรวจสอบความผิดปกติดังกล่าว ขอบคุณ ${DISCORD_ALERT_USER}`;
-      }
-
-      await sendDiscordWebhook({
+    await axios.post(
+      WEBHOOK_DISCORD,
+      {
+        username: "Narino Bot",
+        avatar_url: "https://img2.pic.in.th/pic/Google-Gemini.th.jpg",
         content,
-        username: "SB-Health-Check",
         embeds,
-      });
-    } catch (err: any) {
-      logger.error("Failed to build/send heartbeat embed", err?.message ?? err);
-    }
-
-    return NextResponse.json(
-      successResponse({ data: result, status: response.status }),
-      { status: response.status }
+      },
+      { headers: { "Content-Type": "application/json" } }
     );
   } catch (error: any) {
-    const statusCode = error.response?.status || 500;
+    logger.error("Discord Webhook Failed", error?.message);
+  }
+}
+
+// --- API Handler ---
+
+export async function GET(request: NextRequest) {
+  const apiUrl = `${API_URL.SB_HELPER_URL}/api/v1/health-check/server/heartbeats/`;
+
+  try {
+    const { data } = await axios.get(apiUrl, {
+      headers: { accept: "application/json" },
+    });
+    const heartbeats: HeartbeatResponse[] = data?.data || [];
+
+    const stats = analyzeHeartbeats(heartbeats);
+    const embeds = buildEmbeds(stats);
+
+    await sendDiscordNotification(embeds, stats.offlineCount > 0);
+
+    return NextResponse.json(
+      successResponse({ data: heartbeats, status: 200 })
+    );
+  } catch (error: any) {
+    logger.error("Health Check Failed", error.message);
     return NextResponse.json(
       errorResponse({
-        message_en: error.message || "Internal Server Error",
+        message_en: "Internal Server Error",
         message_th: "เกิดข้อผิดพลาดภายในระบบ",
-        status: statusCode,
-        error: error.response?.data || null,
+        status: 500,
+        error: error.message,
       }),
-      { status: statusCode }
+      { status: 500 }
     );
   }
 }

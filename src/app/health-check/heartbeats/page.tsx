@@ -1,14 +1,9 @@
+"use client";
+
 /* SUMMARY: 
   หน้านี้คือ Dashboard สำหรับตรวจสอบสถานะการทำงาน (Heartbeat) ของระบบบอท Cronjob และ Worker ทั้งหมด 
-  มีฟีเจอร์หลักคือ:
-  1. แสดงสถานะ Online/Offline และเวลาอัปเดตล่าสุดแบบ Relative Time (เช่น "เมื่อ 5 นาทีที่แล้ว")
-  2. แสดง Timeline Feed การทำงานล่าสุด 10 รายการทางด้านขวา
-  3. สรุปยอดรวมบอททั้งหมด และจำนวนที่หยุดทำงาน
-  4. สามารถแก้ไขคำอธิบาย (Description) ของบอทแต่ละตัวได้ผ่าน Modal
-  5. รองรับการค้นหา (Search) และทดสอบส่งแจ้งเตือนไปยัง Discord
+  รองรับ Theme Provider โดยไม่มีการ Hardcode สี Background หรือ Text Color ที่ไม่จำเป็น
 */
-
-"use client";
 
 import React, {
   useCallback,
@@ -291,17 +286,14 @@ export default function HeartbeatMonitoringPage() {
       {
         title: (
           <Tooltip title="ชื่อทางเทคนิคของ Job ในระบบ">
-            ชื่อระบบ/บอท{" "}
-            <QuestionCircleOutlined className="text-xs text-gray-400" />
+            ชื่อระบบ/บอท <QuestionCircleOutlined />
           </Tooltip>
         ),
         dataIndex: "JobName",
         width: 250,
         render: (jobName: string, record: HeartbeatRecord) => (
           <div className="flex flex-col">
-            <Typography.Text strong className="text-blue-600">
-              {jobName}
-            </Typography.Text>
+            <Typography.Text strong>{jobName}</Typography.Text>
             <Typography.Text type="secondary" style={{ fontSize: 11 }}>
               ID: {record.ID}
             </Typography.Text>
@@ -312,8 +304,7 @@ export default function HeartbeatMonitoringPage() {
       {
         title: (
           <Tooltip title="หน้าที่การทำงานของบอท เพื่อให้คนทั่วไปเข้าใจ">
-            หน้าที่รับผิดชอบ{" "}
-            <QuestionCircleOutlined className="text-xs text-gray-400" />
+            หน้าที่รับผิดชอบ <QuestionCircleOutlined />
           </Tooltip>
         ),
         dataIndex: "Description",
@@ -322,16 +313,12 @@ export default function HeartbeatMonitoringPage() {
             {description ? (
               <Typography.Paragraph
                 ellipsis={{ rows: 2, expandable: true, symbol: "อ่านเพิ่ม" }}
-                className="text-gray-600 m-0"
+                style={{ margin: 0 }}
               >
                 {description}
               </Typography.Paragraph>
             ) : (
-              <Typography.Text
-                type="secondary"
-                italic
-                className="text-orange-400"
-              >
+              <Typography.Text type="secondary" italic>
                 (ยังไม่มีคำอธิบาย)
               </Typography.Text>
             )}
@@ -351,8 +338,7 @@ export default function HeartbeatMonitoringPage() {
       {
         title: (
           <Tooltip title="ความถี่ที่บอทควรจะทำงาน">
-            รอบการทำงาน{" "}
-            <QuestionCircleOutlined className="text-xs text-gray-400" />
+            รอบการทำงาน <QuestionCircleOutlined />
           </Tooltip>
         ),
         dataIndex: "Interval",
@@ -362,14 +348,17 @@ export default function HeartbeatMonitoringPage() {
           const isAlwaysRunning = record.Remarks === "Always Running";
           return (
             <div className="flex flex-col items-center">
-              <Tag bordered={false} color="geekblue" className="m-0">
+              <Tag bordered={false} style={{ margin: 0 }}>
                 <FieldTimeOutlined />{" "}
                 {formatIntervalToHumanReadableString(interval)}
               </Tag>
               {isAlwaysRunning && (
-                <span className="text-[10px] text-green-600 mt-1">
+                <Typography.Text
+                  type="success"
+                  style={{ fontSize: 10, marginTop: 4 }}
+                >
                   (ทำงานตลอดเวลา)
-                </span>
+                </Typography.Text>
               )}
             </div>
           );
@@ -387,17 +376,7 @@ export default function HeartbeatMonitoringPage() {
           return (
             <Badge
               status={isOnline ? "success" : "error"}
-              text={
-                <span
-                  className={
-                    isOnline
-                      ? "text-green-600 font-semibold"
-                      : "text-red-600 font-semibold"
-                  }
-                >
-                  {isOnline ? "ปกติ" : "หยุด"}
-                </span>
-              }
+              text={isOnline ? "ปกติ" : "หยุด"}
             />
           );
         },
@@ -422,15 +401,19 @@ export default function HeartbeatMonitoringPage() {
               <Tooltip
                 title={dayjs(lastUpdatedTime).format("DD/MM/YYYY HH:mm:ss")}
               >
-                <span className="text-gray-700 font-medium">
+                <Typography.Text strong>
                   {dayjs(lastUpdatedTime).fromNow()}
-                </span>
+                </Typography.Text>
               </Tooltip>
-              <span className="text-[11px] text-gray-400">
+              <Typography.Text type="secondary" style={{ fontSize: 11 }}>
                 {dayjs(lastUpdatedTime).format("HH:mm")} น.
-              </span>
+              </Typography.Text>
               {record.Status === "Online" && isDelayed && (
-                <Tag color="warning" className="mt-1 mr-0 text-[10px] border-0">
+                <Tag
+                  color="warning"
+                  style={{ marginTop: 4, marginRight: 0, fontSize: 10 }}
+                  bordered={false}
+                >
                   <WarningOutlined /> ล่าช้า
                 </Tag>
               )}
@@ -450,16 +433,18 @@ export default function HeartbeatMonitoringPage() {
     <DashboardLayout>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* ส่วนหัวของ Dashboard Summary สำหรับดูภาพรวมสถิติ และปุ่มกด Refresh/Test */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <Card>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <div>
-              <h2 className="text-xl font-bold m-0 flex items-center gap-2">
-                <RobotOutlined className="text-blue-500" />
-                สถานะบอทและการทำงานเบื้องหลัง
-              </h2>
-              <p className="text-gray-400 m-0">
+              <Typography.Title level={4} style={{ margin: 0 }}>
+                <Space>
+                  <RobotOutlined />
+                  สถานะบอทและการทำงานเบื้องหลัง
+                </Space>
+              </Typography.Title>
+              <Typography.Text type="secondary">
                 ตรวจสอบสถานะ Heartbeat ของระบบ Cronjob และ Worker ทั้งหมด
-              </p>
+              </Typography.Text>
             </div>
             <Space>
               <Button
@@ -513,7 +498,7 @@ export default function HeartbeatMonitoringPage() {
               />
             </Col>
           </Row>
-        </div>
+        </Card>
 
         {/* ส่วน Alert แจ้งเตือนเมื่อมีระบบ Offline ให้เห็นชัดเจน */}
         {dashboardStatistics.offlineCount > 0 && (
@@ -531,13 +516,11 @@ export default function HeartbeatMonitoringPage() {
           <Col xs={24} xl={16}>
             <Card
               title={
-                <>
+                <Space>
                   <FieldTimeOutlined /> รายละเอียดการทำงานรายตัว
-                </>
+                </Space>
               }
-              variant="borderless"
-              className="shadow-sm h-full"
-              // Removed manual padding: 0 override to let AntD use default spacing (24px)
+              className="h-full"
             >
               <Table<HeartbeatRecord>
                 columns={tableColumns}
@@ -550,9 +533,6 @@ export default function HeartbeatMonitoringPage() {
                   showTotal: (total) => `ทั้งหมด ${total} รายการ`,
                 }}
                 rowKey={(record) => String(record.ID)}
-                rowClassName={(record) =>
-                  record.Status !== "Online" ? "bg-red-50" : ""
-                }
               />
             </Card>
           </Col>
@@ -562,21 +542,26 @@ export default function HeartbeatMonitoringPage() {
               title={
                 <Space>
                   <HistoryOutlined />
-                  <span className="text-blue-600">
+                  <Typography.Text strong>
                     ฟีดการทำงานล่าสุด (Live)
-                  </span>
+                  </Typography.Text>
                 </Space>
               }
-              className="shadow-sm h-full"
+              className="h-full"
             >
-              <div className="mb-4 p-3 bg-blue-50 text-blue-600 rounded text-xs">
-                <Space align="start">
-                  <ClockCircleOutlined className="mt-0.5" />
-                  <span>
-                    แสดงลำดับบอทที่เพิ่งส่งสัญญาณเข้ามาล่าสุด 10 อันดับแรก
-                  </span>
-                </Space>
-              </div>
+              <Alert
+                message={
+                  <Space align="start">
+                    <ClockCircleOutlined />
+                    <span>
+                      แสดงลำดับบอทที่เพิ่งส่งสัญญาณเข้ามาล่าสุด 10 อันดับแรก
+                    </span>
+                  </Space>
+                }
+                type="info"
+                showIcon={false}
+                style={{ marginBottom: 16 }}
+              />
 
               <Timeline
                 mode="left"
@@ -593,11 +578,7 @@ export default function HeartbeatMonitoringPage() {
                     children: (
                       <div className="pb-4 group cursor-default">
                         <div className="flex justify-between items-start">
-                          <Typography.Text
-                            strong
-                            style={{ fontSize: 13 }}
-                            className="text-slate-700"
-                          >
+                          <Typography.Text strong style={{ fontSize: 13 }}>
                             {item.JobName}
                           </Typography.Text>
                         </div>
@@ -613,7 +594,7 @@ export default function HeartbeatMonitoringPage() {
                             <Tag
                               bordered={false}
                               color="success"
-                              className="mr-0 text-[10px] px-1"
+                              style={{ marginRight: 0, fontSize: 10 }}
                             >
                               ทำงานปกติ
                             </Tag>
@@ -621,7 +602,7 @@ export default function HeartbeatMonitoringPage() {
                             <Tag
                               bordered={false}
                               color="error"
-                              className="mr-0 text-[10px] px-1"
+                              style={{ marginRight: 0, fontSize: 10 }}
                             >
                               หยุดทำงาน
                             </Tag>
@@ -635,9 +616,14 @@ export default function HeartbeatMonitoringPage() {
                             item.Interval
                           ) && (
                             <div className="mt-1">
-                              <span className="text-[10px] text-orange-500 flex items-center gap-1">
-                                <WarningOutlined /> ทำงานช้ากว่ารอบปกติ
-                              </span>
+                              <Typography.Text
+                                type="warning"
+                                style={{ fontSize: 10 }}
+                              >
+                                <Space size={4}>
+                                  <WarningOutlined /> ทำงานช้ากว่ารอบปกติ
+                                </Space>
+                              </Typography.Text>
                             </div>
                           )}
                       </div>
@@ -654,13 +640,12 @@ export default function HeartbeatMonitoringPage() {
       <Modal
         title={
           <Space>
-            <EditOutlined className="text-blue-500" />
+            <EditOutlined />
             <span>แก้ไขคำอธิบายของบอท</span>
           </Space>
         }
         open={Boolean(currentlyEditingRecord)}
         onCancel={closeDescriptionEditModal}
-        // FIX: ลบ destroyOnHidden ออก เพื่อแก้ปัญหา Form Instance disconnect
         footer={[
           <Button key="cancel" onClick={closeDescriptionEditModal}>
             ยกเลิก
@@ -675,14 +660,19 @@ export default function HeartbeatMonitoringPage() {
           </Button>,
         ]}
       >
-        <div className="mb-4 p-3 bg-slate-50 rounded text-slate-500 text-sm">
-          <p className="m-0">
-            <strong>Bot Name:</strong> {currentlyEditingRecord?.JobName}
-          </p>
-          <p className="m-0">
-            <strong>ID:</strong> {currentlyEditingRecord?.ID}
-          </p>
-        </div>
+        <Card size="small" style={{ marginBottom: 16 }}>
+          <Space direction="vertical" size={0}>
+            <Typography.Text type="secondary">Bot Name:</Typography.Text>
+            <Typography.Text strong>
+              {currentlyEditingRecord?.JobName}
+            </Typography.Text>
+            <div style={{ marginTop: 8 }}>
+              <Typography.Text type="secondary">ID: </Typography.Text>
+              <Typography.Text>{currentlyEditingRecord?.ID}</Typography.Text>
+            </div>
+          </Space>
+        </Card>
+
         <Form form={descriptionForm} layout="vertical">
           <Form.Item
             label="คำอธิบาย (เพื่อให้ทีมงานเข้าใจว่าบอทตัวนี้ทำอะไร)"
