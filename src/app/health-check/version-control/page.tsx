@@ -195,7 +195,7 @@ export default function OperationsDashboardPage() {
 
       <div className="w-full space-y-6">
         {/* Top Controls */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4  p-4 rounded-xl shadow-sm  ">
           <Space>
             <Statistic
               title="ระบบทั้งหมด"
@@ -241,7 +241,7 @@ export default function OperationsDashboardPage() {
         <Row gutter={[24, 24]}>
           {/* LEFT COLUMN: Main System Grid */}
           <Col xs={24} xl={16}>
-            <Typography.Title level={5} className="mb-4 text-slate-500">
+            <Typography.Title level={5} className="mb-4 ">
               <BranchesOutlined /> ภาพรวมสถานะระบบ (System Status)
             </Typography.Title>
 
@@ -254,12 +254,11 @@ export default function OperationsDashboardPage() {
                   className="overflow-hidden border-l-4"
                   style={{ borderLeftColor: token.colorPrimary }}
                 >
-                  <div className="p-4 bg-slate-50 border-b flex justify-between items-center">
+                  <div className="p-4  border-b flex justify-between items-center">
                     <Space>
                       <Avatar
                         shape="square"
                         style={{
-                          backgroundColor: token.colorPrimaryBg,
                           color: token.colorPrimary,
                         }}
                       >
@@ -338,7 +337,7 @@ export default function OperationsDashboardPage() {
                     ) : undefined,
                     children: (
                       <div
-                        className="cursor-pointer hover:bg-slate-50 p-2 -ml-2 rounded transition-colors group"
+                        className="cursor-pointer p-2 -ml-2 rounded transition-colors group"
                         onClick={() => handleOpenDetail(item)}
                       >
                         <div className="flex justify-between items-start gap-2">
@@ -353,7 +352,7 @@ export default function OperationsDashboardPage() {
                           {/* ✅ แสดง วัน/เดือน/ปี และเวลา */}
                           <Tag
                             bordered={false}
-                            className="mr-0 text-[10px] text-slate-500 whitespace-nowrap"
+                            className="mr-0 text-[10px]  whitespace-nowrap"
                           >
                             {dayjs(item.updated_at).format("DD/MM/YYYY HH:mm")}
                           </Tag>
@@ -406,7 +405,7 @@ export default function OperationsDashboardPage() {
       >
         {selectedItem && (
           <div className="flex flex-col gap-6">
-            <div className="text-center py-6 bg-slate-50 rounded-lg border border-slate-100">
+            <div className="text-center py-6 rounded-lg border ">
               <Tag
                 color={getEnvColor(selectedItem.environment)}
                 className="mb-2 text-sm px-3 py-1"
@@ -457,7 +456,7 @@ export default function OperationsDashboardPage() {
             <Divider orientation="left" style={{ margin: "12px 0" }}>
               ข้อความ / รายละเอียด
             </Divider>
-            <div className="bg-slate-800 text-green-400 p-4 rounded-md font-mono text-sm">
+            <div className=" text-green-400 p-4 rounded-md font-mono text-sm">
               {">"} {selectedItem.description}
             </div>
           </div>
@@ -502,20 +501,20 @@ const EnvSlot = ({
       {data ? (
         <>
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-semibold text-slate-700">
+            <span className="text-xl font-semibold ">
               {data.version || "v.?"}
             </span>
-            <span className="text-xs text-slate-400 font-mono">
+            <span className="text-xs font-mono">
               #{data.build.substring(0, 5)}
             </span>
           </div>
           <div className="mt-2 flex items-center gap-1 overflow-hidden">
             <UserOutlined style={{ fontSize: 10, color: "#94a3b8" }} />
-            <span className="text-[11px] text-slate-500 truncate max-w-full">
+            <span className="text-[11px]  truncate max-w-full">
               {data.deployed_by}
             </span>
           </div>
-          <span className="text-[10px] text-slate-400 mt-1 block">
+          <span className="text-[10px]  mt-1 block">
             {dayjs(data.updated_at).fromNow()}
           </span>
         </>
@@ -530,8 +529,8 @@ const EnvSlot = ({
 };
 
 const DetailRow = ({ label, value, icon, code, highlight }: any) => (
-  <div className="flex justify-between items-center pb-3 border-b border-slate-100 last:border-0">
-    <Space className="text-slate-500">
+  <div className="flex justify-between items-center pb-3 border-b  last:border-0">
+    <Space className="">
       {icon}
       <span>{label}</span>
     </Space>

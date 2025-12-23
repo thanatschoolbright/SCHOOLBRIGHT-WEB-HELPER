@@ -288,7 +288,6 @@ const ServerCard: React.FC<{
             justify="space-between"
             align="center"
             style={{
-              backgroundColor: "#fafafa",
               padding: "8px 12px",
               borderRadius: "8px",
             }}

@@ -352,6 +352,8 @@ export function CreateModalForm({
                     color: "white",
                     borderRadius: 8,
                     boxShadow: `0 4px 12px ${token.colorPrimary}40`,
+                    transition: "all 0.3s ease",
+                    marginRight: 8,
                   }}
                 />
                 โครงการที่รับผิดชอบ
