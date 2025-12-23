@@ -99,7 +99,6 @@ export default function SidebarContent({
             <span
               style={{
                 fontWeight: 500,
-                color: TEXT_DARK,
                 letterSpacing: "0.3px",
               }}
             >
