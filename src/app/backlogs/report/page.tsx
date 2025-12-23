@@ -181,10 +181,7 @@ export default function Page(): JSX.Element {
         style={{ width: "100%", marginTop: 24 }}
       >
         {/* 🎛️ Control Panel: Space Input & Actions */}
-        <Card
-          
-          style={{ boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)" }}
-        >
+        <Card style={{ boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)" }}>
           <Row gutter={[16, 16]} align="middle">
             <Col xs={24} md={12}>
               <Space direction="vertical" size={4} style={{ width: "100%" }}>
@@ -223,7 +220,6 @@ export default function Page(): JSX.Element {
             {/* Total Projects */}
             <Col xs={24} sm={8}>
               <Card
-                
                 style={{
                   background:
                     "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -245,7 +241,6 @@ export default function Page(): JSX.Element {
             {/* Active Projects */}
             <Col xs={24} sm={8}>
               <Card
-                
                 style={{
                   background:
                     "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
@@ -267,7 +262,6 @@ export default function Page(): JSX.Element {
             {/* Archived Projects */}
             <Col xs={24} sm={8}>
               <Card
-                
                 style={{
                   background:
                     "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
@@ -289,10 +283,7 @@ export default function Page(): JSX.Element {
         )}
 
         {/* 🔍 Filter & Search Section */}
-        <Card
-          
-          style={{ boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)" }}
-        >
+        <Card style={{ boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)" }}>
           <Row gutter={[16, 16]}>
             {/* Search Input */}
             <Col xs={24} md={16}>
@@ -345,7 +336,6 @@ export default function Page(): JSX.Element {
 
         {/* 🗂️ Projects Grid */}
         <Card
-          
           style={{ boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)" }}
           title={
             <Flex justify="space-between" align="center">
@@ -384,7 +374,6 @@ export default function Page(): JSX.Element {
                   >
                     <Card
                       hoverable
-                      bordered
                       onClick={() => handleProjectClick(project)}
                       style={{
                         height: "100%",

@@ -211,7 +211,6 @@ export default function BypassPage(): JSX.Element {
 
             <Col xs={24} sm={12} lg={6}>
               <Card
-                bordered={false}
                 style={{
                   borderRadius: 12,
                   boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
