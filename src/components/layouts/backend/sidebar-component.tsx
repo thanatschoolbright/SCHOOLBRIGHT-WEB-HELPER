@@ -8,7 +8,6 @@ const SB_ORANGE_PRIMARY = "#FF7F00";
 const SB_ORANGE_LIGHT = "#FFF2E8";
 const SB_ORANGE_GRADIENT_START = "#FF9933";
 const SB_ORANGE_GRADIENT_END = "#FF6600";
-const TEXT_DARK = "#4A4A4A";
 
 const { useBreakpoint } = Grid;
 
@@ -90,19 +89,17 @@ export default function SidebarContent({
 
   const items: MenuProps["items"] = useMemo(() => {
     return menu.map((m) => {
-      // Logic: ชื่อเมนู
+      // 1. Label Content (Parent & Single Item)
       const labelContent = (
         <div
+          className="sb-menu-label-wrapper" // ใช้ class แทน inline style
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-            // เพิ่มสีให้ชัดเจน เพื่อป้องกันกรณี Parent CSS สั่งให้สีจาง
-            color: TEXT_DARK,
           }}
         >
-          {/* Tooltip */}
           {!collapsed ? (
             <MenuTooltip label={m.label}>
               <span style={{ fontWeight: 500, letterSpacing: "0.3px" }}>
@@ -115,7 +112,6 @@ export default function SidebarContent({
             </span>
           )}
 
-          {/* Tag */}
           {m.tag && (
             <Tag
               color="orange"
@@ -134,6 +130,7 @@ export default function SidebarContent({
         </div>
       );
 
+      // 2. Submenu (Children)
       if (m.children && m.children.length) {
         return {
           key: m.label,
@@ -144,16 +141,16 @@ export default function SidebarContent({
             icon: c.icon,
             label: (
               <div
+                className="sb-submenu-label-wrapper" // Class สำหรับจัดการ Style ใน Popup
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   width: "100%",
-                  color: TEXT_DARK, // บังคับสี Text ใน Submenu
                 }}
               >
                 <MenuTooltip label={c.label}>
-                  {/* ใช้ span ปกติแทน custom component ในระดับลึกสุดเพื่อลดความซับซ้อน */}
+                  {/* ไม่ใส่ color ปล่อยให้ Theme จัดการ */}
                   <span>{c.label}</span>
                 </MenuTooltip>
                 <>
@@ -166,6 +163,7 @@ export default function SidebarContent({
         };
       }
 
+      // 3. Single Item
       return {
         key: m.href || m.label,
         icon: m.icon,
@@ -199,7 +197,7 @@ export default function SidebarContent({
             fontSize: 14,
             iconSize: 18,
             subMenuItemBg: "transparent",
-            popupBg: "#ffffff",
+            popupBg: "#ffffff", // มั่นใจว่าพื้นหลัง Popup เป็นสีขาว
           },
         },
       }}
@@ -269,27 +267,25 @@ export default function SidebarContent({
             color: ${SB_ORANGE_PRIMARY};
           }
 
-          /* --- FIX: บังคับแสดง Text ใน Popup Submenu --- */
-
-          /* 1. บังคับให้ ant-menu-title-content แสดงผล */
+          /* --- FIX: Display Text in Popup --- */
+          /* เอา color ออก ปล่อยให้ Theme จัดการ */
           .ant-menu-submenu-popup .ant-menu-item-title-content,
           .ant-menu-submenu-popup .ant-menu-title-content {
             display: block !important;
             opacity: 1 !important;
             visibility: visible !important;
             width: 100%;
-            overflow: visible !important; /* ป้องกันการซ่อนส่วนเกิน */
+            overflow: visible !important;
           }
 
-          /* 2. บังคับสี Text ใน Popup ให้ชัดเจน */
-          .ant-menu-submenu-popup .ant-menu-item,
-          .ant-menu-submenu-popup .ant-menu-submenu-title {
-            color: ${TEXT_DARK} !important;
-          }
-
-          /* 3. ปรับขนาด Popup ให้กว้างพอ */
+          /* ปรับความกว้าง Popup ให้พอดีกับ Content */
           .ant-menu-submenu-popup .ant-menu {
-            min-width: 200px;
+            min-width: 220px;
+          }
+
+          /* ถ้ายังมองไม่เห็น ลอง Reset สีเป็น inherit ดูครับ (เผื่อ Parent set เป็น transparent) */
+          .ant-menu-submenu-popup .sb-submenu-label-wrapper span {
+            color: inherit;
           }
 
           /* ------------------------------------------- */

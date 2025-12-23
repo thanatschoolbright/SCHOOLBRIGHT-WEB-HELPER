@@ -2,21 +2,13 @@
 
 /**
  * 🧭 MainHeader: Header หลักของ backend layout
- * ปรับปรุง UI ให้ดูทันสมัย (Modern Glassmorphism) และรองรับ Dark Mode
+ * - ปรับปรุงให้เป็น Tailwind CSS
+ * - เพิ่ม Mobile Responsive (ซ่อน text หน้าหลักบนจอมือถือ)
+ * - เพิ่ม Smooth Animations (Entrance, Hover, Click effects)
  */
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Badge,
-  Button,
-  Flex,
-  Space,
-  Tooltip,
-  theme,
-  Typography,
-  Avatar,
-} from "antd";
+import { Badge, Button, Tooltip, theme, Typography } from "antd";
 import {
   BellOutlined,
   CompassFilled,
@@ -27,53 +19,39 @@ import UserDropdown from "@components/layouts/backend/user-dropdown";
 
 export default function MainHeader(): JSX.Element {
   const router = useRouter();
+  // จำเป็นต้องใช้ token สำหรับสีที่เปลี่ยนตาม Dark/Light Mode ของ Ant Design
   const { token } = theme.useToken();
-  const [isScrolled, setIsScrolled] = useState(false);
 
-  // ตรวจจับการ Scroll เพื่อใส่เงา (Optional: ถ้าต้องการ)
-  // ในที่นี้ใส่เงาบางๆ ตลอดเวลาเพื่อความสวยงาม
-
-  // --- Theme Colors ---
+  // --- Constants ---
   const SB_GRADIENT = "linear-gradient(135deg, #FF9933 0%, #FF6600 100%)";
 
   return (
-    <div
+    // 🟢 Container: ใช้ Tailwind จัดการ Layout, Backdrop blur, และ Animation ตอนโหลด
+    // ใช้ inline style เฉพาะ border color ที่ต้องเปลี่ยนตาม theme
+    <header
+      className="sticky top-0 z-50 w-full backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out animate-fade-in-down px-4 py-2"
       style={{
-        backdropFilter: "blur(12px)",
         borderBottom: `1px solid ${token.colorSplit}`,
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)",
-        transition: "all 0.3s ease",
       }}
     >
-      <Flex align="center" justify="space-between" style={{ width: "100%" }}>
+      <div className="flex items-center justify-between w-full max-w-screen-2xl mx-auto">
         {/* 🔸 Logo Section */}
         <div
           onClick={() => router.push("/main")}
-          style={{
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            padding: "6px 12px",
-            borderRadius: 12,
-            transition: "all 0.2s ease",
-          }}
-          className="hover:bg-black/5 dark:hover:bg-white/10 group"
+          className="
+            group cursor-pointer flex items-center gap-3 px-3 py-2 rounded-2xl
+            hover:bg-black/5 dark:hover:bg-white/10
+            transition-all duration-300 ease-out active:scale-95
+          "
         >
-          {/* Logo Icon with Gradient Background */}
+          {/* Logo Icon with Elastic Animation */}
           <div
-            style={{
-              width: 40,
-              height: 40,
-              background: SB_GRADIENT,
-              borderRadius: 10,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 4px 10px rgba(255, 102, 0, 0.3)",
-              transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-            }}
-            className="group-hover:scale-110"
+            style={{ background: SB_GRADIENT }}
+            className="
+              w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30
+              transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+              group-hover:scale-110 group-hover:rotate-3
+            "
           >
             <CompassFilled style={{ fontSize: 22, color: "white" }} />
           </div>
@@ -81,79 +59,83 @@ export default function MainHeader(): JSX.Element {
           <div className="flex flex-col">
             <Typography.Text
               strong
-              style={{
-                fontSize: 16,
-                lineHeight: 1.2,
-                color: token.colorTextHeading,
-              }}
+              className="text-base leading-tight transition-colors duration-300"
+              style={{ color: token.colorTextHeading }}
             >
               School Bright
             </Typography.Text>
             <Typography.Text
               type="secondary"
-              style={{ fontSize: 11, letterSpacing: "0.5px" }}
+              className="text-[11px] tracking-wider opacity-80"
             >
               Backend System
             </Typography.Text>
           </div>
         </div>
 
-        {/* 🔹 Right Actions */}
-        <Space size={16} align="center">
-          {/* ปุ่มกลับหน้าหลักแบบ Minimal */}
+        {/* 🔹 Right Actions Section */}
+        {/* Responsive: ลด gap บนมือถือ */}
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* ปุ่มหน้าหลัก: Responsive (ซ่อน Text บนมือถือ) */}
           <Button
             type="text"
             icon={<HomeOutlined />}
             onClick={() => router.push("/main")}
-            style={{
-              color: token.colorTextSecondary,
-              borderRadius: 8,
-            }}
-            className="hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+            style={{ color: token.colorTextSecondary }}
+            className="
+              flex items-center justify-center rounded-lg
+              hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20
+              transition-all duration-200 active:scale-90
+            "
           >
-            หน้าหลัก
+            {/* ซ่อน Text เมื่อจอเล็กกว่า md (768px) */}
+            <span className="hidden md:inline ml-1">หน้าหลัก</span>
           </Button>
 
-          {/* ปุ่มเมนูเสริม (Optional) */}
+          {/* ปุ่ม Apps: ซ่อนบนมือถือจอเล็กมาก */}
           <Tooltip title="แอปพลิเคชัน">
             <Button
               type="text"
               shape="circle"
               icon={<AppstoreOutlined />}
               style={{ color: token.colorTextSecondary }}
+              className="hidden sm:flex hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-transform active:scale-90"
             />
           </Tooltip>
 
-          {/* แจ้งเตือน */}
+          {/* แจ้งเตือน พร้อม Animation กระดิ่ง */}
           <Tooltip title="แจ้งเตือน">
             <Badge dot color="#FF4D4F" offset={[-4, 4]}>
               <Button
                 type="text"
                 shape="circle"
-                icon={<BellOutlined style={{ fontSize: 18 }} />}
+                icon={
+                  <BellOutlined className="text-lg group-hover:animate-swing origin-top" />
+                }
                 style={{
                   color: token.colorTextSecondary,
                   border: `1px solid ${token.colorBorderSecondary}`,
                 }}
-                className="hover:text-orange-500 hover:border-orange-500 transition-colors"
+                className="
+                  group hover:text-orange-500 hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20
+                  transition-all duration-200 active:scale-90
+                "
               />
             </Badge>
           </Tooltip>
 
-          {/* ขีดคั่นบางๆ */}
+          {/* ขีดคั่น: ซ่อนบนมือถือ */}
           <div
-            style={{
-              width: 1,
-              height: 24,
-              backgroundColor: token.colorSplit,
-              margin: "0 4px",
-            }}
+            className="h-6 w-px hidden sm:block mx-1"
+            style={{ backgroundColor: token.colorSplit }}
           />
 
           {/* User Profile */}
-          <UserDropdown />
-        </Space>
-      </Flex>
-    </div>
+          <div className="pl-1">
+            <UserDropdown />
+          </div>
+        </div>
+      </div>
+    </header>
   );
 }

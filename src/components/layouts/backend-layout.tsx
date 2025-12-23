@@ -1,59 +1,54 @@
 "use client";
 
-/**
- * 📱 DashboardLayout: โครงสร้างหลักของ layout ในระบบ backend
- * ใช้ Ant Design สำหรับ UI minimal โทนขาวคล้าย Apple Web, รองรับ Dark Mode
- * มี Skeleton Loading ในส่วน Content และ Memoize components เพื่อประสิทธิภาพ
- */
-
 import "@ant-design/v5-patch-for-react-19";
-import { Layout, Skeleton, theme } from "antd";
-import React, { Suspense, useMemo, useState } from "react";
+import React, { Suspense, useMemo, useState, useEffect } from "react";
+import { Layout, Skeleton, theme, Drawer, Grid, Button } from "antd";
+import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
 
+// Components
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
 import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
 import MainHeader from "@components/layouts/backend/navbar";
 import SidebarContent from "@components/layouts/backend/sidebar-component";
 
-/**
- * 🎯 Props สำหรับ DashboardLayout
- */
+// Types
 type DashboardLayoutProps = {
   children: React.ReactNode;
 };
 
-/**
- * 🏗️ Memoize components เพื่อป้องกัน re-render ถ้า props ไม่เปลี่ยน
- */
+// Memoize Components
 const MemoSidebarContent = React.memo(SidebarContent);
 const MemoMainHeader = React.memo(MainHeader);
 const MemoBreadcrumbs = React.memo(BreadcrumbComponent);
 
-/**
- * 📦 DashboardLayout: Component หลักสำหรับ layout ของ backend
- * - ใช้ static import เพื่อความเรียบง่าย
- * - Skeleton fallback เฉพาะในส่วน children
- * - รองรับ Dark Mode ด้วย theme token
- */
 export default function DashboardLayout({
   children,
 }: DashboardLayoutProps): JSX.Element {
-  //** 🌐 สถานะให้ Sider ยุบ/ขยาย
-  const [collapsed, setCollapsed] = useState<boolean>(false);
-
-  //** 🎨 ดึง token ธีมจาก Ant Design Theme สำหรับ Dark Mode
+  // 🎨 Theme Token
   const { token } = theme.useToken();
   const { Header, Sider, Content } = Layout;
+  const { useBreakpoint } = Grid;
 
-  /**
-   * 🦴 Skeleton ใน fallback ของ Suspense สำหรับ children
-   * แสดง loading ขณะโหลดเนื้อหา
-   */
+  // 📱 States
+  const screens = useBreakpoint();
+  const [collapsed, setCollapsed] = useState<boolean>(false); // Desktop State
+  const [mobileOpen, setMobileOpen] = useState<boolean>(false); // Mobile Drawer State
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // 🛠️ Detect Mobile View (Hydration Safe)
+  useEffect(() => {
+    setIsMobile(!screens.lg); // ถ้าน้อยกว่า lg (Desktop) ถือเป็น Mobile/Tablet
+    if (!screens.lg) {
+      setCollapsed(false); // Reset collapsed state on mobile
+    }
+  }, [screens.lg]);
+
+  // 🦴 Skeleton Fallback
   const contentSkeleton = useMemo(
     () => (
-      <div style={{ padding: 12 }}>
+      <div className="p-3">
         <Skeleton active title={{ width: "40%" }} paragraph={{ rows: 2 }} />
-        <div style={{ marginTop: 12 }}>
+        <div className="mt-4">
           <Skeleton active title={false} paragraph={{ rows: 6 }} />
         </div>
       </div>
@@ -61,94 +56,126 @@ export default function DashboardLayout({
     []
   );
 
-  /**
-   * 🌙 DarkModeToggle จะแสดงเฉพาะเมื่อ Sider ไม่ถูกยุบ
-   * เพื่อประหยัดพื้นที่
-   */
-  const darkToggleSection = useMemo(() => {
-    if (!collapsed) {
-      return (
-        <div style={{ padding: 16 }}>
-          <DarkModeToggle />
-        </div>
-      );
-    }
-    return null;
-  }, [collapsed]);
+  // 🌙 Dark Mode Toggle Section (Desktop Only)
+  const renderDarkToggle = () => {
+    if (collapsed) return null;
+    return (
+      <div className="p-4 fade-in">
+        <DarkModeToggle />
+      </div>
+    );
+  };
 
   return (
     <Layout
-      style={{
-        minHeight: "100vh",
-        background: token.colorBgLayout, // รองรับ Dark Mode
-      }}
+      className="min-h-screen transition-colors duration-300"
+      style={{ background: token.colorBgLayout }}
     >
-      {/* 🔸 Sidebar ด้านซ้าย */}
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        width={260}
-        collapsedWidth={70}
-        breakpoint="xl"
-        style={{
-          background: token.colorBgContainer,
-          borderRight: `1px solid ${token.colorBorderSecondary}`,
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{ display: "flex", flexDirection: "column", height: "100%" }}
+      {/* 📱 Mobile Sidebar (Drawer) */}
+      {isMobile && (
+        <Drawer
+          placement="left"
+          onClose={() => setMobileOpen(false)}
+          open={mobileOpen}
+          width={260}
+          styles={{
+            body: { padding: 0, backgroundColor: token.colorBgContainer },
+            header: { display: "none" },
+          }}
+          classNames={{ wrapper: "z-[9999]" }} // Ensure it's on top
         >
-          {/* 📋 เนื้อหา Sidebar */}
-          <div
-            style={{
-              flex: 1,
-              overflowY: "auto",
-              marginTop: 48,
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            }}
-          >
-            <MemoSidebarContent collapsed={collapsed} />
+          <div className="flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto mt-6">
+              <MemoSidebarContent
+                collapsed={false}
+                onMobileClose={() => setMobileOpen(false)}
+              />
+            </div>
+            <div className="p-4">
+              <DarkModeToggle />
+            </div>
           </div>
-          {/* 🌙 Toggle Dark Mode */}
-          {darkToggleSection}
-        </div>
-      </Sider>
+        </Drawer>
+      )}
 
-      {/* 🔹 Layout หลัก */}
-      <Layout>
-        {/* 🧭 Header ด้านบน */}
-        <Header
+      {/* 🖥️ Desktop Sidebar (Sider) */}
+      {!isMobile && (
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          width={260}
+          collapsedWidth={80}
+          className="shadow-sm border-r z-40 transition-all duration-300 ease-in-out"
           style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 50,
-            paddingInline: 0,
+            background: token.colorBgContainer,
+            borderRightColor: token.colorBorderSecondary,
+            // ❌ ลบ overflow: hidden ออก เพื่อให้ Tooltip ทำงานได้ถูกต้อง
+            // position: "sticky", top: 0, height: "100vh" // Optional: ถ้าอยากให้ Sidebar ลอยค้าง
           }}
         >
-          <MemoMainHeader />
+          <div className="flex flex-col h-full">
+            {/* Logo Area or Spacer */}
+            <div className="h-16 flex items-center justify-center">
+              {/* ใส่ Logo ตรงนี้ได้ */}
+            </div>
+
+            {/* Menu Area */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
+              <MemoSidebarContent collapsed={collapsed} />
+            </div>
+
+            {/* Footer / Toggle Area */}
+            {renderDarkToggle()}
+
+            {/* Collapse Trigger Button (Custom) */}
+            <div
+              className="h-12 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors border-t"
+              style={{ borderColor: token.colorBorderSecondary }}
+              onClick={() => setCollapsed(!collapsed)}
+            >
+              {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            </div>
+          </div>
+        </Sider>
+      )}
+
+      {/* 🔹 Main Layout */}
+      <Layout className="transition-all duration-300">
+        {/* 🧭 Header */}
+        <Header
+          className="sticky top-0 z-30 w-full px-0 shadow-sm"
+          style={{ background: token.colorBgContainer }}
+        >
+          <div className="flex items-center h-full px-4 gap-4">
+            {/* Mobile Menu Button */}
+            {isMobile && (
+              <Button
+                type="text"
+                icon={
+                  mobileOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />
+                }
+                onClick={() => setMobileOpen(!mobileOpen)}
+                size="large"
+              />
+            )}
+
+            <div className="flex-1">
+              <MemoMainHeader />
+            </div>
+          </div>
         </Header>
 
-        {/* 📄 Content หลัก */}
+        {/* 📄 Content Area */}
         <Content
-          style={{
-            padding: 20,
-            display: "flex",
-            flexDirection: "column",
-            minHeight: 0,
-            gap: 16,
-            background: token.colorBgLayout, // รองรับ Dark Mode
-          }}
+          className="p-4 sm:p-6 flex flex-col gap-4 overflow-x-hidden min-h-0"
+          style={{ background: token.colorBgLayout }}
         >
-          {/* 🍞 Breadcrumbs */}
-          <div>
+          <div className="w-full">
             <MemoBreadcrumbs />
           </div>
 
-          {/* 📦 เนื้อหาหลักกับ Skeleton Loading */}
-          <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+          <div className="flex-1 w-full h-full relative fade-in">
             <Suspense fallback={contentSkeleton}>{children}</Suspense>
           </div>
         </Content>
