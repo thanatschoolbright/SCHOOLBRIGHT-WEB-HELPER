@@ -2,7 +2,7 @@
 
 import "@ant-design/v5-patch-for-react-19";
 import React, { Suspense, useMemo, useState, useEffect } from "react";
-import { Layout, Skeleton, theme, Drawer, Grid, Button } from "antd";
+import { Layout, Skeleton, theme, Drawer, Grid, Button, Flex } from "antd";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
 
 // Components
@@ -26,7 +26,7 @@ export default function DashboardLayout({
 }: DashboardLayoutProps): JSX.Element {
   // 🎨 Theme Token
   const { token } = theme.useToken();
-  const { Sider, Content } = Layout;
+  const { Sider, Content, Header } = Layout; // ใช้ Header จาก Layout
   const { useBreakpoint } = Grid;
 
   // 📱 States
@@ -46,12 +46,12 @@ export default function DashboardLayout({
   // 🦴 Skeleton Fallback
   const contentSkeleton = useMemo(
     () => (
-      <div className="p-3">
+      <Flex vertical gap="small" className="p-3">
         <Skeleton active title={{ width: "40%" }} paragraph={{ rows: 2 }} />
         <div className="mt-4">
           <Skeleton active title={false} paragraph={{ rows: 6 }} />
         </div>
-      </div>
+      </Flex>
     ),
     []
   );
@@ -68,7 +68,7 @@ export default function DashboardLayout({
 
   return (
     <Layout
-      className="min-h-screen transition-colors duration-300 relative" // เพิ่ม relative
+      className="min-h-screen transition-colors duration-300 relative"
       style={{ background: token.colorBgLayout }}
     >
       {/* 📱 Mobile Sidebar (Drawer) */}
@@ -84,7 +84,7 @@ export default function DashboardLayout({
           }}
           classNames={{ wrapper: "z-[9999]" }}
         >
-          <div className="flex flex-col h-full">
+          <Flex vertical style={{ height: "100%" }}>
             <div className="flex-1 overflow-y-auto mt-6">
               <MemoSidebarContent
                 collapsed={false}
@@ -94,7 +94,7 @@ export default function DashboardLayout({
             <div className="p-4">
               <DarkModeToggle />
             </div>
-          </div>
+          </Flex>
         </Drawer>
       )}
 
@@ -112,11 +112,11 @@ export default function DashboardLayout({
             borderRightColor: token.colorBorderSecondary,
           }}
         >
-          <div className="flex flex-col h-full">
+          <Flex vertical style={{ height: "100%" }}>
             {/* Logo Area */}
-            <div className="h-16 flex items-center justify-center">
+            <Flex align="center" justify="center" style={{ height: 64 }}>
               {/* Logo Here */}
-            </div>
+            </Flex>
 
             {/* Menu Area */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
@@ -126,65 +126,73 @@ export default function DashboardLayout({
             {/* Footer / Toggle Area */}
             {renderDarkToggle()}
 
-            <div
-              className="h-12 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors border-t"
+            <Flex
+              align="center"
+              justify="center"
+              className="h-12 cursor-pointer hover:bg-black/5 transition-colors border-t"
               style={{ borderColor: token.colorBorderSecondary }}
               onClick={() => setCollapsed(!collapsed)}
             >
               {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            </div>
-          </div>
+            </Flex>
+          </Flex>
         </Sider>
       )}
 
       {/* 🔹 Main Layout Content Wrapper */}
       <Layout className="transition-all duration-300 bg-transparent">
         {/* 🧭 Header */}
-        <div className="sticky top-0 z-30 w-full">
+        <Header
+          className="sticky top-0 z-30 w-full p-0 h-20"
+          style={{ background: "transparent" }}
+        >
           <MemoMainHeader />
-        </div>
+        </Header>
 
         {/* 📄 Content Area */}
         <Content
-          className="p-4 sm:p-6 flex flex-col gap-4 overflow-x-hidden min-h-0"
+          className="p-4 sm:p-6 overflow-x-hidden min-h-0"
           style={{
             background: token.colorBgLayout,
-            marginTop: 0,
           }}
         >
-          <div className="w-full">
-            <MemoBreadcrumbs />
-          </div>
+          <Flex vertical gap="middle" style={{ height: "100%" }}>
+            <div className="w-full">
+              <MemoBreadcrumbs />
+            </div>
 
-          <div className="flex-1 w-full h-full relative fade-in">
-            <Suspense fallback={contentSkeleton}>{children}</Suspense>
-          </div>
+            <div className="flex-1 w-full h-full relative fade-in">
+              <Suspense fallback={contentSkeleton}>{children}</Suspense>
+            </div>
+          </Flex>
         </Content>
       </Layout>
 
       {/* 🔘 Mobile Floating Hamburger Button (Bottom-Right) */}
       {isMobile && (
-        <div className="fixed bottom-6 right-6 z-50 animate-bounce-in">
-          <Button
-            type="primary"
-            shape="circle"
-            size="large"
-            icon={mobileOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
-            onClick={() => setMobileOpen(!mobileOpen)}
-            style={{
-              width: 56,
-              height: 56,
-              fontSize: 24,
-              boxShadow: "0 4px 15px rgba(0,0,0,0.3)", // เงาชัดๆ
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: token.colorPrimary, // สีหลักของ Theme (สีส้ม)
-              border: "none",
-            }}
-            className="hover:scale-110 active:scale-95 transition-transform duration-200"
-          />
-        </div>
+        <Button
+          type="primary"
+          shape="circle"
+          size="large"
+          icon={mobileOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+          onClick={() => setMobileOpen(!mobileOpen)}
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            width: 56,
+            height: 56,
+            fontSize: 24,
+            boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+            backgroundColor: token.colorPrimary,
+            border: "none",
+            zIndex: 50,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          className="hover:scale-110 active:scale-95 transition-transform duration-200 animate-bounce-in"
+        />
       )}
     </Layout>
   );

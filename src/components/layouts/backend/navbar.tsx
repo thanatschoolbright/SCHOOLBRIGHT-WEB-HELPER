@@ -1,13 +1,17 @@
 "use client";
 
-/**
- * 🧭 MainHeader: Header หลักของ backend layout
- * - ปรับปรุง Mobile Responsive: ลดขนาด Logo, Icon, Text และ Gap บนจอมือถือ
- * - ใช้ Tailwind Breakpoints (sm, md) เพื่อขยายขนาดเมื่ออยู่บนจอใหญ่
- */
-
 import { useRouter } from "next/navigation";
-import { Badge, Button, Tooltip, theme, Typography } from "antd";
+import {
+  Badge,
+  Button,
+  Tooltip,
+  theme,
+  Typography,
+  Flex,
+  Space,
+  Grid,
+  Divider,
+} from "antd";
 import {
   BellOutlined,
   CompassFilled,
@@ -16,130 +20,170 @@ import {
 } from "@ant-design/icons";
 import UserDropdown from "@components/layouts/backend/user-dropdown";
 
+const { Text } = Typography;
+const { useBreakpoint } = Grid;
+
 export default function MainHeader(): JSX.Element {
   const router = useRouter();
   const { token } = theme.useToken();
+  const screens = useBreakpoint();
 
   // --- Constants ---
   const SB_GRADIENT = "linear-gradient(135deg, #FF9933 0%, #FF6600 100%)";
 
+  const getGlassBackground = (colorHex: string, opacity: number) => {
+    const hex = colorHex.replace("#", "");
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  };
+
   return (
-    <header
-      // 📱 Layout: ปรับ Padding มือถือ (px-3) vs จอใหญ่ (sm:px-4)
-      className="sticky top-0 z-50 w-full backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out animate-fade-in-down px-3 py-2 sm:px-4"
+    <div
       style={{
+        width: "100%",
+        height: "100%",
+        background: getGlassBackground(token.colorBgContainer, 0.85),
+        backdropFilter: "blur(12px)",
         borderBottom: `1px solid ${token.colorSplit}`,
+        transition: "all 0.3s ease",
       }}
     >
-      <div className="flex items-center justify-between w-full max-w-screen-2xl mx-auto">
-        {/* 🔸 Logo Section */}
-        <div
+      <Flex
+        align="center"
+        justify="space-between"
+        style={{
+          maxWidth: 1600,
+          margin: "0 auto",
+          height: "100%",
+          padding: screens.md ? "0 32px" : "0 16px",
+        }}
+      >
+        {/* 🔸 Left: Logo Section */}
+        <Flex
+          align="center"
+          gap={screens.md ? 16 : 10}
           onClick={() => router.push("/main")}
-          // 📱 Responsive: ลด Padding และ Gap ในปุ่ม Logo บนมือถือ
-          className="
-            group cursor-pointer flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 rounded-2xl
-            hover:bg-black/5 dark:hover:bg-white/10
-            transition-all duration-300 ease-out active:scale-95
-          "
+          style={{ cursor: "pointer" }}
+          className="hover:opacity-80 active:scale-95 transition-all group"
         >
-          {/* Logo Icon */}
-          <div
-            style={{ background: SB_GRADIENT }}
-            // 📱 Responsive: ปรับขนาดกล่องไอคอน w-8 (32px) บนมือถือ -> w-10 (40px) บนจอใหญ่
-            className="
-              w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl 
-              flex items-center justify-center shadow-lg shadow-orange-500/30
-              transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
-              group-hover:scale-110 group-hover:rotate-3
-            "
+          <Flex
+            align="center"
+            justify="center"
+            style={{
+              width: screens.md ? 44 : 36,
+              height: screens.md ? 44 : 36,
+              background: SB_GRADIENT,
+              borderRadius: screens.md ? 12 : 8,
+              boxShadow: "0 4px 12px rgba(255, 102, 0, 0.25)",
+              transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+            className="group-hover:scale-110 group-hover:rotate-3"
           >
-            {/* 📱 Responsive: ปรับขนาด icon fontSize */}
-            <CompassFilled className="text-lg sm:text-[22px] text-white" />
-          </div>
+            <CompassFilled
+              style={{
+                fontSize: screens.md ? 24 : 20,
+                color: "white",
+              }}
+            />
+          </Flex>
 
-          <div className="flex flex-col">
-            <Typography.Text
+          <Flex vertical justify="center" gap={2}>
+            <Text
               strong
-              // 📱 Responsive: ปรับขนาด Text ชื่อโรงเรียน
-              className="text-sm sm:text-base leading-tight transition-colors duration-300"
-              style={{ color: token.colorTextHeading }}
+              style={{
+                fontSize: screens.md ? 18 : 15,
+                lineHeight: 1.1,
+                color: token.colorTextHeading,
+                letterSpacing: "-0.5px",
+              }}
             >
               School Bright
-            </Typography.Text>
-            <Typography.Text
-              type="secondary"
-              // 📱 Responsive: ปรับขนาด Subtitle และซ่อนบนจอเล็กมากๆ ถ้าจำเป็น
-              className="text-[10px] sm:text-[11px] tracking-wider opacity-80"
-            >
-              Backend System
-            </Typography.Text>
-          </div>
-        </div>
+            </Text>
+            {screens.sm && (
+              <Text
+                type="secondary"
+                style={{
+                  fontSize: 11,
+                  lineHeight: 1,
+                  opacity: 0.8,
+                  fontWeight: 500,
+                }}
+              >
+                Backend System
+              </Text>
+            )}
+          </Flex>
+        </Flex>
 
-        {/* 🔹 Right Actions Section */}
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
-          {/* ปุ่มหน้าหลัก: ซ่อน Text บนมือถือ */}
-          <Button
-            type="text"
-            icon={<HomeOutlined />}
-            onClick={() => router.push("/main")}
-            style={{ color: token.colorTextSecondary }}
-            className="
-              flex items-center justify-center rounded-lg
-              hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20
-              transition-all duration-200 active:scale-90
-              w-8 h-8 sm:w-auto sm:h-auto /* ปรับขนาดปุ่มบนมือถือ */
-            "
-          >
-            <span className="hidden md:inline ml-1">หน้าหลัก</span>
-          </Button>
-
-          {/* ปุ่ม Apps: ซ่อนบนมือถือจอเล็ก (แสดงเมื่อจอ sm ขึ้นไป) */}
-          <Tooltip title="แอปพลิเคชัน">
+        {/* 🔹 Right: Actions */}
+        <Space size={screens.md ? 12 : 8} align="center">
+          {screens.md && (
             <Button
               type="text"
-              shape="circle"
-              icon={<AppstoreOutlined />}
-              style={{ color: token.colorTextSecondary }}
-              className="hidden sm:flex hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-transform active:scale-90"
-            />
-          </Tooltip>
+              icon={<HomeOutlined />}
+              onClick={() => router.push("/main")}
+              style={{
+                color: token.colorTextSecondary,
+                height: 40,
+                borderRadius: 8,
+              }}
+              className="hover:bg-black/5 dark:hover:bg-white/10"
+            >
+              หน้าหลัก
+            </Button>
+          )}
 
-          {/* แจ้งเตือน */}
-          <Tooltip title="แจ้งเตือน">
-            <Badge dot color="#FF4D4F" offset={[-4, 4]}>
+          {screens.sm && (
+            <Tooltip title="แอปพลิเคชัน">
               <Button
                 type="text"
                 shape="circle"
-                // 📱 Responsive: ปรับขนาด Icon กระดิ่ง
-                icon={
-                  <BellOutlined className="text-base sm:text-lg group-hover:animate-swing origin-top" />
-                }
+                icon={<AppstoreOutlined style={{ fontSize: 18 }} />}
                 style={{
                   color: token.colorTextSecondary,
-                  border: `1px solid ${token.colorBorderSecondary}`,
+                  width: 40,
+                  height: 40,
                 }}
-                className="
-                  group hover:text-orange-500 hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20
-                  transition-all duration-200 active:scale-90
-                  w-8 h-8 sm:w-8 sm:h-8 /* ปรับขนาดปุ่ม */
-                "
               />
-            </Badge>
+            </Tooltip>
+          )}
+
+          {/* ✅ แก้ไขจุดแจ้งเตือนตรงนี้ */}
+          <Tooltip title="แจ้งเตือน">
+            <Button
+              type="text"
+              shape="circle"
+              // ย้าย Badge มาครอบ Icon โดยตรง
+              icon={
+                <Badge dot color="#FF4D4F" offset={[-1, 1]}>
+                  <BellOutlined
+                    style={{ fontSize: screens.md ? 20 : 18 }}
+                    className="group-hover:animate-swing"
+                  />
+                </Badge>
+              }
+              style={{
+                color: token.colorTextSecondary,
+                width: 40,
+                height: 40,
+                border: `1px solid ${token.colorBorderSecondary}`,
+              }}
+              className="group hover:text-orange-500 hover:border-orange-500 transition-colors"
+            />
           </Tooltip>
 
-          {/* ขีดคั่น: ซ่อนบนมือถือ */}
-          <div
-            className="h-6 w-px hidden sm:block mx-1"
-            style={{ backgroundColor: token.colorSplit }}
-          />
+          {screens.sm && (
+            <Divider
+              type="vertical"
+              style={{ height: 28, margin: "0 8px", opacity: 0.5 }}
+            />
+          )}
 
-          {/* User Profile (Responsive handled inside UserDropdown usually, but wrapper padding helps) */}
-          <div className="pl-0 sm:pl-1">
-            <UserDropdown />
-          </div>
-        </div>
-      </div>
-    </header>
+          <UserDropdown />
+        </Space>
+      </Flex>
+    </div>
   );
 }

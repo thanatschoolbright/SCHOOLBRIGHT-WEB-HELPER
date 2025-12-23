@@ -36,7 +36,7 @@ const { Text, Title } = Typography;
 // 🎨 การตั้งค่า Rank และธีม
 // ==========================================
 
-// Config สีและ Effect ของแต่ละ Rank (เก็บเฉพาะค่าสีดิบๆ เพื่อนำไปใช้ใน style)
+// Config สีและ Effect ของแต่ละ Rank
 const RANK_THEME_CONFIG: Record<string, any> = {
   S: {
     color: "#F59E0B",
@@ -122,7 +122,7 @@ const RankAvatarDisplay = ({
         className="absolute -bottom-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full text-[10px] shadow-sm"
         style={{
           background: rankThemeConfig.color,
-          color: "#fff", // ไอคอนเล็กๆ สีขาวเสมอเพื่อให้ตัดกับสี Rank
+          color: "#fff",
           border: `1px solid ${token.colorBgContainer}`,
         }}
       >
@@ -148,7 +148,6 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
       ? (userRankDetails.discipline_score?.score ?? 0).toFixed(1)
       : Number(userRankDetails?.discipline_score ?? 0).toFixed(1);
 
-  // Dynamic Gradient Background based on Theme
   const cardBackgroundStyle = `linear-gradient(135deg, ${rankThemeConfig.gradientFrom}1A 0%, ${rankThemeConfig.gradientTo}33 100%)`;
 
   return (
@@ -414,16 +413,20 @@ export default function UserProfileDropdown(): JSX.Element {
           boxShadow: isPopoverOpen ? token.boxShadow : "none",
         }}
       >
-        <div className="hidden sm:flex flex-col items-end mr-1">
+        {/* ปรับ Layout ให้ชื่อกับ Rank ชิดกันและอยู่กึ่งกลางแนวตั้ง */}
+        <div className="hidden sm:flex flex-col items-end justify-center mr-1 h-full">
           <span
-            className="text-sm font-bold leading-none"
+            className="text-sm font-bold leading-tight"
             style={{ color: token.colorText }}
           >
             {userProfileData.firstname}
           </span>
           <span
-            className="text-[9px] font-extrabold px-1.5 py-0.5 rounded mt-1 tracking-wider text-white"
-            style={{ background: currentRankThemeConfig.color }}
+            className="text-[9px] font-extrabold px-1.5 py-[2px] rounded mt-1 tracking-wider text-white inline-flex items-center justify-center"
+            style={{
+              background: currentRankThemeConfig.color,
+              lineHeight: 1, // บังคับ line-height ให้พอดีกับตัวอักษร
+            }}
           >
             {currentRankThemeConfig.label.split(" ")[0]}
           </span>
