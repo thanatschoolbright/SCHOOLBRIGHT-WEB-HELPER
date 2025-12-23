@@ -11,6 +11,8 @@ import {
   Tag,
   Spin,
   Button,
+  Progress,
+  Collapse,
 } from "antd";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -22,6 +24,7 @@ import {
   LoadingOutlined,
   RobotOutlined,
   ReloadOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 
@@ -69,7 +72,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
       issueKeyOrId: string | number;
       title?: string;
       summary?: string;
-      status: "pending" | "success" | "error";
+      status: "pending" | "success" | "error" | "queue";
       message?: string;
       detail?: string;
       statusCode?: number;
@@ -315,34 +318,18 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             perIssuePayloads.map((p, i) => ({
               issueKeyOrId: p.issueKeyOrId,
               title: String(p.issueKeyOrId),
-              status: "pending" as const,
+              status: "queue" as const,
               index: i,
             }))
           );
           setResultsModalVisible(true);
 
-          // Concurrency-controlled runner
-          const concurrency = 4; // adjust as needed
-          const runWithConcurrency = async (
-            items: any[],
-            worker: (item: any, idx: number) => Promise<void>
-          ) => {
-            let idx = 0;
-            const runners = Array.from({ length: concurrency }).map(
-              async () => {
-                while (true) {
-                  const i = idx++;
-                  if (i >= items.length) break;
-                  await worker(items[i], i);
-                }
-              }
-            );
-            await Promise.all(runners);
-          };
-
-          await runWithConcurrency(perIssuePayloads, async (payload, i) => {
+          // Sequential runner with delay for Gemini to avoid blocking
+          for (let i = 0; i < perIssuePayloads.length; i++) {
+            const payload = perIssuePayloads[i];
             const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
-            // mark pending (already pending by default) — ensure string comparison so UI updates
+
+            // mark pending
             setProcessingResults((prev) =>
               prev.map((r) =>
                 String(r.issueKeyOrId) === String(payload.issueKeyOrId)
@@ -356,8 +343,14 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                   : r
               )
             );
+
             await processSingle(payload, selectedIssueMap);
-          });
+
+            // Cooldown 1.5s (except last one)
+            if (i < perIssuePayloads.length - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 1500));
+            }
+          }
 
           // After all processing, show final notification
           const successCount = perIssuePayloads.filter(
@@ -573,7 +566,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     open={resultsModalVisible}
                     onCancel={() => setResultsModalVisible(false)}
                     footer={null}
-                    width={1000}
+                    width={1200}
                     styles={{
                       body: {
                         padding: 0,
@@ -581,6 +574,52 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     }}
                   >
                     <div style={{ padding: 16 }}>
+                      {/* Overall Progress Section */}
+                      <Card
+                        size="small"
+                        style={{
+                          marginBottom: 16,
+
+                          border: "1px solid #adc6ff",
+                        }}
+                      >
+                        <Space direction="vertical" style={{ width: "100%" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Typography.Text strong>
+                              <RobotOutlined /> กำลังประมวลผลด้วย AI...
+                            </Typography.Text>
+                            <Typography.Text type="secondary">
+                              {
+                                processingResults.filter(
+                                  (r) => r.status === "success"
+                                ).length
+                              }{" "}
+                              / {processingResults.length} รายการ
+                            </Typography.Text>
+                          </div>
+                          <Progress
+                            percent={Math.round(
+                              (processingResults.filter(
+                                (r) =>
+                                  r.status === "success" || r.status === "error"
+                              ).length /
+                                processingResults.length) *
+                                100
+                            )}
+                            status="active"
+                            strokeColor={{
+                              "0%": "#108ee9",
+                              "100%": "#87d068",
+                            }}
+                          />
+                        </Space>
+                      </Card>
+
                       <div
                         style={{
                           display: "flex",
@@ -606,28 +645,81 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                         <Table
                           dataSource={processingResults}
                           rowKey={(r) => String(r.issueKeyOrId)}
-                          pagination={false}
                           scroll={{ y: 420 }}
+                          expandable={{
+                            expandedRowRender: (record) => (
+                              <div
+                                style={{
+                                  padding: "12px 24px",
+                                  background: "#fafafa",
+                                }}
+                              >
+                                {record.status === "error" && (
+                                  <Typography.Paragraph type="danger">
+                                    <strong>Error Detail:</strong> <br />
+                                    {record.detail || record.message}
+                                  </Typography.Paragraph>
+                                )}
+                                {record.summary && (
+                                  <div>
+                                    <Typography.Text strong>
+                                      Full Summary (JSON Debug):
+                                    </Typography.Text>
+                                    <pre
+                                      style={{
+                                        padding: 12,
+                                        background: "#fff",
+                                        border: "1px solid #f0f0f0",
+                                        borderRadius: 8,
+                                        marginTop: 8,
+                                        whiteSpace: "pre-wrap",
+                                        fontSize: 12,
+                                        color: "#000",
+                                      }}
+                                    >
+                                      {JSON.stringify(record.summary, null, 2)}
+                                    </pre>
+                                  </div>
+                                )}
+                              </div>
+                            ),
+                            rowExpandable: (record) =>
+                              record.status === "success" ||
+                              record.status === "error",
+                          }}
                           columns={[
                             {
                               title: "งาน",
                               dataIndex: "title",
                               key: "title",
-                              width: 240,
+                              width: 200,
+                              render: (text) => (
+                                <Typography.Text strong>{text}</Typography.Text>
+                              ),
                             },
                             {
                               title: "สถานะ",
                               dataIndex: "status",
                               key: "status",
-                              width: 120,
+                              width: 140,
                               render: (status: any) => {
+                                if (status === "queue")
+                                  return (
+                                    <Tag
+                                      icon={<ClockCircleOutlined spin />}
+                                      style={{ borderStyle: "dashed" }}
+                                    >
+                                      รอคิว
+                                    </Tag>
+                                  );
                                 if (status === "pending")
                                   return (
                                     <Tag
                                       icon={<LoadingOutlined />}
                                       color="processing"
+                                      style={{ fontWeight: 500 }}
                                     >
-                                      กำลังทำ
+                                      กำลังสรุป...
                                     </Tag>
                                   );
                                 if (status === "success")
@@ -635,14 +727,16 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                     <Tag
                                       icon={<CheckCircleOutlined />}
                                       color="success"
+                                      style={{ fontWeight: 500 }}
                                     >
-                                      สำเร็จ
+                                      เรียบร้อย
                                     </Tag>
                                   );
                                 return (
                                   <Tag
                                     icon={<CloseCircleOutlined />}
                                     color="error"
+                                    style={{ fontWeight: 500 }}
                                   >
                                     ล้มเหลว
                                   </Tag>
@@ -650,69 +744,40 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                               },
                             },
                             {
-                              title: "ข้อความ",
-                              dataIndex: "message",
-                              key: "message",
-                              render: (_: any, row: any) => {
-                                const displayText = row.message || "-";
-                                const detailText =
-                                  typeof row.detail === "string"
-                                    ? row.detail
-                                    : displayText;
-                                const shouldShowMore =
-                                  detailText && detailText.length > 120;
+                              title: "สรุปเบื้องต้น",
+                              dataIndex: "summary",
+                              key: "summary",
+                              ellipsis: true,
+                              render: (md: any, row: any) => {
+                                if (row.status === "error")
+                                  return (
+                                    <Typography.Text type="danger">
+                                      {row.message}
+                                    </Typography.Text>
+                                  );
+                                if (!md)
+                                  return (
+                                    <Typography.Text type="secondary" italic>
+                                      รอการประมวลผล...
+                                    </Typography.Text>
+                                  );
+                                // Strip html tags for preview
+                                const preview =
+                                  md
+                                    .replace(/<[^>]*>?/gm, "")
+                                    .substring(0, 50) + "...";
                                 return (
-                                  <Space direction="vertical" size={4}>
-                                    <Typography.Paragraph
-                                      style={{ margin: 0 }}
-                                      ellipsis={
-                                        shouldShowMore
-                                          ? { rows: 2, tooltip: displayText }
-                                          : false
-                                      }
-                                    >
-                                      {displayText}
-                                    </Typography.Paragraph>
-                                    {shouldShowMore ? (
-                                      <Button
-                                        size="small"
-                                        type="link"
-                                        style={{ padding: 0 }}
-                                        onClick={() =>
-                                          openDetailModal(
-                                            String(
-                                              row.title || row.issueKeyOrId
-                                            ),
-                                            detailText,
-                                            row.statusCode
-                                          )
-                                        }
-                                      >
-                                        ดูรายละเอียดเพิ่มเติม
-                                      </Button>
-                                    ) : null}
-                                  </Space>
+                                  <Typography.Text type="secondary">
+                                    {preview}
+                                  </Typography.Text>
                                 );
                               },
                             },
                             {
-                              title: "สรุป",
-                              dataIndex: "summary",
-                              key: "summary",
-                              render: (md: any) =>
-                                md ? (
-                                  <div
-                                    style={{ maxHeight: 160, overflow: "auto" }}
-                                    dangerouslySetInnerHTML={{ __html: md }}
-                                  />
-                                ) : (
-                                  "-"
-                                ),
-                            },
-                            {
-                              title: "การกระทำ",
+                              title: "เครื่องมือ",
                               key: "action",
-                              width: 140,
+                              width: 100,
+                              align: "center",
                               render: (_: any, row: any) => {
                                 const hasFailed = row.status === "error";
                                 return (
@@ -721,6 +786,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                       <Button
                                         size="small"
                                         type="link"
+                                        icon={<ReloadOutlined />}
                                         onClick={async () => {
                                           const payloads =
                                             perIssuePayloadsRef.current || [];
