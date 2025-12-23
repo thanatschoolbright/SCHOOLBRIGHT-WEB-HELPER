@@ -1,29 +1,26 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
-  Badge,
-  Button,
-  Card,
   Divider,
   Flex,
   Popover,
   Progress,
   Segmented,
-  Space,
-  Spin,
-  Tag,
-  Typography,
   theme,
+  Typography,
 } from "antd";
 import {
   DownOutlined,
-  FireFilled,
   LogoutOutlined,
-  StarFilled,
-  TranslationOutlined,
+  TrophyFilled,
   UserOutlined,
+  CrownFilled,
+  ThunderboltFilled,
+  SafetyCertificateFilled,
+  ClockCircleFilled,
+  FireFilled,
 } from "@ant-design/icons";
 import { useAppSelector } from "@stores/store";
 import { toast } from "sonner";
@@ -36,182 +33,235 @@ import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 const { Text, Title } = Typography;
 
 // ==========================================
-// 🎨 Constants & Configs (ส่วนตั้งค่าสีและข้อมูลคงที่)
+// 🎨 การตั้งค่า Rank และธีม
 // ==========================================
 
-/** ตั้งค่าสีและข้อความสำหรับแต่ละ Rank */
-const RANK_THEME: Record<string, { color: string; bg: string; label: string }> =
-  {
-    S: {
-      color: "#FFD700",
-      bg: "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
-      label: "ระดับเทพ (Legend)",
-    },
-    A: {
-      color: "#52C41A",
-      bg: "linear-gradient(135deg, #52C41A 0%, #389E0D 100%)",
-      label: "ระดับเยี่ยม (Elite)",
-    },
-    B: {
-      color: "#1890FF",
-      bg: "linear-gradient(135deg, #1890FF 0%, #096DD9 100%)",
-      label: "ระดับดี (Pro)",
-    },
-    C: {
-      color: "#FAAD14",
-      bg: "linear-gradient(135deg, #FAAD14 0%, #D48806 100%)",
-      label: "ระดับปานกลาง",
-    },
-    D: {
-      color: "#FA8C16",
-      bg: "linear-gradient(135deg, #FA8C16 0%, #D46B08 100%)",
-      label: "ระดับพอใช้",
-    },
-    E: {
-      color: "#FF7875",
-      bg: "linear-gradient(135deg, #FF7875 0%, #F5222D 100%)",
-      label: "ต้องปรับปรุง",
-    },
-    F: {
-      color: "#CF1322",
-      bg: "linear-gradient(135deg, #CF1322 0%, #A8071A 100%)",
-      label: "ต้องเร่งด่วน",
-    },
-  };
+// Config สีและ Effect ของแต่ละ Rank (เก็บเฉพาะค่าสีดิบๆ เพื่อนำไปใช้ใน style)
+const RANK_THEME_CONFIG: Record<string, any> = {
+  S: {
+    color: "#F59E0B",
+    label: "ระดับตำนาน (Legendary)",
+    icon: <CrownFilled />,
+    shadowColor: "rgba(251,191,36,0.6)",
+    gradientFrom: "#FFF7E6", // Light Yellow
+    gradientTo: "#FFF1B8",
+  },
+  A: {
+    color: "#10B981",
+    label: "ระดับยอดเยี่ยม (Elite)",
+    icon: <SafetyCertificateFilled />,
+    shadowColor: "rgba(16,185,129,0.4)",
+    gradientFrom: "#F6FFED", // Light Green
+    gradientTo: "#D9F7BE",
+  },
+  B: {
+    color: "#3B82F6",
+    label: "ระดับมืออาชีพ (Pro)",
+    icon: <ThunderboltFilled />,
+    shadowColor: "rgba(59,130,246,0.4)",
+    gradientFrom: "#E6F7FF", // Light Blue
+    gradientTo: "#BAE7FF",
+  },
+  C: {
+    color: "#F97316",
+    label: "ระดับกลาง (Intermediate)",
+    icon: <UserOutlined />,
+    shadowColor: "rgba(249,115,22,0.4)",
+    gradientFrom: "#FFFBE6", // Light Orange
+    gradientTo: "#FFE58F",
+  },
+  F: {
+    color: "#64748B",
+    label: "ระดับเริ่มต้น (Rookie)",
+    icon: <UserOutlined />,
+    shadowColor: "rgba(100,116,139,0.4)",
+    gradientFrom: "#F5F5F5", // Light Gray
+    gradientTo: "#E0E0E0",
+  },
+};
 
-/** Helper: สร้าง URL รูปโปรไฟล์จาก DiceBear */
-const getAvatarUrl = (user: any) => {
-  const seed = `${user?.firstname ?? "User"}_${user?.lastname ?? ""}_${
-    user?.admin_id ?? "0"
-  }`;
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-    seed
-  )}&backgroundColor=b6e3f4,c0aede,d1d4f9&radius=50`;
+const generateAvatarUrl = (userProfile: any) => {
+  const seedString = `${userProfile?.firstname ?? "User"}_${
+    userProfile?.lastname ?? ""
+  }_${userProfile?.admin_id ?? "0"}`;
+  return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(
+    seedString
+  )}&backgroundColor=e0e7ff,d1d5db,f3f4f6`;
 };
 
 // ==========================================
-// 🧩 Sub-Components (แยกส่วนแสดงผลเพื่อให้อ่านง่าย)
+// 🧩 Components
 // ==========================================
 
-/** ส่วนแสดงรายละเอียด Rank และ Stat ใน Dropdown */
-const UserRankCard = ({ rankData }: { rankData: any }) => {
+const RankAvatarDisplay = ({
+  userProfile,
+  currentRankLetter,
+  avatarSize = 40,
+}: {
+  userProfile: any;
+  currentRankLetter: string;
+  avatarSize?: number;
+}) => {
   const { token } = theme.useToken();
-
-  // ดึงค่า Config ตาม Rank Letter (ถ้าไม่มีให้ Default เป็น F)
-  const rankKey = rankData?.rankLetter?.toUpperCase() || "F";
-  const themeInfo = RANK_THEME[rankKey] || RANK_THEME.F;
-
-  // คำนวณค่าต่างๆ
-  const completionRate = Math.min(
-    Math.round(rankData?.completion_rate || 0),
-    100
-  );
-  const totalHours = Number(rankData?.total_hours || 0).toFixed(1);
-  const expectedHours = Number(rankData?.expected_hours || 0).toFixed(1);
-
-  // Helper แสดงคะแนนวินัย
-  const disciplineScore = (() => {
-    const val = rankData?.discipline_score;
-    // Logic การแกะค่า (ตาม Code เดิม)
-    if (val === null || val === undefined) return "-";
-    if (typeof val === "number") return val.toFixed(1);
-    if (typeof val === "object")
-      return (val.score ?? val.value ?? val.discipline_score ?? 0).toFixed(1);
-    return val;
-  })();
+  const rankThemeConfig =
+    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
 
   return (
     <div
+      className="relative inline-block rounded-full transition-transform duration-300 hover:scale-105"
       style={{
-        marginTop: 12,
-        padding: 16,
-        borderRadius: token.borderRadiusLG,
-        background: token.colorFillQuaternary, // สีพื้นหลังจางๆ ตาม Theme
-        border: `1px solid ${token.colorBorderSecondary}`,
+        boxShadow: `0 0 0 2px ${token.colorBgContainer}, 0 0 0 4px ${rankThemeConfig.color}, 0 4px 12px ${rankThemeConfig.shadowColor}`,
       }}
     >
-      {/* Header Rank */}
-      <Flex align="center" gap={12}>
-        <div
-          style={{
-            background: themeInfo.bg,
-            padding: "4px 10px",
-            borderRadius: 8,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            color: "#fff",
-            fontWeight: "bold",
-            fontSize: 16,
-            minWidth: 40,
-            textAlign: "center",
-          }}
-        >
-          {rankKey}
-        </div>
-
-        <div style={{ flex: 1 }}>
-          <Space size={4} align="center">
-            <Text strong>{themeInfo.label}</Text>
-            {["S", "A"].includes(rankKey) && (
-              <FireFilled style={{ color: "#FF4D4F" }} />
-            )}
-          </Space>
-          <div style={{ fontSize: 12, color: token.colorTextSecondary }}>
-            อันดับที่ {rankData?.rank ?? "-"} • ประจำเดือนนี้
-          </div>
-        </div>
-
-        <Progress
-          type="circle"
-          percent={completionRate}
-          // 🛠️ [FIX] เปลี่ยนจาก width เป็น size
-          size={45}
-          strokeColor={themeInfo.color}
-          format={() => (
-            <span style={{ fontSize: 10, color: token.colorTextSecondary }}>
-              {completionRate}%
-            </span>
-          )}
-        />
-      </Flex>
-
-      <Divider style={{ margin: "12px 0" }} />
-
-      {/* Stats Grid */}
-      <Flex justify="space-between">
-        <StatItem label="ชั่วโมงรวม" value={totalHours} suffix="ชม." />
-        <StatItem label="เป้าหมาย" value={expectedHours} suffix="ชม." />
-        <StatItem label="คะแนนวินัย" value={disciplineScore} highlight />
-      </Flex>
+      <Avatar
+        size={avatarSize}
+        src={generateAvatarUrl(userProfile)}
+        style={{ backgroundColor: token.colorBgContainer, display: "block" }}
+      />
+      <div
+        className="absolute -bottom-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full text-[10px] shadow-sm"
+        style={{
+          background: rankThemeConfig.color,
+          color: "#fff", // ไอคอนเล็กๆ สีขาวเสมอเพื่อให้ตัดกับสี Rank
+          border: `1px solid ${token.colorBgContainer}`,
+        }}
+      >
+        {rankThemeConfig.icon}
+      </div>
     </div>
   );
 };
 
-/** Helper Component สำหรับแสดงค่า Stat เล็กๆ */
-const StatItem = ({
-  label,
-  value,
-  suffix,
-  highlight,
-}: {
-  label: string;
-  value: string | number;
-  suffix?: string;
-  highlight?: boolean;
-}) => {
+const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
+  const { token } = theme.useToken();
+  const currentRankLetter = userRankDetails?.rankLetter?.toUpperCase() || "F";
+  const rankThemeConfig =
+    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
+
+  const taskCompletionPercentage = Math.min(
+    Math.round(userRankDetails?.completion_rate || 0),
+    100
+  );
+  const totalUsageHours = Number(userRankDetails?.total_hours || 0).toFixed(1);
+  const disciplineScoreValue =
+    typeof userRankDetails?.discipline_score === "object"
+      ? (userRankDetails.discipline_score?.score ?? 0).toFixed(1)
+      : Number(userRankDetails?.discipline_score ?? 0).toFixed(1);
+
+  // Dynamic Gradient Background based on Theme
+  const cardBackgroundStyle = `linear-gradient(135deg, ${rankThemeConfig.gradientFrom}1A 0%, ${rankThemeConfig.gradientTo}33 100%)`;
+
+  return (
+    <div
+      className="relative p-5 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md"
+      style={{
+        background: cardBackgroundStyle,
+        border: `1px solid ${token.colorBorderSecondary}`,
+      }}
+    >
+      <Flex justify="space-between" align="start" className="mb-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span
+              className="text-2xl font-black italic tracking-tighter"
+              style={{
+                background: `linear-gradient(to right, ${rankThemeConfig.color}, ${rankThemeConfig.color}88)`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              RANK {currentRankLetter}
+            </span>
+            <span
+              className="px-2 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-sm"
+              style={{
+                backgroundColor: token.colorFillQuaternary,
+                color: token.colorTextSecondary,
+                border: `1px solid ${token.colorBorder}`,
+              }}
+            >
+              {rankThemeConfig.label.split(" ")[0]}
+            </span>
+          </div>
+          <Text type="secondary" className="text-xs">
+            อันดับรวม #{userRankDetails?.rank ?? "-"}
+          </Text>
+        </div>
+
+        <div className="relative">
+          <Progress
+            type="circle"
+            percent={taskCompletionPercentage}
+            size={50}
+            strokeColor={rankThemeConfig.color}
+            strokeWidth={8}
+            trailColor={token.colorFillSecondary}
+            format={() => null}
+          />
+          <div className="absolute inset-0 flex items-center justify-center flex-col">
+            <span
+              className="text-[10px] font-bold"
+              style={{ color: rankThemeConfig.color }}
+            >
+              {taskCompletionPercentage}%
+            </span>
+          </div>
+        </div>
+      </Flex>
+
+      <Divider style={{ margin: "12px 0", opacity: 0.6 }} />
+
+      <div className="grid grid-cols-3 gap-2">
+        <StatisticBoxItem
+          label="ชั่วโมง"
+          value={totalUsageHours}
+          icon={<ClockCircleFilled />}
+        />
+        <StatisticBoxItem
+          label="วินัย"
+          value={disciplineScoreValue}
+          icon={<TrophyFilled />}
+          highlight
+          color={rankThemeConfig.color}
+        />
+        <StatisticBoxItem label="ระดับ" value="12" icon={<FireFilled />} />
+      </div>
+    </div>
+  );
+};
+
+const StatisticBoxItem = ({ label, value, icon, highlight, color }: any) => {
   const { token } = theme.useToken();
   return (
-    <div style={{ textAlign: "center" }}>
-      <div style={{ fontSize: 10, color: token.colorTextSecondary }}>
-        {label}
-      </div>
-      <div
+    <div
+      className="flex flex-col items-center p-2 rounded-xl"
+      style={{
+        backgroundColor: token.colorBgContainer,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        boxShadow: token.boxShadowTertiary,
+      }}
+    >
+      <span
         style={{
-          fontWeight: 600,
-          color: highlight ? token.colorPrimary : token.colorText,
+          color: highlight ? color : token.colorTextTertiary,
+          fontSize: 12,
+          marginBottom: 4,
         }}
       >
-        {value} <span style={{ fontSize: 10 }}>{suffix}</span>
-      </div>
+        {icon}
+      </span>
+      <span
+        className="text-sm font-bold leading-tight"
+        style={{ color: highlight ? color : token.colorText }}
+      >
+        {value}
+      </span>
+      <span
+        className="text-[9px] uppercase font-medium tracking-wide mt-0.5"
+        style={{ color: token.colorTextQuaternary }}
+      >
+        {label}
+      </span>
     </div>
   );
 };
@@ -220,198 +270,178 @@ const StatItem = ({
 // 🚀 Main Component
 // ==========================================
 
-export default function UserDropdown(): JSX.Element {
+export default function UserProfileDropdown(): JSX.Element {
   const { token } = theme.useToken();
-  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
-  const userData = AUTHENTICATION?.response?.data?.user_data || {};
+  const authenticationState = useAppSelector((state) => state.callAdminLogin);
+  const userProfileData = authenticationState?.response?.data?.user_data || {};
 
-  // State
-  const [currentLanguage, setCurrentLanguage] = useState<string>(i18n.language);
-  const [isChangingLang, setIsChangingLang] = useState(false);
-  const [userRank, setUserRank] = useState<any>(null);
+  const [currentLanguageCode, setCurrentLanguageCode] = useState<string>(
+    i18n.language
+  );
+  const [userRankData, setUserRankData] = useState<any>(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  // 1. Load User Rank (Logic เดิมแต่ Clean ขึ้น)
   useEffect(() => {
-    const userId = userData?.admin_id;
-    if (!userId) return;
+    const adminId = userProfileData?.admin_id;
+    if (!adminId) return;
 
-    const loadData = async () => {
+    const fetchAndSetUserRank = async () => {
       try {
-        const apiData = await fetchUserRank(String(userId));
-        if (apiData) {
-          // Map Data ให้เหลือเฉพาะที่ใช้
-          const mapped = {
-            ...apiData,
-            discipline_score: apiData.rawData, // Mapping field ตาม logic เดิม
-          };
-          setUserRank(mapped);
-          // Save Cache
-          localStorage.setItem("USER_RANK_DATA", JSON.stringify(mapped));
-        } else {
-          // Fallback
-          setUserRank(getUserRankFromStorage());
-        }
-      } catch (err) {
-        console.error("Failed to load rank:", err);
-        setUserRank(getUserRankFromStorage());
+        const rankApiResponse = await fetchUserRank(String(adminId));
+        setUserRankData(rankApiResponse || getUserRankFromStorage());
+      } catch {
+        setUserRankData(getUserRankFromStorage());
       }
     };
+    fetchAndSetUserRank();
+  }, [userProfileData?.admin_id]);
 
-    loadData();
-  }, [userData?.admin_id]);
-
-  // 2. Change Language Handler
-  const handleChangeLanguage = async (val: string) => {
-    if (val === currentLanguage) return;
-    setIsChangingLang(true);
-    const toastId = toast.loading("กำลังเปลี่ยนภาษา...");
-
-    try {
-      await i18n.changeLanguage(val);
-      setCurrentLanguage(val);
-      toast.success("เปลี่ยนภาษาสำเร็จ", { id: toastId });
-    } catch {
-      toast.error("เกิดข้อผิดพลาด", { id: toastId });
-    } finally {
-      setIsChangingLang(false);
-    }
+  const handleChangeLanguage = async (languageCode: string) => {
+    if (languageCode === currentLanguageCode) return;
+    await i18n.changeLanguage(languageCode);
+    setCurrentLanguageCode(languageCode);
+    toast.success("เปลี่ยนภาษาเรียบร้อยแล้ว");
   };
 
-  // 3. Logout Handler
-  const handleLogout = async () => {
-    toast.info("กำลังออกจากระบบ...", { duration: 2000 });
-    // Clear Storage
+  const handleLogoutAction = () => {
+    toast.info("กำลังออกจากระบบ...");
     localStorage.clear();
     sessionStorage.clear();
-    // Redirect
     setTimeout(() => (window.location.href = "/"), 500);
   };
 
-  // 4. Render Overlay Content (เนื้อหาใน Dropdown)
-  const menuContent = (
-    <Card
-      // 🛠️ [FIX] เปลี่ยนจาก bordered={false} เป็น variant="borderless"
-      variant="borderless"
-      style={{
-        width: 300,
-        boxShadow: "none",
-        background: "transparent", // ให้สีพื้นหลังจัดการโดย Popover
-      }}
-    >
-      {/* Profile Header */}
-      <Flex align="center" gap={12} style={{ padding: "0 4px" }}>
-        <Avatar
-          size={48}
-          src={getAvatarUrl(userData)}
-          style={{ border: `2px solid ${token.colorBgContainer}` }}
+  const currentRankLetter = userRankData?.rankLetter?.toUpperCase() || "F";
+  const currentRankThemeConfig =
+    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
+
+  const userProfileDropdownContent = (
+    <div className="w-[340px] animate-fade-in-up">
+      <div className="flex items-center gap-4 px-1 mb-4">
+        <RankAvatarDisplay
+          userProfile={userProfileData}
+          currentRankLetter={currentRankLetter}
+          avatarSize={64}
         />
-        <div style={{ overflow: "hidden" }}>
-          <Text strong style={{ fontSize: 16, display: "block" }} ellipsis>
-            {userData.firstname} {userData.lastname}
-          </Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            <StarFilled style={{ color: "#faad14", marginRight: 4 }} />
-            ขยันวันนี้ สำเร็จวันหน้า
-          </Text>
+        <div className="flex-1 overflow-hidden">
+          <Title
+            level={5}
+            className="truncate m-0 leading-tight"
+            style={{ marginBottom: 0, color: token.colorTextHeading }}
+          >
+            {userProfileData.firstname} {userProfileData.lastname}
+          </Title>
+          <span
+            className="text-xs flex items-center gap-1 mt-1"
+            style={{ color: token.colorTextSecondary }}
+          >
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            {userProfileData.position || "ผู้ดูแลระบบโรงเรียน"}
+          </span>
         </div>
-      </Flex>
+      </div>
 
-      {/* Rank Section */}
-      {userRank && <UserRankCard rankData={userRank} />}
+      {userRankData && <UserRankDetailsCard userRankDetails={userRankData} />}
 
-      <Divider style={{ margin: "16px 0" }} />
-
-      {/* Settings Section */}
-      <Space direction="vertical" style={{ width: "100%" }} size={12}>
-        <div>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            ภาษา / Language
-          </Text>
+      <div className="mt-5 space-y-3">
+        <div
+          className="p-1 rounded-xl"
+          style={{ backgroundColor: token.colorFillQuaternary }}
+        >
           <Segmented
             block
             options={[
-              { label: "ไทย", value: "th", icon: <TranslationOutlined /> },
-              { label: "English", value: "en", icon: <TranslationOutlined /> },
+              {
+                label: "ภาษาไทย",
+                value: "th",
+                icon: <span className="mr-1 text-base">🇹🇭</span>,
+              },
+              {
+                label: "English",
+                value: "en",
+                icon: <span className="mr-1 text-base">🇬🇧</span>,
+              },
             ]}
-            value={currentLanguage}
+            value={currentLanguageCode}
             onChange={(val) => handleChangeLanguage(val as string)}
-            disabled={isChangingLang}
+            className="bg-transparent"
           />
         </div>
 
-        <Button
-          type="primary"
-          danger
-          block
-          icon={<LogoutOutlined />}
-          onClick={handleLogout}
+        <button
+          onClick={handleLogoutAction}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-200 font-medium text-sm group"
+          style={{
+            color: token.colorError,
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = token.colorErrorBg)
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "transparent")
+          }
         >
+          <LogoutOutlined className="group-hover:-translate-x-1 transition-transform" />
           ออกจากระบบ
-        </Button>
-      </Space>
-    </Card>
+        </button>
+      </div>
+    </div>
   );
-
-  // คำนวณสี Badge ตาม Rank
-  const rankLetter = userRank?.rankLetter?.toUpperCase() || "F";
-  const rankColor = RANK_THEME[rankLetter]?.color || "#ccc";
 
   return (
     <Popover
-      content={menuContent}
+      content={userProfileDropdownContent}
       trigger="click"
       placement="bottomRight"
-      // 🛠️ [FIX] ใช้ styles.body แทน overlayInnerStyle
-      styles={{
-        body: {
-          padding: 20,
-          borderRadius: 16,
-        },
+      arrow={false}
+      onOpenChange={setIsPopoverOpen}
+      overlayInnerStyle={{
+        padding: "24px",
+        borderRadius: "24px",
+        boxShadow: token.boxShadowSecondary,
+        backgroundColor: token.colorBgElevated,
       }}
     >
-      {/* Trigger Button (ส่วนที่แสดงบน Navbar) */}
-      <Space
+      <div
+        className={`
+          flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-full cursor-pointer transition-all duration-300 border
+          ${isPopoverOpen ? "translate-y-0.5" : "hover:opacity-80"}
+        `}
         style={{
-          cursor: "pointer",
-          padding: "4px 8px",
-          borderRadius: 20,
-          transition: "background 0.3s",
+          backgroundColor: isPopoverOpen
+            ? token.colorBgContainer
+            : "transparent",
+          borderColor: isPopoverOpen ? token.colorBorder : "transparent",
+          boxShadow: isPopoverOpen ? token.boxShadow : "none",
         }}
-        className=""
       >
-        <Flex vertical align="end" style={{ marginRight: 4 }}>
-          <Text strong style={{ lineHeight: 1.2 }}>
-            {userData.firstname}
-          </Text>
-          <Tag
-            bordered={false}
-            color={rankColor}
-            style={{
-              margin: 0,
-              fontSize: 10,
-              lineHeight: "14px",
-              padding: "0 6px",
-            }}
+        <div className="hidden sm:flex flex-col items-end mr-1">
+          <span
+            className="text-sm font-bold leading-none"
+            style={{ color: token.colorText }}
           >
-            Rank {rankLetter}
-          </Tag>
-        </Flex>
+            {userProfileData.firstname}
+          </span>
+          <span
+            className="text-[9px] font-extrabold px-1.5 py-0.5 rounded mt-1 tracking-wider text-white"
+            style={{ background: currentRankThemeConfig.color }}
+          >
+            {currentRankThemeConfig.label.split(" ")[0]}
+          </span>
+        </div>
 
-        <Badge dot color={rankColor} offset={[-4, 4]}>
-          <Avatar
-            size={40}
-            icon={<UserOutlined />}
-            src={getAvatarUrl(userData)}
-            style={{
-              border: `2px solid ${token.colorBgContainer}`,
-              boxShadow: token.boxShadowTertiary,
-            }}
-          />
-        </Badge>
-        <DownOutlined
-          style={{ fontSize: 10, color: token.colorTextQuaternary }}
+        <RankAvatarDisplay
+          userProfile={userProfileData}
+          currentRankLetter={currentRankLetter}
+          avatarSize={38}
         />
-      </Space>
+
+        <DownOutlined
+          className={`text-xs transition-transform duration-300 ${
+            isPopoverOpen ? "rotate-180" : ""
+          }`}
+          style={{ color: token.colorTextQuaternary }}
+        />
+      </div>
     </Popover>
   );
 }

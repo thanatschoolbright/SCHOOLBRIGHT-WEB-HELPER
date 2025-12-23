@@ -26,20 +26,20 @@ export default function DashboardLayout({
 }: DashboardLayoutProps): JSX.Element {
   // 🎨 Theme Token
   const { token } = theme.useToken();
-  const { Header, Sider, Content } = Layout;
+  const { Sider, Content } = Layout;
   const { useBreakpoint } = Grid;
 
   // 📱 States
   const screens = useBreakpoint();
-  const [collapsed, setCollapsed] = useState<boolean>(false); // Desktop State
-  const [mobileOpen, setMobileOpen] = useState<boolean>(false); // Mobile Drawer State
+  const [collapsed, setCollapsed] = useState<boolean>(false);
+  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
-  // 🛠️ Detect Mobile View (Hydration Safe)
+  // 🛠️ Detect Mobile View
   useEffect(() => {
-    setIsMobile(!screens.lg); // ถ้าน้อยกว่า lg (Desktop) ถือเป็น Mobile/Tablet
+    setIsMobile(!screens.lg);
     if (!screens.lg) {
-      setCollapsed(false); // Reset collapsed state on mobile
+      setCollapsed(false);
     }
   }, [screens.lg]);
 
@@ -56,7 +56,7 @@ export default function DashboardLayout({
     []
   );
 
-  // 🌙 Dark Mode Toggle Section (Desktop Only)
+  // 🌙 Dark Mode Toggle Section
   const renderDarkToggle = () => {
     if (collapsed) return null;
     return (
@@ -68,7 +68,7 @@ export default function DashboardLayout({
 
   return (
     <Layout
-      className="min-h-screen transition-colors duration-300"
+      className="min-h-screen transition-colors duration-300 relative" // เพิ่ม relative
       style={{ background: token.colorBgLayout }}
     >
       {/* 📱 Mobile Sidebar (Drawer) */}
@@ -82,7 +82,7 @@ export default function DashboardLayout({
             body: { padding: 0, backgroundColor: token.colorBgContainer },
             header: { display: "none" },
           }}
-          classNames={{ wrapper: "z-[9999]" }} // Ensure it's on top
+          classNames={{ wrapper: "z-[9999]" }}
         >
           <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto mt-6">
@@ -106,18 +106,16 @@ export default function DashboardLayout({
           collapsed={collapsed}
           width={260}
           collapsedWidth={80}
-          className="shadow-sm border-r z-40 transition-all duration-300 ease-in-out"
+          className="shadow-sm border-r z-40 transition-all duration-300 ease-in-out sticky top-0 h-screen"
           style={{
             background: token.colorBgContainer,
             borderRightColor: token.colorBorderSecondary,
-            // ❌ ลบ overflow: hidden ออก เพื่อให้ Tooltip ทำงานได้ถูกต้อง
-            // position: "sticky", top: 0, height: "100vh" // Optional: ถ้าอยากให้ Sidebar ลอยค้าง
           }}
         >
           <div className="flex flex-col h-full">
-            {/* Logo Area or Spacer */}
+            {/* Logo Area */}
             <div className="h-16 flex items-center justify-center">
-              {/* ใส่ Logo ตรงนี้ได้ */}
+              {/* Logo Here */}
             </div>
 
             {/* Menu Area */}
@@ -128,7 +126,6 @@ export default function DashboardLayout({
             {/* Footer / Toggle Area */}
             {renderDarkToggle()}
 
-            {/* Collapse Trigger Button (Custom) */}
             <div
               className="h-12 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors border-t"
               style={{ borderColor: token.colorBorderSecondary }}
@@ -140,36 +137,20 @@ export default function DashboardLayout({
         </Sider>
       )}
 
-      {/* 🔹 Main Layout */}
-      <Layout className="transition-all duration-300">
+      {/* 🔹 Main Layout Content Wrapper */}
+      <Layout className="transition-all duration-300 bg-transparent">
         {/* 🧭 Header */}
-        <Header
-          className="sticky top-0 z-30 w-full px-0 shadow-sm"
-          style={{ background: token.colorBgContainer }}
-        >
-          <div className="flex items-center h-full px-4 gap-4">
-            {/* Mobile Menu Button */}
-            {isMobile && (
-              <Button
-                type="text"
-                icon={
-                  mobileOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />
-                }
-                onClick={() => setMobileOpen(!mobileOpen)}
-                size="large"
-              />
-            )}
-
-            <div className="flex-1">
-              <MemoMainHeader />
-            </div>
-          </div>
-        </Header>
+        <div className="sticky top-0 z-30 w-full">
+          <MemoMainHeader />
+        </div>
 
         {/* 📄 Content Area */}
         <Content
           className="p-4 sm:p-6 flex flex-col gap-4 overflow-x-hidden min-h-0"
-          style={{ background: token.colorBgLayout }}
+          style={{
+            background: token.colorBgLayout,
+            marginTop: 0,
+          }}
         >
           <div className="w-full">
             <MemoBreadcrumbs />
@@ -180,6 +161,31 @@ export default function DashboardLayout({
           </div>
         </Content>
       </Layout>
+
+      {/* 🔘 Mobile Floating Hamburger Button (Bottom-Right) */}
+      {isMobile && (
+        <div className="fixed bottom-6 right-6 z-50 animate-bounce-in">
+          <Button
+            type="primary"
+            shape="circle"
+            size="large"
+            icon={mobileOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+            onClick={() => setMobileOpen(!mobileOpen)}
+            style={{
+              width: 56,
+              height: 56,
+              fontSize: 24,
+              boxShadow: "0 4px 15px rgba(0,0,0,0.3)", // เงาชัดๆ
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: token.colorPrimary, // สีหลักของ Theme (สีส้ม)
+              border: "none",
+            }}
+            className="hover:scale-110 active:scale-95 transition-transform duration-200"
+          />
+        </div>
+      )}
     </Layout>
   );
 }
