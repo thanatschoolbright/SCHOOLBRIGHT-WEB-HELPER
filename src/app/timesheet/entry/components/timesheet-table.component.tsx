@@ -20,6 +20,7 @@ import {
   ProjectOutlined,
   UserOutlined,
   SearchOutlined,
+  ThunderboltFilled,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import i18next from "i18next";
@@ -153,12 +154,22 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
               flexDirection: "column",
               alignItems: "center",
               lineHeight: 1.2,
+              padding: "4px 8px",
+              borderRadius: token.borderRadiusSM,
+              background: token.colorFillQuaternary, // Soft background
+              border: `1px solid ${token.colorBorderSecondary}`,
             }}
           >
-            <Typography.Text strong style={{ fontSize: 16 }}>
+            <Typography.Text
+              strong
+              style={{ fontSize: 18, color: token.colorPrimary }}
+            >
               {dayjs(value).format("DD")}
             </Typography.Text>
-            <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+            <Typography.Text
+              type="secondary"
+              style={{ fontSize: 10, textTransform: "uppercase" }}
+            >
               {dayjs(value).format("MMM YY")}
             </Typography.Text>
           </div>
@@ -173,19 +184,32 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         render: (value: string, record: TimesheetEntry) => {
           const avatarColor = stringToColor(value);
           return (
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <Avatar
-                shape="square"
-                size={38}
-                style={{
-                  backgroundColor: `${avatarColor}20`,
-                  color: avatarColor,
-                  border: `1px solid ${avatarColor}40`,
-                  borderRadius: 8,
-                }}
-              >
-                {value ? value.charAt(0).toUpperCase() : <UserOutlined />}
-              </Avatar>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              {/* Animated Avatar */}
+              <div className="relative group">
+                <Avatar
+                  shape="square"
+                  size={42}
+                  style={{
+                    backgroundColor: `${avatarColor}20`,
+                    color: avatarColor,
+                    border: `1px solid ${avatarColor}40`,
+                    borderRadius: 12,
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    transition: "all 0.3s ease",
+                  }}
+                  className="group-hover:scale-110 group-hover:shadow-md"
+                >
+                  {value ? value.charAt(0).toUpperCase() : <UserOutlined />}
+                </Avatar>
+                {/* Status Dot (Optional - Example logic) */}
+                <div
+                  className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white"
+                  style={{ background: token.colorSuccess }} // Mock status
+                />
+              </div>
+
               <div
                 style={{
                   display: "flex",
@@ -196,17 +220,35 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 <Typography.Text
                   strong
                   ellipsis
-                  style={{ maxWidth: 200, fontSize: 14 }}
+                  style={{
+                    maxWidth: 200,
+                    fontSize: 15,
+                    color: token.colorTextHeading,
+                  }}
                 >
                   {value}
                 </Typography.Text>
                 {record.feature_name ? (
                   <Typography.Text
                     type="secondary"
-                    style={{ fontSize: 11 }}
+                    style={{
+                      fontSize: 12,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
                     ellipsis
                   >
-                    <ProjectOutlined style={{ fontSize: 10, marginRight: 4 }} />
+                    <span
+                      style={{
+                        padding: "1px 6px",
+                        borderRadius: 4,
+                        background: token.colorFillQuaternary,
+                        fontSize: 10,
+                      }}
+                    >
+                      FEATURE
+                    </span>
                     {record.feature_name}
                   </Typography.Text>
                 ) : (
@@ -226,7 +268,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
       {
         title: t("timesheet_entry_page.table_status"),
         dataIndex: "status",
-        width: 130,
+        width: 140,
         align: "center",
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           (a.status ?? "").localeCompare(b.status ?? ""),
@@ -240,14 +282,18 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             : config.text;
           return (
             <Tag
-              color={config.color}
+              color={config.color} // Use color from config or map to token if needed
               icon={config.icon}
               style={{
-                borderRadius: 12,
+                borderRadius: 20,
                 border: "none",
                 fontWeight: 600,
-                fontSize: 11,
-                padding: "2px 8px",
+                fontSize: 12,
+                padding: "4px 12px",
+                boxShadow: `0 2px 4px ${config.color}30`, // Add soft shadow based on tag color
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
               }}
             >
               {label}
@@ -258,7 +304,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
       {
         title: t("timesheet_entry_page.table_hours"),
         dataIndex: "hours",
-        width: 160,
+        width: 180,
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           Number(a.hours || 0) - Number(b.hours || 0),
         render: (value: number) => {
@@ -271,32 +317,52 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
               : hours >= DAILY_TARGET_HOURS
               ? token.colorSuccess
               : token.colorPrimary;
+
           return (
-            <div style={{ paddingRight: 8 }}>
+            <div style={{ paddingRight: 12 }}>
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: 2,
+                  marginBottom: 6,
+                  alignItems: "flex-end",
                 }}
               >
-                <Typography.Text
-                  strong
-                  style={{ color: statusColor, fontSize: 13 }}
+                <div
+                  style={{ display: "flex", alignItems: "baseline", gap: 4 }}
                 >
-                  {hours.toFixed(2)}
-                </Typography.Text>
+                  <Typography.Text
+                    strong
+                    style={{
+                      color: statusColor,
+                      fontSize: 16,
+                      fontFamily: "monospace",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {hours.toFixed(2)}
+                  </Typography.Text>
+                  <span
+                    style={{ fontSize: 10, color: token.colorTextTertiary }}
+                  >
+                    HRS
+                  </span>
+                </div>
+
                 <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-                  / {DAILY_TARGET_HOURS} {t("timesheet_entry_page.hours_unit")}
+                  Target: {DAILY_TARGET_HOURS}
                 </Typography.Text>
               </div>
               <Progress
                 percent={safePercent}
-                steps={8}
-                size={["100%", 4]}
-                strokeColor={statusColor}
+                size={["100%", 6]}
+                strokeColor={{
+                  "0%": token.colorPrimary,
+                  "100%": statusColor,
+                }}
                 showInfo={false}
                 trailColor={token.colorFillSecondary}
+                strokeLinecap="round"
               />
             </div>
           );
@@ -310,7 +376,11 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         width: 100,
         align: "center",
         render: (_value: any, record: TimesheetEntry) => (
-          <Space.Compact size="small">
+          <Space.Compact
+            size="small"
+            style={{ opacity: 0.8, transition: "opacity 0.2s" }}
+            className="row-actions"
+          >
             <Tooltip title={t("timesheet_entry_page.edit_tooltip")}>
               <Button
                 type="text"
@@ -318,6 +388,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 icon={
                   <EditOutlined style={{ color: token.colorTextSecondary }} />
                 }
+                className="hover:text-primary hover:bg-primary/10"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit(record);
@@ -331,6 +402,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 icon={
                   <CopyOutlined style={{ color: token.colorTextSecondary }} />
                 }
+                className="hover:text-primary hover:bg-primary/10"
                 onClick={(e) => {
                   e.stopPropagation();
                   onCopy(record);
@@ -347,50 +419,73 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const rowSelection: TableProps<TimesheetEntry>["rowSelection"] = {
     selectedRowKeys,
     onChange: onRowSelect,
-    columnWidth: 40,
+    columnWidth: 48,
   };
 
   return (
-    <Card
-      variant="outlined"
-      style={{
-        borderRadius: 16,
-        boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
-        overflow: "hidden",
-        border: `1px solid ${token.colorBorderSecondary}`,
-      }}
-      styles={{ body: { padding: 0 } }}
-      title={
-        <div className="p-4 flex items-center my-3">
-          <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 mb-2">
-            <ClockCircleOutlined
-              style={{ color: token.colorPrimary, fontSize: 18 }}
+    <>
+      <style jsx global>{`
+        .ant-table-wrapper .ant-table-tbody > tr > td {
+          transition: background 0.3s ease;
+        }
+        .ant-table-wrapper .ant-table-tbody > tr:hover > td {
+          background: ${token.colorFillQuaternary} !important;
+        }
+        .ant-table-wrapper .ant-table-tbody > tr:hover .row-actions {
+          opacity: 1 !important;
+        }
+      `}</style>
+      <Card
+        variant="outlined"
+        style={{
+          borderRadius: 20, // More rounded
+          boxShadow: token.boxShadowSecondary,
+          overflow: "hidden",
+          border: `1px solid ${token.colorBorderSecondary}`,
+          background: token.colorBgContainer,
+        }}
+        styles={{ body: { padding: 0 } }}
+        title={
+          <div className="px-2 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm"
+                style={{
+                  background: `linear-gradient(135deg, ${token.colorPrimaryBg} 0%, ${token.colorFillQuaternary} 100%)`,
+                }}
+              >
+                <ClockCircleOutlined
+                  style={{ color: token.colorPrimary, fontSize: 24 }}
+                />
+              </div>
+              <div>
+                <Typography.Title
+                  level={4}
+                  style={{ margin: 0, fontWeight: 700 }}
+                >
+                  {t("timesheet_entry_page.table_title")}
+                </Typography.Title>
+                <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                  {t("timesheet_entry_page.table_subtitle")}
+                </Typography.Text>
+              </div>
+            </div>
+            {/* You can add summary stats here if needed */}
+          </div>
+        }
+        extra={
+          <div style={{ padding: "0 24px" }}>
+            <TimesheetActions
+              selectedCount={selectedRowKeys?.length}
+              loading={actionLoading}
+              refreshLoading={loading}
+              onRefresh={onRefresh}
+              onAdd={onAdd}
+              onDelete={onDelete}
             />
           </div>
-          <div>
-            <Typography.Title level={5} style={{ margin: 0 }}>
-              {t("timesheet_entry_page.table_title")}
-            </Typography.Title>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              {t("timesheet_entry_page.table_subtitle")}
-            </Typography.Text>
-          </div>
-        </div>
-      }
-      extra={
-        <div style={{ padding: "20px 24px 0" }}>
-          <TimesheetActions
-            selectedCount={selectedRowKeys?.length}
-            loading={actionLoading}
-            refreshLoading={loading}
-            onRefresh={onRefresh}
-            onAdd={onAdd}
-            onDelete={onDelete}
-          />
-        </div>
-      }
-    >
-      <div className="p-6">
+        }
+      >
         <Table<TimesheetEntry>
           rowKey={(record) => String(record.id)}
           columns={columns}
@@ -404,23 +499,29 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             total: totalItems,
             onChange: (page, size) => onPageChange(page, size),
             showSizeChanger: true,
-            size: "small",
+            size: "default",
             pageSizeOptions: ["10", "20", "50", "100"],
             showTotal: (total, range) => (
-              <span style={{ color: token.colorTextSecondary, fontSize: 12 }}>
-                {range[0]}-{range[1]} / {total}
+              <span
+                style={{
+                  color: token.colorTextTertiary,
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                Showing {range[0]}-{range[1]} of {total} items
               </span>
             ),
-            style: { padding: "12px 24px" },
+            style: { padding: "16px 24px" },
           }}
-          scroll={{ x: 800 }}
+          scroll={{ x: 900 }}
           onRow={(record) => ({
             onClick: () => onRowClick(record),
             style: { cursor: "pointer" },
+            className: "group", // For tailwind hover selectors if used
           })}
-          style={{ marginTop: 8 }}
         />
-      </div>
-    </Card>
+      </Card>
+    </>
   );
 };
