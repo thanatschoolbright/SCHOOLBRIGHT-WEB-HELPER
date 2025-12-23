@@ -30,6 +30,8 @@ import {
   SafetyOutlined,
   ThunderboltOutlined,
   FileTextOutlined,
+  QuestionCircleOutlined, // Added for tooltips
+  InfoCircleOutlined, // Added for tooltips
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import Link from "next/link";
@@ -258,7 +260,21 @@ export default function Page() {
         timestamp: Date.now(),
       });
 
-      toast.success("ขั้นตอนที่ 3/3: ยกเลิกรายการสำเร็จ", { id: toastId });
+      // Check specific response status for success but with error message
+      const responseData = response as any;
+      if (
+        responseData?.status &&
+        typeof responseData.status === "string" &&
+        responseData.status.includes("not have number id")
+      ) {
+        toast.warning(
+          "ไม่พบข้อมูลรายการ หรือรายการเกินกำหนดเวลา (ตรวจสอบรายละเอียดด้านล่าง)",
+          { id: toastId }
+        );
+      } else {
+        toast.success("ขั้นตอนที่ 3/3: ยกเลิกรายการสำเร็จ", { id: toastId });
+      }
+
       matchedContextRef.current = null;
       setCurrentStep(3);
       return response;
@@ -690,6 +706,46 @@ export default function Page() {
     return (filled / 4) * 100;
   };
 
+  // Helper to determine alert status and message
+  const getResponseAlert = (data: any) => {
+    if (!data) return null;
+
+    const statusString = String(data.status || "");
+
+    if (
+      statusString.includes("not have number id") ||
+      statusString.includes("exceed 30 days")
+    ) {
+      return (
+        <Alert
+          message="ไม่สามารถยกเลิกรายการได้"
+          description={
+            <>
+              ระบบแจ้งว่า: <b>{statusString}</b> <br />
+              สาเหตุที่เป็นไปได้: <br />
+              1. บัตรนี้เป็นบัตรชั่วคราว (Temp Card) ที่ไม่มีข้อมูลในระบบ <br />
+              2. รายการนี้เกิดขึ้นเกิน 30 วันแล้ว (ข้อมูลถูกย้ายออกจาก Active
+              Table) <br />
+              3. รหัส sSellID ไม่ถูกต้อง
+            </>
+          }
+          type="warning"
+          showIcon
+          icon={<CloseCircleOutlined />}
+        />
+      );
+    }
+
+    return (
+      <Alert
+        message="ยกเลิกรายการสำเร็จ"
+        description="ระบบได้ดำเนินการยกเลิกรายการเรียบร้อยแล้ว"
+        type="success"
+        showIcon
+      />
+    );
+  };
+
   return (
     <DashboardLayout>
       <motion.div
@@ -756,7 +812,6 @@ export default function Page() {
             transition={{ delay: 0.2 }}
           >
             <Card
-              bordered={false}
               style={{
                 borderRadius: 16,
                 boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
@@ -847,6 +902,11 @@ export default function Page() {
                       <Space>
                         <HomeOutlined style={{ color: token.colorPrimary }} />
                         <span style={{ fontWeight: 600 }}>เลือกโรงเรียน</span>
+                        <Tooltip title="ค้นหาโรงเรียนที่ต้องการทำรายการ โดยพิมพ์ชื่อหรือรหัสโรงเรียน">
+                          <QuestionCircleOutlined
+                            style={{ color: token.colorTextSecondary }}
+                          />
+                        </Tooltip>
                       </Space>
                     }
                     rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
@@ -875,6 +935,11 @@ export default function Page() {
                         <span style={{ fontWeight: 600 }}>
                           กรอกรหัส User ID (ของผู้ซื้อสินค้า)
                         </span>
+                        <Tooltip title="ระบุ User ID ของผู้ที่ทำรายการซื้อ (Buyer) สามารถค้นหาจากชื่อ หรือ ID">
+                          <InfoCircleOutlined
+                            style={{ color: token.colorTextSecondary }}
+                          />
+                        </Tooltip>
                       </Space>
                     }
                     rules={[{ required: true, message: "กรุณาเลือกผู้ซื้อ" }]}
@@ -905,6 +970,11 @@ export default function Page() {
                         <span style={{ fontWeight: 600 }}>
                           กรอกรหัส User ID (ของผู้ขายสินค้า)
                         </span>
+                        <Tooltip title="ระบุ User ID ของร้านค้าหรือผู้ขาย (Seller) ที่รับชำระเงิน">
+                          <InfoCircleOutlined
+                            style={{ color: token.colorTextSecondary }}
+                          />
+                        </Tooltip>
                       </Space>
                     }
                     rules={[{ required: true, message: "กรุณาเลือกผู้ขาย" }]}
@@ -937,6 +1007,11 @@ export default function Page() {
                         <span style={{ fontWeight: 600 }}>
                           รหัส Transaction Id (sSellID)
                         </span>
+                        <Tooltip title="ใส่รหัส sSellID ของรายการที่ต้องการยกเลิก ตรวจสอบได้จากรายงานการขาย">
+                          <QuestionCircleOutlined
+                            style={{ color: token.colorTextSecondary }}
+                          />
+                        </Tooltip>
                       </Space>
                     }
                     rules={[
@@ -999,7 +1074,6 @@ export default function Page() {
               transition={{ delay: 0.4 }}
             >
               <Card
-                bordered={false}
                 title={
                   <Space>
                     <CheckCircleOutlined
@@ -1021,12 +1095,7 @@ export default function Page() {
                   size="middle"
                   style={{ width: "100%" }}
                 >
-                  <Alert
-                    message="ยกเลิกรายการสำเร็จ"
-                    description="ระบบได้ดำเนินการยกเลิกรายการเรียบร้อยแล้ว"
-                    type="success"
-                    showIcon
-                  />
+                  {getResponseAlert(responsePayload.data)}
 
                   <div
                     style={{
@@ -1088,7 +1157,6 @@ export default function Page() {
             transition={{ delay: 0.5 }}
           >
             <Card
-              bordered={false}
               style={{
                 borderRadius: 16,
                 background: `linear-gradient(135deg, ${token.colorInfoBg} 0%, ${token.colorBgContainer} 100%)`,
