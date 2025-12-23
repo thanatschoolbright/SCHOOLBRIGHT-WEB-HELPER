@@ -1,14 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios"; // นำเข้า AxiosError
+import axios from "axios";
 import { z } from "zod";
 import { QA_TASK_SUMMARY_TASK_PROMPT } from "@/constants/prompts";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 
-//** สร้าง URL เรียกใช้งาน Gemini รุ่น REST API v1
-const buildGeminiUrl = (model: string) =>
-  `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`;
+// ----------------------------------------------------------------------
+// 🛠️ CONFIGURATION
+// ----------------------------------------------------------------------
 
-//** กำหนด Schema สำหรับตรวจสอบ Input
+// ใช้ v1beta เพื่อรองรับ Model ใหม่ๆ ได้ดีกว่า v1
+const buildGeminiUrl = (model: string) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+// ลำดับ Model ที่จะใช้ (เรียงจาก ใหม่/เร็ว -> เสถียร -> ฉลาด)
+// อัปเดตชื่อ Model ให้เป็นปัจจุบัน (ณ ปี 2025)
+const FALLBACK_MODELS = [
+  "gemini-2.0-flash-exp", // รุ่นใหม่ล่าสุด (เร็วและเก่ง)
+  "gemini-1.5-flash", // รุ่นมาตรฐาน (เร็วและถูก)
+  "gemini-1.5-pro", // รุ่นฉลาด (แต่อาจจะช้ากว่า)
+  "gemini-1.5-flash-8b", // รุ่นเล็กสุด (สำรองสุดท้าย)
+];
+
 const requestSchema = z.object({
   summary: z.string().optional(),
   description: z.string().optional(),
@@ -22,22 +34,19 @@ type ModelAttempt = {
   responseBody?: any;
 };
 
-//** ลำดับ Fallback Models: (Flash -> Pro, ล่าสุด -> เก่า) เพื่อความเร็วและประหยัด
-const FALLBACK_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.5-pro",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
-];
+// ฟังก์ชันหน่วงเวลา (Sleep) เพื่อรอให้ Quota รีเซ็ตเล็กน้อยก่อนลองรุ่นถัดไป
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-//** เรียก Gemini สร้าง Markdown สรุป Task
+// ----------------------------------------------------------------------
+// 🚀 API HANDLER
+// ----------------------------------------------------------------------
+
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
 
   try {
     // 1. ตรวจสอบ API Key
     if (!apiKey) {
-      console.error("Configuration Error: GOOGLE_GEMINI_API_KEY is not set.");
       return NextResponse.json(
         errorResponse({
           status: 500,
@@ -66,10 +75,10 @@ export async function POST(request: NextRequest) {
 
     const { summary, description } = parsedBody.data;
 
-    // 3. กำหนดลำดับ Model ที่จะลองใช้
+    // 3. เตรียม Candidate Models
     const envModel = process.env.GOOGLE_GEMINI_MODEL?.trim();
     const modelCandidates = envModel
-      ? [envModel, ...FALLBACK_MODELS.filter((model) => model !== envModel)]
+      ? [envModel, ...FALLBACK_MODELS.filter((m) => m !== envModel)]
       : FALLBACK_MODELS;
 
     const contents = [
@@ -78,9 +87,9 @@ export async function POST(request: NextRequest) {
         parts: [
           { text: QA_TASK_SUMMARY_TASK_PROMPT },
           {
-            text: `\n\nข้อมูลปัจจุบันของงาน (สำหรับสรุป):\n- Summary: ${
+            text: `\n\n--- INPUT DATA ---\nSummary: ${
               summary || "-"
-            }\n- Description (raw):\n${description || "-"}`,
+            }\nDescription:\n${description || "-"}`,
           },
         ],
       },
@@ -90,124 +99,105 @@ export async function POST(request: NextRequest) {
     let lastErrorDetails: any = null;
     const attempts: ModelAttempt[] = [];
 
-    // 4. วนลูปเพื่อลองเรียกใช้โมเดลแต่ละตัว
+    // 4. วนลูป Fallback Models
     for (const modelName of modelCandidates) {
       const endpointForLog = `${buildGeminiUrl(modelName)}?key=[REDACTED]`;
       const url = `${buildGeminiUrl(modelName)}?key=${apiKey}`;
 
       try {
-        // 5. ใช้ axios.post และให้ axios จัดการ Error Status เอง (ดีฟอลต์คือสถานะ 4xx/5xx จะโยน Error)
+        console.log(`🤖 Trying Gemini Model: ${modelName}...`);
+
         const response = await axios.post(
           url,
           { contents },
           {
             headers: { "Content-Type": "application/json" },
             timeout: 30_000,
-            // ลบ validateStatus ออกไป เพื่อให้ Try-Catch block ด้านนอกทำงาน
+            validateStatus: () => true, // ให้ axios ไม่ throw error เพื่อจัดการ status เอง
           }
         );
 
-        // ตรวจสอบว่ามีเนื้อหาใน Response หรือไม่ (Response 200 OK แต่ไม่มี Text)
-        const firstText =
-          response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        // ตรวจสอบความสำเร็จ (Status 200)
+        if (response.status === 200) {
+          const firstText =
+            response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        if (typeof firstText === "string" && firstText.trim()) {
+          if (typeof firstText === "string" && firstText.trim()) {
+            attempts.push({
+              model: modelName,
+              status: response.status,
+              message: "Success",
+              endpoint: endpointForLog,
+            });
+            markdown = firstText;
+            console.log(`✅ Gemini Success with: ${modelName}`);
+            break; // จบลูปทันทีเมื่อสำเร็จ
+          } else {
+            // 200 แต่ไม่มีเนื้อหา (Empty Response)
+            throw new Error("Gemini responded 200 but content is empty.");
+          }
+        }
+
+        // กรณี Error จาก API (4xx, 5xx)
+        else {
+          const apiMessage =
+            response.data?.error?.message || response.statusText;
+
+          // Log ปัญหา
+          console.warn(
+            `❌ Model ${modelName} Failed (${response.status}): ${apiMessage}`
+          );
+
           attempts.push({
             model: modelName,
             status: response.status,
-            message: "Success",
+            message: apiMessage,
             endpoint: endpointForLog,
+            responseBody: response.data,
           });
-          markdown = firstText;
-          console.log(`Gemini success with model: ${modelName}`);
-          break; // สำเร็จแล้ว ออกจาก Loop
-        }
 
-        // กรณีได้ 200 แต่ไม่มีเนื้อหา
-        lastErrorDetails = {
-          message: "Gemini responded without content.",
-          model: modelName,
-          data: response.data,
-        };
+          lastErrorDetails = {
+            model: modelName,
+            status: response.status,
+            message: apiMessage,
+          };
+
+          // ⚠️ สำคัญ: ถ้าเจอ 429 (Rate Limit) ให้รอสักนิดก่อนลองรุ่นถัดไป
+          if (response.status === 429) {
+            console.log(
+              "⏳ Rate limit hit. Waiting 2s before trying next model..."
+            );
+            await delay(2000); // หยุดรอ 2 วินาที
+          }
+        }
+      } catch (error: any) {
+        // กรณี Error ระดับ Network / Timeout
+        const errorMessage = error.message || "Unknown Network Error";
+        console.error(`💥 Network Error on ${modelName}:`, errorMessage);
+
         attempts.push({
           model: modelName,
-          status: response.status,
-          message: lastErrorDetails.message,
+          status: 0,
+          message: errorMessage,
           endpoint: endpointForLog,
-          responseBody: response.data,
         });
-        console.error("Gemini Empty Response", lastErrorDetails);
-      } catch (error:any) {
-        // 6. จัดการข้อผิดพลาดที่โยนมาจาก Axios (เช่น 400, 404, Timeout)
-        if (axios.isAxiosError(error)) {
-          const axiosError = error as any;
-
-          // ข้อมูล Error จาก API
-          const apiErrorData = axiosError.response?.data;
-          const status = axiosError.response?.status;
-          const apiMessage =
-            apiErrorData?.error?.message ||
-            apiErrorData?.message ||
-            axiosError.message;
-
-          // บันทึกรายละเอียด Error ล่าสุด
-          lastErrorDetails = {
-            model: modelName,
-            status: status,
-            message: apiMessage,
-          };
-          attempts.push({
-            model: modelName,
-            status,
-            message: apiMessage,
-            endpoint: endpointForLog,
-            responseBody: apiErrorData,
-          });
-
-          // หากเป็น Error ที่เกี่ยวกับ Model Not Found/Denied ให้ข้ามไปลอง Model ถัดไป
-          if (status === 404 || status === 403) {
-            console.warn(
-              `Model ${modelName} failed with ${status}. Trying next model...`,
-              apiErrorData
-            );
-            continue; // ลอง Model ถัดไป
-          }
-
-          console.error(
-            "Gemini Request Failed (Axios Error)",
-            lastErrorDetails
-          );
-        } else {
-          // Error อื่นๆ (เช่น JSON parsing error หรือ unknown error)
-          lastErrorDetails = {
-            model: modelName,
-            message: (error as Error).message || String(error),
-          };
-          attempts.push({
-            model: modelName,
-            message: lastErrorDetails.message,
-            endpoint: endpointForLog,
-          });
-          console.error(
-            "Unknown Error during Gemini Request",
-            lastErrorDetails
-          );
-        }
+        lastErrorDetails = { model: modelName, message: errorMessage };
       }
     }
 
-    // 7. คืนค่า Error 404 หากลองทุกโมเดลแล้วไม่สำเร็จ
+    // 5. สรุปผลลัพธ์
     if (!markdown) {
-      const lastAttempt = attempts[attempts.length - 1] || lastErrorDetails;
+      // ถ้าลองทุกรุ่นแล้วยังไม่ได้คำตอบ
       const statusCode =
-        typeof lastAttempt?.status === "number" ? lastAttempt.status : 502;
+        typeof lastErrorDetails?.status === "number"
+          ? lastErrorDetails.status
+          : 502;
+
       return NextResponse.json(
         errorResponse({
           status: statusCode,
-          message_en: `All Gemini model candidates failed. Last error from ${lastAttempt?.model || "unknown model"}: ${
-            lastAttempt?.message || "Unknown error."
-          }`,
-          message_th: `เรียก Gemini ไม่สำเร็จ (สถานะ ${statusCode}) ลองทุกรุ่นแล้วแต่ไม่สำเร็จ`,
+          message_en: "All AI models failed to generate summary.",
+          message_th: "ไม่สามารถสร้างสรุปได้ (AI ทั้งหมดไม่ตอบสนอง)",
           error: {
             attempts,
             lastError: lastErrorDetails,
@@ -218,22 +208,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 8. คืนค่าสำเร็จ
+    // 6. ส่งคืนผลลัพธ์ที่สำเร็จ
     return NextResponse.json(
       successResponse({
         data: { markdown },
         message_en: "Gemini summarized successfully",
-        message_th: "สรุปด้วย AI สำเร็จ",
+        message_th: "สรุปข้อมูลสำเร็จ",
       })
     );
   } catch (error: any) {
-    // 9. จัดการข้อผิดพลาดที่ไม่เกี่ยวกับ API call (เช่น JSON parsing error ตอนรับ request)
+    console.error("Internal Server Error:", error);
     return NextResponse.json(
       errorResponse({
         status: 500,
-        message_en: error?.message || "Internal server error.",
+        message_en: "Internal server error.",
         message_th: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์",
-        error,
+        error: error?.message || error,
       }),
       { status: 500 }
     );
