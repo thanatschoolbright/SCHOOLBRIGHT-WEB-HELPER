@@ -118,8 +118,21 @@ export const useIssuesPageData = ({
       const response = await axios.get("/api/v1/backlog/issues", {
         params: apiParams,
       });
-      const items = response.data?.data?.items || [];
+      let items = response.data?.data?.items || [];
       const totalItems = Number(response.data?.data?.total) || 0;
+
+      // Apply AI Summary filter (client-side)
+      if (filters.aiSummaryFilter === "with_ai") {
+        items = items.filter(
+          (issue: any) =>
+            issue.summary?.includes("AI") || issue.description?.includes("AI")
+        );
+      } else if (filters.aiSummaryFilter === "without_ai") {
+        items = items.filter(
+          (issue: any) =>
+            !issue.summary?.includes("AI") && !issue.description?.includes("AI")
+        );
+      }
 
       dispatch(setIssues({ issues: items, total: totalItems }));
       dispatch(setSelectedRowKeys([]));

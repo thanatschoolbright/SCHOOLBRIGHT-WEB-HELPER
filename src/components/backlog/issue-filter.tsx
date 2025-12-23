@@ -12,6 +12,7 @@ import {
   Row,
   Col,
   Divider,
+  Badge,
 } from "antd";
 import type { RangePickerProps } from "antd/es/date-picker";
 import type { Dayjs } from "dayjs";
@@ -48,6 +49,7 @@ const IssueFilter: React.FC<IssueFilterProps> = ({
     issueTypeIds,
     assigneeIds,
     dateRange,
+    aiSummaryFilter,
   } = filters;
 
   const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,6 +76,12 @@ const IssueFilter: React.FC<IssueFilterProps> = ({
     const normalizedRange: DateRangeValue =
       range && Array.isArray(range) && range.length === 2 ? range : null;
     dispatch(setFilters({ dateRange: normalizedRange }));
+  };
+
+  const handleAiSummaryFilterChange = (
+    value: "all" | "with_ai" | "without_ai"
+  ) => {
+    dispatch(setFilters({ aiSummaryFilter: value }));
   };
 
   const handleReset = () => {
@@ -202,6 +210,21 @@ const IssueFilter: React.FC<IssueFilterProps> = ({
                 options={issueTypeOptions}
                 style={{ width: "100%" }}
                 maxTagCount="responsive"
+              />
+            </Col>
+            <Col xs={24} md={8}>
+              <Typography.Text type="secondary" className="block mb-1">
+                สถานะ AI Summary <Badge count="ใหม่" color="#52c41a" />
+              </Typography.Text>
+              <Select
+                value={aiSummaryFilter}
+                onChange={handleAiSummaryFilterChange}
+                style={{ width: "100%" }}
+                options={[
+                  { label: "ทั้งหมด", value: "all" },
+                  { label: "มี AI Summary", value: "with_ai" },
+                  { label: "ไม่มี AI Summary", value: "without_ai" },
+                ]}
               />
             </Col>
           </Row>

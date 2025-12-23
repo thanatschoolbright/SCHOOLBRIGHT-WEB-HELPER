@@ -24,6 +24,7 @@ interface IssuesState {
     issueTypeIds: number[];
     assigneeIds: number[];
     dateRange: DateRangeValue;
+    aiSummaryFilter: "all" | "with_ai" | "without_ai";
   };
   selectedRowKeys: React.Key[];
 }
@@ -48,6 +49,7 @@ const initialState: IssuesState = {
     issueTypeIds: [],
     assigneeIds: [],
     dateRange: null,
+    aiSummaryFilter: "all",
   },
   selectedRowKeys: [],
 };
