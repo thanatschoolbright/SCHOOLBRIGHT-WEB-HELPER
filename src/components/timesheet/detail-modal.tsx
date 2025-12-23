@@ -2,33 +2,32 @@
 
 import {
   CalendarOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
+  CheckCircleFilled,
+  ClockCircleFilled,
   CodeOutlined,
   EditOutlined,
   FileTextOutlined,
-  FolderOpenOutlined,
+  FolderOpenFilled,
   InfoCircleOutlined,
+  CloseOutlined,
+  ThunderboltFilled,
 } from "@ant-design/icons";
 import {
-  Descriptions,
-  Divider,
   Modal,
   Space,
   Tag,
   theme,
   Typography,
+  Row,
+  Col,
+  Divider,
+  Button,
 } from "antd";
 import dayjs from "dayjs";
 import React from "react";
 import { TimesheetEntry } from "@/stores/type";
 
-// สมมติว่าไฟล์เหล่านี้มีอยู่จริง
-// import {STATUS_OPTIONS} from "@constants/timesheet.constants";
-// import {TimesheetEntry} from "@/app/timesheet/entry/page";
-// import i18next from "i18next";
-
-// จำลองการนำเข้า (เพื่อให้รันได้ในตัวอย่างนี้)
+// --- Mock Data & Helpers ---
 const STATUS_OPTIONS = [
   { value: "DONE", label_th: "สำเร็จ", label_en: "Done" },
   { value: "IN_PROGRESS", label_th: "กำลังดำเนินการ", label_en: "In Progress" },
@@ -37,194 +36,366 @@ const STATUS_OPTIONS = [
   { value: "DRAFT", label_th: "ฉบับร่าง", label_en: "Draft" },
 ];
 
+const i18next = { language: "th" };
+
+// Map สีให้เข้ากับ Theme ของ Ant Design (Token)
+const getStatusConfig = (status: string, token: any) => {
+  const map: Record<
+    string,
+    { color: string; icon: React.ReactNode; bg: string }
+  > = {
+    DONE: {
+      color: token.colorSuccess,
+      bg: token.colorSuccessBg,
+      icon: <CheckCircleFilled />,
+    },
+    IN_PROGRESS: {
+      color: token.colorPrimary,
+      bg: token.colorPrimaryBg,
+      icon: <ClockCircleFilled />,
+    },
+    REVIEW: {
+      color: token.colorWarning,
+      bg: token.colorWarningBg,
+      icon: <InfoCircleOutlined />,
+    },
+    CANCELLED: {
+      color: token.colorError,
+      bg: token.colorErrorBg,
+      icon: <CloseOutlined />,
+    },
+    DRAFT: {
+      color: token.colorTextSecondary,
+      bg: token.colorFillQuaternary,
+      icon: <EditOutlined />,
+    },
+  };
+  return map[status] || map.DRAFT;
+};
+
 interface DetailModalProps {
   open: boolean;
   onCancel: () => void;
   record: TimesheetEntry | null;
 }
 
-// i18next mock (จำลองการใช้งาน)
-const i18next = {
-  language: "th", // สมมติว่าเป็นภาษาไทย
-};
-
-const statusColorMap: Record<string, string> = {
-  DONE: "success",
-  IN_PROGRESS: "processing",
-  REVIEW: "blue",
-  CANCELLED: "error",
-  DRAFT: "default",
-};
-
-const statusIconMap: Record<string, React.ReactNode> = {
-  DONE: <CheckCircleOutlined />,
-  IN_PROGRESS: <ClockCircleOutlined />,
-  REVIEW: <InfoCircleOutlined />,
-  CANCELLED: <FileTextOutlined />,
-  DRAFT: <EditOutlined />,
-};
-
-/**
- * Component สำหรับแสดง Modal รายละเอียดการลงเวลา
- * @param props - Props ของ Component
- */
 export const DetailModal: React.FC<DetailModalProps> = ({
   open,
   onCancel,
   record,
 }) => {
   const { token } = theme.useToken();
-  const i18n = i18next; // ใช้ i18next ที่จำลองไว้
 
-  if (!record) {
-    return null;
-  }
+  if (!record) return null;
+
+  const statusConfig = getStatusConfig(record.status, token);
 
   const getStatusLabel = (status: string) => {
     const option = STATUS_OPTIONS.find((item) => item.value === status);
     if (!option) return status;
-    return i18n.language === "th" ? option.label_th : option.label_en;
+    return i18next.language === "th" ? option.label_th : option.label_en;
   };
 
-  // ปรับปรุงการแสดงผล Label ให้อยู่ในรูปแบบ Descriptions.Item.label
-  const labelWithIcon = (label: string, icon: React.ReactNode) => (
-    <Space size={6} style={{ fontWeight: "bold" }}>
-      {icon}
-      <Typography.Text style={{ color: token.colorTextSecondary }}>
-        {label}
-      </Typography.Text>
-    </Space>
-  );
+  // --- Components ---
 
-  const items: any[] = [
-    {
-      key: "1",
-      label: labelWithIcon("โปรเจ็ค", <FolderOpenOutlined />),
-      children: <Typography.Text>{record.project_name}</Typography.Text>,
-      span: 3,
-    },
-    {
-      key: "2",
-      label: labelWithIcon("ฟีเจอร์", <CodeOutlined />),
-      children: <Typography.Text>{record.feature_name || "-"}</Typography.Text>,
-      span: 3,
-    },
-    {
-      key: "3",
-      label: labelWithIcon("วันที่", <CalendarOutlined />),
-      children: (
-        <Typography.Text>
-          {dayjs(record.date).format("DD/MM/YYYY")}
-        </Typography.Text>
-      ),
-      span: 3,
-    },
-    {
-      key: "4",
-      label: labelWithIcon("ชั่วโมง", <ClockCircleOutlined />),
-      children: <Typography.Text>{record.hours} ชม.</Typography.Text>,
-      span: 3,
-    },
-    {
-      key: "5",
-      label: labelWithIcon(
-        "สถานะ",
-        statusIconMap[record.status] ?? <InfoCircleOutlined />
-      ),
-      children: (
-        <Tag
-          color={statusColorMap[record.status] ?? "default"}
-          icon={statusIconMap[record.status]}
-          style={{ fontWeight: 600 }}
-        >
-          {getStatusLabel(record.status)}
-        </Tag>
-      ),
-      span: 3,
-    },
-    {
-      key: "6",
-      label: labelWithIcon("คำอธิบาย", <FileTextOutlined />),
-      span: 3,
-      children: (
-        <Typography.Paragraph
-          // ใช้ style น้อยที่สุดเพื่อรักษา whiteSpace: "pre-wrap"
-          style={{ margin: 0, whiteSpace: "pre-wrap" }}
-        >
-          {record.description || "-"}
-        </Typography.Paragraph>
-      ),
-    },
-    {
-      key: "7",
-      label: labelWithIcon("สร้างเมื่อ", <EditOutlined />),
-      children: (
-        <Typography.Text>
-          {record.created_at
-            ? dayjs(record.created_at).format("DD/MM/YYYY HH:mm")
-            : "-"}
-        </Typography.Text>
-      ),
-      span: 1,
-    },
-    {
-      key: "8",
-      label: labelWithIcon("แก้ไขล่าสุด", <EditOutlined />),
-      children: (
-        <Typography.Text>
-          {record.updated_at
-            ? dayjs(record.updated_at).format("DD/MM/YYYY HH:mm")
-            : "-"}
-        </Typography.Text>
-      ),
-      span: 1,
-    },
-  ];
-
-  return (
-    <Modal
-      // 1. ปรับปรุง Title และลบ style ที่ไม่จำเป็นออก
-      title={
-        <Space size={8} align="center">
-          <InfoCircleOutlined
-            style={{ color: token.colorPrimary, fontSize: 24 }}
-          />
-          <Typography.Title
-            level={4}
-            style={{
-              margin: 0,
-              color: token.colorTextHeading, // ใช้ Heading color
-              fontWeight: 600,
-            }}
-          >
-            รายละเอียดการลงเวลาทำงาน
-          </Typography.Title>
-        </Space>
-      }
-      open={open}
-      onCancel={onCancel}
-      footer={null}
-      width={1000} // เพิ่มความกว้างให้ดูสบายตา
-      centered
-      styles={{
-        body: {
-          padding: 24,
-        },
+  // การ์ดแสดงข้อมูลย่อย (Stat Card)
+  const InfoCard = ({ title, value, icon, color, delay }: any) => (
+    <div
+      className="info-card"
+      style={{
+        background: token.colorBgContainer,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        borderRadius: 16,
+        padding: 16,
+        height: "100%",
+        position: "relative",
+        overflow: "hidden",
+        animation: `slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
+        animationDelay: `${delay}ms`,
+        opacity: 0, // Start hidden for animation
+        transform: "translateY(20px)",
       }}
     >
-      <Divider style={{ margin: "0 0 24px 0" }} />
+      <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
+        <div
+          style={{
+            background: color ? `${color}20` : token.colorFillQuaternary,
+            color: color || token.colorText,
+            width: 32,
+            height: 32,
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 16,
+            marginRight: 12,
+          }}
+        >
+          {icon}
+        </div>
+        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+          {title}
+        </Typography.Text>
+      </div>
+      <Typography.Text strong style={{ fontSize: 16, display: "block" }}>
+        {value}
+      </Typography.Text>
+    </div>
+  );
 
-      <Descriptions
-        bordered
-        column={{ xs: 1, sm: 1, md: 2 }}
-        size="default"
-        items={items}
+  return (
+    <>
+      {/* Global Style for this modal's animations */}
+      <style jsx global>{`
+        @keyframes slideUp {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .info-card {
+          transition: all 0.3s ease;
+        }
+        .info-card:hover {
+          transform: translateY(-4px) !important;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+          border-color: ${token.colorPrimary} !important;
+        }
+      `}</style>
+
+      <Modal
+        open={open}
+        onCancel={onCancel}
+        footer={null}
+        width={700}
+        centered
+        closeIcon={
+          <div
+            style={{
+              background: token.colorFillAlter,
+              borderRadius: "50%",
+              width: 28,
+              height: 28,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: token.colorTextSecondary,
+            }}
+          >
+            <CloseOutlined style={{ fontSize: 14 }} />
+          </div>
+        }
         styles={{
           content: {
-            fontSize: 14,
+            borderRadius: 24,
+            padding: 0,
+            overflow: "hidden",
+            boxShadow: "0 20px 50px rgba(0,0,0,0.1)",
           },
+          body: { padding: 0 },
         }}
-      />
-    </Modal>
+      >
+        {/* --- 1. Header Section (Hero) --- */}
+        <div
+          style={{
+            background: `linear-gradient(135deg, ${token.colorPrimaryBg} 0%, ${token.colorBgContainer} 100%)`,
+            padding: "32px 32px 24px",
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+            {/* Badges Row */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "start",
+              }}
+            >
+              <Tag
+                bordered={false}
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  background: token.colorBgContainer,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  color: token.colorTextSecondary,
+                }}
+              >
+                <CalendarOutlined style={{ marginRight: 6 }} />
+                {dayjs(record.date).format("DD MMMM YYYY")}
+              </Tag>
+
+              <Tag
+                color={statusConfig.bg}
+                style={{
+                  color: statusConfig.color,
+                  border: "none",
+                  padding: "4px 12px",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                {statusConfig.icon}
+                {getStatusLabel(record.status)}
+              </Tag>
+            </div>
+
+            {/* Project Title */}
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  marginBottom: 8,
+                }}
+              >
+                <div
+                  style={{
+                    background: token.colorPrimary,
+                    color: "#fff",
+                    padding: 8,
+                    borderRadius: 12,
+                  }}
+                >
+                  <FolderOpenFilled style={{ fontSize: 20 }} />
+                </div>
+                <Typography.Title level={3} style={{ margin: 0 }}>
+                  {record.project_name}
+                </Typography.Title>
+              </div>
+              <Typography.Text type="secondary" style={{ marginLeft: 52 }}>
+                ID: #{record.id || "Unknown"}
+              </Typography.Text>
+            </div>
+          </Space>
+        </div>
+
+        {/* --- 2. Body Section --- */}
+        <div style={{ padding: 32 }}>
+          {/* Stats Grid */}
+          <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
+            <Col span={12} sm={8}>
+              <InfoCard
+                title="ชั่วโมงงาน"
+                value={`${record.hours} ชม.`}
+                icon={<ClockCircleFilled />}
+                color={token.colorInfo}
+                delay={100}
+              />
+            </Col>
+            <Col span={12} sm={8}>
+              <InfoCard
+                title="ฟีเจอร์"
+                value={record.feature_name || "-"}
+                icon={<CodeOutlined />}
+                delay={200}
+              />
+            </Col>
+            <Col span={24} sm={8}>
+              <InfoCard
+                title="กิจกรรม"
+                value="Development" // ตัวอย่าง Mock หรือดึงจาก record.activity_type
+                icon={<ThunderboltFilled />}
+                color={token.colorWarning}
+                delay={300}
+              />
+            </Col>
+          </Row>
+
+          {/* Description Section */}
+          <div
+            style={{
+              animation: `slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
+              animationDelay: "400ms",
+              opacity: 0,
+              transform: "translateY(20px)",
+            }}
+          >
+            <Typography.Text
+              strong
+              style={{ fontSize: 16, display: "block", marginBottom: 12 }}
+            >
+              <FileTextOutlined
+                style={{ marginRight: 8, color: token.colorPrimary }}
+              />
+              รายละเอียดงาน
+            </Typography.Text>
+
+            <div
+              style={{
+                background: token.colorFillQuaternary,
+                borderRadius: 16,
+                padding: 20,
+                border: `1px dashed ${token.colorBorder}`,
+                minHeight: 100,
+              }}
+            >
+              <Typography.Paragraph
+                style={{
+                  margin: 0,
+                  fontSize: 14,
+                  lineHeight: 1.8,
+                  color: token.colorText,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {record.description || (
+                  <span
+                    style={{
+                      color: token.colorTextQuaternary,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    ไม่มีรายละเอียดระบุไว้...
+                  </span>
+                )}
+              </Typography.Paragraph>
+            </div>
+          </div>
+
+          <Divider style={{ margin: "32px 0 24px" }} />
+
+          {/* --- 3. Footer Meta --- */}
+          <Row justify="space-between" align="middle">
+            <Col>
+              <Space direction="vertical" size={2}>
+                <Typography.Text
+                  style={{ fontSize: 11, color: token.colorTextQuaternary }}
+                >
+                  สร้างเมื่อ:{" "}
+                  {record.created_at
+                    ? dayjs(record.created_at).format("DD MMM YYYY, HH:mm")
+                    : "-"}
+                </Typography.Text>
+                <Typography.Text
+                  style={{ fontSize: 11, color: token.colorTextQuaternary }}
+                >
+                  แก้ไขล่าสุด:{" "}
+                  {record.updated_at
+                    ? dayjs(record.updated_at).format("DD MMM YYYY, HH:mm")
+                    : "-"}
+                </Typography.Text>
+              </Space>
+            </Col>
+            <Col>
+              <Button
+                type="primary"
+                onClick={onCancel}
+                style={{ borderRadius: 20, padding: "0 24px" }}
+              >
+                ปิดหน้าต่าง
+              </Button>
+            </Col>
+          </Row>
+        </div>
+      </Modal>
+    </>
   );
 };
