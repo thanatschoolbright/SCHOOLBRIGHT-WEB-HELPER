@@ -1,8 +1,7 @@
 "use client";
 /**
- * 📦 Enterprise Backlog Projects Dashboard
- * Modern, enterprise-grade UI with Ant Design components
- * Features: Project cards, advanced filtering, responsive grid layout
+ * 📦 Enterprise Backlog Projects Dashboard (Thai Version)
+ * Styled with Tailwind CSS & Ant Design Theme
  */
 
 import React, { useEffect, useState, useMemo } from "react";
@@ -22,6 +21,7 @@ import {
   Badge,
   Typography,
   Flex,
+  message,
 } from "antd";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
@@ -39,16 +39,12 @@ import {
   CopyOutlined,
   ExportOutlined,
   ReloadOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
-import SpaceInputCard from "@components/backlog/space-input-card";
 import type { BacklogProject } from "@components/backlog/types";
 
 const { Text, Title } = Typography;
 
-/**
- * 🎯 Main Component: Backlog Projects Dashboard
- * Enterprise-grade project management interface
- */
 export default function Page(): JSX.Element {
   const router = useRouter();
 
@@ -57,18 +53,18 @@ export default function Page(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(false);
   const [projects, setProjects] = useState<BacklogProject[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("active");
 
   /**
    * 🚀 Fetch Projects from Backlog API
    */
   const fetchProjects = async (): Promise<void> => {
     if (!space.trim()) {
-      toast.warning("กรุณากรอก Space (โดเมนย่อย)");
+      toast.warning("กรุณากรอกชื่อ Space (โดเมนย่อย)");
       return;
     }
 
-    const toastId = toast.loading("กำลังโหลดรายการโปรเจ็กต์...");
+    const toastId = toast.loading("กำลังเชื่อมต่อระบบ Backlog...");
     setLoading(true);
 
     try {
@@ -79,14 +75,17 @@ export default function Page(): JSX.Element {
 
       const projectList = data?.data ?? [];
       setProjects(projectList);
-      toast.success(`โหลดสำเร็จ ${projectList.length} โปรเจ็กต์`, {
+      toast.success(`โหลดข้อมูลสำเร็จ พบ ${projectList.length} โปรเจ็กต์`, {
         id: toastId,
       });
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
-      toast.error(error.response?.data?.message ?? "โหลดโปรเจ็กต์ไม่สำเร็จ", {
-        id: toastId,
-      });
+      toast.error(
+        error.response?.data?.message ?? "ไม่สามารถดึงข้อมูลได้ กรุณาลองใหม่",
+        {
+          id: toastId,
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -151,7 +150,7 @@ export default function Page(): JSX.Element {
   const handleCopyId = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(String(id));
-    toast.success("คัดลอกรหัสโปรเจ็กต์แล้ว");
+    message.success("คัดลอกรหัสโปรเจ็กต์แล้ว");
   };
 
   /**
@@ -169,47 +168,44 @@ export default function Page(): JSX.Element {
     <DashboardLayout>
       {/* 📌 Header Section */}
       <HeaderBar
-        title="Backlog Projects"
-        subTitle="Enterprise Project Management Dashboard"
+        title="ระบบจัดการโปรเจ็กต์ (Backlog)"
+        subTitle="แดชบอร์ดสำหรับดูภาพรวมและเลือกโปรเจ็กต์เพื่อจัดการงาน (Issues)"
         icon={<ProjectOutlined />}
         color="none"
       />
 
-      <Space
-        direction="vertical"
-        size={24}
-        style={{ width: "100%", marginTop: 24 }}
-      >
+      <div className="mt-6 flex w-full flex-col gap-6">
         {/* 🎛️ Control Panel: Space Input & Actions */}
-        <Card style={{ boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)" }}>
+        <Card className="hidden shadow-sm" bordered={false}>
           <Row gutter={[16, 16]} align="middle">
             <Col xs={24} md={12}>
-              <Space direction="vertical" size={4} style={{ width: "100%" }}>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Backlog Space
+              <div className="flex w-full flex-col gap-1">
+                <Text type="secondary" className="text-xs">
+                  ชื่อ Space (Sub-domain)
                 </Text>
                 <Input
                   size="large"
-                  placeholder="ระบุ Space (เช่น jabjai)"
+                  placeholder="เช่น jabjai (ไม่ต้องใส่ .backlog.com)"
                   value={space}
                   onChange={(e) => setSpace(e.target.value)}
-                  prefix={<FolderOpenOutlined style={{ color: "#bfbfbf" }} />}
+                  prefix={<FolderOpenOutlined className="text-gray-400" />}
                   disabled={loading}
                 />
-              </Space>
+              </div>
             </Col>
             <Col xs={24} md={12}>
-              <Space wrap style={{ width: "100%", justifyContent: "flex-end" }}>
+              <div className="flex w-full justify-end">
                 <Button
                   type="primary"
                   size="large"
                   icon={<ReloadOutlined />}
                   onClick={fetchProjects}
                   loading={loading}
+                  className="min-w-[120px]"
                 >
-                  โหลดโปรเจ็กต์
+                  โหลดข้อมูลใหม่
                 </Button>
-              </Space>
+              </div>
             </Col>
           </Row>
         </Card>
@@ -219,63 +215,39 @@ export default function Page(): JSX.Element {
           <Row gutter={[16, 16]}>
             {/* Total Projects */}
             <Col xs={24} sm={8}>
-              <Card
-                style={{
-                  background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                }}
-              >
+              <Card bordered={false} className="shadow-sm">
                 <Statistic
-                  title={
-                    <Text style={{ color: "rgba(255,255,255,0.85)" }}>
-                      Total Projects
-                    </Text>
-                  }
+                  title={<Text type="secondary">โปรเจ็กต์ทั้งหมด</Text>}
                   value={stats.total}
-                  valueStyle={{ color: "#fff", fontWeight: 600 }}
+                  valueStyle={{ fontWeight: 700 }}
                   prefix={<ProjectOutlined />}
+                  suffix="รายการ"
                 />
               </Card>
             </Col>
 
             {/* Active Projects */}
             <Col xs={24} sm={8}>
-              <Card
-                style={{
-                  background:
-                    "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-                }}
-              >
+              <Card bordered={false} className="shadow-sm">
                 <Statistic
-                  title={
-                    <Text style={{ color: "rgba(255,255,255,0.85)" }}>
-                      Active Projects
-                    </Text>
-                  }
+                  title={<Text type="secondary">กำลังใช้งาน (Active)</Text>}
                   value={stats.active}
-                  valueStyle={{ color: "#fff", fontWeight: 600 }}
-                  prefix={<FolderOpenOutlined />}
+                  valueStyle={{ fontWeight: 700 }}
+                  prefix={<CheckCircleOutlined className="text-green-500" />}
+                  suffix="รายการ"
                 />
               </Card>
             </Col>
 
             {/* Archived Projects */}
             <Col xs={24} sm={8}>
-              <Card
-                style={{
-                  background:
-                    "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-                }}
-              >
+              <Card bordered={false} className="shadow-sm">
                 <Statistic
-                  title={
-                    <Text style={{ color: "rgba(255,255,255,0.85)" }}>
-                      Archived Projects
-                    </Text>
-                  }
+                  title={<Text type="secondary">จัดเก็บแล้ว (Archived)</Text>}
                   value={stats.archived}
-                  valueStyle={{ color: "#fff", fontWeight: 600 }}
-                  prefix={<InboxOutlined />}
+                  valueStyle={{ fontWeight: 700 }}
+                  prefix={<InboxOutlined className="text-gray-400" />}
+                  suffix="รายการ"
                 />
               </Card>
             </Col>
@@ -283,52 +255,53 @@ export default function Page(): JSX.Element {
         )}
 
         {/* 🔍 Filter & Search Section */}
-        <Card style={{ boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)" }}>
+        <Card bordered={false} className="shadow-sm">
           <Row gutter={[16, 16]}>
             {/* Search Input */}
             <Col xs={24} md={16}>
-              <Space direction="vertical" size={4} style={{ width: "100%" }}>
-                <Text type="secondary" style={{ fontSize: 12 }}>
+              <div className="flex w-full flex-col gap-1">
+                <Text strong className="text-sm">
                   <SearchOutlined /> ค้นหาโปรเจ็กต์
                 </Text>
                 <Input
                   size="large"
-                  placeholder="ค้นหาจากชื่อหรือรหัสโปรเจ็กต์..."
+                  placeholder="พิมพ์ชื่อโปรเจ็กต์ หรือรหัสย่อ (Key)..."
                   allowClear
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                  prefix={<SearchOutlined className="text-gray-400" />}
                 />
-              </Space>
+              </div>
             </Col>
 
             {/* Status Filter */}
             <Col xs={24} md={8}>
-              <Space direction="vertical" size={4} style={{ width: "100%" }}>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  <FilterOutlined /> กรองสถานะ
+              <div className="flex w-full flex-col gap-1">
+                <Text strong className="text-sm">
+                  <FilterOutlined /> เลือกสถานะ
                 </Text>
                 <Select
                   size="large"
-                  style={{ width: "100%" }}
+                  className="w-full"
                   value={statusFilter}
                   onChange={setStatusFilter}
                   options={[
-                    { label: "ทั้งหมด", value: "all" },
-                    { label: "Active", value: "active" },
-                    { label: "Archived", value: "archived" },
+                    { label: "✅ กำลังใช้งาน (Active)", value: "active" },
+                    { label: "📦 จัดเก็บแล้ว (Archived)", value: "archived" },
+                    { label: "📋 ทั้งหมด (All)", value: "all" },
                   ]}
                 />
-              </Space>
+              </div>
             </Col>
           </Row>
 
           {/* Filter Result Count */}
           {(searchQuery || statusFilter !== "all") && (
             <>
-              <Divider style={{ margin: "16px 0" }} />
+              <Divider className="my-4" />
               <Text type="secondary">
-                แสดง {filteredProjects.length} จาก {projects.length} โปรเจ็กต์
+                🔍 ผลลัพธ์การค้นหา: พบ <b>{filteredProjects.length}</b>{" "}
+                จากทั้งหมด {projects.length} โปรเจ็กต์
               </Text>
             </>
           )}
@@ -336,18 +309,17 @@ export default function Page(): JSX.Element {
 
         {/* 🗂️ Projects Grid */}
         <Card
-          style={{ boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)" }}
+          bordered={false}
+          className="shadow-sm"
           title={
             <Flex justify="space-between" align="center">
               <Space>
-                <FileTextOutlined />
-                <Text strong>โปรเจ็กต์ทั้งหมด</Text>
-                <Badge
-                  count={filteredProjects.length}
-                  showZero
-                  style={{ backgroundColor: "#52c41a" }}
-                />
+                <ProjectOutlined />
+                <Title level={5} className="!m-0">
+                  รายชื่อโปรเจ็กต์
+                </Title>
               </Space>
+              <Tag color="blue">{filteredProjects.length} รายการ</Tag>
             </Flex>
           }
         >
@@ -356,7 +328,7 @@ export default function Page(): JSX.Element {
             <Row gutter={[16, 16]}>
               {[...Array(8)].map((_, i) => (
                 <Col key={i} xs={24} sm={12} lg={8} xl={6}>
-                  <Card loading bordered />
+                  <Card loading bordered={false} />
                 </Col>
               ))}
             </Row>
@@ -369,101 +341,93 @@ export default function Page(): JSX.Element {
                 <Col key={project.id} xs={24} sm={12} lg={8} xl={6}>
                   {/* Project Card */}
                   <Badge.Ribbon
-                    text={project.archived ? "Archived" : "Active"}
+                    text={project.archived ? "จัดเก็บแล้ว" : "ใช้งานอยู่"}
                     color={project.archived ? "default" : "green"}
+                    placement="end" // ✅ ย้าย Ribbon ไปด้านขวา
                   >
                     <Card
                       hoverable
                       onClick={() => handleProjectClick(project)}
-                      style={{
-                        height: "100%",
-                        borderRadius: 8,
-                        transition: "all 0.3s ease",
-                      }}
+                      // ✅ ลบ border border-gray-100 ออก ให้เหลือแต่ shadow
+                      className="h-full overflow-hidden rounded-xl transition-all duration-300 hover:shadow-md"
                       styles={{
-                        body: { padding: 16 },
+                        body: { padding: "24px 16px 16px 16px" },
                       }}
                     >
                       {/* Project Header */}
-                      <Space
-                        direction="vertical"
-                        size={12}
-                        style={{ width: "100%" }}
-                      >
+                      <div className="flex w-full flex-col gap-3">
                         {/* Project Name */}
-                        <Tooltip title={project.name}>
+                        <Tooltip title={`ชื่อเต็ม: ${project.name}`}>
                           <Title
                             level={5}
                             ellipsis={{ rows: 2 }}
-                            style={{ margin: 0, minHeight: 44 }}
+                            className="!m-0 min-h-[48px] pr-6" // เพิ่ม padding right กันทับ Ribbon
                           >
                             {project.name}
                           </Title>
                         </Tooltip>
 
-                        <Divider style={{ margin: 0 }} />
+                        <Divider className="!my-1" />
 
-                        {/* Project Info */}
-                        <Space
-                          direction="vertical"
-                          size={8}
-                          style={{ width: "100%" }}
-                        >
+                        {/* Project Info Block */}
+                        <div className="flex w-full flex-col gap-1 rounded-md bg-gray-50 p-2 dark:bg-white/5">
                           <Flex justify="space-between" align="center">
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              Project ID
+                            <Text type="secondary" className="text-xs">
+                              รหัสย่อ (Key)
                             </Text>
-                            <Text strong style={{ fontSize: 12 }}>
-                              {project.id}
-                            </Text>
-                          </Flex>
-
-                          <Flex justify="space-between" align="center">
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              Project Key
-                            </Text>
-                            <Tag color="blue" style={{ margin: 0 }}>
+                            <Tag className="!m-0 font-medium">
                               {project.projectKey}
                             </Tag>
                           </Flex>
-                        </Space>
 
-                        <Divider style={{ margin: 0 }} />
+                          <Flex justify="space-between" align="center">
+                            <Text type="secondary" className="text-xs">
+                              System ID
+                            </Text>
+                            <Text type="secondary" className="text-xs">
+                              {project.id}
+                            </Text>
+                          </Flex>
+                        </div>
 
                         {/* Action Buttons */}
-                        <Flex gap={8} wrap="wrap">
+                        <div className="mt-2 flex w-full flex-col gap-2">
                           <Button
                             type="primary"
-                            size="small"
+                            block
                             icon={<FileTextOutlined />}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleProjectClick(project);
                             }}
-                            style={{ flex: 1 }}
                           >
-                            Issues
+                            ดูงาน (Issues)
                           </Button>
 
-                          <Tooltip title="เปิดใน Backlog">
-                            <Button
-                              size="small"
-                              icon={<ExportOutlined />}
-                              onClick={(e) =>
-                                handleOpenExternal(project.projectKey, e)
-                              }
-                            />
-                          </Tooltip>
+                          <div className="flex gap-2">
+                            <Tooltip title="เปิดดูบนเว็บ Backlog.com">
+                              <Button
+                                size="small"
+                                block
+                                icon={<ExportOutlined />}
+                                onClick={(e) =>
+                                  handleOpenExternal(project.projectKey, e)
+                                }
+                              >
+                                เปิดเว็บ
+                              </Button>
+                            </Tooltip>
 
-                          <Tooltip title="คัดลอก ID">
-                            <Button
-                              size="small"
-                              icon={<CopyOutlined />}
-                              onClick={(e) => handleCopyId(project.id, e)}
-                            />
-                          </Tooltip>
-                        </Flex>
-                      </Space>
+                            <Tooltip title="คัดลอก ID">
+                              <Button
+                                size="small"
+                                icon={<CopyOutlined />}
+                                onClick={(e) => handleCopyId(project.id, e)}
+                              />
+                            </Tooltip>
+                          </div>
+                        </div>
+                      </div>
                     </Card>
                   </Badge.Ribbon>
                 </Col>
@@ -476,20 +440,23 @@ export default function Page(): JSX.Element {
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={
-                <Space direction="vertical">
-                  <Text type="secondary">
-                    ไม่พบโปรเจ็กต์ที่ตรงกับเงื่อนไขการค้นหา
+                <div className="flex flex-col items-center gap-2">
+                  <Text type="secondary" strong>
+                    ไม่พบโปรเจ็กต์ที่ค้นหา
+                  </Text>
+                  <Text type="secondary" className="text-xs">
+                    ลองตรวจสอบคำค้นหา หรือเปลี่ยนสถานะตัวกรอง
                   </Text>
                   <Button
-                    type="link"
+                    type="dashed"
                     onClick={() => {
                       setSearchQuery("");
                       setStatusFilter("all");
                     }}
                   >
-                    ล้างตัวกรอง
+                    ล้างตัวกรองทั้งหมด
                   </Button>
-                </Space>
+                </div>
               }
             />
           )}
@@ -499,17 +466,17 @@ export default function Page(): JSX.Element {
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={
-                <Space direction="vertical">
-                  <Text type="secondary">ยังไม่มีโปรเจ็กต์</Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    กรุณาโหลดโปรเจ็กต์จาก Backlog Space
+                <div className="flex flex-col gap-1">
+                  <Text type="secondary">ยังไม่มีข้อมูลโปรเจ็กต์</Text>
+                  <Text type="secondary" className="text-xs">
+                    กรุณากดปุ่ม "โหลดข้อมูลใหม่" ด้านบน
                   </Text>
-                </Space>
+                </div>
               }
             />
           )}
         </Card>
-      </Space>
+      </div>
     </DashboardLayout>
   );
 }
