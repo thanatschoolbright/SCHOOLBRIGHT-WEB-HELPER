@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation"; // 1. Import useRouter
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@components/layouts/backend-layout";
 import axios from "axios";
 import { toast } from "sonner";
@@ -41,7 +41,7 @@ import {
   DownloadOutlined,
   DownOutlined,
   FileExcelOutlined,
-  ArrowLeftOutlined, // 2. Import Arrow Icon
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -57,7 +57,7 @@ interface ApiResponse {
 }
 
 export default function ServerStatusPage() {
-  const router = useRouter(); // 3. Initialize Router
+  const router = useRouter();
   const [data, setData] = useState<ServerStatusData[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
@@ -118,7 +118,7 @@ export default function ServerStatusPage() {
 
   const handleExportExcel = async () => {
     if (data.length === 0) {
-      toast.warning("ไม่พบข้อมูลสำหรับ Export");
+      toast.warning("ไม่พบข้อมูลสำหรับสร้างรายงาน");
       return;
     }
 
@@ -132,7 +132,7 @@ export default function ServerStatusPage() {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `Server_Status_Report_${new Date().getTime()}.xlsx`;
+      link.download = `รายงานสถานะเซิร์ฟเวอร์_${new Date().getTime()}.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -171,12 +171,12 @@ export default function ServerStatusPage() {
     return { total, online, offline, healthScore };
   }, [data]);
 
-  // Menu items for Dropdown
+  // เมนูคำสั่งสำหรับปุ่ม Dropdown
   const actionMenuItems = useMemo<MenuProps["items"]>(
     () => [
       {
         key: "discord",
-        label: "ทดสอบแจ้งเตือน Discord",
+        label: "ทดสอบแจ้งเตือนทาง Discord",
         icon: <NotificationOutlined />,
         onClick: () => fetchServerStatus("discord"),
         disabled: isDiscordLoading,
@@ -186,7 +186,7 @@ export default function ServerStatusPage() {
       },
       {
         key: "export",
-        label: "Export Excel Report",
+        label: "ดาวน์โหลดรายงาน Excel",
         icon: <FileExcelOutlined />,
         onClick: handleExportExcel,
         disabled: isExporting || data.length === 0,
@@ -208,7 +208,7 @@ export default function ServerStatusPage() {
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("คัดลอกคำสั่ง cURL แล้ว");
+    toast.success("คัดลอกคำสั่งเรียบร้อย");
   };
 
   const columns: ColumnsType<ServerStatusData> = [
@@ -220,7 +220,7 @@ export default function ServerStatusPage() {
       render: (_, __, index) => index + 1,
     },
     {
-      title: "Module Name",
+      title: "ชื่อระบบ (Module)",
       key: "name_th",
       render: (_, record) => (
         <div className="flex flex-col">
@@ -234,7 +234,7 @@ export default function ServerStatusPage() {
       ),
     },
     {
-      title: "Service / Endpoint",
+      title: "จุดเชื่อมต่อ (Service Endpoint)",
       dataIndex: "service",
       key: "service",
       responsive: ["md"],
@@ -251,7 +251,7 @@ export default function ServerStatusPage() {
       ),
     },
     {
-      title: "Status",
+      title: "สถานะการทำงาน",
       dataIndex: "status",
       key: "status",
       width: 150,
@@ -276,12 +276,12 @@ export default function ServerStatusPage() {
       },
     },
     {
-      title: "Action",
+      title: "การจัดการ",
       key: "action",
       width: 100,
       align: "center",
       render: (_, record) => (
-        <Tooltip title="ตรวจสอบข้อมูลเชิงลึก (Debug)">
+        <Tooltip title="กดเพื่อดูรายละเอียดเชิงลึก">
           <Button
             type={record.status !== "200" ? "primary" : "default"}
             danger={record.status !== "200"}
@@ -299,22 +299,19 @@ export default function ServerStatusPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6 w-full">
-        <Tooltip title={"ตรวจสอบมอนิเตอร์ระบบหลังบ้าน SB App"}>
-          <Typography.Text type="secondary"></Typography.Text>
-        </Tooltip>
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-start gap-4">
-            {/* 4. ปุ่มย้อนกลับ */}
             <Button
               shape="circle"
               icon={<ArrowLeftOutlined />}
               onClick={() => router.back()}
               size="large"
+              aria-label="ย้อนกลับ"
             />
             <div>
               <Typography.Title level={3} style={{ margin: 0 }}>
-                System Health Monitor
+                ระบบตรวจสอบสุขภาพเซิร์ฟเวอร์ (System Health)
               </Typography.Title>
               <Typography.Text type="secondary">
                 <Space>
@@ -327,7 +324,7 @@ export default function ServerStatusPage() {
                   ) : (
                     <>
                       <SyncOutlined />
-                      อัปเดตล่าสุด:{" "}
+                      ข้อมูลล่าสุดเมื่อ:{" "}
                       {lastUpdated
                         ? lastUpdated.toLocaleTimeString("th-TH")
                         : "-"}
@@ -350,7 +347,7 @@ export default function ServerStatusPage() {
               >
                 <Space>
                   <ReloadOutlined />
-                  อัปเดตข้อมูลทันที
+                  ตรวจสอบสถานะทันที
                 </Space>
               </Dropdown.Button>
             )}
@@ -366,7 +363,7 @@ export default function ServerStatusPage() {
               ) : (
                 <>
                   <Statistic
-                    title="ภาพรวมความสมบูรณ์ของระบบ"
+                    title="ความสมบูรณ์ของระบบโดยรวม"
                     value={stats.healthScore}
                     suffix="%"
                     valueStyle={{
@@ -390,9 +387,10 @@ export default function ServerStatusPage() {
               <Skeleton active paragraph={{ rows: 1 }} />
             ) : (
               <Statistic
-                title="จำนวน Module ทั้งหมด"
+                title="จำนวนระบบทั้งหมด"
                 value={stats.total}
                 prefix={<ApiOutlined />}
+                suffix="รายการ"
               />
             )}
           </Card>
@@ -406,6 +404,7 @@ export default function ServerStatusPage() {
                 value={stats.online}
                 valueStyle={{ color: "#3f8600" }}
                 prefix={<SafetyCertificateOutlined />}
+                suffix="รายการ"
               />
             )}
           </Card>
@@ -430,6 +429,7 @@ export default function ServerStatusPage() {
                 value={stats.offline}
                 valueStyle={{ color: "#cf1322" }}
                 prefix={<BugOutlined />}
+                suffix="รายการ"
               />
             )}
           </Card>
@@ -439,7 +439,7 @@ export default function ServerStatusPage() {
         {!isLoading && stats.offline > 0 && (
           <Alert
             message="พบความผิดปกติในระบบ"
-            description={`มี ${stats.offline} รายการที่ไม่สามารถใช้งานได้ โปรดตรวจสอบและแจ้งทีม Developer ทันที`}
+            description={`ตรวจพบปัญหาจำนวน ${stats.offline} รายการที่ไม่สามารถใช้งานได้ กรุณาแจ้งทีม Developer หรือตรวจสอบรายละเอียดด้านล่าง`}
             type="error"
             showIcon
             banner
@@ -472,7 +472,7 @@ export default function ServerStatusPage() {
             </div>
             <div className="w-full md:w-1/3">
               <Input
-                placeholder="ค้นหาชื่อระบบ, URL หรือ Domain..."
+                placeholder="ค้นหาจากชื่อระบบ, URL หรือ Domain..."
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
@@ -482,7 +482,6 @@ export default function ServerStatusPage() {
             </div>
           </div>
 
-          {/* 5. ใช้ Skeleton แทน Table Loading Spinner */}
           {isLoading ? (
             <div style={{ padding: "20px" }}>
               <Skeleton active paragraph={{ rows: 10 }} />
@@ -491,13 +490,14 @@ export default function ServerStatusPage() {
             <Table<ServerStatusData>
               columns={columns}
               dataSource={filteredData}
-              loading={false} // Disable default table spinner
+              loading={false}
               rowKey={(record) => record.module}
               pagination={{
                 pageSize: 10,
-                showTotal: (total) => `แสดงผล ${total} รายการ`,
+                showTotal: (total) => `แสดงทั้งหมด ${total} รายการ`,
               }}
               bordered
+              locale={{ emptyText: "ไม่พบข้อมูลที่ค้นหา" }}
             />
           )}
         </Card>
@@ -510,7 +510,7 @@ export default function ServerStatusPage() {
             <Badge
               status={selectedItem?.status === "200" ? "success" : "error"}
             />
-            {`ตรวจสอบ: ${selectedItem?.name_th || ""}`}
+            {`รายละเอียดระบบ: ${selectedItem?.name_th || ""}`}
           </Space>
         }
         open={modalOpen}
@@ -529,36 +529,36 @@ export default function ServerStatusPage() {
             items={[
               {
                 key: "1",
-                label: "สรุปข้อมูล (Summary)",
+                label: "สรุปข้อมูลทั่วไป",
                 children: (
                   <div className="flex flex-col gap-4 py-2">
                     <Descriptions bordered column={1} size="small">
                       <Descriptions.Item label="ชื่อระบบ">
                         {selectedItem.name_th} ({selectedItem.name_en})
                       </Descriptions.Item>
-                      <Descriptions.Item label="สถานะ (Status Code)">
+                      <Descriptions.Item label="สถานะการตอบกลับ (Status Code)">
                         {selectedItem.status === "200" ? (
                           <Tag color="success" icon={<CheckCircleOutlined />}>
                             200 OK (ปกติ)
                           </Tag>
                         ) : (
                           <Tag color="error" icon={<CloseCircleOutlined />}>
-                            {selectedItem.status} (ผิดพลาด)
+                            {selectedItem.status} (เกิดข้อผิดพลาด)
                           </Tag>
                         )}
                       </Descriptions.Item>
-                      <Descriptions.Item label="Endpoint URL">
+                      <Descriptions.Item label="ลิงก์ตรวจสอบ (URL)">
                         <Typography.Text copyable>
                           {selectedItem.request.url}
                         </Typography.Text>
                       </Descriptions.Item>
-                      <Descriptions.Item label="Response Message">
-                        <div className="max-h-20 overflow-auto">
+                      <Descriptions.Item label="ข้อความตอบกลับ (Response)">
+                        <div className="max-h-20 overflow-auto text-gray-600">
                           {selectedItem.response?.message ||
                             selectedItem.response?.desc ||
                             JSON.stringify(selectedItem.response).slice(
                               0,
-                              100
+                              150
                             ) + "..."}
                         </div>
                       </Descriptions.Item>
@@ -568,11 +568,11 @@ export default function ServerStatusPage() {
               },
               {
                 key: "2",
-                label: "Dev Tools (cURL)",
+                label: "สำหรับนักพัฒนา (Dev Tools)",
                 children: (
                   <div className="flex flex-col gap-3">
                     <Alert
-                      message="สำหรับ Developer / QA นำไปทดสอบซ้ำ (Retest)"
+                      message="ส่วนนี้สำหรับ Developer หรือ QA ใช้ตรวจสอบเชิงลึก (cURL Command)"
                       type="info"
                       showIcon
                     />
@@ -581,7 +581,7 @@ export default function ServerStatusPage() {
                         value={selectedItem.curl}
                         autoSize={{ minRows: 4, maxRows: 8 }}
                         readOnly
-                        className="font-mono text-xs"
+                        className="font-mono text-xs bg-gray-50"
                       />
                       <Button
                         type="primary"
@@ -590,7 +590,7 @@ export default function ServerStatusPage() {
                         onClick={() => handleCopy(selectedItem.curl)}
                         className="absolute top-2 right-2"
                       >
-                        Copy
+                        คัดลอกคำสั่ง
                       </Button>
                     </div>
                   </div>
@@ -598,9 +598,9 @@ export default function ServerStatusPage() {
               },
               {
                 key: "3",
-                label: "Full Response (JSON)",
+                label: "ผลลัพธ์ฉบับเต็ม (JSON Response)",
                 children: (
-                  <div className="max-h-[400px] overflow-auto rounded border p-4">
+                  <div className="max-h-[400px] overflow-auto rounded border p-4 bg-gray-50">
                     <pre className="text-xs font-mono">
                       {JSON.stringify(selectedItem.response, null, 2)}
                     </pre>
@@ -609,9 +609,9 @@ export default function ServerStatusPage() {
               },
               {
                 key: "4",
-                label: "Request Headers/Body",
+                label: "ข้อมูลที่ส่งไป (Request Header/Body)",
                 children: (
-                  <div className="max-h-[400px] overflow-auto rounded border p-4">
+                  <div className="max-h-[400px] overflow-auto rounded border p-4 bg-gray-50">
                     <pre className="text-xs font-mono">
                       {JSON.stringify(selectedItem.request, null, 2)}
                     </pre>
