@@ -367,7 +367,6 @@ export default function ServerStatusPage() {
           <Col xs={24} md={14} lg={16}>
             <Card
               className="card-hover-effect animate-fade-in"
-              bordered={false}
               style={{
                 height: "100%",
                 background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`,
@@ -504,7 +503,6 @@ export default function ServerStatusPage() {
               {/* Offline Stat */}
               <Card
                 className="card-hover-effect animate-fade-in"
-                bordered={false}
                 style={{ flex: 1, animationDelay: "0.2s" }}
               >
                 <Flex align="center" gap={16}>
@@ -554,11 +552,7 @@ export default function ServerStatusPage() {
         )}
 
         {/* --- Main Content (Table & Filters) --- */}
-        <Card
-          bordered={false}
-          className="animate-fade-in"
-          style={{ animationDelay: "0.3s" }}
-        >
+        <Card className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
           <Flex vertical gap={20}>
             {/* Toolbar */}
             <Flex justify="space-between" align="center" wrap="wrap" gap={16}>
