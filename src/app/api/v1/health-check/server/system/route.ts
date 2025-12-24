@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/th"; // Import locale ภาษาไทย
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { logger } from "@/helpers/logger";
+
+// Import Services
 import { checkLoginService } from "./helper/mobile/login.service";
 import { checkVerificationService } from "./helper/mobile/verification.service";
 import { checkServerStatusService } from "./helper/mobile/server-status.service";
@@ -21,32 +23,29 @@ dayjs.locale("th");
 const DISCORD_CONFIG = {
   WEBHOOK_URL:
     process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_DAILY_MONITOR_SERVER ?? "",
-  ALERT_USER_ID: "<@692372441699319900>", // ID ของคุณดีน (หรือผู้ดูแลระบบ)
-  BOT_NAME: "SB System Monitor", // ชื่อบอทภาษาไทย หรือชื่อที่ทีมคุ้นเคย
+  ALERT_USER_ID: "<@692372441699319900>", // ID ผู้ดูแลระบบ
+  BOT_NAME: "SB System Monitor",
   AVATAR_URL:
-    "https://play-lh.googleusercontent.com/5tMDW7qOj174fR8MVrUOC1xBRx6a8jYg97yYzMw0JwlcS13gazRD8J3HmumEhFi3aQ", // โลโก้บริษัท
+    "https://play-lh.googleusercontent.com/5tMDW7qOj174fR8MVrUOC1xBRx6a8jYg97yYzMw0JwlcS13gazRD8J3HmumEhFi3aQ",
 };
 
 const THEMES = {
   HEALTHY: {
-    color: 0x2ecc71, // สีเขียว (ปกติ)
+    color: 0x2ecc71, // สีเขียว
     title: "ระบบทำงานปกติสมบูรณ์",
     icon: "✅",
-    // GIF: หน้าจอ HUD สีเขียว สื่อถึงความเสถียร
     image: "https://img2.pic.in.th/pic/Google-Gemini.th.jpg",
   },
   CRITICAL: {
-    color: 0xed4245, // สีแดง (วิกฤต)
+    color: 0xed4245, // สีแดง
     title: "ตรวจพบความผิดปกติของระบบ",
     icon: "🚨",
-    // GIF: หน้าจอ Glitch/Error สื่อถึงปัญหา
     image: "https://img5.pic.in.th/file/secure-sv1/Bad_job.md.jpg",
   },
 };
 
 // --- 🛠️ Utility Functions ---
 
-// สร้าง Progress Bar สวยๆ
 const getProgressBar = (percentage: number) => {
   const blocks = 10;
   const filled = Math.round((percentage / 100) * blocks);
@@ -72,7 +71,7 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
   const isCritical = stats.failed.length > 0;
   const theme = isCritical ? THEMES.CRITICAL : THEMES.HEALTHY;
 
-  // 1. Main Dashboard Embed (ส่วนสรุปภาพรวม)
+  // 1. Main Dashboard Embed
   const mainEmbed = {
     title: `${theme.icon} ${theme.title}`,
     description: `> **รายงานสถานะระบบประจำวัน**\n> 📅 วันที่: \`${dayjs().format(
@@ -112,11 +111,10 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
 
   const embeds: any[] = [mainEmbed];
 
-  // 2. Failed Services Embed (แสดงเฉพาะเมื่อมี Error - ส่วนสำคัญที่ต้องแก้)
+  // 2. Failed Services Embed
   if (isCritical) {
     const errorFields = stats.failed.map((service) => ({
       name: `❌ ${service.name_th} (${service.module})`,
-      // แปลงข้อมูลเทคนิคเป็นรูปแบบที่ก๊อปปี้ไปส่งต่อให้ Dev ได้ง่าย
       value: `**สถานะ:** \`${service.status}\`\n**จุดเชื่อมต่อ:** \`${service.service}\`\n**คำสั่งตรวจสอบ (cURL):**\n\`\`\`bash\n${service.curl}\n\`\`\``,
       inline: false,
     }));
@@ -124,14 +122,13 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
     embeds.push({
       title: `🚨 พบปัญหาจำนวน ${stats.failed.length} รายการ`,
       description: "กรุณาตรวจสอบระบบดังต่อไปนี้โดยด่วน",
-      color: 0xed4245, // สีแดง
+      color: 0xed4245,
       fields: errorFields,
     });
   }
 
-  // 3. Operational Services List (แสดงรายชื่อที่ผ่านแบบย่อ - ให้สบายใจว่าเช็คแล้ว)
+  // 3. Operational Services List
   if (stats.passed.length > 0) {
-    // จัดกลุ่มชื่อ Service ให้ดูง่าย
     const passedList = stats.passed
       .map((s) => `✅ **${s.name_th}**`)
       .join("\n");
@@ -139,11 +136,10 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
     embeds.push({
       title: "✨ ระบบที่ทำงานปกติ",
       description: passedList,
-      color: 0x2ecc71, // สีเขียว
+      color: 0x2ecc71,
     });
   }
 
-  // Content สำหรับ Tag คน (เฉพาะตอนพัง เพื่อไม่ให้รบกวนบ่อยเกินไป)
   const content = isCritical
     ? `# 🔥 แจ้งเตือนวิกฤต!\nเรียน ${DISCORD_CONFIG.ALERT_USER_ID} พบความผิดปกติของระบบ กรุณาตรวจสอบด่วน!`
     : undefined;
@@ -176,18 +172,41 @@ async function sendDiscordNotification(results: HealthCheckResult[]) {
   }
 }
 
-// --- 🏁 Main Handler ---
+// --- 🏁 Main Handler & Logic ---
 
 async function executeHealthChecks(): Promise<HealthCheckResult[]> {
-  return Promise.all([
-    checkLoginService(),
-    checkVerificationService(),
-    checkServerStatusService(),
-    checkFacialScanService(),
-    checkNotificationService(),
-    checkFlagPoleAttendanceService(),
-    checkFlagPoleScanService(),
+  // 1. ยิง Login Service ก่อนเป็นอันดับแรก (Await) เพื่อเอา Token
+  const loginResult = await checkLoginService();
+
+  // 2. ดึง Token ออกมาจาก Response ของ Login
+  let freshToken = "";
+
+  // ตรวจสอบว่า Login สำเร็จและมี Token กลับมาหรือไม่
+  // หมายเหตุ: เช็ค field 'token' ตาม Response JSON ตัวอย่างที่คุณให้มา
+  if (loginResult.status === "200" && loginResult.response?.token) {
+    freshToken = loginResult.response.token;
+  } else {
+    // ถ้า Login ไม่ผ่าน ให้ Log เตือน (Service อื่นจะใช้ Fallback หรือ Fail)
+    console.warn(
+      "⚠️ Login Service Failed or Token missing. Using fallback/env token if available."
+    );
+  }
+
+  // 3. ยิง Service ที่เหลือ โดยส่ง freshToken เข้าไปด้วย (สำหรับตัวที่ต้องการ Auth)
+  const otherServicesResults = await Promise.all([
+    // กลุ่มที่ต้องใช้ Token (ส่ง freshToken เข้าไป)
+    checkVerificationService(freshToken),
+    checkNotificationService(freshToken),
+    checkFlagPoleAttendanceService(freshToken),
+    checkFlagPoleScanService(freshToken),
+
+    // กลุ่มที่ไม่ต้องใช้ Token หรือใช้ Key แยกต่างหาก
+    checkServerStatusService(), // Public API
+    checkFacialScanService(), // Hardware API (ใช้ schoolId/UserCode ใน Body)
   ]);
+
+  // 4. รวมผลลัพธ์ทั้งหมดกลับไป (เอา Login ไว้ตัวแรกสุด)
+  return [loginResult, ...otherServicesResults];
 }
 
 export async function POST(request: NextRequest) {

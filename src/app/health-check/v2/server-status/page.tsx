@@ -30,11 +30,13 @@ import {
   theme,
   Grid,
   Avatar,
+  Empty,
+  Divider,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
+  CheckCircleFilled,
+  CloseCircleFilled,
   ReloadOutlined,
   NotificationOutlined,
   EyeOutlined,
@@ -42,14 +44,15 @@ import {
   ApiOutlined,
   SearchOutlined,
   BugOutlined,
-  SafetyCertificateOutlined,
-  SyncOutlined,
+  SafetyCertificateFilled,
   FileExcelOutlined,
   ArrowLeftOutlined,
   DownOutlined,
-  GlobalOutlined,
   CodeOutlined,
   DashboardOutlined,
+  ThunderboltFilled,
+  PieChartOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -73,784 +76,721 @@ export default function ServerStatusPage() {
   const { token } = theme.useToken();
   const screenBreakpoints = useBreakpoint();
 
-  // --- State Management (Full Word Naming) ---
+  // --- State Management ---
   const [serverHealthData, setServerHealthData] = useState<ServerStatusData[]>(
     []
   );
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<Date | null>(
     null
   );
-
-  const [isFetchingServerStatus, setIsFetchingServerStatus] = useState(false);
-  const [isSendingDiscordNotification, setIsSendingDiscordNotification] =
-    useState(false);
-  const [isGeneratingExcelReport, setIsGeneratingExcelReport] = useState(false);
-
-  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [selectedServerStatusItem, setSelectedServerStatusItem] =
-    useState<ServerStatusData | null>(null);
-
-  const [searchQueryString, setSearchQueryString] = useState("");
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<
-    "ALL" | "ONLINE" | "ERROR"
-  >("ALL");
-
-  // --- Styles for Animation ---
-  const hoverCardStyle: React.CSSProperties = {
-    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-    cursor: "default",
-  };
+  const [isFetching, setIsFetching] = useState(false);
+  const [isDiscordSending, setIsDiscordSending] = useState(false);
+  const [isExcelGenerating, setIsExcelGenerating] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ServerStatusData | null>(
+    null
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"ALL" | "ONLINE" | "ERROR">(
+    "ALL"
+  );
 
   // --- API Actions ---
-  const fetchServerHealthStatus = useCallback(
-    async (executionMode: "normal" | "discord" = "normal") => {
-      const isDiscordMode = executionMode === "discord";
-
-      if (isDiscordMode) {
-        setIsSendingDiscordNotification(true);
-      } else {
-        setIsFetchingServerStatus(true);
-      }
+  const fetchData = useCallback(
+    async (mode: "normal" | "discord" = "normal") => {
+      const isDiscord = mode === "discord";
+      isDiscord ? setIsDiscordSending(true) : setIsFetching(true);
 
       try {
-        const apiResponse = await axios.post<ServerStatusApiResponse>(
+        const res = await axios.post<ServerStatusApiResponse>(
           "/api/v1/health-check/server/system",
-          { mode: executionMode },
+          { mode },
           { headers: { "Content-Type": "application/json" } }
         );
 
-        if (apiResponse.data && Array.isArray(apiResponse.data.data)) {
-          setServerHealthData(apiResponse.data.data);
+        if (res.data?.data) {
+          setServerHealthData(res.data.data);
           setLastFetchTimestamp(new Date());
-
-          if (isDiscordMode) {
-            toast.success("ส่งรายงานเข้า Discord เรียบร้อยแล้ว");
-          } else {
-            toast.success("อัปเดตสถานะล่าสุดเรียบร้อย");
-          }
+          const msg = isDiscord
+            ? "ส่งรายงานไปยัง Discord สำเร็จ"
+            : "อัปเดตข้อมูลล่าสุดเรียบร้อย";
+          toast.success(msg);
         }
       } catch (error: any) {
-        console.error(error);
-        toast.error("เกิดข้อผิดพลาด", {
+        toast.error("การเชื่อมต่อล้มเหลว", {
           description:
-            error?.response?.data?.message_th ||
-            "ไม่สามารถเชื่อมต่อกับ Server ได้",
+            error?.response?.data?.message_th || "กรุณาลองใหม่อีกครั้ง",
         });
       } finally {
-        if (isDiscordMode) {
-          setIsSendingDiscordNotification(false);
-        } else {
-          setIsFetchingServerStatus(false);
-        }
+        isDiscord ? setIsDiscordSending(false) : setIsFetching(false);
       }
     },
     []
   );
 
   useEffect(() => {
-    fetchServerHealthStatus("normal");
-  }, [fetchServerHealthStatus]);
+    fetchData("normal");
+  }, [fetchData]);
 
-  const handleGenerateExcelReport = async () => {
-    if (serverHealthData.length === 0) {
-      toast.warning("ไม่พบข้อมูลสำหรับสร้างรายงาน");
-      return;
-    }
-
+  const handleExportExcel = async () => {
+    if (!serverHealthData.length) return toast.warning("ไม่พบข้อมูล");
+    setIsExcelGenerating(true);
     try {
-      setIsGeneratingExcelReport(true);
-      const fileBuffer = await ExportServerStatusService.generateReport(
+      const buffer = await ExportServerStatusService.generateReport(
         serverHealthData
       );
-
-      const fileBlob = new Blob([fileBuffer], {
+      const blob = new Blob([buffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      const fileUrl = window.URL.createObjectURL(fileBlob);
-      const downloadLink = document.createElement("a");
-      downloadLink.href = fileUrl;
-      downloadLink.download = `รายงานสถานะเซิร์ฟเวอร์_${new Date().getTime()}.xlsx`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Server_Health_Report_${Date.now()}.xlsx`;
+      link.click();
       toast.success("ดาวน์โหลดรายงานสำเร็จ");
-    } catch (error) {
-      console.error(error);
-      toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ Excel");
+    } catch {
+      toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์");
     } finally {
-      setIsGeneratingExcelReport(false);
+      setIsExcelGenerating(false);
     }
   };
 
-  // --- Computed Data ---
-  const filteredServerHealthData = useMemo(() => {
-    return serverHealthData.filter((serverItem) => {
-      const lowerCaseSearchQuery = searchQueryString.toLowerCase();
-      const matchesSearchQuery =
-        serverItem.module.toLowerCase().includes(lowerCaseSearchQuery) ||
-        serverItem.service.toLowerCase().includes(lowerCaseSearchQuery) ||
-        serverItem.name_th.toLowerCase().includes(lowerCaseSearchQuery) ||
-        serverItem.name_en.toLowerCase().includes(lowerCaseSearchQuery);
+  // --- Computed Statistics ---
+  const stats = useMemo(() => {
+    const total = serverHealthData.length;
+    const online = serverHealthData.filter((i) => i.status === "200").length;
+    const offline = total - online;
+    const score = total === 0 ? 0 : Math.round((online / total) * 100);
 
-      const isServerOnline = serverItem.status === "200";
+    // Group by modules for visualization
+    const grouped = serverHealthData.reduce((acc, curr) => {
+      const key = curr.module || "Other";
+      if (!acc[key]) acc[key] = { total: 0, passed: 0 };
+      acc[key].total++;
+      if (curr.status === "200") acc[key].passed++;
+      return acc;
+    }, {} as Record<string, { total: number; passed: number }>);
 
-      if (selectedStatusFilter === "ONLINE")
-        return matchesSearchQuery && isServerOnline;
-      if (selectedStatusFilter === "ERROR")
-        return matchesSearchQuery && !isServerOnline;
-      return matchesSearchQuery;
-    });
-  }, [serverHealthData, searchQueryString, selectedStatusFilter]);
-
-  const serverHealthStatistics = useMemo(() => {
-    const totalCount = serverHealthData.length;
-    const onlineCount = serverHealthData.filter(
-      (item) => item.status === "200"
-    ).length;
-    const offlineCount = totalCount - onlineCount;
-    const healthScorePercentage =
-      totalCount === 0 ? 0 : Math.round((onlineCount / totalCount) * 100);
-    return { totalCount, onlineCount, offlineCount, healthScorePercentage };
+    return { total, online, offline, score, grouped };
   }, [serverHealthData]);
 
-  const headerActionMenuItems = useMemo<MenuProps["items"]>(
-    () => [
-      {
-        key: "discord",
-        label: "ทดสอบแจ้งเตือนทาง Discord",
-        icon: <NotificationOutlined />,
-        onClick: () => fetchServerHealthStatus("discord"),
-        disabled: isSendingDiscordNotification,
-      },
-      {
-        type: "divider",
-      },
-      {
-        key: "export",
-        label: "ดาวน์โหลดรายงาน Excel",
-        icon: <FileExcelOutlined />,
-        onClick: handleGenerateExcelReport,
-        disabled: isGeneratingExcelReport || serverHealthData.length === 0,
-      },
-    ],
-    [
-      fetchServerHealthStatus,
-      handleGenerateExcelReport,
-      isSendingDiscordNotification,
-      isGeneratingExcelReport,
-      serverHealthData.length,
-    ]
-  );
+  const filteredData = useMemo(() => {
+    return serverHealthData.filter((item) => {
+      const query = searchQuery.toLowerCase();
+      const matchSearch =
+        item.name_th.toLowerCase().includes(query) ||
+        item.service.toLowerCase().includes(query) ||
+        item.module.toLowerCase().includes(query);
 
-  const handleOpenDetailModal = (record: ServerStatusData) => {
-    setSelectedServerStatusItem(record);
-    setIsDetailModalVisible(true);
+      if (filterStatus === "ONLINE")
+        return matchSearch && item.status === "200";
+      if (filterStatus === "ERROR") return matchSearch && item.status !== "200";
+      return matchSearch;
+    });
+  }, [serverHealthData, searchQuery, filterStatus]);
+
+  // --- UI Helpers ---
+  const copyToClipboard = (txt: string) => {
+    navigator.clipboard.writeText(txt);
+    toast.success("คัดลอกแล้ว");
   };
 
-  const handleCopyToClipboard = (textToCopy: string) => {
-    navigator.clipboard.writeText(textToCopy);
-    toast.success("คัดลอกคำสั่งเรียบร้อย");
-  };
-
-  // --- Table Configuration ---
-  const tableColumns: ColumnsType<ServerStatusData> = [
+  const menuItems: MenuProps["items"] = [
     {
-      title: "ลำดับ",
-      key: "index",
-      align: "center",
-      width: 70,
-      render: (_value, _record, index) => index + 1,
-      responsive: ["sm"],
+      key: "discord",
+      label: "แจ้งเตือน Discord",
+      icon: <NotificationOutlined />,
+      onClick: () => fetchData("discord"),
+      disabled: isDiscordSending,
     },
+    { type: "divider" },
     {
-      title: "ชื่อระบบ (Module)",
-      key: "name_th",
-      render: (_value, record) => (
-        <Flex vertical>
-          <Text strong style={{ fontSize: token.fontSize }}>
-            {record.name_th}
-          </Text>
-          <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
-            {record.name_en}
-          </Text>
-        </Flex>
+      key: "export",
+      label: "Export Excel",
+      icon: <FileExcelOutlined />,
+      onClick: handleExportExcel,
+      disabled: isExcelGenerating || !serverHealthData.length,
+    },
+  ];
+
+  const columns: ColumnsType<ServerStatusData> = [
+    {
+      title: "Module",
+      key: "name",
+      render: (_, r) => (
+        <Space>
+          <Avatar
+            shape="square"
+            style={{
+              backgroundColor:
+                r.status === "200" ? token.colorSuccessBg : token.colorErrorBg,
+              color: r.status === "200" ? token.colorSuccess : token.colorError,
+            }}
+            icon={
+              r.status === "200" ? <SafetyCertificateFilled /> : <BugOutlined />
+            }
+          />
+          <Flex vertical>
+            <Text strong>{r.name_th}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {r.module}
+            </Text>
+          </Flex>
+        </Space>
       ),
     },
     {
-      title: "จุดเชื่อมต่อ (Service Endpoint)",
+      title: "Endpoint",
       dataIndex: "service",
-      key: "service",
       responsive: ["md"],
-      render: (text, record) => (
+      render: (val, r) => (
         <Flex vertical>
           <Space size={4}>
-            <Tag
-              bordered={false}
-              color="processing"
-              style={{ margin: 0, fontSize: 10 }}
-            >
+            <Tag color="blue" bordered={false} style={{ margin: 0 }}>
               API
             </Tag>
-            <Text style={{ fontSize: token.fontSizeSM }}>{text}</Text>
+            <Text style={{ fontSize: 13 }}>{val}</Text>
           </Space>
           <Text
             type="secondary"
-            ellipsis
-            style={{ fontSize: 10, maxWidth: 250, marginTop: 4 }}
+            style={{ fontSize: 11 }}
+            ellipsis={{ tooltip: r.request.url }}
           >
-            {record.request.url}
+            {r.request.url}
           </Text>
         </Flex>
       ),
     },
     {
-      title: "สถานะ",
+      title: "Status",
       dataIndex: "status",
-      key: "status",
-      width: 140,
-      render: (status) => {
-        const isStatusOk = status === "200";
-        return (
-          <Badge
-            status={isStatusOk ? "success" : "error"}
-            text={
-              isStatusOk ? (
-                <Tag
-                  color="success"
-                  bordered={false}
-                  icon={<CheckCircleOutlined />}
-                >
-                  ปกติ
-                </Tag>
-              ) : (
-                <Tag
-                  color="error"
-                  bordered={false}
-                  icon={<CloseCircleOutlined />}
-                >
-                  ผิดพลาด ({status})
-                </Tag>
-              )
-            }
-          />
-        );
-      },
+      width: 120,
+      render: (status) => (
+        <Tag
+          color={status === "200" ? "success" : "error"}
+          style={{
+            width: "100%",
+            textAlign: "center",
+            borderRadius: 12,
+            padding: "4px 0",
+          }}
+          icon={
+            status === "200" ? <CheckCircleFilled /> : <CloseCircleFilled />
+          }
+        >
+          {status === "200" ? "Active" : `Error ${status}`}
+        </Tag>
+      ),
     },
     {
-      title: "จัดการ",
-      key: "action",
-      width: 90,
+      title: "",
+      width: 60,
       align: "center",
-      render: (_value, record) => (
-        <Tooltip title="กดเพื่อดูรายละเอียด">
-          <Button
-            type={record.status !== "200" ? "primary" : "text"}
-            danger={record.status !== "200"}
-            size="small"
-            shape="circle"
-            icon={<EyeOutlined />}
-            onClick={() => handleOpenDetailModal(record)}
-          />
-        </Tooltip>
+      render: (_, r) => (
+        <Button
+          type="text"
+          icon={<EyeOutlined />}
+          onClick={() => {
+            setSelectedItem(r);
+            setModalVisible(true);
+          }}
+        />
       ),
     },
   ];
 
   return (
     <DashboardLayout>
-      <Flex vertical gap="large" style={{ width: "100%", paddingBottom: 24 }}>
-        {/* --- ส่วนหัวของหน้า (Page Header) ---
-          ประกอบด้วย: ปุ่มย้อนกลับ, ชื่อหน้า, สถานะการอัปเดตล่าสุด, และปุ่ม Action หลัก
-        */}
-        <Flex
-          justify="space-between"
-          align={screenBreakpoints.md ? "center" : "start"}
-          vertical={!screenBreakpoints.md}
-          gap="middle"
-        >
-          <Flex align="start" gap="middle">
+      {/* CSS Animation Injection */}
+      <style jsx global>{`
+        @keyframes pulse-green {
+          0% {
+            box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.4);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(82, 196, 26, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(82, 196, 26, 0);
+          }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .card-hover-effect {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover-effect:hover {
+          transform: translateY(-4px);
+          box-shadow: ${token.boxShadowLG};
+        }
+        .animate-fade-in {
+          animation: fadeInUp 0.5s ease-out forwards;
+        }
+      `}</style>
+
+      <Flex vertical gap={24} style={{ paddingBottom: 40 }}>
+        {/* --- Header Section --- */}
+        <Flex justify="space-between" align="center" wrap="wrap" gap={16}>
+          <Space size={16}>
             <Button
-              shape="circle"
               icon={<ArrowLeftOutlined />}
+              shape="circle"
               onClick={() => router.back()}
-              size="large"
-              aria-label="ย้อนกลับ"
-              style={{
-                border: "none",
-                background: "transparent",
-                boxShadow: "none",
-              }}
+              style={{ border: "none", background: "transparent" }}
             />
             <Flex vertical>
               <Title level={3} style={{ margin: 0 }}>
-                ระบบตรวจสอบสุขภาพเซิร์ฟเวอร์
+                System Health Monitor
               </Title>
-              <Text
-                type="secondary"
-                style={{ display: "flex", alignItems: "center", gap: 6 }}
-              >
-                {isFetchingServerStatus ? (
-                  <Skeleton.Input active size="small" style={{ width: 100 }} />
-                ) : (
-                  <>
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </span>
-                    ข้อมูลล่าสุดเมื่อ:{" "}
-                    {lastFetchTimestamp
-                      ? lastFetchTimestamp.toLocaleTimeString("th-TH")
-                      : "-"}
-                  </>
-                )}
-              </Text>
+              <Space>
+                <Badge status="processing" color={token.colorSuccess} />
+                <Text type="secondary" style={{ fontSize: 13 }}>
+                  Last updated:{" "}
+                  {lastFetchTimestamp
+                    ? lastFetchTimestamp.toLocaleTimeString()
+                    : "-"}
+                </Text>
+              </Space>
             </Flex>
-          </Flex>
+          </Space>
 
-          <Space
-            style={{
-              width: !screenBreakpoints.md ? "100%" : "auto",
-              justifyContent: !screenBreakpoints.md ? "end" : "start",
-            }}
-          >
-            {isFetchingServerStatus ||
-            isGeneratingExcelReport ||
-            isSendingDiscordNotification ? (
-              <Skeleton.Button active shape="default" style={{ width: 150 }} />
-            ) : (
-              <Dropdown.Button
-                type="primary"
-                icon={<DownOutlined />}
-                menu={{ items: headerActionMenuItems }}
-                onClick={() => fetchServerHealthStatus("normal")}
-                style={{ transition: "all 0.3s" }}
-              >
-                <Space>
-                  <ReloadOutlined spin={isFetchingServerStatus} />
-                  ตรวจสอบสถานะ
-                </Space>
-              </Dropdown.Button>
-            )}
+          <Space>
+            <Dropdown.Button
+              type="primary"
+              menu={{ items: menuItems }}
+              onClick={() => fetchData("normal")}
+              icon={<DownOutlined />}
+              loading={isFetching || isDiscordSending || isExcelGenerating}
+            >
+              <ReloadOutlined /> Check Status
+            </Dropdown.Button>
           </Space>
         </Flex>
 
-        {/* --- ส่วนแสดงสถิติ (Statistic Cards) ---
-          แสดงข้อมูลภาพรวม: Health Score, จำนวนระบบทั้งหมด, ระบบที่ทำงานปกติ, ระบบที่พบปัญหา
-          มีการใช้ Animation Hover Effect เพื่อความสวยงาม
-        */}
+        {/* --- Dashboard Overview (Grid) --- */}
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={6}>
-            <Card variant="borderless" hoverable style={hoverCardStyle}>
-              <Flex justify="space-between" align="center">
-                {isFetchingServerStatus ? (
-                  <Skeleton active paragraph={{ rows: 1 }} />
-                ) : (
-                  <>
-                    <Flex vertical>
-                      <Text type="secondary">ความสมบูรณ์</Text>
-                      <Statistic
-                        value={serverHealthStatistics.healthScorePercentage}
-                        suffix="%"
-                        valueStyle={{
-                          color:
-                            serverHealthStatistics.healthScorePercentage === 100
-                              ? token.colorSuccess
-                              : token.colorError,
-                          fontWeight: 600,
+          {/* Health Score Card (Large) */}
+          <Col xs={24} md={14} lg={16}>
+            <Card
+              className="card-hover-effect animate-fade-in"
+              bordered={false}
+              style={{
+                height: "100%",
+                background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`,
+              }}
+            >
+              <Flex
+                align="center"
+                justify="space-between"
+                style={{ height: "100%" }}
+                gap={24}
+                wrap="wrap"
+              >
+                <Flex vertical gap={8} flex={1}>
+                  <Tag
+                    icon={<ThunderboltFilled />}
+                    color="blue"
+                    style={{ width: "fit-content" }}
+                  >
+                    Realtime Monitoring
+                  </Tag>
+                  <Title level={2} style={{ margin: 0 }}>
+                    {stats.score >= 90
+                      ? "Excellent Condition"
+                      : stats.score >= 70
+                      ? "Stable Condition"
+                      : "Critical Condition"}
+                  </Title>
+                  <Text type="secondary">
+                    Total {stats.total} microservices are currently being
+                    monitored.
+                    {stats.offline > 0 && (
+                      <span style={{ color: token.colorError }}>
+                        {" "}
+                        Attention needed for {stats.offline} services.
+                      </span>
+                    )}
+                  </Text>
+
+                  {/* Visual Distribution Bar */}
+                  <div style={{ marginTop: 16 }}>
+                    <Flex justify="space-between" style={{ marginBottom: 4 }}>
+                      <Text style={{ fontSize: 12 }}>Success Rate</Text>
+                      <Text strong style={{ fontSize: 12 }}>
+                        {stats.score}%
+                      </Text>
+                    </Flex>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: 8,
+                        background: token.colorErrorBg,
+                        borderRadius: 4,
+                        overflow: "hidden",
+                        display: "flex",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${stats.score}%`,
+                          background: token.colorSuccess,
+                          height: "100%",
+                          transition: "width 0.5s",
                         }}
                       />
-                    </Flex>
-                    <Progress
-                      type="circle"
-                      percent={serverHealthStatistics.healthScorePercentage}
-                      size={50}
-                      strokeColor={{
-                        "0%": token.colorError,
-                        "100%": token.colorSuccess,
-                      }}
-                      showInfo={false}
-                    />
-                  </>
-                )}
+                    </div>
+                  </div>
+                </Flex>
+
+                {/* Circular Progress */}
+                <Flex
+                  justify="center"
+                  align="center"
+                  style={{ position: "relative" }}
+                >
+                  <Progress
+                    type="circle"
+                    percent={stats.score}
+                    strokeColor={
+                      stats.score === 100
+                        ? token.colorSuccess
+                        : stats.score > 70
+                        ? token.colorWarning
+                        : token.colorError
+                    }
+                    strokeWidth={8}
+                    width={140}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: 120,
+                      height: 120,
+                      borderRadius: "50%",
+                      animation:
+                        stats.score === 100
+                          ? "pulse-green 2s infinite"
+                          : "none",
+                    }}
+                  />
+                </Flex>
               </Flex>
             </Card>
           </Col>
 
-          <Col xs={24} sm={12} md={6}>
-            <Card variant="borderless" hoverable style={hoverCardStyle}>
-              {isFetchingServerStatus ? (
-                <Skeleton active paragraph={{ rows: 1 }} />
-              ) : (
-                <Flex justify="space-between" align="center">
-                  <Flex vertical>
-                    <Text type="secondary">ระบบทั้งหมด</Text>
-                    <Statistic
-                      value={serverHealthStatistics.totalCount}
-                      suffix="รายการ"
-                      valueStyle={{ fontWeight: 600 }}
-                    />
-                  </Flex>
+          {/* Stat Cards (Small) */}
+          <Col xs={24} md={10} lg={8}>
+            <Flex vertical gap={16} style={{ height: "100%" }}>
+              {/* Online Stat */}
+              <Card
+                className="card-hover-effect animate-fade-in"
+                bordered={false}
+                style={{ flex: 1, animationDelay: "0.1s" }}
+                bodyStyle={{ padding: 16 }}
+              >
+                <Flex align="center" gap={16}>
                   <Avatar
-                    size={48}
-                    icon={
-                      <GlobalOutlined style={{ color: token.colorPrimary }} />
-                    }
-                    style={{ background: token.colorPrimaryBg }}
+                    shape="square"
+                    size={54}
+                    style={{
+                      background: token.colorSuccessBg,
+                      color: token.colorSuccess,
+                    }}
+                    icon={<SafetyCertificateFilled style={{ fontSize: 24 }} />}
                   />
-                </Flex>
-              )}
-            </Card>
-          </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <Card variant="borderless" hoverable style={hoverCardStyle}>
-              {isFetchingServerStatus ? (
-                <Skeleton active paragraph={{ rows: 1 }} />
-              ) : (
-                <Flex justify="space-between" align="center">
                   <Flex vertical>
-                    <Text type="secondary">ทำงานปกติ</Text>
-                    <Statistic
-                      value={serverHealthStatistics.onlineCount}
-                      valueStyle={{
-                        color: token.colorSuccess,
-                        fontWeight: 600,
+                    <Text type="secondary">Operational</Text>
+                    <Title
+                      level={3}
+                      style={{ margin: 0, color: token.colorSuccess }}
+                    >
+                      {stats.online}
+                    </Title>
+                  </Flex>
+                </Flex>
+              </Card>
+
+              {/* Offline Stat */}
+              <Card
+                className="card-hover-effect animate-fade-in"
+                bordered={false}
+                style={{ flex: 1, animationDelay: "0.2s" }}
+                bodyStyle={{ padding: 16 }}
+              >
+                <Flex align="center" gap={16}>
+                  <Avatar
+                    shape="square"
+                    size={54}
+                    style={{
+                      background: token.colorErrorBg,
+                      color: token.colorError,
+                    }}
+                    icon={<BugOutlined style={{ fontSize: 24 }} />}
+                  />
+                  <Flex vertical>
+                    <Text type="secondary">Downtime</Text>
+                    <Title
+                      level={3}
+                      style={{
+                        margin: 0,
+                        color:
+                          stats.offline > 0
+                            ? token.colorError
+                            : token.colorText,
                       }}
-                      suffix="รายการ"
-                    />
+                    >
+                      {stats.offline}
+                    </Title>
                   </Flex>
-                  <Avatar
-                    size={48}
-                    icon={
-                      <SafetyCertificateOutlined
-                        style={{ color: token.colorSuccess }}
-                      />
-                    }
-                    style={{ background: token.colorSuccessBg }}
-                  />
                 </Flex>
-              )}
-            </Card>
-          </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <Card
-              variant="borderless"
-              hoverable
-              style={{
-                ...hoverCardStyle,
-                border:
-                  !isFetchingServerStatus &&
-                  serverHealthStatistics.offlineCount > 0
-                    ? `1px solid ${token.colorErrorBorder}`
-                    : undefined,
-              }}
-            >
-              {isFetchingServerStatus ? (
-                <Skeleton active paragraph={{ rows: 1 }} />
-              ) : (
-                <Flex justify="space-between" align="center">
-                  <Flex vertical>
-                    <Text type="secondary">พบปัญหา</Text>
-                    <Statistic
-                      value={serverHealthStatistics.offlineCount}
-                      valueStyle={{ color: token.colorError, fontWeight: 600 }}
-                      suffix="รายการ"
-                    />
-                  </Flex>
-                  <Avatar
-                    size={48}
-                    icon={<BugOutlined style={{ color: token.colorError }} />}
-                    style={{ background: token.colorErrorBg }}
-                  />
-                </Flex>
-              )}
-            </Card>
+              </Card>
+            </Flex>
           </Col>
         </Row>
 
-        {/* --- ส่วนแจ้งเตือน (Alert Section) ---
-          แสดงเมื่อพบข้อผิดพลาดในระบบ
-        */}
-        {!isFetchingServerStatus && serverHealthStatistics.offlineCount > 0 && (
+        {/* --- Alert Banner (Conditional) --- */}
+        {stats.offline > 0 && !isFetching && (
           <Alert
-            message="พบความผิดปกติในระบบ"
-            description={`ตรวจพบปัญหาจำนวน ${serverHealthStatistics.offlineCount} รายการที่ไม่สามารถใช้งานได้ กรุณาแจ้งทีม Developer หรือตรวจสอบรายละเอียดด้านล่าง`}
+            message="Critical System Issues Detected"
+            description={`${stats.offline} services are currently unavailable. Immediate action is recommended.`}
             type="error"
             showIcon
-            banner
+            className="animate-fade-in"
             style={{
-              borderRadius: token.borderRadius,
+              borderRadius: token.borderRadiusLG,
               border: `1px solid ${token.colorErrorBorder}`,
             }}
           />
         )}
 
-        {/* --- ตารางและตัวกรอง (Table & Filter Section) ---
-          ประกอบด้วย: Tab เลือกสถานะ, ช่องค้นหา, และตารางแสดงข้อมูล
-        */}
+        {/* --- Main Content (Table & Filters) --- */}
         <Card
-          variant="borderless"
-          style={{ boxShadow: token.boxShadowTertiary }}
+          bordered={false}
+          className="animate-fade-in"
+          style={{ animationDelay: "0.3s" }}
         >
-          <Flex vertical gap="middle">
-            <Flex
-              justify="space-between"
-              align="center"
-              gap="middle"
-              vertical={!screenBreakpoints.md}
-            >
-              <div style={{ width: !screenBreakpoints.md ? "100%" : "auto" }}>
-                <Segmented
-                  block={!screenBreakpoints.md}
-                  options={[
-                    { label: "ทั้งหมด", value: "ALL", icon: <ApiOutlined /> },
-                    {
-                      label: "ปกติ",
-                      value: "ONLINE",
-                      icon: <CheckCircleOutlined />,
-                    },
-                    {
-                      label: `พบปัญหา (${serverHealthStatistics.offlineCount})`,
-                      value: "ERROR",
-                      icon: <CloseCircleOutlined />,
-                    },
-                  ]}
-                  value={selectedStatusFilter}
-                  onChange={(value) => setSelectedStatusFilter(value as any)}
-                  disabled={isFetchingServerStatus}
-                />
-              </div>
+          <Flex vertical gap={20}>
+            {/* Toolbar */}
+            <Flex justify="space-between" align="center" wrap="wrap" gap={16}>
+              <Segmented
+                options={[
+                  {
+                    label: "All Services",
+                    value: "ALL",
+                    icon: <ApiOutlined />,
+                  },
+                  {
+                    label: "Online",
+                    value: "ONLINE",
+                    icon: <CheckCircleFilled className="text-green-500" />,
+                  },
+                  {
+                    label: "Issues",
+                    value: "ERROR",
+                    icon: <CloseCircleFilled className="text-red-500" />,
+                  },
+                ]}
+                value={filterStatus}
+                onChange={(v) => setFilterStatus(v as any)}
+              />
               <Input
-                placeholder="ค้นหาชื่อระบบ, URL..."
+                placeholder="Search module or endpoint..."
                 prefix={
                   <SearchOutlined
-                    style={{ color: token.colorTextDescription }}
+                    style={{ color: token.colorTextPlaceholder }}
                   />
                 }
-                value={searchQueryString}
-                onChange={(event) => setSearchQueryString(event.target.value)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ width: 300 }}
                 allowClear
-                disabled={isFetchingServerStatus}
-                style={{
-                  width: !screenBreakpoints.md ? "100%" : 320,
-                  borderRadius: token.borderRadius,
-                }}
               />
             </Flex>
 
-            {isFetchingServerStatus ? (
-              <div style={{ padding: "20px" }}>
-                <Skeleton active paragraph={{ rows: 8 }} />
-              </div>
+            {/* Table */}
+            {isFetching ? (
+              <Skeleton active paragraph={{ rows: 6 }} />
             ) : (
               <Table<ServerStatusData>
-                columns={tableColumns}
-                dataSource={filteredServerHealthData}
-                loading={false}
-                rowKey={(record) => record.module}
+                columns={columns}
+                dataSource={filteredData}
+                rowKey="module"
                 pagination={{
-                  pageSize: 10,
-                  showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-                  size: "small",
+                  pageSize: 8,
+                  showTotal: (t) => `Total ${t} items`,
                 }}
-                bordered
-                scroll={{ x: 700 }}
-                locale={{ emptyText: "ไม่พบข้อมูลที่ค้นหา" }}
+                scroll={{ x: 800 }}
+                locale={{
+                  emptyText: (
+                    <Empty
+                      description="No services found"
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    />
+                  ),
+                }}
               />
             )}
           </Flex>
         </Card>
       </Flex>
 
-      {/* --- หน้าต่างรายละเอียด (Modal Detail Section) ---
-        แสดงข้อมูลเชิงลึก Request/Response และ cURL
-      */}
+      {/* --- Detail Modal --- */}
       <Modal
         title={
           <Space>
-            <Badge
-              status={
-                selectedServerStatusItem?.status === "200" ? "success" : "error"
-              }
-            />
-            <Text strong>
-              รายละเอียดระบบ: {selectedServerStatusItem?.name_th || ""}
-            </Text>
+            <DashboardOutlined />
+            <Text strong>System Diagnostics</Text>
           </Space>
         }
-        open={isDetailModalVisible}
-        onCancel={() => setIsDetailModalVisible(false)}
-        footer={[
-          <Button key="close" onClick={() => setIsDetailModalVisible(false)}>
-            ปิดหน้าต่าง
-          </Button>,
-        ]}
-        width={850}
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={null}
+        width={800}
         centered
-        styles={{ body: { padding: 0 } }}
       >
-        {selectedServerStatusItem && (
-          <Tabs
-            defaultActiveKey="1"
-            tabBarStyle={{ padding: "0 24px" }}
-            items={[
-              {
-                key: "1",
-                label: (
-                  <span>
-                    <DashboardOutlined /> สรุปข้อมูล
-                  </span>
-                ),
-                children: (
-                  <div style={{ padding: 24 }}>
-                    <Descriptions bordered column={1} size="small">
-                      <Descriptions.Item label="ชื่อระบบ">
-                        {selectedServerStatusItem.name_th} (
-                        {selectedServerStatusItem.name_en})
-                      </Descriptions.Item>
-                      <Descriptions.Item label="สถานะ">
-                        {selectedServerStatusItem.status === "200" ? (
-                          <Tag color="success" icon={<CheckCircleOutlined />}>
-                            200 OK (ปกติ)
-                          </Tag>
-                        ) : (
-                          <Tag color="error" icon={<CloseCircleOutlined />}>
-                            {selectedServerStatusItem.status} (เกิดข้อผิดพลาด)
-                          </Tag>
-                        )}
-                      </Descriptions.Item>
-                      <Descriptions.Item label="URL">
-                        <Paragraph copyable style={{ margin: 0 }}>
-                          {selectedServerStatusItem.request.url}
+        {selectedItem && (
+          <Flex vertical gap={16}>
+            <div style={{ padding: "16px 0" }}>
+              <Flex
+                align="center"
+                gap={16}
+                style={{
+                  background: token.colorFillAlter,
+                  padding: 16,
+                  borderRadius: token.borderRadiusLG,
+                }}
+              >
+                <Avatar
+                  size={64}
+                  shape="square"
+                  style={{
+                    background:
+                      selectedItem.status === "200"
+                        ? token.colorSuccessBg
+                        : token.colorErrorBg,
+                    color:
+                      selectedItem.status === "200"
+                        ? token.colorSuccess
+                        : token.colorError,
+                  }}
+                  icon={
+                    selectedItem.status === "200" ? (
+                      <CheckCircleFilled />
+                    ) : (
+                      <CloseCircleFilled />
+                    )
+                  }
+                />
+                <Flex vertical flex={1}>
+                  <Title level={4} style={{ margin: 0 }}>
+                    {selectedItem.name_th}
+                  </Title>
+                  <Text type="secondary">{selectedItem.name_en}</Text>
+                  <Space style={{ marginTop: 8 }}>
+                    <Tag>{selectedItem.module}</Tag>
+                    <Tag
+                      color={
+                        selectedItem.status === "200" ? "success" : "error"
+                      }
+                    >
+                      {selectedItem.status === "200"
+                        ? "HTTP 200 OK"
+                        : `Error ${selectedItem.status}`}
+                    </Tag>
+                  </Space>
+                </Flex>
+              </Flex>
+            </div>
+
+            <Tabs
+              defaultActiveKey="overview"
+              items={[
+                {
+                  key: "overview",
+                  label: "Overview",
+                  children: (
+                    <Descriptions column={1} bordered size="small">
+                      <Descriptions.Item label="Endpoint URL">
+                        <Paragraph copyable style={{ margin: 0, fontSize: 13 }}>
+                          {selectedItem.request.url}
                         </Paragraph>
                       </Descriptions.Item>
+                      <Descriptions.Item label="Method">
+                        <Tag color="blue">
+                          {selectedItem.request.method || "GET"}
+                        </Tag>
+                      </Descriptions.Item>
                       <Descriptions.Item label="Response Preview">
-                        <Text
-                          type="secondary"
-                          style={{ wordBreak: "break-all" }}
-                        >
-                          {typeof selectedServerStatusItem.response === "string"
-                            ? selectedServerStatusItem.response
-                            : JSON.stringify(
-                                selectedServerStatusItem.response
-                              ).slice(0, 150) + "..."}
+                        <Text code style={{ fontSize: 12 }}>
+                          {JSON.stringify(selectedItem.response).substring(
+                            0,
+                            200
+                          )}
+                          ...
                         </Text>
                       </Descriptions.Item>
                     </Descriptions>
-                  </div>
-                ),
-              },
-              {
-                key: "2",
-                label: (
-                  <span>
-                    <CodeOutlined /> Dev Tools (cURL)
-                  </span>
-                ),
-                children: (
-                  <div style={{ padding: 24 }}>
-                    <Alert
-                      message="cURL Command สำหรับ Developer"
-                      type="info"
-                      showIcon
-                      style={{ marginBottom: 16 }}
-                    />
+                  ),
+                },
+                {
+                  key: "curl",
+                  label: "cURL",
+                  children: (
                     <div style={{ position: "relative" }}>
                       <Input.TextArea
-                        value={selectedServerStatusItem.curl}
-                        autoSize={{ minRows: 4, maxRows: 8 }}
+                        value={selectedItem.curl}
                         readOnly
+                        autoSize={{ minRows: 4, maxRows: 10 }}
                         style={{
                           fontFamily: "monospace",
                           fontSize: 12,
-                          background: token.colorFillQuaternary,
-                          border: `1px solid ${token.colorBorder}`,
-                          borderRadius: token.borderRadius,
+                          background: "#1e1e1e",
+                          color: "#d4d4d4",
+                          border: "none",
                         }}
                       />
                       <Button
                         type="primary"
                         size="small"
                         icon={<CopyOutlined />}
-                        onClick={() =>
-                          handleCopyToClipboard(selectedServerStatusItem.curl)
-                        }
                         style={{ position: "absolute", top: 8, right: 8 }}
+                        onClick={() => copyToClipboard(selectedItem.curl)}
                       >
-                        คัดลอก
+                        Copy
                       </Button>
                     </div>
-                  </div>
-                ),
-              },
-              {
-                key: "3",
-                label: "JSON Response",
-                children: (
-                  <div style={{ padding: 24 }}>
+                  ),
+                },
+                {
+                  key: "json",
+                  label: "Full Response",
+                  children: (
                     <div
                       style={{
+                        background: token.colorFillQuaternary,
+                        padding: 12,
+                        borderRadius: token.borderRadius,
                         maxHeight: 400,
                         overflow: "auto",
-                        padding: 16,
-                        background: token.colorFillQuaternary,
-                        borderRadius: token.borderRadius,
-                        border: `1px solid ${token.colorBorder}`,
                       }}
                     >
-                      <pre
-                        style={{
-                          fontSize: 12,
-                          margin: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {JSON.stringify(
-                          selectedServerStatusItem.response,
-                          null,
-                          2
-                        )}
+                      <pre style={{ margin: 0, fontSize: 11 }}>
+                        {JSON.stringify(selectedItem.response, null, 2)}
                       </pre>
                     </div>
-                  </div>
-                ),
-              },
-              {
-                key: "4",
-                label: "Request Info",
-                children: (
-                  <div style={{ padding: 24 }}>
-                    <div
-                      style={{
-                        maxHeight: 400,
-                        overflow: "auto",
-                        padding: 16,
-                        background: token.colorFillQuaternary,
-                        borderRadius: token.borderRadius,
-                        border: `1px solid ${token.colorBorder}`,
-                      }}
-                    >
-                      <pre
-                        style={{
-                          fontSize: 12,
-                          margin: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {JSON.stringify(
-                          selectedServerStatusItem.request,
-                          null,
-                          2
-                        )}
-                      </pre>
-                    </div>
-                  </div>
-                ),
-              },
-            ]}
-          />
+                  ),
+                },
+              ]}
+            />
+          </Flex>
         )}
       </Modal>
     </DashboardLayout>

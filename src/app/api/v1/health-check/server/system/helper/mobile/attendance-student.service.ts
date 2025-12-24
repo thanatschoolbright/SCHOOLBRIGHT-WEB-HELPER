@@ -3,17 +3,24 @@ import { API_URL } from "@/services/api-url";
 import { HealthCheckResult } from "../health-check.type";
 import { generateCurlCommand } from "../generate-curl.helper";
 
-const FLAGPOLE_ATTENDANCE_CONFIG = {
-  // ดึงข้อมูลนักเรียนสำหรับเช็กชื่อหน้าเสาธง
-  url: `${API_URL.PROD_SB_API_URL}/api/School/getstudent/849/50271`,
-  method: "GET",
-  headers: {
-    // Header Key ตาม cURL แต่ Value ดึงจาก ENV
-    "JabjaiKey-849-1230336": process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "",
-  },
-};
+export async function checkFlagPoleAttendanceService(
+  accessToken?: string
+): Promise<HealthCheckResult> {
+  // 1. กำหนด Token
+  const targetToken =
+    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
 
-export async function checkFlagPoleAttendanceService(): Promise<HealthCheckResult> {
+  // 2. Setup Config (Dynamic)
+  const FLAGPOLE_ATTENDANCE_CONFIG = {
+    // ดึงข้อมูลนักเรียนสำหรับเช็กชื่อหน้าเสาธง
+    url: `${API_URL.PROD_SB_API_URL}/api/School/getstudent/849/50271`,
+    method: "GET",
+    headers: {
+      // ใช้ Token ที่ได้รับมา
+      "JabjaiKey-849-1230336": targetToken,
+    },
+  };
+
   let domain = "localhost";
   try {
     domain = new URL(FLAGPOLE_ATTENDANCE_CONFIG.url).hostname;

@@ -3,24 +3,32 @@ import { API_URL } from "@/services/api-url";
 import { HealthCheckResult } from "../health-check.type";
 import { generateCurlCommand } from "../generate-curl.helper";
 
-const FLAGPOLE_SCAN_CONFIG = {
-  url: `${API_URL.PROD_SB_API_URL}/api/School/updatestatusjobscan/849/1230336`,
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "JabjaiKey-849-1230336": process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "",
-  },
-  data: {
-    rootobject: [
-      {
-        UserId: 1321819,
-        scanstatus: "0",
-      },
-    ],
-  },
-};
+export async function checkFlagPoleScanService(
+  accessToken?: string
+): Promise<HealthCheckResult> {
+  // 1. กำหนด Token
+  const targetToken =
+    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
 
-export async function checkFlagPoleScanService(): Promise<HealthCheckResult> {
+  // 2. Setup Config (Dynamic)
+  const FLAGPOLE_SCAN_CONFIG = {
+    url: `${API_URL.PROD_SB_API_URL}/api/School/updatestatusjobscan/849/1230336`,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      // ใช้ Token ที่ได้รับมา
+      "JabjaiKey-849-1230336": targetToken,
+    },
+    data: {
+      rootobject: [
+        {
+          UserId: 1321819,
+          scanstatus: "0",
+        },
+      ],
+    },
+  };
+
   let domain = "localhost";
   try {
     domain = new URL(FLAGPOLE_SCAN_CONFIG.url).hostname;
