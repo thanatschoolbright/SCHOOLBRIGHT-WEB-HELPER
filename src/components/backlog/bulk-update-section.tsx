@@ -9,13 +9,13 @@ import {
   Modal,
   Table,
   Tag,
-  Spin,
   Button,
   Progress,
-  Collapse,
+  Divider,
+  theme,
 } from "antd";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import {
@@ -25,6 +25,7 @@ import {
   RobotOutlined,
   ReloadOutlined,
   ClockCircleOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 
@@ -49,6 +50,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
   space,
   onUpdateComplete,
 }) => {
+  const { token } = theme.useToken();
   const router = useRouter();
   const dispatch = useDispatch();
   const {
@@ -79,7 +81,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
       index: number;
     }>
   >([]);
-  const perIssuePayloadsRef = React.useRef<any[] | null>(null);
+  const perIssuePayloadsRef = useRef<any[] | null>(null);
   const [saving, setSaving] = useState(false);
   const [detailModal, setDetailModal] = useState<{
     open: boolean;
@@ -112,19 +114,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     const statusCode = error?.response?.status || data?.status;
 
     return { message, detail, statusCode };
-  };
-
-  const openDetailModal = (
-    title: string,
-    content?: string,
-    statusCode?: number
-  ) => {
-    setDetailModal({
-      open: true,
-      title,
-      content: content || "",
-      statusCode,
-    });
   };
 
   const processSingle = async (
@@ -216,20 +205,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     bulkCategoryIds !== undefined;
 
   const handleBulkUpdate = async () => {
-    // This function will be complex, involving API calls.
-    // For now, we will just log the data.
-    console.log({
-      autoCategoryEnabled,
-      autoDescriptionEnabled,
-      bulkStatusId,
-      bulkPriorityId,
-      bulkStartDate,
-      bulkDueDate,
-      bulkMilestoneIds,
-      bulkCategoryIds,
-      selectedRowKeys,
-    });
-
     if (!space || !selectedRowKeys.length) return;
 
     const sharedUpdates: any = {};
@@ -310,10 +285,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
         if (autoDescriptionEnabled) {
           // Prepare processing results and open modal
-          // Save payloads for potential retry
           perIssuePayloadsRef.current = perIssuePayloads;
 
-          // Initialize processing results
           setProcessingResults(
             perIssuePayloads.map((p, i) => ({
               issueKeyOrId: p.issueKeyOrId,
@@ -324,10 +297,9 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           );
           setResultsModalVisible(true);
 
-          // Sequential runner with delay for Gemini to avoid blocking
+          // Sequential runner with delay
           for (let i = 0; i < perIssuePayloads.length; i++) {
             const payload = perIssuePayloads[i];
-            const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
 
             // mark pending
             setProcessingResults((prev) =>
@@ -336,9 +308,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                   ? {
                       ...r,
                       status: "pending",
-                      message: undefined,
-                      detail: undefined,
-                      statusCode: undefined,
                     }
                   : r
               )
@@ -346,13 +315,11 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
             await processSingle(payload, selectedIssueMap);
 
-            // Cooldown 1.5s (except last one)
             if (i < perIssuePayloads.length - 1) {
               await new Promise((resolve) => setTimeout(resolve, 1500));
             }
           }
 
-          // After all processing, show final notification
           const successCount = perIssuePayloads.filter(
             (p) => p.updates && p.updates.description
           ).length;
@@ -395,19 +362,35 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     <Card
       size="small"
       styles={{ body: { padding: 16 } }}
-      style={elevatedCardStyle}
+      style={{
+        ...elevatedCardStyle,
+        border: "none",
+        boxShadow:
+          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        borderRadius: 12,
+      }}
       title={
-        <Space align="center" size={10}>
-          <Typography.Title level={5} style={{ margin: 0 }}>
-            การอัปเดตแบบกลุ่ม
-          </Typography.Title>
-          <Tag color="blue" style={{ borderRadius: 10 }}>
-            เลือกแล้ว {selectedRowKeys.length} งาน
-          </Tag>
-          <Tag color="geekblue" style={{ borderRadius: 10 }}>
-            AI Assist
-          </Tag>
-        </Space>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <Space align="center" size={10}>
+            <Typography.Title level={5} style={{ margin: 0 }}>
+              Bulk Actions
+            </Typography.Title>
+            <Tag
+              color="blue"
+              bordered={false}
+              style={{ borderRadius: 12, fontSize: 12 }}
+            >
+              Selected: {selectedRowKeys.length} items
+            </Tag>
+          </Space>
+        </div>
       }
     >
       <Skeleton
@@ -419,54 +402,65 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
         <Tabs
           activeKey={bulkTabKey}
           onChange={(key) => setBulkTabKey(key as "ai" | "manual")}
+          type="card"
           items={[
             {
               key: "ai",
-              label: "อัปเดตด้วย AI",
+              label: (
+                <Space>
+                  <RobotOutlined />
+                  AI Update
+                </Space>
+              ),
               children: (
-                <Space direction="vertical" size={16} style={{ width: "100%" }}>
-                  <Card
-                    size="small"
+                <div style={{ marginTop: 16 }}>
+                  {/* Flattened Layout: Control Header + Form */}
+                  <div
                     style={{
-                      borderRadius: 12,
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "space-between",
+                      padding: "12px 16px",
+                      background: token.colorFillAlter,
+                      borderRadius: token.borderRadiusLG,
+                      marginBottom: 16,
+                      border: `1px solid ${token.colorBorderSecondary}`,
                     }}
                   >
-                    <Space
-                      direction="vertical"
-                      size={6}
-                      style={{ width: "100%" }}
-                    >
-                      <Typography.Text strong>Smart Filters</Typography.Text>
-                      <Typography.Text type="secondary">
-                        เปิดใช้งาน Gemini เพื่อช่วยเลือก Category และสรุป
-                        Description โดยอัตโนมัติ
-                      </Typography.Text>
-                      <Space wrap>
-                        <AutoCategoryToggle
-                          disabled={
-                            autoCategoryLoading ||
-                            bulkUpdating ||
-                            !categoryOptions.length
-                          }
-                          enabled={autoCategoryEnabled}
-                          onChange={handleAutoCategoryToggle}
-                        />
-                        <AutoAiDescriptionToggle
-                          enabled={autoDescriptionEnabled}
-                          onChange={handleAutoDescriptionToggle}
-                          disabled={bulkUpdating}
-                        />
+                    <Space direction="vertical" size={2}>
+                      <Space>
+                        <RobotOutlined style={{ color: "#1677ff" }} />
+                        <Typography.Text strong>Smart Filters</Typography.Text>
                       </Space>
+                      <Typography.Text
+                        type="secondary"
+                        style={{ fontSize: 13, maxWidth: 400 }}
+                      >
+                        Automatically categorize and summarize issues using
+                        Gemini AI. Enable the options below.
+                      </Typography.Text>
                     </Space>
-                  </Card>
 
-                  <Card
-                    size="small"
-                    style={{
-                      borderRadius: 12,
-                      boxShadow: "0 4px 12px rgba(15,23,42,0.06)",
-                    }}
-                  >
+                    <Space size={16}>
+                      <AutoCategoryToggle
+                        disabled={
+                          autoCategoryLoading ||
+                          bulkUpdating ||
+                          !categoryOptions.length
+                        }
+                        enabled={autoCategoryEnabled}
+                        onChange={handleAutoCategoryToggle}
+                      />
+                      <AutoAiDescriptionToggle
+                        enabled={autoDescriptionEnabled}
+                        onChange={handleAutoDescriptionToggle}
+                        disabled={bulkUpdating}
+                      />
+                    </Space>
+                  </div>
+
+                  {/* Clean Form Panel */}
+                  <div style={{ padding: "0 8px" }}>
                     <BulkUpdatePanel
                       autoCategoryEnabled={autoCategoryEnabled}
                       autoAiDescriptionEnabled={autoDescriptionEnabled}
@@ -514,519 +508,329 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                         bulkUpdating
                       }
                     />
-                  </Card>
-                  <Modal
-                    title={
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          gap: 12,
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                          }}
-                        >
-                          <RobotOutlined style={{ color: "#1677ff" }} />
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: 15 }}>
-                              ผลการสรุปรายละเอียด (AI)
-                            </div>
-                            <div style={{ fontSize: 12, color: "#666" }}>
-                              {processingResults.length > 0 ? (
-                                <span>
-                                  {
-                                    processingResults.filter(
-                                      (r) =>
-                                        r.status === "success" ||
-                                        r.status === "error"
-                                    ).length
-                                  }
-                                  /{processingResults.length} processed
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                        </div>
-                        <Space size={6}>
-                          <Tag
-                            color="processing"
-                            style={{ padding: "2px 8px", borderRadius: 12 }}
-                          >
-                            Live
-                          </Tag>
-                        </Space>
-                      </div>
-                    }
-                    open={resultsModalVisible}
-                    onCancel={() => setResultsModalVisible(false)}
-                    footer={null}
-                    width={1200}
-                    styles={{
-                      body: {
-                        padding: 0,
-                      },
-                    }}
-                  >
-                    <div style={{ padding: 16 }}>
-                      {/* Overall Progress Section */}
-                      <Card
-                        size="small"
-                        style={{
-                          marginBottom: 16,
-
-                          border: "1px solid #adc6ff",
-                        }}
-                      >
-                        <Space direction="vertical" style={{ width: "100%" }}>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                            }}
-                          >
-                            <Typography.Text strong>
-                              <RobotOutlined /> กำลังประมวลผลด้วย AI...
-                            </Typography.Text>
-                            <Typography.Text type="secondary">
-                              {
-                                processingResults.filter(
-                                  (r) => r.status === "success"
-                                ).length
-                              }{" "}
-                              / {processingResults.length} รายการ
-                            </Typography.Text>
-                          </div>
-                          <Progress
-                            percent={Math.round(
-                              (processingResults.filter(
-                                (r) =>
-                                  r.status === "success" || r.status === "error"
-                              ).length /
-                                processingResults.length) *
-                                100
-                            )}
-                            status="active"
-                            strokeColor={{
-                              "0%": "#108ee9",
-                              "100%": "#87d068",
-                            }}
-                          />
-                        </Space>
-                      </Card>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          marginBottom: 10,
-                        }}
-                      >
-                        <Space size={8}>
-                          <Tag color="blue">AI SUMMARY</Tag>
-                          <Tag color="geekblue">MD</Tag>
-                        </Space>
-                        <Space>
-                          <Button
-                            type="text"
-                            icon={<ReloadOutlined />}
-                            onClick={() => setResultsModalVisible(false)}
-                          >
-                            ปิด/เปิดใหม่
-                          </Button>
-                        </Space>
-                      </div>
-                      <div style={{ maxHeight: "60vh", overflow: "auto" }}>
-                        <Table
-                          dataSource={processingResults}
-                          rowKey={(r) => String(r.issueKeyOrId)}
-                          scroll={{ y: 420 }}
-                          expandable={{
-                            expandedRowRender: (record) => (
-                              <div
-                                style={{
-                                  padding: "12px 24px",
-                                  background: "#fafafa",
-                                }}
-                              >
-                                {record.status === "error" && (
-                                  <Typography.Paragraph type="danger">
-                                    <strong>Error Detail:</strong> <br />
-                                    {record.detail || record.message}
-                                  </Typography.Paragraph>
-                                )}
-                                {record.summary && (
-                                  <div>
-                                    <Typography.Text strong>
-                                      Full Summary (JSON Debug):
-                                    </Typography.Text>
-                                    <pre
-                                      style={{
-                                        padding: 12,
-                                        background: "#fff",
-                                        border: "1px solid #f0f0f0",
-                                        borderRadius: 8,
-                                        marginTop: 8,
-                                        whiteSpace: "pre-wrap",
-                                        fontSize: 12,
-                                        color: "#000",
-                                      }}
-                                    >
-                                      {JSON.stringify(record.summary, null, 2)}
-                                    </pre>
-                                  </div>
-                                )}
-                              </div>
-                            ),
-                            rowExpandable: (record) =>
-                              record.status === "success" ||
-                              record.status === "error",
-                          }}
-                          columns={[
-                            {
-                              title: "งาน",
-                              dataIndex: "title",
-                              key: "title",
-                              width: 200,
-                              render: (text) => (
-                                <Typography.Text strong>{text}</Typography.Text>
-                              ),
-                            },
-                            {
-                              title: "สถานะ",
-                              dataIndex: "status",
-                              key: "status",
-                              width: 140,
-                              render: (status: any) => {
-                                if (status === "queue")
-                                  return (
-                                    <Tag
-                                      icon={<ClockCircleOutlined spin />}
-                                      style={{ borderStyle: "dashed" }}
-                                    >
-                                      รอคิว
-                                    </Tag>
-                                  );
-                                if (status === "pending")
-                                  return (
-                                    <Tag
-                                      icon={<LoadingOutlined />}
-                                      color="processing"
-                                      style={{ fontWeight: 500 }}
-                                    >
-                                      กำลังสรุป...
-                                    </Tag>
-                                  );
-                                if (status === "success")
-                                  return (
-                                    <Tag
-                                      icon={<CheckCircleOutlined />}
-                                      color="success"
-                                      style={{ fontWeight: 500 }}
-                                    >
-                                      เรียบร้อย
-                                    </Tag>
-                                  );
-                                return (
-                                  <Tag
-                                    icon={<CloseCircleOutlined />}
-                                    color="error"
-                                    style={{ fontWeight: 500 }}
-                                  >
-                                    ล้มเหลว
-                                  </Tag>
-                                );
-                              },
-                            },
-                            {
-                              title: "สรุปเบื้องต้น",
-                              dataIndex: "summary",
-                              key: "summary",
-                              ellipsis: true,
-                              render: (md: any, row: any) => {
-                                if (row.status === "error")
-                                  return (
-                                    <Typography.Text type="danger">
-                                      {row.message}
-                                    </Typography.Text>
-                                  );
-                                if (!md)
-                                  return (
-                                    <Typography.Text type="secondary" italic>
-                                      รอการประมวลผล...
-                                    </Typography.Text>
-                                  );
-                                // Strip html tags for preview
-                                const preview =
-                                  md
-                                    .replace(/<[^>]*>?/gm, "")
-                                    .substring(0, 50) + "...";
-                                return (
-                                  <Typography.Text type="secondary">
-                                    {preview}
-                                  </Typography.Text>
-                                );
-                              },
-                            },
-                            {
-                              title: "เครื่องมือ",
-                              key: "action",
-                              width: 100,
-                              align: "center",
-                              render: (_: any, row: any) => {
-                                const hasFailed = row.status === "error";
-                                return (
-                                  <Space>
-                                    {hasFailed && (
-                                      <Button
-                                        size="small"
-                                        type="link"
-                                        icon={<ReloadOutlined />}
-                                        onClick={async () => {
-                                          const payloads =
-                                            perIssuePayloadsRef.current || [];
-                                          const payload = payloads.find(
-                                            (p) =>
-                                              String(p.issueKeyOrId) ===
-                                              String(row.issueKeyOrId)
-                                          );
-                                          if (!payload) return;
-                                          setProcessingResults((prev) =>
-                                            prev.map((r) =>
-                                              String(r.issueKeyOrId) ===
-                                              String(row.issueKeyOrId)
-                                                ? {
-                                                    ...r,
-                                                    status: "pending",
-                                                    message: undefined,
-                                                    detail: undefined,
-                                                    statusCode: undefined,
-                                                  }
-                                                : r
-                                            )
-                                          );
-                                          const selectedIssueMap = new Map(
-                                            issues.map((issueItem) => [
-                                              issueItem.issueKey ||
-                                                String(issueItem.id),
-                                              issueItem,
-                                            ])
-                                          );
-                                          await processSingle(
-                                            payload,
-                                            selectedIssueMap
-                                          );
-                                          const entries = [payload].filter(
-                                            (p) =>
-                                              Object.keys(p.updates || {})
-                                                .length > 0
-                                          );
-                                          if (entries.length) {
-                                            await axios.post(
-                                              "/api/v1/backlog/issues/bulk-update",
-                                              { space, entries }
-                                            );
-                                          }
-                                        }}
-                                      >
-                                        Retry
-                                      </Button>
-                                    )}
-                                  </Space>
-                                );
-                              },
-                            },
-                          ]}
-                        />
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          marginTop: 12,
-                        }}
-                      >
-                        <div>
-                          <Button
-                            type="default"
-                            onClick={async () => {
-                              const failedRows = processingResults.filter(
-                                (r) => r.status === "error"
-                              );
-                              if (!failedRows.length) return;
-                              const payloads =
-                                perIssuePayloadsRef.current || [];
-                              const targets = failedRows
-                                .map((fr) =>
-                                  payloads.find(
-                                    (p) =>
-                                      String(p.issueKeyOrId) ===
-                                      String(fr.issueKeyOrId)
-                                  )
-                                )
-                                .filter(Boolean) as any[];
-                              if (!targets.length) return;
-                              const failedIds = failedRows.map((fr) =>
-                                String(fr.issueKeyOrId)
-                              );
-                              setProcessingResults((prev) =>
-                                prev.map((r) =>
-                                  failedIds.includes(String(r.issueKeyOrId))
-                                    ? {
-                                        ...r,
-                                        status: "pending",
-                                        message: undefined,
-                                        detail: undefined,
-                                        statusCode: undefined,
-                                      }
-                                    : r
-                                )
-                              );
-                              const concurrency = 4;
-                              let idx = 0;
-                              const runners = Array.from({
-                                length: concurrency,
-                              }).map(async () => {
-                                while (true) {
-                                  const i = idx++;
-                                  if (i >= targets.length) break;
-                                  await processSingle(
-                                    targets[i],
-                                    new Map(
-                                      issues.map((issueItem) => [
-                                        issueItem.issueKey ||
-                                          String(issueItem.id),
-                                        issueItem,
-                                      ])
-                                    )
-                                  );
-                                }
-                              });
-                              await Promise.all(runners);
-                              const entries = (
-                                perIssuePayloadsRef.current || []
-                              ).filter(
-                                (p) => p.updates && p.updates.description
-                              );
-                              if (entries.length)
-                                await axios.post(
-                                  "/api/v1/backlog/issues/bulk-update",
-                                  { space, entries }
-                                );
-                              toast.success(
-                                "Retry เสร็จสิ้น: Retry ดำเนินการเสร็จแล้ว"
-                              );
-                            }}
-                          >
-                            Retry Failed
-                          </Button>
-                        </div>
-                        <div>
-                          <Space>
-                            <Button
-                              onClick={() => setResultsModalVisible(false)}
-                            >
-                              Close
-                            </Button>
-                            <Button
-                              type="primary"
-                              loading={saving}
-                              disabled={saving}
-                              onClick={async () => {
-                                const entries = (
-                                  perIssuePayloadsRef.current || []
-                                ).filter(
-                                  (p) => p.updates && p.updates.description
-                                );
-                                if (!entries.length) {
-                                  toast.error(
-                                    "ไม่มีรายการบันทึก: ไม่มีสรุปที่สำเร็จเพื่อบันทึก"
-                                  );
-                                  return;
-                                }
-                                setSaving(true);
-                                const toastId = toast.loading(
-                                  `กำลังบันทึก ${entries.length} รายการ...`
-                                );
-                                try {
-                                  await axios.post(
-                                    "/api/v1/backlog/issues/bulk-update",
-                                    { space, entries }
-                                  );
-                                  toast.success(
-                                    `บันทึกสำเร็จ: บันทึก ${entries.length} รายการเรียบร้อย`,
-                                    { id: toastId }
-                                  );
-                                  setResultsModalVisible(false);
-                                } catch (err: any) {
-                                  toast.error(
-                                    err?.message || "เกิดข้อผิดพลาด",
-                                    { id: toastId }
-                                  );
-                                } finally {
-                                  setSaving(false);
-                                }
-                              }}
-                            >
-                              Save Successful
-                            </Button>
-                          </Space>
-                        </div>
-                      </div>
-                    </div>
-                  </Modal>
-                  <Modal
-                    open={detailModal.open}
-                    footer={null}
-                    width={720}
-                    onCancel={() => setDetailModal({ open: false })}
-                    title={
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 2,
-                        }}
-                      >
-                        <Typography.Text strong>
-                          รายละเอียดข้อผิดพลาด
-                          {detailModal.statusCode
-                            ? ` (Status ${detailModal.statusCode})`
-                            : ""}
-                        </Typography.Text>
-                        {detailModal.title ? (
-                          <Typography.Text type="secondary">
-                            {detailModal.title}
-                          </Typography.Text>
-                        ) : null}
-                      </div>
-                    }
-                  >
-                    <pre
-                      style={{
-                        padding: 12,
-                        borderRadius: 8,
-                        maxHeight: 360,
-                        overflow: "auto",
-                        whiteSpace: "pre-wrap",
-                        wordBreak: "break-word",
-                        margin: 0,
-                      }}
-                    >
-                      {detailModal.content || "ไม่มีรายละเอียด"}
-                    </pre>
-                  </Modal>
-                </Space>
+                  </div>
+                </div>
               ),
             },
           ]}
         />
       </Skeleton>
+
+      {/* Results Modal - Cleaned up */}
+      <Modal
+        title={
+          <Space>
+            <div
+              style={{ padding: 6, background: "#e6f4ff", borderRadius: "50%" }}
+            >
+              <RobotOutlined style={{ color: "#1677ff", fontSize: 18 }} />
+            </div>
+            <div>
+              <Typography.Title level={5} style={{ margin: 0 }}>
+                AI Processing Results
+              </Typography.Title>
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                Status of AI summary generation
+              </Typography.Text>
+            </div>
+          </Space>
+        }
+        open={resultsModalVisible}
+        onCancel={() => setResultsModalVisible(false)}
+        footer={null}
+        width={900}
+        styles={{ body: { padding: "20px 24px" } }}
+        centered
+      >
+        <div style={{ marginBottom: 24 }}>
+          {/* Progress Header */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 8,
+            }}
+          >
+            <Typography.Text strong>Processing issues...</Typography.Text>
+            <Typography.Text type="secondary">
+              {processingResults.filter((r) => r.status === "success").length} /{" "}
+              {processingResults.length} Completed
+            </Typography.Text>
+          </div>
+
+          <Progress
+            percent={Math.round(
+              (processingResults.filter(
+                (r) => r.status === "success" || r.status === "error"
+              ).length /
+                processingResults.length) *
+                100
+            )}
+            status="active"
+            strokeColor={{ "0%": "#108ee9", "100%": "#87d068" }}
+            showInfo={false}
+          />
+        </div>
+
+        <div
+          style={{
+            border: `1px solid ${token.colorBorderSecondary}`,
+            borderRadius: 8,
+            overflow: "hidden",
+            marginBottom: 16,
+          }}
+        >
+          <Table
+            dataSource={processingResults}
+            rowKey={(r) => String(r.issueKeyOrId)}
+            pagination={false}
+            scroll={{ y: 360 }}
+            size="small"
+            expandable={{
+              expandedRowRender: (record) => (
+                <div style={{ padding: "12px 20px", background: "#fafafa" }}>
+                  {record.status === "error" && (
+                    <div style={{ marginBottom: 8 }}>
+                      <Typography.Text type="danger" strong>
+                        <CloseCircleOutlined /> Error:
+                      </Typography.Text>
+                      <Typography.Paragraph type="danger" style={{ margin: 0 }}>
+                        {record.message}
+                      </Typography.Paragraph>
+                    </div>
+                  )}
+                  {record.summary && (
+                    <div>
+                      <Typography.Text type="secondary">
+                        Generated Markdown:
+                      </Typography.Text>
+                      <div
+                        style={{
+                          marginTop: 4,
+                          padding: 8,
+                          background: "#fff",
+                          border: "1px solid #eee",
+                          borderRadius: 4,
+                          maxHeight: 100,
+                          overflow: "auto",
+                          fontSize: 12,
+                        }}
+                      >
+                        {record.summary}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ),
+              rowExpandable: (record) =>
+                record.status === "success" || record.status === "error",
+            }}
+            columns={[
+              {
+                title: "Issue",
+                dataIndex: "title",
+                key: "title",
+                width: 150,
+                render: (text) => (
+                  <Typography.Text strong>{text}</Typography.Text>
+                ),
+              },
+              {
+                title: "Status",
+                dataIndex: "status",
+                key: "status",
+                width: 120,
+                render: (status) => {
+                  const config = {
+                    queue: {
+                      color: "default",
+                      icon: <ClockCircleOutlined />,
+                      text: "Queue",
+                    },
+                    pending: {
+                      color: "processing",
+                      icon: <LoadingOutlined />,
+                      text: "Processing",
+                    },
+                    success: {
+                      color: "success",
+                      icon: <CheckCircleOutlined />,
+                      text: "Success",
+                    },
+                    error: {
+                      color: "error",
+                      icon: <CloseCircleOutlined />,
+                      text: "Error",
+                    },
+                  }[status as string] || {
+                    color: "default",
+                    icon: null,
+                    text: status,
+                  };
+
+                  return (
+                    <Tag
+                      color={config.color}
+                      icon={config.icon}
+                      bordered={false}
+                    >
+                      {config.text}
+                    </Tag>
+                  );
+                },
+              },
+              {
+                title: "Preview",
+                dataIndex: "summary",
+                key: "summary",
+                render: (md, row) => {
+                  if (row.status === "error")
+                    return (
+                      <Typography.Text type="danger" style={{ fontSize: 12 }}>
+                        {row.message}
+                      </Typography.Text>
+                    );
+                  if (!md)
+                    return (
+                      <Typography.Text
+                        type="secondary"
+                        italic
+                        style={{ fontSize: 12 }}
+                      >
+                        Waiting...
+                      </Typography.Text>
+                    );
+                  return (
+                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                      {md.replace(/<[^>]*>?/gm, "").slice(0, 60)}...
+                    </Typography.Text>
+                  );
+                },
+              },
+            ]}
+          />
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={async () => {
+              // Retry logic reused from original but simplified trigger
+              const failedRows = processingResults.filter(
+                (r) => r.status === "error"
+              );
+              if (!failedRows.length) return;
+
+              const payloads = perIssuePayloadsRef.current || [];
+              const targets = failedRows
+                .map((fr) =>
+                  payloads.find(
+                    (p) => String(p.issueKeyOrId) === String(fr.issueKeyOrId)
+                  )
+                )
+                .filter(Boolean);
+
+              if (!targets.length) return;
+
+              // Reset status
+              setProcessingResults((prev) =>
+                prev.map((r) =>
+                  failedRows.some(
+                    (fr) => String(fr.issueKeyOrId) === String(r.issueKeyOrId)
+                  )
+                    ? { ...r, status: "pending", message: undefined }
+                    : r
+                )
+              );
+
+              // Simple sequential retry
+              for (const payload of targets) {
+                await processSingle(
+                  payload,
+                  new Map(issues.map((i) => [i.issueKey || String(i.id), i]))
+                );
+              }
+
+              // Resave automatically if desired, or let user click save
+              toast.success("Retry completed");
+            }}
+            disabled={!processingResults.some((r) => r.status === "error")}
+          >
+            Retry Failed
+          </Button>
+
+          <Space>
+            <Button onClick={() => setResultsModalVisible(false)}>Close</Button>
+            <Button
+              type="primary"
+              onClick={async () => {
+                const entries = (perIssuePayloadsRef.current || []).filter(
+                  (p) => p.updates?.description
+                );
+                if (!entries.length) return;
+                setSaving(true);
+                try {
+                  await axios.post("/api/v1/backlog/issues/bulk-update", {
+                    space,
+                    entries,
+                  });
+                  toast.success(`Saved ${entries.length} items successfully`);
+                  setResultsModalVisible(false);
+                  onUpdateComplete();
+                  clearBulkForm();
+                } catch (e: any) {
+                  toast.error(e.message || "Save failed");
+                } finally {
+                  setSaving(false);
+                }
+              }}
+              loading={saving}
+              disabled={
+                saving || !processingResults.some((r) => r.status === "success")
+              }
+            >
+              Save Changes
+            </Button>
+          </Space>
+        </div>
+      </Modal>
+
+      {/* Error Detail Modal - Simplified */}
+      <Modal
+        open={detailModal.open}
+        footer={null}
+        width={600}
+        onCancel={() => setDetailModal({ open: false })}
+        title={
+          <Space>
+            <InfoCircleOutlined style={{ color: "#ff4d4f" }} />
+            <span>
+              Error Details{" "}
+              {detailModal.statusCode ? `(${detailModal.statusCode})` : ""}
+            </span>
+          </Space>
+        }
+      >
+        <div
+          style={{
+            background: "#f5f5f5",
+            padding: 12,
+            borderRadius: 8,
+            maxHeight: 400,
+            overflow: "auto",
+          }}
+        >
+          <pre style={{ margin: 0, fontSize: 12, whiteSpace: "pre-wrap" }}>
+            {detailModal.content}
+          </pre>
+        </div>
+      </Modal>
     </Card>
   );
 };

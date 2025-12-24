@@ -393,11 +393,13 @@ export default function UserProfileDropdown(): JSX.Element {
       placement="bottomRight"
       arrow={false}
       onOpenChange={setIsPopoverOpen}
-      overlayInnerStyle={{
-        padding: "24px",
-        borderRadius: "24px",
-        boxShadow: token.boxShadowSecondary,
-        backgroundColor: token.colorBgElevated,
+      styles={{
+        body: {
+          padding: "24px",
+          borderRadius: "24px",
+          boxShadow: token.boxShadowSecondary,
+          backgroundColor: token.colorBgElevated,
+        },
       }}
     >
       <div
