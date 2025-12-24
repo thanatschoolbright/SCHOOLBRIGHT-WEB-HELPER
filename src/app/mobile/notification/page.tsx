@@ -22,6 +22,7 @@ import {
   Select,
   Space,
   Statistic,
+  Steps,
   Table,
   Tabs,
   Tag,
@@ -85,6 +86,7 @@ export default function Page() {
 
   const [form] = Form.useForm<{ schoolID: string; userID: string }>();
   const [activeTab, setActiveTab] = useState<string>(TODAY);
+  const [currentStep, setCurrentStep] = useState(0); // New state for steps
   const [todayDataset, setTodayDataset] = useState<NotificationDataset>({
     data: [],
     loading: false,
@@ -152,14 +154,13 @@ export default function Page() {
 
   const fetchUsersBySchool = useCallback(
     async (schoolID?: string) => {
-      if (!schoolID) {
-        return;
-      }
+      if (!schoolID) return;
 
       const loadingToast = toast.loading("กำลังโหลดรายชื่อผู้ใช้...");
       try {
         await dispatch(GET_USER_BY_SCHOOLID({ schoolId: schoolID })).unwrap();
         toast.success("โหลดรายชื่อผู้ใช้สำเร็จ", { id: loadingToast });
+        setCurrentStep(1); // Move to next step
       } catch (error: any) {
         toast.error("ไม่สามารถโหลดรายชื่อผู้ใช้", { id: loadingToast });
       }
@@ -169,9 +170,7 @@ export default function Page() {
 
   const fetchNotifications = useCallback(
     async (userID: string, pageParam = 1) => {
-      if (!userID) {
-        return;
-      }
+      if (!userID) return;
 
       const pageText = String(pageParam);
 
@@ -234,9 +233,7 @@ export default function Page() {
   const handlePageChange = useCallback(
     async (nextPage: number) => {
       const values = form.getFieldsValue();
-      if (!values?.userID) {
-        return;
-      }
+      if (!values?.userID) return;
       setPage(nextPage);
       await fetchNotifications(values.userID, nextPage);
     },
@@ -327,9 +324,7 @@ export default function Page() {
       ),
       onFilter: (value, record) => {
         const raw = record[dataIndex];
-        if (!raw) {
-          return false;
-        }
+        if (!raw) return false;
         return String(raw).toLowerCase().includes(String(value).toLowerCase());
       },
       filterDropdownProps: {
@@ -491,18 +486,12 @@ export default function Page() {
     ]
   );
 
-  const selectedSchoolID = Form.useWatch("schoolID", form);
-
-  useEffect(() => {
-    const selectedSchoolId = form.getFieldValue("schoolID");
-    if (!selectedSchoolId) {
-      form.setFieldsValue({ userID: undefined });
-      return;
-    }
-
-    form.setFieldsValue({ userID: undefined });
-    fetchUsersBySchool(selectedSchoolId);
-  }, [fetchUsersBySchool, form, selectedSchoolID]);
+  // Handle school selection logic
+  const handleSchoolChange = (schoolId: string) => {
+    form.setFieldsValue({ userID: undefined }); // Reset user
+    setCurrentStep(0); // Reset UI step if needed, but fetch will push it to 1
+    fetchUsersBySchool(schoolId);
+  };
 
   const copyCurl = () => {
     const curlCommand = activeTab === TODAY ? curlToday : curlWeek;
@@ -688,21 +677,35 @@ export default function Page() {
               ค้นหาและตรวจสอบประวัติการแจ้งเตือนของผู้ใช้งานรายบุคคล
             </Typography.Text>
           </Col>
-          <Col xs={24} md={12} style={{ textAlign: "right" }}>
-            {/* Future Actions can be here */}
-          </Col>
         </Row>
 
-        {/* Search Card */}
+        {/* Search Card with Steps */}
         <Card
           variant="borderless"
           style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
         >
+          <Steps
+            current={currentStep}
+            items={[
+              {
+                title: "เลือกโรงเรียน",
+                description: "ค้นหาและเลือกโรงเรียนที่ต้องการ",
+                icon: <BankOutlined />,
+              },
+              {
+                title: "เลือกผู้ใช้",
+                description: "เลือกผู้ใช้ที่ต้องการตรวจสอบ",
+                icon: <UserOutlined />,
+              },
+            ]}
+            style={{ marginBottom: 24 }}
+          />
+
           <Form
             layout="vertical"
             form={form}
             onFinish={handleFormSubmit}
-            initialValues={{ schoolID: "", userID: "" }}
+            initialValues={{ schoolID: undefined, userID: undefined }}
           >
             <Row gutter={16}>
               <Col xs={24} md={10}>
@@ -726,6 +729,7 @@ export default function Page() {
                     placeholder="พิมพ์ชื่อโรงเรียนเพื่อค้นหา..."
                     options={schoolOptions}
                     loading={schoolState.loading}
+                    onChange={handleSchoolChange}
                     filterOption={(input, option) =>
                       String(option?.label ?? "")
                         .toLowerCase()
@@ -736,141 +740,150 @@ export default function Page() {
                   />
                 </Form.Item>
               </Col>
-              <Col xs={24} md={10}>
-                <Form.Item
-                  label={
-                    <Space>
-                      <UserOutlined />
-                      <span>เลือกผู้ใช้</span>
-                      <Tooltip title="ค้นหาด้วยชื่อ-นามสกุล หรือ User ID">
-                        <InfoCircleOutlined
-                          style={{ color: "rgba(0,0,0,0.45)" }}
-                        />
-                      </Tooltip>
-                    </Space>
-                  }
-                  name="userID"
-                  rules={[{ required: true, message: "กรุณาเลือกผู้ใช้" }]}
-                >
-                  <Select
-                    showSearch
-                    placeholder="พิมพ์ชื่อ หรือ ID เพื่อค้นหา..."
-                    options={userOptions}
-                    loading={userState.loading}
-                    filterOption={(input, option) =>
-                      String(option?.label ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    size="large"
-                    suffixIcon={<UserOutlined />}
-                  />
-                </Form.Item>
-              </Col>
-              <Col
-                xs={24}
-                md={4}
-                style={{ display: "flex", alignItems: "end" }}
-              >
-                <Form.Item style={{ width: "100%" }}>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    loading={overallLoading}
-                    size="large"
-                    block
-                    icon={<SearchOutlined />}
+
+              {/* Show User Select & Button only after School is selected (currentStep >= 1) */}
+              {currentStep >= 1 && (
+                <>
+                  <Col xs={24} md={10}>
+                    <Form.Item
+                      label={
+                        <Space>
+                          <UserOutlined />
+                          <span>เลือกผู้ใช้</span>
+                          <Tooltip title="ค้นหาด้วยชื่อ-นามสกุล หรือ User ID">
+                            <InfoCircleOutlined
+                              style={{ color: "rgba(0,0,0,0.45)" }}
+                            />
+                          </Tooltip>
+                        </Space>
+                      }
+                      name="userID"
+                      rules={[
+                        { required: true, message: "กรุณาเลือกผู้ใช้" },
+                      ]}
+                    >
+                      <Select
+                        showSearch
+                        placeholder="พิมพ์ชื่อ หรือ ID เพื่อค้นหา..."
+                        options={userOptions}
+                        loading={userState.loading}
+                        filterOption={(input, option) =>
+                          String(option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        size="large"
+                        suffixIcon={<UserOutlined />}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col
+                    xs={24}
+                    md={4}
+                    style={{ display: "flex", alignItems: "end" }}
                   >
-                    ตรวจสอบ
-                  </Button>
-                </Form.Item>
-              </Col>
+                    <Form.Item style={{ width: "100%" }}>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={overallLoading}
+                        size="large"
+                        block
+                        icon={<SearchOutlined />}
+                      >
+                        ตรวจสอบ
+                      </Button>
+                    </Form.Item>
+                  </Col>
+                </>
+              )}
             </Row>
           </Form>
         </Card>
 
-        {/* Summary Stats (Only visible when data is loaded) */}
+        {/* Summary Stats & Results - Only visible when data is loaded */}
         {(todayDataset.data.length > 0 || weekDataset.data.length > 0) && (
-          <Row gutter={16}>
-            <Col xs={24} sm={8}>
-              <Card
-                variant="borderless"
-                style={{ background: "#e6f7ff", borderColor: "#91d5ff" }}
-              >
-                <Statistic
-                  title="ข้อความทั้งหมด"
-                  value={summaryStats.total}
-                  prefix={<MessageOutlined />}
-                  valueStyle={{ color: "#1890ff" }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={8}>
-              <Card
-                variant="borderless"
-                style={{ background: "#f6ffed", borderColor: "#b7eb8f" }}
-              >
-                <Statistic
-                  title="อ่านแล้ว"
-                  value={summaryStats.read}
-                  prefix={<CheckCircleOutlined />}
-                  valueStyle={{ color: "#52c41a" }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={8}>
-              <Card
-                variant="borderless"
-                style={{ background: "#fff1f0", borderColor: "#ffa39e" }}
-              >
-                <Statistic
-                  title="ยังไม่อ่าน"
-                  value={summaryStats.unread}
-                  prefix={<CloseCircleOutlined />}
-                  valueStyle={{ color: "#cf1322" }}
-                />
-              </Card>
-            </Col>
-          </Row>
-        )}
+          <>
+            <Row gutter={16}>
+              <Col xs={24} sm={8}>
+                <Card
+                  variant="borderless"
+                  style={{ background: "#e6f7ff", borderColor: "#91d5ff" }}
+                >
+                  <Statistic
+                    title="ข้อความทั้งหมด"
+                    value={summaryStats.total}
+                    prefix={<MessageOutlined />}
+                    valueStyle={{ color: "#1890ff" }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={8}>
+                <Card
+                  variant="borderless"
+                  style={{ background: "#f6ffed", borderColor: "#b7eb8f" }}
+                >
+                  <Statistic
+                    title="อ่านแล้ว"
+                    value={summaryStats.read}
+                    prefix={<CheckCircleOutlined />}
+                    valueStyle={{ color: "#52c41a" }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={8}>
+                <Card
+                  variant="borderless"
+                  style={{ background: "#fff1f0", borderColor: "#ffa39e" }}
+                >
+                  <Statistic
+                    title="ยังไม่อ่าน"
+                    value={summaryStats.unread}
+                    prefix={<CloseCircleOutlined />}
+                    valueStyle={{ color: "#cf1322" }}
+                  />
+                </Card>
+              </Col>
+            </Row>
 
-        {/* Results Section */}
-        <Card
-          variant="borderless"
-          style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
-          extra={
-            <Space>
-              {(curlToday || curlWeek) && (
-                <Tooltip title="คัดลอกคำสั่ง CURL สำหรับ QA/Dev เพื่อนำไป Debug API">
-                  <Button icon={<CodeOutlined />} onClick={copyCurl}>
-                    Copy CURL Log
-                  </Button>
-                </Tooltip>
-              )}
-              <Tooltip title="หน้าก่อนหน้า">
-                <Button
-                  icon={<LeftOutlined />}
-                  onClick={() => handlePageChange(Math.max(page - 1, 1))}
-                  disabled={page <= 1}
-                />
-              </Tooltip>
-              <Tooltip title="หน้าถัดไป">
-                <Button
-                  icon={<RightOutlined />}
-                  onClick={() => handlePageChange(page + 1)}
-                />
-              </Tooltip>
-            </Space>
-          }
-        >
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            items={tabs}
-            type="card"
-            size="large"
-          />
-        </Card>
+            <Card
+              variant="borderless"
+              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
+              extra={
+                <Space>
+                  {(curlToday || curlWeek) && (
+                    <Tooltip title="คัดลอกคำสั่ง CURL สำหรับ QA/Dev เพื่อนำไป Debug API">
+                      <Button icon={<CodeOutlined />} onClick={copyCurl}>
+                        Copy CURL Log
+                      </Button>
+                    </Tooltip>
+                  )}
+                  <Tooltip title="หน้าก่อนหน้า">
+                    <Button
+                      icon={<LeftOutlined />}
+                      onClick={() => handlePageChange(Math.max(page - 1, 1))}
+                      disabled={page <= 1}
+                    />
+                  </Tooltip>
+                  <Tooltip title="หน้าถัดไป">
+                    <Button
+                      icon={<RightOutlined />}
+                      onClick={() => handlePageChange(page + 1)}
+                    />
+                  </Tooltip>
+                </Space>
+              }
+            >
+              <Tabs
+                activeKey={activeTab}
+                onChange={setActiveTab}
+                items={tabs}
+                type="card"
+                size="large"
+              />
+            </Card>
+          </>
+        )}
       </Space>
 
       {detailModalVisible && renderDetailModal()}
