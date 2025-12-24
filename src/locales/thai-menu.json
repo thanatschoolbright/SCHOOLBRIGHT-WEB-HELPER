@@ -9,14 +9,14 @@
     }
   },
   "testing": {
-    "title": "การทดสอบ",
+    "title": "ระบบการทดสอบ",
     "children": {
       "automated_testing": "การทดสอบอัตโนมัติ",
       "load_testing": "โหลดเทส"
     }
   },
   "support": {
-    "title": "ฝ่ายสนับสนุน",
+    "title": "ระบบสนับสนุน",
     "children": {
       "bypass_school": "บายพาสโรงเรียน",
       "test_nfc_card": "NFC (Vimal)",
@@ -25,8 +25,9 @@
     }
   },
   "health_check": {
-    "title": "ตรวจสุขภาพระบบ",
+    "title": "ระบบตรวจสอบสุขภาพ",
     "children": {
+      "server_status": "ระบบตรวจสอบสถานะเซิร์ฟเวอร์",
       "version_control": "เช็กเวอร์ชันทุกระบบ",
       "all_server_status": "รายงานการทำงานทุกระบบ",
       "online_status": "รายงานการเชื่อมต่อระบบออนไลน์",
@@ -36,7 +37,7 @@
     }
   },
   "mobile_app": {
-    "title": "แอปพลิเคชันมือถือ",
+    "title": "ระบบแอปพลิเคชันมือถือ",
     "children": {
       "app_notification": "แจ้งเตือนในแอพ",
       "leave_letter": "จดหมายลาหยุด",
@@ -48,7 +49,7 @@
     }
   },
   "app_hardware": {
-    "title": "ฮาร์ดแวร์แอพ",
+    "title": "ระบบฮาร์ดแวร์แอพ",
     "children": {
       "app_canteen": "แอพโรงอาหาร",
       "app_control": "การควบคุมแอพ"
@@ -61,7 +62,7 @@
       "entry": "ลงเวลาทำงาน",
       "sub_project": "โครงการย่อย",
       "all": "รายงานทั้งหมด",
-      "overtime" : "ระบบโอที",
+      "overtime": "ระบบโอที",
       "timeline": "แผนโครงการ"
     }
   },
@@ -78,7 +79,7 @@
     }
   },
   "sheets": {
-    "title": "ชีท",
+    "title": "ระบบเอกสารงาน",
     "children": {
       "project_planning": "แผนงานโครงการ",
       "project_training": "แผนการสอนพนักงานใหม่",

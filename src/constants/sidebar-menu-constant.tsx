@@ -3,62 +3,44 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  // --- Admin ---
-  CrownOutlined, // Admin System
-  IdcardOutlined, // User Profile
-
-  // --- Testing ---
-  ExperimentOutlined, // Testing Main
-  RocketOutlined, // Load Testing (สื่อถึงความแรง/Performance)
-
-  // --- Support ---
-  CustomerServiceOutlined, // Support Main
-  UnlockOutlined, // Bypass (ปลดล็อค)
-  ScanOutlined, // NFC (การสแกน)
-  StopOutlined, // Cancel Sales
-
-  // --- Health Check ---
-  MedicineBoxOutlined, // Health Check Main (กล่องพยาบาล)
-  CloudServerOutlined, // All Server
-  SignalFilled, // Online Status (สัญญาณเน็ต)
-  BranchesOutlined, // Version Control (Git Branch)
-  FileSearchOutlined, // Transaction Log (ส่องไฟล์)
-  HeartFilled, // Heartbeats (หัวใจเต้น)
-
-  // --- Mobile ---
+  CrownOutlined,
+  IdcardOutlined,
+  ExperimentOutlined,
+  RocketOutlined,
+  CustomerServiceOutlined,
+  UnlockOutlined,
+  ScanOutlined,
+  StopOutlined,
+  MedicineBoxOutlined,
+  CloudServerOutlined,
+  SignalFilled,
+  BranchesOutlined,
+  FileSearchOutlined,
+  HeartFilled,
   MobileOutlined,
-  NotificationFilled, // Notification (กระดิ่งทึบให้เด่น)
-  CoffeeOutlined, // Leave Letter (แก้วกาแฟ = พักผ่อน/ลา)
-  PieChartOutlined, // Statistics
+  NotificationFilled,
+  CoffeeOutlined,
+  PieChartOutlined,
   QrcodeOutlined,
-  EnvironmentOutlined, // Check Attendance (เช็คชื่อตามพิกัด)
-
-  // --- Hardware ---
-  HddOutlined, // Hardware Main
-  ApiOutlined, // Control
-
-  // --- Timesheet ---
-  HourglassOutlined, // Timesheet Main (นาฬิกาทราย)
-  FundProjectionScreenOutlined, // Project (โปรเจคเตอร์)
-  FormOutlined, // Entry (กรอกข้อมูล)
-  FieldTimeOutlined, // Timeline
-  UnorderedListOutlined, // All
-  FireOutlined, // Overtime (ไฟลุก/งานร้อน)
-
-  // --- Backlogs ---
-  CarryOutOutlined, // Backlogs (Checklist ที่ต้องทำให้เสร็จ)
-  BugFilled, // Report (บั๊กตัวทึบ)
-
-  // --- Logger ---
-  CodeOutlined, // Logger Main
-  ConsoleSqlOutlined, // API Logs (หน้าจอ Console)
-
-  // --- Sheets ---
-  FileExcelOutlined, // Sheets Main
-  ScheduleOutlined, // Planning
-  ReadOutlined, // Training (การอ่าน/เรียนรู้)
-  TagsOutlined, // Release Note (ป้ายกำกับเวอร์ชัน)
+  EnvironmentOutlined,
+  HddOutlined,
+  ApiOutlined,
+  HourglassOutlined,
+  FundProjectionScreenOutlined,
+  FormOutlined,
+  FieldTimeOutlined,
+  UnorderedListOutlined,
+  FireOutlined,
+  CarryOutOutlined,
+  BugFilled,
+  CodeOutlined,
+  ConsoleSqlOutlined,
+  FileExcelOutlined,
+  ScheduleOutlined,
+  ReadOutlined,
+  TagsOutlined,
   GoogleOutlined,
+  ApiFilled,
 } from "@ant-design/icons";
 
 interface SidebarChild {
@@ -81,20 +63,19 @@ export const useSidebarMenu = (): SidebarItem[] => {
   const { t, i18n } = useTranslation("menu");
 
   const menu = useMemo(() => {
-    // ตรวจสอบว่า translation พร้อมใช้งานหรือไม่
     if (!i18n.isInitialized || !i18n.hasResourceBundle(i18n.language, "menu")) {
-      return []; // ส่งคืน array ว่างถ้า translation ยังไม่พร้อม
+      return [];
     }
 
     return [
       {
         label: t("admin_system.title"),
-        icon: <CrownOutlined />, // เปลี่ยนเป็นมงกุฎให้ดูเป็น Admin
+        icon: <CrownOutlined />,
         children: [
           {
             label: t("admin_system.children.user_profile"),
             href: "/admin/user-profile",
-            icon: <IdcardOutlined />, // บัตรประจำตัว
+            icon: <IdcardOutlined />,
           },
         ],
       },
@@ -105,65 +86,71 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("testing.children.load_testing"),
             href: "/testing/load-test",
-            icon: <RocketOutlined />, // จรวด สื่อถึงการเทสความเร็ว/โหลด
+            icon: <RocketOutlined />,
           },
         ],
       },
       {
         label: t("support.title"),
-        icon: <CustomerServiceOutlined />, // หูฟัง Support
+        icon: <CustomerServiceOutlined />,
         children: [
           {
             label: t("support.children.bypass_school"),
             href: "/support/bypass",
-            icon: <UnlockOutlined />, // แม่กุญแจเปิด
+            icon: <UnlockOutlined />,
             revamp: true,
           },
           {
             label: t("support.children.test_nfc_card"),
             href: "/support/test/nfc",
-            icon: <ScanOutlined />, // สัญลักษณ์สแกน
+            icon: <ScanOutlined />,
             revamp: true,
           },
           {
             label: t("support.children.cancel_sales"),
             href: "/support/test/cancel-sales",
-            icon: <StopOutlined />, // ป้ายหยุด/ยกเลิก
+            icon: <StopOutlined />,
           },
         ],
       },
       {
         label: t("health_check.title"),
-        icon: <MedicineBoxOutlined />, // กล่องพยาบาล
+        icon: <MedicineBoxOutlined />,
         children: [
+          {
+            label: t("health_check.children.server_status"),
+            href: "/health-check/v2/server-status",
+            icon: <ApiFilled />,
+            news: true,
+          },
           {
             label: t("health_check.children.all_server_status"),
             href: "/health-check/all-server-status",
-            icon: <CloudServerOutlined />, // Server
+            icon: <CloudServerOutlined />,
             revamp: true,
           },
           {
             label: t("health_check.children.online_status"),
             href: "/health-check/online-status",
-            icon: <SignalFilled />, // สัญญาณเน็ตเต็ม
+            icon: <SignalFilled />,
             revamp: true,
           },
           {
             label: t("health_check.children.version_control"),
             href: "/health-check/version-control",
-            icon: <BranchesOutlined />, // กิ่งก้าน Git Branch
+            icon: <BranchesOutlined />,
             revamp: true,
           },
           {
             label: t("health_check.children.transaction_log"),
             href: "/health-check/transaction-log",
-            icon: <FileSearchOutlined />, // แว่นขยายส่องไฟล์
+            icon: <FileSearchOutlined />,
           },
           {
             label: t("health_check.children.heartbeats"),
             href: "/health-check/heartbeats",
             news: true,
-            icon: <HeartFilled />, // หัวใจทึบ
+            icon: <HeartFilled />,
           },
         ],
       },
@@ -174,17 +161,17 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("mobile_app.children.mobile_notification"),
             href: "/mobile/notification",
-            icon: <NotificationFilled />, // กระดิ่ง
+            icon: <NotificationFilled />,
           },
           {
             label: t("mobile_app.children.mobile_leave_letter"),
             href: "/mobile/leave-letter",
-            icon: <CoffeeOutlined />, // แก้วกาแฟ (ลาพัก)
+            icon: <CoffeeOutlined />,
           },
           {
             label: t("mobile_app.children.statistics"),
             href: "/mobile/statistic",
-            icon: <PieChartOutlined />, // กราฟวงกลม
+            icon: <PieChartOutlined />,
           },
           {
             label: t("mobile_app.children.qrcode_health_check"),
@@ -195,37 +182,37 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("mobile_app.children.mobile_check_attendance"),
             href: "/mobile/check-attendance",
-            icon: <EnvironmentOutlined />, // ปักหมุดสถานที่
+            icon: <EnvironmentOutlined />,
             news: true,
           },
         ],
       },
       {
         label: t("app_hardware.title"),
-        icon: <HddOutlined />, // ฮาร์ดดิสก์
+        icon: <HddOutlined />,
         children: [
           {
             label: t("app_hardware.children.app_control"),
             href: "/hardware/canteen",
-            icon: <ApiOutlined />, // เชื่อมต่ออุปกรณ์
+            icon: <ApiOutlined />,
           },
         ],
       },
       {
         label: t("timesheet_system.title"),
-        icon: <HourglassOutlined />, // นาฬิกาทราย
+        icon: <HourglassOutlined />,
         children: [
           {
             label: t("timesheet_system.children.project"),
             href: "/timesheet/project",
             news: false,
-            icon: <FundProjectionScreenOutlined />, // จอพรีเซนต์งาน
+            icon: <FundProjectionScreenOutlined />,
           },
           {
             label: t("timesheet_system.children.entry"),
             href: "/timesheet/entry",
             news: false,
-            icon: <FormOutlined />, // แบบฟอร์ม
+            icon: <FormOutlined />,
           },
           {
             label: t("timesheet_system.children.timeline"),
@@ -243,51 +230,51 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("timesheet_system.children.overtime"),
             href: "/timesheet/overtime",
             news: true,
-            icon: <FireOutlined />, // ไฟลุก (งานเดือด/OT)
+            icon: <FireOutlined />,
           },
         ],
       },
       {
         label: t("backlogs.title"),
-        icon: <CarryOutOutlined />, // กระดานงานที่ทำเสร็จ
+        icon: <CarryOutOutlined />,
         children: [
           {
             label: t("backlogs.children.report"),
             href: "/backlogs/report",
             news: true,
-            icon: <BugFilled />, // แมลง (Bug Report)
+            icon: <BugFilled />,
           },
         ],
       },
       {
         label: t("logger.title"),
-        icon: <CodeOutlined />, // Coding
+        icon: <CodeOutlined />,
         children: [
           {
             label: t("logger.children.api_logs"),
             href: "/logger/api-log",
-            icon: <ConsoleSqlOutlined />, // หน้าจอ Console
+            icon: <ConsoleSqlOutlined />,
           },
         ],
       },
       {
         label: t("sheets.title"),
-        icon: <FileExcelOutlined />, // ไฟล์ Excel
+        icon: <FileExcelOutlined />,
         children: [
           {
             label: t("sheets.children.project_planning"),
             href: "https://docs.google.com/spreadsheets/d/1FUIxwi_hi3DGfzsJokU5EMeKlwPC8DUL0r4wWJabzVQ/edit?gid=1358985470#gid=1358985470",
-            icon: <ScheduleOutlined />, // ตารางงาน
+            icon: <ScheduleOutlined />,
           },
           {
             label: t("sheets.children.project_training"),
             href: "https://docs.google.com/document/d/1a5bTQ6zWf15MUnPp4D2BzDEUmwStnaRliBgXp-H32zM",
-            icon: <ReadOutlined />, // หนังสือ/การอ่าน
+            icon: <ReadOutlined />,
           },
           {
             label: t("sheets.children.project_release_note"),
             href: "https://docs.google.com/document/d/1ux2KLYcsuS4spL1l68xMV6pChDXCukPXwnTyWCGT28I/edit?usp=sharing",
-            icon: <TagsOutlined />, // ป้าย Tag
+            icon: <TagsOutlined />,
           },
         ],
       },

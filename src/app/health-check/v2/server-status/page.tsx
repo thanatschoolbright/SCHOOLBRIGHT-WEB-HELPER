@@ -162,16 +162,7 @@ export default function ServerStatusPage() {
     const offline = total - online;
     const score = total === 0 ? 0 : Math.round((online / total) * 100);
 
-    // Group by modules for visualization
-    const grouped = serverHealthData.reduce((acc, curr) => {
-      const key = curr.module || "Other";
-      if (!acc[key]) acc[key] = { total: 0, passed: 0 };
-      acc[key].total++;
-      if (curr.status === "200") acc[key].passed++;
-      return acc;
-    }, {} as Record<string, { total: number; passed: number }>);
-
-    return { total, online, offline, score, grouped };
+    return { total, online, offline, score };
   }, [serverHealthData]);
 
   const filteredData = useMemo(() => {
@@ -192,13 +183,13 @@ export default function ServerStatusPage() {
   // --- UI Helpers ---
   const copyToClipboard = (txt: string) => {
     navigator.clipboard.writeText(txt);
-    toast.success("คัดลอกแล้ว");
+    toast.success("คัดลอกเรียบร้อย");
   };
 
   const menuItems: MenuProps["items"] = [
     {
       key: "discord",
-      label: "แจ้งเตือน Discord",
+      label: "แจ้งเตือนทาง Discord",
       icon: <NotificationOutlined />,
       onClick: () => fetchData("discord"),
       disabled: isDiscordSending,
@@ -206,7 +197,7 @@ export default function ServerStatusPage() {
     { type: "divider" },
     {
       key: "export",
-      label: "Export Excel",
+      label: "ดาวน์โหลดรายงาน Excel",
       icon: <FileExcelOutlined />,
       onClick: handleExportExcel,
       disabled: isExcelGenerating || !serverHealthData.length,
@@ -215,7 +206,7 @@ export default function ServerStatusPage() {
 
   const columns: ColumnsType<ServerStatusData> = [
     {
-      title: "Module",
+      title: "ชื่อระบบ (System Module)",
       key: "name",
       render: (_, r) => (
         <Space>
@@ -240,7 +231,7 @@ export default function ServerStatusPage() {
       ),
     },
     {
-      title: "Endpoint",
+      title: "จุดเชื่อมต่อ (Endpoint)",
       dataIndex: "service",
       responsive: ["md"],
       render: (val, r) => (
@@ -262,7 +253,7 @@ export default function ServerStatusPage() {
       ),
     },
     {
-      title: "Status",
+      title: "สถานะ",
       dataIndex: "status",
       width: 120,
       render: (status) => (
@@ -278,7 +269,7 @@ export default function ServerStatusPage() {
             status === "200" ? <CheckCircleFilled /> : <CloseCircleFilled />
           }
         >
-          {status === "200" ? "Active" : `Error ${status}`}
+          {status === "200" ? "ปกติ" : `ขัดข้อง ${status}`}
         </Tag>
       ),
     },
@@ -329,7 +320,6 @@ export default function ServerStatusPage() {
         }
         .card-hover-effect:hover {
           transform: translateY(-4px);
-          box-shadow: ${token.boxShadowLG};
         }
         .animate-fade-in {
           animation: fadeInUp 0.5s ease-out forwards;
@@ -348,14 +338,14 @@ export default function ServerStatusPage() {
             />
             <Flex vertical>
               <Title level={3} style={{ margin: 0 }}>
-                System Health Monitor
+                ระบบตรวจสอบสถานะเซิร์ฟเวอร์
               </Title>
               <Space>
                 <Badge status="processing" color={token.colorSuccess} />
                 <Text type="secondary" style={{ fontSize: 13 }}>
-                  Last updated:{" "}
+                  อัปเดตล่าสุด:{" "}
                   {lastFetchTimestamp
-                    ? lastFetchTimestamp.toLocaleTimeString()
+                    ? lastFetchTimestamp.toLocaleTimeString("th-TH")
                     : "-"}
                 </Text>
               </Space>
@@ -370,7 +360,7 @@ export default function ServerStatusPage() {
               icon={<DownOutlined />}
               loading={isFetching || isDiscordSending || isExcelGenerating}
             >
-              <ReloadOutlined /> Check Status
+              <ReloadOutlined /> ตรวจสอบสถานะ
             </Dropdown.Button>
           </Space>
         </Flex>
@@ -400,22 +390,21 @@ export default function ServerStatusPage() {
                     color="blue"
                     style={{ width: "fit-content" }}
                   >
-                    Realtime Monitoring
+                    การตรวจสอบแบบเรียลไทม์
                   </Tag>
                   <Title level={2} style={{ margin: 0 }}>
                     {stats.score >= 90
-                      ? "Excellent Condition"
+                      ? "ระบบทำงานปกติสมบูรณ์"
                       : stats.score >= 70
-                      ? "Stable Condition"
-                      : "Critical Condition"}
+                      ? "ระบบทำงานปกติ"
+                      : "ระบบอยู่ในสภาวะวิกฤต"}
                   </Title>
                   <Text type="secondary">
-                    Total {stats.total} microservices are currently being
-                    monitored.
+                    กำลังตรวจสอบจุดเชื่อมต่อระบบทั้งหมด {stats.total} รายการ
                     {stats.offline > 0 && (
                       <span style={{ color: token.colorError }}>
                         {" "}
-                        Attention needed for {stats.offline} services.
+                        พบปัญหาที่ต้องแก้ไข {stats.offline} รายการ
                       </span>
                     )}
                   </Text>
@@ -423,7 +412,7 @@ export default function ServerStatusPage() {
                   {/* Visual Distribution Bar */}
                   <div style={{ marginTop: 16 }}>
                     <Flex justify="space-between" style={{ marginBottom: 4 }}>
-                      <Text style={{ fontSize: 12 }}>Success Rate</Text>
+                      <Text style={{ fontSize: 12 }}>อัตราความสำเร็จ</Text>
                       <Text strong style={{ fontSize: 12 }}>
                         {stats.score}%
                       </Text>
@@ -507,7 +496,7 @@ export default function ServerStatusPage() {
                     icon={<SafetyCertificateFilled style={{ fontSize: 24 }} />}
                   />
                   <Flex vertical>
-                    <Text type="secondary">Operational</Text>
+                    <Text type="secondary">ใช้งานได้ปกติ</Text>
                     <Title
                       level={3}
                       style={{ margin: 0, color: token.colorSuccess }}
@@ -536,7 +525,7 @@ export default function ServerStatusPage() {
                     icon={<BugOutlined style={{ fontSize: 24 }} />}
                   />
                   <Flex vertical>
-                    <Text type="secondary">Downtime</Text>
+                    <Text type="secondary">พบปัญหา / หยุดชะงัก</Text>
                     <Title
                       level={3}
                       style={{
@@ -559,8 +548,8 @@ export default function ServerStatusPage() {
         {/* --- Alert Banner (Conditional) --- */}
         {stats.offline > 0 && !isFetching && (
           <Alert
-            message="Critical System Issues Detected"
-            description={`${stats.offline} services are currently unavailable. Immediate action is recommended.`}
+            message="ตรวจพบปัญหาระบบขั้นวิกฤต"
+            description={`มีระบบที่ไม่สามารถใช้งานได้จำนวน ${stats.offline} รายการ แนะนำให้ตรวจสอบและแก้ไขทันที`}
             type="error"
             showIcon
             className="animate-fade-in"
@@ -583,17 +572,17 @@ export default function ServerStatusPage() {
               <Segmented
                 options={[
                   {
-                    label: "All Services",
+                    label: "ทั้งหมด",
                     value: "ALL",
                     icon: <ApiOutlined />,
                   },
                   {
-                    label: "Online",
+                    label: "ปกติ",
                     value: "ONLINE",
                     icon: <CheckCircleFilled className="text-green-500" />,
                   },
                   {
-                    label: "Issues",
+                    label: "พบปัญหา",
                     value: "ERROR",
                     icon: <CloseCircleFilled className="text-red-500" />,
                   },
@@ -602,7 +591,7 @@ export default function ServerStatusPage() {
                 onChange={(v) => setFilterStatus(v as any)}
               />
               <Input
-                placeholder="Search module or endpoint..."
+                placeholder="ค้นหาชื่อระบบ หรือ Endpoint..."
                 prefix={
                   <SearchOutlined
                     style={{ color: token.colorTextPlaceholder }}
@@ -625,13 +614,13 @@ export default function ServerStatusPage() {
                 rowKey="module"
                 pagination={{
                   pageSize: 8,
-                  showTotal: (t) => `Total ${t} items`,
+                  showTotal: (t) => `ทั้งหมด ${t} รายการ`,
                 }}
                 scroll={{ x: 800 }}
                 locale={{
                   emptyText: (
                     <Empty
-                      description="No services found"
+                      description="ไม่พบข้อมูลระบบ"
                       image={Empty.PRESENTED_IMAGE_SIMPLE}
                     />
                   ),
@@ -647,7 +636,7 @@ export default function ServerStatusPage() {
         title={
           <Space>
             <DashboardOutlined />
-            <Text strong>System Diagnostics</Text>
+            <Text strong>วิเคราะห์ข้อมูลระบบ (System Diagnostics)</Text>
           </Space>
         }
         open={modalVisible}
@@ -702,7 +691,7 @@ export default function ServerStatusPage() {
                       }
                     >
                       {selectedItem.status === "200"
-                        ? "HTTP 200 OK"
+                        ? "HTTP 200 OK (ปกติ)"
                         : `Error ${selectedItem.status}`}
                     </Tag>
                   </Space>
@@ -715,20 +704,20 @@ export default function ServerStatusPage() {
               items={[
                 {
                   key: "overview",
-                  label: "Overview",
+                  label: "ภาพรวม (Overview)",
                   children: (
                     <Descriptions column={1} bordered size="small">
-                      <Descriptions.Item label="Endpoint URL">
+                      <Descriptions.Item label="ลิงก์ Endpoint">
                         <Paragraph copyable style={{ margin: 0, fontSize: 13 }}>
                           {selectedItem.request.url}
                         </Paragraph>
                       </Descriptions.Item>
-                      <Descriptions.Item label="Method">
+                      <Descriptions.Item label="เมธอด (Method)">
                         <Tag color="blue">
                           {selectedItem.request.method || "GET"}
                         </Tag>
                       </Descriptions.Item>
-                      <Descriptions.Item label="Response Preview">
+                      <Descriptions.Item label="ตัวอย่างข้อมูลตอบกลับ">
                         <Text code style={{ fontSize: 12 }}>
                           {JSON.stringify(selectedItem.response).substring(
                             0,
@@ -742,7 +731,7 @@ export default function ServerStatusPage() {
                 },
                 {
                   key: "curl",
-                  label: "cURL",
+                  label: "คำสั่ง cURL",
                   children: (
                     <div style={{ position: "relative" }}>
                       <Input.TextArea
@@ -764,14 +753,14 @@ export default function ServerStatusPage() {
                         style={{ position: "absolute", top: 8, right: 8 }}
                         onClick={() => copyToClipboard(selectedItem.curl)}
                       >
-                        Copy
+                        คัดลอก
                       </Button>
                     </div>
                   ),
                 },
                 {
                   key: "json",
-                  label: "Full Response",
+                  label: "ข้อมูลตอบกลับเต็ม (JSON)",
                   children: (
                     <div
                       style={{
