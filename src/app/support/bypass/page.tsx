@@ -61,18 +61,6 @@ export default function BypassPage(): JSX.Element {
     [state.filteredSchools]
   );
 
-  // คำนวณสถิติสำหรับแสดงด้านบน
-  const quickStats = useMemo(() => {
-    const total = state.filteredSchools.length;
-    const active = state.filteredSchools.filter(
-      (s) => s.Status === "Active"
-    ).length;
-    const inactive = total - active;
-    const gradeA = state.filteredSchools.filter((s) => s.Grade === "A").length;
-
-    return { total, active, inactive, gradeA };
-  }, [state.filteredSchools]);
-
   return (
     <DashboardLayout>
       <div className="w-full space-y-6">
@@ -199,7 +187,7 @@ export default function BypassPage(): JSX.Element {
                       <span>โรงเรียนทั้งหมด</span>
                     </Space>
                   }
-                  value={quickStats.total}
+                  value={state.statistics.total}
                   suffix="แห่ง"
                   valueStyle={{
                     color: token.colorPrimary,
@@ -226,7 +214,7 @@ export default function BypassPage(): JSX.Element {
                       <span>ใช้งานอยู่</span>
                     </Space>
                   }
-                  value={quickStats.active}
+                  value={state.statistics.active}
                   suffix="แห่ง"
                   valueStyle={{
                     color: token.colorSuccess,
@@ -252,7 +240,7 @@ export default function BypassPage(): JSX.Element {
                       <span>ไม่ได้ใช้งาน</span>
                     </Space>
                   }
-                  value={quickStats.inactive}
+                  value={state.statistics.inactive}
                   suffix="แห่ง"
                   valueStyle={{
                     color: token.colorError,
@@ -278,7 +266,7 @@ export default function BypassPage(): JSX.Element {
                       <span>เกรด A</span>
                     </Space>
                   }
-                  value={quickStats.gradeA}
+                  value={state.statistics.gradeA}
                   suffix="แห่ง"
                   valueStyle={{
                     color: token.colorWarning,
