@@ -552,12 +552,28 @@ export default function Page() {
       return null;
     }
 
+    // Helper function สำหรับแสดง Label พร้อม Icon
+    const LabelWithIcon = ({
+      icon,
+      label,
+    }: {
+      icon: React.ReactNode;
+      label: string;
+    }) => (
+      <Space>
+        {icon}
+        <Typography.Text type="secondary">{label}</Typography.Text>
+      </Space>
+    );
+
     return (
       <Modal
         title={
           <Space>
-            <FileTextOutlined />
-            <span>รายละเอียดข้อความแจ้งเตือน</span>
+            <FileTextOutlined style={{ color: "#1890ff" }} />
+            <Typography.Title level={5} style={{ margin: 0 }}>
+              รายละเอียดข้อความแจ้งเตือน
+            </Typography.Title>
           </Space>
         }
         open={detailModalVisible}
@@ -566,97 +582,178 @@ export default function Page() {
         }}
         footer={[
           <Button key="close" onClick={() => setDetailModalVisible(false)}>
-            ปิด
+            ปิดหน้าต่าง
           </Button>,
         ]}
-        width={800}
+        width={700} // ปรับความกว้างให้พอดีกับ 1 Column
         centered
+        styles={{ body: { padding: "24px" } }}
       >
-        <Space direction="vertical" style={{ width: "100%" }} size="large">
-          <Card bordered={false} style={{ background: "#f5f5f5" }}>
-            <Typography.Title level={5}>{detail.sTitle}</Typography.Title>
-            <Typography.Paragraph>
+        <Space direction="vertical" style={{ width: "100%" }} size="middle">
+          {/* ส่วนข้อความหลัก */}
+          <Card
+            bordered
+            style={{
+              background: "#fafafa",
+              borderColor: "#f0f0f0",
+            }}
+          >
+            <Typography.Title
+              level={5}
+              style={{ marginTop: 0, color: "#262626" }}
+            >
+              {detail.sTitle}
+            </Typography.Title>
+            <Typography.Paragraph
+              style={{
+                fontSize: "15px",
+                color: "#595959",
+                whiteSpace: "pre-wrap",
+                marginBottom: 0,
+              }}
+            >
               {detail.sMessage ?? "-"}
             </Typography.Paragraph>
           </Card>
 
-          <Descriptions title="ข้อมูลทั่วไป" bordered column={{ xs: 1, sm: 2 }}>
-            <Descriptions.Item label="Message ID">
-              {detail.nMessageID ?? "-"}
+          {/* ส่วนข้อมูลทั่วไปแบบ 1:1 (Single Column) */}
+          <Descriptions
+            title="ข้อมูลทั่วไป"
+            bordered
+            column={1} // ✅ บังคับแสดง 1 Column
+            size="small" // ใช้ size small เพื่อให้บรรทัดไม่ห่างกันเกินไป
+            labelStyle={{ width: "180px", background: "#fafafa" }} // กำหนดความกว้าง Label ให้เท่ากันสวยงาม
+          >
+            <Descriptions.Item
+              label={
+                <LabelWithIcon icon={<CodeOutlined />} label="Message ID" />
+              }
+            >
+              <Typography.Text copyable>
+                {detail.nMessageID ?? "-"}
+              </Typography.Text>
             </Descriptions.Item>
-            <Descriptions.Item label="วันที่ส่ง">
+
+            <Descriptions.Item
+              label={
+                <LabelWithIcon icon={<BankOutlined />} label="School ID" />
+              }
+            >
+              <Typography.Text>{detail.school_id ?? "-"}</Typography.Text>
+            </Descriptions.Item>
+
+            <Descriptions.Item
+              label={
+                <LabelWithIcon
+                  icon={<CheckCircleOutlined />}
+                  label="สถานะการอ่าน"
+                />
+              }
+            >
+              <Tag color={detail.nStatus === 1 ? "success" : "volcano"}>
+                {getNotificationRead(detail.nStatus ?? 0)}
+              </Tag>
+            </Descriptions.Item>
+
+            <Descriptions.Item
+              label={
+                <LabelWithIcon icon={<InfoCircleOutlined />} label="ประเภท" />
+              }
+            >
+              <Tag color="geekblue">
+                {getNotificationType(detail.nType ?? 0)}
+              </Tag>
+            </Descriptions.Item>
+
+            <Descriptions.Item
+              label={
+                <LabelWithIcon
+                  icon={<CheckCircleOutlined />}
+                  label="วันที่ส่ง"
+                />
+              }
+            >
               {detail.dSend
                 ? convertTimeZoneToThai(new Date(detail.dSend))
                 : "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="สถานะ">
-              <Tag color={detail.nStatus === 1 ? "green" : "red"}>
-                {getNotificationRead(detail.nStatus ?? 0)}
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="ประเภท">
-              {getNotificationType(detail.nType ?? 0)}
-            </Descriptions.Item>
-            <Descriptions.Item label="School ID">
-              {detail.school_id ?? "-"}
-            </Descriptions.Item>
-            <Descriptions.Item label="ไฟล์แนบ">
-              {detail.file ? <Tag color="blue">มีไฟล์</Tag> : "ไม่มี"}
+
+            <Descriptions.Item
+              label={
+                <LabelWithIcon icon={<FileTextOutlined />} label="ไฟล์แนบ" />
+              }
+            >
+              {detail.file ? (
+                <Tag color="blue">มีไฟล์แนบ</Tag>
+              ) : (
+                <Tag>ไม่มีไฟล์</Tag>
+              )}
             </Descriptions.Item>
           </Descriptions>
 
+          {/* ส่วนรายละเอียดการบ้าน (ถ้ามี) แบบ 1:1 */}
           {detail.homework && (
-            <Card size="small" title="รายละเอียดการบ้าน" type="inner">
-              <Descriptions column={1} size="small">
-                <Descriptions.Item label="ช่วงเวลา">
-                  {detail.homework.daystart} - {detail.homework.dayend}
-                </Descriptions.Item>
-                <Descriptions.Item label="รายละเอียด">
-                  {detail.homework.detail ?? "-"}
-                </Descriptions.Item>
-                <Descriptions.Item label="ครูผู้สอน">
-                  {detail.homework.teachername ?? "-"}
-                </Descriptions.Item>
-              </Descriptions>
-            </Card>
+            <Descriptions
+              title="รายละเอียดการบ้าน"
+              bordered
+              column={1}
+              size="small"
+              labelStyle={{ width: "180px", background: "#fffbe6" }} // สีพื้นหลัง Label ต่างออกไปเล็กน้อย
+              style={{ marginTop: 8 }}
+            >
+              <Descriptions.Item label="ช่วงเวลา">
+                {detail.homework.daystart} - {detail.homework.dayend}
+              </Descriptions.Item>
+              <Descriptions.Item label="ครูผู้สอน">
+                {detail.homework.teachername ?? "-"}
+              </Descriptions.Item>
+              <Descriptions.Item label="รายละเอียดเพิ่มเติม">
+                {detail.homework.detail ?? "-"}
+              </Descriptions.Item>
+            </Descriptions>
           )}
 
+          {/* ส่วนสำหรับ Developer (CURL) */}
           {notificationMessageState?.response?.curl && (
-            <div style={{ position: "relative" }}>
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                <CodeOutlined /> Developer Info (CURL)
-              </Typography.Text>
+            <div style={{ marginTop: 16 }}>
+              <Space
+                style={{
+                  marginBottom: 8,
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                <Typography.Text type="secondary" strong>
+                  <CodeOutlined /> Developer Info (CURL)
+                </Typography.Text>
+                <Button
+                  size="small"
+                  icon={<CopyOutlined />}
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      notificationMessageState.response.curl || ""
+                    );
+                    toast.success("คัดลอก CURL แล้ว");
+                  }}
+                >
+                  Copy Command
+                </Button>
+              </Space>
               <div
                 style={{
-                  background: "#1e1e1e",
-                  color: "#d4d4d4",
-                  padding: "10px",
+                  background: "#282c34",
+                  color: "#abb2bf",
+                  padding: "12px",
                   borderRadius: "6px",
-                  fontSize: "11px",
-                  maxHeight: "100px",
+                  fontSize: "12px",
+                  fontFamily: "monospace",
+                  maxHeight: "120px",
                   overflowY: "auto",
-                  marginTop: "5px",
+                  border: "1px solid #d9d9d9",
                 }}
               >
                 {notificationMessageState.response.curl}
               </div>
-              <Button
-                type="text"
-                size="small"
-                icon={<CopyOutlined />}
-                style={{
-                  position: "absolute",
-                  top: "25px",
-                  right: "10px",
-                  color: "white",
-                }}
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    notificationMessageState.response.curl || ""
-                  );
-                  toast.success("คัดลอก CURL แล้ว");
-                }}
-              />
             </div>
           )}
         </Space>
@@ -758,9 +855,7 @@ export default function Page() {
                         </Space>
                       }
                       name="userID"
-                      rules={[
-                        { required: true, message: "กรุณาเลือกผู้ใช้" },
-                      ]}
+                      rules={[{ required: true, message: "กรุณาเลือกผู้ใช้" }]}
                     >
                       <Select
                         showSearch
