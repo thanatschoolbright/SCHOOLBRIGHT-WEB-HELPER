@@ -1,9 +1,16 @@
-export type RequestDeviceDailyStatusTypes = {
-  schoolId?: string;
+export interface RequestDeviceDailyStatusTypes {
   deviceId?: string;
-  limit?: string;
-};
-
-export type RequestGetUserBySchoolId = {
   schoolId?: string;
-};
+  limit?: string;
+}
+
+// เพิ่ม Type สำหรับการค้นหาแบบละเอียด
+export interface FindAllDeviceStatusOptions {
+  page?: string | number;       // หน้าปัจจุบัน (default: 1)
+  limit?: string | number;      // จำนวนรายการต่อหน้า (default: 10)
+  isOnline?: string | boolean;  // กรองสถานะ Online (true/false)
+  isLogin?: string | boolean;   // กรองสถานะ Login (true/false)
+  startDate?: string;           // กรองวันเริ่มต้น (BusinessDate หรือ Tstamp)
+  endDate?: string;             // กรองวันสิ้นสุด
+  keyword?: string;             // ค้นหา SchoolID หรือ DeviceID
+}
