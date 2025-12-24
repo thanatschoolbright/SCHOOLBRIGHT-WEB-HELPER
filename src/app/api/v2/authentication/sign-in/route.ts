@@ -1,24 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import FormData from "form-data";
+import { logger } from "@/helpers/logger"; // สมมติว่า path นี้คือที่เก็บ logger config
 
 /**
  * ฟังก์ชัน POST สำหรับจัดการการเข้าสู่ระบบ
- * อ่าน username และ password จาก form data
- * ส่งคำขอไปยัง API ภายนอก และตอบกลับผลลัพธ์พร้อมเวลาการตอบสนอง
  */
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  const startTime = performance.now();
+export async function POST(
+  incomingRequest: NextRequest
+): Promise<NextResponse> {
+  const executionStartTime = performance.now();
 
   try {
-    // อ่านข้อมูลจาก form data
-    const formData = await request.formData();
-    const username = formData.get("username") as string | null;
-    const password = formData.get("password") as string | null;
+    // 1. อ่านข้อมูลจาก Form Data ที่ส่งเข้ามา
+    const incomingFormData = await incomingRequest.formData();
+    const usernameInput = incomingFormData.get("username") as string | null;
+    const passwordInput = incomingFormData.get("password") as string | null;
 
-    // ตรวจสอบข้อมูลเบื้องต้น
-    if (!username || !password) {
+    // 2. ตรวจสอบข้อมูลนำเข้า (Validation)
+    if (!usernameInput || !passwordInput) {
+      logger.warn("Login attempt failed: Missing credentials", {
+        username: usernameInput || "missing",
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -28,57 +33,91 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // เตรียมข้อมูลสำหรับส่งไปยัง API ภายนอก
-    const apiUrl = `${API_URL.PROD_ADMIN_JABJAI_API_URL}/api/v2/auth/login`;
-    const externalFormData = new FormData();
-    externalFormData.append("username", username);
-    externalFormData.append("password", password);
+    // 3. เตรียมข้อมูลสำหรับส่งไปยัง API ภายนอก
+    const authenticationServiceUrl = `${API_URL.PROD_ADMIN_JABJAI_API_URL}/api/v2/auth/login`;
 
-    console.info("Sending login request to external API:", apiUrl);
+    // ใช้ FormData จาก package 'form-data' สำหรับ Server-to-Server request
+    const authenticationPayload = new FormData();
+    authenticationPayload.append("username", usernameInput);
+    authenticationPayload.append("password", passwordInput);
 
-    // เรียก API ภายนอกด้วย axios พร้อมตั้งค่า timeout และ headers
-    const response = await axios.post(apiUrl, externalFormData, {
-      headers: externalFormData.getHeaders(),
-      timeout: 5000, // กำหนด timeout 5 วินาที
+    logger.info(`Dispatching login request to external service`, {
+      url: authenticationServiceUrl,
+      username: usernameInput,
     });
 
-    console.info("Received response from external API:", response.data);
+    // 4. เรียก API ภายนอก (External Service Call)
+    const externalApiResponse = await axios.post(
+      authenticationServiceUrl,
+      authenticationPayload,
+      {
+        headers: authenticationPayload.getHeaders(),
+        timeout: 10000, // 10 วินาที
+      }
+    );
 
-    const endTime = performance.now();
-    const responseTime = Number((endTime - startTime).toFixed(2)); // เวลาในการตอบสนอง (ms)
+    logger.info("External service authentication successful", {
+      username: usernameInput,
+    });
 
-    // ส่งผลลัพธ์กลับ client พร้อมข้อมูล token และ user_data
+    // 5. คำนวณเวลาการทำงาน (Execution Time Calculation)
+    const executionEndTime = performance.now();
+    const executionDurationInMilliseconds = Number(
+      (executionEndTime - executionStartTime).toFixed(2)
+    );
+
+    // 6. ส่งผลลัพธ์กลับไปยัง Client
     return NextResponse.json({
-      success: response.data.success,
-      token: response.data.token,
-      user_data: response.data.user_data,
-      response_time: responseTime,
+      success: externalApiResponse.data.success,
+      token: externalApiResponse.data.token,
+      user_data: externalApiResponse.data.user_data,
+      response_time: executionDurationInMilliseconds,
     });
-  } catch (error: any) {
-    const endTime = performance.now();
-    const responseTime = Number((endTime - startTime).toFixed(2));
+  } catch (error: unknown) {
+    const executionEndTime = performance.now();
+    const executionDurationInMilliseconds = Number(
+      (executionEndTime - executionStartTime).toFixed(2)
+    );
 
-    // กรณีเกิดข้อผิดพลาดจาก API ภายนอก
+    // กรณีเกิดข้อผิดพลาดจาก Axios (API ภายนอก)
     if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError<any>;
+      const errorMessage =
+        axiosError.response?.data?.message || "เกิดข้อผิดพลาดจาก API ภายนอก";
+      const statusCode = axiosError.response?.status || 502;
+
+      logger.error("External service authentication failed", {
+        message: errorMessage,
+        status: statusCode,
+        duration: executionDurationInMilliseconds,
+        originalError: axiosError.message,
+      });
+
       return NextResponse.json(
         {
           success: false,
-          message:
-            error.response?.data?.message || "เกิดข้อผิดพลาดจาก API ภายนอก",
-          status: error.response?.status || 502,
-          response_time: responseTime,
+          message: errorMessage,
+          status: statusCode,
+          response_time: executionDurationInMilliseconds,
         },
-        { status: error.response?.status || 502 }
+        { status: statusCode }
       );
     }
 
-    // กรณีข้อผิดพลาดภายใน server
+    // กรณีข้อผิดพลาดภายใน Server (General Error)
+    const genericError = error as Error;
+    logger.error("Internal Server Error during login process", {
+      message: genericError.message,
+      stack: genericError.stack,
+      duration: executionDurationInMilliseconds,
+    });
+
     return NextResponse.json(
       {
         success: false,
-        message: error.message || "Internal Server Error",
+        message: genericError.message || "Internal Server Error",
         status: 500,
-        response_time: responseTime,
+        response_time: executionDurationInMilliseconds,
       },
       { status: 500 }
     );
