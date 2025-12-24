@@ -477,9 +477,7 @@ export default function ServerStatusPage() {
               {/* Online Stat */}
               <Card
                 className="card-hover-effect animate-fade-in"
-                bordered={false}
                 style={{ flex: 1, animationDelay: "0.1s" }}
-                bodyStyle={{ padding: 16 }}
               >
                 <Flex align="center" gap={16}>
                   <Avatar
@@ -508,7 +506,6 @@ export default function ServerStatusPage() {
                 className="card-hover-effect animate-fade-in"
                 bordered={false}
                 style={{ flex: 1, animationDelay: "0.2s" }}
-                bodyStyle={{ padding: 16 }}
               >
                 <Flex align="center" gap={16}>
                   <Avatar

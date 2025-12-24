@@ -149,7 +149,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("health_check.children.heartbeats"),
             href: "/health-check/heartbeats",
-            news: true,
+            revamp: true,
             icon: <HeartFilled />,
           },
         ],
@@ -184,7 +184,6 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("mobile_app.children.mobile_check_attendance"),
             href: "/mobile/check-attendance",
             icon: <EnvironmentOutlined />,
-            news: true,
           },
         ],
       },
@@ -218,7 +217,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.timeline"),
             href: "/timesheet/timeline",
-            news: true,
+            news: false,
             icon: <FieldTimeOutlined />,
           },
           {
@@ -230,7 +229,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.overtime"),
             href: "/timesheet/overtime",
-            news: true,
+            news: false,
             icon: <FireOutlined />,
           },
         ],
@@ -242,7 +241,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("backlogs.children.report"),
             href: "/backlogs/report",
-            news: true,
+            news: false,
             icon: <BugFilled />,
           },
         ],
