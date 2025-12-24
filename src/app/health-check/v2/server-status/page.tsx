@@ -31,6 +31,7 @@ import {
   Grid,
   Avatar,
   Empty,
+  Spin,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -49,6 +50,8 @@ import {
   DownOutlined,
   DashboardOutlined,
   ThunderboltFilled,
+  LoadingOutlined,
+  CloudServerOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -84,6 +87,7 @@ export default function ServerStatusPage() {
   const [isSendingDiscordNotification, setIsSendingDiscordNotification] =
     useState(false);
   const [isGeneratingExcelReport, setIsGeneratingExcelReport] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0); // Progress state
 
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [selectedServerStatusItem, setSelectedServerStatusItem] =
@@ -93,6 +97,24 @@ export default function ServerStatusPage() {
   const [statusFilterType, setStatusFilterType] = useState<
     "ALL" | "ONLINE" | "ERROR"
   >("ALL");
+
+  // --- Simulated Progress Effect ---
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isFetchingServerStatus) {
+      setLoadingProgress(0);
+      interval = setInterval(() => {
+        setLoadingProgress((prev) => {
+          if (prev >= 90) return prev; // Hold at 90% until finished
+          return prev + Math.floor(Math.random() * 10) + 1;
+        });
+      }, 300);
+    } else {
+      setLoadingProgress(100);
+      setTimeout(() => setLoadingProgress(0), 500); // Clear after finish
+    }
+    return () => clearInterval(interval);
+  }, [isFetchingServerStatus]);
 
   // --- API Actions ---
   const handleFetchServerStatus = useCallback(
@@ -133,7 +155,8 @@ export default function ServerStatusPage() {
         if (isDiscordMode) {
           setIsSendingDiscordNotification(false);
         } else {
-          setIsFetchingServerStatus(false);
+          // Delay turning off loading slightly for better UX
+          setTimeout(() => setIsFetchingServerStatus(false), 500);
         }
       }
     },
@@ -357,6 +380,71 @@ export default function ServerStatusPage() {
         }
       `}</style>
 
+      {/* --- Loading Modal Overlay --- */}
+      <Modal
+        open={isFetchingServerStatus}
+        footer={null}
+        closable={false}
+        centered
+        width={400}
+        styles={{
+          content: {
+            borderRadius: 16,
+            padding: 32,
+            textAlign: "center",
+            background: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(10px)",
+          },
+        }}
+      >
+        <Flex vertical align="center" gap={16}>
+          <div style={{ position: "relative" }}>
+            <Spin
+              indicator={<LoadingOutlined style={{ fontSize: 64 }} spin />}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <CloudServerOutlined
+                style={{ fontSize: 24, color: token.colorPrimary }}
+              />
+            </div>
+          </div>
+          <Flex vertical gap={4}>
+            <Title level={4} style={{ margin: 0 }}>
+              กำลังตรวจสอบระบบ Server
+            </Title>
+            <Text type="secondary">
+              กำลังเชื่อมต่อและรวบรวมสถานะ API ทั้งหมด...
+            </Text>
+          </Flex>
+          <div style={{ width: "100%", padding: "0 16px" }}>
+            <Progress
+              percent={loadingProgress}
+              status="active"
+              strokeColor={{
+                "0%": token.colorPrimary,
+                "100%": token.colorSuccess,
+              }}
+              showInfo={false}
+            />
+            <Flex justify="space-between" style={{ marginTop: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                Connecting...
+              </Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                {loadingProgress}%
+              </Text>
+            </Flex>
+          </div>
+        </Flex>
+      </Modal>
+
       <Flex vertical gap={24} style={{ paddingBottom: 40 }}>
         {/* --- ส่วนหัวของหน้า (Header Section) --- 
           แสดงปุ่มย้อนกลับ, ชื่อหน้า, เวลาอัปเดตล่าสุด และปุ่ม Action หลัก (ตรวจสอบสถานะ)
@@ -410,7 +498,6 @@ export default function ServerStatusPage() {
           <Col xs={24} md={14} lg={16}>
             <Card
               className="card-hover-effect animate-fade-in"
-              bordered={false}
               style={{
                 height: "100%",
                 background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`,
@@ -522,9 +609,7 @@ export default function ServerStatusPage() {
               {/* Card แสดงจำนวนระบบที่ปกติ */}
               <Card
                 className="card-hover-effect animate-fade-in"
-                bordered={false}
                 style={{ flex: 1, animationDelay: "0.1s" }}
-                bodyStyle={{ padding: 16 }}
               >
                 <Flex align="center" gap={16}>
                   <Avatar
@@ -551,9 +636,7 @@ export default function ServerStatusPage() {
               {/* Card แสดงจำนวนระบบที่มีปัญหา */}
               <Card
                 className="card-hover-effect animate-fade-in"
-                bordered={false}
                 style={{ flex: 1, animationDelay: "0.2s" }}
-                bodyStyle={{ padding: 16 }}
               >
                 <Flex align="center" gap={16}>
                   <Avatar
@@ -606,11 +689,7 @@ export default function ServerStatusPage() {
         {/* --- ส่วนเนื้อหาหลัก (Main Content: Table & Filters) --- 
           ประกอบด้วย Toolbar สำหรับกรองข้อมูลและค้นหา และ Table แสดงรายการระบบ
         */}
-        <Card
-          bordered={false}
-          className="animate-fade-in"
-          style={{ animationDelay: "0.3s" }}
-        >
+        <Card className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
           <Flex vertical gap={20}>
             {/* Toolbar สำหรับกรองสถานะและค้นหา */}
             <Flex justify="space-between" align="center" wrap="wrap" gap={16}>

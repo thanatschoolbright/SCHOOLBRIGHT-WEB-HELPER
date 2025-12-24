@@ -14,6 +14,7 @@ import { checkNotificationService } from "./helper/mobile/notification.service";
 import { checkFlagPoleAttendanceService } from "./helper/mobile/attendance-student.service";
 import { checkFlagPoleScanService } from "./helper/mobile/attendance-scan.service";
 import { HealthCheckResult } from "./helper/health-check.type";
+import { checkGetSchoolListService } from "./helper/mobile/get-school-list.service";
 
 // ตั้งค่าภาษาไทยให้กับ dayjs
 dayjs.locale("th");
@@ -203,6 +204,7 @@ async function executeHealthChecks(): Promise<HealthCheckResult[]> {
     // กลุ่มที่ไม่ต้องใช้ Token หรือใช้ Key แยกต่างหาก
     checkServerStatusService(), // Public API
     checkFacialScanService(), // Hardware API (ใช้ schoolId/UserCode ใน Body)
+    checkGetSchoolListService(), // Mobile API (Get School List)
   ]);
 
   // 4. รวมผลลัพธ์ทั้งหมดกลับไป (เอา Login ไว้ตัวแรกสุด)
