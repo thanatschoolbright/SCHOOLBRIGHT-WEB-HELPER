@@ -54,13 +54,14 @@ export default function MainHeader(): JSX.Element {
         align="center"
         justify="space-between"
         style={{
-          maxWidth: 1600,
-          margin: "0 auto",
+          width: "100%", // ✅ บังคับให้กว้างเต็มพื้นที่
           height: "100%",
-          padding: screens.md ? "0 32px" : "0 16px",
+          padding: screens.md ? "0 24px" : "0 16px", // ✅ ระยะห่างจากขอบซ้ายขวา (ปรับได้ตามชอบ เช่น 24px หรือ 32px)
+          // maxWidth: 1600,  // ❌ ลบออก เพื่อไม่ให้บีบเข้ามาตรงกลาง
+          // margin: "0 auto", // ❌ ลบออก
         }}
       >
-        {/* 🔸 Left: Logo Section */}
+        {/* 🔸 Left: Logo Section (ชิดซ้ายโดยธรรมชาติจาก justify="space-between") */}
         <Flex
           align="center"
           gap={screens.md ? 16 : 10}
@@ -117,7 +118,7 @@ export default function MainHeader(): JSX.Element {
           </Flex>
         </Flex>
 
-        {/* 🔹 Right: Actions */}
+        {/* 🔹 Right: Actions (ชิดขวาโดยธรรมชาติจาก justify="space-between") */}
         <Space size={screens.md ? 12 : 8} align="center">
           {screens.md && (
             <Button
@@ -150,12 +151,10 @@ export default function MainHeader(): JSX.Element {
             </Tooltip>
           )}
 
-          {/* ✅ แก้ไขจุดแจ้งเตือนตรงนี้ */}
           <Tooltip title="แจ้งเตือน">
             <Button
               type="text"
               shape="circle"
-              // ย้าย Badge มาครอบ Icon โดยตรง
               icon={
                 <Badge dot color="#FF4D4F" offset={[-1, 1]}>
                   <BellOutlined
