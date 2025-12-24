@@ -79,148 +79,179 @@ export default function ServerStatusPage() {
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<Date | null>(
     null
   );
-  const [isFetching, setIsFetching] = useState(false);
-  const [isDiscordSending, setIsDiscordSending] = useState(false);
-  const [isExcelGenerating, setIsExcelGenerating] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<ServerStatusData | null>(
-    null
-  );
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"ALL" | "ONLINE" | "ERROR">(
-    "ALL"
-  );
+
+  const [isFetchingServerStatus, setIsFetchingServerStatus] = useState(false);
+  const [isSendingDiscordNotification, setIsSendingDiscordNotification] =
+    useState(false);
+  const [isGeneratingExcelReport, setIsGeneratingExcelReport] = useState(false);
+
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [selectedServerStatusItem, setSelectedServerStatusItem] =
+    useState<ServerStatusData | null>(null);
+
+  const [searchQueryString, setSearchQueryString] = useState("");
+  const [statusFilterType, setStatusFilterType] = useState<
+    "ALL" | "ONLINE" | "ERROR"
+  >("ALL");
 
   // --- API Actions ---
-  const fetchData = useCallback(
-    async (mode: "normal" | "discord" = "normal") => {
-      const isDiscord = mode === "discord";
-      isDiscord ? setIsDiscordSending(true) : setIsFetching(true);
+  const handleFetchServerStatus = useCallback(
+    async (executionMode: "normal" | "discord" = "normal") => {
+      const isDiscordMode = executionMode === "discord";
+
+      if (isDiscordMode) {
+        setIsSendingDiscordNotification(true);
+      } else {
+        setIsFetchingServerStatus(true);
+      }
 
       try {
-        const res = await axios.post<ServerStatusApiResponse>(
+        const apiResponse = await axios.post<ServerStatusApiResponse>(
           "/api/v1/health-check/server/system",
-          { mode },
+          { mode: executionMode },
           { headers: { "Content-Type": "application/json" } }
         );
 
-        if (res.data?.data) {
-          setServerHealthData(res.data.data);
+        if (apiResponse.data && Array.isArray(apiResponse.data.data)) {
+          setServerHealthData(apiResponse.data.data);
           setLastFetchTimestamp(new Date());
-          const msg = isDiscord
-            ? "ส่งรายงานไปยัง Discord สำเร็จ"
-            : "อัปเดตข้อมูลล่าสุดเรียบร้อย";
-          toast.success(msg);
+
+          if (isDiscordMode) {
+            toast.success("ส่งรายงานเข้า Discord เรียบร้อยแล้ว");
+          } else {
+            toast.success("อัปเดตสถานะล่าสุดเรียบร้อย");
+          }
         }
       } catch (error: any) {
-        toast.error("การเชื่อมต่อล้มเหลว", {
+        console.error(error);
+        toast.error("เกิดข้อผิดพลาด", {
           description:
-            error?.response?.data?.message_th || "กรุณาลองใหม่อีกครั้ง",
+            error?.response?.data?.message_th ||
+            "ไม่สามารถเชื่อมต่อกับ Server ได้",
         });
       } finally {
-        isDiscord ? setIsDiscordSending(false) : setIsFetching(false);
+        if (isDiscordMode) {
+          setIsSendingDiscordNotification(false);
+        } else {
+          setIsFetchingServerStatus(false);
+        }
       }
     },
     []
   );
 
   useEffect(() => {
-    fetchData("normal");
-  }, [fetchData]);
+    handleFetchServerStatus("normal");
+  }, [handleFetchServerStatus]);
 
-  const handleExportExcel = async () => {
-    if (!serverHealthData.length) return toast.warning("ไม่พบข้อมูล");
-    setIsExcelGenerating(true);
+  const handleGenerateExcelReport = async () => {
+    if (serverHealthData.length === 0) {
+      toast.warning("ไม่พบข้อมูลสำหรับสร้างรายงาน");
+      return;
+    }
+
+    setIsGeneratingExcelReport(true);
     try {
-      const buffer = await ExportServerStatusService.generateReport(
+      const fileBuffer = await ExportServerStatusService.generateReport(
         serverHealthData
       );
-      const blob = new Blob([buffer], {
+      const fileBlob = new Blob([fileBuffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `Server_Health_Report_${Date.now()}.xlsx`;
-      link.click();
+      const fileUrl = window.URL.createObjectURL(fileBlob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = fileUrl;
+      downloadLink.download = `Server_Health_Report_${Date.now()}.xlsx`;
+      downloadLink.click();
       toast.success("ดาวน์โหลดรายงานสำเร็จ");
     } catch {
       toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์");
     } finally {
-      setIsExcelGenerating(false);
+      setIsGeneratingExcelReport(false);
     }
   };
 
   // --- Computed Statistics ---
-  const stats = useMemo(() => {
-    const total = serverHealthData.length;
-    const online = serverHealthData.filter((i) => i.status === "200").length;
-    const offline = total - online;
-    const score = total === 0 ? 0 : Math.round((online / total) * 100);
+  const serverHealthStatistics = useMemo(() => {
+    const totalCount = serverHealthData.length;
+    const onlineCount = serverHealthData.filter(
+      (item) => item.status === "200"
+    ).length;
+    const offlineCount = totalCount - onlineCount;
+    const healthScorePercentage =
+      totalCount === 0 ? 0 : Math.round((onlineCount / totalCount) * 100);
 
-    return { total, online, offline, score };
+    return { totalCount, onlineCount, offlineCount, healthScorePercentage };
   }, [serverHealthData]);
 
-  const filteredData = useMemo(() => {
+  const filteredServerHealthData = useMemo(() => {
     return serverHealthData.filter((item) => {
-      const query = searchQuery.toLowerCase();
-      const matchSearch =
-        item.name_th.toLowerCase().includes(query) ||
-        item.service.toLowerCase().includes(query) ||
-        item.module.toLowerCase().includes(query);
+      const lowerCaseSearchQuery = searchQueryString.toLowerCase();
+      const matchesSearch =
+        item.name_th.toLowerCase().includes(lowerCaseSearchQuery) ||
+        item.service.toLowerCase().includes(lowerCaseSearchQuery) ||
+        item.module.toLowerCase().includes(lowerCaseSearchQuery);
 
-      if (filterStatus === "ONLINE")
-        return matchSearch && item.status === "200";
-      if (filterStatus === "ERROR") return matchSearch && item.status !== "200";
-      return matchSearch;
+      if (statusFilterType === "ONLINE")
+        return matchesSearch && item.status === "200";
+      if (statusFilterType === "ERROR")
+        return matchesSearch && item.status !== "200";
+      return matchesSearch;
     });
-  }, [serverHealthData, searchQuery, filterStatus]);
+  }, [serverHealthData, searchQueryString, statusFilterType]);
 
   // --- UI Helpers ---
-  const copyToClipboard = (txt: string) => {
-    navigator.clipboard.writeText(txt);
+  const handleCopyToClipboard = (textToCopy: string) => {
+    navigator.clipboard.writeText(textToCopy);
     toast.success("คัดลอกเรียบร้อย");
   };
 
-  const menuItems: MenuProps["items"] = [
+  const actionMenuItems: MenuProps["items"] = [
     {
       key: "discord",
       label: "แจ้งเตือนทาง Discord",
       icon: <NotificationOutlined />,
-      onClick: () => fetchData("discord"),
-      disabled: isDiscordSending,
+      onClick: () => handleFetchServerStatus("discord"),
+      disabled: isSendingDiscordNotification,
     },
     { type: "divider" },
     {
       key: "export",
       label: "ดาวน์โหลดรายงาน Excel",
       icon: <FileExcelOutlined />,
-      onClick: handleExportExcel,
-      disabled: isExcelGenerating || !serverHealthData.length,
+      onClick: handleGenerateExcelReport,
+      disabled: isGeneratingExcelReport || !serverHealthData.length,
     },
   ];
 
-  const columns: ColumnsType<ServerStatusData> = [
+  const tableColumns: ColumnsType<ServerStatusData> = [
     {
       title: "ชื่อระบบ (System Module)",
       key: "name",
-      render: (_, r) => (
+      render: (_, record) => (
         <Space>
           <Avatar
             shape="square"
             style={{
               backgroundColor:
-                r.status === "200" ? token.colorSuccessBg : token.colorErrorBg,
-              color: r.status === "200" ? token.colorSuccess : token.colorError,
+                record.status === "200"
+                  ? token.colorSuccessBg
+                  : token.colorErrorBg,
+              color:
+                record.status === "200" ? token.colorSuccess : token.colorError,
             }}
             icon={
-              r.status === "200" ? <SafetyCertificateFilled /> : <BugOutlined />
+              record.status === "200" ? (
+                <SafetyCertificateFilled />
+              ) : (
+                <BugOutlined />
+              )
             }
           />
           <Flex vertical>
-            <Text strong>{r.name_th}</Text>
+            <Text strong>{record.name_th}</Text>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              {r.module}
+              {record.module}
             </Text>
           </Flex>
         </Space>
@@ -230,20 +261,20 @@ export default function ServerStatusPage() {
       title: "จุดเชื่อมต่อ (Endpoint)",
       dataIndex: "service",
       responsive: ["md"],
-      render: (val, r) => (
+      render: (serviceName, record) => (
         <Flex vertical>
           <Space size={4}>
             <Tag color="blue" bordered={false} style={{ margin: 0 }}>
               API
             </Tag>
-            <Text style={{ fontSize: 13 }}>{val}</Text>
+            <Text style={{ fontSize: 13 }}>{serviceName}</Text>
           </Space>
           <Text
             type="secondary"
             style={{ fontSize: 11 }}
-            ellipsis={{ tooltip: r.request.url }}
+            ellipsis={{ tooltip: record.request.url }}
           >
-            {r.request.url}
+            {record.request.url}
           </Text>
         </Flex>
       ),
@@ -252,9 +283,9 @@ export default function ServerStatusPage() {
       title: "สถานะ",
       dataIndex: "status",
       width: 120,
-      render: (status) => (
+      render: (statusCode) => (
         <Tag
-          color={status === "200" ? "success" : "error"}
+          color={statusCode === "200" ? "success" : "error"}
           style={{
             width: "100%",
             textAlign: "center",
@@ -262,10 +293,10 @@ export default function ServerStatusPage() {
             padding: "4px 0",
           }}
           icon={
-            status === "200" ? <CheckCircleFilled /> : <CloseCircleFilled />
+            statusCode === "200" ? <CheckCircleFilled /> : <CloseCircleFilled />
           }
         >
-          {status === "200" ? "ปกติ" : `ขัดข้อง ${status}`}
+          {statusCode === "200" ? "ปกติ" : `ขัดข้อง ${statusCode}`}
         </Tag>
       ),
     },
@@ -273,13 +304,13 @@ export default function ServerStatusPage() {
       title: "",
       width: 60,
       align: "center",
-      render: (_, r) => (
+      render: (_, record) => (
         <Button
           type="text"
           icon={<EyeOutlined />}
           onClick={() => {
-            setSelectedItem(r);
-            setModalVisible(true);
+            setSelectedServerStatusItem(record);
+            setIsDetailModalVisible(true);
           }}
         />
       ),
@@ -288,7 +319,11 @@ export default function ServerStatusPage() {
 
   return (
     <DashboardLayout>
-      {/* CSS Animation Injection */}
+      {/* Global CSS Injection สำหรับ Animation 
+        - pulse-green: เอฟเฟกต์กระพริบสีเขียวสำหรับ Health Score 100%
+        - fadeInUp: เอฟเฟกต์เลื่อนขึ้นพร้อมจางเข้าสำหรับ Card
+        - card-hover-effect: เอฟเฟกต์ยก Card ขึ้นเมื่อเอาเมาส์ชี้
+      */}
       <style jsx global>{`
         @keyframes pulse-green {
           0% {
@@ -323,7 +358,9 @@ export default function ServerStatusPage() {
       `}</style>
 
       <Flex vertical gap={24} style={{ paddingBottom: 40 }}>
-        {/* --- Header Section --- */}
+        {/* --- ส่วนหัวของหน้า (Header Section) --- 
+          แสดงปุ่มย้อนกลับ, ชื่อหน้า, เวลาอัปเดตล่าสุด และปุ่ม Action หลัก (ตรวจสอบสถานะ)
+        */}
         <Flex justify="space-between" align="center" wrap="wrap" gap={16}>
           <Space size={16}>
             <Button
@@ -351,22 +388,29 @@ export default function ServerStatusPage() {
           <Space>
             <Dropdown.Button
               type="primary"
-              menu={{ items: menuItems }}
-              onClick={() => fetchData("normal")}
+              menu={{ items: actionMenuItems }}
+              onClick={() => handleFetchServerStatus("normal")}
               icon={<DownOutlined />}
-              loading={isFetching || isDiscordSending || isExcelGenerating}
+              loading={
+                isFetchingServerStatus ||
+                isSendingDiscordNotification ||
+                isGeneratingExcelReport
+              }
             >
               <ReloadOutlined /> ตรวจสอบสถานะ
             </Dropdown.Button>
           </Space>
         </Flex>
 
-        {/* --- Dashboard Overview (Grid) --- */}
+        {/* --- ส่วนแสดงภาพรวม (Dashboard Overview) --- 
+          ใช้ Grid System เพื่อจัดเรียง Card แสดงผลคะแนนสุขภาพระบบและจำนวนสถานะต่างๆ
+        */}
         <Row gutter={[16, 16]}>
-          {/* Health Score Card (Large) */}
+          {/* Card แสดงคะแนนสุขภาพระบบ (Health Score) ขนาดใหญ่ */}
           <Col xs={24} md={14} lg={16}>
             <Card
               className="card-hover-effect animate-fade-in"
+              bordered={false}
               style={{
                 height: "100%",
                 background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`,
@@ -388,28 +432,30 @@ export default function ServerStatusPage() {
                     การตรวจสอบแบบเรียลไทม์
                   </Tag>
                   <Title level={2} style={{ margin: 0 }}>
-                    {stats.score >= 90
+                    {serverHealthStatistics.healthScorePercentage >= 90
                       ? "ระบบทำงานปกติสมบูรณ์"
-                      : stats.score >= 70
+                      : serverHealthStatistics.healthScorePercentage >= 70
                       ? "ระบบทำงานปกติ"
                       : "ระบบอยู่ในสภาวะวิกฤต"}
                   </Title>
                   <Text type="secondary">
-                    กำลังตรวจสอบจุดเชื่อมต่อระบบทั้งหมด {stats.total} รายการ
-                    {stats.offline > 0 && (
+                    กำลังตรวจสอบจุดเชื่อมต่อระบบทั้งหมด{" "}
+                    {serverHealthStatistics.totalCount} รายการ
+                    {serverHealthStatistics.offlineCount > 0 && (
                       <span style={{ color: token.colorError }}>
                         {" "}
-                        พบปัญหาที่ต้องแก้ไข {stats.offline} รายการ
+                        พบปัญหาที่ต้องแก้ไข{" "}
+                        {serverHealthStatistics.offlineCount} รายการ
                       </span>
                     )}
                   </Text>
 
-                  {/* Visual Distribution Bar */}
+                  {/* แถบแสดงสัดส่วนคะแนน (Visual Distribution Bar) */}
                   <div style={{ marginTop: 16 }}>
                     <Flex justify="space-between" style={{ marginBottom: 4 }}>
                       <Text style={{ fontSize: 12 }}>อัตราความสำเร็จ</Text>
                       <Text strong style={{ fontSize: 12 }}>
-                        {stats.score}%
+                        {serverHealthStatistics.healthScorePercentage}%
                       </Text>
                     </Flex>
                     <div
@@ -424,7 +470,7 @@ export default function ServerStatusPage() {
                     >
                       <div
                         style={{
-                          width: `${stats.score}%`,
+                          width: `${serverHealthStatistics.healthScorePercentage}%`,
                           background: token.colorSuccess,
                           height: "100%",
                           transition: "width 0.5s",
@@ -434,7 +480,7 @@ export default function ServerStatusPage() {
                   </div>
                 </Flex>
 
-                {/* Circular Progress */}
+                {/* วงกลมแสดงเปอร์เซ็นต์ (Circular Progress) */}
                 <Flex
                   justify="center"
                   align="center"
@@ -442,16 +488,16 @@ export default function ServerStatusPage() {
                 >
                   <Progress
                     type="circle"
-                    percent={stats.score}
+                    percent={serverHealthStatistics.healthScorePercentage}
                     strokeColor={
-                      stats.score === 100
+                      serverHealthStatistics.healthScorePercentage === 100
                         ? token.colorSuccess
-                        : stats.score > 70
+                        : serverHealthStatistics.healthScorePercentage > 70
                         ? token.colorWarning
                         : token.colorError
                     }
                     strokeWidth={8}
-                    size={140} // 🛠️ Fixed: Changed 'width' to 'size'
+                    size={140}
                   />
                   <div
                     style={{
@@ -460,7 +506,7 @@ export default function ServerStatusPage() {
                       height: 120,
                       borderRadius: "50%",
                       animation:
-                        stats.score === 100
+                        serverHealthStatistics.healthScorePercentage === 100
                           ? "pulse-green 2s infinite"
                           : "none",
                     }}
@@ -470,13 +516,15 @@ export default function ServerStatusPage() {
             </Card>
           </Col>
 
-          {/* Stat Cards (Small) */}
+          {/* Card แสดงสถิติย่อย (Small Stat Cards) */}
           <Col xs={24} md={10} lg={8}>
             <Flex vertical gap={16} style={{ height: "100%" }}>
-              {/* Online Stat */}
+              {/* Card แสดงจำนวนระบบที่ปกติ */}
               <Card
                 className="card-hover-effect animate-fade-in"
+                bordered={false}
                 style={{ flex: 1, animationDelay: "0.1s" }}
+                bodyStyle={{ padding: 16 }}
               >
                 <Flex align="center" gap={16}>
                   <Avatar
@@ -494,16 +542,18 @@ export default function ServerStatusPage() {
                       level={3}
                       style={{ margin: 0, color: token.colorSuccess }}
                     >
-                      {stats.online}
+                      {serverHealthStatistics.onlineCount}
                     </Title>
                   </Flex>
                 </Flex>
               </Card>
 
-              {/* Offline Stat */}
+              {/* Card แสดงจำนวนระบบที่มีปัญหา */}
               <Card
                 className="card-hover-effect animate-fade-in"
+                bordered={false}
                 style={{ flex: 1, animationDelay: "0.2s" }}
+                bodyStyle={{ padding: 16 }}
               >
                 <Flex align="center" gap={16}>
                   <Avatar
@@ -522,12 +572,12 @@ export default function ServerStatusPage() {
                       style={{
                         margin: 0,
                         color:
-                          stats.offline > 0
+                          serverHealthStatistics.offlineCount > 0
                             ? token.colorError
                             : token.colorText,
                       }}
                     >
-                      {stats.offline}
+                      {serverHealthStatistics.offlineCount}
                     </Title>
                   </Flex>
                 </Flex>
@@ -536,11 +586,13 @@ export default function ServerStatusPage() {
           </Col>
         </Row>
 
-        {/* --- Alert Banner (Conditional) --- */}
-        {stats.offline > 0 && !isFetching && (
+        {/* --- แถบแจ้งเตือนเมื่อมีปัญหา (Alert Banner) --- 
+          แสดงเฉพาะเมื่อมีระบบ Offline และไม่ได้กำลังโหลดข้อมูล
+        */}
+        {serverHealthStatistics.offlineCount > 0 && !isFetchingServerStatus && (
           <Alert
             message="ตรวจพบปัญหาระบบขั้นวิกฤต"
-            description={`มีระบบที่ไม่สามารถใช้งานได้จำนวน ${stats.offline} รายการ แนะนำให้ตรวจสอบและแก้ไขทันที`}
+            description={`มีระบบที่ไม่สามารถใช้งานได้จำนวน ${serverHealthStatistics.offlineCount} รายการ แนะนำให้ตรวจสอบและแก้ไขทันที`}
             type="error"
             showIcon
             className="animate-fade-in"
@@ -551,10 +603,16 @@ export default function ServerStatusPage() {
           />
         )}
 
-        {/* --- Main Content (Table & Filters) --- */}
-        <Card className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
+        {/* --- ส่วนเนื้อหาหลัก (Main Content: Table & Filters) --- 
+          ประกอบด้วย Toolbar สำหรับกรองข้อมูลและค้นหา และ Table แสดงรายการระบบ
+        */}
+        <Card
+          bordered={false}
+          className="animate-fade-in"
+          style={{ animationDelay: "0.3s" }}
+        >
           <Flex vertical gap={20}>
-            {/* Toolbar */}
+            {/* Toolbar สำหรับกรองสถานะและค้นหา */}
             <Flex justify="space-between" align="center" wrap="wrap" gap={16}>
               <Segmented
                 options={[
@@ -574,8 +632,10 @@ export default function ServerStatusPage() {
                     icon: <CloseCircleFilled className="text-red-500" />,
                   },
                 ]}
-                value={filterStatus}
-                onChange={(v) => setFilterStatus(v as any)}
+                value={statusFilterType}
+                onChange={(selectedValue) =>
+                  setStatusFilterType(selectedValue as any)
+                }
               />
               <Input
                 placeholder="ค้นหาชื่อระบบ หรือ Endpoint..."
@@ -584,24 +644,24 @@ export default function ServerStatusPage() {
                     style={{ color: token.colorTextPlaceholder }}
                   />
                 }
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchQueryString}
+                onChange={(event) => setSearchQueryString(event.target.value)}
                 style={{ width: 300 }}
                 allowClear
               />
             </Flex>
 
-            {/* Table */}
-            {isFetching ? (
+            {/* ตารางแสดงข้อมูลระบบ (Data Table) */}
+            {isFetchingServerStatus ? (
               <Skeleton active paragraph={{ rows: 6 }} />
             ) : (
               <Table<ServerStatusData>
-                columns={columns}
-                dataSource={filteredData}
+                columns={tableColumns}
+                dataSource={filteredServerHealthData}
                 rowKey="module"
                 pagination={{
                   pageSize: 8,
-                  showTotal: (t) => `ทั้งหมด ${t} รายการ`,
+                  showTotal: (total) => `ทั้งหมด ${total} รายการ`,
                 }}
                 scroll={{ x: 800 }}
                 locale={{
@@ -618,7 +678,9 @@ export default function ServerStatusPage() {
         </Card>
       </Flex>
 
-      {/* --- Detail Modal --- */}
+      {/* --- หน้าต่างรายละเอียด (Detail Modal) --- 
+        แสดงข้อมูลเชิงลึกของระบบที่เลือก รวมถึง Request, Response และ cURL command
+      */}
       <Modal
         title={
           <Space>
@@ -626,13 +688,13 @@ export default function ServerStatusPage() {
             <Text strong>วิเคราะห์ข้อมูลระบบ (System Diagnostics)</Text>
           </Space>
         }
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
+        open={isDetailModalVisible}
+        onCancel={() => setIsDetailModalVisible(false)}
         footer={null}
         width={800}
         centered
       >
-        {selectedItem && (
+        {selectedServerStatusItem && (
           <Flex vertical gap={16}>
             <div style={{ padding: "16px 0" }}>
               <Flex
@@ -649,16 +711,16 @@ export default function ServerStatusPage() {
                   shape="square"
                   style={{
                     background:
-                      selectedItem.status === "200"
+                      selectedServerStatusItem.status === "200"
                         ? token.colorSuccessBg
                         : token.colorErrorBg,
                     color:
-                      selectedItem.status === "200"
+                      selectedServerStatusItem.status === "200"
                         ? token.colorSuccess
                         : token.colorError,
                   }}
                   icon={
-                    selectedItem.status === "200" ? (
+                    selectedServerStatusItem.status === "200" ? (
                       <CheckCircleFilled />
                     ) : (
                       <CloseCircleFilled />
@@ -667,19 +729,23 @@ export default function ServerStatusPage() {
                 />
                 <Flex vertical flex={1}>
                   <Title level={4} style={{ margin: 0 }}>
-                    {selectedItem.name_th}
+                    {selectedServerStatusItem.name_th}
                   </Title>
-                  <Text type="secondary">{selectedItem.name_en}</Text>
+                  <Text type="secondary">
+                    {selectedServerStatusItem.name_en}
+                  </Text>
                   <Space style={{ marginTop: 8 }}>
-                    <Tag>{selectedItem.module}</Tag>
+                    <Tag>{selectedServerStatusItem.module}</Tag>
                     <Tag
                       color={
-                        selectedItem.status === "200" ? "success" : "error"
+                        selectedServerStatusItem.status === "200"
+                          ? "success"
+                          : "error"
                       }
                     >
-                      {selectedItem.status === "200"
+                      {selectedServerStatusItem.status === "200"
                         ? "HTTP 200 OK (ปกติ)"
-                        : `Error ${selectedItem.status}`}
+                        : `Error ${selectedServerStatusItem.status}`}
                     </Tag>
                   </Space>
                 </Flex>
@@ -696,20 +762,19 @@ export default function ServerStatusPage() {
                     <Descriptions column={1} bordered size="small">
                       <Descriptions.Item label="ลิงก์ Endpoint">
                         <Paragraph copyable style={{ margin: 0, fontSize: 13 }}>
-                          {selectedItem.request.url}
+                          {selectedServerStatusItem.request.url}
                         </Paragraph>
                       </Descriptions.Item>
                       <Descriptions.Item label="เมธอด (Method)">
                         <Tag color="blue">
-                          {selectedItem.request.method || "GET"}
+                          {selectedServerStatusItem.request.method || "GET"}
                         </Tag>
                       </Descriptions.Item>
                       <Descriptions.Item label="ตัวอย่างข้อมูลตอบกลับ">
                         <Text code style={{ fontSize: 12 }}>
-                          {JSON.stringify(selectedItem.response).substring(
-                            0,
-                            200
-                          )}
+                          {JSON.stringify(
+                            selectedServerStatusItem.response
+                          ).substring(0, 200)}
                           ...
                         </Text>
                       </Descriptions.Item>
@@ -722,7 +787,7 @@ export default function ServerStatusPage() {
                   children: (
                     <div style={{ position: "relative" }}>
                       <Input.TextArea
-                        value={selectedItem.curl}
+                        value={selectedServerStatusItem.curl}
                         readOnly
                         autoSize={{ minRows: 4, maxRows: 10 }}
                         style={{
@@ -738,7 +803,9 @@ export default function ServerStatusPage() {
                         size="small"
                         icon={<CopyOutlined />}
                         style={{ position: "absolute", top: 8, right: 8 }}
-                        onClick={() => copyToClipboard(selectedItem.curl)}
+                        onClick={() =>
+                          handleCopyToClipboard(selectedServerStatusItem.curl)
+                        }
                       >
                         คัดลอก
                       </Button>
@@ -759,7 +826,11 @@ export default function ServerStatusPage() {
                       }}
                     >
                       <pre style={{ margin: 0, fontSize: 11 }}>
-                        {JSON.stringify(selectedItem.response, null, 2)}
+                        {JSON.stringify(
+                          selectedServerStatusItem.response,
+                          null,
+                          2
+                        )}
                       </pre>
                     </div>
                   ),
