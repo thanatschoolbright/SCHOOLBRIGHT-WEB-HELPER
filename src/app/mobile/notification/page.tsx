@@ -32,13 +32,17 @@ import type { ColumnsType, ColumnType } from "antd/es/table";
 import type { InputRef } from "antd";
 import type { TabsProps } from "antd";
 import {
+  BankOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   CodeOutlined,
   CopyOutlined,
   EyeOutlined,
   FileTextOutlined,
+  InfoCircleOutlined,
+  LeftOutlined,
   MessageOutlined,
+  RightOutlined,
   SearchOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -294,6 +298,7 @@ export default function Page() {
               }}
               onPressEnter={() => confirm()}
               style={{ marginBottom: 8, display: "block" }}
+              suffix={<SearchOutlined style={{ color: "rgba(0,0,0,.45)" }} />}
             />
             <Space>
               <Button
@@ -346,19 +351,19 @@ export default function Page() {
         render: (_value, _record, index) => index + 1 + (page - 1) * 10,
         width: 70,
         align: "center",
-        fixed: "left", // ล็อคลำดับไว้ซ้ายสุด
+        fixed: "left",
       },
       {
         title: "รหัสข้อความ",
         dataIndex: "nMessageID",
-        width: 120, // กำหนดความกว้าง
+        width: 120,
         sorter: (a, b) => Number(a.nMessageID) - Number(b.nMessageID),
         ...getColumnSearchProps("nMessageID", "รหัสข้อความ"),
       },
       {
         title: "วันที่ส่ง",
         dataIndex: "dSend",
-        width: 150, // กำหนดความกว้าง
+        width: 150,
         sorter: (a, b) => dayjs(a.dSend).valueOf() - dayjs(b.dSend).valueOf(),
         render: (value: string) => (
           <div style={{ whiteSpace: "nowrap" }}>
@@ -409,14 +414,12 @@ export default function Page() {
         ],
         onFilter: (value, record) => Number(record.nStatus) === Number(value),
       },
-      // --- ส่วนที่แก้ไขเรื่องข้อความทะลุ ---
       {
         title: "หัวข้อ",
         dataIndex: "sTitle",
-        width: 200, // 1. กำหนดความกว้าง
+        width: 200,
         ...getColumnSearchProps("sTitle", "หัวข้อ"),
         render: (text: string) => (
-          // 2. ใช้ Typography.Text ตัดคำบรรทัดเดียว + Tooltip
           <Typography.Text
             style={{ width: "100%", margin: 0 }}
             ellipsis={{ tooltip: true }}
@@ -428,10 +431,9 @@ export default function Page() {
       {
         title: "ข้อความ",
         dataIndex: "sMessage",
-        width: 300, // 1. กำหนดความกว้างให้เยอะหน่อย
+        width: 300,
         ...getColumnSearchProps("sMessage", "ข้อความ"),
         render: (text: string) => (
-          // 2. ใช้ Typography.Paragraph ตัดคำเมื่อเกิน 2 บรรทัด + Tooltip
           <Typography.Paragraph
             style={{ width: "100%", margin: 0 }}
             ellipsis={{ rows: 2, tooltip: true, expandable: false }}
@@ -440,7 +442,6 @@ export default function Page() {
           </Typography.Paragraph>
         ),
       },
-      // ----------------------------------
       {
         title: "โลโก้",
         dataIndex: "logo",
@@ -467,7 +468,7 @@ export default function Page() {
         key: "actions",
         width: 100,
         align: "center",
-        fixed: "right", // ล็อคปุ่มไว้ขวาสุด
+        fixed: "right",
         render: (_value, record) => (
           <Tooltip title="ดูรายละเอียดเต็ม">
             <Button
@@ -490,7 +491,6 @@ export default function Page() {
     ]
   );
 
-  // * ตรวจการทำงานของ Select School ID
   const selectedSchoolID = Form.useWatch("schoolID", form);
 
   useEffect(() => {
@@ -529,7 +529,7 @@ export default function Page() {
           columns={columns}
           rowKey={(record) => String(record.nMessageID)}
           pagination={false}
-          scroll={{ x: 1000 }}
+          scroll={{ x: 1300 }}
           bordered
           size="middle"
         />
@@ -549,7 +549,7 @@ export default function Page() {
           columns={columns}
           rowKey={(record) => String(record.nMessageID)}
           pagination={false}
-          scroll={{ x: 1000 }}
+          scroll={{ x: 1300 }}
           bordered
           size="middle"
         />
@@ -707,13 +707,23 @@ export default function Page() {
             <Row gutter={16}>
               <Col xs={24} md={10}>
                 <Form.Item
-                  label="เลือกโรงเรียน"
+                  label={
+                    <Space>
+                      <BankOutlined />
+                      <span>เลือกโรงเรียน</span>
+                      <Tooltip title="ค้นหาด้วยชื่อโรงเรียน หรือ School ID">
+                        <InfoCircleOutlined
+                          style={{ color: "rgba(0,0,0,0.45)" }}
+                        />
+                      </Tooltip>
+                    </Space>
+                  }
                   name="schoolID"
                   rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
                 >
                   <Select
                     showSearch
-                    placeholder="ค้นหาชื่อโรงเรียน..."
+                    placeholder="พิมพ์ชื่อโรงเรียนเพื่อค้นหา..."
                     options={schoolOptions}
                     loading={schoolState.loading}
                     filterOption={(input, option) =>
@@ -722,18 +732,29 @@ export default function Page() {
                         .includes(input.toLowerCase())
                     }
                     size="large"
+                    suffixIcon={<BankOutlined />}
                   />
                 </Form.Item>
               </Col>
               <Col xs={24} md={10}>
                 <Form.Item
-                  label="เลือกผู้ใช้"
+                  label={
+                    <Space>
+                      <UserOutlined />
+                      <span>เลือกผู้ใช้</span>
+                      <Tooltip title="ค้นหาด้วยชื่อ-นามสกุล หรือ User ID">
+                        <InfoCircleOutlined
+                          style={{ color: "rgba(0,0,0,0.45)" }}
+                        />
+                      </Tooltip>
+                    </Space>
+                  }
                   name="userID"
                   rules={[{ required: true, message: "กรุณาเลือกผู้ใช้" }]}
                 >
                   <Select
                     showSearch
-                    placeholder="ค้นหาชื่อ หรือ User ID..."
+                    placeholder="พิมพ์ชื่อ หรือ ID เพื่อค้นหา..."
                     options={userOptions}
                     loading={userState.loading}
                     filterOption={(input, option) =>
@@ -820,19 +841,25 @@ export default function Page() {
           extra={
             <Space>
               {(curlToday || curlWeek) && (
-                <Tooltip title="สำหรับ QA/Dev เพื่อ Debug API">
+                <Tooltip title="คัดลอกคำสั่ง CURL สำหรับ QA/Dev เพื่อนำไป Debug API">
                   <Button icon={<CodeOutlined />} onClick={copyCurl}>
                     Copy CURL Log
                   </Button>
                 </Tooltip>
               )}
-              <Button
-                onClick={() => handlePageChange(Math.max(page - 1, 1))}
-                disabled={page <= 1}
-              >
-                ก่อนหน้า
-              </Button>
-              <Button onClick={() => handlePageChange(page + 1)}>ถัดไป</Button>
+              <Tooltip title="หน้าก่อนหน้า">
+                <Button
+                  icon={<LeftOutlined />}
+                  onClick={() => handlePageChange(Math.max(page - 1, 1))}
+                  disabled={page <= 1}
+                />
+              </Tooltip>
+              <Tooltip title="หน้าถัดไป">
+                <Button
+                  icon={<RightOutlined />}
+                  onClick={() => handlePageChange(page + 1)}
+                />
+              </Tooltip>
             </Space>
           }
         >

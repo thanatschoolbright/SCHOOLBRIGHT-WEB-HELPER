@@ -31,7 +31,6 @@ import {
   Grid,
   Avatar,
   Empty,
-  Divider,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -48,11 +47,8 @@ import {
   FileExcelOutlined,
   ArrowLeftOutlined,
   DownOutlined,
-  CodeOutlined,
   DashboardOutlined,
   ThunderboltFilled,
-  PieChartOutlined,
-  ClockCircleOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -456,7 +452,7 @@ export default function ServerStatusPage() {
                         : token.colorError
                     }
                     strokeWidth={8}
-                    width={140}
+                    size={140} // 🛠️ Fixed: Changed 'width' to 'size'
                   />
                   <div
                     style={{
