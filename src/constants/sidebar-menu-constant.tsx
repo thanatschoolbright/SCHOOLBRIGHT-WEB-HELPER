@@ -162,6 +162,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("mobile_app.children.mobile_notification"),
             href: "/mobile/notification",
             icon: <NotificationFilled />,
+            revamp: true,
           },
           {
             label: t("mobile_app.children.mobile_leave_letter"),
