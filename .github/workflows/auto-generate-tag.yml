@@ -18,14 +18,14 @@ permissions:
 
 jobs:
   sync-release-history:
-    name: 🔄 Sync All Releases to sb-api-mobile.tag.json
+    name: 🔄 Sync All Releases to version-control.tag.json
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
     env:
       SYSTEM_NAME: schoolbright-sb-web-helper
       META_REPO: Jabjai-Corporation/meta-version
-      TARGET_FILE: meta-version/sb-api-mobile.tag.json
+      TARGET_FILE: meta-version/version-control.tag.json
 
     steps:
       - name: 📥 Checkout main project repo
@@ -57,7 +57,7 @@ jobs:
           COUNT=$(jq '. | length' raw_releases.json)
           echo "count=$COUNT" >> $GITHUB_OUTPUT
 
-      - name: 🛠️ Transform Data to sb-api-mobile.tag.json
+      - name: 🛠️ Transform Data to version-control.tag.json
         run: |
           # 1. ตรวจสอบว่ามีไฟล์ปลายทางหรือยัง ถ้าไม่มีให้สร้าง Array เปล่า
           if [ ! -f "${{ env.TARGET_FILE }}" ]; then
@@ -101,7 +101,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add sb-api-mobile.tag.json
+          git add version-control.tag.json
 
           if git diff --staged --quiet; then
             echo "status=no_changes" >> $GITHUB_OUTPUT
