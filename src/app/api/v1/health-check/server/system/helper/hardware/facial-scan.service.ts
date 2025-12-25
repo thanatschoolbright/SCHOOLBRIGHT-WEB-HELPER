@@ -10,10 +10,10 @@ const FACIAL_SCAN_CONFIG = {
     "Content-Type": "application/json",
   },
   data: {
-    schoolId: "39",
-    UserCode: "1233762",
-    sID: "1233762",
-    version: "1.2.5",
+    schoolId: "849",
+    UserCode: "2250",
+    sID: "2250",
+    version: "9.9.9",
   },
 };
 
@@ -21,7 +21,7 @@ export async function checkFacialScanService(): Promise<HealthCheckResult> {
   let domain = "localhost";
   try {
     domain = new URL(FACIAL_SCAN_CONFIG.url).hostname;
-  } catch {}
+  } catch { }
 
   const curlCommand = generateCurlCommand(FACIAL_SCAN_CONFIG);
 
