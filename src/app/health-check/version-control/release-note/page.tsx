@@ -53,6 +53,7 @@ dayjs.extend(relativeTime);
 dayjs.extend(isBetween);
 dayjs.locale("th");
 
+// URL Data Source
 const GITHUB_RAW_URL =
   "https://raw.githubusercontent.com/Jabjai-Corporation/meta-version/main/version-control.tag.json";
 const BACKLOG_URL_PREFIX = "https://jabjai.backlog.com/view/";
@@ -67,6 +68,31 @@ interface GitHubReleaseItem {
   author: string;
   synced_at: string;
 }
+
+// --- 1. Helper: Map System Name to Thai ---
+const getSystemNameTH = (systemName: string) => {
+  // Mapping รายชื่อระบบที่ทราบ
+  const map: Record<string, string> = {
+    "schoolbright-sb-web-accounting": "เว็บระบบบัญชี/การเงิน",
+    "schoolbright-sb-web-system": "เว็บระบบข้อมูลบุคคล",
+    "schoolbright-sb-api-mobile": "ระบบ API Mobile",
+    "schoolbright-sb-app-mobile": "แอปพลิเคชัน Mobile",
+    "schoolbright-sb-web-canteen": "เว็บระบบโรงอาหาร",
+    "schoolbright-sb-web-library": "เว็บระบบห้องสมุด",
+    "schoolbright-sb-web-exam": "เว็บระบบคลังข้อสอบ",
+    "schoolbright-sb-api-hardware": "ระบบ API Hardware",
+    "schoolbright-sb-web-helper": "เว็บระบบช่วยเหลือ (Web Helper)",
+  };
+
+  // กรณีมีใน Map ให้คืนค่าภาษาไทย + (ชื่อเดิม)
+  if (map[systemName]) {
+    return `${map[systemName]} (${systemName})`;
+  }
+
+  // กรณีไม่ทราบชื่อ (Fallback): ตัดคำว่า schoolbright-sb- ออก แล้วแสดงเป็นชื่อย่อ
+  const suffix = systemName ? systemName.replace("schoolbright-sb-", "") : "Unknown";
+  return `เว็บระบบข้อมูล ${suffix} (${systemName})`; 
+};
 
 // --- Helper: Extract Impact Scope ---
 const extractImpactScope = (text: string) => {
@@ -255,7 +281,7 @@ const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(`Version: ${item.tag}\n\n${item.notes}`);
+    navigator.clipboard.writeText(`System: ${getSystemNameTH(item.system)}\nVersion: ${item.tag}\n\n${item.notes}`);
     messageApi.success("คัดลอกรายละเอียดเรียบร้อย");
   };
 
@@ -267,8 +293,9 @@ const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
         style={{
           borderRadius: 16,
           boxShadow: isLatest ? "0 4px 20px rgba(0,0,0,0.08)" : "none",
-          border: `1px solid ${isLatest ? token.colorPrimaryBorder : token.colorBorderSecondary
-            }`,
+          border: `1px solid ${
+            isLatest ? token.colorPrimaryBorder : token.colorBorderSecondary
+          }`,
           background: token.colorBgContainer,
           overflow: "hidden",
           transition: "all 0.3s ease",
@@ -294,7 +321,7 @@ const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
             cursor: isLatest ? "default" : "pointer",
           }}
         >
-          <Space size="middle" align="center">
+          <Space size="middle" align="center" wrap>
             {!isLatest && (
               <div style={{ color: token.colorTextTertiary, fontSize: 12 }}>
                 {expanded ? <UpOutlined /> : <DownOutlined />}
@@ -315,11 +342,18 @@ const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
               <TagOutlined /> {item.tag}
             </Tag>
 
-            <Typography.Text strong style={{ fontSize: 16 }}>
-              {item.title && item.title !== item.tag
-                ? item.title
-                : `เวอร์ชัน ${item.tag}`}
-            </Typography.Text>
+            {/* ✅ 2. เพิ่มชื่อ System ลงใน Header ของ Card */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography.Text strong style={{ fontSize: 16 }}>
+                {item.title && item.title !== item.tag
+                    ? item.title
+                    : `เวอร์ชัน ${item.tag}`}
+                </Typography.Text>
+                
+                <Typography.Text type="secondary" style={{ fontSize: 13, color: token.colorPrimary }}>
+                    {getSystemNameTH(item.system)}
+                </Typography.Text>
+            </div>
 
             {isLatest && <Tag color="#f50">ล่าสุด (LATEST)</Tag>}
 
@@ -356,7 +390,6 @@ const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
               >
                 <ClockCircleOutlined />
                 <Typography.Text type="secondary">
-                  {/* ✅ Fixed: Display Date and Time */}
                   {dayjs(item.release_date).format("D MMM BBBB • HH:mm น.")}
                 </Typography.Text>
               </div>
@@ -423,6 +456,15 @@ const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
                   </Tag>
                 </Tooltip>
               </Space>
+              
+              <Divider type="vertical" />
+              
+              <Space>
+                 <AppstoreOutlined style={{ color: token.colorTextTertiary }} />
+                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>System:</Typography.Text>
+                 {/* แสดงชื่อระบบในส่วนรายละเอียดด้วย */}
+                 <span style={{ fontWeight: 500 }}>{getSystemNameTH(item.system)}</span>
+              </Space>
             </div>
 
             <div
@@ -478,14 +520,16 @@ export const GitHubReleaseNotes: React.FC = () => {
     fetchReleaseNotes();
   }, []);
 
+  // ✅ 3. Update Filter Options to use Thai Name
   const systemOptions = useMemo(
     () =>
       [...new Set(data.map((item) => item.system))].map((v) => ({
-        label: v,
-        value: v,
+        label: getSystemNameTH(v), // แสดงชื่อไทยใน Dropdown
+        value: v, // ค่าที่ส่งยังเป็น system ID เดิม
       })),
     [data]
   );
+  
   const typeOptions = useMemo(
     () =>
       [...new Set(data.map((item) => item.type))].map((v) => ({
