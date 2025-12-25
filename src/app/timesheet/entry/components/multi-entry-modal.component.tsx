@@ -332,7 +332,6 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
           {entries.map((entry, index) => (
             <Card
               key={entry.id}
-              bordered={false}
               style={{
                 backgroundColor: token.colorFillAlter,
                 borderRadius: token.borderRadiusLG,
