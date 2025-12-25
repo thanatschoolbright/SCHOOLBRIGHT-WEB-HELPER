@@ -59,12 +59,25 @@ jobs:
 
       - name: 🛠️ Transform Data to sb-api-mobile.tag.json
         run: |
-          RAW=$(cat raw_releases.json)
+          # 1. ตรวจสอบว่ามีไฟล์ปลายทางหรือยัง ถ้าไม่มีให้สร้าง Array เปล่า
+          if [ ! -f "${{ env.TARGET_FILE }}" ]; then
+            echo "[]" > "${{ env.TARGET_FILE }}"
+          fi
 
+          # 2. ใช้ jq อ่านไฟล์เก่า (TARGET_FILE) และไฟล์ใหม่ (raw_releases.json) มา Merge กัน
+          # --slurpfile จะอ่านไฟล์ raw_releases.json เข้ามาเป็นตัวแปร $new_releases (อยู่ในรูป array of array)
+          
           jq -c \
             --arg system "${{ env.SYSTEM_NAME }}" \
             --arg update_time "$(date -Iseconds)" \
-            'map({
+            --slurpfile new_releases raw_releases.json \
+            '
+            # ส่วนที่ 1: กรองข้อมูลเก่าในไฟล์เดิม (Input คือไฟล์ TARGET_FILE)
+            # เก็บไว้เฉพาะ object ที่ system ไม่ตรงกับ system ปัจจุบัน (เพื่อ replace ของเก่าทิ้ง)
+            map(select(.system != $system))
+            +
+            # ส่วนที่ 2: แปลงข้อมูลใหม่จาก raw_releases (index 0 เพราะ slurpfile ห่อมาชั้นนึง)
+            ($new_releases[0] | map({
               system: $system,
               tag: (.tag_name | sub("^v"; "")), 
               title: (.name // (.tag_name | sub("^v"; ""))),
@@ -73,8 +86,13 @@ jobs:
               notes: (.body // ""),
               author: (.author.login // "unknown"),
               synced_at: $update_time
-            }) | sort_by(.release_date) | reverse' \
-            <<< "$RAW" > "${{ env.TARGET_FILE }}"
+            }))
+            # ส่วนที่ 3: รวมกันแล้ว sort ตามวันที่ใหม่สุดไปเก่าสุด
+            | sort_by(.release_date) | reverse
+            ' "${{ env.TARGET_FILE }}" > temp.json
+
+          # 3. ย้ายไฟล์ temp กลับไปเป็นไฟล์จริง
+          mv temp.json "${{ env.TARGET_FILE }}"
 
       - name: 🚀 Commit and Push
         id: deploy
@@ -95,12 +113,11 @@ jobs:
           fi
 
       # ------------------------------------------------------------------
-      # ✨ New Step: สร้าง Job Summary สวยๆ บนหน้า UI
+      # ✨ Job Summary Section
       # ------------------------------------------------------------------
       - name: 📝 Write Job Summary
-        if: always() # ให้ทำงานเสมอไม่ว่าจะ Success หรือ Fail
+        if: always()
         run: |
-          # 1. กำหนด Icon และข้อความตามสถานะ
           if [[ "${{ steps.deploy.outputs.status }}" == "success" ]]; then
             STATUS_EMOJI="✅"
             STATUS_MSG="Sync Completed (Updated)"
@@ -112,15 +129,14 @@ jobs:
             STATUS_MSG="Failed (Check Logs)"
           fi
 
-          # 2. ดึงข้อมูลเวอร์ชันล่าสุดมาโชว์ (ถ้ามีไฟล์)
           LATEST_TAG="N/A"
           LATEST_DATE="N/A"
+          # ดึงข้อมูลล่าสุดของ System นี้มาโชว์ (ต้อง Filter หาเฉพาะ System นี้ก่อนเลือกตัวแรก)
           if [ -f "${{ env.TARGET_FILE }}" ]; then
-            LATEST_TAG=$(jq -r '.[0].tag // "N/A"' "${{ env.TARGET_FILE }}")
-            LATEST_DATE=$(jq -r '.[0].release_date // "N/A"' "${{ env.TARGET_FILE }}")
+            LATEST_TAG=$(jq -r --arg system "${{ env.SYSTEM_NAME }}" 'map(select(.system == $system)) | .[0].tag // "N/A"' "${{ env.TARGET_FILE }}")
+            LATEST_DATE=$(jq -r --arg system "${{ env.SYSTEM_NAME }}" 'map(select(.system == $system)) | .[0].release_date // "N/A"' "${{ env.TARGET_FILE }}")
           fi
 
-          # 3. เขียนลง GitHub Step Summary (Markdown)
           echo "### 🚀 Release Sync Status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> **Status:** $STATUS_EMOJI $STATUS_MSG" >> $GITHUB_STEP_SUMMARY
@@ -133,13 +149,12 @@ jobs:
           echo "| **Latest Tag** | \`$LATEST_TAG\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Latest Date** | $LATEST_DATE |" >> $GITHUB_STEP_SUMMARY
 
-          # Optional: สร้าง Dropdown ให้ดู JSON ตัวล่าสุดได้เลย
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "<details><summary>🔍 Preview Latest Release Data (JSON)</summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
           if [ -f "${{ env.TARGET_FILE }}" ]; then
-            jq '.[0]' "${{ env.TARGET_FILE }}" >> $GITHUB_STEP_SUMMARY
+            jq --arg system "${{ env.SYSTEM_NAME }}" 'map(select(.system == $system)) | .[0]' "${{ env.TARGET_FILE }}" >> $GITHUB_STEP_SUMMARY
           else
             echo "File not found." >> $GITHUB_STEP_SUMMARY
           fi
