@@ -455,7 +455,7 @@ export const GitHubReleaseNotes: React.FC = () => {
   const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
-  >(null);os
+  >(null);
 
   const fetchReleaseNotes = async () => {
     setLoading(true);
