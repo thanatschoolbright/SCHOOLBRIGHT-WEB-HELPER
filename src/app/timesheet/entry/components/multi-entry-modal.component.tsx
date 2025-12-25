@@ -133,12 +133,24 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
   );
 
   const handleProjectChange = useCallback(
-    async (id: string, projectId: number) => {
+    async (id: string, projectId: number | string) => {
+      // 1. รองรับ Type string
+
+      // 2. อัปเดต Local State
       updateEntry(id, "project_id", projectId);
-      updateEntry(id, "sub_project_id", undefined);
+      updateEntry(id, "sub_project_id", undefined); // เคลียร์ค่า Sub Project ใน State
+
+      // 3. (สำคัญ) อัปเดต Form State ให้ตรงกันทันที
+      // เพื่อป้องกัน Form จำค่าเก่า และเพื่อให้ Validate ผ่านถูกต้อง
+      form.setFieldsValue({
+        [`project_id_${id}`]: projectId,
+        [`sub_project_id_${id}`]: undefined, // เคลียร์ค่า Sub Project ใน Form
+      });
+
+      // 4. Fetch ข้อมูลใหม่
       await fetchSubProjects(String(projectId));
     },
-    [updateEntry, fetchSubProjects]
+    [updateEntry, fetchSubProjects, form] // เพิ่ม form ใน dependency
   );
 
   const handleSubmit = useCallback(async () => {
@@ -170,6 +182,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
     onCancel();
   }, [form, onCancel]);
 
+  // แก้ไขจาก value: Number(p.id) เป็น value: p.id
   const projectOptions = useMemo(
     () =>
       projects.map((p) => ({
@@ -182,7 +195,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
             </Typography.Text>
           </Space>
         ),
-        value: Number(p.id),
+        value: p.id, // <--- แก้ตรงนี้: ไม่ต้องแปลงเป็น Number ถ้า id เป็น string
         labelString: p.name,
       })),
     [projects, token.colorPrimary]

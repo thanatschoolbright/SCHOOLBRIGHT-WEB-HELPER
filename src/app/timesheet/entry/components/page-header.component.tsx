@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Button, Space } from "antd";
+import { Typography, Button, Space, Badge } from "antd";
 import {
   PlusOutlined,
   BookOutlined,
@@ -54,16 +54,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         </Typography.Text>
       </div>
       <Space size="middle">
-        <Button
-          size="large"
-          icon={<BookOutlined />}
-          onClick={handleOpenGuide}
-          style={{
-            borderRadius: 8,
-            height: 44,
-            paddingInline: 24,
-          }}
-        >
+        <Button size="large" icon={<BookOutlined />} onClick={handleOpenGuide}>
           {t("timesheet_entry_page.user_guide_button")}
         </Button>
         <Button
@@ -71,29 +62,19 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           size="large"
           icon={<PlusOutlined />}
           onClick={onAddClick}
-          style={{
-            borderRadius: 8,
-            height: 44,
-            paddingInline: 24,
-          }}
         >
           {t("timesheet_entry_page.add_entry_button")}
         </Button>
-        <Button
-          type="primary"
-          size="large"
-          icon={<AppstoreAddOutlined />}
-          onClick={onAddMultiClick}
-          style={{
-            borderRadius: 8,
-            height: 44,
-            paddingInline: 24,
-            background: token.colorSuccess,
-            borderColor: token.colorSuccess,
-          }}
-        >
-          {t("timesheet_entry_page.add_multi_entry_button")}
-        </Button>
+        <Badge count="ใหม่" offset={[-10, 5]}>
+          <Button
+            type="primary"
+            size="large"
+            icon={<AppstoreAddOutlined />}
+            onClick={onAddMultiClick}
+          >
+            {t("timesheet_entry_page.add_multi_entry_button")}
+          </Button>
+        </Badge>
       </Space>
     </div>
   );
