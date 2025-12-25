@@ -139,7 +139,7 @@ export const useTimesheetEntries = (adminId?: number) => {
   const [entries, setEntries] = useState<TimesheetEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(50);
   const [totalItems, setTotalItems] = useState(0);
 
   const TOAST_ID = "timesheet-entries";
