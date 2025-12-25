@@ -8,7 +8,7 @@ import { AppDispatch, useAppSelector } from "@stores/store";
 import { toast } from "sonner";
 import { CallAPI as GET_VERSION_CONTROL } from "@/stores/actions/health-check/version-control/action";
 import { ResponseVersionControl } from "@/stores/type";
-import Link from "next/link"; // ✅ Import Link for navigation
+import Link from "next/link";
 
 // Ant Design V5
 import {
@@ -42,7 +42,7 @@ import {
   GlobalOutlined,
   WarningOutlined,
   CodeOutlined,
-  FileTextOutlined, // ✅ Import Icon for Release Note
+  FileTextOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -213,7 +213,7 @@ export default function OperationsDashboardPage() {
               valueStyle={{
                 fontSize: 18,
                 fontWeight: 600,
-                color: token.colorWarning,
+                color: token.colorSuccess, // Changed to Success Color (Green) to avoid confusion
               }}
             />
           </Space>
@@ -325,13 +325,15 @@ export default function OperationsDashboardPage() {
                 title={
                   <Space>
                     <HistoryOutlined />{" "}
-                    <span className="text-red-500">Live Deploy Feed</span>
+                    {/* ✅ Changed to Green to indicate Normal Status */}
+                    <span style={{ color: token.colorSuccess }}>Live Deploy Feed</span>
                   </Space>
                 }
                 className="shadow-sm"
                 bodyStyle={{ padding: "0px 24px 24px 24px" }}
               >
-                <div className="my-4 p-3 bg-red-50 rounded-lg border border-red-100 text-xs text-red-600 flex items-start gap-2">
+                {/* ✅ Changed Alert Box Style to Blue/Info instead of Red/Warning */}
+                <div className="my-4 p-3 bg-blue-50 rounded-lg border border-blue-100 text-xs text-blue-600 flex items-start gap-2">
                   <WarningOutlined />
                   <span>
                     Feed นี้แสดงรายการ Deploy ล่าสุดเรียงตามเวลา
@@ -342,9 +344,11 @@ export default function OperationsDashboardPage() {
                 <Timeline
                   className="mt-6"
                   items={recentActivities.map((item) => ({
-                    color: getEnvColor(item.environment),
+                    // ✅ Force Green Color for all items
+                    color: token.colorSuccess,
                     dot: isRecent(item.updated_at) ? (
-                      <div className="animate-pulse w-3 h-3 rounded-full bg-red-500" />
+                      // ✅ Pulse Green for recent items
+                      <div className="animate-pulse w-3 h-3 rounded-full bg-green-500" />
                     ) : undefined,
                     children: (
                       <div
