@@ -1,0 +1,198 @@
+name: Update Version Control (Auto Metadata Sync)
+
+on:
+  push:
+    branches: [release/production, release/development, release/beta]
+
+# 🛡️ Enterprise Feature: Concurrency
+# ป้องกันการเขียนไฟล์ทับกันถ้ามีการ Push เข้ามาพร้อมกันหลาย Branch
+# โดยจะให้เข้าคิวทำงานทีละงาน (group เดียวกัน)
+concurrency:
+  group: meta-sync-${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read # อ่าน repo หลักได้
+  # permissions อื่นๆ จะใช้ผ่าน PAT (Secret Token)
+
+jobs:
+  update-version-json:
+    name: 🔄 Sync system.version.json
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # ป้องกัน job ค้างนานเกินจำเป็น
+
+    env:
+      SYSTEM_NAME: schoolbright-sb-web-helper
+      META_REPO: Jabjai-Corporation/meta-version
+      VERSION_FILE_PATH: meta-version/system.version.json
+
+    steps:
+      # ------------------------------------------------------------------
+      # 1. Checkout & Setup
+      # ------------------------------------------------------------------
+      - name: 📥 Checkout main project repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📁 Checkout meta-version repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.META_REPO }}
+          token: ${{ secrets.SECRET_TOKEN }}
+          path: meta-version
+          fetch-depth: 0 # ดึง history มาด้วยเพื่อให้ merge/rebase ได้
+
+      # ------------------------------------------------------------------
+      # 2. Data Extraction
+      # ------------------------------------------------------------------
+      - name: 📝 Extract Metadata (Commit, Time, Tag)
+        id: meta
+        run: |
+          # Commit Info
+          echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+          echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_OUTPUT
+          
+          # Time
+          echo "time=$(date -Iseconds)" >> $GITHUB_OUTPUT
+          
+          # Build SHA
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+          # Git Tag (Handle case where no tags exist)
+          git fetch --tags --force origin +refs/tags/*:refs/tags/*
+          LATEST_TAG=$(git tag --sort=-creatordate | head -n 1)
+          if [ -z "$LATEST_TAG" ]; then LATEST_TAG="v0.0.0-initial"; fi
+          echo "version=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: 🧠 Determine Environment
+        id: envmap
+        run: |
+          FULL_BRANCH="${GITHUB_REF#refs/heads/}"
+          
+          if [[ "$FULL_BRANCH" == "release/production" ]]; then
+            ENV="production"
+          elif [[ "$FULL_BRANCH" == "release/beta" ]]; then
+            ENV="beta"
+          else
+            ENV="development"
+          fi
+          
+          echo "env=$ENV" >> $GITHUB_OUTPUT
+          echo "branch=$FULL_BRANCH" >> $GITHUB_OUTPUT
+
+      # ------------------------------------------------------------------
+      # 3. Core Logic (JSON Processing)
+      # ------------------------------------------------------------------
+      - name: 🛠️ Process and Merge JSON Data
+        id: process
+        shell: bash
+        run: |
+          FILE="${{ env.VERSION_FILE_PATH }}"
+          
+          # Ensure file exists
+          if [ ! -f "$FILE" ]; then echo "[]" > "$FILE"; fi
+
+          # Construct New Entry Object
+          NEW_ENTRY=$(jq -c -n \
+            --arg system "${{ env.SYSTEM_NAME }}" \
+            --arg environment "${{ steps.envmap.outputs.env }}" \
+            --arg branch "${{ steps.envmap.outputs.branch }}" \
+            --arg version "${{ steps.meta.outputs.version }}" \
+            --arg build "${{ steps.meta.outputs.sha_short }}" \
+            --arg updated_at "${{ steps.meta.outputs.time }}" \
+            --arg description "${{ steps.meta.outputs.message }}" \
+            --arg deployed_by "${{ steps.meta.outputs.author }}" \
+            --arg repo "${{ github.event.repository.name }}" \
+            '{
+              system: $system,
+              environment: $environment,
+              branch: $branch,
+              version: $version,
+              build: $build,
+              updated_at: $updated_at,
+              description: $description,
+              deployed_by: $deployed_by,
+              repo: $repo
+            }')
+
+          # Merge Logic: Filter out old entry for this system+env, then add new one
+          jq -c \
+            --argjson new "$NEW_ENTRY" \
+            --arg env "${{ steps.envmap.outputs.env }}" \
+            --arg sys "${{ env.SYSTEM_NAME }}" \
+            'map(select(.environment != $env or .system != $sys)) + [$new]' \
+            "$FILE" > "${FILE}.tmp" && mv "${FILE}.tmp" "$FILE"
+          
+          # Validation: Check if JSON is valid before committing
+          if jq -e . "$FILE" >/dev/null 2>&1; then
+            echo "✅ JSON is valid."
+          else
+            echo "❌ JSON is invalid!"
+            exit 1
+          fi
+
+      # ------------------------------------------------------------------
+      # 4. Commit & Sync (Robust Strategy)
+      # ------------------------------------------------------------------
+      - name: 🚀 Commit and Push (Rebase Strategy)
+        id: deploy
+        run: |
+          cd meta-version
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add system.version.json
+          
+          # Check if there are changes
+          if git diff --staged --quiet; then
+            echo "status=no_changes" >> $GITHUB_OUTPUT
+            echo "⚠️ No changes detected in version file."
+          else
+            git commit -m "CI: Update ${{ steps.envmap.outputs.env }} metadata for ${{ env.SYSTEM_NAME }}"
+            
+            # Enterprise Safety: Pull Rebase to prevent conflicts with other concurrent runners
+            git pull --rebase origin main
+            git push origin main
+            
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+      # ------------------------------------------------------------------
+      # 5. Final Reporting (The Request)
+      # ------------------------------------------------------------------
+      - name: 📊 Execution Report (Echo Summary)
+        if: always() # Run even if previous steps failed
+        run: |
+          echo "========================================================"
+          echo "               🚀 DEPLOYMENT SUMMARY REPORT              "
+          echo "========================================================"
+          echo "📌 System       : ${{ env.SYSTEM_NAME }}"
+          echo "🌍 Environment  : ${{ steps.envmap.outputs.env }}"
+          echo "🌿 Branch       : ${{ steps.envmap.outputs.branch }}"
+          echo "🏷️  Version      : ${{ steps.meta.outputs.version }}"
+          echo "🧱 Build SHA    : ${{ steps.meta.outputs.sha_short }}"
+          echo "👤 Deployed By  : ${{ steps.meta.outputs.author }}"
+          echo "🕒 Timestamp    : ${{ steps.meta.outputs.time }}"
+          echo "--------------------------------------------------------"
+          
+          if [[ "${{ steps.deploy.outputs.status }}" == "success" ]]; then
+             echo "✅ STATUS       : SUCCESS (Metadata Updated)"
+          elif [[ "${{ steps.deploy.outputs.status }}" == "no_changes" ]]; then
+             echo "⚠️ STATUS       : SKIPPED (No Changes Detected)"
+          else
+             echo "❌ STATUS       : FAILED (Check Logs)"
+          fi
+          echo "========================================================"
+
+      # Optional: สร้าง Summary สวยๆ บนหน้า UI ของ GitHub Actions
+      - name: 📝 Job Summary
+        if: always()
+        run: |
+          echo "### 🚀 Metadata Sync Status" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **System** | ${{ env.SYSTEM_NAME }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Environment** | \`${{ steps.envmap.outputs.env }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version** | \`${{ steps.meta.outputs.version }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Status** | ${{ steps.deploy.outputs.status == 'success' && '✅ Updated' || '⚠️ Skipped/Failed' }} |" >> $GITHUB_STEP_SUMMARY
