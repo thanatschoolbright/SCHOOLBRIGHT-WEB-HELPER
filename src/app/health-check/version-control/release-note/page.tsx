@@ -54,7 +54,7 @@ dayjs.extend(isBetween);
 dayjs.locale("th");
 
 const GITHUB_RAW_URL =
-  "https://raw.githubusercontent.com/Jabjai-Corporation/meta-version/main/sb-api-mobile.tag.json";
+  "https://raw.githubusercontent.com/Jabjai-Corporation/meta-version/main/version-control.tag.json";
 const BACKLOG_URL_PREFIX = "https://jabjai.backlog.com/view/";
 
 interface GitHubReleaseItem {
@@ -455,7 +455,7 @@ export const GitHubReleaseNotes: React.FC = () => {
   const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
-  >(null);
+  >(null);os
 
   const fetchReleaseNotes = async () => {
     setLoading(true);
