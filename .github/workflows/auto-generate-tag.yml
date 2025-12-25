@@ -58,34 +58,34 @@ jobs:
           echo "count=$COUNT" >> $GITHUB_OUTPUT
 
       # ------------------------------------------------------------------
-      # 🛠️ จุดที่แก้ไข: Logic "Wipe & Replace" เฉพาะ System ปัจจุบัน
+      # 🛠️ จุดที่แก้ไข: ใช้ --slurpfile แทน --argjson เพื่อป้องกัน Error
       # ------------------------------------------------------------------
       - name: 🛠️ Transform & Update Data (Replace Current System Only)
         id: merge_data
         run: |
-          # 1. ตรวจสอบไฟล์เดิม
-          if [ -f "${{ env.TARGET_FILE }}" ]; then
-            EXISTING_CONTENT=$(cat "${{ env.TARGET_FILE }}")
-          else
-            EXISTING_CONTENT="[]"
+          # 1. ป้องกันไฟล์ Target ไม่มีอยู่จริง หรือเป็นไฟล์ว่าง (Empty)
+          # ถ้าไม่มี หรือขนาดเป็น 0 ให้เขียน [] ลงไปก่อน
+          if [ ! -f "${{ env.TARGET_FILE }}" ] || [ ! -s "${{ env.TARGET_FILE }}" ]; then
+            echo "[]" > "${{ env.TARGET_FILE }}"
           fi
 
-          # 2. อ่าน Raw Data ใหม่
-          NEW_RAW=$(cat raw_releases.json)
+          # 2. ป้องกันไฟล์ Raw Data ว่าง
+          if [ ! -s "raw_releases.json" ]; then
+            echo "[]" > "raw_releases.json"
+          fi
 
-          # 3. JQ Logic:
-          # - เก็บของคนอื่นไว้ (Keep Others)
-          # - ลบของตัวเองทิ้งให้หมด (Drop Current System)
-          # - ใส่ของตัวเองชุดใหม่เข้าไป (Insert New Current System)
+          # 3. ใช้ jq แบบ Read File โดยตรง (Safe Mode)
+          # --slurpfile ชื่อตัวแปร ชื่อไฟล์: อ่านไฟล์เข้ามาเป็น Array ซ้อน Array (เช่น [[...]])
+          # ดังนั้นเวลาใช้ต้องอ้างอิง index [0] เสมอ
 
           jq -c \
-            --argjson existing "$EXISTING_CONTENT" \
-            --argjson raw "$NEW_RAW" \
+            --slurpfile existing_db "${{ env.TARGET_FILE }}" \
+            --slurpfile raw_input "raw_releases.json" \
             --arg sys "${{ env.SYSTEM_NAME }}" \
             --arg update_time "$(date -Iseconds)" \
             '
-            # (A) เตรียมข้อมูลชุดใหม่ (New Entries)
-            ($raw | map({
+            # (A) แปลงข้อมูลชุดใหม่ ($raw_input[0] คือเนื้อหาไฟล์ raw_releases.json)
+            ($raw_input[0] | map({
               system: $sys,
               tag: (.tag_name | sub("^v"; "")), 
               title: (.name // (.tag_name | sub("^v"; ""))),
@@ -96,15 +96,16 @@ jobs:
               synced_at: $update_time
             })) as $new_entries |
 
-            # (B) กรองข้อมูลในไฟล์เก่า: เก็บไว้เฉพาะ System "อื่น" ที่ไม่ใช่ตัวปัจจุบัน
-            ($existing | map(select(.system != $sys))) as $other_systems |
+            # (B) กรองข้อมูลในไฟล์เก่า ($existing_db[0] คือเนื้อหาไฟล์ปลายทาง)
+            # เก็บไว้เฉพาะ System "อื่น" ที่ไม่ใช่ตัวปัจจุบัน
+            ($existing_db[0] | map(select(.system != $sys))) as $other_systems |
 
-            # (C) นำข้อมูล System อื่น + ข้อมูล System เราชุดใหม่ มารวมกัน
+            # (C) นำมารวมกัน (Others + New Current)
             ($other_systems + $new_entries) |
             
-            # (D) เรียงลำดับตามวันที่ (ใหม่สุดขึ้นก่อน)
+            # (D) เรียงลำดับ
             sort_by(.release_date) | reverse
-            ' > "${{ env.TARGET_FILE }}"
+            ' > "${{ env.TARGET_FILE }}.tmp" && mv "${{ env.TARGET_FILE }}.tmp" "${{ env.TARGET_FILE }}"
 
           echo "✅ Database updated. Total items: $(jq length "${{ env.TARGET_FILE }}")"
 
