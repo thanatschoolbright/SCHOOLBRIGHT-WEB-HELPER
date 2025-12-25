@@ -20,12 +20,13 @@ jobs:
   sync-release-history:
     name: 🔄 Sync All Releases to sb-api-mobile.tag.json
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10 # เพิ่มเวลาเผื่อกรณีมี Release เยอะมาก
 
     env:
       SYSTEM_NAME: schoolbright-sb-web-helper
       META_REPO: Jabjai-Corporation/meta-version
       TARGET_FILE: meta-version/sb-api-mobile.tag.json
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # จำเป็นสำหรับ gh api
 
     steps:
       - name: 📥 Checkout main project repo
@@ -38,45 +39,50 @@ jobs:
           token: ${{ secrets.SECRET_TOKEN }}
           path: meta-version
 
-      - name: 📡 Fetch All Releases & Tags
+      # ------------------------------------------------------------------
+      # 📡 แก้ไข: ใช้ gh api --paginate เพื่อดึงข้อมูล "ทั้งหมด" ไม่จำกัดแค่ 100
+      # ------------------------------------------------------------------
+      - name: 📡 Fetch Full History (All Pages)
         id: fetch_releases
         run: |
-          echo "Fetching releases via GitHub REST API..."
+          echo "Fetching ALL releases history (Pagination enabled)..."
 
-          # ดึงข้อมูลจาก API (ได้สูงสุด 100 รายการล่าสุด)
-          curl -L \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100" > raw_releases.json
+          # ใช้ gh api พร้อม flag --paginate เพื่อดึงข้อมูลทุกหน้ามารวมกัน
+          # และใช้ jq ในตัว (flag -q) เลือกเฉพาะ field ที่จำเป็นเพื่อลดขนาดไฟล์
+          gh api "repos/${{ github.repository }}/releases" \
+            --paginate \
+            -q 'map({tag_name, name, published_at, body, prerelease, author: .author.login})' \
+            > raw_releases.json
 
-          if [ ! -s raw_releases.json ] || grep -q "Not Found" raw_releases.json; then
+          # ตรวจสอบความถูกต้อง
+          if [ ! -s raw_releases.json ]; then
              echo "[]" > raw_releases.json
           fi
 
-          COUNT=$(jq '. | length' raw_releases.json)
+          COUNT=$(jq length raw_releases.json)
           echo "count=$COUNT" >> $GITHUB_OUTPUT
+          echo "✅ Fetched $COUNT releases in total."
 
       # ------------------------------------------------------------------
-      # 🛠️ จุดที่แก้ไข: ใช้ --slurpfile แทน --argjson เพื่อป้องกัน Error
+      # 🛠️ Transform & Update Data (Wipe & Replace Current System)
       # ------------------------------------------------------------------
-      - name: 🛠️ Transform & Update Data (Replace Current System Only)
+      - name: 🛠️ Transform & Update Data
         id: merge_data
         run: |
-          # 1. ป้องกันไฟล์ Target ไม่มีอยู่จริง หรือเป็นไฟล์ว่าง (Empty)
-          # ถ้าไม่มี หรือขนาดเป็น 0 ให้เขียน [] ลงไปก่อน
+          # 1. สร้างไฟล์ Target หากยังไม่มี
           if [ ! -f "${{ env.TARGET_FILE }}" ] || [ ! -s "${{ env.TARGET_FILE }}" ]; then
             echo "[]" > "${{ env.TARGET_FILE }}"
           fi
 
-          # 2. ป้องกันไฟล์ Raw Data ว่าง
+          # 2. สร้างไฟล์ Raw หากยังไม่มี
           if [ ! -s "raw_releases.json" ]; then
             echo "[]" > "raw_releases.json"
           fi
 
-          # 3. ใช้ jq แบบ Read File โดยตรง (Safe Mode)
-          # --slurpfile ชื่อตัวแปร ชื่อไฟล์: อ่านไฟล์เข้ามาเป็น Array ซ้อน Array (เช่น [[...]])
-          # ดังนั้นเวลาใช้ต้องอ้างอิง index [0] เสมอ
+          # 3. JQ Logic:
+          # - existing_db: ข้อมูลเดิมทั้งหมดในไฟล์
+          # - raw_input: ข้อมูล Release ทั้งหมด (จากอดีต-ปัจจุบัน) ที่เพิ่งดึงมา
+          # Logic: ลบข้อมูลของ System นี้อันเก่าทิ้งทั้งหมด แล้วแทนที่ด้วยข้อมูลชุดใหญ่ที่เพิ่งดึงมา
 
           jq -c \
             --slurpfile existing_db "${{ env.TARGET_FILE }}" \
@@ -84,7 +90,7 @@ jobs:
             --arg sys "${{ env.SYSTEM_NAME }}" \
             --arg update_time "$(date -Iseconds)" \
             '
-            # (A) แปลงข้อมูลชุดใหม่ ($raw_input[0] คือเนื้อหาไฟล์ raw_releases.json)
+            # (A) แปลงข้อมูลชุดใหม่ (ดึงมาครบทุกตัวจาก GitHub)
             ($raw_input[0] | map({
               system: $sys,
               tag: (.tag_name | sub("^v"; "")), 
@@ -92,22 +98,21 @@ jobs:
               release_date: .published_at,
               type: (if .prerelease then "beta" else "production" end),
               notes: (.body // ""),
-              author: (.author.login // "unknown"),
+              author: (.author // "unknown"),
               synced_at: $update_time
-            })) as $new_entries |
+            })) as $new_history |
 
-            # (B) กรองข้อมูลในไฟล์เก่า ($existing_db[0] คือเนื้อหาไฟล์ปลายทาง)
-            # เก็บไว้เฉพาะ System "อื่น" ที่ไม่ใช่ตัวปัจจุบัน
+            # (B) กรองข้อมูลในไฟล์เก่า: เก็บไว้เฉพาะ System "อื่น"
             ($existing_db[0] | map(select(.system != $sys))) as $other_systems |
 
-            # (C) นำมารวมกัน (Others + New Current)
-            ($other_systems + $new_entries) |
+            # (C) เอาของคนอื่น + ของเรา(ประวัติทั้งหมด) มารวมกัน
+            ($other_systems + $new_history) |
             
-            # (D) เรียงลำดับ
+            # (D) เรียงลำดับ (ใหม่ -> เก่า)
             sort_by(.release_date) | reverse
             ' > "${{ env.TARGET_FILE }}.tmp" && mv "${{ env.TARGET_FILE }}.tmp" "${{ env.TARGET_FILE }}"
 
-          echo "✅ Database updated. Total items: $(jq length "${{ env.TARGET_FILE }}")"
+          echo "✅ Database updated. Total items in file: $(jq length "${{ env.TARGET_FILE }}")"
 
       - name: 🚀 Commit and Push
         id: deploy
@@ -122,7 +127,7 @@ jobs:
             echo "status=no_changes" >> $GITHUB_OUTPUT
             echo "⚠️ No changes in release history."
           else
-            git commit -m "Docs: Update release history (Upsert) for ${{ env.SYSTEM_NAME }}"
+            git commit -m "Docs: Update full release history for ${{ env.SYSTEM_NAME }}"
             git pull --rebase origin main
             git push origin main
             echo "status=success" >> $GITHUB_OUTPUT
@@ -153,6 +158,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Total Records** | $TOTAL_ITEMS items (Cumulative) |" >> $GITHUB_STEP_SUMMARY
-          echo "| **API Fetched** | ${{ steps.fetch_releases.outputs.count }} items |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total Records (All Systems)** | $TOTAL_ITEMS items |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Fetched (Current System)** | ${{ steps.fetch_releases.outputs.count }} releases (All History) |" >> $GITHUB_STEP_SUMMARY
           echo "| **Latest Tag** | \`$LATEST_TAG\` |" >> $GITHUB_STEP_SUMMARY
