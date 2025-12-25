@@ -20,14 +20,12 @@ jobs:
   sync-release-history:
     name: 🔄 Sync All Releases to sb-api-mobile.tag.json
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
 
     env:
-      SYSTEM_NAME: schoolbright-sb-api-mobile
+      SYSTEM_NAME: schoolbright-sb-web-helper
       META_REPO: Jabjai-Corporation/meta-version
-      # ระบุ Path ให้ชัดเจน
-      TARGET_FILE_PATH: meta-version/sb-api-mobile.tag.json
-      TARGET_FILENAME: sb-api-mobile.tag.json
+      TARGET_FILE: meta-version/sb-api-mobile.tag.json
 
     steps:
       - name: 📥 Checkout main project repo
@@ -39,77 +37,45 @@ jobs:
           repository: ${{ env.META_REPO }}
           token: ${{ secrets.SECRET_TOKEN }}
           path: meta-version
-          fetch-depth: 0 # ดึงประวัติมาด้วยเพื่อให้ git ทำงานสมบูรณ์
 
-      # ------------------------------------------------------------------
-      # 1. ใช้ gh api --paginate เพื่อดึงข้อมูล "ทั้งหมด" (แก้ปัญหาข้อมูลหาย)
-      # ------------------------------------------------------------------
-      - name: 📡 Fetch Full History (All Pages)
+      - name: 📡 Fetch All Releases & Tags
         id: fetch_releases
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Fetching ALL releases history via GitHub CLI..."
+          echo "Fetching releases via GitHub REST API..."
 
-          # ใช้ gh api ดึงทุกหน้า + jq เลือก field ที่จำเป็น
-          gh api "repos/${{ github.repository }}/releases" \
-            --paginate \
-            -q 'map({tag_name, name, published_at, body, prerelease, author: .author.login})' \
-            > raw_releases.json
+          curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100" > raw_releases.json
 
-          if [ ! -s raw_releases.json ]; then
+          if [ ! -s raw_releases.json ] || grep -q "Not Found" raw_releases.json; then
+             echo "⚠️ No releases found or API error."
              echo "[]" > raw_releases.json
           fi
 
-          COUNT=$(jq length raw_releases.json)
+          COUNT=$(jq '. | length' raw_releases.json)
           echo "count=$COUNT" >> $GITHUB_OUTPUT
-          echo "✅ Fetched $COUNT releases."
 
-      # ------------------------------------------------------------------
-      # 2. Logic Upsert (เก็บของคนอื่นไว้ + อัปเดตของตัวเองให้ใหม่สุด)
-      # ------------------------------------------------------------------
-      - name: 🛠️ Transform & Merge Data
-        id: merge_data
+      - name: 🛠️ Transform Data to sb-api-mobile.tag.json
         run: |
-          # สร้างไฟล์เปล่าถ้ายังไม่มี
-          if [ ! -f "${{ env.TARGET_FILE_PATH }}" ] || [ ! -s "${{ env.TARGET_FILE_PATH }}" ]; then
-            echo "[]" > "${{ env.TARGET_FILE_PATH }}"
-          fi
-
-          if [ ! -s "raw_releases.json" ]; then echo "[]" > "raw_releases.json"; fi
-
-          # JQ Logic:
-          # A. อ่านข้อมูลใหม่ (New History)
-          # B. อ่านไฟล์เดิม เก็บเฉพาะ System อื่นที่ไม่ใช่ตัวนี้ (Keep Others)
-          # C. รวมกัน (Other Systems + New History of Current System)
+          RAW=$(cat raw_releases.json)
 
           jq -c \
-            --slurpfile existing_db "${{ env.TARGET_FILE_PATH }}" \
-            --slurpfile raw_input "raw_releases.json" \
-            --arg sys "${{ env.SYSTEM_NAME }}" \
+            --arg system "${{ env.SYSTEM_NAME }}" \
             --arg update_time "$(date -Iseconds)" \
-            '
-            ($raw_input[0] | map({
-              system: $sys,
+            'map({
+              system: $system,
               tag: (.tag_name | sub("^v"; "")), 
               title: (.name // (.tag_name | sub("^v"; ""))),
               release_date: .published_at,
               type: (if .prerelease then "beta" else "production" end),
               notes: (.body // ""),
-              author: (.author // "unknown"),
+              author: (.author.login // "unknown"),
               synced_at: $update_time
-            })) as $new_history |
+            }) | sort_by(.release_date) | reverse' \
+            <<< "$RAW" > "${{ env.TARGET_FILE }}"
 
-            ($existing_db[0] | map(select(.system != $sys))) as $other_systems |
-
-            ($other_systems + $new_history) | sort_by(.release_date) | reverse
-            ' > "${{ env.TARGET_FILE_PATH }}.tmp" && mv "${{ env.TARGET_FILE_PATH }}.tmp" "${{ env.TARGET_FILE_PATH }}"
-
-          echo "✅ Database updated."
-
-      # ------------------------------------------------------------------
-      # 3. Commit & Push (ตรวจสอบไฟล์ที่ Add ให้ถูกต้อง)
-      # ------------------------------------------------------------------
       - name: 🚀 Commit and Push
         id: deploy
         run: |
@@ -117,32 +83,27 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Add ไฟล์โดยใช้ชื่อจาก Env เพื่อความแม่นยำ
-          git add "${{ env.TARGET_FILENAME }}"
+          git add sb-api-mobile.tag.json
 
-          # ตรวจสอบสถานะก่อน Commit
           if git diff --staged --quiet; then
             echo "status=no_changes" >> $GITHUB_OUTPUT
-            echo "⚠️ No changes detected."
           else
             git commit -m "Docs: Update release history for ${{ env.SYSTEM_NAME }}"
-            
-            # Rebase เพื่อป้องกัน Conflict กับ Job อื่น
             git pull --rebase origin main
             git push origin main
-            
             echo "status=success" >> $GITHUB_OUTPUT
           fi
 
       # ------------------------------------------------------------------
-      # 4. Job Summary
+      # ✨ New Step: สร้าง Job Summary สวยๆ บนหน้า UI
       # ------------------------------------------------------------------
       - name: 📝 Write Job Summary
-        if: always()
+        if: always() # ให้ทำงานเสมอไม่ว่าจะ Success หรือ Fail
         run: |
+          # 1. กำหนด Icon และข้อความตามสถานะ
           if [[ "${{ steps.deploy.outputs.status }}" == "success" ]]; then
             STATUS_EMOJI="✅"
-            STATUS_MSG="Sync Completed"
+            STATUS_MSG="Sync Completed (Updated)"
           elif [[ "${{ steps.deploy.outputs.status }}" == "no_changes" ]]; then
             STATUS_EMOJI="⚠️"
             STATUS_MSG="Skipped (No Changes)"
@@ -151,19 +112,36 @@ jobs:
             STATUS_MSG="Failed (Check Logs)"
           fi
 
+          # 2. ดึงข้อมูลเวอร์ชันล่าสุดมาโชว์ (ถ้ามีไฟล์)
           LATEST_TAG="N/A"
-          TOTAL_ITEMS="0"
-          if [ -f "${{ env.TARGET_FILE_PATH }}" ]; then
-            LATEST_TAG=$(jq -r '.[0].tag // "N/A"' "${{ env.TARGET_FILE_PATH }}")
-            TOTAL_ITEMS=$(jq length "${{ env.TARGET_FILE_PATH }}")
+          LATEST_DATE="N/A"
+          if [ -f "${{ env.TARGET_FILE }}" ]; then
+            LATEST_TAG=$(jq -r '.[0].tag // "N/A"' "${{ env.TARGET_FILE }}")
+            LATEST_DATE=$(jq -r '.[0].release_date // "N/A"' "${{ env.TARGET_FILE }}")
           fi
 
+          # 3. เขียนลง GitHub Step Summary (Markdown)
           echo "### 🚀 Release Sync Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "> **Status:** $STATUS_EMOJI $STATUS_MSG" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+
+          echo "| 📋 Metric | ℹ️ Value |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-          echo "| **System** | \`${{ env.SYSTEM_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Fethed (This Run)** | ${{ steps.fetch_releases.outputs.count }} releases |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Total In DB** | $TOTAL_ITEMS items |" >> $GITHUB_STEP_SUMMARY
+          echo "| **System Name** | \`${{ env.SYSTEM_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total Releases** | ${{ steps.fetch_releases.outputs.count }} items |" >> $GITHUB_STEP_SUMMARY
           echo "| **Latest Tag** | \`$LATEST_TAG\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Latest Date** | $LATEST_DATE |" >> $GITHUB_STEP_SUMMARY
+
+          # Optional: สร้าง Dropdown ให้ดู JSON ตัวล่าสุดได้เลย
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>🔍 Preview Latest Release Data (JSON)</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+          if [ -f "${{ env.TARGET_FILE }}" ]; then
+            jq '.[0]' "${{ env.TARGET_FILE }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "File not found." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
