@@ -12,19 +12,17 @@ import {
   theme,
   InputRef,
 } from "antd";
-import type { ColumnProps, ColumnType } from "antd/es/table";
+import type { ColumnType } from "antd/es/table";
 import {
   EditOutlined,
   CopyOutlined,
   ClockCircleOutlined,
-  ProjectOutlined,
   UserOutlined,
   SearchOutlined,
-  ThunderboltFilled,
+  InfoCircleOutlined, // เพิ่ม Icon สำหรับ Tooltip
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import i18next from "i18next";
-import { useTranslation } from "react-i18next";
+import "dayjs/locale/th"; // Import locale ภาษาไทย
 import {
   TimesheetEntry,
   SearchableColumnKey,
@@ -39,6 +37,9 @@ import {
   getStatusConfig,
 } from "../utils/timesheet-entry.helpers";
 import { TableProps } from "antd/lib";
+
+// ตั้งค่า locale ให้ dayjs เป็นภาษาไทย
+dayjs.locale("th");
 
 interface TimesheetTableProps {
   entries: TimesheetEntry[];
@@ -76,8 +77,6 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   onDelete,
 }) => {
   const { token } = theme.useToken();
-  const { t } = useTranslation("translate");
-  const i18n = i18next;
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
@@ -98,7 +97,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         return (
           <TableSearch
             value={value}
-            placeholder={`${t("timesheet_entry_page.search")} ${title}`}
+            placeholder={`ค้นหา ${title}`} // ภาษาไทย
             inputRef={
               searchInputRefs.current[dataIndex]
                 ? { current: searchInputRefs.current[dataIndex] }
@@ -134,13 +133,20 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         },
       },
     }),
-    [token.colorPrimary, t]
+    [token.colorPrimary]
   );
 
   const columns = useMemo<any>(
     () => [
       {
-        title: t("timesheet_entry_page.table_date"),
+        title: (
+          <Space>
+            วันที่
+            <Tooltip title="วันที่บันทึกเวลาทำงาน">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
         dataIndex: "date",
         width: 100,
         align: "center",
@@ -156,7 +162,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
               lineHeight: 1.2,
               padding: "4px 8px",
               borderRadius: token.borderRadiusSM,
-              background: token.colorFillQuaternary, // Soft background
+              background: token.colorFillQuaternary,
               border: `1px solid ${token.colorBorderSecondary}`,
             }}
           >
@@ -176,7 +182,14 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         ),
       },
       {
-        title: t("timesheet_entry_page.table_project"),
+        title: (
+          <Space>
+            โครงการ
+            <Tooltip title="ชื่อโครงการที่ทำ">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
         dataIndex: "project_name",
         width: 280,
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
@@ -185,7 +198,6 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           const avatarColor = stringToColor(value);
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              {/* Animated Avatar */}
               <div className="relative group">
                 <Avatar
                   shape="square"
@@ -203,10 +215,9 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 >
                   {value ? value.charAt(0).toUpperCase() : <UserOutlined />}
                 </Avatar>
-                {/* Status Dot (Optional - Example logic) */}
                 <div
                   className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white"
-                  style={{ background: token.colorSuccess }} // Mock status
+                  style={{ background: token.colorSuccess }}
                 />
               </div>
 
@@ -247,7 +258,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                         fontSize: 10,
                       }}
                     >
-                      FEATURE
+                      ฟีเจอร์
                     </span>
                     {record.feature_name}
                   </Typography.Text>
@@ -260,13 +271,17 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             </div>
           );
         },
-        ...getColumnSearchProps(
-          "project_name",
-          t("timesheet_entry_page.table_project")
-        ),
+        ...getColumnSearchProps("project_name", "โครงการ"),
       },
       {
-        title: t("timesheet_entry_page.table_status"),
+        title: (
+          <Space>
+            สถานะ
+            <Tooltip title="สถานะปัจจุบันของงาน">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
         dataIndex: "status",
         width: 140,
         align: "center",
@@ -275,14 +290,11 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         render: (value: string) => {
           const config = getStatusConfig(value);
           const option = STATUS_OPTIONS.find((item) => item.value === value);
-          const label = option
-            ? i18n.language === "th"
-              ? option.label_th
-              : option.label_en
-            : config.text;
+          // ใช้ภาษาไทยเสมอ
+          const label = option ? option.label_th : config.text;
           return (
             <Tag
-              color={config.color} // Use color from config or map to token if needed
+              color={config.color}
               icon={config.icon}
               style={{
                 borderRadius: 20,
@@ -290,7 +302,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 fontWeight: 600,
                 fontSize: 12,
                 padding: "4px 12px",
-                boxShadow: `0 2px 4px ${config.color}30`, // Add soft shadow based on tag color
+                boxShadow: `0 2px 4px ${config.color}30`,
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 4,
@@ -302,7 +314,16 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         },
       },
       {
-        title: t("timesheet_entry_page.table_hours"),
+        title: (
+          <Space>
+            ชั่วโมง
+            <Tooltip
+              title={`จำนวนชั่วโมงที่ทำเทียบกับเป้าหมาย (${DAILY_TARGET_HOURS} ชม.)`}
+            >
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
         dataIndex: "hours",
         width: 180,
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
@@ -345,12 +366,12 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   <span
                     style={{ fontSize: 10, color: token.colorTextTertiary }}
                   >
-                    HRS
+                    ชม.
                   </span>
                 </div>
 
                 <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-                  Target: {DAILY_TARGET_HOURS}
+                  เป้าหมาย: {DAILY_TARGET_HOURS}
                 </Typography.Text>
               </div>
               <Progress
@@ -381,7 +402,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             style={{ opacity: 0.8, transition: "opacity 0.2s" }}
             className="row-actions"
           >
-            <Tooltip title={t("timesheet_entry_page.edit_tooltip")}>
+            <Tooltip title="แก้ไขรายการ">
               <Button
                 type="text"
                 size="small"
@@ -395,7 +416,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 }}
               />
             </Tooltip>
-            <Tooltip title={t("timesheet_entry_page.copy_tooltip")}>
+            <Tooltip title="คัดลอกรายการ">
               <Button
                 type="text"
                 size="small"
@@ -413,7 +434,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         ),
       },
     ],
-    [getColumnSearchProps, onEdit, onCopy, i18n.language, token, t]
+    [getColumnSearchProps, onEdit, onCopy, token]
   );
 
   const rowSelection: TableProps<TimesheetEntry>["rowSelection"] = {
@@ -438,7 +459,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
       <Card
         variant="outlined"
         style={{
-          borderRadius: 20, // More rounded
+          borderRadius: 20,
           boxShadow: token.boxShadowSecondary,
           overflow: "hidden",
           border: `1px solid ${token.colorBorderSecondary}`,
@@ -463,14 +484,13 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   level={4}
                   style={{ margin: 0, fontWeight: 700 }}
                 >
-                  {t("timesheet_entry_page.table_title")}
+                  รายการลงเวลาทำงาน
                 </Typography.Title>
                 <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                  {t("timesheet_entry_page.table_subtitle")}
+                  จัดการและตรวจสอบเวลาทำงานของคุณ
                 </Typography.Text>
               </div>
             </div>
-            {/* You can add summary stats here if needed */}
           </div>
         }
         extra={
@@ -509,7 +529,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   fontWeight: 500,
                 }}
               >
-                Showing {range[0]}-{range[1]} of {total} items
+                แสดง {range[0]}-{range[1]} จาก {total} รายการ
               </span>
             ),
             style: { padding: "16px 24px" },
@@ -518,7 +538,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           onRow={(record) => ({
             onClick: () => onRowClick(record),
             style: { cursor: "pointer" },
-            className: "group", // For tailwind hover selectors if used
+            className: "group",
           })}
         />
       </Card>

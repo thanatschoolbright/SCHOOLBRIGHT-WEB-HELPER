@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Col, Card } from "antd";
+import { Row, Col, Card, theme } from "antd";
 import { MonthlyRankBoard, MonthlyRankBoardRef } from "../monthly-rank-board";
 import { WeeklySummary } from "@components/timesheet/weekly-summary";
 import { TimesheetStatCard } from "@components/card/timesheet-stat-card";
@@ -23,21 +23,26 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
   topFeatureUsage,
   loading,
 }) => {
+  const { token } = theme.useToken();
+  const [variant, setVariant] = React.useState<"compact" | "wide">("compact");
+
+  const leftColSpan = variant === "compact" ? 8 : 14;
+  const rightColSpan = variant === "compact" ? 16 : 10;
+
   return (
-    <Row gutter={[16, 16]}>
+    <Row gutter={[24, 24]}>
       {/* Monthly Rank Board */}
-      <Col xs={24} xl={14}>
-        <div style={{ height: "100%" }}>
-          <MonthlyRankBoard
-            ref={rankBoardRef}
-            currentAdminId={adminId}
-            variant="wide"
-          />
-        </div>
+      <Col xs={24} xl={leftColSpan} style={{ transition: "all 0.3s ease" }}>
+        <MonthlyRankBoard
+          ref={rankBoardRef}
+          currentAdminId={adminId}
+          variant="compact"
+          onVariantChange={setVariant}
+        />
       </Col>
 
       {/* Right Side Stats */}
-      <Col xs={24} xl={10}>
+      <Col xs={24} xl={rightColSpan} style={{ transition: "all 0.3s ease" }}>
         <Row gutter={[16, 16]}>
           {/* Weekly Summary */}
           <Col span={24}>
@@ -49,12 +54,12 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
           </Col>
 
           {/* Top Project */}
-          <Col span={12}>
+          <Col xs={24} md={12}>
             {topProjectUsage ? (
               <TimesheetStatCard
                 title="โปรเจ็คยอดนิยม"
                 value={topProjectUsage.hours}
-                color="#52c41a"
+                color={token.colorSuccess}
                 loading={loading}
                 description={topProjectUsage.name}
               />
@@ -64,12 +69,12 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
           </Col>
 
           {/* Top Feature */}
-          <Col span={12}>
+          <Col xs={24} md={12}>
             {topFeatureUsage ? (
               <TimesheetStatCard
                 title="ฟีเจอร์ยอดนิยม"
                 value={topFeatureUsage.hours}
-                color="#ff4d4f"
+                color={token.colorError}
                 loading={loading}
                 description={topFeatureUsage.name}
               />

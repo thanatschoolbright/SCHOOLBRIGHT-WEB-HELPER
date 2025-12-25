@@ -1,6 +1,17 @@
 "use client";
 
-import { Card, Skeleton, Space, theme, Typography, Empty, Divider } from "antd";
+import {
+  Card,
+  Skeleton,
+  Space,
+  theme,
+  Typography,
+  Empty,
+  Divider,
+  Button,
+  Segmented,
+  Tooltip,
+} from "antd";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import dayjs, { Dayjs } from "dayjs";
 import React, {
@@ -12,7 +23,15 @@ import React, {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion"; // เพิ่ม Animation Library
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  TrophyFilled,
+  ReloadOutlined,
+  AppstoreOutlined,
+  MenuOutlined,
+  ExpandAltOutlined,
+  CompressOutlined,
+} from "@ant-design/icons";
 
 import { RankBoardHeader } from "@components/timesheet/rank-board-header";
 import { RankCard } from "@components/timesheet/rank-card";
@@ -26,16 +45,14 @@ type MonthlyRankVariant = "compact" | "wide";
 
 interface MonthlyRankBoardProps {
   currentAdminId?: number;
-  variant?: MonthlyRankVariant;
+  variant?: MonthlyRankVariant; // ค่า Default เริ่มต้น
+  onVariantChange?: (variant: MonthlyRankVariant) => void;
 }
 
 export interface MonthlyRankBoardRef {
   refetch: () => void;
 }
 
-/**
- * Hook สำหรับจัดการข้อมูลอันดับรายเดือน
- */
 const useMonthlyRankData = () => {
   const [records, setRecords] = useState<SummaryRecord[]>([]);
   const [metadata, setMetadata] = useState<SummaryMetadata | null>(null);
@@ -46,7 +63,7 @@ const useMonthlyRankData = () => {
     async (showToast = false) => {
       setLoading(true);
       if (showToast) {
-        toast.loading("กำลังโหลดข้อมูลอันดับ...", { id: TOAST_ID });
+        toast.loading("กำลังอัปเดตข้อมูล...", { id: TOAST_ID });
       }
 
       try {
@@ -64,14 +81,14 @@ const useMonthlyRankData = () => {
         setMetadata(apiData?.metadata ?? null);
 
         if (showToast) {
-          toast.success("โหลดข้อมูลสำเร็จ!", { id: TOAST_ID });
+          toast.success("อัปเดตข้อมูลล่าสุดแล้ว", { id: TOAST_ID });
         }
       } catch (error: any) {
         console.error("fetchMonthlyRank", error);
         const errorMessage =
           error?.response?.data?.message_th ||
           error?.message ||
-          "ไม่สามารถโหลดข้อมูลอันดับประจำเดือนได้";
+          "เกิดข้อผิดพลาดในการโหลดข้อมูล";
         if (showToast) {
           toast.error(errorMessage, { id: TOAST_ID });
         }
@@ -96,14 +113,10 @@ const useMonthlyRankData = () => {
   };
 };
 
-/**
- * Component หลักสำหรับแสดงบอร์ดอันดับการทำเวลาประจำเดือน
- * Enhanced with Enterprise styling and Framer Motion
- */
 export const MonthlyRankBoard = forwardRef<
   MonthlyRankBoardRef,
   MonthlyRankBoardProps
->(({ currentAdminId, variant = "wide" }, ref) => {
+>(({ currentAdminId, variant = "wide", onVariantChange }, ref) => {
   const { token } = theme.useToken();
   const {
     records,
@@ -114,9 +127,19 @@ export const MonthlyRankBoard = forwardRef<
     setSelectedMonth,
   } = useMonthlyRankData();
 
+  // ✅ State สำหรับจัดการโหมดการแสดงผล (User Toggle)
+  const [viewMode, setViewMode] = useState<MonthlyRankVariant>(variant);
+
   useImperativeHandle(ref, () => ({
     refetch,
   }));
+
+  const handleVariantChange = (val: MonthlyRankVariant) => {
+    setViewMode(val);
+    if (onVariantChange) {
+      onVariantChange(val);
+    }
+  };
 
   const visibleRecords = useMemo(() => {
     if (currentAdminId) {
@@ -131,62 +154,163 @@ export const MonthlyRankBoard = forwardRef<
   const monthLabel =
     metadata?.range?.label_th ?? selectedMonth.format("MMMM YYYY");
   const generatedAt = metadata?.generated_at
-    ? dayjs(metadata.generated_at).format("DD/MM/YYYY HH:mm")
+    ? dayjs(metadata.generated_at).format("D MMM BB HH:mm")
     : null;
 
-  const isCompact = variant === "compact";
+  // ✅ ใช้ viewMode จาก State แทน Prop ตรงๆ
+  const isCompact = viewMode === "compact";
 
-  // Dynamic Styles based on Token
-  const cardStyle: React.CSSProperties = {
-    borderRadius: token.borderRadiusLG, // ใช้ Token เพื่อความโค้งที่สม่ำเสมอทั้ง App
-    boxShadow: "0 4px 20px rgba(0,0,0,0.03)", // Soft shadow แบบ Modern UI
-    background: token.colorBgContainer,
-    border: `1px solid ${token.colorBorderSecondary}`,
-    minWidth: isCompact ? 280 : undefined,
-    width: isCompact ? 320 : "100%",
-    position: "relative",
-    overflow: "hidden",
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        when: "beforeChildren",
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   return (
     <Card
-      style={cardStyle}
+      
+      style={{
+        borderRadius: 24,
+        boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08)",
+        background: `linear-gradient(145deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`,
+        // ✅ ปรับความกว้างตามโหมด
+        maxWidth: isCompact ? 380 : "100%",
+        minWidth: isCompact ? 300 : undefined,
+        width: "100%",
+        overflow: "hidden",
+        position: "relative",
+        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)", // Animation เมื่อเปลี่ยนขนาด
+      }}
       styles={{
-        body: {
-          padding: isCompact ? "16px 20px" : "24px 32px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 16,
-        },
+        body: { padding: 0 },
       }}
     >
-      {/* --- Header Section --- 
-         ส่วนหัวของ Card ประกอบด้วยชื่อเดือน การเลือกเดือน และปุ่ม Refresh 
-         ถูกแยก Component ออกไปเพื่อ Clean Code
-      */}
-      <RankBoardHeader
-        monthLabel={monthLabel}
-        generatedAt={generatedAt}
-        selectedMonth={selectedMonth}
-        onMonthChange={setSelectedMonth}
-        onRefresh={refetch}
-        loading={loading}
-        isCompact={isCompact}
+      {/* Decorative Background */}
+      <div
+        style={{
+          position: "absolute",
+          top: -50,
+          right: -50,
+          width: 150,
+          height: 150,
+          borderRadius: "50%",
+          background: token.colorPrimary,
+          opacity: 0.05,
+          filter: "blur(40px)",
+          pointerEvents: "none",
+        }}
       />
 
-      <Divider style={{ margin: "4px 0 12px 0" }} dashed />
+      {/* --- Header Section --- */}
+      <div style={{ padding: "24px 24px 16px 24px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 16,
+            flexWrap: "wrap",
+            gap: 16,
+          }}
+        >
+          {/* Title Area */}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <Typography.Title
+              level={4}
+              style={{
+                margin: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <TrophyFilled style={{ color: token.colorPrimary }} />
+              <span
+                style={{
+                  background: `linear-gradient(90deg, ${token.colorText} 0%, ${token.colorTextSecondary} 100%)`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                {currentAdminId ? "สถิติของคุณ" : "อันดับประจำเดือน"}
+              </span>
+            </Typography.Title>
+            <Typography.Text
+              type="secondary"
+              style={{ fontSize: 12, marginTop: 4 }}
+            >
+              {generatedAt
+                ? `อัปเดตล่าสุด: ${generatedAt}`
+                : "กำลังรอข้อมูล..."}
+            </Typography.Text>
+          </div>
 
-      {/* --- Content Section --- 
-         ส่วนแสดงผลข้อมูล หรือ Skeleton หรือ Empty State
-         ใช้ AnimatePresence เพื่อทำ Animation ตอนข้อมูลเข้า/ออก
-      */}
-      <div style={{ position: "relative", minHeight: 200 }}>
+          {/* ✅ Control Area (View Toggle + Refresh) */}
+          <Space>
+            <Tooltip title="ปรับมุมมอง">
+              <Segmented
+                options={[
+                  {
+                    value: "wide",
+                    icon: <ExpandAltOutlined />,
+                    label: !isCompact ? "ปกติ" : undefined, // ซ่อน Text ถ้าจอเล็ก
+                  },
+                  {
+                    value: "compact",
+                    icon: <CompressOutlined />,
+                    label: !isCompact ? "เล็ก" : undefined,
+                  },
+                ]}
+                value={viewMode}
+                onChange={(val) =>
+                  handleVariantChange(val as MonthlyRankVariant)
+                }
+                style={{ background: token.colorFillTertiary }}
+              />
+            </Tooltip>
+
+            <Button
+              type="text"
+              shape="circle"
+              icon={<ReloadOutlined spin={loading} />}
+              onClick={refetch}
+              style={{ color: token.colorTextTertiary }}
+            />
+          </Space>
+        </div>
+
+        <RankBoardHeader
+          monthLabel={monthLabel}
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          loading={loading}
+          isCompact={isCompact}
+          generatedAt={null}
+          onRefresh={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
+      </div>
+
+      <Divider style={{ margin: 0, borderColor: token.colorBorderSecondary }} />
+
+      {/* --- Content Section --- */}
+      <div
+        style={{
+          padding: "16px 24px 24px 24px",
+          minHeight: 200,
+          position: "relative",
+        }}
+      >
         <AnimatePresence mode="wait">
           {loading ? (
-            /* --- Loading State --- 
-                แสดง Skeleton เมื่อกำลังโหลดข้อมูล 
-                ใช้ key="loading" เพื่อให้ Framer Motion รู้ว่าเป็นคนละ state กัน
-             */
             <motion.div
               key="loading"
               initial={{ opacity: 0 }}
@@ -194,71 +318,109 @@ export const MonthlyRankBoard = forwardRef<
               exit={{ opacity: 0 }}
             >
               <Space direction="vertical" size={16} style={{ width: "100%" }}>
-                {Array.from({ length: isCompact ? 3 : 5 }).map((_, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 16,
-                      padding: "8px 0",
-                    }}
-                  >
-                    <Skeleton.Avatar active size="large" shape="circle" />
-                    <Skeleton.Input
-                      active
-                      style={{ width: "60%", height: 20, borderRadius: 4 }}
-                    />
-                  </div>
-                ))}
+                {Array.from({ length: currentAdminId ? 1 : 4 }).map(
+                  (_, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 16,
+                        padding: "8px 12px",
+                        background: token.colorBgContainer,
+                        borderRadius: 12,
+                      }}
+                    >
+                      <Skeleton.Avatar active size={40} shape="circle" />
+                      <div style={{ flex: 1 }}>
+                        <Skeleton.Input
+                          active
+                          style={{
+                            width: "40%",
+                            height: 16,
+                            borderRadius: 4,
+                            marginBottom: 6,
+                          }}
+                        />
+                        <Skeleton.Input
+                          active
+                          style={{ width: "70%", height: 12, borderRadius: 4 }}
+                        />
+                      </div>
+                      <Skeleton.Button
+                        active
+                        style={{ width: 40, height: 24, borderRadius: 12 }}
+                      />
+                    </div>
+                  )
+                )}
               </Space>
             </motion.div>
           ) : visibleRecords.length === 0 ? (
-            /* --- Empty State --- 
-                แสดงเมื่อโหลดเสร็จแต่ไม่มีข้อมูล 
-                ใช้ Component Empty ของ Ant Design เพื่อความสวยงาม
-             */
             <motion.div
               key="empty"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
               style={{
                 display: "flex",
+                flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                height: 200,
+                height: 180,
+                textAlign: "center",
               }}
             >
               <Empty
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                 description={
-                  <Typography.Text type="secondary">
-                    {currentAdminId
-                      ? "ไม่พบข้อมูลของคุณในเดือนนี้"
-                      : "ยังไม่มีข้อมูลการจัดอันดับ"}
-                  </Typography.Text>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                    }}
+                  >
+                    <Typography.Text strong style={{ fontSize: 16 }}>
+                      ไม่พบข้อมูล
+                    </Typography.Text>
+                    <Typography.Text type="secondary">
+                      {currentAdminId
+                        ? "คุณไม่มีบันทึกเวลาในเดือนนี้"
+                        : "ยังไม่มีการจัดอันดับในเดือนนี้"}
+                    </Typography.Text>
+                  </div>
                 }
               />
             </motion.div>
           ) : (
-            /* --- Data List State --- 
-                แสดงรายการอันดับจริง 
-                ใช้ motion.div ครอบแต่ละ Card เพื่อทำ Animation แบบ Stagger (เรียงกันขึ้นมา)
-             */
-            <motion.div key="list">
+            <motion.div
+              key="list"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
               <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                {visibleRecords.map((record, index) => (
+                {visibleRecords.map((record) => (
                   <motion.div
                     key={record.admin_id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      visible: { opacity: 1, x: 0 },
+                    }}
+                    whileHover={{ scale: 1.02, x: 4 }}
                     transition={{
-                      delay: index * 0.05, // หน่วงเวลาแต่ละ Item เล็กน้อยให้ดูเป็นลำดับ
-                      duration: 0.3,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 20,
                     }}
                   >
-                    <RankCard record={record} isCompact={isCompact} />
+                    <RankCard
+                      record={record}
+                      isCompact={isCompact}
+                      isCurrentUser={record.admin_id === currentAdminId}
+                      rank={record.rank}
+                    />
                   </motion.div>
                 ))}
               </Space>
