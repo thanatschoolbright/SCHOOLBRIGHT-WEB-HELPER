@@ -4,6 +4,8 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
 import axios from "axios";
 import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { AppDispatch, useAppSelector } from "@stores/store";
 import {
   Card,
   Table,
@@ -16,8 +18,6 @@ import {
   Row,
   Col,
   Typography,
-  Alert,
-  Tooltip,
   Form,
   Badge,
   Skeleton,
@@ -25,7 +25,7 @@ import {
   Statistic,
   theme,
   Avatar,
-  Divider,
+  Tooltip,
 } from "antd";
 import {
   SearchOutlined,
@@ -45,12 +45,12 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/th"; // Import Thai locale
-import { findSchoolName } from "@helpers/find-school-id";
-import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
+import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra"; // Import Buddhist Era
 
-// Setup Dayjs Locale
+// Setup Dayjs Locale & Plugins
 dayjs.extend(relativeTime);
+dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
 const { Title, Text } = Typography;
@@ -71,11 +71,6 @@ interface DeviceStatusData {
   BusinessDate: string;
 }
 
-interface SchoolOption {
-  label: string;
-  value: string;
-}
-
 interface DeviceStatusApiResponse {
   status: number;
   message_th: string;
@@ -88,8 +83,16 @@ interface DeviceStatusApiResponse {
 export default function OnlineDeviceDashboard() {
   const [searchForm] = Form.useForm();
   const { token } = theme.useToken();
+  const dispatch = useDispatch<AppDispatch>();
 
-  // --- States with Full Names ---
+  // ✅ 1. เรียกใช้ข้อมูลโรงเรียนจาก Redux Store
+  const SCHOOL_LIST_STATE = useAppSelector((state) => state.callSchoolList);
+
+  const schoolList = useMemo(() => {
+    return SCHOOL_LIST_STATE.response || [];
+  }, [SCHOOL_LIST_STATE]);
+
+  // --- States ---
   const [isFetchingDeviceStatus, setIsFetchingDeviceStatus] = useState(false);
   const [deviceStatusList, setDeviceStatusList] = useState<DeviceStatusData[]>(
     []
@@ -100,25 +103,17 @@ export default function OnlineDeviceDashboard() {
     total: 0,
   });
 
-  // Filter States
-  const [availableSchoolOptions, setAvailableSchoolOptions] = useState<
-    SchoolOption[]
-  >([]);
-
-  // --- Fetch School List (Mock or API) ---
-  const fetchSchoolList = useCallback(async () => {
-    try {
-      // Simulate API call or replace with actual API
-      // const response = await axios.get("/api/v1/public/school-list");
-      // setAvailableSchoolOptions(...)
-    } catch (error) {
-      console.error("Error fetching schools:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchSchoolList();
-  }, [fetchSchoolList]);
+  // --- Helper Function: Find School Name ---
+  const getSchoolName = useCallback(
+    (schoolId: number) => {
+      if (!schoolList || schoolList.length === 0) return `School #${schoolId}`;
+      const found = schoolList.find((s: any) => s.school_id === schoolId);
+      return found
+        ? `${found.school_name} (${found.school_id})`
+        : `ไม่พบชื่อโรงเรียน (${schoolId})`;
+    },
+    [schoolList]
+  );
 
   // --- Main Fetch Data Function ---
   const fetchDeviceStatusData = useCallback(
@@ -140,9 +135,6 @@ export default function OnlineDeviceDashboard() {
             ? dayjs(formValues.dateRange[1]).format("YYYY-MM-DD")
             : undefined,
         };
-
-        // Artificial delay to see skeleton (Optional)
-        // await new Promise(r => setTimeout(r, 500));
 
         const apiResponse = await axios.post<DeviceStatusApiResponse>(
           "/api/v2/hardware/check-device-status",
@@ -196,13 +188,12 @@ export default function OnlineDeviceDashboard() {
 
   const handleManualCheckStatus = async (deviceRecord: DeviceStatusData) => {
     toast.info(`กำลังตรวจสอบสถานะเครื่อง ${deviceRecord.DeviceID}...`);
-    // Simulate check
     setTimeout(() => {
       toast.success("ตรวจสอบเรียบร้อย: สถานะปกติ");
     }, 1500);
   };
 
-  // --- Computed Statistics for Summary Cards ---
+  // --- Computed Statistics ---
   const summaryStatistics = useMemo(() => {
     const totalDevices = paginationConfig.total;
     const onlineCount = deviceStatusList.filter((d) => d.Online).length;
@@ -216,7 +207,13 @@ export default function OnlineDeviceDashboard() {
       title: "โรงเรียน",
       dataIndex: "SchoolID",
       key: "SchoolID",
-      width: 280,
+      width: 350,
+      // ✅ Enable Sorting
+      sorter: (a: DeviceStatusData, b: DeviceStatusData) => {
+        const nameA = getSchoolName(a.SchoolID);
+        const nameB = getSchoolName(b.SchoolID);
+        return nameA.localeCompare(nameB, "th");
+      },
       render: (schoolId: number, record: DeviceStatusData) => (
         <Space align="start">
           <Avatar
@@ -232,13 +229,12 @@ export default function OnlineDeviceDashboard() {
           />
           <Flex vertical>
             <Text strong style={{ fontSize: 15 }}>
-              {findSchoolName(schoolId, availableSchoolOptions) ||
-                "โรงเรียนสาธิต (Demo)"}
+              {getSchoolName(schoolId)}
             </Text>
             <Space size={4}>
               <Badge status={record.Online ? "success" : "error"} />
               <Text type="secondary" style={{ fontSize: 12 }}>
-                รหัส: {schoolId}
+                สถานะการเชื่อมต่อ: {record.Online ? "ปกติ" : "ขาดหาย"}
               </Text>
             </Space>
           </Flex>
@@ -250,6 +246,9 @@ export default function OnlineDeviceDashboard() {
       dataIndex: "DeviceID",
       key: "DeviceID",
       width: 200,
+      // ✅ Enable Sorting
+      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
+        a.DeviceID.localeCompare(b.DeviceID),
       render: (deviceId: string) => (
         <Flex vertical gap={2}>
           <Space>
@@ -272,6 +271,9 @@ export default function OnlineDeviceDashboard() {
       key: "Online",
       width: 180,
       align: "center" as const,
+      // ✅ Enable Sorting (Boolean)
+      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
+        a.Online === b.Online ? 0 : a.Online ? 1 : -1,
       render: (isOnline: boolean, record: DeviceStatusData) => (
         <div className="flex flex-col items-center gap-1">
           <Tag
@@ -291,6 +293,7 @@ export default function OnlineDeviceDashboard() {
           </Tag>
           {record.OnlineTime && (
             <Text type="secondary" style={{ fontSize: 10 }}>
+              {/* ✅ Display Time */}
               ล่าสุด: {dayjs(record.OnlineTime).format("HH:mm:ss")}
             </Text>
           )}
@@ -303,6 +306,9 @@ export default function OnlineDeviceDashboard() {
       key: "Login",
       width: 180,
       align: "center" as const,
+      // ✅ Enable Sorting (Boolean)
+      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
+        a.Login === b.Login ? 0 : a.Login ? 1 : -1,
       render: (isLoggedIn: boolean, record: DeviceStatusData) => (
         <div className="flex flex-col items-center gap-1">
           <Tag
@@ -336,12 +342,19 @@ export default function OnlineDeviceDashboard() {
       title: "วันที่ทำรายการ",
       dataIndex: "BusinessDate",
       key: "BusinessDate",
-      width: 150,
-      render: (businessDate: string) => (
+      width: 200, // Adjusted width for date + time
+      // ✅ Enable Sorting (Date)
+      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
+        dayjs(a.BusinessDate).unix() - dayjs(b.BusinessDate).unix(),
+      render: (businessDate: string, record: DeviceStatusData) => (
         <Flex align="center" gap={8}>
           <ClockCircleOutlined style={{ color: token.colorTextTertiary }} />
           <Text>
-            {businessDate ? dayjs(businessDate).format("DD MMM BBBB") : "-"}
+            {/* ✅ Display Date and Time (using Tstamp if needed for time, or just format BusinessDate if it includes time) */}
+            {/* If BusinessDate is only date, consider using Tstamp for precise time */}
+            {businessDate
+              ? dayjs(record.Tstamp).format("DD MMM BBBB HH:mm น.")
+              : "-"}
           </Text>
         </Flex>
       ),
@@ -545,7 +558,7 @@ export default function OnlineDeviceDashboard() {
         <Card
           variant="borderless"
           style={{
-            marginTop: 16, // ✅ Added margin-top to separate from filter card
+            marginTop: 16,
             borderRadius: 16,
             boxShadow: token.boxShadowTertiary,
             overflow: "hidden",
