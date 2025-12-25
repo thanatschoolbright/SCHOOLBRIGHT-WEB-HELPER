@@ -3,9 +3,9 @@ name: Sync Release Notes (Auto Tag Sync)
 on:
   push:
     branches:
-      - 'release/*'
+      - "release/*"
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+      - "[0-9]+.[0-9]+.[0-9]+"
   release:
     types: [published, edited]
 
@@ -42,7 +42,7 @@ jobs:
         id: fetch_releases
         run: |
           echo "Fetching releases via GitHub REST API..."
-          
+
           # ดึงข้อมูลจาก API (ได้สูงสุด 100 รายการล่าสุด)
           curl -L \
             -H "Accept: application/vnd.github+json" \
@@ -58,38 +58,35 @@ jobs:
           echo "count=$COUNT" >> $GITHUB_OUTPUT
 
       # ------------------------------------------------------------------
-      # 🛠️ จุดที่แก้ไข: Logic การ Merge (Update existing, Add new, Keep old)
+      # 🛠️ จุดที่แก้ไข: Logic "Wipe & Replace" เฉพาะ System ปัจจุบัน
       # ------------------------------------------------------------------
-      - name: 🛠️ Transform & Merge Data (Upsert)
+      - name: 🛠️ Transform & Update Data (Replace Current System Only)
         id: merge_data
         run: |
-          # 1. ตรวจสอบไฟล์เดิม ถ้าไม่มีให้สร้าง Array ว่าง
+          # 1. ตรวจสอบไฟล์เดิม
           if [ -f "${{ env.TARGET_FILE }}" ]; then
             EXISTING_CONTENT=$(cat "${{ env.TARGET_FILE }}")
           else
             EXISTING_CONTENT="[]"
           fi
 
-          # 2. อ่าน Raw Data ใหม่ที่เพิ่งดึงมา
+          # 2. อ่าน Raw Data ใหม่
           NEW_RAW=$(cat raw_releases.json)
 
-          # 3. ใช้ jq ในการ Merge
-          # Logic:
-          # - $existing: ข้อมูลเก่าในไฟล์
-          # - $new_data: ข้อมูลใหม่ที่เพิ่งดึงมาและแปลง format แล้ว
-          # - group_by(.tag): จับคู่ Tag ที่เหมือนกัน
-          # - map(.[-1]): ในแต่ละคู่ ให้เลือกตัว "สุดท้าย" (ตัวล่าสุดที่ดึงมาจาก API จะทับตัวเก่า)
-          # - ผลลัพธ์: Tag เก่าที่ไม่เจอใน API จะยังอยู่, Tag ใหม่จะถูกเพิ่ม, Tag ซ้ำจะถูกอัพเดท
-          
+          # 3. JQ Logic:
+          # - เก็บของคนอื่นไว้ (Keep Others)
+          # - ลบของตัวเองทิ้งให้หมด (Drop Current System)
+          # - ใส่ของตัวเองชุดใหม่เข้าไป (Insert New Current System)
+
           jq -c \
             --argjson existing "$EXISTING_CONTENT" \
             --argjson raw "$NEW_RAW" \
-            --arg system "${{ env.SYSTEM_NAME }}" \
+            --arg sys "${{ env.SYSTEM_NAME }}" \
             --arg update_time "$(date -Iseconds)" \
             '
-            # (A) แปลงข้อมูลชุดใหม่ (Raw) ให้เป็น Format ที่ต้องการ
+            # (A) เตรียมข้อมูลชุดใหม่ (New Entries)
             ($raw | map({
-              system: $system,
+              system: $sys,
               tag: (.tag_name | sub("^v"; "")), 
               title: (.name // (.tag_name | sub("^v"; ""))),
               release_date: .published_at,
@@ -97,20 +94,19 @@ jobs:
               notes: (.body // ""),
               author: (.author.login // "unknown"),
               synced_at: $update_time
-            })) as $new_data |
+            })) as $new_entries |
 
-            # (B) นำของเก่า + ของใหม่ มารวมกัน
-            ($existing + $new_data) |
+            # (B) กรองข้อมูลในไฟล์เก่า: เก็บไว้เฉพาะ System "อื่น" ที่ไม่ใช่ตัวปัจจุบัน
+            ($existing | map(select(.system != $sys))) as $other_systems |
 
-            # (C) จัดการข้อมูลซ้ำโดยยึด Tag เป็นหลัก (Upsert)
-            group_by(.tag) | 
-            map(.[-1]) | 
+            # (C) นำข้อมูล System อื่น + ข้อมูล System เราชุดใหม่ มารวมกัน
+            ($other_systems + $new_entries) |
             
             # (D) เรียงลำดับตามวันที่ (ใหม่สุดขึ้นก่อน)
             sort_by(.release_date) | reverse
             ' > "${{ env.TARGET_FILE }}"
 
-          echo "✅ Merged successfully. Total items in DB: $(jq length "${{ env.TARGET_FILE }}")"
+          echo "✅ Database updated. Total items: $(jq length "${{ env.TARGET_FILE }}")"
 
       - name: 🚀 Commit and Push
         id: deploy
@@ -118,9 +114,9 @@ jobs:
           cd meta-version
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git add sb-api-mobile.tag.json
-          
+
           if git diff --staged --quiet; then
             echo "status=no_changes" >> $GITHUB_OUTPUT
             echo "⚠️ No changes in release history."
