@@ -1,819 +1,385 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, Typography, Badge, Row, Col, Spin, Modal, Button } from "antd";
-import { useRouter } from "next/navigation";
-import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
-import { useTranslation } from "react-i18next";
-import { CloseOutlined } from "@ant-design/icons";
+import axios from "axios";
+import {
+  Card,
+  Typography,
+  Space,
+  Tag,
+  theme,
+  Divider,
+  Button,
+  Skeleton,
+} from "antd";
+import {
+  RocketOutlined,
+  ClockCircleOutlined,
+  TagOutlined,
+  DownOutlined,
+  UpOutlined,
+  LinkOutlined,
+  GithubOutlined,
+  SyncOutlined,
+  CheckCircleFilled,
+  BugFilled,
+  ThunderboltFilled,
+  ToolFilled,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import relativeTime from "dayjs/plugin/relativeTime";
+import DashboardLayout from "@/components/layouts/backend-layout";
 
-const { Title, Text } = Typography;
+dayjs.extend(buddhistEra);
+dayjs.extend(relativeTime);
+dayjs.locale("th");
 
-export default function Page() {
-  const router = useRouter();
+const GITHUB_RAW_URL =
+  "https://raw.githubusercontent.com/Jabjai-Corporation/meta-version/main/sb-api-mobile.tag.json";
 
-  useEffect(() => {
-    router.push("/support/bypass");
-  }, [router]);
+interface GitHubReleaseItem {
+  system: string;
+  tag: string;
+  title: string;
+  release_date: string;
+  type: string;
+  notes: string;
+  author: string;
+  synced_at: string;
+}
 
-  const { i18n } = useTranslation();
-  const menuItems = useSidebarMenu();
+// --- Enhanced Markdown Parser for Support Team ---
+const renderMarkdownContent = (text: string) => {
+  if (!text) return null;
 
-  // State สำหรับ iOS-style popup
-  const [selectedApp, setSelectedApp] = useState<any>(null);
-  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  // Split lines
+  const lines = text.split("\n");
 
-  // State สำหรับ responsive
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [screenSize, setScreenSize] = useState<"mobile" | "tablet" | "desktop">(
-    "desktop"
-  );
-  const [gridCols, setGridCols] = useState<number>(4);
-  // hovered submenu index for subtle icon shadow on hover/focus
-  const [hoveredSubIndex, setHoveredSubIndex] = useState<number | null>(null);
+  return lines.map((line, index) => {
+    // 1. Headers (###, ##, #)
+    if (line.startsWith("#")) {
+      const level = line.match(/^#+/)?.[0].length || 0;
+      const content = line.replace(/^#+\s*/, "");
+      const fontSize = level === 1 ? 20 : level === 2 ? 18 : 16;
+      return (
+        <Typography.Title
+          key={index}
+          level={5}
+          style={{
+            fontSize,
+            marginTop: 16,
+            marginBottom: 8,
+            color: level === 1 ? "#1677ff" : "inherit",
+          }}
+        >
+          {content}
+        </Typography.Title>
+      );
+    }
 
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth;
-      if (width <= 768) {
-        // Mobile: 2x2 grid
-        setScreenSize("mobile");
-        setIsMobile(true);
-        setGridCols(2);
-      } else if (width <= 1200) {
-        // Tablet/iPad/MacBook Air: 3x3 grid
-        setScreenSize("tablet");
-        setIsMobile(false);
-        setGridCols(3);
-      } else {
-        // Desktop/Large screens: 4x4 grid
-        setScreenSize("desktop");
-        setIsMobile(false);
-        setGridCols(4);
-      }
-    };
+    // 2. Lists (- , *)
+    if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
+      const content = line.trim().substring(2);
+      return (
+        <div key={index} style={{ display: "flex", gap: 8, marginLeft: 8, marginBottom: 4 }}>
+          <span style={{ color: "#faad14" }}>•</span>
+          <Typography.Text>{parseInlineStyles(content)}</Typography.Text>
+        </div>
+      );
+    }
 
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
+    // 3. Table Rows (| ... | ... |) - Basic rendering
+    if (line.trim().startsWith("|")) {
+       if (line.includes("---")) return null; // Skip separator line
+       const cols = line.split("|").filter(c => c.trim() !== "");
+       return (
+          <div key={index} style={{ display: "grid", gridTemplateColumns: `repeat(${cols.length}, 1fr)`, gap: 8, background: '#fafafa', padding: '4px 8px', borderBottom: '1px solid #f0f0f0', fontSize: 13 }}>
+             {cols.map((col, i) => (
+                <div key={i}>{parseInlineStyles(col.trim())}</div>
+             ))}
+          </div>
+       );
+    }
 
-  // ตรวจสอบว่า i18n โหลดเสร็จแล้วหรือยัง
-  const isI18nReady =
-    i18n.isInitialized && i18n.hasResourceBundle(i18n.language, "menu");
-
-  // แสดง loading ระหว่างรอ translation โหลด
-  if (!isI18nReady) {
+    // 4. Normal Text
+    if (line.trim() === "") return <br key={index} />;
+    
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Spin size="large" />
+      <div key={index} style={{ marginBottom: 4 }}>
+        {parseInlineStyles(line)}
       </div>
     );
-  }
+  });
+};
 
-  // นับจำนวน children ทั้งหมดของแต่ละ menu
-  const getChildrenCount = (children?: any[]) => {
-    if (!children) return 0;
-    return children.length;
+// Helper to parse Links, Bold, Italic inside a line
+const parseInlineStyles = (text: string) => {
+  // Regex for Markdown Link [Text](URL)
+  const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g;
+  // Regex for Bold **Text**
+  const boldRegex = /\*\*([^\*]+)\*\*/g;
+  // Regex for Plain URL
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+  // Simple token replacement (Order matters!)
+  let parts: (string | JSX.Element)[] = [text];
+
+  // 1. Process Links [Text](URL)
+  // (Simplified for demo, real implementation should be recursive)
+  
+  // 2. Process Plain URLs
+  const processUrls = (input: string | JSX.Element): (string | JSX.Element)[] => {
+      if (typeof input !== 'string') return [input];
+      const elements: (string | JSX.Element)[] = [];
+      let lastIndex = 0;
+      const matches = [...input.matchAll(urlRegex)];
+      
+      if (matches.length === 0) return [input];
+
+      matches.forEach((match, i) => {
+          const url = match[0];
+          const index = match.index!;
+          if (index > lastIndex) elements.push(input.substring(lastIndex, index));
+          elements.push(
+              <a key={`url-${i}`} href={url} target="_blank" rel="noreferrer" style={{ color: "#1677ff" }}>
+                  {url} <LinkOutlined style={{ fontSize: 10 }} />
+              </a>
+          );
+          lastIndex = index + url.length;
+      });
+      if (lastIndex < input.length) elements.push(input.substring(lastIndex));
+      return elements;
   };
 
-  // การจัดการการคลิก
-  const handleAppClick = (item: any) => {
-    // หากมี children ให้แสดง popup แบบ iOS
-    if (item.children && item.children.length > 0) {
-      setSelectedApp(item);
-      setIsPopupVisible(true);
-    }
-    // หากมี href ตรงให้ไปตาม href
-    else if (item.href) {
-      // ตรวจสอบว่าเป็น external link หรือไม่
-      if (item.href.startsWith("http")) {
-        window.open(item.href, "_blank");
-      } else {
-        router.push(item.href);
-      }
-    }
+  // 3. Process Bold **Text**
+  const processBold = (input: string | JSX.Element): (string | JSX.Element)[] => {
+      if (typeof input !== 'string') return [input];
+      const elements: (string | JSX.Element)[] = [];
+      let lastIndex = 0;
+      const matches = [...input.matchAll(boldRegex)];
+
+      if (matches.length === 0) return [input];
+
+      matches.forEach((match, i) => {
+          const fullMatch = match[0];
+          const content = match[1];
+          const index = match.index!;
+          if (index > lastIndex) elements.push(input.substring(lastIndex, index));
+          elements.push(<strong key={`bold-${i}`} style={{ color: '#262626' }}>{content}</strong>);
+          lastIndex = index + fullMatch.length;
+      });
+      if (lastIndex < input.length) elements.push(input.substring(lastIndex));
+      return elements;
   };
 
-  // การจัดการการคลิกใน sub menu
-  const handleSubMenuClick = (childItem: any) => {
-    setIsPopupVisible(false);
-    setSelectedApp(null);
+  // Chain processors (Basic)
+  let processed = processBold(text);
+  // Flatten and process URLs
+  // (In real app, consider using 'react-markdown' package)
+  return processed.map(p => processUrls(p)).flat();
+};
 
-    // ตรวจสอบว่าเป็น external link หรือไม่
-    if (childItem.href.startsWith("http")) {
-      window.open(childItem.href, "_blank");
-    } else {
-      router.push(childItem.href);
-    }
-  };
 
-  // ปิด popup
-  const handleClosePopup = () => {
-    setIsPopupVisible(false);
-    setSelectedApp(null);
-  };
+const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
+  item,
+  isLatest,
+}) => {
+  const { token } = theme.useToken();
+  const [expanded, setExpanded] = useState(isLatest);
 
-  // สี gradient สำหรับวงกลม icon (ทิศทางเดียวกัน เพื่อความเป็น iOS-like minimal)
-  // เก็บเป็นคู่สี แล้วใส่ `linear-gradient(135deg, ...)` ทุกชิ้นเพื่อความสม่ำเสมอ
-  const gradients = [
-    ["#667eea", "#764ba2"],
-    ["#f093fb", "#f5576c"],
-    ["#4facfe", "#00f2fe"],
-    ["#43e97b", "#38f9d7"],
-    ["#fa709a", "#fee140"],
-    ["#a8edea", "#fed6e3"],
-    ["#ffecd2", "#fcb69f"],
-    ["#ff8a80", "#ea80fc"],
-  ];
+  // Analyze content for smart badges
+  const hasBugFix = item.notes.includes("Bug Fix") || item.notes.includes("bug");
+  const hasFeature = item.notes.includes("New Feature") || item.notes.includes("feature");
+  const hasImprovement = item.notes.includes("Improvement");
 
   return (
-    <div
+    <Card
+      variant="outlined"
       style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-        padding: isMobile
-          ? "20px 12px"
-          : screenSize === "desktop"
-          ? "60px 40px"
-          : "40px 20px",
+        borderRadius: 16,
+        boxShadow: isLatest ? "0 4px 20px rgba(0,0,0,0.08)" : "none",
+        border: `1px solid ${
+          isLatest ? token.colorPrimaryBorder : token.colorBorderSecondary
+        }`,
+        background: token.colorBgContainer,
+        overflow: "hidden",
+        transition: "all 0.3s ease",
+        marginBottom: 24,
       }}
+      styles={{ body: { padding: 0 } }}
     >
       <div
+        onClick={() => !isLatest && setExpanded(!expanded)}
         style={{
-          maxWidth:
-            screenSize === "mobile"
-              ? "100%"
-              : screenSize === "tablet"
-              ? 900
-              : screenSize === "desktop"
-              ? 1200
-              : "100%",
-          margin: "0 auto",
-          paddingLeft: isMobile ? "8px" : screenSize === "desktop" ? "40px" : 0,
-          paddingRight: isMobile
-            ? "8px"
-            : screenSize === "desktop"
-            ? "40px"
-            : 0,
+          padding: "16px 24px",
+          background: isLatest
+            ? `linear-gradient(90deg, ${token.colorFillQuaternary} 0%, ${token.colorBgContainer} 100%)`
+            : token.colorBgContainer,
+          borderBottom: expanded ? `1px solid ${token.colorBorderSecondary}` : "none",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 12,
+          cursor: isLatest ? "default" : "pointer",
         }}
       >
-        {/* Header */}
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: isMobile ? 24 : screenSize === "desktop" ? 60 : 40,
-          }}
-        >
-          <Title
-            level={isMobile ? 2 : 1}
-            style={{
-              color: "#2c3e50",
-              marginBottom: 8,
-              fontSize: isMobile
-                ? "24px"
-                : screenSize === "desktop"
-                ? "48px"
-                : screenSize === "tablet"
-                ? "36px"
-                : undefined,
-              lineHeight: isMobile ? "1.2" : undefined,
-            }}
-          >
-            🚀 SchoolBright Helper
-          </Title>
-          <Text
-            type="secondary"
-            style={{
-              fontSize: isMobile
-                ? 14
-                : screenSize === "desktop"
-                ? 20
-                : screenSize === "tablet"
-                ? 18
-                : 16,
-            }}
-          >
-            เลือกระบบที่ต้องการใช้งาน
-          </Text>
-        </div>
-
-        {/* App Grid */}
-        <Row
-          gutter={
-            isMobile
-              ? [16, 20]
-              : screenSize === "desktop"
-              ? [40, 50]
-              : screenSize === "tablet"
-              ? [32, 40]
-              : [24, 30]
-          }
-          justify="center"
-          style={{
-            margin: isMobile
-              ? "0 -8px"
-              : screenSize === "desktop"
-              ? "0 -20px"
-              : screenSize === "tablet"
-              ? "0 -16px"
-              : "0 -12px",
-          }}
-        >
-          {menuItems.slice(0, gridCols * gridCols).map((item, index) => (
-            <Col key={item.label} span={24 / gridCols}>
-              <div style={{ position: "relative", textAlign: "center" }}>
-                <Card
-                  hoverable
-                  onClick={() => handleAppClick(item)}
-                  style={{
-                    borderRadius: isMobile
-                      ? 20
-                      : screenSize === "desktop"
-                      ? 32
-                      : screenSize === "tablet"
-                      ? 28
-                      : 24,
-                    border: "none",
-                    boxShadow: "0 6px 18px rgba(15, 23, 42, 0.06)",
-                    width: "100%",
-                    height:
-                      screenSize === "mobile"
-                        ? 140
-                        : screenSize === "tablet"
-                        ? 180
-                        : screenSize === "desktop"
-                        ? 220
-                        : 180,
-                    background: "rgba(255,255,255,0.9)",
-                    cursor: "pointer",
-                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    transform: "translateY(0)",
-                    margin: "0 auto",
-                    maxWidth:
-                      screenSize === "mobile"
-                        ? "180px"
-                        : screenSize === "tablet"
-                        ? "220px"
-                        : screenSize === "desktop"
-                        ? "280px"
-                        : "220px",
-                  }}
-                  styles={{
-                    body: {
-                      padding: 0,
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      textAlign: "center",
-                    },
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-8px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 16px 48px rgba(0, 0, 0, 0.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 8px 32px rgba(0, 0, 0, 0.12)";
-                  }}
-                >
-                  {/* Icon circle (consistent gradient direction) with badge */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                    }}
-                  >
-                    {(() => {
-                      const [c1, c2] = gradients[index % gradients.length];
-                      const circleSize =
-                        screenSize === "mobile"
-                          ? 72
-                          : screenSize === "tablet"
-                          ? 96
-                          : screenSize === "desktop"
-                          ? 120
-                          : 96;
-                      // increased icon sizes for stronger visual presence (mobile/tablet/desktop)
-                      const iconFontSize =
-                        screenSize === "mobile"
-                          ? 44
-                          : screenSize === "tablet"
-                          ? 68
-                          : screenSize === "desktop"
-                          ? 96
-                          : 68;
-
-                      return (
-                        <div
-                          style={{
-                            position: "relative",
-                            display: "inline-block",
-                          }}
-                        >
-                          {/* Numeric badge on top-right of icon (custom, avoids AntD offset quirks) */}
-                          {getChildrenCount(item.children) > 0 && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: 8,
-                                right: 8,
-                                zIndex: 15,
-                                minWidth: 20,
-                                height: 20,
-                                padding: "0 6px",
-                                borderRadius: 10,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                backgroundColor: "#ff4d4f",
-                                color: "white",
-                                fontSize: 12,
-                                fontWeight: 700,
-                                boxShadow: "0 6px 18px rgba(15,23,42,0.12)",
-                              }}
-                            >
-                              {getChildrenCount(item.children)}
-                            </div>
-                          )}
-
-                          {/* NEW flag top-left */}
-                          {item.children?.some((child: any) => child.news) && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                left: -6,
-                                top: -6,
-                                zIndex: 14,
-                              }}
-                            >
-                              <div
-                                style={{
-                                  backgroundColor: "#10b981",
-                                  color: "white",
-                                  fontSize: 10,
-                                  fontWeight: 600,
-                                  padding: "1px 6px",
-                                  borderRadius: 8,
-                                  boxShadow: "0 6px 18px rgba(16,185,129,0.12)",
-                                  transform: "translate(-30%, -30%)",
-                                }}
-                              >
-                                NEW
-                              </div>
-                            </div>
-                          )}
-
-                          <div
-                            style={{
-                              width: circleSize,
-                              height: circleSize,
-                              borderRadius: "50%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: c2,
-                              background: "transparent",
-                              boxShadow: "none",
-                            }}
-                          >
-                            <div
-                              style={{
-                                fontSize: iconFontSize,
-                                lineHeight: 1,
-                                color: "#000",
-                                opacity: 0.9,
-                                // SVG hint: prefer thinner strokes where icons support currentColor/strokeWidth
-                                strokeWidth: 1,
-                                vectorEffect: "non-scaling-stroke",
-                              }}
-                            >
-                              {item.icon}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </Card>
-
-                {/* App Name - ย้ายออกมาข้างนอก Card */}
-                <Text
-                  style={{
-                    fontWeight: 400,
-                    color: "#2c3e50",
-                    fontSize:
-                      screenSize === "mobile"
-                        ? 12
-                        : screenSize === "tablet"
-                        ? 14
-                        : screenSize === "desktop"
-                        ? 16
-                        : 14,
-                    textAlign: "center",
-                    lineHeight: 1.4,
-                    marginTop: isMobile
-                      ? 8
-                      : screenSize === "desktop"
-                      ? 16
-                      : screenSize === "tablet"
-                      ? 14
-                      : 12,
-                    maxWidth: "100%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: isMobile ? "normal" : "nowrap",
-                    height: isMobile ? "auto" : "auto",
-                    WebkitLineClamp: isMobile ? 2 : undefined,
-                    WebkitBoxOrient: isMobile ? "vertical" : undefined,
-                    display: isMobile ? "-webkit-box" : "block",
-                  }}
-                >
-                  {item.label}
-                </Text>
-              </div>
-            </Col>
-          ))}
-        </Row>
-
-        {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: isMobile
-              ? 40
-              : screenSize === "desktop"
-              ? 80
-              : screenSize === "tablet"
-              ? 70
-              : 60,
-          }}
-        >
-          <Text
-            type="secondary"
-            style={{
-              fontSize: isMobile
-                ? 12
-                : screenSize === "desktop"
-                ? 18
-                : screenSize === "tablet"
-                ? 16
-                : 14,
-            }}
-          >
-            พัฒนาโดย SchoolBright Team 💙
-          </Text>
-        </div>
-
-        {/* iOS-Style Popup Modal */}
-        <Modal
-          open={isPopupVisible}
-          onCancel={handleClosePopup}
-          footer={null}
-          centered
-          width={
-            isMobile
-              ? "95vw"
-              : screenSize === "mobile"
-              ? "95vw"
-              : screenSize === "tablet"
-              ? 600
-              : screenSize === "desktop"
-              ? 800
-              : 600
-          }
-          styles={{
-            mask: {
-              backgroundColor: "rgba(0, 0, 0, 0.6)",
-              backdropFilter: "blur(8px)",
-            },
-            content: {
-              padding: 0,
-              borderRadius: isMobile
-                ? 16
-                : screenSize === "desktop"
-                ? 32
-                : screenSize === "tablet"
-                ? 28
-                : 24,
-              background: "rgba(255, 255, 255, 0.95)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
-              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
-              margin: isMobile ? "16px" : "auto",
-              maxHeight: isMobile
-                ? "90vh"
-                : screenSize === "desktop"
-                ? "85vh"
-                : "auto",
-              overflow:
-                isMobile || screenSize === "desktop" ? "auto" : "visible",
-            },
-          }}
-          closeIcon={null}
-        >
-          {selectedApp && (
-            <div
-              style={{
-                padding: isMobile
-                  ? "16px"
-                  : screenSize === "desktop"
-                  ? "40px"
-                  : screenSize === "tablet"
-                  ? "32px"
-                  : "24px",
-              }}
-            >
-              {/* Header with App Info */}
-              <div
-                style={{
-                  textAlign: "center",
-                  marginBottom: isMobile
-                    ? 16
-                    : screenSize === "desktop"
-                    ? 32
-                    : screenSize === "tablet"
-                    ? 28
-                    : 24,
-                  position: "relative",
-                }}
-              >
-                {/* Close Button */}
-                <Button
-                  type="text"
-                  icon={<CloseOutlined />}
-                  onClick={handleClosePopup}
-                  style={{
-                    position: "absolute",
-                    top: isMobile
-                      ? -6
-                      : screenSize === "desktop"
-                      ? -12
-                      : screenSize === "tablet"
-                      ? -10
-                      : -8,
-                    right: isMobile
-                      ? -6
-                      : screenSize === "desktop"
-                      ? -12
-                      : screenSize === "tablet"
-                      ? -10
-                      : -8,
-                    width: isMobile
-                      ? 28
-                      : screenSize === "desktop"
-                      ? 40
-                      : screenSize === "tablet"
-                      ? 36
-                      : 32,
-                    height: isMobile
-                      ? 28
-                      : screenSize === "desktop"
-                      ? 40
-                      : screenSize === "tablet"
-                      ? 36
-                      : 32,
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "rgba(0, 0, 0, 0.1)",
-                    border: "none",
-                    color: "#666",
-                    fontSize:
-                      screenSize === "desktop"
-                        ? "18px"
-                        : screenSize === "tablet"
-                        ? "16px"
-                        : "14px",
-                  }}
-                />
-
-                {/* App Icon */}
-                <div
-                  style={{
-                    fontSize: isMobile
-                      ? 36
-                      : screenSize === "desktop"
-                      ? 64
-                      : screenSize === "tablet"
-                      ? 56
-                      : 48,
-                    marginBottom: isMobile
-                      ? 8
-                      : screenSize === "desktop"
-                      ? 16
-                      : screenSize === "tablet"
-                      ? 14
-                      : 12,
-                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))",
-                  }}
-                >
-                  {selectedApp.icon}
-                </div>
-
-                {/* App Name */}
-                <Title
-                  level={isMobile ? 5 : 4}
-                  style={{
-                    margin: 0,
-                    color: "#1f2937",
-                    fontSize: isMobile
-                      ? 16
-                      : screenSize === "desktop"
-                      ? 24
-                      : screenSize === "tablet"
-                      ? 22
-                      : 18,
-                    fontWeight: 600,
-                  }}
-                >
-                  {selectedApp.label}
-                </Title>
-              </div>
-
-              {/* Sub Menu Grid */}
-              <Row
-                gutter={
-                  isMobile
-                    ? [8, 8]
-                    : screenSize === "desktop"
-                    ? [24, 24]
-                    : screenSize === "tablet"
-                    ? [20, 20]
-                    : [16, 16]
-                }
-              >
-                {selectedApp.children?.map((child: any, index: number) => (
-                  <Col
-                    span={
-                      isMobile
-                        ? 24
-                        : screenSize === "desktop"
-                        ? 8
-                        : screenSize === "tablet"
-                        ? 8
-                        : 12
-                    }
-                    key={child.label}
-                  >
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => handleSubMenuClick(child)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ")
-                          handleSubMenuClick(child);
-                      }}
-                      style={{
-                        position: "relative",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                        background: "transparent",
-                        display: "flex",
-                        padding: isMobile
-                          ? "8px 12px"
-                          : screenSize === "desktop"
-                          ? "20px"
-                          : screenSize === "tablet"
-                          ? "16px"
-                          : "12px",
-
-                        borderRadius: 16,
-
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        textAlign: "center",
-                        gap: isMobile ? "8px" : "12px",
-                      }}
-                    >
-                      {/* Sub Menu Icon: separated into its own rounded square container */}
-                      {child.icon && (
-                        <div
-                          onMouseEnter={() => setHoveredSubIndex(index)}
-                          onMouseLeave={() => setHoveredSubIndex(null)}
-                          onFocus={() => setHoveredSubIndex(index)}
-                          onBlur={() => setHoveredSubIndex(null)}
-                          style={{
-                            width: isMobile
-                              ? 44
-                              : screenSize === "desktop"
-                              ? 64
-                              : 56,
-                            height: isMobile
-                              ? 44
-                              : screenSize === "desktop"
-                              ? 64
-                              : 56,
-                            borderRadius: 12,
-                            background: "#fff",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            marginBottom: 8,
-                            flexShrink: 0,
-                            transition:
-                              "box-shadow 160ms ease, transform 160ms ease",
-                            boxShadow:
-                              hoveredSubIndex === index
-                                ? "0 6px 18px rgba(0,0,0,0.12)"
-                                : "0 2px 6px rgba(0,0,0,0.04)",
-                            transform:
-                              hoveredSubIndex === index
-                                ? "translateY(-3px)"
-                                : "none",
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: isMobile
-                                ? Math.round(20 * 1.2)
-                                : screenSize === "desktop"
-                                ? Math.round(32 * 1.2)
-                                : screenSize === "tablet"
-                                ? Math.round(28 * 1.2)
-                                : Math.round(24 * 1.2),
-                              color: "#0f1724",
-                              opacity: 0.85,
-                              // hint to SVG icons to use thinner strokes where possible
-                              strokeWidth: 1,
-                              vectorEffect: "non-scaling-stroke",
-                              lineHeight: 1,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            {child.icon}
-                          </div>
-                        </div>
-                      )}
-
-                      <Text
-                        style={{
-                          fontSize: isMobile
-                            ? 12
-                            : screenSize === "desktop"
-                            ? 14
-                            : screenSize === "tablet"
-                            ? 13
-                            : 11,
-                          color: "#374151",
-                          lineHeight: 1.2,
-                          textAlign: "center",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                          flex: "none",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {child.label}
-                        {/* New Badge for Sub Menu */}
-                        {child.news && (
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: 12,
-                              right: 64,
-                              zIndex: 15,
-                              backgroundColor: "#10b981",
-                              color: "white",
-                              fontSize: 12,
-                              fontWeight: "bold",
-                              padding: "1px 4px",
-                              borderRadius: 4,
-                              lineHeight: 1,
-                            }}
-                          >
-                            NEW
-                          </div>
-                        )}
-                      </Text>
-                    </div>
-                  </Col>
-                ))}
-              </Row>
+        <Space size="middle" align="center">
+          {!isLatest && (
+            <div style={{ color: token.colorTextTertiary, fontSize: 12 }}>
+              {expanded ? <UpOutlined /> : <DownOutlined />}
             </div>
           )}
-        </Modal>
+
+          <Tag 
+            color={isLatest ? "blue" : "default"} 
+            style={{ 
+                fontSize: 14, 
+                padding: "4px 10px", 
+                borderRadius: 6, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 6 
+            }}
+          >
+            <TagOutlined /> {item.tag}
+          </Tag>
+
+          <Typography.Text strong style={{ fontSize: 16 }}>
+             {item.title && item.title !== item.tag ? item.title : `เวอร์ชัน ${item.tag}`}
+          </Typography.Text>
+
+          {isLatest && <Tag color="#f50">ล่าสุด (LATEST)</Tag>}
+          
+          {/* Quick Badges */}
+          {!isLatest && !expanded && (
+             <Space size={4}>
+                {hasBugFix && <Tag color="error" bordered={false}><BugFilled /> แก้บั๊ก</Tag>}
+                {hasFeature && <Tag color="success" bordered={false}><ThunderboltFilled /> ฟีเจอร์ใหม่</Tag>}
+                {hasImprovement && <Tag color="warning" bordered={false}><ToolFilled /> ปรับปรุง</Tag>}
+             </Space>
+          )}
+        </Space>
+
+        <Space>
+          <ClockCircleOutlined style={{ color: token.colorTextTertiary }} />
+          <Typography.Text type="secondary">
+            {dayjs(item.release_date).format("D MMM BBBB")}
+          </Typography.Text>
+        </Space>
       </div>
-    </div>
+
+      {expanded && (
+        <div style={{ padding: "24px", animation: "fadeIn 0.3s ease-in-out" }}>
+            <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: `1px dashed ${token.colorSplit}` }}>
+                <Space wrap>
+                    <Tag icon={<GithubOutlined />}>Author: {item.author}</Tag>
+                    <Tag color={item.type === 'production' ? 'green' : 'orange'}>
+                        {item.type.toUpperCase()}
+                    </Tag>
+                </Space>
+            </div>
+            
+            <div 
+                style={{ 
+                    fontSize: 14, 
+                    lineHeight: 1.8, 
+                    color: token.colorText,
+                    background: token.colorFillAlter, // พื้นหลังจางๆ ให้อ่านง่าย
+                    padding: 16,
+                    borderRadius: 8
+                }}
+            >
+               {renderMarkdownContent(item.notes)}
+            </div>
+        </div>
+      )}
+    </Card>
   );
-}
+};
+
+export const GitHubReleaseNotes: React.FC = () => {
+  const { token } = theme.useToken();
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<GitHubReleaseItem[]>([]);
+
+  const fetchReleaseNotes = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get<GitHubReleaseItem[]>(GITHUB_RAW_URL);
+      const sortedData = response.data.sort((a, b) => 
+         new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
+      );
+      setData(sortedData);
+    } catch (error) {
+      console.error("Failed to fetch release notes:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReleaseNotes();
+  }, []);
+
+  return (
+    <DashboardLayout>
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 0" }}>
+        <style>{`
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+        
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <Typography.Title level={2} style={{ marginBottom: 8 }}>
+              <RocketOutlined style={{ color: token.colorPrimary, marginRight: 12 }} />
+              บันทึกการอัปเดตระบบ (Release Notes)
+            </Typography.Title>
+            <Typography.Text type="secondary">
+              ติดตามรายการเปลี่ยนแปลง เวอร์ชันล่าสุด และประวัติการแก้ไขทั้งหมด
+            </Typography.Text>
+            <div style={{ marginTop: 16 }}>
+               <Button 
+                  icon={<SyncOutlined spin={loading} />} 
+                  onClick={fetchReleaseNotes}
+                  type="text"
+               >
+                  รีเฟรชข้อมูล
+               </Button>
+            </div>
+          </div>
+
+          {loading && (
+             <>
+               <Card style={{ borderRadius: 16, marginBottom: 16 }}><Skeleton active avatar paragraph={{ rows: 4 }} /></Card>
+               <Card style={{ borderRadius: 16 }}><Skeleton active avatar paragraph={{ rows: 4 }} /></Card>
+             </>
+          )}
+
+          {!loading && data.map((release, index) => (
+            <ReleaseCard
+              key={`${release.tag}-${index}`}
+              item={release}
+              isLatest={index === 0}
+            />
+          ))}
+
+          {!loading && (
+             <Divider style={{ marginTop: 32 }}>
+               <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                 สิ้นสุดรายการอัปเดตทั้งหมด {data.length} รายการ
+               </Typography.Text>
+             </Divider>
+          )}
+        </Space>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default GitHubReleaseNotes;

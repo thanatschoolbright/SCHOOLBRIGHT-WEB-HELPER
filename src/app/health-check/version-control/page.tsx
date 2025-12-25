@@ -8,6 +8,7 @@ import { AppDispatch, useAppSelector } from "@stores/store";
 import { toast } from "sonner";
 import { CallAPI as GET_VERSION_CONTROL } from "@/stores/actions/health-check/version-control/action";
 import { ResponseVersionControl } from "@/stores/type";
+import Link from "next/link"; // ✅ Import Link for navigation
 
 // Ant Design V5
 import {
@@ -41,6 +42,7 @@ import {
   GlobalOutlined,
   WarningOutlined,
   CodeOutlined,
+  FileTextOutlined, // ✅ Import Icon for Release Note
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -235,6 +237,15 @@ export default function OperationsDashboardPage() {
             >
               รีเฟรชข้อมูล
             </Button>
+
+            {/* ✅ Added Release Note Button with Badge */}
+            <Link href="/health-check/version-control/release-note">
+              <Badge count="ใหม่" offset={[-5, 5]} color={token.colorSuccess}>
+                <Button type="default" icon={<FileTextOutlined />}>
+                  Release Note
+                </Button>
+              </Badge>
+            </Link>
           </Space>
         </div>
 
