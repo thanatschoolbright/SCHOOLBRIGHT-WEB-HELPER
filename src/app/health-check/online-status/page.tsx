@@ -46,9 +46,8 @@ import {
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/th";
-import buddhistEra from "dayjs/plugin/buddhistEra"; // Import Buddhist Era
+import buddhistEra from "dayjs/plugin/buddhistEra";
 
-// Setup Dayjs Locale & Plugins
 dayjs.extend(relativeTime);
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
@@ -56,7 +55,6 @@ dayjs.locale("th");
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
-// --- Interfaces ---
 interface DeviceStatusData {
   DeviceStatusID: string;
   SchoolID: number;
@@ -85,25 +83,24 @@ export default function OnlineDeviceDashboard() {
   const { token } = theme.useToken();
   const dispatch = useDispatch<AppDispatch>();
 
-  // ✅ 1. เรียกใช้ข้อมูลโรงเรียนจาก Redux Store
   const SCHOOL_LIST_STATE = useAppSelector((state) => state.callSchoolList);
 
   const schoolList = useMemo(() => {
     return SCHOOL_LIST_STATE.response || [];
   }, [SCHOOL_LIST_STATE]);
 
-  // --- States ---
   const [isFetchingDeviceStatus, setIsFetchingDeviceStatus] = useState(false);
   const [deviceStatusList, setDeviceStatusList] = useState<DeviceStatusData[]>(
     []
   );
+
+  // ✅ Adjusted default pageSize options to include 5000
   const [paginationConfig, setPaginationConfig] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
   });
 
-  // --- Helper Function: Find School Name ---
   const getSchoolName = useCallback(
     (schoolId: number) => {
       if (!schoolList || schoolList.length === 0) return `School #${schoolId}`;
@@ -115,7 +112,6 @@ export default function OnlineDeviceDashboard() {
     [schoolList]
   );
 
-  // --- Main Fetch Data Function ---
   const fetchDeviceStatusData = useCallback(
     async (pageIndex = 1, pageSizeLimit = 10) => {
       setIsFetchingDeviceStatus(true);
@@ -167,12 +163,10 @@ export default function OnlineDeviceDashboard() {
     [searchForm]
   );
 
-  // Initial Fetch
   useEffect(() => {
     fetchDeviceStatusData();
   }, [fetchDeviceStatusData]);
 
-  // --- Handlers ---
   const handleTablePaginationChange = (newPagination: any) => {
     fetchDeviceStatusData(newPagination.current, newPagination.pageSize);
   };
@@ -193,7 +187,6 @@ export default function OnlineDeviceDashboard() {
     }, 1500);
   };
 
-  // --- Computed Statistics ---
   const summaryStatistics = useMemo(() => {
     const totalDevices = paginationConfig.total;
     const onlineCount = deviceStatusList.filter((d) => d.Online).length;
@@ -201,7 +194,6 @@ export default function OnlineDeviceDashboard() {
     return { totalDevices, onlineCount, loginCount };
   }, [deviceStatusList, paginationConfig.total]);
 
-  // --- Columns Configuration ---
   const tableColumns = [
     {
       title: "โรงเรียน",
@@ -271,7 +263,7 @@ export default function OnlineDeviceDashboard() {
       key: "Online",
       width: 180,
       align: "center" as const,
-      // ✅ Enable Sorting (Boolean)
+      // ✅ Enable Sorting
       sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
         a.Online === b.Online ? 0 : a.Online ? 1 : -1,
       render: (isOnline: boolean, record: DeviceStatusData) => (
@@ -293,7 +285,6 @@ export default function OnlineDeviceDashboard() {
           </Tag>
           {record.OnlineTime && (
             <Text type="secondary" style={{ fontSize: 10 }}>
-              {/* ✅ Display Time */}
               ล่าสุด: {dayjs(record.OnlineTime).format("HH:mm:ss")}
             </Text>
           )}
@@ -306,7 +297,7 @@ export default function OnlineDeviceDashboard() {
       key: "Login",
       width: 180,
       align: "center" as const,
-      // ✅ Enable Sorting (Boolean)
+      // ✅ Enable Sorting
       sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
         a.Login === b.Login ? 0 : a.Login ? 1 : -1,
       render: (isLoggedIn: boolean, record: DeviceStatusData) => (
@@ -342,17 +333,16 @@ export default function OnlineDeviceDashboard() {
       title: "วันที่ทำรายการ",
       dataIndex: "BusinessDate",
       key: "BusinessDate",
-      width: 200, // Adjusted width for date + time
-      // ✅ Enable Sorting (Date)
+      width: 200,
+      // ✅ Enable Sorting based on timestamp
       sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
-        dayjs(a.BusinessDate).unix() - dayjs(b.BusinessDate).unix(),
+        dayjs(a.Tstamp).valueOf() - dayjs(b.Tstamp).valueOf(),
       render: (businessDate: string, record: DeviceStatusData) => (
         <Flex align="center" gap={8}>
           <ClockCircleOutlined style={{ color: token.colorTextTertiary }} />
           <Text>
-            {/* ✅ Display Date and Time (using Tstamp if needed for time, or just format BusinessDate if it includes time) */}
-            {/* If BusinessDate is only date, consider using Tstamp for precise time */}
-            {businessDate
+            {/* ✅ Display Date & Time using Buddhist Era format */}
+            {record.Tstamp
               ? dayjs(record.Tstamp).format("DD MMM BBBB HH:mm น.")
               : "-"}
           </Text>
@@ -381,7 +371,6 @@ export default function OnlineDeviceDashboard() {
   return (
     <DashboardLayout>
       <Flex vertical gap="large" style={{ width: "100%", paddingBottom: 24 }}>
-        {/* --- Header Section --- */}
         <Flex justify="space-between" align="center" wrap="wrap" gap="small">
           <div>
             <Title level={3} style={{ margin: 0 }}>
@@ -407,7 +396,6 @@ export default function OnlineDeviceDashboard() {
           </Space>
         </Flex>
 
-        {/* --- Summary Cards (Overview) --- */}
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={8}>
             <Card
@@ -450,13 +438,9 @@ export default function OnlineDeviceDashboard() {
           </Col>
         </Row>
 
-        {/* --- Filter Section --- */}
         <Card
           variant="borderless"
-          style={{
-            borderRadius: 16,
-            boxShadow: token.boxShadowTertiary,
-          }}
+          style={{ borderRadius: 16, boxShadow: token.boxShadowTertiary }}
         >
           <Form
             form={searchForm}
@@ -482,7 +466,6 @@ export default function OnlineDeviceDashboard() {
                   />
                 </Form.Item>
               </Col>
-
               <Col xs={24} md={8} lg={5}>
                 <Form.Item
                   label="สถานะเครือข่าย"
@@ -499,7 +482,6 @@ export default function OnlineDeviceDashboard() {
                   </Select>
                 </Form.Item>
               </Col>
-
               <Col xs={24} md={8} lg={5}>
                 <Form.Item
                   label="สถานะการใช้งาน"
@@ -519,7 +501,6 @@ export default function OnlineDeviceDashboard() {
                   </Select>
                 </Form.Item>
               </Col>
-
               <Col xs={24} md={12} lg={5}>
                 <Form.Item
                   label="ช่วงเวลา (Business Date)"
@@ -533,7 +514,6 @@ export default function OnlineDeviceDashboard() {
                   />
                 </Form.Item>
               </Col>
-
               <Col xs={24} md={12} lg={3} style={{ display: "flex", gap: 8 }}>
                 <Button
                   type="primary"
@@ -554,7 +534,6 @@ export default function OnlineDeviceDashboard() {
           </Form>
         </Card>
 
-        {/* --- Table Section --- */}
         <Card
           variant="borderless"
           style={{
@@ -577,6 +556,8 @@ export default function OnlineDeviceDashboard() {
               pagination={{
                 ...paginationConfig,
                 showSizeChanger: true,
+                // ✅ Update pageSize options to support 5000
+                pageSizeOptions: ["10", "20", "50", "100", "1000", "5000"],
                 showTotal: (total) => `พบข้อมูลทั้งหมด ${total} รายการ`,
               }}
               onChange={handleTablePaginationChange}
