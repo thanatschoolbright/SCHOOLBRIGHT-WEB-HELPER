@@ -20,13 +20,13 @@ jobs:
   sync-release-history:
     name: 🔄 Sync All Releases to sb-api-mobile.tag.json
     runs-on: ubuntu-latest
-    timeout-minutes: 10 # เพิ่มเวลาเล็กน้อยเผื่อดึงข้อมูลเยอะ
+    timeout-minutes: 10
 
     env:
       SYSTEM_NAME: schoolbright-sb-web-helper
       META_REPO: Jabjai-Corporation/meta-version
       TARGET_FILE: meta-version/sb-api-mobile.tag.json
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # จำเป็นสำหรับ gh api
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: 📥 Checkout main project repo
@@ -40,41 +40,53 @@ jobs:
           path: meta-version
 
       # ------------------------------------------------------------------
-      # 1. Fetch: เปลี่ยนเป็น gh api --paginate เพื่อให้ได้ "ทุก Tag" ในประวัติ
-      # (จำเป็นต้องใช้แบบนี้ เพราะถ้าเราจะลบของเก่าทิ้ง เราต้องมั่นใจว่าของใหม่มีครบ)
+      # 1. Fetch: ดึงข้อมูล Release ทั้งหมด
       # ------------------------------------------------------------------
       - name: 📡 Fetch Full History
         id: fetch_releases
         run: |
           echo "Fetching ALL releases history..."
 
-          # ใช้ gh api ดึงข้อมูลทุกหน้า (Pagination)
           gh api "repos/${{ github.repository }}/releases" \
             --paginate \
             -q 'map({tag_name, name, published_at, body, prerelease, author: .author.login})' \
             > raw_releases.json
 
-          # ป้องกันไฟล์ว่าง
+          # ถ้าไฟล์ว่าง ให้เขียน []
           if [ ! -s raw_releases.json ]; then echo "[]" > raw_releases.json; fi
 
           COUNT=$(jq length raw_releases.json)
           echo "count=$COUNT" >> $GITHUB_OUTPUT
+          echo "Found $COUNT releases."
 
       # ------------------------------------------------------------------
-      # 2. Transform: Logic ลบเฉพาะ System ปัจจุบัน แล้วแทนที่ใหม่
+      # 2. Transform: มี Safety Check (ถ้า count=0 ห้ามแตะไฟล์)
       # ------------------------------------------------------------------
-      - name: 🛠️ Transform & Merge Data (Keep Others, Replace Current)
+      - name: 🛠️ Transform & Merge Data (Safe Update)
+        id: transform_data
         run: |
-          # สร้างไฟล์เปล่าถ้ายังไม่มี (ป้องกัน Error)
+          # เช็คจำนวนที่ดึงมาได้
+          FETCH_COUNT=${{ steps.fetch_releases.outputs.count }}
+
+          # สร้างไฟล์เป้าหมายถ้ายังไม่มี
           if [ ! -f "${{ env.TARGET_FILE }}" ] || [ ! -s "${{ env.TARGET_FILE }}" ]; then
             echo "[]" > "${{ env.TARGET_FILE }}"
           fi
 
-          # JQ Logic:
-          # 1. อ่านข้อมูลใหม่ ($raw_input)
-          # 2. อ่านข้อมูลเก่า ($existing_db)
-          # 3. กรองของเก่า: เก็บไว้เฉพาะ System ที่ "ไม่ใช่" ตัวปัจจุบัน (Keep Others)
-          # 4. รวมร่าง: (Others) + (New Current Data)
+          # =========================================================
+          # 🛡️ SAFETY GUARD: ถ้าไม่เจอ Release เลย ห้ามลบของเก่า!
+          # =========================================================
+          if [ "$FETCH_COUNT" -eq "0" ]; then
+            echo "⚠️ Warning: No releases found from GitHub API."
+            echo "🛡️ Safety Guard Activated: Preserving existing data without changes."
+            echo "action=skipped" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # =========================================================
+          # 🔄 UPDATE LOGIC: ถ้ามีของใหม่ ให้ทับของเก่า(เฉพาะ System นี้)
+          # =========================================================
+          echo "✅ Found new data ($FETCH_COUNT items). Proceeding with update..."
 
           jq -c \
             --slurpfile existing_db "${{ env.TARGET_FILE }}" \
@@ -82,7 +94,7 @@ jobs:
             --arg sys "${{ env.SYSTEM_NAME }}" \
             --arg update_time "$(date -Iseconds)" \
             '
-            # (A) แปลงข้อมูลชุดใหม่ (New Data)
+            # (A) เตรียมข้อมูลชุดใหม่ (New Data)
             ($raw_input[0] | map({
               system: $sys,
               tag: (.tag_name | sub("^v"; "")), 
@@ -94,20 +106,24 @@ jobs:
               synced_at: $update_time
             })) as $new_data |
 
-            # (B) กรองข้อมูลเก่า: เลือกเฉพาะที่ไม่ใช่ System นี้ (Keep Others)
+            # (B) กรองข้อมูลเก่า: เก็บไว้เฉพาะ System ที่ "ไม่ใช่" ตัวปัจจุบัน (Keep Others)
+            # ส่วนที่เป็น schoolbright-sb-web-helper เก่า จะถูกกรองออก (ลบ) ในขั้นตอนนี้
             ($existing_db[0] | map(select(.system != $sys))) as $other_systems |
 
-            # (C) นำมารวมกัน
+            # (C) เอา (คนอื่นคงเดิม) + (เราชุดใหม่ล่าสุด) มารวมกัน
             ($other_systems + $new_data) |
             
-            # (D) จัดเรียงใหม่
+            # (D) จัดเรียง
             sort_by(.release_date) | reverse
             ' > "${{ env.TARGET_FILE }}.tmp" && mv "${{ env.TARGET_FILE }}.tmp" "${{ env.TARGET_FILE }}"
 
-          echo "✅ Database updated. Total items: $(jq length "${{ env.TARGET_FILE }}")"
+          echo "✅ Database updated successfully."
+          echo "action=updated" >> $GITHUB_OUTPUT
 
       - name: 🚀 Commit and Push
         id: deploy
+        # ทำงานต่อเมื่อ transform สำเร็จ (แม้จะ skip ก็ตาม)
+        if: steps.transform_data.outcome == 'success'
         run: |
           cd meta-version
           git config user.name "github-actions[bot]"
@@ -134,33 +150,28 @@ jobs:
           if [[ "${{ steps.deploy.outputs.status }}" == "success" ]]; then
             STATUS_EMOJI="✅"
             STATUS_MSG="Sync Completed (Updated)"
-          elif [[ "${{ steps.deploy.outputs.status }}" == "no_changes" ]]; then
-            STATUS_EMOJI="⚠️"
-            STATUS_MSG="Skipped (No Changes)"
+          elif [[ "${{ steps.transform_data.outputs.action }}" == "skipped" ]]; then
+            STATUS_EMOJI="🛡️"
+            STATUS_MSG="Safety Guard: No new releases found (Data Preserved)"
           else
-            STATUS_EMOJI="❌"
-            STATUS_MSG="Failed (Check Logs)"
+            STATUS_EMOJI="⚠️"
+            STATUS_MSG="No Changes / Skipped"
           fi
 
           LATEST_TAG="N/A"
-          LATEST_DATE="N/A"
           TOTAL_ITEMS="0"
 
           if [ -f "${{ env.TARGET_FILE }}" ]; then
             LATEST_TAG=$(jq -r '.[0].tag // "N/A"' "${{ env.TARGET_FILE }}")
-            LATEST_DATE=$(jq -r '.[0].release_date // "N/A"' "${{ env.TARGET_FILE }}")
             TOTAL_ITEMS=$(jq length "${{ env.TARGET_FILE }}")
           fi
 
           echo "### 🚀 Release Sync Status" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
           echo "> **Status:** $STATUS_EMOJI $STATUS_MSG" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-
-          echo "| 📋 Metric | ℹ️ Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
           echo "| **System Name** | \`${{ env.SYSTEM_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Fetched (Current)** | ${{ steps.fetch_releases.outputs.count }} releases |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Total in DB** | $TOTAL_ITEMS items (All systems) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total in DB** | $TOTAL_ITEMS items |" >> $GITHUB_STEP_SUMMARY
           echo "| **Latest Tag** | \`$LATEST_TAG\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Latest Date** | $LATEST_DATE |" >> $GITHUB_STEP_SUMMARY
