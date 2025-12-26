@@ -342,11 +342,7 @@ export default function ServerStatusPage() {
 
   return (
     <DashboardLayout>
-      {/* Global CSS Injection สำหรับ Animation 
-        - pulse-green: เอฟเฟกต์กระพริบสีเขียวสำหรับ Health Score 100%
-        - fadeInUp: เอฟเฟกต์เลื่อนขึ้นพร้อมจางเข้าสำหรับ Card
-        - card-hover-effect: เอฟเฟกต์ยก Card ขึ้นเมื่อเอาเมาส์ชี้
-      */}
+      {/* Global CSS Injection */}
       <style jsx global>{`
         @keyframes pulse-green {
           0% {
@@ -378,9 +374,21 @@ export default function ServerStatusPage() {
         .animate-fade-in {
           animation: fadeInUp 0.5s ease-out forwards;
         }
+        /* Dark Mode Scrollbar for JSON Viewer */
+        .json-viewer::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        .json-viewer::-webkit-scrollbar-track {
+          background: ${token.colorFillQuaternary};
+        }
+        .json-viewer::-webkit-scrollbar-thumb {
+          background: ${token.colorTextQuaternary};
+          border-radius: 4px;
+        }
       `}</style>
 
-      {/* --- Loading Modal Overlay --- */}
+      {/* --- Loading Modal Overlay (Adaptive Theme) --- */}
       <Modal
         open={isFetchingServerStatus}
         footer={null}
@@ -392,7 +400,7 @@ export default function ServerStatusPage() {
             borderRadius: 16,
             padding: 32,
             textAlign: "center",
-            background: "rgba(255, 255, 255, 0.95)",
+            background: token.colorBgContainer, // Use Token
             backdropFilter: "blur(10px)",
           },
         }}
@@ -446,9 +454,7 @@ export default function ServerStatusPage() {
       </Modal>
 
       <Flex vertical gap={24} style={{ paddingBottom: 40 }}>
-        {/* --- ส่วนหัวของหน้า (Header Section) --- 
-          แสดงปุ่มย้อนกลับ, ชื่อหน้า, เวลาอัปเดตล่าสุด และปุ่ม Action หลัก (ตรวจสอบสถานะ)
-        */}
+        {/* --- Header Section --- */}
         <Flex justify="space-between" align="center" wrap="wrap" gap={16}>
           <Space size={16}>
             <Button
@@ -490,17 +496,15 @@ export default function ServerStatusPage() {
           </Space>
         </Flex>
 
-        {/* --- ส่วนแสดงภาพรวม (Dashboard Overview) --- 
-          ใช้ Grid System เพื่อจัดเรียง Card แสดงผลคะแนนสุขภาพระบบและจำนวนสถานะต่างๆ
-        */}
+        {/* --- Dashboard Overview --- */}
         <Row gutter={[16, 16]}>
-          {/* Card แสดงคะแนนสุขภาพระบบ (Health Score) ขนาดใหญ่ */}
           <Col xs={24} md={14} lg={16}>
             <Card
               className="card-hover-effect animate-fade-in"
               style={{
                 height: "100%",
                 background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`,
+                border: `1px solid ${token.colorBorderSecondary}`, // Add border for dark mode contrast
               }}
             >
               <Flex
@@ -537,7 +541,6 @@ export default function ServerStatusPage() {
                     )}
                   </Text>
 
-                  {/* แถบแสดงสัดส่วนคะแนน (Visual Distribution Bar) */}
                   <div style={{ marginTop: 16 }}>
                     <Flex justify="space-between" style={{ marginBottom: 4 }}>
                       <Text style={{ fontSize: 12 }}>อัตราความสำเร็จ</Text>
@@ -549,7 +552,7 @@ export default function ServerStatusPage() {
                       style={{
                         width: "100%",
                         height: 8,
-                        background: token.colorErrorBg,
+                        background: token.colorFillSecondary, // Use Token
                         borderRadius: 4,
                         overflow: "hidden",
                         display: "flex",
@@ -567,7 +570,6 @@ export default function ServerStatusPage() {
                   </div>
                 </Flex>
 
-                {/* วงกลมแสดงเปอร์เซ็นต์ (Circular Progress) */}
                 <Flex
                   justify="center"
                   align="center"
@@ -585,7 +587,9 @@ export default function ServerStatusPage() {
                     }
                     strokeWidth={8}
                     size={140}
+                    trailColor={token.colorFillSecondary} // Use Token
                   />
+                  {/* Pulse Effect only for Light/Green state if desired, keeping animation generic */}
                   <div
                     style={{
                       position: "absolute",
@@ -603,13 +607,15 @@ export default function ServerStatusPage() {
             </Card>
           </Col>
 
-          {/* Card แสดงสถิติย่อย (Small Stat Cards) */}
           <Col xs={24} md={10} lg={8}>
             <Flex vertical gap={16} style={{ height: "100%" }}>
-              {/* Card แสดงจำนวนระบบที่ปกติ */}
               <Card
                 className="card-hover-effect animate-fade-in"
-                style={{ flex: 1, animationDelay: "0.1s" }}
+                style={{
+                  flex: 1,
+                  animationDelay: "0.1s",
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                }}
               >
                 <Flex align="center" gap={16}>
                   <Avatar
@@ -633,10 +639,13 @@ export default function ServerStatusPage() {
                 </Flex>
               </Card>
 
-              {/* Card แสดงจำนวนระบบที่มีปัญหา */}
               <Card
                 className="card-hover-effect animate-fade-in"
-                style={{ flex: 1, animationDelay: "0.2s" }}
+                style={{
+                  flex: 1,
+                  animationDelay: "0.2s",
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                }}
               >
                 <Flex align="center" gap={16}>
                   <Avatar
@@ -669,9 +678,7 @@ export default function ServerStatusPage() {
           </Col>
         </Row>
 
-        {/* --- แถบแจ้งเตือนเมื่อมีปัญหา (Alert Banner) --- 
-          แสดงเฉพาะเมื่อมีระบบ Offline และไม่ได้กำลังโหลดข้อมูล
-        */}
+        {/* --- Alert Banner --- */}
         {serverHealthStatistics.offlineCount > 0 && !isFetchingServerStatus && (
           <Alert
             message="ตรวจพบปัญหาระบบขั้นวิกฤต"
@@ -686,12 +693,15 @@ export default function ServerStatusPage() {
           />
         )}
 
-        {/* --- ส่วนเนื้อหาหลัก (Main Content: Table & Filters) --- 
-          ประกอบด้วย Toolbar สำหรับกรองข้อมูลและค้นหา และ Table แสดงรายการระบบ
-        */}
-        <Card className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
+        {/* --- Main Content --- */}
+        <Card
+          className="animate-fade-in"
+          style={{
+            animationDelay: "0.3s",
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
           <Flex vertical gap={20}>
-            {/* Toolbar สำหรับกรองสถานะและค้นหา */}
             <Flex justify="space-between" align="center" wrap="wrap" gap={16}>
               <Segmented
                 options={[
@@ -703,12 +713,18 @@ export default function ServerStatusPage() {
                   {
                     label: "ปกติ",
                     value: "ONLINE",
-                    icon: <CheckCircleFilled className="text-green-500" />,
+                    icon: (
+                      <CheckCircleFilled
+                        style={{ color: token.colorSuccess }}
+                      />
+                    ),
                   },
                   {
                     label: "พบปัญหา",
                     value: "ERROR",
-                    icon: <CloseCircleFilled className="text-red-500" />,
+                    icon: (
+                      <CloseCircleFilled style={{ color: token.colorError }} />
+                    ),
                   },
                 ]}
                 value={statusFilterType}
@@ -730,7 +746,6 @@ export default function ServerStatusPage() {
               />
             </Flex>
 
-            {/* ตารางแสดงข้อมูลระบบ (Data Table) */}
             {isFetchingServerStatus ? (
               <Skeleton active paragraph={{ rows: 6 }} />
             ) : (
@@ -757,9 +772,7 @@ export default function ServerStatusPage() {
         </Card>
       </Flex>
 
-      {/* --- หน้าต่างรายละเอียด (Detail Modal) --- 
-        แสดงข้อมูลเชิงลึกของระบบที่เลือก รวมถึง Request, Response และ cURL command
-      */}
+      {/* --- Detail Modal --- */}
       <Modal
         title={
           <Space>
@@ -772,6 +785,11 @@ export default function ServerStatusPage() {
         footer={null}
         width={800}
         centered
+        styles={{
+          content: {
+            background: token.colorBgContainer, // Use Token
+          },
+        }}
       >
         {selectedServerStatusItem && (
           <Flex vertical gap={16}>
@@ -780,7 +798,7 @@ export default function ServerStatusPage() {
                 align="center"
                 gap={16}
                 style={{
-                  background: token.colorFillAlter,
+                  background: token.colorFillQuaternary, // Adaptive background
                   padding: 16,
                   borderRadius: token.borderRadiusLG,
                 }}
@@ -872,9 +890,11 @@ export default function ServerStatusPage() {
                         style={{
                           fontFamily: "monospace",
                           fontSize: 12,
-                          background: "#1e1e1e",
-                          color: "#d4d4d4",
-                          border: "none",
+                          // Dark Mode Friendly Code Block
+                          background:
+                            token.id === "dark" ? "#1f1f1f" : "#f5f5f5",
+                          color: token.id === "dark" ? "#e6e6e6" : "#262626",
+                          border: `1px solid ${token.colorBorderSecondary}`,
                         }}
                       />
                       <Button
@@ -896,15 +916,26 @@ export default function ServerStatusPage() {
                   label: "ข้อมูลตอบกลับเต็ม (JSON)",
                   children: (
                     <div
+                      className="json-viewer"
                       style={{
-                        background: token.colorFillQuaternary,
+                        background:
+                          token.id === "dark"
+                            ? token.colorFillQuaternary
+                            : "#fafafa",
                         padding: 12,
                         borderRadius: token.borderRadius,
                         maxHeight: 400,
                         overflow: "auto",
+                        border: `1px solid ${token.colorBorderSecondary}`,
                       }}
                     >
-                      <pre style={{ margin: 0, fontSize: 11 }}>
+                      <pre
+                        style={{
+                          margin: 0,
+                          fontSize: 11,
+                          color: token.colorText,
+                        }}
+                      >
                         {JSON.stringify(
                           selectedServerStatusItem.response,
                           null,
