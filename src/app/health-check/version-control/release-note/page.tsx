@@ -90,8 +90,10 @@ const getSystemNameTH = (systemName: string) => {
   }
 
   // กรณีไม่ทราบชื่อ (Fallback): ตัดคำว่า schoolbright-sb- ออก แล้วแสดงเป็นชื่อย่อ
-  const suffix = systemName ? systemName.replace("schoolbright-sb-", "") : "Unknown";
-  return `เว็บระบบข้อมูล ${suffix} (${systemName})`; 
+  const suffix = systemName
+    ? systemName.replace("schoolbright-sb-", "")
+    : "Unknown";
+  return `เว็บระบบข้อมูล ${suffix} (${systemName})`;
 };
 
 // --- Helper: Extract Impact Scope ---
@@ -100,7 +102,7 @@ const extractImpactScope = (text: string) => {
   const matches = [...text.matchAll(schoolRegex)];
 
   if (matches.length > 0) {
-    const schools = [...new Set(matches.map(m => m[0].trim()))];
+    const schools = [...new Set(matches.map((m) => m[0].trim()))];
     return schools;
   }
 
@@ -173,7 +175,9 @@ const renderMarkdownContent = (text: string) => {
           }}
         >
           {cols.map((col, i) => (
-            <div key={`${lineKey}-col-${i}`}>{parseInlineStyles(col.trim(), index * 100 + i)}</div>
+            <div key={`${lineKey}-col-${i}`}>
+              {parseInlineStyles(col.trim(), index * 100 + i)}
+            </div>
           ))}
         </div>
       );
@@ -217,7 +221,9 @@ const parseInlineStyles = (text: string, lineIndex: number) => {
       matches.forEach((match, matchIndex) => {
         const index = match.index!;
         if (index > lastIndex) newParts.push(part.substring(lastIndex, index));
-        newParts.push(replacer(match, parseInt(`${lineIndex}${partIndex}${matchIndex}`)));
+        newParts.push(
+          replacer(match, parseInt(`${lineIndex}${partIndex}${matchIndex}`))
+        );
         lastIndex = index + match[0].length;
       });
       if (lastIndex < part.length) newParts.push(part.substring(lastIndex));
@@ -281,7 +287,11 @@ const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(`System: ${getSystemNameTH(item.system)}\nVersion: ${item.tag}\n\n${item.notes}`);
+    navigator.clipboard.writeText(
+      `System: ${getSystemNameTH(item.system)}\nVersion: ${item.tag}\n\n${
+        item.notes
+      }`
+    );
     messageApi.success("คัดลอกรายละเอียดเรียบร้อย");
   };
 
@@ -343,16 +353,19 @@ const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
             </Tag>
 
             {/* ✅ 2. เพิ่มชื่อ System ลงใน Header ของ Card */}
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography.Text strong style={{ fontSize: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <Typography.Text strong style={{ fontSize: 16 }}>
                 {item.title && item.title !== item.tag
-                    ? item.title
-                    : `เวอร์ชัน ${item.tag}`}
-                </Typography.Text>
-                
-                <Typography.Text type="secondary" style={{ fontSize: 13, color: token.colorPrimary }}>
-                    {getSystemNameTH(item.system)}
-                </Typography.Text>
+                  ? item.title
+                  : `เวอร์ชัน ${item.tag}`}
+              </Typography.Text>
+
+              <Typography.Text
+                type="secondary"
+                style={{ fontSize: 13, color: token.colorPrimary }}
+              >
+                {getSystemNameTH(item.system)}
+              </Typography.Text>
             </div>
 
             {isLatest && <Tag color="#f50">ล่าสุด (LATEST)</Tag>}
@@ -456,14 +469,18 @@ const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
                   </Tag>
                 </Tooltip>
               </Space>
-              
+
               <Divider type="vertical" />
-              
+
               <Space>
-                 <AppstoreOutlined style={{ color: token.colorTextTertiary }} />
-                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>System:</Typography.Text>
-                 {/* แสดงชื่อระบบในส่วนรายละเอียดด้วย */}
-                 <span style={{ fontWeight: 500 }}>{getSystemNameTH(item.system)}</span>
+                <AppstoreOutlined style={{ color: token.colorTextTertiary }} />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  System:
+                </Typography.Text>
+                {/* แสดงชื่อระบบในส่วนรายละเอียดด้วย */}
+                <span style={{ fontWeight: 500 }}>
+                  {getSystemNameTH(item.system)}
+                </span>
               </Space>
             </div>
 
@@ -529,7 +546,7 @@ export const GitHubReleaseNotes: React.FC = () => {
       })),
     [data]
   );
-  
+
   const typeOptions = useMemo(
     () =>
       [...new Set(data.map((item) => item.type))].map((v) => ({
@@ -571,7 +588,7 @@ export const GitHubReleaseNotes: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 0" }}>
+      <div style={{ margin: "0 auto", padding: "24px 0" }}>
         <style>{`
           @keyframes slideDown {
             from { opacity: 0; transform: translateY(-20px); }
