@@ -129,20 +129,20 @@ exports.Prisma.GroupScalarFieldEnum = {
 
 exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
-  categoryType: 'categoryType',
   name: 'name',
-  name_en: 'name_en',
-  start_date: 'start_date',
-  end_date: 'end_date',
   createdAt: 'createdAt',
   createdBy: 'createdBy',
   updatedAt: 'updatedAt',
   updatedBy: 'updatedBy',
   description: 'description',
   is_deleted: 'is_deleted',
+  categoryType: 'categoryType',
   status: 'status',
-  approval_status: 'approval_status',
+  end_date: 'end_date',
+  name_en: 'name_en',
+  start_date: 'start_date',
   approval: 'approval',
+  approval_status: 'approval_status',
   group_id: 'group_id'
 };
 
@@ -150,17 +150,17 @@ exports.Prisma.FeatureScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
   name: 'name',
-  name_en: 'name_en',
-  backlogDescription: 'backlogDescription',
   createdAt: 'createdAt',
   createdBy: 'createdBy',
   updatedAt: 'updatedAt',
   updatedBy: 'updatedBy',
   is_deleted: 'is_deleted',
-  startDate: 'startDate',
   endDate: 'endDate',
+  startDate: 'startDate',
+  backlogDescription: 'backlogDescription',
   assetCaptureType: 'assetCaptureType',
-  status: 'status'
+  status: 'status',
+  name_en: 'name_en'
 };
 
 exports.Prisma.TimesheetEntryScalarFieldEnum = {
@@ -217,11 +217,11 @@ exports.Prisma.OvertimeDescriptionScalarFieldEnum = {
   id: 'id',
   overtimeId: 'overtimeId',
   date: 'date',
-  startDate: 'startDate',
-  endDate: 'endDate',
   duration: 'duration',
   description: 'description',
-  assignee: 'assignee'
+  assignee: 'assignee',
+  endDate: 'endDate',
+  startDate: 'startDate'
 };
 
 exports.Prisma.SortOrder = {

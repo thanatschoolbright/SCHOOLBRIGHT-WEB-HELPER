@@ -21,8 +21,6 @@ model ADjustedSIDS {
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model BackupOfflineSales {
   SalesID           String   @db.UniqueIdentifier
   SchoolID          Int
@@ -700,7 +698,7 @@ model DailySales {
   sEmp     Int?
   nTotal   Decimal  @db.Decimal(18, 2)
   CardID   String?  @db.UniqueIdentifier
-  TStamp   DateTime @default(now(), map: "DF_DailySales_TStamp") @db.DateTime
+  TStamp   DateTime @db.DateTime
 
   @@index([SchoolID, ShopID, dSell, sID, sID2, CardID], map: "IX_DailySales")
 }
@@ -742,6 +740,7 @@ model DashboardData {
 
   @@index([SchoolID], map: "INDEX_VV_161687_161686")
   @@index([BusinessDate], map: "IX_DashboardData_1")
+  @@index([SchoolID, BusinessDate], map: "INDEX_VV_3899_3898")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -763,7 +762,7 @@ model DeviceActivityLogTemp {
 }
 
 model DeviceDailyStatus {
-  DeviceStatusID String    @id(map: "PK_DeviceDailyStatus") @db.UniqueIdentifier
+  DeviceStatusID String    @id(map: "PK_DeviceDailyStatus_new") @db.UniqueIdentifier
   SchoolID       Int
   DeviceID       String    @db.NVarChar(200)
   Online         Boolean
@@ -774,9 +773,14 @@ model DeviceDailyStatus {
   LogoutTime     DateTime? @db.DateTime
   Tstamp         DateTime  @db.DateTime
   BusinessDate   DateTime  @db.Date
+  AppVersion     String?   @db.NVarChar(200)
+  AppName        String?   @db.NVarChar(200)
+  Note           String?   @db.Text
+  UserLoginID    Int?
+  DeviceTypeID   Int?
 
-  @@index([SchoolID], map: "INDEX_VV_5942378_5942377")
-  @@index([SchoolID, DeviceID, BusinessDate], map: "IX_DeviceDailyStatus_SchoolID_DeviceID_BusinessDate")
+  @@index([SchoolID, OnlineTime], map: "INDEX_VV_3735_3734_new")
+  @@index([SchoolID, DeviceID, BusinessDate], map: "IX_DeviceDailyStatus_SchoolID_DeviceID_BusinessDate_new")
 }
 
 model DeviceUpdateStatus {
@@ -784,8 +788,8 @@ model DeviceUpdateStatus {
   SchoolID       Int
   DeviceID       String   @db.NVarChar(500)
   UserID         Int
-  NeedToUpdate   Boolean  @default(true, map: "DF_DeviceUpdateStatus_NeedToUpdate")
-  Tstamp         DateTime @default(now(), map: "DF_DeviceUpdateStatus_Tstamp") @db.DateTime
+  NeedToUpdate   Boolean
+  Tstamp         DateTime @db.DateTime
   ResponseStatus Boolean
 }
 
@@ -1002,6 +1006,7 @@ model KResInquiryQR {
   @@index([CreateDate], map: "INDEX_VV_26452_26451")
   @@index([TransID], map: "INDEX_VV_95435_95434")
   @@index([SchoolID, ChargeID, Year], map: "IX_ChargeID_SchoolID_YearID")
+  @@index([ReferenceOrder], map: "INDEX_VV_126329_126328")
 }
 
 model KResOrder {
@@ -1133,9 +1138,9 @@ model KTBTransaction {
   @@index([SchoolID, TransactionID], map: "INDEX_VV_5124_5123")
   @@index([GUID], map: "INDEX_VV_6018_6017")
   @@index([ApprovalRespMsg, PaymentRespMsg, Ref2, CreateDate], map: "INDEX_VV_62891_62890")
-  @@index([PaymentRespCode, CreateDate], map: "INDEX_VV_79568_79567")
   @@index([Ref2], map: "INDEX_VV_93975_93974")
   @@index([SchoolID, CreateDate], map: "INDEX_VV_97471_97470")
+  @@index([Ref1], map: "INDEX_VV_96553_96552")
 }
 
 model KTransaction {
@@ -1460,6 +1465,7 @@ model OfflineSales {
   SourceIP          String?  @db.NVarChar(250)
 
   @@index([SourceIP], map: "INDEX_VV_20400_20399")
+  @@index([SourceIP], map: "INDEX_VV_126863_126862")
 }
 
 model PaymentServersDetails {
@@ -1528,7 +1534,7 @@ model ResultVerifyUserBalance_Bkup {
 model ResultVerifyUserBalanceTempCard {
   CardHistoryID String?  @db.UniqueIdentifier
   balance       Decimal? @db.Decimal(18, 2)
-  SystemBalance Float?
+  SystemBalance Float?   @db.Real
   SQLStatement  String?  @db.NVarChar(560)
   Tstamp        DateTime @db.DateTime
 
@@ -1559,10 +1565,11 @@ model SBLoginHistory {
   sIPAddress  String?   @db.NVarChar(150)
   loginAt     DateTime? @db.DateTime
 
-  @@index([schoolID, nStudentID, loginAt(sort: Desc), sIMEI], map: "_dta_index_SBLoginHistory_15_1641772906__K5_K2_K11D_K6")
-  @@index([sIMEI], map: "INDEX_VV_18204_18203")
-  @@index([schoolID], map: "INDEX_VV_40255_40254")
-  @@index([nStudentID], map: "IX_SBLoginHistory_schoolID")
+  @@index([schoolID, nStudentID, loginAt(sort: Desc)], map: "IDX_SBLoginHistory_Covering")
+  @@index([schoolID], map: "INDEX_VV_126133_126132")
+  @@index([sIMEI], map: "INDEX_VV_126711_126710")
+  @@index([schoolID, nStudentID, loginAt(sort: Desc)], map: "IX_SBLoginHistory_School_Student_LoginAt")
+  @@index([schoolID, nStudentID, loginAt(sort: Desc)], map: "IX_SBLoginHistory_School_Student_LoginAt_IMEI")
 }
 
 model SchoolIDMapping {
@@ -1968,6 +1975,7 @@ model TApproveStudentContactAddress {
 
   @@id([ID, StudentID, SchoolID], map: "PK_TAPPROVESTUDENTCONTACTADDRE")
   @@index([StudentID, SchoolID], map: "INDEX_VV_156524_156523")
+  @@index([SchoolID], map: "INDEX_VV_22350_22349")
 }
 
 model TApproveStudentFatherInfo {
@@ -2013,6 +2021,7 @@ model TApproveStudentFatherInfo {
 
   @@id([ID, StudentID, SchoolID], map: "PK_TAPPROVESTUDENTFATHERINFO")
   @@index([StudentID, SchoolID], map: "INDEX_VV_18210_18209")
+  @@index([SchoolID], map: "INDEX_VV_22352_22351")
 }
 
 model TApproveStudentMotherInfo {
@@ -2059,6 +2068,7 @@ model TApproveStudentMotherInfo {
 
   @@id([ID, StudentID, SchoolID], map: "PK_TAPPROVESTUDENTMOTHERINFO")
   @@index([StudentID, SchoolID], map: "INDEX_VV_156854_156853")
+  @@index([SchoolID], map: "INDEX_VV_22354_22353")
 }
 
 model TApproveStudentParentInfo {
@@ -2108,6 +2118,7 @@ model TApproveStudentParentInfo {
 
   @@id([ID, StudentID, SchoolID], map: "PK_TAPPROVESTUDENTPARENTINFO")
   @@index([StudentID, SchoolID], map: "INDEX_VV_157518_157517")
+  @@index([SchoolID], map: "INDEX_VV_22356_22355")
 }
 
 model TApproveStudentPermanentAddress {
@@ -2142,6 +2153,8 @@ model TApproveStudentPermanentAddress {
 
   @@id([ID, StudentID, SchoolID], map: "PK_TAPPROVESTUDENTPERMANENTADD")
   @@index([StudentID, SchoolID], map: "INDEX_VV_145218_145217")
+  @@index([SchoolID], map: "INDEX_VV_22348_22347")
+  @@index([SchoolID, ApproveStatus], map: "INDEX_VV_23788_23787")
 }
 
 model TApproveStudentProfile {
@@ -2184,6 +2197,8 @@ model TApproveStudentProfile {
 
   @@id([ID, StudentID, SchoolID], map: "PK_TAPPROVESTUDENTPROFILE")
   @@index([StudentID, SchoolID], map: "INDEX_VV_5794232_5794231")
+  @@index([SchoolID], map: "INDEX_VV_22346_22345")
+  @@index([SchoolID], map: "INDEX_VV_23527_23526")
 }
 
 model TAssetCategory {
@@ -2424,16 +2439,17 @@ model TBackupCard {
   @@index([NFC, cDel], map: "INDEX_VV_13_12")
   @@index([SchoolID, cDel], map: "INDEX_VV_14789_14788")
   @@index([SchoolID, cDel], map: "INDEX_VV_26_25")
-  @@index([NFCReverse, cDel], map: "INDEX_VV_316_315")
   @@index([BarCode, cDel], map: "INDEX_VV_32_31")
-  @@index([CardName], map: "INDEX_VV_5246275_5246274")
   @@index([CardName], map: "INDEX_VV_6064660_6064659")
-  @@index([CardName], map: "INDEX_VV_6066270_6066269")
   @@index([SchoolID, cDel], map: "INDEX_VV_90336_90335")
   @@index([SchoolID, cDel], map: "INDEX_VV_94236_94235")
   @@index([SchoolID, cDel], map: "INDEX_VV_94321_94320")
   @@index([cDel], map: "INDEX_VV_98178_98177")
   @@index([SchoolID, BarCode, cDel], map: "TBackupCard_SchoolID_Barcode_Cdel")
+  @@index([CardID, SchoolID], map: "IDX_TBackupCard_CardID_SchoolID")
+  @@index([SchoolID, cDel], map: "INDEX_VV_123598_123597")
+  @@index([Money], map: "INDEX_VV_126402_126401")
+  @@index([SchoolID, cDel, NFCEncryptReverse], map: "INDEX_VV_126506_126505")
 }
 
 model TBackupCardHistory {
@@ -2463,6 +2479,10 @@ model TBackupCardHistory {
   @@index([SchoolID], map: "INDEX_VV_91886_91885")
   @@index([CardID], map: "IX_TBackupCardHistory_SchoolID")
   @@index([SchoolID, ReturnDate], map: "IX_TBackupCardHistory_SchoolID_ReturnDate")
+  @@index([SchoolID, cDel], map: "INDEX_VV_123678_123677")
+  @@index([SchoolID, ReturnDate, cDel, BorrowingDate], map: "INDEX_VV_124668_124667")
+  @@index([ReturnDate, cDel], map: "INDEX_VV_673_672")
+  @@index([SchoolID, CardID], map: "INDEX_VV_93779_93778")
 }
 
 model TBaseSalary {
@@ -2499,6 +2519,7 @@ model TBehavior {
   nAutoType      Int?
 
   @@id([SchoolID, BehaviorId], map: "PK_Table_1")
+  @@index([BehaviorId], map: "INDEX_VV_96509_96508")
 }
 
 model TBehaviorHistory {
@@ -2528,26 +2549,19 @@ model TBehaviorHistory {
   IsHolidayCancel   Boolean?
 
   @@id([SchoolID, BehaviorHistoryId], map: "PK_TBehaviorHistory_Backup")
-  @@index([SchoolID, dAdd], map: "INDEX_VV_13053_13052")
-  @@index([LogDate, dAdd, cDel], map: "INDEX_VV_3432_3431")
-  @@index([SchoolID, UpdatedDate], map: "INDEX_VV_92243_92242")
-  @@index([SchoolID, cDel, LogDate], map: "INDEX_VV_92836_92835")
-  @@index([dCanCel, LogDate, dAdd, cDel], map: "INDEX_VV_93153_93152")
-  @@index([dCanCel, cDel, dAdd], map: "INDEX_VV_93203_93202")
-  @@index([dCanCel, SchoolID, dAdd, cDel], map: "INDEX_VV_93552_93551")
-  @@index([BehaviorId, dCanCel, cDel, dAdd, LogDate], map: "INDEX_VV_B100231_100230")
-  @@index([dCanCel, SchoolID, LogDate], map: "INDEX_VV_B100879_100878")
-  @@index([StudentId, dCanCel, SchoolID, cDel, LogDate], map: "INDEX_VV_B2227_2226")
-  @@index([StudentId, dCanCel, cDel, dAdd], map: "INDEX_VV_B29900_29899")
-  @@index([dAdd], map: "INDEX_VV_B59612_59611")
-  @@index([dCanCel, SchoolID, cDel, dAdd], map: "INDEX_VV_B91728_91727")
-  @@index([BehaviorHistoryId], map: "INDEX_VV_B93967_93966")
-  @@index([dCanCel, SchoolID, cDel, dAdd], map: "INDEX_VV_B94024_94023")
-  @@index([dCanCel, cDel, dAdd, LogDate], map: "INDEX_VV_B94748_94747")
-  @@index([dCanCel, SchoolID, cDel, LogDate], map: "INDEX_VV_B98376_98375")
-  @@index([StudentId], map: "IX_TBehaviorHistory_Backup_BehaviorId_dCanCel_cDel_dAdd_LogDate")
-  @@index([StudentId, dCanCel, SchoolID, cDel, dAdd], map: "IX_VV_TBehaviorHistory_Backup_StudentId_dCanCel_SchoolID_cDel_dAdd")
-  @@index([StudentId, cDel, dAdd], map: "TBehaviorHistory_Backup_StudentID_cDel_dAdd")
+  @@index([BehaviorHistoryId], map: "INDEX_VV_127093_127092")
+  @@index([dCanCel, dAdd, cDel], map: "INDEX_VV_128972_128971")
+  @@index([dCanCel, SchoolID, cDel, dAdd], map: "INDEX_VV_138872_138871")
+  @@index([BehaviorId, dCanCel, cDel, dAdd, LogDate], map: "INDEX_VV_164_163")
+  @@index([StudentId, dCanCel, SchoolID, cDel, dAdd], map: "INDEX_VV_4283_4282")
+  @@index([dCanCel, cDel, StudentId], map: "INDEX_VV_453_452")
+  @@index([SchoolID, dAdd], map: "INDEX_VV_5678_5677")
+  @@index([dCanCel, cDel, dAdd, LogDate], map: "INDEX_VV_703_702")
+  @@index([SchoolID], map: "IX_TBehaviorHistory_cDel_0")
+  @@index([dCanCel, SchoolID, LogDate, cDel], map: "IX_TBehaviorHistory_LogTimeline")
+  @@index([StudentId, SchoolID, cDel, dCanCel, dAdd], map: "IX_TBehaviorHistory_Optimized2")
+  @@index([SchoolID, cDel], map: "IX_TBehaviorHistory_SchoolID_cDel")
+  @@index([StudentId, dCanCel, cDel, dAdd], map: "IX_TBehaviorHistory_StudentId_dCancel_dAdd")
 }
 
 model TBehaviorHistory_Files {
@@ -2561,6 +2575,8 @@ model TBehaviorHistory_Files {
   UpdatedDate       DateTime? @db.DateTime
   cDel              Boolean
   nFileId           String    @id(map: "PK_TBehaviorHistory_Files") @db.UniqueIdentifier
+
+  @@index([SchoolID, BehaviorHistoryId], map: "INDEX_VV_23611_23610")
 }
 
 model TBehaviorSetting {
@@ -2631,7 +2647,6 @@ model TBranch {
   UpdatedDate DateTime? @db.DateTime
 
   @@id([SchoolID, BranchId], map: "PK_TBranch")
-  @@index([BranchId], map: "IDX_M_3441_3440")
   @@index([nTLevel], map: "IX_TBranch")
 }
 
@@ -2663,7 +2678,6 @@ model TBranchSubject {
   UpdatedDate       DateTime? @db.DateTime
 
   @@id([SchoolID, BranchSubjectId], map: "PK_TBranchSubject")
-  @@index([BranchSubjectId], map: "INDEX_VV_19314_19313")
   @@index([BranchId], map: "IX_TBranchSubject")
 }
 
@@ -2716,6 +2730,11 @@ model TClassMember {
   @@index([nTermSubLevel2, SchoolID], map: "IDX_M_206765_206764")
   @@index([nTeacherHeadid, nTermSubLevel2, nTerm, SchoolID], map: "IDX_M_4084_4083")
   @@index([nTerm], map: "INDEX_VV_89574_89573")
+  @@index([SchoolID, cDel], map: "INDEX_VV_207_206")
+  @@index([SchoolID, nTerm, nTermSubLevel2, nTeacherHeadid, nTeacherAssistOne, nTeacherAssistTwo], map: "IX_TClassMember_Active_0")
+  @@index([SchoolID, nTerm, nTermSubLevel2, nTeacherHeadid, nTeacherAssistOne, nTeacherAssistTwo], map: "IX_TClassMember_Active_NULL")
+  @@index([SchoolID, nTeacherHeadid, nTeacherAssistOne, nTeacherAssistTwo, nTerm, nTermSubLevel2], map: "IX_TClassMember_Approval")
+  @@index([SchoolID, nTeacherHeadid, nTeacherAssistOne, nTeacherAssistTwo, nTerm, nTermSubLevel2], map: "IX_TClassMember_ApprovalNULL")
 }
 
 model TClassOnline {
@@ -2868,6 +2887,7 @@ model TDepartment {
   cDel           Boolean
 
   @@id([SchoolID, DepID], map: "PK_TDepartment")
+  @@index([DepID], map: "INDEX_VV_125767_125766")
 }
 
 model TDocumentStampDate {
@@ -3156,6 +3176,8 @@ model TEmployeeInfo {
   @@index([Code], map: "INDEX_VV_1280_1279")
   @@index([SchoolID, cDel], map: "INDEX_VV_66390_66389")
   @@index([SchoolID, cDel], map: "INDEX_VV_94247_94246")
+  @@index([SchoolID, cDel], map: "INDEX_VV_126832_126831")
+  @@index([ID, SchoolID], map: "INDEX_VV_98004_98003")
 }
 
 model TEmployees {
@@ -3214,17 +3236,12 @@ model TEmployees {
   @@id([SchoolID, sEmp], map: "PK_TEmployees")
   @@index([cDel, SchoolID], map: "INDEX_VV_100035_100034")
   @@index([cDel, SchoolID], map: "INDEX_VV_10175_10174")
-  @@index([cDel, nTimeType, SchoolID], map: "INDEX_VV_102570_102569")
   @@index([cDel, cType, SchoolID], map: "INDEX_VV_107596_107595")
   @@index([cType, SchoolID], map: "INDEX_VV_116071_116070")
-  @@index([cDel, nJobid, SchoolID], map: "INDEX_VV_27766_27765")
   @@index([sEmp], map: "INDEX_VV_4_3")
   @@index([cDel, SchoolID], map: "INDEX_VV_42901_42900")
-  @@index([sName], map: "INDEX_VV_5222001_5222000")
   @@index([sIdentification, cDel, SchoolID, sEmp], map: "INDEX_VV_5661378_5661377")
-  @@index([sName], map: "INDEX_VV_6066175_6066174")
   @@index([cDel, SchoolID], map: "INDEX_VV_63_62")
-  @@index([nJobid, SchoolID], map: "INDEX_VV_81363_81362")
   @@index([cDel, SchoolID], map: "INDEX_VV_89977_89976")
   @@index([cDel, SchoolID], map: "INDEX_VV_92468_92467")
   @@index([cDel, cType, SchoolID, sEmp], map: "INDEX_VV_93494_93493")
@@ -3233,6 +3250,13 @@ model TEmployees {
   @@index([cDel, cType, SchoolID], map: "INDEX_VV_94203_94202")
   @@index([cDel], map: "IX_TEmployees")
   @@index([sName], map: "IX_TEmployees_sEmp_cDEl")
+  @@index([cDel, SchoolID], map: "INDEX_VV_123410_123409")
+  @@index([SchoolID, nMoney], map: "INDEX_VV_126894_126893")
+  @@index([SchoolID, sPhone], map: "INDEX_VV_22630_22629")
+  @@index([SchoolID, cType], map: "INDEX_VV_23569_23568")
+  @@index([cDel, SchoolID], map: "INDEX_VV_3805_3804")
+  @@index([cDel, gradeSystemAdmin, SchoolID], map: "INDEX_VV_3915_3914")
+  @@index([nDepartmentId, SchoolID], map: "INDEX_VV_98312_98311")
 }
 
 model TEmployeesNew {
@@ -3374,26 +3398,31 @@ model TEmpSalary {
   @@id([SchoolID, sEmp, ID], map: "PK_TEMPSALARY")
   @@index([WorkStatus, SchoolID], map: "INDEX_VV_145730_145729")
   @@index([sEmp], map: "INDEX_VV_146515_146514")
+  @@index([SchoolID, cDel], map: "INDEX_VV_22632_22631")
+  @@index([sEmp, WorkStatus], map: "IX_TEmpSalary_sEmp_WorkStatus")
 }
 
 model TEmpSigner {
-  SignerID  Int       @default(autoincrement())
-  SchoolID  Int
-  TermID    String?   @db.VarChar(20)
-  Position  String?   @db.NVarChar(250)
-  DefaultID Int?
-  EmpID     Int?
-  Signer    String?   @db.NVarChar(250)
-  IsDefault Boolean?
-  IsDel     Boolean?
-  IsActive  Boolean?
-  Created   DateTime? @db.DateTime
-  Modified  DateTime? @db.DateTime
-  CreateBy  Int?
-  ModifyBy  Int?
+  SignerID   Int       @default(autoincrement())
+  SchoolID   Int
+  YearID     Int?
+  TermID     String?   @db.VarChar(20)
+  Position   String?   @db.NVarChar(250)
+  PositionEN String?   @db.NVarChar(250)
+  DefaultID  Int?
+  EmpID      Int?
+  Signer     String?   @db.NVarChar(250)
+  IsDefault  Boolean?
+  IsDel      Boolean?
+  IsActive   Boolean?
+  Created    DateTime? @db.DateTime
+  Modified   DateTime? @db.DateTime
+  CreateBy   Int?
+  ModifyBy   Int?
 
   @@id([SignerID, SchoolID], map: "PK_TEmpSigner")
   @@index([SchoolID, IsDel], map: "INDEX_VV_102695_102694")
+  @@index([YearID], map: "INDEX_VV_120207_120206")
 }
 
 model TEmpTeaching {
@@ -3594,6 +3623,7 @@ model TFaceScanLog {
   @@index([SchoolID], map: "INDEX_VV_12814_12813")
   @@index([Temperature], map: "INDEX_VV_144942_144941")
   @@index([sID, SchoolID], map: "TFaceScanLog_sid_schoolid")
+  @@index([SchoolID], map: "INDEX_VV_1222_1221")
 }
 
 model TFamilyProfile {
@@ -3715,6 +3745,8 @@ model TFamilyProfile {
   @@id([SchoolID, nFamilyID], map: "PK_TFamilyProfile")
   @@index([nFamilyID], map: "IDX_M_580_579")
   @@index([sID, SchoolID], map: "INDEX_VV_8468_8467")
+  @@index([cDel], map: "INDEX_VV_714_713")
+  @@index([SchoolID, sID], map: "IX_TFamilyProfile_Student")
 }
 
 model TGradeAttendance {
@@ -4008,6 +4040,7 @@ model TGradeMigration {
   @@index([sID, AssessmentId, ExamID, nTermSubLevel2, SchoolID], map: "INDEX_VV_89364_89363")
   @@index([nTermSubLevel2, SchoolID, cDel], map: "INDEX_VV_94813_94812")
   @@index([ExamID], map: "IX_TGradeMigration_nTermSubLevel2_SchoolID_cDel")
+  @@index([nGradeId, SchoolID], map: "INDEX_VV_3642_3641")
 }
 
 model TGradeRegisterPeriod {
@@ -4080,6 +4113,7 @@ model TGradeViewRoomListSetting {
 
   @@id([SchoolID, RoomListSettingId], map: "PK_TGradeViewRoomListSetting")
   @@index([IsRoomBlocked, GradeViewSettingId, nTermSubLevel2], map: "INDEX_VV_5206679_5206678")
+  @@index([GradeViewSettingId, nTermSubLevel2], map: "INDEX_VV_94846_94845")
 }
 
 model TGradeViewSetting {
@@ -4263,10 +4297,14 @@ model THoliday {
   @@index([SchoolID, dHolidayStart, dHolidayEnd], map: "INDEX_VV_100020_100019")
   @@index([sHolidayType, SchoolID], map: "INDEX_VV_121211_121210")
   @@index([cDel, SchoolID], map: "INDEX_VV_20402_20401")
-  @@index([sEmp], map: "INDEX_VV_6064094_6064093")
   @@index([cDel, SchoolID, sWhoSeeThis], map: "INDEX_VV_84783_84782")
   @@index([SchoolID, sWhoSeeThis], map: "INDEX_VV_94490_94489")
   @@index([cDel, SchoolID], map: "INDEX_VV_96813_96812")
+  @@index([cDel, SchoolID, dHolidayEnd], map: "INDEX_VV_125930_125929")
+  @@index([sHolidayType, cDel, SchoolID, sWhoSeeThis], map: "INDEX_VV_126908_126907")
+  @@index([cDel, sWhoSeeThis, SchoolID, sHolidayType, dHolidayStart, dHolidayEnd], map: "INDEX_VV_2068_2067")
+  @@index([cDel, SchoolID, sHolidayType], map: "INDEX_VV_2919_2918")
+  @@index([cDel, SchoolID, dHolidayStart, dHolidayEnd], map: "INDEX_VV_98482_98481")
 }
 
 model THolidayLog {
@@ -4278,6 +4316,7 @@ model THolidayLog {
   HolidayID String?   @db.NVarChar(15)
 
   @@index([SchoolID], map: "INDEX_VV_110515_110514")
+  @@index([SchoolID], map: "INDEX_VV_23103_23102")
 }
 
 model THolidaySome {
@@ -4299,6 +4338,7 @@ model THolidaySome {
   @@index([nHoliday], map: "INDEX_VV_6066208_6066207")
   @@index([nHoliday], map: "IX_THolidaySome_Deleted_SchoolID")
   @@index([nTSubLevel, SchoolID], map: "IX_THolidaySome_nTSubLevel_SchoolID")
+  @@index([Deleted, SchoolID, cDel], map: "INDEX_VV_126992_126991")
 }
 
 model THomeVisit {
@@ -4401,6 +4441,8 @@ model THomeVisit {
   @@index([YearID], map: "INDEX_VV_1890_1889")
   @@index([TermID(sort: Desc), SchoolID, RoomID, Status, IsDel, StudentID], map: "IX_SchoolID_RoomID_StudentID_TermID_Status_IsDel")
   @@index([StudentID], map: "IX_THomeVisit_StudentID")
+  @@index([TermID], map: "INDEX_VV_125735_125734")
+  @@index([SchoolID, RoomID], map: "INDEX_VV_22659_22658")
 }
 
 model THomeVisitFile {
@@ -4419,7 +4461,7 @@ model THomeVisitFile {
 
   @@id([ID, Type, HomeVisitID, SchoolID], map: "PK_THOMEVISITFILE")
   @@index([HomeVisitID, SchoolID, IsDel], map: "INDEX_VV_40717_40716")
-  @@index([ContentType], map: "INDEX_VV_5134909_5134908")
+  @@index([SchoolID, IsDel], map: "INDEX_VV_125743_125742")
 }
 
 model THomework {
@@ -4456,6 +4498,7 @@ model THomework {
   @@index([OnlineId], map: "INDEX_VV_5155024_5155023")
   @@index([SchoolID, cDel, DisplayDate], map: "INDEX_VV_89766_89765")
   @@index([OnlineId, SchoolID, cDel, DisplayDate], map: "IX_THomework_SchoolID_cDel_DisplayDate")
+  @@index([SchoolID, cDel, DisplayDate], map: "INDEX_VV_126703_126702")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -4514,7 +4557,6 @@ model THomework_User {
   @@index([nHomeWork, sID], map: "INDEX_VV_102707_102706")
   @@index([SchoolID, IsSend, cDel], map: "INDEX_VV_107481_107480")
   @@index([sID, SchoolID, cDel], map: "INDEX_VV_26401_26400")
-  @@index([SchoolID, IsSend, nHomeWork, cDel], map: "IX_THomework_User_SchoolID_IsSend_nHomeWork_cDel")
   @@index([sID, SchoolID, cDel, nHomeWork], map: "IX_VV_THomework_User_sID_SchoolID_cDel_nHomeWork")
   @@index([sID, SchoolID, CreatedDate, cDel], map: "IX_VV_THomework_User_sID_SchoolID_CreatedDate_cDel")
 }
@@ -4644,13 +4686,13 @@ model TJobList {
   SchoolID       Int
   CreatedBy      Int?
   UpdatedBy      Int?
-  CreatedDate    DateTime? @default(now(), map: "DF_TJobList_CreatedDate") @db.DateTime
-  UpdatedDate    DateTime? @default(now(), map: "DF_TJobList_UpdatedDate") @db.DateTime
-  cDel           Boolean   @default(false, map: "DF_TJobList_cDel")
+  CreatedDate    DateTime? @db.DateTime
+  UpdatedDate    DateTime? @db.DateTime
+  cDel           Boolean
 
   @@id([SchoolID, nJobid], map: "PK_TJobList")
   @@index([nJobid], map: "IDX_M_127_126")
-  @@index([SchoolID, deleted], map: "INDEX_VV_208_207")
+  @@index([SchoolID, cDel], map: "INDEX_VV_93844_93843")
 }
 
 model TLanguage {
@@ -4820,7 +4862,7 @@ model TLeave_Log {
   Type     String?   @db.Char(1)
 
   @@id([Id, SchoolID], map: "PK_TLeave_Log")
-  @@index([SchoolID, Type], map: "INDEX_VV_6039_6038")
+  @@index([SchoolID, ByUser, Type], map: "INDEX_VV_1232_1231")
 }
 
 model TLeave_Type {
@@ -4894,13 +4936,17 @@ model TLeaveLetter {
 
   @@id([SchoolID, letterId], map: "PK_TLeaveLetter")
   @@index([letterId], map: "IDX_M_33432_33431")
-  @@index([adminOneId], map: "INDEX_VV_102568_102567")
   @@index([startDate], map: "INDEX_VV_15688_15687")
   @@index([writerId, letterStatus, SchoolID, cDel, letterDate, startDate, LetterConfirmdate], map: "INDEX_VV_17083_17082")
   @@index([SchoolID, cDel, writerJob], map: "INDEX_VV_90099_90098")
   @@index([SchoolID, cDel, writerJob], map: "INDEX_VV_97926_97925")
+  @@index([SchoolID, cDel, startDate], map: "INDEX_VV_121148_121147")
+  @@index([writerId, SchoolID, cDel, startDate, endDate], map: "INDEX_VV_2916_2915")
+  @@index([SchoolID, cDel, startDate, endDate], map: "INDEX_VV_292_291")
+  @@index([SchoolID, cDel, startDate, endDate], map: "INDEX_VV_467_466")
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model TLeaveLetter_History {
   letterId          Int       @default(autoincrement())
   letterSchoolId    Int?
@@ -4912,7 +4958,7 @@ model TLeaveLetter_History {
   writerComment     String?   @db.NVarChar(Max)
   startDate         DateTime? @db.DateTime
   endDate           DateTime? @db.DateTime
-  contactHomenumber String?   @db.NVarChar(50)
+  contactHomenumber String?   @db.NVarChar(250)
   contactRoad       String?   @db.NVarChar(50)
   contactTumbon     String?   @db.NVarChar(50)
   contactAumpher    String?   @db.NVarChar(50)
@@ -4946,8 +4992,10 @@ model TLeaveLetter_History {
   CreatedDate       DateTime? @db.DateTime
   UpdatedDate       DateTime? @db.DateTime
   cDel              Boolean
+  LeaveTypeID       Int?
+  Note              String?   @db.NVarChar(250)
 
-  @@id([SchoolID, letterId], map: "PK_TLeaveLetter_History")
+  @@ignore
 }
 
 model TLeaveLetterFiles {
@@ -5040,6 +5088,8 @@ model TLevel {
   @@id([SchoolID, LevelID], map: "PK_TLevel")
   @@index([LevelID], map: "INDEX_VV_8638_8637")
   @@index([LevelName], map: "IX_TLevel_LevelName")
+  @@index([cDel, LevelNameEng], map: "INDEX_VV_4019_4018")
+  @@index([LevelName, cDel], map: "INDEX_VV_4317_4316")
 }
 
 model TLogEmpTimeScan {
@@ -5056,7 +5106,7 @@ model TLogEmpTimeScan {
   UpdatedBy        Int?
   CreatedDate      DateTime? @db.DateTime
   UpdatedDate      DateTime? @db.DateTime
-  cDel             Boolean   @default(false, map: "DF_TLogEmpTimeScan_cDel")
+  cDel             Boolean
   deviceType       Int?
   LeaveID          Int?
 
@@ -5076,6 +5126,7 @@ model TLogEmpTimeScan {
   @@index([sEmp], map: "IX_TLogEmpTimeScan_SchoolID_LogEmpDate_cDel")
   @@index([sEmp], map: "IX_VV_TLogEmpTimeScan_LogEmpDate_SchoolID")
   @@index([sEmp], map: "IX_VV_TLogEmpTimeScan_SchoolID_LogEmpDate")
+  @@index([LeaveID], map: "INDEX_VV_93802_93801")
 }
 
 model TLogEmpTimeScan_History {
@@ -5113,7 +5164,7 @@ model TLogLearnTimeScan {
   UpdatedBy          Int?
   CreatedDate        DateTime? @db.DateTime
   UpdatedDate        DateTime? @db.DateTime
-  cDel               Boolean   @default(false, map: "DF_TLogLearnTimeScan_Backup_cDel")
+  cDel               Boolean
 
   @@id([SchoolID, LeanTimeScanID], map: "PK_TLogLearnTimeScan_Backup")
   @@index([sID], map: "IDX_M_B_276_275")
@@ -5124,6 +5175,9 @@ model TLogLearnTimeScan {
   @@index([sID], map: "INDEX_VV_B_89775_89774")
   @@index([sID], map: "INDEX_VV_B_90040_90039")
   @@index([sScheduleID], map: "IX_TLogLearnTimeScan_Backup_LogLearnDate_LogLearnType_SchoolID")
+  @@index([SchoolID, LogLearnDate], map: "INDEX_VV_101197_101196")
+  @@index([sScheduleID, SchoolID, LogLearnDate, sID], map: "INDEX_VV_95100_95099")
+  @@index([sScheduleID, SchoolID, LogLearnDate, sID], map: "INDEX_VV_97949_97948")
 }
 
 model TLogLearnTimeScan_History {
@@ -5180,20 +5234,18 @@ model TLogUserTimeScan {
   UpdatedBy      Int?
   CreatedDate    DateTime? @db.DateTime
   UpdatedDate    DateTime? @db.DateTime
-  cDel           Boolean   @default(false, map: "DF_TLogUserTimeScan_Bkup_cDel")
+  cDel           Boolean
   deviceType     Int?
   LeaveID        Int?
 
   @@id([SchoolID, nLogScanID], map: "PK_TLogUserTimeScan_Bkup")
   @@index([sID], map: "INDEX_VV_55244_55243")
   @@index([LogDate], map: "INDEX_VV_57814_57813")
-  @@index([LogDate, SchoolID], map: "INDEX_VV_64621_64620")
   @@index([LogDate, sID], map: "INDEX_VV_65192_65191")
-  @@index([LogDate, SchoolID], map: "INDEX_VV_65459_65458")
-  @@index([LogType, LogDate, SchoolID], map: "INDEX_VV_67126_67125")
   @@index([SchoolID, LogDate], map: "INDEX_VV_68706_68705")
-  @@index([LogType, SchoolID, LogDate], map: "INDEX_VV_71364_71363")
   @@index([nLogScanID], map: "INDEX_VV_Bkup_159_158")
+  @@index([LogTime, LogDate], map: "INDEX_VV_96665_96664")
+  @@index([sID, LogType, LogDate, SchoolID], map: "INDEX_VV_98013_98012")
 }
 
 model TLogUserTimeScan_History {
@@ -5216,52 +5268,6 @@ model TLogUserTimeScan_History {
   cDel           Boolean
 
   @@id([SchoolID, nLogScanID], map: "PK_TLogUserTimeScan_History")
-}
-
-model TLogUserTimeScan_Old_Bkup {
-  sID            Int?
-  LogTime        DateTime? @db.Time
-  LogType        String?   @db.Char(1)
-  LogScanStatus  String?   @db.NVarChar(2)
-  LognDay        Int?
-  LogDate        DateTime? @db.Date
-  nYear          Int?
-  nTermSubLevel2 Int?
-  TeacherId      Int?
-  nLogScanID     Int       @default(autoincrement())
-  bLockStatus    Boolean?
-  SchoolID       Int
-  CreatedBy      Int?
-  UpdatedBy      Int?
-  CreatedDate    DateTime? @db.DateTime
-  UpdatedDate    DateTime? @db.DateTime
-  cDel           Boolean   @default(false, map: "DF_TLogUserTimeScan_cDel")
-  deviceType     Int?
-  LeaveID        Int?
-
-  @@id([SchoolID, nLogScanID], map: "PK_TLogUserTimeScan")
-  @@index([sID, LogDate, SchoolID], map: "IDX_M_14871_14870")
-  @@index([sID], map: "IDX_M_232_231")
-  @@index([sID, SchoolID, LogDate], map: "IDX_M_24177_24176")
-  @@index([SchoolID, LogDate], map: "INDEX_VV_100043_100042")
-  @@index([sID], map: "INDEX_VV_1214_1213")
-  @@index([nLogScanID], map: "INDEX_VV_159_158")
-  @@index([LogDate], map: "INDEX_VV_23543_23542")
-  @@index([LogTime, LogDate, SchoolID], map: "INDEX_VV_32713_32712")
-  @@index([LogType, SchoolID, LogDate], map: "INDEX_VV_4080_4079")
-  @@index([LogType, LogDate, SchoolID], map: "INDEX_VV_52840_52839")
-  @@index([sID], map: "INDEX_VV_6067278_6067277")
-  @@index([sID], map: "INDEX_VV_6133_6132")
-  @@index([LogType, LogDate, SchoolID], map: "INDEX_VV_8522_8521")
-  @@index([LogDate, SchoolID], map: "INDEX_VV_8721_8720")
-  @@index([LogDate, SchoolID], map: "INDEX_VV_90055_90054")
-  @@index([SchoolID, LogDate], map: "INDEX_VV_92065_92064")
-  @@index([LogDate, SchoolID], map: "INDEX_VV_94801_94800")
-  @@index([sID, LogType, LogDate, SchoolID], map: "INDEX_VV_97017_97016")
-  @@index([SchoolID, LogDate, LogType, sID], map: "IX_TLogUserTimeScan__SchoolIDTypeDateSid")
-  @@index([sID], map: "IX_TLogUserTimeScan_LogType_LogDate_SchoolID")
-  @@index([sID], map: "IX_TLogUserTimeScan_LogType_LogDate_SchoolID1")
-  @@index([sID], map: "TLogUserTimeScan_schoolid_logdate")
 }
 
 model TLogUserTimeScanNew {
@@ -5288,6 +5294,7 @@ model TMasterData {
   MasterType  String?  @db.VarChar(20)
   isActive    Boolean?
   MasterOrder Int?
+  MasterDesEn String?  @db.VarChar(250)
 }
 
 model TMasterType {
@@ -5320,6 +5327,8 @@ model TMessage_User {
   @@index([MessageUserID, SchoolID], map: "INDEX_VV_B169461_169460")
   @@index([message_id], map: "INDEX_VV_B56030_56029_M")
   @@index([UserID, user_type, message_id, read_status, receive_status], map: "IX_TMessage_User_B_M")
+  @@index([message_id], map: "IX_TMessage_User_message_id")
+  @@index([MessageUserID], map: "IX_TMessage_User_MessageUserID")
 }
 
 model TMessage_User_History {
@@ -5373,6 +5382,7 @@ model TMessageBox {
   @@index([nMessageID], map: "INDEX_VV_8731_8730")
   @@index([nType, logtime_type, logschedule_id, SchoolID], map: "INDEX_VV_94462_94461")
   @@index([push_id, SchoolID, dSend], map: "IX_TMessageBox_C_SchoolID_dSend")
+  @@index([dSend], map: "INDEX_VV_230_229")
 }
 
 model TMessageBox_History {
@@ -5495,6 +5505,7 @@ model TMoney_12022024 {
   PaymentInfo   String?   @db.NVarChar(500)
 
   @@index([nMoney, CardHistoryID], map: "INDEX_VV_71280_71279")
+  @@index([SchoolID, dMoney], map: "INDEX_VV_8688_8687")
 }
 
 model TMoney_20210208 {
@@ -5549,6 +5560,7 @@ model TMoney_Backup {
   SourceIP      String?   @db.NVarChar(200)
   CheckID       String?   @db.NVarChar(400)
 
+  @@index([SchoolID, dMoney], map: "INDEX_VV_8676_8675")
   @@ignore
 }
 
@@ -5715,6 +5727,7 @@ model TONETScore {
   Multiplier      Decimal?  @db.Decimal(5, 2)
 
   @@id([SchoolID, Year, sID, Identification, nTSubLevel], map: "PK_TONETSCORE")
+  @@index([sID, SchoolID, nTSubLevel], map: "INDEX_VV_115426_115425")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -5867,11 +5880,8 @@ model TPlanCourse {
   @@id([SchoolID, PlanCourseId], map: "PK_TPlanCourse")
   @@index([sPlaneID, PlanId, CourseStatus, IsActive, SchoolID], map: "IDX_M_6856_6855")
   @@index([sPlaneID], map: "IDX_M_6859_6858")
-  @@index([IsActive, SchoolID, nYear, cDel], map: "INDEX_VV_100030_100029")
   @@index([CourseStatus, IsActive, SchoolID, cDel], map: "INDEX_VV_111852_111851")
   @@index([PlanId, CourseStatus, IsActive, SchoolID, cDel], map: "INDEX_VV_156376_156375")
-  @@index([IsActive, SchoolID, cDel], map: "INDEX_VV_20736_20735")
-  @@index([sPlaneID, SchoolID], map: "INDEX_VV_291_290")
   @@index([PlanId], map: "INDEX_VV_32554_32553")
   @@index([PlanId], map: "INDEX_VV_6065602_6065601")
   @@index([PlanCourseId], map: "INDEX_VV_64745_64744")
@@ -5880,6 +5890,7 @@ model TPlanCourse {
   @@index([CourseStatus, IsActive, SchoolID, cDel], map: "INDEX_VV_93421_93420")
   @@index([PlanId, sPlaneID, CourseStatus, IsActive, SchoolID], map: "IX_TPlanCourse_2")
   @@index([PlanId], map: "IX_TPlanCourse_SchoolID_nYear")
+  @@index([CourseStatus, IsActive, SchoolID, nYear, cDel], map: "INDEX_VV_96819_96818")
 }
 
 model TPlanCourseAdjustedTerm {
@@ -5916,11 +5927,12 @@ model TPlanCourseStudent {
   @@id([SchoolID, PlanCourseStudentId], map: "PK_TPlanCourseStudent")
   @@index([sID, PlanCourseId, SchoolID, nTerm, IsActive, nTermSubLevel2, nTSubLevel], map: "IDX_M_16454_16453")
   @@index([IsActive, PlanCourseId, sID, nTerm, nTermSubLevel2, nTSubLevel], map: "IDX_M_4350_4349")
-  @@index([SchoolID, IsActive, nTerm], map: "INDEX_VV_1353_1352")
   @@index([PlanCourseId], map: "INDEX_VV_5224395_5224394")
   @@index([PlanCourseId], map: "INDEX_VV_53306_53305")
   @@index([SchoolID, IsActive], map: "INDEX_VV_89991_89990")
   @@index([SchoolID, nTerm, IsActive, nTermSubLevel2, nTSubLevel], map: "INDEX_VV_90061_90060")
+  @@index([PlanCourseId, IsActive], map: "INDEX_VV_3767_3766")
+  @@index([PlanCourseId, SchoolID, nTerm, IsActive, nTermSubLevel2, nTSubLevel], map: "INDEX_VV_98742_98741")
 }
 
 model TPlanCourseTeacher {
@@ -5939,8 +5951,9 @@ model TPlanCourseTeacher {
   @@index([IsActive, SchoolID], map: "INDEX_VV_116516_116515")
   @@index([PlanCourseId, IsActive, SchoolID, cDel], map: "INDEX_VV_5130749_5130748")
   @@index([sEmp, IsActive, SchoolID, PlanCourseId], map: "INDEX_VV_72615_72614")
-  @@index([IsActive, SchoolID], map: "INDEX_VV_97811_97810")
   @@index([PlanCourseId], map: "IX_TPlanCourseTeacher_IsActive_SchoolID")
+  @@index([IsActive, SchoolID, PlanCourseId], map: "INDEX_VV_23647_23646")
+  @@index([IsActive, SchoolID, cDel], map: "INDEX_VV_92906_92905")
 }
 
 model TPlanCourseTerm {
@@ -5957,12 +5970,13 @@ model TPlanCourseTerm {
 
   @@id([SchoolID, PlanCourseTermId], map: "PK_TPlanCourseTerm")
   @@index([PlanCourseId], map: "IDX_M_48351_48350")
-  @@index([nTerm, IsActive, SchoolID], map: "INDEX_VV_32208_32207")
   @@index([PlanCourseId], map: "INDEX_VV_60273_60272")
   @@index([IsActive, SchoolID, nTerm], map: "INDEX_VV_98092_98091")
   @@index([PlanCourseId, nTerm], map: "IX_TPlanCourseTerm")
   @@index([PlanCourseId], map: "IX_TPlanCourseTerm_nTerm_SchoolID")
   @@index([nTerm, IsActive, SchoolID], map: "TPlanCourseTerm_nTerm_iSActive_SchoolID")
+  @@index([nTerm, IsActive, SchoolID, PlanCourseId], map: "INDEX_VV_120488_120487")
+  @@index([nTerm, SchoolID], map: "INDEX_VV_124447_124446")
 }
 
 model TPlane {
@@ -5970,7 +5984,7 @@ model TPlane {
   sPlaneName      String?   @db.NVarChar(250)
   cDel            String?   @db.Char(1)
   nCredit         Float?
-  courseCode      String?   @db.NVarChar(50)
+  courseCode      String?   @db.NVarChar(250)
   courseType      Int?
   courseHour      Float?
   courseTotalHour Float?
@@ -5996,6 +6010,7 @@ model TPlane {
   @@index([cDel, SchoolID], map: "INDEX_VV_91095_91094")
   @@index([cDel, SchoolID, nTSubLevel], map: "INDEX_VV_94473_94472")
   @@index([courseGroup, courseCode, courseType, nTerm, nTSubLevel, sortNumber], map: "IX_TPlane")
+  @@index([cDel, SchoolID], map: "INDEX_VV_2901_2900")
 }
 
 model TPlane_TSubLevel {
@@ -6302,10 +6317,8 @@ model TPreRegister {
   @@index([registerYear, cDel, optionLevel, StudentType, RegisterPlanSetupID, SchoolID], map: "INDEX_VV_5849125_5849124")
   @@index([RegisterPlanSetupID], map: "INDEX_VV_6066003_6066002")
   @@index([cDel, optionLevel, RegisterPlanSetupID, SchoolID], map: "INDEX_VV_6067482_6067481")
-  @@index([cDel, registerYear, optionCourse, SchoolID], map: "INDEX_VV_65542_65541")
   @@index([cDel, registerYear, SchoolID], map: "INDEX_VV_72767_72766")
   @@index([sName, sLastname, cDel], map: "INDEX_VV_78800_78799")
-  @@index([saveAsSID], map: "INDEX_VV_86461_86460")
   @@index([cDel, registerYear, SchoolID], map: "INDEX_VV_92421_92420")
   @@index([cDel, SchoolID], map: "INDEX_VV_92996_92995")
   @@index([cDel, registerYear, optionCourse, SchoolID], map: "INDEX_VV_93400_93399")
@@ -6314,6 +6327,10 @@ model TPreRegister {
   @@index([preRegisterId], map: "IX_VV_TPreRegister_preRegisterId")
   @@index([sIdentification, registerYear, SchoolID], map: "IX_VV_TPreRegister_sIdentification_registerYear_SchoolID")
   @@index([sIdentification, SchoolID], map: "IX_VV_TPreRegister_sIdentification_SchoolID")
+  @@index([cDel, registerYear, optionLevel, optionTime, SchoolID], map: "INDEX_VV_126372_126371")
+  @@index([cDel, registerYear, optionLevel, optionTime, SchoolID], map: "INDEX_VV_126374_126373")
+  @@index([cDel, optionLevel, StudentType, RegisterPlanSetupID, SchoolID], map: "INDEX_VV_126771_126770")
+  @@index([cDel, registerYear, optionCourse, optionLevel, RegisterPlanSetupID, SchoolID], map: "INDEX_VV_94037_94036")
 }
 
 model TPreRegisterDocument {
@@ -6366,9 +6383,8 @@ model TPreRegisterRequiredField {
 
   @@id([VFIID, SchoolID], map: "PK_TPREREGISTERREQUIREDFIELD")
   @@index([CategoryID, SchoolID], map: "INDEX_VV_18278_18277")
-  @@index([CategoryID], map: "INDEX_VV_4911495_4911494")
-  @@index([SchoolID], map: "INDEX_VV_90188_90187")
   @@index([Status, CategoryID, SchoolID], map: "IX_TPreRegisterRequiredField_CategoryID_SchoolID")
+  @@index([SchoolID], map: "INDEX_VV_TPreRegisterRequiredField_SchoolID")
 }
 
 model TPreRegisterRequiredFieldInitiate {
@@ -6422,13 +6438,7 @@ model TProduct {
   @@index([sProduct], map: "INDEX_VV_6021101_6021100")
   @@index([nProductID, cDel], map: "INDEX_VV_90220_90219")
   @@index([sBarCode, SchoolID, nProductID], map: "IX_TProduct_sBarCode_SchoolID_nProductID")
-  @@index([sProduct], map: "public_TProduct_IDX_M_99_98")
-  @@index([nNumber], map: "public_TProduct_INDEX_VV_1036_1035")
-  @@index([nType, cDel, SchoolID], map: "public_TProduct_INDEX_VV_18354_18353")
   @@index([sProduct], map: "public_TProduct_INDEX_VV_6021101_6021100")
-  @@index([nProductID, cDel], map: "public_TProduct_INDEX_VV_90220_90219")
-  @@index([sBarCode, SchoolID, nProductID], map: "public_TProduct_IX_TProduct_sBarCode_SchoolID_nProductID")
-  @@index([nProductID, nType], map: "TProduct_idx_tproduct_nproductid_ntype")
   @@index([nProductID], map: "TProduct_idx_tproduct_productid")
   @@index([SchoolID], map: "TProduct_idx_tproduct_schoolid")
 }
@@ -6448,8 +6458,8 @@ model TProductStock {
   StockStatus  String?   @db.Char(1)
   nType        Int?
   BusinessDate DateTime? @db.Date
-  Tstamp       DateTime  @default(now(), map: "DF__TProductS__Tstam__039170F0") @db.DateTime
-  SalesQty     Int       @default(0, map: "DF__TProductS__Sales__04859529")
+  Tstamp       DateTime  @db.DateTime
+  SalesQty     Int
 
   @@index([SchoolID], map: "INDEX_VV_110596_110595")
   @@index([SchoolID], map: "INDEX_VV_131054_131053")
@@ -6500,6 +6510,8 @@ model TQuestionnaireEQ {
   @@index([sID, SchoolID, TermID, cDel, EQType], map: "INDEX_VV_5141172_5141171")
   @@index([SchoolID, CreatedDate], map: "INDEX_VV_72655_72654")
   @@index([SchoolID, TermID, YearID, sID, cDel, EQType], map: "INDEX_VV_90725_90724")
+  @@index([TermID], map: "INDEX_VV_126_125")
+  @@index([SchoolID, TermID, cDel, EQType], map: "INDEX_VV_93570_93569")
 }
 
 model TQuestionnaireScreening {
@@ -6550,9 +6562,9 @@ model TQuestionnaireScreening {
 
   @@id([ID, SchoolID, RoomID, StudentID, TermID], map: "PK_TQuestionnaireScreening")
   @@index([SchoolID, YearID], map: "INDEX_VV_72048_72047")
-  @@index([SchoolID, Status, TermID], map: "INDEX_VV_75308_75307")
-  @@index([SchoolID, Status], map: "IX_VV_TQuestionnaireScreening_SchoolID_Status")
   @@index([SchoolID, StudentID, Status, IsDel], map: "IX_VV_TQuestionnaireScreening_SchoolID_StudentID_Status_IsDel")
+  @@index([StudentID], map: "INDEX_VV_122907_122906")
+  @@index([TermID], map: "INDEX_VV_123523_123522")
 }
 
 model TQuestionnaireSDQ {
@@ -6578,6 +6590,8 @@ model TQuestionnaireSDQ {
   @@index([sID, SchoolID, TermID, QuestionDes, cDel, SDQType, ChoiceNo], map: "INDEX_VV_5168230_5168229")
   @@index([QuestionDes], map: "INDEX_VV_6067480_6067479")
   @@index([sID, SchoolID, cDel, SDQType, QuestionGroup], map: "IX_TQuestionnaireSDQ_sID_SchoolID_cDel_SDQType_QuestionGroup")
+  @@index([TermID], map: "INDEX_VV_16_15")
+  @@index([SchoolID, TermID, YearID, sID, SDQType], map: "INDEX_VV_3319_3318")
 }
 
 model TQuiz {
@@ -6703,7 +6717,6 @@ model TRegisterSetup {
   @@id([SchoolID, RegisterSetupID], map: "PK_TREGISTERSETUP")
   @@index([SchoolID, cDel, Year, EndDate], map: "INDEX_VV_5668206_5668205")
   @@index([StudentType, nTSubLevel, SchoolID, cDel], map: "INDEX_VV_5941373_5941372")
-  @@index([RegisterSetupID], map: "INDEX_VV_93214_93213")
   @@index([Year, nTSubLevel, RegisterPlanSetupID], map: "IX_TRegisterSetup_Year_nTSubLevel_RegisterPlanSetupID")
   @@index([Year, StudentType, nTSubLevel, RegisterPlanSetupID, PaymentGroupID], map: "IX_TRegisterSetup_Year_StudentType_nTSubLevel_RegisterPlanSetupID_PaymentGroupID")
 }
@@ -6738,8 +6751,6 @@ model TRoomChange {
   @@index([SchoolID, cDel, DayChange], map: "INDEX_VV_111866_111865")
   @@index([SchoolID, sID], map: "INDEX_VV_40855_40854")
   @@index([SchoolID, DayChange], map: "INDEX_VV_44646_44645")
-  @@index([sID], map: "INDEX_VV_73974_73973")
-  @@index([RoomChangeID], map: "INDEX_VV_73980_73979")
 }
 
 model TSalesDailyReport {
@@ -6779,15 +6790,15 @@ model TSchedule {
 
   @@id([SchoolID, sScheduleID], map: "PK_TScheduled")
   @@index([nPlaneDay], map: "IDX_M_1440_1439")
-  @@index([nPlaneDay, nTermTable, cDel, SchoolID, tEnd], map: "IDX_M_3573_3572")
   @@index([sPlaneID, cDel, SchoolID], map: "IDX_M_40_39")
   @@index([cDel, SchoolID], map: "INDEX_VV_32126_32125")
-  @@index([nTermTable, SchoolID], map: "INDEX_VV_636_635")
   @@index([sScheduleID], map: "INDEX_VV_8719_8718")
   @@index([SchoolID, sEmp], map: "INDEX_VV_89919_89918")
   @@index([cDel], map: "INDEX_VV_93469_93468")
   @@index([cDel, SchoolID], map: "INDEX_VV_99552_99551")
   @@index([tStart], map: "IX_TSchedule_TSchedule")
+  @@index([sEmp], map: "INDEX_VV_144_143")
+  @@index([nTermTable], map: "INDEX_VV_7883_7882")
 }
 
 model TSchedule_Student {
@@ -6953,82 +6964,15 @@ model TSell {
   @@index([sID], map: "TSell_daycalcal_dsell")
   @@index([sID], map: "TSell_daycancal_schoolid_Dsell")
   @@index([sID], map: "TSell_shopid_daycancal_schoolid_dsell")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model TSell_1162 {
-  dSell           DateTime? @db.DateTime
-  sID             Int?
-  sEmp            Int?
-  nSession        Int?
-  nTotal          Decimal?  @db.Decimal(18, 2)
-  sID2            Int?
-  shop_id         Int?
-  dayCancal       DateTime? @db.DateTime
-  UserCancel      Int?
-  id              String?   @db.NVarChar(100)
-  sSellID         Int?
-  ReferenceOrder  String?   @db.NVarChar(30)
-  SchoolID        Int?
-  CreatedBy       Int?
-  UpdatedBy       Int?
-  CreatedDate     DateTime? @db.DateTime
-  UpdatedDate     DateTime? @db.DateTime
-  cDel            Boolean?
-  CardID          String?   @db.UniqueIdentifier
-  DeviceID        String?   @db.NVarChar(200)
-  Online          Boolean?
-  UpdatedTime     DateTime? @db.DateTime
-  Barcode         String?   @db.NVarChar(40)
-  NFCOrEncrypt    String?   @db.NVarChar(40)
-  PaymentType     Int?
-  RefPromptPay    String?   @db.NVarChar(300)
-  ApplicationName String?   @db.NVarChar(200)
-  SourceIP        String?   @db.NVarChar(200)
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model TSell_24241222 {
-  dSell           DateTime? @db.DateTime
-  sID             Int?
-  sEmp            Int?
-  nSession        Int?
-  nTotal          Decimal?  @db.Decimal(18, 2)
-  sID2            Int?
-  shop_id         Int?
-  dayCancal       DateTime? @db.DateTime
-  UserCancel      Int?
-  id              String?   @db.NVarChar(100)
-  sSellID         Int       @default(autoincrement())
-  ReferenceOrder  String?   @db.NVarChar(30)
-  SchoolID        Int
-  CreatedBy       Int?
-  UpdatedBy       Int?
-  CreatedDate     DateTime? @db.DateTime
-  UpdatedDate     DateTime? @db.DateTime
-  cDel            Boolean
-  CardID          String?   @db.UniqueIdentifier
-  DeviceID        String?   @db.NVarChar(200)
-  Online          Boolean
-  UpdatedTime     DateTime? @db.DateTime
-  Barcode         String?   @db.NVarChar(40)
-  NFCOrEncrypt    String?   @db.NVarChar(40)
-  PaymentType     Int?
-  RefPromptPay    String?   @db.NVarChar(300)
-  ApplicationName String?   @db.NVarChar(200)
-  SourceIP        String?   @db.NVarChar(200)
-
-  @@ignore
+  @@index([SchoolID, dSell], map: "INDEX_VV_3881_3880")
 }
 
 model TSell_API {
   ID          Int      @id(map: "PK_TSell_API") @default(autoincrement())
   SalesInfo   String   @db.NVarChar(Max)
-  Tstamp      DateTime @default(now(), map: "DF__TSell_API__Tstam__7DB96760") @db.DateTime
+  Tstamp      DateTime @db.DateTime
   ProductInfo String?  @db.NVarChar(Max)
-  sSellID     Int      @default(0, map: "DF__TSell_API__sSell__17793963")
+  sSellID     Int
 }
 
 model TSell_API_Backup {
@@ -7137,27 +7081,6 @@ model TSell_Detail {
   @@index([nNumber], map: "INDEX_VV_5202668_5202667")
   @@index([SchoolID], map: "INDEX_VV_94367_94366")
   @@index([nNumber], map: "INDEX_VV_998_997")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model TSell_Detail_1162 {
-  SellDetailsID Int?
-  nSell         Int?
-  nOrder        Int?
-  nProduct      Int?
-  nNumber       Int?
-  cDel          String?   @db.NChar(1)
-  nPrice        Decimal?  @db.Decimal(18, 2)
-  nCost         Decimal?  @db.Decimal(18, 2)
-  SchoolID      Int?
-  CreatedBy     Int?
-  UpdatedBy     Int?
-  CreatedDate   DateTime? @db.DateTime
-  UpdatedDate   DateTime? @db.DateTime
-  DiscountPer   Int?
-  DiscountPrice Decimal?  @db.Decimal(18, 0)
-
-  @@ignore
 }
 
 model TSell_Detail_History {
@@ -7523,7 +7446,7 @@ model TSendGradePSIS {
   ResponseContent String?   @db.VarChar(300)
 
   @@id([SchoolID, nYear, nTerm, sID, sPlaneID], map: "PK_TSendGradePSIS")
-  @@index([Year], map: "INDEX_VV_88022_88021")
+  @@index([sID], map: "INDEX_VV_4918_4917")
 }
 
 model TSendSubjectPSIS {
@@ -7577,11 +7500,8 @@ model TShop {
   @@index([shop_name], map: "INDEX_VV_1807_1806")
   @@index([shop_name], map: "INDEX_VV_6185_6184")
   @@index([shop_id], map: "IX_TShop_shop_id")
-  @@index([shop_name], map: "public_TShop_INDEX_VV_1807_1806")
   @@index([shop_name], map: "public_TShop_INDEX_VV_6185_6184")
-  @@index([shop_id], map: "public_TShop_IX_TShop_shop_id")
   @@index([SchoolID], map: "TShop_idx_tshop_schoolid")
-  @@index([shop_id], map: "TShop_idx_tshop_shop_id")
 }
 
 model TShop_Employees {
@@ -7602,37 +7522,38 @@ model TShop_Employees {
 }
 
 model TSMS {
-  nSMS         Int       @default(autoincrement())
-  SMSTitle     String?   @db.NVarChar(250)
-  SMSDesp      String?   @db.NVarChar(Max)
-  SMSType      Int?
-  SMSSubType   Int?
-  SMSDate      DateTime? @db.Date
-  SMSDuration  Int?
-  SMSStatus    String?   @db.Char(5)
-  SMSAll       String?   @db.Char(5)
-  dSend        DateTime? @db.DateTime
-  scheduled_id String?   @db.NVarChar(200)
-  SMSEMP       String?   @db.Char(1)
-  useradd      Int?
-  isDel        Boolean?
-  nActionType  Int?
-  SchoolID     Int
-  CreatedBy    Int?
-  UpdatedBy    Int?
-  CreatedDate  DateTime? @db.DateTime
-  UpdatedDate  DateTime? @db.DateTime
-  cDel         Boolean
-  SMSGroupType Int?
-  SMSGroupID   Int?
+  nSMS                 Int       @default(autoincrement())
+  SMSTitle             String?   @db.NVarChar(250)
+  SMSDesp              String?   @db.NVarChar(Max)
+  SMSType              Int?
+  SMSSubType           Int?
+  SMSDate              DateTime? @db.Date
+  SMSDuration          Int?
+  SMSStatus            String?   @db.Char(5)
+  SMSAll               String?   @db.Char(5)
+  dSend                DateTime? @db.DateTime
+  scheduled_id         String?   @db.NVarChar(200)
+  SMSEMP               String?   @db.Char(1)
+  useradd              Int?
+  isDel                Boolean?
+  nActionType          Int?
+  SchoolID             Int
+  CreatedBy            Int?
+  UpdatedBy            Int?
+  CreatedDate          DateTime? @db.DateTime
+  UpdatedDate          DateTime? @db.DateTime
+  cDel                 Boolean
+  SMSGroupType         Int?
+  SMSGroupID           Int?
+  SendToLINE           Boolean?
+  SendFileWithOwner    Boolean?
+  SendFileWithOwnerOCR Boolean?
 
   @@id([SchoolID, nSMS], map: "PK_TSMS")
   @@index([SchoolID, dSend], map: "INDEX_VV_103245_103244")
   @@index([SchoolID, dSend], map: "INDEX_VV_104676_104675")
-  @@index([SchoolID, dSend], map: "INDEX_VV_90731_90730")
   @@index([useradd, SchoolID], map: "INDEX_VV_95030_95029")
-  @@index([SMSTitle], map: "IX_TSMS_SchoolID_cDel4")
-  @@index([nSMS], map: "TSMS_nSMS")
+  @@index([nSMS, cDel], map: "INDEX_VV_138978_138977")
 }
 
 model TSMSGroup {
@@ -7665,6 +7586,7 @@ model TSMSGroupUser {
   cDel        Boolean?
 
   @@id([SMSGroupID, UserID, SchoolID], map: "PK_TSMSGROUPUSER")
+  @@index([SMSGroupID, SchoolID, UserID], map: "INDEX_VV_126481_126480")
 }
 
 model TSMSSubLevel {
@@ -7798,31 +7720,7 @@ model TStockLog {
   @@index([ProductID], map: "INDEX_VV_Backup121181_121180")
   @@index([SchoolID], map: "INDEX_VV_Backup12211_12210")
   @@index([ShopID], map: "INDEX_VV_Backup68427_68426")
-  @@index([ProductID], map: "INDEX_VV_Backup83970_83969")
   @@index([SchoolID, ProductID], map: "INDEX_VV_Backup91850_91848")
-}
-
-model TStockLog_Old {
-  ID        Int       @default(autoincrement())
-  SchoolID  Int
-  ProductID Int?
-  ShopID    Int?
-  LogDate   DateTime? @db.Date
-  TotalQty  Int?
-  TotalCost Decimal?  @db.Decimal(18, 2)
-  AvgCost   Decimal?  @db.Decimal(18, 2)
-  Created   DateTime? @db.DateTime
-
-  @@id([ID, SchoolID], map: "PK_TStockLog")
-  @@index([SchoolID, ProductID, LogDate], map: "INDEX_VV_100162_100161")
-  @@index([SchoolID, LogDate], map: "INDEX_VV_102538_102537")
-  @@index([SchoolID, LogDate], map: "INDEX_VV_102562_102561")
-  @@index([SchoolID, LogDate], map: "INDEX_VV_110499_110498")
-  @@index([ProductID], map: "INDEX_VV_121181_121180")
-  @@index([SchoolID], map: "INDEX_VV_12211_12210")
-  @@index([ShopID], map: "INDEX_VV_68427_68426")
-  @@index([ProductID], map: "INDEX_VV_83970_83969")
-  @@index([SchoolID, ProductID], map: "INDEX_VV_91850_91848")
 }
 
 model TStudentCardInfo {
@@ -7874,6 +7772,29 @@ model TStudentClassroomHistory {
   @@index([nTerm], map: "INDEX_VV_93006_93005")
   @@index([SchoolID, cDel], map: "INDEX_VV_97347_97346")
   @@index([nTermSubLevel2, SchoolID, cDel], map: "INDEX_VV_97423_97422")
+  @@index([nTerm, SchoolID, cDel], map: "INDEX_VV_106456_106455")
+  @@index([nTerm, nTermSubLevel2, SchoolID, cDel], map: "INDEX_VV_126356_126355")
+  @@index([nTerm, cDel], map: "INDEX_VV_128983_128982")
+  @@index([SchoolID, cDel, sID], map: "INDEX_VV_1525_1524")
+  @@index([nTerm, cDel], map: "INDEX_VV_422_421")
+  @@index([cDel, SchoolID], map: "INDEX_VV_4232_4231")
+  @@index([SchoolID, sID], map: "INDEX_VV_5691_5690")
+  @@index([SchoolID, cDel, nStudentStatus], map: "INDEX_VV_7060_7059")
+  @@index([nTerm, nTermSubLevel2, SchoolID, cDel], map: "INDEX_VV_96826_96825")
+  @@index([cDel, nStudentStatus], map: "IX_TStudentClassroomHistory_cDel_Status")
+  @@index([CreatedDate], map: "IX_TStudentClassroomHistory_CreatedDate_StatusHigh")
+  @@index([CreatedDate], map: "IX_TStudentClassroomHistory_CreatedDate_StatusLow")
+  @@index([CreatedDate], map: "IX_TStudentClassroomHistory_CreatedDate_StatusNull")
+  @@index([CreatedDate], map: "IX_TStudentClassroomHistory_CreatedDate_StatusNull_CurentTerm")
+  @@index([SchoolID, nTerm, sID], map: "IX_TStudentClassroomHistory_CurrentTerm")
+  @@index([SchoolID, nTerm, sID], map: "IX_TStudentClassroomHistory_Filtered")
+  @@index([SchoolID, nTerm, nTermSubLevel2, sID], map: "IX_TStudentClassroomHistory_Join")
+  @@index([nTerm, SchoolID], map: "IX_TStudentClassroomHistory_Joins_C")
+  @@index([SchoolID, nTerm, cDel], map: "IX_TStudentClassroomHistory_School_Term")
+  @@index([sID], map: "IX_TStudentClassroomHistory_sID_cDel_nStudentStatus_nTerm")
+  @@index([sID, nTerm], map: "IX_TStudentClassroomHistory_sID_nTerm_Filtered")
+  @@index([nTerm, SchoolID, cDel, sID], map: "IX_TStudentClassroomHistory_Term_School_Del_sID")
+  @@index([nTermSubLevel2, SchoolID, cDel], map: "IX_TStudentClassroomHistory_TermSubLevel")
 }
 
 model TStudentHealthGrowth {
@@ -7956,14 +7877,13 @@ model TStudentHIstory {
   cDel                  Boolean
 
   @@id([SchoolID, StudentHistory_ID], map: "PK_TStudentHIstory")
-  @@index([nTerm, SchoolID], map: "INDEX_VV_102339_102338")
   @@index([StudentStatus, SchoolID, cDel], map: "INDEX_VV_111324_111323")
-  @@index([nTermSubLevel2_NEW], map: "INDEX_VV_1210_1209")
   @@index([sID, StudentStatus, SchoolID, cDel], map: "INDEX_VV_5103161_5103160")
   @@index([StudentStatus, SchoolID, cDel], map: "INDEX_VV_92933_92932")
   @@index([StudentStatus, nTerm, SchoolID, cDel], map: "INDEX_VV_93863_93862")
   @@index([sID, nTerm, nTermSubLevel2_OLD, nTermSubLevel2_NEW], map: "IX_TStudentHIstory")
   @@index([nTermSubLevel2_OLD], map: "IX_TStudentHIstory_nTerm_SchoolID")
+  @@index([SchoolID, cDel, sID], map: "INDEX_VV_5900_5899")
 }
 
 model TStudentLevel {
@@ -8049,6 +7969,7 @@ model TStudentType {
   UpdatedBy     Int?
 
   @@id([ID, SchoolID], map: "PK_TStudentType_1")
+  @@index([SchoolID, ID], map: "IX_TStudentType_Join")
 }
 
 model TSubLevel {
@@ -8074,12 +7995,16 @@ model TSubLevel {
 
   @@id([SchoolID, nTSubLevel], map: "PK_TSubLevel")
   @@index([nTSubLevel], map: "idx_TSubLevel_nTSubLevel")
-  @@index([MasterCode], map: "INDEX_VV_39614_39613")
   @@index([SubLevel], map: "INDEX_VV_4903423_4903422")
   @@index([nTLevel], map: "INDEX_VV_5130121_5130120")
   @@index([nWorkingStatus], map: "INDEX_VV_90980_90979")
   @@index([SubLevel, nTLevel, nTimeType], map: "IX_TSubLevel")
   @@index([SubLevel, nTSubLevel], map: "IX_TSubLevel_nTSubLevel")
+  @@index([MasterCode], map: "INDEX_VV_120101_120100")
+  @@index([nWorkingStatus], map: "INDEX_VV_128987_128986")
+  @@index([nWorkingStatus], map: "INDEX_VV_509_508")
+  @@index([nTSubLevel, SchoolID], map: "IX_TSubLevel_nTSubLevel_SchoolID")
+  @@index([nTSubLevel], map: "IX_TSubLevel_SubLevelID")
 }
 
 model TSystemlog {
@@ -8177,7 +8102,6 @@ model TTerm {
 
   @@id([SchoolID, nTerm], map: "PK_TTerm")
   @@index([nTerm], map: "IDX_M_42_41")
-  @@index([nYear, nTerm], map: "idx_TTerm_nYear_nTerm")
   @@index([dStart, dEnd], map: "INDEX_VV_12015_12014")
   @@index([cDel], map: "INDEX_VV_21679_21678")
   @@index([nYear, sTerm, dStart, dEnd], map: "IX_TTerm")
@@ -8185,6 +8109,14 @@ model TTerm {
   @@index([nYear], map: "IX_TTerm_cDel_sTerm_dEnd")
   @@index([nYear], map: "IX_VV_TTerm_dStart_dEnd")
   @@index([cDel, dStart, dEnd], map: "TTerm_dStart_dEnd")
+  @@index([nTerm], map: "IDX_TTerm_nTerm_cDel")
+  @@index([cDel, sTerm], map: "INDEX_VV_126334_126333")
+  @@index([cDel, SchoolID, dStart], map: "INDEX_VV_86054_86053")
+  @@index([sTerm], map: "INDEX_VV_97222_97221")
+  @@index([nTerm, SchoolID], map: "IX_TTerm_Active_CDELEQ0")
+  @@index([nYear, SchoolID], map: "IX_TTerm_Joins_B")
+  @@index([SchoolID, nTerm], map: "IX_TTerm_Lookup")
+  @@index([nTerm, SchoolID], map: "IX_TTerm_nTerm_SchoolID")
 }
 
 model TTermSubLevel2 {
@@ -8206,6 +8138,14 @@ model TTermSubLevel2 {
   @@id([SchoolID, nTermSubLevel2], map: "PK_TTermSubLevel2")
   @@index([nTermSubLevel2], map: "INDEX_VV_56_55")
   @@index([nTSubLevel, SchoolID], map: "IX_nTSubLevel_SchoolID")
+  @@index([nTerm], map: "INDEX_VV_121033_121032")
+  @@index([nWorkingStatus], map: "INDEX_VV_129315_129314")
+  @@index([nWorkingStatus, SchoolID], map: "INDEX_VV_2138_2137")
+  @@index([nWorkingStatus], map: "INDEX_VV_96523_96522")
+  @@index([nTermSubLevel2, SchoolID], map: "IX_TTermSubLevel2")
+  @@index([nTermSubLevel2], map: "IX_TTermSubLevel2_ID")
+  @@index([nTermSubLevel2, SchoolID], map: "IX_TTermSubLevel2_Joins_A")
+  @@index([nTSubLevel, SchoolID], map: "IX_TTermSubLevel2_Joins_B")
 }
 
 model TTermTimeTable {
@@ -8247,6 +8187,7 @@ model TTime {
   @@id([SchoolID, TimeID], map: "PK_TTime_1")
   @@index([nTimeType], map: "INDEX_VV_18219_18218")
   @@index([cDel], map: "INDEX_VV_5204601_5204600")
+  @@index([nDay], map: "INDEX_VV_96669_96668")
 }
 
 model TTimetype {
@@ -8276,13 +8217,16 @@ model TTitleList {
   UpdatedBy          Int?
   CreatedDate        DateTime? @db.DateTime
   UpdatedDate        DateTime? @db.DateTime
-  cDel               Boolean   @default(false, map: "DF_TTitleList_cDel")
+  cDel               Boolean
   MasterCode         String?   @db.VarChar(20)
+  nTitleIdStr        String?   @db.VarChar(200)
 
   @@id([SchoolID, nTitleid], map: "PK_TTitleList")
   @@index([nSchoolId], map: "INDEX_VV_5181199_5181198")
   @@index([titleDescription], map: "INDEX_VV_5254317_5254316")
-  @@index([nTitleid], map: "TTitleList_nTitleID")
+  @@index([nTitleid, SchoolID], map: "IX_TTitleList_Lookup")
+  @@index([nTitleid, SchoolID], map: "IX_TTitleList_nTitleid_SchoolID")
+  @@index([nTitleid], map: "IX_TTitleList_TitleID")
 }
 
 model TTranscriptNumber {
@@ -8303,6 +8247,7 @@ model TTranscriptNumber {
   @@id([ID, SchoolID, nTSubLevel, sID], map: "PK_TTranscriptNumber")
   @@index([SchoolID, nTSubLevel, sID, cDel], map: "INDEX_VV_29189_29188")
   @@index([SchoolID, TranscriptSetNumber, TranscriptNumber], map: "INDEX_VV_51494_51493")
+  @@index([SchoolID], map: "INDEX_VV_3811_3810")
 }
 
 model TType {
@@ -8320,7 +8265,6 @@ model TType {
   @@index([nTypeID], map: "INDEX_VV_2_1")
   @@index([shop_id], map: "INDEX_VV_4822461_4822460")
   @@index([nTypeID], map: "public_TType_INDEX_VV_2_1")
-  @@index([shop_id], map: "public_TType_INDEX_VV_4822461_4822460")
 }
 
 model TUnit {
@@ -8454,7 +8398,29 @@ model TUser {
   @@index([cDel, sStudentID, SchoolID], map: "IX_TUser_cDel_sStudentID_SchoolID")
   @@index([sIdentification, cDel, SchoolID], map: "IX_TUser_sIdentification_cDel_SchoolID")
   @@index([sStudentID, SchoolID], map: "IX_TUser_sStudentID_SchoolID")
-  @@index([sIdentification], map: "TUser_Cdel_SchoolID_sID")
+  @@index([sID], map: "IDX_TUser_sID_cDel")
+  @@index([cDel, SchoolID], map: "INDEX_VV_118055_118054")
+  @@index([SchoolID, cDel], map: "INDEX_VV_124158_124157")
+  @@index([SchoolID, cDel], map: "INDEX_VV_124726_124725")
+  @@index([cDel, SchoolID], map: "INDEX_VV_125719_125718")
+  @@index([SchoolID, cSex, sStudentID], map: "INDEX_VV_1266_1265")
+  @@index([SchoolID, nMoney], map: "INDEX_VV_126886_126885")
+  @@index([cDel, SchoolID, nStudentStatus], map: "INDEX_VV_126924_126923")
+  @@index([cDel, SchoolID, sName], map: "INDEX_VV_1698_1697")
+  @@index([cDel, SchoolID], map: "INDEX_VV_2205_2204")
+  @@index([sName, sLastname, SchoolID], map: "INDEX_VV_222_221")
+  @@index([SchoolID, cDel], map: "INDEX_VV_22661_22660")
+  @@index([SchoolID, cDel], map: "INDEX_VV_23021_23020")
+  @@index([SchoolID, cDel], map: "INDEX_VV_23407_23406")
+  @@index([SchoolID, cDel], map: "INDEX_VV_24084_24083")
+  @@index([SchoolID, cDel], map: "INDEX_VV_3484_3483")
+  @@index([SchoolID, cDel], map: "INDEX_VV_3601_3600")
+  @@index([SchoolID, StudentTypeID], map: "INDEX_VV_4191_4190")
+  @@index([SchoolID, cDel], map: "INDEX_VV_438_437")
+  @@index([nStudentStatus, SchoolID], map: "INDEX_VV_4710_4709")
+  @@index([cDel], map: "IX_TUser_cDel_sID")
+  @@index([SchoolID, sID], map: "IX_TUser_SchoolID_sID")
+  @@index([SchoolID, sID, StudentTypeID], map: "IX_TUser_Student")
 }
 
 model TUserAttendance {
@@ -8475,7 +8441,6 @@ model TUserAttendance {
   @@index([SchoolID, ShopID, AttendanceDate], map: "INDEX_VV_100569_100568")
   @@index([SchoolID, AttendanceDate], map: "INDEX_VV_100571_100570")
   @@index([SchoolID, cType, ShopID, AttendanceDate], map: "INDEX_VV_90455_90454")
-  @@index([AttendanceDate], map: "INDEX_VV_92796_92795")
   @@index([SchoolID, sID, AttendanceDate], map: "IX_TUserAttendance_SchoolID_sID_AttendanceDate")
 }
 
@@ -8601,7 +8566,6 @@ model TUserVerify {
 
   @@index([SchoolID, UserID], map: "INDEX_VV_4983534_4983533")
   @@index([UserID, Type, Status], map: "INDEX_VV_5092614_5092613")
-  @@index([Email], map: "INDEX_VV_53815_53814")
 }
 
 model TUserVerifyLINEConnect {
@@ -8706,6 +8670,7 @@ model TWithdrawal {
   @@index([dWithdrawal], map: "INDEX_VV_364_363")
   @@index([dCanCel, SchoolID, cDel, dWithdrawal, sWithdrawalType], map: "INDEX_VV_43378_43377")
   @@index([dCanCel, sWithdrawalType, SchoolID, cDel, dWithdrawal], map: "INDEX_VV_98936_98935")
+  @@index([id], map: "INDEX_VV_125988_125987")
 }
 
 model TWithdrawal_Backup {
@@ -8775,6 +8740,7 @@ model TYear {
   @@index([nYear, numberYear], map: "INDEX_VV_31234_31233")
   @@index([cDel], map: "INDEX_VV_53169_53168")
   @@index([YearStatus], map: "INDEX_VV_numberyear")
+  @@index([nYear, SchoolID], map: "IX_TYear_Joins")
 }
 
 model UpdateBalance {
@@ -8783,7 +8749,7 @@ model UpdateBalance {
   sEmp     Int?
   SchoolID Int?
   nMoney   Decimal?  @db.Decimal(18, 3)
-  Tstamp   DateTime? @default(now(), map: "DF_UpdateBalance_Tstamp") @db.DateTime
+  Tstamp   DateTime? @db.DateTime
   Source   String?   @db.NVarChar(200)
 }
 
@@ -8812,7 +8778,7 @@ model UpdateBalanceMemory {
   sEmp     Int?
   SchoolID Int?
   nMoney   Decimal  @db.Decimal(18, 3)
-  Tstamp   DateTime @default(now(), map: "DF_UpdateBalanceMemory_Tstamp") @db.DateTime
+  Tstamp   DateTime @db.DateTime
   Source   String?  @db.NVarChar(200)
 }
 
@@ -8869,7 +8835,7 @@ model UpdateTempCard {
   CardHistoryID String   @db.UniqueIdentifier
   MethodName    String   @db.NVarChar(200)
   NFC           String   @db.NVarChar(200)
-  Tstamp        DateTime @default(now(), map: "DF_UpdateTempCard_Tstamp") @db.DateTime
+  Tstamp        DateTime @db.DateTime
 }
 
 model UpdateTempCardMoney {
@@ -8899,140 +8865,6 @@ model UserAPIResponse {
   Status           String?   @db.NVarChar(500)
 
   @@index([APIProcessedTime], map: "INDEX_VV_129_128")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model UserDailyBalance_03012025 {
-  ID                  Int?
-  SchoolID            Int?
-  sID                 Int?
-  sStudentID          String?   @db.NVarChar(20)
-  sName               String?   @db.NVarChar(256)
-  sLastname           String?   @db.NVarChar(256)
-  cDel                String?   @db.NChar(1)
-  cType               String?   @db.NChar(1)
-  BusinessDate        DateTime? @db.Date
-  OpeningBalance      Decimal?  @db.Decimal(18, 2)
-  TotalTopUp          Decimal?  @db.Decimal(18, 2)
-  TotalCancelTopUp    Decimal?  @db.Decimal(18, 2)
-  TotalWithDraw       Decimal?  @db.Decimal(18, 2)
-  TotalCancelWithDraw Decimal?  @db.Decimal(18, 2)
-  TotalSales          Decimal?  @db.Decimal(18, 2)
-  TotalCancelSales    Decimal?  @db.Decimal(18, 2)
-  LastUpdatedDate     DateTime? @db.Date
-  Balance             Decimal?  @db.Decimal(18, 2)
-  OfflineSales        Decimal?  @db.Decimal(18, 2)
-  SystemBalance       Float?    @db.Real
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model UserDailyBalance_07012025 {
-  ID                  Int?
-  SchoolID            Int?
-  sID                 Int?
-  sStudentID          String?   @db.NVarChar(20)
-  sName               String?   @db.NVarChar(256)
-  sLastname           String?   @db.NVarChar(256)
-  cDel                String?   @db.NChar(1)
-  cType               String?   @db.NChar(1)
-  BusinessDate        DateTime? @db.Date
-  OpeningBalance      Decimal?  @db.Decimal(18, 2)
-  TotalTopUp          Decimal?  @db.Decimal(18, 2)
-  TotalCancelTopUp    Decimal?  @db.Decimal(18, 2)
-  TotalWithDraw       Decimal?  @db.Decimal(18, 2)
-  TotalCancelWithDraw Decimal?  @db.Decimal(18, 2)
-  TotalSales          Decimal?  @db.Decimal(18, 2)
-  TotalCancelSales    Decimal?  @db.Decimal(18, 2)
-  LastUpdatedDate     DateTime? @db.Date
-  Balance             Decimal?  @db.Decimal(18, 2)
-  OfflineSales        Decimal?  @db.Decimal(18, 2)
-  SystemBalance       Float?    @db.Real
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model UserDailyBalance_20250106 {
-  ID                  Int?
-  SchoolID            Int?
-  sID                 Int?
-  sStudentID          String?   @db.NVarChar(20)
-  sName               String?   @db.NVarChar(256)
-  sLastname           String?   @db.NVarChar(256)
-  cDel                String?   @db.NChar(1)
-  cType               String?   @db.NChar(1)
-  BusinessDate        DateTime? @db.Date
-  OpeningBalance      Decimal?  @db.Decimal(18, 2)
-  TotalTopUp          Decimal?  @db.Decimal(18, 2)
-  TotalCancelTopUp    Decimal?  @db.Decimal(18, 2)
-  TotalWithDraw       Decimal?  @db.Decimal(18, 2)
-  TotalCancelWithDraw Decimal?  @db.Decimal(18, 2)
-  TotalSales          Decimal?  @db.Decimal(18, 2)
-  TotalCancelSales    Decimal?  @db.Decimal(18, 2)
-  LastUpdatedDate     DateTime? @db.Date
-  Balance             Decimal?  @db.Decimal(18, 2)
-  OfflineSales        Decimal?  @db.Decimal(18, 2)
-  SystemBalance       Float?    @db.Real
-
-  @@ignore
-}
-
-model UserDailyBalance_Backup {
-  ID                  Int       @default(autoincrement())
-  SchoolID            Int
-  sID                 Int
-  sStudentID          String?   @db.NVarChar(20)
-  sName               String?   @db.NVarChar(256)
-  sLastname           String?   @db.NVarChar(256)
-  cDel                String?   @db.Char(1)
-  cType               String    @db.Char(1)
-  BusinessDate        DateTime? @db.Date
-  OpeningBalance      Decimal   @default(0, map: "DF_Move_UserDailyBalance_OpeningBalance") @db.Decimal(18, 2)
-  TotalTopUp          Decimal   @db.Decimal(18, 2)
-  TotalCancelTopUp    Decimal   @db.Decimal(18, 2)
-  TotalWithDraw       Decimal   @db.Decimal(18, 2)
-  TotalCancelWithDraw Decimal   @db.Decimal(18, 2)
-  TotalSales          Decimal   @db.Decimal(18, 2)
-  TotalCancelSales    Decimal   @db.Decimal(18, 2)
-  LastUpdatedDate     String    @db.VarChar(23)
-  Balance             Decimal?  @db.Decimal(18, 2)
-  OfflineSales        Decimal?  @default(0, map: "DF_Move_UserDailyBalance_OfflineSales") @db.Decimal(18, 2)
-  SystemBalance       Float     @default(0, map: "DF__Move_User__Syste__4282C7A2")
-
-  @@id([ID, SchoolID, sID], map: "PK_Move_UserDailyBalance")
-  @@index([BusinessDate, SchoolID], map: "INDEX_VV_Move_147473_147472")
-  @@index([BusinessDate], map: "INDEX_VV_Move_5043508_5043507")
-  @@index([BusinessDate], map: "INDEX_VV_Move_748_747")
-  @@index([SchoolID, BusinessDate], map: "IX_Move_UserDailyBalance_SchoolID_BusinessDate")
-  @@index([sID, BusinessDate], map: "IX_VV_Move_UserDailyBalance_sID_BusinessDate")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model UserDailyBalance_Backup1 {
-  ID                  Int       @default(autoincrement())
-  SchoolID            Int
-  sID                 Int
-  sStudentID          String?   @db.NVarChar(20)
-  sName               String?   @db.NVarChar(256)
-  sLastname           String?   @db.NVarChar(256)
-  cDel                String?   @db.Char(1)
-  cType               String    @db.Char(1)
-  BusinessDate        DateTime? @db.Date
-  OpeningBalance      Decimal   @db.Decimal(18, 2)
-  TotalTopUp          Decimal   @db.Decimal(18, 2)
-  TotalCancelTopUp    Decimal   @db.Decimal(18, 2)
-  TotalWithDraw       Decimal   @db.Decimal(18, 2)
-  TotalCancelWithDraw Decimal   @db.Decimal(18, 2)
-  TotalSales          Decimal   @db.Decimal(18, 2)
-  TotalCancelSales    Decimal   @db.Decimal(18, 2)
-  LastUpdatedDate     String    @db.VarChar(23)
-  Balance             Decimal?  @db.Decimal(18, 2)
-  OfflineSales        Decimal?  @db.Decimal(18, 2)
-  SystemBalance       Float
-
-  @@ignore
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -9100,30 +8932,6 @@ model UserDailyBalanceSummarySales {
   @@ignore
 }
 
-model UserDailyBalanceTemp {
-  ID                  Int
-  SchoolID            Int
-  sID                 Int
-  sStudentID          String?   @db.NVarChar(20)
-  sName               String?   @db.NVarChar(256)
-  sLastname           String?   @db.NVarChar(256)
-  cDel                String?   @db.Char(1)
-  cType               String    @db.Char(1)
-  BusinessDate        DateTime? @db.Date
-  OpeningBalance      Decimal   @db.Decimal(18, 2)
-  TotalTopUp          Decimal   @db.Decimal(18, 2)
-  TotalCancelTopUp    Decimal   @db.Decimal(18, 2)
-  TotalWithDraw       Decimal   @db.Decimal(18, 2)
-  TotalCancelWithDraw Decimal   @db.Decimal(18, 2)
-  TotalSales          Decimal   @db.Decimal(18, 2)
-  TotalCancelSales    Decimal   @db.Decimal(18, 2)
-  LastUpdatedDate     String    @db.VarChar(23)
-  Balance             Decimal?  @db.Decimal(18, 2)
-  SystemBalance       Decimal   @db.Decimal(18, 2)
-
-  @@id([ID, SchoolID, sID], map: "PK_UserDailyBalanceTemp")
-}
-
 model UserDailyBalanceTempCard {
   SchoolID            Int
   sID                 Int
@@ -9132,7 +8940,7 @@ model UserDailyBalanceTempCard {
   sLastname           String?   @db.NVarChar(256)
   cDel                String?   @db.Char(1)
   cType               String    @db.Char(1)
-  BusinessDate        DateTime? @db.Date
+  BusinessDate        DateTime? @db.DateTime
   OpeningBalance      Decimal   @db.Decimal(18, 2)
   TotalTopUp          Decimal   @db.Decimal(18, 2)
   TotalCancelTopUp    Decimal   @db.Decimal(18, 2)
@@ -9140,77 +8948,15 @@ model UserDailyBalanceTempCard {
   TotalCancelWithDraw Decimal   @db.Decimal(18, 2)
   TotalSales          Decimal   @db.Decimal(18, 2)
   TotalCancelSales    Decimal   @db.Decimal(18, 2)
-  LastUpdatedDate     String    @db.VarChar(23)
+  LastUpdatedDate     DateTime  @db.DateTime
   Balance             Decimal?  @db.Decimal(18, 2)
   CardHistoryID       String?   @db.UniqueIdentifier
   OfflineSales        Decimal?  @db.Decimal(18, 2)
-  Insurance           Float
-  SystemBalance       Float?
-  ID                  Int       @id(map: "PK_UserDailyBalanceTempCard") @default(autoincrement())
-
-  @@index([BusinessDate], map: "INDEX_VV_17611_17610")
-  @@index([BusinessDate], map: "INDEX_VV_23541_23540")
-  @@index([SchoolID, BusinessDate, CardHistoryID], map: "INDEX_VV_25960_25959")
-  @@index([SchoolID, BusinessDate], map: "INDEX_VV_41297_41296")
-  @@index([BusinessDate], map: "INDEX_VV_90713_90712")
-  @@index([BusinessDate, CardHistoryID], map: "INDEX_VV_93291_93290")
-  @@index([BusinessDate], map: "IX_UserDailyBalanceTempCard")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model UserDailyBalanceTempCard_07012025 {
-  SchoolID            Int?
-  sID                 Int?
-  sStudentID          String?   @db.NVarChar(20)
-  sName               String?   @db.NVarChar(256)
-  sLastname           String?   @db.NVarChar(256)
-  cDel                String?   @db.NChar(1)
-  cType               String?   @db.NChar(1)
-  BusinessDate        DateTime? @db.Date
-  OpeningBalance      Decimal?  @db.Decimal(18, 2)
-  TotalTopUp          Decimal?  @db.Decimal(18, 2)
-  TotalCancelTopUp    Decimal?  @db.Decimal(18, 2)
-  TotalWithDraw       Decimal?  @db.Decimal(18, 2)
-  TotalCancelWithDraw Decimal?  @db.Decimal(18, 2)
-  TotalSales          Decimal?  @db.Decimal(18, 2)
-  TotalCancelSales    Decimal?  @db.Decimal(18, 2)
-  LastUpdatedDate     DateTime? @db.Date
-  Balance             Decimal?  @db.Decimal(18, 2)
-  CardHistoryID       String?   @db.UniqueIdentifier
-  OfflineSales        Decimal?  @db.Decimal(18, 2)
-  Insurance           Float?    @db.Real
+  Insurance           Float     @db.Real
   SystemBalance       Float?    @db.Real
-  ID                  Int?
+  ID                  Int       @id(clustered: false, map: "public_UserDailyBalanceTempCard_PK_UserDailyBalanceTempCard")
 
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model UserDailyBalanceTempCard_20250106 {
-  SchoolID            Int?
-  sID                 Int?
-  sStudentID          String?   @db.NVarChar(20)
-  sName               String?   @db.NVarChar(256)
-  sLastname           String?   @db.NVarChar(256)
-  cDel                String?   @db.NChar(1)
-  cType               String?   @db.NChar(1)
-  BusinessDate        DateTime? @db.Date
-  OpeningBalance      Decimal?  @db.Decimal(18, 2)
-  TotalTopUp          Decimal?  @db.Decimal(18, 2)
-  TotalCancelTopUp    Decimal?  @db.Decimal(18, 2)
-  TotalWithDraw       Decimal?  @db.Decimal(18, 2)
-  TotalCancelWithDraw Decimal?  @db.Decimal(18, 2)
-  TotalSales          Decimal?  @db.Decimal(18, 2)
-  TotalCancelSales    Decimal?  @db.Decimal(18, 2)
-  LastUpdatedDate     DateTime? @db.Date
-  Balance             Decimal?  @db.Decimal(18, 2)
-  CardHistoryID       String?   @db.UniqueIdentifier
-  OfflineSales        Decimal?  @db.Decimal(18, 2)
-  Insurance           Float?    @db.Real
-  SystemBalance       Float?    @db.Real
-  ID                  Int?
-
-  @@ignore
+  @@index([SchoolID, BusinessDate, CardHistoryID], map: "public_UserDailyBalanceTempCard_INDEX_VV_25960_25959")
 }
 
 model UserDailySales {
@@ -9232,12 +8978,12 @@ model UserUsedLimit {
   ID         Int      @id(map: "PK_UserUsedLimit") @default(autoincrement())
   UserID     Int
   UserType   String   @db.VarChar(10)
-  UsedAmount Decimal  @default(0, map: "DF_Table_1_DailyUsedLimit") @db.Decimal(18, 2)
-  Tstamp     DateTime @default(now(), map: "DF_UserUsedLimit_Tstamp") @db.DateTime
+  UsedAmount Decimal  @db.Decimal(18, 2)
+  Tstamp     DateTime @db.DateTime
 
-  @@index([UsedAmount, UserID, ID], map: "_dta_index_UserUsedLimit_8_1787153412__K2_K1_4")
   @@index([Tstamp], map: "INDEX_VV_19190_19189")
-  @@index([UserID, UserType], map: "IX_UserUsedLimit")
+  @@index([UserID], map: "IX_UserUsedLimit")
+  @@index([UserID], map: "IX_UserUsedLimit_UserID")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -9286,4 +9032,406 @@ model V_UsersList {
   CreatedDate    DateTime? @db.DateTime
 
   @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model dbo__APIMemoryData {
+  ID     Int
+  Name   String   @db.NVarChar(250)
+  Data   String   @db.NVarChar(Max)
+  TStamp DateTime @db.DateTime
+
+  @@map("_APIMemoryData")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model AccountInvoiceStudent {
+  AccountInvoiceStudentId        Int       @default(autoincrement())
+  AccountInvoiceId               Int?
+  StudentId                      Int?
+  StudentCode                    String?   @db.NVarChar(50)
+  StudentName                    String?   @db.NVarChar(200)
+  StudentIDCard                  String?   @db.NVarChar(13)
+  LevelName                      String?   @db.NVarChar(100)
+  ClassId                        Int?
+  ClassName                      String?   @db.NVarChar(100)
+  Price                          Decimal?  @db.Decimal(18, 2)
+  Status                         String?   @db.NVarChar(50)
+  InvoiceCode                    String?   @db.NVarChar(50)
+  Year                           Int?
+  Term                           String?   @db.NVarChar(50)
+  IssueDate                      DateTime? @db.DateTime
+  DueDate                        DateTime? @db.DateTime
+  OverduePrice                   Decimal?  @db.Decimal(18, 2)
+  Session                        String?   @db.UniqueIdentifier
+  PreRegisterId                  Int?
+  AppActive                      Boolean?
+  NextLevelId                    Int?
+  NextLevelName                  String?   @db.NVarChar(50)
+  NextClassId                    Int?
+  NextClassName                  String?   @db.NVarChar(50)
+  CreateDate                     DateTime? @db.DateTime
+  CreateBy                       String?   @db.NVarChar(50)
+  UpdateDate                     DateTime? @db.DateTime
+  UpdateBy                       String?   @db.NVarChar(50)
+  DeleteDate                     DateTime? @db.DateTime
+  DeleteBy                       String?   @db.NVarChar(50)
+  InvoiceCodeRef                 String?   @db.NVarChar(100)
+  registerCode                   String?   @db.NVarChar(20)
+  Fd_NewTermLevel_id             Int?
+  Fd_NewTermClass_id             Int?
+  Fd_NewTermSubLevel             String?   @db.NVarChar(50)
+  Fd_NewTermSubLevel2            String?   @db.NVarChar(50)
+  optionCourse                   Int?
+  AccountInvoiceGroupId          Int?
+  TitleName                      String?   @db.NVarChar(50)
+  StudentNameEN                  String?   @db.VarChar(200)
+  NewRegisterInProgress          Boolean?
+  AccountContactId               Int?
+  AccountInvoiceGroupReferenceId String?   @db.NVarChar(100)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model APIResponse_SyncSales {
+  LogID        Int?
+  SchoolID     Int?
+  APIRequest   String?   @db.NText
+  APIResponse  String?   @db.NText
+  MethodName   String?   @db.NText
+  Tstamp       DateTime? @db.DateTime
+  UserID       Int?
+  CardID       String?   @db.UniqueIdentifier
+  ResponseTime Float?    @db.Real
+  DeviceTime   DateTime? @db.DateTime
+  SourceIP     String?   @db.NText
+
+  @@ignore
+}
+
+model dbo_DeviceActivityLog {
+  LogID          String   @id(map: "PK_DeviceActivityLog1B") @db.UniqueIdentifier
+  SchoolID       Int
+  DeviceID       String   @db.NVarChar(200)
+  LogDescription String   @db.NVarChar(2900)
+  Tstamp         DateTime @db.DateTime
+  DeviceType     String   @db.NVarChar(150)
+
+  @@index([SchoolID, Tstamp], map: "INDEX_VVB_schoolid_tstap")
+  @@index([Tstamp], map: "INDEX_VVB_tstamp")
+  @@map("DeviceActivityLog")
+}
+
+model DeviceActivityLog_Backup {
+  LogID          String   @id(map: "PK_DeviceActivityLog") @db.UniqueIdentifier
+  SchoolID       Int
+  DeviceID       String   @db.NVarChar(200)
+  LogDescription String   @db.NVarChar(2900)
+  Tstamp         DateTime @db.DateTime
+  DeviceType     String   @db.NVarChar(150)
+
+  @@index([SchoolID, Tstamp], map: "INDEX_VV_114818_114817")
+  @@index([Tstamp], map: "INDEX_VV_1388_1387")
+  @@index([DeviceID], map: "INDEX_VV_743_742")
+}
+
+model DeviceActivityLog_History {
+  LogID          String   @id(map: "PK_DeviceActivityLog1") @db.UniqueIdentifier
+  SchoolID       Int
+  DeviceID       String   @db.NVarChar(200)
+  LogDescription String   @db.NVarChar(2900)
+  Tstamp         DateTime @db.DateTime
+  DeviceType     String   @db.NVarChar(150)
+
+  @@index([DeviceID], map: "INDEX_VV_743_742_DeviceID")
+  @@index([SchoolID, Tstamp], map: "INDEX_VV_schoolid_tstap")
+  @@index([Tstamp], map: "INDEX_VV_tstamp")
+}
+
+model DeviceDailyStatus_Backup {
+  DeviceStatusID String    @id(map: "PK_DeviceDailyStatus") @db.UniqueIdentifier
+  SchoolID       Int
+  DeviceID       String    @db.NVarChar(200)
+  Online         Boolean
+  OnlineTime     DateTime? @db.DateTime
+  Login          Boolean
+  LoginTime      DateTime? @db.DateTime
+  LogOut         Boolean
+  LogoutTime     DateTime? @db.DateTime
+  Tstamp         DateTime  @db.DateTime
+  BusinessDate   DateTime  @db.Date
+  AppVersion     String?   @db.NVarChar(200)
+  AppName        String?   @db.NVarChar(200)
+  Note           String?   @db.Text
+  UserLoginID    Int?
+  DeviceTypeID   Int?
+
+  @@index([SchoolID, OnlineTime], map: "INDEX_VV_3735_3734")
+  @@index([SchoolID], map: "INDEX_VV_5942378_5942377")
+  @@index([SchoolID, DeviceID, BusinessDate], map: "IX_DeviceDailyStatus_SchoolID_DeviceID_BusinessDate")
+}
+
+model DeviceType {
+  DeviceTypeID Int     @id(map: "PK_DeviceType")
+  TypeNameEN   String? @db.NVarChar(250)
+  TypeNameTH   String? @db.NVarChar(250)
+}
+
+model QueryPerformanceLog {
+  LogID             Int       @id(map: "PK__QueryPer__5E5499A8F729759E") @default(autoincrement())
+  LogDateTime       DateTime?
+  QueryName         String?   @db.NVarChar(200)
+  CPUTime_ms        Int?
+  ElapsedTime_ms    Int?
+  LogicalReads      BigInt?
+  BlockingSessionID Int?
+  WaitType          String?   @db.NVarChar(100)
+  WaitResource      String?   @db.NVarChar(200)
+  RowCount          Int?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model ResultVerifyUserBalance_Bkup_24042025 {
+  SchoolID      Int
+  sID           Int
+  Balance       Decimal? @db.Decimal(18, 2)
+  SystemBalance Float
+  SQLStatement  String?  @db.VarChar(99)
+  Tstamp        DateTime @db.DateTime
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model ResultVerifyUserBalanceTempCard_Bkup_24042025 {
+  CardHistoryID String?  @db.UniqueIdentifier
+  balance       Decimal? @db.Decimal(18, 2)
+  SystemBalance Float?
+  SQLStatement  String?  @db.NVarChar(560)
+  Tstamp        DateTime @db.DateTime
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_StudentList {
+  SID        Int
+  sName      String? @db.NVarChar(250)
+  sLastname  String? @db.NVarChar(250)
+  SchoolID   Int
+  sStudentID String? @db.NVarChar(250)
+
+  @@ignore
+}
+
+model TCurrentTermData {
+  nTerm    String    @db.NVarChar(250)
+  dStart   DateTime? @db.Date
+  dEnd     DateTime? @db.Date
+  SchoolID Int
+  nYear    Int
+  sTerm    String?   @db.NVarChar(100)
+
+  @@id([nTerm, SchoolID, nYear], map: "PK_TCurrentTermData")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model temp_TEmployeeInfo {
+  sEmp                     Int
+  ID                       Int
+  Code                     String?   @db.NVarChar(20)
+  FirstNameEn              String?   @db.NVarChar(256)
+  LastNameEn               String?   @db.NVarChar(256)
+  PassportNumber           String?   @db.NVarChar(50)
+  PassportCountry          String?   @db.NVarChar(100)
+  PassportExpirationDate   DateTime? @db.DateTime
+  VisaNo                   String?   @db.NVarChar(50)
+  VisaExpirationDate       DateTime? @db.DateTime
+  WorkPermitNo             String?   @db.NVarChar(50)
+  WorkPermitExpirationDate DateTime? @db.DateTime
+  BloodType                String?   @db.NVarChar(5)
+  Nationality              String?   @db.NVarChar(50)
+  Ethnicity                String?   @db.NVarChar(50)
+  Religion                 String?   @db.NVarChar(50)
+  PersonalStatus           Int?
+  SpouseFirstName          String?   @db.NVarChar(30)
+  SpouseLastName           String?   @db.NVarChar(50)
+  UpdateDate               DateTime? @db.DateTime
+  UpdateBy                 Int?
+  SchoolID                 Int
+  CreatedBy                Int?
+  CreatedDate              DateTime? @db.DateTime
+  cDel                     Boolean
+
+  @@ignore
+}
+
+model TEmpSignerReport {
+  ReportID   Int
+  SchoolID   Int
+  SignerID   Int?
+  YearID     Int?
+  ReportName String?   @db.VarChar(50)
+  ReportPart String?   @db.VarChar(50)
+  Created    DateTime? @db.DateTime
+  CreateBy   Int?
+  Modified   DateTime? @db.DateTime
+  ModifyBy   Int?
+
+  @@id([ReportID, SchoolID], map: "PK_TEmpSignerReport")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model THoliday_History {
+  nHoliday      String    @db.NVarChar(10)
+  sEmp          Int?
+  sHoliday      String?   @db.NVarChar(250)
+  sHolidayEN    String?   @db.NVarChar(250)
+  TimeType      Int?      @db.TinyInt
+  sHolidayType  String?   @db.Char(1)
+  dHolidayStart DateTime? @db.DateTime
+  dHolidayEnd   DateTime? @db.DateTime
+  cDel          String?   @db.Char(1)
+  sHolidayAll   String?   @db.Char(1)
+  sWhoSeeThis   String?   @db.NVarChar(1)
+  sColor        Int?
+  sGroupTarget  String?   @db.NVarChar(1)
+  cStatusActive Boolean?
+  SchoolID      Int
+  CreatedBy     Int?
+  UpdatedBy     Int?
+  CreatedDate   DateTime? @db.DateTime
+  UpdatedDate   DateTime? @db.DateTime
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tmp_UserDailyBalanceTempCard_B {
+  SchoolID            Int?
+  sID                 Int?
+  sStudentID          String?   @db.NVarChar(20)
+  sName               String?   @db.NVarChar(256)
+  sLastname           String?   @db.NVarChar(256)
+  cDel                String?   @db.NChar(1)
+  cType               String?   @db.NChar(1)
+  BusinessDate        DateTime? @db.Date
+  OpeningBalance      Decimal?  @db.Decimal(18, 2)
+  TotalTopUp          Decimal?  @db.Decimal(18, 2)
+  TotalCancelTopUp    Decimal?  @db.Decimal(18, 2)
+  TotalWithDraw       Decimal?  @db.Decimal(18, 2)
+  TotalCancelWithDraw Decimal?  @db.Decimal(18, 2)
+  TotalSales          Decimal?  @db.Decimal(18, 2)
+  TotalCancelSales    Decimal?  @db.Decimal(18, 2)
+  LastUpdatedDate     DateTime? @db.Date
+  Balance             Decimal?  @db.Decimal(18, 2)
+  CardHistoryID       String?   @db.UniqueIdentifier
+  OfflineSales        Decimal?  @db.Decimal(18, 2)
+  Insurance           Float?    @db.Real
+  SystemBalance       Float?    @db.Real
+  ID                  Int?
+
+  @@index([BusinessDate, CardHistoryID], map: "INDEX_VV_123861_123860")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tmp_UserDailyBalanceTempCard_C {
+  SchoolID            Int?
+  sID                 Int?
+  sStudentID          String?   @db.NVarChar(20)
+  sName               String?   @db.NVarChar(256)
+  sLastname           String?   @db.NVarChar(256)
+  cDel                String?   @db.NChar(1)
+  cType               String?   @db.NChar(1)
+  BusinessDate        DateTime? @db.Date
+  OpeningBalance      Decimal?  @db.Decimal(18, 2)
+  TotalTopUp          Decimal?  @db.Decimal(18, 2)
+  TotalCancelTopUp    Decimal?  @db.Decimal(18, 2)
+  TotalWithDraw       Decimal?  @db.Decimal(18, 2)
+  TotalCancelWithDraw Decimal?  @db.Decimal(18, 2)
+  TotalSales          Decimal?  @db.Decimal(18, 2)
+  TotalCancelSales    Decimal?  @db.Decimal(18, 2)
+  LastUpdatedDate     DateTime? @db.Date
+  Balance             Decimal?  @db.Decimal(18, 2)
+  CardHistoryID       String?   @db.UniqueIdentifier
+  OfflineSales        Decimal?  @db.Decimal(18, 2)
+  Insurance           Float?    @db.Real
+  SystemBalance       Float?    @db.Real
+  ID                  Int?
+
+  @@index([BusinessDate, CardHistoryID], map: "INDEX_VV_123995_123994")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TStudentClassroomHistory_CurrentTerm {
+  nHistoryId     Int       @default(autoincrement())
+  sID            Int?
+  nTerm          String?   @db.NVarChar(20)
+  nTermSubLevel2 Int?
+  nStudentNumber Int?
+  SchoolID       Int
+  CreatedBy      Int?
+  UpdatedBy      Int?
+  CreatedDate    DateTime? @db.DateTime
+  UpdatedDate    DateTime? @db.DateTime
+  cDel           Boolean
+  nStudentStatus Int?
+  MoveInDate     DateTime? @db.DateTime
+  MoveOutDate    DateTime? @db.DateTime
+  DropOutType    Int?
+  IsActive       Boolean?
+  Note           String?   @db.NVarChar(250)
+
+  @@index([nTerm], map: "INDEX_VV_573_572")
+  @@index([CreatedDate], map: "IX_TStudentClassroomHistory_CreatedDate_StatusHigh_CurentTerm")
+  @@index([CreatedDate], map: "IX_TStudentClassroomHistory_CreatedDate_StatusLow_CurentTerm")
+  @@index([CreatedDate], map: "IX_TStudentClassroomHistory_CreatedDate_StatusNull_CurentTerm")
+  @@ignore
+}
+
+model TTeacherStudentType {
+  ID            Int       @id(map: "PK_TTeacherStudentType")
+  StudentTypeID Int
+  SchoolID      Int
+  sEmp          Int
+  Status        Boolean
+  IsDel         Boolean
+  CreateDate    DateTime  @db.DateTime
+  CreateBy      Int?
+  UpdateDate    DateTime? @db.DateTime
+  UpdateBy      Int?
+
+  @@index([SchoolID, sEmp], map: "IX_TTeacherStudentType")
+  @@index([sEmp], map: "IX_TTeacherStudentType_1")
+}
+
+model dbo_UserDailyBalance {
+  ID                  Int
+  SchoolID            Int
+  sID                 Int
+  sStudentID          String?   @db.NVarChar(20)
+  sName               String?   @db.NVarChar(256)
+  sLastname           String?   @db.NVarChar(256)
+  cDel                String?   @db.Char(1)
+  cType               String    @db.Char(1)
+  BusinessDate        DateTime? @db.Date
+  OpeningBalance      Decimal   @db.Decimal(18, 2)
+  TotalTopUp          Decimal   @db.Decimal(18, 2)
+  TotalCancelTopUp    Decimal   @db.Decimal(18, 2)
+  TotalWithDraw       Decimal   @db.Decimal(18, 2)
+  TotalCancelWithDraw Decimal   @db.Decimal(18, 2)
+  TotalSales          Decimal   @db.Decimal(18, 2)
+  TotalCancelSales    Decimal   @db.Decimal(18, 2)
+  LastUpdatedDate     String    @db.VarChar(23)
+  Balance             Decimal?  @db.Decimal(18, 2)
+  OfflineSales        Decimal?  @db.Decimal(18, 2)
+  SystemBalance       Float
+
+  @@id([ID, SchoolID, sID], map: "PK_Move_UserDailyBalance_Backup")
+  @@index([BusinessDate, SchoolID], map: "INDEX_VV_1147_1146")
+  @@map("UserDailyBalance")
 }

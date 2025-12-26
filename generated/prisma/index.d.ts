@@ -869,11 +869,6 @@ export type TLeave_Type = $Result.DefaultSelection<Prisma.$TLeave_TypePayload>
  */
 export type TLeaveLetter = $Result.DefaultSelection<Prisma.$TLeaveLetterPayload>
 /**
- * Model TLeaveLetter_History
- * 
- */
-export type TLeaveLetter_History = $Result.DefaultSelection<Prisma.$TLeaveLetter_HistoryPayload>
-/**
  * Model TLeaveLetterFiles
  * 
  */
@@ -938,11 +933,6 @@ export type TLogUserTimeScan = $Result.DefaultSelection<Prisma.$TLogUserTimeScan
  * 
  */
 export type TLogUserTimeScan_History = $Result.DefaultSelection<Prisma.$TLogUserTimeScan_HistoryPayload>
-/**
- * Model TLogUserTimeScan_Old_Bkup
- * 
- */
-export type TLogUserTimeScan_Old_Bkup = $Result.DefaultSelection<Prisma.$TLogUserTimeScan_Old_BkupPayload>
 /**
  * Model TLogUserTimeScanNew
  * 
@@ -1369,11 +1359,6 @@ export type TStockImprove = $Result.DefaultSelection<Prisma.$TStockImprovePayloa
  */
 export type TStockLog = $Result.DefaultSelection<Prisma.$TStockLogPayload>
 /**
- * Model TStockLog_Old
- * 
- */
-export type TStockLog_Old = $Result.DefaultSelection<Prisma.$TStockLog_OldPayload>
-/**
  * Model TStudentCardInfo
  * 
  */
@@ -1594,20 +1579,10 @@ export type UpdateTempCardMoney = $Result.DefaultSelection<Prisma.$UpdateTempCar
  */
 export type UserAPIResponse = $Result.DefaultSelection<Prisma.$UserAPIResponsePayload>
 /**
- * Model UserDailyBalance_Backup
- * 
- */
-export type UserDailyBalance_Backup = $Result.DefaultSelection<Prisma.$UserDailyBalance_BackupPayload>
-/**
  * Model UserDailyBalance_Searlize
  * 
  */
 export type UserDailyBalance_Searlize = $Result.DefaultSelection<Prisma.$UserDailyBalance_SearlizePayload>
-/**
- * Model UserDailyBalanceTemp
- * 
- */
-export type UserDailyBalanceTemp = $Result.DefaultSelection<Prisma.$UserDailyBalanceTempPayload>
 /**
  * Model UserDailyBalanceTempCard
  * 
@@ -1623,6 +1598,56 @@ export type UserDailySales = $Result.DefaultSelection<Prisma.$UserDailySalesPayl
  * 
  */
 export type UserUsedLimit = $Result.DefaultSelection<Prisma.$UserUsedLimitPayload>
+/**
+ * Model dbo_DeviceActivityLog
+ * 
+ */
+export type dbo_DeviceActivityLog = $Result.DefaultSelection<Prisma.$dbo_DeviceActivityLogPayload>
+/**
+ * Model DeviceActivityLog_Backup
+ * 
+ */
+export type DeviceActivityLog_Backup = $Result.DefaultSelection<Prisma.$DeviceActivityLog_BackupPayload>
+/**
+ * Model DeviceActivityLog_History
+ * 
+ */
+export type DeviceActivityLog_History = $Result.DefaultSelection<Prisma.$DeviceActivityLog_HistoryPayload>
+/**
+ * Model DeviceDailyStatus_Backup
+ * 
+ */
+export type DeviceDailyStatus_Backup = $Result.DefaultSelection<Prisma.$DeviceDailyStatus_BackupPayload>
+/**
+ * Model DeviceType
+ * 
+ */
+export type DeviceType = $Result.DefaultSelection<Prisma.$DeviceTypePayload>
+/**
+ * Model QueryPerformanceLog
+ * 
+ */
+export type QueryPerformanceLog = $Result.DefaultSelection<Prisma.$QueryPerformanceLogPayload>
+/**
+ * Model TCurrentTermData
+ * 
+ */
+export type TCurrentTermData = $Result.DefaultSelection<Prisma.$TCurrentTermDataPayload>
+/**
+ * Model TEmpSignerReport
+ * 
+ */
+export type TEmpSignerReport = $Result.DefaultSelection<Prisma.$TEmpSignerReportPayload>
+/**
+ * Model TTeacherStudentType
+ * 
+ */
+export type TTeacherStudentType = $Result.DefaultSelection<Prisma.$TTeacherStudentTypePayload>
+/**
+ * Model dbo_UserDailyBalance
+ * 
+ */
+export type dbo_UserDailyBalance = $Result.DefaultSelection<Prisma.$dbo_UserDailyBalancePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -3453,16 +3478,6 @@ export class PrismaClient<
   get tLeaveLetter(): Prisma.TLeaveLetterDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.tLeaveLetter_History`: Exposes CRUD operations for the **TLeaveLetter_History** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more TLeaveLetter_Histories
-    * const tLeaveLetter_Histories = await prisma.tLeaveLetter_History.findMany()
-    * ```
-    */
-  get tLeaveLetter_History(): Prisma.TLeaveLetter_HistoryDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.tLeaveLetterFiles`: Exposes CRUD operations for the **TLeaveLetterFiles** model.
     * Example usage:
     * ```ts
@@ -3591,16 +3606,6 @@ export class PrismaClient<
     * ```
     */
   get tLogUserTimeScan_History(): Prisma.TLogUserTimeScan_HistoryDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.tLogUserTimeScan_Old_Bkup`: Exposes CRUD operations for the **TLogUserTimeScan_Old_Bkup** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more TLogUserTimeScan_Old_Bkups
-    * const tLogUserTimeScan_Old_Bkups = await prisma.tLogUserTimeScan_Old_Bkup.findMany()
-    * ```
-    */
-  get tLogUserTimeScan_Old_Bkup(): Prisma.TLogUserTimeScan_Old_BkupDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.tLogUserTimeScanNew`: Exposes CRUD operations for the **TLogUserTimeScanNew** model.
@@ -4453,16 +4458,6 @@ export class PrismaClient<
   get tStockLog(): Prisma.TStockLogDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.tStockLog_Old`: Exposes CRUD operations for the **TStockLog_Old** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more TStockLog_Olds
-    * const tStockLog_Olds = await prisma.tStockLog_Old.findMany()
-    * ```
-    */
-  get tStockLog_Old(): Prisma.TStockLog_OldDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.tStudentCardInfo`: Exposes CRUD operations for the **TStudentCardInfo** model.
     * Example usage:
     * ```ts
@@ -4903,16 +4898,6 @@ export class PrismaClient<
   get userAPIResponse(): Prisma.UserAPIResponseDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.userDailyBalance_Backup`: Exposes CRUD operations for the **UserDailyBalance_Backup** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more UserDailyBalance_Backups
-    * const userDailyBalance_Backups = await prisma.userDailyBalance_Backup.findMany()
-    * ```
-    */
-  get userDailyBalance_Backup(): Prisma.UserDailyBalance_BackupDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.userDailyBalance_Searlize`: Exposes CRUD operations for the **UserDailyBalance_Searlize** model.
     * Example usage:
     * ```ts
@@ -4921,16 +4906,6 @@ export class PrismaClient<
     * ```
     */
   get userDailyBalance_Searlize(): Prisma.UserDailyBalance_SearlizeDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.userDailyBalanceTemp`: Exposes CRUD operations for the **UserDailyBalanceTemp** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more UserDailyBalanceTemps
-    * const userDailyBalanceTemps = await prisma.userDailyBalanceTemp.findMany()
-    * ```
-    */
-  get userDailyBalanceTemp(): Prisma.UserDailyBalanceTempDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.userDailyBalanceTempCard`: Exposes CRUD operations for the **UserDailyBalanceTempCard** model.
@@ -4961,6 +4936,106 @@ export class PrismaClient<
     * ```
     */
   get userUsedLimit(): Prisma.UserUsedLimitDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dbo_DeviceActivityLog`: Exposes CRUD operations for the **dbo_DeviceActivityLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Dbo_DeviceActivityLogs
+    * const dbo_DeviceActivityLogs = await prisma.dbo_DeviceActivityLog.findMany()
+    * ```
+    */
+  get dbo_DeviceActivityLog(): Prisma.dbo_DeviceActivityLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.deviceActivityLog_Backup`: Exposes CRUD operations for the **DeviceActivityLog_Backup** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DeviceActivityLog_Backups
+    * const deviceActivityLog_Backups = await prisma.deviceActivityLog_Backup.findMany()
+    * ```
+    */
+  get deviceActivityLog_Backup(): Prisma.DeviceActivityLog_BackupDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.deviceActivityLog_History`: Exposes CRUD operations for the **DeviceActivityLog_History** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DeviceActivityLog_Histories
+    * const deviceActivityLog_Histories = await prisma.deviceActivityLog_History.findMany()
+    * ```
+    */
+  get deviceActivityLog_History(): Prisma.DeviceActivityLog_HistoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.deviceDailyStatus_Backup`: Exposes CRUD operations for the **DeviceDailyStatus_Backup** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DeviceDailyStatus_Backups
+    * const deviceDailyStatus_Backups = await prisma.deviceDailyStatus_Backup.findMany()
+    * ```
+    */
+  get deviceDailyStatus_Backup(): Prisma.DeviceDailyStatus_BackupDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.deviceType`: Exposes CRUD operations for the **DeviceType** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DeviceTypes
+    * const deviceTypes = await prisma.deviceType.findMany()
+    * ```
+    */
+  get deviceType(): Prisma.DeviceTypeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.queryPerformanceLog`: Exposes CRUD operations for the **QueryPerformanceLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more QueryPerformanceLogs
+    * const queryPerformanceLogs = await prisma.queryPerformanceLog.findMany()
+    * ```
+    */
+  get queryPerformanceLog(): Prisma.QueryPerformanceLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tCurrentTermData`: Exposes CRUD operations for the **TCurrentTermData** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TCurrentTermData
+    * const tCurrentTermData = await prisma.tCurrentTermData.findMany()
+    * ```
+    */
+  get tCurrentTermData(): Prisma.TCurrentTermDataDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tEmpSignerReport`: Exposes CRUD operations for the **TEmpSignerReport** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TEmpSignerReports
+    * const tEmpSignerReports = await prisma.tEmpSignerReport.findMany()
+    * ```
+    */
+  get tEmpSignerReport(): Prisma.TEmpSignerReportDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tTeacherStudentType`: Exposes CRUD operations for the **TTeacherStudentType** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TTeacherStudentTypes
+    * const tTeacherStudentTypes = await prisma.tTeacherStudentType.findMany()
+    * ```
+    */
+  get tTeacherStudentType(): Prisma.TTeacherStudentTypeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dbo_UserDailyBalance`: Exposes CRUD operations for the **dbo_UserDailyBalance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Dbo_UserDailyBalances
+    * const dbo_UserDailyBalances = await prisma.dbo_UserDailyBalance.findMany()
+    * ```
+    */
+  get dbo_UserDailyBalance(): Prisma.dbo_UserDailyBalanceDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -5573,7 +5648,6 @@ export namespace Prisma {
     TLeave_Log: 'TLeave_Log',
     TLeave_Type: 'TLeave_Type',
     TLeaveLetter: 'TLeaveLetter',
-    TLeaveLetter_History: 'TLeaveLetter_History',
     TLeaveLetterFiles: 'TLeaveLetterFiles',
     TLeaveLetterFiles_History: 'TLeaveLetterFiles_History',
     TLeaveList: 'TLeaveList',
@@ -5587,7 +5661,6 @@ export namespace Prisma {
     TLogLearnTimeScanNew: 'TLogLearnTimeScanNew',
     TLogUserTimeScan: 'TLogUserTimeScan',
     TLogUserTimeScan_History: 'TLogUserTimeScan_History',
-    TLogUserTimeScan_Old_Bkup: 'TLogUserTimeScan_Old_Bkup',
     TLogUserTimeScanNew: 'TLogUserTimeScanNew',
     TMasterData: 'TMasterData',
     TMasterType: 'TMasterType',
@@ -5673,7 +5746,6 @@ export namespace Prisma {
     TStockDetailTemp: 'TStockDetailTemp',
     TStockImprove: 'TStockImprove',
     TStockLog: 'TStockLog',
-    TStockLog_Old: 'TStockLog_Old',
     TStudentCardInfo: 'TStudentCardInfo',
     TStudentClassroomHistory: 'TStudentClassroomHistory',
     TStudentHealthGrowth: 'TStudentHealthGrowth',
@@ -5718,12 +5790,20 @@ export namespace Prisma {
     UpdateTempCard: 'UpdateTempCard',
     UpdateTempCardMoney: 'UpdateTempCardMoney',
     UserAPIResponse: 'UserAPIResponse',
-    UserDailyBalance_Backup: 'UserDailyBalance_Backup',
     UserDailyBalance_Searlize: 'UserDailyBalance_Searlize',
-    UserDailyBalanceTemp: 'UserDailyBalanceTemp',
     UserDailyBalanceTempCard: 'UserDailyBalanceTempCard',
     UserDailySales: 'UserDailySales',
-    UserUsedLimit: 'UserUsedLimit'
+    UserUsedLimit: 'UserUsedLimit',
+    dbo_DeviceActivityLog: 'dbo_DeviceActivityLog',
+    DeviceActivityLog_Backup: 'DeviceActivityLog_Backup',
+    DeviceActivityLog_History: 'DeviceActivityLog_History',
+    DeviceDailyStatus_Backup: 'DeviceDailyStatus_Backup',
+    DeviceType: 'DeviceType',
+    QueryPerformanceLog: 'QueryPerformanceLog',
+    TCurrentTermData: 'TCurrentTermData',
+    TEmpSignerReport: 'TEmpSignerReport',
+    TTeacherStudentType: 'TTeacherStudentType',
+    dbo_UserDailyBalance: 'dbo_UserDailyBalance'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -5742,7 +5822,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "answerKey" | "aPIConfiguration" | "aPILog" | "aPIMemoryData" | "aPIResponse" | "aPIResponseDev" | "aPIResponseErrors" | "aPISampleRequest" | "applicationConfiguration" | "aspnet_Applications" | "aspnet_Membership" | "aspnet_Paths" | "aspnet_PersonalizationAllUsers" | "aspnet_PersonalizationPerUser" | "aspnet_Profile" | "aspnet_Roles" | "aspnet_SchemaVersions" | "aspnet_Users" | "aspnet_UsersInRoles" | "aspnet_WebEvent_Events" | "bBLTransaction" | "commandLog" | "dailyProductSales" | "dailySales" | "dashboardData" | "deviceDailyStatus" | "deviceUpdateStatus" | "excelExportData" | "identityTable" | "kPromptPayAccessToken" | "kPromptPayTransaction" | "kPromptPayTransactionInquiry" | "kResCharge" | "kResInquiryQR" | "kResOrder" | "kTBApprovalTransaction" | "kTBPaymentTransaction" | "kTBTransaction" | "kTransaction" | "memorySchoolDBUser" | "memorySchoolEmployees" | "memoryTempCard" | "modifiedShops" | "modifiedUsers" | "offlineSales" | "paymentServersDetails" | "pTDailySalesAPI" | "sBLoginHistory" | "schoolIDMapping" | "sysdiagrams" | "t_FSDQ_Answer" | "t_FSDQ_Data" | "t_FSDQ_Point" | "t_FSDQ_Question" | "tAPIRequestResponse" | "tApproveEmployeeContactAddress" | "tApproveEmployeeEducation" | "tApproveEmployeeFamily" | "tApproveEmployeeHistoryReceivingRoyalDecoration" | "tApproveEmployeeHonor" | "tApproveEmployeeOccupationalLicense" | "tApproveEmployeePermanentAddress" | "tApproveEmployeeProfile" | "tApproveEmployeeTraining" | "tApproveStudentContactAddress" | "tApproveStudentFatherInfo" | "tApproveStudentMotherInfo" | "tApproveStudentParentInfo" | "tApproveStudentPermanentAddress" | "tApproveStudentProfile" | "tAssetCategory" | "tAssetCutting" | "tAssetGet" | "tAssetProduct" | "tAssetTransaction" | "tAssetTransfer" | "tAssetWithdraw" | "tB_EQ_Answer" | "tB_EQ_Data" | "tB_EQ_Group" | "tB_EQ_Point" | "tB_EQ_Question" | "tB_HistorySetting" | "tBackupCard" | "tBackupCardHistory" | "tBaseSalary" | "tBehavior" | "tBehaviorHistory" | "tBehaviorHistory_Files" | "tBehaviorSetting" | "tBehaviorTimeSetting" | "tBlackList" | "tBranch" | "tBranchSpec" | "tBranchSubject" | "tCalendar" | "tClass" | "tClassMember" | "tClassOnline" | "tCourseGroup" | "tCourseGroupTranslation" | "tCourseRegister" | "tCourseTranslation" | "tCourseType" | "tCourseTypeTranslation" | "tCurriculum" | "tDepartment" | "tDocumentStampDate" | "tEmpAddress" | "tEmpEducationInfo" | "tEmpFamily" | "tEmpHonor" | "tEmpInsignia" | "tEmployeeInfo" | "tEmployees" | "tEmployeesNew" | "tEmployeeType" | "tEmpProfessionalLicense" | "tEmpSalary" | "tEmpSigner" | "tEmpTeaching" | "tEmpTOEIC" | "tEmpTraining" | "tExam" | "tExamAnswer" | "tExamRange" | "tExamResult" | "tFaceScanLog" | "tFamilyProfile" | "tGradeAttendance" | "tGradeCheck" | "tGradeLock" | "tGradeMigration" | "tGradeRegisterPeriod" | "tGradeShareInfo" | "tGradeTeacherDescribe" | "tGradeViewRoomListSetting" | "tGradeViewSetting" | "tGradeViewStudentBlockListSetting" | "tGroupExam" | "tGroupExamDetail" | "tHealtProfile" | "tHistoryLog" | "tHoliday" | "tHolidayLog" | "tHolidaySome" | "tHomeVisit" | "tHomeVisitFile" | "tHomework" | "tHomework_User" | "tHomework_User_File" | "tHomework_User_History" | "tHomeWorkFile" | "tHomeWorkLearning" | "tHomeWorkLearningFile" | "tHomeWorkReply" | "tHomeWorkReply_File" | "tJobList" | "tLanguage" | "tLearningCenter" | "tLeave" | "tLeave_ConfigStudent" | "tLeave_ConfigTeacher" | "tLeave_ConfigTeacher_Day" | "tLeave_ConfigTeacher_DayList" | "tLeave_ConfigTeacher_Department" | "tLeave_ConfigTeacher_Notify" | "tLeave_ConfigTeacher_NotifyUser" | "tLeave_Log" | "tLeave_Type" | "tLeaveLetter" | "tLeaveLetter_History" | "tLeaveLetterFiles" | "tLeaveLetterFiles_History" | "tLeaveList" | "tLeaveSetting" | "tLeaveTeacherList" | "tLevel" | "tLogEmpTimeScan" | "tLogEmpTimeScan_History" | "tLogLearnTimeScan" | "tLogLearnTimeScan_History" | "tLogLearnTimeScanNew" | "tLogUserTimeScan" | "tLogUserTimeScan_History" | "tLogUserTimeScan_Old_Bkup" | "tLogUserTimeScanNew" | "tMasterData" | "tMasterType" | "tMessage_User" | "tMessage_User_History" | "tMessageBox" | "tMessageBox_History" | "tMessageLINEMulticast" | "tMoney" | "tMoney_12022024" | "tMoney_20210208" | "tMoney_History" | "tMoneyDBError" | "tNewsFiles" | "tONETScore" | "topupWebLogData" | "tPeriod" | "tPeriod_TSubLevel" | "tPermissionCard" | "tPermissionCardType" | "tPlan" | "tPlanCourse" | "tPlanCourseAdjustedTerm" | "tPlanCourseStudent" | "tPlanCourseTeacher" | "tPlanCourseTerm" | "tPlane" | "tPlane_TSubLevel" | "tPlanList" | "tPlanOwner" | "tPlanTermSubLevel2" | "tPreRegister" | "tPreRegisterDocument" | "tpreRegisterOption" | "tPreRegisterRequiredCategory" | "tPreRegisterRequiredField" | "tPreRegisterRequiredFieldInitiate" | "tPreRegisterSendMail" | "tProduct" | "tProductStock" | "tQuestionnaireEQ" | "tQuestionnaireScreening" | "tQuestionnaireSDQ" | "tQuiz" | "trackingData" | "tRegisterExamRoom" | "tRegisterExplanation" | "tRegisterPlanSetup" | "tRegisterRegularity" | "tRegisterSetup" | "tRoom" | "tRoomChange" | "tSalesDailyReport" | "tSchedule" | "tSchedule_Student" | "tScheduleTeacher" | "tSchoolRecord" | "tSchoolRecord_Detail" | "tScore" | "tSell" | "tSell_API" | "tSell_API_Backup" | "tSell_Detail" | "tSell_Detail_History" | "tSell_Detail_Recovered" | "tSell_DetailDBError" | "tSell_History" | "tSell_Move" | "tSell_Recovered" | "tSellDBError" | "tSendDataPSIS" | "tSendGradePSIS" | "tSendSubjectPSIS" | "tSettingExtraTime" | "tShop" | "tShop_Employees" | "tSMS" | "tSMSGroup" | "tSMSGroupUser" | "tSMSSubLevel" | "tStock" | "tStockDetail" | "tStockDetailTemp" | "tStockImprove" | "tStockLog" | "tStockLog_Old" | "tStudentCardInfo" | "tStudentClassroomHistory" | "tStudentHealthGrowth" | "tStudentHealthGrowth_History" | "tStudentHealthInfo" | "tStudentHIstory" | "tStudentLevel" | "tStudentProfile" | "tStudenttime" | "tStudentType" | "tSubLevel" | "tSystemlog" | "tTeacherCardInfo" | "tTempScanCameraIPStatus" | "tTempScanStatusOnline" | "tTerm" | "tTermSubLevel2" | "tTermTimeTable" | "tTime" | "tTimetype" | "tTitleList" | "tTranscriptNumber" | "tType" | "tUnit" | "tUser" | "tUserAttendance" | "tUserBlackList" | "tUserNew" | "tUserVerify" | "tUserVerifyLINEConnect" | "tVisitHouse" | "tWithdrawal" | "tWithdrawal_Backup" | "tWithdrawalGroup" | "tYear" | "updateBalance" | "updateBalanceLog" | "updateBalanceLogOld" | "updateBalanceMemory" | "updatedShops" | "updatedUsers" | "updateTempCard" | "updateTempCardMoney" | "userAPIResponse" | "userDailyBalance_Backup" | "userDailyBalance_Searlize" | "userDailyBalanceTemp" | "userDailyBalanceTempCard" | "userDailySales" | "userUsedLimit"
+      modelProps: "answerKey" | "aPIConfiguration" | "aPILog" | "aPIMemoryData" | "aPIResponse" | "aPIResponseDev" | "aPIResponseErrors" | "aPISampleRequest" | "applicationConfiguration" | "aspnet_Applications" | "aspnet_Membership" | "aspnet_Paths" | "aspnet_PersonalizationAllUsers" | "aspnet_PersonalizationPerUser" | "aspnet_Profile" | "aspnet_Roles" | "aspnet_SchemaVersions" | "aspnet_Users" | "aspnet_UsersInRoles" | "aspnet_WebEvent_Events" | "bBLTransaction" | "commandLog" | "dailyProductSales" | "dailySales" | "dashboardData" | "deviceDailyStatus" | "deviceUpdateStatus" | "excelExportData" | "identityTable" | "kPromptPayAccessToken" | "kPromptPayTransaction" | "kPromptPayTransactionInquiry" | "kResCharge" | "kResInquiryQR" | "kResOrder" | "kTBApprovalTransaction" | "kTBPaymentTransaction" | "kTBTransaction" | "kTransaction" | "memorySchoolDBUser" | "memorySchoolEmployees" | "memoryTempCard" | "modifiedShops" | "modifiedUsers" | "offlineSales" | "paymentServersDetails" | "pTDailySalesAPI" | "sBLoginHistory" | "schoolIDMapping" | "sysdiagrams" | "t_FSDQ_Answer" | "t_FSDQ_Data" | "t_FSDQ_Point" | "t_FSDQ_Question" | "tAPIRequestResponse" | "tApproveEmployeeContactAddress" | "tApproveEmployeeEducation" | "tApproveEmployeeFamily" | "tApproveEmployeeHistoryReceivingRoyalDecoration" | "tApproveEmployeeHonor" | "tApproveEmployeeOccupationalLicense" | "tApproveEmployeePermanentAddress" | "tApproveEmployeeProfile" | "tApproveEmployeeTraining" | "tApproveStudentContactAddress" | "tApproveStudentFatherInfo" | "tApproveStudentMotherInfo" | "tApproveStudentParentInfo" | "tApproveStudentPermanentAddress" | "tApproveStudentProfile" | "tAssetCategory" | "tAssetCutting" | "tAssetGet" | "tAssetProduct" | "tAssetTransaction" | "tAssetTransfer" | "tAssetWithdraw" | "tB_EQ_Answer" | "tB_EQ_Data" | "tB_EQ_Group" | "tB_EQ_Point" | "tB_EQ_Question" | "tB_HistorySetting" | "tBackupCard" | "tBackupCardHistory" | "tBaseSalary" | "tBehavior" | "tBehaviorHistory" | "tBehaviorHistory_Files" | "tBehaviorSetting" | "tBehaviorTimeSetting" | "tBlackList" | "tBranch" | "tBranchSpec" | "tBranchSubject" | "tCalendar" | "tClass" | "tClassMember" | "tClassOnline" | "tCourseGroup" | "tCourseGroupTranslation" | "tCourseRegister" | "tCourseTranslation" | "tCourseType" | "tCourseTypeTranslation" | "tCurriculum" | "tDepartment" | "tDocumentStampDate" | "tEmpAddress" | "tEmpEducationInfo" | "tEmpFamily" | "tEmpHonor" | "tEmpInsignia" | "tEmployeeInfo" | "tEmployees" | "tEmployeesNew" | "tEmployeeType" | "tEmpProfessionalLicense" | "tEmpSalary" | "tEmpSigner" | "tEmpTeaching" | "tEmpTOEIC" | "tEmpTraining" | "tExam" | "tExamAnswer" | "tExamRange" | "tExamResult" | "tFaceScanLog" | "tFamilyProfile" | "tGradeAttendance" | "tGradeCheck" | "tGradeLock" | "tGradeMigration" | "tGradeRegisterPeriod" | "tGradeShareInfo" | "tGradeTeacherDescribe" | "tGradeViewRoomListSetting" | "tGradeViewSetting" | "tGradeViewStudentBlockListSetting" | "tGroupExam" | "tGroupExamDetail" | "tHealtProfile" | "tHistoryLog" | "tHoliday" | "tHolidayLog" | "tHolidaySome" | "tHomeVisit" | "tHomeVisitFile" | "tHomework" | "tHomework_User" | "tHomework_User_File" | "tHomework_User_History" | "tHomeWorkFile" | "tHomeWorkLearning" | "tHomeWorkLearningFile" | "tHomeWorkReply" | "tHomeWorkReply_File" | "tJobList" | "tLanguage" | "tLearningCenter" | "tLeave" | "tLeave_ConfigStudent" | "tLeave_ConfigTeacher" | "tLeave_ConfigTeacher_Day" | "tLeave_ConfigTeacher_DayList" | "tLeave_ConfigTeacher_Department" | "tLeave_ConfigTeacher_Notify" | "tLeave_ConfigTeacher_NotifyUser" | "tLeave_Log" | "tLeave_Type" | "tLeaveLetter" | "tLeaveLetterFiles" | "tLeaveLetterFiles_History" | "tLeaveList" | "tLeaveSetting" | "tLeaveTeacherList" | "tLevel" | "tLogEmpTimeScan" | "tLogEmpTimeScan_History" | "tLogLearnTimeScan" | "tLogLearnTimeScan_History" | "tLogLearnTimeScanNew" | "tLogUserTimeScan" | "tLogUserTimeScan_History" | "tLogUserTimeScanNew" | "tMasterData" | "tMasterType" | "tMessage_User" | "tMessage_User_History" | "tMessageBox" | "tMessageBox_History" | "tMessageLINEMulticast" | "tMoney" | "tMoney_12022024" | "tMoney_20210208" | "tMoney_History" | "tMoneyDBError" | "tNewsFiles" | "tONETScore" | "topupWebLogData" | "tPeriod" | "tPeriod_TSubLevel" | "tPermissionCard" | "tPermissionCardType" | "tPlan" | "tPlanCourse" | "tPlanCourseAdjustedTerm" | "tPlanCourseStudent" | "tPlanCourseTeacher" | "tPlanCourseTerm" | "tPlane" | "tPlane_TSubLevel" | "tPlanList" | "tPlanOwner" | "tPlanTermSubLevel2" | "tPreRegister" | "tPreRegisterDocument" | "tpreRegisterOption" | "tPreRegisterRequiredCategory" | "tPreRegisterRequiredField" | "tPreRegisterRequiredFieldInitiate" | "tPreRegisterSendMail" | "tProduct" | "tProductStock" | "tQuestionnaireEQ" | "tQuestionnaireScreening" | "tQuestionnaireSDQ" | "tQuiz" | "trackingData" | "tRegisterExamRoom" | "tRegisterExplanation" | "tRegisterPlanSetup" | "tRegisterRegularity" | "tRegisterSetup" | "tRoom" | "tRoomChange" | "tSalesDailyReport" | "tSchedule" | "tSchedule_Student" | "tScheduleTeacher" | "tSchoolRecord" | "tSchoolRecord_Detail" | "tScore" | "tSell" | "tSell_API" | "tSell_API_Backup" | "tSell_Detail" | "tSell_Detail_History" | "tSell_Detail_Recovered" | "tSell_DetailDBError" | "tSell_History" | "tSell_Move" | "tSell_Recovered" | "tSellDBError" | "tSendDataPSIS" | "tSendGradePSIS" | "tSendSubjectPSIS" | "tSettingExtraTime" | "tShop" | "tShop_Employees" | "tSMS" | "tSMSGroup" | "tSMSGroupUser" | "tSMSSubLevel" | "tStock" | "tStockDetail" | "tStockDetailTemp" | "tStockImprove" | "tStockLog" | "tStudentCardInfo" | "tStudentClassroomHistory" | "tStudentHealthGrowth" | "tStudentHealthGrowth_History" | "tStudentHealthInfo" | "tStudentHIstory" | "tStudentLevel" | "tStudentProfile" | "tStudenttime" | "tStudentType" | "tSubLevel" | "tSystemlog" | "tTeacherCardInfo" | "tTempScanCameraIPStatus" | "tTempScanStatusOnline" | "tTerm" | "tTermSubLevel2" | "tTermTimeTable" | "tTime" | "tTimetype" | "tTitleList" | "tTranscriptNumber" | "tType" | "tUnit" | "tUser" | "tUserAttendance" | "tUserBlackList" | "tUserNew" | "tUserVerify" | "tUserVerifyLINEConnect" | "tVisitHouse" | "tWithdrawal" | "tWithdrawal_Backup" | "tWithdrawalGroup" | "tYear" | "updateBalance" | "updateBalanceLog" | "updateBalanceLogOld" | "updateBalanceMemory" | "updatedShops" | "updatedUsers" | "updateTempCard" | "updateTempCardMoney" | "userAPIResponse" | "userDailyBalance_Searlize" | "userDailyBalanceTempCard" | "userDailySales" | "userUsedLimit" | "dbo_DeviceActivityLog" | "deviceActivityLog_Backup" | "deviceActivityLog_History" | "deviceDailyStatus_Backup" | "deviceType" | "queryPerformanceLog" | "tCurrentTermData" | "tEmpSignerReport" | "tTeacherStudentType" | "dbo_UserDailyBalance"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -17032,72 +17112,6 @@ export namespace Prisma {
           }
         }
       }
-      TLeaveLetter_History: {
-        payload: Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>
-        fields: Prisma.TLeaveLetter_HistoryFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.TLeaveLetter_HistoryFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLeaveLetter_HistoryPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.TLeaveLetter_HistoryFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLeaveLetter_HistoryPayload>
-          }
-          findFirst: {
-            args: Prisma.TLeaveLetter_HistoryFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLeaveLetter_HistoryPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.TLeaveLetter_HistoryFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLeaveLetter_HistoryPayload>
-          }
-          findMany: {
-            args: Prisma.TLeaveLetter_HistoryFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLeaveLetter_HistoryPayload>[]
-          }
-          create: {
-            args: Prisma.TLeaveLetter_HistoryCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLeaveLetter_HistoryPayload>
-          }
-          createMany: {
-            args: Prisma.TLeaveLetter_HistoryCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          delete: {
-            args: Prisma.TLeaveLetter_HistoryDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLeaveLetter_HistoryPayload>
-          }
-          update: {
-            args: Prisma.TLeaveLetter_HistoryUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLeaveLetter_HistoryPayload>
-          }
-          deleteMany: {
-            args: Prisma.TLeaveLetter_HistoryDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.TLeaveLetter_HistoryUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.TLeaveLetter_HistoryUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLeaveLetter_HistoryPayload>
-          }
-          aggregate: {
-            args: Prisma.TLeaveLetter_HistoryAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTLeaveLetter_History>
-          }
-          groupBy: {
-            args: Prisma.TLeaveLetter_HistoryGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TLeaveLetter_HistoryGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.TLeaveLetter_HistoryCountArgs<ExtArgs>
-            result: $Utils.Optional<TLeaveLetter_HistoryCountAggregateOutputType> | number
-          }
-        }
-      }
       TLeaveLetterFiles: {
         payload: Prisma.$TLeaveLetterFilesPayload<ExtArgs>
         fields: Prisma.TLeaveLetterFilesFieldRefs
@@ -17953,72 +17967,6 @@ export namespace Prisma {
           count: {
             args: Prisma.TLogUserTimeScan_HistoryCountArgs<ExtArgs>
             result: $Utils.Optional<TLogUserTimeScan_HistoryCountAggregateOutputType> | number
-          }
-        }
-      }
-      TLogUserTimeScan_Old_Bkup: {
-        payload: Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>
-        fields: Prisma.TLogUserTimeScan_Old_BkupFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.TLogUserTimeScan_Old_BkupFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLogUserTimeScan_Old_BkupPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.TLogUserTimeScan_Old_BkupFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLogUserTimeScan_Old_BkupPayload>
-          }
-          findFirst: {
-            args: Prisma.TLogUserTimeScan_Old_BkupFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLogUserTimeScan_Old_BkupPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.TLogUserTimeScan_Old_BkupFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLogUserTimeScan_Old_BkupPayload>
-          }
-          findMany: {
-            args: Prisma.TLogUserTimeScan_Old_BkupFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLogUserTimeScan_Old_BkupPayload>[]
-          }
-          create: {
-            args: Prisma.TLogUserTimeScan_Old_BkupCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLogUserTimeScan_Old_BkupPayload>
-          }
-          createMany: {
-            args: Prisma.TLogUserTimeScan_Old_BkupCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          delete: {
-            args: Prisma.TLogUserTimeScan_Old_BkupDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLogUserTimeScan_Old_BkupPayload>
-          }
-          update: {
-            args: Prisma.TLogUserTimeScan_Old_BkupUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLogUserTimeScan_Old_BkupPayload>
-          }
-          deleteMany: {
-            args: Prisma.TLogUserTimeScan_Old_BkupDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.TLogUserTimeScan_Old_BkupUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.TLogUserTimeScan_Old_BkupUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TLogUserTimeScan_Old_BkupPayload>
-          }
-          aggregate: {
-            args: Prisma.TLogUserTimeScan_Old_BkupAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTLogUserTimeScan_Old_Bkup>
-          }
-          groupBy: {
-            args: Prisma.TLogUserTimeScan_Old_BkupGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TLogUserTimeScan_Old_BkupGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.TLogUserTimeScan_Old_BkupCountArgs<ExtArgs>
-            result: $Utils.Optional<TLogUserTimeScan_Old_BkupCountAggregateOutputType> | number
           }
         }
       }
@@ -23632,72 +23580,6 @@ export namespace Prisma {
           }
         }
       }
-      TStockLog_Old: {
-        payload: Prisma.$TStockLog_OldPayload<ExtArgs>
-        fields: Prisma.TStockLog_OldFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.TStockLog_OldFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TStockLog_OldPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.TStockLog_OldFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TStockLog_OldPayload>
-          }
-          findFirst: {
-            args: Prisma.TStockLog_OldFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TStockLog_OldPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.TStockLog_OldFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TStockLog_OldPayload>
-          }
-          findMany: {
-            args: Prisma.TStockLog_OldFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TStockLog_OldPayload>[]
-          }
-          create: {
-            args: Prisma.TStockLog_OldCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TStockLog_OldPayload>
-          }
-          createMany: {
-            args: Prisma.TStockLog_OldCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          delete: {
-            args: Prisma.TStockLog_OldDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TStockLog_OldPayload>
-          }
-          update: {
-            args: Prisma.TStockLog_OldUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TStockLog_OldPayload>
-          }
-          deleteMany: {
-            args: Prisma.TStockLog_OldDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.TStockLog_OldUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.TStockLog_OldUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TStockLog_OldPayload>
-          }
-          aggregate: {
-            args: Prisma.TStockLog_OldAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTStockLog_Old>
-          }
-          groupBy: {
-            args: Prisma.TStockLog_OldGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TStockLog_OldGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.TStockLog_OldCountArgs<ExtArgs>
-            result: $Utils.Optional<TStockLog_OldCountAggregateOutputType> | number
-          }
-        }
-      }
       TStudentCardInfo: {
         payload: Prisma.$TStudentCardInfoPayload<ExtArgs>
         fields: Prisma.TStudentCardInfoFieldRefs
@@ -26602,72 +26484,6 @@ export namespace Prisma {
           }
         }
       }
-      UserDailyBalance_Backup: {
-        payload: Prisma.$UserDailyBalance_BackupPayload<ExtArgs>
-        fields: Prisma.UserDailyBalance_BackupFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.UserDailyBalance_BackupFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalance_BackupPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.UserDailyBalance_BackupFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalance_BackupPayload>
-          }
-          findFirst: {
-            args: Prisma.UserDailyBalance_BackupFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalance_BackupPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.UserDailyBalance_BackupFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalance_BackupPayload>
-          }
-          findMany: {
-            args: Prisma.UserDailyBalance_BackupFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalance_BackupPayload>[]
-          }
-          create: {
-            args: Prisma.UserDailyBalance_BackupCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalance_BackupPayload>
-          }
-          createMany: {
-            args: Prisma.UserDailyBalance_BackupCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          delete: {
-            args: Prisma.UserDailyBalance_BackupDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalance_BackupPayload>
-          }
-          update: {
-            args: Prisma.UserDailyBalance_BackupUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalance_BackupPayload>
-          }
-          deleteMany: {
-            args: Prisma.UserDailyBalance_BackupDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.UserDailyBalance_BackupUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.UserDailyBalance_BackupUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalance_BackupPayload>
-          }
-          aggregate: {
-            args: Prisma.UserDailyBalance_BackupAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateUserDailyBalance_Backup>
-          }
-          groupBy: {
-            args: Prisma.UserDailyBalance_BackupGroupByArgs<ExtArgs>
-            result: $Utils.Optional<UserDailyBalance_BackupGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.UserDailyBalance_BackupCountArgs<ExtArgs>
-            result: $Utils.Optional<UserDailyBalance_BackupCountAggregateOutputType> | number
-          }
-        }
-      }
       UserDailyBalance_Searlize: {
         payload: Prisma.$UserDailyBalance_SearlizePayload<ExtArgs>
         fields: Prisma.UserDailyBalance_SearlizeFieldRefs
@@ -26731,72 +26547,6 @@ export namespace Prisma {
           count: {
             args: Prisma.UserDailyBalance_SearlizeCountArgs<ExtArgs>
             result: $Utils.Optional<UserDailyBalance_SearlizeCountAggregateOutputType> | number
-          }
-        }
-      }
-      UserDailyBalanceTemp: {
-        payload: Prisma.$UserDailyBalanceTempPayload<ExtArgs>
-        fields: Prisma.UserDailyBalanceTempFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.UserDailyBalanceTempFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalanceTempPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.UserDailyBalanceTempFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalanceTempPayload>
-          }
-          findFirst: {
-            args: Prisma.UserDailyBalanceTempFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalanceTempPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.UserDailyBalanceTempFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalanceTempPayload>
-          }
-          findMany: {
-            args: Prisma.UserDailyBalanceTempFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalanceTempPayload>[]
-          }
-          create: {
-            args: Prisma.UserDailyBalanceTempCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalanceTempPayload>
-          }
-          createMany: {
-            args: Prisma.UserDailyBalanceTempCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          delete: {
-            args: Prisma.UserDailyBalanceTempDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalanceTempPayload>
-          }
-          update: {
-            args: Prisma.UserDailyBalanceTempUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalanceTempPayload>
-          }
-          deleteMany: {
-            args: Prisma.UserDailyBalanceTempDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.UserDailyBalanceTempUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.UserDailyBalanceTempUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserDailyBalanceTempPayload>
-          }
-          aggregate: {
-            args: Prisma.UserDailyBalanceTempAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateUserDailyBalanceTemp>
-          }
-          groupBy: {
-            args: Prisma.UserDailyBalanceTempGroupByArgs<ExtArgs>
-            result: $Utils.Optional<UserDailyBalanceTempGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.UserDailyBalanceTempCountArgs<ExtArgs>
-            result: $Utils.Optional<UserDailyBalanceTempCountAggregateOutputType> | number
           }
         }
       }
@@ -26995,6 +26745,666 @@ export namespace Prisma {
           count: {
             args: Prisma.UserUsedLimitCountArgs<ExtArgs>
             result: $Utils.Optional<UserUsedLimitCountAggregateOutputType> | number
+          }
+        }
+      }
+      dbo_DeviceActivityLog: {
+        payload: Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>
+        fields: Prisma.dbo_DeviceActivityLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.dbo_DeviceActivityLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_DeviceActivityLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.dbo_DeviceActivityLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_DeviceActivityLogPayload>
+          }
+          findFirst: {
+            args: Prisma.dbo_DeviceActivityLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_DeviceActivityLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.dbo_DeviceActivityLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_DeviceActivityLogPayload>
+          }
+          findMany: {
+            args: Prisma.dbo_DeviceActivityLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_DeviceActivityLogPayload>[]
+          }
+          create: {
+            args: Prisma.dbo_DeviceActivityLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_DeviceActivityLogPayload>
+          }
+          createMany: {
+            args: Prisma.dbo_DeviceActivityLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.dbo_DeviceActivityLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_DeviceActivityLogPayload>
+          }
+          update: {
+            args: Prisma.dbo_DeviceActivityLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_DeviceActivityLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.dbo_DeviceActivityLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.dbo_DeviceActivityLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.dbo_DeviceActivityLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_DeviceActivityLogPayload>
+          }
+          aggregate: {
+            args: Prisma.Dbo_DeviceActivityLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDbo_DeviceActivityLog>
+          }
+          groupBy: {
+            args: Prisma.dbo_DeviceActivityLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Dbo_DeviceActivityLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.dbo_DeviceActivityLogCountArgs<ExtArgs>
+            result: $Utils.Optional<Dbo_DeviceActivityLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      DeviceActivityLog_Backup: {
+        payload: Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>
+        fields: Prisma.DeviceActivityLog_BackupFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DeviceActivityLog_BackupFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_BackupPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DeviceActivityLog_BackupFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_BackupPayload>
+          }
+          findFirst: {
+            args: Prisma.DeviceActivityLog_BackupFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_BackupPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DeviceActivityLog_BackupFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_BackupPayload>
+          }
+          findMany: {
+            args: Prisma.DeviceActivityLog_BackupFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_BackupPayload>[]
+          }
+          create: {
+            args: Prisma.DeviceActivityLog_BackupCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_BackupPayload>
+          }
+          createMany: {
+            args: Prisma.DeviceActivityLog_BackupCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.DeviceActivityLog_BackupDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_BackupPayload>
+          }
+          update: {
+            args: Prisma.DeviceActivityLog_BackupUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_BackupPayload>
+          }
+          deleteMany: {
+            args: Prisma.DeviceActivityLog_BackupDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DeviceActivityLog_BackupUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DeviceActivityLog_BackupUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_BackupPayload>
+          }
+          aggregate: {
+            args: Prisma.DeviceActivityLog_BackupAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDeviceActivityLog_Backup>
+          }
+          groupBy: {
+            args: Prisma.DeviceActivityLog_BackupGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DeviceActivityLog_BackupGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DeviceActivityLog_BackupCountArgs<ExtArgs>
+            result: $Utils.Optional<DeviceActivityLog_BackupCountAggregateOutputType> | number
+          }
+        }
+      }
+      DeviceActivityLog_History: {
+        payload: Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>
+        fields: Prisma.DeviceActivityLog_HistoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DeviceActivityLog_HistoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_HistoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DeviceActivityLog_HistoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_HistoryPayload>
+          }
+          findFirst: {
+            args: Prisma.DeviceActivityLog_HistoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_HistoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DeviceActivityLog_HistoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_HistoryPayload>
+          }
+          findMany: {
+            args: Prisma.DeviceActivityLog_HistoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_HistoryPayload>[]
+          }
+          create: {
+            args: Prisma.DeviceActivityLog_HistoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_HistoryPayload>
+          }
+          createMany: {
+            args: Prisma.DeviceActivityLog_HistoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.DeviceActivityLog_HistoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_HistoryPayload>
+          }
+          update: {
+            args: Prisma.DeviceActivityLog_HistoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_HistoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.DeviceActivityLog_HistoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DeviceActivityLog_HistoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DeviceActivityLog_HistoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceActivityLog_HistoryPayload>
+          }
+          aggregate: {
+            args: Prisma.DeviceActivityLog_HistoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDeviceActivityLog_History>
+          }
+          groupBy: {
+            args: Prisma.DeviceActivityLog_HistoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DeviceActivityLog_HistoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DeviceActivityLog_HistoryCountArgs<ExtArgs>
+            result: $Utils.Optional<DeviceActivityLog_HistoryCountAggregateOutputType> | number
+          }
+        }
+      }
+      DeviceDailyStatus_Backup: {
+        payload: Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>
+        fields: Prisma.DeviceDailyStatus_BackupFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DeviceDailyStatus_BackupFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceDailyStatus_BackupPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DeviceDailyStatus_BackupFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceDailyStatus_BackupPayload>
+          }
+          findFirst: {
+            args: Prisma.DeviceDailyStatus_BackupFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceDailyStatus_BackupPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DeviceDailyStatus_BackupFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceDailyStatus_BackupPayload>
+          }
+          findMany: {
+            args: Prisma.DeviceDailyStatus_BackupFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceDailyStatus_BackupPayload>[]
+          }
+          create: {
+            args: Prisma.DeviceDailyStatus_BackupCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceDailyStatus_BackupPayload>
+          }
+          createMany: {
+            args: Prisma.DeviceDailyStatus_BackupCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.DeviceDailyStatus_BackupDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceDailyStatus_BackupPayload>
+          }
+          update: {
+            args: Prisma.DeviceDailyStatus_BackupUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceDailyStatus_BackupPayload>
+          }
+          deleteMany: {
+            args: Prisma.DeviceDailyStatus_BackupDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DeviceDailyStatus_BackupUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DeviceDailyStatus_BackupUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceDailyStatus_BackupPayload>
+          }
+          aggregate: {
+            args: Prisma.DeviceDailyStatus_BackupAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDeviceDailyStatus_Backup>
+          }
+          groupBy: {
+            args: Prisma.DeviceDailyStatus_BackupGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DeviceDailyStatus_BackupGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DeviceDailyStatus_BackupCountArgs<ExtArgs>
+            result: $Utils.Optional<DeviceDailyStatus_BackupCountAggregateOutputType> | number
+          }
+        }
+      }
+      DeviceType: {
+        payload: Prisma.$DeviceTypePayload<ExtArgs>
+        fields: Prisma.DeviceTypeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DeviceTypeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTypePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DeviceTypeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTypePayload>
+          }
+          findFirst: {
+            args: Prisma.DeviceTypeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTypePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DeviceTypeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTypePayload>
+          }
+          findMany: {
+            args: Prisma.DeviceTypeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTypePayload>[]
+          }
+          create: {
+            args: Prisma.DeviceTypeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTypePayload>
+          }
+          createMany: {
+            args: Prisma.DeviceTypeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.DeviceTypeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTypePayload>
+          }
+          update: {
+            args: Prisma.DeviceTypeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTypePayload>
+          }
+          deleteMany: {
+            args: Prisma.DeviceTypeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DeviceTypeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DeviceTypeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTypePayload>
+          }
+          aggregate: {
+            args: Prisma.DeviceTypeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDeviceType>
+          }
+          groupBy: {
+            args: Prisma.DeviceTypeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DeviceTypeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DeviceTypeCountArgs<ExtArgs>
+            result: $Utils.Optional<DeviceTypeCountAggregateOutputType> | number
+          }
+        }
+      }
+      QueryPerformanceLog: {
+        payload: Prisma.$QueryPerformanceLogPayload<ExtArgs>
+        fields: Prisma.QueryPerformanceLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.QueryPerformanceLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QueryPerformanceLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.QueryPerformanceLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QueryPerformanceLogPayload>
+          }
+          findFirst: {
+            args: Prisma.QueryPerformanceLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QueryPerformanceLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.QueryPerformanceLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QueryPerformanceLogPayload>
+          }
+          findMany: {
+            args: Prisma.QueryPerformanceLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QueryPerformanceLogPayload>[]
+          }
+          create: {
+            args: Prisma.QueryPerformanceLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QueryPerformanceLogPayload>
+          }
+          createMany: {
+            args: Prisma.QueryPerformanceLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.QueryPerformanceLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QueryPerformanceLogPayload>
+          }
+          update: {
+            args: Prisma.QueryPerformanceLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QueryPerformanceLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.QueryPerformanceLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.QueryPerformanceLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.QueryPerformanceLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QueryPerformanceLogPayload>
+          }
+          aggregate: {
+            args: Prisma.QueryPerformanceLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateQueryPerformanceLog>
+          }
+          groupBy: {
+            args: Prisma.QueryPerformanceLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<QueryPerformanceLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.QueryPerformanceLogCountArgs<ExtArgs>
+            result: $Utils.Optional<QueryPerformanceLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      TCurrentTermData: {
+        payload: Prisma.$TCurrentTermDataPayload<ExtArgs>
+        fields: Prisma.TCurrentTermDataFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TCurrentTermDataFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TCurrentTermDataPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TCurrentTermDataFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TCurrentTermDataPayload>
+          }
+          findFirst: {
+            args: Prisma.TCurrentTermDataFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TCurrentTermDataPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TCurrentTermDataFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TCurrentTermDataPayload>
+          }
+          findMany: {
+            args: Prisma.TCurrentTermDataFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TCurrentTermDataPayload>[]
+          }
+          create: {
+            args: Prisma.TCurrentTermDataCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TCurrentTermDataPayload>
+          }
+          createMany: {
+            args: Prisma.TCurrentTermDataCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.TCurrentTermDataDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TCurrentTermDataPayload>
+          }
+          update: {
+            args: Prisma.TCurrentTermDataUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TCurrentTermDataPayload>
+          }
+          deleteMany: {
+            args: Prisma.TCurrentTermDataDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TCurrentTermDataUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TCurrentTermDataUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TCurrentTermDataPayload>
+          }
+          aggregate: {
+            args: Prisma.TCurrentTermDataAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTCurrentTermData>
+          }
+          groupBy: {
+            args: Prisma.TCurrentTermDataGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TCurrentTermDataGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TCurrentTermDataCountArgs<ExtArgs>
+            result: $Utils.Optional<TCurrentTermDataCountAggregateOutputType> | number
+          }
+        }
+      }
+      TEmpSignerReport: {
+        payload: Prisma.$TEmpSignerReportPayload<ExtArgs>
+        fields: Prisma.TEmpSignerReportFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TEmpSignerReportFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TEmpSignerReportPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TEmpSignerReportFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TEmpSignerReportPayload>
+          }
+          findFirst: {
+            args: Prisma.TEmpSignerReportFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TEmpSignerReportPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TEmpSignerReportFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TEmpSignerReportPayload>
+          }
+          findMany: {
+            args: Prisma.TEmpSignerReportFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TEmpSignerReportPayload>[]
+          }
+          create: {
+            args: Prisma.TEmpSignerReportCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TEmpSignerReportPayload>
+          }
+          createMany: {
+            args: Prisma.TEmpSignerReportCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.TEmpSignerReportDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TEmpSignerReportPayload>
+          }
+          update: {
+            args: Prisma.TEmpSignerReportUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TEmpSignerReportPayload>
+          }
+          deleteMany: {
+            args: Prisma.TEmpSignerReportDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TEmpSignerReportUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TEmpSignerReportUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TEmpSignerReportPayload>
+          }
+          aggregate: {
+            args: Prisma.TEmpSignerReportAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTEmpSignerReport>
+          }
+          groupBy: {
+            args: Prisma.TEmpSignerReportGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TEmpSignerReportGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TEmpSignerReportCountArgs<ExtArgs>
+            result: $Utils.Optional<TEmpSignerReportCountAggregateOutputType> | number
+          }
+        }
+      }
+      TTeacherStudentType: {
+        payload: Prisma.$TTeacherStudentTypePayload<ExtArgs>
+        fields: Prisma.TTeacherStudentTypeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TTeacherStudentTypeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TTeacherStudentTypePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TTeacherStudentTypeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TTeacherStudentTypePayload>
+          }
+          findFirst: {
+            args: Prisma.TTeacherStudentTypeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TTeacherStudentTypePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TTeacherStudentTypeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TTeacherStudentTypePayload>
+          }
+          findMany: {
+            args: Prisma.TTeacherStudentTypeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TTeacherStudentTypePayload>[]
+          }
+          create: {
+            args: Prisma.TTeacherStudentTypeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TTeacherStudentTypePayload>
+          }
+          createMany: {
+            args: Prisma.TTeacherStudentTypeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.TTeacherStudentTypeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TTeacherStudentTypePayload>
+          }
+          update: {
+            args: Prisma.TTeacherStudentTypeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TTeacherStudentTypePayload>
+          }
+          deleteMany: {
+            args: Prisma.TTeacherStudentTypeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TTeacherStudentTypeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TTeacherStudentTypeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TTeacherStudentTypePayload>
+          }
+          aggregate: {
+            args: Prisma.TTeacherStudentTypeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTTeacherStudentType>
+          }
+          groupBy: {
+            args: Prisma.TTeacherStudentTypeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TTeacherStudentTypeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TTeacherStudentTypeCountArgs<ExtArgs>
+            result: $Utils.Optional<TTeacherStudentTypeCountAggregateOutputType> | number
+          }
+        }
+      }
+      dbo_UserDailyBalance: {
+        payload: Prisma.$dbo_UserDailyBalancePayload<ExtArgs>
+        fields: Prisma.dbo_UserDailyBalanceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.dbo_UserDailyBalanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_UserDailyBalancePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.dbo_UserDailyBalanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_UserDailyBalancePayload>
+          }
+          findFirst: {
+            args: Prisma.dbo_UserDailyBalanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_UserDailyBalancePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.dbo_UserDailyBalanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_UserDailyBalancePayload>
+          }
+          findMany: {
+            args: Prisma.dbo_UserDailyBalanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_UserDailyBalancePayload>[]
+          }
+          create: {
+            args: Prisma.dbo_UserDailyBalanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_UserDailyBalancePayload>
+          }
+          createMany: {
+            args: Prisma.dbo_UserDailyBalanceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.dbo_UserDailyBalanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_UserDailyBalancePayload>
+          }
+          update: {
+            args: Prisma.dbo_UserDailyBalanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_UserDailyBalancePayload>
+          }
+          deleteMany: {
+            args: Prisma.dbo_UserDailyBalanceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.dbo_UserDailyBalanceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.dbo_UserDailyBalanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$dbo_UserDailyBalancePayload>
+          }
+          aggregate: {
+            args: Prisma.Dbo_UserDailyBalanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDbo_UserDailyBalance>
+          }
+          groupBy: {
+            args: Prisma.dbo_UserDailyBalanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Dbo_UserDailyBalanceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.dbo_UserDailyBalanceCountArgs<ExtArgs>
+            result: $Utils.Optional<Dbo_UserDailyBalanceCountAggregateOutputType> | number
           }
         }
       }
@@ -27265,7 +27675,6 @@ export namespace Prisma {
     tLeave_Log?: TLeave_LogOmit
     tLeave_Type?: TLeave_TypeOmit
     tLeaveLetter?: TLeaveLetterOmit
-    tLeaveLetter_History?: TLeaveLetter_HistoryOmit
     tLeaveLetterFiles?: TLeaveLetterFilesOmit
     tLeaveLetterFiles_History?: TLeaveLetterFiles_HistoryOmit
     tLeaveList?: TLeaveListOmit
@@ -27279,7 +27688,6 @@ export namespace Prisma {
     tLogLearnTimeScanNew?: TLogLearnTimeScanNewOmit
     tLogUserTimeScan?: TLogUserTimeScanOmit
     tLogUserTimeScan_History?: TLogUserTimeScan_HistoryOmit
-    tLogUserTimeScan_Old_Bkup?: TLogUserTimeScan_Old_BkupOmit
     tLogUserTimeScanNew?: TLogUserTimeScanNewOmit
     tMasterData?: TMasterDataOmit
     tMasterType?: TMasterTypeOmit
@@ -27365,7 +27773,6 @@ export namespace Prisma {
     tStockDetailTemp?: TStockDetailTempOmit
     tStockImprove?: TStockImproveOmit
     tStockLog?: TStockLogOmit
-    tStockLog_Old?: TStockLog_OldOmit
     tStudentCardInfo?: TStudentCardInfoOmit
     tStudentClassroomHistory?: TStudentClassroomHistoryOmit
     tStudentHealthGrowth?: TStudentHealthGrowthOmit
@@ -27410,12 +27817,20 @@ export namespace Prisma {
     updateTempCard?: UpdateTempCardOmit
     updateTempCardMoney?: UpdateTempCardMoneyOmit
     userAPIResponse?: UserAPIResponseOmit
-    userDailyBalance_Backup?: UserDailyBalance_BackupOmit
     userDailyBalance_Searlize?: UserDailyBalance_SearlizeOmit
-    userDailyBalanceTemp?: UserDailyBalanceTempOmit
     userDailyBalanceTempCard?: UserDailyBalanceTempCardOmit
     userDailySales?: UserDailySalesOmit
     userUsedLimit?: UserUsedLimitOmit
+    dbo_DeviceActivityLog?: dbo_DeviceActivityLogOmit
+    deviceActivityLog_Backup?: DeviceActivityLog_BackupOmit
+    deviceActivityLog_History?: DeviceActivityLog_HistoryOmit
+    deviceDailyStatus_Backup?: DeviceDailyStatus_BackupOmit
+    deviceType?: DeviceTypeOmit
+    queryPerformanceLog?: QueryPerformanceLogOmit
+    tCurrentTermData?: TCurrentTermDataOmit
+    tEmpSignerReport?: TEmpSignerReportOmit
+    tTeacherStudentType?: TTeacherStudentTypeOmit
+    dbo_UserDailyBalance?: dbo_UserDailyBalanceOmit
   }
 
   /* Types for Logging */
@@ -51524,10 +51939,14 @@ export namespace Prisma {
 
   export type DeviceDailyStatusAvgAggregateOutputType = {
     SchoolID: number | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
   }
 
   export type DeviceDailyStatusSumAggregateOutputType = {
     SchoolID: number | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
   }
 
   export type DeviceDailyStatusMinAggregateOutputType = {
@@ -51542,6 +51961,11 @@ export namespace Prisma {
     LogoutTime: Date | null
     Tstamp: Date | null
     BusinessDate: Date | null
+    AppVersion: string | null
+    AppName: string | null
+    Note: string | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
   }
 
   export type DeviceDailyStatusMaxAggregateOutputType = {
@@ -51556,6 +51980,11 @@ export namespace Prisma {
     LogoutTime: Date | null
     Tstamp: Date | null
     BusinessDate: Date | null
+    AppVersion: string | null
+    AppName: string | null
+    Note: string | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
   }
 
   export type DeviceDailyStatusCountAggregateOutputType = {
@@ -51570,16 +51999,25 @@ export namespace Prisma {
     LogoutTime: number
     Tstamp: number
     BusinessDate: number
+    AppVersion: number
+    AppName: number
+    Note: number
+    UserLoginID: number
+    DeviceTypeID: number
     _all: number
   }
 
 
   export type DeviceDailyStatusAvgAggregateInputType = {
     SchoolID?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
   }
 
   export type DeviceDailyStatusSumAggregateInputType = {
     SchoolID?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
   }
 
   export type DeviceDailyStatusMinAggregateInputType = {
@@ -51594,6 +52032,11 @@ export namespace Prisma {
     LogoutTime?: true
     Tstamp?: true
     BusinessDate?: true
+    AppVersion?: true
+    AppName?: true
+    Note?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
   }
 
   export type DeviceDailyStatusMaxAggregateInputType = {
@@ -51608,6 +52051,11 @@ export namespace Prisma {
     LogoutTime?: true
     Tstamp?: true
     BusinessDate?: true
+    AppVersion?: true
+    AppName?: true
+    Note?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
   }
 
   export type DeviceDailyStatusCountAggregateInputType = {
@@ -51622,6 +52070,11 @@ export namespace Prisma {
     LogoutTime?: true
     Tstamp?: true
     BusinessDate?: true
+    AppVersion?: true
+    AppName?: true
+    Note?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
     _all?: true
   }
 
@@ -51723,6 +52176,11 @@ export namespace Prisma {
     LogoutTime: Date | null
     Tstamp: Date
     BusinessDate: Date
+    AppVersion: string | null
+    AppName: string | null
+    Note: string | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
     _count: DeviceDailyStatusCountAggregateOutputType | null
     _avg: DeviceDailyStatusAvgAggregateOutputType | null
     _sum: DeviceDailyStatusSumAggregateOutputType | null
@@ -51756,6 +52214,11 @@ export namespace Prisma {
     LogoutTime?: boolean
     Tstamp?: boolean
     BusinessDate?: boolean
+    AppVersion?: boolean
+    AppName?: boolean
+    Note?: boolean
+    UserLoginID?: boolean
+    DeviceTypeID?: boolean
   }, ExtArgs["result"]["deviceDailyStatus"]>
 
 
@@ -51772,9 +52235,14 @@ export namespace Prisma {
     LogoutTime?: boolean
     Tstamp?: boolean
     BusinessDate?: boolean
+    AppVersion?: boolean
+    AppName?: boolean
+    Note?: boolean
+    UserLoginID?: boolean
+    DeviceTypeID?: boolean
   }
 
-  export type DeviceDailyStatusOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"DeviceStatusID" | "SchoolID" | "DeviceID" | "Online" | "OnlineTime" | "Login" | "LoginTime" | "LogOut" | "LogoutTime" | "Tstamp" | "BusinessDate", ExtArgs["result"]["deviceDailyStatus"]>
+  export type DeviceDailyStatusOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"DeviceStatusID" | "SchoolID" | "DeviceID" | "Online" | "OnlineTime" | "Login" | "LoginTime" | "LogOut" | "LogoutTime" | "Tstamp" | "BusinessDate" | "AppVersion" | "AppName" | "Note" | "UserLoginID" | "DeviceTypeID", ExtArgs["result"]["deviceDailyStatus"]>
 
   export type $DeviceDailyStatusPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "DeviceDailyStatus"
@@ -51791,6 +52259,11 @@ export namespace Prisma {
       LogoutTime: Date | null
       Tstamp: Date
       BusinessDate: Date
+      AppVersion: string | null
+      AppName: string | null
+      Note: string | null
+      UserLoginID: number | null
+      DeviceTypeID: number | null
     }, ExtArgs["result"]["deviceDailyStatus"]>
     composites: {}
   }
@@ -52171,6 +52644,11 @@ export namespace Prisma {
     readonly LogoutTime: FieldRef<"DeviceDailyStatus", 'DateTime'>
     readonly Tstamp: FieldRef<"DeviceDailyStatus", 'DateTime'>
     readonly BusinessDate: FieldRef<"DeviceDailyStatus", 'DateTime'>
+    readonly AppVersion: FieldRef<"DeviceDailyStatus", 'String'>
+    readonly AppName: FieldRef<"DeviceDailyStatus", 'String'>
+    readonly Note: FieldRef<"DeviceDailyStatus", 'String'>
+    readonly UserLoginID: FieldRef<"DeviceDailyStatus", 'Int'>
+    readonly DeviceTypeID: FieldRef<"DeviceDailyStatus", 'Int'>
   }
     
 
@@ -150431,6 +150909,7 @@ export namespace Prisma {
   export type TEmpSignerAvgAggregateOutputType = {
     SignerID: number | null
     SchoolID: number | null
+    YearID: number | null
     DefaultID: number | null
     EmpID: number | null
     CreateBy: number | null
@@ -150440,6 +150919,7 @@ export namespace Prisma {
   export type TEmpSignerSumAggregateOutputType = {
     SignerID: number | null
     SchoolID: number | null
+    YearID: number | null
     DefaultID: number | null
     EmpID: number | null
     CreateBy: number | null
@@ -150449,8 +150929,10 @@ export namespace Prisma {
   export type TEmpSignerMinAggregateOutputType = {
     SignerID: number | null
     SchoolID: number | null
+    YearID: number | null
     TermID: string | null
     Position: string | null
+    PositionEN: string | null
     DefaultID: number | null
     EmpID: number | null
     Signer: string | null
@@ -150466,8 +150948,10 @@ export namespace Prisma {
   export type TEmpSignerMaxAggregateOutputType = {
     SignerID: number | null
     SchoolID: number | null
+    YearID: number | null
     TermID: string | null
     Position: string | null
+    PositionEN: string | null
     DefaultID: number | null
     EmpID: number | null
     Signer: string | null
@@ -150483,8 +150967,10 @@ export namespace Prisma {
   export type TEmpSignerCountAggregateOutputType = {
     SignerID: number
     SchoolID: number
+    YearID: number
     TermID: number
     Position: number
+    PositionEN: number
     DefaultID: number
     EmpID: number
     Signer: number
@@ -150502,6 +150988,7 @@ export namespace Prisma {
   export type TEmpSignerAvgAggregateInputType = {
     SignerID?: true
     SchoolID?: true
+    YearID?: true
     DefaultID?: true
     EmpID?: true
     CreateBy?: true
@@ -150511,6 +150998,7 @@ export namespace Prisma {
   export type TEmpSignerSumAggregateInputType = {
     SignerID?: true
     SchoolID?: true
+    YearID?: true
     DefaultID?: true
     EmpID?: true
     CreateBy?: true
@@ -150520,8 +151008,10 @@ export namespace Prisma {
   export type TEmpSignerMinAggregateInputType = {
     SignerID?: true
     SchoolID?: true
+    YearID?: true
     TermID?: true
     Position?: true
+    PositionEN?: true
     DefaultID?: true
     EmpID?: true
     Signer?: true
@@ -150537,8 +151027,10 @@ export namespace Prisma {
   export type TEmpSignerMaxAggregateInputType = {
     SignerID?: true
     SchoolID?: true
+    YearID?: true
     TermID?: true
     Position?: true
+    PositionEN?: true
     DefaultID?: true
     EmpID?: true
     Signer?: true
@@ -150554,8 +151046,10 @@ export namespace Prisma {
   export type TEmpSignerCountAggregateInputType = {
     SignerID?: true
     SchoolID?: true
+    YearID?: true
     TermID?: true
     Position?: true
+    PositionEN?: true
     DefaultID?: true
     EmpID?: true
     Signer?: true
@@ -150658,8 +151152,10 @@ export namespace Prisma {
   export type TEmpSignerGroupByOutputType = {
     SignerID: number
     SchoolID: number
+    YearID: number | null
     TermID: string | null
     Position: string | null
+    PositionEN: string | null
     DefaultID: number | null
     EmpID: number | null
     Signer: string | null
@@ -150694,8 +151190,10 @@ export namespace Prisma {
   export type TEmpSignerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     SignerID?: boolean
     SchoolID?: boolean
+    YearID?: boolean
     TermID?: boolean
     Position?: boolean
+    PositionEN?: boolean
     DefaultID?: boolean
     EmpID?: boolean
     Signer?: boolean
@@ -150713,8 +151211,10 @@ export namespace Prisma {
   export type TEmpSignerSelectScalar = {
     SignerID?: boolean
     SchoolID?: boolean
+    YearID?: boolean
     TermID?: boolean
     Position?: boolean
+    PositionEN?: boolean
     DefaultID?: boolean
     EmpID?: boolean
     Signer?: boolean
@@ -150727,7 +151227,7 @@ export namespace Prisma {
     ModifyBy?: boolean
   }
 
-  export type TEmpSignerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"SignerID" | "SchoolID" | "TermID" | "Position" | "DefaultID" | "EmpID" | "Signer" | "IsDefault" | "IsDel" | "IsActive" | "Created" | "Modified" | "CreateBy" | "ModifyBy", ExtArgs["result"]["tEmpSigner"]>
+  export type TEmpSignerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"SignerID" | "SchoolID" | "YearID" | "TermID" | "Position" | "PositionEN" | "DefaultID" | "EmpID" | "Signer" | "IsDefault" | "IsDel" | "IsActive" | "Created" | "Modified" | "CreateBy" | "ModifyBy", ExtArgs["result"]["tEmpSigner"]>
 
   export type $TEmpSignerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TEmpSigner"
@@ -150735,8 +151235,10 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       SignerID: number
       SchoolID: number
+      YearID: number | null
       TermID: string | null
       Position: string | null
+      PositionEN: string | null
       DefaultID: number | null
       EmpID: number | null
       Signer: string | null
@@ -151118,8 +151620,10 @@ export namespace Prisma {
   interface TEmpSignerFieldRefs {
     readonly SignerID: FieldRef<"TEmpSigner", 'Int'>
     readonly SchoolID: FieldRef<"TEmpSigner", 'Int'>
+    readonly YearID: FieldRef<"TEmpSigner", 'Int'>
     readonly TermID: FieldRef<"TEmpSigner", 'String'>
     readonly Position: FieldRef<"TEmpSigner", 'String'>
+    readonly PositionEN: FieldRef<"TEmpSigner", 'String'>
     readonly DefaultID: FieldRef<"TEmpSigner", 'Int'>
     readonly EmpID: FieldRef<"TEmpSigner", 'Int'>
     readonly Signer: FieldRef<"TEmpSigner", 'String'>
@@ -209198,1402 +209702,6 @@ export namespace Prisma {
 
 
   /**
-   * Model TLeaveLetter_History
-   */
-
-  export type AggregateTLeaveLetter_History = {
-    _count: TLeaveLetter_HistoryCountAggregateOutputType | null
-    _avg: TLeaveLetter_HistoryAvgAggregateOutputType | null
-    _sum: TLeaveLetter_HistorySumAggregateOutputType | null
-    _min: TLeaveLetter_HistoryMinAggregateOutputType | null
-    _max: TLeaveLetter_HistoryMaxAggregateOutputType | null
-  }
-
-  export type TLeaveLetter_HistoryAvgAggregateOutputType = {
-    letterId: number | null
-    letterSchoolId: number | null
-    writerId: number | null
-    adminOneId: number | null
-    adminTwoId: number | null
-    adminThreeId: number | null
-    Season: number | null
-    rejectOneId: number | null
-    rejectTwoId: number | null
-    rejectThreeId: number | null
-    deleted: number | null
-    SchoolID: number | null
-    CreatedBy: number | null
-    UpdatedBy: number | null
-  }
-
-  export type TLeaveLetter_HistorySumAggregateOutputType = {
-    letterId: number | null
-    letterSchoolId: number | null
-    writerId: number | null
-    adminOneId: number | null
-    adminTwoId: number | null
-    adminThreeId: number | null
-    Season: number | null
-    rejectOneId: number | null
-    rejectTwoId: number | null
-    rejectThreeId: number | null
-    deleted: number | null
-    SchoolID: number | null
-    CreatedBy: number | null
-    UpdatedBy: number | null
-  }
-
-  export type TLeaveLetter_HistoryMinAggregateOutputType = {
-    letterId: number | null
-    letterSchoolId: number | null
-    letterHeader: string | null
-    letterDate: Date | null
-    letterType: string | null
-    writerId: number | null
-    writerJob: string | null
-    writerComment: string | null
-    startDate: Date | null
-    endDate: Date | null
-    contactHomenumber: string | null
-    contactRoad: string | null
-    contactTumbon: string | null
-    contactAumpher: string | null
-    contactProvince: string | null
-    contactPhone: string | null
-    adminOneJob: string | null
-    adminOneComment: string | null
-    adminOneId: number | null
-    adminOneDate: Date | null
-    adminTwoJob: string | null
-    adminTwoId: number | null
-    adminTwoComment: string | null
-    adminTwoDate: Date | null
-    adminThreeJob: string | null
-    adminThreeComment: string | null
-    adminThreeId: number | null
-    adminThreeDate: Date | null
-    adminOneComfirm: string | null
-    adminTwoComfirm: string | null
-    adminThreeComfirm: string | null
-    LetterConfirmdate: Date | null
-    Season: number | null
-    rejectOneId: number | null
-    rejectTwoId: number | null
-    rejectThreeId: number | null
-    deleted: number | null
-    letterStatus: string | null
-    SchoolID: number | null
-    CreatedBy: number | null
-    UpdatedBy: number | null
-    CreatedDate: Date | null
-    UpdatedDate: Date | null
-    cDel: boolean | null
-  }
-
-  export type TLeaveLetter_HistoryMaxAggregateOutputType = {
-    letterId: number | null
-    letterSchoolId: number | null
-    letterHeader: string | null
-    letterDate: Date | null
-    letterType: string | null
-    writerId: number | null
-    writerJob: string | null
-    writerComment: string | null
-    startDate: Date | null
-    endDate: Date | null
-    contactHomenumber: string | null
-    contactRoad: string | null
-    contactTumbon: string | null
-    contactAumpher: string | null
-    contactProvince: string | null
-    contactPhone: string | null
-    adminOneJob: string | null
-    adminOneComment: string | null
-    adminOneId: number | null
-    adminOneDate: Date | null
-    adminTwoJob: string | null
-    adminTwoId: number | null
-    adminTwoComment: string | null
-    adminTwoDate: Date | null
-    adminThreeJob: string | null
-    adminThreeComment: string | null
-    adminThreeId: number | null
-    adminThreeDate: Date | null
-    adminOneComfirm: string | null
-    adminTwoComfirm: string | null
-    adminThreeComfirm: string | null
-    LetterConfirmdate: Date | null
-    Season: number | null
-    rejectOneId: number | null
-    rejectTwoId: number | null
-    rejectThreeId: number | null
-    deleted: number | null
-    letterStatus: string | null
-    SchoolID: number | null
-    CreatedBy: number | null
-    UpdatedBy: number | null
-    CreatedDate: Date | null
-    UpdatedDate: Date | null
-    cDel: boolean | null
-  }
-
-  export type TLeaveLetter_HistoryCountAggregateOutputType = {
-    letterId: number
-    letterSchoolId: number
-    letterHeader: number
-    letterDate: number
-    letterType: number
-    writerId: number
-    writerJob: number
-    writerComment: number
-    startDate: number
-    endDate: number
-    contactHomenumber: number
-    contactRoad: number
-    contactTumbon: number
-    contactAumpher: number
-    contactProvince: number
-    contactPhone: number
-    adminOneJob: number
-    adminOneComment: number
-    adminOneId: number
-    adminOneDate: number
-    adminTwoJob: number
-    adminTwoId: number
-    adminTwoComment: number
-    adminTwoDate: number
-    adminThreeJob: number
-    adminThreeComment: number
-    adminThreeId: number
-    adminThreeDate: number
-    adminOneComfirm: number
-    adminTwoComfirm: number
-    adminThreeComfirm: number
-    LetterConfirmdate: number
-    Season: number
-    rejectOneId: number
-    rejectTwoId: number
-    rejectThreeId: number
-    deleted: number
-    letterStatus: number
-    SchoolID: number
-    CreatedBy: number
-    UpdatedBy: number
-    CreatedDate: number
-    UpdatedDate: number
-    cDel: number
-    _all: number
-  }
-
-
-  export type TLeaveLetter_HistoryAvgAggregateInputType = {
-    letterId?: true
-    letterSchoolId?: true
-    writerId?: true
-    adminOneId?: true
-    adminTwoId?: true
-    adminThreeId?: true
-    Season?: true
-    rejectOneId?: true
-    rejectTwoId?: true
-    rejectThreeId?: true
-    deleted?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-  }
-
-  export type TLeaveLetter_HistorySumAggregateInputType = {
-    letterId?: true
-    letterSchoolId?: true
-    writerId?: true
-    adminOneId?: true
-    adminTwoId?: true
-    adminThreeId?: true
-    Season?: true
-    rejectOneId?: true
-    rejectTwoId?: true
-    rejectThreeId?: true
-    deleted?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-  }
-
-  export type TLeaveLetter_HistoryMinAggregateInputType = {
-    letterId?: true
-    letterSchoolId?: true
-    letterHeader?: true
-    letterDate?: true
-    letterType?: true
-    writerId?: true
-    writerJob?: true
-    writerComment?: true
-    startDate?: true
-    endDate?: true
-    contactHomenumber?: true
-    contactRoad?: true
-    contactTumbon?: true
-    contactAumpher?: true
-    contactProvince?: true
-    contactPhone?: true
-    adminOneJob?: true
-    adminOneComment?: true
-    adminOneId?: true
-    adminOneDate?: true
-    adminTwoJob?: true
-    adminTwoId?: true
-    adminTwoComment?: true
-    adminTwoDate?: true
-    adminThreeJob?: true
-    adminThreeComment?: true
-    adminThreeId?: true
-    adminThreeDate?: true
-    adminOneComfirm?: true
-    adminTwoComfirm?: true
-    adminThreeComfirm?: true
-    LetterConfirmdate?: true
-    Season?: true
-    rejectOneId?: true
-    rejectTwoId?: true
-    rejectThreeId?: true
-    deleted?: true
-    letterStatus?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-    CreatedDate?: true
-    UpdatedDate?: true
-    cDel?: true
-  }
-
-  export type TLeaveLetter_HistoryMaxAggregateInputType = {
-    letterId?: true
-    letterSchoolId?: true
-    letterHeader?: true
-    letterDate?: true
-    letterType?: true
-    writerId?: true
-    writerJob?: true
-    writerComment?: true
-    startDate?: true
-    endDate?: true
-    contactHomenumber?: true
-    contactRoad?: true
-    contactTumbon?: true
-    contactAumpher?: true
-    contactProvince?: true
-    contactPhone?: true
-    adminOneJob?: true
-    adminOneComment?: true
-    adminOneId?: true
-    adminOneDate?: true
-    adminTwoJob?: true
-    adminTwoId?: true
-    adminTwoComment?: true
-    adminTwoDate?: true
-    adminThreeJob?: true
-    adminThreeComment?: true
-    adminThreeId?: true
-    adminThreeDate?: true
-    adminOneComfirm?: true
-    adminTwoComfirm?: true
-    adminThreeComfirm?: true
-    LetterConfirmdate?: true
-    Season?: true
-    rejectOneId?: true
-    rejectTwoId?: true
-    rejectThreeId?: true
-    deleted?: true
-    letterStatus?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-    CreatedDate?: true
-    UpdatedDate?: true
-    cDel?: true
-  }
-
-  export type TLeaveLetter_HistoryCountAggregateInputType = {
-    letterId?: true
-    letterSchoolId?: true
-    letterHeader?: true
-    letterDate?: true
-    letterType?: true
-    writerId?: true
-    writerJob?: true
-    writerComment?: true
-    startDate?: true
-    endDate?: true
-    contactHomenumber?: true
-    contactRoad?: true
-    contactTumbon?: true
-    contactAumpher?: true
-    contactProvince?: true
-    contactPhone?: true
-    adminOneJob?: true
-    adminOneComment?: true
-    adminOneId?: true
-    adminOneDate?: true
-    adminTwoJob?: true
-    adminTwoId?: true
-    adminTwoComment?: true
-    adminTwoDate?: true
-    adminThreeJob?: true
-    adminThreeComment?: true
-    adminThreeId?: true
-    adminThreeDate?: true
-    adminOneComfirm?: true
-    adminTwoComfirm?: true
-    adminThreeComfirm?: true
-    LetterConfirmdate?: true
-    Season?: true
-    rejectOneId?: true
-    rejectTwoId?: true
-    rejectThreeId?: true
-    deleted?: true
-    letterStatus?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-    CreatedDate?: true
-    UpdatedDate?: true
-    cDel?: true
-    _all?: true
-  }
-
-  export type TLeaveLetter_HistoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TLeaveLetter_History to aggregate.
-     */
-    where?: TLeaveLetter_HistoryWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TLeaveLetter_Histories to fetch.
-     */
-    orderBy?: TLeaveLetter_HistoryOrderByWithRelationInput | TLeaveLetter_HistoryOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: TLeaveLetter_HistoryWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TLeaveLetter_Histories from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TLeaveLetter_Histories.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned TLeaveLetter_Histories
-    **/
-    _count?: true | TLeaveLetter_HistoryCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: TLeaveLetter_HistoryAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: TLeaveLetter_HistorySumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: TLeaveLetter_HistoryMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: TLeaveLetter_HistoryMaxAggregateInputType
-  }
-
-  export type GetTLeaveLetter_HistoryAggregateType<T extends TLeaveLetter_HistoryAggregateArgs> = {
-        [P in keyof T & keyof AggregateTLeaveLetter_History]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateTLeaveLetter_History[P]>
-      : GetScalarType<T[P], AggregateTLeaveLetter_History[P]>
-  }
-
-
-
-
-  export type TLeaveLetter_HistoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TLeaveLetter_HistoryWhereInput
-    orderBy?: TLeaveLetter_HistoryOrderByWithAggregationInput | TLeaveLetter_HistoryOrderByWithAggregationInput[]
-    by: TLeaveLetter_HistoryScalarFieldEnum[] | TLeaveLetter_HistoryScalarFieldEnum
-    having?: TLeaveLetter_HistoryScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: TLeaveLetter_HistoryCountAggregateInputType | true
-    _avg?: TLeaveLetter_HistoryAvgAggregateInputType
-    _sum?: TLeaveLetter_HistorySumAggregateInputType
-    _min?: TLeaveLetter_HistoryMinAggregateInputType
-    _max?: TLeaveLetter_HistoryMaxAggregateInputType
-  }
-
-  export type TLeaveLetter_HistoryGroupByOutputType = {
-    letterId: number
-    letterSchoolId: number | null
-    letterHeader: string | null
-    letterDate: Date | null
-    letterType: string | null
-    writerId: number | null
-    writerJob: string | null
-    writerComment: string | null
-    startDate: Date | null
-    endDate: Date | null
-    contactHomenumber: string | null
-    contactRoad: string | null
-    contactTumbon: string | null
-    contactAumpher: string | null
-    contactProvince: string | null
-    contactPhone: string | null
-    adminOneJob: string | null
-    adminOneComment: string | null
-    adminOneId: number | null
-    adminOneDate: Date | null
-    adminTwoJob: string | null
-    adminTwoId: number | null
-    adminTwoComment: string | null
-    adminTwoDate: Date | null
-    adminThreeJob: string | null
-    adminThreeComment: string | null
-    adminThreeId: number | null
-    adminThreeDate: Date | null
-    adminOneComfirm: string | null
-    adminTwoComfirm: string | null
-    adminThreeComfirm: string | null
-    LetterConfirmdate: Date | null
-    Season: number | null
-    rejectOneId: number | null
-    rejectTwoId: number | null
-    rejectThreeId: number | null
-    deleted: number | null
-    letterStatus: string | null
-    SchoolID: number
-    CreatedBy: number | null
-    UpdatedBy: number | null
-    CreatedDate: Date | null
-    UpdatedDate: Date | null
-    cDel: boolean
-    _count: TLeaveLetter_HistoryCountAggregateOutputType | null
-    _avg: TLeaveLetter_HistoryAvgAggregateOutputType | null
-    _sum: TLeaveLetter_HistorySumAggregateOutputType | null
-    _min: TLeaveLetter_HistoryMinAggregateOutputType | null
-    _max: TLeaveLetter_HistoryMaxAggregateOutputType | null
-  }
-
-  type GetTLeaveLetter_HistoryGroupByPayload<T extends TLeaveLetter_HistoryGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<TLeaveLetter_HistoryGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof TLeaveLetter_HistoryGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], TLeaveLetter_HistoryGroupByOutputType[P]>
-            : GetScalarType<T[P], TLeaveLetter_HistoryGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type TLeaveLetter_HistorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    letterId?: boolean
-    letterSchoolId?: boolean
-    letterHeader?: boolean
-    letterDate?: boolean
-    letterType?: boolean
-    writerId?: boolean
-    writerJob?: boolean
-    writerComment?: boolean
-    startDate?: boolean
-    endDate?: boolean
-    contactHomenumber?: boolean
-    contactRoad?: boolean
-    contactTumbon?: boolean
-    contactAumpher?: boolean
-    contactProvince?: boolean
-    contactPhone?: boolean
-    adminOneJob?: boolean
-    adminOneComment?: boolean
-    adminOneId?: boolean
-    adminOneDate?: boolean
-    adminTwoJob?: boolean
-    adminTwoId?: boolean
-    adminTwoComment?: boolean
-    adminTwoDate?: boolean
-    adminThreeJob?: boolean
-    adminThreeComment?: boolean
-    adminThreeId?: boolean
-    adminThreeDate?: boolean
-    adminOneComfirm?: boolean
-    adminTwoComfirm?: boolean
-    adminThreeComfirm?: boolean
-    LetterConfirmdate?: boolean
-    Season?: boolean
-    rejectOneId?: boolean
-    rejectTwoId?: boolean
-    rejectThreeId?: boolean
-    deleted?: boolean
-    letterStatus?: boolean
-    SchoolID?: boolean
-    CreatedBy?: boolean
-    UpdatedBy?: boolean
-    CreatedDate?: boolean
-    UpdatedDate?: boolean
-    cDel?: boolean
-  }, ExtArgs["result"]["tLeaveLetter_History"]>
-
-
-
-  export type TLeaveLetter_HistorySelectScalar = {
-    letterId?: boolean
-    letterSchoolId?: boolean
-    letterHeader?: boolean
-    letterDate?: boolean
-    letterType?: boolean
-    writerId?: boolean
-    writerJob?: boolean
-    writerComment?: boolean
-    startDate?: boolean
-    endDate?: boolean
-    contactHomenumber?: boolean
-    contactRoad?: boolean
-    contactTumbon?: boolean
-    contactAumpher?: boolean
-    contactProvince?: boolean
-    contactPhone?: boolean
-    adminOneJob?: boolean
-    adminOneComment?: boolean
-    adminOneId?: boolean
-    adminOneDate?: boolean
-    adminTwoJob?: boolean
-    adminTwoId?: boolean
-    adminTwoComment?: boolean
-    adminTwoDate?: boolean
-    adminThreeJob?: boolean
-    adminThreeComment?: boolean
-    adminThreeId?: boolean
-    adminThreeDate?: boolean
-    adminOneComfirm?: boolean
-    adminTwoComfirm?: boolean
-    adminThreeComfirm?: boolean
-    LetterConfirmdate?: boolean
-    Season?: boolean
-    rejectOneId?: boolean
-    rejectTwoId?: boolean
-    rejectThreeId?: boolean
-    deleted?: boolean
-    letterStatus?: boolean
-    SchoolID?: boolean
-    CreatedBy?: boolean
-    UpdatedBy?: boolean
-    CreatedDate?: boolean
-    UpdatedDate?: boolean
-    cDel?: boolean
-  }
-
-  export type TLeaveLetter_HistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"letterId" | "letterSchoolId" | "letterHeader" | "letterDate" | "letterType" | "writerId" | "writerJob" | "writerComment" | "startDate" | "endDate" | "contactHomenumber" | "contactRoad" | "contactTumbon" | "contactAumpher" | "contactProvince" | "contactPhone" | "adminOneJob" | "adminOneComment" | "adminOneId" | "adminOneDate" | "adminTwoJob" | "adminTwoId" | "adminTwoComment" | "adminTwoDate" | "adminThreeJob" | "adminThreeComment" | "adminThreeId" | "adminThreeDate" | "adminOneComfirm" | "adminTwoComfirm" | "adminThreeComfirm" | "LetterConfirmdate" | "Season" | "rejectOneId" | "rejectTwoId" | "rejectThreeId" | "deleted" | "letterStatus" | "SchoolID" | "CreatedBy" | "UpdatedBy" | "CreatedDate" | "UpdatedDate" | "cDel", ExtArgs["result"]["tLeaveLetter_History"]>
-
-  export type $TLeaveLetter_HistoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TLeaveLetter_History"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      letterId: number
-      letterSchoolId: number | null
-      letterHeader: string | null
-      letterDate: Date | null
-      letterType: string | null
-      writerId: number | null
-      writerJob: string | null
-      writerComment: string | null
-      startDate: Date | null
-      endDate: Date | null
-      contactHomenumber: string | null
-      contactRoad: string | null
-      contactTumbon: string | null
-      contactAumpher: string | null
-      contactProvince: string | null
-      contactPhone: string | null
-      adminOneJob: string | null
-      adminOneComment: string | null
-      adminOneId: number | null
-      adminOneDate: Date | null
-      adminTwoJob: string | null
-      adminTwoId: number | null
-      adminTwoComment: string | null
-      adminTwoDate: Date | null
-      adminThreeJob: string | null
-      adminThreeComment: string | null
-      adminThreeId: number | null
-      adminThreeDate: Date | null
-      adminOneComfirm: string | null
-      adminTwoComfirm: string | null
-      adminThreeComfirm: string | null
-      LetterConfirmdate: Date | null
-      Season: number | null
-      rejectOneId: number | null
-      rejectTwoId: number | null
-      rejectThreeId: number | null
-      deleted: number | null
-      letterStatus: string | null
-      SchoolID: number
-      CreatedBy: number | null
-      UpdatedBy: number | null
-      CreatedDate: Date | null
-      UpdatedDate: Date | null
-      cDel: boolean
-    }, ExtArgs["result"]["tLeaveLetter_History"]>
-    composites: {}
-  }
-
-  type TLeaveLetter_HistoryGetPayload<S extends boolean | null | undefined | TLeaveLetter_HistoryDefaultArgs> = $Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload, S>
-
-  type TLeaveLetter_HistoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TLeaveLetter_HistoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: TLeaveLetter_HistoryCountAggregateInputType | true
-    }
-
-  export interface TLeaveLetter_HistoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TLeaveLetter_History'], meta: { name: 'TLeaveLetter_History' } }
-    /**
-     * Find zero or one TLeaveLetter_History that matches the filter.
-     * @param {TLeaveLetter_HistoryFindUniqueArgs} args - Arguments to find a TLeaveLetter_History
-     * @example
-     * // Get one TLeaveLetter_History
-     * const tLeaveLetter_History = await prisma.tLeaveLetter_History.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends TLeaveLetter_HistoryFindUniqueArgs>(args: SelectSubset<T, TLeaveLetter_HistoryFindUniqueArgs<ExtArgs>>): Prisma__TLeaveLetter_HistoryClient<$Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one TLeaveLetter_History that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {TLeaveLetter_HistoryFindUniqueOrThrowArgs} args - Arguments to find a TLeaveLetter_History
-     * @example
-     * // Get one TLeaveLetter_History
-     * const tLeaveLetter_History = await prisma.tLeaveLetter_History.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends TLeaveLetter_HistoryFindUniqueOrThrowArgs>(args: SelectSubset<T, TLeaveLetter_HistoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TLeaveLetter_HistoryClient<$Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TLeaveLetter_History that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLeaveLetter_HistoryFindFirstArgs} args - Arguments to find a TLeaveLetter_History
-     * @example
-     * // Get one TLeaveLetter_History
-     * const tLeaveLetter_History = await prisma.tLeaveLetter_History.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends TLeaveLetter_HistoryFindFirstArgs>(args?: SelectSubset<T, TLeaveLetter_HistoryFindFirstArgs<ExtArgs>>): Prisma__TLeaveLetter_HistoryClient<$Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TLeaveLetter_History that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLeaveLetter_HistoryFindFirstOrThrowArgs} args - Arguments to find a TLeaveLetter_History
-     * @example
-     * // Get one TLeaveLetter_History
-     * const tLeaveLetter_History = await prisma.tLeaveLetter_History.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends TLeaveLetter_HistoryFindFirstOrThrowArgs>(args?: SelectSubset<T, TLeaveLetter_HistoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__TLeaveLetter_HistoryClient<$Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more TLeaveLetter_Histories that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLeaveLetter_HistoryFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all TLeaveLetter_Histories
-     * const tLeaveLetter_Histories = await prisma.tLeaveLetter_History.findMany()
-     * 
-     * // Get first 10 TLeaveLetter_Histories
-     * const tLeaveLetter_Histories = await prisma.tLeaveLetter_History.findMany({ take: 10 })
-     * 
-     * // Only select the `letterId`
-     * const tLeaveLetter_HistoryWithLetterIdOnly = await prisma.tLeaveLetter_History.findMany({ select: { letterId: true } })
-     * 
-     */
-    findMany<T extends TLeaveLetter_HistoryFindManyArgs>(args?: SelectSubset<T, TLeaveLetter_HistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a TLeaveLetter_History.
-     * @param {TLeaveLetter_HistoryCreateArgs} args - Arguments to create a TLeaveLetter_History.
-     * @example
-     * // Create one TLeaveLetter_History
-     * const TLeaveLetter_History = await prisma.tLeaveLetter_History.create({
-     *   data: {
-     *     // ... data to create a TLeaveLetter_History
-     *   }
-     * })
-     * 
-     */
-    create<T extends TLeaveLetter_HistoryCreateArgs>(args: SelectSubset<T, TLeaveLetter_HistoryCreateArgs<ExtArgs>>): Prisma__TLeaveLetter_HistoryClient<$Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many TLeaveLetter_Histories.
-     * @param {TLeaveLetter_HistoryCreateManyArgs} args - Arguments to create many TLeaveLetter_Histories.
-     * @example
-     * // Create many TLeaveLetter_Histories
-     * const tLeaveLetter_History = await prisma.tLeaveLetter_History.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends TLeaveLetter_HistoryCreateManyArgs>(args?: SelectSubset<T, TLeaveLetter_HistoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a TLeaveLetter_History.
-     * @param {TLeaveLetter_HistoryDeleteArgs} args - Arguments to delete one TLeaveLetter_History.
-     * @example
-     * // Delete one TLeaveLetter_History
-     * const TLeaveLetter_History = await prisma.tLeaveLetter_History.delete({
-     *   where: {
-     *     // ... filter to delete one TLeaveLetter_History
-     *   }
-     * })
-     * 
-     */
-    delete<T extends TLeaveLetter_HistoryDeleteArgs>(args: SelectSubset<T, TLeaveLetter_HistoryDeleteArgs<ExtArgs>>): Prisma__TLeaveLetter_HistoryClient<$Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one TLeaveLetter_History.
-     * @param {TLeaveLetter_HistoryUpdateArgs} args - Arguments to update one TLeaveLetter_History.
-     * @example
-     * // Update one TLeaveLetter_History
-     * const tLeaveLetter_History = await prisma.tLeaveLetter_History.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends TLeaveLetter_HistoryUpdateArgs>(args: SelectSubset<T, TLeaveLetter_HistoryUpdateArgs<ExtArgs>>): Prisma__TLeaveLetter_HistoryClient<$Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more TLeaveLetter_Histories.
-     * @param {TLeaveLetter_HistoryDeleteManyArgs} args - Arguments to filter TLeaveLetter_Histories to delete.
-     * @example
-     * // Delete a few TLeaveLetter_Histories
-     * const { count } = await prisma.tLeaveLetter_History.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends TLeaveLetter_HistoryDeleteManyArgs>(args?: SelectSubset<T, TLeaveLetter_HistoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more TLeaveLetter_Histories.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLeaveLetter_HistoryUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many TLeaveLetter_Histories
-     * const tLeaveLetter_History = await prisma.tLeaveLetter_History.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends TLeaveLetter_HistoryUpdateManyArgs>(args: SelectSubset<T, TLeaveLetter_HistoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one TLeaveLetter_History.
-     * @param {TLeaveLetter_HistoryUpsertArgs} args - Arguments to update or create a TLeaveLetter_History.
-     * @example
-     * // Update or create a TLeaveLetter_History
-     * const tLeaveLetter_History = await prisma.tLeaveLetter_History.upsert({
-     *   create: {
-     *     // ... data to create a TLeaveLetter_History
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the TLeaveLetter_History we want to update
-     *   }
-     * })
-     */
-    upsert<T extends TLeaveLetter_HistoryUpsertArgs>(args: SelectSubset<T, TLeaveLetter_HistoryUpsertArgs<ExtArgs>>): Prisma__TLeaveLetter_HistoryClient<$Result.GetResult<Prisma.$TLeaveLetter_HistoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of TLeaveLetter_Histories.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLeaveLetter_HistoryCountArgs} args - Arguments to filter TLeaveLetter_Histories to count.
-     * @example
-     * // Count the number of TLeaveLetter_Histories
-     * const count = await prisma.tLeaveLetter_History.count({
-     *   where: {
-     *     // ... the filter for the TLeaveLetter_Histories we want to count
-     *   }
-     * })
-    **/
-    count<T extends TLeaveLetter_HistoryCountArgs>(
-      args?: Subset<T, TLeaveLetter_HistoryCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], TLeaveLetter_HistoryCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a TLeaveLetter_History.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLeaveLetter_HistoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends TLeaveLetter_HistoryAggregateArgs>(args: Subset<T, TLeaveLetter_HistoryAggregateArgs>): Prisma.PrismaPromise<GetTLeaveLetter_HistoryAggregateType<T>>
-
-    /**
-     * Group by TLeaveLetter_History.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLeaveLetter_HistoryGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends TLeaveLetter_HistoryGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TLeaveLetter_HistoryGroupByArgs['orderBy'] }
-        : { orderBy?: TLeaveLetter_HistoryGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, TLeaveLetter_HistoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTLeaveLetter_HistoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the TLeaveLetter_History model
-   */
-  readonly fields: TLeaveLetter_HistoryFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for TLeaveLetter_History.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__TLeaveLetter_HistoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the TLeaveLetter_History model
-   */
-  interface TLeaveLetter_HistoryFieldRefs {
-    readonly letterId: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly letterSchoolId: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly letterHeader: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly letterDate: FieldRef<"TLeaveLetter_History", 'DateTime'>
-    readonly letterType: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly writerId: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly writerJob: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly writerComment: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly startDate: FieldRef<"TLeaveLetter_History", 'DateTime'>
-    readonly endDate: FieldRef<"TLeaveLetter_History", 'DateTime'>
-    readonly contactHomenumber: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly contactRoad: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly contactTumbon: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly contactAumpher: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly contactProvince: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly contactPhone: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly adminOneJob: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly adminOneComment: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly adminOneId: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly adminOneDate: FieldRef<"TLeaveLetter_History", 'DateTime'>
-    readonly adminTwoJob: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly adminTwoId: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly adminTwoComment: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly adminTwoDate: FieldRef<"TLeaveLetter_History", 'DateTime'>
-    readonly adminThreeJob: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly adminThreeComment: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly adminThreeId: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly adminThreeDate: FieldRef<"TLeaveLetter_History", 'DateTime'>
-    readonly adminOneComfirm: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly adminTwoComfirm: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly adminThreeComfirm: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly LetterConfirmdate: FieldRef<"TLeaveLetter_History", 'DateTime'>
-    readonly Season: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly rejectOneId: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly rejectTwoId: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly rejectThreeId: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly deleted: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly letterStatus: FieldRef<"TLeaveLetter_History", 'String'>
-    readonly SchoolID: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly CreatedBy: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly UpdatedBy: FieldRef<"TLeaveLetter_History", 'Int'>
-    readonly CreatedDate: FieldRef<"TLeaveLetter_History", 'DateTime'>
-    readonly UpdatedDate: FieldRef<"TLeaveLetter_History", 'DateTime'>
-    readonly cDel: FieldRef<"TLeaveLetter_History", 'Boolean'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * TLeaveLetter_History findUnique
-   */
-  export type TLeaveLetter_HistoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-    /**
-     * Filter, which TLeaveLetter_History to fetch.
-     */
-    where: TLeaveLetter_HistoryWhereUniqueInput
-  }
-
-  /**
-   * TLeaveLetter_History findUniqueOrThrow
-   */
-  export type TLeaveLetter_HistoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-    /**
-     * Filter, which TLeaveLetter_History to fetch.
-     */
-    where: TLeaveLetter_HistoryWhereUniqueInput
-  }
-
-  /**
-   * TLeaveLetter_History findFirst
-   */
-  export type TLeaveLetter_HistoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-    /**
-     * Filter, which TLeaveLetter_History to fetch.
-     */
-    where?: TLeaveLetter_HistoryWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TLeaveLetter_Histories to fetch.
-     */
-    orderBy?: TLeaveLetter_HistoryOrderByWithRelationInput | TLeaveLetter_HistoryOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TLeaveLetter_Histories.
-     */
-    cursor?: TLeaveLetter_HistoryWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TLeaveLetter_Histories from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TLeaveLetter_Histories.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TLeaveLetter_Histories.
-     */
-    distinct?: TLeaveLetter_HistoryScalarFieldEnum | TLeaveLetter_HistoryScalarFieldEnum[]
-  }
-
-  /**
-   * TLeaveLetter_History findFirstOrThrow
-   */
-  export type TLeaveLetter_HistoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-    /**
-     * Filter, which TLeaveLetter_History to fetch.
-     */
-    where?: TLeaveLetter_HistoryWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TLeaveLetter_Histories to fetch.
-     */
-    orderBy?: TLeaveLetter_HistoryOrderByWithRelationInput | TLeaveLetter_HistoryOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TLeaveLetter_Histories.
-     */
-    cursor?: TLeaveLetter_HistoryWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TLeaveLetter_Histories from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TLeaveLetter_Histories.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TLeaveLetter_Histories.
-     */
-    distinct?: TLeaveLetter_HistoryScalarFieldEnum | TLeaveLetter_HistoryScalarFieldEnum[]
-  }
-
-  /**
-   * TLeaveLetter_History findMany
-   */
-  export type TLeaveLetter_HistoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-    /**
-     * Filter, which TLeaveLetter_Histories to fetch.
-     */
-    where?: TLeaveLetter_HistoryWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TLeaveLetter_Histories to fetch.
-     */
-    orderBy?: TLeaveLetter_HistoryOrderByWithRelationInput | TLeaveLetter_HistoryOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing TLeaveLetter_Histories.
-     */
-    cursor?: TLeaveLetter_HistoryWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TLeaveLetter_Histories from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TLeaveLetter_Histories.
-     */
-    skip?: number
-    distinct?: TLeaveLetter_HistoryScalarFieldEnum | TLeaveLetter_HistoryScalarFieldEnum[]
-  }
-
-  /**
-   * TLeaveLetter_History create
-   */
-  export type TLeaveLetter_HistoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-    /**
-     * The data needed to create a TLeaveLetter_History.
-     */
-    data: XOR<TLeaveLetter_HistoryCreateInput, TLeaveLetter_HistoryUncheckedCreateInput>
-  }
-
-  /**
-   * TLeaveLetter_History createMany
-   */
-  export type TLeaveLetter_HistoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many TLeaveLetter_Histories.
-     */
-    data: TLeaveLetter_HistoryCreateManyInput | TLeaveLetter_HistoryCreateManyInput[]
-  }
-
-  /**
-   * TLeaveLetter_History update
-   */
-  export type TLeaveLetter_HistoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-    /**
-     * The data needed to update a TLeaveLetter_History.
-     */
-    data: XOR<TLeaveLetter_HistoryUpdateInput, TLeaveLetter_HistoryUncheckedUpdateInput>
-    /**
-     * Choose, which TLeaveLetter_History to update.
-     */
-    where: TLeaveLetter_HistoryWhereUniqueInput
-  }
-
-  /**
-   * TLeaveLetter_History updateMany
-   */
-  export type TLeaveLetter_HistoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update TLeaveLetter_Histories.
-     */
-    data: XOR<TLeaveLetter_HistoryUpdateManyMutationInput, TLeaveLetter_HistoryUncheckedUpdateManyInput>
-    /**
-     * Filter which TLeaveLetter_Histories to update
-     */
-    where?: TLeaveLetter_HistoryWhereInput
-    /**
-     * Limit how many TLeaveLetter_Histories to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * TLeaveLetter_History upsert
-   */
-  export type TLeaveLetter_HistoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-    /**
-     * The filter to search for the TLeaveLetter_History to update in case it exists.
-     */
-    where: TLeaveLetter_HistoryWhereUniqueInput
-    /**
-     * In case the TLeaveLetter_History found by the `where` argument doesn't exist, create a new TLeaveLetter_History with this data.
-     */
-    create: XOR<TLeaveLetter_HistoryCreateInput, TLeaveLetter_HistoryUncheckedCreateInput>
-    /**
-     * In case the TLeaveLetter_History was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<TLeaveLetter_HistoryUpdateInput, TLeaveLetter_HistoryUncheckedUpdateInput>
-  }
-
-  /**
-   * TLeaveLetter_History delete
-   */
-  export type TLeaveLetter_HistoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-    /**
-     * Filter which TLeaveLetter_History to delete.
-     */
-    where: TLeaveLetter_HistoryWhereUniqueInput
-  }
-
-  /**
-   * TLeaveLetter_History deleteMany
-   */
-  export type TLeaveLetter_HistoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TLeaveLetter_Histories to delete
-     */
-    where?: TLeaveLetter_HistoryWhereInput
-    /**
-     * Limit how many TLeaveLetter_Histories to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * TLeaveLetter_History without action
-   */
-  export type TLeaveLetter_HistoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLeaveLetter_History
-     */
-    select?: TLeaveLetter_HistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLeaveLetter_History
-     */
-    omit?: TLeaveLetter_HistoryOmit<ExtArgs> | null
-  }
-
-
-  /**
    * Model TLeaveLetterFiles
    */
 
@@ -223952,1115 +223060,6 @@ export namespace Prisma {
 
 
   /**
-   * Model TLogUserTimeScan_Old_Bkup
-   */
-
-  export type AggregateTLogUserTimeScan_Old_Bkup = {
-    _count: TLogUserTimeScan_Old_BkupCountAggregateOutputType | null
-    _avg: TLogUserTimeScan_Old_BkupAvgAggregateOutputType | null
-    _sum: TLogUserTimeScan_Old_BkupSumAggregateOutputType | null
-    _min: TLogUserTimeScan_Old_BkupMinAggregateOutputType | null
-    _max: TLogUserTimeScan_Old_BkupMaxAggregateOutputType | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupAvgAggregateOutputType = {
-    sID: number | null
-    LognDay: number | null
-    nYear: number | null
-    nTermSubLevel2: number | null
-    TeacherId: number | null
-    nLogScanID: number | null
-    SchoolID: number | null
-    CreatedBy: number | null
-    UpdatedBy: number | null
-    deviceType: number | null
-    LeaveID: number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupSumAggregateOutputType = {
-    sID: number | null
-    LognDay: number | null
-    nYear: number | null
-    nTermSubLevel2: number | null
-    TeacherId: number | null
-    nLogScanID: number | null
-    SchoolID: number | null
-    CreatedBy: number | null
-    UpdatedBy: number | null
-    deviceType: number | null
-    LeaveID: number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupMinAggregateOutputType = {
-    sID: number | null
-    LogTime: Date | null
-    LogType: string | null
-    LogScanStatus: string | null
-    LognDay: number | null
-    LogDate: Date | null
-    nYear: number | null
-    nTermSubLevel2: number | null
-    TeacherId: number | null
-    nLogScanID: number | null
-    bLockStatus: boolean | null
-    SchoolID: number | null
-    CreatedBy: number | null
-    UpdatedBy: number | null
-    CreatedDate: Date | null
-    UpdatedDate: Date | null
-    cDel: boolean | null
-    deviceType: number | null
-    LeaveID: number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupMaxAggregateOutputType = {
-    sID: number | null
-    LogTime: Date | null
-    LogType: string | null
-    LogScanStatus: string | null
-    LognDay: number | null
-    LogDate: Date | null
-    nYear: number | null
-    nTermSubLevel2: number | null
-    TeacherId: number | null
-    nLogScanID: number | null
-    bLockStatus: boolean | null
-    SchoolID: number | null
-    CreatedBy: number | null
-    UpdatedBy: number | null
-    CreatedDate: Date | null
-    UpdatedDate: Date | null
-    cDel: boolean | null
-    deviceType: number | null
-    LeaveID: number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupCountAggregateOutputType = {
-    sID: number
-    LogTime: number
-    LogType: number
-    LogScanStatus: number
-    LognDay: number
-    LogDate: number
-    nYear: number
-    nTermSubLevel2: number
-    TeacherId: number
-    nLogScanID: number
-    bLockStatus: number
-    SchoolID: number
-    CreatedBy: number
-    UpdatedBy: number
-    CreatedDate: number
-    UpdatedDate: number
-    cDel: number
-    deviceType: number
-    LeaveID: number
-    _all: number
-  }
-
-
-  export type TLogUserTimeScan_Old_BkupAvgAggregateInputType = {
-    sID?: true
-    LognDay?: true
-    nYear?: true
-    nTermSubLevel2?: true
-    TeacherId?: true
-    nLogScanID?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-    deviceType?: true
-    LeaveID?: true
-  }
-
-  export type TLogUserTimeScan_Old_BkupSumAggregateInputType = {
-    sID?: true
-    LognDay?: true
-    nYear?: true
-    nTermSubLevel2?: true
-    TeacherId?: true
-    nLogScanID?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-    deviceType?: true
-    LeaveID?: true
-  }
-
-  export type TLogUserTimeScan_Old_BkupMinAggregateInputType = {
-    sID?: true
-    LogTime?: true
-    LogType?: true
-    LogScanStatus?: true
-    LognDay?: true
-    LogDate?: true
-    nYear?: true
-    nTermSubLevel2?: true
-    TeacherId?: true
-    nLogScanID?: true
-    bLockStatus?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-    CreatedDate?: true
-    UpdatedDate?: true
-    cDel?: true
-    deviceType?: true
-    LeaveID?: true
-  }
-
-  export type TLogUserTimeScan_Old_BkupMaxAggregateInputType = {
-    sID?: true
-    LogTime?: true
-    LogType?: true
-    LogScanStatus?: true
-    LognDay?: true
-    LogDate?: true
-    nYear?: true
-    nTermSubLevel2?: true
-    TeacherId?: true
-    nLogScanID?: true
-    bLockStatus?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-    CreatedDate?: true
-    UpdatedDate?: true
-    cDel?: true
-    deviceType?: true
-    LeaveID?: true
-  }
-
-  export type TLogUserTimeScan_Old_BkupCountAggregateInputType = {
-    sID?: true
-    LogTime?: true
-    LogType?: true
-    LogScanStatus?: true
-    LognDay?: true
-    LogDate?: true
-    nYear?: true
-    nTermSubLevel2?: true
-    TeacherId?: true
-    nLogScanID?: true
-    bLockStatus?: true
-    SchoolID?: true
-    CreatedBy?: true
-    UpdatedBy?: true
-    CreatedDate?: true
-    UpdatedDate?: true
-    cDel?: true
-    deviceType?: true
-    LeaveID?: true
-    _all?: true
-  }
-
-  export type TLogUserTimeScan_Old_BkupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TLogUserTimeScan_Old_Bkup to aggregate.
-     */
-    where?: TLogUserTimeScan_Old_BkupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TLogUserTimeScan_Old_Bkups to fetch.
-     */
-    orderBy?: TLogUserTimeScan_Old_BkupOrderByWithRelationInput | TLogUserTimeScan_Old_BkupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: TLogUserTimeScan_Old_BkupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TLogUserTimeScan_Old_Bkups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TLogUserTimeScan_Old_Bkups.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned TLogUserTimeScan_Old_Bkups
-    **/
-    _count?: true | TLogUserTimeScan_Old_BkupCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: TLogUserTimeScan_Old_BkupAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: TLogUserTimeScan_Old_BkupSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: TLogUserTimeScan_Old_BkupMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: TLogUserTimeScan_Old_BkupMaxAggregateInputType
-  }
-
-  export type GetTLogUserTimeScan_Old_BkupAggregateType<T extends TLogUserTimeScan_Old_BkupAggregateArgs> = {
-        [P in keyof T & keyof AggregateTLogUserTimeScan_Old_Bkup]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateTLogUserTimeScan_Old_Bkup[P]>
-      : GetScalarType<T[P], AggregateTLogUserTimeScan_Old_Bkup[P]>
-  }
-
-
-
-
-  export type TLogUserTimeScan_Old_BkupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TLogUserTimeScan_Old_BkupWhereInput
-    orderBy?: TLogUserTimeScan_Old_BkupOrderByWithAggregationInput | TLogUserTimeScan_Old_BkupOrderByWithAggregationInput[]
-    by: TLogUserTimeScan_Old_BkupScalarFieldEnum[] | TLogUserTimeScan_Old_BkupScalarFieldEnum
-    having?: TLogUserTimeScan_Old_BkupScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: TLogUserTimeScan_Old_BkupCountAggregateInputType | true
-    _avg?: TLogUserTimeScan_Old_BkupAvgAggregateInputType
-    _sum?: TLogUserTimeScan_Old_BkupSumAggregateInputType
-    _min?: TLogUserTimeScan_Old_BkupMinAggregateInputType
-    _max?: TLogUserTimeScan_Old_BkupMaxAggregateInputType
-  }
-
-  export type TLogUserTimeScan_Old_BkupGroupByOutputType = {
-    sID: number | null
-    LogTime: Date | null
-    LogType: string | null
-    LogScanStatus: string | null
-    LognDay: number | null
-    LogDate: Date | null
-    nYear: number | null
-    nTermSubLevel2: number | null
-    TeacherId: number | null
-    nLogScanID: number
-    bLockStatus: boolean | null
-    SchoolID: number
-    CreatedBy: number | null
-    UpdatedBy: number | null
-    CreatedDate: Date | null
-    UpdatedDate: Date | null
-    cDel: boolean
-    deviceType: number | null
-    LeaveID: number | null
-    _count: TLogUserTimeScan_Old_BkupCountAggregateOutputType | null
-    _avg: TLogUserTimeScan_Old_BkupAvgAggregateOutputType | null
-    _sum: TLogUserTimeScan_Old_BkupSumAggregateOutputType | null
-    _min: TLogUserTimeScan_Old_BkupMinAggregateOutputType | null
-    _max: TLogUserTimeScan_Old_BkupMaxAggregateOutputType | null
-  }
-
-  type GetTLogUserTimeScan_Old_BkupGroupByPayload<T extends TLogUserTimeScan_Old_BkupGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<TLogUserTimeScan_Old_BkupGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof TLogUserTimeScan_Old_BkupGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], TLogUserTimeScan_Old_BkupGroupByOutputType[P]>
-            : GetScalarType<T[P], TLogUserTimeScan_Old_BkupGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type TLogUserTimeScan_Old_BkupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    sID?: boolean
-    LogTime?: boolean
-    LogType?: boolean
-    LogScanStatus?: boolean
-    LognDay?: boolean
-    LogDate?: boolean
-    nYear?: boolean
-    nTermSubLevel2?: boolean
-    TeacherId?: boolean
-    nLogScanID?: boolean
-    bLockStatus?: boolean
-    SchoolID?: boolean
-    CreatedBy?: boolean
-    UpdatedBy?: boolean
-    CreatedDate?: boolean
-    UpdatedDate?: boolean
-    cDel?: boolean
-    deviceType?: boolean
-    LeaveID?: boolean
-  }, ExtArgs["result"]["tLogUserTimeScan_Old_Bkup"]>
-
-
-
-  export type TLogUserTimeScan_Old_BkupSelectScalar = {
-    sID?: boolean
-    LogTime?: boolean
-    LogType?: boolean
-    LogScanStatus?: boolean
-    LognDay?: boolean
-    LogDate?: boolean
-    nYear?: boolean
-    nTermSubLevel2?: boolean
-    TeacherId?: boolean
-    nLogScanID?: boolean
-    bLockStatus?: boolean
-    SchoolID?: boolean
-    CreatedBy?: boolean
-    UpdatedBy?: boolean
-    CreatedDate?: boolean
-    UpdatedDate?: boolean
-    cDel?: boolean
-    deviceType?: boolean
-    LeaveID?: boolean
-  }
-
-  export type TLogUserTimeScan_Old_BkupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"sID" | "LogTime" | "LogType" | "LogScanStatus" | "LognDay" | "LogDate" | "nYear" | "nTermSubLevel2" | "TeacherId" | "nLogScanID" | "bLockStatus" | "SchoolID" | "CreatedBy" | "UpdatedBy" | "CreatedDate" | "UpdatedDate" | "cDel" | "deviceType" | "LeaveID", ExtArgs["result"]["tLogUserTimeScan_Old_Bkup"]>
-
-  export type $TLogUserTimeScan_Old_BkupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TLogUserTimeScan_Old_Bkup"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      sID: number | null
-      LogTime: Date | null
-      LogType: string | null
-      LogScanStatus: string | null
-      LognDay: number | null
-      LogDate: Date | null
-      nYear: number | null
-      nTermSubLevel2: number | null
-      TeacherId: number | null
-      nLogScanID: number
-      bLockStatus: boolean | null
-      SchoolID: number
-      CreatedBy: number | null
-      UpdatedBy: number | null
-      CreatedDate: Date | null
-      UpdatedDate: Date | null
-      cDel: boolean
-      deviceType: number | null
-      LeaveID: number | null
-    }, ExtArgs["result"]["tLogUserTimeScan_Old_Bkup"]>
-    composites: {}
-  }
-
-  type TLogUserTimeScan_Old_BkupGetPayload<S extends boolean | null | undefined | TLogUserTimeScan_Old_BkupDefaultArgs> = $Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload, S>
-
-  type TLogUserTimeScan_Old_BkupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TLogUserTimeScan_Old_BkupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: TLogUserTimeScan_Old_BkupCountAggregateInputType | true
-    }
-
-  export interface TLogUserTimeScan_Old_BkupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TLogUserTimeScan_Old_Bkup'], meta: { name: 'TLogUserTimeScan_Old_Bkup' } }
-    /**
-     * Find zero or one TLogUserTimeScan_Old_Bkup that matches the filter.
-     * @param {TLogUserTimeScan_Old_BkupFindUniqueArgs} args - Arguments to find a TLogUserTimeScan_Old_Bkup
-     * @example
-     * // Get one TLogUserTimeScan_Old_Bkup
-     * const tLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends TLogUserTimeScan_Old_BkupFindUniqueArgs>(args: SelectSubset<T, TLogUserTimeScan_Old_BkupFindUniqueArgs<ExtArgs>>): Prisma__TLogUserTimeScan_Old_BkupClient<$Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one TLogUserTimeScan_Old_Bkup that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {TLogUserTimeScan_Old_BkupFindUniqueOrThrowArgs} args - Arguments to find a TLogUserTimeScan_Old_Bkup
-     * @example
-     * // Get one TLogUserTimeScan_Old_Bkup
-     * const tLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends TLogUserTimeScan_Old_BkupFindUniqueOrThrowArgs>(args: SelectSubset<T, TLogUserTimeScan_Old_BkupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TLogUserTimeScan_Old_BkupClient<$Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TLogUserTimeScan_Old_Bkup that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLogUserTimeScan_Old_BkupFindFirstArgs} args - Arguments to find a TLogUserTimeScan_Old_Bkup
-     * @example
-     * // Get one TLogUserTimeScan_Old_Bkup
-     * const tLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends TLogUserTimeScan_Old_BkupFindFirstArgs>(args?: SelectSubset<T, TLogUserTimeScan_Old_BkupFindFirstArgs<ExtArgs>>): Prisma__TLogUserTimeScan_Old_BkupClient<$Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TLogUserTimeScan_Old_Bkup that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLogUserTimeScan_Old_BkupFindFirstOrThrowArgs} args - Arguments to find a TLogUserTimeScan_Old_Bkup
-     * @example
-     * // Get one TLogUserTimeScan_Old_Bkup
-     * const tLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends TLogUserTimeScan_Old_BkupFindFirstOrThrowArgs>(args?: SelectSubset<T, TLogUserTimeScan_Old_BkupFindFirstOrThrowArgs<ExtArgs>>): Prisma__TLogUserTimeScan_Old_BkupClient<$Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more TLogUserTimeScan_Old_Bkups that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLogUserTimeScan_Old_BkupFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all TLogUserTimeScan_Old_Bkups
-     * const tLogUserTimeScan_Old_Bkups = await prisma.tLogUserTimeScan_Old_Bkup.findMany()
-     * 
-     * // Get first 10 TLogUserTimeScan_Old_Bkups
-     * const tLogUserTimeScan_Old_Bkups = await prisma.tLogUserTimeScan_Old_Bkup.findMany({ take: 10 })
-     * 
-     * // Only select the `sID`
-     * const tLogUserTimeScan_Old_BkupWithSIDOnly = await prisma.tLogUserTimeScan_Old_Bkup.findMany({ select: { sID: true } })
-     * 
-     */
-    findMany<T extends TLogUserTimeScan_Old_BkupFindManyArgs>(args?: SelectSubset<T, TLogUserTimeScan_Old_BkupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a TLogUserTimeScan_Old_Bkup.
-     * @param {TLogUserTimeScan_Old_BkupCreateArgs} args - Arguments to create a TLogUserTimeScan_Old_Bkup.
-     * @example
-     * // Create one TLogUserTimeScan_Old_Bkup
-     * const TLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.create({
-     *   data: {
-     *     // ... data to create a TLogUserTimeScan_Old_Bkup
-     *   }
-     * })
-     * 
-     */
-    create<T extends TLogUserTimeScan_Old_BkupCreateArgs>(args: SelectSubset<T, TLogUserTimeScan_Old_BkupCreateArgs<ExtArgs>>): Prisma__TLogUserTimeScan_Old_BkupClient<$Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many TLogUserTimeScan_Old_Bkups.
-     * @param {TLogUserTimeScan_Old_BkupCreateManyArgs} args - Arguments to create many TLogUserTimeScan_Old_Bkups.
-     * @example
-     * // Create many TLogUserTimeScan_Old_Bkups
-     * const tLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends TLogUserTimeScan_Old_BkupCreateManyArgs>(args?: SelectSubset<T, TLogUserTimeScan_Old_BkupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a TLogUserTimeScan_Old_Bkup.
-     * @param {TLogUserTimeScan_Old_BkupDeleteArgs} args - Arguments to delete one TLogUserTimeScan_Old_Bkup.
-     * @example
-     * // Delete one TLogUserTimeScan_Old_Bkup
-     * const TLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.delete({
-     *   where: {
-     *     // ... filter to delete one TLogUserTimeScan_Old_Bkup
-     *   }
-     * })
-     * 
-     */
-    delete<T extends TLogUserTimeScan_Old_BkupDeleteArgs>(args: SelectSubset<T, TLogUserTimeScan_Old_BkupDeleteArgs<ExtArgs>>): Prisma__TLogUserTimeScan_Old_BkupClient<$Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one TLogUserTimeScan_Old_Bkup.
-     * @param {TLogUserTimeScan_Old_BkupUpdateArgs} args - Arguments to update one TLogUserTimeScan_Old_Bkup.
-     * @example
-     * // Update one TLogUserTimeScan_Old_Bkup
-     * const tLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends TLogUserTimeScan_Old_BkupUpdateArgs>(args: SelectSubset<T, TLogUserTimeScan_Old_BkupUpdateArgs<ExtArgs>>): Prisma__TLogUserTimeScan_Old_BkupClient<$Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more TLogUserTimeScan_Old_Bkups.
-     * @param {TLogUserTimeScan_Old_BkupDeleteManyArgs} args - Arguments to filter TLogUserTimeScan_Old_Bkups to delete.
-     * @example
-     * // Delete a few TLogUserTimeScan_Old_Bkups
-     * const { count } = await prisma.tLogUserTimeScan_Old_Bkup.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends TLogUserTimeScan_Old_BkupDeleteManyArgs>(args?: SelectSubset<T, TLogUserTimeScan_Old_BkupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more TLogUserTimeScan_Old_Bkups.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLogUserTimeScan_Old_BkupUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many TLogUserTimeScan_Old_Bkups
-     * const tLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends TLogUserTimeScan_Old_BkupUpdateManyArgs>(args: SelectSubset<T, TLogUserTimeScan_Old_BkupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one TLogUserTimeScan_Old_Bkup.
-     * @param {TLogUserTimeScan_Old_BkupUpsertArgs} args - Arguments to update or create a TLogUserTimeScan_Old_Bkup.
-     * @example
-     * // Update or create a TLogUserTimeScan_Old_Bkup
-     * const tLogUserTimeScan_Old_Bkup = await prisma.tLogUserTimeScan_Old_Bkup.upsert({
-     *   create: {
-     *     // ... data to create a TLogUserTimeScan_Old_Bkup
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the TLogUserTimeScan_Old_Bkup we want to update
-     *   }
-     * })
-     */
-    upsert<T extends TLogUserTimeScan_Old_BkupUpsertArgs>(args: SelectSubset<T, TLogUserTimeScan_Old_BkupUpsertArgs<ExtArgs>>): Prisma__TLogUserTimeScan_Old_BkupClient<$Result.GetResult<Prisma.$TLogUserTimeScan_Old_BkupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of TLogUserTimeScan_Old_Bkups.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLogUserTimeScan_Old_BkupCountArgs} args - Arguments to filter TLogUserTimeScan_Old_Bkups to count.
-     * @example
-     * // Count the number of TLogUserTimeScan_Old_Bkups
-     * const count = await prisma.tLogUserTimeScan_Old_Bkup.count({
-     *   where: {
-     *     // ... the filter for the TLogUserTimeScan_Old_Bkups we want to count
-     *   }
-     * })
-    **/
-    count<T extends TLogUserTimeScan_Old_BkupCountArgs>(
-      args?: Subset<T, TLogUserTimeScan_Old_BkupCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], TLogUserTimeScan_Old_BkupCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a TLogUserTimeScan_Old_Bkup.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLogUserTimeScan_Old_BkupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends TLogUserTimeScan_Old_BkupAggregateArgs>(args: Subset<T, TLogUserTimeScan_Old_BkupAggregateArgs>): Prisma.PrismaPromise<GetTLogUserTimeScan_Old_BkupAggregateType<T>>
-
-    /**
-     * Group by TLogUserTimeScan_Old_Bkup.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TLogUserTimeScan_Old_BkupGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends TLogUserTimeScan_Old_BkupGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TLogUserTimeScan_Old_BkupGroupByArgs['orderBy'] }
-        : { orderBy?: TLogUserTimeScan_Old_BkupGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, TLogUserTimeScan_Old_BkupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTLogUserTimeScan_Old_BkupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the TLogUserTimeScan_Old_Bkup model
-   */
-  readonly fields: TLogUserTimeScan_Old_BkupFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for TLogUserTimeScan_Old_Bkup.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__TLogUserTimeScan_Old_BkupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the TLogUserTimeScan_Old_Bkup model
-   */
-  interface TLogUserTimeScan_Old_BkupFieldRefs {
-    readonly sID: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly LogTime: FieldRef<"TLogUserTimeScan_Old_Bkup", 'DateTime'>
-    readonly LogType: FieldRef<"TLogUserTimeScan_Old_Bkup", 'String'>
-    readonly LogScanStatus: FieldRef<"TLogUserTimeScan_Old_Bkup", 'String'>
-    readonly LognDay: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly LogDate: FieldRef<"TLogUserTimeScan_Old_Bkup", 'DateTime'>
-    readonly nYear: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly nTermSubLevel2: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly TeacherId: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly nLogScanID: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly bLockStatus: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Boolean'>
-    readonly SchoolID: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly CreatedBy: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly UpdatedBy: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly CreatedDate: FieldRef<"TLogUserTimeScan_Old_Bkup", 'DateTime'>
-    readonly UpdatedDate: FieldRef<"TLogUserTimeScan_Old_Bkup", 'DateTime'>
-    readonly cDel: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Boolean'>
-    readonly deviceType: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-    readonly LeaveID: FieldRef<"TLogUserTimeScan_Old_Bkup", 'Int'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * TLogUserTimeScan_Old_Bkup findUnique
-   */
-  export type TLogUserTimeScan_Old_BkupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-    /**
-     * Filter, which TLogUserTimeScan_Old_Bkup to fetch.
-     */
-    where: TLogUserTimeScan_Old_BkupWhereUniqueInput
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup findUniqueOrThrow
-   */
-  export type TLogUserTimeScan_Old_BkupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-    /**
-     * Filter, which TLogUserTimeScan_Old_Bkup to fetch.
-     */
-    where: TLogUserTimeScan_Old_BkupWhereUniqueInput
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup findFirst
-   */
-  export type TLogUserTimeScan_Old_BkupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-    /**
-     * Filter, which TLogUserTimeScan_Old_Bkup to fetch.
-     */
-    where?: TLogUserTimeScan_Old_BkupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TLogUserTimeScan_Old_Bkups to fetch.
-     */
-    orderBy?: TLogUserTimeScan_Old_BkupOrderByWithRelationInput | TLogUserTimeScan_Old_BkupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TLogUserTimeScan_Old_Bkups.
-     */
-    cursor?: TLogUserTimeScan_Old_BkupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TLogUserTimeScan_Old_Bkups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TLogUserTimeScan_Old_Bkups.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TLogUserTimeScan_Old_Bkups.
-     */
-    distinct?: TLogUserTimeScan_Old_BkupScalarFieldEnum | TLogUserTimeScan_Old_BkupScalarFieldEnum[]
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup findFirstOrThrow
-   */
-  export type TLogUserTimeScan_Old_BkupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-    /**
-     * Filter, which TLogUserTimeScan_Old_Bkup to fetch.
-     */
-    where?: TLogUserTimeScan_Old_BkupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TLogUserTimeScan_Old_Bkups to fetch.
-     */
-    orderBy?: TLogUserTimeScan_Old_BkupOrderByWithRelationInput | TLogUserTimeScan_Old_BkupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TLogUserTimeScan_Old_Bkups.
-     */
-    cursor?: TLogUserTimeScan_Old_BkupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TLogUserTimeScan_Old_Bkups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TLogUserTimeScan_Old_Bkups.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TLogUserTimeScan_Old_Bkups.
-     */
-    distinct?: TLogUserTimeScan_Old_BkupScalarFieldEnum | TLogUserTimeScan_Old_BkupScalarFieldEnum[]
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup findMany
-   */
-  export type TLogUserTimeScan_Old_BkupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-    /**
-     * Filter, which TLogUserTimeScan_Old_Bkups to fetch.
-     */
-    where?: TLogUserTimeScan_Old_BkupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TLogUserTimeScan_Old_Bkups to fetch.
-     */
-    orderBy?: TLogUserTimeScan_Old_BkupOrderByWithRelationInput | TLogUserTimeScan_Old_BkupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing TLogUserTimeScan_Old_Bkups.
-     */
-    cursor?: TLogUserTimeScan_Old_BkupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TLogUserTimeScan_Old_Bkups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TLogUserTimeScan_Old_Bkups.
-     */
-    skip?: number
-    distinct?: TLogUserTimeScan_Old_BkupScalarFieldEnum | TLogUserTimeScan_Old_BkupScalarFieldEnum[]
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup create
-   */
-  export type TLogUserTimeScan_Old_BkupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-    /**
-     * The data needed to create a TLogUserTimeScan_Old_Bkup.
-     */
-    data: XOR<TLogUserTimeScan_Old_BkupCreateInput, TLogUserTimeScan_Old_BkupUncheckedCreateInput>
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup createMany
-   */
-  export type TLogUserTimeScan_Old_BkupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many TLogUserTimeScan_Old_Bkups.
-     */
-    data: TLogUserTimeScan_Old_BkupCreateManyInput | TLogUserTimeScan_Old_BkupCreateManyInput[]
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup update
-   */
-  export type TLogUserTimeScan_Old_BkupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-    /**
-     * The data needed to update a TLogUserTimeScan_Old_Bkup.
-     */
-    data: XOR<TLogUserTimeScan_Old_BkupUpdateInput, TLogUserTimeScan_Old_BkupUncheckedUpdateInput>
-    /**
-     * Choose, which TLogUserTimeScan_Old_Bkup to update.
-     */
-    where: TLogUserTimeScan_Old_BkupWhereUniqueInput
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup updateMany
-   */
-  export type TLogUserTimeScan_Old_BkupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update TLogUserTimeScan_Old_Bkups.
-     */
-    data: XOR<TLogUserTimeScan_Old_BkupUpdateManyMutationInput, TLogUserTimeScan_Old_BkupUncheckedUpdateManyInput>
-    /**
-     * Filter which TLogUserTimeScan_Old_Bkups to update
-     */
-    where?: TLogUserTimeScan_Old_BkupWhereInput
-    /**
-     * Limit how many TLogUserTimeScan_Old_Bkups to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup upsert
-   */
-  export type TLogUserTimeScan_Old_BkupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-    /**
-     * The filter to search for the TLogUserTimeScan_Old_Bkup to update in case it exists.
-     */
-    where: TLogUserTimeScan_Old_BkupWhereUniqueInput
-    /**
-     * In case the TLogUserTimeScan_Old_Bkup found by the `where` argument doesn't exist, create a new TLogUserTimeScan_Old_Bkup with this data.
-     */
-    create: XOR<TLogUserTimeScan_Old_BkupCreateInput, TLogUserTimeScan_Old_BkupUncheckedCreateInput>
-    /**
-     * In case the TLogUserTimeScan_Old_Bkup was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<TLogUserTimeScan_Old_BkupUpdateInput, TLogUserTimeScan_Old_BkupUncheckedUpdateInput>
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup delete
-   */
-  export type TLogUserTimeScan_Old_BkupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-    /**
-     * Filter which TLogUserTimeScan_Old_Bkup to delete.
-     */
-    where: TLogUserTimeScan_Old_BkupWhereUniqueInput
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup deleteMany
-   */
-  export type TLogUserTimeScan_Old_BkupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TLogUserTimeScan_Old_Bkups to delete
-     */
-    where?: TLogUserTimeScan_Old_BkupWhereInput
-    /**
-     * Limit how many TLogUserTimeScan_Old_Bkups to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * TLogUserTimeScan_Old_Bkup without action
-   */
-  export type TLogUserTimeScan_Old_BkupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TLogUserTimeScan_Old_Bkup
-     */
-    select?: TLogUserTimeScan_Old_BkupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TLogUserTimeScan_Old_Bkup
-     */
-    omit?: TLogUserTimeScan_Old_BkupOmit<ExtArgs> | null
-  }
-
-
-  /**
    * Model TLogUserTimeScanNew
    */
 
@@ -226098,6 +224097,7 @@ export namespace Prisma {
     MasterType: string | null
     isActive: boolean | null
     MasterOrder: number | null
+    MasterDesEn: string | null
   }
 
   export type TMasterDataMaxAggregateOutputType = {
@@ -226107,6 +224107,7 @@ export namespace Prisma {
     MasterType: string | null
     isActive: boolean | null
     MasterOrder: number | null
+    MasterDesEn: string | null
   }
 
   export type TMasterDataCountAggregateOutputType = {
@@ -226116,6 +224117,7 @@ export namespace Prisma {
     MasterType: number
     isActive: number
     MasterOrder: number
+    MasterDesEn: number
     _all: number
   }
 
@@ -226137,6 +224139,7 @@ export namespace Prisma {
     MasterType?: true
     isActive?: true
     MasterOrder?: true
+    MasterDesEn?: true
   }
 
   export type TMasterDataMaxAggregateInputType = {
@@ -226146,6 +224149,7 @@ export namespace Prisma {
     MasterType?: true
     isActive?: true
     MasterOrder?: true
+    MasterDesEn?: true
   }
 
   export type TMasterDataCountAggregateInputType = {
@@ -226155,6 +224159,7 @@ export namespace Prisma {
     MasterType?: true
     isActive?: true
     MasterOrder?: true
+    MasterDesEn?: true
     _all?: true
   }
 
@@ -226251,6 +224256,7 @@ export namespace Prisma {
     MasterType: string | null
     isActive: boolean | null
     MasterOrder: number | null
+    MasterDesEn: string | null
     _count: TMasterDataCountAggregateOutputType | null
     _avg: TMasterDataAvgAggregateOutputType | null
     _sum: TMasterDataSumAggregateOutputType | null
@@ -226279,6 +224285,7 @@ export namespace Prisma {
     MasterType?: boolean
     isActive?: boolean
     MasterOrder?: boolean
+    MasterDesEn?: boolean
   }, ExtArgs["result"]["tMasterData"]>
 
 
@@ -226290,9 +224297,10 @@ export namespace Prisma {
     MasterType?: boolean
     isActive?: boolean
     MasterOrder?: boolean
+    MasterDesEn?: boolean
   }
 
-  export type TMasterDataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"MasterID" | "MasterCode" | "MasterDes" | "MasterType" | "isActive" | "MasterOrder", ExtArgs["result"]["tMasterData"]>
+  export type TMasterDataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"MasterID" | "MasterCode" | "MasterDes" | "MasterType" | "isActive" | "MasterOrder" | "MasterDesEn", ExtArgs["result"]["tMasterData"]>
 
   export type $TMasterDataPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TMasterData"
@@ -226304,6 +224312,7 @@ export namespace Prisma {
       MasterType: string | null
       isActive: boolean | null
       MasterOrder: number | null
+      MasterDesEn: string | null
     }, ExtArgs["result"]["tMasterData"]>
     composites: {}
   }
@@ -226679,6 +224688,7 @@ export namespace Prisma {
     readonly MasterType: FieldRef<"TMasterData", 'String'>
     readonly isActive: FieldRef<"TMasterData", 'Boolean'>
     readonly MasterOrder: FieldRef<"TMasterData", 'Int'>
+    readonly MasterDesEn: FieldRef<"TMasterData", 'String'>
   }
     
 
@@ -307343,6 +305353,9 @@ export namespace Prisma {
     cDel: boolean | null
     SMSGroupType: number | null
     SMSGroupID: number | null
+    SendToLINE: boolean | null
+    SendFileWithOwner: boolean | null
+    SendFileWithOwnerOCR: boolean | null
   }
 
   export type TSMSMaxAggregateOutputType = {
@@ -307369,6 +305382,9 @@ export namespace Prisma {
     cDel: boolean | null
     SMSGroupType: number | null
     SMSGroupID: number | null
+    SendToLINE: boolean | null
+    SendFileWithOwner: boolean | null
+    SendFileWithOwnerOCR: boolean | null
   }
 
   export type TSMSCountAggregateOutputType = {
@@ -307395,6 +305411,9 @@ export namespace Prisma {
     cDel: number
     SMSGroupType: number
     SMSGroupID: number
+    SendToLINE: number
+    SendFileWithOwner: number
+    SendFileWithOwnerOCR: number
     _all: number
   }
 
@@ -307451,6 +305470,9 @@ export namespace Prisma {
     cDel?: true
     SMSGroupType?: true
     SMSGroupID?: true
+    SendToLINE?: true
+    SendFileWithOwner?: true
+    SendFileWithOwnerOCR?: true
   }
 
   export type TSMSMaxAggregateInputType = {
@@ -307477,6 +305499,9 @@ export namespace Prisma {
     cDel?: true
     SMSGroupType?: true
     SMSGroupID?: true
+    SendToLINE?: true
+    SendFileWithOwner?: true
+    SendFileWithOwnerOCR?: true
   }
 
   export type TSMSCountAggregateInputType = {
@@ -307503,6 +305528,9 @@ export namespace Prisma {
     cDel?: true
     SMSGroupType?: true
     SMSGroupID?: true
+    SendToLINE?: true
+    SendFileWithOwner?: true
+    SendFileWithOwnerOCR?: true
     _all?: true
   }
 
@@ -307616,6 +305644,9 @@ export namespace Prisma {
     cDel: boolean
     SMSGroupType: number | null
     SMSGroupID: number | null
+    SendToLINE: boolean | null
+    SendFileWithOwner: boolean | null
+    SendFileWithOwnerOCR: boolean | null
     _count: TSMSCountAggregateOutputType | null
     _avg: TSMSAvgAggregateOutputType | null
     _sum: TSMSSumAggregateOutputType | null
@@ -307661,6 +305692,9 @@ export namespace Prisma {
     cDel?: boolean
     SMSGroupType?: boolean
     SMSGroupID?: boolean
+    SendToLINE?: boolean
+    SendFileWithOwner?: boolean
+    SendFileWithOwnerOCR?: boolean
   }, ExtArgs["result"]["tSMS"]>
 
 
@@ -307689,9 +305723,12 @@ export namespace Prisma {
     cDel?: boolean
     SMSGroupType?: boolean
     SMSGroupID?: boolean
+    SendToLINE?: boolean
+    SendFileWithOwner?: boolean
+    SendFileWithOwnerOCR?: boolean
   }
 
-  export type TSMSOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"nSMS" | "SMSTitle" | "SMSDesp" | "SMSType" | "SMSSubType" | "SMSDate" | "SMSDuration" | "SMSStatus" | "SMSAll" | "dSend" | "scheduled_id" | "SMSEMP" | "useradd" | "isDel" | "nActionType" | "SchoolID" | "CreatedBy" | "UpdatedBy" | "CreatedDate" | "UpdatedDate" | "cDel" | "SMSGroupType" | "SMSGroupID", ExtArgs["result"]["tSMS"]>
+  export type TSMSOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"nSMS" | "SMSTitle" | "SMSDesp" | "SMSType" | "SMSSubType" | "SMSDate" | "SMSDuration" | "SMSStatus" | "SMSAll" | "dSend" | "scheduled_id" | "SMSEMP" | "useradd" | "isDel" | "nActionType" | "SchoolID" | "CreatedBy" | "UpdatedBy" | "CreatedDate" | "UpdatedDate" | "cDel" | "SMSGroupType" | "SMSGroupID" | "SendToLINE" | "SendFileWithOwner" | "SendFileWithOwnerOCR", ExtArgs["result"]["tSMS"]>
 
   export type $TSMSPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TSMS"
@@ -307720,6 +305757,9 @@ export namespace Prisma {
       cDel: boolean
       SMSGroupType: number | null
       SMSGroupID: number | null
+      SendToLINE: boolean | null
+      SendFileWithOwner: boolean | null
+      SendFileWithOwnerOCR: boolean | null
     }, ExtArgs["result"]["tSMS"]>
     composites: {}
   }
@@ -308112,6 +306152,9 @@ export namespace Prisma {
     readonly cDel: FieldRef<"TSMS", 'Boolean'>
     readonly SMSGroupType: FieldRef<"TSMS", 'Int'>
     readonly SMSGroupID: FieldRef<"TSMS", 'Int'>
+    readonly SendToLINE: FieldRef<"TSMS", 'Boolean'>
+    readonly SendFileWithOwner: FieldRef<"TSMS", 'Boolean'>
+    readonly SendFileWithOwnerOCR: FieldRef<"TSMS", 'Boolean'>
   }
     
 
@@ -316655,989 +314698,6 @@ export namespace Prisma {
      * Omit specific fields from the TStockLog
      */
     omit?: TStockLogOmit<ExtArgs> | null
-  }
-
-
-  /**
-   * Model TStockLog_Old
-   */
-
-  export type AggregateTStockLog_Old = {
-    _count: TStockLog_OldCountAggregateOutputType | null
-    _avg: TStockLog_OldAvgAggregateOutputType | null
-    _sum: TStockLog_OldSumAggregateOutputType | null
-    _min: TStockLog_OldMinAggregateOutputType | null
-    _max: TStockLog_OldMaxAggregateOutputType | null
-  }
-
-  export type TStockLog_OldAvgAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    ProductID: number | null
-    ShopID: number | null
-    TotalQty: number | null
-    TotalCost: Decimal | null
-    AvgCost: Decimal | null
-  }
-
-  export type TStockLog_OldSumAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    ProductID: number | null
-    ShopID: number | null
-    TotalQty: number | null
-    TotalCost: Decimal | null
-    AvgCost: Decimal | null
-  }
-
-  export type TStockLog_OldMinAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    ProductID: number | null
-    ShopID: number | null
-    LogDate: Date | null
-    TotalQty: number | null
-    TotalCost: Decimal | null
-    AvgCost: Decimal | null
-    Created: Date | null
-  }
-
-  export type TStockLog_OldMaxAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    ProductID: number | null
-    ShopID: number | null
-    LogDate: Date | null
-    TotalQty: number | null
-    TotalCost: Decimal | null
-    AvgCost: Decimal | null
-    Created: Date | null
-  }
-
-  export type TStockLog_OldCountAggregateOutputType = {
-    ID: number
-    SchoolID: number
-    ProductID: number
-    ShopID: number
-    LogDate: number
-    TotalQty: number
-    TotalCost: number
-    AvgCost: number
-    Created: number
-    _all: number
-  }
-
-
-  export type TStockLog_OldAvgAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    ProductID?: true
-    ShopID?: true
-    TotalQty?: true
-    TotalCost?: true
-    AvgCost?: true
-  }
-
-  export type TStockLog_OldSumAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    ProductID?: true
-    ShopID?: true
-    TotalQty?: true
-    TotalCost?: true
-    AvgCost?: true
-  }
-
-  export type TStockLog_OldMinAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    ProductID?: true
-    ShopID?: true
-    LogDate?: true
-    TotalQty?: true
-    TotalCost?: true
-    AvgCost?: true
-    Created?: true
-  }
-
-  export type TStockLog_OldMaxAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    ProductID?: true
-    ShopID?: true
-    LogDate?: true
-    TotalQty?: true
-    TotalCost?: true
-    AvgCost?: true
-    Created?: true
-  }
-
-  export type TStockLog_OldCountAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    ProductID?: true
-    ShopID?: true
-    LogDate?: true
-    TotalQty?: true
-    TotalCost?: true
-    AvgCost?: true
-    Created?: true
-    _all?: true
-  }
-
-  export type TStockLog_OldAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TStockLog_Old to aggregate.
-     */
-    where?: TStockLog_OldWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TStockLog_Olds to fetch.
-     */
-    orderBy?: TStockLog_OldOrderByWithRelationInput | TStockLog_OldOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: TStockLog_OldWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TStockLog_Olds from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TStockLog_Olds.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned TStockLog_Olds
-    **/
-    _count?: true | TStockLog_OldCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: TStockLog_OldAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: TStockLog_OldSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: TStockLog_OldMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: TStockLog_OldMaxAggregateInputType
-  }
-
-  export type GetTStockLog_OldAggregateType<T extends TStockLog_OldAggregateArgs> = {
-        [P in keyof T & keyof AggregateTStockLog_Old]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateTStockLog_Old[P]>
-      : GetScalarType<T[P], AggregateTStockLog_Old[P]>
-  }
-
-
-
-
-  export type TStockLog_OldGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TStockLog_OldWhereInput
-    orderBy?: TStockLog_OldOrderByWithAggregationInput | TStockLog_OldOrderByWithAggregationInput[]
-    by: TStockLog_OldScalarFieldEnum[] | TStockLog_OldScalarFieldEnum
-    having?: TStockLog_OldScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: TStockLog_OldCountAggregateInputType | true
-    _avg?: TStockLog_OldAvgAggregateInputType
-    _sum?: TStockLog_OldSumAggregateInputType
-    _min?: TStockLog_OldMinAggregateInputType
-    _max?: TStockLog_OldMaxAggregateInputType
-  }
-
-  export type TStockLog_OldGroupByOutputType = {
-    ID: number
-    SchoolID: number
-    ProductID: number | null
-    ShopID: number | null
-    LogDate: Date | null
-    TotalQty: number | null
-    TotalCost: Decimal | null
-    AvgCost: Decimal | null
-    Created: Date | null
-    _count: TStockLog_OldCountAggregateOutputType | null
-    _avg: TStockLog_OldAvgAggregateOutputType | null
-    _sum: TStockLog_OldSumAggregateOutputType | null
-    _min: TStockLog_OldMinAggregateOutputType | null
-    _max: TStockLog_OldMaxAggregateOutputType | null
-  }
-
-  type GetTStockLog_OldGroupByPayload<T extends TStockLog_OldGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<TStockLog_OldGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof TStockLog_OldGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], TStockLog_OldGroupByOutputType[P]>
-            : GetScalarType<T[P], TStockLog_OldGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type TStockLog_OldSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    ID?: boolean
-    SchoolID?: boolean
-    ProductID?: boolean
-    ShopID?: boolean
-    LogDate?: boolean
-    TotalQty?: boolean
-    TotalCost?: boolean
-    AvgCost?: boolean
-    Created?: boolean
-  }, ExtArgs["result"]["tStockLog_Old"]>
-
-
-
-  export type TStockLog_OldSelectScalar = {
-    ID?: boolean
-    SchoolID?: boolean
-    ProductID?: boolean
-    ShopID?: boolean
-    LogDate?: boolean
-    TotalQty?: boolean
-    TotalCost?: boolean
-    AvgCost?: boolean
-    Created?: boolean
-  }
-
-  export type TStockLog_OldOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ID" | "SchoolID" | "ProductID" | "ShopID" | "LogDate" | "TotalQty" | "TotalCost" | "AvgCost" | "Created", ExtArgs["result"]["tStockLog_Old"]>
-
-  export type $TStockLog_OldPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TStockLog_Old"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      ID: number
-      SchoolID: number
-      ProductID: number | null
-      ShopID: number | null
-      LogDate: Date | null
-      TotalQty: number | null
-      TotalCost: Prisma.Decimal | null
-      AvgCost: Prisma.Decimal | null
-      Created: Date | null
-    }, ExtArgs["result"]["tStockLog_Old"]>
-    composites: {}
-  }
-
-  type TStockLog_OldGetPayload<S extends boolean | null | undefined | TStockLog_OldDefaultArgs> = $Result.GetResult<Prisma.$TStockLog_OldPayload, S>
-
-  type TStockLog_OldCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TStockLog_OldFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: TStockLog_OldCountAggregateInputType | true
-    }
-
-  export interface TStockLog_OldDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TStockLog_Old'], meta: { name: 'TStockLog_Old' } }
-    /**
-     * Find zero or one TStockLog_Old that matches the filter.
-     * @param {TStockLog_OldFindUniqueArgs} args - Arguments to find a TStockLog_Old
-     * @example
-     * // Get one TStockLog_Old
-     * const tStockLog_Old = await prisma.tStockLog_Old.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends TStockLog_OldFindUniqueArgs>(args: SelectSubset<T, TStockLog_OldFindUniqueArgs<ExtArgs>>): Prisma__TStockLog_OldClient<$Result.GetResult<Prisma.$TStockLog_OldPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one TStockLog_Old that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {TStockLog_OldFindUniqueOrThrowArgs} args - Arguments to find a TStockLog_Old
-     * @example
-     * // Get one TStockLog_Old
-     * const tStockLog_Old = await prisma.tStockLog_Old.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends TStockLog_OldFindUniqueOrThrowArgs>(args: SelectSubset<T, TStockLog_OldFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TStockLog_OldClient<$Result.GetResult<Prisma.$TStockLog_OldPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TStockLog_Old that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TStockLog_OldFindFirstArgs} args - Arguments to find a TStockLog_Old
-     * @example
-     * // Get one TStockLog_Old
-     * const tStockLog_Old = await prisma.tStockLog_Old.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends TStockLog_OldFindFirstArgs>(args?: SelectSubset<T, TStockLog_OldFindFirstArgs<ExtArgs>>): Prisma__TStockLog_OldClient<$Result.GetResult<Prisma.$TStockLog_OldPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TStockLog_Old that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TStockLog_OldFindFirstOrThrowArgs} args - Arguments to find a TStockLog_Old
-     * @example
-     * // Get one TStockLog_Old
-     * const tStockLog_Old = await prisma.tStockLog_Old.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends TStockLog_OldFindFirstOrThrowArgs>(args?: SelectSubset<T, TStockLog_OldFindFirstOrThrowArgs<ExtArgs>>): Prisma__TStockLog_OldClient<$Result.GetResult<Prisma.$TStockLog_OldPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more TStockLog_Olds that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TStockLog_OldFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all TStockLog_Olds
-     * const tStockLog_Olds = await prisma.tStockLog_Old.findMany()
-     * 
-     * // Get first 10 TStockLog_Olds
-     * const tStockLog_Olds = await prisma.tStockLog_Old.findMany({ take: 10 })
-     * 
-     * // Only select the `ID`
-     * const tStockLog_OldWithIDOnly = await prisma.tStockLog_Old.findMany({ select: { ID: true } })
-     * 
-     */
-    findMany<T extends TStockLog_OldFindManyArgs>(args?: SelectSubset<T, TStockLog_OldFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TStockLog_OldPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a TStockLog_Old.
-     * @param {TStockLog_OldCreateArgs} args - Arguments to create a TStockLog_Old.
-     * @example
-     * // Create one TStockLog_Old
-     * const TStockLog_Old = await prisma.tStockLog_Old.create({
-     *   data: {
-     *     // ... data to create a TStockLog_Old
-     *   }
-     * })
-     * 
-     */
-    create<T extends TStockLog_OldCreateArgs>(args: SelectSubset<T, TStockLog_OldCreateArgs<ExtArgs>>): Prisma__TStockLog_OldClient<$Result.GetResult<Prisma.$TStockLog_OldPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many TStockLog_Olds.
-     * @param {TStockLog_OldCreateManyArgs} args - Arguments to create many TStockLog_Olds.
-     * @example
-     * // Create many TStockLog_Olds
-     * const tStockLog_Old = await prisma.tStockLog_Old.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends TStockLog_OldCreateManyArgs>(args?: SelectSubset<T, TStockLog_OldCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a TStockLog_Old.
-     * @param {TStockLog_OldDeleteArgs} args - Arguments to delete one TStockLog_Old.
-     * @example
-     * // Delete one TStockLog_Old
-     * const TStockLog_Old = await prisma.tStockLog_Old.delete({
-     *   where: {
-     *     // ... filter to delete one TStockLog_Old
-     *   }
-     * })
-     * 
-     */
-    delete<T extends TStockLog_OldDeleteArgs>(args: SelectSubset<T, TStockLog_OldDeleteArgs<ExtArgs>>): Prisma__TStockLog_OldClient<$Result.GetResult<Prisma.$TStockLog_OldPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one TStockLog_Old.
-     * @param {TStockLog_OldUpdateArgs} args - Arguments to update one TStockLog_Old.
-     * @example
-     * // Update one TStockLog_Old
-     * const tStockLog_Old = await prisma.tStockLog_Old.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends TStockLog_OldUpdateArgs>(args: SelectSubset<T, TStockLog_OldUpdateArgs<ExtArgs>>): Prisma__TStockLog_OldClient<$Result.GetResult<Prisma.$TStockLog_OldPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more TStockLog_Olds.
-     * @param {TStockLog_OldDeleteManyArgs} args - Arguments to filter TStockLog_Olds to delete.
-     * @example
-     * // Delete a few TStockLog_Olds
-     * const { count } = await prisma.tStockLog_Old.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends TStockLog_OldDeleteManyArgs>(args?: SelectSubset<T, TStockLog_OldDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more TStockLog_Olds.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TStockLog_OldUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many TStockLog_Olds
-     * const tStockLog_Old = await prisma.tStockLog_Old.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends TStockLog_OldUpdateManyArgs>(args: SelectSubset<T, TStockLog_OldUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one TStockLog_Old.
-     * @param {TStockLog_OldUpsertArgs} args - Arguments to update or create a TStockLog_Old.
-     * @example
-     * // Update or create a TStockLog_Old
-     * const tStockLog_Old = await prisma.tStockLog_Old.upsert({
-     *   create: {
-     *     // ... data to create a TStockLog_Old
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the TStockLog_Old we want to update
-     *   }
-     * })
-     */
-    upsert<T extends TStockLog_OldUpsertArgs>(args: SelectSubset<T, TStockLog_OldUpsertArgs<ExtArgs>>): Prisma__TStockLog_OldClient<$Result.GetResult<Prisma.$TStockLog_OldPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of TStockLog_Olds.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TStockLog_OldCountArgs} args - Arguments to filter TStockLog_Olds to count.
-     * @example
-     * // Count the number of TStockLog_Olds
-     * const count = await prisma.tStockLog_Old.count({
-     *   where: {
-     *     // ... the filter for the TStockLog_Olds we want to count
-     *   }
-     * })
-    **/
-    count<T extends TStockLog_OldCountArgs>(
-      args?: Subset<T, TStockLog_OldCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], TStockLog_OldCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a TStockLog_Old.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TStockLog_OldAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends TStockLog_OldAggregateArgs>(args: Subset<T, TStockLog_OldAggregateArgs>): Prisma.PrismaPromise<GetTStockLog_OldAggregateType<T>>
-
-    /**
-     * Group by TStockLog_Old.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TStockLog_OldGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends TStockLog_OldGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TStockLog_OldGroupByArgs['orderBy'] }
-        : { orderBy?: TStockLog_OldGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, TStockLog_OldGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTStockLog_OldGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the TStockLog_Old model
-   */
-  readonly fields: TStockLog_OldFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for TStockLog_Old.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__TStockLog_OldClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the TStockLog_Old model
-   */
-  interface TStockLog_OldFieldRefs {
-    readonly ID: FieldRef<"TStockLog_Old", 'Int'>
-    readonly SchoolID: FieldRef<"TStockLog_Old", 'Int'>
-    readonly ProductID: FieldRef<"TStockLog_Old", 'Int'>
-    readonly ShopID: FieldRef<"TStockLog_Old", 'Int'>
-    readonly LogDate: FieldRef<"TStockLog_Old", 'DateTime'>
-    readonly TotalQty: FieldRef<"TStockLog_Old", 'Int'>
-    readonly TotalCost: FieldRef<"TStockLog_Old", 'Decimal'>
-    readonly AvgCost: FieldRef<"TStockLog_Old", 'Decimal'>
-    readonly Created: FieldRef<"TStockLog_Old", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * TStockLog_Old findUnique
-   */
-  export type TStockLog_OldFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
-    /**
-     * Filter, which TStockLog_Old to fetch.
-     */
-    where: TStockLog_OldWhereUniqueInput
-  }
-
-  /**
-   * TStockLog_Old findUniqueOrThrow
-   */
-  export type TStockLog_OldFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
-    /**
-     * Filter, which TStockLog_Old to fetch.
-     */
-    where: TStockLog_OldWhereUniqueInput
-  }
-
-  /**
-   * TStockLog_Old findFirst
-   */
-  export type TStockLog_OldFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
-    /**
-     * Filter, which TStockLog_Old to fetch.
-     */
-    where?: TStockLog_OldWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TStockLog_Olds to fetch.
-     */
-    orderBy?: TStockLog_OldOrderByWithRelationInput | TStockLog_OldOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TStockLog_Olds.
-     */
-    cursor?: TStockLog_OldWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TStockLog_Olds from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TStockLog_Olds.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TStockLog_Olds.
-     */
-    distinct?: TStockLog_OldScalarFieldEnum | TStockLog_OldScalarFieldEnum[]
-  }
-
-  /**
-   * TStockLog_Old findFirstOrThrow
-   */
-  export type TStockLog_OldFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
-    /**
-     * Filter, which TStockLog_Old to fetch.
-     */
-    where?: TStockLog_OldWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TStockLog_Olds to fetch.
-     */
-    orderBy?: TStockLog_OldOrderByWithRelationInput | TStockLog_OldOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TStockLog_Olds.
-     */
-    cursor?: TStockLog_OldWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TStockLog_Olds from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TStockLog_Olds.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TStockLog_Olds.
-     */
-    distinct?: TStockLog_OldScalarFieldEnum | TStockLog_OldScalarFieldEnum[]
-  }
-
-  /**
-   * TStockLog_Old findMany
-   */
-  export type TStockLog_OldFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
-    /**
-     * Filter, which TStockLog_Olds to fetch.
-     */
-    where?: TStockLog_OldWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TStockLog_Olds to fetch.
-     */
-    orderBy?: TStockLog_OldOrderByWithRelationInput | TStockLog_OldOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing TStockLog_Olds.
-     */
-    cursor?: TStockLog_OldWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TStockLog_Olds from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TStockLog_Olds.
-     */
-    skip?: number
-    distinct?: TStockLog_OldScalarFieldEnum | TStockLog_OldScalarFieldEnum[]
-  }
-
-  /**
-   * TStockLog_Old create
-   */
-  export type TStockLog_OldCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
-    /**
-     * The data needed to create a TStockLog_Old.
-     */
-    data: XOR<TStockLog_OldCreateInput, TStockLog_OldUncheckedCreateInput>
-  }
-
-  /**
-   * TStockLog_Old createMany
-   */
-  export type TStockLog_OldCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many TStockLog_Olds.
-     */
-    data: TStockLog_OldCreateManyInput | TStockLog_OldCreateManyInput[]
-  }
-
-  /**
-   * TStockLog_Old update
-   */
-  export type TStockLog_OldUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
-    /**
-     * The data needed to update a TStockLog_Old.
-     */
-    data: XOR<TStockLog_OldUpdateInput, TStockLog_OldUncheckedUpdateInput>
-    /**
-     * Choose, which TStockLog_Old to update.
-     */
-    where: TStockLog_OldWhereUniqueInput
-  }
-
-  /**
-   * TStockLog_Old updateMany
-   */
-  export type TStockLog_OldUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update TStockLog_Olds.
-     */
-    data: XOR<TStockLog_OldUpdateManyMutationInput, TStockLog_OldUncheckedUpdateManyInput>
-    /**
-     * Filter which TStockLog_Olds to update
-     */
-    where?: TStockLog_OldWhereInput
-    /**
-     * Limit how many TStockLog_Olds to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * TStockLog_Old upsert
-   */
-  export type TStockLog_OldUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
-    /**
-     * The filter to search for the TStockLog_Old to update in case it exists.
-     */
-    where: TStockLog_OldWhereUniqueInput
-    /**
-     * In case the TStockLog_Old found by the `where` argument doesn't exist, create a new TStockLog_Old with this data.
-     */
-    create: XOR<TStockLog_OldCreateInput, TStockLog_OldUncheckedCreateInput>
-    /**
-     * In case the TStockLog_Old was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<TStockLog_OldUpdateInput, TStockLog_OldUncheckedUpdateInput>
-  }
-
-  /**
-   * TStockLog_Old delete
-   */
-  export type TStockLog_OldDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
-    /**
-     * Filter which TStockLog_Old to delete.
-     */
-    where: TStockLog_OldWhereUniqueInput
-  }
-
-  /**
-   * TStockLog_Old deleteMany
-   */
-  export type TStockLog_OldDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TStockLog_Olds to delete
-     */
-    where?: TStockLog_OldWhereInput
-    /**
-     * Limit how many TStockLog_Olds to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * TStockLog_Old without action
-   */
-  export type TStockLog_OldDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TStockLog_Old
-     */
-    select?: TStockLog_OldSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TStockLog_Old
-     */
-    omit?: TStockLog_OldOmit<ExtArgs> | null
   }
 
 
@@ -338261,6 +335321,7 @@ export namespace Prisma {
     UpdatedDate: Date | null
     cDel: boolean | null
     MasterCode: string | null
+    nTitleIdStr: string | null
   }
 
   export type TTitleListMaxAggregateOutputType = {
@@ -338277,6 +335338,7 @@ export namespace Prisma {
     UpdatedDate: Date | null
     cDel: boolean | null
     MasterCode: string | null
+    nTitleIdStr: string | null
   }
 
   export type TTitleListCountAggregateOutputType = {
@@ -338293,6 +335355,7 @@ export namespace Prisma {
     UpdatedDate: number
     cDel: number
     MasterCode: number
+    nTitleIdStr: number
     _all: number
   }
 
@@ -338327,6 +335390,7 @@ export namespace Prisma {
     UpdatedDate?: true
     cDel?: true
     MasterCode?: true
+    nTitleIdStr?: true
   }
 
   export type TTitleListMaxAggregateInputType = {
@@ -338343,6 +335407,7 @@ export namespace Prisma {
     UpdatedDate?: true
     cDel?: true
     MasterCode?: true
+    nTitleIdStr?: true
   }
 
   export type TTitleListCountAggregateInputType = {
@@ -338359,6 +335424,7 @@ export namespace Prisma {
     UpdatedDate?: true
     cDel?: true
     MasterCode?: true
+    nTitleIdStr?: true
     _all?: true
   }
 
@@ -338462,6 +335528,7 @@ export namespace Prisma {
     UpdatedDate: Date | null
     cDel: boolean
     MasterCode: string | null
+    nTitleIdStr: string | null
     _count: TTitleListCountAggregateOutputType | null
     _avg: TTitleListAvgAggregateOutputType | null
     _sum: TTitleListSumAggregateOutputType | null
@@ -338497,6 +335564,7 @@ export namespace Prisma {
     UpdatedDate?: boolean
     cDel?: boolean
     MasterCode?: boolean
+    nTitleIdStr?: boolean
   }, ExtArgs["result"]["tTitleList"]>
 
 
@@ -338515,9 +335583,10 @@ export namespace Prisma {
     UpdatedDate?: boolean
     cDel?: boolean
     MasterCode?: boolean
+    nTitleIdStr?: boolean
   }
 
-  export type TTitleListOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"nSchoolId" | "titleDescription" | "titleDescriptionEn" | "deleted" | "workStatus" | "nTitleid" | "SchoolID" | "CreatedBy" | "UpdatedBy" | "CreatedDate" | "UpdatedDate" | "cDel" | "MasterCode", ExtArgs["result"]["tTitleList"]>
+  export type TTitleListOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"nSchoolId" | "titleDescription" | "titleDescriptionEn" | "deleted" | "workStatus" | "nTitleid" | "SchoolID" | "CreatedBy" | "UpdatedBy" | "CreatedDate" | "UpdatedDate" | "cDel" | "MasterCode" | "nTitleIdStr", ExtArgs["result"]["tTitleList"]>
 
   export type $TTitleListPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TTitleList"
@@ -338536,6 +335605,7 @@ export namespace Prisma {
       UpdatedDate: Date | null
       cDel: boolean
       MasterCode: string | null
+      nTitleIdStr: string | null
     }, ExtArgs["result"]["tTitleList"]>
     composites: {}
   }
@@ -338918,6 +335988,7 @@ export namespace Prisma {
     readonly UpdatedDate: FieldRef<"TTitleList", 'DateTime'>
     readonly cDel: FieldRef<"TTitleList", 'Boolean'>
     readonly MasterCode: FieldRef<"TTitleList", 'String'>
+    readonly nTitleIdStr: FieldRef<"TTitleList", 'String'>
   }
     
 
@@ -364389,1134 +361460,6 @@ export namespace Prisma {
 
 
   /**
-   * Model UserDailyBalance_Backup
-   */
-
-  export type AggregateUserDailyBalance_Backup = {
-    _count: UserDailyBalance_BackupCountAggregateOutputType | null
-    _avg: UserDailyBalance_BackupAvgAggregateOutputType | null
-    _sum: UserDailyBalance_BackupSumAggregateOutputType | null
-    _min: UserDailyBalance_BackupMinAggregateOutputType | null
-    _max: UserDailyBalance_BackupMaxAggregateOutputType | null
-  }
-
-  export type UserDailyBalance_BackupAvgAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    sID: number | null
-    OpeningBalance: Decimal | null
-    TotalTopUp: Decimal | null
-    TotalCancelTopUp: Decimal | null
-    TotalWithDraw: Decimal | null
-    TotalCancelWithDraw: Decimal | null
-    TotalSales: Decimal | null
-    TotalCancelSales: Decimal | null
-    Balance: Decimal | null
-    OfflineSales: Decimal | null
-    SystemBalance: number | null
-  }
-
-  export type UserDailyBalance_BackupSumAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    sID: number | null
-    OpeningBalance: Decimal | null
-    TotalTopUp: Decimal | null
-    TotalCancelTopUp: Decimal | null
-    TotalWithDraw: Decimal | null
-    TotalCancelWithDraw: Decimal | null
-    TotalSales: Decimal | null
-    TotalCancelSales: Decimal | null
-    Balance: Decimal | null
-    OfflineSales: Decimal | null
-    SystemBalance: number | null
-  }
-
-  export type UserDailyBalance_BackupMinAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    sID: number | null
-    sStudentID: string | null
-    sName: string | null
-    sLastname: string | null
-    cDel: string | null
-    cType: string | null
-    BusinessDate: Date | null
-    OpeningBalance: Decimal | null
-    TotalTopUp: Decimal | null
-    TotalCancelTopUp: Decimal | null
-    TotalWithDraw: Decimal | null
-    TotalCancelWithDraw: Decimal | null
-    TotalSales: Decimal | null
-    TotalCancelSales: Decimal | null
-    LastUpdatedDate: string | null
-    Balance: Decimal | null
-    OfflineSales: Decimal | null
-    SystemBalance: number | null
-  }
-
-  export type UserDailyBalance_BackupMaxAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    sID: number | null
-    sStudentID: string | null
-    sName: string | null
-    sLastname: string | null
-    cDel: string | null
-    cType: string | null
-    BusinessDate: Date | null
-    OpeningBalance: Decimal | null
-    TotalTopUp: Decimal | null
-    TotalCancelTopUp: Decimal | null
-    TotalWithDraw: Decimal | null
-    TotalCancelWithDraw: Decimal | null
-    TotalSales: Decimal | null
-    TotalCancelSales: Decimal | null
-    LastUpdatedDate: string | null
-    Balance: Decimal | null
-    OfflineSales: Decimal | null
-    SystemBalance: number | null
-  }
-
-  export type UserDailyBalance_BackupCountAggregateOutputType = {
-    ID: number
-    SchoolID: number
-    sID: number
-    sStudentID: number
-    sName: number
-    sLastname: number
-    cDel: number
-    cType: number
-    BusinessDate: number
-    OpeningBalance: number
-    TotalTopUp: number
-    TotalCancelTopUp: number
-    TotalWithDraw: number
-    TotalCancelWithDraw: number
-    TotalSales: number
-    TotalCancelSales: number
-    LastUpdatedDate: number
-    Balance: number
-    OfflineSales: number
-    SystemBalance: number
-    _all: number
-  }
-
-
-  export type UserDailyBalance_BackupAvgAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    Balance?: true
-    OfflineSales?: true
-    SystemBalance?: true
-  }
-
-  export type UserDailyBalance_BackupSumAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    Balance?: true
-    OfflineSales?: true
-    SystemBalance?: true
-  }
-
-  export type UserDailyBalance_BackupMinAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    sStudentID?: true
-    sName?: true
-    sLastname?: true
-    cDel?: true
-    cType?: true
-    BusinessDate?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    LastUpdatedDate?: true
-    Balance?: true
-    OfflineSales?: true
-    SystemBalance?: true
-  }
-
-  export type UserDailyBalance_BackupMaxAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    sStudentID?: true
-    sName?: true
-    sLastname?: true
-    cDel?: true
-    cType?: true
-    BusinessDate?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    LastUpdatedDate?: true
-    Balance?: true
-    OfflineSales?: true
-    SystemBalance?: true
-  }
-
-  export type UserDailyBalance_BackupCountAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    sStudentID?: true
-    sName?: true
-    sLastname?: true
-    cDel?: true
-    cType?: true
-    BusinessDate?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    LastUpdatedDate?: true
-    Balance?: true
-    OfflineSales?: true
-    SystemBalance?: true
-    _all?: true
-  }
-
-  export type UserDailyBalance_BackupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which UserDailyBalance_Backup to aggregate.
-     */
-    where?: UserDailyBalance_BackupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserDailyBalance_Backups to fetch.
-     */
-    orderBy?: UserDailyBalance_BackupOrderByWithRelationInput | UserDailyBalance_BackupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: UserDailyBalance_BackupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserDailyBalance_Backups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserDailyBalance_Backups.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned UserDailyBalance_Backups
-    **/
-    _count?: true | UserDailyBalance_BackupCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: UserDailyBalance_BackupAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: UserDailyBalance_BackupSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: UserDailyBalance_BackupMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: UserDailyBalance_BackupMaxAggregateInputType
-  }
-
-  export type GetUserDailyBalance_BackupAggregateType<T extends UserDailyBalance_BackupAggregateArgs> = {
-        [P in keyof T & keyof AggregateUserDailyBalance_Backup]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateUserDailyBalance_Backup[P]>
-      : GetScalarType<T[P], AggregateUserDailyBalance_Backup[P]>
-  }
-
-
-
-
-  export type UserDailyBalance_BackupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UserDailyBalance_BackupWhereInput
-    orderBy?: UserDailyBalance_BackupOrderByWithAggregationInput | UserDailyBalance_BackupOrderByWithAggregationInput[]
-    by: UserDailyBalance_BackupScalarFieldEnum[] | UserDailyBalance_BackupScalarFieldEnum
-    having?: UserDailyBalance_BackupScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: UserDailyBalance_BackupCountAggregateInputType | true
-    _avg?: UserDailyBalance_BackupAvgAggregateInputType
-    _sum?: UserDailyBalance_BackupSumAggregateInputType
-    _min?: UserDailyBalance_BackupMinAggregateInputType
-    _max?: UserDailyBalance_BackupMaxAggregateInputType
-  }
-
-  export type UserDailyBalance_BackupGroupByOutputType = {
-    ID: number
-    SchoolID: number
-    sID: number
-    sStudentID: string | null
-    sName: string | null
-    sLastname: string | null
-    cDel: string | null
-    cType: string
-    BusinessDate: Date | null
-    OpeningBalance: Decimal
-    TotalTopUp: Decimal
-    TotalCancelTopUp: Decimal
-    TotalWithDraw: Decimal
-    TotalCancelWithDraw: Decimal
-    TotalSales: Decimal
-    TotalCancelSales: Decimal
-    LastUpdatedDate: string
-    Balance: Decimal | null
-    OfflineSales: Decimal | null
-    SystemBalance: number
-    _count: UserDailyBalance_BackupCountAggregateOutputType | null
-    _avg: UserDailyBalance_BackupAvgAggregateOutputType | null
-    _sum: UserDailyBalance_BackupSumAggregateOutputType | null
-    _min: UserDailyBalance_BackupMinAggregateOutputType | null
-    _max: UserDailyBalance_BackupMaxAggregateOutputType | null
-  }
-
-  type GetUserDailyBalance_BackupGroupByPayload<T extends UserDailyBalance_BackupGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<UserDailyBalance_BackupGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof UserDailyBalance_BackupGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], UserDailyBalance_BackupGroupByOutputType[P]>
-            : GetScalarType<T[P], UserDailyBalance_BackupGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type UserDailyBalance_BackupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    ID?: boolean
-    SchoolID?: boolean
-    sID?: boolean
-    sStudentID?: boolean
-    sName?: boolean
-    sLastname?: boolean
-    cDel?: boolean
-    cType?: boolean
-    BusinessDate?: boolean
-    OpeningBalance?: boolean
-    TotalTopUp?: boolean
-    TotalCancelTopUp?: boolean
-    TotalWithDraw?: boolean
-    TotalCancelWithDraw?: boolean
-    TotalSales?: boolean
-    TotalCancelSales?: boolean
-    LastUpdatedDate?: boolean
-    Balance?: boolean
-    OfflineSales?: boolean
-    SystemBalance?: boolean
-  }, ExtArgs["result"]["userDailyBalance_Backup"]>
-
-
-
-  export type UserDailyBalance_BackupSelectScalar = {
-    ID?: boolean
-    SchoolID?: boolean
-    sID?: boolean
-    sStudentID?: boolean
-    sName?: boolean
-    sLastname?: boolean
-    cDel?: boolean
-    cType?: boolean
-    BusinessDate?: boolean
-    OpeningBalance?: boolean
-    TotalTopUp?: boolean
-    TotalCancelTopUp?: boolean
-    TotalWithDraw?: boolean
-    TotalCancelWithDraw?: boolean
-    TotalSales?: boolean
-    TotalCancelSales?: boolean
-    LastUpdatedDate?: boolean
-    Balance?: boolean
-    OfflineSales?: boolean
-    SystemBalance?: boolean
-  }
-
-  export type UserDailyBalance_BackupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ID" | "SchoolID" | "sID" | "sStudentID" | "sName" | "sLastname" | "cDel" | "cType" | "BusinessDate" | "OpeningBalance" | "TotalTopUp" | "TotalCancelTopUp" | "TotalWithDraw" | "TotalCancelWithDraw" | "TotalSales" | "TotalCancelSales" | "LastUpdatedDate" | "Balance" | "OfflineSales" | "SystemBalance", ExtArgs["result"]["userDailyBalance_Backup"]>
-
-  export type $UserDailyBalance_BackupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "UserDailyBalance_Backup"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      ID: number
-      SchoolID: number
-      sID: number
-      sStudentID: string | null
-      sName: string | null
-      sLastname: string | null
-      cDel: string | null
-      cType: string
-      BusinessDate: Date | null
-      OpeningBalance: Prisma.Decimal
-      TotalTopUp: Prisma.Decimal
-      TotalCancelTopUp: Prisma.Decimal
-      TotalWithDraw: Prisma.Decimal
-      TotalCancelWithDraw: Prisma.Decimal
-      TotalSales: Prisma.Decimal
-      TotalCancelSales: Prisma.Decimal
-      LastUpdatedDate: string
-      Balance: Prisma.Decimal | null
-      OfflineSales: Prisma.Decimal | null
-      SystemBalance: number
-    }, ExtArgs["result"]["userDailyBalance_Backup"]>
-    composites: {}
-  }
-
-  type UserDailyBalance_BackupGetPayload<S extends boolean | null | undefined | UserDailyBalance_BackupDefaultArgs> = $Result.GetResult<Prisma.$UserDailyBalance_BackupPayload, S>
-
-  type UserDailyBalance_BackupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<UserDailyBalance_BackupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: UserDailyBalance_BackupCountAggregateInputType | true
-    }
-
-  export interface UserDailyBalance_BackupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserDailyBalance_Backup'], meta: { name: 'UserDailyBalance_Backup' } }
-    /**
-     * Find zero or one UserDailyBalance_Backup that matches the filter.
-     * @param {UserDailyBalance_BackupFindUniqueArgs} args - Arguments to find a UserDailyBalance_Backup
-     * @example
-     * // Get one UserDailyBalance_Backup
-     * const userDailyBalance_Backup = await prisma.userDailyBalance_Backup.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends UserDailyBalance_BackupFindUniqueArgs>(args: SelectSubset<T, UserDailyBalance_BackupFindUniqueArgs<ExtArgs>>): Prisma__UserDailyBalance_BackupClient<$Result.GetResult<Prisma.$UserDailyBalance_BackupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one UserDailyBalance_Backup that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {UserDailyBalance_BackupFindUniqueOrThrowArgs} args - Arguments to find a UserDailyBalance_Backup
-     * @example
-     * // Get one UserDailyBalance_Backup
-     * const userDailyBalance_Backup = await prisma.userDailyBalance_Backup.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends UserDailyBalance_BackupFindUniqueOrThrowArgs>(args: SelectSubset<T, UserDailyBalance_BackupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserDailyBalance_BackupClient<$Result.GetResult<Prisma.$UserDailyBalance_BackupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first UserDailyBalance_Backup that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalance_BackupFindFirstArgs} args - Arguments to find a UserDailyBalance_Backup
-     * @example
-     * // Get one UserDailyBalance_Backup
-     * const userDailyBalance_Backup = await prisma.userDailyBalance_Backup.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends UserDailyBalance_BackupFindFirstArgs>(args?: SelectSubset<T, UserDailyBalance_BackupFindFirstArgs<ExtArgs>>): Prisma__UserDailyBalance_BackupClient<$Result.GetResult<Prisma.$UserDailyBalance_BackupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first UserDailyBalance_Backup that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalance_BackupFindFirstOrThrowArgs} args - Arguments to find a UserDailyBalance_Backup
-     * @example
-     * // Get one UserDailyBalance_Backup
-     * const userDailyBalance_Backup = await prisma.userDailyBalance_Backup.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends UserDailyBalance_BackupFindFirstOrThrowArgs>(args?: SelectSubset<T, UserDailyBalance_BackupFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserDailyBalance_BackupClient<$Result.GetResult<Prisma.$UserDailyBalance_BackupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more UserDailyBalance_Backups that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalance_BackupFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all UserDailyBalance_Backups
-     * const userDailyBalance_Backups = await prisma.userDailyBalance_Backup.findMany()
-     * 
-     * // Get first 10 UserDailyBalance_Backups
-     * const userDailyBalance_Backups = await prisma.userDailyBalance_Backup.findMany({ take: 10 })
-     * 
-     * // Only select the `ID`
-     * const userDailyBalance_BackupWithIDOnly = await prisma.userDailyBalance_Backup.findMany({ select: { ID: true } })
-     * 
-     */
-    findMany<T extends UserDailyBalance_BackupFindManyArgs>(args?: SelectSubset<T, UserDailyBalance_BackupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserDailyBalance_BackupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a UserDailyBalance_Backup.
-     * @param {UserDailyBalance_BackupCreateArgs} args - Arguments to create a UserDailyBalance_Backup.
-     * @example
-     * // Create one UserDailyBalance_Backup
-     * const UserDailyBalance_Backup = await prisma.userDailyBalance_Backup.create({
-     *   data: {
-     *     // ... data to create a UserDailyBalance_Backup
-     *   }
-     * })
-     * 
-     */
-    create<T extends UserDailyBalance_BackupCreateArgs>(args: SelectSubset<T, UserDailyBalance_BackupCreateArgs<ExtArgs>>): Prisma__UserDailyBalance_BackupClient<$Result.GetResult<Prisma.$UserDailyBalance_BackupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many UserDailyBalance_Backups.
-     * @param {UserDailyBalance_BackupCreateManyArgs} args - Arguments to create many UserDailyBalance_Backups.
-     * @example
-     * // Create many UserDailyBalance_Backups
-     * const userDailyBalance_Backup = await prisma.userDailyBalance_Backup.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends UserDailyBalance_BackupCreateManyArgs>(args?: SelectSubset<T, UserDailyBalance_BackupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a UserDailyBalance_Backup.
-     * @param {UserDailyBalance_BackupDeleteArgs} args - Arguments to delete one UserDailyBalance_Backup.
-     * @example
-     * // Delete one UserDailyBalance_Backup
-     * const UserDailyBalance_Backup = await prisma.userDailyBalance_Backup.delete({
-     *   where: {
-     *     // ... filter to delete one UserDailyBalance_Backup
-     *   }
-     * })
-     * 
-     */
-    delete<T extends UserDailyBalance_BackupDeleteArgs>(args: SelectSubset<T, UserDailyBalance_BackupDeleteArgs<ExtArgs>>): Prisma__UserDailyBalance_BackupClient<$Result.GetResult<Prisma.$UserDailyBalance_BackupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one UserDailyBalance_Backup.
-     * @param {UserDailyBalance_BackupUpdateArgs} args - Arguments to update one UserDailyBalance_Backup.
-     * @example
-     * // Update one UserDailyBalance_Backup
-     * const userDailyBalance_Backup = await prisma.userDailyBalance_Backup.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends UserDailyBalance_BackupUpdateArgs>(args: SelectSubset<T, UserDailyBalance_BackupUpdateArgs<ExtArgs>>): Prisma__UserDailyBalance_BackupClient<$Result.GetResult<Prisma.$UserDailyBalance_BackupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more UserDailyBalance_Backups.
-     * @param {UserDailyBalance_BackupDeleteManyArgs} args - Arguments to filter UserDailyBalance_Backups to delete.
-     * @example
-     * // Delete a few UserDailyBalance_Backups
-     * const { count } = await prisma.userDailyBalance_Backup.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends UserDailyBalance_BackupDeleteManyArgs>(args?: SelectSubset<T, UserDailyBalance_BackupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more UserDailyBalance_Backups.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalance_BackupUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many UserDailyBalance_Backups
-     * const userDailyBalance_Backup = await prisma.userDailyBalance_Backup.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends UserDailyBalance_BackupUpdateManyArgs>(args: SelectSubset<T, UserDailyBalance_BackupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one UserDailyBalance_Backup.
-     * @param {UserDailyBalance_BackupUpsertArgs} args - Arguments to update or create a UserDailyBalance_Backup.
-     * @example
-     * // Update or create a UserDailyBalance_Backup
-     * const userDailyBalance_Backup = await prisma.userDailyBalance_Backup.upsert({
-     *   create: {
-     *     // ... data to create a UserDailyBalance_Backup
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the UserDailyBalance_Backup we want to update
-     *   }
-     * })
-     */
-    upsert<T extends UserDailyBalance_BackupUpsertArgs>(args: SelectSubset<T, UserDailyBalance_BackupUpsertArgs<ExtArgs>>): Prisma__UserDailyBalance_BackupClient<$Result.GetResult<Prisma.$UserDailyBalance_BackupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of UserDailyBalance_Backups.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalance_BackupCountArgs} args - Arguments to filter UserDailyBalance_Backups to count.
-     * @example
-     * // Count the number of UserDailyBalance_Backups
-     * const count = await prisma.userDailyBalance_Backup.count({
-     *   where: {
-     *     // ... the filter for the UserDailyBalance_Backups we want to count
-     *   }
-     * })
-    **/
-    count<T extends UserDailyBalance_BackupCountArgs>(
-      args?: Subset<T, UserDailyBalance_BackupCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], UserDailyBalance_BackupCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a UserDailyBalance_Backup.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalance_BackupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends UserDailyBalance_BackupAggregateArgs>(args: Subset<T, UserDailyBalance_BackupAggregateArgs>): Prisma.PrismaPromise<GetUserDailyBalance_BackupAggregateType<T>>
-
-    /**
-     * Group by UserDailyBalance_Backup.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalance_BackupGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends UserDailyBalance_BackupGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: UserDailyBalance_BackupGroupByArgs['orderBy'] }
-        : { orderBy?: UserDailyBalance_BackupGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, UserDailyBalance_BackupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserDailyBalance_BackupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the UserDailyBalance_Backup model
-   */
-  readonly fields: UserDailyBalance_BackupFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for UserDailyBalance_Backup.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__UserDailyBalance_BackupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the UserDailyBalance_Backup model
-   */
-  interface UserDailyBalance_BackupFieldRefs {
-    readonly ID: FieldRef<"UserDailyBalance_Backup", 'Int'>
-    readonly SchoolID: FieldRef<"UserDailyBalance_Backup", 'Int'>
-    readonly sID: FieldRef<"UserDailyBalance_Backup", 'Int'>
-    readonly sStudentID: FieldRef<"UserDailyBalance_Backup", 'String'>
-    readonly sName: FieldRef<"UserDailyBalance_Backup", 'String'>
-    readonly sLastname: FieldRef<"UserDailyBalance_Backup", 'String'>
-    readonly cDel: FieldRef<"UserDailyBalance_Backup", 'String'>
-    readonly cType: FieldRef<"UserDailyBalance_Backup", 'String'>
-    readonly BusinessDate: FieldRef<"UserDailyBalance_Backup", 'DateTime'>
-    readonly OpeningBalance: FieldRef<"UserDailyBalance_Backup", 'Decimal'>
-    readonly TotalTopUp: FieldRef<"UserDailyBalance_Backup", 'Decimal'>
-    readonly TotalCancelTopUp: FieldRef<"UserDailyBalance_Backup", 'Decimal'>
-    readonly TotalWithDraw: FieldRef<"UserDailyBalance_Backup", 'Decimal'>
-    readonly TotalCancelWithDraw: FieldRef<"UserDailyBalance_Backup", 'Decimal'>
-    readonly TotalSales: FieldRef<"UserDailyBalance_Backup", 'Decimal'>
-    readonly TotalCancelSales: FieldRef<"UserDailyBalance_Backup", 'Decimal'>
-    readonly LastUpdatedDate: FieldRef<"UserDailyBalance_Backup", 'String'>
-    readonly Balance: FieldRef<"UserDailyBalance_Backup", 'Decimal'>
-    readonly OfflineSales: FieldRef<"UserDailyBalance_Backup", 'Decimal'>
-    readonly SystemBalance: FieldRef<"UserDailyBalance_Backup", 'Float'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * UserDailyBalance_Backup findUnique
-   */
-  export type UserDailyBalance_BackupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalance_Backup to fetch.
-     */
-    where: UserDailyBalance_BackupWhereUniqueInput
-  }
-
-  /**
-   * UserDailyBalance_Backup findUniqueOrThrow
-   */
-  export type UserDailyBalance_BackupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalance_Backup to fetch.
-     */
-    where: UserDailyBalance_BackupWhereUniqueInput
-  }
-
-  /**
-   * UserDailyBalance_Backup findFirst
-   */
-  export type UserDailyBalance_BackupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalance_Backup to fetch.
-     */
-    where?: UserDailyBalance_BackupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserDailyBalance_Backups to fetch.
-     */
-    orderBy?: UserDailyBalance_BackupOrderByWithRelationInput | UserDailyBalance_BackupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for UserDailyBalance_Backups.
-     */
-    cursor?: UserDailyBalance_BackupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserDailyBalance_Backups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserDailyBalance_Backups.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserDailyBalance_Backups.
-     */
-    distinct?: UserDailyBalance_BackupScalarFieldEnum | UserDailyBalance_BackupScalarFieldEnum[]
-  }
-
-  /**
-   * UserDailyBalance_Backup findFirstOrThrow
-   */
-  export type UserDailyBalance_BackupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalance_Backup to fetch.
-     */
-    where?: UserDailyBalance_BackupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserDailyBalance_Backups to fetch.
-     */
-    orderBy?: UserDailyBalance_BackupOrderByWithRelationInput | UserDailyBalance_BackupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for UserDailyBalance_Backups.
-     */
-    cursor?: UserDailyBalance_BackupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserDailyBalance_Backups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserDailyBalance_Backups.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserDailyBalance_Backups.
-     */
-    distinct?: UserDailyBalance_BackupScalarFieldEnum | UserDailyBalance_BackupScalarFieldEnum[]
-  }
-
-  /**
-   * UserDailyBalance_Backup findMany
-   */
-  export type UserDailyBalance_BackupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalance_Backups to fetch.
-     */
-    where?: UserDailyBalance_BackupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserDailyBalance_Backups to fetch.
-     */
-    orderBy?: UserDailyBalance_BackupOrderByWithRelationInput | UserDailyBalance_BackupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing UserDailyBalance_Backups.
-     */
-    cursor?: UserDailyBalance_BackupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserDailyBalance_Backups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserDailyBalance_Backups.
-     */
-    skip?: number
-    distinct?: UserDailyBalance_BackupScalarFieldEnum | UserDailyBalance_BackupScalarFieldEnum[]
-  }
-
-  /**
-   * UserDailyBalance_Backup create
-   */
-  export type UserDailyBalance_BackupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-    /**
-     * The data needed to create a UserDailyBalance_Backup.
-     */
-    data: XOR<UserDailyBalance_BackupCreateInput, UserDailyBalance_BackupUncheckedCreateInput>
-  }
-
-  /**
-   * UserDailyBalance_Backup createMany
-   */
-  export type UserDailyBalance_BackupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many UserDailyBalance_Backups.
-     */
-    data: UserDailyBalance_BackupCreateManyInput | UserDailyBalance_BackupCreateManyInput[]
-  }
-
-  /**
-   * UserDailyBalance_Backup update
-   */
-  export type UserDailyBalance_BackupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-    /**
-     * The data needed to update a UserDailyBalance_Backup.
-     */
-    data: XOR<UserDailyBalance_BackupUpdateInput, UserDailyBalance_BackupUncheckedUpdateInput>
-    /**
-     * Choose, which UserDailyBalance_Backup to update.
-     */
-    where: UserDailyBalance_BackupWhereUniqueInput
-  }
-
-  /**
-   * UserDailyBalance_Backup updateMany
-   */
-  export type UserDailyBalance_BackupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update UserDailyBalance_Backups.
-     */
-    data: XOR<UserDailyBalance_BackupUpdateManyMutationInput, UserDailyBalance_BackupUncheckedUpdateManyInput>
-    /**
-     * Filter which UserDailyBalance_Backups to update
-     */
-    where?: UserDailyBalance_BackupWhereInput
-    /**
-     * Limit how many UserDailyBalance_Backups to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * UserDailyBalance_Backup upsert
-   */
-  export type UserDailyBalance_BackupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-    /**
-     * The filter to search for the UserDailyBalance_Backup to update in case it exists.
-     */
-    where: UserDailyBalance_BackupWhereUniqueInput
-    /**
-     * In case the UserDailyBalance_Backup found by the `where` argument doesn't exist, create a new UserDailyBalance_Backup with this data.
-     */
-    create: XOR<UserDailyBalance_BackupCreateInput, UserDailyBalance_BackupUncheckedCreateInput>
-    /**
-     * In case the UserDailyBalance_Backup was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<UserDailyBalance_BackupUpdateInput, UserDailyBalance_BackupUncheckedUpdateInput>
-  }
-
-  /**
-   * UserDailyBalance_Backup delete
-   */
-  export type UserDailyBalance_BackupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-    /**
-     * Filter which UserDailyBalance_Backup to delete.
-     */
-    where: UserDailyBalance_BackupWhereUniqueInput
-  }
-
-  /**
-   * UserDailyBalance_Backup deleteMany
-   */
-  export type UserDailyBalance_BackupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which UserDailyBalance_Backups to delete
-     */
-    where?: UserDailyBalance_BackupWhereInput
-    /**
-     * Limit how many UserDailyBalance_Backups to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * UserDailyBalance_Backup without action
-   */
-  export type UserDailyBalance_BackupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalance_Backup
-     */
-    select?: UserDailyBalance_BackupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalance_Backup
-     */
-    omit?: UserDailyBalance_BackupOmit<ExtArgs> | null
-  }
-
-
-  /**
    * Model UserDailyBalance_Searlize
    */
 
@@ -366436,1119 +362379,6 @@ export namespace Prisma {
 
 
   /**
-   * Model UserDailyBalanceTemp
-   */
-
-  export type AggregateUserDailyBalanceTemp = {
-    _count: UserDailyBalanceTempCountAggregateOutputType | null
-    _avg: UserDailyBalanceTempAvgAggregateOutputType | null
-    _sum: UserDailyBalanceTempSumAggregateOutputType | null
-    _min: UserDailyBalanceTempMinAggregateOutputType | null
-    _max: UserDailyBalanceTempMaxAggregateOutputType | null
-  }
-
-  export type UserDailyBalanceTempAvgAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    sID: number | null
-    OpeningBalance: Decimal | null
-    TotalTopUp: Decimal | null
-    TotalCancelTopUp: Decimal | null
-    TotalWithDraw: Decimal | null
-    TotalCancelWithDraw: Decimal | null
-    TotalSales: Decimal | null
-    TotalCancelSales: Decimal | null
-    Balance: Decimal | null
-    SystemBalance: Decimal | null
-  }
-
-  export type UserDailyBalanceTempSumAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    sID: number | null
-    OpeningBalance: Decimal | null
-    TotalTopUp: Decimal | null
-    TotalCancelTopUp: Decimal | null
-    TotalWithDraw: Decimal | null
-    TotalCancelWithDraw: Decimal | null
-    TotalSales: Decimal | null
-    TotalCancelSales: Decimal | null
-    Balance: Decimal | null
-    SystemBalance: Decimal | null
-  }
-
-  export type UserDailyBalanceTempMinAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    sID: number | null
-    sStudentID: string | null
-    sName: string | null
-    sLastname: string | null
-    cDel: string | null
-    cType: string | null
-    BusinessDate: Date | null
-    OpeningBalance: Decimal | null
-    TotalTopUp: Decimal | null
-    TotalCancelTopUp: Decimal | null
-    TotalWithDraw: Decimal | null
-    TotalCancelWithDraw: Decimal | null
-    TotalSales: Decimal | null
-    TotalCancelSales: Decimal | null
-    LastUpdatedDate: string | null
-    Balance: Decimal | null
-    SystemBalance: Decimal | null
-  }
-
-  export type UserDailyBalanceTempMaxAggregateOutputType = {
-    ID: number | null
-    SchoolID: number | null
-    sID: number | null
-    sStudentID: string | null
-    sName: string | null
-    sLastname: string | null
-    cDel: string | null
-    cType: string | null
-    BusinessDate: Date | null
-    OpeningBalance: Decimal | null
-    TotalTopUp: Decimal | null
-    TotalCancelTopUp: Decimal | null
-    TotalWithDraw: Decimal | null
-    TotalCancelWithDraw: Decimal | null
-    TotalSales: Decimal | null
-    TotalCancelSales: Decimal | null
-    LastUpdatedDate: string | null
-    Balance: Decimal | null
-    SystemBalance: Decimal | null
-  }
-
-  export type UserDailyBalanceTempCountAggregateOutputType = {
-    ID: number
-    SchoolID: number
-    sID: number
-    sStudentID: number
-    sName: number
-    sLastname: number
-    cDel: number
-    cType: number
-    BusinessDate: number
-    OpeningBalance: number
-    TotalTopUp: number
-    TotalCancelTopUp: number
-    TotalWithDraw: number
-    TotalCancelWithDraw: number
-    TotalSales: number
-    TotalCancelSales: number
-    LastUpdatedDate: number
-    Balance: number
-    SystemBalance: number
-    _all: number
-  }
-
-
-  export type UserDailyBalanceTempAvgAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    Balance?: true
-    SystemBalance?: true
-  }
-
-  export type UserDailyBalanceTempSumAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    Balance?: true
-    SystemBalance?: true
-  }
-
-  export type UserDailyBalanceTempMinAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    sStudentID?: true
-    sName?: true
-    sLastname?: true
-    cDel?: true
-    cType?: true
-    BusinessDate?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    LastUpdatedDate?: true
-    Balance?: true
-    SystemBalance?: true
-  }
-
-  export type UserDailyBalanceTempMaxAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    sStudentID?: true
-    sName?: true
-    sLastname?: true
-    cDel?: true
-    cType?: true
-    BusinessDate?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    LastUpdatedDate?: true
-    Balance?: true
-    SystemBalance?: true
-  }
-
-  export type UserDailyBalanceTempCountAggregateInputType = {
-    ID?: true
-    SchoolID?: true
-    sID?: true
-    sStudentID?: true
-    sName?: true
-    sLastname?: true
-    cDel?: true
-    cType?: true
-    BusinessDate?: true
-    OpeningBalance?: true
-    TotalTopUp?: true
-    TotalCancelTopUp?: true
-    TotalWithDraw?: true
-    TotalCancelWithDraw?: true
-    TotalSales?: true
-    TotalCancelSales?: true
-    LastUpdatedDate?: true
-    Balance?: true
-    SystemBalance?: true
-    _all?: true
-  }
-
-  export type UserDailyBalanceTempAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which UserDailyBalanceTemp to aggregate.
-     */
-    where?: UserDailyBalanceTempWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserDailyBalanceTemps to fetch.
-     */
-    orderBy?: UserDailyBalanceTempOrderByWithRelationInput | UserDailyBalanceTempOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: UserDailyBalanceTempWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserDailyBalanceTemps from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserDailyBalanceTemps.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned UserDailyBalanceTemps
-    **/
-    _count?: true | UserDailyBalanceTempCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: UserDailyBalanceTempAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: UserDailyBalanceTempSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: UserDailyBalanceTempMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: UserDailyBalanceTempMaxAggregateInputType
-  }
-
-  export type GetUserDailyBalanceTempAggregateType<T extends UserDailyBalanceTempAggregateArgs> = {
-        [P in keyof T & keyof AggregateUserDailyBalanceTemp]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateUserDailyBalanceTemp[P]>
-      : GetScalarType<T[P], AggregateUserDailyBalanceTemp[P]>
-  }
-
-
-
-
-  export type UserDailyBalanceTempGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UserDailyBalanceTempWhereInput
-    orderBy?: UserDailyBalanceTempOrderByWithAggregationInput | UserDailyBalanceTempOrderByWithAggregationInput[]
-    by: UserDailyBalanceTempScalarFieldEnum[] | UserDailyBalanceTempScalarFieldEnum
-    having?: UserDailyBalanceTempScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: UserDailyBalanceTempCountAggregateInputType | true
-    _avg?: UserDailyBalanceTempAvgAggregateInputType
-    _sum?: UserDailyBalanceTempSumAggregateInputType
-    _min?: UserDailyBalanceTempMinAggregateInputType
-    _max?: UserDailyBalanceTempMaxAggregateInputType
-  }
-
-  export type UserDailyBalanceTempGroupByOutputType = {
-    ID: number
-    SchoolID: number
-    sID: number
-    sStudentID: string | null
-    sName: string | null
-    sLastname: string | null
-    cDel: string | null
-    cType: string
-    BusinessDate: Date | null
-    OpeningBalance: Decimal
-    TotalTopUp: Decimal
-    TotalCancelTopUp: Decimal
-    TotalWithDraw: Decimal
-    TotalCancelWithDraw: Decimal
-    TotalSales: Decimal
-    TotalCancelSales: Decimal
-    LastUpdatedDate: string
-    Balance: Decimal | null
-    SystemBalance: Decimal
-    _count: UserDailyBalanceTempCountAggregateOutputType | null
-    _avg: UserDailyBalanceTempAvgAggregateOutputType | null
-    _sum: UserDailyBalanceTempSumAggregateOutputType | null
-    _min: UserDailyBalanceTempMinAggregateOutputType | null
-    _max: UserDailyBalanceTempMaxAggregateOutputType | null
-  }
-
-  type GetUserDailyBalanceTempGroupByPayload<T extends UserDailyBalanceTempGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<UserDailyBalanceTempGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof UserDailyBalanceTempGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], UserDailyBalanceTempGroupByOutputType[P]>
-            : GetScalarType<T[P], UserDailyBalanceTempGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type UserDailyBalanceTempSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    ID?: boolean
-    SchoolID?: boolean
-    sID?: boolean
-    sStudentID?: boolean
-    sName?: boolean
-    sLastname?: boolean
-    cDel?: boolean
-    cType?: boolean
-    BusinessDate?: boolean
-    OpeningBalance?: boolean
-    TotalTopUp?: boolean
-    TotalCancelTopUp?: boolean
-    TotalWithDraw?: boolean
-    TotalCancelWithDraw?: boolean
-    TotalSales?: boolean
-    TotalCancelSales?: boolean
-    LastUpdatedDate?: boolean
-    Balance?: boolean
-    SystemBalance?: boolean
-  }, ExtArgs["result"]["userDailyBalanceTemp"]>
-
-
-
-  export type UserDailyBalanceTempSelectScalar = {
-    ID?: boolean
-    SchoolID?: boolean
-    sID?: boolean
-    sStudentID?: boolean
-    sName?: boolean
-    sLastname?: boolean
-    cDel?: boolean
-    cType?: boolean
-    BusinessDate?: boolean
-    OpeningBalance?: boolean
-    TotalTopUp?: boolean
-    TotalCancelTopUp?: boolean
-    TotalWithDraw?: boolean
-    TotalCancelWithDraw?: boolean
-    TotalSales?: boolean
-    TotalCancelSales?: boolean
-    LastUpdatedDate?: boolean
-    Balance?: boolean
-    SystemBalance?: boolean
-  }
-
-  export type UserDailyBalanceTempOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ID" | "SchoolID" | "sID" | "sStudentID" | "sName" | "sLastname" | "cDel" | "cType" | "BusinessDate" | "OpeningBalance" | "TotalTopUp" | "TotalCancelTopUp" | "TotalWithDraw" | "TotalCancelWithDraw" | "TotalSales" | "TotalCancelSales" | "LastUpdatedDate" | "Balance" | "SystemBalance", ExtArgs["result"]["userDailyBalanceTemp"]>
-
-  export type $UserDailyBalanceTempPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "UserDailyBalanceTemp"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      ID: number
-      SchoolID: number
-      sID: number
-      sStudentID: string | null
-      sName: string | null
-      sLastname: string | null
-      cDel: string | null
-      cType: string
-      BusinessDate: Date | null
-      OpeningBalance: Prisma.Decimal
-      TotalTopUp: Prisma.Decimal
-      TotalCancelTopUp: Prisma.Decimal
-      TotalWithDraw: Prisma.Decimal
-      TotalCancelWithDraw: Prisma.Decimal
-      TotalSales: Prisma.Decimal
-      TotalCancelSales: Prisma.Decimal
-      LastUpdatedDate: string
-      Balance: Prisma.Decimal | null
-      SystemBalance: Prisma.Decimal
-    }, ExtArgs["result"]["userDailyBalanceTemp"]>
-    composites: {}
-  }
-
-  type UserDailyBalanceTempGetPayload<S extends boolean | null | undefined | UserDailyBalanceTempDefaultArgs> = $Result.GetResult<Prisma.$UserDailyBalanceTempPayload, S>
-
-  type UserDailyBalanceTempCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<UserDailyBalanceTempFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: UserDailyBalanceTempCountAggregateInputType | true
-    }
-
-  export interface UserDailyBalanceTempDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserDailyBalanceTemp'], meta: { name: 'UserDailyBalanceTemp' } }
-    /**
-     * Find zero or one UserDailyBalanceTemp that matches the filter.
-     * @param {UserDailyBalanceTempFindUniqueArgs} args - Arguments to find a UserDailyBalanceTemp
-     * @example
-     * // Get one UserDailyBalanceTemp
-     * const userDailyBalanceTemp = await prisma.userDailyBalanceTemp.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends UserDailyBalanceTempFindUniqueArgs>(args: SelectSubset<T, UserDailyBalanceTempFindUniqueArgs<ExtArgs>>): Prisma__UserDailyBalanceTempClient<$Result.GetResult<Prisma.$UserDailyBalanceTempPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one UserDailyBalanceTemp that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {UserDailyBalanceTempFindUniqueOrThrowArgs} args - Arguments to find a UserDailyBalanceTemp
-     * @example
-     * // Get one UserDailyBalanceTemp
-     * const userDailyBalanceTemp = await prisma.userDailyBalanceTemp.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends UserDailyBalanceTempFindUniqueOrThrowArgs>(args: SelectSubset<T, UserDailyBalanceTempFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserDailyBalanceTempClient<$Result.GetResult<Prisma.$UserDailyBalanceTempPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first UserDailyBalanceTemp that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalanceTempFindFirstArgs} args - Arguments to find a UserDailyBalanceTemp
-     * @example
-     * // Get one UserDailyBalanceTemp
-     * const userDailyBalanceTemp = await prisma.userDailyBalanceTemp.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends UserDailyBalanceTempFindFirstArgs>(args?: SelectSubset<T, UserDailyBalanceTempFindFirstArgs<ExtArgs>>): Prisma__UserDailyBalanceTempClient<$Result.GetResult<Prisma.$UserDailyBalanceTempPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first UserDailyBalanceTemp that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalanceTempFindFirstOrThrowArgs} args - Arguments to find a UserDailyBalanceTemp
-     * @example
-     * // Get one UserDailyBalanceTemp
-     * const userDailyBalanceTemp = await prisma.userDailyBalanceTemp.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends UserDailyBalanceTempFindFirstOrThrowArgs>(args?: SelectSubset<T, UserDailyBalanceTempFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserDailyBalanceTempClient<$Result.GetResult<Prisma.$UserDailyBalanceTempPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more UserDailyBalanceTemps that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalanceTempFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all UserDailyBalanceTemps
-     * const userDailyBalanceTemps = await prisma.userDailyBalanceTemp.findMany()
-     * 
-     * // Get first 10 UserDailyBalanceTemps
-     * const userDailyBalanceTemps = await prisma.userDailyBalanceTemp.findMany({ take: 10 })
-     * 
-     * // Only select the `ID`
-     * const userDailyBalanceTempWithIDOnly = await prisma.userDailyBalanceTemp.findMany({ select: { ID: true } })
-     * 
-     */
-    findMany<T extends UserDailyBalanceTempFindManyArgs>(args?: SelectSubset<T, UserDailyBalanceTempFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserDailyBalanceTempPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a UserDailyBalanceTemp.
-     * @param {UserDailyBalanceTempCreateArgs} args - Arguments to create a UserDailyBalanceTemp.
-     * @example
-     * // Create one UserDailyBalanceTemp
-     * const UserDailyBalanceTemp = await prisma.userDailyBalanceTemp.create({
-     *   data: {
-     *     // ... data to create a UserDailyBalanceTemp
-     *   }
-     * })
-     * 
-     */
-    create<T extends UserDailyBalanceTempCreateArgs>(args: SelectSubset<T, UserDailyBalanceTempCreateArgs<ExtArgs>>): Prisma__UserDailyBalanceTempClient<$Result.GetResult<Prisma.$UserDailyBalanceTempPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many UserDailyBalanceTemps.
-     * @param {UserDailyBalanceTempCreateManyArgs} args - Arguments to create many UserDailyBalanceTemps.
-     * @example
-     * // Create many UserDailyBalanceTemps
-     * const userDailyBalanceTemp = await prisma.userDailyBalanceTemp.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends UserDailyBalanceTempCreateManyArgs>(args?: SelectSubset<T, UserDailyBalanceTempCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a UserDailyBalanceTemp.
-     * @param {UserDailyBalanceTempDeleteArgs} args - Arguments to delete one UserDailyBalanceTemp.
-     * @example
-     * // Delete one UserDailyBalanceTemp
-     * const UserDailyBalanceTemp = await prisma.userDailyBalanceTemp.delete({
-     *   where: {
-     *     // ... filter to delete one UserDailyBalanceTemp
-     *   }
-     * })
-     * 
-     */
-    delete<T extends UserDailyBalanceTempDeleteArgs>(args: SelectSubset<T, UserDailyBalanceTempDeleteArgs<ExtArgs>>): Prisma__UserDailyBalanceTempClient<$Result.GetResult<Prisma.$UserDailyBalanceTempPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one UserDailyBalanceTemp.
-     * @param {UserDailyBalanceTempUpdateArgs} args - Arguments to update one UserDailyBalanceTemp.
-     * @example
-     * // Update one UserDailyBalanceTemp
-     * const userDailyBalanceTemp = await prisma.userDailyBalanceTemp.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends UserDailyBalanceTempUpdateArgs>(args: SelectSubset<T, UserDailyBalanceTempUpdateArgs<ExtArgs>>): Prisma__UserDailyBalanceTempClient<$Result.GetResult<Prisma.$UserDailyBalanceTempPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more UserDailyBalanceTemps.
-     * @param {UserDailyBalanceTempDeleteManyArgs} args - Arguments to filter UserDailyBalanceTemps to delete.
-     * @example
-     * // Delete a few UserDailyBalanceTemps
-     * const { count } = await prisma.userDailyBalanceTemp.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends UserDailyBalanceTempDeleteManyArgs>(args?: SelectSubset<T, UserDailyBalanceTempDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more UserDailyBalanceTemps.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalanceTempUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many UserDailyBalanceTemps
-     * const userDailyBalanceTemp = await prisma.userDailyBalanceTemp.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends UserDailyBalanceTempUpdateManyArgs>(args: SelectSubset<T, UserDailyBalanceTempUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one UserDailyBalanceTemp.
-     * @param {UserDailyBalanceTempUpsertArgs} args - Arguments to update or create a UserDailyBalanceTemp.
-     * @example
-     * // Update or create a UserDailyBalanceTemp
-     * const userDailyBalanceTemp = await prisma.userDailyBalanceTemp.upsert({
-     *   create: {
-     *     // ... data to create a UserDailyBalanceTemp
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the UserDailyBalanceTemp we want to update
-     *   }
-     * })
-     */
-    upsert<T extends UserDailyBalanceTempUpsertArgs>(args: SelectSubset<T, UserDailyBalanceTempUpsertArgs<ExtArgs>>): Prisma__UserDailyBalanceTempClient<$Result.GetResult<Prisma.$UserDailyBalanceTempPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of UserDailyBalanceTemps.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalanceTempCountArgs} args - Arguments to filter UserDailyBalanceTemps to count.
-     * @example
-     * // Count the number of UserDailyBalanceTemps
-     * const count = await prisma.userDailyBalanceTemp.count({
-     *   where: {
-     *     // ... the filter for the UserDailyBalanceTemps we want to count
-     *   }
-     * })
-    **/
-    count<T extends UserDailyBalanceTempCountArgs>(
-      args?: Subset<T, UserDailyBalanceTempCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], UserDailyBalanceTempCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a UserDailyBalanceTemp.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalanceTempAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends UserDailyBalanceTempAggregateArgs>(args: Subset<T, UserDailyBalanceTempAggregateArgs>): Prisma.PrismaPromise<GetUserDailyBalanceTempAggregateType<T>>
-
-    /**
-     * Group by UserDailyBalanceTemp.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserDailyBalanceTempGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends UserDailyBalanceTempGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: UserDailyBalanceTempGroupByArgs['orderBy'] }
-        : { orderBy?: UserDailyBalanceTempGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, UserDailyBalanceTempGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserDailyBalanceTempGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the UserDailyBalanceTemp model
-   */
-  readonly fields: UserDailyBalanceTempFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for UserDailyBalanceTemp.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__UserDailyBalanceTempClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the UserDailyBalanceTemp model
-   */
-  interface UserDailyBalanceTempFieldRefs {
-    readonly ID: FieldRef<"UserDailyBalanceTemp", 'Int'>
-    readonly SchoolID: FieldRef<"UserDailyBalanceTemp", 'Int'>
-    readonly sID: FieldRef<"UserDailyBalanceTemp", 'Int'>
-    readonly sStudentID: FieldRef<"UserDailyBalanceTemp", 'String'>
-    readonly sName: FieldRef<"UserDailyBalanceTemp", 'String'>
-    readonly sLastname: FieldRef<"UserDailyBalanceTemp", 'String'>
-    readonly cDel: FieldRef<"UserDailyBalanceTemp", 'String'>
-    readonly cType: FieldRef<"UserDailyBalanceTemp", 'String'>
-    readonly BusinessDate: FieldRef<"UserDailyBalanceTemp", 'DateTime'>
-    readonly OpeningBalance: FieldRef<"UserDailyBalanceTemp", 'Decimal'>
-    readonly TotalTopUp: FieldRef<"UserDailyBalanceTemp", 'Decimal'>
-    readonly TotalCancelTopUp: FieldRef<"UserDailyBalanceTemp", 'Decimal'>
-    readonly TotalWithDraw: FieldRef<"UserDailyBalanceTemp", 'Decimal'>
-    readonly TotalCancelWithDraw: FieldRef<"UserDailyBalanceTemp", 'Decimal'>
-    readonly TotalSales: FieldRef<"UserDailyBalanceTemp", 'Decimal'>
-    readonly TotalCancelSales: FieldRef<"UserDailyBalanceTemp", 'Decimal'>
-    readonly LastUpdatedDate: FieldRef<"UserDailyBalanceTemp", 'String'>
-    readonly Balance: FieldRef<"UserDailyBalanceTemp", 'Decimal'>
-    readonly SystemBalance: FieldRef<"UserDailyBalanceTemp", 'Decimal'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * UserDailyBalanceTemp findUnique
-   */
-  export type UserDailyBalanceTempFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalanceTemp to fetch.
-     */
-    where: UserDailyBalanceTempWhereUniqueInput
-  }
-
-  /**
-   * UserDailyBalanceTemp findUniqueOrThrow
-   */
-  export type UserDailyBalanceTempFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalanceTemp to fetch.
-     */
-    where: UserDailyBalanceTempWhereUniqueInput
-  }
-
-  /**
-   * UserDailyBalanceTemp findFirst
-   */
-  export type UserDailyBalanceTempFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalanceTemp to fetch.
-     */
-    where?: UserDailyBalanceTempWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserDailyBalanceTemps to fetch.
-     */
-    orderBy?: UserDailyBalanceTempOrderByWithRelationInput | UserDailyBalanceTempOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for UserDailyBalanceTemps.
-     */
-    cursor?: UserDailyBalanceTempWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserDailyBalanceTemps from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserDailyBalanceTemps.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserDailyBalanceTemps.
-     */
-    distinct?: UserDailyBalanceTempScalarFieldEnum | UserDailyBalanceTempScalarFieldEnum[]
-  }
-
-  /**
-   * UserDailyBalanceTemp findFirstOrThrow
-   */
-  export type UserDailyBalanceTempFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalanceTemp to fetch.
-     */
-    where?: UserDailyBalanceTempWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserDailyBalanceTemps to fetch.
-     */
-    orderBy?: UserDailyBalanceTempOrderByWithRelationInput | UserDailyBalanceTempOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for UserDailyBalanceTemps.
-     */
-    cursor?: UserDailyBalanceTempWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserDailyBalanceTemps from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserDailyBalanceTemps.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserDailyBalanceTemps.
-     */
-    distinct?: UserDailyBalanceTempScalarFieldEnum | UserDailyBalanceTempScalarFieldEnum[]
-  }
-
-  /**
-   * UserDailyBalanceTemp findMany
-   */
-  export type UserDailyBalanceTempFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-    /**
-     * Filter, which UserDailyBalanceTemps to fetch.
-     */
-    where?: UserDailyBalanceTempWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserDailyBalanceTemps to fetch.
-     */
-    orderBy?: UserDailyBalanceTempOrderByWithRelationInput | UserDailyBalanceTempOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing UserDailyBalanceTemps.
-     */
-    cursor?: UserDailyBalanceTempWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserDailyBalanceTemps from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserDailyBalanceTemps.
-     */
-    skip?: number
-    distinct?: UserDailyBalanceTempScalarFieldEnum | UserDailyBalanceTempScalarFieldEnum[]
-  }
-
-  /**
-   * UserDailyBalanceTemp create
-   */
-  export type UserDailyBalanceTempCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-    /**
-     * The data needed to create a UserDailyBalanceTemp.
-     */
-    data: XOR<UserDailyBalanceTempCreateInput, UserDailyBalanceTempUncheckedCreateInput>
-  }
-
-  /**
-   * UserDailyBalanceTemp createMany
-   */
-  export type UserDailyBalanceTempCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many UserDailyBalanceTemps.
-     */
-    data: UserDailyBalanceTempCreateManyInput | UserDailyBalanceTempCreateManyInput[]
-  }
-
-  /**
-   * UserDailyBalanceTemp update
-   */
-  export type UserDailyBalanceTempUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-    /**
-     * The data needed to update a UserDailyBalanceTemp.
-     */
-    data: XOR<UserDailyBalanceTempUpdateInput, UserDailyBalanceTempUncheckedUpdateInput>
-    /**
-     * Choose, which UserDailyBalanceTemp to update.
-     */
-    where: UserDailyBalanceTempWhereUniqueInput
-  }
-
-  /**
-   * UserDailyBalanceTemp updateMany
-   */
-  export type UserDailyBalanceTempUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update UserDailyBalanceTemps.
-     */
-    data: XOR<UserDailyBalanceTempUpdateManyMutationInput, UserDailyBalanceTempUncheckedUpdateManyInput>
-    /**
-     * Filter which UserDailyBalanceTemps to update
-     */
-    where?: UserDailyBalanceTempWhereInput
-    /**
-     * Limit how many UserDailyBalanceTemps to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * UserDailyBalanceTemp upsert
-   */
-  export type UserDailyBalanceTempUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-    /**
-     * The filter to search for the UserDailyBalanceTemp to update in case it exists.
-     */
-    where: UserDailyBalanceTempWhereUniqueInput
-    /**
-     * In case the UserDailyBalanceTemp found by the `where` argument doesn't exist, create a new UserDailyBalanceTemp with this data.
-     */
-    create: XOR<UserDailyBalanceTempCreateInput, UserDailyBalanceTempUncheckedCreateInput>
-    /**
-     * In case the UserDailyBalanceTemp was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<UserDailyBalanceTempUpdateInput, UserDailyBalanceTempUncheckedUpdateInput>
-  }
-
-  /**
-   * UserDailyBalanceTemp delete
-   */
-  export type UserDailyBalanceTempDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-    /**
-     * Filter which UserDailyBalanceTemp to delete.
-     */
-    where: UserDailyBalanceTempWhereUniqueInput
-  }
-
-  /**
-   * UserDailyBalanceTemp deleteMany
-   */
-  export type UserDailyBalanceTempDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which UserDailyBalanceTemps to delete
-     */
-    where?: UserDailyBalanceTempWhereInput
-    /**
-     * Limit how many UserDailyBalanceTemps to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * UserDailyBalanceTemp without action
-   */
-  export type UserDailyBalanceTempDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserDailyBalanceTemp
-     */
-    select?: UserDailyBalanceTempSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserDailyBalanceTemp
-     */
-    omit?: UserDailyBalanceTempOmit<ExtArgs> | null
-  }
-
-
-  /**
    * Model UserDailyBalanceTempCard
    */
 
@@ -367610,7 +362440,7 @@ export namespace Prisma {
     TotalCancelWithDraw: Decimal | null
     TotalSales: Decimal | null
     TotalCancelSales: Decimal | null
-    LastUpdatedDate: string | null
+    LastUpdatedDate: Date | null
     Balance: Decimal | null
     CardHistoryID: string | null
     OfflineSales: Decimal | null
@@ -367635,7 +362465,7 @@ export namespace Prisma {
     TotalCancelWithDraw: Decimal | null
     TotalSales: Decimal | null
     TotalCancelSales: Decimal | null
-    LastUpdatedDate: string | null
+    LastUpdatedDate: Date | null
     Balance: Decimal | null
     CardHistoryID: string | null
     OfflineSales: Decimal | null
@@ -367883,7 +362713,7 @@ export namespace Prisma {
     TotalCancelWithDraw: Decimal
     TotalSales: Decimal
     TotalCancelSales: Decimal
-    LastUpdatedDate: string
+    LastUpdatedDate: Date
     Balance: Decimal | null
     CardHistoryID: string | null
     OfflineSales: Decimal | null
@@ -367984,7 +362814,7 @@ export namespace Prisma {
       TotalCancelWithDraw: Prisma.Decimal
       TotalSales: Prisma.Decimal
       TotalCancelSales: Prisma.Decimal
-      LastUpdatedDate: string
+      LastUpdatedDate: Date
       Balance: Prisma.Decimal | null
       CardHistoryID: string | null
       OfflineSales: Prisma.Decimal | null
@@ -368375,7 +363205,7 @@ export namespace Prisma {
     readonly TotalCancelWithDraw: FieldRef<"UserDailyBalanceTempCard", 'Decimal'>
     readonly TotalSales: FieldRef<"UserDailyBalanceTempCard", 'Decimal'>
     readonly TotalCancelSales: FieldRef<"UserDailyBalanceTempCard", 'Decimal'>
-    readonly LastUpdatedDate: FieldRef<"UserDailyBalanceTempCard", 'String'>
+    readonly LastUpdatedDate: FieldRef<"UserDailyBalanceTempCard", 'DateTime'>
     readonly Balance: FieldRef<"UserDailyBalanceTempCard", 'Decimal'>
     readonly CardHistoryID: FieldRef<"UserDailyBalanceTempCard", 'String'>
     readonly OfflineSales: FieldRef<"UserDailyBalanceTempCard", 'Decimal'>
@@ -370638,6 +365468,9749 @@ export namespace Prisma {
 
 
   /**
+   * Model dbo_DeviceActivityLog
+   */
+
+  export type AggregateDbo_DeviceActivityLog = {
+    _count: Dbo_DeviceActivityLogCountAggregateOutputType | null
+    _avg: Dbo_DeviceActivityLogAvgAggregateOutputType | null
+    _sum: Dbo_DeviceActivityLogSumAggregateOutputType | null
+    _min: Dbo_DeviceActivityLogMinAggregateOutputType | null
+    _max: Dbo_DeviceActivityLogMaxAggregateOutputType | null
+  }
+
+  export type Dbo_DeviceActivityLogAvgAggregateOutputType = {
+    SchoolID: number | null
+  }
+
+  export type Dbo_DeviceActivityLogSumAggregateOutputType = {
+    SchoolID: number | null
+  }
+
+  export type Dbo_DeviceActivityLogMinAggregateOutputType = {
+    LogID: string | null
+    SchoolID: number | null
+    DeviceID: string | null
+    LogDescription: string | null
+    Tstamp: Date | null
+    DeviceType: string | null
+  }
+
+  export type Dbo_DeviceActivityLogMaxAggregateOutputType = {
+    LogID: string | null
+    SchoolID: number | null
+    DeviceID: string | null
+    LogDescription: string | null
+    Tstamp: Date | null
+    DeviceType: string | null
+  }
+
+  export type Dbo_DeviceActivityLogCountAggregateOutputType = {
+    LogID: number
+    SchoolID: number
+    DeviceID: number
+    LogDescription: number
+    Tstamp: number
+    DeviceType: number
+    _all: number
+  }
+
+
+  export type Dbo_DeviceActivityLogAvgAggregateInputType = {
+    SchoolID?: true
+  }
+
+  export type Dbo_DeviceActivityLogSumAggregateInputType = {
+    SchoolID?: true
+  }
+
+  export type Dbo_DeviceActivityLogMinAggregateInputType = {
+    LogID?: true
+    SchoolID?: true
+    DeviceID?: true
+    LogDescription?: true
+    Tstamp?: true
+    DeviceType?: true
+  }
+
+  export type Dbo_DeviceActivityLogMaxAggregateInputType = {
+    LogID?: true
+    SchoolID?: true
+    DeviceID?: true
+    LogDescription?: true
+    Tstamp?: true
+    DeviceType?: true
+  }
+
+  export type Dbo_DeviceActivityLogCountAggregateInputType = {
+    LogID?: true
+    SchoolID?: true
+    DeviceID?: true
+    LogDescription?: true
+    Tstamp?: true
+    DeviceType?: true
+    _all?: true
+  }
+
+  export type Dbo_DeviceActivityLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which dbo_DeviceActivityLog to aggregate.
+     */
+    where?: dbo_DeviceActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of dbo_DeviceActivityLogs to fetch.
+     */
+    orderBy?: dbo_DeviceActivityLogOrderByWithRelationInput | dbo_DeviceActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: dbo_DeviceActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` dbo_DeviceActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` dbo_DeviceActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned dbo_DeviceActivityLogs
+    **/
+    _count?: true | Dbo_DeviceActivityLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Dbo_DeviceActivityLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Dbo_DeviceActivityLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Dbo_DeviceActivityLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Dbo_DeviceActivityLogMaxAggregateInputType
+  }
+
+  export type GetDbo_DeviceActivityLogAggregateType<T extends Dbo_DeviceActivityLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateDbo_DeviceActivityLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDbo_DeviceActivityLog[P]>
+      : GetScalarType<T[P], AggregateDbo_DeviceActivityLog[P]>
+  }
+
+
+
+
+  export type dbo_DeviceActivityLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: dbo_DeviceActivityLogWhereInput
+    orderBy?: dbo_DeviceActivityLogOrderByWithAggregationInput | dbo_DeviceActivityLogOrderByWithAggregationInput[]
+    by: Dbo_DeviceActivityLogScalarFieldEnum[] | Dbo_DeviceActivityLogScalarFieldEnum
+    having?: dbo_DeviceActivityLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Dbo_DeviceActivityLogCountAggregateInputType | true
+    _avg?: Dbo_DeviceActivityLogAvgAggregateInputType
+    _sum?: Dbo_DeviceActivityLogSumAggregateInputType
+    _min?: Dbo_DeviceActivityLogMinAggregateInputType
+    _max?: Dbo_DeviceActivityLogMaxAggregateInputType
+  }
+
+  export type Dbo_DeviceActivityLogGroupByOutputType = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date
+    DeviceType: string
+    _count: Dbo_DeviceActivityLogCountAggregateOutputType | null
+    _avg: Dbo_DeviceActivityLogAvgAggregateOutputType | null
+    _sum: Dbo_DeviceActivityLogSumAggregateOutputType | null
+    _min: Dbo_DeviceActivityLogMinAggregateOutputType | null
+    _max: Dbo_DeviceActivityLogMaxAggregateOutputType | null
+  }
+
+  type GetDbo_DeviceActivityLogGroupByPayload<T extends dbo_DeviceActivityLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Dbo_DeviceActivityLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Dbo_DeviceActivityLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Dbo_DeviceActivityLogGroupByOutputType[P]>
+            : GetScalarType<T[P], Dbo_DeviceActivityLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type dbo_DeviceActivityLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    LogID?: boolean
+    SchoolID?: boolean
+    DeviceID?: boolean
+    LogDescription?: boolean
+    Tstamp?: boolean
+    DeviceType?: boolean
+  }, ExtArgs["result"]["dbo_DeviceActivityLog"]>
+
+
+
+  export type dbo_DeviceActivityLogSelectScalar = {
+    LogID?: boolean
+    SchoolID?: boolean
+    DeviceID?: boolean
+    LogDescription?: boolean
+    Tstamp?: boolean
+    DeviceType?: boolean
+  }
+
+  export type dbo_DeviceActivityLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"LogID" | "SchoolID" | "DeviceID" | "LogDescription" | "Tstamp" | "DeviceType", ExtArgs["result"]["dbo_DeviceActivityLog"]>
+
+  export type $dbo_DeviceActivityLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "dbo_DeviceActivityLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      LogID: string
+      SchoolID: number
+      DeviceID: string
+      LogDescription: string
+      Tstamp: Date
+      DeviceType: string
+    }, ExtArgs["result"]["dbo_DeviceActivityLog"]>
+    composites: {}
+  }
+
+  type dbo_DeviceActivityLogGetPayload<S extends boolean | null | undefined | dbo_DeviceActivityLogDefaultArgs> = $Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload, S>
+
+  type dbo_DeviceActivityLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<dbo_DeviceActivityLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Dbo_DeviceActivityLogCountAggregateInputType | true
+    }
+
+  export interface dbo_DeviceActivityLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['dbo_DeviceActivityLog'], meta: { name: 'dbo_DeviceActivityLog' } }
+    /**
+     * Find zero or one Dbo_DeviceActivityLog that matches the filter.
+     * @param {dbo_DeviceActivityLogFindUniqueArgs} args - Arguments to find a Dbo_DeviceActivityLog
+     * @example
+     * // Get one Dbo_DeviceActivityLog
+     * const dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends dbo_DeviceActivityLogFindUniqueArgs>(args: SelectSubset<T, dbo_DeviceActivityLogFindUniqueArgs<ExtArgs>>): Prisma__dbo_DeviceActivityLogClient<$Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Dbo_DeviceActivityLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {dbo_DeviceActivityLogFindUniqueOrThrowArgs} args - Arguments to find a Dbo_DeviceActivityLog
+     * @example
+     * // Get one Dbo_DeviceActivityLog
+     * const dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends dbo_DeviceActivityLogFindUniqueOrThrowArgs>(args: SelectSubset<T, dbo_DeviceActivityLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__dbo_DeviceActivityLogClient<$Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Dbo_DeviceActivityLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_DeviceActivityLogFindFirstArgs} args - Arguments to find a Dbo_DeviceActivityLog
+     * @example
+     * // Get one Dbo_DeviceActivityLog
+     * const dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends dbo_DeviceActivityLogFindFirstArgs>(args?: SelectSubset<T, dbo_DeviceActivityLogFindFirstArgs<ExtArgs>>): Prisma__dbo_DeviceActivityLogClient<$Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Dbo_DeviceActivityLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_DeviceActivityLogFindFirstOrThrowArgs} args - Arguments to find a Dbo_DeviceActivityLog
+     * @example
+     * // Get one Dbo_DeviceActivityLog
+     * const dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends dbo_DeviceActivityLogFindFirstOrThrowArgs>(args?: SelectSubset<T, dbo_DeviceActivityLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__dbo_DeviceActivityLogClient<$Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Dbo_DeviceActivityLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_DeviceActivityLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Dbo_DeviceActivityLogs
+     * const dbo_DeviceActivityLogs = await prisma.dbo_DeviceActivityLog.findMany()
+     * 
+     * // Get first 10 Dbo_DeviceActivityLogs
+     * const dbo_DeviceActivityLogs = await prisma.dbo_DeviceActivityLog.findMany({ take: 10 })
+     * 
+     * // Only select the `LogID`
+     * const dbo_DeviceActivityLogWithLogIDOnly = await prisma.dbo_DeviceActivityLog.findMany({ select: { LogID: true } })
+     * 
+     */
+    findMany<T extends dbo_DeviceActivityLogFindManyArgs>(args?: SelectSubset<T, dbo_DeviceActivityLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Dbo_DeviceActivityLog.
+     * @param {dbo_DeviceActivityLogCreateArgs} args - Arguments to create a Dbo_DeviceActivityLog.
+     * @example
+     * // Create one Dbo_DeviceActivityLog
+     * const Dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.create({
+     *   data: {
+     *     // ... data to create a Dbo_DeviceActivityLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends dbo_DeviceActivityLogCreateArgs>(args: SelectSubset<T, dbo_DeviceActivityLogCreateArgs<ExtArgs>>): Prisma__dbo_DeviceActivityLogClient<$Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Dbo_DeviceActivityLogs.
+     * @param {dbo_DeviceActivityLogCreateManyArgs} args - Arguments to create many Dbo_DeviceActivityLogs.
+     * @example
+     * // Create many Dbo_DeviceActivityLogs
+     * const dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends dbo_DeviceActivityLogCreateManyArgs>(args?: SelectSubset<T, dbo_DeviceActivityLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Dbo_DeviceActivityLog.
+     * @param {dbo_DeviceActivityLogDeleteArgs} args - Arguments to delete one Dbo_DeviceActivityLog.
+     * @example
+     * // Delete one Dbo_DeviceActivityLog
+     * const Dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.delete({
+     *   where: {
+     *     // ... filter to delete one Dbo_DeviceActivityLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends dbo_DeviceActivityLogDeleteArgs>(args: SelectSubset<T, dbo_DeviceActivityLogDeleteArgs<ExtArgs>>): Prisma__dbo_DeviceActivityLogClient<$Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Dbo_DeviceActivityLog.
+     * @param {dbo_DeviceActivityLogUpdateArgs} args - Arguments to update one Dbo_DeviceActivityLog.
+     * @example
+     * // Update one Dbo_DeviceActivityLog
+     * const dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends dbo_DeviceActivityLogUpdateArgs>(args: SelectSubset<T, dbo_DeviceActivityLogUpdateArgs<ExtArgs>>): Prisma__dbo_DeviceActivityLogClient<$Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Dbo_DeviceActivityLogs.
+     * @param {dbo_DeviceActivityLogDeleteManyArgs} args - Arguments to filter Dbo_DeviceActivityLogs to delete.
+     * @example
+     * // Delete a few Dbo_DeviceActivityLogs
+     * const { count } = await prisma.dbo_DeviceActivityLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends dbo_DeviceActivityLogDeleteManyArgs>(args?: SelectSubset<T, dbo_DeviceActivityLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Dbo_DeviceActivityLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_DeviceActivityLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Dbo_DeviceActivityLogs
+     * const dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends dbo_DeviceActivityLogUpdateManyArgs>(args: SelectSubset<T, dbo_DeviceActivityLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Dbo_DeviceActivityLog.
+     * @param {dbo_DeviceActivityLogUpsertArgs} args - Arguments to update or create a Dbo_DeviceActivityLog.
+     * @example
+     * // Update or create a Dbo_DeviceActivityLog
+     * const dbo_DeviceActivityLog = await prisma.dbo_DeviceActivityLog.upsert({
+     *   create: {
+     *     // ... data to create a Dbo_DeviceActivityLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Dbo_DeviceActivityLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends dbo_DeviceActivityLogUpsertArgs>(args: SelectSubset<T, dbo_DeviceActivityLogUpsertArgs<ExtArgs>>): Prisma__dbo_DeviceActivityLogClient<$Result.GetResult<Prisma.$dbo_DeviceActivityLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Dbo_DeviceActivityLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_DeviceActivityLogCountArgs} args - Arguments to filter Dbo_DeviceActivityLogs to count.
+     * @example
+     * // Count the number of Dbo_DeviceActivityLogs
+     * const count = await prisma.dbo_DeviceActivityLog.count({
+     *   where: {
+     *     // ... the filter for the Dbo_DeviceActivityLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends dbo_DeviceActivityLogCountArgs>(
+      args?: Subset<T, dbo_DeviceActivityLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Dbo_DeviceActivityLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Dbo_DeviceActivityLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Dbo_DeviceActivityLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Dbo_DeviceActivityLogAggregateArgs>(args: Subset<T, Dbo_DeviceActivityLogAggregateArgs>): Prisma.PrismaPromise<GetDbo_DeviceActivityLogAggregateType<T>>
+
+    /**
+     * Group by Dbo_DeviceActivityLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_DeviceActivityLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends dbo_DeviceActivityLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: dbo_DeviceActivityLogGroupByArgs['orderBy'] }
+        : { orderBy?: dbo_DeviceActivityLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, dbo_DeviceActivityLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDbo_DeviceActivityLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the dbo_DeviceActivityLog model
+   */
+  readonly fields: dbo_DeviceActivityLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for dbo_DeviceActivityLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__dbo_DeviceActivityLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the dbo_DeviceActivityLog model
+   */
+  interface dbo_DeviceActivityLogFieldRefs {
+    readonly LogID: FieldRef<"dbo_DeviceActivityLog", 'String'>
+    readonly SchoolID: FieldRef<"dbo_DeviceActivityLog", 'Int'>
+    readonly DeviceID: FieldRef<"dbo_DeviceActivityLog", 'String'>
+    readonly LogDescription: FieldRef<"dbo_DeviceActivityLog", 'String'>
+    readonly Tstamp: FieldRef<"dbo_DeviceActivityLog", 'DateTime'>
+    readonly DeviceType: FieldRef<"dbo_DeviceActivityLog", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * dbo_DeviceActivityLog findUnique
+   */
+  export type dbo_DeviceActivityLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_DeviceActivityLog to fetch.
+     */
+    where: dbo_DeviceActivityLogWhereUniqueInput
+  }
+
+  /**
+   * dbo_DeviceActivityLog findUniqueOrThrow
+   */
+  export type dbo_DeviceActivityLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_DeviceActivityLog to fetch.
+     */
+    where: dbo_DeviceActivityLogWhereUniqueInput
+  }
+
+  /**
+   * dbo_DeviceActivityLog findFirst
+   */
+  export type dbo_DeviceActivityLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_DeviceActivityLog to fetch.
+     */
+    where?: dbo_DeviceActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of dbo_DeviceActivityLogs to fetch.
+     */
+    orderBy?: dbo_DeviceActivityLogOrderByWithRelationInput | dbo_DeviceActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for dbo_DeviceActivityLogs.
+     */
+    cursor?: dbo_DeviceActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` dbo_DeviceActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` dbo_DeviceActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of dbo_DeviceActivityLogs.
+     */
+    distinct?: Dbo_DeviceActivityLogScalarFieldEnum | Dbo_DeviceActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * dbo_DeviceActivityLog findFirstOrThrow
+   */
+  export type dbo_DeviceActivityLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_DeviceActivityLog to fetch.
+     */
+    where?: dbo_DeviceActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of dbo_DeviceActivityLogs to fetch.
+     */
+    orderBy?: dbo_DeviceActivityLogOrderByWithRelationInput | dbo_DeviceActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for dbo_DeviceActivityLogs.
+     */
+    cursor?: dbo_DeviceActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` dbo_DeviceActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` dbo_DeviceActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of dbo_DeviceActivityLogs.
+     */
+    distinct?: Dbo_DeviceActivityLogScalarFieldEnum | Dbo_DeviceActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * dbo_DeviceActivityLog findMany
+   */
+  export type dbo_DeviceActivityLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_DeviceActivityLogs to fetch.
+     */
+    where?: dbo_DeviceActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of dbo_DeviceActivityLogs to fetch.
+     */
+    orderBy?: dbo_DeviceActivityLogOrderByWithRelationInput | dbo_DeviceActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing dbo_DeviceActivityLogs.
+     */
+    cursor?: dbo_DeviceActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` dbo_DeviceActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` dbo_DeviceActivityLogs.
+     */
+    skip?: number
+    distinct?: Dbo_DeviceActivityLogScalarFieldEnum | Dbo_DeviceActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * dbo_DeviceActivityLog create
+   */
+  export type dbo_DeviceActivityLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+    /**
+     * The data needed to create a dbo_DeviceActivityLog.
+     */
+    data: XOR<dbo_DeviceActivityLogCreateInput, dbo_DeviceActivityLogUncheckedCreateInput>
+  }
+
+  /**
+   * dbo_DeviceActivityLog createMany
+   */
+  export type dbo_DeviceActivityLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many dbo_DeviceActivityLogs.
+     */
+    data: dbo_DeviceActivityLogCreateManyInput | dbo_DeviceActivityLogCreateManyInput[]
+  }
+
+  /**
+   * dbo_DeviceActivityLog update
+   */
+  export type dbo_DeviceActivityLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+    /**
+     * The data needed to update a dbo_DeviceActivityLog.
+     */
+    data: XOR<dbo_DeviceActivityLogUpdateInput, dbo_DeviceActivityLogUncheckedUpdateInput>
+    /**
+     * Choose, which dbo_DeviceActivityLog to update.
+     */
+    where: dbo_DeviceActivityLogWhereUniqueInput
+  }
+
+  /**
+   * dbo_DeviceActivityLog updateMany
+   */
+  export type dbo_DeviceActivityLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update dbo_DeviceActivityLogs.
+     */
+    data: XOR<dbo_DeviceActivityLogUpdateManyMutationInput, dbo_DeviceActivityLogUncheckedUpdateManyInput>
+    /**
+     * Filter which dbo_DeviceActivityLogs to update
+     */
+    where?: dbo_DeviceActivityLogWhereInput
+    /**
+     * Limit how many dbo_DeviceActivityLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * dbo_DeviceActivityLog upsert
+   */
+  export type dbo_DeviceActivityLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+    /**
+     * The filter to search for the dbo_DeviceActivityLog to update in case it exists.
+     */
+    where: dbo_DeviceActivityLogWhereUniqueInput
+    /**
+     * In case the dbo_DeviceActivityLog found by the `where` argument doesn't exist, create a new dbo_DeviceActivityLog with this data.
+     */
+    create: XOR<dbo_DeviceActivityLogCreateInput, dbo_DeviceActivityLogUncheckedCreateInput>
+    /**
+     * In case the dbo_DeviceActivityLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<dbo_DeviceActivityLogUpdateInput, dbo_DeviceActivityLogUncheckedUpdateInput>
+  }
+
+  /**
+   * dbo_DeviceActivityLog delete
+   */
+  export type dbo_DeviceActivityLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+    /**
+     * Filter which dbo_DeviceActivityLog to delete.
+     */
+    where: dbo_DeviceActivityLogWhereUniqueInput
+  }
+
+  /**
+   * dbo_DeviceActivityLog deleteMany
+   */
+  export type dbo_DeviceActivityLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which dbo_DeviceActivityLogs to delete
+     */
+    where?: dbo_DeviceActivityLogWhereInput
+    /**
+     * Limit how many dbo_DeviceActivityLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * dbo_DeviceActivityLog without action
+   */
+  export type dbo_DeviceActivityLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_DeviceActivityLog
+     */
+    select?: dbo_DeviceActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_DeviceActivityLog
+     */
+    omit?: dbo_DeviceActivityLogOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DeviceActivityLog_Backup
+   */
+
+  export type AggregateDeviceActivityLog_Backup = {
+    _count: DeviceActivityLog_BackupCountAggregateOutputType | null
+    _avg: DeviceActivityLog_BackupAvgAggregateOutputType | null
+    _sum: DeviceActivityLog_BackupSumAggregateOutputType | null
+    _min: DeviceActivityLog_BackupMinAggregateOutputType | null
+    _max: DeviceActivityLog_BackupMaxAggregateOutputType | null
+  }
+
+  export type DeviceActivityLog_BackupAvgAggregateOutputType = {
+    SchoolID: number | null
+  }
+
+  export type DeviceActivityLog_BackupSumAggregateOutputType = {
+    SchoolID: number | null
+  }
+
+  export type DeviceActivityLog_BackupMinAggregateOutputType = {
+    LogID: string | null
+    SchoolID: number | null
+    DeviceID: string | null
+    LogDescription: string | null
+    Tstamp: Date | null
+    DeviceType: string | null
+  }
+
+  export type DeviceActivityLog_BackupMaxAggregateOutputType = {
+    LogID: string | null
+    SchoolID: number | null
+    DeviceID: string | null
+    LogDescription: string | null
+    Tstamp: Date | null
+    DeviceType: string | null
+  }
+
+  export type DeviceActivityLog_BackupCountAggregateOutputType = {
+    LogID: number
+    SchoolID: number
+    DeviceID: number
+    LogDescription: number
+    Tstamp: number
+    DeviceType: number
+    _all: number
+  }
+
+
+  export type DeviceActivityLog_BackupAvgAggregateInputType = {
+    SchoolID?: true
+  }
+
+  export type DeviceActivityLog_BackupSumAggregateInputType = {
+    SchoolID?: true
+  }
+
+  export type DeviceActivityLog_BackupMinAggregateInputType = {
+    LogID?: true
+    SchoolID?: true
+    DeviceID?: true
+    LogDescription?: true
+    Tstamp?: true
+    DeviceType?: true
+  }
+
+  export type DeviceActivityLog_BackupMaxAggregateInputType = {
+    LogID?: true
+    SchoolID?: true
+    DeviceID?: true
+    LogDescription?: true
+    Tstamp?: true
+    DeviceType?: true
+  }
+
+  export type DeviceActivityLog_BackupCountAggregateInputType = {
+    LogID?: true
+    SchoolID?: true
+    DeviceID?: true
+    LogDescription?: true
+    Tstamp?: true
+    DeviceType?: true
+    _all?: true
+  }
+
+  export type DeviceActivityLog_BackupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceActivityLog_Backup to aggregate.
+     */
+    where?: DeviceActivityLog_BackupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceActivityLog_Backups to fetch.
+     */
+    orderBy?: DeviceActivityLog_BackupOrderByWithRelationInput | DeviceActivityLog_BackupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DeviceActivityLog_BackupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceActivityLog_Backups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceActivityLog_Backups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DeviceActivityLog_Backups
+    **/
+    _count?: true | DeviceActivityLog_BackupCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DeviceActivityLog_BackupAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DeviceActivityLog_BackupSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DeviceActivityLog_BackupMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DeviceActivityLog_BackupMaxAggregateInputType
+  }
+
+  export type GetDeviceActivityLog_BackupAggregateType<T extends DeviceActivityLog_BackupAggregateArgs> = {
+        [P in keyof T & keyof AggregateDeviceActivityLog_Backup]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDeviceActivityLog_Backup[P]>
+      : GetScalarType<T[P], AggregateDeviceActivityLog_Backup[P]>
+  }
+
+
+
+
+  export type DeviceActivityLog_BackupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceActivityLog_BackupWhereInput
+    orderBy?: DeviceActivityLog_BackupOrderByWithAggregationInput | DeviceActivityLog_BackupOrderByWithAggregationInput[]
+    by: DeviceActivityLog_BackupScalarFieldEnum[] | DeviceActivityLog_BackupScalarFieldEnum
+    having?: DeviceActivityLog_BackupScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DeviceActivityLog_BackupCountAggregateInputType | true
+    _avg?: DeviceActivityLog_BackupAvgAggregateInputType
+    _sum?: DeviceActivityLog_BackupSumAggregateInputType
+    _min?: DeviceActivityLog_BackupMinAggregateInputType
+    _max?: DeviceActivityLog_BackupMaxAggregateInputType
+  }
+
+  export type DeviceActivityLog_BackupGroupByOutputType = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date
+    DeviceType: string
+    _count: DeviceActivityLog_BackupCountAggregateOutputType | null
+    _avg: DeviceActivityLog_BackupAvgAggregateOutputType | null
+    _sum: DeviceActivityLog_BackupSumAggregateOutputType | null
+    _min: DeviceActivityLog_BackupMinAggregateOutputType | null
+    _max: DeviceActivityLog_BackupMaxAggregateOutputType | null
+  }
+
+  type GetDeviceActivityLog_BackupGroupByPayload<T extends DeviceActivityLog_BackupGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DeviceActivityLog_BackupGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DeviceActivityLog_BackupGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DeviceActivityLog_BackupGroupByOutputType[P]>
+            : GetScalarType<T[P], DeviceActivityLog_BackupGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DeviceActivityLog_BackupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    LogID?: boolean
+    SchoolID?: boolean
+    DeviceID?: boolean
+    LogDescription?: boolean
+    Tstamp?: boolean
+    DeviceType?: boolean
+  }, ExtArgs["result"]["deviceActivityLog_Backup"]>
+
+
+
+  export type DeviceActivityLog_BackupSelectScalar = {
+    LogID?: boolean
+    SchoolID?: boolean
+    DeviceID?: boolean
+    LogDescription?: boolean
+    Tstamp?: boolean
+    DeviceType?: boolean
+  }
+
+  export type DeviceActivityLog_BackupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"LogID" | "SchoolID" | "DeviceID" | "LogDescription" | "Tstamp" | "DeviceType", ExtArgs["result"]["deviceActivityLog_Backup"]>
+
+  export type $DeviceActivityLog_BackupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DeviceActivityLog_Backup"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      LogID: string
+      SchoolID: number
+      DeviceID: string
+      LogDescription: string
+      Tstamp: Date
+      DeviceType: string
+    }, ExtArgs["result"]["deviceActivityLog_Backup"]>
+    composites: {}
+  }
+
+  type DeviceActivityLog_BackupGetPayload<S extends boolean | null | undefined | DeviceActivityLog_BackupDefaultArgs> = $Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload, S>
+
+  type DeviceActivityLog_BackupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DeviceActivityLog_BackupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DeviceActivityLog_BackupCountAggregateInputType | true
+    }
+
+  export interface DeviceActivityLog_BackupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DeviceActivityLog_Backup'], meta: { name: 'DeviceActivityLog_Backup' } }
+    /**
+     * Find zero or one DeviceActivityLog_Backup that matches the filter.
+     * @param {DeviceActivityLog_BackupFindUniqueArgs} args - Arguments to find a DeviceActivityLog_Backup
+     * @example
+     * // Get one DeviceActivityLog_Backup
+     * const deviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DeviceActivityLog_BackupFindUniqueArgs>(args: SelectSubset<T, DeviceActivityLog_BackupFindUniqueArgs<ExtArgs>>): Prisma__DeviceActivityLog_BackupClient<$Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DeviceActivityLog_Backup that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DeviceActivityLog_BackupFindUniqueOrThrowArgs} args - Arguments to find a DeviceActivityLog_Backup
+     * @example
+     * // Get one DeviceActivityLog_Backup
+     * const deviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DeviceActivityLog_BackupFindUniqueOrThrowArgs>(args: SelectSubset<T, DeviceActivityLog_BackupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DeviceActivityLog_BackupClient<$Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceActivityLog_Backup that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_BackupFindFirstArgs} args - Arguments to find a DeviceActivityLog_Backup
+     * @example
+     * // Get one DeviceActivityLog_Backup
+     * const deviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DeviceActivityLog_BackupFindFirstArgs>(args?: SelectSubset<T, DeviceActivityLog_BackupFindFirstArgs<ExtArgs>>): Prisma__DeviceActivityLog_BackupClient<$Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceActivityLog_Backup that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_BackupFindFirstOrThrowArgs} args - Arguments to find a DeviceActivityLog_Backup
+     * @example
+     * // Get one DeviceActivityLog_Backup
+     * const deviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DeviceActivityLog_BackupFindFirstOrThrowArgs>(args?: SelectSubset<T, DeviceActivityLog_BackupFindFirstOrThrowArgs<ExtArgs>>): Prisma__DeviceActivityLog_BackupClient<$Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DeviceActivityLog_Backups that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_BackupFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DeviceActivityLog_Backups
+     * const deviceActivityLog_Backups = await prisma.deviceActivityLog_Backup.findMany()
+     * 
+     * // Get first 10 DeviceActivityLog_Backups
+     * const deviceActivityLog_Backups = await prisma.deviceActivityLog_Backup.findMany({ take: 10 })
+     * 
+     * // Only select the `LogID`
+     * const deviceActivityLog_BackupWithLogIDOnly = await prisma.deviceActivityLog_Backup.findMany({ select: { LogID: true } })
+     * 
+     */
+    findMany<T extends DeviceActivityLog_BackupFindManyArgs>(args?: SelectSubset<T, DeviceActivityLog_BackupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DeviceActivityLog_Backup.
+     * @param {DeviceActivityLog_BackupCreateArgs} args - Arguments to create a DeviceActivityLog_Backup.
+     * @example
+     * // Create one DeviceActivityLog_Backup
+     * const DeviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.create({
+     *   data: {
+     *     // ... data to create a DeviceActivityLog_Backup
+     *   }
+     * })
+     * 
+     */
+    create<T extends DeviceActivityLog_BackupCreateArgs>(args: SelectSubset<T, DeviceActivityLog_BackupCreateArgs<ExtArgs>>): Prisma__DeviceActivityLog_BackupClient<$Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DeviceActivityLog_Backups.
+     * @param {DeviceActivityLog_BackupCreateManyArgs} args - Arguments to create many DeviceActivityLog_Backups.
+     * @example
+     * // Create many DeviceActivityLog_Backups
+     * const deviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DeviceActivityLog_BackupCreateManyArgs>(args?: SelectSubset<T, DeviceActivityLog_BackupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a DeviceActivityLog_Backup.
+     * @param {DeviceActivityLog_BackupDeleteArgs} args - Arguments to delete one DeviceActivityLog_Backup.
+     * @example
+     * // Delete one DeviceActivityLog_Backup
+     * const DeviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.delete({
+     *   where: {
+     *     // ... filter to delete one DeviceActivityLog_Backup
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DeviceActivityLog_BackupDeleteArgs>(args: SelectSubset<T, DeviceActivityLog_BackupDeleteArgs<ExtArgs>>): Prisma__DeviceActivityLog_BackupClient<$Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DeviceActivityLog_Backup.
+     * @param {DeviceActivityLog_BackupUpdateArgs} args - Arguments to update one DeviceActivityLog_Backup.
+     * @example
+     * // Update one DeviceActivityLog_Backup
+     * const deviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DeviceActivityLog_BackupUpdateArgs>(args: SelectSubset<T, DeviceActivityLog_BackupUpdateArgs<ExtArgs>>): Prisma__DeviceActivityLog_BackupClient<$Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DeviceActivityLog_Backups.
+     * @param {DeviceActivityLog_BackupDeleteManyArgs} args - Arguments to filter DeviceActivityLog_Backups to delete.
+     * @example
+     * // Delete a few DeviceActivityLog_Backups
+     * const { count } = await prisma.deviceActivityLog_Backup.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DeviceActivityLog_BackupDeleteManyArgs>(args?: SelectSubset<T, DeviceActivityLog_BackupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeviceActivityLog_Backups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_BackupUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DeviceActivityLog_Backups
+     * const deviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DeviceActivityLog_BackupUpdateManyArgs>(args: SelectSubset<T, DeviceActivityLog_BackupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DeviceActivityLog_Backup.
+     * @param {DeviceActivityLog_BackupUpsertArgs} args - Arguments to update or create a DeviceActivityLog_Backup.
+     * @example
+     * // Update or create a DeviceActivityLog_Backup
+     * const deviceActivityLog_Backup = await prisma.deviceActivityLog_Backup.upsert({
+     *   create: {
+     *     // ... data to create a DeviceActivityLog_Backup
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DeviceActivityLog_Backup we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DeviceActivityLog_BackupUpsertArgs>(args: SelectSubset<T, DeviceActivityLog_BackupUpsertArgs<ExtArgs>>): Prisma__DeviceActivityLog_BackupClient<$Result.GetResult<Prisma.$DeviceActivityLog_BackupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DeviceActivityLog_Backups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_BackupCountArgs} args - Arguments to filter DeviceActivityLog_Backups to count.
+     * @example
+     * // Count the number of DeviceActivityLog_Backups
+     * const count = await prisma.deviceActivityLog_Backup.count({
+     *   where: {
+     *     // ... the filter for the DeviceActivityLog_Backups we want to count
+     *   }
+     * })
+    **/
+    count<T extends DeviceActivityLog_BackupCountArgs>(
+      args?: Subset<T, DeviceActivityLog_BackupCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DeviceActivityLog_BackupCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DeviceActivityLog_Backup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_BackupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DeviceActivityLog_BackupAggregateArgs>(args: Subset<T, DeviceActivityLog_BackupAggregateArgs>): Prisma.PrismaPromise<GetDeviceActivityLog_BackupAggregateType<T>>
+
+    /**
+     * Group by DeviceActivityLog_Backup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_BackupGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DeviceActivityLog_BackupGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DeviceActivityLog_BackupGroupByArgs['orderBy'] }
+        : { orderBy?: DeviceActivityLog_BackupGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DeviceActivityLog_BackupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeviceActivityLog_BackupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DeviceActivityLog_Backup model
+   */
+  readonly fields: DeviceActivityLog_BackupFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DeviceActivityLog_Backup.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DeviceActivityLog_BackupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DeviceActivityLog_Backup model
+   */
+  interface DeviceActivityLog_BackupFieldRefs {
+    readonly LogID: FieldRef<"DeviceActivityLog_Backup", 'String'>
+    readonly SchoolID: FieldRef<"DeviceActivityLog_Backup", 'Int'>
+    readonly DeviceID: FieldRef<"DeviceActivityLog_Backup", 'String'>
+    readonly LogDescription: FieldRef<"DeviceActivityLog_Backup", 'String'>
+    readonly Tstamp: FieldRef<"DeviceActivityLog_Backup", 'DateTime'>
+    readonly DeviceType: FieldRef<"DeviceActivityLog_Backup", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DeviceActivityLog_Backup findUnique
+   */
+  export type DeviceActivityLog_BackupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_Backup to fetch.
+     */
+    where: DeviceActivityLog_BackupWhereUniqueInput
+  }
+
+  /**
+   * DeviceActivityLog_Backup findUniqueOrThrow
+   */
+  export type DeviceActivityLog_BackupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_Backup to fetch.
+     */
+    where: DeviceActivityLog_BackupWhereUniqueInput
+  }
+
+  /**
+   * DeviceActivityLog_Backup findFirst
+   */
+  export type DeviceActivityLog_BackupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_Backup to fetch.
+     */
+    where?: DeviceActivityLog_BackupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceActivityLog_Backups to fetch.
+     */
+    orderBy?: DeviceActivityLog_BackupOrderByWithRelationInput | DeviceActivityLog_BackupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceActivityLog_Backups.
+     */
+    cursor?: DeviceActivityLog_BackupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceActivityLog_Backups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceActivityLog_Backups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceActivityLog_Backups.
+     */
+    distinct?: DeviceActivityLog_BackupScalarFieldEnum | DeviceActivityLog_BackupScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceActivityLog_Backup findFirstOrThrow
+   */
+  export type DeviceActivityLog_BackupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_Backup to fetch.
+     */
+    where?: DeviceActivityLog_BackupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceActivityLog_Backups to fetch.
+     */
+    orderBy?: DeviceActivityLog_BackupOrderByWithRelationInput | DeviceActivityLog_BackupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceActivityLog_Backups.
+     */
+    cursor?: DeviceActivityLog_BackupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceActivityLog_Backups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceActivityLog_Backups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceActivityLog_Backups.
+     */
+    distinct?: DeviceActivityLog_BackupScalarFieldEnum | DeviceActivityLog_BackupScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceActivityLog_Backup findMany
+   */
+  export type DeviceActivityLog_BackupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_Backups to fetch.
+     */
+    where?: DeviceActivityLog_BackupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceActivityLog_Backups to fetch.
+     */
+    orderBy?: DeviceActivityLog_BackupOrderByWithRelationInput | DeviceActivityLog_BackupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DeviceActivityLog_Backups.
+     */
+    cursor?: DeviceActivityLog_BackupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceActivityLog_Backups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceActivityLog_Backups.
+     */
+    skip?: number
+    distinct?: DeviceActivityLog_BackupScalarFieldEnum | DeviceActivityLog_BackupScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceActivityLog_Backup create
+   */
+  export type DeviceActivityLog_BackupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DeviceActivityLog_Backup.
+     */
+    data: XOR<DeviceActivityLog_BackupCreateInput, DeviceActivityLog_BackupUncheckedCreateInput>
+  }
+
+  /**
+   * DeviceActivityLog_Backup createMany
+   */
+  export type DeviceActivityLog_BackupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DeviceActivityLog_Backups.
+     */
+    data: DeviceActivityLog_BackupCreateManyInput | DeviceActivityLog_BackupCreateManyInput[]
+  }
+
+  /**
+   * DeviceActivityLog_Backup update
+   */
+  export type DeviceActivityLog_BackupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DeviceActivityLog_Backup.
+     */
+    data: XOR<DeviceActivityLog_BackupUpdateInput, DeviceActivityLog_BackupUncheckedUpdateInput>
+    /**
+     * Choose, which DeviceActivityLog_Backup to update.
+     */
+    where: DeviceActivityLog_BackupWhereUniqueInput
+  }
+
+  /**
+   * DeviceActivityLog_Backup updateMany
+   */
+  export type DeviceActivityLog_BackupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DeviceActivityLog_Backups.
+     */
+    data: XOR<DeviceActivityLog_BackupUpdateManyMutationInput, DeviceActivityLog_BackupUncheckedUpdateManyInput>
+    /**
+     * Filter which DeviceActivityLog_Backups to update
+     */
+    where?: DeviceActivityLog_BackupWhereInput
+    /**
+     * Limit how many DeviceActivityLog_Backups to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceActivityLog_Backup upsert
+   */
+  export type DeviceActivityLog_BackupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DeviceActivityLog_Backup to update in case it exists.
+     */
+    where: DeviceActivityLog_BackupWhereUniqueInput
+    /**
+     * In case the DeviceActivityLog_Backup found by the `where` argument doesn't exist, create a new DeviceActivityLog_Backup with this data.
+     */
+    create: XOR<DeviceActivityLog_BackupCreateInput, DeviceActivityLog_BackupUncheckedCreateInput>
+    /**
+     * In case the DeviceActivityLog_Backup was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DeviceActivityLog_BackupUpdateInput, DeviceActivityLog_BackupUncheckedUpdateInput>
+  }
+
+  /**
+   * DeviceActivityLog_Backup delete
+   */
+  export type DeviceActivityLog_BackupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+    /**
+     * Filter which DeviceActivityLog_Backup to delete.
+     */
+    where: DeviceActivityLog_BackupWhereUniqueInput
+  }
+
+  /**
+   * DeviceActivityLog_Backup deleteMany
+   */
+  export type DeviceActivityLog_BackupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceActivityLog_Backups to delete
+     */
+    where?: DeviceActivityLog_BackupWhereInput
+    /**
+     * Limit how many DeviceActivityLog_Backups to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceActivityLog_Backup without action
+   */
+  export type DeviceActivityLog_BackupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_Backup
+     */
+    select?: DeviceActivityLog_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_Backup
+     */
+    omit?: DeviceActivityLog_BackupOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DeviceActivityLog_History
+   */
+
+  export type AggregateDeviceActivityLog_History = {
+    _count: DeviceActivityLog_HistoryCountAggregateOutputType | null
+    _avg: DeviceActivityLog_HistoryAvgAggregateOutputType | null
+    _sum: DeviceActivityLog_HistorySumAggregateOutputType | null
+    _min: DeviceActivityLog_HistoryMinAggregateOutputType | null
+    _max: DeviceActivityLog_HistoryMaxAggregateOutputType | null
+  }
+
+  export type DeviceActivityLog_HistoryAvgAggregateOutputType = {
+    SchoolID: number | null
+  }
+
+  export type DeviceActivityLog_HistorySumAggregateOutputType = {
+    SchoolID: number | null
+  }
+
+  export type DeviceActivityLog_HistoryMinAggregateOutputType = {
+    LogID: string | null
+    SchoolID: number | null
+    DeviceID: string | null
+    LogDescription: string | null
+    Tstamp: Date | null
+    DeviceType: string | null
+  }
+
+  export type DeviceActivityLog_HistoryMaxAggregateOutputType = {
+    LogID: string | null
+    SchoolID: number | null
+    DeviceID: string | null
+    LogDescription: string | null
+    Tstamp: Date | null
+    DeviceType: string | null
+  }
+
+  export type DeviceActivityLog_HistoryCountAggregateOutputType = {
+    LogID: number
+    SchoolID: number
+    DeviceID: number
+    LogDescription: number
+    Tstamp: number
+    DeviceType: number
+    _all: number
+  }
+
+
+  export type DeviceActivityLog_HistoryAvgAggregateInputType = {
+    SchoolID?: true
+  }
+
+  export type DeviceActivityLog_HistorySumAggregateInputType = {
+    SchoolID?: true
+  }
+
+  export type DeviceActivityLog_HistoryMinAggregateInputType = {
+    LogID?: true
+    SchoolID?: true
+    DeviceID?: true
+    LogDescription?: true
+    Tstamp?: true
+    DeviceType?: true
+  }
+
+  export type DeviceActivityLog_HistoryMaxAggregateInputType = {
+    LogID?: true
+    SchoolID?: true
+    DeviceID?: true
+    LogDescription?: true
+    Tstamp?: true
+    DeviceType?: true
+  }
+
+  export type DeviceActivityLog_HistoryCountAggregateInputType = {
+    LogID?: true
+    SchoolID?: true
+    DeviceID?: true
+    LogDescription?: true
+    Tstamp?: true
+    DeviceType?: true
+    _all?: true
+  }
+
+  export type DeviceActivityLog_HistoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceActivityLog_History to aggregate.
+     */
+    where?: DeviceActivityLog_HistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceActivityLog_Histories to fetch.
+     */
+    orderBy?: DeviceActivityLog_HistoryOrderByWithRelationInput | DeviceActivityLog_HistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DeviceActivityLog_HistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceActivityLog_Histories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceActivityLog_Histories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DeviceActivityLog_Histories
+    **/
+    _count?: true | DeviceActivityLog_HistoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DeviceActivityLog_HistoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DeviceActivityLog_HistorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DeviceActivityLog_HistoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DeviceActivityLog_HistoryMaxAggregateInputType
+  }
+
+  export type GetDeviceActivityLog_HistoryAggregateType<T extends DeviceActivityLog_HistoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateDeviceActivityLog_History]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDeviceActivityLog_History[P]>
+      : GetScalarType<T[P], AggregateDeviceActivityLog_History[P]>
+  }
+
+
+
+
+  export type DeviceActivityLog_HistoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceActivityLog_HistoryWhereInput
+    orderBy?: DeviceActivityLog_HistoryOrderByWithAggregationInput | DeviceActivityLog_HistoryOrderByWithAggregationInput[]
+    by: DeviceActivityLog_HistoryScalarFieldEnum[] | DeviceActivityLog_HistoryScalarFieldEnum
+    having?: DeviceActivityLog_HistoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DeviceActivityLog_HistoryCountAggregateInputType | true
+    _avg?: DeviceActivityLog_HistoryAvgAggregateInputType
+    _sum?: DeviceActivityLog_HistorySumAggregateInputType
+    _min?: DeviceActivityLog_HistoryMinAggregateInputType
+    _max?: DeviceActivityLog_HistoryMaxAggregateInputType
+  }
+
+  export type DeviceActivityLog_HistoryGroupByOutputType = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date
+    DeviceType: string
+    _count: DeviceActivityLog_HistoryCountAggregateOutputType | null
+    _avg: DeviceActivityLog_HistoryAvgAggregateOutputType | null
+    _sum: DeviceActivityLog_HistorySumAggregateOutputType | null
+    _min: DeviceActivityLog_HistoryMinAggregateOutputType | null
+    _max: DeviceActivityLog_HistoryMaxAggregateOutputType | null
+  }
+
+  type GetDeviceActivityLog_HistoryGroupByPayload<T extends DeviceActivityLog_HistoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DeviceActivityLog_HistoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DeviceActivityLog_HistoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DeviceActivityLog_HistoryGroupByOutputType[P]>
+            : GetScalarType<T[P], DeviceActivityLog_HistoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DeviceActivityLog_HistorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    LogID?: boolean
+    SchoolID?: boolean
+    DeviceID?: boolean
+    LogDescription?: boolean
+    Tstamp?: boolean
+    DeviceType?: boolean
+  }, ExtArgs["result"]["deviceActivityLog_History"]>
+
+
+
+  export type DeviceActivityLog_HistorySelectScalar = {
+    LogID?: boolean
+    SchoolID?: boolean
+    DeviceID?: boolean
+    LogDescription?: boolean
+    Tstamp?: boolean
+    DeviceType?: boolean
+  }
+
+  export type DeviceActivityLog_HistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"LogID" | "SchoolID" | "DeviceID" | "LogDescription" | "Tstamp" | "DeviceType", ExtArgs["result"]["deviceActivityLog_History"]>
+
+  export type $DeviceActivityLog_HistoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DeviceActivityLog_History"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      LogID: string
+      SchoolID: number
+      DeviceID: string
+      LogDescription: string
+      Tstamp: Date
+      DeviceType: string
+    }, ExtArgs["result"]["deviceActivityLog_History"]>
+    composites: {}
+  }
+
+  type DeviceActivityLog_HistoryGetPayload<S extends boolean | null | undefined | DeviceActivityLog_HistoryDefaultArgs> = $Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload, S>
+
+  type DeviceActivityLog_HistoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DeviceActivityLog_HistoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DeviceActivityLog_HistoryCountAggregateInputType | true
+    }
+
+  export interface DeviceActivityLog_HistoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DeviceActivityLog_History'], meta: { name: 'DeviceActivityLog_History' } }
+    /**
+     * Find zero or one DeviceActivityLog_History that matches the filter.
+     * @param {DeviceActivityLog_HistoryFindUniqueArgs} args - Arguments to find a DeviceActivityLog_History
+     * @example
+     * // Get one DeviceActivityLog_History
+     * const deviceActivityLog_History = await prisma.deviceActivityLog_History.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DeviceActivityLog_HistoryFindUniqueArgs>(args: SelectSubset<T, DeviceActivityLog_HistoryFindUniqueArgs<ExtArgs>>): Prisma__DeviceActivityLog_HistoryClient<$Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DeviceActivityLog_History that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DeviceActivityLog_HistoryFindUniqueOrThrowArgs} args - Arguments to find a DeviceActivityLog_History
+     * @example
+     * // Get one DeviceActivityLog_History
+     * const deviceActivityLog_History = await prisma.deviceActivityLog_History.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DeviceActivityLog_HistoryFindUniqueOrThrowArgs>(args: SelectSubset<T, DeviceActivityLog_HistoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DeviceActivityLog_HistoryClient<$Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceActivityLog_History that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_HistoryFindFirstArgs} args - Arguments to find a DeviceActivityLog_History
+     * @example
+     * // Get one DeviceActivityLog_History
+     * const deviceActivityLog_History = await prisma.deviceActivityLog_History.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DeviceActivityLog_HistoryFindFirstArgs>(args?: SelectSubset<T, DeviceActivityLog_HistoryFindFirstArgs<ExtArgs>>): Prisma__DeviceActivityLog_HistoryClient<$Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceActivityLog_History that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_HistoryFindFirstOrThrowArgs} args - Arguments to find a DeviceActivityLog_History
+     * @example
+     * // Get one DeviceActivityLog_History
+     * const deviceActivityLog_History = await prisma.deviceActivityLog_History.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DeviceActivityLog_HistoryFindFirstOrThrowArgs>(args?: SelectSubset<T, DeviceActivityLog_HistoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__DeviceActivityLog_HistoryClient<$Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DeviceActivityLog_Histories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_HistoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DeviceActivityLog_Histories
+     * const deviceActivityLog_Histories = await prisma.deviceActivityLog_History.findMany()
+     * 
+     * // Get first 10 DeviceActivityLog_Histories
+     * const deviceActivityLog_Histories = await prisma.deviceActivityLog_History.findMany({ take: 10 })
+     * 
+     * // Only select the `LogID`
+     * const deviceActivityLog_HistoryWithLogIDOnly = await prisma.deviceActivityLog_History.findMany({ select: { LogID: true } })
+     * 
+     */
+    findMany<T extends DeviceActivityLog_HistoryFindManyArgs>(args?: SelectSubset<T, DeviceActivityLog_HistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DeviceActivityLog_History.
+     * @param {DeviceActivityLog_HistoryCreateArgs} args - Arguments to create a DeviceActivityLog_History.
+     * @example
+     * // Create one DeviceActivityLog_History
+     * const DeviceActivityLog_History = await prisma.deviceActivityLog_History.create({
+     *   data: {
+     *     // ... data to create a DeviceActivityLog_History
+     *   }
+     * })
+     * 
+     */
+    create<T extends DeviceActivityLog_HistoryCreateArgs>(args: SelectSubset<T, DeviceActivityLog_HistoryCreateArgs<ExtArgs>>): Prisma__DeviceActivityLog_HistoryClient<$Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DeviceActivityLog_Histories.
+     * @param {DeviceActivityLog_HistoryCreateManyArgs} args - Arguments to create many DeviceActivityLog_Histories.
+     * @example
+     * // Create many DeviceActivityLog_Histories
+     * const deviceActivityLog_History = await prisma.deviceActivityLog_History.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DeviceActivityLog_HistoryCreateManyArgs>(args?: SelectSubset<T, DeviceActivityLog_HistoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a DeviceActivityLog_History.
+     * @param {DeviceActivityLog_HistoryDeleteArgs} args - Arguments to delete one DeviceActivityLog_History.
+     * @example
+     * // Delete one DeviceActivityLog_History
+     * const DeviceActivityLog_History = await prisma.deviceActivityLog_History.delete({
+     *   where: {
+     *     // ... filter to delete one DeviceActivityLog_History
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DeviceActivityLog_HistoryDeleteArgs>(args: SelectSubset<T, DeviceActivityLog_HistoryDeleteArgs<ExtArgs>>): Prisma__DeviceActivityLog_HistoryClient<$Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DeviceActivityLog_History.
+     * @param {DeviceActivityLog_HistoryUpdateArgs} args - Arguments to update one DeviceActivityLog_History.
+     * @example
+     * // Update one DeviceActivityLog_History
+     * const deviceActivityLog_History = await prisma.deviceActivityLog_History.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DeviceActivityLog_HistoryUpdateArgs>(args: SelectSubset<T, DeviceActivityLog_HistoryUpdateArgs<ExtArgs>>): Prisma__DeviceActivityLog_HistoryClient<$Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DeviceActivityLog_Histories.
+     * @param {DeviceActivityLog_HistoryDeleteManyArgs} args - Arguments to filter DeviceActivityLog_Histories to delete.
+     * @example
+     * // Delete a few DeviceActivityLog_Histories
+     * const { count } = await prisma.deviceActivityLog_History.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DeviceActivityLog_HistoryDeleteManyArgs>(args?: SelectSubset<T, DeviceActivityLog_HistoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeviceActivityLog_Histories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_HistoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DeviceActivityLog_Histories
+     * const deviceActivityLog_History = await prisma.deviceActivityLog_History.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DeviceActivityLog_HistoryUpdateManyArgs>(args: SelectSubset<T, DeviceActivityLog_HistoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DeviceActivityLog_History.
+     * @param {DeviceActivityLog_HistoryUpsertArgs} args - Arguments to update or create a DeviceActivityLog_History.
+     * @example
+     * // Update or create a DeviceActivityLog_History
+     * const deviceActivityLog_History = await prisma.deviceActivityLog_History.upsert({
+     *   create: {
+     *     // ... data to create a DeviceActivityLog_History
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DeviceActivityLog_History we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DeviceActivityLog_HistoryUpsertArgs>(args: SelectSubset<T, DeviceActivityLog_HistoryUpsertArgs<ExtArgs>>): Prisma__DeviceActivityLog_HistoryClient<$Result.GetResult<Prisma.$DeviceActivityLog_HistoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DeviceActivityLog_Histories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_HistoryCountArgs} args - Arguments to filter DeviceActivityLog_Histories to count.
+     * @example
+     * // Count the number of DeviceActivityLog_Histories
+     * const count = await prisma.deviceActivityLog_History.count({
+     *   where: {
+     *     // ... the filter for the DeviceActivityLog_Histories we want to count
+     *   }
+     * })
+    **/
+    count<T extends DeviceActivityLog_HistoryCountArgs>(
+      args?: Subset<T, DeviceActivityLog_HistoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DeviceActivityLog_HistoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DeviceActivityLog_History.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_HistoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DeviceActivityLog_HistoryAggregateArgs>(args: Subset<T, DeviceActivityLog_HistoryAggregateArgs>): Prisma.PrismaPromise<GetDeviceActivityLog_HistoryAggregateType<T>>
+
+    /**
+     * Group by DeviceActivityLog_History.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceActivityLog_HistoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DeviceActivityLog_HistoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DeviceActivityLog_HistoryGroupByArgs['orderBy'] }
+        : { orderBy?: DeviceActivityLog_HistoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DeviceActivityLog_HistoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeviceActivityLog_HistoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DeviceActivityLog_History model
+   */
+  readonly fields: DeviceActivityLog_HistoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DeviceActivityLog_History.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DeviceActivityLog_HistoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DeviceActivityLog_History model
+   */
+  interface DeviceActivityLog_HistoryFieldRefs {
+    readonly LogID: FieldRef<"DeviceActivityLog_History", 'String'>
+    readonly SchoolID: FieldRef<"DeviceActivityLog_History", 'Int'>
+    readonly DeviceID: FieldRef<"DeviceActivityLog_History", 'String'>
+    readonly LogDescription: FieldRef<"DeviceActivityLog_History", 'String'>
+    readonly Tstamp: FieldRef<"DeviceActivityLog_History", 'DateTime'>
+    readonly DeviceType: FieldRef<"DeviceActivityLog_History", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DeviceActivityLog_History findUnique
+   */
+  export type DeviceActivityLog_HistoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_History to fetch.
+     */
+    where: DeviceActivityLog_HistoryWhereUniqueInput
+  }
+
+  /**
+   * DeviceActivityLog_History findUniqueOrThrow
+   */
+  export type DeviceActivityLog_HistoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_History to fetch.
+     */
+    where: DeviceActivityLog_HistoryWhereUniqueInput
+  }
+
+  /**
+   * DeviceActivityLog_History findFirst
+   */
+  export type DeviceActivityLog_HistoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_History to fetch.
+     */
+    where?: DeviceActivityLog_HistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceActivityLog_Histories to fetch.
+     */
+    orderBy?: DeviceActivityLog_HistoryOrderByWithRelationInput | DeviceActivityLog_HistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceActivityLog_Histories.
+     */
+    cursor?: DeviceActivityLog_HistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceActivityLog_Histories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceActivityLog_Histories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceActivityLog_Histories.
+     */
+    distinct?: DeviceActivityLog_HistoryScalarFieldEnum | DeviceActivityLog_HistoryScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceActivityLog_History findFirstOrThrow
+   */
+  export type DeviceActivityLog_HistoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_History to fetch.
+     */
+    where?: DeviceActivityLog_HistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceActivityLog_Histories to fetch.
+     */
+    orderBy?: DeviceActivityLog_HistoryOrderByWithRelationInput | DeviceActivityLog_HistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceActivityLog_Histories.
+     */
+    cursor?: DeviceActivityLog_HistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceActivityLog_Histories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceActivityLog_Histories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceActivityLog_Histories.
+     */
+    distinct?: DeviceActivityLog_HistoryScalarFieldEnum | DeviceActivityLog_HistoryScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceActivityLog_History findMany
+   */
+  export type DeviceActivityLog_HistoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceActivityLog_Histories to fetch.
+     */
+    where?: DeviceActivityLog_HistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceActivityLog_Histories to fetch.
+     */
+    orderBy?: DeviceActivityLog_HistoryOrderByWithRelationInput | DeviceActivityLog_HistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DeviceActivityLog_Histories.
+     */
+    cursor?: DeviceActivityLog_HistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceActivityLog_Histories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceActivityLog_Histories.
+     */
+    skip?: number
+    distinct?: DeviceActivityLog_HistoryScalarFieldEnum | DeviceActivityLog_HistoryScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceActivityLog_History create
+   */
+  export type DeviceActivityLog_HistoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DeviceActivityLog_History.
+     */
+    data: XOR<DeviceActivityLog_HistoryCreateInput, DeviceActivityLog_HistoryUncheckedCreateInput>
+  }
+
+  /**
+   * DeviceActivityLog_History createMany
+   */
+  export type DeviceActivityLog_HistoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DeviceActivityLog_Histories.
+     */
+    data: DeviceActivityLog_HistoryCreateManyInput | DeviceActivityLog_HistoryCreateManyInput[]
+  }
+
+  /**
+   * DeviceActivityLog_History update
+   */
+  export type DeviceActivityLog_HistoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DeviceActivityLog_History.
+     */
+    data: XOR<DeviceActivityLog_HistoryUpdateInput, DeviceActivityLog_HistoryUncheckedUpdateInput>
+    /**
+     * Choose, which DeviceActivityLog_History to update.
+     */
+    where: DeviceActivityLog_HistoryWhereUniqueInput
+  }
+
+  /**
+   * DeviceActivityLog_History updateMany
+   */
+  export type DeviceActivityLog_HistoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DeviceActivityLog_Histories.
+     */
+    data: XOR<DeviceActivityLog_HistoryUpdateManyMutationInput, DeviceActivityLog_HistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which DeviceActivityLog_Histories to update
+     */
+    where?: DeviceActivityLog_HistoryWhereInput
+    /**
+     * Limit how many DeviceActivityLog_Histories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceActivityLog_History upsert
+   */
+  export type DeviceActivityLog_HistoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DeviceActivityLog_History to update in case it exists.
+     */
+    where: DeviceActivityLog_HistoryWhereUniqueInput
+    /**
+     * In case the DeviceActivityLog_History found by the `where` argument doesn't exist, create a new DeviceActivityLog_History with this data.
+     */
+    create: XOR<DeviceActivityLog_HistoryCreateInput, DeviceActivityLog_HistoryUncheckedCreateInput>
+    /**
+     * In case the DeviceActivityLog_History was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DeviceActivityLog_HistoryUpdateInput, DeviceActivityLog_HistoryUncheckedUpdateInput>
+  }
+
+  /**
+   * DeviceActivityLog_History delete
+   */
+  export type DeviceActivityLog_HistoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+    /**
+     * Filter which DeviceActivityLog_History to delete.
+     */
+    where: DeviceActivityLog_HistoryWhereUniqueInput
+  }
+
+  /**
+   * DeviceActivityLog_History deleteMany
+   */
+  export type DeviceActivityLog_HistoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceActivityLog_Histories to delete
+     */
+    where?: DeviceActivityLog_HistoryWhereInput
+    /**
+     * Limit how many DeviceActivityLog_Histories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceActivityLog_History without action
+   */
+  export type DeviceActivityLog_HistoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceActivityLog_History
+     */
+    select?: DeviceActivityLog_HistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceActivityLog_History
+     */
+    omit?: DeviceActivityLog_HistoryOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DeviceDailyStatus_Backup
+   */
+
+  export type AggregateDeviceDailyStatus_Backup = {
+    _count: DeviceDailyStatus_BackupCountAggregateOutputType | null
+    _avg: DeviceDailyStatus_BackupAvgAggregateOutputType | null
+    _sum: DeviceDailyStatus_BackupSumAggregateOutputType | null
+    _min: DeviceDailyStatus_BackupMinAggregateOutputType | null
+    _max: DeviceDailyStatus_BackupMaxAggregateOutputType | null
+  }
+
+  export type DeviceDailyStatus_BackupAvgAggregateOutputType = {
+    SchoolID: number | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
+  }
+
+  export type DeviceDailyStatus_BackupSumAggregateOutputType = {
+    SchoolID: number | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
+  }
+
+  export type DeviceDailyStatus_BackupMinAggregateOutputType = {
+    DeviceStatusID: string | null
+    SchoolID: number | null
+    DeviceID: string | null
+    Online: boolean | null
+    OnlineTime: Date | null
+    Login: boolean | null
+    LoginTime: Date | null
+    LogOut: boolean | null
+    LogoutTime: Date | null
+    Tstamp: Date | null
+    BusinessDate: Date | null
+    AppVersion: string | null
+    AppName: string | null
+    Note: string | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
+  }
+
+  export type DeviceDailyStatus_BackupMaxAggregateOutputType = {
+    DeviceStatusID: string | null
+    SchoolID: number | null
+    DeviceID: string | null
+    Online: boolean | null
+    OnlineTime: Date | null
+    Login: boolean | null
+    LoginTime: Date | null
+    LogOut: boolean | null
+    LogoutTime: Date | null
+    Tstamp: Date | null
+    BusinessDate: Date | null
+    AppVersion: string | null
+    AppName: string | null
+    Note: string | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
+  }
+
+  export type DeviceDailyStatus_BackupCountAggregateOutputType = {
+    DeviceStatusID: number
+    SchoolID: number
+    DeviceID: number
+    Online: number
+    OnlineTime: number
+    Login: number
+    LoginTime: number
+    LogOut: number
+    LogoutTime: number
+    Tstamp: number
+    BusinessDate: number
+    AppVersion: number
+    AppName: number
+    Note: number
+    UserLoginID: number
+    DeviceTypeID: number
+    _all: number
+  }
+
+
+  export type DeviceDailyStatus_BackupAvgAggregateInputType = {
+    SchoolID?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
+  }
+
+  export type DeviceDailyStatus_BackupSumAggregateInputType = {
+    SchoolID?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
+  }
+
+  export type DeviceDailyStatus_BackupMinAggregateInputType = {
+    DeviceStatusID?: true
+    SchoolID?: true
+    DeviceID?: true
+    Online?: true
+    OnlineTime?: true
+    Login?: true
+    LoginTime?: true
+    LogOut?: true
+    LogoutTime?: true
+    Tstamp?: true
+    BusinessDate?: true
+    AppVersion?: true
+    AppName?: true
+    Note?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
+  }
+
+  export type DeviceDailyStatus_BackupMaxAggregateInputType = {
+    DeviceStatusID?: true
+    SchoolID?: true
+    DeviceID?: true
+    Online?: true
+    OnlineTime?: true
+    Login?: true
+    LoginTime?: true
+    LogOut?: true
+    LogoutTime?: true
+    Tstamp?: true
+    BusinessDate?: true
+    AppVersion?: true
+    AppName?: true
+    Note?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
+  }
+
+  export type DeviceDailyStatus_BackupCountAggregateInputType = {
+    DeviceStatusID?: true
+    SchoolID?: true
+    DeviceID?: true
+    Online?: true
+    OnlineTime?: true
+    Login?: true
+    LoginTime?: true
+    LogOut?: true
+    LogoutTime?: true
+    Tstamp?: true
+    BusinessDate?: true
+    AppVersion?: true
+    AppName?: true
+    Note?: true
+    UserLoginID?: true
+    DeviceTypeID?: true
+    _all?: true
+  }
+
+  export type DeviceDailyStatus_BackupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceDailyStatus_Backup to aggregate.
+     */
+    where?: DeviceDailyStatus_BackupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceDailyStatus_Backups to fetch.
+     */
+    orderBy?: DeviceDailyStatus_BackupOrderByWithRelationInput | DeviceDailyStatus_BackupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DeviceDailyStatus_BackupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceDailyStatus_Backups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceDailyStatus_Backups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DeviceDailyStatus_Backups
+    **/
+    _count?: true | DeviceDailyStatus_BackupCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DeviceDailyStatus_BackupAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DeviceDailyStatus_BackupSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DeviceDailyStatus_BackupMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DeviceDailyStatus_BackupMaxAggregateInputType
+  }
+
+  export type GetDeviceDailyStatus_BackupAggregateType<T extends DeviceDailyStatus_BackupAggregateArgs> = {
+        [P in keyof T & keyof AggregateDeviceDailyStatus_Backup]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDeviceDailyStatus_Backup[P]>
+      : GetScalarType<T[P], AggregateDeviceDailyStatus_Backup[P]>
+  }
+
+
+
+
+  export type DeviceDailyStatus_BackupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceDailyStatus_BackupWhereInput
+    orderBy?: DeviceDailyStatus_BackupOrderByWithAggregationInput | DeviceDailyStatus_BackupOrderByWithAggregationInput[]
+    by: DeviceDailyStatus_BackupScalarFieldEnum[] | DeviceDailyStatus_BackupScalarFieldEnum
+    having?: DeviceDailyStatus_BackupScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DeviceDailyStatus_BackupCountAggregateInputType | true
+    _avg?: DeviceDailyStatus_BackupAvgAggregateInputType
+    _sum?: DeviceDailyStatus_BackupSumAggregateInputType
+    _min?: DeviceDailyStatus_BackupMinAggregateInputType
+    _max?: DeviceDailyStatus_BackupMaxAggregateInputType
+  }
+
+  export type DeviceDailyStatus_BackupGroupByOutputType = {
+    DeviceStatusID: string
+    SchoolID: number
+    DeviceID: string
+    Online: boolean
+    OnlineTime: Date | null
+    Login: boolean
+    LoginTime: Date | null
+    LogOut: boolean
+    LogoutTime: Date | null
+    Tstamp: Date
+    BusinessDate: Date
+    AppVersion: string | null
+    AppName: string | null
+    Note: string | null
+    UserLoginID: number | null
+    DeviceTypeID: number | null
+    _count: DeviceDailyStatus_BackupCountAggregateOutputType | null
+    _avg: DeviceDailyStatus_BackupAvgAggregateOutputType | null
+    _sum: DeviceDailyStatus_BackupSumAggregateOutputType | null
+    _min: DeviceDailyStatus_BackupMinAggregateOutputType | null
+    _max: DeviceDailyStatus_BackupMaxAggregateOutputType | null
+  }
+
+  type GetDeviceDailyStatus_BackupGroupByPayload<T extends DeviceDailyStatus_BackupGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DeviceDailyStatus_BackupGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DeviceDailyStatus_BackupGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DeviceDailyStatus_BackupGroupByOutputType[P]>
+            : GetScalarType<T[P], DeviceDailyStatus_BackupGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DeviceDailyStatus_BackupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    DeviceStatusID?: boolean
+    SchoolID?: boolean
+    DeviceID?: boolean
+    Online?: boolean
+    OnlineTime?: boolean
+    Login?: boolean
+    LoginTime?: boolean
+    LogOut?: boolean
+    LogoutTime?: boolean
+    Tstamp?: boolean
+    BusinessDate?: boolean
+    AppVersion?: boolean
+    AppName?: boolean
+    Note?: boolean
+    UserLoginID?: boolean
+    DeviceTypeID?: boolean
+  }, ExtArgs["result"]["deviceDailyStatus_Backup"]>
+
+
+
+  export type DeviceDailyStatus_BackupSelectScalar = {
+    DeviceStatusID?: boolean
+    SchoolID?: boolean
+    DeviceID?: boolean
+    Online?: boolean
+    OnlineTime?: boolean
+    Login?: boolean
+    LoginTime?: boolean
+    LogOut?: boolean
+    LogoutTime?: boolean
+    Tstamp?: boolean
+    BusinessDate?: boolean
+    AppVersion?: boolean
+    AppName?: boolean
+    Note?: boolean
+    UserLoginID?: boolean
+    DeviceTypeID?: boolean
+  }
+
+  export type DeviceDailyStatus_BackupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"DeviceStatusID" | "SchoolID" | "DeviceID" | "Online" | "OnlineTime" | "Login" | "LoginTime" | "LogOut" | "LogoutTime" | "Tstamp" | "BusinessDate" | "AppVersion" | "AppName" | "Note" | "UserLoginID" | "DeviceTypeID", ExtArgs["result"]["deviceDailyStatus_Backup"]>
+
+  export type $DeviceDailyStatus_BackupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DeviceDailyStatus_Backup"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      DeviceStatusID: string
+      SchoolID: number
+      DeviceID: string
+      Online: boolean
+      OnlineTime: Date | null
+      Login: boolean
+      LoginTime: Date | null
+      LogOut: boolean
+      LogoutTime: Date | null
+      Tstamp: Date
+      BusinessDate: Date
+      AppVersion: string | null
+      AppName: string | null
+      Note: string | null
+      UserLoginID: number | null
+      DeviceTypeID: number | null
+    }, ExtArgs["result"]["deviceDailyStatus_Backup"]>
+    composites: {}
+  }
+
+  type DeviceDailyStatus_BackupGetPayload<S extends boolean | null | undefined | DeviceDailyStatus_BackupDefaultArgs> = $Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload, S>
+
+  type DeviceDailyStatus_BackupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DeviceDailyStatus_BackupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DeviceDailyStatus_BackupCountAggregateInputType | true
+    }
+
+  export interface DeviceDailyStatus_BackupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DeviceDailyStatus_Backup'], meta: { name: 'DeviceDailyStatus_Backup' } }
+    /**
+     * Find zero or one DeviceDailyStatus_Backup that matches the filter.
+     * @param {DeviceDailyStatus_BackupFindUniqueArgs} args - Arguments to find a DeviceDailyStatus_Backup
+     * @example
+     * // Get one DeviceDailyStatus_Backup
+     * const deviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DeviceDailyStatus_BackupFindUniqueArgs>(args: SelectSubset<T, DeviceDailyStatus_BackupFindUniqueArgs<ExtArgs>>): Prisma__DeviceDailyStatus_BackupClient<$Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DeviceDailyStatus_Backup that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DeviceDailyStatus_BackupFindUniqueOrThrowArgs} args - Arguments to find a DeviceDailyStatus_Backup
+     * @example
+     * // Get one DeviceDailyStatus_Backup
+     * const deviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DeviceDailyStatus_BackupFindUniqueOrThrowArgs>(args: SelectSubset<T, DeviceDailyStatus_BackupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DeviceDailyStatus_BackupClient<$Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceDailyStatus_Backup that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceDailyStatus_BackupFindFirstArgs} args - Arguments to find a DeviceDailyStatus_Backup
+     * @example
+     * // Get one DeviceDailyStatus_Backup
+     * const deviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DeviceDailyStatus_BackupFindFirstArgs>(args?: SelectSubset<T, DeviceDailyStatus_BackupFindFirstArgs<ExtArgs>>): Prisma__DeviceDailyStatus_BackupClient<$Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceDailyStatus_Backup that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceDailyStatus_BackupFindFirstOrThrowArgs} args - Arguments to find a DeviceDailyStatus_Backup
+     * @example
+     * // Get one DeviceDailyStatus_Backup
+     * const deviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DeviceDailyStatus_BackupFindFirstOrThrowArgs>(args?: SelectSubset<T, DeviceDailyStatus_BackupFindFirstOrThrowArgs<ExtArgs>>): Prisma__DeviceDailyStatus_BackupClient<$Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DeviceDailyStatus_Backups that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceDailyStatus_BackupFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DeviceDailyStatus_Backups
+     * const deviceDailyStatus_Backups = await prisma.deviceDailyStatus_Backup.findMany()
+     * 
+     * // Get first 10 DeviceDailyStatus_Backups
+     * const deviceDailyStatus_Backups = await prisma.deviceDailyStatus_Backup.findMany({ take: 10 })
+     * 
+     * // Only select the `DeviceStatusID`
+     * const deviceDailyStatus_BackupWithDeviceStatusIDOnly = await prisma.deviceDailyStatus_Backup.findMany({ select: { DeviceStatusID: true } })
+     * 
+     */
+    findMany<T extends DeviceDailyStatus_BackupFindManyArgs>(args?: SelectSubset<T, DeviceDailyStatus_BackupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DeviceDailyStatus_Backup.
+     * @param {DeviceDailyStatus_BackupCreateArgs} args - Arguments to create a DeviceDailyStatus_Backup.
+     * @example
+     * // Create one DeviceDailyStatus_Backup
+     * const DeviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.create({
+     *   data: {
+     *     // ... data to create a DeviceDailyStatus_Backup
+     *   }
+     * })
+     * 
+     */
+    create<T extends DeviceDailyStatus_BackupCreateArgs>(args: SelectSubset<T, DeviceDailyStatus_BackupCreateArgs<ExtArgs>>): Prisma__DeviceDailyStatus_BackupClient<$Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DeviceDailyStatus_Backups.
+     * @param {DeviceDailyStatus_BackupCreateManyArgs} args - Arguments to create many DeviceDailyStatus_Backups.
+     * @example
+     * // Create many DeviceDailyStatus_Backups
+     * const deviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DeviceDailyStatus_BackupCreateManyArgs>(args?: SelectSubset<T, DeviceDailyStatus_BackupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a DeviceDailyStatus_Backup.
+     * @param {DeviceDailyStatus_BackupDeleteArgs} args - Arguments to delete one DeviceDailyStatus_Backup.
+     * @example
+     * // Delete one DeviceDailyStatus_Backup
+     * const DeviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.delete({
+     *   where: {
+     *     // ... filter to delete one DeviceDailyStatus_Backup
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DeviceDailyStatus_BackupDeleteArgs>(args: SelectSubset<T, DeviceDailyStatus_BackupDeleteArgs<ExtArgs>>): Prisma__DeviceDailyStatus_BackupClient<$Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DeviceDailyStatus_Backup.
+     * @param {DeviceDailyStatus_BackupUpdateArgs} args - Arguments to update one DeviceDailyStatus_Backup.
+     * @example
+     * // Update one DeviceDailyStatus_Backup
+     * const deviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DeviceDailyStatus_BackupUpdateArgs>(args: SelectSubset<T, DeviceDailyStatus_BackupUpdateArgs<ExtArgs>>): Prisma__DeviceDailyStatus_BackupClient<$Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DeviceDailyStatus_Backups.
+     * @param {DeviceDailyStatus_BackupDeleteManyArgs} args - Arguments to filter DeviceDailyStatus_Backups to delete.
+     * @example
+     * // Delete a few DeviceDailyStatus_Backups
+     * const { count } = await prisma.deviceDailyStatus_Backup.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DeviceDailyStatus_BackupDeleteManyArgs>(args?: SelectSubset<T, DeviceDailyStatus_BackupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeviceDailyStatus_Backups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceDailyStatus_BackupUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DeviceDailyStatus_Backups
+     * const deviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DeviceDailyStatus_BackupUpdateManyArgs>(args: SelectSubset<T, DeviceDailyStatus_BackupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DeviceDailyStatus_Backup.
+     * @param {DeviceDailyStatus_BackupUpsertArgs} args - Arguments to update or create a DeviceDailyStatus_Backup.
+     * @example
+     * // Update or create a DeviceDailyStatus_Backup
+     * const deviceDailyStatus_Backup = await prisma.deviceDailyStatus_Backup.upsert({
+     *   create: {
+     *     // ... data to create a DeviceDailyStatus_Backup
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DeviceDailyStatus_Backup we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DeviceDailyStatus_BackupUpsertArgs>(args: SelectSubset<T, DeviceDailyStatus_BackupUpsertArgs<ExtArgs>>): Prisma__DeviceDailyStatus_BackupClient<$Result.GetResult<Prisma.$DeviceDailyStatus_BackupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DeviceDailyStatus_Backups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceDailyStatus_BackupCountArgs} args - Arguments to filter DeviceDailyStatus_Backups to count.
+     * @example
+     * // Count the number of DeviceDailyStatus_Backups
+     * const count = await prisma.deviceDailyStatus_Backup.count({
+     *   where: {
+     *     // ... the filter for the DeviceDailyStatus_Backups we want to count
+     *   }
+     * })
+    **/
+    count<T extends DeviceDailyStatus_BackupCountArgs>(
+      args?: Subset<T, DeviceDailyStatus_BackupCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DeviceDailyStatus_BackupCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DeviceDailyStatus_Backup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceDailyStatus_BackupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DeviceDailyStatus_BackupAggregateArgs>(args: Subset<T, DeviceDailyStatus_BackupAggregateArgs>): Prisma.PrismaPromise<GetDeviceDailyStatus_BackupAggregateType<T>>
+
+    /**
+     * Group by DeviceDailyStatus_Backup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceDailyStatus_BackupGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DeviceDailyStatus_BackupGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DeviceDailyStatus_BackupGroupByArgs['orderBy'] }
+        : { orderBy?: DeviceDailyStatus_BackupGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DeviceDailyStatus_BackupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeviceDailyStatus_BackupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DeviceDailyStatus_Backup model
+   */
+  readonly fields: DeviceDailyStatus_BackupFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DeviceDailyStatus_Backup.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DeviceDailyStatus_BackupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DeviceDailyStatus_Backup model
+   */
+  interface DeviceDailyStatus_BackupFieldRefs {
+    readonly DeviceStatusID: FieldRef<"DeviceDailyStatus_Backup", 'String'>
+    readonly SchoolID: FieldRef<"DeviceDailyStatus_Backup", 'Int'>
+    readonly DeviceID: FieldRef<"DeviceDailyStatus_Backup", 'String'>
+    readonly Online: FieldRef<"DeviceDailyStatus_Backup", 'Boolean'>
+    readonly OnlineTime: FieldRef<"DeviceDailyStatus_Backup", 'DateTime'>
+    readonly Login: FieldRef<"DeviceDailyStatus_Backup", 'Boolean'>
+    readonly LoginTime: FieldRef<"DeviceDailyStatus_Backup", 'DateTime'>
+    readonly LogOut: FieldRef<"DeviceDailyStatus_Backup", 'Boolean'>
+    readonly LogoutTime: FieldRef<"DeviceDailyStatus_Backup", 'DateTime'>
+    readonly Tstamp: FieldRef<"DeviceDailyStatus_Backup", 'DateTime'>
+    readonly BusinessDate: FieldRef<"DeviceDailyStatus_Backup", 'DateTime'>
+    readonly AppVersion: FieldRef<"DeviceDailyStatus_Backup", 'String'>
+    readonly AppName: FieldRef<"DeviceDailyStatus_Backup", 'String'>
+    readonly Note: FieldRef<"DeviceDailyStatus_Backup", 'String'>
+    readonly UserLoginID: FieldRef<"DeviceDailyStatus_Backup", 'Int'>
+    readonly DeviceTypeID: FieldRef<"DeviceDailyStatus_Backup", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DeviceDailyStatus_Backup findUnique
+   */
+  export type DeviceDailyStatus_BackupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceDailyStatus_Backup to fetch.
+     */
+    where: DeviceDailyStatus_BackupWhereUniqueInput
+  }
+
+  /**
+   * DeviceDailyStatus_Backup findUniqueOrThrow
+   */
+  export type DeviceDailyStatus_BackupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceDailyStatus_Backup to fetch.
+     */
+    where: DeviceDailyStatus_BackupWhereUniqueInput
+  }
+
+  /**
+   * DeviceDailyStatus_Backup findFirst
+   */
+  export type DeviceDailyStatus_BackupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceDailyStatus_Backup to fetch.
+     */
+    where?: DeviceDailyStatus_BackupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceDailyStatus_Backups to fetch.
+     */
+    orderBy?: DeviceDailyStatus_BackupOrderByWithRelationInput | DeviceDailyStatus_BackupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceDailyStatus_Backups.
+     */
+    cursor?: DeviceDailyStatus_BackupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceDailyStatus_Backups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceDailyStatus_Backups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceDailyStatus_Backups.
+     */
+    distinct?: DeviceDailyStatus_BackupScalarFieldEnum | DeviceDailyStatus_BackupScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceDailyStatus_Backup findFirstOrThrow
+   */
+  export type DeviceDailyStatus_BackupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceDailyStatus_Backup to fetch.
+     */
+    where?: DeviceDailyStatus_BackupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceDailyStatus_Backups to fetch.
+     */
+    orderBy?: DeviceDailyStatus_BackupOrderByWithRelationInput | DeviceDailyStatus_BackupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceDailyStatus_Backups.
+     */
+    cursor?: DeviceDailyStatus_BackupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceDailyStatus_Backups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceDailyStatus_Backups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceDailyStatus_Backups.
+     */
+    distinct?: DeviceDailyStatus_BackupScalarFieldEnum | DeviceDailyStatus_BackupScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceDailyStatus_Backup findMany
+   */
+  export type DeviceDailyStatus_BackupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceDailyStatus_Backups to fetch.
+     */
+    where?: DeviceDailyStatus_BackupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceDailyStatus_Backups to fetch.
+     */
+    orderBy?: DeviceDailyStatus_BackupOrderByWithRelationInput | DeviceDailyStatus_BackupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DeviceDailyStatus_Backups.
+     */
+    cursor?: DeviceDailyStatus_BackupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceDailyStatus_Backups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceDailyStatus_Backups.
+     */
+    skip?: number
+    distinct?: DeviceDailyStatus_BackupScalarFieldEnum | DeviceDailyStatus_BackupScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceDailyStatus_Backup create
+   */
+  export type DeviceDailyStatus_BackupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DeviceDailyStatus_Backup.
+     */
+    data: XOR<DeviceDailyStatus_BackupCreateInput, DeviceDailyStatus_BackupUncheckedCreateInput>
+  }
+
+  /**
+   * DeviceDailyStatus_Backup createMany
+   */
+  export type DeviceDailyStatus_BackupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DeviceDailyStatus_Backups.
+     */
+    data: DeviceDailyStatus_BackupCreateManyInput | DeviceDailyStatus_BackupCreateManyInput[]
+  }
+
+  /**
+   * DeviceDailyStatus_Backup update
+   */
+  export type DeviceDailyStatus_BackupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DeviceDailyStatus_Backup.
+     */
+    data: XOR<DeviceDailyStatus_BackupUpdateInput, DeviceDailyStatus_BackupUncheckedUpdateInput>
+    /**
+     * Choose, which DeviceDailyStatus_Backup to update.
+     */
+    where: DeviceDailyStatus_BackupWhereUniqueInput
+  }
+
+  /**
+   * DeviceDailyStatus_Backup updateMany
+   */
+  export type DeviceDailyStatus_BackupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DeviceDailyStatus_Backups.
+     */
+    data: XOR<DeviceDailyStatus_BackupUpdateManyMutationInput, DeviceDailyStatus_BackupUncheckedUpdateManyInput>
+    /**
+     * Filter which DeviceDailyStatus_Backups to update
+     */
+    where?: DeviceDailyStatus_BackupWhereInput
+    /**
+     * Limit how many DeviceDailyStatus_Backups to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceDailyStatus_Backup upsert
+   */
+  export type DeviceDailyStatus_BackupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DeviceDailyStatus_Backup to update in case it exists.
+     */
+    where: DeviceDailyStatus_BackupWhereUniqueInput
+    /**
+     * In case the DeviceDailyStatus_Backup found by the `where` argument doesn't exist, create a new DeviceDailyStatus_Backup with this data.
+     */
+    create: XOR<DeviceDailyStatus_BackupCreateInput, DeviceDailyStatus_BackupUncheckedCreateInput>
+    /**
+     * In case the DeviceDailyStatus_Backup was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DeviceDailyStatus_BackupUpdateInput, DeviceDailyStatus_BackupUncheckedUpdateInput>
+  }
+
+  /**
+   * DeviceDailyStatus_Backup delete
+   */
+  export type DeviceDailyStatus_BackupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+    /**
+     * Filter which DeviceDailyStatus_Backup to delete.
+     */
+    where: DeviceDailyStatus_BackupWhereUniqueInput
+  }
+
+  /**
+   * DeviceDailyStatus_Backup deleteMany
+   */
+  export type DeviceDailyStatus_BackupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceDailyStatus_Backups to delete
+     */
+    where?: DeviceDailyStatus_BackupWhereInput
+    /**
+     * Limit how many DeviceDailyStatus_Backups to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceDailyStatus_Backup without action
+   */
+  export type DeviceDailyStatus_BackupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceDailyStatus_Backup
+     */
+    select?: DeviceDailyStatus_BackupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceDailyStatus_Backup
+     */
+    omit?: DeviceDailyStatus_BackupOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DeviceType
+   */
+
+  export type AggregateDeviceType = {
+    _count: DeviceTypeCountAggregateOutputType | null
+    _avg: DeviceTypeAvgAggregateOutputType | null
+    _sum: DeviceTypeSumAggregateOutputType | null
+    _min: DeviceTypeMinAggregateOutputType | null
+    _max: DeviceTypeMaxAggregateOutputType | null
+  }
+
+  export type DeviceTypeAvgAggregateOutputType = {
+    DeviceTypeID: number | null
+  }
+
+  export type DeviceTypeSumAggregateOutputType = {
+    DeviceTypeID: number | null
+  }
+
+  export type DeviceTypeMinAggregateOutputType = {
+    DeviceTypeID: number | null
+    TypeNameEN: string | null
+    TypeNameTH: string | null
+  }
+
+  export type DeviceTypeMaxAggregateOutputType = {
+    DeviceTypeID: number | null
+    TypeNameEN: string | null
+    TypeNameTH: string | null
+  }
+
+  export type DeviceTypeCountAggregateOutputType = {
+    DeviceTypeID: number
+    TypeNameEN: number
+    TypeNameTH: number
+    _all: number
+  }
+
+
+  export type DeviceTypeAvgAggregateInputType = {
+    DeviceTypeID?: true
+  }
+
+  export type DeviceTypeSumAggregateInputType = {
+    DeviceTypeID?: true
+  }
+
+  export type DeviceTypeMinAggregateInputType = {
+    DeviceTypeID?: true
+    TypeNameEN?: true
+    TypeNameTH?: true
+  }
+
+  export type DeviceTypeMaxAggregateInputType = {
+    DeviceTypeID?: true
+    TypeNameEN?: true
+    TypeNameTH?: true
+  }
+
+  export type DeviceTypeCountAggregateInputType = {
+    DeviceTypeID?: true
+    TypeNameEN?: true
+    TypeNameTH?: true
+    _all?: true
+  }
+
+  export type DeviceTypeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceType to aggregate.
+     */
+    where?: DeviceTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceTypes to fetch.
+     */
+    orderBy?: DeviceTypeOrderByWithRelationInput | DeviceTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DeviceTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DeviceTypes
+    **/
+    _count?: true | DeviceTypeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DeviceTypeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DeviceTypeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DeviceTypeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DeviceTypeMaxAggregateInputType
+  }
+
+  export type GetDeviceTypeAggregateType<T extends DeviceTypeAggregateArgs> = {
+        [P in keyof T & keyof AggregateDeviceType]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDeviceType[P]>
+      : GetScalarType<T[P], AggregateDeviceType[P]>
+  }
+
+
+
+
+  export type DeviceTypeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceTypeWhereInput
+    orderBy?: DeviceTypeOrderByWithAggregationInput | DeviceTypeOrderByWithAggregationInput[]
+    by: DeviceTypeScalarFieldEnum[] | DeviceTypeScalarFieldEnum
+    having?: DeviceTypeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DeviceTypeCountAggregateInputType | true
+    _avg?: DeviceTypeAvgAggregateInputType
+    _sum?: DeviceTypeSumAggregateInputType
+    _min?: DeviceTypeMinAggregateInputType
+    _max?: DeviceTypeMaxAggregateInputType
+  }
+
+  export type DeviceTypeGroupByOutputType = {
+    DeviceTypeID: number
+    TypeNameEN: string | null
+    TypeNameTH: string | null
+    _count: DeviceTypeCountAggregateOutputType | null
+    _avg: DeviceTypeAvgAggregateOutputType | null
+    _sum: DeviceTypeSumAggregateOutputType | null
+    _min: DeviceTypeMinAggregateOutputType | null
+    _max: DeviceTypeMaxAggregateOutputType | null
+  }
+
+  type GetDeviceTypeGroupByPayload<T extends DeviceTypeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DeviceTypeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DeviceTypeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DeviceTypeGroupByOutputType[P]>
+            : GetScalarType<T[P], DeviceTypeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DeviceTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    DeviceTypeID?: boolean
+    TypeNameEN?: boolean
+    TypeNameTH?: boolean
+  }, ExtArgs["result"]["deviceType"]>
+
+
+
+  export type DeviceTypeSelectScalar = {
+    DeviceTypeID?: boolean
+    TypeNameEN?: boolean
+    TypeNameTH?: boolean
+  }
+
+  export type DeviceTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"DeviceTypeID" | "TypeNameEN" | "TypeNameTH", ExtArgs["result"]["deviceType"]>
+
+  export type $DeviceTypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DeviceType"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      DeviceTypeID: number
+      TypeNameEN: string | null
+      TypeNameTH: string | null
+    }, ExtArgs["result"]["deviceType"]>
+    composites: {}
+  }
+
+  type DeviceTypeGetPayload<S extends boolean | null | undefined | DeviceTypeDefaultArgs> = $Result.GetResult<Prisma.$DeviceTypePayload, S>
+
+  type DeviceTypeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DeviceTypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DeviceTypeCountAggregateInputType | true
+    }
+
+  export interface DeviceTypeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DeviceType'], meta: { name: 'DeviceType' } }
+    /**
+     * Find zero or one DeviceType that matches the filter.
+     * @param {DeviceTypeFindUniqueArgs} args - Arguments to find a DeviceType
+     * @example
+     * // Get one DeviceType
+     * const deviceType = await prisma.deviceType.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DeviceTypeFindUniqueArgs>(args: SelectSubset<T, DeviceTypeFindUniqueArgs<ExtArgs>>): Prisma__DeviceTypeClient<$Result.GetResult<Prisma.$DeviceTypePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DeviceType that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DeviceTypeFindUniqueOrThrowArgs} args - Arguments to find a DeviceType
+     * @example
+     * // Get one DeviceType
+     * const deviceType = await prisma.deviceType.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DeviceTypeFindUniqueOrThrowArgs>(args: SelectSubset<T, DeviceTypeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DeviceTypeClient<$Result.GetResult<Prisma.$DeviceTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceType that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTypeFindFirstArgs} args - Arguments to find a DeviceType
+     * @example
+     * // Get one DeviceType
+     * const deviceType = await prisma.deviceType.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DeviceTypeFindFirstArgs>(args?: SelectSubset<T, DeviceTypeFindFirstArgs<ExtArgs>>): Prisma__DeviceTypeClient<$Result.GetResult<Prisma.$DeviceTypePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceType that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTypeFindFirstOrThrowArgs} args - Arguments to find a DeviceType
+     * @example
+     * // Get one DeviceType
+     * const deviceType = await prisma.deviceType.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DeviceTypeFindFirstOrThrowArgs>(args?: SelectSubset<T, DeviceTypeFindFirstOrThrowArgs<ExtArgs>>): Prisma__DeviceTypeClient<$Result.GetResult<Prisma.$DeviceTypePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DeviceTypes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTypeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DeviceTypes
+     * const deviceTypes = await prisma.deviceType.findMany()
+     * 
+     * // Get first 10 DeviceTypes
+     * const deviceTypes = await prisma.deviceType.findMany({ take: 10 })
+     * 
+     * // Only select the `DeviceTypeID`
+     * const deviceTypeWithDeviceTypeIDOnly = await prisma.deviceType.findMany({ select: { DeviceTypeID: true } })
+     * 
+     */
+    findMany<T extends DeviceTypeFindManyArgs>(args?: SelectSubset<T, DeviceTypeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DeviceType.
+     * @param {DeviceTypeCreateArgs} args - Arguments to create a DeviceType.
+     * @example
+     * // Create one DeviceType
+     * const DeviceType = await prisma.deviceType.create({
+     *   data: {
+     *     // ... data to create a DeviceType
+     *   }
+     * })
+     * 
+     */
+    create<T extends DeviceTypeCreateArgs>(args: SelectSubset<T, DeviceTypeCreateArgs<ExtArgs>>): Prisma__DeviceTypeClient<$Result.GetResult<Prisma.$DeviceTypePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DeviceTypes.
+     * @param {DeviceTypeCreateManyArgs} args - Arguments to create many DeviceTypes.
+     * @example
+     * // Create many DeviceTypes
+     * const deviceType = await prisma.deviceType.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DeviceTypeCreateManyArgs>(args?: SelectSubset<T, DeviceTypeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a DeviceType.
+     * @param {DeviceTypeDeleteArgs} args - Arguments to delete one DeviceType.
+     * @example
+     * // Delete one DeviceType
+     * const DeviceType = await prisma.deviceType.delete({
+     *   where: {
+     *     // ... filter to delete one DeviceType
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DeviceTypeDeleteArgs>(args: SelectSubset<T, DeviceTypeDeleteArgs<ExtArgs>>): Prisma__DeviceTypeClient<$Result.GetResult<Prisma.$DeviceTypePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DeviceType.
+     * @param {DeviceTypeUpdateArgs} args - Arguments to update one DeviceType.
+     * @example
+     * // Update one DeviceType
+     * const deviceType = await prisma.deviceType.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DeviceTypeUpdateArgs>(args: SelectSubset<T, DeviceTypeUpdateArgs<ExtArgs>>): Prisma__DeviceTypeClient<$Result.GetResult<Prisma.$DeviceTypePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DeviceTypes.
+     * @param {DeviceTypeDeleteManyArgs} args - Arguments to filter DeviceTypes to delete.
+     * @example
+     * // Delete a few DeviceTypes
+     * const { count } = await prisma.deviceType.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DeviceTypeDeleteManyArgs>(args?: SelectSubset<T, DeviceTypeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeviceTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTypeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DeviceTypes
+     * const deviceType = await prisma.deviceType.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DeviceTypeUpdateManyArgs>(args: SelectSubset<T, DeviceTypeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DeviceType.
+     * @param {DeviceTypeUpsertArgs} args - Arguments to update or create a DeviceType.
+     * @example
+     * // Update or create a DeviceType
+     * const deviceType = await prisma.deviceType.upsert({
+     *   create: {
+     *     // ... data to create a DeviceType
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DeviceType we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DeviceTypeUpsertArgs>(args: SelectSubset<T, DeviceTypeUpsertArgs<ExtArgs>>): Prisma__DeviceTypeClient<$Result.GetResult<Prisma.$DeviceTypePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DeviceTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTypeCountArgs} args - Arguments to filter DeviceTypes to count.
+     * @example
+     * // Count the number of DeviceTypes
+     * const count = await prisma.deviceType.count({
+     *   where: {
+     *     // ... the filter for the DeviceTypes we want to count
+     *   }
+     * })
+    **/
+    count<T extends DeviceTypeCountArgs>(
+      args?: Subset<T, DeviceTypeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DeviceTypeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DeviceType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTypeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DeviceTypeAggregateArgs>(args: Subset<T, DeviceTypeAggregateArgs>): Prisma.PrismaPromise<GetDeviceTypeAggregateType<T>>
+
+    /**
+     * Group by DeviceType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTypeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DeviceTypeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DeviceTypeGroupByArgs['orderBy'] }
+        : { orderBy?: DeviceTypeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DeviceTypeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeviceTypeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DeviceType model
+   */
+  readonly fields: DeviceTypeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DeviceType.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DeviceTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DeviceType model
+   */
+  interface DeviceTypeFieldRefs {
+    readonly DeviceTypeID: FieldRef<"DeviceType", 'Int'>
+    readonly TypeNameEN: FieldRef<"DeviceType", 'String'>
+    readonly TypeNameTH: FieldRef<"DeviceType", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DeviceType findUnique
+   */
+  export type DeviceTypeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceType to fetch.
+     */
+    where: DeviceTypeWhereUniqueInput
+  }
+
+  /**
+   * DeviceType findUniqueOrThrow
+   */
+  export type DeviceTypeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceType to fetch.
+     */
+    where: DeviceTypeWhereUniqueInput
+  }
+
+  /**
+   * DeviceType findFirst
+   */
+  export type DeviceTypeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceType to fetch.
+     */
+    where?: DeviceTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceTypes to fetch.
+     */
+    orderBy?: DeviceTypeOrderByWithRelationInput | DeviceTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceTypes.
+     */
+    cursor?: DeviceTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceTypes.
+     */
+    distinct?: DeviceTypeScalarFieldEnum | DeviceTypeScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceType findFirstOrThrow
+   */
+  export type DeviceTypeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceType to fetch.
+     */
+    where?: DeviceTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceTypes to fetch.
+     */
+    orderBy?: DeviceTypeOrderByWithRelationInput | DeviceTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceTypes.
+     */
+    cursor?: DeviceTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceTypes.
+     */
+    distinct?: DeviceTypeScalarFieldEnum | DeviceTypeScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceType findMany
+   */
+  export type DeviceTypeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which DeviceTypes to fetch.
+     */
+    where?: DeviceTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceTypes to fetch.
+     */
+    orderBy?: DeviceTypeOrderByWithRelationInput | DeviceTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DeviceTypes.
+     */
+    cursor?: DeviceTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceTypes.
+     */
+    skip?: number
+    distinct?: DeviceTypeScalarFieldEnum | DeviceTypeScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceType create
+   */
+  export type DeviceTypeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DeviceType.
+     */
+    data: XOR<DeviceTypeCreateInput, DeviceTypeUncheckedCreateInput>
+  }
+
+  /**
+   * DeviceType createMany
+   */
+  export type DeviceTypeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DeviceTypes.
+     */
+    data: DeviceTypeCreateManyInput | DeviceTypeCreateManyInput[]
+  }
+
+  /**
+   * DeviceType update
+   */
+  export type DeviceTypeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DeviceType.
+     */
+    data: XOR<DeviceTypeUpdateInput, DeviceTypeUncheckedUpdateInput>
+    /**
+     * Choose, which DeviceType to update.
+     */
+    where: DeviceTypeWhereUniqueInput
+  }
+
+  /**
+   * DeviceType updateMany
+   */
+  export type DeviceTypeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DeviceTypes.
+     */
+    data: XOR<DeviceTypeUpdateManyMutationInput, DeviceTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which DeviceTypes to update
+     */
+    where?: DeviceTypeWhereInput
+    /**
+     * Limit how many DeviceTypes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceType upsert
+   */
+  export type DeviceTypeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DeviceType to update in case it exists.
+     */
+    where: DeviceTypeWhereUniqueInput
+    /**
+     * In case the DeviceType found by the `where` argument doesn't exist, create a new DeviceType with this data.
+     */
+    create: XOR<DeviceTypeCreateInput, DeviceTypeUncheckedCreateInput>
+    /**
+     * In case the DeviceType was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DeviceTypeUpdateInput, DeviceTypeUncheckedUpdateInput>
+  }
+
+  /**
+   * DeviceType delete
+   */
+  export type DeviceTypeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+    /**
+     * Filter which DeviceType to delete.
+     */
+    where: DeviceTypeWhereUniqueInput
+  }
+
+  /**
+   * DeviceType deleteMany
+   */
+  export type DeviceTypeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceTypes to delete
+     */
+    where?: DeviceTypeWhereInput
+    /**
+     * Limit how many DeviceTypes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceType without action
+   */
+  export type DeviceTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceType
+     */
+    select?: DeviceTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceType
+     */
+    omit?: DeviceTypeOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model QueryPerformanceLog
+   */
+
+  export type AggregateQueryPerformanceLog = {
+    _count: QueryPerformanceLogCountAggregateOutputType | null
+    _avg: QueryPerformanceLogAvgAggregateOutputType | null
+    _sum: QueryPerformanceLogSumAggregateOutputType | null
+    _min: QueryPerformanceLogMinAggregateOutputType | null
+    _max: QueryPerformanceLogMaxAggregateOutputType | null
+  }
+
+  export type QueryPerformanceLogAvgAggregateOutputType = {
+    LogID: number | null
+    CPUTime_ms: number | null
+    ElapsedTime_ms: number | null
+    LogicalReads: number | null
+    BlockingSessionID: number | null
+    RowCount: number | null
+  }
+
+  export type QueryPerformanceLogSumAggregateOutputType = {
+    LogID: number | null
+    CPUTime_ms: number | null
+    ElapsedTime_ms: number | null
+    LogicalReads: bigint | null
+    BlockingSessionID: number | null
+    RowCount: number | null
+  }
+
+  export type QueryPerformanceLogMinAggregateOutputType = {
+    LogID: number | null
+    LogDateTime: Date | null
+    QueryName: string | null
+    CPUTime_ms: number | null
+    ElapsedTime_ms: number | null
+    LogicalReads: bigint | null
+    BlockingSessionID: number | null
+    WaitType: string | null
+    WaitResource: string | null
+    RowCount: number | null
+  }
+
+  export type QueryPerformanceLogMaxAggregateOutputType = {
+    LogID: number | null
+    LogDateTime: Date | null
+    QueryName: string | null
+    CPUTime_ms: number | null
+    ElapsedTime_ms: number | null
+    LogicalReads: bigint | null
+    BlockingSessionID: number | null
+    WaitType: string | null
+    WaitResource: string | null
+    RowCount: number | null
+  }
+
+  export type QueryPerformanceLogCountAggregateOutputType = {
+    LogID: number
+    LogDateTime: number
+    QueryName: number
+    CPUTime_ms: number
+    ElapsedTime_ms: number
+    LogicalReads: number
+    BlockingSessionID: number
+    WaitType: number
+    WaitResource: number
+    RowCount: number
+    _all: number
+  }
+
+
+  export type QueryPerformanceLogAvgAggregateInputType = {
+    LogID?: true
+    CPUTime_ms?: true
+    ElapsedTime_ms?: true
+    LogicalReads?: true
+    BlockingSessionID?: true
+    RowCount?: true
+  }
+
+  export type QueryPerformanceLogSumAggregateInputType = {
+    LogID?: true
+    CPUTime_ms?: true
+    ElapsedTime_ms?: true
+    LogicalReads?: true
+    BlockingSessionID?: true
+    RowCount?: true
+  }
+
+  export type QueryPerformanceLogMinAggregateInputType = {
+    LogID?: true
+    LogDateTime?: true
+    QueryName?: true
+    CPUTime_ms?: true
+    ElapsedTime_ms?: true
+    LogicalReads?: true
+    BlockingSessionID?: true
+    WaitType?: true
+    WaitResource?: true
+    RowCount?: true
+  }
+
+  export type QueryPerformanceLogMaxAggregateInputType = {
+    LogID?: true
+    LogDateTime?: true
+    QueryName?: true
+    CPUTime_ms?: true
+    ElapsedTime_ms?: true
+    LogicalReads?: true
+    BlockingSessionID?: true
+    WaitType?: true
+    WaitResource?: true
+    RowCount?: true
+  }
+
+  export type QueryPerformanceLogCountAggregateInputType = {
+    LogID?: true
+    LogDateTime?: true
+    QueryName?: true
+    CPUTime_ms?: true
+    ElapsedTime_ms?: true
+    LogicalReads?: true
+    BlockingSessionID?: true
+    WaitType?: true
+    WaitResource?: true
+    RowCount?: true
+    _all?: true
+  }
+
+  export type QueryPerformanceLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which QueryPerformanceLog to aggregate.
+     */
+    where?: QueryPerformanceLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of QueryPerformanceLogs to fetch.
+     */
+    orderBy?: QueryPerformanceLogOrderByWithRelationInput | QueryPerformanceLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: QueryPerformanceLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` QueryPerformanceLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` QueryPerformanceLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned QueryPerformanceLogs
+    **/
+    _count?: true | QueryPerformanceLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: QueryPerformanceLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: QueryPerformanceLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: QueryPerformanceLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: QueryPerformanceLogMaxAggregateInputType
+  }
+
+  export type GetQueryPerformanceLogAggregateType<T extends QueryPerformanceLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateQueryPerformanceLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateQueryPerformanceLog[P]>
+      : GetScalarType<T[P], AggregateQueryPerformanceLog[P]>
+  }
+
+
+
+
+  export type QueryPerformanceLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: QueryPerformanceLogWhereInput
+    orderBy?: QueryPerformanceLogOrderByWithAggregationInput | QueryPerformanceLogOrderByWithAggregationInput[]
+    by: QueryPerformanceLogScalarFieldEnum[] | QueryPerformanceLogScalarFieldEnum
+    having?: QueryPerformanceLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: QueryPerformanceLogCountAggregateInputType | true
+    _avg?: QueryPerformanceLogAvgAggregateInputType
+    _sum?: QueryPerformanceLogSumAggregateInputType
+    _min?: QueryPerformanceLogMinAggregateInputType
+    _max?: QueryPerformanceLogMaxAggregateInputType
+  }
+
+  export type QueryPerformanceLogGroupByOutputType = {
+    LogID: number
+    LogDateTime: Date | null
+    QueryName: string | null
+    CPUTime_ms: number | null
+    ElapsedTime_ms: number | null
+    LogicalReads: bigint | null
+    BlockingSessionID: number | null
+    WaitType: string | null
+    WaitResource: string | null
+    RowCount: number | null
+    _count: QueryPerformanceLogCountAggregateOutputType | null
+    _avg: QueryPerformanceLogAvgAggregateOutputType | null
+    _sum: QueryPerformanceLogSumAggregateOutputType | null
+    _min: QueryPerformanceLogMinAggregateOutputType | null
+    _max: QueryPerformanceLogMaxAggregateOutputType | null
+  }
+
+  type GetQueryPerformanceLogGroupByPayload<T extends QueryPerformanceLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<QueryPerformanceLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof QueryPerformanceLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], QueryPerformanceLogGroupByOutputType[P]>
+            : GetScalarType<T[P], QueryPerformanceLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type QueryPerformanceLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    LogID?: boolean
+    LogDateTime?: boolean
+    QueryName?: boolean
+    CPUTime_ms?: boolean
+    ElapsedTime_ms?: boolean
+    LogicalReads?: boolean
+    BlockingSessionID?: boolean
+    WaitType?: boolean
+    WaitResource?: boolean
+    RowCount?: boolean
+  }, ExtArgs["result"]["queryPerformanceLog"]>
+
+
+
+  export type QueryPerformanceLogSelectScalar = {
+    LogID?: boolean
+    LogDateTime?: boolean
+    QueryName?: boolean
+    CPUTime_ms?: boolean
+    ElapsedTime_ms?: boolean
+    LogicalReads?: boolean
+    BlockingSessionID?: boolean
+    WaitType?: boolean
+    WaitResource?: boolean
+    RowCount?: boolean
+  }
+
+  export type QueryPerformanceLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"LogID" | "LogDateTime" | "QueryName" | "CPUTime_ms" | "ElapsedTime_ms" | "LogicalReads" | "BlockingSessionID" | "WaitType" | "WaitResource" | "RowCount", ExtArgs["result"]["queryPerformanceLog"]>
+
+  export type $QueryPerformanceLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "QueryPerformanceLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      LogID: number
+      LogDateTime: Date | null
+      QueryName: string | null
+      CPUTime_ms: number | null
+      ElapsedTime_ms: number | null
+      LogicalReads: bigint | null
+      BlockingSessionID: number | null
+      WaitType: string | null
+      WaitResource: string | null
+      RowCount: number | null
+    }, ExtArgs["result"]["queryPerformanceLog"]>
+    composites: {}
+  }
+
+  type QueryPerformanceLogGetPayload<S extends boolean | null | undefined | QueryPerformanceLogDefaultArgs> = $Result.GetResult<Prisma.$QueryPerformanceLogPayload, S>
+
+  type QueryPerformanceLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<QueryPerformanceLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: QueryPerformanceLogCountAggregateInputType | true
+    }
+
+  export interface QueryPerformanceLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['QueryPerformanceLog'], meta: { name: 'QueryPerformanceLog' } }
+    /**
+     * Find zero or one QueryPerformanceLog that matches the filter.
+     * @param {QueryPerformanceLogFindUniqueArgs} args - Arguments to find a QueryPerformanceLog
+     * @example
+     * // Get one QueryPerformanceLog
+     * const queryPerformanceLog = await prisma.queryPerformanceLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends QueryPerformanceLogFindUniqueArgs>(args: SelectSubset<T, QueryPerformanceLogFindUniqueArgs<ExtArgs>>): Prisma__QueryPerformanceLogClient<$Result.GetResult<Prisma.$QueryPerformanceLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one QueryPerformanceLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {QueryPerformanceLogFindUniqueOrThrowArgs} args - Arguments to find a QueryPerformanceLog
+     * @example
+     * // Get one QueryPerformanceLog
+     * const queryPerformanceLog = await prisma.queryPerformanceLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends QueryPerformanceLogFindUniqueOrThrowArgs>(args: SelectSubset<T, QueryPerformanceLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__QueryPerformanceLogClient<$Result.GetResult<Prisma.$QueryPerformanceLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first QueryPerformanceLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QueryPerformanceLogFindFirstArgs} args - Arguments to find a QueryPerformanceLog
+     * @example
+     * // Get one QueryPerformanceLog
+     * const queryPerformanceLog = await prisma.queryPerformanceLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends QueryPerformanceLogFindFirstArgs>(args?: SelectSubset<T, QueryPerformanceLogFindFirstArgs<ExtArgs>>): Prisma__QueryPerformanceLogClient<$Result.GetResult<Prisma.$QueryPerformanceLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first QueryPerformanceLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QueryPerformanceLogFindFirstOrThrowArgs} args - Arguments to find a QueryPerformanceLog
+     * @example
+     * // Get one QueryPerformanceLog
+     * const queryPerformanceLog = await prisma.queryPerformanceLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends QueryPerformanceLogFindFirstOrThrowArgs>(args?: SelectSubset<T, QueryPerformanceLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__QueryPerformanceLogClient<$Result.GetResult<Prisma.$QueryPerformanceLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more QueryPerformanceLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QueryPerformanceLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all QueryPerformanceLogs
+     * const queryPerformanceLogs = await prisma.queryPerformanceLog.findMany()
+     * 
+     * // Get first 10 QueryPerformanceLogs
+     * const queryPerformanceLogs = await prisma.queryPerformanceLog.findMany({ take: 10 })
+     * 
+     * // Only select the `LogID`
+     * const queryPerformanceLogWithLogIDOnly = await prisma.queryPerformanceLog.findMany({ select: { LogID: true } })
+     * 
+     */
+    findMany<T extends QueryPerformanceLogFindManyArgs>(args?: SelectSubset<T, QueryPerformanceLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QueryPerformanceLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a QueryPerformanceLog.
+     * @param {QueryPerformanceLogCreateArgs} args - Arguments to create a QueryPerformanceLog.
+     * @example
+     * // Create one QueryPerformanceLog
+     * const QueryPerformanceLog = await prisma.queryPerformanceLog.create({
+     *   data: {
+     *     // ... data to create a QueryPerformanceLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends QueryPerformanceLogCreateArgs>(args: SelectSubset<T, QueryPerformanceLogCreateArgs<ExtArgs>>): Prisma__QueryPerformanceLogClient<$Result.GetResult<Prisma.$QueryPerformanceLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many QueryPerformanceLogs.
+     * @param {QueryPerformanceLogCreateManyArgs} args - Arguments to create many QueryPerformanceLogs.
+     * @example
+     * // Create many QueryPerformanceLogs
+     * const queryPerformanceLog = await prisma.queryPerformanceLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends QueryPerformanceLogCreateManyArgs>(args?: SelectSubset<T, QueryPerformanceLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a QueryPerformanceLog.
+     * @param {QueryPerformanceLogDeleteArgs} args - Arguments to delete one QueryPerformanceLog.
+     * @example
+     * // Delete one QueryPerformanceLog
+     * const QueryPerformanceLog = await prisma.queryPerformanceLog.delete({
+     *   where: {
+     *     // ... filter to delete one QueryPerformanceLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends QueryPerformanceLogDeleteArgs>(args: SelectSubset<T, QueryPerformanceLogDeleteArgs<ExtArgs>>): Prisma__QueryPerformanceLogClient<$Result.GetResult<Prisma.$QueryPerformanceLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one QueryPerformanceLog.
+     * @param {QueryPerformanceLogUpdateArgs} args - Arguments to update one QueryPerformanceLog.
+     * @example
+     * // Update one QueryPerformanceLog
+     * const queryPerformanceLog = await prisma.queryPerformanceLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends QueryPerformanceLogUpdateArgs>(args: SelectSubset<T, QueryPerformanceLogUpdateArgs<ExtArgs>>): Prisma__QueryPerformanceLogClient<$Result.GetResult<Prisma.$QueryPerformanceLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more QueryPerformanceLogs.
+     * @param {QueryPerformanceLogDeleteManyArgs} args - Arguments to filter QueryPerformanceLogs to delete.
+     * @example
+     * // Delete a few QueryPerformanceLogs
+     * const { count } = await prisma.queryPerformanceLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends QueryPerformanceLogDeleteManyArgs>(args?: SelectSubset<T, QueryPerformanceLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more QueryPerformanceLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QueryPerformanceLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many QueryPerformanceLogs
+     * const queryPerformanceLog = await prisma.queryPerformanceLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends QueryPerformanceLogUpdateManyArgs>(args: SelectSubset<T, QueryPerformanceLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one QueryPerformanceLog.
+     * @param {QueryPerformanceLogUpsertArgs} args - Arguments to update or create a QueryPerformanceLog.
+     * @example
+     * // Update or create a QueryPerformanceLog
+     * const queryPerformanceLog = await prisma.queryPerformanceLog.upsert({
+     *   create: {
+     *     // ... data to create a QueryPerformanceLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the QueryPerformanceLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends QueryPerformanceLogUpsertArgs>(args: SelectSubset<T, QueryPerformanceLogUpsertArgs<ExtArgs>>): Prisma__QueryPerformanceLogClient<$Result.GetResult<Prisma.$QueryPerformanceLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of QueryPerformanceLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QueryPerformanceLogCountArgs} args - Arguments to filter QueryPerformanceLogs to count.
+     * @example
+     * // Count the number of QueryPerformanceLogs
+     * const count = await prisma.queryPerformanceLog.count({
+     *   where: {
+     *     // ... the filter for the QueryPerformanceLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends QueryPerformanceLogCountArgs>(
+      args?: Subset<T, QueryPerformanceLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], QueryPerformanceLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a QueryPerformanceLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QueryPerformanceLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends QueryPerformanceLogAggregateArgs>(args: Subset<T, QueryPerformanceLogAggregateArgs>): Prisma.PrismaPromise<GetQueryPerformanceLogAggregateType<T>>
+
+    /**
+     * Group by QueryPerformanceLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QueryPerformanceLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends QueryPerformanceLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: QueryPerformanceLogGroupByArgs['orderBy'] }
+        : { orderBy?: QueryPerformanceLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, QueryPerformanceLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetQueryPerformanceLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the QueryPerformanceLog model
+   */
+  readonly fields: QueryPerformanceLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for QueryPerformanceLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__QueryPerformanceLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the QueryPerformanceLog model
+   */
+  interface QueryPerformanceLogFieldRefs {
+    readonly LogID: FieldRef<"QueryPerformanceLog", 'Int'>
+    readonly LogDateTime: FieldRef<"QueryPerformanceLog", 'DateTime'>
+    readonly QueryName: FieldRef<"QueryPerformanceLog", 'String'>
+    readonly CPUTime_ms: FieldRef<"QueryPerformanceLog", 'Int'>
+    readonly ElapsedTime_ms: FieldRef<"QueryPerformanceLog", 'Int'>
+    readonly LogicalReads: FieldRef<"QueryPerformanceLog", 'BigInt'>
+    readonly BlockingSessionID: FieldRef<"QueryPerformanceLog", 'Int'>
+    readonly WaitType: FieldRef<"QueryPerformanceLog", 'String'>
+    readonly WaitResource: FieldRef<"QueryPerformanceLog", 'String'>
+    readonly RowCount: FieldRef<"QueryPerformanceLog", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * QueryPerformanceLog findUnique
+   */
+  export type QueryPerformanceLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+    /**
+     * Filter, which QueryPerformanceLog to fetch.
+     */
+    where: QueryPerformanceLogWhereUniqueInput
+  }
+
+  /**
+   * QueryPerformanceLog findUniqueOrThrow
+   */
+  export type QueryPerformanceLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+    /**
+     * Filter, which QueryPerformanceLog to fetch.
+     */
+    where: QueryPerformanceLogWhereUniqueInput
+  }
+
+  /**
+   * QueryPerformanceLog findFirst
+   */
+  export type QueryPerformanceLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+    /**
+     * Filter, which QueryPerformanceLog to fetch.
+     */
+    where?: QueryPerformanceLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of QueryPerformanceLogs to fetch.
+     */
+    orderBy?: QueryPerformanceLogOrderByWithRelationInput | QueryPerformanceLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for QueryPerformanceLogs.
+     */
+    cursor?: QueryPerformanceLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` QueryPerformanceLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` QueryPerformanceLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of QueryPerformanceLogs.
+     */
+    distinct?: QueryPerformanceLogScalarFieldEnum | QueryPerformanceLogScalarFieldEnum[]
+  }
+
+  /**
+   * QueryPerformanceLog findFirstOrThrow
+   */
+  export type QueryPerformanceLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+    /**
+     * Filter, which QueryPerformanceLog to fetch.
+     */
+    where?: QueryPerformanceLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of QueryPerformanceLogs to fetch.
+     */
+    orderBy?: QueryPerformanceLogOrderByWithRelationInput | QueryPerformanceLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for QueryPerformanceLogs.
+     */
+    cursor?: QueryPerformanceLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` QueryPerformanceLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` QueryPerformanceLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of QueryPerformanceLogs.
+     */
+    distinct?: QueryPerformanceLogScalarFieldEnum | QueryPerformanceLogScalarFieldEnum[]
+  }
+
+  /**
+   * QueryPerformanceLog findMany
+   */
+  export type QueryPerformanceLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+    /**
+     * Filter, which QueryPerformanceLogs to fetch.
+     */
+    where?: QueryPerformanceLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of QueryPerformanceLogs to fetch.
+     */
+    orderBy?: QueryPerformanceLogOrderByWithRelationInput | QueryPerformanceLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing QueryPerformanceLogs.
+     */
+    cursor?: QueryPerformanceLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` QueryPerformanceLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` QueryPerformanceLogs.
+     */
+    skip?: number
+    distinct?: QueryPerformanceLogScalarFieldEnum | QueryPerformanceLogScalarFieldEnum[]
+  }
+
+  /**
+   * QueryPerformanceLog create
+   */
+  export type QueryPerformanceLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+    /**
+     * The data needed to create a QueryPerformanceLog.
+     */
+    data?: XOR<QueryPerformanceLogCreateInput, QueryPerformanceLogUncheckedCreateInput>
+  }
+
+  /**
+   * QueryPerformanceLog createMany
+   */
+  export type QueryPerformanceLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many QueryPerformanceLogs.
+     */
+    data: QueryPerformanceLogCreateManyInput | QueryPerformanceLogCreateManyInput[]
+  }
+
+  /**
+   * QueryPerformanceLog update
+   */
+  export type QueryPerformanceLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+    /**
+     * The data needed to update a QueryPerformanceLog.
+     */
+    data: XOR<QueryPerformanceLogUpdateInput, QueryPerformanceLogUncheckedUpdateInput>
+    /**
+     * Choose, which QueryPerformanceLog to update.
+     */
+    where: QueryPerformanceLogWhereUniqueInput
+  }
+
+  /**
+   * QueryPerformanceLog updateMany
+   */
+  export type QueryPerformanceLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update QueryPerformanceLogs.
+     */
+    data: XOR<QueryPerformanceLogUpdateManyMutationInput, QueryPerformanceLogUncheckedUpdateManyInput>
+    /**
+     * Filter which QueryPerformanceLogs to update
+     */
+    where?: QueryPerformanceLogWhereInput
+    /**
+     * Limit how many QueryPerformanceLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * QueryPerformanceLog upsert
+   */
+  export type QueryPerformanceLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+    /**
+     * The filter to search for the QueryPerformanceLog to update in case it exists.
+     */
+    where: QueryPerformanceLogWhereUniqueInput
+    /**
+     * In case the QueryPerformanceLog found by the `where` argument doesn't exist, create a new QueryPerformanceLog with this data.
+     */
+    create: XOR<QueryPerformanceLogCreateInput, QueryPerformanceLogUncheckedCreateInput>
+    /**
+     * In case the QueryPerformanceLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<QueryPerformanceLogUpdateInput, QueryPerformanceLogUncheckedUpdateInput>
+  }
+
+  /**
+   * QueryPerformanceLog delete
+   */
+  export type QueryPerformanceLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+    /**
+     * Filter which QueryPerformanceLog to delete.
+     */
+    where: QueryPerformanceLogWhereUniqueInput
+  }
+
+  /**
+   * QueryPerformanceLog deleteMany
+   */
+  export type QueryPerformanceLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which QueryPerformanceLogs to delete
+     */
+    where?: QueryPerformanceLogWhereInput
+    /**
+     * Limit how many QueryPerformanceLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * QueryPerformanceLog without action
+   */
+  export type QueryPerformanceLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QueryPerformanceLog
+     */
+    select?: QueryPerformanceLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QueryPerformanceLog
+     */
+    omit?: QueryPerformanceLogOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TCurrentTermData
+   */
+
+  export type AggregateTCurrentTermData = {
+    _count: TCurrentTermDataCountAggregateOutputType | null
+    _avg: TCurrentTermDataAvgAggregateOutputType | null
+    _sum: TCurrentTermDataSumAggregateOutputType | null
+    _min: TCurrentTermDataMinAggregateOutputType | null
+    _max: TCurrentTermDataMaxAggregateOutputType | null
+  }
+
+  export type TCurrentTermDataAvgAggregateOutputType = {
+    SchoolID: number | null
+    nYear: number | null
+  }
+
+  export type TCurrentTermDataSumAggregateOutputType = {
+    SchoolID: number | null
+    nYear: number | null
+  }
+
+  export type TCurrentTermDataMinAggregateOutputType = {
+    nTerm: string | null
+    dStart: Date | null
+    dEnd: Date | null
+    SchoolID: number | null
+    nYear: number | null
+    sTerm: string | null
+  }
+
+  export type TCurrentTermDataMaxAggregateOutputType = {
+    nTerm: string | null
+    dStart: Date | null
+    dEnd: Date | null
+    SchoolID: number | null
+    nYear: number | null
+    sTerm: string | null
+  }
+
+  export type TCurrentTermDataCountAggregateOutputType = {
+    nTerm: number
+    dStart: number
+    dEnd: number
+    SchoolID: number
+    nYear: number
+    sTerm: number
+    _all: number
+  }
+
+
+  export type TCurrentTermDataAvgAggregateInputType = {
+    SchoolID?: true
+    nYear?: true
+  }
+
+  export type TCurrentTermDataSumAggregateInputType = {
+    SchoolID?: true
+    nYear?: true
+  }
+
+  export type TCurrentTermDataMinAggregateInputType = {
+    nTerm?: true
+    dStart?: true
+    dEnd?: true
+    SchoolID?: true
+    nYear?: true
+    sTerm?: true
+  }
+
+  export type TCurrentTermDataMaxAggregateInputType = {
+    nTerm?: true
+    dStart?: true
+    dEnd?: true
+    SchoolID?: true
+    nYear?: true
+    sTerm?: true
+  }
+
+  export type TCurrentTermDataCountAggregateInputType = {
+    nTerm?: true
+    dStart?: true
+    dEnd?: true
+    SchoolID?: true
+    nYear?: true
+    sTerm?: true
+    _all?: true
+  }
+
+  export type TCurrentTermDataAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TCurrentTermData to aggregate.
+     */
+    where?: TCurrentTermDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TCurrentTermData to fetch.
+     */
+    orderBy?: TCurrentTermDataOrderByWithRelationInput | TCurrentTermDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TCurrentTermDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TCurrentTermData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TCurrentTermData.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TCurrentTermData
+    **/
+    _count?: true | TCurrentTermDataCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TCurrentTermDataAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TCurrentTermDataSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TCurrentTermDataMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TCurrentTermDataMaxAggregateInputType
+  }
+
+  export type GetTCurrentTermDataAggregateType<T extends TCurrentTermDataAggregateArgs> = {
+        [P in keyof T & keyof AggregateTCurrentTermData]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTCurrentTermData[P]>
+      : GetScalarType<T[P], AggregateTCurrentTermData[P]>
+  }
+
+
+
+
+  export type TCurrentTermDataGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TCurrentTermDataWhereInput
+    orderBy?: TCurrentTermDataOrderByWithAggregationInput | TCurrentTermDataOrderByWithAggregationInput[]
+    by: TCurrentTermDataScalarFieldEnum[] | TCurrentTermDataScalarFieldEnum
+    having?: TCurrentTermDataScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TCurrentTermDataCountAggregateInputType | true
+    _avg?: TCurrentTermDataAvgAggregateInputType
+    _sum?: TCurrentTermDataSumAggregateInputType
+    _min?: TCurrentTermDataMinAggregateInputType
+    _max?: TCurrentTermDataMaxAggregateInputType
+  }
+
+  export type TCurrentTermDataGroupByOutputType = {
+    nTerm: string
+    dStart: Date | null
+    dEnd: Date | null
+    SchoolID: number
+    nYear: number
+    sTerm: string | null
+    _count: TCurrentTermDataCountAggregateOutputType | null
+    _avg: TCurrentTermDataAvgAggregateOutputType | null
+    _sum: TCurrentTermDataSumAggregateOutputType | null
+    _min: TCurrentTermDataMinAggregateOutputType | null
+    _max: TCurrentTermDataMaxAggregateOutputType | null
+  }
+
+  type GetTCurrentTermDataGroupByPayload<T extends TCurrentTermDataGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TCurrentTermDataGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TCurrentTermDataGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TCurrentTermDataGroupByOutputType[P]>
+            : GetScalarType<T[P], TCurrentTermDataGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TCurrentTermDataSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    nTerm?: boolean
+    dStart?: boolean
+    dEnd?: boolean
+    SchoolID?: boolean
+    nYear?: boolean
+    sTerm?: boolean
+  }, ExtArgs["result"]["tCurrentTermData"]>
+
+
+
+  export type TCurrentTermDataSelectScalar = {
+    nTerm?: boolean
+    dStart?: boolean
+    dEnd?: boolean
+    SchoolID?: boolean
+    nYear?: boolean
+    sTerm?: boolean
+  }
+
+  export type TCurrentTermDataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"nTerm" | "dStart" | "dEnd" | "SchoolID" | "nYear" | "sTerm", ExtArgs["result"]["tCurrentTermData"]>
+
+  export type $TCurrentTermDataPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TCurrentTermData"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      nTerm: string
+      dStart: Date | null
+      dEnd: Date | null
+      SchoolID: number
+      nYear: number
+      sTerm: string | null
+    }, ExtArgs["result"]["tCurrentTermData"]>
+    composites: {}
+  }
+
+  type TCurrentTermDataGetPayload<S extends boolean | null | undefined | TCurrentTermDataDefaultArgs> = $Result.GetResult<Prisma.$TCurrentTermDataPayload, S>
+
+  type TCurrentTermDataCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TCurrentTermDataFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TCurrentTermDataCountAggregateInputType | true
+    }
+
+  export interface TCurrentTermDataDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TCurrentTermData'], meta: { name: 'TCurrentTermData' } }
+    /**
+     * Find zero or one TCurrentTermData that matches the filter.
+     * @param {TCurrentTermDataFindUniqueArgs} args - Arguments to find a TCurrentTermData
+     * @example
+     * // Get one TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TCurrentTermDataFindUniqueArgs>(args: SelectSubset<T, TCurrentTermDataFindUniqueArgs<ExtArgs>>): Prisma__TCurrentTermDataClient<$Result.GetResult<Prisma.$TCurrentTermDataPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TCurrentTermData that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TCurrentTermDataFindUniqueOrThrowArgs} args - Arguments to find a TCurrentTermData
+     * @example
+     * // Get one TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TCurrentTermDataFindUniqueOrThrowArgs>(args: SelectSubset<T, TCurrentTermDataFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TCurrentTermDataClient<$Result.GetResult<Prisma.$TCurrentTermDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TCurrentTermData that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TCurrentTermDataFindFirstArgs} args - Arguments to find a TCurrentTermData
+     * @example
+     * // Get one TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TCurrentTermDataFindFirstArgs>(args?: SelectSubset<T, TCurrentTermDataFindFirstArgs<ExtArgs>>): Prisma__TCurrentTermDataClient<$Result.GetResult<Prisma.$TCurrentTermDataPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TCurrentTermData that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TCurrentTermDataFindFirstOrThrowArgs} args - Arguments to find a TCurrentTermData
+     * @example
+     * // Get one TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TCurrentTermDataFindFirstOrThrowArgs>(args?: SelectSubset<T, TCurrentTermDataFindFirstOrThrowArgs<ExtArgs>>): Prisma__TCurrentTermDataClient<$Result.GetResult<Prisma.$TCurrentTermDataPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TCurrentTermData that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TCurrentTermDataFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.findMany()
+     * 
+     * // Get first 10 TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.findMany({ take: 10 })
+     * 
+     * // Only select the `nTerm`
+     * const tCurrentTermDataWithNTermOnly = await prisma.tCurrentTermData.findMany({ select: { nTerm: true } })
+     * 
+     */
+    findMany<T extends TCurrentTermDataFindManyArgs>(args?: SelectSubset<T, TCurrentTermDataFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TCurrentTermDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TCurrentTermData.
+     * @param {TCurrentTermDataCreateArgs} args - Arguments to create a TCurrentTermData.
+     * @example
+     * // Create one TCurrentTermData
+     * const TCurrentTermData = await prisma.tCurrentTermData.create({
+     *   data: {
+     *     // ... data to create a TCurrentTermData
+     *   }
+     * })
+     * 
+     */
+    create<T extends TCurrentTermDataCreateArgs>(args: SelectSubset<T, TCurrentTermDataCreateArgs<ExtArgs>>): Prisma__TCurrentTermDataClient<$Result.GetResult<Prisma.$TCurrentTermDataPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TCurrentTermData.
+     * @param {TCurrentTermDataCreateManyArgs} args - Arguments to create many TCurrentTermData.
+     * @example
+     * // Create many TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TCurrentTermDataCreateManyArgs>(args?: SelectSubset<T, TCurrentTermDataCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a TCurrentTermData.
+     * @param {TCurrentTermDataDeleteArgs} args - Arguments to delete one TCurrentTermData.
+     * @example
+     * // Delete one TCurrentTermData
+     * const TCurrentTermData = await prisma.tCurrentTermData.delete({
+     *   where: {
+     *     // ... filter to delete one TCurrentTermData
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TCurrentTermDataDeleteArgs>(args: SelectSubset<T, TCurrentTermDataDeleteArgs<ExtArgs>>): Prisma__TCurrentTermDataClient<$Result.GetResult<Prisma.$TCurrentTermDataPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TCurrentTermData.
+     * @param {TCurrentTermDataUpdateArgs} args - Arguments to update one TCurrentTermData.
+     * @example
+     * // Update one TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TCurrentTermDataUpdateArgs>(args: SelectSubset<T, TCurrentTermDataUpdateArgs<ExtArgs>>): Prisma__TCurrentTermDataClient<$Result.GetResult<Prisma.$TCurrentTermDataPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TCurrentTermData.
+     * @param {TCurrentTermDataDeleteManyArgs} args - Arguments to filter TCurrentTermData to delete.
+     * @example
+     * // Delete a few TCurrentTermData
+     * const { count } = await prisma.tCurrentTermData.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TCurrentTermDataDeleteManyArgs>(args?: SelectSubset<T, TCurrentTermDataDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TCurrentTermData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TCurrentTermDataUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TCurrentTermDataUpdateManyArgs>(args: SelectSubset<T, TCurrentTermDataUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TCurrentTermData.
+     * @param {TCurrentTermDataUpsertArgs} args - Arguments to update or create a TCurrentTermData.
+     * @example
+     * // Update or create a TCurrentTermData
+     * const tCurrentTermData = await prisma.tCurrentTermData.upsert({
+     *   create: {
+     *     // ... data to create a TCurrentTermData
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TCurrentTermData we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TCurrentTermDataUpsertArgs>(args: SelectSubset<T, TCurrentTermDataUpsertArgs<ExtArgs>>): Prisma__TCurrentTermDataClient<$Result.GetResult<Prisma.$TCurrentTermDataPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TCurrentTermData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TCurrentTermDataCountArgs} args - Arguments to filter TCurrentTermData to count.
+     * @example
+     * // Count the number of TCurrentTermData
+     * const count = await prisma.tCurrentTermData.count({
+     *   where: {
+     *     // ... the filter for the TCurrentTermData we want to count
+     *   }
+     * })
+    **/
+    count<T extends TCurrentTermDataCountArgs>(
+      args?: Subset<T, TCurrentTermDataCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TCurrentTermDataCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TCurrentTermData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TCurrentTermDataAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TCurrentTermDataAggregateArgs>(args: Subset<T, TCurrentTermDataAggregateArgs>): Prisma.PrismaPromise<GetTCurrentTermDataAggregateType<T>>
+
+    /**
+     * Group by TCurrentTermData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TCurrentTermDataGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TCurrentTermDataGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TCurrentTermDataGroupByArgs['orderBy'] }
+        : { orderBy?: TCurrentTermDataGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TCurrentTermDataGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTCurrentTermDataGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TCurrentTermData model
+   */
+  readonly fields: TCurrentTermDataFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TCurrentTermData.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TCurrentTermDataClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TCurrentTermData model
+   */
+  interface TCurrentTermDataFieldRefs {
+    readonly nTerm: FieldRef<"TCurrentTermData", 'String'>
+    readonly dStart: FieldRef<"TCurrentTermData", 'DateTime'>
+    readonly dEnd: FieldRef<"TCurrentTermData", 'DateTime'>
+    readonly SchoolID: FieldRef<"TCurrentTermData", 'Int'>
+    readonly nYear: FieldRef<"TCurrentTermData", 'Int'>
+    readonly sTerm: FieldRef<"TCurrentTermData", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TCurrentTermData findUnique
+   */
+  export type TCurrentTermDataFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+    /**
+     * Filter, which TCurrentTermData to fetch.
+     */
+    where: TCurrentTermDataWhereUniqueInput
+  }
+
+  /**
+   * TCurrentTermData findUniqueOrThrow
+   */
+  export type TCurrentTermDataFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+    /**
+     * Filter, which TCurrentTermData to fetch.
+     */
+    where: TCurrentTermDataWhereUniqueInput
+  }
+
+  /**
+   * TCurrentTermData findFirst
+   */
+  export type TCurrentTermDataFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+    /**
+     * Filter, which TCurrentTermData to fetch.
+     */
+    where?: TCurrentTermDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TCurrentTermData to fetch.
+     */
+    orderBy?: TCurrentTermDataOrderByWithRelationInput | TCurrentTermDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TCurrentTermData.
+     */
+    cursor?: TCurrentTermDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TCurrentTermData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TCurrentTermData.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TCurrentTermData.
+     */
+    distinct?: TCurrentTermDataScalarFieldEnum | TCurrentTermDataScalarFieldEnum[]
+  }
+
+  /**
+   * TCurrentTermData findFirstOrThrow
+   */
+  export type TCurrentTermDataFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+    /**
+     * Filter, which TCurrentTermData to fetch.
+     */
+    where?: TCurrentTermDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TCurrentTermData to fetch.
+     */
+    orderBy?: TCurrentTermDataOrderByWithRelationInput | TCurrentTermDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TCurrentTermData.
+     */
+    cursor?: TCurrentTermDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TCurrentTermData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TCurrentTermData.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TCurrentTermData.
+     */
+    distinct?: TCurrentTermDataScalarFieldEnum | TCurrentTermDataScalarFieldEnum[]
+  }
+
+  /**
+   * TCurrentTermData findMany
+   */
+  export type TCurrentTermDataFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+    /**
+     * Filter, which TCurrentTermData to fetch.
+     */
+    where?: TCurrentTermDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TCurrentTermData to fetch.
+     */
+    orderBy?: TCurrentTermDataOrderByWithRelationInput | TCurrentTermDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TCurrentTermData.
+     */
+    cursor?: TCurrentTermDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TCurrentTermData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TCurrentTermData.
+     */
+    skip?: number
+    distinct?: TCurrentTermDataScalarFieldEnum | TCurrentTermDataScalarFieldEnum[]
+  }
+
+  /**
+   * TCurrentTermData create
+   */
+  export type TCurrentTermDataCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TCurrentTermData.
+     */
+    data: XOR<TCurrentTermDataCreateInput, TCurrentTermDataUncheckedCreateInput>
+  }
+
+  /**
+   * TCurrentTermData createMany
+   */
+  export type TCurrentTermDataCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TCurrentTermData.
+     */
+    data: TCurrentTermDataCreateManyInput | TCurrentTermDataCreateManyInput[]
+  }
+
+  /**
+   * TCurrentTermData update
+   */
+  export type TCurrentTermDataUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TCurrentTermData.
+     */
+    data: XOR<TCurrentTermDataUpdateInput, TCurrentTermDataUncheckedUpdateInput>
+    /**
+     * Choose, which TCurrentTermData to update.
+     */
+    where: TCurrentTermDataWhereUniqueInput
+  }
+
+  /**
+   * TCurrentTermData updateMany
+   */
+  export type TCurrentTermDataUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TCurrentTermData.
+     */
+    data: XOR<TCurrentTermDataUpdateManyMutationInput, TCurrentTermDataUncheckedUpdateManyInput>
+    /**
+     * Filter which TCurrentTermData to update
+     */
+    where?: TCurrentTermDataWhereInput
+    /**
+     * Limit how many TCurrentTermData to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TCurrentTermData upsert
+   */
+  export type TCurrentTermDataUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TCurrentTermData to update in case it exists.
+     */
+    where: TCurrentTermDataWhereUniqueInput
+    /**
+     * In case the TCurrentTermData found by the `where` argument doesn't exist, create a new TCurrentTermData with this data.
+     */
+    create: XOR<TCurrentTermDataCreateInput, TCurrentTermDataUncheckedCreateInput>
+    /**
+     * In case the TCurrentTermData was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TCurrentTermDataUpdateInput, TCurrentTermDataUncheckedUpdateInput>
+  }
+
+  /**
+   * TCurrentTermData delete
+   */
+  export type TCurrentTermDataDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+    /**
+     * Filter which TCurrentTermData to delete.
+     */
+    where: TCurrentTermDataWhereUniqueInput
+  }
+
+  /**
+   * TCurrentTermData deleteMany
+   */
+  export type TCurrentTermDataDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TCurrentTermData to delete
+     */
+    where?: TCurrentTermDataWhereInput
+    /**
+     * Limit how many TCurrentTermData to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TCurrentTermData without action
+   */
+  export type TCurrentTermDataDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TCurrentTermData
+     */
+    select?: TCurrentTermDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TCurrentTermData
+     */
+    omit?: TCurrentTermDataOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TEmpSignerReport
+   */
+
+  export type AggregateTEmpSignerReport = {
+    _count: TEmpSignerReportCountAggregateOutputType | null
+    _avg: TEmpSignerReportAvgAggregateOutputType | null
+    _sum: TEmpSignerReportSumAggregateOutputType | null
+    _min: TEmpSignerReportMinAggregateOutputType | null
+    _max: TEmpSignerReportMaxAggregateOutputType | null
+  }
+
+  export type TEmpSignerReportAvgAggregateOutputType = {
+    ReportID: number | null
+    SchoolID: number | null
+    SignerID: number | null
+    YearID: number | null
+    CreateBy: number | null
+    ModifyBy: number | null
+  }
+
+  export type TEmpSignerReportSumAggregateOutputType = {
+    ReportID: number | null
+    SchoolID: number | null
+    SignerID: number | null
+    YearID: number | null
+    CreateBy: number | null
+    ModifyBy: number | null
+  }
+
+  export type TEmpSignerReportMinAggregateOutputType = {
+    ReportID: number | null
+    SchoolID: number | null
+    SignerID: number | null
+    YearID: number | null
+    ReportName: string | null
+    ReportPart: string | null
+    Created: Date | null
+    CreateBy: number | null
+    Modified: Date | null
+    ModifyBy: number | null
+  }
+
+  export type TEmpSignerReportMaxAggregateOutputType = {
+    ReportID: number | null
+    SchoolID: number | null
+    SignerID: number | null
+    YearID: number | null
+    ReportName: string | null
+    ReportPart: string | null
+    Created: Date | null
+    CreateBy: number | null
+    Modified: Date | null
+    ModifyBy: number | null
+  }
+
+  export type TEmpSignerReportCountAggregateOutputType = {
+    ReportID: number
+    SchoolID: number
+    SignerID: number
+    YearID: number
+    ReportName: number
+    ReportPart: number
+    Created: number
+    CreateBy: number
+    Modified: number
+    ModifyBy: number
+    _all: number
+  }
+
+
+  export type TEmpSignerReportAvgAggregateInputType = {
+    ReportID?: true
+    SchoolID?: true
+    SignerID?: true
+    YearID?: true
+    CreateBy?: true
+    ModifyBy?: true
+  }
+
+  export type TEmpSignerReportSumAggregateInputType = {
+    ReportID?: true
+    SchoolID?: true
+    SignerID?: true
+    YearID?: true
+    CreateBy?: true
+    ModifyBy?: true
+  }
+
+  export type TEmpSignerReportMinAggregateInputType = {
+    ReportID?: true
+    SchoolID?: true
+    SignerID?: true
+    YearID?: true
+    ReportName?: true
+    ReportPart?: true
+    Created?: true
+    CreateBy?: true
+    Modified?: true
+    ModifyBy?: true
+  }
+
+  export type TEmpSignerReportMaxAggregateInputType = {
+    ReportID?: true
+    SchoolID?: true
+    SignerID?: true
+    YearID?: true
+    ReportName?: true
+    ReportPart?: true
+    Created?: true
+    CreateBy?: true
+    Modified?: true
+    ModifyBy?: true
+  }
+
+  export type TEmpSignerReportCountAggregateInputType = {
+    ReportID?: true
+    SchoolID?: true
+    SignerID?: true
+    YearID?: true
+    ReportName?: true
+    ReportPart?: true
+    Created?: true
+    CreateBy?: true
+    Modified?: true
+    ModifyBy?: true
+    _all?: true
+  }
+
+  export type TEmpSignerReportAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TEmpSignerReport to aggregate.
+     */
+    where?: TEmpSignerReportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TEmpSignerReports to fetch.
+     */
+    orderBy?: TEmpSignerReportOrderByWithRelationInput | TEmpSignerReportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TEmpSignerReportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TEmpSignerReports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TEmpSignerReports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TEmpSignerReports
+    **/
+    _count?: true | TEmpSignerReportCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TEmpSignerReportAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TEmpSignerReportSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TEmpSignerReportMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TEmpSignerReportMaxAggregateInputType
+  }
+
+  export type GetTEmpSignerReportAggregateType<T extends TEmpSignerReportAggregateArgs> = {
+        [P in keyof T & keyof AggregateTEmpSignerReport]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTEmpSignerReport[P]>
+      : GetScalarType<T[P], AggregateTEmpSignerReport[P]>
+  }
+
+
+
+
+  export type TEmpSignerReportGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TEmpSignerReportWhereInput
+    orderBy?: TEmpSignerReportOrderByWithAggregationInput | TEmpSignerReportOrderByWithAggregationInput[]
+    by: TEmpSignerReportScalarFieldEnum[] | TEmpSignerReportScalarFieldEnum
+    having?: TEmpSignerReportScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TEmpSignerReportCountAggregateInputType | true
+    _avg?: TEmpSignerReportAvgAggregateInputType
+    _sum?: TEmpSignerReportSumAggregateInputType
+    _min?: TEmpSignerReportMinAggregateInputType
+    _max?: TEmpSignerReportMaxAggregateInputType
+  }
+
+  export type TEmpSignerReportGroupByOutputType = {
+    ReportID: number
+    SchoolID: number
+    SignerID: number | null
+    YearID: number | null
+    ReportName: string | null
+    ReportPart: string | null
+    Created: Date | null
+    CreateBy: number | null
+    Modified: Date | null
+    ModifyBy: number | null
+    _count: TEmpSignerReportCountAggregateOutputType | null
+    _avg: TEmpSignerReportAvgAggregateOutputType | null
+    _sum: TEmpSignerReportSumAggregateOutputType | null
+    _min: TEmpSignerReportMinAggregateOutputType | null
+    _max: TEmpSignerReportMaxAggregateOutputType | null
+  }
+
+  type GetTEmpSignerReportGroupByPayload<T extends TEmpSignerReportGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TEmpSignerReportGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TEmpSignerReportGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TEmpSignerReportGroupByOutputType[P]>
+            : GetScalarType<T[P], TEmpSignerReportGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TEmpSignerReportSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    ReportID?: boolean
+    SchoolID?: boolean
+    SignerID?: boolean
+    YearID?: boolean
+    ReportName?: boolean
+    ReportPart?: boolean
+    Created?: boolean
+    CreateBy?: boolean
+    Modified?: boolean
+    ModifyBy?: boolean
+  }, ExtArgs["result"]["tEmpSignerReport"]>
+
+
+
+  export type TEmpSignerReportSelectScalar = {
+    ReportID?: boolean
+    SchoolID?: boolean
+    SignerID?: boolean
+    YearID?: boolean
+    ReportName?: boolean
+    ReportPart?: boolean
+    Created?: boolean
+    CreateBy?: boolean
+    Modified?: boolean
+    ModifyBy?: boolean
+  }
+
+  export type TEmpSignerReportOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ReportID" | "SchoolID" | "SignerID" | "YearID" | "ReportName" | "ReportPart" | "Created" | "CreateBy" | "Modified" | "ModifyBy", ExtArgs["result"]["tEmpSignerReport"]>
+
+  export type $TEmpSignerReportPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TEmpSignerReport"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      ReportID: number
+      SchoolID: number
+      SignerID: number | null
+      YearID: number | null
+      ReportName: string | null
+      ReportPart: string | null
+      Created: Date | null
+      CreateBy: number | null
+      Modified: Date | null
+      ModifyBy: number | null
+    }, ExtArgs["result"]["tEmpSignerReport"]>
+    composites: {}
+  }
+
+  type TEmpSignerReportGetPayload<S extends boolean | null | undefined | TEmpSignerReportDefaultArgs> = $Result.GetResult<Prisma.$TEmpSignerReportPayload, S>
+
+  type TEmpSignerReportCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TEmpSignerReportFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TEmpSignerReportCountAggregateInputType | true
+    }
+
+  export interface TEmpSignerReportDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TEmpSignerReport'], meta: { name: 'TEmpSignerReport' } }
+    /**
+     * Find zero or one TEmpSignerReport that matches the filter.
+     * @param {TEmpSignerReportFindUniqueArgs} args - Arguments to find a TEmpSignerReport
+     * @example
+     * // Get one TEmpSignerReport
+     * const tEmpSignerReport = await prisma.tEmpSignerReport.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TEmpSignerReportFindUniqueArgs>(args: SelectSubset<T, TEmpSignerReportFindUniqueArgs<ExtArgs>>): Prisma__TEmpSignerReportClient<$Result.GetResult<Prisma.$TEmpSignerReportPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TEmpSignerReport that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TEmpSignerReportFindUniqueOrThrowArgs} args - Arguments to find a TEmpSignerReport
+     * @example
+     * // Get one TEmpSignerReport
+     * const tEmpSignerReport = await prisma.tEmpSignerReport.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TEmpSignerReportFindUniqueOrThrowArgs>(args: SelectSubset<T, TEmpSignerReportFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TEmpSignerReportClient<$Result.GetResult<Prisma.$TEmpSignerReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TEmpSignerReport that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TEmpSignerReportFindFirstArgs} args - Arguments to find a TEmpSignerReport
+     * @example
+     * // Get one TEmpSignerReport
+     * const tEmpSignerReport = await prisma.tEmpSignerReport.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TEmpSignerReportFindFirstArgs>(args?: SelectSubset<T, TEmpSignerReportFindFirstArgs<ExtArgs>>): Prisma__TEmpSignerReportClient<$Result.GetResult<Prisma.$TEmpSignerReportPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TEmpSignerReport that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TEmpSignerReportFindFirstOrThrowArgs} args - Arguments to find a TEmpSignerReport
+     * @example
+     * // Get one TEmpSignerReport
+     * const tEmpSignerReport = await prisma.tEmpSignerReport.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TEmpSignerReportFindFirstOrThrowArgs>(args?: SelectSubset<T, TEmpSignerReportFindFirstOrThrowArgs<ExtArgs>>): Prisma__TEmpSignerReportClient<$Result.GetResult<Prisma.$TEmpSignerReportPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TEmpSignerReports that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TEmpSignerReportFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TEmpSignerReports
+     * const tEmpSignerReports = await prisma.tEmpSignerReport.findMany()
+     * 
+     * // Get first 10 TEmpSignerReports
+     * const tEmpSignerReports = await prisma.tEmpSignerReport.findMany({ take: 10 })
+     * 
+     * // Only select the `ReportID`
+     * const tEmpSignerReportWithReportIDOnly = await prisma.tEmpSignerReport.findMany({ select: { ReportID: true } })
+     * 
+     */
+    findMany<T extends TEmpSignerReportFindManyArgs>(args?: SelectSubset<T, TEmpSignerReportFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TEmpSignerReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TEmpSignerReport.
+     * @param {TEmpSignerReportCreateArgs} args - Arguments to create a TEmpSignerReport.
+     * @example
+     * // Create one TEmpSignerReport
+     * const TEmpSignerReport = await prisma.tEmpSignerReport.create({
+     *   data: {
+     *     // ... data to create a TEmpSignerReport
+     *   }
+     * })
+     * 
+     */
+    create<T extends TEmpSignerReportCreateArgs>(args: SelectSubset<T, TEmpSignerReportCreateArgs<ExtArgs>>): Prisma__TEmpSignerReportClient<$Result.GetResult<Prisma.$TEmpSignerReportPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TEmpSignerReports.
+     * @param {TEmpSignerReportCreateManyArgs} args - Arguments to create many TEmpSignerReports.
+     * @example
+     * // Create many TEmpSignerReports
+     * const tEmpSignerReport = await prisma.tEmpSignerReport.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TEmpSignerReportCreateManyArgs>(args?: SelectSubset<T, TEmpSignerReportCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a TEmpSignerReport.
+     * @param {TEmpSignerReportDeleteArgs} args - Arguments to delete one TEmpSignerReport.
+     * @example
+     * // Delete one TEmpSignerReport
+     * const TEmpSignerReport = await prisma.tEmpSignerReport.delete({
+     *   where: {
+     *     // ... filter to delete one TEmpSignerReport
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TEmpSignerReportDeleteArgs>(args: SelectSubset<T, TEmpSignerReportDeleteArgs<ExtArgs>>): Prisma__TEmpSignerReportClient<$Result.GetResult<Prisma.$TEmpSignerReportPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TEmpSignerReport.
+     * @param {TEmpSignerReportUpdateArgs} args - Arguments to update one TEmpSignerReport.
+     * @example
+     * // Update one TEmpSignerReport
+     * const tEmpSignerReport = await prisma.tEmpSignerReport.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TEmpSignerReportUpdateArgs>(args: SelectSubset<T, TEmpSignerReportUpdateArgs<ExtArgs>>): Prisma__TEmpSignerReportClient<$Result.GetResult<Prisma.$TEmpSignerReportPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TEmpSignerReports.
+     * @param {TEmpSignerReportDeleteManyArgs} args - Arguments to filter TEmpSignerReports to delete.
+     * @example
+     * // Delete a few TEmpSignerReports
+     * const { count } = await prisma.tEmpSignerReport.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TEmpSignerReportDeleteManyArgs>(args?: SelectSubset<T, TEmpSignerReportDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TEmpSignerReports.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TEmpSignerReportUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TEmpSignerReports
+     * const tEmpSignerReport = await prisma.tEmpSignerReport.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TEmpSignerReportUpdateManyArgs>(args: SelectSubset<T, TEmpSignerReportUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TEmpSignerReport.
+     * @param {TEmpSignerReportUpsertArgs} args - Arguments to update or create a TEmpSignerReport.
+     * @example
+     * // Update or create a TEmpSignerReport
+     * const tEmpSignerReport = await prisma.tEmpSignerReport.upsert({
+     *   create: {
+     *     // ... data to create a TEmpSignerReport
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TEmpSignerReport we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TEmpSignerReportUpsertArgs>(args: SelectSubset<T, TEmpSignerReportUpsertArgs<ExtArgs>>): Prisma__TEmpSignerReportClient<$Result.GetResult<Prisma.$TEmpSignerReportPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TEmpSignerReports.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TEmpSignerReportCountArgs} args - Arguments to filter TEmpSignerReports to count.
+     * @example
+     * // Count the number of TEmpSignerReports
+     * const count = await prisma.tEmpSignerReport.count({
+     *   where: {
+     *     // ... the filter for the TEmpSignerReports we want to count
+     *   }
+     * })
+    **/
+    count<T extends TEmpSignerReportCountArgs>(
+      args?: Subset<T, TEmpSignerReportCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TEmpSignerReportCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TEmpSignerReport.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TEmpSignerReportAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TEmpSignerReportAggregateArgs>(args: Subset<T, TEmpSignerReportAggregateArgs>): Prisma.PrismaPromise<GetTEmpSignerReportAggregateType<T>>
+
+    /**
+     * Group by TEmpSignerReport.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TEmpSignerReportGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TEmpSignerReportGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TEmpSignerReportGroupByArgs['orderBy'] }
+        : { orderBy?: TEmpSignerReportGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TEmpSignerReportGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTEmpSignerReportGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TEmpSignerReport model
+   */
+  readonly fields: TEmpSignerReportFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TEmpSignerReport.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TEmpSignerReportClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TEmpSignerReport model
+   */
+  interface TEmpSignerReportFieldRefs {
+    readonly ReportID: FieldRef<"TEmpSignerReport", 'Int'>
+    readonly SchoolID: FieldRef<"TEmpSignerReport", 'Int'>
+    readonly SignerID: FieldRef<"TEmpSignerReport", 'Int'>
+    readonly YearID: FieldRef<"TEmpSignerReport", 'Int'>
+    readonly ReportName: FieldRef<"TEmpSignerReport", 'String'>
+    readonly ReportPart: FieldRef<"TEmpSignerReport", 'String'>
+    readonly Created: FieldRef<"TEmpSignerReport", 'DateTime'>
+    readonly CreateBy: FieldRef<"TEmpSignerReport", 'Int'>
+    readonly Modified: FieldRef<"TEmpSignerReport", 'DateTime'>
+    readonly ModifyBy: FieldRef<"TEmpSignerReport", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TEmpSignerReport findUnique
+   */
+  export type TEmpSignerReportFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+    /**
+     * Filter, which TEmpSignerReport to fetch.
+     */
+    where: TEmpSignerReportWhereUniqueInput
+  }
+
+  /**
+   * TEmpSignerReport findUniqueOrThrow
+   */
+  export type TEmpSignerReportFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+    /**
+     * Filter, which TEmpSignerReport to fetch.
+     */
+    where: TEmpSignerReportWhereUniqueInput
+  }
+
+  /**
+   * TEmpSignerReport findFirst
+   */
+  export type TEmpSignerReportFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+    /**
+     * Filter, which TEmpSignerReport to fetch.
+     */
+    where?: TEmpSignerReportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TEmpSignerReports to fetch.
+     */
+    orderBy?: TEmpSignerReportOrderByWithRelationInput | TEmpSignerReportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TEmpSignerReports.
+     */
+    cursor?: TEmpSignerReportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TEmpSignerReports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TEmpSignerReports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TEmpSignerReports.
+     */
+    distinct?: TEmpSignerReportScalarFieldEnum | TEmpSignerReportScalarFieldEnum[]
+  }
+
+  /**
+   * TEmpSignerReport findFirstOrThrow
+   */
+  export type TEmpSignerReportFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+    /**
+     * Filter, which TEmpSignerReport to fetch.
+     */
+    where?: TEmpSignerReportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TEmpSignerReports to fetch.
+     */
+    orderBy?: TEmpSignerReportOrderByWithRelationInput | TEmpSignerReportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TEmpSignerReports.
+     */
+    cursor?: TEmpSignerReportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TEmpSignerReports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TEmpSignerReports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TEmpSignerReports.
+     */
+    distinct?: TEmpSignerReportScalarFieldEnum | TEmpSignerReportScalarFieldEnum[]
+  }
+
+  /**
+   * TEmpSignerReport findMany
+   */
+  export type TEmpSignerReportFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+    /**
+     * Filter, which TEmpSignerReports to fetch.
+     */
+    where?: TEmpSignerReportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TEmpSignerReports to fetch.
+     */
+    orderBy?: TEmpSignerReportOrderByWithRelationInput | TEmpSignerReportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TEmpSignerReports.
+     */
+    cursor?: TEmpSignerReportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TEmpSignerReports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TEmpSignerReports.
+     */
+    skip?: number
+    distinct?: TEmpSignerReportScalarFieldEnum | TEmpSignerReportScalarFieldEnum[]
+  }
+
+  /**
+   * TEmpSignerReport create
+   */
+  export type TEmpSignerReportCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TEmpSignerReport.
+     */
+    data: XOR<TEmpSignerReportCreateInput, TEmpSignerReportUncheckedCreateInput>
+  }
+
+  /**
+   * TEmpSignerReport createMany
+   */
+  export type TEmpSignerReportCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TEmpSignerReports.
+     */
+    data: TEmpSignerReportCreateManyInput | TEmpSignerReportCreateManyInput[]
+  }
+
+  /**
+   * TEmpSignerReport update
+   */
+  export type TEmpSignerReportUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TEmpSignerReport.
+     */
+    data: XOR<TEmpSignerReportUpdateInput, TEmpSignerReportUncheckedUpdateInput>
+    /**
+     * Choose, which TEmpSignerReport to update.
+     */
+    where: TEmpSignerReportWhereUniqueInput
+  }
+
+  /**
+   * TEmpSignerReport updateMany
+   */
+  export type TEmpSignerReportUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TEmpSignerReports.
+     */
+    data: XOR<TEmpSignerReportUpdateManyMutationInput, TEmpSignerReportUncheckedUpdateManyInput>
+    /**
+     * Filter which TEmpSignerReports to update
+     */
+    where?: TEmpSignerReportWhereInput
+    /**
+     * Limit how many TEmpSignerReports to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TEmpSignerReport upsert
+   */
+  export type TEmpSignerReportUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TEmpSignerReport to update in case it exists.
+     */
+    where: TEmpSignerReportWhereUniqueInput
+    /**
+     * In case the TEmpSignerReport found by the `where` argument doesn't exist, create a new TEmpSignerReport with this data.
+     */
+    create: XOR<TEmpSignerReportCreateInput, TEmpSignerReportUncheckedCreateInput>
+    /**
+     * In case the TEmpSignerReport was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TEmpSignerReportUpdateInput, TEmpSignerReportUncheckedUpdateInput>
+  }
+
+  /**
+   * TEmpSignerReport delete
+   */
+  export type TEmpSignerReportDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+    /**
+     * Filter which TEmpSignerReport to delete.
+     */
+    where: TEmpSignerReportWhereUniqueInput
+  }
+
+  /**
+   * TEmpSignerReport deleteMany
+   */
+  export type TEmpSignerReportDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TEmpSignerReports to delete
+     */
+    where?: TEmpSignerReportWhereInput
+    /**
+     * Limit how many TEmpSignerReports to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TEmpSignerReport without action
+   */
+  export type TEmpSignerReportDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TEmpSignerReport
+     */
+    select?: TEmpSignerReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TEmpSignerReport
+     */
+    omit?: TEmpSignerReportOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TTeacherStudentType
+   */
+
+  export type AggregateTTeacherStudentType = {
+    _count: TTeacherStudentTypeCountAggregateOutputType | null
+    _avg: TTeacherStudentTypeAvgAggregateOutputType | null
+    _sum: TTeacherStudentTypeSumAggregateOutputType | null
+    _min: TTeacherStudentTypeMinAggregateOutputType | null
+    _max: TTeacherStudentTypeMaxAggregateOutputType | null
+  }
+
+  export type TTeacherStudentTypeAvgAggregateOutputType = {
+    ID: number | null
+    StudentTypeID: number | null
+    SchoolID: number | null
+    sEmp: number | null
+    CreateBy: number | null
+    UpdateBy: number | null
+  }
+
+  export type TTeacherStudentTypeSumAggregateOutputType = {
+    ID: number | null
+    StudentTypeID: number | null
+    SchoolID: number | null
+    sEmp: number | null
+    CreateBy: number | null
+    UpdateBy: number | null
+  }
+
+  export type TTeacherStudentTypeMinAggregateOutputType = {
+    ID: number | null
+    StudentTypeID: number | null
+    SchoolID: number | null
+    sEmp: number | null
+    Status: boolean | null
+    IsDel: boolean | null
+    CreateDate: Date | null
+    CreateBy: number | null
+    UpdateDate: Date | null
+    UpdateBy: number | null
+  }
+
+  export type TTeacherStudentTypeMaxAggregateOutputType = {
+    ID: number | null
+    StudentTypeID: number | null
+    SchoolID: number | null
+    sEmp: number | null
+    Status: boolean | null
+    IsDel: boolean | null
+    CreateDate: Date | null
+    CreateBy: number | null
+    UpdateDate: Date | null
+    UpdateBy: number | null
+  }
+
+  export type TTeacherStudentTypeCountAggregateOutputType = {
+    ID: number
+    StudentTypeID: number
+    SchoolID: number
+    sEmp: number
+    Status: number
+    IsDel: number
+    CreateDate: number
+    CreateBy: number
+    UpdateDate: number
+    UpdateBy: number
+    _all: number
+  }
+
+
+  export type TTeacherStudentTypeAvgAggregateInputType = {
+    ID?: true
+    StudentTypeID?: true
+    SchoolID?: true
+    sEmp?: true
+    CreateBy?: true
+    UpdateBy?: true
+  }
+
+  export type TTeacherStudentTypeSumAggregateInputType = {
+    ID?: true
+    StudentTypeID?: true
+    SchoolID?: true
+    sEmp?: true
+    CreateBy?: true
+    UpdateBy?: true
+  }
+
+  export type TTeacherStudentTypeMinAggregateInputType = {
+    ID?: true
+    StudentTypeID?: true
+    SchoolID?: true
+    sEmp?: true
+    Status?: true
+    IsDel?: true
+    CreateDate?: true
+    CreateBy?: true
+    UpdateDate?: true
+    UpdateBy?: true
+  }
+
+  export type TTeacherStudentTypeMaxAggregateInputType = {
+    ID?: true
+    StudentTypeID?: true
+    SchoolID?: true
+    sEmp?: true
+    Status?: true
+    IsDel?: true
+    CreateDate?: true
+    CreateBy?: true
+    UpdateDate?: true
+    UpdateBy?: true
+  }
+
+  export type TTeacherStudentTypeCountAggregateInputType = {
+    ID?: true
+    StudentTypeID?: true
+    SchoolID?: true
+    sEmp?: true
+    Status?: true
+    IsDel?: true
+    CreateDate?: true
+    CreateBy?: true
+    UpdateDate?: true
+    UpdateBy?: true
+    _all?: true
+  }
+
+  export type TTeacherStudentTypeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TTeacherStudentType to aggregate.
+     */
+    where?: TTeacherStudentTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TTeacherStudentTypes to fetch.
+     */
+    orderBy?: TTeacherStudentTypeOrderByWithRelationInput | TTeacherStudentTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TTeacherStudentTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TTeacherStudentTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TTeacherStudentTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TTeacherStudentTypes
+    **/
+    _count?: true | TTeacherStudentTypeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TTeacherStudentTypeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TTeacherStudentTypeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TTeacherStudentTypeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TTeacherStudentTypeMaxAggregateInputType
+  }
+
+  export type GetTTeacherStudentTypeAggregateType<T extends TTeacherStudentTypeAggregateArgs> = {
+        [P in keyof T & keyof AggregateTTeacherStudentType]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTTeacherStudentType[P]>
+      : GetScalarType<T[P], AggregateTTeacherStudentType[P]>
+  }
+
+
+
+
+  export type TTeacherStudentTypeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TTeacherStudentTypeWhereInput
+    orderBy?: TTeacherStudentTypeOrderByWithAggregationInput | TTeacherStudentTypeOrderByWithAggregationInput[]
+    by: TTeacherStudentTypeScalarFieldEnum[] | TTeacherStudentTypeScalarFieldEnum
+    having?: TTeacherStudentTypeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TTeacherStudentTypeCountAggregateInputType | true
+    _avg?: TTeacherStudentTypeAvgAggregateInputType
+    _sum?: TTeacherStudentTypeSumAggregateInputType
+    _min?: TTeacherStudentTypeMinAggregateInputType
+    _max?: TTeacherStudentTypeMaxAggregateInputType
+  }
+
+  export type TTeacherStudentTypeGroupByOutputType = {
+    ID: number
+    StudentTypeID: number
+    SchoolID: number
+    sEmp: number
+    Status: boolean
+    IsDel: boolean
+    CreateDate: Date
+    CreateBy: number | null
+    UpdateDate: Date | null
+    UpdateBy: number | null
+    _count: TTeacherStudentTypeCountAggregateOutputType | null
+    _avg: TTeacherStudentTypeAvgAggregateOutputType | null
+    _sum: TTeacherStudentTypeSumAggregateOutputType | null
+    _min: TTeacherStudentTypeMinAggregateOutputType | null
+    _max: TTeacherStudentTypeMaxAggregateOutputType | null
+  }
+
+  type GetTTeacherStudentTypeGroupByPayload<T extends TTeacherStudentTypeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TTeacherStudentTypeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TTeacherStudentTypeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TTeacherStudentTypeGroupByOutputType[P]>
+            : GetScalarType<T[P], TTeacherStudentTypeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TTeacherStudentTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    ID?: boolean
+    StudentTypeID?: boolean
+    SchoolID?: boolean
+    sEmp?: boolean
+    Status?: boolean
+    IsDel?: boolean
+    CreateDate?: boolean
+    CreateBy?: boolean
+    UpdateDate?: boolean
+    UpdateBy?: boolean
+  }, ExtArgs["result"]["tTeacherStudentType"]>
+
+
+
+  export type TTeacherStudentTypeSelectScalar = {
+    ID?: boolean
+    StudentTypeID?: boolean
+    SchoolID?: boolean
+    sEmp?: boolean
+    Status?: boolean
+    IsDel?: boolean
+    CreateDate?: boolean
+    CreateBy?: boolean
+    UpdateDate?: boolean
+    UpdateBy?: boolean
+  }
+
+  export type TTeacherStudentTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ID" | "StudentTypeID" | "SchoolID" | "sEmp" | "Status" | "IsDel" | "CreateDate" | "CreateBy" | "UpdateDate" | "UpdateBy", ExtArgs["result"]["tTeacherStudentType"]>
+
+  export type $TTeacherStudentTypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TTeacherStudentType"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      ID: number
+      StudentTypeID: number
+      SchoolID: number
+      sEmp: number
+      Status: boolean
+      IsDel: boolean
+      CreateDate: Date
+      CreateBy: number | null
+      UpdateDate: Date | null
+      UpdateBy: number | null
+    }, ExtArgs["result"]["tTeacherStudentType"]>
+    composites: {}
+  }
+
+  type TTeacherStudentTypeGetPayload<S extends boolean | null | undefined | TTeacherStudentTypeDefaultArgs> = $Result.GetResult<Prisma.$TTeacherStudentTypePayload, S>
+
+  type TTeacherStudentTypeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TTeacherStudentTypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TTeacherStudentTypeCountAggregateInputType | true
+    }
+
+  export interface TTeacherStudentTypeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TTeacherStudentType'], meta: { name: 'TTeacherStudentType' } }
+    /**
+     * Find zero or one TTeacherStudentType that matches the filter.
+     * @param {TTeacherStudentTypeFindUniqueArgs} args - Arguments to find a TTeacherStudentType
+     * @example
+     * // Get one TTeacherStudentType
+     * const tTeacherStudentType = await prisma.tTeacherStudentType.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TTeacherStudentTypeFindUniqueArgs>(args: SelectSubset<T, TTeacherStudentTypeFindUniqueArgs<ExtArgs>>): Prisma__TTeacherStudentTypeClient<$Result.GetResult<Prisma.$TTeacherStudentTypePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TTeacherStudentType that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TTeacherStudentTypeFindUniqueOrThrowArgs} args - Arguments to find a TTeacherStudentType
+     * @example
+     * // Get one TTeacherStudentType
+     * const tTeacherStudentType = await prisma.tTeacherStudentType.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TTeacherStudentTypeFindUniqueOrThrowArgs>(args: SelectSubset<T, TTeacherStudentTypeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TTeacherStudentTypeClient<$Result.GetResult<Prisma.$TTeacherStudentTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TTeacherStudentType that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TTeacherStudentTypeFindFirstArgs} args - Arguments to find a TTeacherStudentType
+     * @example
+     * // Get one TTeacherStudentType
+     * const tTeacherStudentType = await prisma.tTeacherStudentType.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TTeacherStudentTypeFindFirstArgs>(args?: SelectSubset<T, TTeacherStudentTypeFindFirstArgs<ExtArgs>>): Prisma__TTeacherStudentTypeClient<$Result.GetResult<Prisma.$TTeacherStudentTypePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TTeacherStudentType that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TTeacherStudentTypeFindFirstOrThrowArgs} args - Arguments to find a TTeacherStudentType
+     * @example
+     * // Get one TTeacherStudentType
+     * const tTeacherStudentType = await prisma.tTeacherStudentType.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TTeacherStudentTypeFindFirstOrThrowArgs>(args?: SelectSubset<T, TTeacherStudentTypeFindFirstOrThrowArgs<ExtArgs>>): Prisma__TTeacherStudentTypeClient<$Result.GetResult<Prisma.$TTeacherStudentTypePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TTeacherStudentTypes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TTeacherStudentTypeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TTeacherStudentTypes
+     * const tTeacherStudentTypes = await prisma.tTeacherStudentType.findMany()
+     * 
+     * // Get first 10 TTeacherStudentTypes
+     * const tTeacherStudentTypes = await prisma.tTeacherStudentType.findMany({ take: 10 })
+     * 
+     * // Only select the `ID`
+     * const tTeacherStudentTypeWithIDOnly = await prisma.tTeacherStudentType.findMany({ select: { ID: true } })
+     * 
+     */
+    findMany<T extends TTeacherStudentTypeFindManyArgs>(args?: SelectSubset<T, TTeacherStudentTypeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TTeacherStudentTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TTeacherStudentType.
+     * @param {TTeacherStudentTypeCreateArgs} args - Arguments to create a TTeacherStudentType.
+     * @example
+     * // Create one TTeacherStudentType
+     * const TTeacherStudentType = await prisma.tTeacherStudentType.create({
+     *   data: {
+     *     // ... data to create a TTeacherStudentType
+     *   }
+     * })
+     * 
+     */
+    create<T extends TTeacherStudentTypeCreateArgs>(args: SelectSubset<T, TTeacherStudentTypeCreateArgs<ExtArgs>>): Prisma__TTeacherStudentTypeClient<$Result.GetResult<Prisma.$TTeacherStudentTypePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TTeacherStudentTypes.
+     * @param {TTeacherStudentTypeCreateManyArgs} args - Arguments to create many TTeacherStudentTypes.
+     * @example
+     * // Create many TTeacherStudentTypes
+     * const tTeacherStudentType = await prisma.tTeacherStudentType.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TTeacherStudentTypeCreateManyArgs>(args?: SelectSubset<T, TTeacherStudentTypeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a TTeacherStudentType.
+     * @param {TTeacherStudentTypeDeleteArgs} args - Arguments to delete one TTeacherStudentType.
+     * @example
+     * // Delete one TTeacherStudentType
+     * const TTeacherStudentType = await prisma.tTeacherStudentType.delete({
+     *   where: {
+     *     // ... filter to delete one TTeacherStudentType
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TTeacherStudentTypeDeleteArgs>(args: SelectSubset<T, TTeacherStudentTypeDeleteArgs<ExtArgs>>): Prisma__TTeacherStudentTypeClient<$Result.GetResult<Prisma.$TTeacherStudentTypePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TTeacherStudentType.
+     * @param {TTeacherStudentTypeUpdateArgs} args - Arguments to update one TTeacherStudentType.
+     * @example
+     * // Update one TTeacherStudentType
+     * const tTeacherStudentType = await prisma.tTeacherStudentType.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TTeacherStudentTypeUpdateArgs>(args: SelectSubset<T, TTeacherStudentTypeUpdateArgs<ExtArgs>>): Prisma__TTeacherStudentTypeClient<$Result.GetResult<Prisma.$TTeacherStudentTypePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TTeacherStudentTypes.
+     * @param {TTeacherStudentTypeDeleteManyArgs} args - Arguments to filter TTeacherStudentTypes to delete.
+     * @example
+     * // Delete a few TTeacherStudentTypes
+     * const { count } = await prisma.tTeacherStudentType.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TTeacherStudentTypeDeleteManyArgs>(args?: SelectSubset<T, TTeacherStudentTypeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TTeacherStudentTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TTeacherStudentTypeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TTeacherStudentTypes
+     * const tTeacherStudentType = await prisma.tTeacherStudentType.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TTeacherStudentTypeUpdateManyArgs>(args: SelectSubset<T, TTeacherStudentTypeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TTeacherStudentType.
+     * @param {TTeacherStudentTypeUpsertArgs} args - Arguments to update or create a TTeacherStudentType.
+     * @example
+     * // Update or create a TTeacherStudentType
+     * const tTeacherStudentType = await prisma.tTeacherStudentType.upsert({
+     *   create: {
+     *     // ... data to create a TTeacherStudentType
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TTeacherStudentType we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TTeacherStudentTypeUpsertArgs>(args: SelectSubset<T, TTeacherStudentTypeUpsertArgs<ExtArgs>>): Prisma__TTeacherStudentTypeClient<$Result.GetResult<Prisma.$TTeacherStudentTypePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TTeacherStudentTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TTeacherStudentTypeCountArgs} args - Arguments to filter TTeacherStudentTypes to count.
+     * @example
+     * // Count the number of TTeacherStudentTypes
+     * const count = await prisma.tTeacherStudentType.count({
+     *   where: {
+     *     // ... the filter for the TTeacherStudentTypes we want to count
+     *   }
+     * })
+    **/
+    count<T extends TTeacherStudentTypeCountArgs>(
+      args?: Subset<T, TTeacherStudentTypeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TTeacherStudentTypeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TTeacherStudentType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TTeacherStudentTypeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TTeacherStudentTypeAggregateArgs>(args: Subset<T, TTeacherStudentTypeAggregateArgs>): Prisma.PrismaPromise<GetTTeacherStudentTypeAggregateType<T>>
+
+    /**
+     * Group by TTeacherStudentType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TTeacherStudentTypeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TTeacherStudentTypeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TTeacherStudentTypeGroupByArgs['orderBy'] }
+        : { orderBy?: TTeacherStudentTypeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TTeacherStudentTypeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTTeacherStudentTypeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TTeacherStudentType model
+   */
+  readonly fields: TTeacherStudentTypeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TTeacherStudentType.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TTeacherStudentTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TTeacherStudentType model
+   */
+  interface TTeacherStudentTypeFieldRefs {
+    readonly ID: FieldRef<"TTeacherStudentType", 'Int'>
+    readonly StudentTypeID: FieldRef<"TTeacherStudentType", 'Int'>
+    readonly SchoolID: FieldRef<"TTeacherStudentType", 'Int'>
+    readonly sEmp: FieldRef<"TTeacherStudentType", 'Int'>
+    readonly Status: FieldRef<"TTeacherStudentType", 'Boolean'>
+    readonly IsDel: FieldRef<"TTeacherStudentType", 'Boolean'>
+    readonly CreateDate: FieldRef<"TTeacherStudentType", 'DateTime'>
+    readonly CreateBy: FieldRef<"TTeacherStudentType", 'Int'>
+    readonly UpdateDate: FieldRef<"TTeacherStudentType", 'DateTime'>
+    readonly UpdateBy: FieldRef<"TTeacherStudentType", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TTeacherStudentType findUnique
+   */
+  export type TTeacherStudentTypeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which TTeacherStudentType to fetch.
+     */
+    where: TTeacherStudentTypeWhereUniqueInput
+  }
+
+  /**
+   * TTeacherStudentType findUniqueOrThrow
+   */
+  export type TTeacherStudentTypeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which TTeacherStudentType to fetch.
+     */
+    where: TTeacherStudentTypeWhereUniqueInput
+  }
+
+  /**
+   * TTeacherStudentType findFirst
+   */
+  export type TTeacherStudentTypeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which TTeacherStudentType to fetch.
+     */
+    where?: TTeacherStudentTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TTeacherStudentTypes to fetch.
+     */
+    orderBy?: TTeacherStudentTypeOrderByWithRelationInput | TTeacherStudentTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TTeacherStudentTypes.
+     */
+    cursor?: TTeacherStudentTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TTeacherStudentTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TTeacherStudentTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TTeacherStudentTypes.
+     */
+    distinct?: TTeacherStudentTypeScalarFieldEnum | TTeacherStudentTypeScalarFieldEnum[]
+  }
+
+  /**
+   * TTeacherStudentType findFirstOrThrow
+   */
+  export type TTeacherStudentTypeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which TTeacherStudentType to fetch.
+     */
+    where?: TTeacherStudentTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TTeacherStudentTypes to fetch.
+     */
+    orderBy?: TTeacherStudentTypeOrderByWithRelationInput | TTeacherStudentTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TTeacherStudentTypes.
+     */
+    cursor?: TTeacherStudentTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TTeacherStudentTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TTeacherStudentTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TTeacherStudentTypes.
+     */
+    distinct?: TTeacherStudentTypeScalarFieldEnum | TTeacherStudentTypeScalarFieldEnum[]
+  }
+
+  /**
+   * TTeacherStudentType findMany
+   */
+  export type TTeacherStudentTypeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+    /**
+     * Filter, which TTeacherStudentTypes to fetch.
+     */
+    where?: TTeacherStudentTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TTeacherStudentTypes to fetch.
+     */
+    orderBy?: TTeacherStudentTypeOrderByWithRelationInput | TTeacherStudentTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TTeacherStudentTypes.
+     */
+    cursor?: TTeacherStudentTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TTeacherStudentTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TTeacherStudentTypes.
+     */
+    skip?: number
+    distinct?: TTeacherStudentTypeScalarFieldEnum | TTeacherStudentTypeScalarFieldEnum[]
+  }
+
+  /**
+   * TTeacherStudentType create
+   */
+  export type TTeacherStudentTypeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TTeacherStudentType.
+     */
+    data: XOR<TTeacherStudentTypeCreateInput, TTeacherStudentTypeUncheckedCreateInput>
+  }
+
+  /**
+   * TTeacherStudentType createMany
+   */
+  export type TTeacherStudentTypeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TTeacherStudentTypes.
+     */
+    data: TTeacherStudentTypeCreateManyInput | TTeacherStudentTypeCreateManyInput[]
+  }
+
+  /**
+   * TTeacherStudentType update
+   */
+  export type TTeacherStudentTypeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TTeacherStudentType.
+     */
+    data: XOR<TTeacherStudentTypeUpdateInput, TTeacherStudentTypeUncheckedUpdateInput>
+    /**
+     * Choose, which TTeacherStudentType to update.
+     */
+    where: TTeacherStudentTypeWhereUniqueInput
+  }
+
+  /**
+   * TTeacherStudentType updateMany
+   */
+  export type TTeacherStudentTypeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TTeacherStudentTypes.
+     */
+    data: XOR<TTeacherStudentTypeUpdateManyMutationInput, TTeacherStudentTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which TTeacherStudentTypes to update
+     */
+    where?: TTeacherStudentTypeWhereInput
+    /**
+     * Limit how many TTeacherStudentTypes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TTeacherStudentType upsert
+   */
+  export type TTeacherStudentTypeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TTeacherStudentType to update in case it exists.
+     */
+    where: TTeacherStudentTypeWhereUniqueInput
+    /**
+     * In case the TTeacherStudentType found by the `where` argument doesn't exist, create a new TTeacherStudentType with this data.
+     */
+    create: XOR<TTeacherStudentTypeCreateInput, TTeacherStudentTypeUncheckedCreateInput>
+    /**
+     * In case the TTeacherStudentType was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TTeacherStudentTypeUpdateInput, TTeacherStudentTypeUncheckedUpdateInput>
+  }
+
+  /**
+   * TTeacherStudentType delete
+   */
+  export type TTeacherStudentTypeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+    /**
+     * Filter which TTeacherStudentType to delete.
+     */
+    where: TTeacherStudentTypeWhereUniqueInput
+  }
+
+  /**
+   * TTeacherStudentType deleteMany
+   */
+  export type TTeacherStudentTypeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TTeacherStudentTypes to delete
+     */
+    where?: TTeacherStudentTypeWhereInput
+    /**
+     * Limit how many TTeacherStudentTypes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TTeacherStudentType without action
+   */
+  export type TTeacherStudentTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TTeacherStudentType
+     */
+    select?: TTeacherStudentTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TTeacherStudentType
+     */
+    omit?: TTeacherStudentTypeOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model dbo_UserDailyBalance
+   */
+
+  export type AggregateDbo_UserDailyBalance = {
+    _count: Dbo_UserDailyBalanceCountAggregateOutputType | null
+    _avg: Dbo_UserDailyBalanceAvgAggregateOutputType | null
+    _sum: Dbo_UserDailyBalanceSumAggregateOutputType | null
+    _min: Dbo_UserDailyBalanceMinAggregateOutputType | null
+    _max: Dbo_UserDailyBalanceMaxAggregateOutputType | null
+  }
+
+  export type Dbo_UserDailyBalanceAvgAggregateOutputType = {
+    ID: number | null
+    SchoolID: number | null
+    sID: number | null
+    OpeningBalance: Decimal | null
+    TotalTopUp: Decimal | null
+    TotalCancelTopUp: Decimal | null
+    TotalWithDraw: Decimal | null
+    TotalCancelWithDraw: Decimal | null
+    TotalSales: Decimal | null
+    TotalCancelSales: Decimal | null
+    Balance: Decimal | null
+    OfflineSales: Decimal | null
+    SystemBalance: number | null
+  }
+
+  export type Dbo_UserDailyBalanceSumAggregateOutputType = {
+    ID: number | null
+    SchoolID: number | null
+    sID: number | null
+    OpeningBalance: Decimal | null
+    TotalTopUp: Decimal | null
+    TotalCancelTopUp: Decimal | null
+    TotalWithDraw: Decimal | null
+    TotalCancelWithDraw: Decimal | null
+    TotalSales: Decimal | null
+    TotalCancelSales: Decimal | null
+    Balance: Decimal | null
+    OfflineSales: Decimal | null
+    SystemBalance: number | null
+  }
+
+  export type Dbo_UserDailyBalanceMinAggregateOutputType = {
+    ID: number | null
+    SchoolID: number | null
+    sID: number | null
+    sStudentID: string | null
+    sName: string | null
+    sLastname: string | null
+    cDel: string | null
+    cType: string | null
+    BusinessDate: Date | null
+    OpeningBalance: Decimal | null
+    TotalTopUp: Decimal | null
+    TotalCancelTopUp: Decimal | null
+    TotalWithDraw: Decimal | null
+    TotalCancelWithDraw: Decimal | null
+    TotalSales: Decimal | null
+    TotalCancelSales: Decimal | null
+    LastUpdatedDate: string | null
+    Balance: Decimal | null
+    OfflineSales: Decimal | null
+    SystemBalance: number | null
+  }
+
+  export type Dbo_UserDailyBalanceMaxAggregateOutputType = {
+    ID: number | null
+    SchoolID: number | null
+    sID: number | null
+    sStudentID: string | null
+    sName: string | null
+    sLastname: string | null
+    cDel: string | null
+    cType: string | null
+    BusinessDate: Date | null
+    OpeningBalance: Decimal | null
+    TotalTopUp: Decimal | null
+    TotalCancelTopUp: Decimal | null
+    TotalWithDraw: Decimal | null
+    TotalCancelWithDraw: Decimal | null
+    TotalSales: Decimal | null
+    TotalCancelSales: Decimal | null
+    LastUpdatedDate: string | null
+    Balance: Decimal | null
+    OfflineSales: Decimal | null
+    SystemBalance: number | null
+  }
+
+  export type Dbo_UserDailyBalanceCountAggregateOutputType = {
+    ID: number
+    SchoolID: number
+    sID: number
+    sStudentID: number
+    sName: number
+    sLastname: number
+    cDel: number
+    cType: number
+    BusinessDate: number
+    OpeningBalance: number
+    TotalTopUp: number
+    TotalCancelTopUp: number
+    TotalWithDraw: number
+    TotalCancelWithDraw: number
+    TotalSales: number
+    TotalCancelSales: number
+    LastUpdatedDate: number
+    Balance: number
+    OfflineSales: number
+    SystemBalance: number
+    _all: number
+  }
+
+
+  export type Dbo_UserDailyBalanceAvgAggregateInputType = {
+    ID?: true
+    SchoolID?: true
+    sID?: true
+    OpeningBalance?: true
+    TotalTopUp?: true
+    TotalCancelTopUp?: true
+    TotalWithDraw?: true
+    TotalCancelWithDraw?: true
+    TotalSales?: true
+    TotalCancelSales?: true
+    Balance?: true
+    OfflineSales?: true
+    SystemBalance?: true
+  }
+
+  export type Dbo_UserDailyBalanceSumAggregateInputType = {
+    ID?: true
+    SchoolID?: true
+    sID?: true
+    OpeningBalance?: true
+    TotalTopUp?: true
+    TotalCancelTopUp?: true
+    TotalWithDraw?: true
+    TotalCancelWithDraw?: true
+    TotalSales?: true
+    TotalCancelSales?: true
+    Balance?: true
+    OfflineSales?: true
+    SystemBalance?: true
+  }
+
+  export type Dbo_UserDailyBalanceMinAggregateInputType = {
+    ID?: true
+    SchoolID?: true
+    sID?: true
+    sStudentID?: true
+    sName?: true
+    sLastname?: true
+    cDel?: true
+    cType?: true
+    BusinessDate?: true
+    OpeningBalance?: true
+    TotalTopUp?: true
+    TotalCancelTopUp?: true
+    TotalWithDraw?: true
+    TotalCancelWithDraw?: true
+    TotalSales?: true
+    TotalCancelSales?: true
+    LastUpdatedDate?: true
+    Balance?: true
+    OfflineSales?: true
+    SystemBalance?: true
+  }
+
+  export type Dbo_UserDailyBalanceMaxAggregateInputType = {
+    ID?: true
+    SchoolID?: true
+    sID?: true
+    sStudentID?: true
+    sName?: true
+    sLastname?: true
+    cDel?: true
+    cType?: true
+    BusinessDate?: true
+    OpeningBalance?: true
+    TotalTopUp?: true
+    TotalCancelTopUp?: true
+    TotalWithDraw?: true
+    TotalCancelWithDraw?: true
+    TotalSales?: true
+    TotalCancelSales?: true
+    LastUpdatedDate?: true
+    Balance?: true
+    OfflineSales?: true
+    SystemBalance?: true
+  }
+
+  export type Dbo_UserDailyBalanceCountAggregateInputType = {
+    ID?: true
+    SchoolID?: true
+    sID?: true
+    sStudentID?: true
+    sName?: true
+    sLastname?: true
+    cDel?: true
+    cType?: true
+    BusinessDate?: true
+    OpeningBalance?: true
+    TotalTopUp?: true
+    TotalCancelTopUp?: true
+    TotalWithDraw?: true
+    TotalCancelWithDraw?: true
+    TotalSales?: true
+    TotalCancelSales?: true
+    LastUpdatedDate?: true
+    Balance?: true
+    OfflineSales?: true
+    SystemBalance?: true
+    _all?: true
+  }
+
+  export type Dbo_UserDailyBalanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which dbo_UserDailyBalance to aggregate.
+     */
+    where?: dbo_UserDailyBalanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of dbo_UserDailyBalances to fetch.
+     */
+    orderBy?: dbo_UserDailyBalanceOrderByWithRelationInput | dbo_UserDailyBalanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: dbo_UserDailyBalanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` dbo_UserDailyBalances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` dbo_UserDailyBalances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned dbo_UserDailyBalances
+    **/
+    _count?: true | Dbo_UserDailyBalanceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Dbo_UserDailyBalanceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Dbo_UserDailyBalanceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Dbo_UserDailyBalanceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Dbo_UserDailyBalanceMaxAggregateInputType
+  }
+
+  export type GetDbo_UserDailyBalanceAggregateType<T extends Dbo_UserDailyBalanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateDbo_UserDailyBalance]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDbo_UserDailyBalance[P]>
+      : GetScalarType<T[P], AggregateDbo_UserDailyBalance[P]>
+  }
+
+
+
+
+  export type dbo_UserDailyBalanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: dbo_UserDailyBalanceWhereInput
+    orderBy?: dbo_UserDailyBalanceOrderByWithAggregationInput | dbo_UserDailyBalanceOrderByWithAggregationInput[]
+    by: Dbo_UserDailyBalanceScalarFieldEnum[] | Dbo_UserDailyBalanceScalarFieldEnum
+    having?: dbo_UserDailyBalanceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Dbo_UserDailyBalanceCountAggregateInputType | true
+    _avg?: Dbo_UserDailyBalanceAvgAggregateInputType
+    _sum?: Dbo_UserDailyBalanceSumAggregateInputType
+    _min?: Dbo_UserDailyBalanceMinAggregateInputType
+    _max?: Dbo_UserDailyBalanceMaxAggregateInputType
+  }
+
+  export type Dbo_UserDailyBalanceGroupByOutputType = {
+    ID: number
+    SchoolID: number
+    sID: number
+    sStudentID: string | null
+    sName: string | null
+    sLastname: string | null
+    cDel: string | null
+    cType: string
+    BusinessDate: Date | null
+    OpeningBalance: Decimal
+    TotalTopUp: Decimal
+    TotalCancelTopUp: Decimal
+    TotalWithDraw: Decimal
+    TotalCancelWithDraw: Decimal
+    TotalSales: Decimal
+    TotalCancelSales: Decimal
+    LastUpdatedDate: string
+    Balance: Decimal | null
+    OfflineSales: Decimal | null
+    SystemBalance: number
+    _count: Dbo_UserDailyBalanceCountAggregateOutputType | null
+    _avg: Dbo_UserDailyBalanceAvgAggregateOutputType | null
+    _sum: Dbo_UserDailyBalanceSumAggregateOutputType | null
+    _min: Dbo_UserDailyBalanceMinAggregateOutputType | null
+    _max: Dbo_UserDailyBalanceMaxAggregateOutputType | null
+  }
+
+  type GetDbo_UserDailyBalanceGroupByPayload<T extends dbo_UserDailyBalanceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Dbo_UserDailyBalanceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Dbo_UserDailyBalanceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Dbo_UserDailyBalanceGroupByOutputType[P]>
+            : GetScalarType<T[P], Dbo_UserDailyBalanceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type dbo_UserDailyBalanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    ID?: boolean
+    SchoolID?: boolean
+    sID?: boolean
+    sStudentID?: boolean
+    sName?: boolean
+    sLastname?: boolean
+    cDel?: boolean
+    cType?: boolean
+    BusinessDate?: boolean
+    OpeningBalance?: boolean
+    TotalTopUp?: boolean
+    TotalCancelTopUp?: boolean
+    TotalWithDraw?: boolean
+    TotalCancelWithDraw?: boolean
+    TotalSales?: boolean
+    TotalCancelSales?: boolean
+    LastUpdatedDate?: boolean
+    Balance?: boolean
+    OfflineSales?: boolean
+    SystemBalance?: boolean
+  }, ExtArgs["result"]["dbo_UserDailyBalance"]>
+
+
+
+  export type dbo_UserDailyBalanceSelectScalar = {
+    ID?: boolean
+    SchoolID?: boolean
+    sID?: boolean
+    sStudentID?: boolean
+    sName?: boolean
+    sLastname?: boolean
+    cDel?: boolean
+    cType?: boolean
+    BusinessDate?: boolean
+    OpeningBalance?: boolean
+    TotalTopUp?: boolean
+    TotalCancelTopUp?: boolean
+    TotalWithDraw?: boolean
+    TotalCancelWithDraw?: boolean
+    TotalSales?: boolean
+    TotalCancelSales?: boolean
+    LastUpdatedDate?: boolean
+    Balance?: boolean
+    OfflineSales?: boolean
+    SystemBalance?: boolean
+  }
+
+  export type dbo_UserDailyBalanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ID" | "SchoolID" | "sID" | "sStudentID" | "sName" | "sLastname" | "cDel" | "cType" | "BusinessDate" | "OpeningBalance" | "TotalTopUp" | "TotalCancelTopUp" | "TotalWithDraw" | "TotalCancelWithDraw" | "TotalSales" | "TotalCancelSales" | "LastUpdatedDate" | "Balance" | "OfflineSales" | "SystemBalance", ExtArgs["result"]["dbo_UserDailyBalance"]>
+
+  export type $dbo_UserDailyBalancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "dbo_UserDailyBalance"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      ID: number
+      SchoolID: number
+      sID: number
+      sStudentID: string | null
+      sName: string | null
+      sLastname: string | null
+      cDel: string | null
+      cType: string
+      BusinessDate: Date | null
+      OpeningBalance: Prisma.Decimal
+      TotalTopUp: Prisma.Decimal
+      TotalCancelTopUp: Prisma.Decimal
+      TotalWithDraw: Prisma.Decimal
+      TotalCancelWithDraw: Prisma.Decimal
+      TotalSales: Prisma.Decimal
+      TotalCancelSales: Prisma.Decimal
+      LastUpdatedDate: string
+      Balance: Prisma.Decimal | null
+      OfflineSales: Prisma.Decimal | null
+      SystemBalance: number
+    }, ExtArgs["result"]["dbo_UserDailyBalance"]>
+    composites: {}
+  }
+
+  type dbo_UserDailyBalanceGetPayload<S extends boolean | null | undefined | dbo_UserDailyBalanceDefaultArgs> = $Result.GetResult<Prisma.$dbo_UserDailyBalancePayload, S>
+
+  type dbo_UserDailyBalanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<dbo_UserDailyBalanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Dbo_UserDailyBalanceCountAggregateInputType | true
+    }
+
+  export interface dbo_UserDailyBalanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['dbo_UserDailyBalance'], meta: { name: 'dbo_UserDailyBalance' } }
+    /**
+     * Find zero or one Dbo_UserDailyBalance that matches the filter.
+     * @param {dbo_UserDailyBalanceFindUniqueArgs} args - Arguments to find a Dbo_UserDailyBalance
+     * @example
+     * // Get one Dbo_UserDailyBalance
+     * const dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends dbo_UserDailyBalanceFindUniqueArgs>(args: SelectSubset<T, dbo_UserDailyBalanceFindUniqueArgs<ExtArgs>>): Prisma__dbo_UserDailyBalanceClient<$Result.GetResult<Prisma.$dbo_UserDailyBalancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Dbo_UserDailyBalance that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {dbo_UserDailyBalanceFindUniqueOrThrowArgs} args - Arguments to find a Dbo_UserDailyBalance
+     * @example
+     * // Get one Dbo_UserDailyBalance
+     * const dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends dbo_UserDailyBalanceFindUniqueOrThrowArgs>(args: SelectSubset<T, dbo_UserDailyBalanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__dbo_UserDailyBalanceClient<$Result.GetResult<Prisma.$dbo_UserDailyBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Dbo_UserDailyBalance that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_UserDailyBalanceFindFirstArgs} args - Arguments to find a Dbo_UserDailyBalance
+     * @example
+     * // Get one Dbo_UserDailyBalance
+     * const dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends dbo_UserDailyBalanceFindFirstArgs>(args?: SelectSubset<T, dbo_UserDailyBalanceFindFirstArgs<ExtArgs>>): Prisma__dbo_UserDailyBalanceClient<$Result.GetResult<Prisma.$dbo_UserDailyBalancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Dbo_UserDailyBalance that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_UserDailyBalanceFindFirstOrThrowArgs} args - Arguments to find a Dbo_UserDailyBalance
+     * @example
+     * // Get one Dbo_UserDailyBalance
+     * const dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends dbo_UserDailyBalanceFindFirstOrThrowArgs>(args?: SelectSubset<T, dbo_UserDailyBalanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__dbo_UserDailyBalanceClient<$Result.GetResult<Prisma.$dbo_UserDailyBalancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Dbo_UserDailyBalances that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_UserDailyBalanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Dbo_UserDailyBalances
+     * const dbo_UserDailyBalances = await prisma.dbo_UserDailyBalance.findMany()
+     * 
+     * // Get first 10 Dbo_UserDailyBalances
+     * const dbo_UserDailyBalances = await prisma.dbo_UserDailyBalance.findMany({ take: 10 })
+     * 
+     * // Only select the `ID`
+     * const dbo_UserDailyBalanceWithIDOnly = await prisma.dbo_UserDailyBalance.findMany({ select: { ID: true } })
+     * 
+     */
+    findMany<T extends dbo_UserDailyBalanceFindManyArgs>(args?: SelectSubset<T, dbo_UserDailyBalanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$dbo_UserDailyBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Dbo_UserDailyBalance.
+     * @param {dbo_UserDailyBalanceCreateArgs} args - Arguments to create a Dbo_UserDailyBalance.
+     * @example
+     * // Create one Dbo_UserDailyBalance
+     * const Dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.create({
+     *   data: {
+     *     // ... data to create a Dbo_UserDailyBalance
+     *   }
+     * })
+     * 
+     */
+    create<T extends dbo_UserDailyBalanceCreateArgs>(args: SelectSubset<T, dbo_UserDailyBalanceCreateArgs<ExtArgs>>): Prisma__dbo_UserDailyBalanceClient<$Result.GetResult<Prisma.$dbo_UserDailyBalancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Dbo_UserDailyBalances.
+     * @param {dbo_UserDailyBalanceCreateManyArgs} args - Arguments to create many Dbo_UserDailyBalances.
+     * @example
+     * // Create many Dbo_UserDailyBalances
+     * const dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends dbo_UserDailyBalanceCreateManyArgs>(args?: SelectSubset<T, dbo_UserDailyBalanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Dbo_UserDailyBalance.
+     * @param {dbo_UserDailyBalanceDeleteArgs} args - Arguments to delete one Dbo_UserDailyBalance.
+     * @example
+     * // Delete one Dbo_UserDailyBalance
+     * const Dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.delete({
+     *   where: {
+     *     // ... filter to delete one Dbo_UserDailyBalance
+     *   }
+     * })
+     * 
+     */
+    delete<T extends dbo_UserDailyBalanceDeleteArgs>(args: SelectSubset<T, dbo_UserDailyBalanceDeleteArgs<ExtArgs>>): Prisma__dbo_UserDailyBalanceClient<$Result.GetResult<Prisma.$dbo_UserDailyBalancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Dbo_UserDailyBalance.
+     * @param {dbo_UserDailyBalanceUpdateArgs} args - Arguments to update one Dbo_UserDailyBalance.
+     * @example
+     * // Update one Dbo_UserDailyBalance
+     * const dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends dbo_UserDailyBalanceUpdateArgs>(args: SelectSubset<T, dbo_UserDailyBalanceUpdateArgs<ExtArgs>>): Prisma__dbo_UserDailyBalanceClient<$Result.GetResult<Prisma.$dbo_UserDailyBalancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Dbo_UserDailyBalances.
+     * @param {dbo_UserDailyBalanceDeleteManyArgs} args - Arguments to filter Dbo_UserDailyBalances to delete.
+     * @example
+     * // Delete a few Dbo_UserDailyBalances
+     * const { count } = await prisma.dbo_UserDailyBalance.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends dbo_UserDailyBalanceDeleteManyArgs>(args?: SelectSubset<T, dbo_UserDailyBalanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Dbo_UserDailyBalances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_UserDailyBalanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Dbo_UserDailyBalances
+     * const dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends dbo_UserDailyBalanceUpdateManyArgs>(args: SelectSubset<T, dbo_UserDailyBalanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Dbo_UserDailyBalance.
+     * @param {dbo_UserDailyBalanceUpsertArgs} args - Arguments to update or create a Dbo_UserDailyBalance.
+     * @example
+     * // Update or create a Dbo_UserDailyBalance
+     * const dbo_UserDailyBalance = await prisma.dbo_UserDailyBalance.upsert({
+     *   create: {
+     *     // ... data to create a Dbo_UserDailyBalance
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Dbo_UserDailyBalance we want to update
+     *   }
+     * })
+     */
+    upsert<T extends dbo_UserDailyBalanceUpsertArgs>(args: SelectSubset<T, dbo_UserDailyBalanceUpsertArgs<ExtArgs>>): Prisma__dbo_UserDailyBalanceClient<$Result.GetResult<Prisma.$dbo_UserDailyBalancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Dbo_UserDailyBalances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_UserDailyBalanceCountArgs} args - Arguments to filter Dbo_UserDailyBalances to count.
+     * @example
+     * // Count the number of Dbo_UserDailyBalances
+     * const count = await prisma.dbo_UserDailyBalance.count({
+     *   where: {
+     *     // ... the filter for the Dbo_UserDailyBalances we want to count
+     *   }
+     * })
+    **/
+    count<T extends dbo_UserDailyBalanceCountArgs>(
+      args?: Subset<T, dbo_UserDailyBalanceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Dbo_UserDailyBalanceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Dbo_UserDailyBalance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Dbo_UserDailyBalanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Dbo_UserDailyBalanceAggregateArgs>(args: Subset<T, Dbo_UserDailyBalanceAggregateArgs>): Prisma.PrismaPromise<GetDbo_UserDailyBalanceAggregateType<T>>
+
+    /**
+     * Group by Dbo_UserDailyBalance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {dbo_UserDailyBalanceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends dbo_UserDailyBalanceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: dbo_UserDailyBalanceGroupByArgs['orderBy'] }
+        : { orderBy?: dbo_UserDailyBalanceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, dbo_UserDailyBalanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDbo_UserDailyBalanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the dbo_UserDailyBalance model
+   */
+  readonly fields: dbo_UserDailyBalanceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for dbo_UserDailyBalance.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__dbo_UserDailyBalanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the dbo_UserDailyBalance model
+   */
+  interface dbo_UserDailyBalanceFieldRefs {
+    readonly ID: FieldRef<"dbo_UserDailyBalance", 'Int'>
+    readonly SchoolID: FieldRef<"dbo_UserDailyBalance", 'Int'>
+    readonly sID: FieldRef<"dbo_UserDailyBalance", 'Int'>
+    readonly sStudentID: FieldRef<"dbo_UserDailyBalance", 'String'>
+    readonly sName: FieldRef<"dbo_UserDailyBalance", 'String'>
+    readonly sLastname: FieldRef<"dbo_UserDailyBalance", 'String'>
+    readonly cDel: FieldRef<"dbo_UserDailyBalance", 'String'>
+    readonly cType: FieldRef<"dbo_UserDailyBalance", 'String'>
+    readonly BusinessDate: FieldRef<"dbo_UserDailyBalance", 'DateTime'>
+    readonly OpeningBalance: FieldRef<"dbo_UserDailyBalance", 'Decimal'>
+    readonly TotalTopUp: FieldRef<"dbo_UserDailyBalance", 'Decimal'>
+    readonly TotalCancelTopUp: FieldRef<"dbo_UserDailyBalance", 'Decimal'>
+    readonly TotalWithDraw: FieldRef<"dbo_UserDailyBalance", 'Decimal'>
+    readonly TotalCancelWithDraw: FieldRef<"dbo_UserDailyBalance", 'Decimal'>
+    readonly TotalSales: FieldRef<"dbo_UserDailyBalance", 'Decimal'>
+    readonly TotalCancelSales: FieldRef<"dbo_UserDailyBalance", 'Decimal'>
+    readonly LastUpdatedDate: FieldRef<"dbo_UserDailyBalance", 'String'>
+    readonly Balance: FieldRef<"dbo_UserDailyBalance", 'Decimal'>
+    readonly OfflineSales: FieldRef<"dbo_UserDailyBalance", 'Decimal'>
+    readonly SystemBalance: FieldRef<"dbo_UserDailyBalance", 'Float'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * dbo_UserDailyBalance findUnique
+   */
+  export type dbo_UserDailyBalanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_UserDailyBalance to fetch.
+     */
+    where: dbo_UserDailyBalanceWhereUniqueInput
+  }
+
+  /**
+   * dbo_UserDailyBalance findUniqueOrThrow
+   */
+  export type dbo_UserDailyBalanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_UserDailyBalance to fetch.
+     */
+    where: dbo_UserDailyBalanceWhereUniqueInput
+  }
+
+  /**
+   * dbo_UserDailyBalance findFirst
+   */
+  export type dbo_UserDailyBalanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_UserDailyBalance to fetch.
+     */
+    where?: dbo_UserDailyBalanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of dbo_UserDailyBalances to fetch.
+     */
+    orderBy?: dbo_UserDailyBalanceOrderByWithRelationInput | dbo_UserDailyBalanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for dbo_UserDailyBalances.
+     */
+    cursor?: dbo_UserDailyBalanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` dbo_UserDailyBalances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` dbo_UserDailyBalances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of dbo_UserDailyBalances.
+     */
+    distinct?: Dbo_UserDailyBalanceScalarFieldEnum | Dbo_UserDailyBalanceScalarFieldEnum[]
+  }
+
+  /**
+   * dbo_UserDailyBalance findFirstOrThrow
+   */
+  export type dbo_UserDailyBalanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_UserDailyBalance to fetch.
+     */
+    where?: dbo_UserDailyBalanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of dbo_UserDailyBalances to fetch.
+     */
+    orderBy?: dbo_UserDailyBalanceOrderByWithRelationInput | dbo_UserDailyBalanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for dbo_UserDailyBalances.
+     */
+    cursor?: dbo_UserDailyBalanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` dbo_UserDailyBalances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` dbo_UserDailyBalances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of dbo_UserDailyBalances.
+     */
+    distinct?: Dbo_UserDailyBalanceScalarFieldEnum | Dbo_UserDailyBalanceScalarFieldEnum[]
+  }
+
+  /**
+   * dbo_UserDailyBalance findMany
+   */
+  export type dbo_UserDailyBalanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+    /**
+     * Filter, which dbo_UserDailyBalances to fetch.
+     */
+    where?: dbo_UserDailyBalanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of dbo_UserDailyBalances to fetch.
+     */
+    orderBy?: dbo_UserDailyBalanceOrderByWithRelationInput | dbo_UserDailyBalanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing dbo_UserDailyBalances.
+     */
+    cursor?: dbo_UserDailyBalanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` dbo_UserDailyBalances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` dbo_UserDailyBalances.
+     */
+    skip?: number
+    distinct?: Dbo_UserDailyBalanceScalarFieldEnum | Dbo_UserDailyBalanceScalarFieldEnum[]
+  }
+
+  /**
+   * dbo_UserDailyBalance create
+   */
+  export type dbo_UserDailyBalanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+    /**
+     * The data needed to create a dbo_UserDailyBalance.
+     */
+    data: XOR<dbo_UserDailyBalanceCreateInput, dbo_UserDailyBalanceUncheckedCreateInput>
+  }
+
+  /**
+   * dbo_UserDailyBalance createMany
+   */
+  export type dbo_UserDailyBalanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many dbo_UserDailyBalances.
+     */
+    data: dbo_UserDailyBalanceCreateManyInput | dbo_UserDailyBalanceCreateManyInput[]
+  }
+
+  /**
+   * dbo_UserDailyBalance update
+   */
+  export type dbo_UserDailyBalanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+    /**
+     * The data needed to update a dbo_UserDailyBalance.
+     */
+    data: XOR<dbo_UserDailyBalanceUpdateInput, dbo_UserDailyBalanceUncheckedUpdateInput>
+    /**
+     * Choose, which dbo_UserDailyBalance to update.
+     */
+    where: dbo_UserDailyBalanceWhereUniqueInput
+  }
+
+  /**
+   * dbo_UserDailyBalance updateMany
+   */
+  export type dbo_UserDailyBalanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update dbo_UserDailyBalances.
+     */
+    data: XOR<dbo_UserDailyBalanceUpdateManyMutationInput, dbo_UserDailyBalanceUncheckedUpdateManyInput>
+    /**
+     * Filter which dbo_UserDailyBalances to update
+     */
+    where?: dbo_UserDailyBalanceWhereInput
+    /**
+     * Limit how many dbo_UserDailyBalances to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * dbo_UserDailyBalance upsert
+   */
+  export type dbo_UserDailyBalanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+    /**
+     * The filter to search for the dbo_UserDailyBalance to update in case it exists.
+     */
+    where: dbo_UserDailyBalanceWhereUniqueInput
+    /**
+     * In case the dbo_UserDailyBalance found by the `where` argument doesn't exist, create a new dbo_UserDailyBalance with this data.
+     */
+    create: XOR<dbo_UserDailyBalanceCreateInput, dbo_UserDailyBalanceUncheckedCreateInput>
+    /**
+     * In case the dbo_UserDailyBalance was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<dbo_UserDailyBalanceUpdateInput, dbo_UserDailyBalanceUncheckedUpdateInput>
+  }
+
+  /**
+   * dbo_UserDailyBalance delete
+   */
+  export type dbo_UserDailyBalanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+    /**
+     * Filter which dbo_UserDailyBalance to delete.
+     */
+    where: dbo_UserDailyBalanceWhereUniqueInput
+  }
+
+  /**
+   * dbo_UserDailyBalance deleteMany
+   */
+  export type dbo_UserDailyBalanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which dbo_UserDailyBalances to delete
+     */
+    where?: dbo_UserDailyBalanceWhereInput
+    /**
+     * Limit how many dbo_UserDailyBalances to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * dbo_UserDailyBalance without action
+   */
+  export type dbo_UserDailyBalanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the dbo_UserDailyBalance
+     */
+    select?: dbo_UserDailyBalanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the dbo_UserDailyBalance
+     */
+    omit?: dbo_UserDailyBalanceOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -371045,7 +375618,12 @@ export namespace Prisma {
     LogOut: 'LogOut',
     LogoutTime: 'LogoutTime',
     Tstamp: 'Tstamp',
-    BusinessDate: 'BusinessDate'
+    BusinessDate: 'BusinessDate',
+    AppVersion: 'AppVersion',
+    AppName: 'AppName',
+    Note: 'Note',
+    UserLoginID: 'UserLoginID',
+    DeviceTypeID: 'DeviceTypeID'
   };
 
   export type DeviceDailyStatusScalarFieldEnum = (typeof DeviceDailyStatusScalarFieldEnum)[keyof typeof DeviceDailyStatusScalarFieldEnum]
@@ -373055,8 +377633,10 @@ export namespace Prisma {
   export const TEmpSignerScalarFieldEnum: {
     SignerID: 'SignerID',
     SchoolID: 'SchoolID',
+    YearID: 'YearID',
     TermID: 'TermID',
     Position: 'Position',
+    PositionEN: 'PositionEN',
     DefaultID: 'DefaultID',
     EmpID: 'EmpID',
     Signer: 'Signer',
@@ -374491,56 +379071,6 @@ export namespace Prisma {
   export type TLeaveLetterScalarFieldEnum = (typeof TLeaveLetterScalarFieldEnum)[keyof typeof TLeaveLetterScalarFieldEnum]
 
 
-  export const TLeaveLetter_HistoryScalarFieldEnum: {
-    letterId: 'letterId',
-    letterSchoolId: 'letterSchoolId',
-    letterHeader: 'letterHeader',
-    letterDate: 'letterDate',
-    letterType: 'letterType',
-    writerId: 'writerId',
-    writerJob: 'writerJob',
-    writerComment: 'writerComment',
-    startDate: 'startDate',
-    endDate: 'endDate',
-    contactHomenumber: 'contactHomenumber',
-    contactRoad: 'contactRoad',
-    contactTumbon: 'contactTumbon',
-    contactAumpher: 'contactAumpher',
-    contactProvince: 'contactProvince',
-    contactPhone: 'contactPhone',
-    adminOneJob: 'adminOneJob',
-    adminOneComment: 'adminOneComment',
-    adminOneId: 'adminOneId',
-    adminOneDate: 'adminOneDate',
-    adminTwoJob: 'adminTwoJob',
-    adminTwoId: 'adminTwoId',
-    adminTwoComment: 'adminTwoComment',
-    adminTwoDate: 'adminTwoDate',
-    adminThreeJob: 'adminThreeJob',
-    adminThreeComment: 'adminThreeComment',
-    adminThreeId: 'adminThreeId',
-    adminThreeDate: 'adminThreeDate',
-    adminOneComfirm: 'adminOneComfirm',
-    adminTwoComfirm: 'adminTwoComfirm',
-    adminThreeComfirm: 'adminThreeComfirm',
-    LetterConfirmdate: 'LetterConfirmdate',
-    Season: 'Season',
-    rejectOneId: 'rejectOneId',
-    rejectTwoId: 'rejectTwoId',
-    rejectThreeId: 'rejectThreeId',
-    deleted: 'deleted',
-    letterStatus: 'letterStatus',
-    SchoolID: 'SchoolID',
-    CreatedBy: 'CreatedBy',
-    UpdatedBy: 'UpdatedBy',
-    CreatedDate: 'CreatedDate',
-    UpdatedDate: 'UpdatedDate',
-    cDel: 'cDel'
-  };
-
-  export type TLeaveLetter_HistoryScalarFieldEnum = (typeof TLeaveLetter_HistoryScalarFieldEnum)[keyof typeof TLeaveLetter_HistoryScalarFieldEnum]
-
-
   export const TLeaveLetterFilesScalarFieldEnum: {
     letterId: 'letterId',
     sFileName: 'sFileName',
@@ -374789,31 +379319,6 @@ export namespace Prisma {
   export type TLogUserTimeScan_HistoryScalarFieldEnum = (typeof TLogUserTimeScan_HistoryScalarFieldEnum)[keyof typeof TLogUserTimeScan_HistoryScalarFieldEnum]
 
 
-  export const TLogUserTimeScan_Old_BkupScalarFieldEnum: {
-    sID: 'sID',
-    LogTime: 'LogTime',
-    LogType: 'LogType',
-    LogScanStatus: 'LogScanStatus',
-    LognDay: 'LognDay',
-    LogDate: 'LogDate',
-    nYear: 'nYear',
-    nTermSubLevel2: 'nTermSubLevel2',
-    TeacherId: 'TeacherId',
-    nLogScanID: 'nLogScanID',
-    bLockStatus: 'bLockStatus',
-    SchoolID: 'SchoolID',
-    CreatedBy: 'CreatedBy',
-    UpdatedBy: 'UpdatedBy',
-    CreatedDate: 'CreatedDate',
-    UpdatedDate: 'UpdatedDate',
-    cDel: 'cDel',
-    deviceType: 'deviceType',
-    LeaveID: 'LeaveID'
-  };
-
-  export type TLogUserTimeScan_Old_BkupScalarFieldEnum = (typeof TLogUserTimeScan_Old_BkupScalarFieldEnum)[keyof typeof TLogUserTimeScan_Old_BkupScalarFieldEnum]
-
-
   export const TLogUserTimeScanNewScalarFieldEnum: {
     nLogScanID: 'nLogScanID',
     SchoolID: 'SchoolID',
@@ -374837,7 +379342,8 @@ export namespace Prisma {
     MasterDes: 'MasterDes',
     MasterType: 'MasterType',
     isActive: 'isActive',
-    MasterOrder: 'MasterOrder'
+    MasterOrder: 'MasterOrder',
+    MasterDesEn: 'MasterDesEn'
   };
 
   export type TMasterDataScalarFieldEnum = (typeof TMasterDataScalarFieldEnum)[keyof typeof TMasterDataScalarFieldEnum]
@@ -376614,7 +381120,10 @@ export namespace Prisma {
     UpdatedDate: 'UpdatedDate',
     cDel: 'cDel',
     SMSGroupType: 'SMSGroupType',
-    SMSGroupID: 'SMSGroupID'
+    SMSGroupID: 'SMSGroupID',
+    SendToLINE: 'SendToLINE',
+    SendFileWithOwner: 'SendFileWithOwner',
+    SendFileWithOwnerOCR: 'SendFileWithOwnerOCR'
   };
 
   export type TSMSScalarFieldEnum = (typeof TSMSScalarFieldEnum)[keyof typeof TSMSScalarFieldEnum]
@@ -376768,21 +381277,6 @@ export namespace Prisma {
   };
 
   export type TStockLogScalarFieldEnum = (typeof TStockLogScalarFieldEnum)[keyof typeof TStockLogScalarFieldEnum]
-
-
-  export const TStockLog_OldScalarFieldEnum: {
-    ID: 'ID',
-    SchoolID: 'SchoolID',
-    ProductID: 'ProductID',
-    ShopID: 'ShopID',
-    LogDate: 'LogDate',
-    TotalQty: 'TotalQty',
-    TotalCost: 'TotalCost',
-    AvgCost: 'AvgCost',
-    Created: 'Created'
-  };
-
-  export type TStockLog_OldScalarFieldEnum = (typeof TStockLog_OldScalarFieldEnum)[keyof typeof TStockLog_OldScalarFieldEnum]
 
 
   export const TStudentCardInfoScalarFieldEnum: {
@@ -377188,7 +381682,8 @@ export namespace Prisma {
     CreatedDate: 'CreatedDate',
     UpdatedDate: 'UpdatedDate',
     cDel: 'cDel',
-    MasterCode: 'MasterCode'
+    MasterCode: 'MasterCode',
+    nTitleIdStr: 'nTitleIdStr'
   };
 
   export type TTitleListScalarFieldEnum = (typeof TTitleListScalarFieldEnum)[keyof typeof TTitleListScalarFieldEnum]
@@ -377762,32 +382257,6 @@ export namespace Prisma {
   export type UserAPIResponseScalarFieldEnum = (typeof UserAPIResponseScalarFieldEnum)[keyof typeof UserAPIResponseScalarFieldEnum]
 
 
-  export const UserDailyBalance_BackupScalarFieldEnum: {
-    ID: 'ID',
-    SchoolID: 'SchoolID',
-    sID: 'sID',
-    sStudentID: 'sStudentID',
-    sName: 'sName',
-    sLastname: 'sLastname',
-    cDel: 'cDel',
-    cType: 'cType',
-    BusinessDate: 'BusinessDate',
-    OpeningBalance: 'OpeningBalance',
-    TotalTopUp: 'TotalTopUp',
-    TotalCancelTopUp: 'TotalCancelTopUp',
-    TotalWithDraw: 'TotalWithDraw',
-    TotalCancelWithDraw: 'TotalCancelWithDraw',
-    TotalSales: 'TotalSales',
-    TotalCancelSales: 'TotalCancelSales',
-    LastUpdatedDate: 'LastUpdatedDate',
-    Balance: 'Balance',
-    OfflineSales: 'OfflineSales',
-    SystemBalance: 'SystemBalance'
-  };
-
-  export type UserDailyBalance_BackupScalarFieldEnum = (typeof UserDailyBalance_BackupScalarFieldEnum)[keyof typeof UserDailyBalance_BackupScalarFieldEnum]
-
-
   export const UserDailyBalance_SearlizeScalarFieldEnum: {
     ID: 'ID',
     SchoolID: 'SchoolID',
@@ -377797,31 +382266,6 @@ export namespace Prisma {
   };
 
   export type UserDailyBalance_SearlizeScalarFieldEnum = (typeof UserDailyBalance_SearlizeScalarFieldEnum)[keyof typeof UserDailyBalance_SearlizeScalarFieldEnum]
-
-
-  export const UserDailyBalanceTempScalarFieldEnum: {
-    ID: 'ID',
-    SchoolID: 'SchoolID',
-    sID: 'sID',
-    sStudentID: 'sStudentID',
-    sName: 'sName',
-    sLastname: 'sLastname',
-    cDel: 'cDel',
-    cType: 'cType',
-    BusinessDate: 'BusinessDate',
-    OpeningBalance: 'OpeningBalance',
-    TotalTopUp: 'TotalTopUp',
-    TotalCancelTopUp: 'TotalCancelTopUp',
-    TotalWithDraw: 'TotalWithDraw',
-    TotalCancelWithDraw: 'TotalCancelWithDraw',
-    TotalSales: 'TotalSales',
-    TotalCancelSales: 'TotalCancelSales',
-    LastUpdatedDate: 'LastUpdatedDate',
-    Balance: 'Balance',
-    SystemBalance: 'SystemBalance'
-  };
-
-  export type UserDailyBalanceTempScalarFieldEnum = (typeof UserDailyBalanceTempScalarFieldEnum)[keyof typeof UserDailyBalanceTempScalarFieldEnum]
 
 
   export const UserDailyBalanceTempCardScalarFieldEnum: {
@@ -377879,6 +382323,159 @@ export namespace Prisma {
   };
 
   export type UserUsedLimitScalarFieldEnum = (typeof UserUsedLimitScalarFieldEnum)[keyof typeof UserUsedLimitScalarFieldEnum]
+
+
+  export const Dbo_DeviceActivityLogScalarFieldEnum: {
+    LogID: 'LogID',
+    SchoolID: 'SchoolID',
+    DeviceID: 'DeviceID',
+    LogDescription: 'LogDescription',
+    Tstamp: 'Tstamp',
+    DeviceType: 'DeviceType'
+  };
+
+  export type Dbo_DeviceActivityLogScalarFieldEnum = (typeof Dbo_DeviceActivityLogScalarFieldEnum)[keyof typeof Dbo_DeviceActivityLogScalarFieldEnum]
+
+
+  export const DeviceActivityLog_BackupScalarFieldEnum: {
+    LogID: 'LogID',
+    SchoolID: 'SchoolID',
+    DeviceID: 'DeviceID',
+    LogDescription: 'LogDescription',
+    Tstamp: 'Tstamp',
+    DeviceType: 'DeviceType'
+  };
+
+  export type DeviceActivityLog_BackupScalarFieldEnum = (typeof DeviceActivityLog_BackupScalarFieldEnum)[keyof typeof DeviceActivityLog_BackupScalarFieldEnum]
+
+
+  export const DeviceActivityLog_HistoryScalarFieldEnum: {
+    LogID: 'LogID',
+    SchoolID: 'SchoolID',
+    DeviceID: 'DeviceID',
+    LogDescription: 'LogDescription',
+    Tstamp: 'Tstamp',
+    DeviceType: 'DeviceType'
+  };
+
+  export type DeviceActivityLog_HistoryScalarFieldEnum = (typeof DeviceActivityLog_HistoryScalarFieldEnum)[keyof typeof DeviceActivityLog_HistoryScalarFieldEnum]
+
+
+  export const DeviceDailyStatus_BackupScalarFieldEnum: {
+    DeviceStatusID: 'DeviceStatusID',
+    SchoolID: 'SchoolID',
+    DeviceID: 'DeviceID',
+    Online: 'Online',
+    OnlineTime: 'OnlineTime',
+    Login: 'Login',
+    LoginTime: 'LoginTime',
+    LogOut: 'LogOut',
+    LogoutTime: 'LogoutTime',
+    Tstamp: 'Tstamp',
+    BusinessDate: 'BusinessDate',
+    AppVersion: 'AppVersion',
+    AppName: 'AppName',
+    Note: 'Note',
+    UserLoginID: 'UserLoginID',
+    DeviceTypeID: 'DeviceTypeID'
+  };
+
+  export type DeviceDailyStatus_BackupScalarFieldEnum = (typeof DeviceDailyStatus_BackupScalarFieldEnum)[keyof typeof DeviceDailyStatus_BackupScalarFieldEnum]
+
+
+  export const DeviceTypeScalarFieldEnum: {
+    DeviceTypeID: 'DeviceTypeID',
+    TypeNameEN: 'TypeNameEN',
+    TypeNameTH: 'TypeNameTH'
+  };
+
+  export type DeviceTypeScalarFieldEnum = (typeof DeviceTypeScalarFieldEnum)[keyof typeof DeviceTypeScalarFieldEnum]
+
+
+  export const QueryPerformanceLogScalarFieldEnum: {
+    LogID: 'LogID',
+    LogDateTime: 'LogDateTime',
+    QueryName: 'QueryName',
+    CPUTime_ms: 'CPUTime_ms',
+    ElapsedTime_ms: 'ElapsedTime_ms',
+    LogicalReads: 'LogicalReads',
+    BlockingSessionID: 'BlockingSessionID',
+    WaitType: 'WaitType',
+    WaitResource: 'WaitResource',
+    RowCount: 'RowCount'
+  };
+
+  export type QueryPerformanceLogScalarFieldEnum = (typeof QueryPerformanceLogScalarFieldEnum)[keyof typeof QueryPerformanceLogScalarFieldEnum]
+
+
+  export const TCurrentTermDataScalarFieldEnum: {
+    nTerm: 'nTerm',
+    dStart: 'dStart',
+    dEnd: 'dEnd',
+    SchoolID: 'SchoolID',
+    nYear: 'nYear',
+    sTerm: 'sTerm'
+  };
+
+  export type TCurrentTermDataScalarFieldEnum = (typeof TCurrentTermDataScalarFieldEnum)[keyof typeof TCurrentTermDataScalarFieldEnum]
+
+
+  export const TEmpSignerReportScalarFieldEnum: {
+    ReportID: 'ReportID',
+    SchoolID: 'SchoolID',
+    SignerID: 'SignerID',
+    YearID: 'YearID',
+    ReportName: 'ReportName',
+    ReportPart: 'ReportPart',
+    Created: 'Created',
+    CreateBy: 'CreateBy',
+    Modified: 'Modified',
+    ModifyBy: 'ModifyBy'
+  };
+
+  export type TEmpSignerReportScalarFieldEnum = (typeof TEmpSignerReportScalarFieldEnum)[keyof typeof TEmpSignerReportScalarFieldEnum]
+
+
+  export const TTeacherStudentTypeScalarFieldEnum: {
+    ID: 'ID',
+    StudentTypeID: 'StudentTypeID',
+    SchoolID: 'SchoolID',
+    sEmp: 'sEmp',
+    Status: 'Status',
+    IsDel: 'IsDel',
+    CreateDate: 'CreateDate',
+    CreateBy: 'CreateBy',
+    UpdateDate: 'UpdateDate',
+    UpdateBy: 'UpdateBy'
+  };
+
+  export type TTeacherStudentTypeScalarFieldEnum = (typeof TTeacherStudentTypeScalarFieldEnum)[keyof typeof TTeacherStudentTypeScalarFieldEnum]
+
+
+  export const Dbo_UserDailyBalanceScalarFieldEnum: {
+    ID: 'ID',
+    SchoolID: 'SchoolID',
+    sID: 'sID',
+    sStudentID: 'sStudentID',
+    sName: 'sName',
+    sLastname: 'sLastname',
+    cDel: 'cDel',
+    cType: 'cType',
+    BusinessDate: 'BusinessDate',
+    OpeningBalance: 'OpeningBalance',
+    TotalTopUp: 'TotalTopUp',
+    TotalCancelTopUp: 'TotalCancelTopUp',
+    TotalWithDraw: 'TotalWithDraw',
+    TotalCancelWithDraw: 'TotalCancelWithDraw',
+    TotalSales: 'TotalSales',
+    TotalCancelSales: 'TotalCancelSales',
+    LastUpdatedDate: 'LastUpdatedDate',
+    Balance: 'Balance',
+    OfflineSales: 'OfflineSales',
+    SystemBalance: 'SystemBalance'
+  };
+
+  export type Dbo_UserDailyBalanceScalarFieldEnum = (typeof Dbo_UserDailyBalanceScalarFieldEnum)[keyof typeof Dbo_UserDailyBalanceScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -379845,6 +384442,11 @@ export namespace Prisma {
     LogoutTime?: DateTimeNullableFilter<"DeviceDailyStatus"> | Date | string | null
     Tstamp?: DateTimeFilter<"DeviceDailyStatus"> | Date | string
     BusinessDate?: DateTimeFilter<"DeviceDailyStatus"> | Date | string
+    AppVersion?: StringNullableFilter<"DeviceDailyStatus"> | string | null
+    AppName?: StringNullableFilter<"DeviceDailyStatus"> | string | null
+    Note?: StringNullableFilter<"DeviceDailyStatus"> | string | null
+    UserLoginID?: IntNullableFilter<"DeviceDailyStatus"> | number | null
+    DeviceTypeID?: IntNullableFilter<"DeviceDailyStatus"> | number | null
   }
 
   export type DeviceDailyStatusOrderByWithRelationInput = {
@@ -379859,6 +384461,11 @@ export namespace Prisma {
     LogoutTime?: SortOrderInput | SortOrder
     Tstamp?: SortOrder
     BusinessDate?: SortOrder
+    AppVersion?: SortOrderInput | SortOrder
+    AppName?: SortOrderInput | SortOrder
+    Note?: SortOrderInput | SortOrder
+    UserLoginID?: SortOrderInput | SortOrder
+    DeviceTypeID?: SortOrderInput | SortOrder
   }
 
   export type DeviceDailyStatusWhereUniqueInput = Prisma.AtLeast<{
@@ -379876,6 +384483,11 @@ export namespace Prisma {
     LogoutTime?: DateTimeNullableFilter<"DeviceDailyStatus"> | Date | string | null
     Tstamp?: DateTimeFilter<"DeviceDailyStatus"> | Date | string
     BusinessDate?: DateTimeFilter<"DeviceDailyStatus"> | Date | string
+    AppVersion?: StringNullableFilter<"DeviceDailyStatus"> | string | null
+    AppName?: StringNullableFilter<"DeviceDailyStatus"> | string | null
+    Note?: StringNullableFilter<"DeviceDailyStatus"> | string | null
+    UserLoginID?: IntNullableFilter<"DeviceDailyStatus"> | number | null
+    DeviceTypeID?: IntNullableFilter<"DeviceDailyStatus"> | number | null
   }, "DeviceStatusID">
 
   export type DeviceDailyStatusOrderByWithAggregationInput = {
@@ -379890,6 +384502,11 @@ export namespace Prisma {
     LogoutTime?: SortOrderInput | SortOrder
     Tstamp?: SortOrder
     BusinessDate?: SortOrder
+    AppVersion?: SortOrderInput | SortOrder
+    AppName?: SortOrderInput | SortOrder
+    Note?: SortOrderInput | SortOrder
+    UserLoginID?: SortOrderInput | SortOrder
+    DeviceTypeID?: SortOrderInput | SortOrder
     _count?: DeviceDailyStatusCountOrderByAggregateInput
     _avg?: DeviceDailyStatusAvgOrderByAggregateInput
     _max?: DeviceDailyStatusMaxOrderByAggregateInput
@@ -379912,6 +384529,11 @@ export namespace Prisma {
     LogoutTime?: DateTimeNullableWithAggregatesFilter<"DeviceDailyStatus"> | Date | string | null
     Tstamp?: DateTimeWithAggregatesFilter<"DeviceDailyStatus"> | Date | string
     BusinessDate?: DateTimeWithAggregatesFilter<"DeviceDailyStatus"> | Date | string
+    AppVersion?: StringNullableWithAggregatesFilter<"DeviceDailyStatus"> | string | null
+    AppName?: StringNullableWithAggregatesFilter<"DeviceDailyStatus"> | string | null
+    Note?: StringNullableWithAggregatesFilter<"DeviceDailyStatus"> | string | null
+    UserLoginID?: IntNullableWithAggregatesFilter<"DeviceDailyStatus"> | number | null
+    DeviceTypeID?: IntNullableWithAggregatesFilter<"DeviceDailyStatus"> | number | null
   }
 
   export type DeviceUpdateStatusWhereInput = {
@@ -389903,8 +394525,10 @@ export namespace Prisma {
     NOT?: TEmpSignerWhereInput | TEmpSignerWhereInput[]
     SignerID?: IntFilter<"TEmpSigner"> | number
     SchoolID?: IntFilter<"TEmpSigner"> | number
+    YearID?: IntNullableFilter<"TEmpSigner"> | number | null
     TermID?: StringNullableFilter<"TEmpSigner"> | string | null
     Position?: StringNullableFilter<"TEmpSigner"> | string | null
+    PositionEN?: StringNullableFilter<"TEmpSigner"> | string | null
     DefaultID?: IntNullableFilter<"TEmpSigner"> | number | null
     EmpID?: IntNullableFilter<"TEmpSigner"> | number | null
     Signer?: StringNullableFilter<"TEmpSigner"> | string | null
@@ -389920,8 +394544,10 @@ export namespace Prisma {
   export type TEmpSignerOrderByWithRelationInput = {
     SignerID?: SortOrder
     SchoolID?: SortOrder
+    YearID?: SortOrderInput | SortOrder
     TermID?: SortOrderInput | SortOrder
     Position?: SortOrderInput | SortOrder
+    PositionEN?: SortOrderInput | SortOrder
     DefaultID?: SortOrderInput | SortOrder
     EmpID?: SortOrderInput | SortOrder
     Signer?: SortOrderInput | SortOrder
@@ -389941,8 +394567,10 @@ export namespace Prisma {
     NOT?: TEmpSignerWhereInput | TEmpSignerWhereInput[]
     SignerID?: IntFilter<"TEmpSigner"> | number
     SchoolID?: IntFilter<"TEmpSigner"> | number
+    YearID?: IntNullableFilter<"TEmpSigner"> | number | null
     TermID?: StringNullableFilter<"TEmpSigner"> | string | null
     Position?: StringNullableFilter<"TEmpSigner"> | string | null
+    PositionEN?: StringNullableFilter<"TEmpSigner"> | string | null
     DefaultID?: IntNullableFilter<"TEmpSigner"> | number | null
     EmpID?: IntNullableFilter<"TEmpSigner"> | number | null
     Signer?: StringNullableFilter<"TEmpSigner"> | string | null
@@ -389958,8 +394586,10 @@ export namespace Prisma {
   export type TEmpSignerOrderByWithAggregationInput = {
     SignerID?: SortOrder
     SchoolID?: SortOrder
+    YearID?: SortOrderInput | SortOrder
     TermID?: SortOrderInput | SortOrder
     Position?: SortOrderInput | SortOrder
+    PositionEN?: SortOrderInput | SortOrder
     DefaultID?: SortOrderInput | SortOrder
     EmpID?: SortOrderInput | SortOrder
     Signer?: SortOrderInput | SortOrder
@@ -389983,8 +394613,10 @@ export namespace Prisma {
     NOT?: TEmpSignerScalarWhereWithAggregatesInput | TEmpSignerScalarWhereWithAggregatesInput[]
     SignerID?: IntWithAggregatesFilter<"TEmpSigner"> | number
     SchoolID?: IntWithAggregatesFilter<"TEmpSigner"> | number
+    YearID?: IntNullableWithAggregatesFilter<"TEmpSigner"> | number | null
     TermID?: StringNullableWithAggregatesFilter<"TEmpSigner"> | string | null
     Position?: StringNullableWithAggregatesFilter<"TEmpSigner"> | string | null
+    PositionEN?: StringNullableWithAggregatesFilter<"TEmpSigner"> | string | null
     DefaultID?: IntNullableWithAggregatesFilter<"TEmpSigner"> | number | null
     EmpID?: IntNullableWithAggregatesFilter<"TEmpSigner"> | number | null
     Signer?: StringNullableWithAggregatesFilter<"TEmpSigner"> | string | null
@@ -397082,256 +401714,6 @@ export namespace Prisma {
     Note?: StringNullableWithAggregatesFilter<"TLeaveLetter"> | string | null
   }
 
-  export type TLeaveLetter_HistoryWhereInput = {
-    AND?: TLeaveLetter_HistoryWhereInput | TLeaveLetter_HistoryWhereInput[]
-    OR?: TLeaveLetter_HistoryWhereInput[]
-    NOT?: TLeaveLetter_HistoryWhereInput | TLeaveLetter_HistoryWhereInput[]
-    letterId?: IntFilter<"TLeaveLetter_History"> | number
-    letterSchoolId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    letterHeader?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    letterDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    letterType?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    writerId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    writerJob?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    writerComment?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    startDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    endDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    contactHomenumber?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactRoad?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactTumbon?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactAumpher?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactProvince?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactPhone?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminOneJob?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminOneComment?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminOneId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    adminOneDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    adminTwoJob?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminTwoId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    adminTwoComment?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminTwoDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    adminThreeJob?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminThreeComment?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminThreeId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    adminThreeDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    adminOneComfirm?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminTwoComfirm?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminThreeComfirm?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    LetterConfirmdate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    Season?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    rejectOneId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    rejectTwoId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    rejectThreeId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    deleted?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    letterStatus?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    SchoolID?: IntFilter<"TLeaveLetter_History"> | number
-    CreatedBy?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    UpdatedBy?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    CreatedDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    UpdatedDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    cDel?: BoolFilter<"TLeaveLetter_History"> | boolean
-  }
-
-  export type TLeaveLetter_HistoryOrderByWithRelationInput = {
-    letterId?: SortOrder
-    letterSchoolId?: SortOrderInput | SortOrder
-    letterHeader?: SortOrderInput | SortOrder
-    letterDate?: SortOrderInput | SortOrder
-    letterType?: SortOrderInput | SortOrder
-    writerId?: SortOrderInput | SortOrder
-    writerJob?: SortOrderInput | SortOrder
-    writerComment?: SortOrderInput | SortOrder
-    startDate?: SortOrderInput | SortOrder
-    endDate?: SortOrderInput | SortOrder
-    contactHomenumber?: SortOrderInput | SortOrder
-    contactRoad?: SortOrderInput | SortOrder
-    contactTumbon?: SortOrderInput | SortOrder
-    contactAumpher?: SortOrderInput | SortOrder
-    contactProvince?: SortOrderInput | SortOrder
-    contactPhone?: SortOrderInput | SortOrder
-    adminOneJob?: SortOrderInput | SortOrder
-    adminOneComment?: SortOrderInput | SortOrder
-    adminOneId?: SortOrderInput | SortOrder
-    adminOneDate?: SortOrderInput | SortOrder
-    adminTwoJob?: SortOrderInput | SortOrder
-    adminTwoId?: SortOrderInput | SortOrder
-    adminTwoComment?: SortOrderInput | SortOrder
-    adminTwoDate?: SortOrderInput | SortOrder
-    adminThreeJob?: SortOrderInput | SortOrder
-    adminThreeComment?: SortOrderInput | SortOrder
-    adminThreeId?: SortOrderInput | SortOrder
-    adminThreeDate?: SortOrderInput | SortOrder
-    adminOneComfirm?: SortOrderInput | SortOrder
-    adminTwoComfirm?: SortOrderInput | SortOrder
-    adminThreeComfirm?: SortOrderInput | SortOrder
-    LetterConfirmdate?: SortOrderInput | SortOrder
-    Season?: SortOrderInput | SortOrder
-    rejectOneId?: SortOrderInput | SortOrder
-    rejectTwoId?: SortOrderInput | SortOrder
-    rejectThreeId?: SortOrderInput | SortOrder
-    deleted?: SortOrderInput | SortOrder
-    letterStatus?: SortOrderInput | SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrderInput | SortOrder
-    UpdatedBy?: SortOrderInput | SortOrder
-    CreatedDate?: SortOrderInput | SortOrder
-    UpdatedDate?: SortOrderInput | SortOrder
-    cDel?: SortOrder
-  }
-
-  export type TLeaveLetter_HistoryWhereUniqueInput = Prisma.AtLeast<{
-    SchoolID_letterId?: TLeaveLetter_HistorySchoolIDLetterIdCompoundUniqueInput
-    AND?: TLeaveLetter_HistoryWhereInput | TLeaveLetter_HistoryWhereInput[]
-    OR?: TLeaveLetter_HistoryWhereInput[]
-    NOT?: TLeaveLetter_HistoryWhereInput | TLeaveLetter_HistoryWhereInput[]
-    letterId?: IntFilter<"TLeaveLetter_History"> | number
-    letterSchoolId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    letterHeader?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    letterDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    letterType?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    writerId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    writerJob?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    writerComment?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    startDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    endDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    contactHomenumber?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactRoad?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactTumbon?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactAumpher?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactProvince?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    contactPhone?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminOneJob?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminOneComment?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminOneId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    adminOneDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    adminTwoJob?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminTwoId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    adminTwoComment?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminTwoDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    adminThreeJob?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminThreeComment?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminThreeId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    adminThreeDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    adminOneComfirm?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminTwoComfirm?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    adminThreeComfirm?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    LetterConfirmdate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    Season?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    rejectOneId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    rejectTwoId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    rejectThreeId?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    deleted?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    letterStatus?: StringNullableFilter<"TLeaveLetter_History"> | string | null
-    SchoolID?: IntFilter<"TLeaveLetter_History"> | number
-    CreatedBy?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    UpdatedBy?: IntNullableFilter<"TLeaveLetter_History"> | number | null
-    CreatedDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    UpdatedDate?: DateTimeNullableFilter<"TLeaveLetter_History"> | Date | string | null
-    cDel?: BoolFilter<"TLeaveLetter_History"> | boolean
-  }, "SchoolID_letterId">
-
-  export type TLeaveLetter_HistoryOrderByWithAggregationInput = {
-    letterId?: SortOrder
-    letterSchoolId?: SortOrderInput | SortOrder
-    letterHeader?: SortOrderInput | SortOrder
-    letterDate?: SortOrderInput | SortOrder
-    letterType?: SortOrderInput | SortOrder
-    writerId?: SortOrderInput | SortOrder
-    writerJob?: SortOrderInput | SortOrder
-    writerComment?: SortOrderInput | SortOrder
-    startDate?: SortOrderInput | SortOrder
-    endDate?: SortOrderInput | SortOrder
-    contactHomenumber?: SortOrderInput | SortOrder
-    contactRoad?: SortOrderInput | SortOrder
-    contactTumbon?: SortOrderInput | SortOrder
-    contactAumpher?: SortOrderInput | SortOrder
-    contactProvince?: SortOrderInput | SortOrder
-    contactPhone?: SortOrderInput | SortOrder
-    adminOneJob?: SortOrderInput | SortOrder
-    adminOneComment?: SortOrderInput | SortOrder
-    adminOneId?: SortOrderInput | SortOrder
-    adminOneDate?: SortOrderInput | SortOrder
-    adminTwoJob?: SortOrderInput | SortOrder
-    adminTwoId?: SortOrderInput | SortOrder
-    adminTwoComment?: SortOrderInput | SortOrder
-    adminTwoDate?: SortOrderInput | SortOrder
-    adminThreeJob?: SortOrderInput | SortOrder
-    adminThreeComment?: SortOrderInput | SortOrder
-    adminThreeId?: SortOrderInput | SortOrder
-    adminThreeDate?: SortOrderInput | SortOrder
-    adminOneComfirm?: SortOrderInput | SortOrder
-    adminTwoComfirm?: SortOrderInput | SortOrder
-    adminThreeComfirm?: SortOrderInput | SortOrder
-    LetterConfirmdate?: SortOrderInput | SortOrder
-    Season?: SortOrderInput | SortOrder
-    rejectOneId?: SortOrderInput | SortOrder
-    rejectTwoId?: SortOrderInput | SortOrder
-    rejectThreeId?: SortOrderInput | SortOrder
-    deleted?: SortOrderInput | SortOrder
-    letterStatus?: SortOrderInput | SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrderInput | SortOrder
-    UpdatedBy?: SortOrderInput | SortOrder
-    CreatedDate?: SortOrderInput | SortOrder
-    UpdatedDate?: SortOrderInput | SortOrder
-    cDel?: SortOrder
-    _count?: TLeaveLetter_HistoryCountOrderByAggregateInput
-    _avg?: TLeaveLetter_HistoryAvgOrderByAggregateInput
-    _max?: TLeaveLetter_HistoryMaxOrderByAggregateInput
-    _min?: TLeaveLetter_HistoryMinOrderByAggregateInput
-    _sum?: TLeaveLetter_HistorySumOrderByAggregateInput
-  }
-
-  export type TLeaveLetter_HistoryScalarWhereWithAggregatesInput = {
-    AND?: TLeaveLetter_HistoryScalarWhereWithAggregatesInput | TLeaveLetter_HistoryScalarWhereWithAggregatesInput[]
-    OR?: TLeaveLetter_HistoryScalarWhereWithAggregatesInput[]
-    NOT?: TLeaveLetter_HistoryScalarWhereWithAggregatesInput | TLeaveLetter_HistoryScalarWhereWithAggregatesInput[]
-    letterId?: IntWithAggregatesFilter<"TLeaveLetter_History"> | number
-    letterSchoolId?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    letterHeader?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    letterDate?: DateTimeNullableWithAggregatesFilter<"TLeaveLetter_History"> | Date | string | null
-    letterType?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    writerId?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    writerJob?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    writerComment?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    startDate?: DateTimeNullableWithAggregatesFilter<"TLeaveLetter_History"> | Date | string | null
-    endDate?: DateTimeNullableWithAggregatesFilter<"TLeaveLetter_History"> | Date | string | null
-    contactHomenumber?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    contactRoad?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    contactTumbon?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    contactAumpher?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    contactProvince?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    contactPhone?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    adminOneJob?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    adminOneComment?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    adminOneId?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    adminOneDate?: DateTimeNullableWithAggregatesFilter<"TLeaveLetter_History"> | Date | string | null
-    adminTwoJob?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    adminTwoId?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    adminTwoComment?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    adminTwoDate?: DateTimeNullableWithAggregatesFilter<"TLeaveLetter_History"> | Date | string | null
-    adminThreeJob?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    adminThreeComment?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    adminThreeId?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    adminThreeDate?: DateTimeNullableWithAggregatesFilter<"TLeaveLetter_History"> | Date | string | null
-    adminOneComfirm?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    adminTwoComfirm?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    adminThreeComfirm?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    LetterConfirmdate?: DateTimeNullableWithAggregatesFilter<"TLeaveLetter_History"> | Date | string | null
-    Season?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    rejectOneId?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    rejectTwoId?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    rejectThreeId?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    deleted?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    letterStatus?: StringNullableWithAggregatesFilter<"TLeaveLetter_History"> | string | null
-    SchoolID?: IntWithAggregatesFilter<"TLeaveLetter_History"> | number
-    CreatedBy?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    UpdatedBy?: IntNullableWithAggregatesFilter<"TLeaveLetter_History"> | number | null
-    CreatedDate?: DateTimeNullableWithAggregatesFilter<"TLeaveLetter_History"> | Date | string | null
-    UpdatedDate?: DateTimeNullableWithAggregatesFilter<"TLeaveLetter_History"> | Date | string | null
-    cDel?: BoolWithAggregatesFilter<"TLeaveLetter_History"> | boolean
-  }
-
   export type TLeaveLetterFilesWhereInput = {
     AND?: TLeaveLetterFilesWhereInput | TLeaveLetterFilesWhereInput[]
     OR?: TLeaveLetterFilesWhereInput[]
@@ -398571,131 +402953,6 @@ export namespace Prisma {
     cDel?: BoolWithAggregatesFilter<"TLogUserTimeScan_History"> | boolean
   }
 
-  export type TLogUserTimeScan_Old_BkupWhereInput = {
-    AND?: TLogUserTimeScan_Old_BkupWhereInput | TLogUserTimeScan_Old_BkupWhereInput[]
-    OR?: TLogUserTimeScan_Old_BkupWhereInput[]
-    NOT?: TLogUserTimeScan_Old_BkupWhereInput | TLogUserTimeScan_Old_BkupWhereInput[]
-    sID?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    LogTime?: DateTimeNullableFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    LogType?: StringNullableFilter<"TLogUserTimeScan_Old_Bkup"> | string | null
-    LogScanStatus?: StringNullableFilter<"TLogUserTimeScan_Old_Bkup"> | string | null
-    LognDay?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    LogDate?: DateTimeNullableFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    nYear?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    nTermSubLevel2?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    TeacherId?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    nLogScanID?: IntFilter<"TLogUserTimeScan_Old_Bkup"> | number
-    bLockStatus?: BoolNullableFilter<"TLogUserTimeScan_Old_Bkup"> | boolean | null
-    SchoolID?: IntFilter<"TLogUserTimeScan_Old_Bkup"> | number
-    CreatedBy?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    UpdatedBy?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    CreatedDate?: DateTimeNullableFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    UpdatedDate?: DateTimeNullableFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    cDel?: BoolFilter<"TLogUserTimeScan_Old_Bkup"> | boolean
-    deviceType?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    LeaveID?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupOrderByWithRelationInput = {
-    sID?: SortOrderInput | SortOrder
-    LogTime?: SortOrderInput | SortOrder
-    LogType?: SortOrderInput | SortOrder
-    LogScanStatus?: SortOrderInput | SortOrder
-    LognDay?: SortOrderInput | SortOrder
-    LogDate?: SortOrderInput | SortOrder
-    nYear?: SortOrderInput | SortOrder
-    nTermSubLevel2?: SortOrderInput | SortOrder
-    TeacherId?: SortOrderInput | SortOrder
-    nLogScanID?: SortOrder
-    bLockStatus?: SortOrderInput | SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrderInput | SortOrder
-    UpdatedBy?: SortOrderInput | SortOrder
-    CreatedDate?: SortOrderInput | SortOrder
-    UpdatedDate?: SortOrderInput | SortOrder
-    cDel?: SortOrder
-    deviceType?: SortOrderInput | SortOrder
-    LeaveID?: SortOrderInput | SortOrder
-  }
-
-  export type TLogUserTimeScan_Old_BkupWhereUniqueInput = Prisma.AtLeast<{
-    SchoolID_nLogScanID?: TLogUserTimeScan_Old_BkupSchoolIDNLogScanIDCompoundUniqueInput
-    AND?: TLogUserTimeScan_Old_BkupWhereInput | TLogUserTimeScan_Old_BkupWhereInput[]
-    OR?: TLogUserTimeScan_Old_BkupWhereInput[]
-    NOT?: TLogUserTimeScan_Old_BkupWhereInput | TLogUserTimeScan_Old_BkupWhereInput[]
-    sID?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    LogTime?: DateTimeNullableFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    LogType?: StringNullableFilter<"TLogUserTimeScan_Old_Bkup"> | string | null
-    LogScanStatus?: StringNullableFilter<"TLogUserTimeScan_Old_Bkup"> | string | null
-    LognDay?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    LogDate?: DateTimeNullableFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    nYear?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    nTermSubLevel2?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    TeacherId?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    nLogScanID?: IntFilter<"TLogUserTimeScan_Old_Bkup"> | number
-    bLockStatus?: BoolNullableFilter<"TLogUserTimeScan_Old_Bkup"> | boolean | null
-    SchoolID?: IntFilter<"TLogUserTimeScan_Old_Bkup"> | number
-    CreatedBy?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    UpdatedBy?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    CreatedDate?: DateTimeNullableFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    UpdatedDate?: DateTimeNullableFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    cDel?: BoolFilter<"TLogUserTimeScan_Old_Bkup"> | boolean
-    deviceType?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    LeaveID?: IntNullableFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-  }, "SchoolID_nLogScanID">
-
-  export type TLogUserTimeScan_Old_BkupOrderByWithAggregationInput = {
-    sID?: SortOrderInput | SortOrder
-    LogTime?: SortOrderInput | SortOrder
-    LogType?: SortOrderInput | SortOrder
-    LogScanStatus?: SortOrderInput | SortOrder
-    LognDay?: SortOrderInput | SortOrder
-    LogDate?: SortOrderInput | SortOrder
-    nYear?: SortOrderInput | SortOrder
-    nTermSubLevel2?: SortOrderInput | SortOrder
-    TeacherId?: SortOrderInput | SortOrder
-    nLogScanID?: SortOrder
-    bLockStatus?: SortOrderInput | SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrderInput | SortOrder
-    UpdatedBy?: SortOrderInput | SortOrder
-    CreatedDate?: SortOrderInput | SortOrder
-    UpdatedDate?: SortOrderInput | SortOrder
-    cDel?: SortOrder
-    deviceType?: SortOrderInput | SortOrder
-    LeaveID?: SortOrderInput | SortOrder
-    _count?: TLogUserTimeScan_Old_BkupCountOrderByAggregateInput
-    _avg?: TLogUserTimeScan_Old_BkupAvgOrderByAggregateInput
-    _max?: TLogUserTimeScan_Old_BkupMaxOrderByAggregateInput
-    _min?: TLogUserTimeScan_Old_BkupMinOrderByAggregateInput
-    _sum?: TLogUserTimeScan_Old_BkupSumOrderByAggregateInput
-  }
-
-  export type TLogUserTimeScan_Old_BkupScalarWhereWithAggregatesInput = {
-    AND?: TLogUserTimeScan_Old_BkupScalarWhereWithAggregatesInput | TLogUserTimeScan_Old_BkupScalarWhereWithAggregatesInput[]
-    OR?: TLogUserTimeScan_Old_BkupScalarWhereWithAggregatesInput[]
-    NOT?: TLogUserTimeScan_Old_BkupScalarWhereWithAggregatesInput | TLogUserTimeScan_Old_BkupScalarWhereWithAggregatesInput[]
-    sID?: IntNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    LogTime?: DateTimeNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    LogType?: StringNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | string | null
-    LogScanStatus?: StringNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | string | null
-    LognDay?: IntNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    LogDate?: DateTimeNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    nYear?: IntNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    nTermSubLevel2?: IntNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    TeacherId?: IntNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    nLogScanID?: IntWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number
-    bLockStatus?: BoolNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | boolean | null
-    SchoolID?: IntWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number
-    CreatedBy?: IntNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    UpdatedBy?: IntNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    CreatedDate?: DateTimeNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    UpdatedDate?: DateTimeNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | Date | string | null
-    cDel?: BoolWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | boolean
-    deviceType?: IntNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-    LeaveID?: IntNullableWithAggregatesFilter<"TLogUserTimeScan_Old_Bkup"> | number | null
-  }
-
   export type TLogUserTimeScanNewWhereInput = {
     AND?: TLogUserTimeScanNewWhereInput | TLogUserTimeScanNewWhereInput[]
     OR?: TLogUserTimeScanNewWhereInput[]
@@ -398790,6 +403047,7 @@ export namespace Prisma {
     MasterType?: StringNullableFilter<"TMasterData"> | string | null
     isActive?: BoolNullableFilter<"TMasterData"> | boolean | null
     MasterOrder?: IntNullableFilter<"TMasterData"> | number | null
+    MasterDesEn?: StringNullableFilter<"TMasterData"> | string | null
   }
 
   export type TMasterDataOrderByWithRelationInput = {
@@ -398799,6 +403057,7 @@ export namespace Prisma {
     MasterType?: SortOrderInput | SortOrder
     isActive?: SortOrderInput | SortOrder
     MasterOrder?: SortOrderInput | SortOrder
+    MasterDesEn?: SortOrderInput | SortOrder
   }
 
   export type TMasterDataWhereUniqueInput = Prisma.AtLeast<{
@@ -398811,6 +403070,7 @@ export namespace Prisma {
     MasterType?: StringNullableFilter<"TMasterData"> | string | null
     isActive?: BoolNullableFilter<"TMasterData"> | boolean | null
     MasterOrder?: IntNullableFilter<"TMasterData"> | number | null
+    MasterDesEn?: StringNullableFilter<"TMasterData"> | string | null
   }, "MasterID">
 
   export type TMasterDataOrderByWithAggregationInput = {
@@ -398820,6 +403080,7 @@ export namespace Prisma {
     MasterType?: SortOrderInput | SortOrder
     isActive?: SortOrderInput | SortOrder
     MasterOrder?: SortOrderInput | SortOrder
+    MasterDesEn?: SortOrderInput | SortOrder
     _count?: TMasterDataCountOrderByAggregateInput
     _avg?: TMasterDataAvgOrderByAggregateInput
     _max?: TMasterDataMaxOrderByAggregateInput
@@ -398837,6 +403098,7 @@ export namespace Prisma {
     MasterType?: StringNullableWithAggregatesFilter<"TMasterData"> | string | null
     isActive?: BoolNullableWithAggregatesFilter<"TMasterData"> | boolean | null
     MasterOrder?: IntNullableWithAggregatesFilter<"TMasterData"> | number | null
+    MasterDesEn?: StringNullableWithAggregatesFilter<"TMasterData"> | string | null
   }
 
   export type TMasterTypeWhereInput = {
@@ -407591,6 +411853,9 @@ export namespace Prisma {
     cDel?: BoolFilter<"TSMS"> | boolean
     SMSGroupType?: IntNullableFilter<"TSMS"> | number | null
     SMSGroupID?: IntNullableFilter<"TSMS"> | number | null
+    SendToLINE?: BoolNullableFilter<"TSMS"> | boolean | null
+    SendFileWithOwner?: BoolNullableFilter<"TSMS"> | boolean | null
+    SendFileWithOwnerOCR?: BoolNullableFilter<"TSMS"> | boolean | null
   }
 
   export type TSMSOrderByWithRelationInput = {
@@ -407617,6 +411882,9 @@ export namespace Prisma {
     cDel?: SortOrder
     SMSGroupType?: SortOrderInput | SortOrder
     SMSGroupID?: SortOrderInput | SortOrder
+    SendToLINE?: SortOrderInput | SortOrder
+    SendFileWithOwner?: SortOrderInput | SortOrder
+    SendFileWithOwnerOCR?: SortOrderInput | SortOrder
   }
 
   export type TSMSWhereUniqueInput = Prisma.AtLeast<{
@@ -407647,6 +411915,9 @@ export namespace Prisma {
     cDel?: BoolFilter<"TSMS"> | boolean
     SMSGroupType?: IntNullableFilter<"TSMS"> | number | null
     SMSGroupID?: IntNullableFilter<"TSMS"> | number | null
+    SendToLINE?: BoolNullableFilter<"TSMS"> | boolean | null
+    SendFileWithOwner?: BoolNullableFilter<"TSMS"> | boolean | null
+    SendFileWithOwnerOCR?: BoolNullableFilter<"TSMS"> | boolean | null
   }, "SchoolID_nSMS">
 
   export type TSMSOrderByWithAggregationInput = {
@@ -407673,6 +411944,9 @@ export namespace Prisma {
     cDel?: SortOrder
     SMSGroupType?: SortOrderInput | SortOrder
     SMSGroupID?: SortOrderInput | SortOrder
+    SendToLINE?: SortOrderInput | SortOrder
+    SendFileWithOwner?: SortOrderInput | SortOrder
+    SendFileWithOwnerOCR?: SortOrderInput | SortOrder
     _count?: TSMSCountOrderByAggregateInput
     _avg?: TSMSAvgOrderByAggregateInput
     _max?: TSMSMaxOrderByAggregateInput
@@ -407707,6 +411981,9 @@ export namespace Prisma {
     cDel?: BoolWithAggregatesFilter<"TSMS"> | boolean
     SMSGroupType?: IntNullableWithAggregatesFilter<"TSMS"> | number | null
     SMSGroupID?: IntNullableWithAggregatesFilter<"TSMS"> | number | null
+    SendToLINE?: BoolNullableWithAggregatesFilter<"TSMS"> | boolean | null
+    SendFileWithOwner?: BoolNullableWithAggregatesFilter<"TSMS"> | boolean | null
+    SendFileWithOwnerOCR?: BoolNullableWithAggregatesFilter<"TSMS"> | boolean | null
   }
 
   export type TSMSGroupWhereInput = {
@@ -408457,81 +412734,6 @@ export namespace Prisma {
     TotalCost?: DecimalNullableWithAggregatesFilter<"TStockLog"> | Decimal | DecimalJsLike | number | string | null
     AvgCost?: DecimalNullableWithAggregatesFilter<"TStockLog"> | Decimal | DecimalJsLike | number | string | null
     Created?: DateTimeNullableWithAggregatesFilter<"TStockLog"> | Date | string | null
-  }
-
-  export type TStockLog_OldWhereInput = {
-    AND?: TStockLog_OldWhereInput | TStockLog_OldWhereInput[]
-    OR?: TStockLog_OldWhereInput[]
-    NOT?: TStockLog_OldWhereInput | TStockLog_OldWhereInput[]
-    ID?: IntFilter<"TStockLog_Old"> | number
-    SchoolID?: IntFilter<"TStockLog_Old"> | number
-    ProductID?: IntNullableFilter<"TStockLog_Old"> | number | null
-    ShopID?: IntNullableFilter<"TStockLog_Old"> | number | null
-    LogDate?: DateTimeNullableFilter<"TStockLog_Old"> | Date | string | null
-    TotalQty?: IntNullableFilter<"TStockLog_Old"> | number | null
-    TotalCost?: DecimalNullableFilter<"TStockLog_Old"> | Decimal | DecimalJsLike | number | string | null
-    AvgCost?: DecimalNullableFilter<"TStockLog_Old"> | Decimal | DecimalJsLike | number | string | null
-    Created?: DateTimeNullableFilter<"TStockLog_Old"> | Date | string | null
-  }
-
-  export type TStockLog_OldOrderByWithRelationInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    ProductID?: SortOrderInput | SortOrder
-    ShopID?: SortOrderInput | SortOrder
-    LogDate?: SortOrderInput | SortOrder
-    TotalQty?: SortOrderInput | SortOrder
-    TotalCost?: SortOrderInput | SortOrder
-    AvgCost?: SortOrderInput | SortOrder
-    Created?: SortOrderInput | SortOrder
-  }
-
-  export type TStockLog_OldWhereUniqueInput = Prisma.AtLeast<{
-    ID_SchoolID?: TStockLog_OldIDSchoolIDCompoundUniqueInput
-    AND?: TStockLog_OldWhereInput | TStockLog_OldWhereInput[]
-    OR?: TStockLog_OldWhereInput[]
-    NOT?: TStockLog_OldWhereInput | TStockLog_OldWhereInput[]
-    ID?: IntFilter<"TStockLog_Old"> | number
-    SchoolID?: IntFilter<"TStockLog_Old"> | number
-    ProductID?: IntNullableFilter<"TStockLog_Old"> | number | null
-    ShopID?: IntNullableFilter<"TStockLog_Old"> | number | null
-    LogDate?: DateTimeNullableFilter<"TStockLog_Old"> | Date | string | null
-    TotalQty?: IntNullableFilter<"TStockLog_Old"> | number | null
-    TotalCost?: DecimalNullableFilter<"TStockLog_Old"> | Decimal | DecimalJsLike | number | string | null
-    AvgCost?: DecimalNullableFilter<"TStockLog_Old"> | Decimal | DecimalJsLike | number | string | null
-    Created?: DateTimeNullableFilter<"TStockLog_Old"> | Date | string | null
-  }, "ID_SchoolID">
-
-  export type TStockLog_OldOrderByWithAggregationInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    ProductID?: SortOrderInput | SortOrder
-    ShopID?: SortOrderInput | SortOrder
-    LogDate?: SortOrderInput | SortOrder
-    TotalQty?: SortOrderInput | SortOrder
-    TotalCost?: SortOrderInput | SortOrder
-    AvgCost?: SortOrderInput | SortOrder
-    Created?: SortOrderInput | SortOrder
-    _count?: TStockLog_OldCountOrderByAggregateInput
-    _avg?: TStockLog_OldAvgOrderByAggregateInput
-    _max?: TStockLog_OldMaxOrderByAggregateInput
-    _min?: TStockLog_OldMinOrderByAggregateInput
-    _sum?: TStockLog_OldSumOrderByAggregateInput
-  }
-
-  export type TStockLog_OldScalarWhereWithAggregatesInput = {
-    AND?: TStockLog_OldScalarWhereWithAggregatesInput | TStockLog_OldScalarWhereWithAggregatesInput[]
-    OR?: TStockLog_OldScalarWhereWithAggregatesInput[]
-    NOT?: TStockLog_OldScalarWhereWithAggregatesInput | TStockLog_OldScalarWhereWithAggregatesInput[]
-    ID?: IntWithAggregatesFilter<"TStockLog_Old"> | number
-    SchoolID?: IntWithAggregatesFilter<"TStockLog_Old"> | number
-    ProductID?: IntNullableWithAggregatesFilter<"TStockLog_Old"> | number | null
-    ShopID?: IntNullableWithAggregatesFilter<"TStockLog_Old"> | number | null
-    LogDate?: DateTimeNullableWithAggregatesFilter<"TStockLog_Old"> | Date | string | null
-    TotalQty?: IntNullableWithAggregatesFilter<"TStockLog_Old"> | number | null
-    TotalCost?: DecimalNullableWithAggregatesFilter<"TStockLog_Old"> | Decimal | DecimalJsLike | number | string | null
-    AvgCost?: DecimalNullableWithAggregatesFilter<"TStockLog_Old"> | Decimal | DecimalJsLike | number | string | null
-    Created?: DateTimeNullableWithAggregatesFilter<"TStockLog_Old"> | Date | string | null
   }
 
   export type TStudentCardInfoWhereInput = {
@@ -410501,6 +414703,7 @@ export namespace Prisma {
     UpdatedDate?: DateTimeNullableFilter<"TTitleList"> | Date | string | null
     cDel?: BoolFilter<"TTitleList"> | boolean
     MasterCode?: StringNullableFilter<"TTitleList"> | string | null
+    nTitleIdStr?: StringNullableFilter<"TTitleList"> | string | null
   }
 
   export type TTitleListOrderByWithRelationInput = {
@@ -410517,6 +414720,7 @@ export namespace Prisma {
     UpdatedDate?: SortOrderInput | SortOrder
     cDel?: SortOrder
     MasterCode?: SortOrderInput | SortOrder
+    nTitleIdStr?: SortOrderInput | SortOrder
   }
 
   export type TTitleListWhereUniqueInput = Prisma.AtLeast<{
@@ -410537,6 +414741,7 @@ export namespace Prisma {
     UpdatedDate?: DateTimeNullableFilter<"TTitleList"> | Date | string | null
     cDel?: BoolFilter<"TTitleList"> | boolean
     MasterCode?: StringNullableFilter<"TTitleList"> | string | null
+    nTitleIdStr?: StringNullableFilter<"TTitleList"> | string | null
   }, "SchoolID_nTitleid">
 
   export type TTitleListOrderByWithAggregationInput = {
@@ -410553,6 +414758,7 @@ export namespace Prisma {
     UpdatedDate?: SortOrderInput | SortOrder
     cDel?: SortOrder
     MasterCode?: SortOrderInput | SortOrder
+    nTitleIdStr?: SortOrderInput | SortOrder
     _count?: TTitleListCountOrderByAggregateInput
     _avg?: TTitleListAvgOrderByAggregateInput
     _max?: TTitleListMaxOrderByAggregateInput
@@ -410577,6 +414783,7 @@ export namespace Prisma {
     UpdatedDate?: DateTimeNullableWithAggregatesFilter<"TTitleList"> | Date | string | null
     cDel?: BoolWithAggregatesFilter<"TTitleList"> | boolean
     MasterCode?: StringNullableWithAggregatesFilter<"TTitleList"> | string | null
+    nTitleIdStr?: StringNullableWithAggregatesFilter<"TTitleList"> | string | null
   }
 
   export type TTranscriptNumberWhereInput = {
@@ -413408,136 +417615,6 @@ export namespace Prisma {
     Status?: StringNullableWithAggregatesFilter<"UserAPIResponse"> | string | null
   }
 
-  export type UserDailyBalance_BackupWhereInput = {
-    AND?: UserDailyBalance_BackupWhereInput | UserDailyBalance_BackupWhereInput[]
-    OR?: UserDailyBalance_BackupWhereInput[]
-    NOT?: UserDailyBalance_BackupWhereInput | UserDailyBalance_BackupWhereInput[]
-    ID?: IntFilter<"UserDailyBalance_Backup"> | number
-    SchoolID?: IntFilter<"UserDailyBalance_Backup"> | number
-    sID?: IntFilter<"UserDailyBalance_Backup"> | number
-    sStudentID?: StringNullableFilter<"UserDailyBalance_Backup"> | string | null
-    sName?: StringNullableFilter<"UserDailyBalance_Backup"> | string | null
-    sLastname?: StringNullableFilter<"UserDailyBalance_Backup"> | string | null
-    cDel?: StringNullableFilter<"UserDailyBalance_Backup"> | string | null
-    cType?: StringFilter<"UserDailyBalance_Backup"> | string
-    BusinessDate?: DateTimeNullableFilter<"UserDailyBalance_Backup"> | Date | string | null
-    OpeningBalance?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFilter<"UserDailyBalance_Backup"> | string
-    Balance?: DecimalNullableFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: DecimalNullableFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: FloatFilter<"UserDailyBalance_Backup"> | number
-  }
-
-  export type UserDailyBalance_BackupOrderByWithRelationInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrderInput | SortOrder
-    sName?: SortOrderInput | SortOrder
-    sLastname?: SortOrderInput | SortOrder
-    cDel?: SortOrderInput | SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrderInput | SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrderInput | SortOrder
-    OfflineSales?: SortOrderInput | SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalance_BackupWhereUniqueInput = Prisma.AtLeast<{
-    ID_SchoolID_sID?: UserDailyBalance_BackupIDSchoolIDSIDCompoundUniqueInput
-    AND?: UserDailyBalance_BackupWhereInput | UserDailyBalance_BackupWhereInput[]
-    OR?: UserDailyBalance_BackupWhereInput[]
-    NOT?: UserDailyBalance_BackupWhereInput | UserDailyBalance_BackupWhereInput[]
-    ID?: IntFilter<"UserDailyBalance_Backup"> | number
-    SchoolID?: IntFilter<"UserDailyBalance_Backup"> | number
-    sID?: IntFilter<"UserDailyBalance_Backup"> | number
-    sStudentID?: StringNullableFilter<"UserDailyBalance_Backup"> | string | null
-    sName?: StringNullableFilter<"UserDailyBalance_Backup"> | string | null
-    sLastname?: StringNullableFilter<"UserDailyBalance_Backup"> | string | null
-    cDel?: StringNullableFilter<"UserDailyBalance_Backup"> | string | null
-    cType?: StringFilter<"UserDailyBalance_Backup"> | string
-    BusinessDate?: DateTimeNullableFilter<"UserDailyBalance_Backup"> | Date | string | null
-    OpeningBalance?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFilter<"UserDailyBalance_Backup"> | string
-    Balance?: DecimalNullableFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: DecimalNullableFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: FloatFilter<"UserDailyBalance_Backup"> | number
-  }, "ID_SchoolID_sID">
-
-  export type UserDailyBalance_BackupOrderByWithAggregationInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrderInput | SortOrder
-    sName?: SortOrderInput | SortOrder
-    sLastname?: SortOrderInput | SortOrder
-    cDel?: SortOrderInput | SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrderInput | SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrderInput | SortOrder
-    OfflineSales?: SortOrderInput | SortOrder
-    SystemBalance?: SortOrder
-    _count?: UserDailyBalance_BackupCountOrderByAggregateInput
-    _avg?: UserDailyBalance_BackupAvgOrderByAggregateInput
-    _max?: UserDailyBalance_BackupMaxOrderByAggregateInput
-    _min?: UserDailyBalance_BackupMinOrderByAggregateInput
-    _sum?: UserDailyBalance_BackupSumOrderByAggregateInput
-  }
-
-  export type UserDailyBalance_BackupScalarWhereWithAggregatesInput = {
-    AND?: UserDailyBalance_BackupScalarWhereWithAggregatesInput | UserDailyBalance_BackupScalarWhereWithAggregatesInput[]
-    OR?: UserDailyBalance_BackupScalarWhereWithAggregatesInput[]
-    NOT?: UserDailyBalance_BackupScalarWhereWithAggregatesInput | UserDailyBalance_BackupScalarWhereWithAggregatesInput[]
-    ID?: IntWithAggregatesFilter<"UserDailyBalance_Backup"> | number
-    SchoolID?: IntWithAggregatesFilter<"UserDailyBalance_Backup"> | number
-    sID?: IntWithAggregatesFilter<"UserDailyBalance_Backup"> | number
-    sStudentID?: StringNullableWithAggregatesFilter<"UserDailyBalance_Backup"> | string | null
-    sName?: StringNullableWithAggregatesFilter<"UserDailyBalance_Backup"> | string | null
-    sLastname?: StringNullableWithAggregatesFilter<"UserDailyBalance_Backup"> | string | null
-    cDel?: StringNullableWithAggregatesFilter<"UserDailyBalance_Backup"> | string | null
-    cType?: StringWithAggregatesFilter<"UserDailyBalance_Backup"> | string
-    BusinessDate?: DateTimeNullableWithAggregatesFilter<"UserDailyBalance_Backup"> | Date | string | null
-    OpeningBalance?: DecimalWithAggregatesFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalWithAggregatesFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalWithAggregatesFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalWithAggregatesFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalWithAggregatesFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalWithAggregatesFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalWithAggregatesFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringWithAggregatesFilter<"UserDailyBalance_Backup"> | string
-    Balance?: DecimalNullableWithAggregatesFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: DecimalNullableWithAggregatesFilter<"UserDailyBalance_Backup"> | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: FloatWithAggregatesFilter<"UserDailyBalance_Backup"> | number
-  }
-
   export type UserDailyBalance_SearlizeWhereInput = {
     AND?: UserDailyBalance_SearlizeWhereInput | UserDailyBalance_SearlizeWhereInput[]
     OR?: UserDailyBalance_SearlizeWhereInput[]
@@ -413593,131 +417670,6 @@ export namespace Prisma {
     LastUpdatedDate?: DateTimeWithAggregatesFilter<"UserDailyBalance_Searlize"> | Date | string
   }
 
-  export type UserDailyBalanceTempWhereInput = {
-    AND?: UserDailyBalanceTempWhereInput | UserDailyBalanceTempWhereInput[]
-    OR?: UserDailyBalanceTempWhereInput[]
-    NOT?: UserDailyBalanceTempWhereInput | UserDailyBalanceTempWhereInput[]
-    ID?: IntFilter<"UserDailyBalanceTemp"> | number
-    SchoolID?: IntFilter<"UserDailyBalanceTemp"> | number
-    sID?: IntFilter<"UserDailyBalanceTemp"> | number
-    sStudentID?: StringNullableFilter<"UserDailyBalanceTemp"> | string | null
-    sName?: StringNullableFilter<"UserDailyBalanceTemp"> | string | null
-    sLastname?: StringNullableFilter<"UserDailyBalanceTemp"> | string | null
-    cDel?: StringNullableFilter<"UserDailyBalanceTemp"> | string | null
-    cType?: StringFilter<"UserDailyBalanceTemp"> | string
-    BusinessDate?: DateTimeNullableFilter<"UserDailyBalanceTemp"> | Date | string | null
-    OpeningBalance?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFilter<"UserDailyBalanceTemp"> | string
-    Balance?: DecimalNullableFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-  }
-
-  export type UserDailyBalanceTempOrderByWithRelationInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrderInput | SortOrder
-    sName?: SortOrderInput | SortOrder
-    sLastname?: SortOrderInput | SortOrder
-    cDel?: SortOrderInput | SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrderInput | SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrderInput | SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalanceTempWhereUniqueInput = Prisma.AtLeast<{
-    ID_SchoolID_sID?: UserDailyBalanceTempIDSchoolIDSIDCompoundUniqueInput
-    AND?: UserDailyBalanceTempWhereInput | UserDailyBalanceTempWhereInput[]
-    OR?: UserDailyBalanceTempWhereInput[]
-    NOT?: UserDailyBalanceTempWhereInput | UserDailyBalanceTempWhereInput[]
-    ID?: IntFilter<"UserDailyBalanceTemp"> | number
-    SchoolID?: IntFilter<"UserDailyBalanceTemp"> | number
-    sID?: IntFilter<"UserDailyBalanceTemp"> | number
-    sStudentID?: StringNullableFilter<"UserDailyBalanceTemp"> | string | null
-    sName?: StringNullableFilter<"UserDailyBalanceTemp"> | string | null
-    sLastname?: StringNullableFilter<"UserDailyBalanceTemp"> | string | null
-    cDel?: StringNullableFilter<"UserDailyBalanceTemp"> | string | null
-    cType?: StringFilter<"UserDailyBalanceTemp"> | string
-    BusinessDate?: DateTimeNullableFilter<"UserDailyBalanceTemp"> | Date | string | null
-    OpeningBalance?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFilter<"UserDailyBalanceTemp"> | string
-    Balance?: DecimalNullableFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: DecimalFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-  }, "ID_SchoolID_sID">
-
-  export type UserDailyBalanceTempOrderByWithAggregationInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrderInput | SortOrder
-    sName?: SortOrderInput | SortOrder
-    sLastname?: SortOrderInput | SortOrder
-    cDel?: SortOrderInput | SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrderInput | SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrderInput | SortOrder
-    SystemBalance?: SortOrder
-    _count?: UserDailyBalanceTempCountOrderByAggregateInput
-    _avg?: UserDailyBalanceTempAvgOrderByAggregateInput
-    _max?: UserDailyBalanceTempMaxOrderByAggregateInput
-    _min?: UserDailyBalanceTempMinOrderByAggregateInput
-    _sum?: UserDailyBalanceTempSumOrderByAggregateInput
-  }
-
-  export type UserDailyBalanceTempScalarWhereWithAggregatesInput = {
-    AND?: UserDailyBalanceTempScalarWhereWithAggregatesInput | UserDailyBalanceTempScalarWhereWithAggregatesInput[]
-    OR?: UserDailyBalanceTempScalarWhereWithAggregatesInput[]
-    NOT?: UserDailyBalanceTempScalarWhereWithAggregatesInput | UserDailyBalanceTempScalarWhereWithAggregatesInput[]
-    ID?: IntWithAggregatesFilter<"UserDailyBalanceTemp"> | number
-    SchoolID?: IntWithAggregatesFilter<"UserDailyBalanceTemp"> | number
-    sID?: IntWithAggregatesFilter<"UserDailyBalanceTemp"> | number
-    sStudentID?: StringNullableWithAggregatesFilter<"UserDailyBalanceTemp"> | string | null
-    sName?: StringNullableWithAggregatesFilter<"UserDailyBalanceTemp"> | string | null
-    sLastname?: StringNullableWithAggregatesFilter<"UserDailyBalanceTemp"> | string | null
-    cDel?: StringNullableWithAggregatesFilter<"UserDailyBalanceTemp"> | string | null
-    cType?: StringWithAggregatesFilter<"UserDailyBalanceTemp"> | string
-    BusinessDate?: DateTimeNullableWithAggregatesFilter<"UserDailyBalanceTemp"> | Date | string | null
-    OpeningBalance?: DecimalWithAggregatesFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalWithAggregatesFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalWithAggregatesFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalWithAggregatesFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalWithAggregatesFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalWithAggregatesFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalWithAggregatesFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringWithAggregatesFilter<"UserDailyBalanceTemp"> | string
-    Balance?: DecimalNullableWithAggregatesFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: DecimalWithAggregatesFilter<"UserDailyBalanceTemp"> | Decimal | DecimalJsLike | number | string
-  }
-
   export type UserDailyBalanceTempCardWhereInput = {
     AND?: UserDailyBalanceTempCardWhereInput | UserDailyBalanceTempCardWhereInput[]
     OR?: UserDailyBalanceTempCardWhereInput[]
@@ -413737,7 +417689,7 @@ export namespace Prisma {
     TotalCancelWithDraw?: DecimalFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string
     TotalSales?: DecimalFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string
     TotalCancelSales?: DecimalFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFilter<"UserDailyBalanceTempCard"> | string
+    LastUpdatedDate?: DateTimeFilter<"UserDailyBalanceTempCard"> | Date | string
     Balance?: DecimalNullableFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: StringNullableFilter<"UserDailyBalanceTempCard"> | string | null
     OfflineSales?: DecimalNullableFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string | null
@@ -413791,7 +417743,7 @@ export namespace Prisma {
     TotalCancelWithDraw?: DecimalFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string
     TotalSales?: DecimalFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string
     TotalCancelSales?: DecimalFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFilter<"UserDailyBalanceTempCard"> | string
+    LastUpdatedDate?: DateTimeFilter<"UserDailyBalanceTempCard"> | Date | string
     Balance?: DecimalNullableFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: StringNullableFilter<"UserDailyBalanceTempCard"> | string | null
     OfflineSales?: DecimalNullableFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string | null
@@ -413848,7 +417800,7 @@ export namespace Prisma {
     TotalCancelWithDraw?: DecimalWithAggregatesFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string
     TotalSales?: DecimalWithAggregatesFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string
     TotalCancelSales?: DecimalWithAggregatesFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringWithAggregatesFilter<"UserDailyBalanceTempCard"> | string
+    LastUpdatedDate?: DateTimeWithAggregatesFilter<"UserDailyBalanceTempCard"> | Date | string
     Balance?: DecimalNullableWithAggregatesFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: StringNullableWithAggregatesFilter<"UserDailyBalanceTempCard"> | string | null
     OfflineSales?: DecimalNullableWithAggregatesFilter<"UserDailyBalanceTempCard"> | Decimal | DecimalJsLike | number | string | null
@@ -413998,6 +417950,764 @@ export namespace Prisma {
     UserType?: StringWithAggregatesFilter<"UserUsedLimit"> | string
     UsedAmount?: DecimalWithAggregatesFilter<"UserUsedLimit"> | Decimal | DecimalJsLike | number | string
     Tstamp?: DateTimeWithAggregatesFilter<"UserUsedLimit"> | Date | string
+  }
+
+  export type dbo_DeviceActivityLogWhereInput = {
+    AND?: dbo_DeviceActivityLogWhereInput | dbo_DeviceActivityLogWhereInput[]
+    OR?: dbo_DeviceActivityLogWhereInput[]
+    NOT?: dbo_DeviceActivityLogWhereInput | dbo_DeviceActivityLogWhereInput[]
+    LogID?: StringFilter<"dbo_DeviceActivityLog"> | string
+    SchoolID?: IntFilter<"dbo_DeviceActivityLog"> | number
+    DeviceID?: StringFilter<"dbo_DeviceActivityLog"> | string
+    LogDescription?: StringFilter<"dbo_DeviceActivityLog"> | string
+    Tstamp?: DateTimeFilter<"dbo_DeviceActivityLog"> | Date | string
+    DeviceType?: StringFilter<"dbo_DeviceActivityLog"> | string
+  }
+
+  export type dbo_DeviceActivityLogOrderByWithRelationInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type dbo_DeviceActivityLogWhereUniqueInput = Prisma.AtLeast<{
+    LogID?: string
+    AND?: dbo_DeviceActivityLogWhereInput | dbo_DeviceActivityLogWhereInput[]
+    OR?: dbo_DeviceActivityLogWhereInput[]
+    NOT?: dbo_DeviceActivityLogWhereInput | dbo_DeviceActivityLogWhereInput[]
+    SchoolID?: IntFilter<"dbo_DeviceActivityLog"> | number
+    DeviceID?: StringFilter<"dbo_DeviceActivityLog"> | string
+    LogDescription?: StringFilter<"dbo_DeviceActivityLog"> | string
+    Tstamp?: DateTimeFilter<"dbo_DeviceActivityLog"> | Date | string
+    DeviceType?: StringFilter<"dbo_DeviceActivityLog"> | string
+  }, "LogID">
+
+  export type dbo_DeviceActivityLogOrderByWithAggregationInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+    _count?: dbo_DeviceActivityLogCountOrderByAggregateInput
+    _avg?: dbo_DeviceActivityLogAvgOrderByAggregateInput
+    _max?: dbo_DeviceActivityLogMaxOrderByAggregateInput
+    _min?: dbo_DeviceActivityLogMinOrderByAggregateInput
+    _sum?: dbo_DeviceActivityLogSumOrderByAggregateInput
+  }
+
+  export type dbo_DeviceActivityLogScalarWhereWithAggregatesInput = {
+    AND?: dbo_DeviceActivityLogScalarWhereWithAggregatesInput | dbo_DeviceActivityLogScalarWhereWithAggregatesInput[]
+    OR?: dbo_DeviceActivityLogScalarWhereWithAggregatesInput[]
+    NOT?: dbo_DeviceActivityLogScalarWhereWithAggregatesInput | dbo_DeviceActivityLogScalarWhereWithAggregatesInput[]
+    LogID?: StringWithAggregatesFilter<"dbo_DeviceActivityLog"> | string
+    SchoolID?: IntWithAggregatesFilter<"dbo_DeviceActivityLog"> | number
+    DeviceID?: StringWithAggregatesFilter<"dbo_DeviceActivityLog"> | string
+    LogDescription?: StringWithAggregatesFilter<"dbo_DeviceActivityLog"> | string
+    Tstamp?: DateTimeWithAggregatesFilter<"dbo_DeviceActivityLog"> | Date | string
+    DeviceType?: StringWithAggregatesFilter<"dbo_DeviceActivityLog"> | string
+  }
+
+  export type DeviceActivityLog_BackupWhereInput = {
+    AND?: DeviceActivityLog_BackupWhereInput | DeviceActivityLog_BackupWhereInput[]
+    OR?: DeviceActivityLog_BackupWhereInput[]
+    NOT?: DeviceActivityLog_BackupWhereInput | DeviceActivityLog_BackupWhereInput[]
+    LogID?: StringFilter<"DeviceActivityLog_Backup"> | string
+    SchoolID?: IntFilter<"DeviceActivityLog_Backup"> | number
+    DeviceID?: StringFilter<"DeviceActivityLog_Backup"> | string
+    LogDescription?: StringFilter<"DeviceActivityLog_Backup"> | string
+    Tstamp?: DateTimeFilter<"DeviceActivityLog_Backup"> | Date | string
+    DeviceType?: StringFilter<"DeviceActivityLog_Backup"> | string
+  }
+
+  export type DeviceActivityLog_BackupOrderByWithRelationInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type DeviceActivityLog_BackupWhereUniqueInput = Prisma.AtLeast<{
+    LogID?: string
+    AND?: DeviceActivityLog_BackupWhereInput | DeviceActivityLog_BackupWhereInput[]
+    OR?: DeviceActivityLog_BackupWhereInput[]
+    NOT?: DeviceActivityLog_BackupWhereInput | DeviceActivityLog_BackupWhereInput[]
+    SchoolID?: IntFilter<"DeviceActivityLog_Backup"> | number
+    DeviceID?: StringFilter<"DeviceActivityLog_Backup"> | string
+    LogDescription?: StringFilter<"DeviceActivityLog_Backup"> | string
+    Tstamp?: DateTimeFilter<"DeviceActivityLog_Backup"> | Date | string
+    DeviceType?: StringFilter<"DeviceActivityLog_Backup"> | string
+  }, "LogID">
+
+  export type DeviceActivityLog_BackupOrderByWithAggregationInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+    _count?: DeviceActivityLog_BackupCountOrderByAggregateInput
+    _avg?: DeviceActivityLog_BackupAvgOrderByAggregateInput
+    _max?: DeviceActivityLog_BackupMaxOrderByAggregateInput
+    _min?: DeviceActivityLog_BackupMinOrderByAggregateInput
+    _sum?: DeviceActivityLog_BackupSumOrderByAggregateInput
+  }
+
+  export type DeviceActivityLog_BackupScalarWhereWithAggregatesInput = {
+    AND?: DeviceActivityLog_BackupScalarWhereWithAggregatesInput | DeviceActivityLog_BackupScalarWhereWithAggregatesInput[]
+    OR?: DeviceActivityLog_BackupScalarWhereWithAggregatesInput[]
+    NOT?: DeviceActivityLog_BackupScalarWhereWithAggregatesInput | DeviceActivityLog_BackupScalarWhereWithAggregatesInput[]
+    LogID?: StringWithAggregatesFilter<"DeviceActivityLog_Backup"> | string
+    SchoolID?: IntWithAggregatesFilter<"DeviceActivityLog_Backup"> | number
+    DeviceID?: StringWithAggregatesFilter<"DeviceActivityLog_Backup"> | string
+    LogDescription?: StringWithAggregatesFilter<"DeviceActivityLog_Backup"> | string
+    Tstamp?: DateTimeWithAggregatesFilter<"DeviceActivityLog_Backup"> | Date | string
+    DeviceType?: StringWithAggregatesFilter<"DeviceActivityLog_Backup"> | string
+  }
+
+  export type DeviceActivityLog_HistoryWhereInput = {
+    AND?: DeviceActivityLog_HistoryWhereInput | DeviceActivityLog_HistoryWhereInput[]
+    OR?: DeviceActivityLog_HistoryWhereInput[]
+    NOT?: DeviceActivityLog_HistoryWhereInput | DeviceActivityLog_HistoryWhereInput[]
+    LogID?: StringFilter<"DeviceActivityLog_History"> | string
+    SchoolID?: IntFilter<"DeviceActivityLog_History"> | number
+    DeviceID?: StringFilter<"DeviceActivityLog_History"> | string
+    LogDescription?: StringFilter<"DeviceActivityLog_History"> | string
+    Tstamp?: DateTimeFilter<"DeviceActivityLog_History"> | Date | string
+    DeviceType?: StringFilter<"DeviceActivityLog_History"> | string
+  }
+
+  export type DeviceActivityLog_HistoryOrderByWithRelationInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type DeviceActivityLog_HistoryWhereUniqueInput = Prisma.AtLeast<{
+    LogID?: string
+    AND?: DeviceActivityLog_HistoryWhereInput | DeviceActivityLog_HistoryWhereInput[]
+    OR?: DeviceActivityLog_HistoryWhereInput[]
+    NOT?: DeviceActivityLog_HistoryWhereInput | DeviceActivityLog_HistoryWhereInput[]
+    SchoolID?: IntFilter<"DeviceActivityLog_History"> | number
+    DeviceID?: StringFilter<"DeviceActivityLog_History"> | string
+    LogDescription?: StringFilter<"DeviceActivityLog_History"> | string
+    Tstamp?: DateTimeFilter<"DeviceActivityLog_History"> | Date | string
+    DeviceType?: StringFilter<"DeviceActivityLog_History"> | string
+  }, "LogID">
+
+  export type DeviceActivityLog_HistoryOrderByWithAggregationInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+    _count?: DeviceActivityLog_HistoryCountOrderByAggregateInput
+    _avg?: DeviceActivityLog_HistoryAvgOrderByAggregateInput
+    _max?: DeviceActivityLog_HistoryMaxOrderByAggregateInput
+    _min?: DeviceActivityLog_HistoryMinOrderByAggregateInput
+    _sum?: DeviceActivityLog_HistorySumOrderByAggregateInput
+  }
+
+  export type DeviceActivityLog_HistoryScalarWhereWithAggregatesInput = {
+    AND?: DeviceActivityLog_HistoryScalarWhereWithAggregatesInput | DeviceActivityLog_HistoryScalarWhereWithAggregatesInput[]
+    OR?: DeviceActivityLog_HistoryScalarWhereWithAggregatesInput[]
+    NOT?: DeviceActivityLog_HistoryScalarWhereWithAggregatesInput | DeviceActivityLog_HistoryScalarWhereWithAggregatesInput[]
+    LogID?: StringWithAggregatesFilter<"DeviceActivityLog_History"> | string
+    SchoolID?: IntWithAggregatesFilter<"DeviceActivityLog_History"> | number
+    DeviceID?: StringWithAggregatesFilter<"DeviceActivityLog_History"> | string
+    LogDescription?: StringWithAggregatesFilter<"DeviceActivityLog_History"> | string
+    Tstamp?: DateTimeWithAggregatesFilter<"DeviceActivityLog_History"> | Date | string
+    DeviceType?: StringWithAggregatesFilter<"DeviceActivityLog_History"> | string
+  }
+
+  export type DeviceDailyStatus_BackupWhereInput = {
+    AND?: DeviceDailyStatus_BackupWhereInput | DeviceDailyStatus_BackupWhereInput[]
+    OR?: DeviceDailyStatus_BackupWhereInput[]
+    NOT?: DeviceDailyStatus_BackupWhereInput | DeviceDailyStatus_BackupWhereInput[]
+    DeviceStatusID?: StringFilter<"DeviceDailyStatus_Backup"> | string
+    SchoolID?: IntFilter<"DeviceDailyStatus_Backup"> | number
+    DeviceID?: StringFilter<"DeviceDailyStatus_Backup"> | string
+    Online?: BoolFilter<"DeviceDailyStatus_Backup"> | boolean
+    OnlineTime?: DateTimeNullableFilter<"DeviceDailyStatus_Backup"> | Date | string | null
+    Login?: BoolFilter<"DeviceDailyStatus_Backup"> | boolean
+    LoginTime?: DateTimeNullableFilter<"DeviceDailyStatus_Backup"> | Date | string | null
+    LogOut?: BoolFilter<"DeviceDailyStatus_Backup"> | boolean
+    LogoutTime?: DateTimeNullableFilter<"DeviceDailyStatus_Backup"> | Date | string | null
+    Tstamp?: DateTimeFilter<"DeviceDailyStatus_Backup"> | Date | string
+    BusinessDate?: DateTimeFilter<"DeviceDailyStatus_Backup"> | Date | string
+    AppVersion?: StringNullableFilter<"DeviceDailyStatus_Backup"> | string | null
+    AppName?: StringNullableFilter<"DeviceDailyStatus_Backup"> | string | null
+    Note?: StringNullableFilter<"DeviceDailyStatus_Backup"> | string | null
+    UserLoginID?: IntNullableFilter<"DeviceDailyStatus_Backup"> | number | null
+    DeviceTypeID?: IntNullableFilter<"DeviceDailyStatus_Backup"> | number | null
+  }
+
+  export type DeviceDailyStatus_BackupOrderByWithRelationInput = {
+    DeviceStatusID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    Online?: SortOrder
+    OnlineTime?: SortOrderInput | SortOrder
+    Login?: SortOrder
+    LoginTime?: SortOrderInput | SortOrder
+    LogOut?: SortOrder
+    LogoutTime?: SortOrderInput | SortOrder
+    Tstamp?: SortOrder
+    BusinessDate?: SortOrder
+    AppVersion?: SortOrderInput | SortOrder
+    AppName?: SortOrderInput | SortOrder
+    Note?: SortOrderInput | SortOrder
+    UserLoginID?: SortOrderInput | SortOrder
+    DeviceTypeID?: SortOrderInput | SortOrder
+  }
+
+  export type DeviceDailyStatus_BackupWhereUniqueInput = Prisma.AtLeast<{
+    DeviceStatusID?: string
+    AND?: DeviceDailyStatus_BackupWhereInput | DeviceDailyStatus_BackupWhereInput[]
+    OR?: DeviceDailyStatus_BackupWhereInput[]
+    NOT?: DeviceDailyStatus_BackupWhereInput | DeviceDailyStatus_BackupWhereInput[]
+    SchoolID?: IntFilter<"DeviceDailyStatus_Backup"> | number
+    DeviceID?: StringFilter<"DeviceDailyStatus_Backup"> | string
+    Online?: BoolFilter<"DeviceDailyStatus_Backup"> | boolean
+    OnlineTime?: DateTimeNullableFilter<"DeviceDailyStatus_Backup"> | Date | string | null
+    Login?: BoolFilter<"DeviceDailyStatus_Backup"> | boolean
+    LoginTime?: DateTimeNullableFilter<"DeviceDailyStatus_Backup"> | Date | string | null
+    LogOut?: BoolFilter<"DeviceDailyStatus_Backup"> | boolean
+    LogoutTime?: DateTimeNullableFilter<"DeviceDailyStatus_Backup"> | Date | string | null
+    Tstamp?: DateTimeFilter<"DeviceDailyStatus_Backup"> | Date | string
+    BusinessDate?: DateTimeFilter<"DeviceDailyStatus_Backup"> | Date | string
+    AppVersion?: StringNullableFilter<"DeviceDailyStatus_Backup"> | string | null
+    AppName?: StringNullableFilter<"DeviceDailyStatus_Backup"> | string | null
+    Note?: StringNullableFilter<"DeviceDailyStatus_Backup"> | string | null
+    UserLoginID?: IntNullableFilter<"DeviceDailyStatus_Backup"> | number | null
+    DeviceTypeID?: IntNullableFilter<"DeviceDailyStatus_Backup"> | number | null
+  }, "DeviceStatusID">
+
+  export type DeviceDailyStatus_BackupOrderByWithAggregationInput = {
+    DeviceStatusID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    Online?: SortOrder
+    OnlineTime?: SortOrderInput | SortOrder
+    Login?: SortOrder
+    LoginTime?: SortOrderInput | SortOrder
+    LogOut?: SortOrder
+    LogoutTime?: SortOrderInput | SortOrder
+    Tstamp?: SortOrder
+    BusinessDate?: SortOrder
+    AppVersion?: SortOrderInput | SortOrder
+    AppName?: SortOrderInput | SortOrder
+    Note?: SortOrderInput | SortOrder
+    UserLoginID?: SortOrderInput | SortOrder
+    DeviceTypeID?: SortOrderInput | SortOrder
+    _count?: DeviceDailyStatus_BackupCountOrderByAggregateInput
+    _avg?: DeviceDailyStatus_BackupAvgOrderByAggregateInput
+    _max?: DeviceDailyStatus_BackupMaxOrderByAggregateInput
+    _min?: DeviceDailyStatus_BackupMinOrderByAggregateInput
+    _sum?: DeviceDailyStatus_BackupSumOrderByAggregateInput
+  }
+
+  export type DeviceDailyStatus_BackupScalarWhereWithAggregatesInput = {
+    AND?: DeviceDailyStatus_BackupScalarWhereWithAggregatesInput | DeviceDailyStatus_BackupScalarWhereWithAggregatesInput[]
+    OR?: DeviceDailyStatus_BackupScalarWhereWithAggregatesInput[]
+    NOT?: DeviceDailyStatus_BackupScalarWhereWithAggregatesInput | DeviceDailyStatus_BackupScalarWhereWithAggregatesInput[]
+    DeviceStatusID?: StringWithAggregatesFilter<"DeviceDailyStatus_Backup"> | string
+    SchoolID?: IntWithAggregatesFilter<"DeviceDailyStatus_Backup"> | number
+    DeviceID?: StringWithAggregatesFilter<"DeviceDailyStatus_Backup"> | string
+    Online?: BoolWithAggregatesFilter<"DeviceDailyStatus_Backup"> | boolean
+    OnlineTime?: DateTimeNullableWithAggregatesFilter<"DeviceDailyStatus_Backup"> | Date | string | null
+    Login?: BoolWithAggregatesFilter<"DeviceDailyStatus_Backup"> | boolean
+    LoginTime?: DateTimeNullableWithAggregatesFilter<"DeviceDailyStatus_Backup"> | Date | string | null
+    LogOut?: BoolWithAggregatesFilter<"DeviceDailyStatus_Backup"> | boolean
+    LogoutTime?: DateTimeNullableWithAggregatesFilter<"DeviceDailyStatus_Backup"> | Date | string | null
+    Tstamp?: DateTimeWithAggregatesFilter<"DeviceDailyStatus_Backup"> | Date | string
+    BusinessDate?: DateTimeWithAggregatesFilter<"DeviceDailyStatus_Backup"> | Date | string
+    AppVersion?: StringNullableWithAggregatesFilter<"DeviceDailyStatus_Backup"> | string | null
+    AppName?: StringNullableWithAggregatesFilter<"DeviceDailyStatus_Backup"> | string | null
+    Note?: StringNullableWithAggregatesFilter<"DeviceDailyStatus_Backup"> | string | null
+    UserLoginID?: IntNullableWithAggregatesFilter<"DeviceDailyStatus_Backup"> | number | null
+    DeviceTypeID?: IntNullableWithAggregatesFilter<"DeviceDailyStatus_Backup"> | number | null
+  }
+
+  export type DeviceTypeWhereInput = {
+    AND?: DeviceTypeWhereInput | DeviceTypeWhereInput[]
+    OR?: DeviceTypeWhereInput[]
+    NOT?: DeviceTypeWhereInput | DeviceTypeWhereInput[]
+    DeviceTypeID?: IntFilter<"DeviceType"> | number
+    TypeNameEN?: StringNullableFilter<"DeviceType"> | string | null
+    TypeNameTH?: StringNullableFilter<"DeviceType"> | string | null
+  }
+
+  export type DeviceTypeOrderByWithRelationInput = {
+    DeviceTypeID?: SortOrder
+    TypeNameEN?: SortOrderInput | SortOrder
+    TypeNameTH?: SortOrderInput | SortOrder
+  }
+
+  export type DeviceTypeWhereUniqueInput = Prisma.AtLeast<{
+    DeviceTypeID?: number
+    AND?: DeviceTypeWhereInput | DeviceTypeWhereInput[]
+    OR?: DeviceTypeWhereInput[]
+    NOT?: DeviceTypeWhereInput | DeviceTypeWhereInput[]
+    TypeNameEN?: StringNullableFilter<"DeviceType"> | string | null
+    TypeNameTH?: StringNullableFilter<"DeviceType"> | string | null
+  }, "DeviceTypeID">
+
+  export type DeviceTypeOrderByWithAggregationInput = {
+    DeviceTypeID?: SortOrder
+    TypeNameEN?: SortOrderInput | SortOrder
+    TypeNameTH?: SortOrderInput | SortOrder
+    _count?: DeviceTypeCountOrderByAggregateInput
+    _avg?: DeviceTypeAvgOrderByAggregateInput
+    _max?: DeviceTypeMaxOrderByAggregateInput
+    _min?: DeviceTypeMinOrderByAggregateInput
+    _sum?: DeviceTypeSumOrderByAggregateInput
+  }
+
+  export type DeviceTypeScalarWhereWithAggregatesInput = {
+    AND?: DeviceTypeScalarWhereWithAggregatesInput | DeviceTypeScalarWhereWithAggregatesInput[]
+    OR?: DeviceTypeScalarWhereWithAggregatesInput[]
+    NOT?: DeviceTypeScalarWhereWithAggregatesInput | DeviceTypeScalarWhereWithAggregatesInput[]
+    DeviceTypeID?: IntWithAggregatesFilter<"DeviceType"> | number
+    TypeNameEN?: StringNullableWithAggregatesFilter<"DeviceType"> | string | null
+    TypeNameTH?: StringNullableWithAggregatesFilter<"DeviceType"> | string | null
+  }
+
+  export type QueryPerformanceLogWhereInput = {
+    AND?: QueryPerformanceLogWhereInput | QueryPerformanceLogWhereInput[]
+    OR?: QueryPerformanceLogWhereInput[]
+    NOT?: QueryPerformanceLogWhereInput | QueryPerformanceLogWhereInput[]
+    LogID?: IntFilter<"QueryPerformanceLog"> | number
+    LogDateTime?: DateTimeNullableFilter<"QueryPerformanceLog"> | Date | string | null
+    QueryName?: StringNullableFilter<"QueryPerformanceLog"> | string | null
+    CPUTime_ms?: IntNullableFilter<"QueryPerformanceLog"> | number | null
+    ElapsedTime_ms?: IntNullableFilter<"QueryPerformanceLog"> | number | null
+    LogicalReads?: BigIntNullableFilter<"QueryPerformanceLog"> | bigint | number | null
+    BlockingSessionID?: IntNullableFilter<"QueryPerformanceLog"> | number | null
+    WaitType?: StringNullableFilter<"QueryPerformanceLog"> | string | null
+    WaitResource?: StringNullableFilter<"QueryPerformanceLog"> | string | null
+    RowCount?: IntNullableFilter<"QueryPerformanceLog"> | number | null
+  }
+
+  export type QueryPerformanceLogOrderByWithRelationInput = {
+    LogID?: SortOrder
+    LogDateTime?: SortOrderInput | SortOrder
+    QueryName?: SortOrderInput | SortOrder
+    CPUTime_ms?: SortOrderInput | SortOrder
+    ElapsedTime_ms?: SortOrderInput | SortOrder
+    LogicalReads?: SortOrderInput | SortOrder
+    BlockingSessionID?: SortOrderInput | SortOrder
+    WaitType?: SortOrderInput | SortOrder
+    WaitResource?: SortOrderInput | SortOrder
+    RowCount?: SortOrderInput | SortOrder
+  }
+
+  export type QueryPerformanceLogWhereUniqueInput = Prisma.AtLeast<{
+    LogID?: number
+    AND?: QueryPerformanceLogWhereInput | QueryPerformanceLogWhereInput[]
+    OR?: QueryPerformanceLogWhereInput[]
+    NOT?: QueryPerformanceLogWhereInput | QueryPerformanceLogWhereInput[]
+    LogDateTime?: DateTimeNullableFilter<"QueryPerformanceLog"> | Date | string | null
+    QueryName?: StringNullableFilter<"QueryPerformanceLog"> | string | null
+    CPUTime_ms?: IntNullableFilter<"QueryPerformanceLog"> | number | null
+    ElapsedTime_ms?: IntNullableFilter<"QueryPerformanceLog"> | number | null
+    LogicalReads?: BigIntNullableFilter<"QueryPerformanceLog"> | bigint | number | null
+    BlockingSessionID?: IntNullableFilter<"QueryPerformanceLog"> | number | null
+    WaitType?: StringNullableFilter<"QueryPerformanceLog"> | string | null
+    WaitResource?: StringNullableFilter<"QueryPerformanceLog"> | string | null
+    RowCount?: IntNullableFilter<"QueryPerformanceLog"> | number | null
+  }, "LogID">
+
+  export type QueryPerformanceLogOrderByWithAggregationInput = {
+    LogID?: SortOrder
+    LogDateTime?: SortOrderInput | SortOrder
+    QueryName?: SortOrderInput | SortOrder
+    CPUTime_ms?: SortOrderInput | SortOrder
+    ElapsedTime_ms?: SortOrderInput | SortOrder
+    LogicalReads?: SortOrderInput | SortOrder
+    BlockingSessionID?: SortOrderInput | SortOrder
+    WaitType?: SortOrderInput | SortOrder
+    WaitResource?: SortOrderInput | SortOrder
+    RowCount?: SortOrderInput | SortOrder
+    _count?: QueryPerformanceLogCountOrderByAggregateInput
+    _avg?: QueryPerformanceLogAvgOrderByAggregateInput
+    _max?: QueryPerformanceLogMaxOrderByAggregateInput
+    _min?: QueryPerformanceLogMinOrderByAggregateInput
+    _sum?: QueryPerformanceLogSumOrderByAggregateInput
+  }
+
+  export type QueryPerformanceLogScalarWhereWithAggregatesInput = {
+    AND?: QueryPerformanceLogScalarWhereWithAggregatesInput | QueryPerformanceLogScalarWhereWithAggregatesInput[]
+    OR?: QueryPerformanceLogScalarWhereWithAggregatesInput[]
+    NOT?: QueryPerformanceLogScalarWhereWithAggregatesInput | QueryPerformanceLogScalarWhereWithAggregatesInput[]
+    LogID?: IntWithAggregatesFilter<"QueryPerformanceLog"> | number
+    LogDateTime?: DateTimeNullableWithAggregatesFilter<"QueryPerformanceLog"> | Date | string | null
+    QueryName?: StringNullableWithAggregatesFilter<"QueryPerformanceLog"> | string | null
+    CPUTime_ms?: IntNullableWithAggregatesFilter<"QueryPerformanceLog"> | number | null
+    ElapsedTime_ms?: IntNullableWithAggregatesFilter<"QueryPerformanceLog"> | number | null
+    LogicalReads?: BigIntNullableWithAggregatesFilter<"QueryPerformanceLog"> | bigint | number | null
+    BlockingSessionID?: IntNullableWithAggregatesFilter<"QueryPerformanceLog"> | number | null
+    WaitType?: StringNullableWithAggregatesFilter<"QueryPerformanceLog"> | string | null
+    WaitResource?: StringNullableWithAggregatesFilter<"QueryPerformanceLog"> | string | null
+    RowCount?: IntNullableWithAggregatesFilter<"QueryPerformanceLog"> | number | null
+  }
+
+  export type TCurrentTermDataWhereInput = {
+    AND?: TCurrentTermDataWhereInput | TCurrentTermDataWhereInput[]
+    OR?: TCurrentTermDataWhereInput[]
+    NOT?: TCurrentTermDataWhereInput | TCurrentTermDataWhereInput[]
+    nTerm?: StringFilter<"TCurrentTermData"> | string
+    dStart?: DateTimeNullableFilter<"TCurrentTermData"> | Date | string | null
+    dEnd?: DateTimeNullableFilter<"TCurrentTermData"> | Date | string | null
+    SchoolID?: IntFilter<"TCurrentTermData"> | number
+    nYear?: IntFilter<"TCurrentTermData"> | number
+    sTerm?: StringNullableFilter<"TCurrentTermData"> | string | null
+  }
+
+  export type TCurrentTermDataOrderByWithRelationInput = {
+    nTerm?: SortOrder
+    dStart?: SortOrderInput | SortOrder
+    dEnd?: SortOrderInput | SortOrder
+    SchoolID?: SortOrder
+    nYear?: SortOrder
+    sTerm?: SortOrderInput | SortOrder
+  }
+
+  export type TCurrentTermDataWhereUniqueInput = Prisma.AtLeast<{
+    nTerm_SchoolID_nYear?: TCurrentTermDataNTermSchoolIDNYearCompoundUniqueInput
+    AND?: TCurrentTermDataWhereInput | TCurrentTermDataWhereInput[]
+    OR?: TCurrentTermDataWhereInput[]
+    NOT?: TCurrentTermDataWhereInput | TCurrentTermDataWhereInput[]
+    nTerm?: StringFilter<"TCurrentTermData"> | string
+    dStart?: DateTimeNullableFilter<"TCurrentTermData"> | Date | string | null
+    dEnd?: DateTimeNullableFilter<"TCurrentTermData"> | Date | string | null
+    SchoolID?: IntFilter<"TCurrentTermData"> | number
+    nYear?: IntFilter<"TCurrentTermData"> | number
+    sTerm?: StringNullableFilter<"TCurrentTermData"> | string | null
+  }, "nTerm_SchoolID_nYear">
+
+  export type TCurrentTermDataOrderByWithAggregationInput = {
+    nTerm?: SortOrder
+    dStart?: SortOrderInput | SortOrder
+    dEnd?: SortOrderInput | SortOrder
+    SchoolID?: SortOrder
+    nYear?: SortOrder
+    sTerm?: SortOrderInput | SortOrder
+    _count?: TCurrentTermDataCountOrderByAggregateInput
+    _avg?: TCurrentTermDataAvgOrderByAggregateInput
+    _max?: TCurrentTermDataMaxOrderByAggregateInput
+    _min?: TCurrentTermDataMinOrderByAggregateInput
+    _sum?: TCurrentTermDataSumOrderByAggregateInput
+  }
+
+  export type TCurrentTermDataScalarWhereWithAggregatesInput = {
+    AND?: TCurrentTermDataScalarWhereWithAggregatesInput | TCurrentTermDataScalarWhereWithAggregatesInput[]
+    OR?: TCurrentTermDataScalarWhereWithAggregatesInput[]
+    NOT?: TCurrentTermDataScalarWhereWithAggregatesInput | TCurrentTermDataScalarWhereWithAggregatesInput[]
+    nTerm?: StringWithAggregatesFilter<"TCurrentTermData"> | string
+    dStart?: DateTimeNullableWithAggregatesFilter<"TCurrentTermData"> | Date | string | null
+    dEnd?: DateTimeNullableWithAggregatesFilter<"TCurrentTermData"> | Date | string | null
+    SchoolID?: IntWithAggregatesFilter<"TCurrentTermData"> | number
+    nYear?: IntWithAggregatesFilter<"TCurrentTermData"> | number
+    sTerm?: StringNullableWithAggregatesFilter<"TCurrentTermData"> | string | null
+  }
+
+  export type TEmpSignerReportWhereInput = {
+    AND?: TEmpSignerReportWhereInput | TEmpSignerReportWhereInput[]
+    OR?: TEmpSignerReportWhereInput[]
+    NOT?: TEmpSignerReportWhereInput | TEmpSignerReportWhereInput[]
+    ReportID?: IntFilter<"TEmpSignerReport"> | number
+    SchoolID?: IntFilter<"TEmpSignerReport"> | number
+    SignerID?: IntNullableFilter<"TEmpSignerReport"> | number | null
+    YearID?: IntNullableFilter<"TEmpSignerReport"> | number | null
+    ReportName?: StringNullableFilter<"TEmpSignerReport"> | string | null
+    ReportPart?: StringNullableFilter<"TEmpSignerReport"> | string | null
+    Created?: DateTimeNullableFilter<"TEmpSignerReport"> | Date | string | null
+    CreateBy?: IntNullableFilter<"TEmpSignerReport"> | number | null
+    Modified?: DateTimeNullableFilter<"TEmpSignerReport"> | Date | string | null
+    ModifyBy?: IntNullableFilter<"TEmpSignerReport"> | number | null
+  }
+
+  export type TEmpSignerReportOrderByWithRelationInput = {
+    ReportID?: SortOrder
+    SchoolID?: SortOrder
+    SignerID?: SortOrderInput | SortOrder
+    YearID?: SortOrderInput | SortOrder
+    ReportName?: SortOrderInput | SortOrder
+    ReportPart?: SortOrderInput | SortOrder
+    Created?: SortOrderInput | SortOrder
+    CreateBy?: SortOrderInput | SortOrder
+    Modified?: SortOrderInput | SortOrder
+    ModifyBy?: SortOrderInput | SortOrder
+  }
+
+  export type TEmpSignerReportWhereUniqueInput = Prisma.AtLeast<{
+    ReportID_SchoolID?: TEmpSignerReportReportIDSchoolIDCompoundUniqueInput
+    AND?: TEmpSignerReportWhereInput | TEmpSignerReportWhereInput[]
+    OR?: TEmpSignerReportWhereInput[]
+    NOT?: TEmpSignerReportWhereInput | TEmpSignerReportWhereInput[]
+    ReportID?: IntFilter<"TEmpSignerReport"> | number
+    SchoolID?: IntFilter<"TEmpSignerReport"> | number
+    SignerID?: IntNullableFilter<"TEmpSignerReport"> | number | null
+    YearID?: IntNullableFilter<"TEmpSignerReport"> | number | null
+    ReportName?: StringNullableFilter<"TEmpSignerReport"> | string | null
+    ReportPart?: StringNullableFilter<"TEmpSignerReport"> | string | null
+    Created?: DateTimeNullableFilter<"TEmpSignerReport"> | Date | string | null
+    CreateBy?: IntNullableFilter<"TEmpSignerReport"> | number | null
+    Modified?: DateTimeNullableFilter<"TEmpSignerReport"> | Date | string | null
+    ModifyBy?: IntNullableFilter<"TEmpSignerReport"> | number | null
+  }, "ReportID_SchoolID">
+
+  export type TEmpSignerReportOrderByWithAggregationInput = {
+    ReportID?: SortOrder
+    SchoolID?: SortOrder
+    SignerID?: SortOrderInput | SortOrder
+    YearID?: SortOrderInput | SortOrder
+    ReportName?: SortOrderInput | SortOrder
+    ReportPart?: SortOrderInput | SortOrder
+    Created?: SortOrderInput | SortOrder
+    CreateBy?: SortOrderInput | SortOrder
+    Modified?: SortOrderInput | SortOrder
+    ModifyBy?: SortOrderInput | SortOrder
+    _count?: TEmpSignerReportCountOrderByAggregateInput
+    _avg?: TEmpSignerReportAvgOrderByAggregateInput
+    _max?: TEmpSignerReportMaxOrderByAggregateInput
+    _min?: TEmpSignerReportMinOrderByAggregateInput
+    _sum?: TEmpSignerReportSumOrderByAggregateInput
+  }
+
+  export type TEmpSignerReportScalarWhereWithAggregatesInput = {
+    AND?: TEmpSignerReportScalarWhereWithAggregatesInput | TEmpSignerReportScalarWhereWithAggregatesInput[]
+    OR?: TEmpSignerReportScalarWhereWithAggregatesInput[]
+    NOT?: TEmpSignerReportScalarWhereWithAggregatesInput | TEmpSignerReportScalarWhereWithAggregatesInput[]
+    ReportID?: IntWithAggregatesFilter<"TEmpSignerReport"> | number
+    SchoolID?: IntWithAggregatesFilter<"TEmpSignerReport"> | number
+    SignerID?: IntNullableWithAggregatesFilter<"TEmpSignerReport"> | number | null
+    YearID?: IntNullableWithAggregatesFilter<"TEmpSignerReport"> | number | null
+    ReportName?: StringNullableWithAggregatesFilter<"TEmpSignerReport"> | string | null
+    ReportPart?: StringNullableWithAggregatesFilter<"TEmpSignerReport"> | string | null
+    Created?: DateTimeNullableWithAggregatesFilter<"TEmpSignerReport"> | Date | string | null
+    CreateBy?: IntNullableWithAggregatesFilter<"TEmpSignerReport"> | number | null
+    Modified?: DateTimeNullableWithAggregatesFilter<"TEmpSignerReport"> | Date | string | null
+    ModifyBy?: IntNullableWithAggregatesFilter<"TEmpSignerReport"> | number | null
+  }
+
+  export type TTeacherStudentTypeWhereInput = {
+    AND?: TTeacherStudentTypeWhereInput | TTeacherStudentTypeWhereInput[]
+    OR?: TTeacherStudentTypeWhereInput[]
+    NOT?: TTeacherStudentTypeWhereInput | TTeacherStudentTypeWhereInput[]
+    ID?: IntFilter<"TTeacherStudentType"> | number
+    StudentTypeID?: IntFilter<"TTeacherStudentType"> | number
+    SchoolID?: IntFilter<"TTeacherStudentType"> | number
+    sEmp?: IntFilter<"TTeacherStudentType"> | number
+    Status?: BoolFilter<"TTeacherStudentType"> | boolean
+    IsDel?: BoolFilter<"TTeacherStudentType"> | boolean
+    CreateDate?: DateTimeFilter<"TTeacherStudentType"> | Date | string
+    CreateBy?: IntNullableFilter<"TTeacherStudentType"> | number | null
+    UpdateDate?: DateTimeNullableFilter<"TTeacherStudentType"> | Date | string | null
+    UpdateBy?: IntNullableFilter<"TTeacherStudentType"> | number | null
+  }
+
+  export type TTeacherStudentTypeOrderByWithRelationInput = {
+    ID?: SortOrder
+    StudentTypeID?: SortOrder
+    SchoolID?: SortOrder
+    sEmp?: SortOrder
+    Status?: SortOrder
+    IsDel?: SortOrder
+    CreateDate?: SortOrder
+    CreateBy?: SortOrderInput | SortOrder
+    UpdateDate?: SortOrderInput | SortOrder
+    UpdateBy?: SortOrderInput | SortOrder
+  }
+
+  export type TTeacherStudentTypeWhereUniqueInput = Prisma.AtLeast<{
+    ID?: number
+    AND?: TTeacherStudentTypeWhereInput | TTeacherStudentTypeWhereInput[]
+    OR?: TTeacherStudentTypeWhereInput[]
+    NOT?: TTeacherStudentTypeWhereInput | TTeacherStudentTypeWhereInput[]
+    StudentTypeID?: IntFilter<"TTeacherStudentType"> | number
+    SchoolID?: IntFilter<"TTeacherStudentType"> | number
+    sEmp?: IntFilter<"TTeacherStudentType"> | number
+    Status?: BoolFilter<"TTeacherStudentType"> | boolean
+    IsDel?: BoolFilter<"TTeacherStudentType"> | boolean
+    CreateDate?: DateTimeFilter<"TTeacherStudentType"> | Date | string
+    CreateBy?: IntNullableFilter<"TTeacherStudentType"> | number | null
+    UpdateDate?: DateTimeNullableFilter<"TTeacherStudentType"> | Date | string | null
+    UpdateBy?: IntNullableFilter<"TTeacherStudentType"> | number | null
+  }, "ID">
+
+  export type TTeacherStudentTypeOrderByWithAggregationInput = {
+    ID?: SortOrder
+    StudentTypeID?: SortOrder
+    SchoolID?: SortOrder
+    sEmp?: SortOrder
+    Status?: SortOrder
+    IsDel?: SortOrder
+    CreateDate?: SortOrder
+    CreateBy?: SortOrderInput | SortOrder
+    UpdateDate?: SortOrderInput | SortOrder
+    UpdateBy?: SortOrderInput | SortOrder
+    _count?: TTeacherStudentTypeCountOrderByAggregateInput
+    _avg?: TTeacherStudentTypeAvgOrderByAggregateInput
+    _max?: TTeacherStudentTypeMaxOrderByAggregateInput
+    _min?: TTeacherStudentTypeMinOrderByAggregateInput
+    _sum?: TTeacherStudentTypeSumOrderByAggregateInput
+  }
+
+  export type TTeacherStudentTypeScalarWhereWithAggregatesInput = {
+    AND?: TTeacherStudentTypeScalarWhereWithAggregatesInput | TTeacherStudentTypeScalarWhereWithAggregatesInput[]
+    OR?: TTeacherStudentTypeScalarWhereWithAggregatesInput[]
+    NOT?: TTeacherStudentTypeScalarWhereWithAggregatesInput | TTeacherStudentTypeScalarWhereWithAggregatesInput[]
+    ID?: IntWithAggregatesFilter<"TTeacherStudentType"> | number
+    StudentTypeID?: IntWithAggregatesFilter<"TTeacherStudentType"> | number
+    SchoolID?: IntWithAggregatesFilter<"TTeacherStudentType"> | number
+    sEmp?: IntWithAggregatesFilter<"TTeacherStudentType"> | number
+    Status?: BoolWithAggregatesFilter<"TTeacherStudentType"> | boolean
+    IsDel?: BoolWithAggregatesFilter<"TTeacherStudentType"> | boolean
+    CreateDate?: DateTimeWithAggregatesFilter<"TTeacherStudentType"> | Date | string
+    CreateBy?: IntNullableWithAggregatesFilter<"TTeacherStudentType"> | number | null
+    UpdateDate?: DateTimeNullableWithAggregatesFilter<"TTeacherStudentType"> | Date | string | null
+    UpdateBy?: IntNullableWithAggregatesFilter<"TTeacherStudentType"> | number | null
+  }
+
+  export type dbo_UserDailyBalanceWhereInput = {
+    AND?: dbo_UserDailyBalanceWhereInput | dbo_UserDailyBalanceWhereInput[]
+    OR?: dbo_UserDailyBalanceWhereInput[]
+    NOT?: dbo_UserDailyBalanceWhereInput | dbo_UserDailyBalanceWhereInput[]
+    ID?: IntFilter<"dbo_UserDailyBalance"> | number
+    SchoolID?: IntFilter<"dbo_UserDailyBalance"> | number
+    sID?: IntFilter<"dbo_UserDailyBalance"> | number
+    sStudentID?: StringNullableFilter<"dbo_UserDailyBalance"> | string | null
+    sName?: StringNullableFilter<"dbo_UserDailyBalance"> | string | null
+    sLastname?: StringNullableFilter<"dbo_UserDailyBalance"> | string | null
+    cDel?: StringNullableFilter<"dbo_UserDailyBalance"> | string | null
+    cType?: StringFilter<"dbo_UserDailyBalance"> | string
+    BusinessDate?: DateTimeNullableFilter<"dbo_UserDailyBalance"> | Date | string | null
+    OpeningBalance?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalTopUp?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalWithDraw?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalSales?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalCancelSales?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    LastUpdatedDate?: StringFilter<"dbo_UserDailyBalance"> | string
+    Balance?: DecimalNullableFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: DecimalNullableFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string | null
+    SystemBalance?: FloatFilter<"dbo_UserDailyBalance"> | number
+  }
+
+  export type dbo_UserDailyBalanceOrderByWithRelationInput = {
+    ID?: SortOrder
+    SchoolID?: SortOrder
+    sID?: SortOrder
+    sStudentID?: SortOrderInput | SortOrder
+    sName?: SortOrderInput | SortOrder
+    sLastname?: SortOrderInput | SortOrder
+    cDel?: SortOrderInput | SortOrder
+    cType?: SortOrder
+    BusinessDate?: SortOrderInput | SortOrder
+    OpeningBalance?: SortOrder
+    TotalTopUp?: SortOrder
+    TotalCancelTopUp?: SortOrder
+    TotalWithDraw?: SortOrder
+    TotalCancelWithDraw?: SortOrder
+    TotalSales?: SortOrder
+    TotalCancelSales?: SortOrder
+    LastUpdatedDate?: SortOrder
+    Balance?: SortOrderInput | SortOrder
+    OfflineSales?: SortOrderInput | SortOrder
+    SystemBalance?: SortOrder
+  }
+
+  export type dbo_UserDailyBalanceWhereUniqueInput = Prisma.AtLeast<{
+    ID_SchoolID_sID?: dbo_UserDailyBalanceIDSchoolIDSIDCompoundUniqueInput
+    AND?: dbo_UserDailyBalanceWhereInput | dbo_UserDailyBalanceWhereInput[]
+    OR?: dbo_UserDailyBalanceWhereInput[]
+    NOT?: dbo_UserDailyBalanceWhereInput | dbo_UserDailyBalanceWhereInput[]
+    ID?: IntFilter<"dbo_UserDailyBalance"> | number
+    SchoolID?: IntFilter<"dbo_UserDailyBalance"> | number
+    sID?: IntFilter<"dbo_UserDailyBalance"> | number
+    sStudentID?: StringNullableFilter<"dbo_UserDailyBalance"> | string | null
+    sName?: StringNullableFilter<"dbo_UserDailyBalance"> | string | null
+    sLastname?: StringNullableFilter<"dbo_UserDailyBalance"> | string | null
+    cDel?: StringNullableFilter<"dbo_UserDailyBalance"> | string | null
+    cType?: StringFilter<"dbo_UserDailyBalance"> | string
+    BusinessDate?: DateTimeNullableFilter<"dbo_UserDailyBalance"> | Date | string | null
+    OpeningBalance?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalTopUp?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalWithDraw?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalSales?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalCancelSales?: DecimalFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    LastUpdatedDate?: StringFilter<"dbo_UserDailyBalance"> | string
+    Balance?: DecimalNullableFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: DecimalNullableFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string | null
+    SystemBalance?: FloatFilter<"dbo_UserDailyBalance"> | number
+  }, "ID_SchoolID_sID">
+
+  export type dbo_UserDailyBalanceOrderByWithAggregationInput = {
+    ID?: SortOrder
+    SchoolID?: SortOrder
+    sID?: SortOrder
+    sStudentID?: SortOrderInput | SortOrder
+    sName?: SortOrderInput | SortOrder
+    sLastname?: SortOrderInput | SortOrder
+    cDel?: SortOrderInput | SortOrder
+    cType?: SortOrder
+    BusinessDate?: SortOrderInput | SortOrder
+    OpeningBalance?: SortOrder
+    TotalTopUp?: SortOrder
+    TotalCancelTopUp?: SortOrder
+    TotalWithDraw?: SortOrder
+    TotalCancelWithDraw?: SortOrder
+    TotalSales?: SortOrder
+    TotalCancelSales?: SortOrder
+    LastUpdatedDate?: SortOrder
+    Balance?: SortOrderInput | SortOrder
+    OfflineSales?: SortOrderInput | SortOrder
+    SystemBalance?: SortOrder
+    _count?: dbo_UserDailyBalanceCountOrderByAggregateInput
+    _avg?: dbo_UserDailyBalanceAvgOrderByAggregateInput
+    _max?: dbo_UserDailyBalanceMaxOrderByAggregateInput
+    _min?: dbo_UserDailyBalanceMinOrderByAggregateInput
+    _sum?: dbo_UserDailyBalanceSumOrderByAggregateInput
+  }
+
+  export type dbo_UserDailyBalanceScalarWhereWithAggregatesInput = {
+    AND?: dbo_UserDailyBalanceScalarWhereWithAggregatesInput | dbo_UserDailyBalanceScalarWhereWithAggregatesInput[]
+    OR?: dbo_UserDailyBalanceScalarWhereWithAggregatesInput[]
+    NOT?: dbo_UserDailyBalanceScalarWhereWithAggregatesInput | dbo_UserDailyBalanceScalarWhereWithAggregatesInput[]
+    ID?: IntWithAggregatesFilter<"dbo_UserDailyBalance"> | number
+    SchoolID?: IntWithAggregatesFilter<"dbo_UserDailyBalance"> | number
+    sID?: IntWithAggregatesFilter<"dbo_UserDailyBalance"> | number
+    sStudentID?: StringNullableWithAggregatesFilter<"dbo_UserDailyBalance"> | string | null
+    sName?: StringNullableWithAggregatesFilter<"dbo_UserDailyBalance"> | string | null
+    sLastname?: StringNullableWithAggregatesFilter<"dbo_UserDailyBalance"> | string | null
+    cDel?: StringNullableWithAggregatesFilter<"dbo_UserDailyBalance"> | string | null
+    cType?: StringWithAggregatesFilter<"dbo_UserDailyBalance"> | string
+    BusinessDate?: DateTimeNullableWithAggregatesFilter<"dbo_UserDailyBalance"> | Date | string | null
+    OpeningBalance?: DecimalWithAggregatesFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalTopUp?: DecimalWithAggregatesFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp?: DecimalWithAggregatesFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalWithDraw?: DecimalWithAggregatesFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw?: DecimalWithAggregatesFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalSales?: DecimalWithAggregatesFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    TotalCancelSales?: DecimalWithAggregatesFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string
+    LastUpdatedDate?: StringWithAggregatesFilter<"dbo_UserDailyBalance"> | string
+    Balance?: DecimalNullableWithAggregatesFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: DecimalNullableWithAggregatesFilter<"dbo_UserDailyBalance"> | Decimal | DecimalJsLike | number | string | null
+    SystemBalance?: FloatWithAggregatesFilter<"dbo_UserDailyBalance"> | number
   }
 
   export type AnswerKeyCreateInput = {
@@ -415775,7 +420485,7 @@ export namespace Prisma {
     sEmp?: number | null
     nTotal: Decimal | DecimalJsLike | number | string
     CardID?: string | null
-    TStamp?: Date | string
+    TStamp: Date | string
   }
 
   export type DailySalesUncheckedCreateInput = {
@@ -415788,7 +420498,7 @@ export namespace Prisma {
     sEmp?: number | null
     nTotal: Decimal | DecimalJsLike | number | string
     CardID?: string | null
-    TStamp?: Date | string
+    TStamp: Date | string
   }
 
   export type DailySalesUpdateInput = {
@@ -415825,7 +420535,7 @@ export namespace Prisma {
     sEmp?: number | null
     nTotal: Decimal | DecimalJsLike | number | string
     CardID?: string | null
-    TStamp?: Date | string
+    TStamp: Date | string
   }
 
   export type DailySalesUpdateManyMutationInput = {
@@ -416117,6 +420827,11 @@ export namespace Prisma {
     LogoutTime?: Date | string | null
     Tstamp: Date | string
     BusinessDate: Date | string
+    AppVersion?: string | null
+    AppName?: string | null
+    Note?: string | null
+    UserLoginID?: number | null
+    DeviceTypeID?: number | null
   }
 
   export type DeviceDailyStatusUncheckedCreateInput = {
@@ -416131,6 +420846,11 @@ export namespace Prisma {
     LogoutTime?: Date | string | null
     Tstamp: Date | string
     BusinessDate: Date | string
+    AppVersion?: string | null
+    AppName?: string | null
+    Note?: string | null
+    UserLoginID?: number | null
+    DeviceTypeID?: number | null
   }
 
   export type DeviceDailyStatusUpdateInput = {
@@ -416145,6 +420865,11 @@ export namespace Prisma {
     LogoutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
     BusinessDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    AppVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    AppName?: NullableStringFieldUpdateOperationsInput | string | null
+    Note?: NullableStringFieldUpdateOperationsInput | string | null
+    UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
+    DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type DeviceDailyStatusUncheckedUpdateInput = {
@@ -416159,6 +420884,11 @@ export namespace Prisma {
     LogoutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
     BusinessDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    AppVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    AppName?: NullableStringFieldUpdateOperationsInput | string | null
+    Note?: NullableStringFieldUpdateOperationsInput | string | null
+    UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
+    DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type DeviceDailyStatusCreateManyInput = {
@@ -416173,6 +420903,11 @@ export namespace Prisma {
     LogoutTime?: Date | string | null
     Tstamp: Date | string
     BusinessDate: Date | string
+    AppVersion?: string | null
+    AppName?: string | null
+    Note?: string | null
+    UserLoginID?: number | null
+    DeviceTypeID?: number | null
   }
 
   export type DeviceDailyStatusUpdateManyMutationInput = {
@@ -416187,6 +420922,11 @@ export namespace Prisma {
     LogoutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
     BusinessDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    AppVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    AppName?: NullableStringFieldUpdateOperationsInput | string | null
+    Note?: NullableStringFieldUpdateOperationsInput | string | null
+    UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
+    DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type DeviceDailyStatusUncheckedUpdateManyInput = {
@@ -416201,14 +420941,19 @@ export namespace Prisma {
     LogoutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
     BusinessDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    AppVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    AppName?: NullableStringFieldUpdateOperationsInput | string | null
+    Note?: NullableStringFieldUpdateOperationsInput | string | null
+    UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
+    DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type DeviceUpdateStatusCreateInput = {
     SchoolID: number
     DeviceID: string
     UserID: number
-    NeedToUpdate?: boolean
-    Tstamp?: Date | string
+    NeedToUpdate: boolean
+    Tstamp: Date | string
     ResponseStatus: boolean
   }
 
@@ -416217,8 +420962,8 @@ export namespace Prisma {
     SchoolID: number
     DeviceID: string
     UserID: number
-    NeedToUpdate?: boolean
-    Tstamp?: Date | string
+    NeedToUpdate: boolean
+    Tstamp: Date | string
     ResponseStatus: boolean
   }
 
@@ -416245,8 +420990,8 @@ export namespace Prisma {
     SchoolID: number
     DeviceID: string
     UserID: number
-    NeedToUpdate?: boolean
-    Tstamp?: Date | string
+    NeedToUpdate: boolean
+    Tstamp: Date | string
     ResponseStatus: boolean
   }
 
@@ -428123,8 +432868,10 @@ export namespace Prisma {
   export type TEmpSignerCreateInput = {
     SignerID?: number
     SchoolID: number
+    YearID?: number | null
     TermID?: string | null
     Position?: string | null
+    PositionEN?: string | null
     DefaultID?: number | null
     EmpID?: number | null
     Signer?: string | null
@@ -428140,8 +432887,10 @@ export namespace Prisma {
   export type TEmpSignerUncheckedCreateInput = {
     SignerID?: number
     SchoolID: number
+    YearID?: number | null
     TermID?: string | null
     Position?: string | null
+    PositionEN?: string | null
     DefaultID?: number | null
     EmpID?: number | null
     Signer?: string | null
@@ -428157,8 +432906,10 @@ export namespace Prisma {
   export type TEmpSignerUpdateInput = {
     SignerID?: IntFieldUpdateOperationsInput | number
     SchoolID?: IntFieldUpdateOperationsInput | number
+    YearID?: NullableIntFieldUpdateOperationsInput | number | null
     TermID?: NullableStringFieldUpdateOperationsInput | string | null
     Position?: NullableStringFieldUpdateOperationsInput | string | null
+    PositionEN?: NullableStringFieldUpdateOperationsInput | string | null
     DefaultID?: NullableIntFieldUpdateOperationsInput | number | null
     EmpID?: NullableIntFieldUpdateOperationsInput | number | null
     Signer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -428174,8 +432925,10 @@ export namespace Prisma {
   export type TEmpSignerUncheckedUpdateInput = {
     SignerID?: IntFieldUpdateOperationsInput | number
     SchoolID?: IntFieldUpdateOperationsInput | number
+    YearID?: NullableIntFieldUpdateOperationsInput | number | null
     TermID?: NullableStringFieldUpdateOperationsInput | string | null
     Position?: NullableStringFieldUpdateOperationsInput | string | null
+    PositionEN?: NullableStringFieldUpdateOperationsInput | string | null
     DefaultID?: NullableIntFieldUpdateOperationsInput | number | null
     EmpID?: NullableIntFieldUpdateOperationsInput | number | null
     Signer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -428190,8 +432943,10 @@ export namespace Prisma {
 
   export type TEmpSignerCreateManyInput = {
     SchoolID: number
+    YearID?: number | null
     TermID?: string | null
     Position?: string | null
+    PositionEN?: string | null
     DefaultID?: number | null
     EmpID?: number | null
     Signer?: string | null
@@ -428207,8 +432962,10 @@ export namespace Prisma {
   export type TEmpSignerUpdateManyMutationInput = {
     SignerID?: IntFieldUpdateOperationsInput | number
     SchoolID?: IntFieldUpdateOperationsInput | number
+    YearID?: NullableIntFieldUpdateOperationsInput | number | null
     TermID?: NullableStringFieldUpdateOperationsInput | string | null
     Position?: NullableStringFieldUpdateOperationsInput | string | null
+    PositionEN?: NullableStringFieldUpdateOperationsInput | string | null
     DefaultID?: NullableIntFieldUpdateOperationsInput | number | null
     EmpID?: NullableIntFieldUpdateOperationsInput | number | null
     Signer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -428224,8 +432981,10 @@ export namespace Prisma {
   export type TEmpSignerUncheckedUpdateManyInput = {
     SignerID?: IntFieldUpdateOperationsInput | number
     SchoolID?: IntFieldUpdateOperationsInput | number
+    YearID?: NullableIntFieldUpdateOperationsInput | number | null
     TermID?: NullableStringFieldUpdateOperationsInput | string | null
     Position?: NullableStringFieldUpdateOperationsInput | string | null
+    PositionEN?: NullableStringFieldUpdateOperationsInput | string | null
     DefaultID?: NullableIntFieldUpdateOperationsInput | number | null
     EmpID?: NullableIntFieldUpdateOperationsInput | number | null
     Signer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -435438,7 +440197,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
   }
 
   export type TJobListUncheckedCreateInput = {
@@ -435453,7 +440212,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
   }
 
   export type TJobListUpdateInput = {
@@ -435497,7 +440256,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
   }
 
   export type TJobListUpdateManyMutationInput = {
@@ -437026,334 +441785,6 @@ export namespace Prisma {
     Note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type TLeaveLetter_HistoryCreateInput = {
-    letterId?: number
-    letterSchoolId?: number | null
-    letterHeader?: string | null
-    letterDate?: Date | string | null
-    letterType?: string | null
-    writerId?: number | null
-    writerJob?: string | null
-    writerComment?: string | null
-    startDate?: Date | string | null
-    endDate?: Date | string | null
-    contactHomenumber?: string | null
-    contactRoad?: string | null
-    contactTumbon?: string | null
-    contactAumpher?: string | null
-    contactProvince?: string | null
-    contactPhone?: string | null
-    adminOneJob?: string | null
-    adminOneComment?: string | null
-    adminOneId?: number | null
-    adminOneDate?: Date | string | null
-    adminTwoJob?: string | null
-    adminTwoId?: number | null
-    adminTwoComment?: string | null
-    adminTwoDate?: Date | string | null
-    adminThreeJob?: string | null
-    adminThreeComment?: string | null
-    adminThreeId?: number | null
-    adminThreeDate?: Date | string | null
-    adminOneComfirm?: string | null
-    adminTwoComfirm?: string | null
-    adminThreeComfirm?: string | null
-    LetterConfirmdate?: Date | string | null
-    Season?: number | null
-    rejectOneId?: number | null
-    rejectTwoId?: number | null
-    rejectThreeId?: number | null
-    deleted?: number | null
-    letterStatus?: string | null
-    SchoolID: number
-    CreatedBy?: number | null
-    UpdatedBy?: number | null
-    CreatedDate?: Date | string | null
-    UpdatedDate?: Date | string | null
-    cDel: boolean
-  }
-
-  export type TLeaveLetter_HistoryUncheckedCreateInput = {
-    letterId?: number
-    letterSchoolId?: number | null
-    letterHeader?: string | null
-    letterDate?: Date | string | null
-    letterType?: string | null
-    writerId?: number | null
-    writerJob?: string | null
-    writerComment?: string | null
-    startDate?: Date | string | null
-    endDate?: Date | string | null
-    contactHomenumber?: string | null
-    contactRoad?: string | null
-    contactTumbon?: string | null
-    contactAumpher?: string | null
-    contactProvince?: string | null
-    contactPhone?: string | null
-    adminOneJob?: string | null
-    adminOneComment?: string | null
-    adminOneId?: number | null
-    adminOneDate?: Date | string | null
-    adminTwoJob?: string | null
-    adminTwoId?: number | null
-    adminTwoComment?: string | null
-    adminTwoDate?: Date | string | null
-    adminThreeJob?: string | null
-    adminThreeComment?: string | null
-    adminThreeId?: number | null
-    adminThreeDate?: Date | string | null
-    adminOneComfirm?: string | null
-    adminTwoComfirm?: string | null
-    adminThreeComfirm?: string | null
-    LetterConfirmdate?: Date | string | null
-    Season?: number | null
-    rejectOneId?: number | null
-    rejectTwoId?: number | null
-    rejectThreeId?: number | null
-    deleted?: number | null
-    letterStatus?: string | null
-    SchoolID: number
-    CreatedBy?: number | null
-    UpdatedBy?: number | null
-    CreatedDate?: Date | string | null
-    UpdatedDate?: Date | string | null
-    cDel: boolean
-  }
-
-  export type TLeaveLetter_HistoryUpdateInput = {
-    letterId?: IntFieldUpdateOperationsInput | number
-    letterSchoolId?: NullableIntFieldUpdateOperationsInput | number | null
-    letterHeader?: NullableStringFieldUpdateOperationsInput | string | null
-    letterDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    letterType?: NullableStringFieldUpdateOperationsInput | string | null
-    writerId?: NullableIntFieldUpdateOperationsInput | number | null
-    writerJob?: NullableStringFieldUpdateOperationsInput | string | null
-    writerComment?: NullableStringFieldUpdateOperationsInput | string | null
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    contactHomenumber?: NullableStringFieldUpdateOperationsInput | string | null
-    contactRoad?: NullableStringFieldUpdateOperationsInput | string | null
-    contactTumbon?: NullableStringFieldUpdateOperationsInput | string | null
-    contactAumpher?: NullableStringFieldUpdateOperationsInput | string | null
-    contactProvince?: NullableStringFieldUpdateOperationsInput | string | null
-    contactPhone?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminOneDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminTwoJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminTwoComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminThreeJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminThreeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminOneComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    LetterConfirmdate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    Season?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectOneId?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectTwoId?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectThreeId?: NullableIntFieldUpdateOperationsInput | number | null
-    deleted?: NullableIntFieldUpdateOperationsInput | number | null
-    letterStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    CreatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    UpdatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    CreatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cDel?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type TLeaveLetter_HistoryUncheckedUpdateInput = {
-    letterId?: IntFieldUpdateOperationsInput | number
-    letterSchoolId?: NullableIntFieldUpdateOperationsInput | number | null
-    letterHeader?: NullableStringFieldUpdateOperationsInput | string | null
-    letterDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    letterType?: NullableStringFieldUpdateOperationsInput | string | null
-    writerId?: NullableIntFieldUpdateOperationsInput | number | null
-    writerJob?: NullableStringFieldUpdateOperationsInput | string | null
-    writerComment?: NullableStringFieldUpdateOperationsInput | string | null
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    contactHomenumber?: NullableStringFieldUpdateOperationsInput | string | null
-    contactRoad?: NullableStringFieldUpdateOperationsInput | string | null
-    contactTumbon?: NullableStringFieldUpdateOperationsInput | string | null
-    contactAumpher?: NullableStringFieldUpdateOperationsInput | string | null
-    contactProvince?: NullableStringFieldUpdateOperationsInput | string | null
-    contactPhone?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminOneDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminTwoJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminTwoComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminThreeJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminThreeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminOneComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    LetterConfirmdate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    Season?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectOneId?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectTwoId?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectThreeId?: NullableIntFieldUpdateOperationsInput | number | null
-    deleted?: NullableIntFieldUpdateOperationsInput | number | null
-    letterStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    CreatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    UpdatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    CreatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cDel?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type TLeaveLetter_HistoryCreateManyInput = {
-    letterSchoolId?: number | null
-    letterHeader?: string | null
-    letterDate?: Date | string | null
-    letterType?: string | null
-    writerId?: number | null
-    writerJob?: string | null
-    writerComment?: string | null
-    startDate?: Date | string | null
-    endDate?: Date | string | null
-    contactHomenumber?: string | null
-    contactRoad?: string | null
-    contactTumbon?: string | null
-    contactAumpher?: string | null
-    contactProvince?: string | null
-    contactPhone?: string | null
-    adminOneJob?: string | null
-    adminOneComment?: string | null
-    adminOneId?: number | null
-    adminOneDate?: Date | string | null
-    adminTwoJob?: string | null
-    adminTwoId?: number | null
-    adminTwoComment?: string | null
-    adminTwoDate?: Date | string | null
-    adminThreeJob?: string | null
-    adminThreeComment?: string | null
-    adminThreeId?: number | null
-    adminThreeDate?: Date | string | null
-    adminOneComfirm?: string | null
-    adminTwoComfirm?: string | null
-    adminThreeComfirm?: string | null
-    LetterConfirmdate?: Date | string | null
-    Season?: number | null
-    rejectOneId?: number | null
-    rejectTwoId?: number | null
-    rejectThreeId?: number | null
-    deleted?: number | null
-    letterStatus?: string | null
-    SchoolID: number
-    CreatedBy?: number | null
-    UpdatedBy?: number | null
-    CreatedDate?: Date | string | null
-    UpdatedDate?: Date | string | null
-    cDel: boolean
-  }
-
-  export type TLeaveLetter_HistoryUpdateManyMutationInput = {
-    letterId?: IntFieldUpdateOperationsInput | number
-    letterSchoolId?: NullableIntFieldUpdateOperationsInput | number | null
-    letterHeader?: NullableStringFieldUpdateOperationsInput | string | null
-    letterDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    letterType?: NullableStringFieldUpdateOperationsInput | string | null
-    writerId?: NullableIntFieldUpdateOperationsInput | number | null
-    writerJob?: NullableStringFieldUpdateOperationsInput | string | null
-    writerComment?: NullableStringFieldUpdateOperationsInput | string | null
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    contactHomenumber?: NullableStringFieldUpdateOperationsInput | string | null
-    contactRoad?: NullableStringFieldUpdateOperationsInput | string | null
-    contactTumbon?: NullableStringFieldUpdateOperationsInput | string | null
-    contactAumpher?: NullableStringFieldUpdateOperationsInput | string | null
-    contactProvince?: NullableStringFieldUpdateOperationsInput | string | null
-    contactPhone?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminOneDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminTwoJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminTwoComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminThreeJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminThreeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminOneComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    LetterConfirmdate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    Season?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectOneId?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectTwoId?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectThreeId?: NullableIntFieldUpdateOperationsInput | number | null
-    deleted?: NullableIntFieldUpdateOperationsInput | number | null
-    letterStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    CreatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    UpdatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    CreatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cDel?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type TLeaveLetter_HistoryUncheckedUpdateManyInput = {
-    letterId?: IntFieldUpdateOperationsInput | number
-    letterSchoolId?: NullableIntFieldUpdateOperationsInput | number | null
-    letterHeader?: NullableStringFieldUpdateOperationsInput | string | null
-    letterDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    letterType?: NullableStringFieldUpdateOperationsInput | string | null
-    writerId?: NullableIntFieldUpdateOperationsInput | number | null
-    writerJob?: NullableStringFieldUpdateOperationsInput | string | null
-    writerComment?: NullableStringFieldUpdateOperationsInput | string | null
-    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    contactHomenumber?: NullableStringFieldUpdateOperationsInput | string | null
-    contactRoad?: NullableStringFieldUpdateOperationsInput | string | null
-    contactTumbon?: NullableStringFieldUpdateOperationsInput | string | null
-    contactAumpher?: NullableStringFieldUpdateOperationsInput | string | null
-    contactProvince?: NullableStringFieldUpdateOperationsInput | string | null
-    contactPhone?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminOneId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminOneDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminTwoJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminTwoComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminThreeJob?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeComment?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeId?: NullableIntFieldUpdateOperationsInput | number | null
-    adminThreeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    adminOneComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    adminTwoComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    adminThreeComfirm?: NullableStringFieldUpdateOperationsInput | string | null
-    LetterConfirmdate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    Season?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectOneId?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectTwoId?: NullableIntFieldUpdateOperationsInput | number | null
-    rejectThreeId?: NullableIntFieldUpdateOperationsInput | number | null
-    deleted?: NullableIntFieldUpdateOperationsInput | number | null
-    letterStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    CreatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    UpdatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    CreatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cDel?: BoolFieldUpdateOperationsInput | boolean
-  }
-
   export type TLeaveLetterFilesCreateInput = {
     letterId?: number | null
     sFileName?: string | null
@@ -437917,7 +442348,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
     deviceType?: number | null
     LeaveID?: number | null
   }
@@ -437936,7 +442367,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
     deviceType?: number | null
     LeaveID?: number | null
   }
@@ -437992,7 +442423,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
     deviceType?: number | null
     LeaveID?: number | null
   }
@@ -438169,7 +442600,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
   }
 
   export type TLogLearnTimeScanUncheckedCreateInput = {
@@ -438188,7 +442619,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
   }
 
   export type TLogLearnTimeScanUpdateInput = {
@@ -438244,7 +442675,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
   }
 
   export type TLogLearnTimeScanUpdateManyMutationInput = {
@@ -438531,7 +442962,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
     deviceType?: number | null
     LeaveID?: number | null
   }
@@ -438553,7 +442984,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
     deviceType?: number | null
     LeaveID?: number | null
   }
@@ -438618,7 +443049,7 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
     deviceType?: number | null
     LeaveID?: number | null
   }
@@ -438807,159 +443238,6 @@ export namespace Prisma {
     cDel?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type TLogUserTimeScan_Old_BkupCreateInput = {
-    sID?: number | null
-    LogTime?: Date | string | null
-    LogType?: string | null
-    LogScanStatus?: string | null
-    LognDay?: number | null
-    LogDate?: Date | string | null
-    nYear?: number | null
-    nTermSubLevel2?: number | null
-    TeacherId?: number | null
-    nLogScanID?: number
-    bLockStatus?: boolean | null
-    SchoolID: number
-    CreatedBy?: number | null
-    UpdatedBy?: number | null
-    CreatedDate?: Date | string | null
-    UpdatedDate?: Date | string | null
-    cDel?: boolean
-    deviceType?: number | null
-    LeaveID?: number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupUncheckedCreateInput = {
-    sID?: number | null
-    LogTime?: Date | string | null
-    LogType?: string | null
-    LogScanStatus?: string | null
-    LognDay?: number | null
-    LogDate?: Date | string | null
-    nYear?: number | null
-    nTermSubLevel2?: number | null
-    TeacherId?: number | null
-    nLogScanID?: number
-    bLockStatus?: boolean | null
-    SchoolID: number
-    CreatedBy?: number | null
-    UpdatedBy?: number | null
-    CreatedDate?: Date | string | null
-    UpdatedDate?: Date | string | null
-    cDel?: boolean
-    deviceType?: number | null
-    LeaveID?: number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupUpdateInput = {
-    sID?: NullableIntFieldUpdateOperationsInput | number | null
-    LogTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    LogType?: NullableStringFieldUpdateOperationsInput | string | null
-    LogScanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    LognDay?: NullableIntFieldUpdateOperationsInput | number | null
-    LogDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    nYear?: NullableIntFieldUpdateOperationsInput | number | null
-    nTermSubLevel2?: NullableIntFieldUpdateOperationsInput | number | null
-    TeacherId?: NullableIntFieldUpdateOperationsInput | number | null
-    nLogScanID?: IntFieldUpdateOperationsInput | number
-    bLockStatus?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    CreatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    UpdatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    CreatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cDel?: BoolFieldUpdateOperationsInput | boolean
-    deviceType?: NullableIntFieldUpdateOperationsInput | number | null
-    LeaveID?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupUncheckedUpdateInput = {
-    sID?: NullableIntFieldUpdateOperationsInput | number | null
-    LogTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    LogType?: NullableStringFieldUpdateOperationsInput | string | null
-    LogScanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    LognDay?: NullableIntFieldUpdateOperationsInput | number | null
-    LogDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    nYear?: NullableIntFieldUpdateOperationsInput | number | null
-    nTermSubLevel2?: NullableIntFieldUpdateOperationsInput | number | null
-    TeacherId?: NullableIntFieldUpdateOperationsInput | number | null
-    nLogScanID?: IntFieldUpdateOperationsInput | number
-    bLockStatus?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    CreatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    UpdatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    CreatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cDel?: BoolFieldUpdateOperationsInput | boolean
-    deviceType?: NullableIntFieldUpdateOperationsInput | number | null
-    LeaveID?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupCreateManyInput = {
-    sID?: number | null
-    LogTime?: Date | string | null
-    LogType?: string | null
-    LogScanStatus?: string | null
-    LognDay?: number | null
-    LogDate?: Date | string | null
-    nYear?: number | null
-    nTermSubLevel2?: number | null
-    TeacherId?: number | null
-    bLockStatus?: boolean | null
-    SchoolID: number
-    CreatedBy?: number | null
-    UpdatedBy?: number | null
-    CreatedDate?: Date | string | null
-    UpdatedDate?: Date | string | null
-    cDel?: boolean
-    deviceType?: number | null
-    LeaveID?: number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupUpdateManyMutationInput = {
-    sID?: NullableIntFieldUpdateOperationsInput | number | null
-    LogTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    LogType?: NullableStringFieldUpdateOperationsInput | string | null
-    LogScanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    LognDay?: NullableIntFieldUpdateOperationsInput | number | null
-    LogDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    nYear?: NullableIntFieldUpdateOperationsInput | number | null
-    nTermSubLevel2?: NullableIntFieldUpdateOperationsInput | number | null
-    TeacherId?: NullableIntFieldUpdateOperationsInput | number | null
-    nLogScanID?: IntFieldUpdateOperationsInput | number
-    bLockStatus?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    CreatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    UpdatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    CreatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cDel?: BoolFieldUpdateOperationsInput | boolean
-    deviceType?: NullableIntFieldUpdateOperationsInput | number | null
-    LeaveID?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type TLogUserTimeScan_Old_BkupUncheckedUpdateManyInput = {
-    sID?: NullableIntFieldUpdateOperationsInput | number | null
-    LogTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    LogType?: NullableStringFieldUpdateOperationsInput | string | null
-    LogScanStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    LognDay?: NullableIntFieldUpdateOperationsInput | number | null
-    LogDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    nYear?: NullableIntFieldUpdateOperationsInput | number | null
-    nTermSubLevel2?: NullableIntFieldUpdateOperationsInput | number | null
-    TeacherId?: NullableIntFieldUpdateOperationsInput | number | null
-    nLogScanID?: IntFieldUpdateOperationsInput | number
-    bLockStatus?: NullableBoolFieldUpdateOperationsInput | boolean | null
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    CreatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    UpdatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    CreatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cDel?: BoolFieldUpdateOperationsInput | boolean
-    deviceType?: NullableIntFieldUpdateOperationsInput | number | null
-    LeaveID?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
   export type TLogUserTimeScanNewCreateInput = {
     SchoolID: number
     sID: number
@@ -439060,6 +443338,7 @@ export namespace Prisma {
     MasterType?: string | null
     isActive?: boolean | null
     MasterOrder?: number | null
+    MasterDesEn?: string | null
   }
 
   export type TMasterDataUncheckedCreateInput = {
@@ -439069,6 +443348,7 @@ export namespace Prisma {
     MasterType?: string | null
     isActive?: boolean | null
     MasterOrder?: number | null
+    MasterDesEn?: string | null
   }
 
   export type TMasterDataUpdateInput = {
@@ -439077,6 +443357,7 @@ export namespace Prisma {
     MasterType?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     MasterOrder?: NullableIntFieldUpdateOperationsInput | number | null
+    MasterDesEn?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TMasterDataUncheckedUpdateInput = {
@@ -439086,6 +443367,7 @@ export namespace Prisma {
     MasterType?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     MasterOrder?: NullableIntFieldUpdateOperationsInput | number | null
+    MasterDesEn?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TMasterDataCreateManyInput = {
@@ -439094,6 +443376,7 @@ export namespace Prisma {
     MasterType?: string | null
     isActive?: boolean | null
     MasterOrder?: number | null
+    MasterDesEn?: string | null
   }
 
   export type TMasterDataUpdateManyMutationInput = {
@@ -439102,6 +443385,7 @@ export namespace Prisma {
     MasterType?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     MasterOrder?: NullableIntFieldUpdateOperationsInput | number | null
+    MasterDesEn?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TMasterDataUncheckedUpdateManyInput = {
@@ -439111,6 +443395,7 @@ export namespace Prisma {
     MasterType?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     MasterOrder?: NullableIntFieldUpdateOperationsInput | number | null
+    MasterDesEn?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TMasterTypeCreateInput = {
@@ -444955,8 +449240,8 @@ export namespace Prisma {
     StockStatus?: string | null
     nType?: number | null
     BusinessDate?: Date | string | null
-    Tstamp?: Date | string
-    SalesQty?: number
+    Tstamp: Date | string
+    SalesQty: number
   }
 
   export type TProductStockUncheckedCreateInput = {
@@ -444974,8 +449259,8 @@ export namespace Prisma {
     StockStatus?: string | null
     nType?: number | null
     BusinessDate?: Date | string | null
-    Tstamp?: Date | string
-    SalesQty?: number
+    Tstamp: Date | string
+    SalesQty: number
   }
 
   export type TProductStockUpdateInput = {
@@ -445029,8 +449314,8 @@ export namespace Prisma {
     StockStatus?: string | null
     nType?: number | null
     BusinessDate?: Date | string | null
-    Tstamp?: Date | string
-    SalesQty?: number
+    Tstamp: Date | string
+    SalesQty: number
   }
 
   export type TProductStockUpdateManyMutationInput = {
@@ -447573,17 +451858,17 @@ export namespace Prisma {
 
   export type TSell_APICreateInput = {
     SalesInfo: string
-    Tstamp?: Date | string
+    Tstamp: Date | string
     ProductInfo?: string | null
-    sSellID?: number
+    sSellID: number
   }
 
   export type TSell_APIUncheckedCreateInput = {
     ID?: number
     SalesInfo: string
-    Tstamp?: Date | string
+    Tstamp: Date | string
     ProductInfo?: string | null
-    sSellID?: number
+    sSellID: number
   }
 
   export type TSell_APIUpdateInput = {
@@ -447603,9 +451888,9 @@ export namespace Prisma {
 
   export type TSell_APICreateManyInput = {
     SalesInfo: string
-    Tstamp?: Date | string
+    Tstamp: Date | string
     ProductInfo?: string | null
-    sSellID?: number
+    sSellID: number
   }
 
   export type TSell_APIUpdateManyMutationInput = {
@@ -449713,6 +453998,9 @@ export namespace Prisma {
     cDel: boolean
     SMSGroupType?: number | null
     SMSGroupID?: number | null
+    SendToLINE?: boolean | null
+    SendFileWithOwner?: boolean | null
+    SendFileWithOwnerOCR?: boolean | null
   }
 
   export type TSMSUncheckedCreateInput = {
@@ -449739,6 +454027,9 @@ export namespace Prisma {
     cDel: boolean
     SMSGroupType?: number | null
     SMSGroupID?: number | null
+    SendToLINE?: boolean | null
+    SendFileWithOwner?: boolean | null
+    SendFileWithOwnerOCR?: boolean | null
   }
 
   export type TSMSUpdateInput = {
@@ -449765,6 +454056,9 @@ export namespace Prisma {
     cDel?: BoolFieldUpdateOperationsInput | boolean
     SMSGroupType?: NullableIntFieldUpdateOperationsInput | number | null
     SMSGroupID?: NullableIntFieldUpdateOperationsInput | number | null
+    SendToLINE?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    SendFileWithOwner?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    SendFileWithOwnerOCR?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type TSMSUncheckedUpdateInput = {
@@ -449791,6 +454085,9 @@ export namespace Prisma {
     cDel?: BoolFieldUpdateOperationsInput | boolean
     SMSGroupType?: NullableIntFieldUpdateOperationsInput | number | null
     SMSGroupID?: NullableIntFieldUpdateOperationsInput | number | null
+    SendToLINE?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    SendFileWithOwner?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    SendFileWithOwnerOCR?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type TSMSCreateManyInput = {
@@ -449816,6 +454113,9 @@ export namespace Prisma {
     cDel: boolean
     SMSGroupType?: number | null
     SMSGroupID?: number | null
+    SendToLINE?: boolean | null
+    SendFileWithOwner?: boolean | null
+    SendFileWithOwnerOCR?: boolean | null
   }
 
   export type TSMSUpdateManyMutationInput = {
@@ -449842,6 +454142,9 @@ export namespace Prisma {
     cDel?: BoolFieldUpdateOperationsInput | boolean
     SMSGroupType?: NullableIntFieldUpdateOperationsInput | number | null
     SMSGroupID?: NullableIntFieldUpdateOperationsInput | number | null
+    SendToLINE?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    SendFileWithOwner?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    SendFileWithOwnerOCR?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type TSMSUncheckedUpdateManyInput = {
@@ -449868,6 +454171,9 @@ export namespace Prisma {
     cDel?: BoolFieldUpdateOperationsInput | boolean
     SMSGroupType?: NullableIntFieldUpdateOperationsInput | number | null
     SMSGroupID?: NullableIntFieldUpdateOperationsInput | number | null
+    SendToLINE?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    SendFileWithOwner?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    SendFileWithOwnerOCR?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type TSMSGroupCreateInput = {
@@ -450734,89 +455040,6 @@ export namespace Prisma {
   }
 
   export type TStockLogUncheckedUpdateManyInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    ProductID?: NullableIntFieldUpdateOperationsInput | number | null
-    ShopID?: NullableIntFieldUpdateOperationsInput | number | null
-    LogDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    TotalQty?: NullableIntFieldUpdateOperationsInput | number | null
-    TotalCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    AvgCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    Created?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TStockLog_OldCreateInput = {
-    ID?: number
-    SchoolID: number
-    ProductID?: number | null
-    ShopID?: number | null
-    LogDate?: Date | string | null
-    TotalQty?: number | null
-    TotalCost?: Decimal | DecimalJsLike | number | string | null
-    AvgCost?: Decimal | DecimalJsLike | number | string | null
-    Created?: Date | string | null
-  }
-
-  export type TStockLog_OldUncheckedCreateInput = {
-    ID?: number
-    SchoolID: number
-    ProductID?: number | null
-    ShopID?: number | null
-    LogDate?: Date | string | null
-    TotalQty?: number | null
-    TotalCost?: Decimal | DecimalJsLike | number | string | null
-    AvgCost?: Decimal | DecimalJsLike | number | string | null
-    Created?: Date | string | null
-  }
-
-  export type TStockLog_OldUpdateInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    ProductID?: NullableIntFieldUpdateOperationsInput | number | null
-    ShopID?: NullableIntFieldUpdateOperationsInput | number | null
-    LogDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    TotalQty?: NullableIntFieldUpdateOperationsInput | number | null
-    TotalCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    AvgCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    Created?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TStockLog_OldUncheckedUpdateInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    ProductID?: NullableIntFieldUpdateOperationsInput | number | null
-    ShopID?: NullableIntFieldUpdateOperationsInput | number | null
-    LogDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    TotalQty?: NullableIntFieldUpdateOperationsInput | number | null
-    TotalCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    AvgCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    Created?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TStockLog_OldCreateManyInput = {
-    SchoolID: number
-    ProductID?: number | null
-    ShopID?: number | null
-    LogDate?: Date | string | null
-    TotalQty?: number | null
-    TotalCost?: Decimal | DecimalJsLike | number | string | null
-    AvgCost?: Decimal | DecimalJsLike | number | string | null
-    Created?: Date | string | null
-  }
-
-  export type TStockLog_OldUpdateManyMutationInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    ProductID?: NullableIntFieldUpdateOperationsInput | number | null
-    ShopID?: NullableIntFieldUpdateOperationsInput | number | null
-    LogDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    TotalQty?: NullableIntFieldUpdateOperationsInput | number | null
-    TotalCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    AvgCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    Created?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TStockLog_OldUncheckedUpdateManyInput = {
     ID?: IntFieldUpdateOperationsInput | number
     SchoolID?: IntFieldUpdateOperationsInput | number
     ProductID?: NullableIntFieldUpdateOperationsInput | number | null
@@ -453136,8 +457359,9 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
     MasterCode?: string | null
+    nTitleIdStr?: string | null
   }
 
   export type TTitleListUncheckedCreateInput = {
@@ -453152,8 +457376,9 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
     MasterCode?: string | null
+    nTitleIdStr?: string | null
   }
 
   export type TTitleListUpdateInput = {
@@ -453170,6 +457395,7 @@ export namespace Prisma {
     UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cDel?: BoolFieldUpdateOperationsInput | boolean
     MasterCode?: NullableStringFieldUpdateOperationsInput | string | null
+    nTitleIdStr?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TTitleListUncheckedUpdateInput = {
@@ -453186,6 +457412,7 @@ export namespace Prisma {
     UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cDel?: BoolFieldUpdateOperationsInput | boolean
     MasterCode?: NullableStringFieldUpdateOperationsInput | string | null
+    nTitleIdStr?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TTitleListCreateManyInput = {
@@ -453199,8 +457426,9 @@ export namespace Prisma {
     UpdatedBy?: number | null
     CreatedDate?: Date | string | null
     UpdatedDate?: Date | string | null
-    cDel?: boolean
+    cDel: boolean
     MasterCode?: string | null
+    nTitleIdStr?: string | null
   }
 
   export type TTitleListUpdateManyMutationInput = {
@@ -453217,6 +457445,7 @@ export namespace Prisma {
     UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cDel?: BoolFieldUpdateOperationsInput | boolean
     MasterCode?: NullableStringFieldUpdateOperationsInput | string | null
+    nTitleIdStr?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TTitleListUncheckedUpdateManyInput = {
@@ -453233,6 +457462,7 @@ export namespace Prisma {
     UpdatedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cDel?: BoolFieldUpdateOperationsInput | boolean
     MasterCode?: NullableStringFieldUpdateOperationsInput | string | null
+    nTitleIdStr?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TTranscriptNumberCreateInput = {
@@ -456259,7 +460489,7 @@ export namespace Prisma {
     sEmp?: number | null
     SchoolID?: number | null
     nMoney: Decimal | DecimalJsLike | number | string
-    Tstamp?: Date | string
+    Tstamp: Date | string
     Source?: string | null
   }
 
@@ -456269,7 +460499,7 @@ export namespace Prisma {
     sEmp?: number | null
     SchoolID?: number | null
     nMoney: Decimal | DecimalJsLike | number | string
-    Tstamp?: Date | string
+    Tstamp: Date | string
     Source?: string | null
   }
 
@@ -456297,7 +460527,7 @@ export namespace Prisma {
     sEmp?: number | null
     SchoolID?: number | null
     nMoney: Decimal | DecimalJsLike | number | string
-    Tstamp?: Date | string
+    Tstamp: Date | string
     Source?: string | null
   }
 
@@ -456431,7 +460661,7 @@ export namespace Prisma {
     CardHistoryID: string
     MethodName: string
     NFC: string
-    Tstamp?: Date | string
+    Tstamp: Date | string
   }
 
   export type UpdateTempCardUncheckedCreateInput = {
@@ -456442,7 +460672,7 @@ export namespace Prisma {
     CardHistoryID: string
     MethodName: string
     NFC: string
-    Tstamp?: Date | string
+    Tstamp: Date | string
   }
 
   export type UpdateTempCardUpdateInput = {
@@ -456473,7 +460703,7 @@ export namespace Prisma {
     CardHistoryID: string
     MethodName: string
     NFC: string
-    Tstamp?: Date | string
+    Tstamp: Date | string
   }
 
   export type UpdateTempCardUpdateManyMutationInput = {
@@ -456678,166 +460908,6 @@ export namespace Prisma {
     Status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type UserDailyBalance_BackupCreateInput = {
-    ID?: number
-    SchoolID: number
-    sID: number
-    sStudentID?: string | null
-    sName?: string | null
-    sLastname?: string | null
-    cDel?: string | null
-    cType: string
-    BusinessDate?: Date | string | null
-    OpeningBalance?: Decimal | DecimalJsLike | number | string
-    TotalTopUp: Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp: Decimal | DecimalJsLike | number | string
-    TotalWithDraw: Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
-    TotalSales: Decimal | DecimalJsLike | number | string
-    TotalCancelSales: Decimal | DecimalJsLike | number | string
-    LastUpdatedDate: string
-    Balance?: Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: number
-  }
-
-  export type UserDailyBalance_BackupUncheckedCreateInput = {
-    ID?: number
-    SchoolID: number
-    sID: number
-    sStudentID?: string | null
-    sName?: string | null
-    sLastname?: string | null
-    cDel?: string | null
-    cType: string
-    BusinessDate?: Date | string | null
-    OpeningBalance?: Decimal | DecimalJsLike | number | string
-    TotalTopUp: Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp: Decimal | DecimalJsLike | number | string
-    TotalWithDraw: Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
-    TotalSales: Decimal | DecimalJsLike | number | string
-    TotalCancelSales: Decimal | DecimalJsLike | number | string
-    LastUpdatedDate: string
-    Balance?: Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: number
-  }
-
-  export type UserDailyBalance_BackupUpdateInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    sID?: IntFieldUpdateOperationsInput | number
-    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
-    sName?: NullableStringFieldUpdateOperationsInput | string | null
-    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
-    cDel?: NullableStringFieldUpdateOperationsInput | string | null
-    cType?: StringFieldUpdateOperationsInput | string
-    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
-    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: FloatFieldUpdateOperationsInput | number
-  }
-
-  export type UserDailyBalance_BackupUncheckedUpdateInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    sID?: IntFieldUpdateOperationsInput | number
-    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
-    sName?: NullableStringFieldUpdateOperationsInput | string | null
-    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
-    cDel?: NullableStringFieldUpdateOperationsInput | string | null
-    cType?: StringFieldUpdateOperationsInput | string
-    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
-    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: FloatFieldUpdateOperationsInput | number
-  }
-
-  export type UserDailyBalance_BackupCreateManyInput = {
-    SchoolID: number
-    sID: number
-    sStudentID?: string | null
-    sName?: string | null
-    sLastname?: string | null
-    cDel?: string | null
-    cType: string
-    BusinessDate?: Date | string | null
-    OpeningBalance?: Decimal | DecimalJsLike | number | string
-    TotalTopUp: Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp: Decimal | DecimalJsLike | number | string
-    TotalWithDraw: Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
-    TotalSales: Decimal | DecimalJsLike | number | string
-    TotalCancelSales: Decimal | DecimalJsLike | number | string
-    LastUpdatedDate: string
-    Balance?: Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: number
-  }
-
-  export type UserDailyBalance_BackupUpdateManyMutationInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    sID?: IntFieldUpdateOperationsInput | number
-    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
-    sName?: NullableStringFieldUpdateOperationsInput | string | null
-    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
-    cDel?: NullableStringFieldUpdateOperationsInput | string | null
-    cType?: StringFieldUpdateOperationsInput | string
-    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
-    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: FloatFieldUpdateOperationsInput | number
-  }
-
-  export type UserDailyBalance_BackupUncheckedUpdateManyInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    sID?: IntFieldUpdateOperationsInput | number
-    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
-    sName?: NullableStringFieldUpdateOperationsInput | string | null
-    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
-    cDel?: NullableStringFieldUpdateOperationsInput | string | null
-    cType?: StringFieldUpdateOperationsInput | string
-    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
-    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: FloatFieldUpdateOperationsInput | number
-  }
-
   export type UserDailyBalance_SearlizeCreateInput = {
     ID?: number
     SchoolID: number
@@ -456893,160 +460963,6 @@ export namespace Prisma {
     LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserDailyBalanceTempCreateInput = {
-    ID: number
-    SchoolID: number
-    sID: number
-    sStudentID?: string | null
-    sName?: string | null
-    sLastname?: string | null
-    cDel?: string | null
-    cType: string
-    BusinessDate?: Date | string | null
-    OpeningBalance: Decimal | DecimalJsLike | number | string
-    TotalTopUp: Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp: Decimal | DecimalJsLike | number | string
-    TotalWithDraw: Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
-    TotalSales: Decimal | DecimalJsLike | number | string
-    TotalCancelSales: Decimal | DecimalJsLike | number | string
-    LastUpdatedDate: string
-    Balance?: Decimal | DecimalJsLike | number | string | null
-    SystemBalance: Decimal | DecimalJsLike | number | string
-  }
-
-  export type UserDailyBalanceTempUncheckedCreateInput = {
-    ID: number
-    SchoolID: number
-    sID: number
-    sStudentID?: string | null
-    sName?: string | null
-    sLastname?: string | null
-    cDel?: string | null
-    cType: string
-    BusinessDate?: Date | string | null
-    OpeningBalance: Decimal | DecimalJsLike | number | string
-    TotalTopUp: Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp: Decimal | DecimalJsLike | number | string
-    TotalWithDraw: Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
-    TotalSales: Decimal | DecimalJsLike | number | string
-    TotalCancelSales: Decimal | DecimalJsLike | number | string
-    LastUpdatedDate: string
-    Balance?: Decimal | DecimalJsLike | number | string | null
-    SystemBalance: Decimal | DecimalJsLike | number | string
-  }
-
-  export type UserDailyBalanceTempUpdateInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    sID?: IntFieldUpdateOperationsInput | number
-    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
-    sName?: NullableStringFieldUpdateOperationsInput | string | null
-    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
-    cDel?: NullableStringFieldUpdateOperationsInput | string | null
-    cType?: StringFieldUpdateOperationsInput | string
-    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
-    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-  }
-
-  export type UserDailyBalanceTempUncheckedUpdateInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    sID?: IntFieldUpdateOperationsInput | number
-    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
-    sName?: NullableStringFieldUpdateOperationsInput | string | null
-    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
-    cDel?: NullableStringFieldUpdateOperationsInput | string | null
-    cType?: StringFieldUpdateOperationsInput | string
-    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
-    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-  }
-
-  export type UserDailyBalanceTempCreateManyInput = {
-    ID: number
-    SchoolID: number
-    sID: number
-    sStudentID?: string | null
-    sName?: string | null
-    sLastname?: string | null
-    cDel?: string | null
-    cType: string
-    BusinessDate?: Date | string | null
-    OpeningBalance: Decimal | DecimalJsLike | number | string
-    TotalTopUp: Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp: Decimal | DecimalJsLike | number | string
-    TotalWithDraw: Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
-    TotalSales: Decimal | DecimalJsLike | number | string
-    TotalCancelSales: Decimal | DecimalJsLike | number | string
-    LastUpdatedDate: string
-    Balance?: Decimal | DecimalJsLike | number | string | null
-    SystemBalance: Decimal | DecimalJsLike | number | string
-  }
-
-  export type UserDailyBalanceTempUpdateManyMutationInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    sID?: IntFieldUpdateOperationsInput | number
-    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
-    sName?: NullableStringFieldUpdateOperationsInput | string | null
-    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
-    cDel?: NullableStringFieldUpdateOperationsInput | string | null
-    cType?: StringFieldUpdateOperationsInput | string
-    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
-    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-  }
-
-  export type UserDailyBalanceTempUncheckedUpdateManyInput = {
-    ID?: IntFieldUpdateOperationsInput | number
-    SchoolID?: IntFieldUpdateOperationsInput | number
-    sID?: IntFieldUpdateOperationsInput | number
-    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
-    sName?: NullableStringFieldUpdateOperationsInput | string | null
-    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
-    cDel?: NullableStringFieldUpdateOperationsInput | string | null
-    cType?: StringFieldUpdateOperationsInput | string
-    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
-    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    SystemBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-  }
-
   export type UserDailyBalanceTempCardCreateInput = {
     SchoolID: number
     sID: number
@@ -457063,12 +460979,13 @@ export namespace Prisma {
     TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
     TotalSales: Decimal | DecimalJsLike | number | string
     TotalCancelSales: Decimal | DecimalJsLike | number | string
-    LastUpdatedDate: string
+    LastUpdatedDate: Date | string
     Balance?: Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: string | null
     OfflineSales?: Decimal | DecimalJsLike | number | string | null
     Insurance: number
     SystemBalance?: number | null
+    ID: number
   }
 
   export type UserDailyBalanceTempCardUncheckedCreateInput = {
@@ -457087,13 +461004,13 @@ export namespace Prisma {
     TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
     TotalSales: Decimal | DecimalJsLike | number | string
     TotalCancelSales: Decimal | DecimalJsLike | number | string
-    LastUpdatedDate: string
+    LastUpdatedDate: Date | string
     Balance?: Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: string | null
     OfflineSales?: Decimal | DecimalJsLike | number | string | null
     Insurance: number
     SystemBalance?: number | null
-    ID?: number
+    ID: number
   }
 
   export type UserDailyBalanceTempCardUpdateInput = {
@@ -457112,12 +461029,13 @@ export namespace Prisma {
     TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
+    LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
     Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: NullableStringFieldUpdateOperationsInput | string | null
     OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     Insurance?: FloatFieldUpdateOperationsInput | number
     SystemBalance?: NullableFloatFieldUpdateOperationsInput | number | null
+    ID?: IntFieldUpdateOperationsInput | number
   }
 
   export type UserDailyBalanceTempCardUncheckedUpdateInput = {
@@ -457136,7 +461054,7 @@ export namespace Prisma {
     TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
+    LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
     Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: NullableStringFieldUpdateOperationsInput | string | null
     OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -457161,12 +461079,13 @@ export namespace Prisma {
     TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
     TotalSales: Decimal | DecimalJsLike | number | string
     TotalCancelSales: Decimal | DecimalJsLike | number | string
-    LastUpdatedDate: string
+    LastUpdatedDate: Date | string
     Balance?: Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: string | null
     OfflineSales?: Decimal | DecimalJsLike | number | string | null
     Insurance: number
     SystemBalance?: number | null
+    ID: number
   }
 
   export type UserDailyBalanceTempCardUpdateManyMutationInput = {
@@ -457185,12 +461104,13 @@ export namespace Prisma {
     TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
+    LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
     Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: NullableStringFieldUpdateOperationsInput | string | null
     OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     Insurance?: FloatFieldUpdateOperationsInput | number
     SystemBalance?: NullableFloatFieldUpdateOperationsInput | number | null
+    ID?: IntFieldUpdateOperationsInput | number
   }
 
   export type UserDailyBalanceTempCardUncheckedUpdateManyInput = {
@@ -457209,7 +461129,7 @@ export namespace Prisma {
     TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
+    LastUpdatedDate?: DateTimeFieldUpdateOperationsInput | Date | string
     Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     CardHistoryID?: NullableStringFieldUpdateOperationsInput | string | null
     OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -457322,16 +461242,16 @@ export namespace Prisma {
   export type UserUsedLimitCreateInput = {
     UserID: number
     UserType: string
-    UsedAmount?: Decimal | DecimalJsLike | number | string
-    Tstamp?: Date | string
+    UsedAmount: Decimal | DecimalJsLike | number | string
+    Tstamp: Date | string
   }
 
   export type UserUsedLimitUncheckedCreateInput = {
     ID?: number
     UserID: number
     UserType: string
-    UsedAmount?: Decimal | DecimalJsLike | number | string
-    Tstamp?: Date | string
+    UsedAmount: Decimal | DecimalJsLike | number | string
+    Tstamp: Date | string
   }
 
   export type UserUsedLimitUpdateInput = {
@@ -457352,8 +461272,8 @@ export namespace Prisma {
   export type UserUsedLimitCreateManyInput = {
     UserID: number
     UserType: string
-    UsedAmount?: Decimal | DecimalJsLike | number | string
-    Tstamp?: Date | string
+    UsedAmount: Decimal | DecimalJsLike | number | string
+    Tstamp: Date | string
   }
 
   export type UserUsedLimitUpdateManyMutationInput = {
@@ -457369,6 +461289,863 @@ export namespace Prisma {
     UserType?: StringFieldUpdateOperationsInput | string
     UsedAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type dbo_DeviceActivityLogCreateInput = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date | string
+    DeviceType: string
+  }
+
+  export type dbo_DeviceActivityLogUncheckedCreateInput = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date | string
+    DeviceType: string
+  }
+
+  export type dbo_DeviceActivityLogUpdateInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type dbo_DeviceActivityLogUncheckedUpdateInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type dbo_DeviceActivityLogCreateManyInput = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date | string
+    DeviceType: string
+  }
+
+  export type dbo_DeviceActivityLogUpdateManyMutationInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type dbo_DeviceActivityLogUncheckedUpdateManyInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DeviceActivityLog_BackupCreateInput = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date | string
+    DeviceType: string
+  }
+
+  export type DeviceActivityLog_BackupUncheckedCreateInput = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date | string
+    DeviceType: string
+  }
+
+  export type DeviceActivityLog_BackupUpdateInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DeviceActivityLog_BackupUncheckedUpdateInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DeviceActivityLog_BackupCreateManyInput = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date | string
+    DeviceType: string
+  }
+
+  export type DeviceActivityLog_BackupUpdateManyMutationInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DeviceActivityLog_BackupUncheckedUpdateManyInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DeviceActivityLog_HistoryCreateInput = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date | string
+    DeviceType: string
+  }
+
+  export type DeviceActivityLog_HistoryUncheckedCreateInput = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date | string
+    DeviceType: string
+  }
+
+  export type DeviceActivityLog_HistoryUpdateInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DeviceActivityLog_HistoryUncheckedUpdateInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DeviceActivityLog_HistoryCreateManyInput = {
+    LogID: string
+    SchoolID: number
+    DeviceID: string
+    LogDescription: string
+    Tstamp: Date | string
+    DeviceType: string
+  }
+
+  export type DeviceActivityLog_HistoryUpdateManyMutationInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DeviceActivityLog_HistoryUncheckedUpdateManyInput = {
+    LogID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    LogDescription?: StringFieldUpdateOperationsInput | string
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    DeviceType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DeviceDailyStatus_BackupCreateInput = {
+    DeviceStatusID: string
+    SchoolID: number
+    DeviceID: string
+    Online: boolean
+    OnlineTime?: Date | string | null
+    Login: boolean
+    LoginTime?: Date | string | null
+    LogOut: boolean
+    LogoutTime?: Date | string | null
+    Tstamp: Date | string
+    BusinessDate: Date | string
+    AppVersion?: string | null
+    AppName?: string | null
+    Note?: string | null
+    UserLoginID?: number | null
+    DeviceTypeID?: number | null
+  }
+
+  export type DeviceDailyStatus_BackupUncheckedCreateInput = {
+    DeviceStatusID: string
+    SchoolID: number
+    DeviceID: string
+    Online: boolean
+    OnlineTime?: Date | string | null
+    Login: boolean
+    LoginTime?: Date | string | null
+    LogOut: boolean
+    LogoutTime?: Date | string | null
+    Tstamp: Date | string
+    BusinessDate: Date | string
+    AppVersion?: string | null
+    AppName?: string | null
+    Note?: string | null
+    UserLoginID?: number | null
+    DeviceTypeID?: number | null
+  }
+
+  export type DeviceDailyStatus_BackupUpdateInput = {
+    DeviceStatusID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    Online?: BoolFieldUpdateOperationsInput | boolean
+    OnlineTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Login?: BoolFieldUpdateOperationsInput | boolean
+    LoginTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    LogOut?: BoolFieldUpdateOperationsInput | boolean
+    LogoutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    BusinessDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    AppVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    AppName?: NullableStringFieldUpdateOperationsInput | string | null
+    Note?: NullableStringFieldUpdateOperationsInput | string | null
+    UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
+    DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type DeviceDailyStatus_BackupUncheckedUpdateInput = {
+    DeviceStatusID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    Online?: BoolFieldUpdateOperationsInput | boolean
+    OnlineTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Login?: BoolFieldUpdateOperationsInput | boolean
+    LoginTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    LogOut?: BoolFieldUpdateOperationsInput | boolean
+    LogoutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    BusinessDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    AppVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    AppName?: NullableStringFieldUpdateOperationsInput | string | null
+    Note?: NullableStringFieldUpdateOperationsInput | string | null
+    UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
+    DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type DeviceDailyStatus_BackupCreateManyInput = {
+    DeviceStatusID: string
+    SchoolID: number
+    DeviceID: string
+    Online: boolean
+    OnlineTime?: Date | string | null
+    Login: boolean
+    LoginTime?: Date | string | null
+    LogOut: boolean
+    LogoutTime?: Date | string | null
+    Tstamp: Date | string
+    BusinessDate: Date | string
+    AppVersion?: string | null
+    AppName?: string | null
+    Note?: string | null
+    UserLoginID?: number | null
+    DeviceTypeID?: number | null
+  }
+
+  export type DeviceDailyStatus_BackupUpdateManyMutationInput = {
+    DeviceStatusID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    Online?: BoolFieldUpdateOperationsInput | boolean
+    OnlineTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Login?: BoolFieldUpdateOperationsInput | boolean
+    LoginTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    LogOut?: BoolFieldUpdateOperationsInput | boolean
+    LogoutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    BusinessDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    AppVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    AppName?: NullableStringFieldUpdateOperationsInput | string | null
+    Note?: NullableStringFieldUpdateOperationsInput | string | null
+    UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
+    DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type DeviceDailyStatus_BackupUncheckedUpdateManyInput = {
+    DeviceStatusID?: StringFieldUpdateOperationsInput | string
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    DeviceID?: StringFieldUpdateOperationsInput | string
+    Online?: BoolFieldUpdateOperationsInput | boolean
+    OnlineTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Login?: BoolFieldUpdateOperationsInput | boolean
+    LoginTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    LogOut?: BoolFieldUpdateOperationsInput | boolean
+    LogoutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Tstamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    BusinessDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    AppVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    AppName?: NullableStringFieldUpdateOperationsInput | string | null
+    Note?: NullableStringFieldUpdateOperationsInput | string | null
+    UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
+    DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type DeviceTypeCreateInput = {
+    DeviceTypeID: number
+    TypeNameEN?: string | null
+    TypeNameTH?: string | null
+  }
+
+  export type DeviceTypeUncheckedCreateInput = {
+    DeviceTypeID: number
+    TypeNameEN?: string | null
+    TypeNameTH?: string | null
+  }
+
+  export type DeviceTypeUpdateInput = {
+    DeviceTypeID?: IntFieldUpdateOperationsInput | number
+    TypeNameEN?: NullableStringFieldUpdateOperationsInput | string | null
+    TypeNameTH?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DeviceTypeUncheckedUpdateInput = {
+    DeviceTypeID?: IntFieldUpdateOperationsInput | number
+    TypeNameEN?: NullableStringFieldUpdateOperationsInput | string | null
+    TypeNameTH?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DeviceTypeCreateManyInput = {
+    DeviceTypeID: number
+    TypeNameEN?: string | null
+    TypeNameTH?: string | null
+  }
+
+  export type DeviceTypeUpdateManyMutationInput = {
+    DeviceTypeID?: IntFieldUpdateOperationsInput | number
+    TypeNameEN?: NullableStringFieldUpdateOperationsInput | string | null
+    TypeNameTH?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DeviceTypeUncheckedUpdateManyInput = {
+    DeviceTypeID?: IntFieldUpdateOperationsInput | number
+    TypeNameEN?: NullableStringFieldUpdateOperationsInput | string | null
+    TypeNameTH?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type QueryPerformanceLogCreateInput = {
+    LogDateTime?: Date | string | null
+    QueryName?: string | null
+    CPUTime_ms?: number | null
+    ElapsedTime_ms?: number | null
+    LogicalReads?: bigint | number | null
+    BlockingSessionID?: number | null
+    WaitType?: string | null
+    WaitResource?: string | null
+    RowCount?: number | null
+  }
+
+  export type QueryPerformanceLogUncheckedCreateInput = {
+    LogID?: number
+    LogDateTime?: Date | string | null
+    QueryName?: string | null
+    CPUTime_ms?: number | null
+    ElapsedTime_ms?: number | null
+    LogicalReads?: bigint | number | null
+    BlockingSessionID?: number | null
+    WaitType?: string | null
+    WaitResource?: string | null
+    RowCount?: number | null
+  }
+
+  export type QueryPerformanceLogUpdateInput = {
+    LogDateTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    QueryName?: NullableStringFieldUpdateOperationsInput | string | null
+    CPUTime_ms?: NullableIntFieldUpdateOperationsInput | number | null
+    ElapsedTime_ms?: NullableIntFieldUpdateOperationsInput | number | null
+    LogicalReads?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    BlockingSessionID?: NullableIntFieldUpdateOperationsInput | number | null
+    WaitType?: NullableStringFieldUpdateOperationsInput | string | null
+    WaitResource?: NullableStringFieldUpdateOperationsInput | string | null
+    RowCount?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type QueryPerformanceLogUncheckedUpdateInput = {
+    LogID?: IntFieldUpdateOperationsInput | number
+    LogDateTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    QueryName?: NullableStringFieldUpdateOperationsInput | string | null
+    CPUTime_ms?: NullableIntFieldUpdateOperationsInput | number | null
+    ElapsedTime_ms?: NullableIntFieldUpdateOperationsInput | number | null
+    LogicalReads?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    BlockingSessionID?: NullableIntFieldUpdateOperationsInput | number | null
+    WaitType?: NullableStringFieldUpdateOperationsInput | string | null
+    WaitResource?: NullableStringFieldUpdateOperationsInput | string | null
+    RowCount?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type QueryPerformanceLogCreateManyInput = {
+    LogDateTime?: Date | string | null
+    QueryName?: string | null
+    CPUTime_ms?: number | null
+    ElapsedTime_ms?: number | null
+    LogicalReads?: bigint | number | null
+    BlockingSessionID?: number | null
+    WaitType?: string | null
+    WaitResource?: string | null
+    RowCount?: number | null
+  }
+
+  export type QueryPerformanceLogUpdateManyMutationInput = {
+    LogDateTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    QueryName?: NullableStringFieldUpdateOperationsInput | string | null
+    CPUTime_ms?: NullableIntFieldUpdateOperationsInput | number | null
+    ElapsedTime_ms?: NullableIntFieldUpdateOperationsInput | number | null
+    LogicalReads?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    BlockingSessionID?: NullableIntFieldUpdateOperationsInput | number | null
+    WaitType?: NullableStringFieldUpdateOperationsInput | string | null
+    WaitResource?: NullableStringFieldUpdateOperationsInput | string | null
+    RowCount?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type QueryPerformanceLogUncheckedUpdateManyInput = {
+    LogID?: IntFieldUpdateOperationsInput | number
+    LogDateTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    QueryName?: NullableStringFieldUpdateOperationsInput | string | null
+    CPUTime_ms?: NullableIntFieldUpdateOperationsInput | number | null
+    ElapsedTime_ms?: NullableIntFieldUpdateOperationsInput | number | null
+    LogicalReads?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    BlockingSessionID?: NullableIntFieldUpdateOperationsInput | number | null
+    WaitType?: NullableStringFieldUpdateOperationsInput | string | null
+    WaitResource?: NullableStringFieldUpdateOperationsInput | string | null
+    RowCount?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type TCurrentTermDataCreateInput = {
+    nTerm: string
+    dStart?: Date | string | null
+    dEnd?: Date | string | null
+    SchoolID: number
+    nYear: number
+    sTerm?: string | null
+  }
+
+  export type TCurrentTermDataUncheckedCreateInput = {
+    nTerm: string
+    dStart?: Date | string | null
+    dEnd?: Date | string | null
+    SchoolID: number
+    nYear: number
+    sTerm?: string | null
+  }
+
+  export type TCurrentTermDataUpdateInput = {
+    nTerm?: StringFieldUpdateOperationsInput | string
+    dStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    nYear?: IntFieldUpdateOperationsInput | number
+    sTerm?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TCurrentTermDataUncheckedUpdateInput = {
+    nTerm?: StringFieldUpdateOperationsInput | string
+    dStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    nYear?: IntFieldUpdateOperationsInput | number
+    sTerm?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TCurrentTermDataCreateManyInput = {
+    nTerm: string
+    dStart?: Date | string | null
+    dEnd?: Date | string | null
+    SchoolID: number
+    nYear: number
+    sTerm?: string | null
+  }
+
+  export type TCurrentTermDataUpdateManyMutationInput = {
+    nTerm?: StringFieldUpdateOperationsInput | string
+    dStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    nYear?: IntFieldUpdateOperationsInput | number
+    sTerm?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TCurrentTermDataUncheckedUpdateManyInput = {
+    nTerm?: StringFieldUpdateOperationsInput | string
+    dStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    nYear?: IntFieldUpdateOperationsInput | number
+    sTerm?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TEmpSignerReportCreateInput = {
+    ReportID: number
+    SchoolID: number
+    SignerID?: number | null
+    YearID?: number | null
+    ReportName?: string | null
+    ReportPart?: string | null
+    Created?: Date | string | null
+    CreateBy?: number | null
+    Modified?: Date | string | null
+    ModifyBy?: number | null
+  }
+
+  export type TEmpSignerReportUncheckedCreateInput = {
+    ReportID: number
+    SchoolID: number
+    SignerID?: number | null
+    YearID?: number | null
+    ReportName?: string | null
+    ReportPart?: string | null
+    Created?: Date | string | null
+    CreateBy?: number | null
+    Modified?: Date | string | null
+    ModifyBy?: number | null
+  }
+
+  export type TEmpSignerReportUpdateInput = {
+    ReportID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    SignerID?: NullableIntFieldUpdateOperationsInput | number | null
+    YearID?: NullableIntFieldUpdateOperationsInput | number | null
+    ReportName?: NullableStringFieldUpdateOperationsInput | string | null
+    ReportPart?: NullableStringFieldUpdateOperationsInput | string | null
+    Created?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    CreateBy?: NullableIntFieldUpdateOperationsInput | number | null
+    Modified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ModifyBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type TEmpSignerReportUncheckedUpdateInput = {
+    ReportID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    SignerID?: NullableIntFieldUpdateOperationsInput | number | null
+    YearID?: NullableIntFieldUpdateOperationsInput | number | null
+    ReportName?: NullableStringFieldUpdateOperationsInput | string | null
+    ReportPart?: NullableStringFieldUpdateOperationsInput | string | null
+    Created?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    CreateBy?: NullableIntFieldUpdateOperationsInput | number | null
+    Modified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ModifyBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type TEmpSignerReportCreateManyInput = {
+    ReportID: number
+    SchoolID: number
+    SignerID?: number | null
+    YearID?: number | null
+    ReportName?: string | null
+    ReportPart?: string | null
+    Created?: Date | string | null
+    CreateBy?: number | null
+    Modified?: Date | string | null
+    ModifyBy?: number | null
+  }
+
+  export type TEmpSignerReportUpdateManyMutationInput = {
+    ReportID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    SignerID?: NullableIntFieldUpdateOperationsInput | number | null
+    YearID?: NullableIntFieldUpdateOperationsInput | number | null
+    ReportName?: NullableStringFieldUpdateOperationsInput | string | null
+    ReportPart?: NullableStringFieldUpdateOperationsInput | string | null
+    Created?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    CreateBy?: NullableIntFieldUpdateOperationsInput | number | null
+    Modified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ModifyBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type TEmpSignerReportUncheckedUpdateManyInput = {
+    ReportID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    SignerID?: NullableIntFieldUpdateOperationsInput | number | null
+    YearID?: NullableIntFieldUpdateOperationsInput | number | null
+    ReportName?: NullableStringFieldUpdateOperationsInput | string | null
+    ReportPart?: NullableStringFieldUpdateOperationsInput | string | null
+    Created?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    CreateBy?: NullableIntFieldUpdateOperationsInput | number | null
+    Modified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ModifyBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type TTeacherStudentTypeCreateInput = {
+    ID: number
+    StudentTypeID: number
+    SchoolID: number
+    sEmp: number
+    Status: boolean
+    IsDel: boolean
+    CreateDate: Date | string
+    CreateBy?: number | null
+    UpdateDate?: Date | string | null
+    UpdateBy?: number | null
+  }
+
+  export type TTeacherStudentTypeUncheckedCreateInput = {
+    ID: number
+    StudentTypeID: number
+    SchoolID: number
+    sEmp: number
+    Status: boolean
+    IsDel: boolean
+    CreateDate: Date | string
+    CreateBy?: number | null
+    UpdateDate?: Date | string | null
+    UpdateBy?: number | null
+  }
+
+  export type TTeacherStudentTypeUpdateInput = {
+    ID?: IntFieldUpdateOperationsInput | number
+    StudentTypeID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    sEmp?: IntFieldUpdateOperationsInput | number
+    Status?: BoolFieldUpdateOperationsInput | boolean
+    IsDel?: BoolFieldUpdateOperationsInput | boolean
+    CreateDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    CreateBy?: NullableIntFieldUpdateOperationsInput | number | null
+    UpdateDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    UpdateBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type TTeacherStudentTypeUncheckedUpdateInput = {
+    ID?: IntFieldUpdateOperationsInput | number
+    StudentTypeID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    sEmp?: IntFieldUpdateOperationsInput | number
+    Status?: BoolFieldUpdateOperationsInput | boolean
+    IsDel?: BoolFieldUpdateOperationsInput | boolean
+    CreateDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    CreateBy?: NullableIntFieldUpdateOperationsInput | number | null
+    UpdateDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    UpdateBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type TTeacherStudentTypeCreateManyInput = {
+    ID: number
+    StudentTypeID: number
+    SchoolID: number
+    sEmp: number
+    Status: boolean
+    IsDel: boolean
+    CreateDate: Date | string
+    CreateBy?: number | null
+    UpdateDate?: Date | string | null
+    UpdateBy?: number | null
+  }
+
+  export type TTeacherStudentTypeUpdateManyMutationInput = {
+    ID?: IntFieldUpdateOperationsInput | number
+    StudentTypeID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    sEmp?: IntFieldUpdateOperationsInput | number
+    Status?: BoolFieldUpdateOperationsInput | boolean
+    IsDel?: BoolFieldUpdateOperationsInput | boolean
+    CreateDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    CreateBy?: NullableIntFieldUpdateOperationsInput | number | null
+    UpdateDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    UpdateBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type TTeacherStudentTypeUncheckedUpdateManyInput = {
+    ID?: IntFieldUpdateOperationsInput | number
+    StudentTypeID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    sEmp?: IntFieldUpdateOperationsInput | number
+    Status?: BoolFieldUpdateOperationsInput | boolean
+    IsDel?: BoolFieldUpdateOperationsInput | boolean
+    CreateDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    CreateBy?: NullableIntFieldUpdateOperationsInput | number | null
+    UpdateDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    UpdateBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type dbo_UserDailyBalanceCreateInput = {
+    ID: number
+    SchoolID: number
+    sID: number
+    sStudentID?: string | null
+    sName?: string | null
+    sLastname?: string | null
+    cDel?: string | null
+    cType: string
+    BusinessDate?: Date | string | null
+    OpeningBalance: Decimal | DecimalJsLike | number | string
+    TotalTopUp: Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp: Decimal | DecimalJsLike | number | string
+    TotalWithDraw: Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
+    TotalSales: Decimal | DecimalJsLike | number | string
+    TotalCancelSales: Decimal | DecimalJsLike | number | string
+    LastUpdatedDate: string
+    Balance?: Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: Decimal | DecimalJsLike | number | string | null
+    SystemBalance: number
+  }
+
+  export type dbo_UserDailyBalanceUncheckedCreateInput = {
+    ID: number
+    SchoolID: number
+    sID: number
+    sStudentID?: string | null
+    sName?: string | null
+    sLastname?: string | null
+    cDel?: string | null
+    cType: string
+    BusinessDate?: Date | string | null
+    OpeningBalance: Decimal | DecimalJsLike | number | string
+    TotalTopUp: Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp: Decimal | DecimalJsLike | number | string
+    TotalWithDraw: Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
+    TotalSales: Decimal | DecimalJsLike | number | string
+    TotalCancelSales: Decimal | DecimalJsLike | number | string
+    LastUpdatedDate: string
+    Balance?: Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: Decimal | DecimalJsLike | number | string | null
+    SystemBalance: number
+  }
+
+  export type dbo_UserDailyBalanceUpdateInput = {
+    ID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    sID?: IntFieldUpdateOperationsInput | number
+    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
+    sName?: NullableStringFieldUpdateOperationsInput | string | null
+    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
+    cDel?: NullableStringFieldUpdateOperationsInput | string | null
+    cType?: StringFieldUpdateOperationsInput | string
+    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
+    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    SystemBalance?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type dbo_UserDailyBalanceUncheckedUpdateInput = {
+    ID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    sID?: IntFieldUpdateOperationsInput | number
+    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
+    sName?: NullableStringFieldUpdateOperationsInput | string | null
+    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
+    cDel?: NullableStringFieldUpdateOperationsInput | string | null
+    cType?: StringFieldUpdateOperationsInput | string
+    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
+    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    SystemBalance?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type dbo_UserDailyBalanceCreateManyInput = {
+    ID: number
+    SchoolID: number
+    sID: number
+    sStudentID?: string | null
+    sName?: string | null
+    sLastname?: string | null
+    cDel?: string | null
+    cType: string
+    BusinessDate?: Date | string | null
+    OpeningBalance: Decimal | DecimalJsLike | number | string
+    TotalTopUp: Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp: Decimal | DecimalJsLike | number | string
+    TotalWithDraw: Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw: Decimal | DecimalJsLike | number | string
+    TotalSales: Decimal | DecimalJsLike | number | string
+    TotalCancelSales: Decimal | DecimalJsLike | number | string
+    LastUpdatedDate: string
+    Balance?: Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: Decimal | DecimalJsLike | number | string | null
+    SystemBalance: number
+  }
+
+  export type dbo_UserDailyBalanceUpdateManyMutationInput = {
+    ID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    sID?: IntFieldUpdateOperationsInput | number
+    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
+    sName?: NullableStringFieldUpdateOperationsInput | string | null
+    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
+    cDel?: NullableStringFieldUpdateOperationsInput | string | null
+    cType?: StringFieldUpdateOperationsInput | string
+    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
+    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    SystemBalance?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type dbo_UserDailyBalanceUncheckedUpdateManyInput = {
+    ID?: IntFieldUpdateOperationsInput | number
+    SchoolID?: IntFieldUpdateOperationsInput | number
+    sID?: IntFieldUpdateOperationsInput | number
+    sStudentID?: NullableStringFieldUpdateOperationsInput | string | null
+    sName?: NullableStringFieldUpdateOperationsInput | string | null
+    sLastname?: NullableStringFieldUpdateOperationsInput | string | null
+    cDel?: NullableStringFieldUpdateOperationsInput | string | null
+    cType?: StringFieldUpdateOperationsInput | string
+    BusinessDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    OpeningBalance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelTopUp?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelWithDraw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    TotalCancelSales?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    LastUpdatedDate?: StringFieldUpdateOperationsInput | string
+    Balance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    OfflineSales?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    SystemBalance?: FloatFieldUpdateOperationsInput | number
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -458858,10 +463635,17 @@ export namespace Prisma {
     LogoutTime?: SortOrder
     Tstamp?: SortOrder
     BusinessDate?: SortOrder
+    AppVersion?: SortOrder
+    AppName?: SortOrder
+    Note?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
   }
 
   export type DeviceDailyStatusAvgOrderByAggregateInput = {
     SchoolID?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
   }
 
   export type DeviceDailyStatusMaxOrderByAggregateInput = {
@@ -458876,6 +463660,11 @@ export namespace Prisma {
     LogoutTime?: SortOrder
     Tstamp?: SortOrder
     BusinessDate?: SortOrder
+    AppVersion?: SortOrder
+    AppName?: SortOrder
+    Note?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
   }
 
   export type DeviceDailyStatusMinOrderByAggregateInput = {
@@ -458890,10 +463679,17 @@ export namespace Prisma {
     LogoutTime?: SortOrder
     Tstamp?: SortOrder
     BusinessDate?: SortOrder
+    AppVersion?: SortOrder
+    AppName?: SortOrder
+    Note?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
   }
 
   export type DeviceDailyStatusSumOrderByAggregateInput = {
     SchoolID?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
   }
 
   export type DeviceUpdateStatusCountOrderByAggregateInput = {
@@ -466296,8 +471092,10 @@ export namespace Prisma {
   export type TEmpSignerCountOrderByAggregateInput = {
     SignerID?: SortOrder
     SchoolID?: SortOrder
+    YearID?: SortOrder
     TermID?: SortOrder
     Position?: SortOrder
+    PositionEN?: SortOrder
     DefaultID?: SortOrder
     EmpID?: SortOrder
     Signer?: SortOrder
@@ -466313,6 +471111,7 @@ export namespace Prisma {
   export type TEmpSignerAvgOrderByAggregateInput = {
     SignerID?: SortOrder
     SchoolID?: SortOrder
+    YearID?: SortOrder
     DefaultID?: SortOrder
     EmpID?: SortOrder
     CreateBy?: SortOrder
@@ -466322,8 +471121,10 @@ export namespace Prisma {
   export type TEmpSignerMaxOrderByAggregateInput = {
     SignerID?: SortOrder
     SchoolID?: SortOrder
+    YearID?: SortOrder
     TermID?: SortOrder
     Position?: SortOrder
+    PositionEN?: SortOrder
     DefaultID?: SortOrder
     EmpID?: SortOrder
     Signer?: SortOrder
@@ -466339,8 +471140,10 @@ export namespace Prisma {
   export type TEmpSignerMinOrderByAggregateInput = {
     SignerID?: SortOrder
     SchoolID?: SortOrder
+    YearID?: SortOrder
     TermID?: SortOrder
     Position?: SortOrder
+    PositionEN?: SortOrder
     DefaultID?: SortOrder
     EmpID?: SortOrder
     Signer?: SortOrder
@@ -466356,6 +471159,7 @@ export namespace Prisma {
   export type TEmpSignerSumOrderByAggregateInput = {
     SignerID?: SortOrder
     SchoolID?: SortOrder
+    YearID?: SortOrder
     DefaultID?: SortOrder
     EmpID?: SortOrder
     CreateBy?: SortOrder
@@ -471609,186 +476413,6 @@ export namespace Prisma {
     LeaveTypeID?: SortOrder
   }
 
-  export type TLeaveLetter_HistorySchoolIDLetterIdCompoundUniqueInput = {
-    SchoolID: number
-    letterId: number
-  }
-
-  export type TLeaveLetter_HistoryCountOrderByAggregateInput = {
-    letterId?: SortOrder
-    letterSchoolId?: SortOrder
-    letterHeader?: SortOrder
-    letterDate?: SortOrder
-    letterType?: SortOrder
-    writerId?: SortOrder
-    writerJob?: SortOrder
-    writerComment?: SortOrder
-    startDate?: SortOrder
-    endDate?: SortOrder
-    contactHomenumber?: SortOrder
-    contactRoad?: SortOrder
-    contactTumbon?: SortOrder
-    contactAumpher?: SortOrder
-    contactProvince?: SortOrder
-    contactPhone?: SortOrder
-    adminOneJob?: SortOrder
-    adminOneComment?: SortOrder
-    adminOneId?: SortOrder
-    adminOneDate?: SortOrder
-    adminTwoJob?: SortOrder
-    adminTwoId?: SortOrder
-    adminTwoComment?: SortOrder
-    adminTwoDate?: SortOrder
-    adminThreeJob?: SortOrder
-    adminThreeComment?: SortOrder
-    adminThreeId?: SortOrder
-    adminThreeDate?: SortOrder
-    adminOneComfirm?: SortOrder
-    adminTwoComfirm?: SortOrder
-    adminThreeComfirm?: SortOrder
-    LetterConfirmdate?: SortOrder
-    Season?: SortOrder
-    rejectOneId?: SortOrder
-    rejectTwoId?: SortOrder
-    rejectThreeId?: SortOrder
-    deleted?: SortOrder
-    letterStatus?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-    CreatedDate?: SortOrder
-    UpdatedDate?: SortOrder
-    cDel?: SortOrder
-  }
-
-  export type TLeaveLetter_HistoryAvgOrderByAggregateInput = {
-    letterId?: SortOrder
-    letterSchoolId?: SortOrder
-    writerId?: SortOrder
-    adminOneId?: SortOrder
-    adminTwoId?: SortOrder
-    adminThreeId?: SortOrder
-    Season?: SortOrder
-    rejectOneId?: SortOrder
-    rejectTwoId?: SortOrder
-    rejectThreeId?: SortOrder
-    deleted?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-  }
-
-  export type TLeaveLetter_HistoryMaxOrderByAggregateInput = {
-    letterId?: SortOrder
-    letterSchoolId?: SortOrder
-    letterHeader?: SortOrder
-    letterDate?: SortOrder
-    letterType?: SortOrder
-    writerId?: SortOrder
-    writerJob?: SortOrder
-    writerComment?: SortOrder
-    startDate?: SortOrder
-    endDate?: SortOrder
-    contactHomenumber?: SortOrder
-    contactRoad?: SortOrder
-    contactTumbon?: SortOrder
-    contactAumpher?: SortOrder
-    contactProvince?: SortOrder
-    contactPhone?: SortOrder
-    adminOneJob?: SortOrder
-    adminOneComment?: SortOrder
-    adminOneId?: SortOrder
-    adminOneDate?: SortOrder
-    adminTwoJob?: SortOrder
-    adminTwoId?: SortOrder
-    adminTwoComment?: SortOrder
-    adminTwoDate?: SortOrder
-    adminThreeJob?: SortOrder
-    adminThreeComment?: SortOrder
-    adminThreeId?: SortOrder
-    adminThreeDate?: SortOrder
-    adminOneComfirm?: SortOrder
-    adminTwoComfirm?: SortOrder
-    adminThreeComfirm?: SortOrder
-    LetterConfirmdate?: SortOrder
-    Season?: SortOrder
-    rejectOneId?: SortOrder
-    rejectTwoId?: SortOrder
-    rejectThreeId?: SortOrder
-    deleted?: SortOrder
-    letterStatus?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-    CreatedDate?: SortOrder
-    UpdatedDate?: SortOrder
-    cDel?: SortOrder
-  }
-
-  export type TLeaveLetter_HistoryMinOrderByAggregateInput = {
-    letterId?: SortOrder
-    letterSchoolId?: SortOrder
-    letterHeader?: SortOrder
-    letterDate?: SortOrder
-    letterType?: SortOrder
-    writerId?: SortOrder
-    writerJob?: SortOrder
-    writerComment?: SortOrder
-    startDate?: SortOrder
-    endDate?: SortOrder
-    contactHomenumber?: SortOrder
-    contactRoad?: SortOrder
-    contactTumbon?: SortOrder
-    contactAumpher?: SortOrder
-    contactProvince?: SortOrder
-    contactPhone?: SortOrder
-    adminOneJob?: SortOrder
-    adminOneComment?: SortOrder
-    adminOneId?: SortOrder
-    adminOneDate?: SortOrder
-    adminTwoJob?: SortOrder
-    adminTwoId?: SortOrder
-    adminTwoComment?: SortOrder
-    adminTwoDate?: SortOrder
-    adminThreeJob?: SortOrder
-    adminThreeComment?: SortOrder
-    adminThreeId?: SortOrder
-    adminThreeDate?: SortOrder
-    adminOneComfirm?: SortOrder
-    adminTwoComfirm?: SortOrder
-    adminThreeComfirm?: SortOrder
-    LetterConfirmdate?: SortOrder
-    Season?: SortOrder
-    rejectOneId?: SortOrder
-    rejectTwoId?: SortOrder
-    rejectThreeId?: SortOrder
-    deleted?: SortOrder
-    letterStatus?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-    CreatedDate?: SortOrder
-    UpdatedDate?: SortOrder
-    cDel?: SortOrder
-  }
-
-  export type TLeaveLetter_HistorySumOrderByAggregateInput = {
-    letterId?: SortOrder
-    letterSchoolId?: SortOrder
-    writerId?: SortOrder
-    adminOneId?: SortOrder
-    adminTwoId?: SortOrder
-    adminThreeId?: SortOrder
-    Season?: SortOrder
-    rejectOneId?: SortOrder
-    rejectTwoId?: SortOrder
-    rejectThreeId?: SortOrder
-    deleted?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-  }
-
   export type TLeaveLetterFilesSchoolIDNNewsFileIDCompoundUniqueInput = {
     SchoolID: number
     nNewsFileID: number
@@ -472734,105 +477358,6 @@ export namespace Prisma {
     UpdatedBy?: SortOrder
   }
 
-  export type TLogUserTimeScan_Old_BkupSchoolIDNLogScanIDCompoundUniqueInput = {
-    SchoolID: number
-    nLogScanID: number
-  }
-
-  export type TLogUserTimeScan_Old_BkupCountOrderByAggregateInput = {
-    sID?: SortOrder
-    LogTime?: SortOrder
-    LogType?: SortOrder
-    LogScanStatus?: SortOrder
-    LognDay?: SortOrder
-    LogDate?: SortOrder
-    nYear?: SortOrder
-    nTermSubLevel2?: SortOrder
-    TeacherId?: SortOrder
-    nLogScanID?: SortOrder
-    bLockStatus?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-    CreatedDate?: SortOrder
-    UpdatedDate?: SortOrder
-    cDel?: SortOrder
-    deviceType?: SortOrder
-    LeaveID?: SortOrder
-  }
-
-  export type TLogUserTimeScan_Old_BkupAvgOrderByAggregateInput = {
-    sID?: SortOrder
-    LognDay?: SortOrder
-    nYear?: SortOrder
-    nTermSubLevel2?: SortOrder
-    TeacherId?: SortOrder
-    nLogScanID?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-    deviceType?: SortOrder
-    LeaveID?: SortOrder
-  }
-
-  export type TLogUserTimeScan_Old_BkupMaxOrderByAggregateInput = {
-    sID?: SortOrder
-    LogTime?: SortOrder
-    LogType?: SortOrder
-    LogScanStatus?: SortOrder
-    LognDay?: SortOrder
-    LogDate?: SortOrder
-    nYear?: SortOrder
-    nTermSubLevel2?: SortOrder
-    TeacherId?: SortOrder
-    nLogScanID?: SortOrder
-    bLockStatus?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-    CreatedDate?: SortOrder
-    UpdatedDate?: SortOrder
-    cDel?: SortOrder
-    deviceType?: SortOrder
-    LeaveID?: SortOrder
-  }
-
-  export type TLogUserTimeScan_Old_BkupMinOrderByAggregateInput = {
-    sID?: SortOrder
-    LogTime?: SortOrder
-    LogType?: SortOrder
-    LogScanStatus?: SortOrder
-    LognDay?: SortOrder
-    LogDate?: SortOrder
-    nYear?: SortOrder
-    nTermSubLevel2?: SortOrder
-    TeacherId?: SortOrder
-    nLogScanID?: SortOrder
-    bLockStatus?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-    CreatedDate?: SortOrder
-    UpdatedDate?: SortOrder
-    cDel?: SortOrder
-    deviceType?: SortOrder
-    LeaveID?: SortOrder
-  }
-
-  export type TLogUserTimeScan_Old_BkupSumOrderByAggregateInput = {
-    sID?: SortOrder
-    LognDay?: SortOrder
-    nYear?: SortOrder
-    nTermSubLevel2?: SortOrder
-    TeacherId?: SortOrder
-    nLogScanID?: SortOrder
-    SchoolID?: SortOrder
-    CreatedBy?: SortOrder
-    UpdatedBy?: SortOrder
-    deviceType?: SortOrder
-    LeaveID?: SortOrder
-  }
-
   export type TLogUserTimeScanNewCountOrderByAggregateInput = {
     nLogScanID?: SortOrder
     SchoolID?: SortOrder
@@ -472904,6 +477429,7 @@ export namespace Prisma {
     MasterType?: SortOrder
     isActive?: SortOrder
     MasterOrder?: SortOrder
+    MasterDesEn?: SortOrder
   }
 
   export type TMasterDataAvgOrderByAggregateInput = {
@@ -472918,6 +477444,7 @@ export namespace Prisma {
     MasterType?: SortOrder
     isActive?: SortOrder
     MasterOrder?: SortOrder
+    MasterDesEn?: SortOrder
   }
 
   export type TMasterDataMinOrderByAggregateInput = {
@@ -472927,6 +477454,7 @@ export namespace Prisma {
     MasterType?: SortOrder
     isActive?: SortOrder
     MasterOrder?: SortOrder
+    MasterDesEn?: SortOrder
   }
 
   export type TMasterDataSumOrderByAggregateInput = {
@@ -479645,6 +484173,9 @@ export namespace Prisma {
     cDel?: SortOrder
     SMSGroupType?: SortOrder
     SMSGroupID?: SortOrder
+    SendToLINE?: SortOrder
+    SendFileWithOwner?: SortOrder
+    SendFileWithOwnerOCR?: SortOrder
   }
 
   export type TSMSAvgOrderByAggregateInput = {
@@ -479685,6 +484216,9 @@ export namespace Prisma {
     cDel?: SortOrder
     SMSGroupType?: SortOrder
     SMSGroupID?: SortOrder
+    SendToLINE?: SortOrder
+    SendFileWithOwner?: SortOrder
+    SendFileWithOwnerOCR?: SortOrder
   }
 
   export type TSMSMinOrderByAggregateInput = {
@@ -479711,6 +484245,9 @@ export namespace Prisma {
     cDel?: SortOrder
     SMSGroupType?: SortOrder
     SMSGroupID?: SortOrder
+    SendToLINE?: SortOrder
+    SendFileWithOwner?: SortOrder
+    SendFileWithOwnerOCR?: SortOrder
   }
 
   export type TSMSSumOrderByAggregateInput = {
@@ -480319,67 +484856,6 @@ export namespace Prisma {
   }
 
   export type TStockLogSumOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    ProductID?: SortOrder
-    ShopID?: SortOrder
-    TotalQty?: SortOrder
-    TotalCost?: SortOrder
-    AvgCost?: SortOrder
-  }
-
-  export type TStockLog_OldIDSchoolIDCompoundUniqueInput = {
-    ID: number
-    SchoolID: number
-  }
-
-  export type TStockLog_OldCountOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    ProductID?: SortOrder
-    ShopID?: SortOrder
-    LogDate?: SortOrder
-    TotalQty?: SortOrder
-    TotalCost?: SortOrder
-    AvgCost?: SortOrder
-    Created?: SortOrder
-  }
-
-  export type TStockLog_OldAvgOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    ProductID?: SortOrder
-    ShopID?: SortOrder
-    TotalQty?: SortOrder
-    TotalCost?: SortOrder
-    AvgCost?: SortOrder
-  }
-
-  export type TStockLog_OldMaxOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    ProductID?: SortOrder
-    ShopID?: SortOrder
-    LogDate?: SortOrder
-    TotalQty?: SortOrder
-    TotalCost?: SortOrder
-    AvgCost?: SortOrder
-    Created?: SortOrder
-  }
-
-  export type TStockLog_OldMinOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    ProductID?: SortOrder
-    ShopID?: SortOrder
-    LogDate?: SortOrder
-    TotalQty?: SortOrder
-    TotalCost?: SortOrder
-    AvgCost?: SortOrder
-    Created?: SortOrder
-  }
-
-  export type TStockLog_OldSumOrderByAggregateInput = {
     ID?: SortOrder
     SchoolID?: SortOrder
     ProductID?: SortOrder
@@ -481870,6 +486346,7 @@ export namespace Prisma {
     UpdatedDate?: SortOrder
     cDel?: SortOrder
     MasterCode?: SortOrder
+    nTitleIdStr?: SortOrder
   }
 
   export type TTitleListAvgOrderByAggregateInput = {
@@ -481894,6 +486371,7 @@ export namespace Prisma {
     UpdatedDate?: SortOrder
     cDel?: SortOrder
     MasterCode?: SortOrder
+    nTitleIdStr?: SortOrder
   }
 
   export type TTitleListMinOrderByAggregateInput = {
@@ -481910,6 +486388,7 @@ export namespace Prisma {
     UpdatedDate?: SortOrder
     cDel?: SortOrder
     MasterCode?: SortOrder
+    nTitleIdStr?: SortOrder
   }
 
   export type TTitleListSumOrderByAggregateInput = {
@@ -483987,113 +488466,6 @@ export namespace Prisma {
     UserID?: SortOrder
   }
 
-  export type UserDailyBalance_BackupIDSchoolIDSIDCompoundUniqueInput = {
-    ID: number
-    SchoolID: number
-    sID: number
-  }
-
-  export type UserDailyBalance_BackupCountOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrder
-    sName?: SortOrder
-    sLastname?: SortOrder
-    cDel?: SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrder
-    OfflineSales?: SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalance_BackupAvgOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    Balance?: SortOrder
-    OfflineSales?: SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalance_BackupMaxOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrder
-    sName?: SortOrder
-    sLastname?: SortOrder
-    cDel?: SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrder
-    OfflineSales?: SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalance_BackupMinOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrder
-    sName?: SortOrder
-    sLastname?: SortOrder
-    cDel?: SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrder
-    OfflineSales?: SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalance_BackupSumOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    Balance?: SortOrder
-    OfflineSales?: SortOrder
-    SystemBalance?: SortOrder
-  }
-
   export type UserDailyBalance_SearlizeIDSchoolIDCompoundUniqueInput = {
     ID: number
     SchoolID: number
@@ -484131,108 +488503,6 @@ export namespace Prisma {
   export type UserDailyBalance_SearlizeSumOrderByAggregateInput = {
     ID?: SortOrder
     SchoolID?: SortOrder
-  }
-
-  export type UserDailyBalanceTempIDSchoolIDSIDCompoundUniqueInput = {
-    ID: number
-    SchoolID: number
-    sID: number
-  }
-
-  export type UserDailyBalanceTempCountOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrder
-    sName?: SortOrder
-    sLastname?: SortOrder
-    cDel?: SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalanceTempAvgOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    Balance?: SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalanceTempMaxOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrder
-    sName?: SortOrder
-    sLastname?: SortOrder
-    cDel?: SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalanceTempMinOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    sStudentID?: SortOrder
-    sName?: SortOrder
-    sLastname?: SortOrder
-    cDel?: SortOrder
-    cType?: SortOrder
-    BusinessDate?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    LastUpdatedDate?: SortOrder
-    Balance?: SortOrder
-    SystemBalance?: SortOrder
-  }
-
-  export type UserDailyBalanceTempSumOrderByAggregateInput = {
-    ID?: SortOrder
-    SchoolID?: SortOrder
-    sID?: SortOrder
-    OpeningBalance?: SortOrder
-    TotalTopUp?: SortOrder
-    TotalCancelTopUp?: SortOrder
-    TotalWithDraw?: SortOrder
-    TotalCancelWithDraw?: SortOrder
-    TotalSales?: SortOrder
-    TotalCancelSales?: SortOrder
-    Balance?: SortOrder
-    SystemBalance?: SortOrder
   }
 
   export type UserDailyBalanceTempCardCountOrderByAggregateInput = {
@@ -484441,6 +488711,532 @@ export namespace Prisma {
     ID?: SortOrder
     UserID?: SortOrder
     UsedAmount?: SortOrder
+  }
+
+  export type dbo_DeviceActivityLogCountOrderByAggregateInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type dbo_DeviceActivityLogAvgOrderByAggregateInput = {
+    SchoolID?: SortOrder
+  }
+
+  export type dbo_DeviceActivityLogMaxOrderByAggregateInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type dbo_DeviceActivityLogMinOrderByAggregateInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type dbo_DeviceActivityLogSumOrderByAggregateInput = {
+    SchoolID?: SortOrder
+  }
+
+  export type DeviceActivityLog_BackupCountOrderByAggregateInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type DeviceActivityLog_BackupAvgOrderByAggregateInput = {
+    SchoolID?: SortOrder
+  }
+
+  export type DeviceActivityLog_BackupMaxOrderByAggregateInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type DeviceActivityLog_BackupMinOrderByAggregateInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type DeviceActivityLog_BackupSumOrderByAggregateInput = {
+    SchoolID?: SortOrder
+  }
+
+  export type DeviceActivityLog_HistoryCountOrderByAggregateInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type DeviceActivityLog_HistoryAvgOrderByAggregateInput = {
+    SchoolID?: SortOrder
+  }
+
+  export type DeviceActivityLog_HistoryMaxOrderByAggregateInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type DeviceActivityLog_HistoryMinOrderByAggregateInput = {
+    LogID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    LogDescription?: SortOrder
+    Tstamp?: SortOrder
+    DeviceType?: SortOrder
+  }
+
+  export type DeviceActivityLog_HistorySumOrderByAggregateInput = {
+    SchoolID?: SortOrder
+  }
+
+  export type DeviceDailyStatus_BackupCountOrderByAggregateInput = {
+    DeviceStatusID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    Online?: SortOrder
+    OnlineTime?: SortOrder
+    Login?: SortOrder
+    LoginTime?: SortOrder
+    LogOut?: SortOrder
+    LogoutTime?: SortOrder
+    Tstamp?: SortOrder
+    BusinessDate?: SortOrder
+    AppVersion?: SortOrder
+    AppName?: SortOrder
+    Note?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
+  }
+
+  export type DeviceDailyStatus_BackupAvgOrderByAggregateInput = {
+    SchoolID?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
+  }
+
+  export type DeviceDailyStatus_BackupMaxOrderByAggregateInput = {
+    DeviceStatusID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    Online?: SortOrder
+    OnlineTime?: SortOrder
+    Login?: SortOrder
+    LoginTime?: SortOrder
+    LogOut?: SortOrder
+    LogoutTime?: SortOrder
+    Tstamp?: SortOrder
+    BusinessDate?: SortOrder
+    AppVersion?: SortOrder
+    AppName?: SortOrder
+    Note?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
+  }
+
+  export type DeviceDailyStatus_BackupMinOrderByAggregateInput = {
+    DeviceStatusID?: SortOrder
+    SchoolID?: SortOrder
+    DeviceID?: SortOrder
+    Online?: SortOrder
+    OnlineTime?: SortOrder
+    Login?: SortOrder
+    LoginTime?: SortOrder
+    LogOut?: SortOrder
+    LogoutTime?: SortOrder
+    Tstamp?: SortOrder
+    BusinessDate?: SortOrder
+    AppVersion?: SortOrder
+    AppName?: SortOrder
+    Note?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
+  }
+
+  export type DeviceDailyStatus_BackupSumOrderByAggregateInput = {
+    SchoolID?: SortOrder
+    UserLoginID?: SortOrder
+    DeviceTypeID?: SortOrder
+  }
+
+  export type DeviceTypeCountOrderByAggregateInput = {
+    DeviceTypeID?: SortOrder
+    TypeNameEN?: SortOrder
+    TypeNameTH?: SortOrder
+  }
+
+  export type DeviceTypeAvgOrderByAggregateInput = {
+    DeviceTypeID?: SortOrder
+  }
+
+  export type DeviceTypeMaxOrderByAggregateInput = {
+    DeviceTypeID?: SortOrder
+    TypeNameEN?: SortOrder
+    TypeNameTH?: SortOrder
+  }
+
+  export type DeviceTypeMinOrderByAggregateInput = {
+    DeviceTypeID?: SortOrder
+    TypeNameEN?: SortOrder
+    TypeNameTH?: SortOrder
+  }
+
+  export type DeviceTypeSumOrderByAggregateInput = {
+    DeviceTypeID?: SortOrder
+  }
+
+  export type QueryPerformanceLogCountOrderByAggregateInput = {
+    LogID?: SortOrder
+    LogDateTime?: SortOrder
+    QueryName?: SortOrder
+    CPUTime_ms?: SortOrder
+    ElapsedTime_ms?: SortOrder
+    LogicalReads?: SortOrder
+    BlockingSessionID?: SortOrder
+    WaitType?: SortOrder
+    WaitResource?: SortOrder
+    RowCount?: SortOrder
+  }
+
+  export type QueryPerformanceLogAvgOrderByAggregateInput = {
+    LogID?: SortOrder
+    CPUTime_ms?: SortOrder
+    ElapsedTime_ms?: SortOrder
+    LogicalReads?: SortOrder
+    BlockingSessionID?: SortOrder
+    RowCount?: SortOrder
+  }
+
+  export type QueryPerformanceLogMaxOrderByAggregateInput = {
+    LogID?: SortOrder
+    LogDateTime?: SortOrder
+    QueryName?: SortOrder
+    CPUTime_ms?: SortOrder
+    ElapsedTime_ms?: SortOrder
+    LogicalReads?: SortOrder
+    BlockingSessionID?: SortOrder
+    WaitType?: SortOrder
+    WaitResource?: SortOrder
+    RowCount?: SortOrder
+  }
+
+  export type QueryPerformanceLogMinOrderByAggregateInput = {
+    LogID?: SortOrder
+    LogDateTime?: SortOrder
+    QueryName?: SortOrder
+    CPUTime_ms?: SortOrder
+    ElapsedTime_ms?: SortOrder
+    LogicalReads?: SortOrder
+    BlockingSessionID?: SortOrder
+    WaitType?: SortOrder
+    WaitResource?: SortOrder
+    RowCount?: SortOrder
+  }
+
+  export type QueryPerformanceLogSumOrderByAggregateInput = {
+    LogID?: SortOrder
+    CPUTime_ms?: SortOrder
+    ElapsedTime_ms?: SortOrder
+    LogicalReads?: SortOrder
+    BlockingSessionID?: SortOrder
+    RowCount?: SortOrder
+  }
+
+  export type TCurrentTermDataNTermSchoolIDNYearCompoundUniqueInput = {
+    nTerm: string
+    SchoolID: number
+    nYear: number
+  }
+
+  export type TCurrentTermDataCountOrderByAggregateInput = {
+    nTerm?: SortOrder
+    dStart?: SortOrder
+    dEnd?: SortOrder
+    SchoolID?: SortOrder
+    nYear?: SortOrder
+    sTerm?: SortOrder
+  }
+
+  export type TCurrentTermDataAvgOrderByAggregateInput = {
+    SchoolID?: SortOrder
+    nYear?: SortOrder
+  }
+
+  export type TCurrentTermDataMaxOrderByAggregateInput = {
+    nTerm?: SortOrder
+    dStart?: SortOrder
+    dEnd?: SortOrder
+    SchoolID?: SortOrder
+    nYear?: SortOrder
+    sTerm?: SortOrder
+  }
+
+  export type TCurrentTermDataMinOrderByAggregateInput = {
+    nTerm?: SortOrder
+    dStart?: SortOrder
+    dEnd?: SortOrder
+    SchoolID?: SortOrder
+    nYear?: SortOrder
+    sTerm?: SortOrder
+  }
+
+  export type TCurrentTermDataSumOrderByAggregateInput = {
+    SchoolID?: SortOrder
+    nYear?: SortOrder
+  }
+
+  export type TEmpSignerReportReportIDSchoolIDCompoundUniqueInput = {
+    ReportID: number
+    SchoolID: number
+  }
+
+  export type TEmpSignerReportCountOrderByAggregateInput = {
+    ReportID?: SortOrder
+    SchoolID?: SortOrder
+    SignerID?: SortOrder
+    YearID?: SortOrder
+    ReportName?: SortOrder
+    ReportPart?: SortOrder
+    Created?: SortOrder
+    CreateBy?: SortOrder
+    Modified?: SortOrder
+    ModifyBy?: SortOrder
+  }
+
+  export type TEmpSignerReportAvgOrderByAggregateInput = {
+    ReportID?: SortOrder
+    SchoolID?: SortOrder
+    SignerID?: SortOrder
+    YearID?: SortOrder
+    CreateBy?: SortOrder
+    ModifyBy?: SortOrder
+  }
+
+  export type TEmpSignerReportMaxOrderByAggregateInput = {
+    ReportID?: SortOrder
+    SchoolID?: SortOrder
+    SignerID?: SortOrder
+    YearID?: SortOrder
+    ReportName?: SortOrder
+    ReportPart?: SortOrder
+    Created?: SortOrder
+    CreateBy?: SortOrder
+    Modified?: SortOrder
+    ModifyBy?: SortOrder
+  }
+
+  export type TEmpSignerReportMinOrderByAggregateInput = {
+    ReportID?: SortOrder
+    SchoolID?: SortOrder
+    SignerID?: SortOrder
+    YearID?: SortOrder
+    ReportName?: SortOrder
+    ReportPart?: SortOrder
+    Created?: SortOrder
+    CreateBy?: SortOrder
+    Modified?: SortOrder
+    ModifyBy?: SortOrder
+  }
+
+  export type TEmpSignerReportSumOrderByAggregateInput = {
+    ReportID?: SortOrder
+    SchoolID?: SortOrder
+    SignerID?: SortOrder
+    YearID?: SortOrder
+    CreateBy?: SortOrder
+    ModifyBy?: SortOrder
+  }
+
+  export type TTeacherStudentTypeCountOrderByAggregateInput = {
+    ID?: SortOrder
+    StudentTypeID?: SortOrder
+    SchoolID?: SortOrder
+    sEmp?: SortOrder
+    Status?: SortOrder
+    IsDel?: SortOrder
+    CreateDate?: SortOrder
+    CreateBy?: SortOrder
+    UpdateDate?: SortOrder
+    UpdateBy?: SortOrder
+  }
+
+  export type TTeacherStudentTypeAvgOrderByAggregateInput = {
+    ID?: SortOrder
+    StudentTypeID?: SortOrder
+    SchoolID?: SortOrder
+    sEmp?: SortOrder
+    CreateBy?: SortOrder
+    UpdateBy?: SortOrder
+  }
+
+  export type TTeacherStudentTypeMaxOrderByAggregateInput = {
+    ID?: SortOrder
+    StudentTypeID?: SortOrder
+    SchoolID?: SortOrder
+    sEmp?: SortOrder
+    Status?: SortOrder
+    IsDel?: SortOrder
+    CreateDate?: SortOrder
+    CreateBy?: SortOrder
+    UpdateDate?: SortOrder
+    UpdateBy?: SortOrder
+  }
+
+  export type TTeacherStudentTypeMinOrderByAggregateInput = {
+    ID?: SortOrder
+    StudentTypeID?: SortOrder
+    SchoolID?: SortOrder
+    sEmp?: SortOrder
+    Status?: SortOrder
+    IsDel?: SortOrder
+    CreateDate?: SortOrder
+    CreateBy?: SortOrder
+    UpdateDate?: SortOrder
+    UpdateBy?: SortOrder
+  }
+
+  export type TTeacherStudentTypeSumOrderByAggregateInput = {
+    ID?: SortOrder
+    StudentTypeID?: SortOrder
+    SchoolID?: SortOrder
+    sEmp?: SortOrder
+    CreateBy?: SortOrder
+    UpdateBy?: SortOrder
+  }
+
+  export type dbo_UserDailyBalanceIDSchoolIDSIDCompoundUniqueInput = {
+    ID: number
+    SchoolID: number
+    sID: number
+  }
+
+  export type dbo_UserDailyBalanceCountOrderByAggregateInput = {
+    ID?: SortOrder
+    SchoolID?: SortOrder
+    sID?: SortOrder
+    sStudentID?: SortOrder
+    sName?: SortOrder
+    sLastname?: SortOrder
+    cDel?: SortOrder
+    cType?: SortOrder
+    BusinessDate?: SortOrder
+    OpeningBalance?: SortOrder
+    TotalTopUp?: SortOrder
+    TotalCancelTopUp?: SortOrder
+    TotalWithDraw?: SortOrder
+    TotalCancelWithDraw?: SortOrder
+    TotalSales?: SortOrder
+    TotalCancelSales?: SortOrder
+    LastUpdatedDate?: SortOrder
+    Balance?: SortOrder
+    OfflineSales?: SortOrder
+    SystemBalance?: SortOrder
+  }
+
+  export type dbo_UserDailyBalanceAvgOrderByAggregateInput = {
+    ID?: SortOrder
+    SchoolID?: SortOrder
+    sID?: SortOrder
+    OpeningBalance?: SortOrder
+    TotalTopUp?: SortOrder
+    TotalCancelTopUp?: SortOrder
+    TotalWithDraw?: SortOrder
+    TotalCancelWithDraw?: SortOrder
+    TotalSales?: SortOrder
+    TotalCancelSales?: SortOrder
+    Balance?: SortOrder
+    OfflineSales?: SortOrder
+    SystemBalance?: SortOrder
+  }
+
+  export type dbo_UserDailyBalanceMaxOrderByAggregateInput = {
+    ID?: SortOrder
+    SchoolID?: SortOrder
+    sID?: SortOrder
+    sStudentID?: SortOrder
+    sName?: SortOrder
+    sLastname?: SortOrder
+    cDel?: SortOrder
+    cType?: SortOrder
+    BusinessDate?: SortOrder
+    OpeningBalance?: SortOrder
+    TotalTopUp?: SortOrder
+    TotalCancelTopUp?: SortOrder
+    TotalWithDraw?: SortOrder
+    TotalCancelWithDraw?: SortOrder
+    TotalSales?: SortOrder
+    TotalCancelSales?: SortOrder
+    LastUpdatedDate?: SortOrder
+    Balance?: SortOrder
+    OfflineSales?: SortOrder
+    SystemBalance?: SortOrder
+  }
+
+  export type dbo_UserDailyBalanceMinOrderByAggregateInput = {
+    ID?: SortOrder
+    SchoolID?: SortOrder
+    sID?: SortOrder
+    sStudentID?: SortOrder
+    sName?: SortOrder
+    sLastname?: SortOrder
+    cDel?: SortOrder
+    cType?: SortOrder
+    BusinessDate?: SortOrder
+    OpeningBalance?: SortOrder
+    TotalTopUp?: SortOrder
+    TotalCancelTopUp?: SortOrder
+    TotalWithDraw?: SortOrder
+    TotalCancelWithDraw?: SortOrder
+    TotalSales?: SortOrder
+    TotalCancelSales?: SortOrder
+    LastUpdatedDate?: SortOrder
+    Balance?: SortOrder
+    OfflineSales?: SortOrder
+    SystemBalance?: SortOrder
+  }
+
+  export type dbo_UserDailyBalanceSumOrderByAggregateInput = {
+    ID?: SortOrder
+    SchoolID?: SortOrder
+    sID?: SortOrder
+    OpeningBalance?: SortOrder
+    TotalTopUp?: SortOrder
+    TotalCancelTopUp?: SortOrder
+    TotalWithDraw?: SortOrder
+    TotalCancelWithDraw?: SortOrder
+    TotalSales?: SortOrder
+    TotalCancelSales?: SortOrder
+    Balance?: SortOrder
+    OfflineSales?: SortOrder
+    SystemBalance?: SortOrder
   }
 
   export type NullableIntFieldUpdateOperationsInput = {

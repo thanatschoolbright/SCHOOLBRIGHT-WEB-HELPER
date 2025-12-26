@@ -440,7 +440,12 @@ exports.Prisma.DeviceDailyStatusScalarFieldEnum = {
   LogOut: 'LogOut',
   LogoutTime: 'LogoutTime',
   Tstamp: 'Tstamp',
-  BusinessDate: 'BusinessDate'
+  BusinessDate: 'BusinessDate',
+  AppVersion: 'AppVersion',
+  AppName: 'AppName',
+  Note: 'Note',
+  UserLoginID: 'UserLoginID',
+  DeviceTypeID: 'DeviceTypeID'
 };
 
 exports.Prisma.DeviceUpdateStatusScalarFieldEnum = {
@@ -2168,8 +2173,10 @@ exports.Prisma.TEmpSalaryScalarFieldEnum = {
 exports.Prisma.TEmpSignerScalarFieldEnum = {
   SignerID: 'SignerID',
   SchoolID: 'SchoolID',
+  YearID: 'YearID',
   TermID: 'TermID',
   Position: 'Position',
+  PositionEN: 'PositionEN',
   DefaultID: 'DefaultID',
   EmpID: 'EmpID',
   Signer: 'Signer',
@@ -3448,53 +3455,6 @@ exports.Prisma.TLeaveLetterScalarFieldEnum = {
   Note: 'Note'
 };
 
-exports.Prisma.TLeaveLetter_HistoryScalarFieldEnum = {
-  letterId: 'letterId',
-  letterSchoolId: 'letterSchoolId',
-  letterHeader: 'letterHeader',
-  letterDate: 'letterDate',
-  letterType: 'letterType',
-  writerId: 'writerId',
-  writerJob: 'writerJob',
-  writerComment: 'writerComment',
-  startDate: 'startDate',
-  endDate: 'endDate',
-  contactHomenumber: 'contactHomenumber',
-  contactRoad: 'contactRoad',
-  contactTumbon: 'contactTumbon',
-  contactAumpher: 'contactAumpher',
-  contactProvince: 'contactProvince',
-  contactPhone: 'contactPhone',
-  adminOneJob: 'adminOneJob',
-  adminOneComment: 'adminOneComment',
-  adminOneId: 'adminOneId',
-  adminOneDate: 'adminOneDate',
-  adminTwoJob: 'adminTwoJob',
-  adminTwoId: 'adminTwoId',
-  adminTwoComment: 'adminTwoComment',
-  adminTwoDate: 'adminTwoDate',
-  adminThreeJob: 'adminThreeJob',
-  adminThreeComment: 'adminThreeComment',
-  adminThreeId: 'adminThreeId',
-  adminThreeDate: 'adminThreeDate',
-  adminOneComfirm: 'adminOneComfirm',
-  adminTwoComfirm: 'adminTwoComfirm',
-  adminThreeComfirm: 'adminThreeComfirm',
-  LetterConfirmdate: 'LetterConfirmdate',
-  Season: 'Season',
-  rejectOneId: 'rejectOneId',
-  rejectTwoId: 'rejectTwoId',
-  rejectThreeId: 'rejectThreeId',
-  deleted: 'deleted',
-  letterStatus: 'letterStatus',
-  SchoolID: 'SchoolID',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate',
-  cDel: 'cDel'
-};
-
 exports.Prisma.TLeaveLetterFilesScalarFieldEnum = {
   letterId: 'letterId',
   sFileName: 'sFileName',
@@ -3704,28 +3664,6 @@ exports.Prisma.TLogUserTimeScan_HistoryScalarFieldEnum = {
   cDel: 'cDel'
 };
 
-exports.Prisma.TLogUserTimeScan_Old_BkupScalarFieldEnum = {
-  sID: 'sID',
-  LogTime: 'LogTime',
-  LogType: 'LogType',
-  LogScanStatus: 'LogScanStatus',
-  LognDay: 'LognDay',
-  LogDate: 'LogDate',
-  nYear: 'nYear',
-  nTermSubLevel2: 'nTermSubLevel2',
-  TeacherId: 'TeacherId',
-  nLogScanID: 'nLogScanID',
-  bLockStatus: 'bLockStatus',
-  SchoolID: 'SchoolID',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate',
-  cDel: 'cDel',
-  deviceType: 'deviceType',
-  LeaveID: 'LeaveID'
-};
-
 exports.Prisma.TLogUserTimeScanNewScalarFieldEnum = {
   nLogScanID: 'nLogScanID',
   SchoolID: 'SchoolID',
@@ -3746,7 +3684,8 @@ exports.Prisma.TMasterDataScalarFieldEnum = {
   MasterDes: 'MasterDes',
   MasterType: 'MasterType',
   isActive: 'isActive',
-  MasterOrder: 'MasterOrder'
+  MasterOrder: 'MasterOrder',
+  MasterDesEn: 'MasterDesEn'
 };
 
 exports.Prisma.TMasterTypeScalarFieldEnum = {
@@ -5298,7 +5237,10 @@ exports.Prisma.TSMSScalarFieldEnum = {
   UpdatedDate: 'UpdatedDate',
   cDel: 'cDel',
   SMSGroupType: 'SMSGroupType',
-  SMSGroupID: 'SMSGroupID'
+  SMSGroupID: 'SMSGroupID',
+  SendToLINE: 'SendToLINE',
+  SendFileWithOwner: 'SendFileWithOwner',
+  SendFileWithOwnerOCR: 'SendFileWithOwnerOCR'
 };
 
 exports.Prisma.TSMSGroupScalarFieldEnum = {
@@ -5416,18 +5358,6 @@ exports.Prisma.TStockImproveScalarFieldEnum = {
 };
 
 exports.Prisma.TStockLogScalarFieldEnum = {
-  ID: 'ID',
-  SchoolID: 'SchoolID',
-  ProductID: 'ProductID',
-  ShopID: 'ShopID',
-  LogDate: 'LogDate',
-  TotalQty: 'TotalQty',
-  TotalCost: 'TotalCost',
-  AvgCost: 'AvgCost',
-  Created: 'Created'
-};
-
-exports.Prisma.TStockLog_OldScalarFieldEnum = {
   ID: 'ID',
   SchoolID: 'SchoolID',
   ProductID: 'ProductID',
@@ -5782,7 +5712,8 @@ exports.Prisma.TTitleListScalarFieldEnum = {
   CreatedDate: 'CreatedDate',
   UpdatedDate: 'UpdatedDate',
   cDel: 'cDel',
-  MasterCode: 'MasterCode'
+  MasterCode: 'MasterCode',
+  nTitleIdStr: 'nTitleIdStr'
 };
 
 exports.Prisma.TTranscriptNumberScalarFieldEnum = {
@@ -6284,57 +6215,12 @@ exports.Prisma.UserAPIResponseScalarFieldEnum = {
   Status: 'Status'
 };
 
-exports.Prisma.UserDailyBalance_BackupScalarFieldEnum = {
-  ID: 'ID',
-  SchoolID: 'SchoolID',
-  sID: 'sID',
-  sStudentID: 'sStudentID',
-  sName: 'sName',
-  sLastname: 'sLastname',
-  cDel: 'cDel',
-  cType: 'cType',
-  BusinessDate: 'BusinessDate',
-  OpeningBalance: 'OpeningBalance',
-  TotalTopUp: 'TotalTopUp',
-  TotalCancelTopUp: 'TotalCancelTopUp',
-  TotalWithDraw: 'TotalWithDraw',
-  TotalCancelWithDraw: 'TotalCancelWithDraw',
-  TotalSales: 'TotalSales',
-  TotalCancelSales: 'TotalCancelSales',
-  LastUpdatedDate: 'LastUpdatedDate',
-  Balance: 'Balance',
-  OfflineSales: 'OfflineSales',
-  SystemBalance: 'SystemBalance'
-};
-
 exports.Prisma.UserDailyBalance_SearlizeScalarFieldEnum = {
   ID: 'ID',
   SchoolID: 'SchoolID',
   BusinessDate: 'BusinessDate',
   UserDailyBalance: 'UserDailyBalance',
   LastUpdatedDate: 'LastUpdatedDate'
-};
-
-exports.Prisma.UserDailyBalanceTempScalarFieldEnum = {
-  ID: 'ID',
-  SchoolID: 'SchoolID',
-  sID: 'sID',
-  sStudentID: 'sStudentID',
-  sName: 'sName',
-  sLastname: 'sLastname',
-  cDel: 'cDel',
-  cType: 'cType',
-  BusinessDate: 'BusinessDate',
-  OpeningBalance: 'OpeningBalance',
-  TotalTopUp: 'TotalTopUp',
-  TotalCancelTopUp: 'TotalCancelTopUp',
-  TotalWithDraw: 'TotalWithDraw',
-  TotalCancelWithDraw: 'TotalCancelWithDraw',
-  TotalSales: 'TotalSales',
-  TotalCancelSales: 'TotalCancelSales',
-  LastUpdatedDate: 'LastUpdatedDate',
-  Balance: 'Balance',
-  SystemBalance: 'SystemBalance'
 };
 
 exports.Prisma.UserDailyBalanceTempCardScalarFieldEnum = {
@@ -6383,6 +6269,129 @@ exports.Prisma.UserUsedLimitScalarFieldEnum = {
   UserType: 'UserType',
   UsedAmount: 'UsedAmount',
   Tstamp: 'Tstamp'
+};
+
+exports.Prisma.Dbo_DeviceActivityLogScalarFieldEnum = {
+  LogID: 'LogID',
+  SchoolID: 'SchoolID',
+  DeviceID: 'DeviceID',
+  LogDescription: 'LogDescription',
+  Tstamp: 'Tstamp',
+  DeviceType: 'DeviceType'
+};
+
+exports.Prisma.DeviceActivityLog_BackupScalarFieldEnum = {
+  LogID: 'LogID',
+  SchoolID: 'SchoolID',
+  DeviceID: 'DeviceID',
+  LogDescription: 'LogDescription',
+  Tstamp: 'Tstamp',
+  DeviceType: 'DeviceType'
+};
+
+exports.Prisma.DeviceActivityLog_HistoryScalarFieldEnum = {
+  LogID: 'LogID',
+  SchoolID: 'SchoolID',
+  DeviceID: 'DeviceID',
+  LogDescription: 'LogDescription',
+  Tstamp: 'Tstamp',
+  DeviceType: 'DeviceType'
+};
+
+exports.Prisma.DeviceDailyStatus_BackupScalarFieldEnum = {
+  DeviceStatusID: 'DeviceStatusID',
+  SchoolID: 'SchoolID',
+  DeviceID: 'DeviceID',
+  Online: 'Online',
+  OnlineTime: 'OnlineTime',
+  Login: 'Login',
+  LoginTime: 'LoginTime',
+  LogOut: 'LogOut',
+  LogoutTime: 'LogoutTime',
+  Tstamp: 'Tstamp',
+  BusinessDate: 'BusinessDate',
+  AppVersion: 'AppVersion',
+  AppName: 'AppName',
+  Note: 'Note',
+  UserLoginID: 'UserLoginID',
+  DeviceTypeID: 'DeviceTypeID'
+};
+
+exports.Prisma.DeviceTypeScalarFieldEnum = {
+  DeviceTypeID: 'DeviceTypeID',
+  TypeNameEN: 'TypeNameEN',
+  TypeNameTH: 'TypeNameTH'
+};
+
+exports.Prisma.QueryPerformanceLogScalarFieldEnum = {
+  LogID: 'LogID',
+  LogDateTime: 'LogDateTime',
+  QueryName: 'QueryName',
+  CPUTime_ms: 'CPUTime_ms',
+  ElapsedTime_ms: 'ElapsedTime_ms',
+  LogicalReads: 'LogicalReads',
+  BlockingSessionID: 'BlockingSessionID',
+  WaitType: 'WaitType',
+  WaitResource: 'WaitResource',
+  RowCount: 'RowCount'
+};
+
+exports.Prisma.TCurrentTermDataScalarFieldEnum = {
+  nTerm: 'nTerm',
+  dStart: 'dStart',
+  dEnd: 'dEnd',
+  SchoolID: 'SchoolID',
+  nYear: 'nYear',
+  sTerm: 'sTerm'
+};
+
+exports.Prisma.TEmpSignerReportScalarFieldEnum = {
+  ReportID: 'ReportID',
+  SchoolID: 'SchoolID',
+  SignerID: 'SignerID',
+  YearID: 'YearID',
+  ReportName: 'ReportName',
+  ReportPart: 'ReportPart',
+  Created: 'Created',
+  CreateBy: 'CreateBy',
+  Modified: 'Modified',
+  ModifyBy: 'ModifyBy'
+};
+
+exports.Prisma.TTeacherStudentTypeScalarFieldEnum = {
+  ID: 'ID',
+  StudentTypeID: 'StudentTypeID',
+  SchoolID: 'SchoolID',
+  sEmp: 'sEmp',
+  Status: 'Status',
+  IsDel: 'IsDel',
+  CreateDate: 'CreateDate',
+  CreateBy: 'CreateBy',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy'
+};
+
+exports.Prisma.Dbo_UserDailyBalanceScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  sID: 'sID',
+  sStudentID: 'sStudentID',
+  sName: 'sName',
+  sLastname: 'sLastname',
+  cDel: 'cDel',
+  cType: 'cType',
+  BusinessDate: 'BusinessDate',
+  OpeningBalance: 'OpeningBalance',
+  TotalTopUp: 'TotalTopUp',
+  TotalCancelTopUp: 'TotalCancelTopUp',
+  TotalWithDraw: 'TotalWithDraw',
+  TotalCancelWithDraw: 'TotalCancelWithDraw',
+  TotalSales: 'TotalSales',
+  TotalCancelSales: 'TotalCancelSales',
+  LastUpdatedDate: 'LastUpdatedDate',
+  Balance: 'Balance',
+  OfflineSales: 'OfflineSales',
+  SystemBalance: 'SystemBalance'
 };
 
 exports.Prisma.SortOrder = {
@@ -6568,7 +6577,6 @@ exports.Prisma.ModelName = {
   TLeave_Log: 'TLeave_Log',
   TLeave_Type: 'TLeave_Type',
   TLeaveLetter: 'TLeaveLetter',
-  TLeaveLetter_History: 'TLeaveLetter_History',
   TLeaveLetterFiles: 'TLeaveLetterFiles',
   TLeaveLetterFiles_History: 'TLeaveLetterFiles_History',
   TLeaveList: 'TLeaveList',
@@ -6582,7 +6590,6 @@ exports.Prisma.ModelName = {
   TLogLearnTimeScanNew: 'TLogLearnTimeScanNew',
   TLogUserTimeScan: 'TLogUserTimeScan',
   TLogUserTimeScan_History: 'TLogUserTimeScan_History',
-  TLogUserTimeScan_Old_Bkup: 'TLogUserTimeScan_Old_Bkup',
   TLogUserTimeScanNew: 'TLogUserTimeScanNew',
   TMasterData: 'TMasterData',
   TMasterType: 'TMasterType',
@@ -6668,7 +6675,6 @@ exports.Prisma.ModelName = {
   TStockDetailTemp: 'TStockDetailTemp',
   TStockImprove: 'TStockImprove',
   TStockLog: 'TStockLog',
-  TStockLog_Old: 'TStockLog_Old',
   TStudentCardInfo: 'TStudentCardInfo',
   TStudentClassroomHistory: 'TStudentClassroomHistory',
   TStudentHealthGrowth: 'TStudentHealthGrowth',
@@ -6713,12 +6719,20 @@ exports.Prisma.ModelName = {
   UpdateTempCard: 'UpdateTempCard',
   UpdateTempCardMoney: 'UpdateTempCardMoney',
   UserAPIResponse: 'UserAPIResponse',
-  UserDailyBalance_Backup: 'UserDailyBalance_Backup',
   UserDailyBalance_Searlize: 'UserDailyBalance_Searlize',
-  UserDailyBalanceTemp: 'UserDailyBalanceTemp',
   UserDailyBalanceTempCard: 'UserDailyBalanceTempCard',
   UserDailySales: 'UserDailySales',
-  UserUsedLimit: 'UserUsedLimit'
+  UserUsedLimit: 'UserUsedLimit',
+  dbo_DeviceActivityLog: 'dbo_DeviceActivityLog',
+  DeviceActivityLog_Backup: 'DeviceActivityLog_Backup',
+  DeviceActivityLog_History: 'DeviceActivityLog_History',
+  DeviceDailyStatus_Backup: 'DeviceDailyStatus_Backup',
+  DeviceType: 'DeviceType',
+  QueryPerformanceLog: 'QueryPerformanceLog',
+  TCurrentTermData: 'TCurrentTermData',
+  TEmpSignerReport: 'TEmpSignerReport',
+  TTeacherStudentType: 'TTeacherStudentType',
+  dbo_UserDailyBalance: 'dbo_UserDailyBalance'
 };
 
 /**

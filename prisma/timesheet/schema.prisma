@@ -9,11 +9,6 @@ datasource timesheet {
   url      = env("DATABASE_TIMESHEET_URL")
 }
 
-enum ProjectAssetCaptureType {
-  CAPTUREABLE
-  UN_CAPTUREABLE
-}
-
 model Group {
   id       Int       @id @default(autoincrement()) @map("id")
   name_th  String    @map("name_th")
@@ -25,46 +20,45 @@ model Group {
 
 model Project {
   id              Int              @id @default(autoincrement()) @map("id")
-  categoryType    String?          @map("category_type")
   name            String           @map("name")
-  name_en         String?          @map("name_en")
-  start_date      DateTime?        @map("start_date")
-  end_date        DateTime?        @map("end_date")
   createdAt       DateTime         @default(now()) @map("created_at")
   createdBy       Int?             @map("created_by")
   updatedAt       DateTime         @updatedAt @map("updated_at")
   updatedBy       Int?             @map("updated_by")
   description     String
   is_deleted      Boolean          @default(false)
-  features        Feature[]
-  timesheets      TimesheetEntry[]
+  categoryType    String?          @map("category_type")
   status          String           @default("open") @map("status")
-  approval_status String           @default("pending") @map("approval_status")
+  end_date        DateTime?        @map("end_date")
+  name_en         String?          @map("name_en")
+  start_date      DateTime?        @map("start_date")
   approval        String           @default("pending") @map("approval")
+  approval_status String           @default("pending") @map("approval_status")
   group_id        Int?             @map("group_id")
+  features        Feature[]
   group           Group?           @relation(fields: [group_id], references: [id])
+  timesheets      TimesheetEntry[]
 
   @@map("project")
 }
 
 model Feature {
   id                 Int                     @id @default(autoincrement()) @map("id")
-  // boiType            String?                 @map("boi_type")
   projectId          Int                     @map("project_id")
   name               String                  @map("name")
-  name_en            String?                 @map("name_en")
-  backlogDescription Json?                   @map("backlog_description")
   createdAt          DateTime                @default(now()) @map("created_at")
   createdBy          Int?                    @map("created_by")
   updatedAt          DateTime                @updatedAt @map("updated_at")
   updatedBy          Int?                    @map("updated_by")
   is_deleted         Boolean                 @default(false)
-  startDate          DateTime?               @map("start_date")
   endDate            DateTime?               @map("end_date")
-  project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  startDate          DateTime?               @map("start_date")
+  backlogDescription Json?                   @map("backlog_description")
   assetCaptureType   ProjectAssetCaptureType @default(CAPTUREABLE) @map("asset_capture_type")
-  timesheets         TimesheetEntry[]
   status             String                  @default("open") @map("status")
+  name_en            String?                 @map("name_en")
+  project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  timesheets         TimesheetEntry[]
 
   @@map("feature")
 }
@@ -123,13 +117,13 @@ model Overtime {
   id           Int                   @id @default(autoincrement()) @map("id")
   requesterId  String                @map("requester_id")
   requestDate  DateTime              @map("request_date")
-  descriptions OvertimeDescription[] @relation("OvertimeDescriptions")
   status       String                @map("status")
   createdBy    String                @map("created_by")
   updatedBy    String?               @map("updated_by")
   createdAt    DateTime              @default(now()) @map("created_at")
   updatedAt    DateTime              @updatedAt @map("updated_at")
   isDeleted    Boolean               @default(false) @map("is_deleted")
+  descriptions OvertimeDescription[] @relation("OvertimeDescriptions")
 
   @@index([requesterId, isDeleted])
   @@index([status, isDeleted])
@@ -141,16 +135,19 @@ model OvertimeDescription {
   id          Int       @id @default(autoincrement()) @map("id")
   overtimeId  Int       @map("overtime_id")
   date        DateTime? @map("date")
-  startDate   DateTime? @map("start_date")
-  endDate     DateTime? @map("end_date")
   duration    Decimal   @map("duration")
   description String    @map("description")
   assignee    String    @map("assignee")
-
-  // relation
-  overtime Overtime @relation("OvertimeDescriptions", fields: [overtimeId], references: [id], onDelete: Cascade)
+  endDate     DateTime? @map("end_date")
+  startDate   DateTime? @map("start_date")
+  overtime    Overtime  @relation("OvertimeDescriptions", fields: [overtimeId], references: [id], onDelete: Cascade)
 
   @@index([overtimeId])
   @@index([assignee, date])
   @@map("timesheet_overtime_descriptions")
+}
+
+enum ProjectAssetCaptureType {
+  CAPTUREABLE
+  UN_CAPTUREABLE
 }
