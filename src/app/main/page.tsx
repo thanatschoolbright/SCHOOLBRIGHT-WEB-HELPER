@@ -1,385 +1,383 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   Typography,
   Space,
-  Tag,
-  theme,
-  Divider,
+  Input,
   Button,
-  Skeleton,
+  theme,
+  Empty,
+  Tag,
+  Tooltip,
 } from "antd";
 import {
-  RocketOutlined,
-  ClockCircleOutlined,
-  TagOutlined,
-  DownOutlined,
-  UpOutlined,
-  LinkOutlined,
-  GithubOutlined,
-  SyncOutlined,
-  CheckCircleFilled,
-  BugFilled,
+  SearchOutlined,
+  AppstoreOutlined,
+  RightOutlined,
+  FireFilled,
   ThunderboltFilled,
-  ToolFilled,
+  CompassOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
-import dayjs from "dayjs";
-import "dayjs/locale/th";
-import buddhistEra from "dayjs/plugin/buddhistEra";
-import relativeTime from "dayjs/plugin/relativeTime";
 import DashboardLayout from "@/components/layouts/backend-layout";
+import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
 
-dayjs.extend(buddhistEra);
-dayjs.extend(relativeTime);
-dayjs.locale("th");
+const { Title, Text } = Typography;
 
-const GITHUB_RAW_URL =
-  "https://raw.githubusercontent.com/Jabjai-Corporation/meta-version/main/sb-api-mobile.tag.json";
-
-interface GitHubReleaseItem {
-  system: string;
-  tag: string;
-  title: string;
-  release_date: string;
-  type: string;
-  notes: string;
-  author: string;
-  synced_at: string;
-}
-
-// --- Enhanced Markdown Parser for Support Team ---
-const renderMarkdownContent = (text: string) => {
-  if (!text) return null;
-
-  // Split lines
-  const lines = text.split("\n");
-
-  return lines.map((line, index) => {
-    // 1. Headers (###, ##, #)
-    if (line.startsWith("#")) {
-      const level = line.match(/^#+/)?.[0].length || 0;
-      const content = line.replace(/^#+\s*/, "");
-      const fontSize = level === 1 ? 20 : level === 2 ? 18 : 16;
-      return (
-        <Typography.Title
-          key={index}
-          level={5}
-          style={{
-            fontSize,
-            marginTop: 16,
-            marginBottom: 8,
-            color: level === 1 ? "#1677ff" : "inherit",
-          }}
-        >
-          {content}
-        </Typography.Title>
-      );
-    }
-
-    // 2. Lists (- , *)
-    if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
-      const content = line.trim().substring(2);
-      return (
-        <div key={index} style={{ display: "flex", gap: 8, marginLeft: 8, marginBottom: 4 }}>
-          <span style={{ color: "#faad14" }}>•</span>
-          <Typography.Text>{parseInlineStyles(content)}</Typography.Text>
-        </div>
-      );
-    }
-
-    // 3. Table Rows (| ... | ... |) - Basic rendering
-    if (line.trim().startsWith("|")) {
-       if (line.includes("---")) return null; // Skip separator line
-       const cols = line.split("|").filter(c => c.trim() !== "");
-       return (
-          <div key={index} style={{ display: "grid", gridTemplateColumns: `repeat(${cols.length}, 1fr)`, gap: 8, background: '#fafafa', padding: '4px 8px', borderBottom: '1px solid #f0f0f0', fontSize: 13 }}>
-             {cols.map((col, i) => (
-                <div key={i}>{parseInlineStyles(col.trim())}</div>
-             ))}
-          </div>
-       );
-    }
-
-    // 4. Normal Text
-    if (line.trim() === "") return <br key={index} />;
-    
-    return (
-      <div key={index} style={{ marginBottom: 4 }}>
-        {parseInlineStyles(line)}
-      </div>
-    );
-  });
-};
-
-// Helper to parse Links, Bold, Italic inside a line
-const parseInlineStyles = (text: string) => {
-  // Regex for Markdown Link [Text](URL)
-  const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g;
-  // Regex for Bold **Text**
-  const boldRegex = /\*\*([^\*]+)\*\*/g;
-  // Regex for Plain URL
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-
-  // Simple token replacement (Order matters!)
-  let parts: (string | JSX.Element)[] = [text];
-
-  // 1. Process Links [Text](URL)
-  // (Simplified for demo, real implementation should be recursive)
-  
-  // 2. Process Plain URLs
-  const processUrls = (input: string | JSX.Element): (string | JSX.Element)[] => {
-      if (typeof input !== 'string') return [input];
-      const elements: (string | JSX.Element)[] = [];
-      let lastIndex = 0;
-      const matches = [...input.matchAll(urlRegex)];
-      
-      if (matches.length === 0) return [input];
-
-      matches.forEach((match, i) => {
-          const url = match[0];
-          const index = match.index!;
-          if (index > lastIndex) elements.push(input.substring(lastIndex, index));
-          elements.push(
-              <a key={`url-${i}`} href={url} target="_blank" rel="noreferrer" style={{ color: "#1677ff" }}>
-                  {url} <LinkOutlined style={{ fontSize: 10 }} />
-              </a>
-          );
-          lastIndex = index + url.length;
-      });
-      if (lastIndex < input.length) elements.push(input.substring(lastIndex));
-      return elements;
-  };
-
-  // 3. Process Bold **Text**
-  const processBold = (input: string | JSX.Element): (string | JSX.Element)[] => {
-      if (typeof input !== 'string') return [input];
-      const elements: (string | JSX.Element)[] = [];
-      let lastIndex = 0;
-      const matches = [...input.matchAll(boldRegex)];
-
-      if (matches.length === 0) return [input];
-
-      matches.forEach((match, i) => {
-          const fullMatch = match[0];
-          const content = match[1];
-          const index = match.index!;
-          if (index > lastIndex) elements.push(input.substring(lastIndex, index));
-          elements.push(<strong key={`bold-${i}`} style={{ color: '#262626' }}>{content}</strong>);
-          lastIndex = index + fullMatch.length;
-      });
-      if (lastIndex < input.length) elements.push(input.substring(lastIndex));
-      return elements;
-  };
-
-  // Chain processors (Basic)
-  let processed = processBold(text);
-  // Flatten and process URLs
-  // (In real app, consider using 'react-markdown' package)
-  return processed.map(p => processUrls(p)).flat();
-};
-
-
-const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
-  item,
-  isLatest,
-}) => {
+export default function MainDashboardPage() {
+  const router = useRouter();
   const { token } = theme.useToken();
-  const [expanded, setExpanded] = useState(isLatest);
+  const menuItems = useSidebarMenu();
+  const [searchText, setSearchText] = useState("");
 
-  // Analyze content for smart badges
-  const hasBugFix = item.notes.includes("Bug Fix") || item.notes.includes("bug");
-  const hasFeature = item.notes.includes("New Feature") || item.notes.includes("feature");
-  const hasImprovement = item.notes.includes("Improvement");
+  const filteredMenu = useMemo(() => {
+    if (!searchText) return menuItems;
+    const lowerSearch = searchText.toLowerCase();
+    return menuItems
+      .map((group) => {
+        const groupMatch = group.label.toLowerCase().includes(lowerSearch);
+        const filteredChildren = group.children?.filter((child) =>
+          child.label.toLowerCase().includes(lowerSearch)
+        );
+        if (groupMatch) {
+          return group;
+        } else if (filteredChildren && filteredChildren.length > 0) {
+          return { ...group, children: filteredChildren };
+        }
+        return null;
+      })
+      .filter(Boolean) as typeof menuItems;
+  }, [menuItems, searchText]);
 
-  return (
-    <Card
-      variant="outlined"
-      style={{
-        borderRadius: 16,
-        boxShadow: isLatest ? "0 4px 20px rgba(0,0,0,0.08)" : "none",
-        border: `1px solid ${
-          isLatest ? token.colorPrimaryBorder : token.colorBorderSecondary
-        }`,
-        background: token.colorBgContainer,
-        overflow: "hidden",
-        transition: "all 0.3s ease",
-        marginBottom: 24,
-      }}
-      styles={{ body: { padding: 0 } }}
-    >
-      <div
-        onClick={() => !isLatest && setExpanded(!expanded)}
-        style={{
-          padding: "16px 24px",
-          background: isLatest
-            ? `linear-gradient(90deg, ${token.colorFillQuaternary} 0%, ${token.colorBgContainer} 100%)`
-            : token.colorBgContainer,
-          borderBottom: expanded ? `1px solid ${token.colorBorderSecondary}` : "none",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 12,
-          cursor: isLatest ? "default" : "pointer",
-        }}
-      >
-        <Space size="middle" align="center">
-          {!isLatest && (
-            <div style={{ color: token.colorTextTertiary, fontSize: 12 }}>
-              {expanded ? <UpOutlined /> : <DownOutlined />}
-            </div>
-          )}
-
-          <Tag 
-            color={isLatest ? "blue" : "default"} 
-            style={{ 
-                fontSize: 14, 
-                padding: "4px 10px", 
-                borderRadius: 6, 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 6 
-            }}
-          >
-            <TagOutlined /> {item.tag}
-          </Tag>
-
-          <Typography.Text strong style={{ fontSize: 16 }}>
-             {item.title && item.title !== item.tag ? item.title : `เวอร์ชัน ${item.tag}`}
-          </Typography.Text>
-
-          {isLatest && <Tag color="#f50">ล่าสุด (LATEST)</Tag>}
-          
-          {/* Quick Badges */}
-          {!isLatest && !expanded && (
-             <Space size={4}>
-                {hasBugFix && <Tag color="error" bordered={false}><BugFilled /> แก้บั๊ก</Tag>}
-                {hasFeature && <Tag color="success" bordered={false}><ThunderboltFilled /> ฟีเจอร์ใหม่</Tag>}
-                {hasImprovement && <Tag color="warning" bordered={false}><ToolFilled /> ปรับปรุง</Tag>}
-             </Space>
-          )}
-        </Space>
-
-        <Space>
-          <ClockCircleOutlined style={{ color: token.colorTextTertiary }} />
-          <Typography.Text type="secondary">
-            {dayjs(item.release_date).format("D MMM BBBB")}
-          </Typography.Text>
-        </Space>
-      </div>
-
-      {expanded && (
-        <div style={{ padding: "24px", animation: "fadeIn 0.3s ease-in-out" }}>
-            <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: `1px dashed ${token.colorSplit}` }}>
-                <Space wrap>
-                    <Tag icon={<GithubOutlined />}>Author: {item.author}</Tag>
-                    <Tag color={item.type === 'production' ? 'green' : 'orange'}>
-                        {item.type.toUpperCase()}
-                    </Tag>
-                </Space>
-            </div>
-            
-            <div 
-                style={{ 
-                    fontSize: 14, 
-                    lineHeight: 1.8, 
-                    color: token.colorText,
-                    background: token.colorFillAlter, // พื้นหลังจางๆ ให้อ่านง่าย
-                    padding: 16,
-                    borderRadius: 8
-                }}
-            >
-               {renderMarkdownContent(item.notes)}
-            </div>
-        </div>
-      )}
-    </Card>
-  );
-};
-
-export const GitHubReleaseNotes: React.FC = () => {
-  const { token } = theme.useToken();
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<GitHubReleaseItem[]>([]);
-
-  const fetchReleaseNotes = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get<GitHubReleaseItem[]>(GITHUB_RAW_URL);
-      const sortedData = response.data.sort((a, b) => 
-         new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
-      );
-      setData(sortedData);
-    } catch (error) {
-      console.error("Failed to fetch release notes:", error);
-    } finally {
-      setLoading(false);
+  const handleNavigate = (href: string) => {
+    if (href.startsWith("http")) {
+      window.open(href, "_blank");
+    } else {
+      router.push(href);
     }
   };
-
-  useEffect(() => {
-    fetchReleaseNotes();
-  }, []);
 
   return (
     <DashboardLayout>
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 0" }}>
-        <style>{`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-        `}</style>
-        
-        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <Typography.Title level={2} style={{ marginBottom: 8 }}>
-              <RocketOutlined style={{ color: token.colorPrimary, marginRight: 12 }} />
-              บันทึกการอัปเดตระบบ (Release Notes)
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              ติดตามรายการเปลี่ยนแปลง เวอร์ชันล่าสุด และประวัติการแก้ไขทั้งหมด
-            </Typography.Text>
-            <div style={{ marginTop: 16 }}>
-               <Button 
-                  icon={<SyncOutlined spin={loading} />} 
-                  onClick={fetchReleaseNotes}
-                  type="text"
-               >
-                  รีเฟรชข้อมูล
-               </Button>
+      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "40px 24px" }}>
+        {/* --- Header Section (Redesigned - Thai) --- */}
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <Tooltip title="คลิกเมนูด้านล่างเพื่อเริ่มใช้งานระบบ">
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: token.colorPrimaryBg,
+                padding: "12px 24px",
+                borderRadius: 100,
+                marginBottom: 24,
+                cursor: "help",
+              }}
+            >
+              <CompassOutlined
+                style={{
+                  fontSize: 24,
+                  color: token.colorPrimary,
+                  marginRight: 8,
+                }}
+              />
+              <Text strong style={{ color: token.colorPrimary, fontSize: 16 }}>
+                เมนูนำทางด่วน
+              </Text>
             </div>
-          </div>
+          </Tooltip>
 
-          {loading && (
-             <>
-               <Card style={{ borderRadius: 16, marginBottom: 16 }}><Skeleton active avatar paragraph={{ rows: 4 }} /></Card>
-               <Card style={{ borderRadius: 16 }}><Skeleton active avatar paragraph={{ rows: 4 }} /></Card>
-             </>
-          )}
+          <Title
+            level={1}
+            style={{ marginBottom: 16, fontWeight: 800, fontSize: 42 }}
+          >
+            หน้าหลัก (Dashboard)
+          </Title>
+          <Text
+            type="secondary"
+            style={{ fontSize: 18, maxWidth: 600, display: "inline-block" }}
+          >
+            ศูนย์รวมเมนูและเครื่องมือจัดการระบบทั้งหมด เข้าถึงง่ายในที่เดียว
+            <Tooltip title="พิมพ์ชื่อเมนูในช่องค้นหาด้านล่างเพื่อหาเมนูที่ต้องการอย่างรวดเร็ว">
+              <InfoCircleOutlined
+                style={{
+                  marginLeft: 8,
+                  cursor: "help",
+                  color: token.colorTextTertiary,
+                }}
+              />
+            </Tooltip>
+          </Text>
 
-          {!loading && data.map((release, index) => (
-            <ReleaseCard
-              key={`${release.tag}-${index}`}
-              item={release}
-              isLatest={index === 0}
+          <div
+            style={{
+              maxWidth: 600,
+              margin: "40px auto 0",
+              position: "relative",
+            }}
+          >
+            <Input
+              size="large"
+              placeholder="ค้นหาเมนูที่ต้องการใช้งาน..."
+              prefix={
+                <SearchOutlined
+                  style={{
+                    color: token.colorTextPlaceholder,
+                    fontSize: 20,
+                    marginRight: 8,
+                  }}
+                />
+              }
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              allowClear
+              style={{
+                borderRadius: 100,
+                boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+                height: 60,
+                fontSize: 18,
+                border: "none",
+                paddingLeft: 24,
+              }}
             />
-          ))}
+          </div>
+        </div>
 
-          {!loading && (
-             <Divider style={{ marginTop: 32 }}>
-               <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                 สิ้นสุดรายการอัปเดตทั้งหมด {data.length} รายการ
-               </Typography.Text>
-             </Divider>
-          )}
-        </Space>
+        {/* --- Modern Masonry Grid --- */}
+        {filteredMenu.length > 0 ? (
+          <div className="masonry-grid">
+            {filteredMenu.map((group, index) => (
+              <div className="masonry-item" key={index}>
+                <Card
+                  hoverable
+                  style={{
+                    borderRadius: 24,
+                    border: "none",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+                    overflow: "hidden",
+                    background: token.colorBgContainer,
+                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  }}
+                  styles={{
+                    body: { padding: 0 },
+                  }}
+                  className="dashboard-card"
+                >
+                  {/* Card Header with Gradient */}
+                  <div
+                    style={{
+                      padding: "24px 24px 20px",
+                      background: `linear-gradient(135deg, ${token.colorFillQuaternary} 0%, ${token.colorBgContainer} 100%)`,
+                      borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 16,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 16,
+                        background: token.colorBgContainer,
+                        color: token.colorPrimary,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 28,
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                      }}
+                    >
+                      {group.icon}
+                    </div>
+                    <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+                      {group.label}
+                    </Title>
+                  </div>
+
+                  {/* Sub Menu List */}
+                  <div
+                    style={{
+                      padding: "16px 16px 24px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                    }}
+                  >
+                    {group.children?.map((child, childIndex) => (
+                      <Tooltip
+                        key={childIndex}
+                        title={`คลิกเพื่อไปที่หน้า ${child.label}`}
+                        placement="right"
+                        mouseEnterDelay={0.5}
+                      >
+                        <Button
+                          type="text"
+                          style={{
+                            height: "auto",
+                            padding: "12px 16px",
+                            borderRadius: 12,
+                            textAlign: "left",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            width: "100%",
+                            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                            background: "transparent",
+                          }}
+                          onClick={() => handleNavigate(child.href)}
+                          className="menu-item-modern"
+                        >
+                          <Space
+                            align="center"
+                            style={{ flex: 1, overflow: "hidden" }}
+                          >
+                            {child.icon && (
+                              <div
+                                className="menu-icon-wrapper"
+                                style={{
+                                  color: token.colorTextSecondary,
+                                  fontSize: 18,
+                                  width: 24,
+                                  display: "flex",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                {child.icon}
+                              </div>
+                            )}
+                            <Text
+                              strong
+                              style={{
+                                fontSize: 15,
+                                color: token.colorText,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {child.label}
+                            </Text>
+                          </Space>
+
+                          <Space size={8}>
+                            {child.news && (
+                              <Tag
+                                color="#ff4d4f"
+                                style={{
+                                  margin: 0,
+                                  borderRadius: 100,
+                                  fontSize: 10,
+                                  padding: "0 8px",
+                                  border: "none",
+                                }}
+                              >
+                                ใหม่
+                              </Tag>
+                            )}
+                            {child.revamp && (
+                              <Tag
+                                color="cyan"
+                                style={{
+                                  margin: 0,
+                                  borderRadius: 100,
+                                  fontSize: 10,
+                                  padding: "0 8px",
+                                  border: "none",
+                                }}
+                              >
+                                ปรับปรุง
+                              </Tag>
+                            )}
+                            <RightOutlined
+                              className="arrow-icon"
+                              style={{
+                                fontSize: 12,
+                                color: token.colorTextQuaternary,
+                                opacity: 0,
+                              }}
+                            />
+                          </Space>
+                        </Button>
+                      </Tooltip>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ padding: "80px 0", textAlign: "center" }}>
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <Text type="secondary" style={{ fontSize: 18 }}>
+                    ไม่พบเมนูที่คุณค้นหา
+                  </Text>
+                  <Text type="secondary">
+                    ลองตรวจสอบคำค้นหา หรือใช้คำอื่นดูนะครับ
+                  </Text>
+                </div>
+              }
+            />
+          </div>
+        )}
       </div>
+
+      {/* Global CSS for Masonry & Animations */}
+      <style jsx global>{`
+        /* Masonry Layout */
+        .masonry-grid {
+          column-count: 3;
+          column-gap: 24px;
+        }
+        @media (max-width: 1200px) {
+          .masonry-grid {
+            column-count: 2;
+          }
+        }
+        @media (max-width: 768px) {
+          .masonry-grid {
+            column-count: 1;
+          }
+        }
+
+        .masonry-item {
+          break-inside: avoid;
+          margin-bottom: 24px;
+        }
+
+        /* Card Hover Effect */
+        .dashboard-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
+        }
+
+        /* Menu Item Interaction */
+        .menu-item-modern:hover {
+          background: ${token.colorFillQuaternary} !important;
+          transform: translateX(6px);
+        }
+        .menu-item-modern:hover .menu-icon-wrapper {
+          color: ${token.colorPrimary} !important;
+        }
+        .menu-item-modern:hover .arrow-icon {
+          opacity: 1 !important;
+          transform: translateX(4px);
+        }
+      `}</style>
     </DashboardLayout>
   );
-};
-
-export default GitHubReleaseNotes;
+}
