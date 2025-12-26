@@ -29,6 +29,7 @@ import {
   Avatar,
   Tooltip,
   Divider,
+  Collapse,
 } from "antd";
 import {
   SearchOutlined,
@@ -46,6 +47,9 @@ import {
   BarcodeOutlined,
   ClockCircleOutlined,
   FilterFilled,
+  AppstoreOutlined,
+  InfoCircleOutlined,
+  CodeOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -58,7 +62,9 @@ dayjs.locale("th");
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
+const { Panel } = Collapse;
 
+// Interface
 interface DeviceStatusData {
   DeviceStatusID: string;
   SchoolID: number;
@@ -71,6 +77,8 @@ interface DeviceStatusData {
   LogoutTime: string | null;
   Tstamp: string;
   BusinessDate: string;
+  AppName?: string;
+  AppVersion?: string;
 }
 
 interface DeviceStatusApiResponse {
@@ -105,8 +113,8 @@ export default function OnlineDeviceDashboard() {
   const schoolOptions = useMemo(
     () =>
       schoolList.map((school: any) => ({
-        label: `${school.school_name} (${school.school_id})`,
-        value: school.school_id,
+        label: `${school.SchoolName} (${school.SchoolID})`,
+        value: school.SchoolID,
       })),
     [schoolList]
   );
@@ -122,15 +130,29 @@ export default function OnlineDeviceDashboard() {
     total: 0,
   });
 
+  const appNameOptions = useMemo(() => {
+    const uniqueApps = Array.from(
+      new Set(deviceStatusList.map((d) => d.AppName).filter(Boolean))
+    );
+    return uniqueApps.map((app) => ({ label: app, value: app }));
+  }, [deviceStatusList]);
+
+  const appVersionOptions = useMemo(() => {
+    const uniqueVersions = Array.from(
+      new Set(deviceStatusList.map((d) => d.AppVersion).filter(Boolean))
+    );
+    return uniqueVersions.map((v) => ({ label: `v.${v}`, value: v }));
+  }, [deviceStatusList]);
+
   const getSchoolName = useCallback(
     (schoolId: number) => {
       if (!Array.isArray(schoolList) || schoolList.length === 0)
         return `โรงเรียน #${schoolId}`;
       const foundSchool = schoolList.find(
-        (school: any) => school.school_id === schoolId
+        (school: any) => school.SchoolID === schoolId
       );
       return foundSchool
-        ? `${foundSchool.school_name} (${foundSchool.school_id})`
+        ? `${foundSchool.SchoolName} (${foundSchool.SchoolID})`
         : `ไม่พบชื่อโรงเรียน (${schoolId})`;
     },
     [schoolList]
@@ -140,13 +162,29 @@ export default function OnlineDeviceDashboard() {
     async (pageIndex = 1, pageSizeLimit = 20) => {
       setIsFetchingDeviceStatus(true);
       try {
-        const formValues = searchForm.getFieldsValue();
+        // ✅ ปรับปรุง: ใช้ try-catch ครอบเฉพาะการดึงค่าจาก Form
+        let formValues: any = { isOnline: true }; // Default values
+
+        try {
+          // พยายามดึงค่าจากฟอร์ม
+          const values = searchForm.getFieldsValue();
+          // ถ้าดึงได้ ให้ merge กับ default (ถ้า isOnline เป็น undefined จะใช้ true)
+          formValues = {
+            ...values,
+            isOnline: values.isOnline ?? true,
+          };
+        } catch (e) {
+          // กรณี Form ยังไม่ Mount (เกิดขึ้นน้อยมากถ้าใช้ forceRender) ให้ใช้ค่า Default
+          console.warn("Form instance not ready, using defaults");
+        }
 
         const requestPayload = {
           page: pageIndex,
           limit: pageSizeLimit,
           keyword: formValues.keyword ?? "",
           schoolId: formValues.schoolId,
+          appName: formValues.appName,
+          appVersion: formValues.appVersion,
           isOnline: formValues.isOnline,
           isLogin: formValues.isLogin,
           startDate: formValues.dateRange?.[0]
@@ -188,6 +226,7 @@ export default function OnlineDeviceDashboard() {
     [searchForm]
   );
 
+  // ✅ FIX: ลบ Logic การ setFieldsValue ออกจาก useEffect เพื่อแก้ปัญหา Warning
   useEffect(() => {
     fetchDeviceStatusData();
   }, [fetchDeviceStatusData]);
@@ -202,6 +241,8 @@ export default function OnlineDeviceDashboard() {
 
   const handleResetFilters = () => {
     searchForm.resetFields();
+    // ✅ Reset แล้วต้อง set ค่า default กลับไปเป็น true ด้วย
+    searchForm.setFieldsValue({ isOnline: true });
     fetchDeviceStatusData(1, deviceStatusPagination.pageSize);
   };
 
@@ -292,10 +333,30 @@ export default function OnlineDeviceDashboard() {
       ),
     },
     {
+      title: "ข้อมูลแอปพลิเคชัน",
+      key: "AppInfo",
+      width: 200,
+      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
+        (a.AppName || "").localeCompare(b.AppName || ""),
+      render: (_: any, record: DeviceStatusData) => (
+        <Flex vertical gap={2}>
+          <Space>
+            <AppstoreOutlined style={{ color: token.colorTextTertiary }} />
+            <Text style={{ fontSize: 13 }}>{record.AppName || "-"}</Text>
+          </Space>
+          {record.AppVersion && (
+            <Tag style={{ width: "fit-content", margin: 0, fontSize: 10 }}>
+              v.{record.AppVersion}
+            </Tag>
+          )}
+        </Flex>
+      ),
+    },
+    {
       title: "สถานะเครือข่าย",
       dataIndex: "Online",
       key: "Online",
-      width: 140, // ✅ Reduced width
+      width: 140,
       align: "center" as const,
       sorter: (firstDevice: DeviceStatusData, secondDevice: DeviceStatusData) =>
         firstDevice.Online === secondDevice.Online
@@ -335,7 +396,7 @@ export default function OnlineDeviceDashboard() {
       title: "สถานะการใช้งาน",
       dataIndex: "Login",
       key: "Login",
-      width: 140, // ✅ Reduced width
+      width: 140,
       align: "center" as const,
       sorter: (firstDevice: DeviceStatusData, secondDevice: DeviceStatusData) =>
         firstDevice.Login === secondDevice.Login
@@ -412,6 +473,199 @@ export default function OnlineDeviceDashboard() {
     },
   ];
 
+  const collapseItems = [
+    {
+      key: "1",
+      label: (
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <FilterFilled style={{ color: token.colorPrimary }} />
+          <Text strong style={{ fontSize: 16 }}>
+            ตัวกรองข้อมูลขั้นสูง (Filter)
+          </Text>
+        </div>
+      ),
+      children: (
+        <Form
+          form={searchForm}
+          layout="vertical"
+          onFinish={handleSearchSubmit}
+          // ✅ FIX: กำหนดค่าเริ่มต้นให้กับ Form ที่นี่ เพื่อให้ UI แสดงผลถูกต้องทันทีที่ Render
+          initialValues={{ isOnline: true }}
+        >
+          {/* 2 Columns Grid for Filters */}
+          <Row gutter={[24, 16]}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={
+                  <Space>
+                    <SearchOutlined />
+                    <span>ค้นหา (รหัสเครื่อง / รหัสโรงเรียน)</span>
+                    <Tooltip title="กรอกบางส่วนของรหัสเครื่อง หรือรหัสโรงเรียนเพื่อค้นหา">
+                      <InfoCircleOutlined
+                        style={{ color: token.colorTextTertiary }}
+                      />
+                    </Tooltip>
+                  </Space>
+                }
+                name="keyword"
+              >
+                <Input placeholder="เช่น 14407..., 1001" allowClear />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={
+                  <Space>
+                    <ShopOutlined />
+                    <span>โรงเรียน (School)</span>
+                  </Space>
+                }
+                name="schoolId"
+              >
+                <Select
+                  placeholder="เลือกโรงเรียน"
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  options={schoolOptions}
+                />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={
+                  <Space>
+                    <AppstoreOutlined />
+                    <span>ชื่อแอปพลิเคชัน (App Name)</span>
+                    <Tooltip title="กรองเฉพาะชื่อแอปที่ต้องการ">
+                      <InfoCircleOutlined
+                        style={{ color: token.colorTextTertiary }}
+                      />
+                    </Tooltip>
+                  </Space>
+                }
+                name="appName"
+              >
+                <Select
+                  placeholder="เลือกชื่อแอปพลิเคชัน"
+                  allowClear
+                  showSearch
+                  options={appNameOptions}
+                />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={
+                  <Space>
+                    <CodeOutlined />
+                    <span>เวอร์ชันแอป (Version)</span>
+                  </Space>
+                }
+                name="appVersion"
+              >
+                <Select
+                  placeholder="เลือกเวอร์ชัน"
+                  allowClear
+                  showSearch
+                  options={appVersionOptions}
+                />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={
+                  <Space>
+                    <WifiOutlined />
+                    <span>สถานะเครือข่าย</span>
+                  </Space>
+                }
+                name="isOnline"
+              >
+                <Select placeholder="ทั้งหมด" allowClear>
+                  <Select.Option value={true}>
+                    <Badge status="success" text="ออนไลน์ (Online)" />
+                  </Select.Option>
+                  <Select.Option value={false}>
+                    <Badge status="error" text="ออฟไลน์ (Offline)" />
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={
+                  <Space>
+                    <ThunderboltFilled />
+                    <span>สถานะการใช้งาน</span>
+                  </Space>
+                }
+                name="isLogin"
+              >
+                <Select placeholder="ทั้งหมด" allowClear>
+                  <Select.Option value={true}>
+                    <Badge status="processing" text="กำลังใช้งาน (Active)" />
+                  </Select.Option>
+                  <Select.Option value={false}>
+                    <Badge status="default" text="ไม่ได้ใช้งาน (Inactive)" />
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={24}>
+              <Form.Item
+                label={
+                  <Space>
+                    <ClockCircleOutlined />
+                    <span>ช่วงเวลา (วันที่ทำรายการ)</span>
+                  </Space>
+                }
+                name="dateRange"
+                style={{ marginBottom: 0 }}
+              >
+                <RangePicker
+                  style={{ width: "100%" }}
+                  format="DD/MM/YYYY"
+                  placeholder={["วันเริ่มต้น", "วันสิ้นสุด"]}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider style={{ margin: "24px 0" }} />
+
+          <Row justify="end" gutter={16}>
+            <Col>
+              <Button
+                icon={<ClearOutlined />}
+                onClick={handleResetFilters}
+                size="large"
+              >
+                ล้างค่า
+              </Button>
+            </Col>
+            <Col>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<SearchOutlined />}
+                size="large"
+              >
+                ค้นหาข้อมูล
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      ),
+    },
+  ];
+
   return (
     <DashboardLayout>
       <div
@@ -468,7 +722,6 @@ export default function OnlineDeviceDashboard() {
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} sm={8}>
             <Card
-              bordered={false}
               style={{
                 borderRadius: 16,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -485,7 +738,6 @@ export default function OnlineDeviceDashboard() {
           </Col>
           <Col xs={24} sm={8}>
             <Card
-              bordered={false}
               style={{
                 borderRadius: 16,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -502,7 +754,6 @@ export default function OnlineDeviceDashboard() {
           </Col>
           <Col xs={24} sm={8}>
             <Card
-              bordered={false}
               style={{
                 borderRadius: 16,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -519,148 +770,31 @@ export default function OnlineDeviceDashboard() {
           </Col>
         </Row>
 
-        {/* --- Filter Section --- */}
-        <Card
-          bordered={false}
-          style={{
-            borderRadius: 16,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-            marginBottom: 24,
-          }}
-        >
-          <div
+        {/* --- Filter Section (Enhanced with Collapse) --- */}
+        <div style={{ marginBottom: 24 }}>
+          {/* ✅ Added destroyInactivePanel={false} to keep form mounted */}
+          <Collapse
+            defaultActiveKey={[]}
+            ghost
+            expandIconPosition="end"
+            items={collapseItems}
+            destroyOnHidden={false}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 16,
+              background: token.colorBgContainer,
+              borderRadius: 16,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+              border: "none",
             }}
-          >
-            <FilterFilled style={{ color: token.colorPrimary }} />
-            <Text strong style={{ fontSize: 16 }}>
-              ตัวกรองข้อมูลขั้นสูง
-            </Text>
-          </div>
-
-          <Form
-            form={searchForm}
-            layout="vertical"
-            onFinish={handleSearchSubmit}
-          >
-            <Row gutter={[16, 16]}>
-              <Col xs={24} md={8} lg={6}>
-                <Form.Item
-                  label="ค้นหา (รหัสเครื่อง / รหัสโรงเรียน)"
-                  name="keyword"
-                  style={{ marginBottom: 0 }}
-                >
-                  <Input
-                    placeholder="ระบุรหัสเครื่อง..."
-                    prefix={
-                      <SearchOutlined
-                        style={{ color: token.colorTextPlaceholder }}
-                      />
-                    }
-                    allowClear
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col xs={24} md={8} lg={6}>
-                <Form.Item
-                  label="โรงเรียน"
-                  name="schoolId"
-                  style={{ marginBottom: 0 }}
-                >
-                  <Select
-                    placeholder="เลือกโรงเรียน"
-                    allowClear
-                    showSearch
-                    optionFilterProp="label"
-                    options={schoolOptions}
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col xs={24} md={8} lg={4}>
-                <Form.Item
-                  label="สถานะเครือข่าย"
-                  name="isOnline"
-                  style={{ marginBottom: 0 }}
-                >
-                  <Select placeholder="ทั้งหมด" allowClear>
-                    <Select.Option value={true}>
-                      <Badge status="success" text="ออนไลน์" />
-                    </Select.Option>
-                    <Select.Option value={false}>
-                      <Badge status="error" text="ออฟไลน์" />
-                    </Select.Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-
-              <Col xs={24} md={8} lg={4}>
-                <Form.Item
-                  label="สถานะการใช้งาน"
-                  name="isLogin"
-                  style={{ marginBottom: 0 }}
-                >
-                  <Select placeholder="ทั้งหมด" allowClear>
-                    <Select.Option value={true}>
-                      <Badge status="processing" text="กำลังใช้งาน" />
-                    </Select.Option>
-                    <Select.Option value={false}>
-                      <Badge status="default" text="ไม่ได้ใช้งาน" />
-                    </Select.Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-
-              <Col xs={24} md={16} lg={4}>
-                <Form.Item
-                  label="ช่วงเวลา (วันที่)"
-                  name="dateRange"
-                  style={{ marginBottom: 0 }}
-                >
-                  <RangePicker
-                    style={{ width: "100%" }}
-                    format="DD/MM/YYYY"
-                    placeholder={["วันเริ่มต้น", "วันสิ้นสุด"]}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Divider style={{ margin: "16px 0" }} />
-
-            <Row justify="end" gutter={8}>
-              <Col>
-                <Button icon={<ClearOutlined />} onClick={handleResetFilters}>
-                  ล้างค่า
-                </Button>
-              </Col>
-              <Col>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={<SearchOutlined />}
-                >
-                  ค้นหาข้อมูล
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-        </Card>
+          />
+        </div>
 
         {/* --- Table Section --- */}
         <Card
-          bordered={false}
           style={{
             borderRadius: 16,
             boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
             overflow: "hidden",
           }}
-          bodyStyle={{ padding: 0 }}
         >
           <Table
             columns={tableColumns}
@@ -670,7 +804,7 @@ export default function OnlineDeviceDashboard() {
             pagination={{
               ...deviceStatusPagination,
               showSizeChanger: true,
-              pageSizeOptions: ["10", "20", "50", "100", "500", "1000"], // ✅ Max 1000
+              pageSizeOptions: ["10", "20", "50", "100", "500", "1000"],
               showTotal: (total, range) => (
                 <span style={{ color: token.colorTextSecondary }}>
                   แสดง {range[0]}-{range[1]} จาก {total} รายการ
