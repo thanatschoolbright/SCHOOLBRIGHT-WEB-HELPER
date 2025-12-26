@@ -29,11 +29,11 @@ import {
   Tooltip,
   Alert,
   Empty,
+  theme,
 } from "antd";
 import {
-  GlobalOutlined, // ใช้แทน CloudOutlined สำหรับ URL/Web
+  GlobalOutlined,
   LinkOutlined,
-  CodeOutlined,
   EyeOutlined,
   ReloadOutlined,
   CopyOutlined,
@@ -42,15 +42,17 @@ import {
   CloseCircleOutlined,
   ClockCircleOutlined,
   ArrowRightOutlined,
-  SafetyCertificateOutlined, // สำหรับ Status/Security
-  DashboardOutlined, // สำหรับหน้า Dashboard หลัก
+  SafetyCertificateOutlined,
+  DashboardOutlined,
   InfoCircleOutlined,
-  DatabaseOutlined, // สำหรับ Server Name
-  EnvironmentOutlined, // สำหรับ Environment
-  ApiOutlined, // สำหรับ Endpoint
-  WarningOutlined,
+  DatabaseOutlined,
+  EnvironmentOutlined,
+  ApiOutlined,
+  ThunderboltFilled,
 } from "@ant-design/icons";
 import { toast } from "sonner";
+
+const { Title, Text, Paragraph } = Typography;
 
 // ==================== Types ====================
 type ServerStatus = ResponseGetServerStatusV2["draftValues"]["Array"][number];
@@ -151,6 +153,7 @@ const ServerStatusTag: React.FC<{ isOnline: boolean }> = ({ isOnline }) => (
   <Tag
     color={isOnline ? "success" : "error"}
     icon={isOnline ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+    style={{ borderRadius: 12, padding: "2px 10px" }}
   >
     {isOnline ? "ทำงานปกติ" : "หยุดทำงาน"}
   </Tag>
@@ -162,26 +165,34 @@ const StatisticsCard: React.FC<{
   onRefresh: () => void;
   isLoading: boolean;
 }> = ({ stats, lastChecked, onRefresh, isLoading }) => {
+  const { token } = theme.useToken();
+
   return (
     <Card
       styles={{ body: { padding: "24px" } }}
-      className="shadow-sm hover:shadow-md transition-shadow duration-300 rounded-xl"
+      style={{
+        borderRadius: 16,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+        border: `1px solid ${token.colorBorderSecondary}`,
+      }}
     >
       <Flex justify="space-between" align="center" wrap="wrap" gap="middle">
         <Space size="large" align="center">
-          {/* เอาสี bg ออก ให้ Theme จัดการ หรือใช้ class Tailwind */}
           <Avatar
             size={64}
             icon={<DashboardOutlined />}
-            className="bg-blue-50 text-blue-500" // Tailwind classes
+            style={{
+              backgroundColor: token.colorPrimaryBg,
+              color: token.colorPrimary,
+            }}
           />
           <Space direction="vertical" size={2}>
-            <Typography.Title level={3} style={{ margin: 0 }}>
+            <Title level={3} style={{ margin: 0 }}>
               ภาพรวมสถานะระบบ
-            </Typography.Title>
-            <Typography.Text type="secondary">
+            </Title>
+            <Text type="secondary">
               ตรวจสอบความพร้อมใช้งานและความเร็วในการตอบสนอง
-            </Typography.Text>
+            </Text>
           </Space>
         </Space>
 
@@ -189,31 +200,30 @@ const StatisticsCard: React.FC<{
           <Statistic
             title="ทำงานปกติ (Online)"
             value={stats.online}
-            valueStyle={{ color: "#52c41a", fontWeight: "bold" }} // คงไว้เนื่องจากเป็น Semantic Color
+            valueStyle={{ color: token.colorSuccess, fontWeight: "bold" }}
             prefix={<CheckCircleOutlined />}
           />
-          <Divider type="vertical" className="h-auto" />
+          <Divider type="vertical" style={{ height: "auto" }} />
           <Statistic
             title="หยุดทำงาน (Offline)"
             value={stats.offline}
-            valueStyle={{ color: "#ff4d4f", fontWeight: "bold" }} // คงไว้เนื่องจากเป็น Semantic Color
+            valueStyle={{ color: token.colorError, fontWeight: "bold" }}
             prefix={<CloseCircleOutlined />}
           />
-          <Divider type="vertical" className="h-auto" />
+          <Divider type="vertical" style={{ height: "auto" }} />
           <Statistic
             title="เวลาตอบสนองเฉลี่ย"
             value={stats.avgResponseTime.toFixed(3)}
             suffix="ms"
-            // valueStyle={{ color: "#1890ff", fontWeight: "bold" }} // ลบออกให้ใช้ default theme
             prefix={<ClockCircleOutlined />}
           />
         </Flex>
 
         <Space direction="vertical" align="end" size={4}>
-          <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
             ข้อมูลล่าสุดเมื่อ
-          </Typography.Text>
-          <Typography.Text strong>{lastChecked}</Typography.Text>
+          </Text>
+          <Text strong>{lastChecked}</Text>
           <Button
             type="primary"
             icon={<ReloadOutlined />}
@@ -234,8 +244,8 @@ const ServerCard: React.FC<{
   onViewDetails: () => void;
   onEdit: () => void;
 }> = ({ server, onViewDetails, onEdit }) => {
+  const { token } = theme.useToken();
   const isOnline = server.status === STATUS.ONLINE;
-  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <Badge.Ribbon
@@ -245,12 +255,15 @@ const ServerCard: React.FC<{
     >
       <Card
         hoverable
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        styles={{ body: { height: "100%", padding: "20px" } }}
-        // ลบ inline style border ออก และใช้ Tailwind class แทน
-        className="transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg h-full rounded-xl overflow-hidden"
-        bordered={false} // ใช้ shadow แทน border
+        style={{
+          height: "100%",
+          borderRadius: 16,
+          border: `1px solid ${token.colorBorderSecondary}`,
+          overflow: "hidden",
+          transition: "transform 0.3s ease",
+        }}
+        styles={{ body: { padding: "20px", height: "100%" } }}
+        className="server-card-hover"
       >
         <Flex
           vertical
@@ -263,28 +276,28 @@ const ServerCard: React.FC<{
             <Avatar
               size={48}
               icon={<DatabaseOutlined />}
-              // ใช้ Tailwind class แทน inline style (ถ้าทำได้) หรือใช้ logic นี้สำหรับ semantic color
-              className={
-                isOnline
-                  ? "bg-green-50 text-green-600"
-                  : "bg-red-50 text-red-600"
-              }
+              style={{
+                backgroundColor: isOnline
+                  ? token.colorSuccessBg
+                  : token.colorErrorBg,
+                color: isOnline ? token.colorSuccess : token.colorError,
+              }}
             />
             <Space
               direction="vertical"
               size={0}
               style={{ flex: 1, minWidth: 0 }}
             >
-              <Typography.Title level={5} ellipsis style={{ margin: 0 }}>
+              <Title level={5} ellipsis style={{ margin: 0 }}>
                 {server.server_name_th || server.server_name}
-              </Typography.Title>
-              <Typography.Text
+              </Title>
+              <Text
                 type="secondary"
                 ellipsis
                 style={{ fontSize: "13px" }}
               >
                 {server.description || "รอการระบุรายละเอียด..."}
-              </Typography.Text>
+              </Text>
             </Space>
           </Flex>
 
@@ -292,17 +305,21 @@ const ServerCard: React.FC<{
           <Flex
             justify="space-between"
             align="center"
-            className="rounded-lg px-3 py-2" // Tailwind for subtle background
+            style={{
+              backgroundColor: token.colorFillQuaternary,
+              borderRadius: 8,
+              padding: "8px 12px",
+            }}
           >
             <Space>
-              <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
+              <Text type="secondary" style={{ fontSize: "12px" }}>
                 ความเร็วตอบสนอง:
-              </Typography.Text>
+              </Text>
               <ResponseTimeTag time={Number(server.response_time) || 0} />
             </Space>
           </Flex>
 
-          <Divider className="my-3" />
+          <Divider style={{ margin: "12px 0" }} />
 
           {/* Info Section */}
           <Space
@@ -311,16 +328,16 @@ const ServerCard: React.FC<{
             style={{ width: "100%", fontSize: "13px" }}
           >
             <Flex justify="space-between">
-              <Typography.Text type="secondary">
+              <Text type="secondary">
                 <ClockCircleOutlined /> ตรวจสอบเมื่อ:
-              </Typography.Text>
-              <Typography.Text>{server.timestamp}</Typography.Text>
+              </Text>
+              <Text>{server.timestamp}</Text>
             </Flex>
 
             <Flex justify="space-between">
-              <Typography.Text type="secondary">
+              <Text type="secondary">
                 <GlobalOutlined /> เว็บไซต์:
-              </Typography.Text>
+              </Text>
               <Typography.Link
                 href={server.url}
                 target="_blank"
@@ -333,12 +350,12 @@ const ServerCard: React.FC<{
             </Flex>
 
             <Flex justify="space-between">
-              <Typography.Text type="secondary">
+              <Text type="secondary">
                 <ApiOutlined /> จุดเชื่อมต่อ (Endpoint):
-              </Typography.Text>
-              <Typography.Text code ellipsis style={{ maxWidth: "150px" }}>
+              </Text>
+              <Text code ellipsis style={{ maxWidth: "150px" }}>
                 {server.endpoint}
-              </Typography.Text>
+              </Text>
             </Flex>
           </Space>
 
@@ -373,6 +390,7 @@ const ServerDetailsModal: React.FC<{
   onClose: () => void;
 }> = ({ server, visible, onClose }) => {
   const { isMobile } = useResponsive();
+  const { token } = theme.useToken();
 
   if (!server) return null;
 
@@ -389,7 +407,7 @@ const ServerDetailsModal: React.FC<{
     <Modal
       title={
         <Space>
-          <InfoCircleOutlined className="text-blue-500" />
+          <InfoCircleOutlined style={{ color: token.colorPrimary }} />
           <span>ข้อมูลเชิงลึกของเซิร์ฟเวอร์</span>
         </Space>
       }
@@ -412,26 +430,27 @@ const ServerDetailsModal: React.FC<{
             <Avatar
               size={64}
               icon={<DatabaseOutlined />}
-              className={
-                isOnline
-                  ? "bg-green-50 text-green-600"
-                  : "bg-red-50 text-red-600"
-              }
+              style={{
+                backgroundColor: isOnline
+                  ? token.colorSuccessBg
+                  : token.colorErrorBg,
+                color: isOnline ? token.colorSuccess : token.colorError,
+              }}
             />
             <Space direction="vertical" size={0}>
-              <Typography.Title level={4} style={{ margin: 0 }}>
+              <Title level={4} style={{ margin: 0 }}>
                 {server.server_name_th || server.server_name}
-              </Typography.Title>
-              <Typography.Text type="secondary">
+              </Title>
+              <Text type="secondary">
                 {server.description || "ไม่มีรายละเอียดเพิ่มเติม"}
-              </Typography.Text>
+              </Text>
             </Space>
           </Space>
 
           <Space direction="vertical" align="end" size={4}>
             <ServerStatusTag isOnline={isOnline} />
             <Space>
-              <Typography.Text type="secondary">Response Time:</Typography.Text>
+              <Text type="secondary">Response Time:</Text>
               <ResponseTimeTag time={Number(server.response_time) || 0} />
             </Space>
           </Space>
@@ -441,11 +460,7 @@ const ServerDetailsModal: React.FC<{
           bordered
           column={isMobile ? 1 : 2}
           size="middle"
-          styles={{
-            label: {
-              width: "160px",
-            },
-          }}
+          labelStyle={{ width: "160px" }}
         >
           <Descriptions.Item label="ชื่อเซิร์ฟเวอร์ (System)">
             {server.server}
@@ -463,9 +478,9 @@ const ServerDetailsModal: React.FC<{
           </Descriptions.Item>
 
           <Descriptions.Item label="จุดเชื่อมต่อ API" span={isMobile ? 1 : 2}>
-            <Typography.Text code copyable>
+            <Text code copyable>
               {server.endpoint}
-            </Typography.Text>
+            </Text>
           </Descriptions.Item>
 
           <Descriptions.Item label="ตรวจสอบล่าสุด">
@@ -484,7 +499,6 @@ const ServerDetailsModal: React.FC<{
           </Descriptions.Item>
 
           <Descriptions.Item label="ระดับความรุนแรง" span={isMobile ? 1 : 2}>
-            {/* แสดงตามค่าที่มี หรือแสดงปกติถ้าไม่มี */}
             {(server as any)?.response_time_severity_level ? (
               <Tag color="warning">
                 {(server as any).response_time_severity_level}
@@ -514,6 +528,7 @@ const EditDescriptionModal: React.FC<{
   onClose: () => void;
   onSave: (description: string) => void;
 }> = ({ server, visible, onClose, onSave }) => {
+  const { token } = theme.useToken();
   const [editValue, setEditValue] = useState("");
 
   useEffect(() => {
@@ -531,7 +546,7 @@ const EditDescriptionModal: React.FC<{
     <Modal
       title={
         <Space>
-          <EditOutlined className="text-blue-500" />
+          <EditOutlined style={{ color: token.colorPrimary }} />
           <span>แก้ไขหมายเหตุ / รายละเอียด</span>
         </Space>
       }
@@ -557,7 +572,7 @@ const EditDescriptionModal: React.FC<{
           placeholder="พิมพ์รายละเอียดที่ต้องการบันทึก..."
           showCount
           maxLength={500}
-          className="rounded-lg" // Tailwind class
+          style={{ borderRadius: 8 }}
         />
         <Flex justify="flex-end" gap="small">
           <Button onClick={onClose}>ยกเลิก</Button>
@@ -577,6 +592,7 @@ const EditDescriptionModal: React.FC<{
 // ==================== Main Component ====================
 const ServerStatusPage: React.FC = () => {
   const router = useRouter();
+  const { token } = theme.useToken();
   const { servers, isLoading, refresh, setServers } = useServerStatus();
   const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(
     null
@@ -618,35 +634,86 @@ const ServerStatusPage: React.FC = () => {
 
   return (
     <DashboardLayout>
+      <style jsx global>{`
+        .server-card-hover:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+        }
+      `}</style>
+
       <HeaderBar
-        title="ระบบตรวจสอบสถานะเซิร์ฟเวอร์" // ภาษาไทย
-        subTitle="ภาพรวมความพร้อมใช้งานของระบบแบบเรียลไทม์" // ภาษาไทย
+        title="ระบบตรวจสอบสถานะเซิร์ฟเวอร์"
+        subTitle="ภาพรวมความพร้อมใช้งานของระบบแบบเรียลไทม์"
         icon={<SafetyCertificateOutlined />}
         color="none"
       />
       <Divider className="my-6" />
 
       {/* Action Bar */}
-      <Flex justify="end" align="center" className="mb-6">
-        <div className="relative inline-block">
+      <Flex justify="end" align="center" style={{ marginBottom: 24 }}>
+        <div style={{ position: "relative", display: "inline-block" }}>
           {/* Animated Badge for 'New' */}
-          <span className="absolute -top-2 -left-2 z-10 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+          <span
+            style={{
+              position: "absolute",
+              top: -8,
+              left: -8,
+              zIndex: 10,
+              display: "flex",
+              height: 12,
+              width: 12,
+            }}
+          >
+            <span
+              style={{
+                position: "absolute",
+                display: "inline-flex",
+                height: "100%",
+                width: "100%",
+                borderRadius: "50%",
+                backgroundColor: "#ff4d4f",
+                opacity: 0.75,
+                animation: "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite",
+              }}
+            ></span>
+            <span
+              style={{
+                position: "relative",
+                display: "inline-flex",
+                borderRadius: "50%",
+                height: 12,
+                width: 12,
+                backgroundColor: "#ff4d4f",
+              }}
+            ></span>
           </span>
-          <span className="absolute -top-3 -left-4 z-10 rounded-full bg-red-500 px-2 py-[2px] text-[10px] font-bold text-white shadow-sm ring-2 ring-white transform -rotate-6">
+          
+          {/* New Label Tag */}
+          <Tag 
+            color="red" 
+            style={{ 
+                position: 'absolute', 
+                top: -12, 
+                left: -20, 
+                zIndex: 20, 
+                transform: 'rotate(-10deg)', 
+                fontSize: 10,
+                border: 'none',
+                fontWeight: 'bold'
+            }}
+          >
             ใหม่
-          </span>
+          </Tag>
 
           <Button
             type="default"
             onClick={() => {
               router.push("/health-check/v2/server-status");
             }}
-            icon={<ArrowRightOutlined />}
-            className="hover:border-blue-500 hover:text-blue-500 transition-colors rounded-lg"
+            icon={<ThunderboltFilled style={{ color: token.colorPrimary }} />}
+            style={{ borderRadius: 8, height: 40 }}
           >
-            ไปที่หน้าตรวจสอบบอทหลังบ้าน (SB App Bot)
+            ไปที่หน้าตรวจสอบบอทหลังบ้าน (SB App Bot) <ArrowRightOutlined />
           </Button>
         </div>
       </Flex>
@@ -664,12 +731,12 @@ const ServerStatusPage: React.FC = () => {
         <Card
           title={
             <Space>
-              <DatabaseOutlined className="text-blue-500" />
+              <DatabaseOutlined style={{ color: token.colorPrimary }} />
               <span>รายการระบบทั้งหมด ({servers.length})</span>
             </Space>
           }
           bordered={false}
-          className="shadow-sm rounded-xl"
+          style={{ borderRadius: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
         >
           {isLoading ? (
             <Row gutter={[16, 16]}>
@@ -677,7 +744,10 @@ const ServerStatusPage: React.FC = () => {
                 <Col key={i} xs={24} sm={12} lg={8} xl={6}>
                   <Card
                     bordered={false}
-                    className="shadow-none border border-gray-100 rounded-xl"
+                    style={{
+                        borderRadius: 16, 
+                        border: `1px solid ${token.colorBorderSecondary}`
+                    }}
                   >
                     <Skeleton active avatar paragraph={{ rows: 3 }} />
                   </Card>
