@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import dayjs from "dayjs";
-import "dayjs/locale/th"; // Import locale ภาษาไทย
+import "dayjs/locale/th";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { logger } from "@/helpers/logger";
-
-// Import Services
 import { checkLoginService } from "./helper/mobile/login.service";
 import { checkVerificationService } from "./helper/mobile/verification.service";
 import { checkServerStatusService } from "./helper/mobile/server-status.service";
@@ -15,16 +13,15 @@ import { checkFlagPoleAttendanceService } from "./helper/mobile/attendance-stude
 import { checkFlagPoleScanService } from "./helper/mobile/attendance-scan.service";
 import { HealthCheckResult } from "./helper/health-check.type";
 import { checkGetSchoolListService } from "./helper/mobile/get-school-list.service";
+import { checkProfileService } from "./helper/mobile/check-profile.service";
+import { checkRefreshTokenService } from "./helper/mobile/refresh-token.service";
 
-// ตั้งค่าภาษาไทยให้กับ dayjs
 dayjs.locale("th");
-
-// --- ⚙️ Configuration ---
 
 const DISCORD_CONFIG = {
   WEBHOOK_URL:
     process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_DAILY_MONITOR_SERVER ?? "",
-  ALERT_USER_ID: "<@692372441699319900>", // ID ผู้ดูแลระบบ
+  ALERT_USER_ID: "<@692372441699319900>",
   BOT_NAME: "SB System Monitor",
   AVATAR_URL:
     "https://play-lh.googleusercontent.com/5tMDW7qOj174fR8MVrUOC1xBRx6a8jYg97yYzMw0JwlcS13gazRD8J3HmumEhFi3aQ",
@@ -32,20 +29,18 @@ const DISCORD_CONFIG = {
 
 const THEMES = {
   HEALTHY: {
-    color: 0x2ecc71, // สีเขียว
+    color: 0x2ecc71,
     title: "ระบบทำงานปกติสมบูรณ์",
     icon: "✅",
     image: "https://img2.pic.in.th/pic/Google-Gemini.th.jpg",
   },
   CRITICAL: {
-    color: 0xed4245, // สีแดง
+    color: 0xed4245,
     title: "ตรวจพบความผิดปกติของระบบ",
     icon: "🚨",
     image: "https://img5.pic.in.th/file/secure-sv1/Bad_job.md.jpg",
   },
 };
-
-// --- 🛠️ Utility Functions ---
 
 const getProgressBar = (percentage: number) => {
   const blocks = 10;
@@ -53,8 +48,6 @@ const getProgressBar = (percentage: number) => {
   const empty = blocks - filled;
   return `[${"█".repeat(filled)}${"░".repeat(empty)}] ${percentage}%`;
 };
-
-// --- 🧠 Analysis Logic ---
 
 const analyzeResults = (results: HealthCheckResult[]) => {
   const total = results.length;
@@ -66,13 +59,10 @@ const analyzeResults = (results: HealthCheckResult[]) => {
   return { total, passed, failed, healthScore };
 };
 
-// --- 🎨 Embed Builder ---
-
 const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
   const isCritical = stats.failed.length > 0;
   const theme = isCritical ? THEMES.CRITICAL : THEMES.HEALTHY;
 
-  // 1. Main Dashboard Embed
   const mainEmbed = {
     title: `${theme.icon} ${theme.title}`,
     description: `> **รายงานสถานะระบบประจำวัน**\n> 📅 วันที่: \`${dayjs().format(
@@ -112,7 +102,6 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
 
   const embeds: any[] = [mainEmbed];
 
-  // 2. Failed Services Embed
   if (isCritical) {
     const errorFields = stats.failed.map((service) => ({
       name: `❌ ${service.name_th} (${service.module})`,
@@ -128,7 +117,6 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
     });
   }
 
-  // 3. Operational Services List
   if (stats.passed.length > 0) {
     const passedList = stats.passed
       .map((s) => `✅ **${s.name_th}**`)
@@ -153,8 +141,6 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
   };
 };
 
-// --- 🚀 Sender ---
-
 async function sendDiscordNotification(results: HealthCheckResult[]) {
   if (!DISCORD_CONFIG.WEBHOOK_URL) {
     logger.error("Discord Webhook URL is missing");
@@ -173,41 +159,30 @@ async function sendDiscordNotification(results: HealthCheckResult[]) {
   }
 }
 
-// --- 🏁 Main Handler & Logic ---
-
 async function executeHealthChecks(): Promise<HealthCheckResult[]> {
-  // 1. ยิง Login Service ก่อนเป็นอันดับแรก (Await) เพื่อเอา Token
   const loginResult = await checkLoginService();
-
-  // 2. ดึง Token ออกมาจาก Response ของ Login
   let freshToken = "";
 
-  // ตรวจสอบว่า Login สำเร็จและมี Token กลับมาหรือไม่
-  // หมายเหตุ: เช็ค field 'token' ตาม Response JSON ตัวอย่างที่คุณให้มา
   if (loginResult.status === "200" && loginResult.response?.token) {
     freshToken = loginResult.response.token;
   } else {
-    // ถ้า Login ไม่ผ่าน ให้ Log เตือน (Service อื่นจะใช้ Fallback หรือ Fail)
     console.warn(
       "⚠️ Login Service Failed or Token missing. Using fallback/env token if available."
     );
   }
 
-  // 3. ยิง Service ที่เหลือ โดยส่ง freshToken เข้าไปด้วย (สำหรับตัวที่ต้องการ Auth)
   const otherServicesResults = await Promise.all([
-    // กลุ่มที่ต้องใช้ Token (ส่ง freshToken เข้าไป)
     checkVerificationService(freshToken),
     checkNotificationService(freshToken),
     checkFlagPoleAttendanceService(freshToken),
     checkFlagPoleScanService(freshToken),
-
-    // กลุ่มที่ไม่ต้องใช้ Token หรือใช้ Key แยกต่างหาก
-    checkServerStatusService(), // Public API
-    checkFacialScanService(), // Hardware API (ใช้ schoolId/UserCode ใน Body)
-    checkGetSchoolListService(), // Mobile API (Get School List)
+    checkServerStatusService(),
+    checkFacialScanService(),
+    checkGetSchoolListService(),
+    checkProfileService(freshToken),
+    checkRefreshTokenService(freshToken),
   ]);
 
-  // 4. รวมผลลัพธ์ทั้งหมดกลับไป (เอา Login ไว้ตัวแรกสุด)
   return [loginResult, ...otherServicesResults];
 }
 
@@ -216,10 +191,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const shouldNotifyDiscord = body.mode === "discord";
 
-    // 1. เริ่มการตรวจสอบระบบ (Health Check)
     const healthCheckResults = await executeHealthChecks();
 
-    // 2. ส่งผลไปยัง Discord หากมีการร้องขอ
     if (shouldNotifyDiscord) {
       await sendDiscordNotification(healthCheckResults);
     }
