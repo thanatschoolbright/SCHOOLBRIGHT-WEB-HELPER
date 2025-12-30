@@ -27,7 +27,7 @@
 }
 
 * {
-  font-family: "LINESeedSansTH", sans-serif;
+  font-family: "GoogleSans", sans-serif;
   letter-spacing: 0.005em;
 }
 
@@ -38,7 +38,7 @@ body {
 
 /* ปรับ Toast ให้ใช้ font-family ตามระบบ */
 [data-sonner-toaster] {
-  font-family: "LINESeedSansTH" !important;
+  font-family: "GoogleSans" !important;
 }
 
 @layer utilities {

@@ -1,90 +1,35 @@
 @font-face {
-  font-family: "Anuphan";
-  src: url("/fonts/anuphan/Anuphan-Regular.ttf") format("truetype");
+  font-family: "GoogleSans";
+  src: url("/fonts/google_sans/GoogleSans-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Anuphan";
-  src: url("/fonts/anuphan/Anuphan-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Sukhumvit";
-  src: url("/fonts/sukhumvit/Sukhumvit-Set_Thin.ttf") format("truetype");
-  font-weight: 100;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Sukhumvit";
-  src: url("/fonts/sukhumvit/Sukhumvit-Set_Light.ttf") format("truetype");
-  font-weight: 300;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Sukhumvit";
-  src: url("/fonts/sukhumvit/Sukhumvit-Set_Text.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Sukhumvit";
-  src: url("/fonts/sukhumvit/Sukhumvit-Set_Medium.ttf") format("truetype");
+  font-family: "GoogleSans";
+  src: url("/fonts/google_sans/GoogleSans-Medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Sukhumvit";
-  src: url("/fonts/sukhumvit/Sukhumvit-Set_SemiBold.ttf") format("truetype");
+  font-family: "GoogleSans";
+  src: url("/fonts/google_sans/GoogleSans-SemiBold.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Sukhumvit";
-  src: url("/fonts/sukhumvit/Sukhumvit-Set_Bold.ttf") format("truetype");
+  font-family: "GoogleSans";
+  src: url("/fonts/google_sans/GoogleSans-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
 }
 
+/* เพิ่มเติม: หากต้องการรองรับตัวเอียง (Italic) ด้วย สามารถเพิ่มโค้ดด้านล่างนี้ได้ครับ */
 @font-face {
-  font-family: "LINESeedSansTH";
-  src: url("/fonts/line_seed/LINESeedSansTH_W_Th.woff2") format("woff2");
-  font-weight: 100;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "LINESeedSansTH";
-  src: url("/fonts/line_seed/LINESeedSansTH_W_Rg.woff2") format("woff2");
+  font-family: "GoogleSans";
+  src: url("/fonts/google_sans/GoogleSans-Italic.ttf") format("truetype");
   font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "LINESeedSansTH";
-  src: url("/fonts/line_seed/LINESeedSansTH_W_Bd.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "LINESeedSansTH";
-  src: url("/fonts/line_seed/LINESeedSansTH_W_XBd.woff2") format("woff2");
-  font-weight: 800;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "LINESeedSansTH";
-  src: url("/fonts/line_seed/LINESeedSansTH_W_He.woff2") format("woff2");
-  font-weight: 900;
-  font-style: normal;
+  font-style: italic;
 }

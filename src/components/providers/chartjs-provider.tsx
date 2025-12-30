@@ -4,7 +4,7 @@
 import React from "react";
 import {Chart} from "chart.js";
 
-Chart.defaults.font.family = "'LINESeedSansTH', sans-serif";
+Chart.defaults.font.family = "'GoogleSans', sans-serif";
 Chart.defaults.font.size = 14;
 Chart.defaults.font.weight = "normal";
 
