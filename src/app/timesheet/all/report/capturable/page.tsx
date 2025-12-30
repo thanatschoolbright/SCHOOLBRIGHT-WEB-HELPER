@@ -5,7 +5,6 @@ import {
   Table,
   DatePicker,
   Button,
-  Space,
   Progress,
   message,
   Tag,
@@ -13,6 +12,8 @@ import {
   Divider,
   Popover,
   Checkbox,
+  theme,
+  Empty,
 } from "antd";
 import {
   FileExcelOutlined,
@@ -44,7 +45,6 @@ interface CapturableData {
   hours_percent: number;
 }
 
-// ** Config: รายชื่อ Column ทั้งหมดสำหรับ Filter **
 const defaultCheckedList = [
   "index",
   "project_code",
@@ -67,6 +67,7 @@ const columnOptions = [
 
 export default function CapturableReportPage() {
   const router = useRouter();
+  const { token } = theme.useToken();
   const [messageApi, contextHolder] = message.useMessage();
 
   const [loading, setLoading] = useState(false);
@@ -77,11 +78,9 @@ export default function CapturableReportPage() {
     dayjs().endOf("month"),
   ]);
 
-  // ** State: Column Visibility **
   const [visibleColumns, setVisibleColumns] =
     useState<any[]>(defaultCheckedList);
 
-  // ** Actions **
   const fetchReport = async () => {
     setLoading(true);
     try {
@@ -142,7 +141,6 @@ export default function CapturableReportPage() {
     }
   };
 
-  // ** Calculations **
   const totalHours = data.reduce((sum, item) => sum + item.hours, 0);
   const avgCapturable =
     data.length > 0
@@ -155,12 +153,14 @@ export default function CapturableReportPage() {
         data.length
       : 0;
 
-  // ** Columns Definition (Full List) **
   const allColumns: ColumnsType<CapturableData> = [
     {
       title: (
         <Tooltip title="ลำดับของรายการ">
-          <span className="cursor-help flex items-center gap-1 text-xs font-semibold text-slate-500">
+          <span
+            className="cursor-help flex items-center gap-1 text-xs font-semibold"
+            style={{ color: token.colorTextSecondary }}
+          >
             # <InfoCircleOutlined className="text-[10px]" />
           </span>
         </Tooltip>
@@ -169,13 +169,18 @@ export default function CapturableReportPage() {
       align: "center",
       width: 60,
       render: (_, __, index) => (
-        <span className="text-slate-400 text-xs">{index + 1}</span>
+        <span style={{ color: token.colorTextTertiary }} className="text-xs">
+          {index + 1}
+        </span>
       ),
     },
     {
       title: (
         <Tooltip title="รหัสอ้างอิงของโครงการ">
-          <span className="cursor-help flex items-center gap-1 text-xs font-semibold text-slate-500">
+          <span
+            className="cursor-help flex items-center gap-1 text-xs font-semibold"
+            style={{ color: token.colorTextSecondary }}
+          >
             Code <InfoCircleOutlined className="text-[10px]" />
           </span>
         </Tooltip>
@@ -187,7 +192,7 @@ export default function CapturableReportPage() {
       render: (code: string) => (
         <Tag
           color="blue"
-          className="rounded-md font-medium border-none px-2 py-0.5 text-blue-600"
+          className="rounded-md font-medium border-none px-2 py-0.5"
         >
           {code}
         </Tag>
@@ -196,7 +201,10 @@ export default function CapturableReportPage() {
     {
       title: (
         <Tooltip title="ชื่อโครงการ">
-          <span className="cursor-help flex items-center gap-1 text-xs font-semibold text-slate-500">
+          <span
+            className="cursor-help flex items-center gap-1 text-xs font-semibold"
+            style={{ color: token.colorTextSecondary }}
+          >
             Project Name <InfoCircleOutlined className="text-[10px]" />
           </span>
         </Tooltip>
@@ -205,7 +213,9 @@ export default function CapturableReportPage() {
       key: "project_name",
       width: 300,
       render: (name: string) => (
-        <span className="font-semibold text-slate-700">{name}</span>
+        <span className="font-semibold" style={{ color: token.colorText }}>
+          {name}
+        </span>
       ),
     },
     {
@@ -233,8 +243,7 @@ export default function CapturableReportPage() {
           <Progress
             percent={Number(value.toFixed(2))}
             size={["100%", 6]}
-            strokeColor="#10b981" // emerald-500
-            trailColor="#ecfdf5" // emerald-50
+            strokeColor="#10b981"
             showInfo={false}
             className="flex-1"
           />
@@ -269,8 +278,7 @@ export default function CapturableReportPage() {
           <Progress
             percent={Number(value.toFixed(2))}
             size={["100%", 6]}
-            strokeColor="#f43f5e" // rose-500
-            trailColor="#fff1f2" // rose-50
+            strokeColor="#f43f5e"
             showInfo={false}
             className="flex-1"
           />
@@ -283,7 +291,10 @@ export default function CapturableReportPage() {
     {
       title: (
         <Tooltip title="ชั่วโมงการทำงานรวมในโครงการนี้">
-          <span className="cursor-help flex items-center gap-1 text-xs font-semibold text-slate-500">
+          <span
+            className="cursor-help flex items-center gap-1 text-xs font-semibold"
+            style={{ color: token.colorTextSecondary }}
+          >
             Hours <InfoCircleOutlined className="text-[10px]" />
           </span>
         </Tooltip>
@@ -305,7 +316,10 @@ export default function CapturableReportPage() {
     {
       title: (
         <Tooltip title="สัดส่วนเปอร์เซ็นต์เทียบกับชั่วโมงงานทั้งบริษัท">
-          <span className="cursor-help flex items-center gap-1 text-xs font-semibold text-slate-500">
+          <span
+            className="cursor-help flex items-center gap-1 text-xs font-semibold"
+            style={{ color: token.colorTextSecondary }}
+          >
             Impact (%) <InfoCircleOutlined className="text-[10px]" />
           </span>
         </Tooltip>
@@ -318,7 +332,11 @@ export default function CapturableReportPage() {
       render: (value: number) => (
         <Tag
           bordered={false}
-          className="bg-slate-100 text-slate-600 font-medium rounded-full px-3"
+          style={{
+            backgroundColor: token.colorFillSecondary,
+            color: token.colorTextSecondary,
+          }}
+          className="font-medium rounded-full px-3"
         >
           {value.toFixed(2)}%
         </Tag>
@@ -326,18 +344,21 @@ export default function CapturableReportPage() {
     },
   ];
 
-  // ** Filter Columns based on selection **
   const filteredColumns = useMemo(() => {
     return allColumns.filter((col) =>
       visibleColumns.includes(col.key as string)
     );
   }, [allColumns, visibleColumns]);
 
-  // ** Column Selector Content (Popover) **
   const columnSelectorContent = (
     <div className="w-52 p-2">
-      <div className="mb-3 border-b border-slate-100 pb-2">
-        <span className="font-semibold text-slate-700">แสดงคอลัมน์</span>
+      <div
+        className="mb-3 border-b pb-2"
+        style={{ borderColor: token.colorBorderSecondary }}
+      >
+        <span className="font-semibold" style={{ color: token.colorText }}>
+          แสดงคอลัมน์
+        </span>
       </div>
       <Checkbox.Group
         className="flex flex-col gap-2.5"
@@ -363,17 +384,33 @@ export default function CapturableReportPage() {
                   type="text"
                   icon={<ArrowLeftOutlined />}
                   onClick={() => router.push("/timesheet/all")}
-                  className="mt-1 hover:bg-slate-100 h-10 w-10 p-0 flex items-center justify-center rounded-lg"
+                  className="mt-1 h-10 w-10 p-0 flex items-center justify-center rounded-lg"
+                  style={{
+                    color: token.colorText,
+                    backgroundColor: "transparent",
+                  }}
                 />
 
                 <div>
-                  <h2 className="text-2xl font-bold m-0 flex items-center gap-3 text-slate-800">
-                    <div className="p-2  rounded-lg">
-                      <PieChartOutlined className="text-blue-600 text-xl" />
+                  <h2
+                    className="text-2xl font-bold m-0 flex items-center gap-3"
+                    style={{ color: token.colorText }}
+                  >
+                    <div
+                      className="p-2 rounded-lg"
+                      style={{ backgroundColor: token.colorFillQuaternary }}
+                    >
+                      <PieChartOutlined
+                        style={{ color: token.colorPrimary }}
+                        className="text-xl"
+                      />
                     </div>
                     Capturable Analytics
                   </h2>
-                  <p className="text-slate-500 mt-2 text-sm pl-[52px]">
+                  <p
+                    className="mt-2 text-sm pl-[52px]"
+                    style={{ color: token.colorTextSecondary }}
+                  >
                     วิเคราะห์สัดส่วนงานสร้างใหม่ (Asset)
                     เปรียบเทียบกับงานซ่อมสร้าง (Maintenance)
                   </p>
@@ -381,8 +418,17 @@ export default function CapturableReportPage() {
               </div>
 
               {/* Filter Section */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-1.5 pl-4 flex flex-wrap items-center gap-3">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+              <div
+                className="rounded-2xl shadow-sm border p-1.5 pl-4 flex flex-wrap items-center gap-3"
+                style={{
+                  backgroundColor: token.colorBgContainer,
+                  borderColor: token.colorBorderSecondary,
+                }}
+              >
+                <span
+                  className="text-xs font-semibold uppercase tracking-wide"
+                  style={{ color: token.colorTextTertiary }}
+                >
                   Period:
                 </span>
                 <RangePicker
@@ -395,17 +441,22 @@ export default function CapturableReportPage() {
                   }
                   format="DD/MM/YYYY"
                   variant="borderless"
-                  className="bg-transparent hover:bg-slate-50 rounded-lg w-[240px]"
+                  className="w-[240px]"
                   allowClear={false}
                 />
-                <Divider type="vertical" className="h-6 m-0 border-slate-200" />
+                <Divider
+                  type="vertical"
+                  className="h-6 m-0"
+                  style={{ borderColor: token.colorBorderSecondary }}
+                />
                 <Button
                   type="primary"
                   icon={<SearchOutlined />}
                   onClick={fetchReport}
                   loading={loading}
                   shape="round"
-                  className="px-6 bg-blue-600 hover:bg-blue-500 border-none shadow-md shadow-blue-200 h-9"
+                  className="px-6 h-9 shadow-md"
+                  style={{ boxShadow: `0 2px 0 ${token.colorPrimary}33` }}
                 >
                   Analyze
                 </Button>
@@ -416,27 +467,54 @@ export default function CapturableReportPage() {
             {data.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {/* Stat Card 1: Projects */}
-                <div className="bg-white p-6 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-50 transition-all duration-300 hover:-translate-y-1">
+                <div
+                  className="p-6 rounded-2xl shadow-sm border transition-all duration-300 hover:-translate-y-1"
+                  style={{
+                    backgroundColor: token.colorBgContainer,
+                    borderColor: token.colorBorderSecondary,
+                  }}
+                >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">
+                      <p
+                        className="text-xs font-semibold uppercase tracking-wider mb-1"
+                        style={{ color: token.colorTextTertiary }}
+                      >
                         Projects
                       </p>
-                      <h3 className="text-3xl font-bold text-slate-800 m-0">
+                      <h3
+                        className="text-3xl font-bold m-0"
+                        style={{ color: token.colorText }}
+                      >
                         {data.length}
                       </h3>
                     </div>
-                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      style={{
+                        backgroundColor: token.colorFillQuaternary,
+                        color: token.colorTextSecondary,
+                      }}
+                    >
                       <ProjectOutlined className="text-lg" />
                     </div>
                   </div>
                 </div>
 
                 {/* Stat Card 2: Hours */}
-                <div className="bg-white p-6 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-50 transition-all duration-300 hover:-translate-y-1">
+                <div
+                  className="p-6 rounded-2xl shadow-sm border transition-all duration-300 hover:-translate-y-1"
+                  style={{
+                    backgroundColor: token.colorBgContainer,
+                    borderColor: token.colorBorderSecondary,
+                  }}
+                >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">
+                      <p
+                        className="text-xs font-semibold uppercase tracking-wider mb-1"
+                        style={{ color: token.colorTextTertiary }}
+                      >
                         Total Hours
                       </p>
                       <h3 className="text-3xl font-bold text-blue-600 m-0">
@@ -453,15 +531,27 @@ export default function CapturableReportPage() {
                 </div>
 
                 {/* Stat Card 3: Capturable */}
-                <div className="bg-white p-6 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-50 transition-all duration-300 hover:-translate-y-1">
+                <div
+                  className="p-6 rounded-2xl shadow-sm border transition-all duration-300 hover:-translate-y-1"
+                  style={{
+                    backgroundColor: token.colorBgContainer,
+                    borderColor: token.colorBorderSecondary,
+                  }}
+                >
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider m-0">
+                        <p
+                          className="text-xs font-semibold uppercase tracking-wider m-0"
+                          style={{ color: token.colorTextTertiary }}
+                        >
                           Avg. Capturable
                         </p>
                         <Tooltip title="งานสร้างใหม่ (Asset)">
-                          <InfoCircleOutlined className="text-slate-300 text-xs cursor-help" />
+                          <InfoCircleOutlined
+                            className="text-xs cursor-help"
+                            style={{ color: token.colorTextTertiary }}
+                          />
                         </Tooltip>
                       </div>
                       <h3 className="text-3xl font-bold text-emerald-500 m-0">
@@ -476,15 +566,27 @@ export default function CapturableReportPage() {
                 </div>
 
                 {/* Stat Card 4: Uncapturable */}
-                <div className="bg-white p-6 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-50 transition-all duration-300 hover:-translate-y-1">
+                <div
+                  className="p-6 rounded-2xl shadow-sm border transition-all duration-300 hover:-translate-y-1"
+                  style={{
+                    backgroundColor: token.colorBgContainer,
+                    borderColor: token.colorBorderSecondary,
+                  }}
+                >
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider m-0">
+                        <p
+                          className="text-xs font-semibold uppercase tracking-wider m-0"
+                          style={{ color: token.colorTextTertiary }}
+                        >
                           Avg. Uncapturable
                         </p>
                         <Tooltip title="งานซ่อมสร้าง (Expense)">
-                          <InfoCircleOutlined className="text-slate-300 text-xs cursor-help" />
+                          <InfoCircleOutlined
+                            className="text-xs cursor-help"
+                            style={{ color: token.colorTextTertiary }}
+                          />
                         </Tooltip>
                       </div>
                       <h3 className="text-3xl font-bold text-rose-500 m-0">
@@ -501,10 +603,25 @@ export default function CapturableReportPage() {
             )}
 
             {/* 3. Table Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-              <div className="px-6 py-5 flex flex-col md:flex-row justify-between items-center border-b border-slate-100 gap-4 bg-white">
+            <div
+              className="rounded-2xl shadow-sm border overflow-hidden"
+              style={{
+                backgroundColor: token.colorBgContainer,
+                borderColor: token.colorBorderSecondary,
+              }}
+            >
+              <div
+                className="px-6 py-5 flex flex-col md:flex-row justify-between items-center border-b gap-4"
+                style={{
+                  backgroundColor: token.colorBgContainer,
+                  borderColor: token.colorBorderSecondary,
+                }}
+              >
                 <div className="flex items-center gap-3">
-                  <h3 className="text-lg font-bold text-slate-700 m-0">
+                  <h3
+                    className="text-lg font-bold m-0"
+                    style={{ color: token.colorText }}
+                  >
                     Detailed Breakdown
                   </h3>
 
@@ -515,7 +632,13 @@ export default function CapturableReportPage() {
                     placement="bottomLeft"
                     arrow={false}
                   >
-                    <button className="text-xs font-medium text-slate-400 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-md transition-colors flex items-center gap-1">
+                    <button
+                      className="text-xs font-medium px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+                      style={{
+                        color: token.colorTextSecondary,
+                        backgroundColor: token.colorFillQuaternary,
+                      }}
+                    >
                       <SettingOutlined /> Columns
                     </button>
                   </Popover>
@@ -526,14 +649,19 @@ export default function CapturableReportPage() {
                   onClick={exportExcel}
                   loading={exportLoading}
                   disabled={data.length === 0}
-                  className={`
-                    border-none shadow-none font-medium h-9 rounded-lg
-                    ${
-                      data.length > 0
-                        ? "bg-emerald-50 text-emerald-600 hover:!bg-emerald-100 hover:!text-emerald-700"
-                        : "bg-slate-100 text-slate-400"
-                    }
-                  `}
+                  className={`border-none shadow-none font-medium h-9 rounded-lg ${
+                    data.length > 0
+                      ? "bg-emerald-50 text-emerald-600 hover:!bg-emerald-100 hover:!text-emerald-700"
+                      : ""
+                  }`}
+                  style={
+                    data.length === 0
+                      ? {
+                          backgroundColor: token.colorFillSecondary,
+                          color: token.colorTextDisabled,
+                        }
+                      : {}
+                  }
                 >
                   Export Excel
                 </Button>
@@ -548,22 +676,24 @@ export default function CapturableReportPage() {
                   pageSize: 100,
                   showSizeChanger: true,
                   showTotal: (total) => (
-                    <span className="text-slate-400 text-xs">
+                    <span
+                      className="text-xs"
+                      style={{ color: token.colorTextSecondary }}
+                    >
                       Total {total} items
                     </span>
                   ),
                   className: "px-6 py-4",
                 }}
                 scroll={{ x: 1000 }}
-                // Tailwind styles for Ant Design Table using Arbitrary Variants
-                className="
-                  [&_.ant-table-thead_th]:!bg-slate-50/80 
-                  [&_.ant-table-thead_th]:!text-slate-500 
-                  [&_.ant-table-thead_th]:!font-semibold
-                  [&_.ant-table-thead_th]:!border-b-slate-100
-                  [&_.ant-table-tbody_td]:!border-b-slate-50
-                  [&_.ant-table-tbody_tr:hover_td]:!bg-blue-50/30
-                "
+                locale={{
+                  emptyText: (
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description="ไม่พบข้อมูล"
+                    />
+                  ),
+                }}
                 summary={(pageData) => {
                   if (pageData.length === 0) return undefined;
                   const totalPageHours = pageData.reduce(
@@ -579,13 +709,21 @@ export default function CapturableReportPage() {
 
                   return (
                     <Table.Summary fixed>
-                      <Table.Summary.Row className="!bg-slate-50 font-bold">
+                      <Table.Summary.Row
+                        style={{
+                          backgroundColor: token.colorFillQuaternary,
+                        }}
+                        className="font-bold"
+                      >
                         <Table.Summary.Cell
                           index={0}
                           colSpan={hoursColumnIndex}
                           align="right"
                         >
-                          <span className="text-slate-500 text-xs uppercase tracking-wider">
+                          <span
+                            className="text-xs uppercase tracking-wider"
+                            style={{ color: token.colorTextSecondary }}
+                          >
                             Page Total
                           </span>
                         </Table.Summary.Cell>
