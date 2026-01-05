@@ -56,6 +56,7 @@ import {
   SearchOutlined,
   WindowsOutlined,
   LoadingOutlined,
+  DownloadOutlined, // Import Download Icon
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { toast } from "sonner";
@@ -998,10 +999,24 @@ export default function CanteenAppManager() {
     {
       title: "Action",
       key: "action",
-      width: 100,
+      width: 140, // Increased width
       fixed: "right",
       render: (_, record) => (
         <Space size={0}>
+          <Tooltip title="ดาวน์โหลด APK">
+            <Button
+              type="text"
+              size="small"
+              icon={<DownloadOutlined style={{ color: "#1890ff" }} />}
+              onClick={() => {
+                if (record.url) {
+                  window.open(record.url, "_blank");
+                } else {
+                  toast.error("ไม่พบลิงก์ดาวน์โหลด");
+                }
+              }}
+            />
+          </Tooltip>
           <Tooltip title="แก้ไข">
             <Button
               type="text"
