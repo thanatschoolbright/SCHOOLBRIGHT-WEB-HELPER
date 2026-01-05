@@ -12,6 +12,7 @@ export interface VersionRecord {
   is_lastest_version: 0 | 1;
   force_update: 0 | 1;
   updated_at: string;
+  url?: string;
 }
 
 export interface VersionFormValues {
