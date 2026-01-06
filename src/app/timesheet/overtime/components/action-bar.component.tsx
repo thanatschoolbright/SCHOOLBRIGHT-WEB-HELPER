@@ -1,7 +1,16 @@
 "use client";
 
 import React from "react";
-import { Card, Space, Button, Divider } from "antd";
+import {
+  Card,
+  Space,
+  Button,
+  Tooltip,
+  Badge,
+  Typography,
+  Divider,
+  ConfigProvider,
+} from "antd";
 import {
   PlusOutlined,
   FilePdfOutlined,
@@ -9,8 +18,12 @@ import {
   MailOutlined,
   FileTextOutlined,
   RiseOutlined,
+  CloseCircleOutlined,
+  InfoCircleOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
+
+const { Text } = Typography;
 
 interface ActionBarProps {
   selectedRowKeys: React.Key[];
@@ -35,96 +48,151 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   router,
   setAnalyticsVisible,
 }) => {
-  const { t } = useTranslation();
+  const hasSelected = selectedRowKeys.length > 0;
 
   return (
-    <Card
-      
-      className="shadow-md rounded-xl mb-6"
-      bodyStyle={{ padding: "16px 24px" }}
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 12,
+        },
+      }}
     >
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        {/* Left Side: Bulk Actions (Only visible when items selected) */}
-        <Space wrap>
-          {selectedRowKeys.length > 0 ? (
-            <>
-              <span className="font-semibold mr-2">
-                {selectedRowKeys.length} รายการที่เลือก:
-              </span>
-              <Button
-                type="primary"
-                icon={<FilePdfOutlined />}
-                onClick={() => {
-                  const ids = selectedRowKeys.join(",");
-                  router.push(`/timesheet/overtime/preview/bulk?ids=${ids}`);
-                }}
-              >
-                {t("overtime_page.view_pdf_bulk")}
-              </Button>
-              <Button
-                type="primary"
-                icon={<CheckOutlined />}
-                onClick={() => setBatchStatusModalVisible(true)}
-                loading={batchProcessing}
-              >
-                {t("overtime_page.change_status_bulk")}
-              </Button>
-              <Button
-                icon={<MailOutlined />}
-                onClick={batchSendEmail}
-                loading={batchProcessing}
-              >
-                {t("overtime_page.send_email_bulk")}
-              </Button>
-              <Button
-                type="text"
-                danger
-                onClick={() => {
-                  setSelectedRowKeys([]);
-                  setProcessedItems(new Set());
-                }}
-              >
-                {t("overtime_page.cancel")}
-              </Button>
-            </>
-          ) : (
-            <span className="text-gray-400">
-              เลือกรายการในตารางเพื่อจัดการหลายรายการพร้อมกัน
-            </span>
-          )}
-        </Space>
+      <Card
+        className="shadow-md mb-6"
+        bodyStyle={{ padding: "16px 24px" }}
+        style={{ borderLeft: "4px solid #1890ff" }}
+      >
+        <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+          {/* ฝั่งซ้าย: การจัดการรายการที่เลือก (Bulk Actions) */}
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Space wrap size="middle">
+              {hasSelected ? (
+                <>
+                  <Badge
+                    count={selectedRowKeys.length}
+                    color="#1890ff"
+                    showZero={false}
+                  >
+                    <Text strong style={{ fontSize: "16px", marginRight: 8 }}>
+                      รายการที่เลือก
+                    </Text>
+                  </Badge>
 
-        {/* Right Side: Global Actions */}
-        <Space wrap>
-          <Button
-            icon={<FileTextOutlined />}
-            onClick={() =>
-              window.open(
-                "https://docs.google.com/document/d/12eEuCzFtCxE3C_CfhkGZ9J8yo3jiKVD2uANYBMXXnUE/edit?usp=sharing",
-                "_blank"
-              )
-            }
-            danger
-          >
-            ระเบียบการขอทำงานล่วงเวลา (ต้องอ่านก่อนขอ)
-          </Button>
-          <Button
-            icon={<RiseOutlined />}
-            onClick={() => setAnalyticsVisible(true)}
-            style={{ borderColor: "#1890ff", color: "#1890ff" }}
-          >
-            Executive Analytics
-          </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setVisible(true)}
-            size="large"
-          >
-            {t("overtime_page.add_overtime")}
-          </Button>
-        </Space>
-      </div>
-    </Card>
+                  <Tooltip title="ดาวน์โหลดหรือดูเอกสาร PDF สำหรับรายการที่เลือกทั้งหมด">
+                    <Button
+                      type="primary"
+                      ghost
+                      icon={<FilePdfOutlined />}
+                      onClick={() => {
+                        const ids = selectedRowKeys.join(",");
+                        router.push(
+                          `/timesheet/overtime/preview/bulk?ids=${ids}`
+                        );
+                      }}
+                    >
+                      ดูแบบกลุ่ม (PDF)
+                    </Button>
+                  </Tooltip>
+
+                  <Tooltip title="เปลี่ยนสถานะคำขอ (เช่น อนุมัติ/ปฏิเสธ) พร้อมกันหลายรายการ">
+                    <Button
+                      type="primary"
+                      icon={<CheckOutlined />}
+                      onClick={() => setBatchStatusModalVisible(true)}
+                      loading={batchProcessing}
+                    >
+                      จัดการสถานะ
+                    </Button>
+                  </Tooltip>
+
+                  <Tooltip title="ส่งอีเมลแจ้งเตือนไปยังผู้ที่เกี่ยวข้องสำหรับรายการที่เลือก">
+                    <Button
+                      icon={<MailOutlined />}
+                      onClick={batchSendEmail}
+                      loading={batchProcessing}
+                    >
+                      ส่งอีเมลแจ้งเตือน
+                    </Button>
+                  </Tooltip>
+
+                  <Tooltip title="ยกเลิกการเลือกทั้งหมด">
+                    <Button
+                      type="text"
+                      danger
+                      icon={<CloseCircleOutlined />}
+                      onClick={() => {
+                        setSelectedRowKeys([]);
+                        setProcessedItems(new Set());
+                      }}
+                    >
+                      ยกเลิก
+                    </Button>
+                  </Tooltip>
+                </>
+              ) : (
+                <Space>
+                  <InfoCircleOutlined style={{ color: "#bfbfbf" }} />
+                  <Text type="secondary">
+                    เลือกรายการในตารางด้านล่างเพื่อเปิดใช้งานการจัดการแบบกลุ่ม
+                  </Text>
+                </Space>
+              )}
+            </Space>
+          </div>
+
+          {/* ฝั่งขวา: การจัดการทั่วไป (Global Actions) */}
+          <Space wrap>
+            <Tooltip title="อ่านระเบียบการและเงื่อนไขการเบิก OT เพื่อความถูกต้อง">
+              <Button
+                icon={<FileTextOutlined />}
+                onClick={() =>
+                  window.open(
+                    "https://docs.google.com/document/d/12eEuCzFtCxE3C_CfhkGZ9J8yo3jiKVD2uANYBMXXnUE/edit?usp=sharing",
+                    "_blank"
+                  )
+                }
+                danger
+                ghost
+              >
+                ระเบียบการ OT
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="เปิดดูสถิติและภาพรวมการทำ OT สำหรับผู้บริหาร">
+              <Button
+                icon={<RiseOutlined />}
+                onClick={() => setAnalyticsVisible(true)}
+                style={{
+                  borderColor: "#1890ff",
+                  color: "#1890ff",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                ภาพรวมวิเคราะห์ข้อมูล
+              </Button>
+            </Tooltip>
+
+            <Divider type="vertical" style={{ height: "32px" }} />
+
+            <Tooltip title="สร้างคำขอทำงานล่วงเวลาใบใหม่">
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setVisible(true)}
+                size="large"
+                style={{
+                  boxShadow: "0 4px 10px rgba(24, 144, 255, 0.3)",
+                  fontWeight: "bold",
+                }}
+              >
+                เพิ่มคำขอ OT
+              </Button>
+            </Tooltip>
+          </Space>
+        </div>
+      </Card>
+    </ConfigProvider>
   );
 };

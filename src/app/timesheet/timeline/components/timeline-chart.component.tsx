@@ -1,16 +1,20 @@
+"use client";
+
 import React, { useMemo, useRef, useState } from "react";
 import dayjs from "dayjs";
-import { Tooltip, Empty, Tag } from "antd";
+import "dayjs/locale/th";
+import { Tooltip, Empty, Tag, Typography, Button, Space, Badge } from "antd";
 import {
   ProjectOutlined,
-  FileTextOutlined,
   RightOutlined,
   DownOutlined,
   PlusOutlined,
   FullscreenOutlined,
   FullscreenExitOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
 import { TimelineItem } from "../types/timeline.types";
 import {
   CELL_WIDTH,
@@ -18,6 +22,8 @@ import {
   ROW_HEIGHT,
   getProjectColor,
 } from "../utils/timeline.helpers";
+
+const { Text } = Typography;
 
 interface TimelineChartProps {
   data: TimelineItem[];
@@ -28,6 +34,17 @@ interface TimelineChartProps {
   zoomLevel: "day" | "week" | "month";
 }
 
+const PROJECT_COLORS = [
+  { bar: "#3b82f6", light: "#dbeafe", dark: "#1e40af" }, // Blue
+  { bar: "#8b5cf6", light: "#ede9fe", dark: "#5b21b6" }, // Purple
+  { bar: "#ec4899", light: "#fce7f3", dark: "#be185d" }, // Pink
+  { bar: "#f59e0b", light: "#fef3c7", dark: "#b45309" }, // Amber
+  { bar: "#10b981", light: "#d1fae5", dark: "#047857" }, // Green
+  { bar: "#06b6d4", light: "#cffafe", dark: "#0e7490" }, // Cyan
+  { bar: "#ef4444", light: "#fee2e2", dark: "#b91c1c" }, // Red
+  { bar: "#6366f1", light: "#e0e7ff", dark: "#4338ca" }, // Indigo
+];
+
 export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
   data,
   onItemClick,
@@ -36,75 +53,55 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
   showChildren = true,
   zoomLevel,
 }) => {
-  const { t } = useTranslation("translate");
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(
     new Set(data.map((p) => p.id))
   );
   const [isFullScreen, setIsFullScreen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Calculate dynamic cell width based on zoom level
   const currentCellWidth = useMemo(() => {
     switch (zoomLevel) {
       case "week":
-        return 15; // Smaller width for week view
+        return 28;
       case "month":
-        return 5; // Even smaller for month view
+        return 12;
       default:
-        return CELL_WIDTH; // Default 40
+        return CELL_WIDTH;
     }
   }, [zoomLevel]);
-
-  React.useEffect(() => {
-    if (showChildren) {
-      setExpandedProjects(new Set(data.map((p) => p.id)));
-    } else {
-      setExpandedProjects(new Set());
-    }
-  }, [showChildren, data]);
 
   const { startDate, totalDays, days } = useMemo(() => {
     let minDate = dayjs().startOf("month");
     let maxDate = dayjs().endOf("month");
-
     const allItems = data.flatMap((p) => [p, ...(p.children || [])]);
     const validStarts = allItems
       .map((i) => (i.start ? dayjs(i.start) : null))
-      .filter((d) => d) as dayjs.Dayjs[];
+      .filter(Boolean) as dayjs.Dayjs[];
     const validEnds = allItems
       .map((i) => (i.end ? dayjs(i.end) : null))
-      .filter((d) => d) as dayjs.Dayjs[];
+      .filter(Boolean) as dayjs.Dayjs[];
 
-    if (validStarts.length > 0) {
-      const min = validStarts.reduce((a, b) => (a.isBefore(b) ? a : b));
-      minDate = min.subtract(7, "day");
-    }
-    if (validEnds.length > 0) {
-      const max = validEnds.reduce((a, b) => (a.isAfter(b) ? a : b));
-      maxDate = max.add(7, "day");
-    }
+    if (validStarts.length > 0)
+      minDate = validStarts
+        .reduce((a, b) => (a.isBefore(b) ? a : b))
+        .subtract(7, "day");
+    if (validEnds.length > 0)
+      maxDate = validEnds
+        .reduce((a, b) => (a.isAfter(b) ? a : b))
+        .add(21, "day");
 
     const total = maxDate.diff(minDate, "day") + 1;
     const daysArray = Array.from({ length: total }, (_, i) =>
       minDate.add(i, "day")
     );
-
-    return {
-      startDate: minDate,
-      endDate: maxDate,
-      totalDays: total,
-      days: daysArray,
-    };
+    return { startDate: minDate, totalDays: total, days: daysArray };
   }, [data]);
 
-  // Calculate month blocks for the header
   const monthBlocks = useMemo(() => {
     const blocks: { date: dayjs.Dayjs; width: number; label: string }[] = [];
     if (days.length === 0) return blocks;
-
     let currentMonth = days[0];
     let count = 0;
-
     days.forEach((day) => {
       if (
         day.month() !== currentMonth.month() ||
@@ -113,360 +110,474 @@ export const TimelineChartComponent: React.FC<TimelineChartProps> = ({
         blocks.push({
           date: currentMonth,
           width: count * currentCellWidth,
-          label: currentMonth.format("MMMM YYYY"),
+          label: currentMonth.locale("th").format("MMMM YYYY"),
         });
         currentMonth = day;
         count = 0;
       }
       count++;
     });
-
-    // Push the last block
-    if (count > 0) {
+    if (count > 0)
       blocks.push({
         date: currentMonth,
         width: count * currentCellWidth,
-        label: currentMonth.format("MMMM YYYY"),
+        label: currentMonth.locale("th").format("MMMM YYYY"),
       });
-    }
-
     return blocks;
   }, [days, currentCellWidth]);
-
-  React.useEffect(() => {
-    if (scrollContainerRef.current && startDate) {
-      const today = dayjs();
-      const todayDiff = today.diff(startDate, "day");
-      if (todayDiff >= 0) {
-        const todayPos = todayDiff * currentCellWidth;
-        const containerWidth = scrollContainerRef.current.clientWidth;
-        const scrollLeft =
-          todayPos - containerWidth / 2 + currentCellWidth / 2 + 300;
-        scrollContainerRef.current.scrollTo({
-          left: Math.max(0, scrollLeft),
-          behavior: "smooth",
-        });
-      }
-    }
-  }, [startDate, data, currentCellWidth]);
-
-  const toggleExpand = (id: string) => {
-    const newSet = new Set(expandedProjects);
-    if (newSet.has(id)) newSet.delete(id);
-    else newSet.add(id);
-    setExpandedProjects(newSet);
-  };
 
   const getBarPosition = (start: string | null, end: string | null) => {
     if (!start || !end) return null;
     const s = dayjs(start);
     const e = dayjs(end);
-    if (!s.isValid() || !e.isValid()) return null;
-
     const offsetDays = s.diff(startDate, "day");
     const durationDays = e.diff(s, "day") + 1;
-
     return {
       left: offsetDays * currentCellWidth,
       width: durationDays * currentCellWidth,
+      startDay: s,
+      endDay: e,
     };
   };
 
-  if (loading) {
-    return (
-      <div className="p-8 text-center">{t("timeline_page.chart.loading")}</div>
-    );
-  }
-
-  if (!data || data.length === 0) {
-    return <Empty description={t("timeline_page.chart.no_data")} />;
-  }
-
-  const totalWidth = totalDays * currentCellWidth;
   const today = dayjs();
-  const todayDiff = today.diff(startDate, "day");
-  const showTodayLine = todayDiff >= 0 && todayDiff < totalDays;
-  const todayLeft = todayDiff * currentCellWidth + currentCellWidth / 2;
+  const todayLeft =
+    today.diff(startDate, "day") * currentCellWidth + currentCellWidth / 2;
+
+  const toggleExpand = (id: string) => {
+    setExpandedProjects((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const getProjectColorPalette = (index: number) => {
+    return PROJECT_COLORS[index % PROJECT_COLORS.length];
+  };
 
   return (
     <div
       ref={scrollContainerRef}
-      className={`border rounded-lg  shadow-sm overflow-auto relative transition-all duration-300 ${
-        isFullScreen ? "fixed inset-0 z-50 h-screen w-screen" : "h-[600px]"
+      className={`bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl overflow-auto relative border-2 border-blue-100 transition-all duration-500 ${
+        isFullScreen
+          ? "fixed inset-0 z-50 h-screen w-screen p-6 bg-gradient-to-br from-slate-50 to-blue-50"
+          : "h-[720px] shadow-2xl"
       }`}
     >
       <div className="fixed bottom-8 right-8 z-[60]">
-        <Tooltip
-          title={
-            isFullScreen
-              ? t("timeline_page.chart.exit_fullscreen")
-              : t("timeline_page.chart.fullscreen")
+        <Button
+          type="primary"
+          shape="circle"
+          size="large"
+          icon={
+            isFullScreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />
           }
-        >
-          <button
-            onClick={() => setIsFullScreen(!isFullScreen)}
-            className=" p-3 rounded-full shadow-lg border hover:bg-gray-50 transition-colors text-gray-600 flex items-center justify-center"
-          >
-            {isFullScreen ? (
-              <FullscreenExitOutlined style={{ fontSize: 20 }} />
-            ) : (
-              <FullscreenOutlined style={{ fontSize: 20 }} />
-            )}
-          </button>
-        </Tooltip>
+          onClick={() => setIsFullScreen(!isFullScreen)}
+          className="shadow-2xl hover:scale-110 transition-transform"
+          style={{ width: 56, height: 56 }}
+        />
       </div>
 
-      <div style={{ minWidth: 300 + totalWidth }}>
-        {/* Header Row */}
-        <div className="sticky top-0 z-30 bg-gray-50 border-b shadow-sm">
+      <div style={{ minWidth: 380 + totalDays * currentCellWidth }}>
+        <div className="sticky top-0 z-30 bg-gradient-to-r from-blue-600 to-indigo-700 backdrop-blur-xl border-b-4 border-blue-400 shadow-xl">
           <div className="flex">
-            {/* Sidebar Header */}
-            <div
-              className="sticky left-0 z-40 w-[300px] flex-shrink-0 bg-gray-50 border-r p-3 font-bold text-gray-600 flex items-center shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]"
-              style={{ height: HEADER_HEIGHT * 2 }}
-            >
-              {t("timeline_page.chart.project_task")}
+            <div className="sticky left-0 z-40 w-[380px] flex-shrink-0 bg-gradient-to-r from-blue-600 to-indigo-700 border-r-2 border-blue-400 p-6 flex items-center">
+              <Space size="large">
+                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-lg">
+                  <CalendarOutlined style={{ fontSize: 24 }} />
+                </div>
+                <div>
+                  <Text
+                    strong
+                    style={{
+                      fontSize: "18px",
+                      color: "white",
+                      display: "block",
+                    }}
+                  >
+                    Timeline Dashboard
+                  </Text>
+                  <Text
+                    style={{ fontSize: "12px", color: "rgba(255,255,255,0.8)" }}
+                  >
+                    Project Management Tracking
+                  </Text>
+                </div>
+              </Space>
             </div>
-
-            {/* Timeline Headers */}
-            <div className="flex flex-col">
-              {/* Month Row */}
-              <div className="flex border-b" style={{ height: HEADER_HEIGHT }}>
+            <div className="flex flex-col flex-grow">
+              <div
+                className="flex border-b-2 border-blue-400/50"
+                style={{ height: HEADER_HEIGHT + 10 }}
+              >
                 {monthBlocks.map((block, i) => (
                   <div
                     key={i}
-                    className="flex-shrink-0 border-r text-sm font-bold text-gray-700 flex items-center justify-center bg-gray-100"
-                    style={{ width: block.width, height: HEADER_HEIGHT }}
+                    className="flex-shrink-0 border-r border-blue-400/30 flex items-center justify-center"
+                    style={{ width: block.width }}
                   >
-                    {block.label}
+                    <Text
+                      strong
+                      style={{
+                        fontSize: "13px",
+                        color: "white",
+                        textTransform: "uppercase",
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      {block.label}
+                    </Text>
                   </div>
                 ))}
               </div>
-
-              {/* Day Row */}
               <div className="flex" style={{ height: HEADER_HEIGHT }}>
-                {days.map((day, i) => {
-                  const isWeekStart = day.day() === 1 || i === 0; // Monday
-
-                  let showLabel = false;
-                  let labelText = "";
-                  let labelClass = "text-gray-500";
-
-                  if (zoomLevel === "day") {
-                    showLabel = true;
-                    labelText = day.format("D");
-                  } else if (zoomLevel === "week") {
-                    if (isWeekStart) {
-                      showLabel = true;
-                      labelText = day.format("D");
-                      labelClass = "text-xs font-bold";
-                    }
-                  } else if (zoomLevel === "month") {
-                    // In month view, days are very small, maybe don't show day numbers
-                  }
-
-                  return (
-                    <div
-                      key={i}
-                      className={`flex-shrink-0 border-r text-xs text-center flex flex-col justify-center ${
-                        day.day() === 0 || day.day() === 6 ? "bg-gray-50" : ""
-                      }`}
-                      style={{ width: currentCellWidth, height: HEADER_HEIGHT }}
+                {days.map((day, i) => (
+                  <div
+                    key={i}
+                    className={`flex-shrink-0 border-r border-blue-400/30 text-center flex flex-col items-center justify-center ${
+                      day.day() === 0 || day.day() === 6
+                        ? "bg-blue-700/30"
+                        : "bg-blue-600/20"
+                    }`}
+                    style={{ width: currentCellWidth }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: "11px",
+                        color: day.isSame(today, "day")
+                          ? "#fbbf24"
+                          : "rgba(255,255,255,0.9)",
+                        fontWeight: day.isSame(today, "day") ? 900 : 600,
+                      }}
                     >
-                      {showLabel && (
-                        <span className={labelClass}>{labelText}</span>
-                      )}
-                    </div>
-                  );
-                })}
+                      {zoomLevel === "day"
+                        ? day.format("D")
+                        : day.day() === 1
+                        ? day.format("D")
+                        : ""}
+                    </Text>
+                    {zoomLevel === "day" && (
+                      <Text
+                        style={{
+                          fontSize: "8px",
+                          color: "rgba(255,255,255,0.6)",
+                          marginTop: "-2px",
+                        }}
+                      >
+                        {day.locale("th").format("dd")}
+                      </Text>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-
-            {/* Today Line Indicator (Header) */}
-            {showTodayLine && (
-              <div
-                className="absolute top-0 bottom-0 flex items-center justify-center pointer-events-none z-50"
-                style={{
-                  left: todayLeft + 300, // +300 for sidebar offset
-                  transform: "translateX(-50%)",
-                }}
-              >
-                <div className="bg-red-500 text-white text-[10px] px-1 rounded-sm mt-8">
-                  {t("timeline_page.chart.today")}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Body Row */}
-        <div className="flex">
-          {/* Sidebar Column */}
-          <div className="sticky left-0 z-20 w-[300px] flex-shrink-0  border-r shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-            {data.map((project) => (
-              <React.Fragment key={project.id}>
-                {/* Project Row */}
-                <div
-                  className="flex items-center px-4 border-b hover:bg-gray-50 cursor-pointer transition-colors"
-                  style={{ height: ROW_HEIGHT }}
-                  onClick={() => toggleExpand(project.id)}
-                >
-                  <div className="mr-2 text-gray-400">
-                    {expandedProjects.has(project.id) ? (
-                      <DownOutlined />
-                    ) : (
-                      <RightOutlined />
-                    )}
-                  </div>
-                  <ProjectOutlined className="mr-2 text-blue-500" />
-                  <div className="truncate font-medium flex-grow">
-                    {project.name}
-                  </div>
-                  {onAddSubProject && (
-                    <Tooltip title={t("timeline_page.chart.add_sub_project")}>
-                      <PlusOutlined
-                        className="mr-2 text-gray-400 hover:text-blue-500"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onAddSubProject(project.realId);
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                  <Tag
-                    color={project.status === "open" ? "green" : "red"}
-                    className="ml-2"
-                  >
-                    {project.status === "open"
-                      ? t("timeline_page.filters.status_open")
-                      : t("timeline_page.filters.status_closed")}
-                  </Tag>
-                </div>
-
-                {/* SubProjects Sidebar */}
-                {expandedProjects.has(project.id) &&
-                  project.children?.map((sub) => (
-                    <div
-                      key={sub.id}
-                      className="flex items-center pl-10 pr-4 border-b hover:bg-blue-50 cursor-pointer transition-colors"
-                      style={{ height: ROW_HEIGHT }}
-                      onClick={() => onItemClick(sub)}
-                    >
-                      <FileTextOutlined className="mr-2 text-gray-400" />
-                      <div className="truncate text-sm text-gray-600">
-                        {sub.name}
-                      </div>
-                    </div>
-                  ))}
-              </React.Fragment>
-            ))}
+        <div className="flex relative">
+          <div
+            className="absolute top-0 bottom-0 border-l-4 border-yellow-400 pointer-events-none shadow-lg"
+            style={{ left: 380 + todayLeft, opacity: 0.95, zIndex: 15 }}
+          >
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-4 py-1.5 rounded-full absolute -top-6 -left-8 shadow-xl font-bold">
+              TODAY
+            </div>
           </div>
 
-          {/* Timeline Column */}
+          <div className="sticky left-0 z-50 w-[380px] flex-shrink-0 bg-white border-r-2 border-blue-100 shadow-xl">
+            {data.map((project, index) => {
+              const color = getProjectColorPalette(index);
+              const childrenCount = project.children?.length || 0;
+              const completedChildren =
+                project.children?.filter((c) => c.status === "close").length ||
+                0;
+
+              return (
+                <React.Fragment key={project.id}>
+                  <div
+                    className="flex items-center px-6 border-b-2 border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all cursor-pointer group"
+                    style={{ height: ROW_HEIGHT + 4 }}
+                    onClick={() => toggleExpand(project.id)}
+                  >
+                    <div className="mr-4 text-gray-400 group-hover:text-blue-600 transition-colors">
+                      {expandedProjects.has(project.id) ? (
+                        <DownOutlined
+                          style={{ fontSize: 14, fontWeight: "bold" }}
+                        />
+                      ) : (
+                        <RightOutlined
+                          style={{ fontSize: 14, fontWeight: "bold" }}
+                        />
+                      )}
+                    </div>
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center mr-4 shadow-md"
+                      style={{ backgroundColor: color.light }}
+                    >
+                      <ProjectOutlined
+                        style={{ fontSize: 18, color: color.bar }}
+                      />
+                    </div>
+                    <div className="flex-grow min-w-0">
+                      <Text
+                        strong
+                        className="truncate block"
+                        style={{ fontSize: "15px", color: "#1e293b" }}
+                      >
+                        {project.name}
+                      </Text>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Tag
+                          color={
+                            project.status === "open" ? "processing" : "default"
+                          }
+                          bordered={false}
+                          className="rounded-full px-3 text-[10px] m-0"
+                        >
+                          {project.status === "open" ? "Active" : "Closed"}
+                        </Tag>
+                        {childrenCount > 0 && (
+                          <Badge
+                            count={`${completedChildren}/${childrenCount}`}
+                            style={{
+                              backgroundColor: "#52c41a",
+                              fontSize: "10px",
+                              height: "18px",
+                              lineHeight: "18px",
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {expandedProjects.has(project.id) &&
+                    project.children?.map((sub) => (
+                      <div
+                        key={sub.id}
+                        className="flex items-center pl-16 pr-6 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-gray-50 hover:from-blue-50 hover:to-indigo-50 transition-all cursor-pointer group"
+                        style={{ height: ROW_HEIGHT }}
+                        onClick={() => onItemClick(sub)}
+                      >
+                        <div
+                          className="w-3 h-3 rounded-full mr-4 shadow-sm border-2 border-white"
+                          style={{ backgroundColor: color.bar }}
+                        />
+                        <div className="flex-grow min-w-0">
+                          <Text
+                            className="truncate text-sm block"
+                            style={{
+                              color:
+                                sub.status === "close" ? "#94a3b8" : "#475569",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {sub.name}
+                          </Text>
+                        </div>
+                        {sub.status === "close" && (
+                          <CheckCircleOutlined
+                            style={{ color: "#52c41a", fontSize: 16 }}
+                          />
+                        )}
+                      </div>
+                    ))}
+                </React.Fragment>
+              );
+            })}
+          </div>
+
           <div className="relative flex-grow">
             <div className="absolute inset-0 flex pointer-events-none">
               {days.map((day, i) => (
                 <div
                   key={i}
-                  className={`flex-shrink-0 border-r h-full ${
-                    day.day() === 0 || day.day() === 6 ? "bg-gray-50" : ""
+                  className={`flex-shrink-0 border-r ${
+                    day.day() === 0 || day.day() === 6
+                      ? "bg-blue-50/40 border-blue-100"
+                      : "bg-white border-gray-100"
                   }`}
                   style={{ width: currentCellWidth }}
                 />
               ))}
-              {showTodayLine && (
-                <div
-                  className="absolute top-0 bottom-0 border-l-2 border-red-500 z-0 pointer-events-none opacity-50"
-                  style={{ left: todayLeft }}
-                />
-              )}
             </div>
+
             <div className="relative z-10">
               {data.map((project, index) => {
-                const color = getProjectColor(index);
+                const color = getProjectColorPalette(index);
+                const pos = getBarPosition(project.start, project.end);
                 return (
                   <React.Fragment key={project.id}>
-                    {/* Project Bar Row */}
                     <div
-                      className="relative border-b"
-                      style={{ height: ROW_HEIGHT }}
+                      className="relative border-b-2 border-gray-100"
+                      style={{ height: ROW_HEIGHT + 4 }}
                     >
-                      {(() => {
-                        const pos = getBarPosition(project.start, project.end);
-                        if (pos) {
-                          return (
-                            <Tooltip
-                              title={`${project.name}: ${dayjs(
-                                project.start
-                              ).format("DD/MM")} - ${dayjs(project.end).format(
-                                "DD/MM"
-                              )}`}
-                            >
+                      {pos && (
+                        <Tooltip
+                          title={
+                            <div>
                               <div
-                                className={`absolute top-2 h-8 rounded-md flex items-center px-2 cursor-pointer transition-colors ${color.bg} ${color.border} border`}
-                                style={{
-                                  left: pos.left,
-                                  width: Math.max(pos.width, currentCellWidth),
-                                }}
-                                onClick={() => onItemClick(project)}
+                                style={{ fontWeight: "bold", fontSize: "13px" }}
                               >
-                                <div
-                                  className={`h-1.5 rounded-full ${color.bar}`}
-                                  style={{ width: `${project.progress}%` }}
-                                />
+                                {project.name}
                               </div>
-                            </Tooltip>
-                          );
-                        }
-                        return null;
-                      })()}
+                              <div
+                                style={{ fontSize: "11px", marginTop: "4px" }}
+                              >
+                                เริ่ม: {pos.startDay.format("DD/MM/YYYY")}
+                              </div>
+                              <div style={{ fontSize: "11px" }}>
+                                สิ้นสุด: {pos.endDay.format("DD/MM/YYYY")}
+                              </div>
+                              <div
+                                style={{ fontSize: "11px", marginTop: "4px" }}
+                              >
+                                ความคืบหน้า: {project.progress}%
+                              </div>
+                            </div>
+                          }
+                          color={color.bar}
+                        >
+                          <div
+                            className="absolute top-4 h-10 rounded-2xl flex items-center overflow-hidden transition-all hover:scale-[1.02] hover:shadow-2xl cursor-pointer shadow-lg"
+                            style={{
+                              left: pos.left,
+                              width: Math.max(pos.width, currentCellWidth * 2),
+                              backgroundColor: color.bar,
+                              border: `3px solid ${color.dark}`,
+                            }}
+                            onClick={() => onItemClick(project)}
+                          >
+                            <div
+                              className="h-full rounded-r-2xl shadow-[4px_0_15px_rgba(0,0,0,0.15)] relative"
+                              style={{
+                                width: `${project.progress}%`,
+                                backgroundColor: color.dark,
+                              }}
+                            >
+                              <div className="absolute right-2 top-1/2 -translate-y-1/2 text-white text-xs font-bold">
+                                {project.progress}%
+                              </div>
+                            </div>
+                            <div
+                              className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white shadow-lg"
+                              style={{ backgroundColor: color.dark }}
+                            />
+                            <div
+                              className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white shadow-lg"
+                              style={{ backgroundColor: color.dark }}
+                            />
+                          </div>
+                        </Tooltip>
+                      )}
                     </div>
 
-                    {/* SubProject Bar Rows */}
                     {expandedProjects.has(project.id) &&
-                      project.children?.map((sub) => (
-                        <div
-                          key={sub.id}
-                          className="relative border-b"
-                          style={{ height: ROW_HEIGHT }}
-                        >
-                          {(() => {
-                            const pos = getBarPosition(sub.start, sub.end);
-                            if (pos) {
-                              return (
-                                <Tooltip
-                                  title={`${sub.name}: ${dayjs(
-                                    sub.start
-                                  ).format("DD/MM")} - ${dayjs(sub.end).format(
-                                    "DD/MM"
-                                  )}`}
+                      project.children?.map((sub) => {
+                        const subPos = getBarPosition(sub.start, sub.end);
+                        return (
+                          <div
+                            key={sub.id}
+                            className="relative border-b border-gray-100"
+                            style={{ height: ROW_HEIGHT }}
+                          >
+                            {subPos && (
+                              <Tooltip
+                                title={
+                                  <div>
+                                    <div
+                                      style={{
+                                        fontWeight: "bold",
+                                        fontSize: "12px",
+                                      }}
+                                    >
+                                      {sub.name}
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: "10px",
+                                        marginTop: "4px",
+                                      }}
+                                    >
+                                      เริ่ม:{" "}
+                                      {subPos.startDay.format("DD/MM/YYYY")}
+                                    </div>
+                                    <div style={{ fontSize: "10px" }}>
+                                      สิ้นสุด:{" "}
+                                      {subPos.endDay.format("DD/MM/YYYY")}
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: "10px",
+                                        marginTop: "4px",
+                                      }}
+                                    >
+                                      สถานะ:{" "}
+                                      {sub.status === "close"
+                                        ? "เสร็จสิ้น"
+                                        : "กำลังดำเนินการ"}
+                                    </div>
+                                  </div>
+                                }
+                                color={
+                                  sub.status === "close" ? "#52c41a" : color.bar
+                                }
+                              >
+                                <div
+                                  className="absolute top-3 h-7 rounded-full flex items-center px-4 cursor-pointer transition-all hover:shadow-xl shadow-md"
+                                  style={{
+                                    left: subPos.left,
+                                    width: Math.max(
+                                      subPos.width,
+                                      currentCellWidth * 1.5
+                                    ),
+                                    backgroundColor:
+                                      sub.status === "close"
+                                        ? "#52c41a"
+                                        : color.bar,
+                                    border: `2px solid ${
+                                      sub.status === "close"
+                                        ? "#22c55e"
+                                        : color.dark
+                                    }`,
+                                    color: "#ffffff",
+                                    zIndex: 5,
+                                  }}
+                                  onClick={() => onItemClick(sub)}
                                 >
                                   <div
-                                    className={`absolute top-3 h-6 rounded-full flex items-center px-2 cursor-pointer shadow-sm hover:shadow-md transition-all border ${
-                                      sub.status === "close"
-                                        ? "bg-gray-100 border-gray-300 text-gray-500"
-                                        : `${color.bg} ${color.border} ${color.text}`
-                                    }`}
+                                    className="absolute left-1 w-2 h-2 rounded-full shadow-sm border border-white"
                                     style={{
-                                      left: pos.left,
-                                      width: Math.max(
-                                        pos.width,
-                                        currentCellWidth
-                                      ),
+                                      backgroundColor:
+                                        sub.status === "close"
+                                          ? "#dcfce7"
+                                          : color.light,
                                     }}
-                                    onClick={() => onItemClick(sub)}
+                                  />
+                                  <span
+                                    className="text-[11px] truncate font-bold ml-3"
+                                    style={{
+                                      textShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                                    }}
                                   >
-                                    <span className="text-xs truncate w-full text-center font-medium">
-                                      {sub.name}
-                                    </span>
-                                  </div>
-                                </Tooltip>
-                              );
-                            }
-                            return null;
-                          })()}
-                        </div>
-                      ))}
+                                    {sub.name}
+                                  </span>
+                                  <div
+                                    className="absolute right-1 w-2 h-2 rounded-full shadow-sm border border-white"
+                                    style={{
+                                      backgroundColor:
+                                        sub.status === "close"
+                                          ? "#dcfce7"
+                                          : color.light,
+                                    }}
+                                  />
+                                </div>
+                              </Tooltip>
+                            )}
+                          </div>
+                        );
+                      })}
                   </React.Fragment>
                 );
               })}

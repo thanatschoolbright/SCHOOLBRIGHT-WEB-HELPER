@@ -9,85 +9,36 @@ import "dayjs/locale/th";
 
 dayjs.locale("th");
 
-// --- Modern Color System ---
-const BRAND_COLORS = {
-  primary: {
-    50: "#FFF7ED",
-    100: "#FFEDD5",
-    200: "#FED7AA",
-    300: "#FDBA74",
-    400: "#FB923C",
-    500: "#F97316",
-    600: "#EA580C",
-    700: "#C2410C",
-    800: "#9A3412",
-    900: "#7C2D12",
+// --- School Bright Brand Color Palette ---
+const BRAND_ORANGE = {
+  primary: "#F97316", // Main Orange (School Bright Tone)
+  hover: "#FB923C",
+  active: "#EA580C",
+  subtle: "rgba(249, 115, 22, 0.1)",
+};
+
+const SYSTEM_COLORS = {
+  light: {
+    primary: BRAND_ORANGE.primary,
+    bgBase: "#F8FAFC",
+    bgContainer: "#FFFFFF",
+    bgElevated: "#FFFFFF", // สำหรับ Modal ในโหมดสว่าง
+    textMain: "#0F172A",
+    textSub: "#64748B",
+    border: "#E2E8F0",
+    shadow: "rgba(249, 115, 22, 0.08)",
   },
-  midnight: {
-    bg: "#0B0F19",
-    card: "#111827",
-    border: "#1F2937",
+  dark: {
+    primary: BRAND_ORANGE.primary,
+    bgBase: "#0B0F19", // ลึกขึ้นเพื่อความพรีเมียม
+    bgContainer: "#111827", // Dark Slate (ตัดอมม่วงออก)
+    bgElevated: "#1F2937", // สีพื้นหลัง Modal/Popover ในโหมดมืด (Slate 800)
+    textMain: "#F8FAFC",
+    textSub: "#94A3B8",
+    border: "#374151",
+    shadow: "rgba(0, 0, 0, 0.5)",
   },
-} as const;
-
-interface ColorPalette {
-  primary: string;
-  primaryHover: string;
-  primaryActive: string;
-  primaryBg: string;
-  primaryShadow: string;
-  backgroundBase: string;
-  backgroundElevated: string;
-  backgroundSubtle: string;
-  border: string;
-  borderLight: string;
-  textPrimary: string;
-  textSecondary: string;
-  textTertiary: string;
-  modalMask: string;
-  shadowSoft: string;
-  shadowHover: string; // New: Shadow for hover state
-}
-
-const getLightPalette = (): ColorPalette => ({
-  primary: "#F97316",
-  primaryHover: "#FB923C",
-  primaryActive: "#EA580C",
-  primaryBg: "#FFF7ED",
-  primaryShadow: "rgba(249, 115, 22, 0.25)",
-  backgroundBase: "#F8FAFC", // Cool gray for modern feel
-  backgroundElevated: "#FFFFFF",
-  backgroundSubtle: "#F1F5F9",
-  border: "#E2E8F0",
-  borderLight: "#F1F5F9",
-  textPrimary: "#0F172A",
-  textSecondary: "#475569",
-  textTertiary: "#94A3B8",
-  modalMask: "rgba(15, 23, 42, 0.6)",
-  shadowSoft:
-    "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
-  shadowHover:
-    "0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04)",
-});
-
-const getDarkPalette = (): ColorPalette => ({
-  primary: "#FB923C",
-  primaryHover: "#FDBA74",
-  primaryActive: "#F97316",
-  primaryBg: "rgba(249, 115, 22, 0.15)",
-  primaryShadow: "rgba(251, 146, 60, 0.2)",
-  backgroundBase: BRAND_COLORS.midnight.bg,
-  backgroundElevated: BRAND_COLORS.midnight.card,
-  backgroundSubtle: "#1F2937",
-  border: "#374151",
-  borderLight: "#1F2937",
-  textPrimary: "#F8FAFC",
-  textSecondary: "#CBD5E1",
-  textTertiary: "#64748B",
-  modalMask: "rgba(0, 0, 0, 0.8)",
-  shadowSoft: "0 10px 30px -4px rgba(0, 0, 0, 0.5)",
-  shadowHover: "0 20px 40px -4px rgba(0, 0, 0, 0.6)",
-});
+};
 
 const useThemeDetector = (): boolean => {
   const [isDark, setIsDark] = useState(false);
@@ -105,174 +56,91 @@ const useThemeDetector = (): boolean => {
   return isDark;
 };
 
-const createThemeConfig = (
-  isDark: boolean,
-  palette: ColorPalette
-): ThemeConfig => ({
-  algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
-  token: {
-    colorPrimary: palette.primary,
-    colorPrimaryHover: palette.primaryHover,
-    colorPrimaryActive: palette.primaryActive,
-    colorPrimaryBg: palette.primaryBg,
+const createThemeConfig = (isDark: boolean): ThemeConfig => {
+  const colors = isDark ? SYSTEM_COLORS.dark : SYSTEM_COLORS.light;
 
-    colorText: palette.textPrimary,
-    colorTextSecondary: palette.textSecondary,
-    colorTextTertiary: palette.textTertiary,
+  return {
+    algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+    token: {
+      colorPrimary: colors.primary,
+      colorInfo: colors.primary,
+      colorSuccess: "#10B981",
+      colorWarning: "#F59E0B",
+      colorError: "#EF4444",
 
-    colorBgBase: palette.backgroundBase,
-    colorBgLayout: palette.backgroundBase,
-    colorBgContainer: palette.backgroundElevated,
-    colorBgElevated: palette.backgroundElevated,
+      colorTextBase: colors.textMain,
+      colorTextSecondary: colors.textSub,
 
-    colorBorder: palette.border,
-    colorBorderSecondary: palette.borderLight,
+      colorBgBase: colors.bgBase,
+      colorBgLayout: colors.bgBase,
+      colorBgContainer: colors.bgContainer,
+      colorBgElevated: colors.bgElevated, // แก้ปัญหา Modal สีอมม่วง
 
-    fontFamily:
-      '"GoogleSans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    fontSize: 14,
-    fontWeightStrong: 600,
+      colorBorder: colors.border,
+      colorBorderSecondary: isDark ? "#1F2937" : "#F1F5F9",
 
-    borderRadius: 12, // More rounded for modern look
-    borderRadiusLG: 16,
-    borderRadiusSM: 8,
-    borderRadiusXS: 6,
-
-    controlHeight: 44,
-    controlHeightLG: 52,
-    controlHeightSM: 36,
-
-    boxShadow: palette.shadowSoft,
-    boxShadowSecondary: palette.shadowSoft,
-
-    // Animation Global
-    motionDurationMid: "0.2s", // Snappier animations
-    motionEaseInOut: "cubic-bezier(0.4, 0, 0.2, 1)", // Smooth easing
-  },
-
-  components: {
-    Layout: {
-      headerBg: isDark ? "rgba(17, 24, 39, 0.85)" : "rgba(255, 255, 255, 0.85)", // Glass effect prepared
-      bodyBg: palette.backgroundBase,
-      siderBg: palette.backgroundElevated,
-    },
-    Button: {
-      controlHeight: 44,
+      fontFamily: '"Inter", "Kanit", "GoogleSans", -apple-system, sans-serif',
+      fontSize: 14,
       borderRadius: 12,
-      fontWeight: 600,
-      defaultBorderColor: "transparent",
-      defaultBg: palette.backgroundElevated,
-      defaultShadow: "0 2px 5px rgba(0,0,0,0.02)",
-      primaryShadow: `0 4px 14px 0 ${palette.primaryShadow}`, // Glow effect
-      textHoverBg: palette.backgroundSubtle,
-      contentFontSize: 14,
-      // Animation
-      animationDuration: "0.3s",
-    },
-    Input: {
-      controlHeight: 44,
-      borderRadius: 12,
-      colorBgContainer: isDark ? "#1F2937" : "#FFFFFF",
-      colorBorder: isDark ? "transparent" : "#E2E8F0",
-      activeBorderColor: palette.primary,
-      hoverBorderColor: isDark ? "#4B5563" : "#94A3B8",
-      activeShadow: `0 0 0 4px ${palette.primaryBg}`, // Larger focus ring
-      addonBg: palette.backgroundSubtle,
-    },
-    Select: {
-      controlHeight: 44,
-      borderRadius: 12,
-      colorBgContainer: isDark ? "#1F2937" : "#FFFFFF",
-      colorBorder: isDark ? "transparent" : "#E2E8F0",
-      selectorBg: isDark ? "#1F2937" : "#FFFFFF",
-    },
-    Card: {
-      borderRadiusLG: 20,
-      colorBgContainer: palette.backgroundElevated,
-      headerFontSize: 18,
-      headerFontWeight: 700,
-      boxShadow: palette.shadowSoft,
-      boxShadowTertiary: palette.shadowHover, // Can be used for hover effects in custom CSS
-      colorBorderSecondary: palette.borderLight,
-      paddingLG: 24,
-    },
-    Table: {
-      borderRadiusLG: 16,
-      headerBg: "transparent",
-      headerColor: palette.textSecondary,
-      headerSplitColor: "transparent",
-      rowHoverBg: palette.backgroundSubtle,
-      borderColor: isDark ? "#374151" : "#F1F5F9",
-      headerSortActiveBg: palette.backgroundSubtle,
-    },
-    Menu: {
-      itemBorderRadius: 10,
-      itemSelectedBg: palette.primaryBg,
-      itemSelectedColor: palette.primary,
-      itemActiveBg: palette.backgroundSubtle,
-      subMenuItemBg: "transparent",
-      itemHeight: 44,
-      iconSize: 18,
-      // Smooth transition for menu items
-      motionDurationSlow: "0.2s",
-    },
-    Modal: {
-      borderRadiusLG: 24,
-      headerBg: "transparent",
-      contentBg: palette.backgroundElevated,
-      boxShadow: isDark
-        ? "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
-        : "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
-      maskBg: palette.modalMask,
-    },
-    Tag: {
-      borderRadiusSM: 8,
-      defaultBg: palette.backgroundSubtle,
-      defaultColor: palette.textSecondary,
-    },
-    Tabs: {
-      itemSelectedColor: palette.primary,
-      inkBarColor: palette.primary,
-      itemHoverColor: palette.primaryHover,
-      cardBg: palette.backgroundSubtle,
-      titleFontSize: 15,
-    },
-    Segmented: {
-      itemSelectedBg: palette.backgroundElevated,
-      itemSelectedShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)", // Floating effect
-      trackBg: palette.backgroundSubtle,
-      borderRadius: 12,
-      borderRadiusLG: 12,
+
       controlHeight: 40,
+      lineWidth: 1,
     },
-    Statistic: {
-      contentFontSize: 32,
-      titleFontSize: 14,
-      titleColor: palette.textTertiary,
-      fontFamily: '"Inter", sans-serif', // Use number-optimized font
-    },
-    Typography: {
-      fontSizeHeading1: 40,
-      fontSizeHeading2: 32,
-      fontSizeHeading3: 24,
-      fontWeightStrong: 700,
-      titleMarginBottom: "0.5em",
-    },
-    Popover: {
-      borderRadius: 16,
-      boxShadow: palette.shadowHover,
-      colorBgElevated: palette.backgroundElevated,
-    },
-    Tooltip: {
-      borderRadius: 8,
-      colorBgSpotlight: isDark ? "#374151" : "#1E293B", // Dark slate for tooltips
-    },
-    Skeleton: {
-      colorFill: isDark ? "#1F2937" : "#F1F5F9",
-      colorFillContent: isDark ? "#374151" : "#E2E8F0",
-    },
-  } as any,
-});
+    components: {
+      Button: {
+        borderRadius: 10,
+        fontWeight: 600,
+        controlHeightLG: 48,
+        paddingInlineLG: 24,
+        boxShadow: "none",
+        primaryShadow: isDark ? "none" : `0 4px 12px rgba(249, 115, 22, 0.2)`,
+      },
+      Card: {
+        borderRadiusLG: 24,
+        colorBorderSecondary: isDark ? "#1F2937" : "#F1F5F9",
+        boxShadowTertiary: `0 20px 25px -5px ${colors.shadow}`,
+        paddingLG: 24,
+      },
+      Table: {
+        borderRadiusLG: 16,
+        headerBg: isDark ? "#1F2937" : "#FFF7ED",
+        headerColor: isDark ? colors.textSub : BRAND_ORANGE.active,
+        headerBorderRadius: 12,
+        headerSplitColor: "transparent",
+        rowHoverBg: isDark ? "rgba(249, 115, 22, 0.05)" : "#FFF7ED",
+      },
+      Input: {
+        borderRadius: 10,
+        colorBgContainer: isDark ? "#111827" : "#FFFFFF",
+        activeShadow: `0 0 0 3px rgba(249, 115, 22, 0.15)`,
+      },
+      Modal: {
+        borderRadiusLG: 24,
+        headerBg: colors.bgElevated, // บังคับสี Header ให้ตรงกับ Body
+        contentBg: colors.bgElevated,
+        footerBg: colors.bgElevated,
+        maskBg: "rgba(0, 0, 0, 0.75)",
+      },
+      Menu: {
+        itemBorderRadius: 12,
+        itemSelectedBg: "rgba(249, 115, 22, 0.12)",
+        itemSelectedColor: BRAND_ORANGE.primary,
+        colorBgElevated: colors.bgElevated, // สำหรับ Sub-menu dropdown
+      },
+      Popover: {
+        colorBgElevated: colors.bgElevated,
+      },
+      Select: {
+        borderRadius: 10,
+        colorBgElevated: colors.bgElevated, // สำหรับ Dropdown list
+      },
+      Tag: {
+        borderRadiusSM: 6,
+        fontWeightStrong: 600,
+      },
+    } as any,
+  };
+};
 
 export default function AntThemeProvider({
   children,
@@ -280,58 +148,69 @@ export default function AntThemeProvider({
   children: React.ReactNode;
 }) {
   const isDark = useThemeDetector();
-
-  const palette = useMemo(
-    () => (isDark ? getDarkPalette() : getLightPalette()),
-    [isDark]
-  );
-
-  const themeConfig = useMemo(
-    () => createThemeConfig(isDark, palette),
-    [isDark, palette]
-  );
+  const themeConfig = useMemo(() => createThemeConfig(isDark), [isDark]);
+  const currentColors = isDark ? SYSTEM_COLORS.dark : SYSTEM_COLORS.light;
 
   return (
     <ConfigProvider
       locale={thTH}
       theme={themeConfig}
       componentSize="middle"
-      // เปิดใช้ Wave effect และ animation อื่นๆ ของ Antd
-      wave={{ disabled: false }}
+      input={{ autoComplete: "off" }}
     >
-      {/* เพิ่ม Global CSS Variables สำหรับใช้ใน Custom CSS หรือ Tailwind */}
       <style jsx global>{`
-        :root {
-          --color-primary: ${palette.primary};
-          --color-bg-base: ${palette.backgroundBase};
-          --color-bg-card: ${palette.backgroundElevated};
-          --shadow-soft: ${palette.shadowSoft};
-          --shadow-hover: ${palette.shadowHover};
-        }
-
-        /* Smooth Scrolling */
-        html {
-          scroll-behavior: smooth;
-        }
-
-        /* Better Font Rendering */
         body {
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
+          background-color: ${currentColors.bgBase} !important;
+          color: ${currentColors.textMain};
+          transition: background-color 0.3s ease;
         }
 
-        /* Custom Transition for specific elements */
-        .ant-btn,
-        .ant-input,
-        .ant-select-selector,
+        /* Modal & Popover Correction */
+        .ant-modal-content,
+        .ant-modal-header,
+        .ant-select-dropdown {
+          background-color: ${isDark
+            ? SYSTEM_COLORS.dark.bgElevated
+            : "#FFFFFF"} !important;
+        }
+
+        ::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: ${isDark ? "#374151" : "#E2E8F0"};
+          border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: ${BRAND_ORANGE.primary};
+        }
+
+        .ant-btn-primary {
+          background: linear-gradient(
+            135deg,
+            ${BRAND_ORANGE.primary} 0%,
+            ${BRAND_ORANGE.active} 100%
+          ) !important;
+          border: none !important;
+        }
+
         .ant-card {
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          border: 1px solid
+            ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)"} !important;
         }
 
-        /* Card Hover Effect */
-        .ant-card:hover {
-          transform: translateY(-2px);
-          box-shadow: ${palette.shadowHover} !important;
+        .glass-effect {
+          background: ${isDark
+            ? "rgba(17, 24, 39, 0.8)"
+            : "rgba(255, 255, 255, 0.8)"} !important;
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+        }
+
+        ::selection {
+          background: ${BRAND_ORANGE.subtle};
+          color: ${BRAND_ORANGE.active};
         }
       `}</style>
       {children}

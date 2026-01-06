@@ -12,6 +12,8 @@ import {
   Badge,
   Descriptions,
   Timeline,
+  ConfigProvider,
+  Avatar,
 } from "antd";
 import {
   ClockCircleOutlined,
@@ -19,11 +21,14 @@ import {
   FileTextOutlined,
   UserOutlined,
   CheckCircleOutlined,
+  InfoCircleOutlined,
+  ArrowRightOutlined,
+  SolutionOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
 import type { OvertimeRecord, PaginationState } from "../types/overtime.types";
 import { useOvertimeTableColumns } from "../hooks/overtime-table-columns.hook";
 import dayjs from "dayjs";
+import "dayjs/locale/th";
 import { getUserById } from "@helpers/local_storage/user.storage";
 
 const { Text, Title } = Typography;
@@ -63,7 +68,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
   fetchOvertimeDetail,
   router,
 }) => {
-  const { t } = useTranslation();
+  // เรียกใช้ Hook สำหรับ Columns (ตรวจสอบให้แน่ใจว่าใน Hook เป็นภาษาไทยด้วย)
   const columns = useOvertimeTableColumns({
     processedItems,
     deleteOvertime,
@@ -73,6 +78,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
     router,
   });
 
+  // ส่วนขยายแสดงรายละเอียดงานภายในตาราง (Expanded Row)
   const expandedRowRender = (record: any) => {
     const descriptions = record.descriptions || [];
     const totalHours = descriptions.reduce(
@@ -82,32 +88,80 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
 
     if (descriptions.length === 0) {
       return (
-        <div className="p-4 text-center">
-          <Text type="secondary">{t("overtime_page.no_descriptions")}</Text>
+        <div
+          style={{
+            padding: "20px",
+            textAlign: "center",
+            background: "#fafafa",
+          }}
+        >
+          <Empty
+            description="ไม่พบข้อมูลรายละเอียดการปฏิบัติงาน"
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
         </div>
       );
     }
 
     return (
-      <div className="bg-gray-50 p-6 rounded-lg">
-        <div className="flex justify-between items-center mb-4">
-          <Space>
-            <FileTextOutlined className="text-blue-500" />
-            <Title level={5} className="m-0">
-              {t("overtime_page.work_details")}
-            </Title>
+      <div
+        style={{
+          padding: "24px",
+          background: "linear-gradient(180deg, #f0f5ff 0%, #ffffff 100%)",
+          borderRadius: "0 0 12px 12px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "20px",
+          }}
+        >
+          <Space size="middle">
+            <div
+              style={{
+                background: "#1890ff",
+                padding: "8px",
+                borderRadius: "8px",
+              }}
+            >
+              <SolutionOutlined style={{ color: "#fff", fontSize: "18px" }} />
+            </div>
+            <div>
+              <Title level={5} style={{ margin: 0 }}>
+                รายละเอียดงานที่ปฏิบัติ
+              </Title>
+              <Text type="secondary" style={{ fontSize: "12px" }}>
+                ข้อมูลบันทึกรายกิจกรรม (Timeline)
+              </Text>
+            </div>
             <Badge
               count={descriptions.length}
               style={{ backgroundColor: "#1890ff" }}
             />
           </Space>
-          <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
-            <ClockCircleOutlined className="text-blue-600" />
-            <Text strong className="text-blue-600">
-              {t("overtime_page.total_hours")}: {totalHours.toFixed(2)}{" "}
-              {t("overtime_page.hours")}
-            </Text>
-          </div>
+
+          <Tooltip title="รวมเวลาปฏิบัติงานทั้งหมดในใบคำขอนี้">
+            <div
+              style={{
+                background: "#fff",
+                padding: "8px 16px",
+                borderRadius: "20px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                border: "1px solid #e6f7ff",
+              }}
+            >
+              <Space>
+                <ClockCircleOutlined style={{ color: "#1890ff" }} />
+                <Text strong>รวมเวลาทั้งหมด:</Text>
+                <Text type="danger" strong style={{ fontSize: "16px" }}>
+                  {totalHours.toFixed(2)} ชม.
+                </Text>
+              </Space>
+            </div>
+          </Tooltip>
         </div>
 
         <Timeline
@@ -124,89 +178,84 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
 
             return {
               color: "blue",
-              dot: (
-                <div className="bg-blue-500 w-3 h-3 rounded-full border-2  shadow-md" />
-              ),
               label: (
-                <div className="text-right pr-4">
-                  <div className="font-semibold text-gray-700">
-                    {t("overtime_page.item")} {index + 1}
-                  </div>
-                  {hasTimeRange && startTime && endTime ? (
-                    <>
-                      <div className="text-xs text-gray-500">
-                        <CalendarOutlined className="mr-1" />
-                        {startTime.format("DD/MM/YYYY")}
-                      </div>
-                      <div className="text-xs text-blue-600 font-medium">
-                        {startTime.format("HH:mm")} - {endTime.format("HH:mm")}
-                      </div>
-                    </>
-                  ) : startTime ? (
-                    <div className="text-xs text-gray-500">
-                      <CalendarOutlined className="mr-1" />
-                      {startTime.format("DD/MM/YYYY")}
+                <div style={{ paddingRight: "12px" }}>
+                  <Text strong style={{ color: "#1890ff" }}>
+                    ลำดับที่ {index + 1}
+                  </Text>
+                  {startTime && (
+                    <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
+                      <CalendarOutlined />{" "}
+                      {startTime.locale("th").format("DD MMM BBBB")}
                     </div>
-                  ) : null}
+                  )}
+                  {hasTimeRange && (
+                    <Tag
+                      color="processing"
+                      style={{ marginTop: "4px", borderRadius: "10px" }}
+                    >
+                      {startTime?.format("HH:mm")} - {endTime?.format("HH:mm")}
+                    </Tag>
+                  )}
                 </div>
               ),
               children: (
                 <Card
+                  hoverable
                   size="small"
-                  className="mb-2 shadow-sm hover:shadow-md transition-shadow"
+                  style={{
+                    marginBottom: "12px",
+                    borderRadius: "8px",
+                    border: "1px solid #d6e4ff",
+                  }}
                   bodyStyle={{ padding: "12px 16px" }}
                 >
-                  <Descriptions column={1} size="small">
+                  <Descriptions column={{ xs: 1, sm: 1, md: 2 }} size="small">
                     <Descriptions.Item
                       label={
-                        <Space>
-                          <FileTextOutlined className="text-gray-400" />
-                          <Text type="secondary">
-                            {t("overtime_page.description")}
-                          </Text>
-                        </Space>
+                        <Text type="secondary">
+                          <FileTextOutlined /> เนื้องาน
+                        </Text>
                       }
+                      span={2}
                     >
-                      <Text strong>{desc.description || "-"}</Text>
+                      <Text strong>
+                        {desc.description || "ไม่ได้ระบุรายละเอียด"}
+                      </Text>
                     </Descriptions.Item>
 
                     <Descriptions.Item
                       label={
-                        <Space>
-                          <ClockCircleOutlined className="text-blue-400" />
-                          <Text type="secondary">
-                            {t("overtime_page.duration")}
-                          </Text>
-                        </Space>
+                        <Text type="secondary">
+                          <ClockCircleOutlined /> ระยะเวลา
+                        </Text>
                       }
                     >
-                      <Tag color="blue" className="font-semibold">
-                        {Number(desc.duration || 0).toFixed(2)}{" "}
-                        {t("overtime_page.hours")}
-                      </Tag>
+                      <Badge
+                        color="blue"
+                        text={`${Number(desc.duration || 0).toFixed(
+                          2
+                        )} ชั่วโมง`}
+                      />
                     </Descriptions.Item>
 
                     {assigneeUser && (
                       <Descriptions.Item
                         label={
-                          <Space>
-                            <UserOutlined className="text-green-400" />
-                            <Text type="secondary">
-                              {t("overtime_page.assignee")}
-                            </Text>
-                          </Space>
+                          <Text type="secondary">
+                            <UserOutlined /> ผู้ได้รับมอบหมาย
+                          </Text>
                         }
                       >
                         <Space>
-                          <Badge status="success" />
+                          <Avatar
+                            size="small"
+                            src={assigneeUser.avatar}
+                            icon={<UserOutlined />}
+                          />
                           <Text>
                             {assigneeUser.firstname} {assigneeUser.lastname}
                           </Text>
-                          {assigneeUser.position && (
-                            <Text type="secondary" className="text-xs">
-                              ({assigneeUser.position})
-                            </Text>
-                          )}
                         </Space>
                       </Descriptions.Item>
                     )}
@@ -232,77 +281,93 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
   }, [dataSource]);
 
   return (
-    <Card
-      className="shadow-sm rounded-xl overflow-hidden"
-      bodyStyle={{ padding: 0 }}
-    >
-      <Table
-        columns={columns}
-        dataSource={enhancedDataSource}
-        rowKey="id"
-        expandable={{
-          expandedRowRender,
-          expandIcon: ({ expanded, onExpand, record }) => (
-            <Tooltip
-              title={
-                expanded
-                  ? t("overtime_page.collapse_details")
-                  : t("overtime_page.expand_details")
-              }
-            >
-              <div
-                onClick={(e) => onExpand(record, e)}
-                className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-blue-50 transition-colors"
+    <ConfigProvider theme={{ token: { borderRadius: 12 } }}>
+      <Card className="shadow-sm overflow-hidden" bodyStyle={{ padding: 0 }}>
+        <Table
+          columns={columns}
+          dataSource={enhancedDataSource}
+          rowKey="id"
+          expandable={{
+            expandedRowRender,
+            expandIcon: ({ expanded, onExpand, record }) => (
+              <Tooltip
+                title={expanded ? "ปิดรายละเอียด" : "ดูรายละเอียดเนื้องาน"}
               >
-                {expanded ? (
-                  <span className="text-blue-500 font-bold">−</span>
-                ) : (
-                  <span className="text-blue-500 font-bold">+</span>
-                )}
-              </div>
-            </Tooltip>
-          ),
-          rowExpandable: (record) =>
-            !!(record.descriptions && record.descriptions.length > 0),
-        }}
-        rowSelection={{
-          selectedRowKeys,
-          onChange: (keys) => {
-            setSelectedRowKeys(keys);
-            setProcessedItems(new Set());
-          },
-          getCheckboxProps: () => ({ disabled: batchProcessing }),
-        }}
-        pagination={{
-          current: paginationState.current,
-          pageSize: paginationState.pageSize,
-          total: paginationState.total,
-          showSizeChanger: true,
-          showTotal: (total) => (
-            <Space>
-              <CheckCircleOutlined className="text-green-500" />
-              <Text strong>{t("overtime_page.total_items", { total })}</Text>
-            </Space>
-          ),
-          pageSizeOptions: ["10", "20", "50", "100"],
-        }}
-        loading={loading}
-        onChange={handleTableChange}
-        scroll={{ x: 1200 }}
-        locale={{
-          emptyText: (
-            <Empty
-              description={t("overtime_page.no_data")}
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-            />
-          ),
-        }}
-        rowClassName={(record) =>
-          selectedRowKeys.includes(record.id)
-            ? "bg-blue-50"
-            : "hover:bg-gray-50"
-        }
-      />
-    </Card>
+                <div
+                  onClick={(e) => onExpand(record, e)}
+                  style={{
+                    cursor: "pointer",
+                    width: "24px",
+                    height: "24px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "6px",
+                    background: expanded ? "#ff4d4f" : "#1890ff",
+                    color: "#fff",
+                    transition: "all 0.3s",
+                  }}
+                >
+                  {expanded ? (
+                    <ArrowRightOutlined rotate={90} />
+                  ) : (
+                    <ArrowRightOutlined />
+                  )}
+                </div>
+              </Tooltip>
+            ),
+            rowExpandable: (record) =>
+              !!(record.descriptions && record.descriptions.length > 0),
+          }}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: (keys) => {
+              setSelectedRowKeys(keys);
+              setProcessedItems(new Set());
+            },
+            getCheckboxProps: () => ({ disabled: batchProcessing }),
+          }}
+          pagination={{
+            current: paginationState.current,
+            pageSize: paginationState.pageSize,
+            total: paginationState.total,
+            showSizeChanger: true,
+            position: ["bottomRight"],
+            showTotal: (total, range) => (
+              <Space>
+                <Text type="secondary">
+                  แสดง {range[0]}-{range[1]} จากทั้งหมด
+                </Text>
+                <Tag color="blue" style={{ borderRadius: "10px" }}>
+                  {total} รายการ
+                </Tag>
+              </Space>
+            ),
+            pageSizeOptions: ["10", "20", "50", "100"],
+          }}
+          loading={loading}
+          onChange={handleTableChange}
+          scroll={{ x: 1300 }}
+          locale={{
+            emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <span>ไม่พบข้อมูลการขอ OT ในช่วงเวลาที่เลือก</span>
+                }
+              />
+            ),
+            triggerDesc: "คลิกเพื่อเรียงจากมากไปน้อย",
+            triggerAsc: "คลิกเพื่อเรียงจากน้อยไปมาก",
+            cancelSort: "คลิกเพื่อยกเลิกการเรียงลำดับ",
+          }}
+          rowClassName={(record) =>
+            selectedRowKeys.includes(record.id)
+              ? "bg-blue-50 transition-all"
+              : "hover:bg-gray-50 transition-all"
+          }
+        />
+      </Card>
+    </ConfigProvider>
   );
 };

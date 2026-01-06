@@ -1,5 +1,7 @@
+"use client";
+
 import React from "react";
-import { Card, Col, Row, Statistic } from "antd";
+import { Col, Row, Typography, Card, Flex, Tooltip } from "antd";
 import {
   ProjectOutlined,
   CheckCircleOutlined,
@@ -7,8 +9,9 @@ import {
   WarningOutlined,
   AppstoreOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
 import { TimelineMetrics } from "../types/timeline.types";
+
+const { Text, Title } = Typography;
 
 interface MetricSummaryProps {
   metrics: TimelineMetrics;
@@ -19,66 +22,104 @@ export const MetricSummaryComponent: React.FC<MetricSummaryProps> = ({
   metrics,
   loading = false,
 }) => {
-  const { t } = useTranslation("translate");
+  // กำหนดชุดข้อมูล Metrics ตามสไตล์ที่คุณชอบ
+  const metricItems = [
+    {
+      label: "โครงการทั้งหมด",
+      value: metrics.totalProjects,
+      color: "#3b82f6", // Blue
+      icon: <ProjectOutlined />,
+      desc: "จำนวนโปรเจกต์หลัก",
+      tooltip: "จำนวนโครงการทั้งหมดที่อยู่ในระบบการจัดการ",
+    },
+    {
+      label: "โครงการย่อย",
+      value: metrics.totalSubProjects,
+      color: "#8b5cf6", // Purple
+      icon: <AppstoreOutlined />,
+      desc: "งานย่อยภายใต้โครงการ",
+      tooltip: "โครงการย่อย (Sub-projects) ที่ถูกแตกแขนงออกมา",
+    },
+    {
+      label: "กำลังดำเนินการ",
+      value: metrics.inProgress,
+      color: "#f59e0b", // Orange
+      icon: <SyncOutlined spin={!loading} />,
+      desc: "ยังไม่เสร็จสิ้น",
+      tooltip: "รายการโครงการที่อยู่ในขั้นตอนการปฏิบัติงาน",
+    },
+    {
+      label: "เสร็จสมบูรณ์",
+      value: metrics.completed,
+      color: "#22c55e", // Green
+      icon: <CheckCircleOutlined />,
+      desc: "ปิดโครงการแล้ว",
+      tooltip: "โครงการที่ดำเนินการเสร็จสิ้น 100%",
+    },
+    {
+      label: "เกินกำหนด",
+      value: metrics.overdue,
+      color: "#ef4444", // Red
+      icon: <WarningOutlined />,
+      desc: "ต้องเร่งดำเนินการ",
+      tooltip: "โครงการที่เลยระยะเวลาที่กำหนด (Overdue)",
+    },
+  ];
 
   return (
     <div className="mb-6">
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={4}>
-          <Card  className="shadow-sm">
-            <Statistic
-              title={t("timeline_page.metrics.total_projects")}
-              value={metrics.totalProjects}
-              prefix={<ProjectOutlined className="text-blue-500" />}
-              loading={loading}
-              valueStyle={{ fontWeight: "bold" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={5}>
-          <Card  className="shadow-sm">
-            <Statistic
-              title={t("timeline_page.metrics.total_sub_projects")}
-              value={metrics.totalSubProjects}
-              prefix={<AppstoreOutlined className="text-purple-500" />}
-              loading={loading}
-              valueStyle={{ fontWeight: "bold" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={5}>
-          <Card  className="shadow-sm">
-            <Statistic
-              title={t("timeline_page.metrics.in_progress")}
-              value={metrics.inProgress}
-              prefix={<SyncOutlined spin className="text-orange-500" />}
-              loading={loading}
-              valueStyle={{ fontWeight: "bold", color: "#faad14" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={5}>
-          <Card  className="shadow-sm">
-            <Statistic
-              title={t("timeline_page.metrics.completed")}
-              value={metrics.completed}
-              prefix={<CheckCircleOutlined className="text-green-500" />}
-              loading={loading}
-              valueStyle={{ fontWeight: "bold", color: "#52c41a" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={5}>
-          <Card  className="shadow-sm">
-            <Statistic
-              title={t("timeline_page.metrics.overdue")}
-              value={metrics.overdue}
-              prefix={<WarningOutlined className="text-red-500" />}
-              loading={loading}
-              valueStyle={{ fontWeight: "bold", color: "#ff4d4f" }}
-            />
-          </Card>
-        </Col>
+        {metricItems.map((item, idx) => (
+          <Col xs={24} sm={12} md={idx === 0 ? 4 : 5} key={idx}>
+            <Tooltip title={item.tooltip} placement="bottom">
+              <Card
+                className="shadow-sm border-0 rounded-xl overflow-hidden relative h-full"
+                bodyStyle={{ padding: "20px 16px" }}
+              >
+                {/* 1. Watermark Icon (ลูกเล่นที่คุณชอบ) */}
+                <div
+                  className="absolute right-[-10px] top-[-10px] opacity-10 rotate-12"
+                  style={{ pointerEvents: "none" }}
+                >
+                  <span style={{ fontSize: "5rem", color: item.color }}>
+                    {item.icon}
+                  </span>
+                </div>
+
+                <Flex align="center" gap={12}>
+                  {/* 2. Small Icon Box */}
+                  <div
+                    className="flex items-center justify-center w-12 h-12 rounded-lg text-2xl flex-shrink-0"
+                    style={{
+                      backgroundColor: `${item.color}15`,
+                      color: item.color,
+                    }}
+                  >
+                    {item.icon}
+                  </div>
+
+                  {/* 3. Text Section */}
+                  <div className="z-10 overflow-hidden">
+                    <Text
+                      type="secondary"
+                      className="block text-xs uppercase font-bold tracking-wider"
+                    >
+                      {item.label}
+                    </Text>
+                    <div className="flex items-baseline gap-1">
+                      <Title level={2} style={{ margin: 0, fontWeight: 800 }}>
+                        {loading ? "..." : item.value}
+                      </Title>
+                    </div>
+                    <Text type="secondary" style={{ fontSize: "10px" }}>
+                      {item.desc}
+                    </Text>
+                  </div>
+                </Flex>
+              </Card>
+            </Tooltip>
+          </Col>
+        ))}
       </Row>
     </div>
   );
