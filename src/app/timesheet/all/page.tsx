@@ -55,7 +55,7 @@ const { Title, Text } = Typography;
 // ==========================================
 
 const PageHeader = ({ metadata, onRefresh, loading }: any) => (
-  <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-6 rounded-2xl shadow-sm border border-solid border-opacity-10 border-gray-500">
+  <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-6 rounded-2xl ">
     <Space size={16}>
       <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md">
         <ClockCircleOutlined style={{ fontSize: 24, color: "#fff" }} />
