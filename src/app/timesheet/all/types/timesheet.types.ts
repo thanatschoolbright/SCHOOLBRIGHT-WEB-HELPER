@@ -17,6 +17,7 @@ export type SummaryRecord = {
   hours_gap: number;
   status_label: string;
   completion_rate: number;
+  image_profile: string | null;
   progress_text: string;
   breakdown: BreakdownRow[];
   rank: number;

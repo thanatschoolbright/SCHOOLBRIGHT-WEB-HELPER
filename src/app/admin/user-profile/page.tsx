@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  ReactNode,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Card,
   Skeleton,
@@ -27,15 +21,16 @@ import {
   Badge,
   Table,
   Collapse,
+  Row,
+  Col,
+  Divider,
 } from "antd";
 import {
   ReloadOutlined,
   UserOutlined,
   TeamOutlined,
-  CalendarOutlined,
   FilterOutlined,
   SearchOutlined,
-  FileSearchOutlined,
   CheckCircleOutlined,
   EditOutlined,
   InfoCircleOutlined,
@@ -47,13 +42,17 @@ import {
   PhoneOutlined,
   IdcardOutlined,
   SmileOutlined,
-  FileTextOutlined,
+  PushpinOutlined,
+  QuestionCircleOutlined,
+  SafetyCertificateOutlined,
+  GlobalOutlined,
+  ContactsOutlined,
+  SolutionOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
 import { toast } from "sonner";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
@@ -66,1614 +65,696 @@ import {
 } from "@stores/type";
 
 // ==========================================
-// TYPES
+// TYPES & CONSTANTS
 // ==========================================
-
 export type UserProfile = BaseUserProfile;
 export type UserProfileForm = BaseUserProfileForm;
 export type UpdateUserInput = BaseUpdateUserInput;
 
-export type ModalType = "" | "create" | "edit" | "delete";
-
-export interface UserFilters {
-  searchTerm: string;
-  position?: string;
-  dateRange: [Dayjs, Dayjs] | null;
-}
-
-export interface UserSummaryMetric {
+interface UserSummaryMetric {
   key: string;
   label: string;
   value: number;
-  tone: "primary" | "warning" | "success";
-  icon: ReactNode;
-  description: string;
+  color: string;
+  icon: React.ReactNode;
+  desc: string;
 }
 
-export interface ModalState {
-  type: ModalType;
-}
-
-export interface UpsertUserPayload {
-  username: string;
-  password?: string;
-  name: string;
-  lastname: string;
-}
-
-export interface UseUserProfileDataResult {
-  loading: boolean;
-  filteredUsers: UserProfile[];
-  positions: string[];
-  filters: UserFilters;
-  summaryMetrics: UserSummaryMetric[];
-  modalState: ModalState;
-  selectedUser: UserProfile | null;
-  confirmDeleteText: string;
-  searchTerm: string;
-  pageSize: number;
-  hasError: boolean;
-  handleSearchChange: (value: string) => void;
-  handlePositionChange: (value?: string) => void;
-  handleDateRangeChange: (value: [Dayjs, Dayjs] | null) => void;
-  handleResetFilters: () => void;
-  handlePageSizeChange: (size: number) => void;
-  openCreateModal: () => void;
-  openEditModal: (user: UserProfile) => Promise<void>;
-  openDeleteModal: (id: number) => void;
-  closeModal: () => void;
-  submitCreateUser: (payload: UpsertUserPayload) => Promise<void>;
-  submitUpdateUser: (payload: UpdateUserInput) => Promise<void>;
-  submitDeleteUser: () => Promise<void>;
-  setConfirmDeleteText: (value: string) => void;
-  refreshData: () => Promise<void>;
-  handleCopyUser: (user: UserProfile) => Promise<void>;
-}
+const POSITION_COLORS: Record<string, string> = {
+  ADMIN: "red",
+  Manager: "blue",
+  Developer: "green",
+  QA: "purple",
+  Support: "orange",
+};
 
 // ==========================================
 // HELPERS
 // ==========================================
 
-const getPositionTagColor = (position?: string): string => {
-  const colorMap: Record<string, string> = {
-    ADMIN: "red",
-    Manager: "blue",
-    Developer: "green",
-    QA: "purple",
-    Support: "orange",
-  };
-
-  if (!position) return "default";
-  return colorMap[position] ?? "geekblue";
+// Helper for Copy
+const handleCopy = async (text: string, label: string) => {
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success(`คัดลอก${label}เรียบร้อยแล้ว`);
+  } catch {
+    toast.error("เกิดข้อผิดพลาดในการคัดลอก");
+  }
 };
 
-const persistUsersToLocal = (users: UserProfile[]): void => {
-  if (typeof window === "undefined") return;
-  localStorage.setItem("users", JSON.stringify(users));
-};
-
-const filterUsers = (
-  users: UserProfile[],
-  filters: UserFilters,
-  debouncedSearch: string
-): UserProfile[] => {
-  const query = debouncedSearch.toLowerCase();
-  return users.filter((user) => {
-    const matchesSearch =
-      !query ||
-      [
-        user.email,
-        user.employee_code,
-        user.firstname,
-        user.lastname,
-        user.nickname,
-      ]
-        .filter(Boolean)
-        .some((field) => field?.toLowerCase().includes(query));
-
-    const matchesPosition = filters.position
-      ? user.position === filters.position
-      : true;
-
-    const matchesDate = (() => {
-      if (!filters.dateRange) return true;
-      const [start, end] = filters.dateRange;
-      if (!start || !end) return true;
-      const createdAt =
-        (user as Partial<UserProfile>).createdAt ??
-        (user as Partial<UserProfile>).updatedAt;
-      if (!createdAt) return true;
-      const targetDate = dayjs(createdAt);
-      if (!targetDate.isValid()) return true;
-      const startOfRange = start.startOf("day");
-      const endOfRange = end.endOf("day");
-      return (
-        targetDate.isSame(startOfRange) ||
-        targetDate.isSame(endOfRange) ||
-        (targetDate.isAfter(startOfRange) && targetDate.isBefore(endOfRange))
-      );
-    })();
-
-    return matchesSearch && matchesPosition && matchesDate;
-  });
-};
-
-const buildSummaryMetrics = (
-  users: UserProfile[],
-  translation: TFunction<"translate">
-): UserSummaryMetric[] => {
-  const total = users.length;
-  const withEmail = users.filter((user) => Boolean(user.email)).length;
-  const uniquePositions = new Set(
-    users.map((user) => user.position).filter(Boolean)
-  ).size;
-
-  return [
-    {
-      key: "total_users",
-      label: translation("user_profile_page.summary_total_users"),
-      value: total,
-      tone: "primary",
-      icon: "👥",
-      description: translation("user_profile_page.summary_total_users_desc"),
-    },
-    {
-      key: "contactable",
-      label: translation("user_profile_page.summary_contactable"),
-      value: withEmail,
-      tone: "success",
-      icon: "✉️",
-      description: translation("user_profile_page.summary_contactable_desc"),
-    },
-    {
-      key: "unique_positions",
-      label: translation("user_profile_page.summary_unique_positions"),
-      value: uniquePositions,
-      tone: "warning",
-      icon: "📌",
-      description: translation(
-        "user_profile_page.summary_unique_positions_desc"
-      ),
-    },
-  ];
-};
-
-const formatUserCopyText = (
-  user: UserProfile,
-  translation: TFunction<"translate">
-): string =>
+const formatUserCopyText = (u: UserProfile): string =>
   [
-    `╔═══════════════════════════════════════════╗`,
-    `   ${translation("user_profile_page.copy_header")}`,
-    `╚═══════════════════════════════════════════╝`,
-    "",
-    `🌐 ${translation("user_profile_page.copy_platforms")}`,
-    `   • https://sb-helper.schoolbright.co`,
-    `   • https://adminsystem.schoolbright.co`,
-    "",
-    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    `👤 ${translation("user_profile_page.copy_name")}`,
-    `   ${user.firstname ?? "-"} ${user.lastname ?? "-"}`,
-    "",
-    `🆔 ${translation("user_profile_page.copy_id")}`,
-    `   ${user.admin_id ?? "-"}`,
-    "",
-    `📧 ${translation("user_profile_page.copy_email")}`,
-    `   ${user.email ?? "-"}`,
-    "",
-    `📱 ${translation("user_profile_page.copy_phone")}`,
-    `   ${user.tel ?? "-"}`,
-    "",
-    `💼 ${translation("user_profile_page.copy_position")}`,
-    `   ${user.position ?? "-"}`,
-    "",
-    `🏷️ ${translation("user_profile_page.copy_employee_code")}`,
-    `   ${user.employee_code ?? "-"}`,
-    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `[ข้อมูลผู้ใช้งาน]`,
+    `----------------------------------------`,
+    `ชื่อ-สกุล: ${u.firstname ?? "-"} ${u.lastname ?? "-"}`,
+    `ID: ${u.admin_id ?? "-"}`,
+    `Email: ${u.email ?? "-"}`,
+    `เบอร์โทร: ${u.tel ?? "-"}`,
+    `ตำแหน่ง: ${u.position ?? "-"}`,
+    `รหัสพนักงาน: ${u.employee_code ?? "-"}`,
+    `----------------------------------------`,
+    `Ref: https://adminsystem.schoolbright.co`,
   ].join("\n");
 
-const extractErrorMessage = (
-  error: unknown
-): { message: string; stack?: string } => {
-  if (error instanceof Error) {
-    return { message: error.message, stack: error.stack };
-  }
-  if (typeof error === "string") {
-    return { message: error };
-  }
-  return { message: JSON.stringify(error) };
-};
-
-const showErrorModal = (
-  translation: TFunction<"translate">,
-  titleKey: string,
-  error: unknown
-): void => {
-  const { message, stack } = extractErrorMessage(error);
-  Modal.error({
-    title: translation(titleKey),
-    content: (
-      <div className="space-y-2">
-        <Typography.Text type="danger">{message}</Typography.Text>
-        <Collapse
-          size="small"
-          items={[
-            {
-              key: "details",
-              label: translation("user_profile_page.error_view_details"),
-              children: (
-                <Typography.Paragraph className="whitespace-pre-wrap text-xs">
-                  {stack ?? message}
-                </Typography.Paragraph>
-              ),
-            },
-          ]}
-        />
-      </div>
-    ),
-  });
-};
+const buildSummaryMetrics = (users: UserProfile[]): UserSummaryMetric[] => [
+  {
+    key: "total",
+    label: "ผู้ใช้งานทั้งหมด",
+    value: users.length,
+    color: "#3b82f6",
+    icon: <TeamOutlined />,
+    desc: "จำนวนผู้ใช้งานในระบบทั้งหมด",
+  },
+  {
+    key: "contactable",
+    label: "ติดต่อได้ (มีอีเมล)",
+    value: users.filter((u) => u.email).length,
+    color: "#22c55e",
+    icon: <MailOutlined />,
+    desc: "ผู้ใช้งานที่มีข้อมูลอีเมล",
+  },
+  {
+    key: "unique_positions",
+    label: "ตำแหน่งงาน",
+    value: new Set(users.map((u) => u.position).filter(Boolean)).size,
+    color: "#f59e0b",
+    icon: <PushpinOutlined />,
+    desc: "จำนวนตำแหน่งงานที่แตกต่างกัน",
+  },
+];
 
 // ==========================================
-// HOOKS
+// COMPONENTS
 // ==========================================
 
-const useUserProfileData = (
-  translation: TFunction<"translate">
-): UseUserProfileDataResult => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [positions, setPositions] = useState<string[]>([]);
-  const [filters, setFilters] = useState<UserFilters>({
-    searchTerm: "",
-    position: undefined,
-    dateRange: null,
-  });
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
-  const [modalState, setModalState] = useState<ModalState>({ type: "" });
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
-  const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
-  const [confirmDeleteText, setConfirmDeleteText] = useState<string>("");
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [hasError, setHasError] = useState<boolean>(false);
-
-  const authState = useAppSelector((state) => state.callAdminLogin);
-  const adminId = authState?.response?.data?.user_data?.admin_id;
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchTerm.trim());
-    }, 350);
-
-    return () => clearTimeout(handler);
-  }, [searchTerm]);
-
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get("/api/v1/admin/user/");
-      const fetchedUsers: UserProfile[] = response?.data?.data?.data ?? [];
-      setUsers(fetchedUsers);
-      persistUsersToLocal(fetchedUsers);
-      setHasError(false);
-    } catch (error) {
-      setUsers([]);
-      setHasError(true);
-      showErrorModal(translation, "user_profile_page.error_load_users", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [translation]);
-
-  const fetchPositions = useCallback(async () => {
-    try {
-      const response = await axios.get("/api/v1/admin/user/constants/position");
-      const result: string[] = response?.data?.data?.response?.data ?? [];
-      setPositions(result);
-    } catch (error) {
-      setPositions([]);
-      showErrorModal(
-        translation,
-        "user_profile_page.error_load_positions",
-        error
-      );
-    }
-  }, [translation]);
-
-  const fetchUserDetail = useCallback(
-    async (userId: string | number) => {
-      if (!userId) {
-        setSelectedUser(null);
-        return;
-      }
-
-      try {
-        const response = await axios.get(`/api/v1/admin/user/read/${userId}`);
-        const payload: UserProfile[] = response?.data?.data ?? [];
-        console.debug(
-          "fetchUserDetail: requested",
-          userId,
-          "payload length",
-          payload?.length
-        );
-        let result: UserProfile | undefined;
-        if (Array.isArray(payload)) {
-          result = payload.find(
-            (u) =>
-              String(u.admin_id) === String(userId) ||
-              String((u as any).id) === String(userId) ||
-              String(u.email) === String(userId)
-          );
-          // fallback to first item if only one returned
-          if (!result && payload.length === 1) result = payload[0];
-        } else {
-          result = payload as unknown as UserProfile;
-        }
-
-        if (result) {
-          console.debug(
-            "fetchUserDetail: matched user",
-            result?.admin_id ?? result?.id ?? result?.email
-          );
-          setSelectedUser(result);
-          setHasError(false);
-        } else {
-          console.debug(
-            "fetchUserDetail: no match, keeping current selectedUser"
-          );
-          // keep current selectedUser (do not overwrite) when API doesn't return matching user
-        }
-      } catch (error) {
-        showErrorModal(
-          translation,
-          "user_profile_page.error_load_user_detail",
-          error
-        );
-        setHasError(true);
-        // do not clear selectedUser on error to avoid losing clicked item
-      }
-    },
-    [translation]
-  );
-
-  useEffect(() => {
-    void fetchUsers();
-    void fetchPositions();
-  }, [fetchPositions, fetchUsers]);
-
-  const filteredUsers = useMemo(
-    () => filterUsers(users, filters, debouncedSearch),
-    [users, filters, debouncedSearch]
-  );
-
-  const summaryMetrics = useMemo(
-    () => buildSummaryMetrics(users, translation),
-    [users, translation]
-  );
-
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    setFilters((prev) => ({ ...prev, searchTerm: value }));
-  };
-
-  const handlePositionChange = (value?: string) => {
-    setFilters((prev) => ({ ...prev, position: value }));
-  };
-
-  const handleDateRangeChange = (value: [Dayjs, Dayjs] | null) => {
-    setFilters((prev) => ({ ...prev, dateRange: value }));
-  };
-
-  const handleResetFilters = () => {
-    setSearchTerm("");
-    setFilters({
-      searchTerm: "",
-      position: undefined,
-      dateRange: null,
-    });
-  };
-
-  const handlePageSizeChange = (size: number) => {
-    setPageSize(size);
-  };
-
-  const openCreateModal = () => {
-    setSelectedUser(null);
-    setModalState({ type: "create" });
-  };
-
-  const openEditModal = async (user: UserProfile) => {
-    // Set clicked user immediately to avoid showing stale data in modal
-    setSelectedUser(user);
-    setModalState({ type: "edit" });
-
-    // If we have a definitive admin_id, try to fetch latest details from API
-    if (user.admin_id) {
-      await fetchUserDetail(user.admin_id);
-    }
-  };
-
-  const openDeleteModal = (id: number) => {
-    setDeleteUserId(id);
-    setConfirmDeleteText("");
-    setModalState({ type: "delete" });
-  };
-
-  const closeModal = () => {
-    setModalState({ type: "" });
-    setConfirmDeleteText("");
-    setSelectedUser(null);
-    setDeleteUserId(null);
-  };
-
-  const submitCreateUser = async (payload: UpsertUserPayload) => {
-    try {
-      await axios.post("/api/v1/admin/user/create", payload, {
-        headers: {
-          "Content-Type": "application/json",
-          "JabjaiKey-0-0": "",
-        },
-      });
-      closeModal();
-      await fetchUsers();
-    } catch (error) {
-      showErrorModal(
-        translation,
-        "user_profile_page.toast_create_error",
-        error
-      );
-    }
-  };
-
-  const submitUpdateUser = async (payload: UpdateUserInput) => {
-    try {
-      const formData = new FormData();
-      Object.entries(payload).forEach(([key, value]) => {
-        formData.append(key, value != null ? String(value) : "");
-      });
-
-      await axios.post("/api/v1/admin/user/update", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      closeModal();
-      await fetchUsers();
-    } catch (error) {
-      showErrorModal(
-        translation,
-        "user_profile_page.toast_update_error",
-        error
-      );
-    }
-  };
-
-  const submitDeleteUser = async () => {
-    if (!deleteUserId) return;
-    if (!adminId) {
-      showErrorModal(
-        translation,
-        "user_profile_page.error_missing_admin",
-        "Missing admin id"
-      );
-      return;
-    }
-
-    try {
-      await axios.post(
-        "/api/v1/timesheet/project/delete/",
-        {
-          id: deleteUserId,
-          by: adminId,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      toast.success(translation("user_profile_page.toast_delete_success"));
-      closeModal();
-      setDeleteUserId(null);
-      await fetchUsers();
-    } catch (error) {
-      showErrorModal(
-        translation,
-        "user_profile_page.toast_delete_error",
-        error
-      );
-    }
-  };
-
-  const refreshData = async () => {
-    await fetchUsers();
-    await fetchPositions();
-  };
-
-  const handleCopyUser = async (user: UserProfile) => {
-    try {
-      const textFormat = formatUserCopyText(user, translation);
-      await navigator.clipboard.writeText(textFormat);
-      toast.success(translation("user_profile_page.toast_copy_success"));
-    } catch (error) {
-      showErrorModal(translation, "user_profile_page.toast_copy_error", error);
-    }
-  };
-
-  return {
-    loading,
-    filteredUsers,
-    positions,
-    filters,
-    summaryMetrics,
-    modalState,
-    selectedUser,
-    confirmDeleteText,
-    searchTerm,
-    pageSize,
-    hasError,
-    handleSearchChange,
-    handlePositionChange,
-    handleDateRangeChange,
-    handleResetFilters,
-    handlePageSizeChange,
-    openCreateModal,
-    openEditModal,
-    openDeleteModal,
-    closeModal,
-    submitCreateUser,
-    submitUpdateUser,
-    submitDeleteUser,
-    setConfirmDeleteText,
-    refreshData,
-    handleCopyUser,
-  };
-};
-
-// ==========================================
-// SUB-COMPONENTS
-// ==========================================
-
-const { Title: HeaderTitle, Text: HeaderText } = Typography;
-
-interface HeaderProps {
-  title: string;
-  subtitle: string;
-  refreshLabel: string;
-  onRefresh: () => void;
-}
-
-const HeaderSection = ({
-  title,
-  subtitle,
-  refreshLabel,
-  onRefresh,
-}: HeaderProps) => {
-  const { token } = theme.useToken();
-
-  return (
-    <div
-      style={{
-        padding: "16px 0",
-        marginBottom: 8,
-      }}
-    >
-      <Flex justify="space-between" align="center" wrap="wrap" gap={16}>
-        {/* Left Side: Title & Description */}
-        <Space size={20} align="start">
-          <Avatar
-            size={54}
-            shape="square"
-            icon={<TeamOutlined style={{ fontSize: 28 }} />}
-            style={{
-              backgroundColor: token.colorPrimaryBg,
-              color: token.colorPrimary,
-              borderRadius: 14,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: `1px solid ${token.colorPrimaryBorder}`,
-            }}
-          />
-          <Flex vertical gap={4}>
-            <HeaderTitle
-              level={2}
-              style={{
-                margin: 0,
-                letterSpacing: "-0.02em",
-                fontWeight: 800,
-                fontSize: 28,
-              }}
+// --- Summary Cards ---
+const SummaryCards = ({ metrics }: { metrics: UserSummaryMetric[] }) => (
+  <Row gutter={[16, 16]}>
+    {metrics.map((m) => (
+      <Col xs={24} md={8} key={m.key}>
+        <Card className="shadow-sm hover:shadow-md transition-shadow border-0 rounded-xl overflow-hidden relative h-full">
+          <div className="absolute right-0 top-0 p-3 opacity-10">
+            <span style={{ fontSize: "6rem", color: m.color }}>{m.icon}</span>
+          </div>
+          <Flex align="center" gap={16}>
+            <div
+              className="flex items-center justify-center w-12 h-12 rounded-lg text-2xl"
+              style={{ backgroundColor: `${m.color}15`, color: m.color }}
             >
-              {title}
-            </HeaderTitle>
-            <HeaderText
-              type="secondary"
-              style={{
-                fontSize: 15,
-                color: token.colorTextDescription,
-              }}
-            >
-              {subtitle}
-            </HeaderText>
+              {m.icon}
+            </div>
+            <div>
+              <Typography.Text
+                type="secondary"
+                className="block text-xs uppercase tracking-wider font-semibold"
+              >
+                {m.label}
+              </Typography.Text>
+              <Statistic
+                value={m.value}
+                valueStyle={{ fontWeight: 700, fontSize: "1.5rem" }}
+              />
+              <Typography.Text type="secondary" className="text-xs">
+                {m.desc}
+              </Typography.Text>
+            </div>
           </Flex>
-        </Space>
+        </Card>
+      </Col>
+    ))}
+  </Row>
+);
 
-        {/* Right Side: Actions */}
-        <Space>
-          <Button
-            size="large"
-            icon={<ReloadOutlined />}
-            onClick={onRefresh}
-            style={{
-              borderRadius: 12,
-              fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-              border: `1px solid ${token.colorBorderSecondary}`,
-            }}
+// --- Header ---
+const HeaderSection = ({ title, subtitle, refreshLabel, onRefresh }: any) => {
+  return (
+    <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4  p-6 rounded-2xl ">
+      <Space size={16}>
+        <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white ">
+          <ContactsOutlined style={{ fontSize: 24 }} />
+        </div>
+        <div>
+          <Typography.Title
+            level={3}
+            style={{ margin: 0, fontWeight: 700, letterSpacing: "-0.5px" }}
           >
-            {refreshLabel}
-          </Button>
-        </Space>
-      </Flex>
+            {title}
+          </Typography.Title>
+          <Typography.Text type="secondary" className="text-sm">
+            {subtitle}
+          </Typography.Text>
+        </div>
+      </Space>
+      <Button
+        icon={<ReloadOutlined />}
+        onClick={onRefresh}
+        size="large"
+        shape="round"
+      >
+        {refreshLabel}
+      </Button>
     </div>
   );
 };
 
-interface SummaryCardsProps {
-  metrics: UserSummaryMetric[];
-}
-
-const SummaryCards = ({ metrics }: SummaryCardsProps) => (
-  <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
-    {metrics.map((metric) => (
-      <Card
-        key={metric.key}
-        className="group border-none shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-      >
-        <div className="flex items-start justify-between">
-          <div className="flex flex-col gap-1">
-            <Typography.Text className="text-sm text-slate-500">
-              {metric.label}
-            </Typography.Text>
-            <Statistic
-              value={metric.value}
-              valueStyle={{
-                color:
-                  metric.tone === "primary"
-                    ? "#1677ff"
-                    : metric.tone === "success"
-                    ? "#16a34a"
-                    : "#d97706",
-              }}
-            />
-            <Typography.Text className="text-xs text-slate-500">
-              {metric.description}
-            </Typography.Text>
-          </div>
-          <div className="rounded-full  px-3 py-2 text-lg shadow-inner">
-            {metric.icon}
-          </div>
-        </div>
-      </Card>
-    ))}
-  </div>
-);
-
-const { RangePicker } = DatePicker;
-
-interface FiltersProps {
-  title: string;
-  searchPlaceholder: string;
-  positionPlaceholder: string;
-  dateRangeLabel: string;
-  resetLabel: string;
-  filters: UserFilters;
-  positions: string[];
-  searchValue: string;
-  onSearchChange: (value: string) => void;
-  onPositionChange: (value?: string) => void;
-  onDateRangeChange: (value: [Dayjs, Dayjs] | null) => void;
-  onReset: () => void;
-}
-
+// --- Filters ---
 const Filters = ({
-  title,
-  searchPlaceholder,
-  positionPlaceholder,
-  dateRangeLabel,
-  resetLabel,
   filters,
   positions,
-  searchValue,
   onSearchChange,
   onPositionChange,
   onDateRangeChange,
   onReset,
-}: FiltersProps) => (
-  <Card
-    title={
-      <Space>
-        <FilterOutlined />
-        <Typography.Text strong>{title}</Typography.Text>
-      </Space>
-    }
-    className="border-none shadow-sm"
-  >
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <Space direction="vertical" className="w-full md:max-w-md">
+}: any) => (
+  <Card className="border-0 shadow-sm rounded-xl mb-6">
+    <Flex gap={12} wrap="wrap" align="center">
+      <div className="flex-1 min-w-[200px]">
         <Input
+          prefix={<SearchOutlined className="text-gray-400" />}
+          placeholder="ค้นหา ชื่อ, อีเมล, รหัสพนักงาน..."
           allowClear
-          value={searchValue}
-          placeholder={searchPlaceholder}
-          prefix={<SearchOutlined />}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="transition-all duration-200 hover:shadow-sm"
+          className="rounded-lg"
         />
-      </Space>
-      <Space className="w-full flex-wrap justify-end gap-2 md:w-auto">
-        <Select
-          allowClear
-          className="min-w-[180px]"
-          placeholder={positionPlaceholder}
-          value={filters.position}
-          options={positions.map((pos) => ({ label: pos, value: pos }))}
-          onChange={onPositionChange}
-        />
-        <RangePicker
-          value={filters.dateRange ?? null}
-          onChange={(dates) =>
-            onDateRangeChange(dates as [Dayjs, Dayjs] | null)
-          }
-          placeholder={[dateRangeLabel, dateRangeLabel]}
-          allowClear
-          suffixIcon={<CalendarOutlined />}
-          className="w-full md:w-auto"
-        />
-        <Button
-          type="default"
-          icon={<ReloadOutlined />}
-          onClick={onReset}
-          className="transition-all duration-200 hover:shadow"
-        >
-          {resetLabel}
-        </Button>
-      </Space>
-    </div>
+      </div>
+      <Select
+        className="min-w-[150px]"
+        placeholder="เลือกตำแหน่ง"
+        allowClear
+        value={filters.position}
+        onChange={onPositionChange}
+        options={positions.map((p: string) => ({ label: p, value: p }))}
+        suffixIcon={<FilterOutlined />}
+      />
+      <DatePicker.RangePicker
+        className="w-full md:w-auto rounded-lg"
+        value={filters.dateRange}
+        onChange={onDateRangeChange}
+        placeholder={["วันที่เริ่ม", "วันที่สิ้นสุด"]}
+      />
+      <Button
+        onClick={onReset}
+        icon={<ReloadOutlined />}
+        type="dashed"
+        className="rounded-lg"
+      >
+        ล้างตัวเลือก
+      </Button>
+    </Flex>
   </Card>
 );
 
-const { Text: TableText } = Typography;
+// --- Modals ---
+const UserFormFields = ({ isEdit = false, positions = [] }: any) => (
+  <>
+    {!isEdit && (
+      <div className="grid grid-cols-2 gap-4">
+        <Form.Item
+          name="username"
+          label="Username"
+          rules={[{ required: true, message: "กรุณาระบุ Username" }]}
+        >
+          <Input prefix={<UserOutlined />} placeholder="username" />
+        </Form.Item>
+        <Form.Item
+          name="password"
+          label="Password"
+          rules={[
+            { required: true, message: "กรุณาระบุ Password" },
+            { min: 6, message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร" },
+          ]}
+        >
+          <Input.Password prefix={<LockOutlined />} placeholder="******" />
+        </Form.Item>
+      </div>
+    )}
+    <div className="grid grid-cols-2 gap-4">
+      <Form.Item
+        name="name"
+        label="ชื่อจริง"
+        rules={[{ required: true, message: "กรุณาระบุชื่อจริง" }]}
+      >
+        <Input prefix={<EditOutlined />} />
+      </Form.Item>
+      <Form.Item
+        name="lastname"
+        label="นามสกุล"
+        rules={[{ required: true, message: "กรุณาระบุนามสกุล" }]}
+      >
+        <Input prefix={<EditOutlined />} />
+      </Form.Item>
+    </div>
+    {isEdit && (
+      <div className="grid grid-cols-2 gap-4">
+        <Form.Item name="nickname" label="ชื่อเล่น">
+          <Input prefix={<SmileOutlined />} />
+        </Form.Item>
+        <Form.Item name="employee_code" label="รหัสพนักงาน">
+          <Input prefix={<IdcardOutlined />} />
+        </Form.Item>
+      </div>
+    )}
+    {isEdit && (
+      <div className="grid grid-cols-2 gap-4">
+        <Form.Item name="position" label="ตำแหน่ง">
+          <Select
+            options={positions.map((p: string) => ({ label: p, value: p }))}
+          />
+        </Form.Item>
+        <Form.Item name="tel" label="เบอร์โทรศัพท์">
+          <Input prefix={<PhoneOutlined />} />
+        </Form.Item>
+      </div>
+    )}
+    {isEdit && (
+      <>
+        <Form.Item name="email" label="อีเมล" rules={[{ type: "email" }]}>
+          <Input prefix={<MailOutlined />} />
+        </Form.Item>
+        <Form.Item name="backlog_email" label="อีเมลสำหรับ Backlog">
+          <Input prefix={<GlobalOutlined />} />
+        </Form.Item>
+      </>
+    )}
+    <Divider />
+    <Flex justify="end" gap={8}>
+      <Button onClick={() => Modal.destroyAll()}>ยกเลิก</Button>
+      <Button type="primary" htmlType="submit" icon={<CheckCircleOutlined />}>
+        บันทึกข้อมูล
+      </Button>
+    </Flex>
+  </>
+);
 
-interface UsersTableProps {
-  data: UserProfile[];
-  loading: boolean;
-  pageSize: number;
-  titles: {
-    index: string;
-    email: string;
-    fullname: string;
-    nickname: string;
-    position: string;
-    phone: string;
-    actions: string;
-    employeeCode: string;
-    empty: string;
-    edit: string;
-    delete: string;
-    copy: string;
+// ==========================================
+// MAIN PAGE
+// ==========================================
+
+export default function Page() {
+  const { t } = useTranslation("translate");
+  const authState = useAppSelector((state) => state.callAdminLogin);
+  const adminId = authState?.response?.data?.user_data?.admin_id;
+
+  // --- State ---
+  const [state, setState] = useState({
+    loading: true,
+    users: [] as UserProfile[],
+    positions: [] as string[],
+    selectedUser: null as UserProfile | null,
+    modalType: "" as any,
+    deleteId: null as number | null,
+    confirmDeleteText: "",
+    pageSize: 10,
+  });
+
+  const [filters, setFilters] = useState<any>({
+    searchTerm: "",
+    position: undefined,
+    dateRange: null,
+  });
+
+  // --- API ---
+  const fetchData = useCallback(async () => {
+    setState((s) => ({ ...s, loading: true }));
+    try {
+      const [uRes, pRes] = await Promise.all([
+        axios.get("/api/v1/admin/user/"),
+        axios.get("/api/v1/admin/user/constants/position"),
+      ]);
+      setState((s) => ({
+        ...s,
+        loading: false,
+        users: uRes?.data?.data?.data ?? [],
+        positions: pRes?.data?.data?.response?.data ?? [],
+      }));
+    } catch {
+      setState((s) => ({ ...s, loading: false }));
+      toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้งาน");
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchData();
+  }, [fetchData]);
+
+  // --- Handlers ---
+  const handleSubmit = async (values: any, isEdit: boolean) => {
+    try {
+      const url = isEdit
+        ? "/api/v1/admin/user/update"
+        : "/api/v1/admin/user/create";
+      const payload = isEdit
+        ? Object.entries(values).reduce((fd, [k, v]) => {
+            fd.append(k, String(v || ""));
+            return fd;
+          }, new FormData())
+        : values;
+
+      await axios.post(url, payload, {
+        headers: isEdit ? { "Content-Type": "multipart/form-data" } : {},
+      });
+      toast.success(
+        isEdit
+          ? "บันทึกการแก้ไขเรียบร้อยแล้ว"
+          : "สร้างผู้ใช้งานใหม่เรียบร้อยแล้ว"
+      );
+      setState((s) => ({ ...s, modalType: "" }));
+      fetchData();
+    } catch {
+      toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    }
   };
-  onPageSizeChange: (size: number) => void;
-  onEdit: (user: UserProfile) => void;
-  onDelete: (id: number) => void;
-  onCopy: (user: UserProfile) => void;
-}
 
-const UsersTable = ({
-  data,
-  loading,
-  pageSize,
-  titles,
-  onPageSizeChange,
-  onEdit,
-  onDelete,
-  onCopy,
-}: UsersTableProps) => {
-  const { token } = theme.useToken();
-
-  const handleDirectCopy = (text: string, label: string) => {
-    if (!text) return;
-    navigator.clipboard.writeText(text);
-    toast.success(`คัดลอก ${label} เรียบร้อยแล้ว`);
+  const handleDelete = async () => {
+    if (!state.deleteId || !adminId) return;
+    try {
+      await axios.post("/api/v1/timesheet/project/delete/", {
+        id: state.deleteId,
+        by: adminId,
+      });
+      toast.success("ลบผู้ใช้งานเรียบร้อยแล้ว");
+      setState((s) => ({
+        ...s,
+        modalType: "",
+        deleteId: null,
+        confirmDeleteText: "",
+      }));
+      fetchData();
+    } catch {
+      toast.error("เกิดข้อผิดพลาดในการลบผู้ใช้งาน");
+    }
   };
 
+  // --- Filtered Data ---
+  const filteredUsers = useMemo(() => {
+    const q = filters.searchTerm.toLowerCase();
+    return state.users.filter((u) => {
+      const matchSearch =
+        !q ||
+        [u.email, u.firstname, u.lastname, u.nickname, u.employee_code].some(
+          (s) => s?.toLowerCase().includes(q)
+        );
+      const matchPos = !filters.position || u.position === filters.position;
+      return matchSearch && matchPos;
+    });
+  }, [state.users, filters]);
+
+  // --- Columns ---
   const columns: ColumnsType<UserProfile> = [
     {
-      title: titles.index,
-      key: "index",
-      align: "center",
-      width: 70,
-      fixed: "left",
-      render: (_v, _r, idx) => (
-        <TableText type="secondary">{idx + 1}</TableText>
+      title: (
+        <Tooltip title="ลำดับ">
+          <Space>
+            #<InfoCircleOutlined />
+          </Space>
+        </Tooltip>
       ),
+      render: (_, __, i) => i + 1,
+      width: 60,
+      align: "center",
     },
     {
-      title: titles.fullname,
-      dataIndex: "fullname",
-      fixed: "left",
-      width: 250,
-      render: (_value, record) => (
-        <Space size="middle">
-          <Badge
-            dot
-            status={record.status === "ACTIVE" ? "success" : "default"}
-            offset={[-4, 32]}
-          >
+      title: "ชื่อ-นามสกุล",
+      render: (_, r) => (
+        <Space>
+          <Badge dot status={r.status === "ACTIVE" ? "success" : "default"}>
             <Avatar
-              src={record.image_profile}
-              style={{
-                backgroundColor: token.colorPrimaryBg,
-                color: token.colorPrimary,
-                border: `1px solid ${token.colorBorderSecondary}`,
-              }}
+              src={r.image_profile}
               icon={<UserOutlined />}
-            >
-              {record.firstname?.charAt(0).toUpperCase()}
-            </Avatar>
+              className="border border-indigo-100"
+            />
           </Badge>
-          <Flex vertical gap={0}>
-            <Space size={4}>
-              <TableText strong className="text-sm">
-                {record.firstname} {record.lastname}
-              </TableText>
-              <Tooltip title="คัดลอกชื่อ-สกุล">
+          <div className="flex flex-col">
+            <Flex gap={4} align="center">
+              <Typography.Text strong>
+                {r.firstname} {r.lastname}
+              </Typography.Text>
+              <Tooltip title="คัดลอกชื่อ-นามสกุล">
                 <Button
                   type="text"
                   size="small"
-                  icon={
-                    <CopyOutlined
-                      style={{ fontSize: 11, color: token.colorTextQuaternary }}
-                    />
-                  }
+                  className="text-gray-400 hover:text-blue-600"
+                  icon={<CopyOutlined style={{ fontSize: 10 }} />}
                   onClick={() =>
-                    handleDirectCopy(
-                      `${record.firstname} ${record.lastname}`,
-                      "ชื่อ-สกุล"
-                    )
+                    handleCopy(`${r.firstname} ${r.lastname}`, "ชื่อ-นามสกุล")
                   }
-                  className="!flex !items-center !justify-center"
                 />
               </Tooltip>
-            </Space>
-            <TableText type="secondary" className="text-[11px]">
-              {titles.nickname}: {record.nickname || "-"}
-            </TableText>
-          </Flex>
+            </Flex>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              {r.nickname}
+            </Typography.Text>
+          </div>
         </Space>
       ),
-      sorter: (a, b) =>
-        `${a.firstname} ${a.lastname}`.localeCompare(
-          `${b.firstname} ${b.lastname}`
-        ),
     },
     {
-      title: "ข้อมูลติดต่อ",
-      key: "contact",
-      width: 280,
-      render: (_value, record) => (
-        <Flex vertical gap={4}>
-          <Space size={8}>
-            <MailOutlined
-              style={{ color: token.colorTextTertiary, fontSize: 12 }}
-            />
-            <TableText className="text-xs">{record.email}</TableText>
+      title: (
+        <Tooltip title="ข้อมูลการติดต่อ">
+          <Space>
+            <ContactsOutlined /> ติดต่อ
+            <QuestionCircleOutlined />
+          </Space>
+        </Tooltip>
+      ),
+      render: (_, r) => (
+        <div className="text-xs text-gray-500">
+          <div className="flex items-center gap-1">
+            <MailOutlined />
+            <span>{r.email}</span>
             <Tooltip title="คัดลอกอีเมล">
               <Button
                 type="text"
                 size="small"
-                className="!p-0 !h-auto"
-                icon={
-                  <CopyOutlined
-                    style={{ fontSize: 10, color: token.colorPrimary }}
-                  />
-                }
-                onClick={() => handleDirectCopy(record.email || "", "อีเมล")}
+                className="text-gray-400 hover:text-blue-600 h-auto p-0 ml-1"
+                icon={<CopyOutlined style={{ fontSize: 10 }} />}
+                onClick={() => handleCopy(r.email || "", "อีเมล")}
               />
             </Tooltip>
-          </Space>
-          <Space size={8}>
-            <PhoneOutlined
-              style={{ color: token.colorTextTertiary, fontSize: 12 }}
-            />
-            <TableText type="secondary" className="text-xs">
-              {record.tel || "-"}
-            </TableText>
-          </Space>
-        </Flex>
+          </div>
+          <div className="flex items-center gap-1 mt-1">
+            <PhoneOutlined />
+            <span>{r.tel || "-"}</span>
+          </div>
+        </div>
       ),
     },
     {
-      title: titles.position,
+      title: "ตำแหน่ง",
       dataIndex: "position",
-      width: 150,
-      render: (value: string) => (
+      render: (v) => (
         <Tag
-          bordered={false}
-          style={{
-            backgroundColor: token.colorPrimaryBg,
-            color: token.colorPrimary,
-            borderRadius: 6,
-            fontWeight: 500,
-          }}
+          color={POSITION_COLORS[v] || "default"}
+          className="rounded-full px-2"
         >
-          {value || "-"}
+          {v || "ไม่ระบุ"}
         </Tag>
       ),
-      sorter: (a, b) => (a.position ?? "").localeCompare(b.position ?? ""),
     },
     {
-      title: titles.employeeCode,
-      dataIndex: "employee_code",
-      width: 140,
-      render: (value: string) => (
-        <Space size={4}>
-          <IdcardOutlined style={{ color: token.colorTextQuaternary }} />
-          <TableText code className="text-[12px]">
-            {value || "-"}
-          </TableText>
-        </Space>
+      title: (
+        <Tooltip title="รหัสพนักงงาน">
+          <Space>
+            รหัสพนักงาน <InfoCircleOutlined />
+          </Space>
+        </Tooltip>
       ),
+      dataIndex: "employee_code",
+      render: (v) =>
+        v ? <Tag icon={<SafetyCertificateOutlined />}>{v}</Tag> : "-",
     },
     {
-      title: titles.actions,
-      key: "actions",
-      align: "center",
-      width: 160,
+      title: "จัดการ",
       fixed: "right",
-      render: (_value, record) => (
-        <Space size="small">
-          <Tooltip title={titles.copy}>
+      width: 140,
+      render: (_, r) => (
+        <Space.Compact>
+          <Tooltip title="คัดลอกข้อมูลทั้งหมด">
             <Button
               type="text"
-              shape="circle"
-              icon={<FileTextOutlined style={{ color: token.colorInfo }} />}
-              onClick={() => onCopy(record)}
+              icon={<CopyOutlined className="text-blue-500" />}
+              onClick={async () => {
+                await navigator.clipboard.writeText(formatUserCopyText(r));
+                toast.success("คัดลอกข้อมูลทั้งหมดเรียบร้อยแล้ว");
+              }}
             />
           </Tooltip>
-          <Tooltip title={titles.edit}>
+          <Tooltip title="แก้ไข">
             <Button
               type="text"
-              shape="circle"
-              icon={<EditOutlined style={{ color: token.colorPrimary }} />}
-              onClick={() => onEdit(record)}
+              icon={<EditOutlined className="text-orange-500" />}
+              onClick={() => {
+                setState((s) => ({ ...s, selectedUser: r, modalType: "edit" }));
+              }}
             />
           </Tooltip>
-          <Tooltip title={titles.delete}>
+          <Tooltip title="ลบ">
             <Button
               type="text"
-              shape="circle"
               danger
               icon={<DeleteOutlined />}
-              onClick={() => onDelete(record.id)}
+              onClick={() =>
+                setState((s) => ({ ...s, deleteId: r.id, modalType: "delete" }))
+              }
             />
           </Tooltip>
-        </Space>
+        </Space.Compact>
       ),
     },
   ];
 
-  return (
-    <div
-      style={{
-        background: token.colorBgContainer,
-        borderRadius: token.borderRadiusLG,
-      }}
-    >
-      <Table<UserProfile>
-        columns={columns}
-        dataSource={data}
-        loading={loading}
-        rowKey={(record) =>
-          record.id || record.email || Math.random().toString()
-        }
-        pagination={{
-          pageSize,
-          showSizeChanger: true,
-          pageSizeOptions: ["10", "20", "50"],
-          onShowSizeChange: (_current, size) => onPageSizeChange(size),
-          position: ["bottomRight"],
-          className: "pr-4 pb-4",
-        }}
-        locale={{ emptyText: titles.empty }}
-        scroll={{ x: 1100 }}
-        style={{ borderRadius: token.borderRadiusLG }}
-      />
-    </div>
-  );
-};
-
-interface EmptyStateProps {
-  title: string;
-  description: string;
-  actionLabel: string;
-  onAction?: () => void;
-}
-
-const EmptyState = ({
-  title,
-  description,
-  actionLabel,
-  onAction,
-}: EmptyStateProps) => (
-  <Card className="border-dashed bg-gradient-to-b from-slate-50 to-white text-center shadow-none">
-    <div className="flex flex-col items-center gap-3 py-8">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 shadow-inner">
-        <FileSearchOutlined className="text-2xl" />
-      </div>
-      <Typography.Title level={4} className="!mb-1">
-        {title}
-      </Typography.Title>
-      <Typography.Text type="secondary">{description}</Typography.Text>
-      {onAction ? (
-        <Button type="primary" onClick={onAction} className="mt-2">
-          {actionLabel}
-        </Button>
-      ) : null}
-    </div>
-  </Card>
-);
-
-interface CreateUserModalProps {
-  open: boolean;
-  translation: TFunction<"translate">;
-  onCancel: () => void;
-  onSubmit: (payload: UpsertUserPayload) => Promise<void>;
-}
-
-const CreateUserModal = ({
-  open,
-  translation,
-  onCancel,
-  onSubmit,
-}: CreateUserModalProps) => {
-  const [form] = Form.useForm<UpsertUserPayload>();
-
-  useEffect(() => {
-    if (open) {
-      form.resetFields();
-    }
-  }, [open, form]);
-
-  const handleFinish = async (values: UpsertUserPayload) => {
-    try {
-      await onSubmit({
-        username: values.username.trim(),
-        password: values.password?.trim(),
-        name: values.name.trim(),
-        lastname: values.lastname.trim(),
-      });
-      toast.success(translation("user_profile_page.toast_create_success"));
-    } catch (err) {
-      toast.error(translation("user_profile_page.toast_create_error"));
-      throw err;
-    }
-  };
-
-  return (
-    <Modal
-      open={open}
-      onCancel={onCancel}
-      title={translation("user_profile_page.create_modal_title")}
-      footer={null}
-      destroyOnHidden
-    >
-      <Form form={form} layout="vertical" onFinish={handleFinish}>
-        <Form.Item
-          label={translation("user_profile_page.username_label")}
-          name="username"
-          rules={[
-            {
-              required: true,
-              message: translation("user_profile_page.username_required"),
-            },
-          ]}
-        >
-          <Input
-            placeholder={translation("user_profile_page.username_placeholder")}
-            prefix={<InfoCircleOutlined />}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.password_label")}
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: translation("user_profile_page.password_required"),
-            },
-            { min: 6, message: translation("user_profile_page.password_min") },
-          ]}
-        >
-          <Input.Password
-            placeholder={translation("user_profile_page.password_placeholder")}
-            prefix={<LockOutlined />}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.firstname_label")}
-          name="name"
-          rules={[
-            {
-              required: true,
-              message: translation("user_profile_page.firstname_required"),
-            },
-          ]}
-        >
-          <Input
-            placeholder={translation("user_profile_page.firstname_placeholder")}
-            prefix={<EditOutlined />}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.lastname_label")}
-          name="lastname"
-          rules={[
-            {
-              required: true,
-              message: translation("user_profile_page.lastname_required"),
-            },
-          ]}
-        >
-          <Input
-            placeholder={translation("user_profile_page.lastname_placeholder")}
-            prefix={<EditOutlined />}
-          />
-        </Form.Item>
-        <Form.Item>
-          <Space className="flex w-full justify-end">
-            <Button onClick={onCancel}>
-              {translation("user_profile_page.cancel_button")}
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              icon={<CheckCircleOutlined />}
-            >
-              {translation("user_profile_page.save_button")}
-            </Button>
-          </Space>
-        </Form.Item>
-      </Form>
-    </Modal>
-  );
-};
-
-interface EditUserModalProps {
-  open: boolean;
-  translation: TFunction<"translate">;
-  positions: string[];
-  user: UserProfile | null;
-  onCancel: () => void;
-  onSubmit: (payload: UpdateUserInput) => Promise<void>;
-}
-
-interface EditFormValues {
-  admin_id: number | string;
-  employee_code?: string;
-  firstname?: string;
-  lastname?: string;
-  nickname?: string;
-  position?: string;
-  email?: string;
-  backlog_email?: string;
-  tel?: string;
-}
-
-const EditUserModal = ({
-  open,
-  translation,
-  positions,
-  user,
-  onCancel,
-  onSubmit,
-}: EditUserModalProps) => {
-  const [form] = Form.useForm<EditFormValues>();
-
-  useEffect(() => {
-    console.info("user", user);
-    if (open && user) {
-      form.setFieldsValue({
-        admin_id: user.admin_id,
-        employee_code: user.employee_code,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        nickname: user.nickname,
-        position: user.position,
-        email: user.email,
-        backlog_email: user.backlog_email,
-        tel: user.tel,
-      });
-    } else {
-      form.resetFields();
-    }
-  }, [form, open, user]);
-
-  const handleFinish = async (values: EditFormValues) => {
-    if (!user) return;
-    try {
-      await onSubmit({
-        admin_id: Number(values.admin_id),
-        employee_code: values.employee_code ?? "",
-        firstname: values.firstname ?? "",
-        lastname: values.lastname ?? "",
-        nickname: values.nickname ?? "",
-        position: values.position ?? "",
-        email: values.email ?? "",
-        backlog_email: values.backlog_email ?? "",
-        tel: values.tel ?? "",
-      });
-      toast.success(translation("user_profile_page.toast_update_success"));
-    } catch (err) {
-      toast.error(translation("user_profile_page.toast_update_error"));
-      throw err;
-    }
-  };
-
-  return (
-    <Modal
-      open={open}
-      onCancel={onCancel}
-      title={translation("user_profile_page.edit_modal_title")}
-      footer={null}
-      destroyOnHidden
-    >
-      <Form form={form} layout="vertical" onFinish={handleFinish}>
-        <Form.Item name="admin_id" hidden>
-          <Input type="hidden" />
-        </Form.Item>
-
-        <Form.Item
-          label={translation("user_profile_page.firstname_label")}
-          name="firstname"
-          rules={[
-            {
-              required: true,
-              message: translation("user_profile_page.firstname_required"),
-            },
-          ]}
-        >
-          <Input
-            placeholder={translation("user_profile_page.firstname_placeholder")}
-            prefix={<UserOutlined />}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.lastname_label")}
-          name="lastname"
-          rules={[
-            {
-              required: true,
-              message: translation("user_profile_page.lastname_required"),
-            },
-          ]}
-        >
-          <Input
-            placeholder={translation("user_profile_page.lastname_placeholder")}
-            prefix={<UserOutlined />}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.nickname_label")}
-          name="nickname"
-        >
-          <Input
-            placeholder={translation("user_profile_page.nickname_placeholder")}
-            prefix={<SmileOutlined />}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.employee_code_label")}
-          name="employee_code"
-        >
-          <Input
-            placeholder={translation(
-              "user_profile_page.employee_code_placeholder"
-            )}
-            prefix={<IdcardOutlined />}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.position_label")}
-          name="position"
-        >
-          <Select
-            allowClear
-            options={positions.map((pos) => ({ label: pos, value: pos }))}
-            placeholder={translation("user_profile_page.position_placeholder")}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.email_label")}
-          name="email"
-          rules={[
-            {
-              type: "email",
-              message: translation("user_profile_page.email_invalid"),
-            },
-          ]}
-        >
-          <Input
-            placeholder={translation("user_profile_page.email_placeholder")}
-            prefix={<MailOutlined />}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.backlog_email_label")}
-          name="backlog_email"
-          rules={[
-            {
-              type: "email",
-              message: translation("user_profile_page.email_invalid"),
-            },
-          ]}
-        >
-          <Input
-            placeholder={translation(
-              "user_profile_page.backlog_email_placeholder"
-            )}
-            prefix={<MailOutlined />}
-          />
-        </Form.Item>
-        <Form.Item
-          label={translation("user_profile_page.tel_label")}
-          name="tel"
-        >
-          <Input
-            placeholder={translation("user_profile_page.tel_placeholder")}
-            prefix={<PhoneOutlined />}
-          />
-        </Form.Item>
-        <Form.Item>
-          <Space className="flex w-full justify-end">
-            <Button onClick={onCancel}>
-              {translation("user_profile_page.cancel_button")}
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              icon={<CheckCircleOutlined />}
-            >
-              {translation("user_profile_page.save_button")}
-            </Button>
-          </Space>
-        </Form.Item>
-      </Form>
-    </Modal>
-  );
-};
-
-interface DeleteUserModalProps {
-  open: boolean;
-  confirmText: string;
-  translation: TFunction<"translate">;
-  keyword: string;
-  onCancel: () => void;
-  onConfirm: () => Promise<void>;
-  onConfirmTextChange: (value: string) => void;
-}
-
-const DeleteUserModal = ({
-  open,
-  confirmText,
-  translation,
-  keyword,
-  onCancel,
-  onConfirm,
-  onConfirmTextChange,
-}: DeleteUserModalProps) => (
-  <Modal
-    open={open}
-    onCancel={onCancel}
-    onOk={onConfirm}
-    okText={translation("user_profile_page.delete_button")}
-    cancelText={translation("user_profile_page.cancel_button")}
-    title={translation("user_profile_page.delete_modal_title")}
-    okButtonProps={{
-      disabled: confirmText !== keyword,
-      className: "bg-rose-500",
-    }}
-    destroyOnHidden
-  >
-    <div className="space-y-2">
-      <Typography.Text type="danger" className="flex items-center gap-2">
-        <ExclamationCircleOutlined />
-        {translation("user_profile_page.delete_modal_description")}
-      </Typography.Text>
-      <Typography.Text>
-        {translation("user_profile_page.delete_modal_instruction")}{" "}
-        <Typography.Text strong className="text-rose-500">
-          {keyword}
-        </Typography.Text>
-      </Typography.Text>
-      <Input
-        value={confirmText}
-        placeholder={translation("user_profile_page.delete_modal_placeholder")}
-        onChange={(e) => onConfirmTextChange(e.target.value)}
-      />
-    </div>
-  </Modal>
-);
-
-// ==========================================
-// MAIN PAGE COMPONENT
-// ==========================================
-
-export default function Page() {
-  const { t: TRANSLATION } = useTranslation("translate");
-  const {
-    loading,
-    filteredUsers,
-    positions,
-    filters,
-    summaryMetrics,
-    modalState,
-    selectedUser,
-    confirmDeleteText,
-    searchTerm,
-    pageSize,
-    hasError,
-    handleSearchChange,
-    handlePositionChange,
-    handleDateRangeChange,
-    handleResetFilters,
-    handlePageSizeChange,
-    openCreateModal,
-    openEditModal,
-    openDeleteModal,
-    closeModal,
-    submitCreateUser,
-    submitUpdateUser,
-    submitDeleteUser,
-    setConfirmDeleteText,
-    refreshData,
-    handleCopyUser,
-  } = useUserProfileData(TRANSLATION);
-
-  const deleteKeyword = TRANSLATION("user_profile_page.delete_keyword");
+  const deleteKeyword = "ยืนยันการลบ";
 
   return (
     <PermissionLayout role={["ADMIN"]}>
       <DashboardLayout>
-        <div className="space-y-4">
-          {/* Header Section */}
+        <div className="space-y-6  mx-auto">
           <HeaderSection
-            title={TRANSLATION("user_profile_page.title")}
-            subtitle={TRANSLATION("user_profile_page.subtitle")}
-            refreshLabel={TRANSLATION("user_profile_page.refresh")}
-            onRefresh={refreshData}
+            title="จัดการข้อมูลผู้ใช้งาน"
+            subtitle="Admin System - User Profile"
+            refreshLabel="รีเฟรชข้อมูล"
+            onRefresh={fetchData}
           />
 
-          {/* Summary Cards */}
-          <SummaryCards metrics={summaryMetrics} />
+          <SummaryCards metrics={buildSummaryMetrics(state.users)} />
 
-          {/* Filters */}
           <Filters
-            title={TRANSLATION("user_profile_page.filter_title")}
-            searchPlaceholder={TRANSLATION(
-              "user_profile_page.search_placeholder"
-            )}
-            positionPlaceholder={TRANSLATION(
-              "user_profile_page.position_placeholder"
-            )}
-            dateRangeLabel={TRANSLATION("user_profile_page.date_range_label")}
-            resetLabel={TRANSLATION("user_profile_page.reset_filters")}
             filters={filters}
-            positions={positions}
-            searchValue={searchTerm}
-            onSearchChange={handleSearchChange}
-            onPositionChange={handlePositionChange}
-            onDateRangeChange={handleDateRangeChange}
-            onReset={handleResetFilters}
+            positions={state.positions}
+            onSearchChange={(v: string) =>
+              setFilters((prev: any) => ({ ...prev, searchTerm: v }))
+            }
+            onPositionChange={(v: string) =>
+              setFilters((prev: any) => ({ ...prev, position: v }))
+            }
+            onDateRangeChange={(v: any) =>
+              setFilters((prev: any) => ({ ...prev, dateRange: v }))
+            }
+            onReset={() =>
+              setFilters({
+                searchTerm: "",
+                position: undefined,
+                dateRange: null,
+              })
+            }
           />
 
-          {/* Table Section */}
           <Card
+            className="shadow-sm rounded-xl border-0"
             title={
-              <Space className="justify-between">
-                {TRANSLATION("user_profile_page.table_title")}
-                <span className="text-sm text-slate-500">
-                  {TRANSLATION("user_profile_page.total_records", {
-                    total: filteredUsers.length,
-                  })}
-                </span>
+              <Space>
+                <SolutionOutlined />
+                รายชื่อผู้ใช้งาน
               </Space>
             }
-            className="border-none shadow-sm"
             extra={
-              <Space>
-                <button
-                  type="button"
-                  onClick={openCreateModal}
-                  className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700"
-                >
-                  {TRANSLATION("user_profile_page.add_user")}
-                </button>
-              </Space>
+              <Button
+                type="primary"
+                onClick={() =>
+                  setState((s) => ({
+                    ...s,
+                    selectedUser: null,
+                    modalType: "create",
+                  }))
+                }
+                icon={<UserOutlined />}
+              >
+                เพิ่มผู้ใช้งาน
+              </Button>
             }
           >
-            {loading ? (
-              <Skeleton active paragraph={{ rows: 8 }} />
-            ) : filteredUsers.length === 0 ? (
-              <EmptyState
-                title={
-                  hasError
-                    ? TRANSLATION("user_profile_page.error_title")
-                    : TRANSLATION("user_profile_page.empty_title")
-                }
-                description={
-                  hasError
-                    ? TRANSLATION("user_profile_page.error_description")
-                    : TRANSLATION("user_profile_page.empty_description")
-                }
-                actionLabel={TRANSLATION("user_profile_page.refresh")}
-                onAction={refreshData}
-              />
+            {state.loading ? (
+              <Skeleton active />
             ) : (
-              <UsersTable
-                data={filteredUsers}
-                loading={loading}
-                pageSize={pageSize}
-                titles={{
-                  index: TRANSLATION("user_profile_page.table_index"),
-                  email: TRANSLATION("user_profile_page.table_email"),
-                  fullname: TRANSLATION("user_profile_page.table_fullname"),
-                  nickname: TRANSLATION("user_profile_page.table_nickname"),
-                  position: TRANSLATION("user_profile_page.table_position"),
-                  phone: TRANSLATION("user_profile_page.table_phone"),
-                  actions: TRANSLATION("user_profile_page.table_actions"),
-                  employeeCode: TRANSLATION(
-                    "user_profile_page.table_employee_code"
-                  ),
-                  empty: TRANSLATION("user_profile_page.empty_description"),
-                  edit: TRANSLATION("user_profile_page.edit_action"),
-                  delete: TRANSLATION("user_profile_page.delete_action"),
-                  copy: TRANSLATION("user_profile_page.copy_action"),
+              <Table
+                dataSource={filteredUsers}
+                columns={columns}
+                rowKey="id"
+                scroll={{ x: 800 }}
+                pagination={{
+                  pageSize: state.pageSize,
+                  onChange: (_, size) =>
+                    setState((s) => ({ ...s, pageSize: size })),
+                  showSizeChanger: true,
                 }}
-                onPageSizeChange={handlePageSizeChange}
-                onEdit={openEditModal}
-                onDelete={openDeleteModal}
-                onCopy={handleCopyUser}
               />
             )}
           </Card>
 
-          {/* Modal Section */}
-          <CreateUserModal
-            open={modalState.type === "create"}
-            translation={TRANSLATION}
-            onCancel={closeModal}
-            onSubmit={submitCreateUser}
-          />
-          <EditUserModal
-            open={modalState.type === "edit"}
-            translation={TRANSLATION}
-            positions={positions}
-            user={selectedUser}
-            onCancel={closeModal}
-            onSubmit={submitUpdateUser}
-          />
-          <DeleteUserModal
-            open={modalState.type === "delete"}
-            translation={TRANSLATION}
-            confirmText={confirmDeleteText}
-            keyword={deleteKeyword}
-            onCancel={closeModal}
-            onConfirm={submitDeleteUser}
-            onConfirmTextChange={setConfirmDeleteText}
-          />
+          {/* Create Modal */}
+          <Modal
+            open={state.modalType === "create"}
+            title={
+              <Space>
+                <UserOutlined /> สร้างผู้ใช้งานใหม่
+              </Space>
+            }
+            footer={null}
+            onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
+          >
+            <Form layout="vertical" onFinish={(v) => handleSubmit(v, false)}>
+              <UserFormFields />
+            </Form>
+          </Modal>
+
+          {/* Edit Modal */}
+          <Modal
+            open={state.modalType === "edit"}
+            title={
+              <Space>
+                <EditOutlined /> แก้ไขข้อมูลผู้ใช้งาน
+              </Space>
+            }
+            footer={null}
+            onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
+            destroyOnHidden
+          >
+            <Form
+              layout="vertical"
+              initialValues={{
+                ...state.selectedUser,
+                name: state.selectedUser?.firstname, // Mapping for shared field
+              }}
+              onFinish={(v) =>
+                handleSubmit(
+                  { ...v, admin_id: state.selectedUser?.admin_id },
+                  true
+                )
+              }
+            >
+              <UserFormFields isEdit positions={state.positions} form={null} />
+            </Form>
+          </Modal>
+
+          {/* Delete Modal */}
+          <Modal
+            open={state.modalType === "delete"}
+            title={
+              <Space className="text-red-500">
+                <ExclamationCircleOutlined /> ยืนยันการลบข้อมูล
+              </Space>
+            }
+            onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
+            onOk={handleDelete}
+            okButtonProps={{
+              danger: true,
+              disabled: state.confirmDeleteText !== deleteKeyword,
+            }}
+          >
+            <Typography.Paragraph>
+              หากคุณแน่ใจที่จะลบผู้ใช้งานนี้ กรุณาพิมพ์คำว่า{" "}
+              <Typography.Text code copyable>
+                {deleteKeyword}
+              </Typography.Text>
+            </Typography.Paragraph>
+            <Input
+              placeholder={`พิมพ์ "${deleteKeyword}" เพื่อยืนยัน`}
+              onChange={(e) =>
+                setState((s) => ({ ...s, confirmDeleteText: e.target.value }))
+              }
+            />
+          </Modal>
         </div>
       </DashboardLayout>
     </PermissionLayout>

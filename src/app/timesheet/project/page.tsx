@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Form,
@@ -14,15 +14,31 @@ import {
   Typography,
   Descriptions,
   Space,
+  Card,
+  Flex,
+  Statistic,
+  Divider,
+  Tag,
+  Tooltip,
+  Skeleton,
 } from "antd";
 import {
   CheckCircleOutlined,
   FileExcelOutlined,
   BarChartOutlined,
+  ProjectOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+  FilterOutlined,
+  ExclamationCircleOutlined,
+  CalendarOutlined,
+  PlusOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
 
+// Layout & Store
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { useAppSelector } from "@stores/store";
@@ -30,16 +46,138 @@ import { getUserById } from "@helpers/local_storage/user.storage";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
 import { categoryType } from "@data/timesheet.category.type";
 
-import { StatsCards } from "./components/stats-cards.component";
-import { ActionBar } from "./components/action-bar.component";
+// Sub Components & Hooks
 import { ProjectTable } from "./components/project-table.component";
-import { FilterBar } from "./components/filter-bar.component";
 import { AnalyticsDashboard } from "./components/analytics-dashboard.component";
 import { useProjectData } from "./hooks/use-project-data";
 import { exportProjectsToExcel } from "./utils/export-excel";
 import type { ModalState, FormValues, Project } from "./types/project.types";
 
 const PASSCODE = "LIGHT";
+
+// ==========================================
+// INTERNAL SUB-COMPONENTS (Based on your Liked Layout)
+// ==========================================
+
+const HeaderSection = ({
+  title,
+  subtitle,
+  onRefresh,
+  onCreate,
+  onViewTimeline,
+}: any) => (
+  <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-6 rounded-2xl ">
+    <Space size={16}>
+      <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white ">
+        <ProjectOutlined style={{ fontSize: 24 }} />
+      </div>
+      <div>
+        <Typography.Title
+          level={3}
+          style={{ margin: 0, fontWeight: 700, letterSpacing: "-0.5px" }}
+        >
+          {title}
+        </Typography.Title>
+        <Typography.Text type="secondary" className="text-sm">
+          {subtitle}
+        </Typography.Text>
+      </div>
+    </Space>
+    <Space size={12}>
+      <Button
+        icon={<CalendarOutlined />}
+        onClick={onViewTimeline}
+        shape="round"
+      >
+        Timeline
+      </Button>
+      <Button icon={<ReloadOutlined />} onClick={onRefresh} shape="round">
+        รีเฟรช
+      </Button>
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={onCreate}
+        shape="round"
+        className="shadow-md"
+      >
+        เพิ่มโครงการ
+      </Button>
+    </Space>
+  </div>
+);
+
+const SummaryCards = ({ stats }: any) => {
+  const items = [
+    {
+      label: "โครงการทั้งหมด",
+      value: stats.total,
+      color: "#3b82f6",
+      icon: <ProjectOutlined />,
+      desc: "จำนวนโครงการที่กรอง",
+    },
+    {
+      label: "กำลังดำเนินการ",
+      value: stats.active,
+      color: "#22c55e",
+      icon: <CheckCircleOutlined />,
+      desc: "สถานะ Open",
+    },
+    {
+      label: "Sub Projects",
+      value: stats.totalSubProjects,
+      color: "#f59e0b",
+      icon: <BarChartOutlined />,
+      desc: "Features ทั้งหมด",
+    },
+  ];
+
+  return (
+    <Row gutter={[16, 16]} className="mb-6">
+      {items.map((item, idx) => (
+        <Col xs={24} md={8} key={idx}>
+          <Card className="shadow-sm hover:shadow-md transition-shadow border-0 rounded-xl overflow-hidden relative">
+            <div className="absolute right-0 top-0 p-3 opacity-10">
+              <span style={{ fontSize: "5rem", color: item.color }}>
+                {item.icon}
+              </span>
+            </div>
+            <Flex align="center" gap={16}>
+              <div
+                className="flex items-center justify-center w-12 h-12 rounded-lg text-2xl"
+                style={{
+                  backgroundColor: `${item.color}15`,
+                  color: item.color,
+                }}
+              >
+                {item.icon}
+              </div>
+              <div>
+                <Typography.Text
+                  type="secondary"
+                  className="block text-xs uppercase font-semibold"
+                >
+                  {item.label}
+                </Typography.Text>
+                <Statistic
+                  value={item.value}
+                  valueStyle={{ fontWeight: 700 }}
+                />
+                <Typography.Text type="secondary" className="text-xs">
+                  {item.desc}
+                </Typography.Text>
+              </div>
+            </Flex>
+          </Card>
+        </Col>
+      ))}
+    </Row>
+  );
+};
+
+// ==========================================
+// MAIN PAGE
+// ==========================================
 
 export default function ProjectManagementPage() {
   const router = useRouter();
@@ -60,6 +198,7 @@ export default function ProjectManagementPage() {
     deleteProject,
   } = useProjectData(adminId);
 
+  // States
   const [modalState, setModalState] = useState<ModalState>({
     type: "",
     data: null,
@@ -68,62 +207,64 @@ export default function ProjectManagementPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
 
-  const [searchText, setSearchText] = useState("");
-  const [statusFilter, setStatusFilter] = useState("open");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [deletedFilter, setDeletedFilter] = useState("false");
+  // Filters State
+  const [filters, setFilters] = useState({
+    searchText: "",
+    statusFilter: "open",
+    categoryFilter: "",
+    deletedFilter: "false",
+  });
 
-  const filteredProjects = useMemo(() => {
-    return projects.filter((project) => {
-      const matchSearch =
-        !searchText ||
-        project.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        project.name_en?.toLowerCase().includes(searchText.toLowerCase()) ||
-        project.description?.toLowerCase().includes(searchText.toLowerCase());
-
-      const matchStatus = !statusFilter || project.status === statusFilter;
-      const matchCategory =
-        !categoryFilter || String(project.categoryType) === categoryFilter;
-
-      let matchDeleted = true;
-      if (deletedFilter === "true") {
-        matchDeleted = project.is_deleted === true;
-      } else if (deletedFilter === "false") {
-        matchDeleted = project.is_deleted === false || !project.is_deleted;
-      }
-
-      return matchSearch && matchStatus && matchCategory && matchDeleted;
-    });
-  }, [projects, searchText, statusFilter, categoryFilter, deletedFilter]);
-
-  const stats = useMemo(() => {
-    const total = filteredProjects.length;
-    const active = filteredProjects.filter((p) => p.status === "open").length;
-    const closed = filteredProjects.filter((p) => p.status === "close").length;
-    const totalSubProjects = filteredProjects.reduce(
-      (sum, p) => sum + (p.features?.filter((f) => !f.is_deleted).length || 0),
-      0
-    );
-    return { total, active, closed, totalSubProjects };
-  }, [filteredProjects]);
-
-  const getCategoryName = (categoryId: string) => {
+  const getCategoryName = useCallback((categoryId: string) => {
     return (
       categoryType.find((c) => String(c.id) === String(categoryId))?.name ||
       categoryId
     );
-  };
+  }, []);
 
-  const handleResetFilters = () => {
-    setSearchText("");
-    setStatusFilter("open");
-    setCategoryFilter("");
-    setDeletedFilter("false");
-  };
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      const matchSearch =
+        !filters.searchText ||
+        [project.name, project.name_en, project.description].some((s) =>
+          s?.toLowerCase().includes(filters.searchText.toLowerCase())
+        );
+      const matchStatus =
+        !filters.statusFilter || project.status === filters.statusFilter;
+      const matchCategory =
+        !filters.categoryFilter ||
+        String(project.categoryType) === filters.categoryFilter;
+      const matchDeleted =
+        filters.deletedFilter === "true"
+          ? project.is_deleted === true
+          : project.is_deleted === false || !project.is_deleted;
 
-  const handleExportExcel = () => {
-    exportProjectsToExcel(filteredProjects, getCategoryName);
-  };
+      return matchSearch && matchStatus && matchCategory && matchDeleted;
+    });
+  }, [projects, filters]);
+
+  const stats = useMemo(
+    () => ({
+      total: filteredProjects.length,
+      active: filteredProjects.filter((p) => p.status === "open").length,
+      closed: filteredProjects.filter((p) => p.status === "close").length,
+      totalSubProjects: filteredProjects.reduce(
+        (sum, p) =>
+          sum + (p.features?.filter((f) => !f.is_deleted).length || 0),
+        0
+      ),
+    }),
+    [filteredProjects]
+  );
+
+  // Handlers
+  const handleResetFilters = () =>
+    setFilters({
+      searchText: "",
+      statusFilter: "open",
+      categoryFilter: "",
+      deletedFilter: "false",
+    });
 
   const closeModal = () => {
     setModalState({ type: "", data: null });
@@ -131,22 +272,9 @@ export default function ProjectManagementPage() {
     form.resetFields();
   };
 
-  const openCreateModal = () => {
-    form.setFieldsValue({
-      status: "open",
-      start_date: dayjs(),
-      end_date: dayjs(),
-    });
-    setModalState({ type: "create" });
-  };
-
   const openEditModal = (record: Project) => {
     form.setFieldsValue({
-      name: record.name,
-      name_en: record.name_en,
-      description: record.description,
-      categoryType: record.categoryType,
-      status: record.status,
+      ...record,
       start_date: record.start_date ? dayjs(record.start_date) : undefined,
       end_date: record.end_date ? dayjs(record.end_date) : undefined,
     });
@@ -156,20 +284,9 @@ export default function ProjectManagementPage() {
   const handleSubmitForm = async (values: FormValues) => {
     setActionLoading(true);
     try {
-      const payload = {
-        name: values.name || "",
-        name_en: values.name_en || "",
-        description: values.description || "",
-        categoryType: values.categoryType || "",
-        status: values.status || "",
-        start_date: values.start_date?.toISOString() || "",
-        end_date: values.end_date?.toISOString() || "",
-      };
-
       const success = modalState.data?.id
-        ? await updateProject(modalState.data.id, payload)
-        : await createProject(payload);
-
+        ? await updateProject(modalState.data.id, values)
+        : await createProject(values);
       if (success) {
         closeModal();
         fetchProjects();
@@ -179,272 +296,300 @@ export default function ProjectManagementPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!modalState.data?.id) return;
-
-    const success = await deleteProject(modalState.data.id);
-    if (success) {
-      closeModal();
-      fetchProjects();
-    }
-  };
-
-  const handlePaginationChange = (page: number, size: number) => {
-    setPagination({
-      ...pagination,
-      current: page,
-      pageSize: size,
-    });
-  };
-
-  useEffect(() => {
-    if (userRole && userRole.trim().toLowerCase() !== "admin") {
-      Swal.fire({
-        icon: "warning",
-        title: "Restricted Access",
-        text: "Please enter passcode",
-        input: "password",
-        allowOutsideClick: false,
-      }).then((result) => {
-        if (result.value !== PASSCODE) window.location.href = "/";
-      });
-    }
-  }, [userRole]);
-
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
-        <Space
-          direction="vertical"
-          size="large"
-          style={{ width: "100%", padding: "24px" }}
-        >
-          <ActionBar
-            onCreateProject={openCreateModal}
+        <div className=" mx-auto p-6 space-y-6">
+          <HeaderSection
+            title="จัดการโครงการ"
+            subtitle="ระบบบริหารจัดการ Timesheet และความคืบหน้าโครงการ"
+            onRefresh={fetchProjects}
+            onCreate={() => setModalState({ type: "create" })}
             onViewTimeline={() => router.push("/timesheet/timeline")}
           />
 
-          <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-            <Button
-              icon={<BarChartOutlined />}
-              onClick={() => setShowAnalytics(!showAnalytics)}
-            >
-              {showAnalytics ? "ซ่อนกราฟ" : "แสดงกราฟ"}
-            </Button>
-            <Button
-              type="primary"
-              icon={<FileExcelOutlined />}
-              onClick={handleExportExcel}
-              disabled={filteredProjects.length === 0}
-            >
-              ส่งออก Excel
-            </Button>
-          </Space>
+          <SummaryCards stats={stats} />
 
-          <StatsCards
-            totalProjects={stats.total}
-            activeProjects={stats.active}
-            closedProjects={stats.closed}
-            totalSubProjects={stats.totalSubProjects}
-            loading={loading}
-          />
-
-          {showAnalytics && (
-            <AnalyticsDashboard
-              projects={filteredProjects}
-              getCategoryName={getCategoryName}
-            />
-          )}
-
-          <FilterBar
-            onSearch={setSearchText}
-            onStatusFilter={setStatusFilter}
-            onCategoryFilter={setCategoryFilter}
-            onDeletedFilter={setDeletedFilter}
-            onReset={handleResetFilters}
-            categories={categoryType.map((c) => ({
-              id: String(c.id),
-              name: c.name,
-            }))}
-          />
-
-          <ProjectTable
-            projects={filteredProjects}
-            loading={loading}
-            pagination={pagination}
-            onPaginationChange={handlePaginationChange}
-            onEdit={openEditModal}
-            onDelete={(record) =>
-              setModalState({ type: "delete", data: record })
-            }
-            onViewDetail={(record) =>
-              setModalState({ type: "detail", data: record })
-            }
-            getCategoryName={getCategoryName}
-          />
-        </Space>
-
-        {/* Create/Edit Modal */}
-        <Modal
-          open={modalState.type === "create" || modalState.type === "edit"}
-          title={
-            modalState.type === "edit" ? "แก้ไขโครงการ" : "เพิ่มโครงการใหม่"
-          }
-          onCancel={closeModal}
-          footer={null}
-          width={800}
-          centered
-        >
-          <Form form={form} layout="vertical" onFinish={handleSubmitForm}>
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  name="name"
-                  label="ชื่อโครงการ (TH)"
-                  rules={[{ required: true, message: "กรุณากรอกชื่อโครงการ" }]}
-                >
-                  <Input placeholder="ระบุชื่อโครงการ" />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  name="name_en"
-                  label="ชื่อโครงการ (EN)"
-                  rules={[
-                    { required: true, message: "กรุณากรอกชื่อภาษาอังกฤษ" },
-                  ]}
-                >
-                  <Input placeholder="English Name" />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  name="categoryType"
-                  label="ประเภท"
-                  rules={[{ required: true, message: "กรุณาเลือกประเภท" }]}
-                >
-                  <Select
-                    placeholder="เลือกประเภท"
-                    options={categoryType.map((c) => ({
-                      label: c.name,
-                      value: String(c.id),
-                    }))}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  name="status"
-                  label="สถานะ"
-                  rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
-                >
-                  <Select
-                    options={[
-                      { label: "เปิดโครงการ", value: "open" },
-                      { label: "ปิดโครงการ", value: "close" },
-                    ]}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item name="start_date" label="วันเริ่มโครงการ">
-                  <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item name="end_date" label="วันสิ้นสุดโครงการ">
-                  <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Form.Item name="description" label="คำอธิบาย">
-              <Input.TextArea rows={3} placeholder="รายละเอียดเพิ่มเติม..." />
-            </Form.Item>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 8,
-                marginTop: 16,
-              }}
-            >
-              <Button onClick={closeModal}>ยกเลิก</Button>
+          {/* Filter Bar Card */}
+          <Card className="border-0 shadow-sm rounded-xl mb-6">
+            <Flex gap={12} wrap="wrap" align="center">
+              <Input
+                prefix={<SearchOutlined className="text-gray-400" />}
+                placeholder="ค้นหาโครงการ..."
+                className="flex-1 min-w-[200px] rounded-lg"
+                value={filters.searchText}
+                onChange={(e) =>
+                  setFilters({ ...filters, searchText: e.target.value })
+                }
+              />
+              <Select
+                className="w-[160px]"
+                value={filters.statusFilter}
+                onChange={(v) => setFilters({ ...filters, statusFilter: v })}
+                options={[
+                  { label: "Open", value: "open" },
+                  { label: "Closed", value: "close" },
+                ]}
+                suffixIcon={<FilterOutlined />}
+              />
+              <Select
+                className="w-[180px]"
+                placeholder="ประเภท"
+                value={filters.categoryFilter}
+                onChange={(v) => setFilters({ ...filters, categoryFilter: v })}
+                options={categoryType.map((c) => ({
+                  label: c.name,
+                  value: String(c.id),
+                }))}
+              />
+              <Button
+                onClick={handleResetFilters}
+                icon={<ReloadOutlined />}
+                type="dashed"
+                className="rounded-lg"
+              >
+                ล้างค่า
+              </Button>
+              <Divider type="vertical" />
+              <Button
+                icon={<BarChartOutlined />}
+                onClick={() => setShowAnalytics(!showAnalytics)}
+                type={showAnalytics ? "primary" : "default"}
+              >
+                {showAnalytics ? "ซ่อนกราฟ" : "วิเคราะห์"}
+              </Button>
               <Button
                 type="primary"
-                htmlType="submit"
-                loading={actionLoading}
-                icon={<CheckCircleOutlined />}
+                icon={<FileExcelOutlined />}
+                onClick={() =>
+                  exportProjectsToExcel(filteredProjects, getCategoryName)
+                }
+                ghost
               >
-                บันทึกข้อมูล
+                Export
               </Button>
-            </div>
-          </Form>
-        </Modal>
+            </Flex>
+          </Card>
 
-        {/* Delete Confirmation Modal */}
-        <Modal
-          title="ยืนยันการลบโครงการ"
-          open={modalState.type === "delete"}
-          onCancel={closeModal}
-          onOk={handleDelete}
-          okButtonProps={{
-            danger: true,
-            disabled: confirmDeleteText !== "Delete",
-          }}
-          okText="ยืนยันลบ"
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <Typography.Text type="danger">
-              การกระทำนี้ไม่สามารถย้อนกลับได้ กรุณาพิมพ์ <b>Delete</b>{" "}
-              เพื่อยืนยัน
-            </Typography.Text>
+          {showAnalytics && (
+            <div className="mb-6 animate-in fade-in duration-500">
+              <AnalyticsDashboard
+                projects={filteredProjects}
+                getCategoryName={getCategoryName}
+              />
+            </div>
+          )}
+
+          {/* Main Table Card */}
+          <Card
+            className="shadow-sm rounded-xl border-0"
+            title={
+              <Space>
+                <ProjectOutlined /> รายการโครงการ
+              </Space>
+            }
+          >
+            {loading ? (
+              <Skeleton active />
+            ) : (
+              <ProjectTable
+                projects={filteredProjects}
+                loading={loading}
+                pagination={pagination}
+                onPaginationChange={(page, size) =>
+                  setPagination({
+                    ...pagination,
+                    current: page,
+                    pageSize: size,
+                  })
+                }
+                onEdit={openEditModal}
+                onDelete={(record) =>
+                  setModalState({ type: "delete", data: record })
+                }
+                onViewDetail={(record) =>
+                  setModalState({ type: "detail", data: record })
+                }
+                getCategoryName={getCategoryName}
+              />
+            )}
+          </Card>
+
+          {/* Create/Edit Modal */}
+          <Modal
+            open={modalState.type === "create" || modalState.type === "edit"}
+            title={
+              <Space>
+                {modalState.type === "edit" ? (
+                  <ProjectOutlined className="text-blue-500" />
+                ) : (
+                  <PlusOutlined className="text-green-500" />
+                )}{" "}
+                {modalState.type === "edit"
+                  ? "แก้ไขโครงการ"
+                  : "เพิ่มโครงการใหม่"}
+              </Space>
+            }
+            onCancel={closeModal}
+            footer={null}
+            width={800}
+            centered
+          >
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmitForm}
+              className="mt-4"
+            >
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="name"
+                    label="ชื่อโครงการ (TH)"
+                    rules={[{ required: true }]}
+                  >
+                    <Input placeholder="ระบุชื่อโครงการ" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="name_en"
+                    label="ชื่อโครงการ (EN)"
+                    rules={[{ required: true }]}
+                  >
+                    <Input placeholder="English Name" />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="categoryType"
+                    label="ประเภท"
+                    rules={[{ required: true }]}
+                  >
+                    <Select
+                      options={categoryType.map((c) => ({
+                        label: c.name,
+                        value: String(c.id),
+                      }))}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="status"
+                    label="สถานะ"
+                    rules={[{ required: true }]}
+                  >
+                    <Select
+                      options={[
+                        { label: "เปิดโครงการ", value: "open" },
+                        { label: "ปิดโครงการ", value: "close" },
+                      ]}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="start_date" label="วันเริ่มโครงการ">
+                    <DatePicker className="w-full" format="DD/MM/YYYY" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="end_date" label="วันสิ้นสุดโครงการ">
+                    <DatePicker className="w-full" format="DD/MM/YYYY" />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Form.Item name="description" label="คำอธิบาย">
+                <Input.TextArea rows={3} />
+              </Form.Item>
+              <Divider />
+              <Flex justify="end" gap={8}>
+                <Button onClick={closeModal}>ยกเลิก</Button>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={actionLoading}
+                  icon={<CheckCircleOutlined />}
+                >
+                  บันทึกข้อมูล
+                </Button>
+              </Flex>
+            </Form>
+          </Modal>
+
+          {/* Delete Modal */}
+          <Modal
+            open={modalState.type === "delete"}
+            title={
+              <Space className="text-red-500">
+                <ExclamationCircleOutlined /> ยืนยันการลบโครงการ
+              </Space>
+            }
+            onCancel={closeModal}
+            onOk={() =>
+              deleteProject(modalState.data?.id!).then(() => {
+                closeModal();
+                fetchProjects();
+              })
+            }
+            okButtonProps={{
+              danger: true,
+              disabled: confirmDeleteText !== "Delete",
+            }}
+            okText="ยืนยันการลบ"
+          >
+            <Typography.Paragraph>
+              หากคุณแน่ใจที่จะลบโครงการ{" "}
+              <Typography.Text strong>{modalState.data?.name}</Typography.Text>{" "}
+              กรุณาพิมพ์คำว่า{" "}
+              <Typography.Text code copyable>
+                Delete
+              </Typography.Text>
+            </Typography.Paragraph>
             <Input
-              placeholder="Type 'Delete' to confirm"
-              value={confirmDeleteText}
+              placeholder="พิมพ์ 'Delete' เพื่อยืนยัน"
               onChange={(e) => setConfirmDeleteText(e.target.value)}
             />
-          </div>
-        </Modal>
+          </Modal>
 
-        {/* Detail Modal */}
-        <Modal
-          title="รายละเอียดโครงการ"
-          open={modalState.type === "detail"}
-          onCancel={closeModal}
-          footer={[
-            <Button key="close" onClick={closeModal}>
-              ปิด
-            </Button>,
-          ]}
-        >
-          {modalState.data && (
-            <Descriptions column={1} bordered size="small">
-              <Descriptions.Item label="ชื่อโครงการ">
-                {modalState.data.name}
-              </Descriptions.Item>
-              <Descriptions.Item label="English Name">
-                {modalState.data.name_en || "-"}
-              </Descriptions.Item>
-              <Descriptions.Item label="รายละเอียด">
-                {modalState.data.description || "-"}
-              </Descriptions.Item>
-              <Descriptions.Item label="สร้างเมื่อ">
-                {convertToThaiDateDDMMYYY(modalState.data.createdAt)}
-              </Descriptions.Item>
-              <Descriptions.Item label="โดย">
-                {getUserById(modalState.data.createdBy)?.firstname ?? "Unknown"}
-              </Descriptions.Item>
-            </Descriptions>
-          )}
-        </Modal>
+          {/* Detail Modal */}
+          <Modal
+            title={
+              <Space>
+                <InfoCircleOutlined className="text-blue-500" />{" "}
+                รายละเอียดโครงการ
+              </Space>
+            }
+            open={modalState.type === "detail"}
+            onCancel={closeModal}
+            footer={<Button onClick={closeModal}>ปิดหน้าต่าง</Button>}
+          >
+            {modalState.data && (
+              <Descriptions column={1} bordered size="small" className="mt-2">
+                <Descriptions.Item label="ชื่อโครงการ">
+                  {modalState.data.name}
+                </Descriptions.Item>
+                <Descriptions.Item label="ประเภท">
+                  {getCategoryName(String(modalState.data.categoryType))}
+                </Descriptions.Item>
+                <Descriptions.Item label="สร้างเมื่อ">
+                  {convertToThaiDateDDMMYYY(modalState.data.createdAt)}
+                </Descriptions.Item>
+                <Descriptions.Item label="ผู้สร้าง">
+                  {getUserById(modalState.data.createdBy)?.firstname ??
+                    "Unknown"}
+                </Descriptions.Item>
+                <Descriptions.Item label="คำอธิบาย">
+                  {modalState.data.description || "-"}
+                </Descriptions.Item>
+              </Descriptions>
+            )}
+          </Modal>
+        </div>
       </DashboardLayout>
     </PermissionLayout>
   );

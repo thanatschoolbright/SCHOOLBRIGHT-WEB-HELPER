@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Card,
@@ -13,10 +15,20 @@ import {
   DatePicker,
   InputNumber,
   Steps,
+  Avatar,
+  Flex,
 } from "antd";
 import { toast } from "sonner";
 import type { ColumnsType, TableProps } from "antd/es/table";
-import { InboxOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  ThunderboltOutlined,
+  InfoCircleOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  TrophyOutlined,
+  SolutionOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -31,6 +43,7 @@ import { StatusBadge } from "./status-badge.component";
 import { fetchUserRanking } from "@/services/timesheet/find-ranking.service";
 
 const { RangePicker } = DatePicker;
+const { Text } = Typography;
 
 type TimesheetTableProps = {
   records: SummaryRecord[];
@@ -46,6 +59,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   onRefetch,
 }) => {
   const { t } = useTranslation("translate");
+
+  // --- States ---
   const [filteredInfo, setFilteredInfo] = useState<
     Record<string, (string | number)[] | null>
   >({});
@@ -56,41 +71,18 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
     [dayjs.Dayjs | null, dayjs.Dayjs | null]
   >([null, null]);
   const [manualHours, setManualHours] = useState<number | null>(null);
-  const [autoFillProgress, setAutoFillProgress] = useState<
-    {
-      key: string;
-      label: string;
-      status: "wait" | "process" | "finish" | "error";
-      description?: string;
-    }[]
-  >([]);
-  const [rankingMap, setRankingMap] = useState<
-    Record<string, { rank?: string | null; description?: string | null }>
-  >({});
+  const [autoFillProgress, setAutoFillProgress] = useState<any[]>([]);
+  const [rankingMap, setRankingMap] = useState<Record<string, any>>({});
 
-  const handleTableChange: TableProps<SummaryRecord>["onChange"] = (
-    _pagination,
-    filters
-  ) => {
-    setFilteredInfo(filters as Record<string, (string | number)[] | null>);
-  };
-
-  const workingDates = useMemo(() => {
-    if (!metadata?.range) return [];
-    const start = dayjs(metadata.range.start_date);
-    const end = dayjs(metadata.range.end_date);
-    if (!start.isValid() || !end.isValid()) return [];
-    const days: string[] = [];
-    let current = start;
-    while (current.isBefore(end, "day") || current.isSame(end, "day")) {
-      const day = current.day();
-      if (day > 0 && day < 6) {
-        days.push(current.format("YYYY-MM-DD"));
-      }
-      current = current.add(1, "day");
-    }
-    return days;
-  }, [metadata]);
+  // --- Memos ---
+  const userOptions = useMemo(
+    () =>
+      records.map((rec) => ({
+        label: `${buildFullName(rec)} ${formatNickname(rec.nickname)}`,
+        value: rec.admin_id,
+      })),
+    [records]
+  );
 
   const expectedHoursPerDay = useMemo(() => {
     if (metadata?.expected_hours_per_member && metadata?.working_days) {
@@ -99,167 +91,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
     return 8;
   }, [metadata]);
 
-  const handleAutoFill = async () => {
-    setAutoFillOpen(true);
-  };
-
-  const handleSubmitAutoFill = async () => {
-    if (!metadata) {
-      toast.error("ไม่พบช่วงวันที่สำหรับการกรอกอัตโนมัติ");
-      return;
-    }
-
-    if (!selectedUser) {
-      toast.error("กรุณาเลือกผู้ใช้");
-      return;
-    }
-
-    const [start, end] = selectedRange;
-    if (!start || !end) {
-      toast.error("กรุณาเลือกช่วงวันที่");
-      return;
-    }
-
-    const dates: string[] = [];
-    let current = start.startOf("day");
-    const endDay = end.startOf("day");
-    while (current.isBefore(endDay, "day") || current.isSame(endDay, "day")) {
-      if (current.day() > 0 && current.day() < 6) {
-        dates.push(current.format("YYYY-MM-DD"));
-      }
-      current = current.add(1, "day");
-    }
-
-    const singleDay = dates.length === 1;
-
-    setAutoFillLoading(true);
-    try {
-      const summaryResponse = await fetch(
-        "/api/v1/timesheet/entry/check/summary",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            start_date: start.format("YYYY-MM-DD"),
-            end_date: end.format("YYYY-MM-DD"),
-          }),
-        }
-      );
-
-      if (!summaryResponse.ok) {
-        throw new Error("ไม่สามารถดึงข้อมูลสรุปชั่วโมงได้");
-      }
-
-      const summaryBody = await summaryResponse.json();
-      const summaryRecords: SummaryRecord[] = summaryBody?.data?.records ?? [];
-      const summaryMeta: SummaryMetadata | null =
-        summaryBody?.data?.metadata ?? null;
-
-      const record = summaryRecords.find(
-        (rec) => String(rec.admin_id) === String(selectedUser)
-      );
-      if (!record) {
-        toast.error("ไม่พบข้อมูลผู้ใช้ที่เลือก");
-        return;
-      }
-
-      const perDay =
-        summaryMeta?.expected_hours_per_member && summaryMeta?.working_days
-          ? summaryMeta.expected_hours_per_member / summaryMeta.working_days
-          : expectedHoursPerDay;
-
-      const hoursByDate = new Map(
-        record.breakdown.map((item) => [item.date, Number(item.hours) || 0])
-      );
-
-      const tasks: { date: string; hours: number }[] = [];
-      dates.forEach((date) => {
-        const existing = hoursByDate.get(date) ?? 0;
-        const hours =
-          singleDay && manualHours !== null && manualHours >= 0
-            ? manualHours
-            : Math.max(0, perDay - existing);
-        if (hours > 0) {
-          tasks.push({ date, hours: Number(hours.toFixed(2)) });
-        }
-      });
-
-      if (!tasks.length) {
-        toast('ไม่มีวันที่ต้องกรอกเพิ่ม');
-        return;
-      }
-
-      setAutoFillProgress(
-        tasks.map((task, index) => ({
-          key: `${task.date}-${index}`,
-          label: `${task.date} • ${task.hours} ชม.`,
-          status: "wait",
-        }))
-      );
-
-      for (let i = 0; i < tasks.length; i++) {
-        const task = tasks[i];
-        setAutoFillProgress((prev) =>
-          prev.map((item, idx) =>
-            idx === i ? { ...item, status: "process" } : item
-          )
-        );
-        await axios.post("/api/v1/timesheet/entry/automate-fill", {
-          user_id: selectedUser,
-          hours: task.hours,
-          date: [task.date],
-        });
-        setAutoFillProgress((prev) =>
-          prev.map((item, idx) =>
-            idx === i
-              ? { ...item, status: "finish", description: "สำเร็จ" }
-              : item
-          )
-        );
-      }
-      toast.success("อัปเดต Timesheet อัตโนมัติสำเร็จ");
-      onRefetch?.();
-      setAutoFillOpen(false);
-    } catch (error: any) {
-      console.error("[Timesheet][auto-fill]", error);
-      const msg =
-        error?.response?.data?.message_th ||
-        error?.response?.data?.message_en ||
-        error?.message ||
-        "ไม่สามารถอัปเดต Timesheet อัตโนมัติได้";
-      toast.error(msg);
-      setAutoFillProgress((prev) =>
-        prev.map((item) =>
-          item.status === "process"
-            ? { ...item, status: "error", description: msg }
-            : item
-        )
-      );
-    } finally {
-      setAutoFillLoading(false);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setAutoFillOpen(false);
-    setManualHours(null);
-    setAutoFillProgress([]);
-  };
-
-  const singleDaySelected =
-    selectedRange[0] &&
-    selectedRange[1] &&
-    selectedRange[0]!.isSame(selectedRange[1]!, "day");
-
-  const userOptions = useMemo(
-    () =>
-      records.map((rec) => ({
-        label: `${rec.full_name}${rec.nickname ? ` (${rec.nickname})` : ""}`,
-        value: rec.admin_id,
-      })),
-    [records]
-  );
-
+  // --- Ranking Loader ---
   useEffect(() => {
     const loadRankings = async () => {
       if (!metadata || !records.length) return;
@@ -281,40 +113,168 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 description: res.record?.rank_description ?? null,
               };
             } catch {
-              return { id: String(rec.admin_id), rank: null, description: null };
+              return {
+                id: String(rec.admin_id),
+                rank: null,
+                description: null,
+              };
             }
           })
         );
-        const map: Record<string, { rank?: string | null; description?: string | null }> = {};
+        const map: any = {};
         entries.forEach((item) => {
           map[item.id] = { rank: item.rank, description: item.description };
         });
         setRankingMap(map);
-      } catch {
-        // ignore ranking load errors
+      } catch (e) {
+        console.error(e);
       }
     };
     loadRankings();
   }, [metadata, records]);
 
+  // --- Handlers ---
+  const handleTableChange: TableProps<SummaryRecord>["onChange"] = (
+    _pagination,
+    filters
+  ) => {
+    setFilteredInfo(filters as Record<string, (string | number)[] | null>);
+  };
+
+  const handleSubmitAutoFill = async () => {
+    if (!metadata) return toast.error("ไม่พบข้อมูลช่วงวันที่");
+    if (!selectedUser) return toast.error("กรุณาเลือกผู้ใช้");
+    const [start, end] = selectedRange;
+    if (!start || !end) return toast.error("กรุณาเลือกช่วงวันที่");
+
+    setAutoFillLoading(true);
+    try {
+      const summaryResponse = await axios.post(
+        "/api/v1/timesheet/entry/check/summary",
+        {
+          start_date: start.format("YYYY-MM-DD"),
+          end_date: end.format("YYYY-MM-DD"),
+        }
+      );
+
+      const userRecord = summaryResponse.data?.data?.records?.find(
+        (rec: any) => String(rec.admin_id) === String(selectedUser)
+      );
+
+      if (!userRecord) throw new Error("ไม่พบข้อมูลผู้ใช้งานในระบบ");
+
+      const tasks: { date: string; hours: number }[] = [];
+      let current = start.startOf("day");
+      const last = end.startOf("day");
+
+      while (current.isBefore(last, "day") || current.isSame(last, "day")) {
+        if (current.day() > 0 && current.day() < 6) {
+          const dateStr = current.format("YYYY-MM-DD");
+          const existingHours =
+            userRecord.breakdown.find((b: any) => b.date === dateStr)?.hours ||
+            0;
+          const hoursToFill =
+            start.isSame(end, "day") && manualHours !== null
+              ? manualHours
+              : Math.max(0, expectedHoursPerDay - existingHours);
+
+          if (hoursToFill > 0)
+            tasks.push({ date: dateStr, hours: hoursToFill });
+        }
+        current = current.add(1, "day");
+      }
+
+      if (tasks.length === 0) {
+        toast.info("ไม่มีข้อมูลที่ต้องอัปเดตเพิ่มเติม");
+        setAutoFillOpen(false);
+        return;
+      }
+
+      setAutoFillProgress(
+        tasks.map((t) => ({
+          label: `${t.date} (${t.hours} ชม.)`,
+          status: "wait",
+        }))
+      );
+
+      for (let i = 0; i < tasks.length; i++) {
+        setAutoFillProgress((prev) =>
+          prev.map((item, idx) =>
+            idx === i ? { ...item, status: "process" } : item
+          )
+        );
+        await axios.post("/api/v1/timesheet/entry/automate-fill", {
+          user_id: selectedUser,
+          hours: tasks[i].hours,
+          date: [tasks[i].date],
+        });
+        setAutoFillProgress((prev) =>
+          prev.map((item, idx) =>
+            idx === i ? { ...item, status: "finish" } : item
+          )
+        );
+      }
+
+      toast.success("อัปเดตข้อมูลสำเร็จ");
+      onRefetch?.();
+      setAutoFillOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || "เกิดข้อผิดพลาดในการอัปเดต");
+    } finally {
+      setAutoFillLoading(false);
+    }
+  };
+
+  // --- Column Definitions ---
   const columns: ColumnsType<SummaryRecord> = useMemo(
     () => [
       {
-        title: t("timesheet_page.table_rank"),
+        title: "#",
         dataIndex: "rank",
-        width: 80,
+        width: 70,
         align: "center",
+        fixed: "left",
         render: (rank: number) => (
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 font-bold text-blue-600">
-            {rank}
+          <div className="relative inline-flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold bg-gray-500 bg-opacity-10">
+              {rank}
+            </div>
+            {rank <= 3 && (
+              <TrophyOutlined className="absolute -top-2 -right-2 text-yellow-500 text-xs" />
+            )}
           </div>
         ),
       },
       {
-        title: t("timesheet_page.table_grade"),
+        title: "ชื่อ-นามสกุล",
+        key: "name",
+        width: 280,
+        fixed: "left",
+        render: (_value, record) => (
+          <Space size={12}>
+            <Avatar
+              src={record.image_profile}
+              icon={<UserOutlined />}
+              size={42}
+              className="border border-solid border-gray-500 border-opacity-10 shadow-sm"
+            />
+            <div className="flex flex-col">
+              <Text strong className="text-sm leading-tight">
+                {buildFullName(record)}
+              </Text>
+              <Text type="secondary" className="text-xs">
+                {formatNickname(record.nickname)} •{" "}
+                {record.employee_code || "N/A"}
+              </Text>
+            </div>
+          </Space>
+        ),
+      },
+      {
+        title: "เกรด",
         key: "grade",
         align: "center",
-        width: 120,
+        width: 100,
         render: (_value, record) => (
           <StatusBadge
             completionRate={record.completion_rate}
@@ -324,116 +284,120 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         ),
       },
       {
-        title: t("timesheet_page.table_name"),
-        key: "name",
-        dataIndex: "full_name",
-        filters: records.map((rec) => ({
-          text: buildFullName(rec),
-          value: rec.full_name,
-        })),
-        onFilter: (value, record) => record.full_name === value,
-        filteredValue: filteredInfo.full_name || null,
-        render: (_value, record) => (
-          <Space direction="vertical" size={0}>
-            <Typography.Text strong className="text-base">
-              {buildFullName(record)} {formatNickname(record.nickname)}
-            </Typography.Text>
-            <Typography.Text type="secondary" className="text-xs">
-              {record.employee_code || "-"}
-            </Typography.Text>
-          </Space>
-        ),
+        title: "ความคืบหน้า",
+        dataIndex: "completion_rate",
+        key: "completion_rate",
+        width: 220,
+        render: (percent, record) => {
+          const isDone = percent >= 100;
+          return (
+            <div className="flex flex-col gap-1">
+              <Progress
+                percent={Number(percent.toFixed(1))}
+                size="small"
+                strokeColor={isDone ? "#22c55e" : "#3b82f6"}
+                showInfo={false}
+                trailColor="rgba(128, 128, 128, 0.1)"
+              />
+              <Flex justify="space-between">
+                <Text type="secondary" style={{ fontSize: 10 }}>
+                  {record.progress_text}
+                </Text>
+                <Text
+                  strong
+                  style={{
+                    fontSize: 10,
+                    color: isDone ? "#22c55e" : "#3b82f6",
+                  }}
+                >
+                  {percent.toFixed(1)}%
+                </Text>
+              </Flex>
+            </div>
+          );
+        },
       },
       {
-        title: t("timesheet_page.table_position"),
+        title: "ตำแหน่ง",
         dataIndex: "position",
         key: "position",
+        width: 150,
         filters: Array.from(new Set(records.map((rec) => rec.position))).map(
           (pos) => ({ text: pos, value: pos })
         ),
         onFilter: (value, record) => record.position === value,
-        filteredValue: filteredInfo.position || null,
         render: (position: string) => (
           <Tag
             color={getPositionColor(position)}
-            className="rounded-md px-3 py-1"
+            className="border-0 rounded-full px-3 text-[10px] uppercase font-bold tracking-wider"
           >
             {position}
           </Tag>
         ),
       },
       {
-        title: t("timesheet_page.table_progress"),
-        dataIndex: "progress_text",
-        key: "progress_text",
-        width: 250,
-        render: (_value, record) => (
-          <Space direction="vertical" size={4} className="w-full">
-            <Progress
-              percent={Number(record.completion_rate.toFixed(2))}
-              status={record.completion_rate >= 100 ? "success" : "active"}
-              strokeColor={{
-                "0%": record.completion_rate >= 100 ? "#52c41a" : "#1890ff",
-                "100%": record.completion_rate >= 100 ? "#73d13d" : "#40a9ff",
-              }}
-            />
-            <Typography.Text type="secondary" className="text-xs">
-              {record.progress_text}
-            </Typography.Text>
-          </Space>
+        title: "ข้อมูลติดต่อ",
+        key: "contact",
+        width: 200,
+        render: (_, record) => (
+          <div className="flex flex-col gap-1">
+            <Text type="secondary" className="text-[11px] truncate w-40">
+              <MailOutlined className="mr-1" /> {record.email || "-"}
+            </Text>
+            <Text type="secondary" className="text-[11px]">
+              <PhoneOutlined className="mr-1" /> {record.tel || "-"}
+            </Text>
+          </div>
         ),
       },
       {
-        title: t("timesheet_page.table_status"),
+        title: "สถานะ",
         dataIndex: "status_label",
         key: "status_label",
-        render: (status: string) => (
-          <Tag
-            color={status.includes("ขาด") ? "volcano" : "green"}
-            className="rounded-md px-3 py-1"
-          >
-            {status}
-          </Tag>
-        ),
-      },
-      {
-        title: t("timesheet_page.table_email"),
-        dataIndex: "email",
-        key: "email",
-        render: (value?: string | null) => (
-          <Typography.Text className="text-sm">{value || "-"}</Typography.Text>
-        ),
-      },
-      {
-        title: t("timesheet_page.table_phone"),
-        dataIndex: "tel",
-        key: "tel",
-        render: (value?: string | null) => (
-          <Typography.Text className="text-sm">{value || "-"}</Typography.Text>
-        ),
+        width: 120,
+        render: (status: string) => {
+          const isWarning = status.includes("ขาด");
+          return (
+            <Tag
+              color={isWarning ? "volcano" : "green"}
+              className="m-0 rounded-md border-0 bg-opacity-20"
+              style={{
+                backgroundColor: isWarning
+                  ? "rgba(255, 77, 79, 0.1)"
+                  : "rgba(82, 196, 26, 0.1)",
+              }}
+            >
+              <span className="flex items-center gap-1">
+                <div
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isWarning ? "bg-red-500" : "bg-green-500"
+                  }`}
+                />
+                {status}
+              </span>
+            </Tag>
+          );
+        },
       },
     ],
-    [records, filteredInfo, t]
+    [records, rankingMap, t]
   );
 
   return (
     <Card
-      title={
-        <Typography.Title level={4} className="!mb-0">
-          {t("timesheet_page.table_title")}
-        </Typography.Title>
-      }
+      className="border-0 shadow-sm rounded-xl overflow-hidden"
       extra={
         <Button
           type="primary"
-          onClick={handleAutoFill}
+          icon={<ThunderboltOutlined />}
+          onClick={() => setAutoFillOpen(true)}
           loading={autoFillLoading}
-          disabled={loading}
+          className="shadow-sm border-0 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+          shape="round"
         >
-          อัปเดต Timesheet โดยอัตโนมัติ
+          เติมข้อมูลอัตโนมัติ
         </Button>
       }
-      className="rounded-xl shadow-md border-0"
     >
       <Table<SummaryRecord>
         rowKey={(record) => String(record.admin_id)}
@@ -441,21 +405,24 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataSource={records}
         loading={loading}
         onChange={handleTableChange}
-        className="timesheet-table"
-        
+        scroll={{ x: 1200 }}
         expandable={{
           expandedRowRender: (record) => (
-            <div className="p-4  from-blue-50 to-indigo-50 rounded-lg">
-              <Typography.Text strong className="block mb-2">
-                {t("timesheet_page.breakdown_title")}
-              </Typography.Text>
-              <Space direction="vertical" size={6}>
+            <div className="p-4 mx-4 mb-4 rounded-xl border border-dashed border-gray-500 border-opacity-20 bg-gray-500 bg-opacity-5">
+              <Flex align="center" gap={8} className="mb-3">
+                <InfoCircleOutlined className="text-blue-500" />
+                <Text strong className="text-xs uppercase tracking-widest">
+                  รายละเอียดเวลาการทำงาน
+                </Text>
+              </Flex>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-6">
                 {formatBreakdown(record.breakdown).map((text, idx) => (
-                  <Typography.Text key={idx} className="text-sm">
-                    • {text}
-                  </Typography.Text>
+                  <div key={idx} className="flex items-start gap-2 text-[12px]">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shadow-sm shadow-blue-500" />
+                    <Text type="secondary">{text}</Text>
+                  </div>
                 ))}
-              </Space>
+              </div>
             </div>
           ),
           rowExpandable: (record) => record.breakdown.length > 0,
@@ -463,95 +430,87 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         pagination={{
           pageSize: 20,
           showSizeChanger: true,
-          pageSizeOptions: ["10", "20", "50", "100"],
-          showTotal: (total) => t("timesheet_page.total_records", { total }),
-        }}
-        locale={{
-          emptyText: (
-            <Empty
-              image={
-                <InboxOutlined style={{ fontSize: 64, color: "#bfbfbf" }} />
-              }
-              description={
-                <Space direction="vertical" size="small">
-                  <Typography.Text type="secondary">
-                    {t("timesheet_page.no_data")}
-                  </Typography.Text>
-                </Space>
-              }
-            />
+          className: "px-4 pb-4",
+          showTotal: (total) => (
+            <Text type="secondary" className="text-xs">
+              พบข้อมูลพนักงานทั้งหมด {total} รายการ
+            </Text>
           ),
         }}
       />
 
       <Modal
-        title="อัปเดต Timesheet โดยอัตโนมัติ"
+        title={
+          <Flex align="center" gap={8}>
+            <ThunderboltOutlined className="text-yellow-500" />
+            <span>อัปเดต Timesheet อัตโนมัติ</span>
+          </Flex>
+        }
         open={autoFillOpen}
         onOk={handleSubmitAutoFill}
-        onCancel={handleCloseModal}
+        onCancel={() => setAutoFillOpen(false)}
         confirmLoading={autoFillLoading}
-        okText="ยืนยัน"
-        cancelText="ยกเลิก"
+        width={500}
+        centered
       >
-        <Space direction="vertical" size="middle" className="w-full">
-          <div className="w-full">
-            <Typography.Text strong>เลือกผู้ใช้</Typography.Text>
+        <Space direction="vertical" size="large" className="w-full mt-4">
+          <Flex vertical gap={4}>
+            <Text strong className="text-xs uppercase">
+              1. เลือกพนักงาน
+            </Text>
             <Select
-              className="w-full mt-1"
-              placeholder="เลือกผู้ใช้"
+              className="w-full"
+              placeholder="ค้นหาชื่อพนักงาน..."
               options={userOptions}
               value={selectedUser}
-              onChange={(value) => setSelectedUser(value)}
+              onChange={setSelectedUser}
               showSearch
-              optionFilterProp="label"
+              size="large"
             />
-          </div>
+          </Flex>
 
-          <div className="w-full">
-            <Typography.Text strong>เลือกวันที่</Typography.Text>
+          <Flex vertical gap={4}>
+            <Text strong className="text-xs uppercase">
+              2. ช่วงวันที่ต้องการเติมข้อมูล
+            </Text>
             <RangePicker
-              className="w-full mt-1"
+              className="w-full"
+              size="large"
               value={selectedRange}
-              onChange={(range) => setSelectedRange(range ?? [null, null])}
-              allowClear
+              onChange={(r) => setSelectedRange(r ?? [null, null])}
             />
-          </div>
+          </Flex>
 
-          <div className="w-full">
-            <Typography.Text strong>
-              ชั่วโมง (ใส่ได้เมื่อเลือกวันเดียว)
-            </Typography.Text>
-            <InputNumber
-              className="w-full mt-1"
-              placeholder="กรอกจำนวนชั่วโมง"
-              min={0}
-              step={0.25}
-              value={manualHours ?? undefined}
-              onChange={(value) => setManualHours(value ?? null)}
-              disabled={!singleDaySelected}
-            />
-            {!singleDaySelected && (
-              <Typography.Text type="secondary" className="text-xs">
-                เมื่อเลือกหลายวัน ระบบจะคำนวณให้อัตโนมัติ
-              </Typography.Text>
-            )}
-          </div>
+          {selectedRange[0]?.isSame(selectedRange[1], "day") && (
+            <Flex vertical gap={4}>
+              <Text strong className="text-xs uppercase">
+                3. จำนวนชั่วโมง (ระบุเองเฉพาะกรณีเลือกวันเดียว)
+              </Text>
+              <InputNumber
+                className="w-full"
+                placeholder="ตัวอย่าง: 8"
+                min={0}
+                max={24}
+                value={manualHours}
+                onChange={(v) => setManualHours(v)}
+                size="large"
+              />
+            </Flex>
+          )}
+
+          {autoFillProgress.length > 0 && (
+            <div className="p-4 rounded-lg bg-gray-500 bg-opacity-5 max-h-40 overflow-y-auto">
+              <Steps
+                direction="vertical"
+                size="small"
+                items={autoFillProgress.map((item) => ({
+                  title: item.label,
+                  status: item.status,
+                }))}
+              />
+            </div>
+          )}
         </Space>
-        {autoFillProgress.length > 0 && (
-          <div className="mt-4">
-            <Typography.Text strong>สถานะการทำงาน</Typography.Text>
-            <Steps
-              direction="vertical"
-              size="small"
-              className="mt-2"
-              items={autoFillProgress.map((item) => ({
-                title: item.label,
-                status: item.status,
-                description: item.description,
-              }))}
-            />
-          </div>
-        )}
       </Modal>
     </Card>
   );
