@@ -72,6 +72,11 @@ import {
   RocketOutlined,
   ThunderboltOutlined,
   CheckCircleOutlined,
+  SyncOutlined,
+  CheckCircleFilled,
+  CloseCircleFilled,
+  ExclamationCircleFilled,
+  StopOutlined,
 } from "@ant-design/icons";
 
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -114,7 +119,6 @@ import {
   SearchableColumnKey,
 } from "./types/timesheet-entry.types";
 import {
-  getGreeting,
   DAILY_TARGET_HOURS,
   DATE_FORMAT,
   stringToColor,
@@ -142,15 +146,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   onAddMultiClick,
   token,
 }) => {
-  const { t } = useTranslation("translate");
+  // Custom greeting logic specifically for Thai to ensure no English slips through
+  const getThaiGreeting = () => {
+    const hour = dayjs().hour();
+    if (hour < 12) return "สวัสดีตอนเช้า";
+    if (hour < 17) return "สวัสดีตอนบ่าย";
+    return "สวัสดีตอนเย็น";
+  };
 
-  // Greeting with dynamic emoji based on time
-  const greeting = getGreeting();
-  const timeEmoji = greeting.includes("Morning")
-    ? "☀️"
-    : greeting.includes("Afternoon")
-    ? "🌤️"
-    : "🌙";
+  const greeting = getThaiGreeting();
+  const timeEmoji =
+    dayjs().hour() < 18 ? (dayjs().hour() < 12 ? "☀️" : "🌤️") : "🌙";
 
   const handleOpenGuide = () => {
     window.open(
@@ -198,12 +204,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                {greeting}, {t("timesheet_entry_page.greeting_prefix")}
-                {adminName}
+                {greeting}, คุณ{adminName}
               </Typography.Title>
             </Space>
             <Typography.Text type="secondary" style={{ fontSize: 16 }}>
-              {t("timesheet_entry_page.subtitle")} •{" "}
+              จัดการเวลาทำงานของคุณได้ที่นี่ •{" "}
               <span style={{ color: token.colorSuccess }}>
                 พร้อมลุยงานวันนี้หรือยัง? 🚀
               </span>
@@ -236,9 +241,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 boxShadow: `0 4px 14px ${token.colorPrimary}60`,
               }}
             >
-              {t("timesheet_entry_page.add_entry_button")}
+              ลงเวลาทำงาน
             </Button>
-            <Badge count="New" offset={[-5, 5]} color={token.colorError}>
+            <Badge count="ใหม่" offset={[-5, 5]} color={token.colorError}>
               <Button
                 size="large"
                 icon={<AppstoreAddOutlined />}
@@ -251,7 +256,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   color: token.colorText,
                 }}
               >
-                {t("timesheet_entry_page.add_multi_entry_button")}
+                ลงเวลาหลายรายการ
               </Button>
             </Badge>
           </Space>
@@ -436,7 +441,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                     WebkitTextFillColor: "transparent",
                   }}
                 >
-                  {currentAdminId ? "อันดับของคุณ" : "Top Performer"}
+                  {currentAdminId ? "อันดับของคุณ" : "พนักงานดีเด่น"}
                 </span>
               </Typography.Title>
               <Typography.Text
@@ -668,7 +673,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
           <Row gutter={[24, 24]}>
             <Col xs={24} sm={12}>
               <TimesheetStatCard
-                title="โปรเจ็คยอดนิยม 🚀"
+                title="โครงการยอดนิยม 🚀"
                 value={topProjectUsage ? topProjectUsage.hours : 0}
                 color={token.colorPrimary}
                 loading={loading}
@@ -679,7 +684,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
             </Col>
             <Col xs={24} sm={12}>
               <TimesheetStatCard
-                title="ฟีเจอร์ไฟแรง 🔥"
+                title="ฟีเจอร์มาแรง 🔥"
                 value={topFeatureUsage ? topFeatureUsage.hours : 0}
                 color={token.colorError}
                 loading={loading}
@@ -800,7 +805,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
               fontWeight: 600,
             }}
           >
-            DATE
+            วันที่
           </span>
         ),
         dataIndex: "date",
@@ -852,7 +857,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
               fontWeight: 600,
             }}
           >
-            PROJECT & TASK
+            โครงการ / งาน
           </span>
         ),
         dataIndex: "project_name",
@@ -862,7 +867,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         ...getColumnSearchProps("project_name", "โครงการ"),
         render: (value: string, record: TimesheetEntry) => {
           const avatarColor = stringToColor(value);
-          const isTop = false; // Mock logic, could be real
+          const isTop = false; // Mock logic
           return (
             <div
               style={{
@@ -876,17 +881,14 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 <Avatar
                   shape="square"
                   size={48}
+                  src={`https://api.dicebear.com/9.x/icons/svg?seed=${record.project_id}`}
                   style={{
-                    backgroundColor: `${avatarColor}20`,
-                    color: avatarColor,
-                    border: `1px solid ${avatarColor}40`,
+                    backgroundColor: `${avatarColor}15`,
+                    border: `1px solid ${avatarColor}30`,
                     borderRadius: 14,
-                    fontSize: 20,
-                    fontWeight: "bold",
+                    padding: 8,
                   }}
-                >
-                  {value ? value.charAt(0).toUpperCase() : <UserOutlined />}
-                </Avatar>
+                />
                 {isTop && (
                   <div
                     style={{
@@ -935,7 +937,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                         lineHeight: "16px",
                       }}
                     >
-                      FEATURE
+                      ฟีเจอร์
                     </Tag>
                     <Typography.Text
                       type="secondary"
@@ -964,7 +966,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
               fontWeight: 600,
             }}
           >
-            STATUS
+            สถานะ
           </span>
         ),
         dataIndex: "status",
@@ -974,32 +976,65 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
           (a.status ?? "").localeCompare(b.status ?? ""),
         render: (value: string) => {
           const config = getStatusConfig(value);
+          const label =
+            STATUS_OPTIONS.find((s) => s.value === value)?.label_th ||
+            config.text;
+
+          let StatusIcon: any = ExclamationCircleFilled;
+          let isSpin = false;
+          let bgStyle = {};
+
+          switch (value) {
+            case "IN_PROGRESS":
+              StatusIcon = SyncOutlined;
+              isSpin = true;
+              bgStyle = {
+                background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${config.color}15 100%)`,
+              };
+              break;
+            case "COMPLETED":
+            case "DONE":
+            case "APPROVED":
+              StatusIcon = CheckCircleFilled;
+              bgStyle = { background: `${config.color}10` };
+              break;
+            case "REJECTED":
+            case "CANCELLED":
+              StatusIcon = CloseCircleFilled;
+              bgStyle = { background: `${config.color}10` };
+              break;
+            case "DRAFT":
+            case "PENDING":
+              StatusIcon = ClockCircleOutlined;
+              bgStyle = { borderStyle: "dashed" };
+              break;
+            default:
+              StatusIcon = TagOutlined;
+          }
+
           return (
             <div
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                padding: "4px 12px",
-                background: `${config.color}15`,
-                borderRadius: 20,
-                border: `1px solid ${config.color}30`,
+                justifyContent: "center",
+                columnGap: 8,
+                padding: "6px 14px",
+                borderRadius: 30,
+                border: `1.5px solid ${config.color}40`,
+                color: config.color,
+                fontWeight: 600,
+                fontSize: 13,
+                boxShadow: `0 4px 10px -4px ${config.color}60`,
+                transition: "all 0.3s ease",
+                cursor: "default",
+                minWidth: 120,
+                ...bgStyle,
               }}
+              className="status-badge"
             >
-              <div
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: config.color,
-                  marginRight: 8,
-                }}
-              ></div>
-              <span
-                style={{ color: config.color, fontWeight: 600, fontSize: 12 }}
-              >
-                {STATUS_OPTIONS.find((s) => s.value === value)?.label_th ||
-                  config.text}
-              </span>
+              <StatusIcon spin={isSpin} style={{ fontSize: 16 }} />
+              {label}
             </div>
           );
         },
@@ -1013,7 +1048,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
               fontWeight: 600,
             }}
           >
-            DURATION
+            ระยะเวลา
           </span>
         ),
         dataIndex: "hours",
@@ -1022,50 +1057,44 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
           Number(a.hours || 0) - Number(b.hours || 0),
         render: (value: number) => {
           const hours = Number(value) || 0;
-          const percent = Math.min((hours / DAILY_TARGET_HOURS) * 100, 100);
-          const color =
-            hours >= DAILY_TARGET_HOURS
-              ? hours > DAILY_TARGET_HOURS
-                ? token.colorWarning
-                : token.colorSuccess
-              : token.colorPrimary;
           return (
-            <div style={{ paddingRight: 12 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                paddingRight: 12,
+              }}
+            >
               <div
                 style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  background: token.colorFillSecondary,
                   display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 6,
-                  alignItems: "flex-end",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: token.colorTextTertiary,
                 }}
               >
+                <ClockCircleOutlined style={{ fontSize: 16 }} />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <span
                   style={{
                     fontWeight: 700,
-                    fontSize: 18,
-                    color: color,
-                    lineHeight: 1,
+                    fontSize: 16,
+                    color: token.colorTextHeading,
+                    lineHeight: 1.2,
                   }}
                 >
-                  {hours.toFixed(2)}{" "}
-                  <span
-                    style={{ fontSize: 10, color: token.colorTextSecondary }}
-                  >
-                    h
-                  </span>
+                  {hours.toFixed(2)}
                 </span>
                 <span style={{ fontSize: 11, color: token.colorTextSecondary }}>
-                  Goal: {DAILY_TARGET_HOURS}h
+                  ชั่วโมง
                 </span>
               </div>
-              <Progress
-                percent={percent}
-                size={["100%", 6]}
-                strokeColor={color}
-                showInfo={false}
-                trailColor={token.colorFillSecondary}
-                strokeLinecap="round"
-              />
             </div>
           );
         },
@@ -1136,7 +1165,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
               บันทึกเวลาทำงาน
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              Work Log Tables
+              ตารางแสดงรายการลงเวลาทั้งหมด
             </Typography.Text>
           </div>
         </div>
@@ -1191,13 +1220,13 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             if (type === "prev")
               return (
                 <Button type="text" size="small">
-                  Prev
+                  ก่อนหน้า
                 </Button>
               );
             if (type === "next")
               return (
                 <Button type="text" size="small">
-                  Next
+                  ถัดไป
                 </Button>
               );
             return element;
@@ -1419,7 +1448,12 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
           </Row>
           <Divider />
           <Form.Item label="รายละเอียดการทำงาน" name="description">
-            <Input.TextArea rows={4} showCount maxLength={500} />
+            <Input.TextArea
+              rows={4}
+              showCount
+              maxLength={500}
+              placeholder="ระบุรายละเอียดงานที่ทำ..."
+            />
           </Form.Item>
         </div>
         <Flex justify="end" gap={8} style={{ marginTop: 24 }}>
@@ -1430,7 +1464,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
             loading={disabled}
             icon={<SaveOutlined />}
           >
-            บันทึก Timesheet
+            บันทึกข้อมูล
           </Button>
         </Flex>
       </Form>
@@ -1460,7 +1494,16 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
   const { token } = theme.useToken();
   const { t, i18n } = useTranslation("translate");
   const [form] = Form.useForm();
-  const [entries, setEntries] = useState([
+  interface MultiEntryItem {
+    id: string;
+    status: string;
+    date: Dayjs;
+    project_id?: number;
+    sub_project_id?: number;
+    work_hour?: number;
+    description?: string;
+  }
+  const [entries, setEntries] = useState<MultiEntryItem[]>([
     { id: `entry-${Date.now()}`, status: "IN_PROGRESS", date: dayjs() },
   ]);
 
@@ -1520,8 +1563,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
       open={open}
       title={
         <Space>
-          <AppstoreAddOutlined />{" "}
-          {t("timesheet_entry_page.multi_entry_modal_title")}
+          <AppstoreAddOutlined /> ลงเวลาหลายรายการ
         </Space>
       }
       onCancel={onCancel}
@@ -1530,7 +1572,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
     >
       <Form form={form} layout="vertical">
         <Alert
-          message={t("timesheet_entry_page.multi_entry_alert_title")}
+          message="สามารถเพิ่มรายการได้ทีละหลายรายการ"
           type="info"
           showIcon
           style={{ marginBottom: 24 }}
@@ -1565,6 +1607,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                         showSearch
                         onChange={(v) => handleProjectChange(entry.id, v)}
                         optionFilterProp="label"
+                        placeholder="เลือกโครงการ"
                       />
                     </Form.Item>
                   </Col>
@@ -1582,6 +1625,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                           updateEntry(entry.id, "sub_project_id", v)
                         }
                         optionFilterProp="label"
+                        placeholder="เลือกงานย่อย"
                       />
                     </Form.Item>
                   </Col>
@@ -1594,6 +1638,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                       <DatePicker
                         style={{ width: "100%" }}
                         onChange={(v) => updateEntry(entry.id, "date", v)}
+                        placeholder="เลือกวันที่"
                       />
                     </Form.Item>
                   </Col>
@@ -1608,6 +1653,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                         min={0}
                         step={0.5}
                         onChange={(v) => updateEntry(entry.id, "work_hour", v)}
+                        placeholder="0.0"
                       />
                     </Form.Item>
                   </Col>
@@ -1619,6 +1665,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                           value: s.value,
                         }))}
                         onChange={(v) => updateEntry(entry.id, "status", v)}
+                        placeholder="เลือกสถานะ"
                       />
                     </Form.Item>
                   </Col>
@@ -1632,6 +1679,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                         onChange={(e) =>
                           updateEntry(entry.id, "description", e.target.value)
                         }
+                        placeholder="รายละเอียดงาน..."
                       />
                     </Form.Item>
                   </Col>
