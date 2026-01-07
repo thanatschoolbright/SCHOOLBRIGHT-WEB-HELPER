@@ -1,35 +1,72 @@
-import React, { useMemo } from "react";
+"use client";
+
+import React, { useMemo, useState } from "react";
+
 import {
   Modal,
   Table,
   Tag,
   Progress,
   Space,
-  Statistic,
   Row,
   Col,
   Card,
-  Divider,
+  theme,
+  Typography,
+  Tooltip,
+  Statistic,
+  Input,
   Button,
 } from "antd";
 import {
   TrophyOutlined,
-  RiseOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined,
   CrownOutlined,
-  StarOutlined,
-  RocketOutlined,
   UserOutlined,
-  TableOutlined,
-  AlertOutlined,
+  InfoCircleOutlined,
   TeamOutlined,
-  DashboardOutlined,
-  FundOutlined,
+  LineChartOutlined,
+  PieChartOutlined,
+  RocketOutlined,
+  DollarOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner"; // Import sonner toast
 import type { ColumnsType } from "antd/es/table";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Filler,
+} from "chart.js";
+import { Bar, Doughnut } from "react-chartjs-2";
 import type { SaleStatistics } from "../types/sale-stats.types";
+
+// * Register ChartJS Components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title,
+  ChartTooltip,
+  Legend,
+  ArcElement,
+  Filler
+);
+
+const { Text } = Typography;
 
 type SaleRankingModalProps = {
   open: boolean;
@@ -37,257 +74,330 @@ type SaleRankingModalProps = {
   data: SaleStatistics[];
 };
 
+const SECRET_CODE = "LIGHT";
+const INCOME_PER_STUDENT = 203; // THB per term
+
+/**
+ * * SaleRankingModal
+ * * --------------------------------------------------------------------------
+ * * Displays detailed performance analysis of sales representatives.
+ * * Features:
+ * * - Top 5 Sales Analysis Chart (Active vs Inactive Schools)
+ * * - School Grade Distribution Overview
+ * * - Interactive Summary Cards with tooltips
+ * * - Comprehensive Data Table
+ * * - Secure Income Analysis (Requires "LIGHT" code)
+ * * --------------------------------------------------------------------------
+ */
 export default function SaleRankingModal({
   open,
   onClose,
   data,
 }: SaleRankingModalProps): JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
+  const { token } = theme.useToken();
+  const [isIncomeVisible, setIsIncomeVisible] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [showPasscodeInput, setShowPasscodeInput] = useState(false);
 
-  const [showMetrics, setShowMetrics] = React.useState(false);
+  // * ==========================================================================
+  // * AUTHENTICATION FOR INCOME
+  // * ==========================================================================
+  const handleUnlockIncome = () => {
+    if (passcode === SECRET_CODE) {
+      setIsIncomeVisible(true);
+      setShowPasscodeInput(false);
+      toast.success("ปลดล็อคข้อมูลรายได้เรียบร้อยแล้ว");
+    } else {
+      toast.error("รหัสผ่านไม่ถูกต้อง");
+    }
+  };
 
-  const topData = useMemo(() => data, [data]);
+  const handleTogglePasscodeInput = () => {
+    if (isIncomeVisible) {
+      setIsIncomeVisible(false);
+      setPasscode("");
+    } else {
+      setShowPasscodeInput(!showPasscodeInput);
+    }
+  };
 
-  // Metrics Calculation
-  const metricsData = useMemo(() => {
-    // Top Quality: High Activation Rate (min 5 schools)
-    const topQuality = [...data]
-      .filter((s) => s.totalSchools >= 5)
-      .sort((a, b) => b.activationRate - a.activationRate)
-      .slice(0, 3);
+  // * ==========================================================================
+  // * DATA PREPARATION
+  // * ==========================================================================
 
-    // High Value: Most Grade A Schools
-    const highValue = [...data]
-      .sort((a, b) => b.gradeACount - a.gradeACount)
-      .slice(0, 3);
-
-    // Critical: Most Inactive Schools
-    const critical = [...data]
-      .sort((a, b) => b.inactiveSchools - a.inactiveSchools)
-      .slice(0, 3);
-
-    // Student Reach: Highest student footprint
-    const topStudentReach = [...data]
-      .filter((s) => s.totalStudents > 0)
-      .sort((a, b) => b.totalStudents - a.totalStudents)
-      .slice(0, 3);
-
-    // Coverage: % of students in active schools
-    const bestCoverage = [...data]
-      .filter((s) => s.totalStudents > 0)
-      .sort((a, b) => b.studentCoverageRate - a.studentCoverageRate)
-      .slice(0, 3);
-
-    return { topQuality, highValue, critical, topStudentReach, bestCoverage };
+  // Sort by Total Schools desc for Top 5 Chart
+  const top5Sales = useMemo(() => {
+    return [...data]
+      .sort((a, b) => b.totalSchools - a.totalSchools)
+      .slice(0, 5);
   }, [data]);
 
-  const totalSchools = useMemo(
-    () => data.reduce((sum, item) => sum + item.totalSchools, 0),
-    [data]
-  );
-
-  const totalActive = useMemo(
-    () => data.reduce((sum, item) => sum + item.activeSchools, 0),
-    [data]
-  );
-
-  const totalGradeA = useMemo(
-    () => data.reduce((sum, item) => sum + item.gradeACount, 0),
-    [data]
-  );
-
-  const totalStudents = useMemo(
-    () => data.reduce((sum, item) => sum + item.totalStudents, 0),
-    [data]
-  );
-
-  const activeStudents = useMemo(
-    () => data.reduce((sum, item) => sum + item.activeStudents, 0),
-    [data]
-  );
-
-  const averageStudentsAll = useMemo(() => {
-    const overallSchools = data.reduce(
-      (sum, item) => sum + item.totalSchools,
-      0
+  const stats = useMemo(() => {
+    const calculated = data.reduce(
+      (acc, item) => ({
+        totalSchools: acc.totalSchools + item.totalSchools,
+        activeSchools: acc.activeSchools + item.activeSchools,
+        totalStudents: acc.totalStudents + item.totalStudents,
+        totalIncome: acc.totalIncome + item.totalStudents * INCOME_PER_STUDENT,
+        gradeA: acc.gradeA + item.gradeACount,
+        gradeB: acc.gradeB + item.gradeBCount,
+        gradeC: acc.gradeC + item.gradeCCount,
+      }),
+      {
+        totalSchools: 0,
+        activeSchools: 0,
+        totalStudents: 0,
+        totalIncome: 0,
+        gradeA: 0,
+        gradeB: 0,
+        gradeC: 0,
+      }
     );
-    return overallSchools > 0
-      ? Number((totalStudents / overallSchools).toFixed(2))
-      : 0;
-  }, [data, totalStudents]);
+    return calculated;
+  }, [data]);
 
-  // ... (Keep existing columns definition)
+  // * ==========================================================================
+  // * CHART CONFIGURATION
+  // * ==========================================================================
+
+  // * Bar Chart: Top 5 Sales Performance (Stacked or Grouped)
+  const barChartData = {
+    labels: top5Sales.map((s) => s.saleName),
+    datasets: [
+      {
+        label: "โรงเรียนทั้งหมด",
+        data: top5Sales.map((s) => s.totalSchools),
+        backgroundColor: token.colorPrimary,
+        borderRadius: 4,
+        barPercentage: 0.6,
+      },
+      {
+        label: "ใช้งานอยู่ (Active)",
+        data: top5Sales.map((s) => s.activeSchools),
+        backgroundColor: token.colorSuccess,
+        borderRadius: 4,
+        barPercentage: 0.6,
+      },
+    ],
+  };
+
+  // * Doughnut Chart: Overall Grade Distribution managed by Sales
+  const doughnutChartData = {
+    labels: ["เกรด A (ดีเยี่ยม)", "เกรด B (ดี)", "เกรด C (พอใช้)"],
+    datasets: [
+      {
+        data: [stats.gradeA, stats.gradeB, stats.gradeC],
+        backgroundColor: [
+          token.colorWarning,
+          token.colorSuccess,
+          token.colorInfo,
+        ],
+        borderColor: token.colorBgContainer,
+        borderWidth: 2,
+        hoverOffset: 10,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+        labels: { color: token.colorText, font: { family: "Kanit" } },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0,0,0,0.8)",
+        titleFont: { family: "Kanit", size: 14 },
+        bodyFont: { family: "Kanit", size: 13 },
+        padding: 10,
+        cornerRadius: 8,
+      },
+    },
+    scales: {
+      x: {
+        ticks: { color: token.colorTextSecondary, font: { family: "Kanit" } },
+        grid: { display: false },
+      },
+      y: {
+        ticks: { color: token.colorTextSecondary, font: { family: "Kanit" } },
+        grid: { color: token.colorBorderSecondary, borderDash: [4, 4] },
+      },
+    },
+  };
+
+  // * ==========================================================================
+  // * TABLE COLUMNS (THAI)
+  // * ==========================================================================
+
   const columns = useMemo<ColumnsType<SaleStatistics>>(
     () => [
       {
-        title: TRANSLATION("sale_ranking_modal.col_rank"),
+        title: "อันดับ",
         key: "rank",
-        width: 80,
+        width: 70,
         align: "center",
         fixed: "left",
         render: (_value, _record, index) => {
-          const icons = [
-            <TrophyOutlined style={{ color: "#FFD700", fontSize: 20 }} />,
-            <TrophyOutlined style={{ color: "#C0C0C0", fontSize: 18 }} />,
-            <TrophyOutlined style={{ color: "#CD7F32", fontSize: 16 }} />,
-          ];
+          const rank = index + 1;
+          if (rank === 1)
+            return (
+              <TrophyOutlined
+                style={{
+                  color: "#FFD700",
+                  fontSize: 24,
+                  filter: "drop-shadow(0 2px 4px rgba(255, 215, 0, 0.4))",
+                }}
+              />
+            );
+          if (rank === 2)
+            return (
+              <TrophyOutlined style={{ color: "#C0C0C0", fontSize: 20 }} />
+            );
+          if (rank === 3)
+            return (
+              <TrophyOutlined style={{ color: "#CD7F32", fontSize: 18 }} />
+            );
           return (
-            <Space>
-              {index < 3 ? icons[index] : null}
-              <span style={{ fontWeight: index < 3 ? "bold" : "normal" }}>
-                {index + 1}
-              </span>
-            </Space>
+            <span className="font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-full w-6 h-6 inline-flex items-center justify-center text-xs">
+              {rank}
+            </span>
           );
         },
       },
       {
-        title: TRANSLATION("sale_ranking_modal.col_sale_name"),
+        title: "ชื่อพนักงานขาย",
         dataIndex: "saleName",
         key: "saleName",
         width: 180,
         fixed: "left",
-        render: (value, _record, index) => (
+        render: (text) => (
           <Space>
-            <UserOutlined />
-            <span
-              style={{
-                fontWeight: index < 3 ? "bold" : 500,
-                fontSize: index === 0 ? 16 : 14,
-              }}
-            >
-              {value}
-            </span>
+            <UserOutlined style={{ color: token.colorPrimary }} />
+            <Text strong>{text}</Text>
           </Space>
-        ),
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_total_schools"),
-        dataIndex: "totalSchools",
-        key: "totalSchools",
-        width: 140,
-        align: "center",
-        sorter: (a, b) => a.totalSchools - b.totalSchools,
-        render: (value) => (
-          <Tag color="blue" style={{ fontSize: 14, fontWeight: "bold" }}>
-            {value.toLocaleString()}
-          </Tag>
-        ),
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_total_students"),
-        dataIndex: "totalStudents",
-        key: "totalStudents",
-        width: 160,
-        align: "center",
-        sorter: (a, b) => a.totalStudents - b.totalStudents,
-        render: (value) => (
-          <Tag color="purple" icon={<TeamOutlined />} style={{ fontSize: 14 }}>
-            {value.toLocaleString()}
-          </Tag>
-        ),
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_active_schools"),
-        dataIndex: "activeSchools",
-        key: "activeSchools",
-        width: 120,
-        align: "center",
-        sorter: (a, b) => a.activeSchools - b.activeSchools,
-        render: (value) => (
-          <Tag color="success" icon={<CheckCircleOutlined />}>
-            {value}
-          </Tag>
-        ),
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_active_students"),
-        dataIndex: "activeStudents",
-        key: "activeStudents",
-        width: 150,
-        align: "center",
-        sorter: (a, b) => a.activeStudents - b.activeStudents,
-        render: (value) => (
-          <Tag color="success" icon={<TeamOutlined />}>
-            {value.toLocaleString()}
-          </Tag>
-        ),
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_inactive_schools"),
-        dataIndex: "inactiveSchools",
-        key: "inactiveSchools",
-        width: 120,
-        align: "center",
-        sorter: (a, b) => a.inactiveSchools - b.inactiveSchools,
-        render: (value) => (
-          <Tag color="error" icon={<CloseCircleOutlined />}>
-            {value}
-          </Tag>
-        ),
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_activation_rate"),
-        dataIndex: "activationRate",
-        key: "activationRate",
-        width: 180,
-        align: "center",
-        sorter: (a, b) => a.activationRate - b.activationRate,
-        render: (value) => (
-          <Progress
-            percent={Number(value.toFixed(1))}
-            size="small"
-            status={
-              value >= 80 ? "success" : value >= 50 ? "normal" : "exception"
-            }
-            strokeColor={
-              value >= 80 ? "#52c41a" : value >= 50 ? "#1890ff" : "#ff4d4f"
-            }
-          />
-        ),
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_student_coverage"),
-        dataIndex: "studentCoverageRate",
-        key: "studentCoverageRate",
-        width: 180,
-        align: "center",
-        sorter: (a, b) => a.studentCoverageRate - b.studentCoverageRate,
-        render: (value) => (
-          <Progress
-            percent={Number(value.toFixed(1))}
-            size="small"
-            status={
-              value >= 80 ? "success" : value >= 50 ? "normal" : "exception"
-            }
-            strokeColor={
-              value >= 80 ? "#722ed1" : value >= 50 ? "#1890ff" : "#ff4d4f"
-            }
-          />
-        ),
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_average_students"),
-        dataIndex: "averageStudentsPerSchool",
-        key: "averageStudentsPerSchool",
-        width: 160,
-        align: "center",
-        sorter: (a, b) =>
-          a.averageStudentsPerSchool - b.averageStudentsPerSchool,
-        render: (value) => (
-          <Tag color="cyan" icon={<DashboardOutlined />}>
-            {value.toLocaleString(undefined, {
-              maximumFractionDigits: 2,
-              minimumFractionDigits: 0,
-            })}
-          </Tag>
         ),
       },
       {
         title: (
           <Space>
-            <CrownOutlined style={{ color: "#FFD700" }} />
-            <span>{TRANSLATION("sale_ranking_modal.col_grade_a")}</span>
+            <span>ดูแลทั้งหมด</span>
+            <Tooltip title="จำนวนโรงเรียนทั้งหมดที่พนักงานคนนี้ดูแล">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
+        dataIndex: "totalSchools",
+        key: "totalSchools",
+        width: 120,
+        align: "right",
+        sorter: (a, b) => a.totalSchools - b.totalSchools,
+        render: (val) => <Text>{val.toLocaleString()}</Text>,
+      },
+      {
+        title: (
+          <Space>
+            <span>รายได้ประมาณการ</span>
+            <Tooltip title="คำนวณจาก จำนวนนักเรียน x 300 บาท/คน (เฉพาะที่เห็น)">
+              {isIncomeVisible ? (
+                <EyeOutlined style={{ color: token.colorSuccess }} />
+              ) : (
+                <EyeInvisibleOutlined
+                  style={{ color: token.colorTextSecondary }}
+                />
+              )}
+            </Tooltip>
+          </Space>
+        ),
+        key: "estimatedIncome",
+        width: 160,
+        align: "right",
+        render: (_, record) =>
+          isIncomeVisible ? (
+            <Text type="success" strong>
+              {(record.totalStudents * INCOME_PER_STUDENT).toLocaleString()} ฿
+            </Text>
+          ) : (
+            <Text
+              type="secondary"
+              style={{ filter: "blur(4px)", userSelect: "none" }}
+            >
+              XXX,XXX
+            </Text>
+          ),
+      },
+      {
+        title: (
+          <Space>
+            <span>Active</span>
+            <Tooltip title="จำนวนโรงเรียนที่มีการใช้งานจริง (Active)">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
+        dataIndex: "activeSchools",
+        key: "activeSchools",
+        width: 100,
+        align: "right",
+        sorter: (a, b) => a.activeSchools - b.activeSchools,
+        render: (val) => (
+          <Text type="success" strong>
+            {val.toLocaleString()}
+          </Text>
+        ),
+      },
+      {
+        title: (
+          <Space>
+            <span>อัตราการใช้งาน</span>
+            <Tooltip title="% ของโรงเรียนที่ Active เทียบกับทั้งหมดที่ดูแล">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
+        dataIndex: "activationRate",
+        key: "activationRate",
+        width: 150,
+        sorter: (a, b) => a.activationRate - b.activationRate,
+        render: (val) => (
+          <Tooltip title={`${val.toFixed(2)}% Active Rate`}>
+            <Progress
+              percent={val}
+              size="small"
+              strokeColor={{
+                "0%": token.colorPrimary,
+                "100%": token.colorSuccess,
+              }}
+              format={(percent) => (
+                <span style={{ fontSize: 12 }}>{percent?.toFixed(0)}%</span>
+              )}
+            />
+          </Tooltip>
+        ),
+      },
+      {
+        title: (
+          <Space>
+            <span>นร. ทั้งหมด</span>
+            <Tooltip title="จำนวนนักเรียนทั้งหมดในโรงเรียนที่ดูแล">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
+        dataIndex: "totalStudents",
+        key: "totalStudents",
+        width: 140,
+        align: "right",
+        sorter: (a, b) => a.totalStudents - b.totalStudents,
+        render: (val) => <Tag color="purple">{val.toLocaleString()}</Tag>,
+      },
+      {
+        title: (
+          <Space>
+            <CrownOutlined style={{ color: token.colorWarning }} />
+            <span>Grade A</span>
           </Space>
         ),
         dataIndex: "gradeACount",
@@ -295,400 +405,443 @@ export default function SaleRankingModal({
         width: 100,
         align: "center",
         sorter: (a, b) => a.gradeACount - b.gradeACount,
-        render: (value) => (
-          <Tag color="gold" icon={<CrownOutlined />}>
-            {value}
+        render: (val) => (
+          <Tag color="gold" bordered={false} style={{ fontWeight: 600 }}>
+            {val} แห่ง
           </Tag>
         ),
       },
       {
-        title: (
-          <Space>
-            <StarOutlined style={{ color: "#52c41a" }} />
-            <span>{TRANSLATION("sale_ranking_modal.col_grade_b")}</span>
-          </Space>
-        ),
-        dataIndex: "gradeBCount",
-        key: "gradeBCount",
-        width: 100,
-        align: "center",
-        sorter: (a, b) => a.gradeBCount - b.gradeBCount,
-        render: (value) => (
-          <Tag color="green" icon={<StarOutlined />}>
-            {value}
-          </Tag>
-        ),
-      },
-      {
-        title: (
-          <Space>
-            <RocketOutlined style={{ color: "#1890ff" }} />
-            <span>{TRANSLATION("sale_ranking_modal.col_grade_c")}</span>
-          </Space>
-        ),
-        dataIndex: "gradeCCount",
-        key: "gradeCCount",
-        width: 100,
-        align: "center",
-        sorter: (a, b) => a.gradeCCount - b.gradeCCount,
-        render: (value) => (
-          <Tag color="blue" icon={<RocketOutlined />}>
-            {value}
-          </Tag>
-        ),
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_average_grade"),
-        dataIndex: "averageGrade",
-        key: "averageGrade",
+        title: "เฉลี่ยต่อ รร.",
+        dataIndex: "averageStudentsPerSchool",
+        key: "averageStudentsPerSchool",
         width: 120,
         align: "center",
         sorter: (a, b) =>
-          parseFloat(a.averageGrade) - parseFloat(b.averageGrade),
-        render: (value) => {
-          const numValue = parseFloat(value);
-          const color =
-            numValue >= 3.5
-              ? "gold"
-              : numValue >= 2.5
-              ? "green"
-              : numValue >= 1.5
-              ? "blue"
-              : "default";
-          return (
-            <Tag color={color} style={{ fontWeight: "bold" }}>
-              {value}
-            </Tag>
-          );
-        },
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_software_type"),
-        dataIndex: "softwareTypeCount",
-        key: "softwareTypeCount",
-        width: 120,
-        align: "center",
-        sorter: (a, b) => a.softwareTypeCount - b.softwareTypeCount,
-        render: (value) => <Tag color="green">{value}</Tag>,
-      },
-      {
-        title: TRANSLATION("sale_ranking_modal.col_single_authen"),
-        dataIndex: "singleAuthenCount",
-        key: "singleAuthenCount",
-        width: 120,
-        align: "center",
-        sorter: (a, b) => a.singleAuthenCount - b.singleAuthenCount,
-        render: (value) => <Tag color="blue">{value}</Tag>,
+          a.averageStudentsPerSchool - b.averageStudentsPerSchool,
+        render: (val) => (
+          <Text type="secondary">{Math.round(val).toLocaleString()}</Text>
+        ),
       },
     ],
-    [TRANSLATION]
+    [token, isIncomeVisible]
   );
 
   return (
     <Modal
       title={
-        <div className="flex justify-between items-center w-full pr-8">
-          <Space>
-            <TrophyOutlined style={{ color: "#FFD700", fontSize: 24 }} />
-            <span style={{ fontSize: 18, fontWeight: "bold" }}>
-              {TRANSLATION("sale_ranking_modal.title")}
-            </span>
+        <div className="flex flex-col md:flex-row justify-between items-center w-full px-2 py-1">
+          <Space size="middle">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-orange-100 to-orange-50 text-orange-600 shadow-sm border border-orange-100/50">
+              <TrophyOutlined style={{ fontSize: 24 }} />
+            </div>
+            <div className="flex flex-col">
+              <span
+                style={{
+                  fontSize: 22,
+                  fontWeight: 800,
+                  background: "linear-gradient(to right, #ea580c, #c2410c)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                อันดับยอดขายและการเติบโต (Sales Ranking)
+              </span>
+              <Text type="secondary" className="text-sm">
+                วิเคราะห์ประสิทธิภาพทีมขาย เจาะลึกรายบุคคล และดูแนวโน้มการเติบโต
+              </Text>
+            </div>
           </Space>
-          <Button
-            type={showMetrics ? "default" : "primary"}
-            icon={showMetrics ? <TableOutlined /> : <RiseOutlined />}
-            onClick={() => setShowMetrics(!showMetrics)}
-            className={
-              showMetrics
-                ? ""
-                : "bg-gradient-to-r from-blue-500 to-purple-600 border-none"
-            }
-          >
-            {showMetrics
-              ? TRANSLATION("sale_ranking_modal.view_table")
-              : TRANSLATION("sale_ranking_modal.view_metrics")}
-          </Button>
+
+          <Space className="mt-4 md:mt-0">
+            {showPasscodeInput ? (
+              <Space.Compact style={{ width: "100%" }}>
+                <Input.Password
+                  placeholder="กรอกรหัสลับ (LIGHT)"
+                  value={passcode}
+                  onChange={(e) => setPasscode(e.target.value)}
+                  onPressEnter={handleUnlockIncome}
+                  size="middle"
+                  className="rounded-l-lg"
+                  style={{ width: 180 }}
+                />
+                <Button
+                  type="primary"
+                  onClick={handleUnlockIncome}
+                  style={{ background: token.colorPrimary }}
+                >
+                  ยืนยัน
+                </Button>
+                <Button onClick={() => setShowPasscodeInput(false)}>
+                  ยกเลิก
+                </Button>
+              </Space.Compact>
+            ) : (
+              <Tooltip
+                title={
+                  isIncomeVisible
+                    ? "ซ่อนข้อมูลรายได้"
+                    : "ดูข้อมูลรายได้ (ต้องใช้รหัสผ่าน)"
+                }
+              >
+                <div
+                  onClick={handleTogglePasscodeInput}
+                  className={`
+                    cursor-pointer px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-2 border
+                    ${
+                      isIncomeVisible
+                        ? "bg-emerald-50 border-emerald-200 text-emerald-600 shadow-inner"
+                        : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300 shadow-sm"
+                    }
+                  `}
+                >
+                  {isIncomeVisible ? <EyeOutlined /> : <EyeInvisibleOutlined />}
+                  <span className="font-medium text-sm">
+                    {isIncomeVisible ? "แสดงรายได้อยู่" : "ซ่อนรายได้"}
+                  </span>
+                </div>
+              </Tooltip>
+            )}
+          </Space>
         </div>
       }
       open={open}
       onCancel={onClose}
-      width="95%"
-      style={{ top: 20 }}
+      width="98%"
+      style={{ top: 10, paddingBottom: 0 }}
       footer={null}
       destroyOnHidden
+      centered={false}
+      styles={{
+        content: {
+          borderRadius: 24,
+          overflow: "hidden",
+          padding: 0,
+          boxShadow:
+            "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+          minHeight: "95vh",
+          display: "flex",
+          flexDirection: "column",
+        },
+        header: {
+          padding: "20px 32px",
+          borderBottom: `1px solid ${token.colorBorderSecondary}`,
+          background: "#fff",
+          zIndex: 10,
+        },
+        body: {
+          padding: "32px",
+          backgroundColor: "#f8fafc",
+          flex: 1,
+          overflowY: "auto",
+        },
+      }}
     >
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        {/* Summary Statistics (Always Visible) */}
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={6}>
-            <Card  className="shadow-sm">
-              <Statistic
-                title={TRANSLATION("sale_ranking_modal.stat_total_sales")}
-                value={data.length}
-                prefix={<UserOutlined />}
-                valueStyle={{ color: "#1890ff" }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card  className="shadow-sm">
-              <Statistic
-                title={TRANSLATION("sale_ranking_modal.stat_total_schools")}
-                value={totalSchools}
-                prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: "#52c41a" }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card  className="shadow-sm">
-              <Statistic
-                title={TRANSLATION("sale_ranking_modal.stat_active_schools")}
-                value={totalActive}
-                prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: "#52c41a" }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card  className="shadow-sm">
-              <Statistic
-                title={TRANSLATION("sale_ranking_modal.stat_grade_a_total")}
-                value={totalGradeA}
-                prefix={<CrownOutlined />}
-                valueStyle={{ color: "#faad14" }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card  className="shadow-sm">
-              <Statistic
-                title={TRANSLATION("sale_ranking_modal.stat_total_students")}
-                value={totalStudents}
-                prefix={<TeamOutlined />}
-                valueStyle={{ color: "#722ed1" }}
-                formatter={(value) =>
-                  typeof value === "number"
-                    ? value.toLocaleString("th-TH")
-                    : value
-                }
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card  className="shadow-sm">
-              <Statistic
-                title={TRANSLATION("sale_ranking_modal.stat_active_students")}
-                value={activeStudents}
-                prefix={<FundOutlined />}
-                valueStyle={{ color: "#237804" }}
-                formatter={(value) =>
-                  typeof value === "number"
-                    ? value.toLocaleString("th-TH")
-                    : value
-                }
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card  className="shadow-sm">
+      <div className="space-y-8 pb-8">
+        {/* 1. Enhanced Summary Cards Grid */}
+        <Row gutter={[20, 20]}>
+          <Col xs={24} sm={12} lg={6}>
+            <Card
+              className="h-full shadow-md rounded-3xl border-0 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
+              style={{
+                background: "linear-gradient(135deg, #eff6ff 0%, #ffffff 100%)",
+              }}
+            >
+              <div className="absolute right-[-20px] top-[-20px] opacity-[0.08] text-[120px] text-blue-600 rotate-12 group-hover:rotate-[20deg] group-hover:scale-110 transition-all duration-500">
+                <UserOutlined />
+              </div>
               <Statistic
                 title={
-                  TRANSLATION("sale_ranking_modal.stat_average_students_per_school")
+                  <span className="text-blue-900 font-semibold text-base">
+                    ทีมขายทั้งหมด
+                  </span>
                 }
-                value={averageStudentsAll}
-                prefix={<DashboardOutlined />}
-                precision={2}
-                valueStyle={{ color: "#13c2c2" }}
+                value={data.length}
+                prefix={
+                  <UserOutlined className="text-blue-500 text-2xl mr-2" />
+                }
+                valueStyle={{
+                  fontWeight: 800,
+                  fontSize: 36,
+                  color: "#1e3a8a",
+                }}
+                suffix={
+                  <span className="text-base text-blue-400 font-medium ml-1">
+                    คน
+                  </span>
+                }
               />
+              <div className="mt-4 flex items-center gap-2">
+                <Tag
+                  color="geekblue"
+                  className="m-0 rounded-full px-3 border-0"
+                >
+                  Sales Team
+                </Tag>
+                <span className="text-xs text-blue-400">บุคลากรฝ่ายขาย</span>
+              </div>
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={12} lg={6}>
+            <Card
+              className="h-full shadow-md rounded-3xl border-0 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
+              style={{
+                background: "linear-gradient(135deg, #f3e8ff 0%, #ffffff 100%)",
+              }}
+            >
+              <div className="absolute right-[-20px] top-[-20px] opacity-[0.08] text-[120px] text-purple-600 rotate-12 group-hover:rotate-[20deg] group-hover:scale-110 transition-all duration-500">
+                <TeamOutlined />
+              </div>
+              <Statistic
+                title={
+                  <span className="text-purple-900 font-semibold text-base">
+                    ดูแลนักเรียนรวม
+                  </span>
+                }
+                value={stats.totalStudents}
+                formatter={(val) => val.toLocaleString()}
+                prefix={
+                  <TeamOutlined className="text-purple-500 text-2xl mr-2" />
+                }
+                valueStyle={{
+                  fontWeight: 800,
+                  fontSize: 36,
+                  color: "#581c87",
+                }}
+                suffix={
+                  <span className="text-base text-purple-400 font-medium ml-1">
+                    คน
+                  </span>
+                }
+              />
+              <div className="mt-4 flex items-center gap-2">
+                <Tag color="purple" className="m-0 rounded-full px-3 border-0">
+                  Total Reach
+                </Tag>
+                <span className="text-xs text-purple-400">
+                  ยอดรวมทุกโรงเรียน
+                </span>
+              </div>
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={12} lg={6}>
+            <Card
+              className="h-full shadow-md rounded-3xl border-0 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
+              style={{
+                background: isIncomeVisible
+                  ? "linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%)"
+                  : "linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%)",
+              }}
+            >
+              <div
+                className={`absolute right-[-20px] top-[-20px] opacity-[0.08] text-[120px] rotate-12 group-hover:rotate-[20deg] group-hover:scale-110 transition-all duration-500 ${
+                  isIncomeVisible ? "text-emerald-600" : "text-slate-400"
+                }`}
+              >
+                {isIncomeVisible ? <DollarOutlined /> : <LockOutlined />}
+              </div>
+
+              {isIncomeVisible ? (
+                <>
+                  <Statistic
+                    title={
+                      <span className="text-emerald-900 font-semibold text-base">
+                        รายได้รวมต่อเทอม
+                      </span>
+                    }
+                    value={stats.totalIncome}
+                    formatter={(val) => val.toLocaleString()}
+                    prefix={
+                      <DollarOutlined className="text-emerald-500 text-2xl mr-2" />
+                    }
+                    valueStyle={{
+                      fontWeight: 800,
+                      fontSize: 36,
+                      color: "#064e3b",
+                    }}
+                    suffix={
+                      <span className="text-base text-emerald-400 font-medium ml-1">
+                        บ.
+                      </span>
+                    }
+                  />
+                  <div className="mt-4 flex items-center gap-2">
+                    <Tag
+                      color="success"
+                      className="m-0 rounded-full px-3 border-0"
+                    >
+                      Estimated
+                    </Tag>
+                    <span className="text-xs text-emerald-500">
+                      ~{(INCOME_PER_STUDENT / 1000).toFixed(1)}k / คน
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div
+                  className="h-full flex flex-col items-center justify-center cursor-pointer py-4 opacity-60 hover:opacity-100 transition-opacity"
+                  onClick={() => setShowPasscodeInput(true)}
+                >
+                  <div className="bg-slate-200 p-4 rounded-full mb-3">
+                    <LockOutlined className="text-3xl text-slate-500" />
+                  </div>
+                  <Text className="text-slate-500 font-medium">
+                    ข้อมูลถูกซ่อนอยู่
+                  </Text>
+                  <Text className="text-xs text-slate-400">
+                    แตะเพื่อปลดล็อค
+                  </Text>
+                </div>
+              )}
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={12} lg={6}>
+            <Card
+              className="h-full shadow-md rounded-3xl border-0 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
+              style={{
+                background: "linear-gradient(135deg, #ffedd5 0%, #ffffff 100%)",
+              }}
+            >
+              <div className="absolute right-[-20px] top-[-20px] opacity-[0.08] text-[120px] text-orange-600 rotate-12 group-hover:rotate-[20deg] group-hover:scale-110 transition-all duration-500">
+                <RocketOutlined />
+              </div>
+              <Statistic
+                title={
+                  <span className="text-orange-900 font-semibold text-base">
+                    ประสิทธิภาพทีม
+                  </span>
+                }
+                value={(stats.activeSchools / stats.totalSchools) * 100}
+                precision={1}
+                prefix={
+                  <RocketOutlined className="text-orange-500 text-2xl mr-2" />
+                }
+                valueStyle={{
+                  fontWeight: 800,
+                  fontSize: 36,
+                  color: "#7c2d12",
+                }}
+                suffix={
+                  <span className="text-base text-orange-400 font-bold ml-1">
+                    %
+                  </span>
+                }
+              />
+              <div className="mt-4 flex items-center gap-2">
+                <Tag color="orange" className="m-0 rounded-full px-3 border-0">
+                  Active Rate
+                </Tag>
+                <div className="flex-1 w-full max-w-[80px]">
+                  <Progress
+                    percent={(stats.activeSchools / stats.totalSchools) * 100}
+                    showInfo={false}
+                    size="small"
+                    strokeColor="#f97316"
+                    trailColor="#ffedd5"
+                  />
+                </div>
+              </div>
             </Card>
           </Col>
         </Row>
 
-        <Divider orientation="left">
-          {showMetrics
-            ? TRANSLATION("sale_ranking_modal.metrics_title")
-            : TRANSLATION("sale_ranking_modal.table_title")}
-        </Divider>
+        {/* 2. Charts Analysis Section - Side by Side Large */}
+        <Row gutter={[24, 24]} align="stretch">
+          <Col xs={24} lg={16}>
+            <Card
+              title={
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-50 p-2 rounded-lg text-blue-600">
+                    <LineChartOutlined style={{ fontSize: 18 }} />
+                  </div>
+                  <span className="font-bold text-lg text-slate-700">
+                    5 อันดับยอดดูแลสูงสุด (Top Performers)
+                  </span>
+                </div>
+              }
+              bordered={false}
+              className="shadow-md rounded-3xl h-full border border-slate-100"
+            >
+              <div className="h-[400px] w-full p-4">
+                <Bar
+                  options={{
+                    ...chartOptions,
+                    maintainAspectRatio: false,
+                    responsive: true,
+                  }}
+                  data={barChartData}
+                />
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} lg={8}>
+            <Card
+              title={
+                <div className="flex items-center gap-3">
+                  <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600">
+                    <PieChartOutlined style={{ fontSize: 18 }} />
+                  </div>
+                  <span className="font-bold text-lg text-slate-700">
+                    สัดส่วนคุณภาพเกรด
+                  </span>
+                </div>
+              }
+              bordered={false}
+              className="shadow-md rounded-3xl h-full border border-slate-100"
+            >
+              <div className="h-[400px] flex items-center justify-center p-4">
+                <Doughnut
+                  data={doughnutChartData}
+                  options={{
+                    ...chartOptions,
+                    maintainAspectRatio: false,
+                  }}
+                />
+              </div>
+            </Card>
+          </Col>
+        </Row>
 
-        {showMetrics ? (
-          <div className="animate-fade-in">
-            <Row gutter={[24, 24]}>
-              {/* Top Quality Sales */}
-              <Col xs={24} md={8}>
-                <Card
-                  title={
-                    <Space>
-                      <StarOutlined style={{ color: "#52c41a" }} />
-                      {TRANSLATION("sale_ranking_modal.metric_top_quality")}
-                    </Space>
-                  }
-                  className="shadow-sm h-full"
-                >
-                  <Space direction="vertical" className="w-full">
-                    {metricsData.topQuality.map((sale, index) => (
-                      <div
-                        key={sale.saleName}
-                        className="flex justify-between items-center p-2 bg-green-50 rounded-lg"
-                      >
-                        <Space>
-                          <div className="w-6 h-6 rounded-full bg-green-200 flex items-center justify-center text-xs font-bold text-green-800">
-                            {index + 1}
-                          </div>
-                          <span className="font-medium">{sale.saleName}</span>
-                        </Space>
-                        <Tag color="success">
-                          {sale.activationRate.toFixed(1)}% Active
-                        </Tag>
-                      </div>
-                    ))}
-                  </Space>
-                </Card>
-              </Col>
-
-              {/* Student Reach */}
-              <Col xs={24} md={8}>
-                <Card
-                  title={
-                    <Space>
-                      <TeamOutlined style={{ color: "#722ed1" }} />
-                      {TRANSLATION("sale_ranking_modal.metric_student_reach")}
-                    </Space>
-                  }
-                  className="shadow-sm h-full"
-                >
-                  <Space direction="vertical" className="w-full">
-                    {metricsData.topStudentReach.map((sale, index) => (
-                      <div
-                        key={sale.saleName}
-                        className="flex justify-between items-center p-2 bg-purple-50 rounded-lg"
-                      >
-                        <Space>
-                          <div className="w-6 h-6 rounded-full bg-purple-200 flex items-center justify-center text-xs font-bold text-purple-800">
-                            {index + 1}
-                          </div>
-                          <span className="font-medium">{sale.saleName}</span>
-                        </Space>
-                        <Tag color="purple">
-                          {sale.totalStudents.toLocaleString()} {TRANSLATION("sale_ranking_modal.metric_students")}
-                        </Tag>
-                      </div>
-                    ))}
-                  </Space>
-                </Card>
-              </Col>
-
-              {/* Best Coverage */}
-              <Col xs={24} md={8}>
-                <Card
-                  title={
-                    <Space>
-                      <FundOutlined style={{ color: "#13c2c2" }} />
-                      {TRANSLATION("sale_ranking_modal.metric_best_coverage")}
-                    </Space>
-                  }
-                  className="shadow-sm h-full"
-                >
-                  <Space direction="vertical" className="w-full">
-                    {metricsData.bestCoverage.map((sale, index) => (
-                      <div
-                        key={sale.saleName}
-                        className="flex justify-between items-center p-2 bg-cyan-50 rounded-lg"
-                      >
-                        <Space>
-                          <div className="w-6 h-6 rounded-full bg-cyan-200 flex items-center justify-center text-xs font-bold text-cyan-800">
-                            {index + 1}
-                          </div>
-                          <span className="font-medium">{sale.saleName}</span>
-                        </Space>
-                        <Tag color="cyan">
-                          {sale.studentCoverageRate.toFixed(1)}% {TRANSLATION("sale_ranking_modal.metric_active_students")}
-                        </Tag>
-                      </div>
-                    ))}
-                  </Space>
-                </Card>
-              </Col>
-
-              {/* High Value Portfolio */}
-              <Col xs={24} md={8}>
-                <Card
-                  title={
-                    <Space>
-                      <CrownOutlined style={{ color: "#faad14" }} />
-                      {TRANSLATION("sale_ranking_modal.metric_high_value")}
-                    </Space>
-                  }
-                  className="shadow-sm h-full"
-                >
-                  <Space direction="vertical" className="w-full">
-                    {metricsData.highValue.map((sale, index) => (
-                      <div
-                        key={sale.saleName}
-                        className="flex justify-between items-center p-2 bg-yellow-50 rounded-lg"
-                      >
-                        <Space>
-                          <div className="w-6 h-6 rounded-full bg-yellow-200 flex items-center justify-center text-xs font-bold text-yellow-800">
-                            {index + 1}
-                          </div>
-                          <span className="font-medium">{sale.saleName}</span>
-                        </Space>
-                        <Tag color="gold">{sale.gradeACount} Grade A</Tag>
-                      </div>
-                    ))}
-                  </Space>
-                </Card>
-              </Col>
-
-              {/* Critical Attention */}
-              <Col xs={24} md={8}>
-                <Card
-                  title={
-                    <Space>
-                      <AlertOutlined style={{ color: "#ff4d4f" }} />
-                      {TRANSLATION("sale_ranking_modal.metric_critical")}
-                    </Space>
-                  }
-                  className="shadow-sm h-full"
-                >
-                  <Space direction="vertical" className="w-full">
-                    {metricsData.critical.map((sale, index) => (
-                      <div
-                        key={sale.saleName}
-                        className="flex justify-between items-center p-2 bg-red-50 rounded-lg"
-                      >
-                        <Space>
-                          <div className="w-6 h-6 rounded-full bg-red-200 flex items-center justify-center text-xs font-bold text-red-800">
-                            {index + 1}
-                          </div>
-                          <span className="font-medium">{sale.saleName}</span>
-                        </Space>
-                        <Tag color="error">{sale.inactiveSchools} Inactive</Tag>
-                      </div>
-                    ))}
-                  </Space>
-                </Card>
-              </Col>
-            </Row>
-          </div>
-        ) : (
-          <Table<SaleStatistics>
+        {/* 3. Detailed Table - Full Width */}
+        <Card
+          title={
+            <div className="flex items-center gap-3">
+              <div className="bg-amber-50 p-2 rounded-lg text-amber-600">
+                <TrophyOutlined style={{ fontSize: 18 }} />
+              </div>
+              <span className="font-bold text-lg text-slate-700">
+                ตารางอันดับและรายละเอียดรายบุคคล
+              </span>
+            </div>
+          }
+          bordered={false}
+          className="shadow-md rounded-3xl overflow-hidden border border-slate-100"
+          styles={{
+            header: {
+              borderBottom: "1px solid #f1f5f9",
+              padding: "20px 24px",
+            },
+            body: { padding: 0 },
+          }}
+        >
+          <Table
             columns={columns}
-            dataSource={topData}
-            rowKey={(record) => record.saleName}
-            pagination={false}
-            scroll={{ x: 2000 }}
-            size="middle"
-            bordered
-            rowClassName={(record, index) => {
-              if (index === 0) return "bg-yellow-50";
-              if (index === 1) return "bg-gray-50";
-              if (index === 2) return "bg-orange-50";
-              return "";
+            dataSource={data}
+            rowKey="saleName"
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "20", "50"],
             }}
+            scroll={{ x: 1400 }}
+            size="middle"
+            rowClassName={() => "hover:bg-slate-50 transition-colors"}
           />
-        )}
-      </Space>
+        </Card>
+      </div>
     </Modal>
   );
 }

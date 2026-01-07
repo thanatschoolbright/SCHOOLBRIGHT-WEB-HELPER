@@ -326,9 +326,7 @@ export default function ProvinceRankingModal({
             <TrophyOutlined style={{ fontSize: 20 }} />
           </div>
           <div className="flex flex-col">
-            <span style={{ fontSize: 18, fontWeight: 700 }}>
-              อันดับจังหวัด (Province Ranking)
-            </span>
+            <span style={{ fontSize: 18, fontWeight: 700 }}>อันดับจังหวัด</span>
             <Text type="secondary" style={{ fontSize: 12 }}>
               วิเคราะห์ข้อมูล 10 อันดับจังหวัดที่มีจำนวนโรงเรียนมากที่สุด
             </Text>
@@ -385,7 +383,7 @@ export default function ProvinceRankingModal({
                 }
               />
               <div className="mt-2 text-xs text-indigo-500 bg-indigo-50 inline-block px-2 py-1 rounded">
-                Total Schools
+                โรงเรียนทั้งหมด
               </div>
             </Card>
           </Col>
@@ -401,7 +399,7 @@ export default function ProvinceRankingModal({
               <Statistic
                 title={
                   <Space>
-                    <span>ใช้งานอยู่ (Active)</span>
+                    <span>ใช้งานอยู่</span>
                     <Tooltip title="โรงเรียนที่มีการล็อกอินหรือใช้งานในช่วงเวลาที่กำหนด">
                       <InfoCircleOutlined
                         style={{
@@ -426,7 +424,7 @@ export default function ProvinceRankingModal({
                 }
               />
               <div className="mt-2 text-xs text-emerald-600 bg-emerald-50 inline-block px-2 py-1 rounded">
-                Online Now
+                ออนไลน์ขณะนี้
               </div>
             </Card>
           </Col>
@@ -463,7 +461,7 @@ export default function ProvinceRankingModal({
                 }
               />
               <div className="mt-2 text-xs text-amber-600 bg-amber-50 inline-block px-2 py-1 rounded">
-                Top Tier Perfomance
+                ประสิทธิภาพสูงสุด
               </div>
             </Card>
           </Col>
@@ -487,7 +485,7 @@ export default function ProvinceRankingModal({
               className="shadow-sm rounded-2xl h-full"
               extra={
                 <Tag color="blue" bordered={false}>
-                  Top 10 Chart
+                  กราฟ 10 อันดับ
                 </Tag>
               }
             >
@@ -501,7 +499,7 @@ export default function ProvinceRankingModal({
               title={
                 <Space>
                   <PieChartOutlined style={{ color: token.colorSuccess }} />
-                  <span>สัดส่วนคุณภาพ (Grades)</span>
+                  <span>สัดส่วนคุณภาพ</span>
                 </Space>
               }
               className="shadow-sm rounded-2xl h-full"
@@ -536,7 +534,7 @@ export default function ProvinceRankingModal({
           title={
             <Space>
               <TrophyOutlined style={{ color: token.colorWarning }} />
-              <span>ตารางอันดับรายจังหวัด (Detailed Ranking)</span>
+              <span>ตารางอันดับรายจังหวัด</span>
             </Space>
           }
           className="shadow-sm rounded-2xl border"
