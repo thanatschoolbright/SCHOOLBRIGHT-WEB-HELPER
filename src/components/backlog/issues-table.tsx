@@ -281,7 +281,9 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
 
     const flushParagraph = (buffer: string[]) => {
       if (!buffer.length) return;
-      html += `<p style="margin:0;">${renderInline(buffer.join(" ").trim())}</p>`;
+      html += `<p style="margin:0;">${renderInline(
+        buffer.join(" ").trim()
+      )}</p>`;
       buffer.length = 0;
     };
 
@@ -407,7 +409,10 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
           <Typography.Text strong style={{ fontSize: 13 }}>
             {assignee.name}
           </Typography.Text>
-          <Typography.Text type="secondary" style={{ fontSize: 11, display: "block" }}>
+          <Typography.Text
+            type="secondary"
+            style={{ fontSize: 11, display: "block" }}
+          >
             {assignee.mailAddress}
           </Typography.Text>
         </div>
@@ -423,12 +428,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
     };
     const color = priorityName ? map[priorityName] || "default" : "default";
     return (
-      <Tag
-        color={color}
-        
-        icon={<PushpinOutlined />}
-        style={{ marginRight: 0 }}
-      >
+      <Tag color={color} icon={<PushpinOutlined />} style={{ marginRight: 0 }}>
         {priorityName || "N/A"}
       </Tag>
     );
@@ -697,16 +697,26 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
         scroll={{ x: 1200 }}
         expandable={{
           expandedRowRender: (record) => (
-            <div style={{ whiteSpace: "pre-wrap", padding: 16 }}>
+            <div
+              style={{ padding: 24, background: "#fafafa", borderRadius: 8 }}
+            >
               <Typography.Text
                 strong
-                style={{ display: "block", marginBottom: 8 }}
+                style={{ display: "block", marginBottom: 16, fontSize: 16 }}
               >
-                Description
+                <FileTextOutlined style={{ marginRight: 8 }} />
+                รายละเอียดของงาน (Description)
               </Typography.Text>
-              <Typography.Paragraph style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                {stripMarkdown(record.description)}
-              </Typography.Paragraph>
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: 24,
+                  borderRadius: 12,
+                  border: "1px solid #f0f0f0",
+                }}
+              >
+                {renderDescriptionContent(record.description)}
+              </div>
             </div>
           ),
         }}

@@ -13,9 +13,10 @@ import {
   Progress,
   Divider,
   theme,
+  Tooltip,
 } from "antd";
 import { useRouter } from "next/navigation";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import {
@@ -26,6 +27,8 @@ import {
   ReloadOutlined,
   ClockCircleOutlined,
   InfoCircleOutlined,
+  MinusOutlined,
+  AppstoreAddOutlined,
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 
@@ -41,6 +44,15 @@ interface BulkUpdateSectionProps {
   projectId: number;
   space: string;
   onUpdateComplete: () => void;
+  // New props for minimize/progress capabilities
+  onProgressUpdate?: (progress: {
+    percent: number;
+    success: number;
+    total: number;
+    status: "idle" | "processing" | "completed" | "error";
+  }) => void;
+  onRequestMinimize?: () => void;
+  minimized?: boolean; // ** Prop for minimization state
 }
 
 const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
@@ -49,6 +61,9 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
   projectId,
   space,
   onUpdateComplete,
+  onProgressUpdate,
+  onRequestMinimize,
+  minimized = false,
 }) => {
   const { token } = theme.useToken();
   const router = useRouter();
@@ -89,6 +104,29 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     content?: string;
     statusCode?: number;
   }>({ open: false });
+
+  // * Report Progress to Parent
+  useEffect(() => {
+    if (!onProgressUpdate) return;
+    const total = processingResults.length;
+    if (total === 0) {
+      onProgressUpdate({ percent: 0, success: 0, total: 0, status: "idle" });
+      return;
+    }
+    const success = processingResults.filter(
+      (r) => r.status === "success" || r.status === "error" // Count processed
+    ).length;
+    const percent = Math.round((success / total) * 100);
+    const hasError = processingResults.some((r) => r.status === "error");
+    const isCompleted = success === total;
+    const status = isCompleted
+      ? "completed"
+      : hasError && isCompleted
+      ? "error"
+      : "processing";
+
+    onProgressUpdate({ percent, success, total, status });
+  }, [processingResults, onProgressUpdate]);
 
   const formatErrorDetail = (value: any): string => {
     if (!value) return "";
@@ -192,6 +230,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     setBulkCategoryIds(undefined);
     setAutoCategoryEnabled(false);
     setAutoDescriptionEnabled(false);
+    setResultsModalVisible(false); // Close result modal on clear
+    setProcessingResults([]); // Clear results
   };
 
   const hasBulkUpdates =
@@ -254,7 +294,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
         }));
 
         if (autoCategoryEnabled) {
-          toast.message("กำลังวิเคราะห์ Category ด้วย Gemini...", {
+          toast.message("กำลังวิเคราะห์หมวดหมู่ด้วย Gemini...", {
             id: toastId,
           });
           const { data: autoCategoryResponse } = await axios.post(
@@ -324,19 +364,32 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             (p) => p.updates && p.updates.description
           ).length;
           const failureCount = perIssuePayloads.length - successCount;
-          toast.message(
-            `สรุปรายการเสร็จสิ้น: สำเร็จ ${successCount} รายการ, ล้มเหลว ${failureCount} รายการ`
-          );
-        }
 
-        const entries = perIssuePayloads.filter(
-          (p) => Object.keys(p.updates).length > 0
-        );
-        if (entries.length > 0) {
-          await axios.post("/api/v1/backlog/issues/bulk-update", {
-            space,
-            entries,
-          });
+          if (failureCount > 0) {
+            toast.warning(
+              `ประมวลผลเสร็จสิ้น: สำเร็จ ${successCount} รายการ, ล้มเหลว ${failureCount} รายการ`,
+              { id: toastId, duration: 4000 }
+            );
+          } else {
+            toast.success(
+              `ประมวลผลเสร็จสิ้น: สำเร็จครบ ${successCount} รายการ`,
+              { id: toastId, duration: 3000 }
+            );
+          }
+        } else {
+          // If manual only but autoCategory was on
+          const entries = perIssuePayloads.filter(
+            (p) => Object.keys(p.updates).length > 0
+          );
+          if (entries.length > 0) {
+            await axios.post("/api/v1/backlog/issues/bulk-update", {
+              space,
+              entries,
+            });
+          }
+          toast.success("อัปเดตงานสำเร็จ", { id: toastId });
+          onUpdateComplete();
+          clearBulkForm();
         }
       } else {
         // Manual update
@@ -345,11 +398,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           issues: selectedRowKeys,
           updates: sharedUpdates,
         });
+        toast.success("อัปเดตงานสำเร็จ", { id: toastId });
+        onUpdateComplete();
+        clearBulkForm();
       }
-
-      toast.success("อัปเดตงานสำเร็จ", { id: toastId });
-      onUpdateComplete();
-      clearBulkForm();
     } catch (error: any) {
       const { message } = extractErrorMessage(error);
       toast.error(message || "อัปเดตไม่สำเร็จ", { id: toastId });
@@ -379,15 +431,16 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           }}
         >
           <Space align="center" size={10}>
+            <AppstoreAddOutlined style={{ color: token.colorPrimary }} />
             <Typography.Title level={5} style={{ margin: 0 }}>
-              Bulk Actions
+              จัดการหลายรายการ (Bulk Actions)
             </Typography.Title>
             <Tag
               color="blue"
               bordered={false}
               style={{ borderRadius: 12, fontSize: 12 }}
             >
-              Selected: {selectedRowKeys.length} items
+              เลือกแล้ว: {selectedRowKeys.length} รายการ
             </Tag>
           </Space>
         </div>
@@ -409,7 +462,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               label: (
                 <Space>
                   <RobotOutlined />
-                  AI Update
+                  อัปเดตด้วย AI
                 </Space>
               ),
               children: (
@@ -430,14 +483,16 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     <Space direction="vertical" size={2}>
                       <Space>
                         <RobotOutlined style={{ color: "#1677ff" }} />
-                        <Typography.Text strong>Smart Filters</Typography.Text>
+                        <Typography.Text strong>
+                          ตัวช่วยกรองอัจฉริยะ (Smart Filters)
+                        </Typography.Text>
                       </Space>
                       <Typography.Text
                         type="secondary"
                         style={{ fontSize: 13, maxWidth: 400 }}
                       >
-                        Automatically categorize and summarize issues using
-                        Gemini AI. Enable the options below.
+                        จัดหมวดหมู่และสรุปงานอัตโนมัติด้วย Gemini AI
+                        โดยเปิดใช้งานตัวเลือกด้านล่าง
                       </Typography.Text>
                     </Space>
 
@@ -519,28 +574,53 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
       {/* Results Modal - Cleaned up */}
       <Modal
         title={
-          <Space>
-            <div
-              style={{ padding: 6, background: "#e6f4ff", borderRadius: "50%" }}
-            >
-              <RobotOutlined style={{ color: "#1677ff", fontSize: 18 }} />
-            </div>
-            <div>
-              <Typography.Title level={5} style={{ margin: 0 }}>
-                AI Processing Results
-              </Typography.Title>
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                Status of AI summary generation
-              </Typography.Text>
-            </div>
-          </Space>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginRight: 24,
+            }}
+          >
+            <Space>
+              <div
+                style={{
+                  padding: 6,
+                  background: "#e6f4ff",
+                  borderRadius: "50%",
+                }}
+              >
+                <RobotOutlined style={{ color: "#1677ff", fontSize: 18 }} />
+              </div>
+              <div>
+                <Typography.Title level={5} style={{ margin: 0 }}>
+                  ผลลัพธ์การประมวลผล AI
+                </Typography.Title>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  AI Processing Results
+                </Typography.Text>
+              </div>
+            </Space>
+            {onRequestMinimize && (
+              <Tooltip title="ย่อหน้าต่างลง (Minimize)">
+                <Button
+                  type="text"
+                  icon={<MinusOutlined />}
+                  onClick={onRequestMinimize}
+                  style={{ color: "#666" }}
+                />
+              </Tooltip>
+            )}
+          </div>
         }
-        open={resultsModalVisible}
+        open={resultsModalVisible && !minimized}
         onCancel={() => setResultsModalVisible(false)}
         footer={null}
         width={900}
         styles={{ body: { padding: "20px 24px" } }}
         centered
+        maskClosable={false}
+        destroyOnClose={false}
       >
         <div style={{ marginBottom: 24 }}>
           {/* Progress Header */}
@@ -551,10 +631,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               marginBottom: 8,
             }}
           >
-            <Typography.Text strong>Processing issues...</Typography.Text>
+            <Typography.Text strong>กำลังประมวลผล...</Typography.Text>
             <Typography.Text type="secondary">
               {processingResults.filter((r) => r.status === "success").length} /{" "}
-              {processingResults.length} Completed
+              {processingResults.length} เสร็จสิ้น
             </Typography.Text>
           </div>
 
@@ -592,7 +672,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                   {record.status === "error" && (
                     <div style={{ marginBottom: 8 }}>
                       <Typography.Text type="danger" strong>
-                        <CloseCircleOutlined /> Error:
+                        <CloseCircleOutlined /> ข้อผิดพลาด:
                       </Typography.Text>
                       <Typography.Paragraph type="danger" style={{ margin: 0 }}>
                         {record.message}
@@ -602,7 +682,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                   {record.summary && (
                     <div>
                       <Typography.Text type="secondary">
-                        Generated Markdown:
+                        ผลลัพธ์ Markdown:
                       </Typography.Text>
                       <div
                         style={{
@@ -627,7 +707,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             }}
             columns={[
               {
-                title: "Issue",
+                title: "งาน (Issue)",
                 dataIndex: "title",
                 key: "title",
                 width: 150,
@@ -636,7 +716,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 ),
               },
               {
-                title: "Status",
+                title: "สถานะ",
                 dataIndex: "status",
                 key: "status",
                 width: 120,
@@ -645,22 +725,22 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     queue: {
                       color: "default",
                       icon: <ClockCircleOutlined />,
-                      text: "Queue",
+                      text: "รอคิว",
                     },
                     pending: {
                       color: "processing",
                       icon: <LoadingOutlined />,
-                      text: "Processing",
+                      text: "กำลังทำ",
                     },
                     success: {
                       color: "success",
                       icon: <CheckCircleOutlined />,
-                      text: "Success",
+                      text: "สำเร็จ",
                     },
                     error: {
                       color: "error",
                       icon: <CloseCircleOutlined />,
-                      text: "Error",
+                      text: "ล้มเหลว",
                     },
                   }[status as string] || {
                     color: "default",
@@ -680,7 +760,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 },
               },
               {
-                title: "Preview",
+                title: "ตัวอย่าง (Preview)",
                 dataIndex: "summary",
                 key: "summary",
                 render: (md, row) => {
@@ -697,7 +777,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                         italic
                         style={{ fontSize: 12 }}
                       >
-                        Waiting...
+                        รอประมวลผล...
                       </Typography.Text>
                     );
                   return (
@@ -721,7 +801,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           <Button
             icon={<ReloadOutlined />}
             onClick={async () => {
-              // Retry logic reused from original but simplified trigger
+              // Retry logic
               const failedRows = processingResults.filter(
                 (r) => r.status === "error"
               );
@@ -738,7 +818,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
               if (!targets.length) return;
 
-              // Reset status
               setProcessingResults((prev) =>
                 prev.map((r) =>
                   failedRows.some(
@@ -749,24 +828,23 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 )
               );
 
-              // Simple sequential retry
               for (const payload of targets) {
                 await processSingle(
                   payload,
                   new Map(issues.map((i) => [i.issueKey || String(i.id), i]))
                 );
               }
-
-              // Resave automatically if desired, or let user click save
-              toast.success("Retry completed");
+              toast.success("ลองใหม่สำเร็จ");
             }}
             disabled={!processingResults.some((r) => r.status === "error")}
           >
-            Retry Failed
+            ลองใหม่รายการที่ล้มเหลว
           </Button>
 
           <Space>
-            <Button onClick={() => setResultsModalVisible(false)}>Close</Button>
+            <Button onClick={() => setResultsModalVisible(false)}>
+              ปิดหน้าต่าง
+            </Button>
             <Button
               type="primary"
               onClick={async () => {
@@ -780,12 +858,12 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     space,
                     entries,
                   });
-                  toast.success(`Saved ${entries.length} items successfully`);
+                  toast.success(`บันทึก ${entries.length} รายการสำเร็จ`);
                   setResultsModalVisible(false);
                   onUpdateComplete();
                   clearBulkForm();
                 } catch (e: any) {
-                  toast.error(e.message || "Save failed");
+                  toast.error(e.message || "บันทึกไม่สำเร็จ");
                 } finally {
                   setSaving(false);
                 }
@@ -795,13 +873,13 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 saving || !processingResults.some((r) => r.status === "success")
               }
             >
-              Save Changes
+              บันทึกการเปลี่ยนแปลง
             </Button>
           </Space>
         </div>
       </Modal>
 
-      {/* Error Detail Modal - Simplified */}
+      {/* Error Detail Modal */}
       <Modal
         open={detailModal.open}
         footer={null}

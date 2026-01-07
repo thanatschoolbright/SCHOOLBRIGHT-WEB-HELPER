@@ -3,210 +3,142 @@ import axios from "axios";
 import { z } from "zod";
 import { QA_TASK_SUMMARY_TASK_PROMPT } from "@/constants/prompts";
 import { successResponse, errorResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
+import { logger } from "@/helpers/logger"; // ** ตรวจสอบว่าในไฟล์นี้ใช้ winston.createLogger
 
-const buildGeminiUrl = (model: string) =>
-  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+// ** Configuration: ล็อคเป้าหมายไปที่รุ่นประหยัดและเร็วที่สุดของปี 2026
+const GEMINI_MODEL = "gemini-2.5-flash-lite";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-const FALLBACK_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.5-pro",
-  "gemini-2.0-flash-001",
-  "gemini-flash-latest",
-];
-
+// ** Schema สำหรับตรวจสอบข้อมูลขาเข้า
 const requestSchema = z.object({
-  summary: z.string().optional(),
+  summary: z.string().min(1, "Summary is required").optional(),
   description: z.string().optional(),
 });
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+  const requestId = Math.random().toString(36).substring(7); // ** สำหรับ Debug Trace
 
   try {
+    // ! 1. Check API Key
     if (!apiKey) {
-      logger.error(
-        "Server configuration error: GOOGLE_GEMINI_API_KEY is missing"
-      );
+      logger.error(`[${requestId}] Configuration Error: Missing API Key`);
       return NextResponse.json(
         errorResponse({
           status: 500,
-          message_en: "Server configuration error: API Key missing.",
-          message_th: "การตั้งค่าเซิร์ฟเวอร์ผิดพลาด: ไม่มี API Key",
+          message_en: "Server configuration error",
+          message_th: "การตั้งค่าเซิร์ฟเวอร์ผิดพลาด",
         }),
         { status: 500 }
       );
     }
 
+    // ! 2. Validation
     const body = await request.json().catch(() => ({}));
-    const parsedBody = requestSchema.safeParse(body);
+    const result = requestSchema.safeParse(body);
 
-    if (!parsedBody.success) {
-      logger.warn("Invalid request payload", { error: parsedBody.error });
+    if (!result.success) {
+      logger.warn(`[${requestId}] Validation Failed`, {
+        errors: result.error.format(),
+      });
       return NextResponse.json(
         errorResponse({
           status: 400,
-          message_en: "Invalid request payload",
           message_th: "ข้อมูลที่ส่งมาไม่ถูกต้อง",
-          error: parsedBody.error.format(),
+          error: result.error.format(),
         }),
         { status: 400 }
       );
     }
 
-    const { summary, description } = parsedBody.data;
+    const { summary, description } = result.data;
 
-    const envModel = process.env.GOOGLE_GEMINI_MODEL?.trim();
-    const modelCandidates = envModel
-      ? [envModel, ...FALLBACK_MODELS.filter((m) => m !== envModel)]
-      : FALLBACK_MODELS;
-
+    // * Prepare Prompt & Content
     const contents = [
       {
         role: "user",
         parts: [
           { text: QA_TASK_SUMMARY_TASK_PROMPT },
           {
-            text: `\n\n--- INPUT DATA ---\nSummary: ${
+            text: `\n\n--- INPUT ---\nSummary: ${
               summary || "-"
-            }\nDescription:\n${description || "-"}`,
+            }\nDescription: ${description || "-"}`,
           },
         ],
       },
     ];
 
-    let markdown = "";
-    let lastErrorDetails: any = null;
-    const attempts: any[] = [];
+    // ? 3. AI Generation (Focus: Gemini 2.5 Flash Lite)
+    logger.info(`[${requestId}] AI Start: ${GEMINI_MODEL}`, {
+      payload: { summary },
+    });
 
-    for (const modelName of modelCandidates) {
-      const endpointForLog = `${buildGeminiUrl(modelName)}?key=[REDACTED]`;
-      const url = `${buildGeminiUrl(modelName)}?key=${apiKey}`;
-
-      try {
-        const response = await axios.post(
-          url,
-          { contents },
-          {
-            headers: { "Content-Type": "application/json" },
-            timeout: 45_000,
-            validateStatus: () => true,
-          }
-        );
-
-        if (response.status === 200) {
-          const firstText =
-            response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-          if (typeof firstText === "string" && firstText.trim()) {
-            attempts.push({
-              model: modelName,
-              status: response.status,
-              message: "Success",
-              endpoint: endpointForLog,
-            });
-            markdown = firstText;
-
-            logger.info(`Gemini Success`, { model: modelName });
-            break;
-          } else {
-            throw new Error(
-              "Gemini responded 200 but content is empty/blocked."
-            );
-          }
-        } else {
-          const apiError = response.data?.error || {};
-          const apiMessage = apiError.message || response.statusText;
-
-          logger.warn(`Model Failed`, {
-            model: modelName,
-            status: response.status,
-            message: apiMessage,
-          });
-
-          attempts.push({
-            model: modelName,
-            status: response.status,
-            message: apiMessage,
-            endpoint: endpointForLog,
-            responseBody: response.data,
-          });
-
-          lastErrorDetails = {
-            model: modelName,
-            status: response.status,
-            message: apiMessage,
-          };
-
-          if (response.status === 429) {
-            logger.info(`Rate limit hit, waiting 1s`, { model: modelName });
-            await delay(1000);
-          }
-        }
-      } catch (error: any) {
-        const errorMessage = error.message || "Unknown Network Error";
-        logger.error(`Network/Client Error`, {
-          model: modelName,
-          error: errorMessage,
-        });
-
-        attempts.push({
-          model: modelName,
-          status: 0,
-          message: errorMessage,
-          endpoint: endpointForLog,
-        });
-        lastErrorDetails = { model: modelName, message: errorMessage };
+    const response = await axios.post(
+      `${GEMINI_URL}?key=${apiKey}`,
+      {
+        contents,
+        generationConfig: {
+          temperature: 0.4, // ** ต่ำเพื่อให้คำตอบนิ่งและเร็ว
+          maxOutputTokens: 1024,
+        },
+      },
+      {
+        timeout: 20000, // ** Flash Lite ควรตอบกลับภายใน 20 วิ
+        validateStatus: (status) => status < 500, // ** ยอมรับ 4xx เพื่อมาจัดการต่อเอง
       }
-    }
+    );
 
-    if (!markdown) {
-      const statusCode =
-        typeof lastErrorDetails?.status === "number"
-          ? lastErrorDetails.status
-          : 502;
+    // * 4. Handle Success
+    if (response.status === 200) {
+      const markdown =
+        response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-      const lastErrorMessage = lastErrorDetails?.message || "Unknown Error";
+      if (!markdown) {
+        logger.error(`[${requestId}] API 200 but No Content`, {
+          res: response.data,
+        });
+        throw new Error("Empty content from Gemini");
+      }
 
-      logger.error("All AI models failed", {
-        attempts: attempts.length,
-        lastError: lastErrorDetails,
+      logger.info(`[${requestId}] AI Success`, {
+        usage: response.data?.usageMetadata, // ** Debug ดู Token ที่ใช้จริง
+        model: GEMINI_MODEL,
       });
 
       return NextResponse.json(
-        errorResponse({
-          status: statusCode,
-          message_en: `All AI models failed. Reason: ${lastErrorMessage}`,
-          message_th: `ไม่สามารถสร้างสรุปได้ (AI ทั้งหมดไม่ตอบสนอง) สาเหตุ: ${lastErrorMessage}`,
-          error: {
-            attempts,
-            lastError: lastErrorDetails,
-            triedModels: modelCandidates,
-          },
-        }),
-        { status: statusCode }
+        successResponse({
+          data: { markdown },
+          message_th: "สรุปข้อมูลสำเร็จ",
+        })
       );
     }
 
+    // ! 5. Handle API Error (429, 400, 403)
+    logger.error(`[${requestId}] Gemini API Error`, {
+      status: response.status,
+      data: response.data,
+    });
+
     return NextResponse.json(
-      successResponse({
-        data: { markdown },
-        message_en: "Gemini summarized successfully",
-        message_th: "สรุปข้อมูลสำเร็จ",
-      })
+      errorResponse({
+        status: response.status,
+        message_en: response.data?.error?.message || "AI Provider Error",
+        message_th: "โมเดล AI เกิดข้อผิดพลาด กรุณาลองใหม่",
+      }),
+      { status: response.status }
     );
   } catch (error: any) {
-    logger.error("Internal Server Error in Gemini API", {
-      error: error?.message || error,
+    // ! 6. Critical/Network Error
+    logger.error(`[${requestId}] Internal Server Error`, {
+      message: error.message,
+      stack: error.stack, // ** สำคัญมากสำหรับการ Debug
     });
+
     return NextResponse.json(
       errorResponse({
         status: 500,
-        message_en: "Internal server error.",
-        message_th: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์",
-        error: error?.message || error,
+        message_en: "Internal system error",
+        message_th: "ระบบขัดข้อง กรุณาติดต่อผู้ดูแล",
       }),
       { status: 500 }
     );
