@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Space,
@@ -164,6 +165,28 @@ const CustomSummaryCards = ({ records, metadata, loading, t }: any) => {
 export default function TimesheetAllPage() {
   const { t } = useTranslation("translate");
   const dispatch = useDispatch();
+  const router = useRouter();
+
+  // Report Dropdown Items
+  const reportMenuItems: MenuProps["items"] = [
+    {
+      key: "capturable",
+      label: (
+        <Space>
+          รายงานแคปทรัพย์สิน
+          <Badge count="ใหม่" style={{ backgroundColor: "#52c41a" }} />
+        </Space>
+      ),
+      icon: <ProjectOutlined />,
+      onClick: () => router.push("/timesheet/all/report/capturable"),
+    },
+    {
+      key: "not-entry-today",
+      label: "รายงานผู้ไม่กรอกไทม์ชีทวันนี้",
+      icon: <TeamOutlined />,
+      onClick: () => router.push("/timesheet/all/report/not-entry/today"),
+    },
+  ];
 
   const [keyword, setKeyword] = useState("");
   const [dateRange, setDateRange] = useState(buildDefaultRange());
@@ -290,6 +313,24 @@ export default function TimesheetAllPage() {
                   >
                     <Space>
                       ส่งออกข้อมูล (Excel)
+                      <DownOutlined style={{ fontSize: "12px" }} />
+                    </Space>
+                  </Button>
+                </Dropdown>
+
+                <Dropdown
+                  menu={{ items: reportMenuItems }}
+                  trigger={["click"]}
+                  placement="bottomLeft"
+                >
+                  <Button
+                    type="default"
+                    icon={<FileTextOutlined />}
+                    shape="round"
+                    className="shadow-sm"
+                  >
+                    <Space>
+                      รายงานตรวจสอบ
                       <DownOutlined style={{ fontSize: "12px" }} />
                     </Space>
                   </Button>

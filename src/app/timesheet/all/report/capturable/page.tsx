@@ -6,35 +6,43 @@ import {
   DatePicker,
   Button,
   Progress,
-  message,
   Tag,
-  Tooltip,
   Divider,
   Popover,
   Checkbox,
   theme,
   Empty,
+  Row,
+  Col,
+  Card,
+  Space,
+  Typography,
 } from "antd";
 import {
   FileExcelOutlined,
   SearchOutlined,
-  PieChartOutlined,
   ProjectOutlined,
   BuildOutlined,
   ToolOutlined,
-  InfoCircleOutlined,
   SettingOutlined,
   ArrowLeftOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner"; // * Use Sonner Toast
+
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 
 const { RangePicker } = DatePicker;
+const { Title, Text } = Typography;
 
+// * Define Data Interface
 interface CapturableData {
   project_id: number;
   project_code: string;
@@ -45,6 +53,7 @@ interface CapturableData {
   hours_percent: number;
 }
 
+// * Column Constants
 const defaultCheckedList = [
   "index",
   "project_code",
@@ -57,19 +66,23 @@ const defaultCheckedList = [
 
 const columnOptions = [
   { label: "# ลำดับ", value: "index" },
-  { label: "Code", value: "project_code" },
-  { label: "Project Name", value: "project_name" },
-  { label: "Capturable (%)", value: "capturable_percent" },
-  { label: "Uncapturable (%)", value: "uncapturable_percent" },
-  { label: "Hours", value: "hours" },
-  { label: "Impact (%)", value: "hours_percent" },
+  { label: "รหัส (Code)", value: "project_code" },
+  { label: "ชื่อโครงการ", value: "project_name" },
+  { label: "งานสร้างใหม่ (%)", value: "capturable_percent" },
+  { label: "งานบำรุงรักษา (%)", value: "uncapturable_percent" },
+  { label: "ชั่วโมงรวม", value: "hours" },
+  { label: "สัดส่วน (%)", value: "hours_percent" },
 ];
 
+/**
+ * * CapturableReportPage Component
+ * Displays a report analyzing the ratio of Capturable vs Uncapturable work hours for projects.
+ */
 export default function CapturableReportPage() {
   const router = useRouter();
   const { token } = theme.useToken();
-  const [messageApi, contextHolder] = message.useMessage();
 
+  // * State Management
   const [loading, setLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [data, setData] = useState<CapturableData[]>([]);
@@ -77,12 +90,16 @@ export default function CapturableReportPage() {
     dayjs().startOf("month"),
     dayjs().endOf("month"),
   ]);
-
   const [visibleColumns, setVisibleColumns] =
     useState<any[]>(defaultCheckedList);
 
+  /**
+   * * Fetch Report Data
+   * Retrieve report data from API based on selected date range
+   */
   const fetchReport = async () => {
     setLoading(true);
+    const toastId = toast.loading("กำลังดึงข้อมูลรายงาน...");
     try {
       const response = await axios.post(
         "/api/v1/timesheet/report/capturable-report",
@@ -94,19 +111,29 @@ export default function CapturableReportPage() {
 
       if (response.data.status === 200) {
         setData(response.data.data);
-        messageApi.success(response.data.message_th || "ดึงข้อมูลสำเร็จ");
+        toast.success(response.data.message_th || "ดึงข้อมูลสำเร็จ", {
+          id: toastId,
+        });
+      } else {
+        toast.error("ไม่สามารถดึงข้อมูลได้", { id: toastId });
       }
     } catch (error: any) {
-      messageApi.error(
-        error.response?.data?.message_th || "เกิดข้อผิดพลาดในการดึงข้อมูล"
+      toast.error(
+        error.response?.data?.message_th || "เกิดข้อผิดพลาดในการดึงข้อมูล",
+        { id: toastId }
       );
     } finally {
       setLoading(false);
     }
   };
 
+  /**
+   * * Export to Excel
+   * Dowuload detailed report as an Excel file
+   */
   const exportExcel = async () => {
     setExportLoading(true);
+    const toastId = toast.loading("กำลังส่งออกไฟล์ Excel...");
     try {
       const response = await axios.post(
         "/api/v1/timesheet/report/capturable-report/export-excel",
@@ -133,14 +160,15 @@ export default function CapturableReportPage() {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      messageApi.success("ส่งออกไฟล์ Excel สำเร็จ");
+      toast.success("ส่งออกไฟล์ Excel สำเร็จ", { id: toastId });
     } catch (error: any) {
-      messageApi.error("เกิดข้อผิดพลาดในการส่งออกไฟล์");
+      toast.error("เกิดข้อผิดพลาดในการส่งออกไฟล์", { id: toastId });
     } finally {
       setExportLoading(false);
     }
   };
 
+  // * Calculations for Summary Cards
   const totalHours = data.reduce((sum, item) => sum + item.hours, 0);
   const avgCapturable =
     data.length > 0
@@ -153,197 +181,130 @@ export default function CapturableReportPage() {
         data.length
       : 0;
 
+  // * Table Columns Definition
   const allColumns: ColumnsType<CapturableData> = [
     {
-      title: (
-        <Tooltip title="ลำดับของรายการ">
-          <span
-            className="cursor-help flex items-center gap-1 text-xs font-semibold"
-            style={{ color: token.colorTextSecondary }}
-          >
-            # <InfoCircleOutlined className="text-[10px]" />
-          </span>
-        </Tooltip>
-      ),
+      title: "#",
       key: "index",
       align: "center",
-      width: 60,
+      width: 50,
       render: (_, __, index) => (
-        <span style={{ color: token.colorTextTertiary }} className="text-xs">
+        <Text type="secondary" style={{ fontSize: 12 }}>
           {index + 1}
-        </span>
+        </Text>
       ),
     },
     {
-      title: (
-        <Tooltip title="รหัสอ้างอิงของโครงการ">
-          <span
-            className="cursor-help flex items-center gap-1 text-xs font-semibold"
-            style={{ color: token.colorTextSecondary }}
-          >
-            Code <InfoCircleOutlined className="text-[10px]" />
-          </span>
-        </Tooltip>
-      ),
+      title: "รหัส",
       dataIndex: "project_code",
       key: "project_code",
-      width: 100,
+      width: 80,
       align: "center",
       render: (code: string) => (
-        <Tag
-          color="blue"
-          className="rounded-md font-medium border-none px-2 py-0.5"
-        >
+        <Tag bordered={false} style={{ color: token.colorPrimary }}>
           {code}
         </Tag>
       ),
     },
     {
-      title: (
-        <Tooltip title="ชื่อโครงการ">
-          <span
-            className="cursor-help flex items-center gap-1 text-xs font-semibold"
-            style={{ color: token.colorTextSecondary }}
-          >
-            Project Name <InfoCircleOutlined className="text-[10px]" />
-          </span>
-        </Tooltip>
-      ),
+      title: "ชื่อโครงการ",
       dataIndex: "project_name",
       key: "project_name",
-      width: 300,
-      render: (name: string) => (
-        <span className="font-semibold" style={{ color: token.colorText }}>
-          {name}
-        </span>
-      ),
+      width: 250,
+      render: (name: string) => <Text strong>{name}</Text>,
     },
     {
       title: (
-        <Tooltip
-          title={
-            <div>
-              <div className="font-bold">Capturable (งานสร้างใหม่)</div>
-              <div>สามารถบันทึกเป็นทรัพย์สินได้ (Asset)</div>
-            </div>
-          }
-        >
-          <span className="cursor-help flex items-center gap-1 text-emerald-600 font-semibold text-xs">
-            <BuildOutlined /> Capturable
-            <InfoCircleOutlined className="text-[10px] text-emerald-400" />
-          </span>
-        </Tooltip>
+        <Space size={4}>
+          <BuildOutlined style={{ color: token.colorSuccess }} />
+          <span>งานสร้างใหม่ (Asset)</span>
+        </Space>
       ),
       dataIndex: "capturable_percent",
       key: "capturable_percent",
-      width: 180,
+      width: 150,
       sorter: (a, b) => a.capturable_percent - b.capturable_percent,
       render: (value: number) => (
-        <div className="w-full flex justify-between items-center gap-3">
+        <div className="w-full">
+          <div className="flex justify-between items-center mb-1">
+            <Text type="secondary" style={{ fontSize: 11 }}>
+              สร้างใหม่
+            </Text>
+            <Text strong style={{ color: token.colorSuccess, fontSize: 12 }}>
+              {value.toFixed(0)}%
+            </Text>
+          </div>
           <Progress
-            percent={Number(value.toFixed(2))}
-            size={["100%", 6]}
-            strokeColor="#10b981"
+            percent={value}
             showInfo={false}
-            className="flex-1"
+            strokeColor={token.colorSuccess}
+            trailColor={token.colorFillSecondary}
+            size="small"
           />
-          <span className="text-emerald-600 font-bold text-xs w-12 text-right">
-            {value.toFixed(1)}%
-          </span>
         </div>
       ),
     },
     {
       title: (
-        <Tooltip
-          title={
-            <div>
-              <div className="font-bold">Uncapturable (งานซ่อมสร้าง)</div>
-              <div>บันทึกเป็นค่าใช้จ่าย/ซ่อมแซม (Expense)</div>
-            </div>
-          }
-        >
-          <span className="cursor-help flex items-center gap-1 text-rose-600 font-semibold text-xs">
-            <ToolOutlined /> Uncapturable
-            <InfoCircleOutlined className="text-[10px] text-rose-400" />
-          </span>
-        </Tooltip>
+        <Space size={4}>
+          <ToolOutlined style={{ color: token.colorError }} />
+          <span>งานดูแล (Expense)</span>
+        </Space>
       ),
       dataIndex: "uncapturable_percent",
       key: "uncapturable_percent",
-      width: 180,
+      width: 150,
       sorter: (a, b) => a.uncapturable_percent - b.uncapturable_percent,
       render: (value: number) => (
-        <div className="w-full flex justify-between items-center gap-3">
+        <div className="w-full">
+          <div className="flex justify-between items-center mb-1">
+            <Text type="secondary" style={{ fontSize: 11 }}>
+              ดูแล
+            </Text>
+            <Text strong style={{ color: token.colorError, fontSize: 12 }}>
+              {value.toFixed(0)}%
+            </Text>
+          </div>
           <Progress
-            percent={Number(value.toFixed(2))}
-            size={["100%", 6]}
-            strokeColor="#f43f5e"
+            percent={value}
             showInfo={false}
-            className="flex-1"
+            strokeColor={token.colorError}
+            trailColor={token.colorFillSecondary}
+            size="small"
           />
-          <span className="text-rose-600 font-bold text-xs w-12 text-right">
-            {value.toFixed(1)}%
-          </span>
         </div>
       ),
     },
     {
-      title: (
-        <Tooltip title="ชั่วโมงการทำงานรวมในโครงการนี้">
-          <span
-            className="cursor-help flex items-center gap-1 text-xs font-semibold"
-            style={{ color: token.colorTextSecondary }}
-          >
-            Hours <InfoCircleOutlined className="text-[10px]" />
-          </span>
-        </Tooltip>
-      ),
+      title: "ชั่วโมง",
       dataIndex: "hours",
       key: "hours",
-      width: 120,
+      width: 100,
       align: "right",
       sorter: (a, b) => a.hours - b.hours,
       render: (value: number) => (
-        <span className="font-bold text-blue-600">
+        <Text strong style={{ color: token.colorInfoText }}>
           {value.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
-        </span>
+        </Text>
       ),
     },
     {
-      title: (
-        <Tooltip title="สัดส่วนเปอร์เซ็นต์เทียบกับชั่วโมงงานทั้งบริษัท">
-          <span
-            className="cursor-help flex items-center gap-1 text-xs font-semibold"
-            style={{ color: token.colorTextSecondary }}
-          >
-            Impact (%) <InfoCircleOutlined className="text-[10px]" />
-          </span>
-        </Tooltip>
-      ),
+      title: "สัดส่วน",
       dataIndex: "hours_percent",
       key: "hours_percent",
-      width: 120,
+      width: 100,
       align: "center",
       sorter: (a, b) => a.hours_percent - b.hours_percent,
       render: (value: number) => (
-        <Tag
-          bordered={false}
-          style={{
-            backgroundColor: token.colorFillSecondary,
-            color: token.colorTextSecondary,
-          }}
-          className="font-medium rounded-full px-3"
-        >
-          {value.toFixed(2)}%
-        </Tag>
+        <Tag bordered={false}>{value.toFixed(2)}%</Tag>
       ),
     },
   ];
 
+  // * Dynamic Column Filtering
   const filteredColumns = useMemo(() => {
     return allColumns.filter((col) =>
       visibleColumns.includes(col.key as string)
@@ -351,17 +312,18 @@ export default function CapturableReportPage() {
   }, [allColumns, visibleColumns]);
 
   const columnSelectorContent = (
-    <div className="w-52 p-2">
+    <div className="p-2 w-64">
       <div
-        className="mb-3 border-b pb-2"
-        style={{ borderColor: token.colorBorderSecondary }}
+        className="mb-3 border-b pb-2 font-semibold"
+        style={{
+          borderColor: token.colorBorderSecondary,
+          color: token.colorText,
+        }}
       >
-        <span className="font-semibold" style={{ color: token.colorText }}>
-          แสดงคอลัมน์
-        </span>
+        เลือกคอลัมน์แสดงผล
       </div>
       <Checkbox.Group
-        className="flex flex-col gap-2.5"
+        className="flex flex-col gap-2"
         options={columnOptions}
         value={visibleColumns}
         onChange={(checkedValues) => setVisibleColumns(checkedValues)}
@@ -371,376 +333,369 @@ export default function CapturableReportPage() {
 
   return (
     <PermissionLayout role={["ALL"]}>
-      {contextHolder}
       <DashboardLayout>
-        {/* Main Container */}
-        <div className="min-h-screen p-6 md:p-8 font-sans">
-          <div className="flex flex-col gap-8 w-full mx-auto">
-            {/* 1. Header & Filter */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-              <div className="flex items-start gap-4">
-                {/* Back Button */}
-                <Button
-                  type="text"
-                  icon={<ArrowLeftOutlined />}
-                  onClick={() => router.push("/timesheet/all")}
-                  className="mt-1 h-10 w-10 p-0 flex items-center justify-center rounded-lg"
-                  style={{
-                    color: token.colorText,
-                    backgroundColor: "transparent",
-                  }}
-                />
-
-                <div>
-                  <h2
-                    className="text-2xl font-bold m-0 flex items-center gap-3"
-                    style={{ color: token.colorText }}
-                  >
-                    <div
-                      className="p-2 rounded-lg"
-                      style={{ backgroundColor: token.colorFillQuaternary }}
-                    >
-                      <PieChartOutlined
-                        style={{ color: token.colorPrimary }}
-                        className="text-xl"
-                      />
-                    </div>
-                    Capturable Analytics
-                  </h2>
-                  <p
-                    className="mt-2 text-sm pl-[52px]"
-                    style={{ color: token.colorTextSecondary }}
-                  >
-                    วิเคราะห์สัดส่วนงานสร้างใหม่ (Asset)
-                    เปรียบเทียบกับงานซ่อมสร้าง (Maintenance)
-                  </p>
-                </div>
-              </div>
-
-              {/* Filter Section */}
-              <div
-                className="rounded-2xl shadow-sm border p-1.5 pl-4 flex flex-wrap items-center gap-3"
+        {/* Main Content Container */}
+        <Space direction="vertical" size={24} className="w-full p-6">
+          {/* 1. Header & Filter Section */}
+          <div
+            className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-5 rounded-xl shadow-sm border transition-colors duration-200"
+            style={{
+              backgroundColor: token.colorBgContainer,
+              borderColor: token.colorBorderSecondary,
+            }}
+          >
+            <div className="flex items-center gap-4">
+              <Button
+                shape="circle"
+                icon={<ArrowLeftOutlined />}
+                onClick={() => router.push("/timesheet/all")}
                 style={{
-                  backgroundColor: token.colorBgContainer,
-                  borderColor: token.colorBorderSecondary,
+                  color: token.colorTextSecondary,
+                  borderColor: token.colorBorder,
                 }}
-              >
-                <span
-                  className="text-xs font-semibold uppercase tracking-wide"
-                  style={{ color: token.colorTextTertiary }}
-                >
-                  Period:
-                </span>
-                <RangePicker
-                  value={dateRange}
-                  onChange={(dates) =>
-                    dates &&
-                    dates[0] &&
-                    dates[1] &&
-                    setDateRange([dates[0], dates[1]])
-                  }
-                  format="DD/MM/YYYY"
-                  variant="borderless"
-                  className="w-[240px]"
-                  allowClear={false}
-                />
-                <Divider
-                  type="vertical"
-                  className="h-6 m-0"
-                  style={{ borderColor: token.colorBorderSecondary }}
-                />
-                <Button
-                  type="primary"
-                  icon={<SearchOutlined />}
-                  onClick={fetchReport}
-                  loading={loading}
-                  shape="round"
-                  className="px-6 h-9 shadow-md"
-                  style={{ boxShadow: `0 2px 0 ${token.colorPrimary}33` }}
-                >
-                  Analyze
-                </Button>
+              />
+              <div>
+                <Title level={4} style={{ margin: 0 }}>
+                  รายงานวิเคราะห์ทรัพย์สิน (Capturable)
+                </Title>
+                <Text type="secondary" className="text-xs">
+                  วิเคราะห์สัดส่วนงานรายโครงการเพื่อแยกประเภทสินทรัพย์
+                </Text>
               </div>
             </div>
 
-            {/* 2. Statistics Grid */}
-            {data.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {/* Stat Card 1: Projects */}
-                <div
-                  className="p-6 rounded-2xl shadow-sm border transition-all duration-300 hover:-translate-y-1"
-                  style={{
-                    backgroundColor: token.colorBgContainer,
-                    borderColor: token.colorBorderSecondary,
-                  }}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p
-                        className="text-xs font-semibold uppercase tracking-wider mb-1"
-                        style={{ color: token.colorTextTertiary }}
-                      >
-                        Projects
-                      </p>
-                      <h3
-                        className="text-3xl font-bold m-0"
-                        style={{ color: token.colorText }}
-                      >
-                        {data.length}
-                      </h3>
-                    </div>
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{
-                        backgroundColor: token.colorFillQuaternary,
-                        color: token.colorTextSecondary,
-                      }}
-                    >
-                      <ProjectOutlined className="text-lg" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stat Card 2: Hours */}
-                <div
-                  className="p-6 rounded-2xl shadow-sm border transition-all duration-300 hover:-translate-y-1"
-                  style={{
-                    backgroundColor: token.colorBgContainer,
-                    borderColor: token.colorBorderSecondary,
-                  }}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p
-                        className="text-xs font-semibold uppercase tracking-wider mb-1"
-                        style={{ color: token.colorTextTertiary }}
-                      >
-                        Total Hours
-                      </p>
-                      <h3 className="text-3xl font-bold text-blue-600 m-0">
-                        {totalHours.toLocaleString(undefined, {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        })}
-                      </h3>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                      <PieChartOutlined className="text-lg" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stat Card 3: Capturable */}
-                <div
-                  className="p-6 rounded-2xl shadow-sm border transition-all duration-300 hover:-translate-y-1"
-                  style={{
-                    backgroundColor: token.colorBgContainer,
-                    borderColor: token.colorBorderSecondary,
-                  }}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <p
-                          className="text-xs font-semibold uppercase tracking-wider m-0"
-                          style={{ color: token.colorTextTertiary }}
-                        >
-                          Avg. Capturable
-                        </p>
-                        <Tooltip title="งานสร้างใหม่ (Asset)">
-                          <InfoCircleOutlined
-                            className="text-xs cursor-help"
-                            style={{ color: token.colorTextTertiary }}
-                          />
-                        </Tooltip>
-                      </div>
-                      <h3 className="text-3xl font-bold text-emerald-500 m-0">
-                        {avgCapturable.toFixed(2)}
-                        <span className="text-lg text-emerald-300 ml-1">%</span>
-                      </h3>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500">
-                      <BuildOutlined className="text-lg" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stat Card 4: Uncapturable */}
-                <div
-                  className="p-6 rounded-2xl shadow-sm border transition-all duration-300 hover:-translate-y-1"
-                  style={{
-                    backgroundColor: token.colorBgContainer,
-                    borderColor: token.colorBorderSecondary,
-                  }}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <p
-                          className="text-xs font-semibold uppercase tracking-wider m-0"
-                          style={{ color: token.colorTextTertiary }}
-                        >
-                          Avg. Uncapturable
-                        </p>
-                        <Tooltip title="งานซ่อมสร้าง (Expense)">
-                          <InfoCircleOutlined
-                            className="text-xs cursor-help"
-                            style={{ color: token.colorTextTertiary }}
-                          />
-                        </Tooltip>
-                      </div>
-                      <h3 className="text-3xl font-bold text-rose-500 m-0">
-                        {avgUncapturable.toFixed(2)}
-                        <span className="text-lg text-rose-300 ml-1">%</span>
-                      </h3>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500">
-                      <ToolOutlined className="text-lg" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 3. Table Section */}
             <div
-              className="rounded-2xl shadow-sm border overflow-hidden"
+              className="flex items-center gap-2 p-1.5 rounded-lg border transition-colors duration-200"
               style={{
-                backgroundColor: token.colorBgContainer,
+                backgroundColor: token.colorFillQuaternary,
                 borderColor: token.colorBorderSecondary,
               }}
             >
-              <div
-                className="px-6 py-5 flex flex-col md:flex-row justify-between items-center border-b gap-4"
-                style={{
-                  backgroundColor: token.colorBgContainer,
-                  borderColor: token.colorBorderSecondary,
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <h3
-                    className="text-lg font-bold m-0"
-                    style={{ color: token.colorText }}
-                  >
-                    Detailed Breakdown
-                  </h3>
-
-                  <Popover
-                    content={columnSelectorContent}
-                    title={null}
-                    trigger="click"
-                    placement="bottomLeft"
-                    arrow={false}
-                  >
-                    <button
-                      className="text-xs font-medium px-2 py-1 rounded-md transition-colors flex items-center gap-1"
-                      style={{
-                        color: token.colorTextSecondary,
-                        backgroundColor: token.colorFillQuaternary,
-                      }}
-                    >
-                      <SettingOutlined /> Columns
-                    </button>
-                  </Popover>
-                </div>
-
-                <Button
-                  icon={<FileExcelOutlined />}
-                  onClick={exportExcel}
-                  loading={exportLoading}
-                  disabled={data.length === 0}
-                  className={`border-none shadow-none font-medium h-9 rounded-lg ${
-                    data.length > 0
-                      ? "bg-emerald-50 text-emerald-600 hover:!bg-emerald-100 hover:!text-emerald-700"
-                      : ""
-                  }`}
-                  style={
-                    data.length === 0
-                      ? {
-                          backgroundColor: token.colorFillSecondary,
-                          color: token.colorTextDisabled,
-                        }
-                      : {}
-                  }
-                >
-                  Export Excel
-                </Button>
-              </div>
-
-              <Table
-                columns={filteredColumns}
-                dataSource={data}
-                rowKey="project_id"
-                loading={loading}
-                pagination={{
-                  pageSize: 100,
-                  showSizeChanger: true,
-                  showTotal: (total) => (
-                    <span
-                      className="text-xs"
-                      style={{ color: token.colorTextSecondary }}
-                    >
-                      Total {total} items
-                    </span>
-                  ),
-                  className: "px-6 py-4",
-                }}
-                scroll={{ x: 1000 }}
-                locale={{
-                  emptyText: (
-                    <Empty
-                      image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      description="ไม่พบข้อมูล"
-                    />
-                  ),
-                }}
-                summary={(pageData) => {
-                  if (pageData.length === 0) return undefined;
-                  const totalPageHours = pageData.reduce(
-                    (sum, item) => sum + item.hours,
-                    0
-                  );
-
-                  const hoursColumnIndex = filteredColumns.findIndex(
-                    (c) => c.key === "hours"
-                  );
-
-                  if (hoursColumnIndex === -1) return undefined;
-
-                  return (
-                    <Table.Summary fixed>
-                      <Table.Summary.Row
-                        style={{
-                          backgroundColor: token.colorFillQuaternary,
-                        }}
-                        className="font-bold"
-                      >
-                        <Table.Summary.Cell
-                          index={0}
-                          colSpan={hoursColumnIndex}
-                          align="right"
-                        >
-                          <span
-                            className="text-xs uppercase tracking-wider"
-                            style={{ color: token.colorTextSecondary }}
-                          >
-                            Page Total
-                          </span>
-                        </Table.Summary.Cell>
-                        <Table.Summary.Cell index={1} align="right">
-                          <span className="text-blue-600 text-base">
-                            {totalPageHours.toFixed(2)}
-                          </span>
-                        </Table.Summary.Cell>
-                        <Table.Summary.Cell index={2} />
-                      </Table.Summary.Row>
-                    </Table.Summary>
-                  );
-                }}
+              <RangePicker
+                value={dateRange}
+                onChange={(dates) =>
+                  dates &&
+                  dates[0] &&
+                  dates[1] &&
+                  setDateRange([dates[0], dates[1]])
+                }
+                format="DD MMM YYYY"
+                variant="borderless"
+                allowClear={false}
+                style={{ width: 240, backgroundColor: token.colorBgContainer }}
               />
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                onClick={fetchReport}
+                loading={loading}
+                className="rounded-lg shadow-none border-0"
+              >
+                วิเคราะห์
+              </Button>
             </div>
           </div>
-        </div>
+
+          {/* 2. Modern Summary Statistics Cards */}
+          <Row gutter={[20, 20]}>
+            <Col xs={24} sm={12} xl={6}>
+              <Card
+                bordered={false}
+                className="shadow-sm rounded-xl overflow-hidden relative h-full border"
+                style={{ borderColor: token.colorBorderSecondary }}
+                styles={{ body: { zIndex: 10, position: "relative" } }}
+              >
+                {/* Background Icon (Single) */}
+                <div
+                  className="absolute -right-4 -bottom-4 text-8xl opacity-10 pointer-events-none rotate-12"
+                  style={{ color: token.colorPrimary }}
+                >
+                  <ProjectOutlined />
+                </div>
+
+                <div className="relative z-10">
+                  <Text
+                    type="secondary"
+                    className="font-semibold text-xs tracking-wider"
+                  >
+                    โครงการทั้งหมด
+                  </Text>
+                  <div className="mt-2">
+                    <Title level={2} style={{ margin: 0, fontWeight: 800 }}>
+                      {data.length}
+                    </Title>
+                  </div>
+                  <Tag className="mt-3 border-0" color="processing">
+                    {data.length > 0 ? "มีข้อมูล" : "ไม่มีข้อมูล"}
+                  </Tag>
+                </div>
+              </Card>
+            </Col>
+
+            <Col xs={24} sm={12} xl={6}>
+              <Card
+                bordered={false}
+                className="shadow-sm rounded-xl overflow-hidden relative h-full border"
+                style={{ borderColor: token.colorBorderSecondary }}
+                styles={{ body: { zIndex: 10, position: "relative" } }}
+              >
+                <div
+                  className="absolute -right-4 -bottom-4 text-8xl opacity-10 pointer-events-none rotate-12"
+                  style={{ color: token.colorInfo }}
+                >
+                  <ClockCircleOutlined />
+                </div>
+                <div className="relative z-10">
+                  <Text
+                    type="secondary"
+                    className="font-semibold text-xs tracking-wider"
+                  >
+                    ชั่วโมงรวม
+                  </Text>
+                  <div className="mt-2">
+                    <Title
+                      level={2}
+                      style={{
+                        margin: 0,
+                        fontWeight: 800,
+                        color: token.colorInfoText,
+                      }}
+                    >
+                      {totalHours.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
+                    </Title>
+                  </div>
+                  <Text type="secondary" className="text-xs mt-1 block">
+                    ชั่วโมงที่บันทึกในช่วงเวลานี้
+                  </Text>
+                </div>
+              </Card>
+            </Col>
+
+            <Col xs={24} sm={12} xl={6}>
+              <Card
+                bordered={false}
+                className="shadow-sm rounded-xl overflow-hidden relative h-full border"
+                style={{ borderColor: token.colorBorderSecondary }}
+                styles={{ body: { zIndex: 10, position: "relative" } }}
+              >
+                <div
+                  className="absolute -right-4 -bottom-4 text-8xl opacity-10 pointer-events-none rotate-12"
+                  style={{ color: token.colorSuccess }}
+                >
+                  <CheckCircleOutlined />
+                </div>
+                <div className="relative z-10">
+                  <Text
+                    type="secondary"
+                    className="font-semibold text-xs tracking-wider"
+                    style={{ color: token.colorSuccess }}
+                  >
+                    เฉลี่ยงานสร้างใหม่ (Asset)
+                  </Text>
+                  <div className="mt-2 flex items-baseline gap-1">
+                    <Title
+                      level={2}
+                      style={{
+                        margin: 0,
+                        fontWeight: 800,
+                        color: token.colorSuccess,
+                      }}
+                    >
+                      {avgCapturable.toFixed(1)}
+                    </Title>
+                    <span
+                      className="text-lg font-bold"
+                      style={{ color: token.colorSuccess }}
+                    >
+                      %
+                    </span>
+                  </div>
+                  <Progress
+                    percent={avgCapturable}
+                    showInfo={false}
+                    strokeColor={token.colorSuccess}
+                    trailColor={token.colorFillSecondary}
+                    size="small"
+                    className="mt-3"
+                  />
+                </div>
+              </Card>
+            </Col>
+
+            <Col xs={24} sm={12} xl={6}>
+              <Card
+                bordered={false}
+                className="shadow-sm rounded-xl overflow-hidden relative h-full border"
+                style={{ borderColor: token.colorBorderSecondary }}
+                styles={{ body: { zIndex: 10, position: "relative" } }}
+              >
+                <div
+                  className="absolute -right-4 -bottom-4 text-8xl opacity-10 pointer-events-none rotate-12"
+                  style={{ color: token.colorError }}
+                >
+                  <CloseCircleOutlined />
+                </div>
+                <div className="relative z-10">
+                  <Text
+                    type="secondary"
+                    className="font-semibold text-xs tracking-wider"
+                    style={{ color: token.colorError }}
+                  >
+                    เฉลี่ยงานดูแล (Expense)
+                  </Text>
+                  <div className="mt-2 flex items-baseline gap-1">
+                    <Title
+                      level={2}
+                      style={{
+                        margin: 0,
+                        fontWeight: 800,
+                        color: token.colorError,
+                      }}
+                    >
+                      {avgUncapturable.toFixed(1)}
+                    </Title>
+                    <span
+                      className="text-lg font-bold"
+                      style={{ color: token.colorError }}
+                    >
+                      %
+                    </span>
+                  </div>
+                  <Progress
+                    percent={avgUncapturable}
+                    showInfo={false}
+                    strokeColor={token.colorError}
+                    trailColor={token.colorFillSecondary}
+                    size="small"
+                    className="mt-3"
+                  />
+                </div>
+              </Card>
+            </Col>
+          </Row>
+
+          {/* 3. Detailed Table Section */}
+          <Card
+            bordered={false}
+            className="shadow-sm rounded-xl border"
+            style={{
+              backgroundColor: token.colorBgContainer,
+              borderColor: token.colorBorderSecondary,
+            }}
+            styles={{ body: { padding: "24px 0" } }}
+          >
+            {/* Toolbar */}
+            <div className="px-6 mb-4 flex justify-between items-center">
+              <Space>
+                <Title level={5} style={{ margin: 0 }}>
+                  รายละเอียดรายโครงการ
+                </Title>
+                <Popover
+                  content={columnSelectorContent}
+                  trigger="click"
+                  placement="bottomLeft"
+                >
+                  <Button
+                    size="small"
+                    icon={<SettingOutlined />}
+                    type="text"
+                    style={{ color: token.colorTextSecondary }}
+                  >
+                    ตั้งค่า
+                  </Button>
+                </Popover>
+              </Space>
+              <Button
+                icon={<FileExcelOutlined />}
+                onClick={exportExcel}
+                loading={exportLoading}
+                disabled={data.length === 0}
+                className={
+                  data.length > 0
+                    ? "text-emerald-600 border-emerald-200 bg-emerald-50"
+                    : ""
+                }
+                style={
+                  data.length > 0 ? {} : { color: token.colorTextDisabled }
+                }
+              >
+                ดาวน์โหลด Excel
+              </Button>
+            </div>
+
+            <Divider
+              className="my-0"
+              style={{ borderColor: token.colorBorderSecondary }}
+            />
+
+            {/* Table */}
+            <Table
+              columns={filteredColumns}
+              dataSource={data}
+              rowKey="project_id"
+              loading={loading}
+              pagination={{
+                pageSize: 50,
+                showSizeChanger: true,
+                className: "px-6",
+                showTotal: (t) => `ทั้งหมด ${t} รายการ`,
+              }}
+              locale={{
+                emptyText: (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description="ไม่มีข้อมูล"
+                  />
+                ),
+              }}
+              scroll={{ x: 900 }}
+              summary={(pageData) => {
+                if (pageData.length === 0) return undefined;
+                const hoursIdx = filteredColumns.findIndex(
+                  (c) => c.key === "hours"
+                );
+                if (hoursIdx === -1) return undefined;
+
+                const total = pageData.reduce(
+                  (acc, curr) => acc + curr.hours,
+                  0
+                );
+
+                return (
+                  <Table.Summary.Row
+                    style={{
+                      backgroundColor: token.colorFillQuaternary,
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Table.Summary.Cell
+                      index={0}
+                      colSpan={hoursIdx}
+                      align="right"
+                    >
+                      <span
+                        className="pr-4 uppercase text-xs tracking-wider"
+                        style={{ color: token.colorTextSecondary }}
+                      >
+                        รวมเฉพาะหน้านี้
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={1} align="right">
+                      <span style={{ color: token.colorInfoText }}>
+                        {total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={2} />
+                  </Table.Summary.Row>
+                );
+              }}
+            />
+          </Card>
+        </Space>
       </DashboardLayout>
     </PermissionLayout>
   );
