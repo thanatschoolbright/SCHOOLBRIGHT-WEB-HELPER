@@ -175,7 +175,7 @@ export default function BypassPage(): JSX.Element {
                     </Text>
                   </div>
                   <div className="mt-3 w-fit px-2 py-0.5 rounded-md text-xs font-semibold bg-orange-50 text-orange-600 border border-orange-100 dark:bg-orange-900/20 dark:border-orange-900/30">
-                    Total Schools
+                    โรงเรียนทั้งหมด
                   </div>
                 </div>
               </Card>
@@ -203,7 +203,7 @@ export default function BypassPage(): JSX.Element {
                     style={{ color: token.colorSuccess }}
                     className="font-semibold text-xs uppercase tracking-wider"
                   >
-                    ใช้งานอยู่ (Active)
+                    ใช้งานอยู่
                   </Text>
                   <div className="mt-2 flex items-baseline gap-1">
                     <Title
@@ -221,7 +221,7 @@ export default function BypassPage(): JSX.Element {
                     </Text>
                   </div>
                   <div className="mt-3 flex items-center gap-1 text-xs text-emerald-600">
-                    <CheckCircleOutlined /> <span>Online Systems</span>
+                    <CheckCircleOutlined /> <span>ระบบออนไลน์ปกติ</span>
                   </div>
                 </div>
               </Card>
@@ -249,7 +249,7 @@ export default function BypassPage(): JSX.Element {
                     style={{ color: token.colorError }}
                     className="font-semibold text-xs uppercase tracking-wider"
                   >
-                    ไม่ได้ใช้งาน (Inactive)
+                    ไม่ได้ใช้งาน
                   </Text>
                   <div className="mt-2 flex items-baseline gap-1">
                     <Title
@@ -267,7 +267,7 @@ export default function BypassPage(): JSX.Element {
                     </Text>
                   </div>
                   <div className="mt-3 flex items-center gap-1 text-xs text-rose-600">
-                    <WarningOutlined /> <span>Needs Attention</span>
+                    <WarningOutlined /> <span>ควรตรวจสอบ</span>
                   </div>
                 </div>
               </Card>
@@ -295,7 +295,7 @@ export default function BypassPage(): JSX.Element {
                     style={{ color: token.colorWarning }}
                     className="font-semibold text-xs uppercase tracking-wider"
                   >
-                    เกรด A (Top Tier)
+                    เกรด A (ดีเยี่ยม)
                   </Text>
                   <div className="mt-2 flex items-baseline gap-1">
                     <Title
@@ -313,7 +313,7 @@ export default function BypassPage(): JSX.Element {
                     </Text>
                   </div>
                   <div className="mt-3 w-fit px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-900/20 dark:border-amber-900/30">
-                    High Performance
+                    ประสิทธิภาพสูง
                   </div>
                 </div>
               </Card>
