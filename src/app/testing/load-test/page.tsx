@@ -29,22 +29,33 @@ import {
   Tabs,
   Select,
 } from "antd";
+import { motion, AnimatePresence } from "framer-motion";
 import {
+  RocketOutlined,
+  ThunderboltOutlined,
+  ExperimentOutlined,
+  DashboardOutlined,
+  CloudServerOutlined,
+  LineChartOutlined,
+  HistoryOutlined,
   PlayCircleOutlined,
+  DownloadOutlined,
+  CodeOutlined,
+  FileTextOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  DatabaseOutlined,
+  SettingOutlined,
   ArrowUpOutlined,
   ArrowDownOutlined,
   FileSearchOutlined,
-  DownloadOutlined,
-  LineChartOutlined,
   CloudOutlined,
-  DatabaseOutlined,
-  ClockCircleOutlined,
-  ThunderboltOutlined,
-  FileTextOutlined,
   ApiOutlined,
-  CloseCircleOutlined,
-  ExperimentOutlined,
-  SettingOutlined,
+  LineOutlined,
+  ControlOutlined,
+  SafetyOutlined,
+  GlobalOutlined,
 } from "@ant-design/icons";
 import {
   Chart as ChartJS,
@@ -94,7 +105,7 @@ const SummaryChart = ({
     labels: [t("load_test_page.graph_summary.chart_label")],
     datasets: [
       {
-        label: "Success",
+        label: t("load_test_page.result_summary.success_label"),
         data: [success],
         backgroundColor: (context: any) => {
           const chart = context.chart;
@@ -113,7 +124,7 @@ const SummaryChart = ({
         borderRadius: 12,
       },
       {
-        label: "Failed",
+        label: t("load_test_page.result_summary.failed_label"),
         data: [failed],
         backgroundColor: (context: any) => {
           const chart = context.chart;
@@ -296,22 +307,25 @@ const renderFormattedMetricValue = (
 };
 
 //** ScrollToButtons: ปุ่ม BackTop และเลื่อนไปล่างสุด
-const ScrollToButtons = () => (
-  <>
-    <FloatButton.BackTop icon={<ArrowUpOutlined />} />
-    <FloatButton
-      icon={<ArrowDownOutlined />}
-      style={{ right: 24, bottom: 88 }}
-      onClick={() =>
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: "smooth",
-        })
-      }
-      tooltip="Scroll to bottom"
-    />
-  </>
-);
+const ScrollToButtons = () => {
+  const { t } = useTranslation("translate");
+  return (
+    <>
+      <FloatButton.BackTop icon={<ArrowUpOutlined />} />
+      <FloatButton
+        icon={<ArrowDownOutlined />}
+        style={{ right: 24, bottom: 88 }}
+        onClick={() =>
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: "smooth",
+          })
+        }
+        tooltip={t("load_test_page.result_summary.scroll_to_bottom")}
+      />
+    </>
+  );
+};
 
 type LogViewerProps = {
   output: string;
@@ -340,33 +354,98 @@ const LogViewer = ({
   }, [output]);
 
   return (
-    <div style={{ marginTop: 16 }}>
-      <Typography.Title level={5} style={{ marginBottom: 8 }}>
-        {t("load_test_page.log_report.realtime_logs")}
-      </Typography.Title>
-      <Card
-        size="small"
-        styles={{
-          body: {
-            padding: 12,
-          },
+    <div style={{ marginTop: 8 }}>
+      <div
+        style={{
+          background: "#0f172a",
+          borderRadius: 20,
+          padding: 24,
+          boxShadow:
+            "inset 0 4px 12px rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.2)",
+          maxHeight: 500,
+          overflow: "auto",
+          border: "1px solid #1e293b",
+          position: "relative",
         }}
-        style={{ maxHeight: 420, overflow: "auto" }}
       >
+        <div
+          style={{
+            position: "sticky",
+            top: -24,
+            left: -24,
+            right: -24,
+            background: "#1e293b",
+            padding: "8px 16px",
+            marginBottom: 16,
+            borderBottom: "1px solid #334155",
+            display: "flex",
+            gap: 6,
+          }}
+        >
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: "#ef4444",
+            }}
+          />
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: "#eab308",
+            }}
+          />
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: "#22c55e",
+            }}
+          />
+          <span
+            style={{
+              color: "#94a3b8",
+              fontSize: 10,
+              marginLeft: 8,
+              textTransform: "uppercase",
+              letterSpacing: 1,
+              fontWeight: 700,
+            }}
+          >
+            Stream Log
+          </span>
+        </div>
+
         {!output && (
           <Empty
-            description={t("load_test_page.log_report.empty_logs")}
+            description={
+              <span style={{ color: "#64748b" }}>
+                {t("load_test_page.log_report.empty_logs")}
+              </span>
+            }
             image={Empty.PRESENTED_IMAGE_SIMPLE}
+            style={{ padding: "40px 0" }}
           />
         )}
+
         {output.split("\n").map((line, idx) => {
-          const color = line.toLowerCase().includes("error")
-            ? token.colorError
-            : line.toLowerCase().includes("success")
-            ? token.colorSuccess
-            : line.toLowerCase().includes("warn")
-            ? token.colorWarning
-            : token.colorText;
+          if (!line.trim()) return null;
+
+          const isError = line.toLowerCase().includes("error");
+          const isSuccess = line.toLowerCase().includes("success");
+          const isWarn = line.toLowerCase().includes("warn");
+
+          const color = isError
+            ? "#fca5a5"
+            : isSuccess
+            ? "#86efac"
+            : isWarn
+            ? "#fde047"
+            : "#e2e8f0";
 
           const formattedJson = extractJsonAndFormat(line);
           const isExpanded = expandedLines[idx] || false;
@@ -377,42 +456,70 @@ const LogViewer = ({
               : formattedJson || line;
 
           return (
-            <div key={idx} style={{ marginBottom: 8 }}>
-              <pre
+            <div
+              key={idx}
+              style={{
+                marginBottom: 4,
+                display: "flex",
+                gap: 12,
+                alignItems: "flex-start",
+              }}
+            >
+              <span
                 style={{
-                  background: token.colorBgContainer,
-                  color,
-                  padding: 8,
-                  borderRadius: 8,
-                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                  whiteSpace: "pre-wrap",
-                  margin: 0,
+                  color: "#475569",
+                  fontSize: 11,
+                  minWidth: 20,
+                  textAlign: "right",
+                  fontFamily: "monospace",
                 }}
               >
-                {displayedLine}
-              </pre>
-              {formattedJson && formattedJson.length > maxLength && (
-                <Button
-                  type="link"
-                  size="small"
-                  onClick={() =>
-                    setExpandedLines((prev) => ({
-                      ...prev,
-                      [idx]: !isExpanded,
-                    }))
-                  }
-                  style={{ paddingInline: 0 }}
+                {idx + 1}
+              </span>
+              <div style={{ flex: 1 }}>
+                <pre
+                  style={{
+                    color,
+                    fontFamily: "'Fira Code', 'Cascadia Code', monospace",
+                    fontSize: 13,
+                    whiteSpace: "pre-wrap",
+                    margin: 0,
+                    lineHeight: 1.5,
+                    textShadow: isError
+                      ? "0 0 8px rgba(239, 68, 68, 0.4)"
+                      : "none",
+                  }}
                 >
-                  {isExpanded
-                    ? t("load_test_page.log_report.see_less")
-                    : t("load_test_page.log_report.see_more")}
-                </Button>
-              )}
+                  {displayedLine}
+                </pre>
+                {formattedJson && formattedJson.length > maxLength && (
+                  <Button
+                    type="link"
+                    size="small"
+                    onClick={() =>
+                      setExpandedLines((prev) => ({
+                        ...prev,
+                        [idx]: !isExpanded,
+                      }))
+                    }
+                    style={{
+                      padding: 0,
+                      height: "auto",
+                      fontSize: 11,
+                      color: "#38bdf8",
+                    }}
+                  >
+                    {isExpanded
+                      ? t("load_test_page.log_report.see_less")
+                      : t("load_test_page.log_report.see_more")}
+                  </Button>
+                )}
+              </div>
             </div>
           );
         })}
         <div ref={bottomRef} />
-      </Card>
+      </div>
     </div>
   );
 };
@@ -425,73 +532,73 @@ type MetricsTableProps = {
   >;
 };
 
-//** MetricsTable: สรุป Metrics ด้วยตาราง AntD
+// ** MetricsTable: สรุป Metrics ด้วยตาราง AntD
 const MetricsTable = ({
   metrics,
   expandedLines,
   setExpandedLines,
 }: MetricsTableProps) => {
   const { t } = useTranslation("translate");
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
-  const columns = [
-    {
-      title: t("load_test_page.metrics_report.metric_col"),
-      dataIndex: "key",
-      key: "key",
-      width: 320,
-      render: (text: string) => (
-        <Typography.Text strong>{text}</Typography.Text>
-      ),
-    },
-    {
-      title: t("load_test_page.metrics_report.value_col"),
-      dataIndex: "value",
-      key: "value",
-      render: (_: any, record: Metric, idx: number) => (
-        <div>
-          {renderFormattedMetricValue(
-            record.value,
-            idx,
-            expandedLines,
-            setExpandedLines,
-            t
-          )}
-        </div>
-      ),
-    },
-  ];
+  const { token } = theme.useToken();
 
   return (
-    <section style={{ marginTop: 16 }} ref={scrollRef}>
-      <Card
-        size="small"
-        title={
-          <Space>
-            <LineChartOutlined />
+    <Card
+      className="glass-card"
+      title={
+        <Space>
+          <DashboardOutlined style={{ color: token.colorPrimary }} />
+          <span style={{ fontWeight: 700 }}>
             {t("load_test_page.metrics_report.title")}
-          </Space>
-        }
-      >
-        <Table
-          size="small"
-          pagination={false}
-          rowKey={(r, i) => String(i)}
-          dataSource={metrics}
-          columns={columns as any}
-          scroll={{ y: 360 }}
-        />
-      </Card>
-    </section>
+          </span>
+        </Space>
+      }
+      style={{ marginBottom: 16, borderRadius: 24, overflow: "hidden" }}
+    >
+      <Table
+        size="small"
+        dataSource={metrics.map((m, idx) => ({ ...m, key: idx }))}
+        pagination={{ pageSize: 12, size: "small" }}
+        columns={[
+          {
+            title: t("load_test_page.metrics_report.metric_col"),
+            dataIndex: "key",
+            key: "key",
+            width: "50%",
+            render: (text) => (
+              <Typography.Text
+                strong
+                style={{ fontSize: 13, color: token.colorTextSecondary }}
+              >
+                {text}
+              </Typography.Text>
+            ),
+          },
+          {
+            title: t("load_test_page.metrics_report.value_col"),
+            dataIndex: "value",
+            key: "value",
+            render: (text: string, record: Metric, idx: number) =>
+              renderFormattedMetricValue(
+                text,
+                idx,
+                expandedLines,
+                setExpandedLines,
+                t
+              ),
+          },
+        ]}
+        style={{
+          borderRadius: 16,
+          overflow: "hidden",
+          border: `1px solid ${token.colorBorderSecondary}`,
+        }}
+      />
+    </Card>
   );
 };
 
 // 🔍 แสดง URL ที่กำลังทดสอบอยู่
-//** SelectedTargetSummary: สรุป URL ที่ใช้งานจริง
+// ** SelectedTargetSummary: สรุป URL ที่ใช้งานจริง
 const SelectedTargetSummary = ({
   script,
   env,
@@ -500,21 +607,67 @@ const SelectedTargetSummary = ({
   env: string;
 }) => {
   const { t } = useTranslation("translate");
+  const { token } = theme.useToken();
+
   return (
-    <Alert
-      type="success"
-      showIcon
-      message={
-        <Space direction="vertical" size={2}>
-          <Typography.Text strong>
-            <ApiOutlined /> {t("load_test_page.target_summary.title")}
-          </Typography.Text>
-          <Typography.Text code>{env}</Typography.Text>
-          <Typography.Text type="secondary">script: {script}</Typography.Text>
-        </Space>
-      }
-      style={{ marginBottom: 16 }}
-    />
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 12,
+          padding: "8px 24px",
+          background: "rgba(255, 255, 255, 0.4)",
+          backdropFilter: "blur(12px)",
+          borderRadius: 100,
+          border: `1px solid ${token.colorPrimary}40`,
+          marginBottom: 24,
+          boxShadow: "0 8px 32px rgba(0,0,0,0.05)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: "#22c55e",
+              boxShadow: "0 0 10px #22c55e",
+            }}
+          />
+          <CodeOutlined style={{ color: token.colorPrimary }} />
+          <span style={{ color: token.colorTextSecondary, fontSize: 13 }}>
+            {t("load_test_page.modal.script")}:
+          </span>
+          <strong style={{ color: token.colorPrimary }}>{script}</strong>
+        </div>
+        <Divider
+          type="vertical"
+          style={{
+            height: 20,
+            borderColor: `${token.colorPrimary}30`,
+            margin: 0,
+          }}
+        />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <GlobalOutlined style={{ color: token.colorPrimary }} />
+          <span style={{ color: token.colorTextSecondary, fontSize: 13 }}>
+            Target:
+          </span>
+          <Typography.Link
+            href={env}
+            target="_blank"
+            style={{ fontWeight: 800, fontSize: 14 }}
+          >
+            {env}
+          </Typography.Link>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 
@@ -716,14 +869,21 @@ export default function Page() {
         setOutput((prev) => prev + chunk);
       }
 
-      setOutput((prev) => prev + "\nTest completed.");
+      setOutput(
+        (prev) =>
+          prev + `\n${t("load_test_page.result_summary.test_completed_log")}`
+      );
       setShowMetrics(true);
       setParsedStats(parseTestStats(accumulated));
       setRunStatus("done");
       setLastRunAt(new Date().toLocaleString());
       toast.success(t("load_test_page.messages.test_completed"));
     } catch (error: any) {
-      setOutput(`Load test failed: ${error.message}`);
+      setOutput(
+        t("load_test_page.result_summary.test_failed_log", {
+          error: error.message,
+        })
+      );
       setRunStatus("error");
       toast.error(t("load_test_page.messages.test_failed"));
     } finally {
@@ -797,15 +957,17 @@ export default function Page() {
       ) || ""
     ];
   const httpReqDurationAvg =
-    httpReqDuration?.match(/avg=([\d.]+ms)/)?.[1] || "N/A";
+    httpReqDuration?.match(/avg=([\d.]+ms)/)?.[1] ||
+    t("load_test_page.result_summary.not_available");
   const httpReqDurationP95 =
-    httpReqDuration?.match(/p\\(95\\)=([\\d.]+ms)/)?.[1] || "N/A";
+    httpReqDuration?.match(/p\\(95\\)=([\\d.]+ms)/)?.[1] ||
+    t("load_test_page.result_summary.not_available");
   const httpReqFailed =
     parsedStats[
       Object.keys(parsedStats).find((k) =>
         k.trim().startsWith("http_req_failed")
       ) || ""
-    ] || "N/A";
+    ] || t("load_test_page.result_summary.not_available");
   const httpReqFailedPct = parsePercentStat(httpReqFailed);
 
   const httpReqCounts = parseCountAndRate(httpReqs);
@@ -815,25 +977,27 @@ export default function Page() {
       Object.keys(parsedStats).find((k) => k.trim().startsWith("iterations")) ||
         ""
     ];
-  const iterations = iterationsLine?.split(" ").filter(Boolean)?.[0] || "N/A";
+  const iterations =
+    iterationsLine?.split(" ").filter(Boolean)?.[0] ||
+    t("load_test_page.result_summary.not_available");
   const iterationDuration =
     parsedStats[
       Object.keys(parsedStats).find((k) =>
         k.trim().startsWith("iteration_duration")
       ) || ""
-    ] || "N/A";
+    ] || t("load_test_page.result_summary.not_available");
   const iterationDurationStats = parseDurationStat(iterationDuration);
   const dataReceived =
     parsedStats[
       Object.keys(parsedStats).find((k) =>
         k.trim().startsWith("data_received")
       ) || ""
-    ] || "N/A";
+    ] || t("load_test_page.result_summary.not_available");
   const dataSent =
     parsedStats[
       Object.keys(parsedStats).find((k) => k.trim().startsWith("data_sent")) ||
         ""
-    ] || "N/A";
+    ] || t("load_test_page.result_summary.not_available");
   const successRate =
     checks.total > 0
       ? ((checks.success / checks.total) * 100).toFixed(2)
@@ -843,14 +1007,14 @@ export default function Page() {
   const requestRate =
     httpReqCounts?.rate && Number.isFinite(httpReqCounts.rate)
       ? httpReqCounts.rate.toFixed(2)
-      : "N/A";
+      : t("load_test_page.result_summary.not_available");
   const requestTotal =
     httpReqCounts?.count && Number.isFinite(httpReqCounts.count)
       ? httpReqCounts.count
-      : httpReqs || "N/A";
+      : httpReqs || t("load_test_page.result_summary.not_available");
   const logTail = output
     ? output.split("\n").slice(-50).join("\n")
-    : "ยังไม่มี log";
+    : t("load_test_page.log_report.empty_logs");
   const timeline = parseTimeline(output);
   const hasTimeline = timeline.labels.length > 0;
   const reportLogPreviewLimit = 1200;
@@ -858,44 +1022,53 @@ export default function Page() {
     showFullReportLog || !logTail
       ? logTail
       : logTail.length > reportLogPreviewLimit
-      ? `${logTail.slice(
-          0,
-          reportLogPreviewLimit
-        )}\n...\n(See more to view full log)`
+      ? `${logTail.slice(0, reportLogPreviewLimit)}\n...\n(${t(
+          "load_test_page.result_summary.see_more_log_hint"
+        )})`
       : logTail;
 
   const buildReportText = () => {
     const generatedAt = lastRunAt || new Date().toLocaleString();
     const metricsBlock = metrics.length
       ? metrics.map((m) => `- ${m.key}: ${m.value}`).join("\n")
-      : "N/A";
+      : t("load_test_page.result_summary.not_available");
 
     return [
-      "=== Load Testing Report (Enterprise) ===",
-      `Generated At: ${generatedAt}`,
-      `Status: ${runStatus}`,
-      `Target URL: ${targetUrl}`,
-      `Script: ${scriptName}`,
-      `Parameters: VUs=${vus}, Duration=${durationSeconds}s`,
+      `=== ${t("load_test_page.result_summary.report_title")} ===`,
+      `${t("load_test_page.result_summary.generated_at")}: ${generatedAt}`,
+      `${t("load_test_page.result_summary.status")}: ${runStatus}`,
+      `${t("load_test_page.result_summary.target_url")}: ${targetUrl}`,
+      `${t("load_test_page.result_summary.script")}: ${scriptName}`,
+      `${t(
+        "load_test_page.result_summary.parameters"
+      )}: VUs=${vus}, Duration=${durationSeconds}s`,
       "",
-      "Summary",
+      t("load_test_page.result_summary.summary"),
       `- Checks => total=${checks.total}, success=${checks.success}, failed=${checks.failed}`,
-      `- HTTP Requests => ${httpReqs || "N/A"}`,
-      `- HTTP Duration => ${httpReqDuration || "N/A"}`,
-      `- Success Rate => ${successRate ? `${successRate}%` : "N/A"}`,
+      `- HTTP Requests => ${
+        httpReqs || t("load_test_page.result_summary.not_available")
+      }`,
+      `- HTTP Duration => ${
+        httpReqDuration || t("load_test_page.result_summary.not_available")
+      }`,
+      `- Success Rate => ${
+        successRate
+          ? `${successRate}%`
+          : t("load_test_page.result_summary.not_available")
+      }`,
       `- Failure Rate => ${
         Number.isFinite(httpReqFailedPct)
           ? `${httpReqFailedPct}%`
           : failureRate
           ? `${failureRate}%`
-          : "N/A"
+          : t("load_test_page.result_summary.not_available")
       }`,
       `- Requests/sec => ${requestRate}`,
       "",
-      "Metrics",
+      t("load_test_page.result_summary.metrics"),
       metricsBlock,
       "",
-      "Log (latest 50 lines)",
+      t("load_test_page.result_summary.log_latest_50"),
       logTail,
     ].join("\n");
   };
@@ -919,7 +1092,7 @@ export default function Page() {
     <html>
       <head>
         <meta charset="UTF-8" />
-        <title>Load Test Report</title>
+        <title>${t("load_test_page.result_summary.report_html_title")}</title>
         <style>
           body { font-family: "Segoe UI", Arial, sans-serif; color: #1f1f1f; margin: 24px; }
           h1, h2, h3 { margin: 0 0 8px 0; }
@@ -932,51 +1105,85 @@ export default function Page() {
         </style>
       </head>
       <body>
-        <h1>Load Testing Report</h1>
-        <p>Generated At: ${generatedAt}</p>
+        <h1>${t("load_test_page.result_summary.report_html_title")}</h1>
+        <p>${t(
+          "load_test_page.result_summary.generated_at"
+        )}: ${generatedAt}</p>
 
         <div class="section card">
-          <h2>Overview</h2>
-          <p><strong>Status:</strong> ${runStatus}</p>
-          <p><strong>Target URL:</strong> ${targetUrl}</p>
-          <p><strong>Script:</strong> ${scriptName}</p>
-          <p><strong>Parameters:</strong> VUs=${vus}, Duration=${durationSeconds}s</p>
+          <h2>${t("load_test_page.result_summary.overview")}</h2>
+          <p><strong>${t(
+            "load_test_page.result_summary.status"
+          )}:</strong> ${runStatus}</p>
+          <p><strong>${t(
+            "load_test_page.result_summary.target_url"
+          )}:</strong> ${targetUrl}</p>
+          <p><strong>${t(
+            "load_test_page.result_summary.script"
+          )}:</strong> ${scriptName}</p>
+          <p><strong>${t(
+            "load_test_page.result_summary.parameters"
+          )}:</strong> VUs=${vus}, Duration=${durationSeconds}s</p>
         </div>
 
         <div class="section card">
-          <h3>Summary</h3>
+          <h3>${t("load_test_page.result_summary.summary")}</h3>
           <ul>
-            <li>Checks: total=${checks.total}, success=${
-      checks.success
-    }, failed=${checks.failed}</li>
-            <li>HTTP Requests: ${httpReqs || "N/A"}</li>
-            <li>HTTP Duration: ${httpReqDuration || "N/A"}</li>
-            <li>Success Rate: ${successRate ? `${successRate}%` : "N/A"}</li>
-            <li>Failure Rate: ${failureRate ? `${failureRate}%` : "N/A"}</li>
-            <li>Requests/sec: ${requestRate}</li>
-            <li>p95 Duration: ${
-              httpReqDurationStats.p95 || httpReqDurationP95
-            }</li>
-            <li>Avg Duration: ${
-              httpReqDurationStats.avg || httpReqDurationAvg
-            }</li>
-            <li>Iterations: ${iterations}</li>
-            <li>Iteration Duration: ${iterationDuration}</li>
-            <li>Data: received=${dataReceived}, sent=${dataSent}</li>
+            <li>${t("load_test_page.result_summary.checks")}: total=${
+      checks.total
+    }, success=${checks.success}, failed=${checks.failed}</li>
+            <li>${t("load_test_page.result_summary.http_requests")}: ${
+      httpReqs || t("load_test_page.result_summary.not_available")
+    }</li>
+            <li>${t("load_test_page.result_summary.avg_duration")}: ${
+      httpReqDuration || t("load_test_page.result_summary.not_available")
+    }</li>
+            <li>${t("load_test_page.result_summary.success_rate_desc")}: ${
+      successRate
+        ? `${successRate}%`
+        : t("load_test_page.result_summary.not_available")
+    }</li>
+            <li>${t("load_test_page.result_summary.failure_rate_desc")}: ${
+      failureRate
+        ? `${failureRate}%`
+        : t("load_test_page.result_summary.not_available")
+    }</li>
+            <li>${t(
+              "load_test_page.result_summary.throughput"
+            )}: ${requestRate}</li>
+            <li>p95 ${t("load_test_page.result_summary.iteration_duration")}: ${
+      httpReqDurationStats.p95 || httpReqDurationP95
+    }</li>
+            <li>${t("load_test_page.result_summary.avg_duration")}: ${
+      httpReqDurationStats.avg || httpReqDurationAvg
+    }</li>
+            <li>${t(
+              "load_test_page.result_summary.iterations"
+            )}: ${iterations}</li>
+            <li>${t(
+              "load_test_page.result_summary.iteration_duration"
+            )}: ${iterationDuration}</li>
+            <li>${t(
+              "load_test_page.result_summary.data_transfer"
+            )}: received=${dataReceived}, sent=${dataSent}</li>
           </ul>
         </div>
 
         <div class="section card">
-          <h3>Metrics</h3>
+          <h3>${t("load_test_page.result_summary.metrics")}</h3>
           ${
             metrics.length
-              ? `<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>${metricRows}</tbody></table>`
-              : "<p>No metrics available.</p>"
+              ? `<table><thead><tr><th>${t(
+                  "load_test_page.metrics_report.metric_col"
+                )}</th><th>${t(
+                  "load_test_page.metrics_report.value_col"
+                )}</th></tr></thead><tbody>${metricRows}</tbody></table>`
+              : `<p>${t("load_test_page.result_summary.no_metrics")}</p>`
           }
         </div>
 
         <div class="section card">
-          <h3>Log (latest 50 lines)</h3>
+          <h3>${t("load_test_page.result_summary.log_latest_50")}</h3>
           <pre>${logTail}</pre>
         </div>
       </body>
@@ -994,36 +1201,72 @@ export default function Page() {
       .join("");
 
     const summaryRows = [
-      { label: "Target URL", value: targetUrl },
-      { label: "Script", value: scriptName },
-      { label: "Status", value: runStatus },
-      { label: "Generated At", value: generatedAt },
       {
-        label: "Parameters",
+        label: t("load_test_page.result_summary.target_url"),
+        value: targetUrl,
+      },
+      { label: t("load_test_page.result_summary.script"), value: scriptName },
+      { label: t("load_test_page.result_summary.status"), value: runStatus },
+      {
+        label: t("load_test_page.result_summary.generated_at"),
+        value: generatedAt,
+      },
+      {
+        label: t("load_test_page.result_summary.parameters"),
         value: `VUs=${vus}, Duration=${durationSeconds}s`,
       },
       {
-        label: "Checks",
-        value: `total=${checks.total}, success=${checks.success}, failed=${checks.failed}`,
+        label: t("load_test_page.result_summary.checks"),
+        value: `${t("load_test_page.result_summary.total_label")}=${
+          checks.total
+        }, ${t("load_test_page.result_summary.success_label")}=${
+          checks.success
+        }, ${t("load_test_page.result_summary.failed_label")}=${checks.failed}`,
       },
-      { label: "Success Rate", value: successRate ? `${successRate}%` : "N/A" },
       {
-        label: "Failure Rate",
-        value: failureRate ? `${failureRate}%` : "N/A",
+        label: t("load_test_page.result_summary.success_rate_desc"),
+        value: successRate
+          ? `${successRate}%`
+          : t("load_test_page.result_summary.not_available"),
       },
-      { label: "HTTP Requests", value: httpReqs || "N/A" },
-      { label: "Request Rate (rps)", value: requestRate },
       {
-        label: "Response Time (avg/p95/max)",
+        label: t("load_test_page.result_summary.failure_rate_desc"),
+        value: failureRate
+          ? `${failureRate}%`
+          : t("load_test_page.result_summary.not_available"),
+      },
+      {
+        label: t("load_test_page.result_summary.http_requests"),
+        value: httpReqs || t("load_test_page.result_summary.not_available"),
+      },
+      {
+        label: t("load_test_page.result_summary.request_rate_desc"),
+        value: requestRate,
+      },
+      {
+        label: t("load_test_page.result_summary.response_time_desc"),
         value: `${httpReqDurationStats.avg || httpReqDurationAvg} / ${
           httpReqDurationStats.p95 || httpReqDurationP95
-        } / ${httpReqDurationStats.max || "N/A"}`,
+        } / ${
+          httpReqDurationStats.max ||
+          t("load_test_page.result_summary.not_available")
+        }`,
       },
-      { label: "Iteration Duration", value: iterationDuration },
-      { label: "Iterations", value: iterations },
       {
-        label: "Data Transfer",
-        value: `Received: ${dataReceived} | Sent: ${dataSent}`,
+        label: t("load_test_page.result_summary.iteration_duration"),
+        value: iterationDuration,
+      },
+      {
+        label: t("load_test_page.result_summary.iterations"),
+        value: iterations,
+      },
+      {
+        label: t("load_test_page.result_summary.data_transfer"),
+        value: `${t(
+          "load_test_page.result_summary.received_label"
+        )}: ${dataReceived} | ${t(
+          "load_test_page.result_summary.sent_label"
+        )}: ${dataSent}`,
       },
     ]
       .map(
@@ -1044,7 +1287,7 @@ export default function Page() {
     <html>
       <head>
         <meta charset="UTF-8" />
-        <title>Load Test Report</title>
+        <title>${t("load_test_page.result_summary.report_html_title")}</title>
         <style>
           body { font-family: "Segoe UI", Arial, sans-serif; color: #1f1f1f; margin: 32px; }
           h1, h2, h3 { margin: 0 0 10px 0; }
@@ -1059,11 +1302,13 @@ export default function Page() {
         </style>
       </head>
       <body>
-        <h1>Load Testing Report</h1>
-        <p class="badge">Generated At: ${generatedAt}</p>
+        <h1>${t("load_test_page.result_summary.report_html_title")}</h1>
+        <p class="badge">${t(
+          "load_test_page.result_summary.generated_at"
+        )}: ${generatedAt}</p>
 
         <div class="section card">
-          <h2>Overview</h2>
+          <h2>${t("load_test_page.result_summary.overview")}</h2>
           <table>
             <tbody>
               ${summaryRows}
@@ -1072,56 +1317,87 @@ export default function Page() {
         </div>
 
         <div class="section card">
-          <h3>Summary Grid</h3>
+          <h3>${t("load_test_page.result_summary.summary_grid")}</h3>
           <div class="grid">
             <div class="card" style="padding:12px;">
-              <strong>Checks</strong><br/>
-              Total: ${checks.total} | Success: ${checks.success} | Failed: ${
-      checks.failed
-    }
+              <strong>${t("load_test_page.result_summary.checks")}</strong><br/>
+              ${t("load_test_page.result_summary.total_label")}: ${
+      checks.total
+    } | ${t("load_test_page.result_summary.success_label")}: ${
+      checks.success
+    } | ${t("load_test_page.result_summary.failed_label")}: ${checks.failed}
             </div>
             <div class="card" style="padding:12px;">
-              <strong>Rates</strong><br/>
-              Success: ${successRate ? `${successRate}%` : "N/A"} | Failure: ${
+              <strong>${t("load_test_page.result_summary.rates")}</strong><br/>
+              ${t("load_test_page.result_summary.success_label")}: ${
+      successRate
+        ? `${successRate}%`
+        : t("load_test_page.result_summary.not_available")
+    } | ${t("load_test_page.result_summary.failed_label")}: ${
       Number.isFinite(httpReqFailedPct)
         ? `${httpReqFailedPct}%`
         : failureRate
         ? `${failureRate}%`
-        : "N/A"
+        : t("load_test_page.result_summary.not_available")
     }
             </div>
             <div class="card" style="padding:12px;">
-              <strong>Requests</strong><br/>
-              Total: ${httpReqs || "N/A"} | Rate: ${requestRate} rps
+              <strong>${t(
+                "load_test_page.result_summary.requests"
+              )}</strong><br/>
+              ${t("load_test_page.result_summary.total_label")}: ${
+      httpReqs || t("load_test_page.result_summary.not_available")
+    } | ${t("load_test_page.result_summary.rate_label")}: ${requestRate} rps
             </div>
             <div class="card" style="padding:12px;">
-              <strong>Response Time</strong><br/>
+              <strong>${t(
+                "load_test_page.result_summary.response_time"
+              )}</strong><br/>
               avg=${httpReqDurationStats.avg || httpReqDurationAvg}, p95=${
       httpReqDurationStats.p95 || httpReqDurationP95
-    }, max=${httpReqDurationStats.max || "N/A"}
+    }, max=${
+      httpReqDurationStats.max ||
+      t("load_test_page.result_summary.not_available")
+    }
             </div>
             <div class="card" style="padding:12px;">
-              <strong>Iterations</strong><br/>
-              Count: ${iterations} | Duration: ${iterationDuration}
+              <strong>${t(
+                "load_test_page.result_summary.iterations"
+              )}</strong><br/>
+              ${t(
+                "load_test_page.result_summary.count_label"
+              )}: ${iterations} | ${t(
+      "load_test_page.result_summary.duration"
+    )}: ${iterationDuration}
             </div>
             <div class="card" style="padding:12px;">
-              <strong>Data Transfer</strong><br/>
-              Received: ${dataReceived} | Sent: ${dataSent}
+              <strong>${t(
+                "load_test_page.result_summary.data_transfer"
+              )}</strong><br/>
+              ${t(
+                "load_test_page.result_summary.received_label"
+              )}: ${dataReceived} | ${t(
+      "load_test_page.result_summary.sent_label"
+    )}: ${dataSent}
             </div>
           </div>
         </div>
 
         <div class="section card">
-          <h3>Metrics</h3>
+          <h3>${t("load_test_page.result_summary.metrics")}</h3>
           ${
             metrics.length
-              ? `<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>${metricRows}</tbody></table>`
-              : "<p>No metrics available.</p>"
+              ? `<table><thead><tr><th>${t(
+                  "load_test_page.metrics_report.metric_col"
+                )}</th><th>${t(
+                  "load_test_page.metrics_report.value_col"
+                )}</th></tr></thead><tbody>${metricRows}</tbody></table>`
+              : `<p>${t("load_test_page.result_summary.no_metrics")}</p>`
           }
         </div>
 
         <div class="section card">
-          <h3>Log (latest 50 lines)</h3>
+          <h3>${t("load_test_page.result_summary.log_latest_50")}</h3>
           <pre>${evidenceLog}</pre>
         </div>
       </body>
@@ -1162,464 +1438,837 @@ export default function Page() {
     <DashboardLayout>
       <ScrollToButtons />
 
-      <Card
-        style={{
-          marginBottom: 16,
-          background: `linear-gradient(135deg, ${token.colorPrimary}1A, ${token.colorBgElevated})`,
-          border: `1px solid ${token.colorBorder}`,
-        }}
-        bodyStyle={{ padding: 20 }}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
-        <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} md={14}>
-            <Space direction="vertical" size={4}>
-              <Typography.Title level={3} style={{ margin: 0 }}>
-                {t("load_test_page.title")}
-              </Typography.Title>
-              <Typography.Text type="secondary">
-                {t("load_test_page.subtitle")}
-              </Typography.Text>
-              <Space wrap>
-                <Tag color="blue">{t("load_test_page.tags.k6")}</Tag>
-                <Tag color="geekblue">
-                  {t("load_test_page.tags.streaming_log")}
-                </Tag>
-                <Tag color="green">{t("load_test_page.tags.ant_design")}</Tag>
-              </Space>
-            </Space>
-          </Col>
-          <Col xs={24} md={10}>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Card size="small" bordered>
-                  <Statistic
-                    title={t("load_test_page.stats.concurrent_users")}
-                    value={vus}
-                    suffix="vus"
-                    valueStyle={{ fontWeight: 600 }}
-                  />
-                </Card>
-              </Col>
-              <Col span={12}>
-                <Card size="small" bordered>
-                  <Statistic
-                    title={t("load_test_page.stats.duration")}
-                    value={durationSeconds}
-                    suffix="sec"
-                    valueStyle={{ fontWeight: 600 }}
-                  />
-                </Card>
-              </Col>
-              <Col span={24} style={{ marginTop: 8 }}>
-                <Space>
-                  <Badge
-                    status={
-                      runStatus === "running"
-                        ? "processing"
-                        : runStatus === "done"
-                        ? "success"
-                        : runStatus === "error"
-                        ? "error"
-                        : "default"
-                    }
-                    text={
-                      runStatus === "running"
-                        ? t("load_test_page.stats.status_running")
-                        : runStatus === "done"
-                        ? t("load_test_page.stats.status_completed")
-                        : runStatus === "error"
-                        ? t("load_test_page.stats.status_failed")
-                        : t("load_test_page.stats.status_idle")
-                    }
-                  />
-                  {lastRunAt && (
-                    <Typography.Text type="secondary">
-                      {t("load_test_page.stats.last_run", { time: lastRunAt })}
-                    </Typography.Text>
-                  )}
-                </Space>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      </Card>
-
-      {Object.keys(parsedStats).length > 0 && (
         <Card
-          style={{ marginBottom: 16 }}
-          title={
-            <Space>
-              <LineChartOutlined />
-              {t("load_test_page.kpi_snapshot.title")}
-            </Space>
-          }
+          className="glass-card"
+          style={{
+            marginBottom: 16,
+            borderRadius: 24,
+            overflow: "hidden",
+            border: "none",
+            background: `linear-gradient(135deg, ${token.colorPrimary}0D, ${token.colorBgElevated}CC)`,
+          }}
+          bodyStyle={{ padding: "24px 32px" }}
         >
-          <Row gutter={[16, 16]}>
-            <Col xs={24} md={12} lg={6}>
-              <Card size="small" bordered>
-                <Statistic
-                  title={t("load_test_page.kpi_snapshot.success_rate")}
-                  value={successRate ? Number(successRate) : 0}
-                  suffix="%"
-                />
-                <Progress
-                  percent={successRate ? Number(successRate) : 0}
-                  status="active"
-                  size="small"
-                  style={{ marginTop: 8 }}
-                />
-              </Card>
+          <Row gutter={[24, 24]} align="middle">
+            <Col xs={24} md={14}>
+              <Space direction="vertical" size={12}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 16,
+                      background: token.colorPrimary,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: `0 8px 16px ${token.colorPrimary}4D`,
+                    }}
+                  >
+                    <RocketOutlined style={{ fontSize: 24, color: "#fff" }} />
+                  </div>
+                  <div>
+                    <Typography.Title
+                      level={2}
+                      style={{
+                        margin: 0,
+                        fontWeight: 800,
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      {t("load_test_page.title")}
+                    </Typography.Title>
+                    <Typography.Text type="secondary" style={{ fontSize: 16 }}>
+                      {t("load_test_page.subtitle")}
+                    </Typography.Text>
+                  </div>
+                </div>
+                <Space wrap>
+                  <Tag
+                    color="processing"
+                    bordered={false}
+                    style={{ borderRadius: 8, padding: "2px 10px" }}
+                  >
+                    <ThunderboltOutlined /> {t("load_test_page.tags.k6")}
+                  </Tag>
+                  <Tag
+                    color="cyan"
+                    bordered={false}
+                    style={{ borderRadius: 8, padding: "2px 10px" }}
+                  >
+                    <CloudServerOutlined />{" "}
+                    {t("load_test_page.tags.streaming_log")}
+                  </Tag>
+                  <Tag
+                    color="magenta"
+                    bordered={false}
+                    style={{ borderRadius: 8, padding: "2px 10px" }}
+                  >
+                    <ExperimentOutlined /> {t("load_test_page.tags.ant_design")}
+                  </Tag>
+                </Space>
+              </Space>
             </Col>
-            <Col xs={24} md={12} lg={6}>
-              <Card size="small" bordered>
-                <Statistic
-                  title={t("load_test_page.kpi_snapshot.failure_rate")}
-                  value={failureRate ? Number(failureRate) : "N/A"}
-                  suffix="%"
-                  valueStyle={{ color: token.colorError }}
-                />
-                <Progress
-                  percent={failureRate ? Number(failureRate) : 0}
-                  status="exception"
-                  size="small"
-                  style={{ marginTop: 8 }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} md={12} lg={6}>
-              <Card size="small" bordered>
-                <Statistic
-                  title={t("load_test_page.kpi_snapshot.requests_per_sec")}
-                  value={requestRate || "N/A"}
-                />
-                <Typography.Text type="secondary">
-                  {t("load_test_page.kpi_snapshot.total", {
-                    count: requestTotal,
-                  })}
-                </Typography.Text>
-              </Card>
-            </Col>
-            <Col xs={24} md={12} lg={6}>
-              <Card size="small" bordered>
-                <Statistic
-                  title={t("load_test_page.kpi_snapshot.p95_duration")}
-                  value={httpReqDurationStats.p95 || httpReqDurationP95}
-                />
-                <Typography.Text type="secondary">
-                  {t("load_test_page.kpi_snapshot.avg", {
-                    value: httpReqDurationStats.avg || httpReqDurationAvg,
-                  })}
-                </Typography.Text>
-              </Card>
+            <Col xs={24} md={10}>
+              <Row gutter={[12, 12]}>
+                <Col span={12}>
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <Card
+                      size="small"
+                      className="glass-card"
+                      style={{
+                        borderRadius: 16,
+                        textAlign: "center",
+                        border: `1px solid ${token.colorBorderSecondary}`,
+                      }}
+                    >
+                      <Statistic
+                        title={
+                          <span
+                            style={{
+                              fontSize: 13,
+                              textTransform: "uppercase",
+                              letterSpacing: 0.5,
+                            }}
+                          >
+                            {t("load_test_page.stats.concurrent_users")}
+                          </span>
+                        }
+                        value={vus}
+                        suffix={<span style={{ fontSize: 14 }}>VUs</span>}
+                        valueStyle={{
+                          fontWeight: 700,
+                          color: token.colorPrimary,
+                        }}
+                      />
+                    </Card>
+                  </motion.div>
+                </Col>
+                <Col span={12}>
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <Card
+                      size="small"
+                      className="glass-card"
+                      style={{
+                        borderRadius: 16,
+                        textAlign: "center",
+                        border: `1px solid ${token.colorBorderSecondary}`,
+                      }}
+                    >
+                      <Statistic
+                        title={
+                          <span
+                            style={{
+                              fontSize: 13,
+                              textTransform: "uppercase",
+                              letterSpacing: 0.5,
+                            }}
+                          >
+                            {t("load_test_page.stats.duration")}
+                          </span>
+                        }
+                        value={durationSeconds}
+                        suffix={<span style={{ fontSize: 14 }}>sec</span>}
+                        valueStyle={{ fontWeight: 700, color: token.colorInfo }}
+                      />
+                    </Card>
+                  </motion.div>
+                </Col>
+                <Col span={24}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "12px 16px",
+                      borderRadius: 16,
+                      background: token.colorFillAlter,
+                      border: `1px solid ${token.colorBorderSecondary}`,
+                    }}
+                  >
+                    <Badge
+                      status={
+                        runStatus === "running"
+                          ? "processing"
+                          : runStatus === "done"
+                          ? "success"
+                          : runStatus === "error"
+                          ? "error"
+                          : "default"
+                      }
+                      text={
+                        <span style={{ fontWeight: 600, marginLeft: 8 }}>
+                          {runStatus === "running"
+                            ? t("load_test_page.stats.status_running")
+                            : runStatus === "done"
+                            ? t("load_test_page.stats.status_completed")
+                            : runStatus === "error"
+                            ? t("load_test_page.stats.status_failed")
+                            : t("load_test_page.stats.status_idle")}
+                        </span>
+                      }
+                    />
+                    {lastRunAt && (
+                      <Typography.Text
+                        type="secondary"
+                        style={{ fontSize: 12 }}
+                      >
+                        <ClockCircleOutlined />{" "}
+                        {t("load_test_page.stats.last_run", {
+                          time: lastRunAt,
+                        })}
+                      </Typography.Text>
+                    )}
+                  </div>
+                </Col>
+              </Row>
             </Col>
           </Row>
         </Card>
+      </motion.div>
+
+      {Object.keys(parsedStats).length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <Card
+            className="glass-card"
+            style={{ marginBottom: 16, borderRadius: 24 }}
+            title={
+              <Space>
+                <ThunderboltOutlined
+                  style={{ fontSize: 18, color: token.colorPrimary }}
+                />
+                <span style={{ fontWeight: 700 }}>
+                  {t("load_test_page.kpi_snapshot.title")}
+                </span>
+              </Space>
+            }
+          >
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12} lg={6}>
+                <Card
+                  size="small"
+                  bordered={false}
+                  style={{
+                    background: `${token.colorSuccess}08`,
+                    borderRadius: 16,
+                  }}
+                >
+                  <Statistic
+                    title={t("load_test_page.kpi_snapshot.success_rate")}
+                    value={successRate ? Number(successRate) : 0}
+                    suffix="%"
+                    valueStyle={{ color: token.colorSuccess, fontWeight: 700 }}
+                  />
+                  <Progress
+                    percent={successRate ? Number(successRate) : 0}
+                    status="active"
+                    size="small"
+                    strokeColor={token.colorSuccess}
+                    style={{ marginTop: 8 }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} md={12} lg={6}>
+                <Card
+                  size="small"
+                  bordered={false}
+                  style={{
+                    background: `${token.colorError}08`,
+                    borderRadius: 16,
+                  }}
+                >
+                  <Statistic
+                    title={t("load_test_page.kpi_snapshot.failure_rate")}
+                    value={
+                      failureRate
+                        ? Number(failureRate)
+                        : t("load_test_page.result_summary.not_available")
+                    }
+                    suffix="%"
+                    valueStyle={{ color: token.colorError, fontWeight: 700 }}
+                  />
+                  <Progress
+                    percent={failureRate ? Number(failureRate) : 0}
+                    status="exception"
+                    size="small"
+                    strokeColor={token.colorError}
+                    style={{ marginTop: 8 }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} md={12} lg={6}>
+                <Card
+                  size="small"
+                  bordered={false}
+                  style={{
+                    background: `${token.colorInfo}08`,
+                    borderRadius: 16,
+                  }}
+                >
+                  <Statistic
+                    title={t("load_test_page.kpi_snapshot.requests_per_sec")}
+                    value={
+                      requestRate ||
+                      t("load_test_page.result_summary.not_available")
+                    }
+                    valueStyle={{ color: token.colorInfo, fontWeight: 700 }}
+                  />
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    <DashboardOutlined
+                      style={{ fontSize: 10, marginRight: 4 }}
+                    />
+                    {t("load_test_page.kpi_snapshot.total", {
+                      count: requestTotal,
+                    })}
+                  </Typography.Text>
+                </Card>
+              </Col>
+              <Col xs={24} md={12} lg={6}>
+                <Card
+                  size="small"
+                  bordered={false}
+                  style={{
+                    background: `${token.colorWarning}08`,
+                    borderRadius: 16,
+                  }}
+                >
+                  <Statistic
+                    title={t("load_test_page.kpi_snapshot.p95_duration")}
+                    value={httpReqDurationStats.p95 || httpReqDurationP95}
+                    valueStyle={{ color: token.colorWarning, fontWeight: 700 }}
+                    prefix={<ClockCircleOutlined />}
+                  />
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    {t("load_test_page.kpi_snapshot.avg", {
+                      value: httpReqDurationStats.avg || httpReqDurationAvg,
+                    })}
+                  </Typography.Text>
+                </Card>
+              </Col>
+            </Row>
+          </Card>
+        </motion.div>
       )}
 
       {hasTimeline && (
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Card
+            className="glass-card"
+            style={{ marginBottom: 16, borderRadius: 24 }}
+            title={
+              <Space>
+                <LineChartOutlined style={{ color: token.colorPrimary }} />
+                <span style={{ fontWeight: 700 }}>
+                  {t("load_test_page.timeline.title")}
+                </span>
+              </Space>
+            }
+            extra={
+              <Typography.Text type="secondary">
+                {t("load_test_page.timeline.subtitle")}
+              </Typography.Text>
+            }
+          >
+            <Line
+              data={{
+                labels: timeline.labels,
+                datasets: [
+                  {
+                    label: t("load_test_page.timeline.iterations_label"),
+                    data: timeline.cumulative,
+                    borderColor: token.colorPrimary,
+                    backgroundColor: `${token.colorPrimary}22`,
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: "y",
+                  },
+                  {
+                    label: t("load_test_page.timeline.rps_label"),
+                    data: timeline.rps,
+                    borderColor: token.colorWarning,
+                    backgroundColor: `${token.colorWarning}22`,
+                    tension: 0.4,
+                    borderDash: [5, 5],
+                    yAxisID: "y1",
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: { position: "top" },
+                  tooltip: { mode: "index", intersect: false },
+                },
+                interaction: { mode: "index", intersect: false },
+                scales: {
+                  y: {
+                    type: "linear",
+                    position: "left",
+                    ticks: { color: token.colorText },
+                    title: {
+                      display: true,
+                      text: t("load_test_page.timeline.iterations_label"),
+                    },
+                  },
+                  y1: {
+                    type: "linear",
+                    position: "right",
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: token.colorWarning },
+                    title: {
+                      display: true,
+                      text: t("load_test_page.timeline.rps_label"),
+                    },
+                  },
+                  x: {
+                    ticks: { color: token.colorTextSecondary },
+                  },
+                },
+              }}
+              height={120}
+            />
+          </Card>
+        </motion.div>
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
         <Card
-          style={{ marginBottom: 16 }}
+          className="glass-card"
+          style={{ marginBottom: 16, borderRadius: 24, overflow: "hidden" }}
           title={
             <Space>
-              <LineChartOutlined />
-              {t("load_test_page.timeline.title")}
+              <ControlOutlined style={{ color: token.colorPrimary }} />
+              <span style={{ fontWeight: 700 }}>
+                {t("load_test_page.playground.title")}
+              </span>
             </Space>
           }
           extra={
-            <Typography.Text type="secondary">
-              {t("load_test_page.timeline.subtitle")}
-            </Typography.Text>
+            <Tag color="cyan" bordered={false} style={{ borderRadius: 6 }}>
+              {t("load_test_page.advanced.enterprise")}
+            </Tag>
           }
         >
-          <Line
-            data={{
-              labels: timeline.labels,
-              datasets: [
-                {
-                  label: t("load_test_page.timeline.iterations_label"),
-                  data: timeline.cumulative,
-                  borderColor: token.colorPrimary,
-                  backgroundColor: `${token.colorPrimary}44`,
-                  tension: 0.3,
-                  yAxisID: "y",
-                },
-                {
-                  label: t("load_test_page.timeline.rps_label"),
-                  data: timeline.rps,
-                  borderColor: token.colorWarning,
-                  backgroundColor: `${token.colorWarning}44`,
-                  tension: 0.3,
-                  borderDash: [6, 6],
-                  yAxisID: "y1",
-                },
-              ],
+          <Alert
+            type="info"
+            showIcon
+            icon={<ExperimentOutlined />}
+            style={{
+              marginBottom: 20,
+              borderRadius: 16,
+              border: "none",
+              background: `${token.colorInfo}15`,
             }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: { position: "top" },
-                tooltip: { mode: "index", intersect: false },
-              },
-              interaction: { mode: "index", intersect: false },
-              scales: {
-                y: {
-                  type: "linear",
-                  position: "left",
-                  ticks: { color: token.colorText },
-                  title: {
-                    display: true,
-                    text: t("load_test_page.timeline.iterations_label"),
-                  },
-                },
-                y1: {
-                  type: "linear",
-                  position: "right",
-                  grid: { drawOnChartArea: false },
-                  ticks: { color: token.colorWarning },
-                  title: {
-                    display: true,
-                    text: t("load_test_page.timeline.rps_label"),
-                  },
-                },
-                x: {
-                  ticks: { color: token.colorTextSecondary },
-                },
-              },
-            }}
-            height={120}
+            message={
+              <span style={{ fontWeight: 500 }}>
+                {t("load_test_page.playground.alert_message")}
+              </span>
+            }
           />
-        </Card>
-      )}
 
-      <Card
-        title={
-          <Space>
-            <CloudOutlined />
-            {t("load_test_page.playground.title")}
-          </Space>
-        }
-        extra={<Tag color="cyan">Enterprise Edition</Tag>}
-        style={{ marginBottom: 16 }}
-      >
-        <Alert
-          type="info"
-          showIcon
-          style={{ marginBottom: 16 }}
-          message={t("load_test_page.playground.alert_message")}
-        />
-
-        <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          items={[
-            {
-              key: "profiles",
-              label: (
-                <Space>
-                  <ExperimentOutlined />
-                  {t("load_test_page.tabs.profiles")}
-                </Space>
-              ),
-              children: (
-                <TestProfileSelectorComponent
-                  onSelectProfile={handleProfileSelect}
-                  selectedProfile={selectedProfile}
-                />
-              ),
-            },
-            {
-              key: "basic",
-              label: (
-                <Space>
-                  <SettingOutlined />
-                  {t("load_test_page.tabs.basic")}
-                </Space>
-              ),
-              children: (
-                <Form layout="vertical" onFinish={runTest}>
-                  <Row gutter={[16, 16]}>
-                    <Col xs={24} md={12}>
-                      <Form.Item
-                        label={t(
-                          "load_test_page.playground.form.script_name_label"
-                        )}
-                      >
-                        <Input
-                          placeholder={t(
-                            "load_test_page.playground.form.script_name_placeholder"
-                          )}
-                          value={scriptName}
-                          onChange={(e) => setScriptName(e.target.value)}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} md={12}>
-                      <Form.Item
-                        label={t(
-                          "load_test_page.playground.form.base_url_label"
-                        )}
-                      >
-                        <Input
-                          placeholder={t(
-                            "load_test_page.playground.form.base_url_placeholder"
-                          )}
-                          value={targetUrl}
-                          onChange={(e) => setTargetUrl(e.target.value)}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} md={12}>
-                      <Form.Item
-                        label={
-                          <Space>
-                            {t("load_test_page.playground.form.vus_label")}
-                            <AntTooltip
-                              title={t(
-                                "load_test_page.playground.form.vus_tooltip"
-                              )}
-                            >
-                              <Tag color="blue">VUs</Tag>
-                            </AntTooltip>
-                          </Space>
-                        }
-                      >
-                        <InputNumber
-                          min={1}
-                          style={{ width: "100%" }}
-                          value={vus}
-                          onChange={(val) => setVus(val || 1)}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} md={12}>
-                      <Form.Item
-                        label={
-                          <Space>
-                            {t("load_test_page.playground.form.duration_label")}
-                            <AntTooltip
-                              title={t(
-                                "load_test_page.playground.form.duration_tooltip"
-                              )}
-                            >
-                              <Tag color="purple">sec</Tag>
-                            </AntTooltip>
-                          </Space>
-                        }
-                      >
-                        <InputNumber
-                          min={1}
-                          style={{ width: "100%" }}
-                          value={durationSeconds}
-                          onChange={(val) => setDurationSeconds(val || 1)}
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Space
-                    style={{ width: "100%", justifyContent: "space-between" }}
-                  >
-                    <Typography.Text type="secondary">
-                      {t("load_test_page.playground.footer_text")}
-                    </Typography.Text>
-                    <Space>
-                      <Button
-                        icon={<FileSearchOutlined />}
-                        onClick={openReportPreview}
-                        disabled={!output}
-                      >
-                        {t("load_test_page.playground.buttons.preview_report")}
-                      </Button>
-                      <Button onClick={downloadLog} disabled={!output}>
-                        {t("load_test_page.playground.buttons.download_log")}
-                      </Button>
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        icon={<PlayCircleOutlined />}
-                        loading={isLoading}
-                      >
-                        {isLoading
-                          ? t("load_test_page.playground.buttons.testing")
-                          : t("load_test_page.playground.buttons.run_test")}
-                      </Button>
-                    </Space>
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            type="card"
+            className="modern-tabs"
+            items={[
+              {
+                key: "profiles",
+                label: (
+                  <Space>
+                    <DashboardOutlined />
+                    {t("load_test_page.tabs.profiles")}
                   </Space>
-                </Form>
-              ),
-            },
-            {
-              key: "advanced",
-              label: (
-                <Space>
-                  <ThunderboltOutlined />
-                  {t("load_test_page.tabs.advanced")}
-                  {Object.keys(advancedConfig).length > 0 && (
-                    <Badge count={Object.keys(advancedConfig).length} />
-                  )}
-                </Space>
-              ),
-              children: (
-                <AdvancedConfigComponent
-                  onConfigChange={handleAdvancedConfigChange}
-                  initialConfig={advancedConfig}
-                />
-              ),
-            },
-          ]}
-        />
-      </Card>
+                ),
+                children: (
+                  <div style={{ padding: "16px 8px" }}>
+                    <TestProfileSelectorComponent
+                      onSelectProfile={handleProfileSelect}
+                      selectedProfile={selectedProfile}
+                    />
+                  </div>
+                ),
+              },
+              {
+                key: "basic",
+                label: (
+                  <Space>
+                    <SettingOutlined />
+                    {t("load_test_page.tabs.basic")}
+                  </Space>
+                ),
+                children: (
+                  <div style={{ padding: "20px 8px" }}>
+                    <Form layout="vertical" onFinish={runTest}>
+                      <Row gutter={[20, 20]}>
+                        <Col xs={24} md={12}>
+                          <Form.Item
+                            label={
+                              <span style={{ fontWeight: 600 }}>
+                                {t(
+                                  "load_test_page.playground.form.script_name_label"
+                                )}
+                              </span>
+                            }
+                          >
+                            <Input
+                              prefix={
+                                <CodeOutlined
+                                  style={{ color: token.colorTextTertiary }}
+                                />
+                              }
+                              placeholder={t(
+                                "load_test_page.playground.form.script_name_placeholder"
+                              )}
+                              value={scriptName}
+                              onChange={(e) => setScriptName(e.target.value)}
+                              style={{ borderRadius: 12 }}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                          <Form.Item
+                            label={
+                              <span style={{ fontWeight: 600 }}>
+                                {t(
+                                  "load_test_page.playground.form.base_url_label"
+                                )}
+                              </span>
+                            }
+                          >
+                            <Input
+                              prefix={
+                                <GlobalOutlined
+                                  style={{ color: token.colorTextTertiary }}
+                                />
+                              }
+                              placeholder={t(
+                                "load_test_page.playground.form.base_url_placeholder"
+                              )}
+                              value={targetUrl}
+                              onChange={(e) => setTargetUrl(e.target.value)}
+                              style={{ borderRadius: 12 }}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={12} md={12}>
+                          <Form.Item
+                            label={
+                              <Space>
+                                <span style={{ fontWeight: 600 }}>
+                                  {t(
+                                    "load_test_page.playground.form.vus_label"
+                                  )}
+                                </span>
+                                <AntTooltip
+                                  title={t(
+                                    "load_test_page.playground.form.vus_tooltip"
+                                  )}
+                                >
+                                  <Tag
+                                    color="blue"
+                                    bordered={false}
+                                    style={{ margin: 0 }}
+                                  >
+                                    VUs
+                                  </Tag>
+                                </AntTooltip>
+                              </Space>
+                            }
+                          >
+                            <InputNumber
+                              min={1}
+                              max={1000}
+                              value={vus}
+                              onChange={(val) => setVus(val || 1)}
+                              style={{ width: "100%", borderRadius: 12 }}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={12} md={12}>
+                          <Form.Item
+                            label={
+                              <Space>
+                                <span style={{ fontWeight: 600 }}>
+                                  {t(
+                                    "load_test_page.playground.form.duration_label"
+                                  )}
+                                </span>
+                                <AntTooltip
+                                  title={t(
+                                    "load_test_page.playground.form.duration_tooltip"
+                                  )}
+                                >
+                                  <Tag
+                                    color="purple"
+                                    bordered={false}
+                                    style={{ margin: 0 }}
+                                  >
+                                    sec
+                                  </Tag>
+                                </AntTooltip>
+                              </Space>
+                            }
+                          >
+                            <InputNumber
+                              min={1}
+                              max={3600}
+                              value={durationSeconds}
+                              onChange={(val) => setDurationSeconds(val || 1)}
+                              style={{ width: "100%", borderRadius: 12 }}
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
 
-      <Card
-        title={
-          <Space>
-            <FileTextOutlined />
-            {t("load_test_page.curl_example.title")}
-          </Space>
-        }
-        style={{ marginBottom: 16 }}
+                      <Divider style={{ margin: "24px 0" }} />
+
+                      <Row justify="space-between" align="middle">
+                        <Col>
+                          <Space>
+                            <Button
+                              icon={<FileSearchOutlined />}
+                              onClick={openReportPreview}
+                              disabled={!output}
+                              size="large"
+                              style={{ borderRadius: 12 }}
+                            >
+                              {t(
+                                "load_test_page.playground.buttons.preview_report"
+                              )}
+                            </Button>
+                            <Button
+                              icon={<DownloadOutlined />}
+                              onClick={downloadLog}
+                              disabled={!output}
+                              size="large"
+                              style={{ borderRadius: 12 }}
+                            >
+                              {t(
+                                "load_test_page.playground.buttons.download_log"
+                              )}
+                            </Button>
+                          </Space>
+                        </Col>
+                        <Col>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button
+                              type="primary"
+                              htmlType="submit"
+                              size="large"
+                              icon={<PlayCircleOutlined />}
+                              loading={isLoading}
+                              style={{
+                                height: 48,
+                                paddingInline: 32,
+                                borderRadius: 16,
+                                fontWeight: 700,
+                                boxShadow: `0 8px 16px ${token.colorPrimary}4D`,
+                              }}
+                            >
+                              {isLoading
+                                ? t("load_test_page.playground.buttons.testing")
+                                : t(
+                                    "load_test_page.playground.buttons.run_test"
+                                  )}
+                            </Button>
+                          </motion.div>
+                        </Col>
+                      </Row>
+                    </Form>
+                  </div>
+                ),
+              },
+              {
+                key: "advanced",
+                label: (
+                  <Space>
+                    <ThunderboltOutlined />
+                    {t("load_test_page.tabs.advanced")}
+                    {Object.keys(advancedConfig).length > 0 && (
+                      <Badge
+                        count={Object.keys(advancedConfig).length}
+                        offset={[8, -4]}
+                      />
+                    )}
+                  </Space>
+                ),
+                children: (
+                  <div style={{ padding: 16 }}>
+                    <AdvancedConfigComponent
+                      onConfigChange={handleAdvancedConfigChange}
+                      initialConfig={advancedConfig}
+                    />
+                  </div>
+                ),
+              },
+            ]}
+          />
+
+          <Divider style={{ margin: "16px 0" }} />
+
+          <div style={{ textAlign: "center" }}>
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+              <ThunderboltOutlined style={{ marginRight: 6 }} />
+              {t("load_test_page.playground.footer_text")}
+            </Typography.Text>
+          </div>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
       >
-        <pre
-          style={{
-            background: token.colorBgContainerDisabled,
-            padding: 12,
-            borderRadius: 8,
-            whiteSpace: "pre-wrap",
-            margin: 0,
-            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-          }}
+        <Card
+          className="glass-card"
+          title={
+            <Space>
+              <CodeOutlined
+                style={{ fontSize: 18, color: token.colorPrimary }}
+              />
+              <span style={{ fontWeight: 700 }}>
+                {t("load_test_page.curl_example.title")}
+              </span>
+            </Space>
+          }
+          style={{ marginBottom: 16, borderRadius: 24, overflow: "hidden" }}
         >
-          {curlSnippet}
-        </pre>
-      </Card>
+          <div
+            style={{
+              background: "#0f172a",
+              padding: 20,
+              borderRadius: 16,
+              position: "relative",
+              border: "1px solid #1e293b",
+            }}
+          >
+            <div style={{ position: "absolute", top: 12, right: 12 }}>
+              <Button
+                size="small"
+                type="text"
+                icon={<CodeOutlined style={{ color: "#94a3b8" }} />}
+                onClick={() => {
+                  navigator.clipboard.writeText(curlSnippet);
+                  toast.success("Copied to clipboard");
+                }}
+              />
+            </div>
+            <pre
+              style={{
+                color: "#e2e8f0",
+                whiteSpace: "pre-wrap",
+                margin: 0,
+                fontSize: 13,
+                fontFamily: "'Fira Code', 'Cascadia Code', monospace",
+              }}
+            >
+              <span style={{ color: "#38bdf8" }}>curl</span> --location{" "}
+              <span style={{ color: "#94a3b8" }}>
+                'http://localhost:3000/api/v1/load-test'
+              </span>{" "}
+              \
+              <br />
+              --header{" "}
+              <span style={{ color: "#94a3b8" }}>
+                'Content-Type: application/json'
+              </span>{" "}
+              \
+              <br />
+              --data <span style={{ color: "#94a3b8" }}>'{"{"}</span>
+              <br />
+              &nbsp;&nbsp;<span style={{ color: "#fb7185" }}>
+                "script"
+              </span>: <span style={{ color: "#4ade80" }}>"{scriptName}"</span>,
+              <br />
+              &nbsp;&nbsp;<span style={{ color: "#fb7185" }}>
+                "baseURL"
+              </span>: <span style={{ color: "#4ade80" }}>"{targetUrl}"</span>,
+              <br />
+              &nbsp;&nbsp;<span style={{ color: "#fb7185" }}>
+                "request"
+              </span>: <span style={{ color: "#f87171" }}>{vus}</span>,
+              <br />
+              &nbsp;&nbsp;<span style={{ color: "#fb7185" }}>
+                "second"
+              </span>:{" "}
+              <span style={{ color: "#f87171" }}>{durationSeconds}</span>
+              <br />
+              <span style={{ color: "#94a3b8" }}>{"}"}'</span>
+            </pre>
+          </div>
+        </Card>
+      </motion.div>
+
       <SelectedTargetSummary script={scriptName} env={targetUrl} />
 
       {Object.keys(parsedStats).length > 0 && (
         <>
-          <Card
-            title={
-              <Space>
-                <LineChartOutlined />
-                {t("load_test_page.graph_summary.title")}
-              </Space>
-            }
-            style={{ marginBottom: 16 }}
-            extra={
-              <Typography.Text type="secondary">
-                {t("load_test_page.graph_summary.subtitle")}
-              </Typography.Text>
-            }
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
           >
-            {checks.total > 0 ? (
-              <SummaryChart stats={parsedStats} isLoading={isLoading} />
-            ) : (
-              <Empty
-                description={t(
-                  "load_test_page.graph_summary.empty_description"
-                )}
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              />
-            )}
-          </Card>
+            <Card
+              className="glass-card"
+              title={
+                <Space>
+                  <LineChartOutlined style={{ color: token.colorPrimary }} />
+                  <span style={{ fontWeight: 700 }}>
+                    {t("load_test_page.graph_summary.title")}
+                  </span>
+                </Space>
+              }
+              style={{ marginBottom: 16, borderRadius: 24 }}
+              extra={
+                <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                  {t("load_test_page.graph_summary.subtitle")}
+                </Typography.Text>
+              }
+            >
+              {checks.total > 0 ? (
+                <div style={{ padding: "8px 0" }}>
+                  <SummaryChart stats={parsedStats} isLoading={isLoading} />
+                </div>
+              ) : (
+                <Empty
+                  description={t(
+                    "load_test_page.graph_summary.empty_description"
+                  )}
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  style={{ padding: "40px 0" }}
+                />
+              )}
+            </Card>
+          </motion.div>
 
           <Card
             title={
@@ -1638,7 +2287,10 @@ export default function Page() {
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
                     title={t("load_test_page.result_summary.checks_total")}
-                    value={checks.total || "N/A"}
+                    value={
+                      checks.total ||
+                      t("load_test_page.result_summary.not_available")
+                    }
                     prefix={<DatabaseOutlined />}
                   />
                 </Card>
@@ -1647,7 +2299,10 @@ export default function Page() {
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
                     title={t("load_test_page.result_summary.succeeded")}
-                    value={checks.success || "N/A"}
+                    value={
+                      checks.success ||
+                      t("load_test_page.result_summary.not_available")
+                    }
                     valueStyle={{ color: token.colorSuccess }}
                   />
                 </Card>
@@ -1656,7 +2311,10 @@ export default function Page() {
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
                     title={t("load_test_page.result_summary.failed")}
-                    value={checks.failed || "N/A"}
+                    value={
+                      checks.failed ||
+                      t("load_test_page.result_summary.not_available")
+                    }
                     valueStyle={{ color: token.colorError }}
                   />
                 </Card>
@@ -1665,7 +2323,10 @@ export default function Page() {
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
                     title={t("load_test_page.result_summary.http_requests")}
-                    value={httpReqs || "N/A"}
+                    value={
+                      httpReqs ||
+                      t("load_test_page.result_summary.not_available")
+                    }
                     prefix={<CloudOutlined />}
                   />
                 </Card>
@@ -1704,7 +2365,11 @@ export default function Page() {
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
                     title={t("load_test_page.result_summary.failure_rate_stat")}
-                    value={failureRate ? `${failureRate}%` : "N/A"}
+                    value={
+                      failureRate
+                        ? `${failureRate}%`
+                        : t("load_test_page.result_summary.not_available")
+                    }
                     prefix={<CloseCircleOutlined />}
                     valueStyle={{ color: token.colorError }}
                   />
@@ -1754,9 +2419,14 @@ export default function Page() {
               <Descriptions.Item
                 label={t("load_test_page.result_summary.response_time_desc")}
               >
-                {(httpReqDurationStats.avg || httpReqDurationAvg) ?? "N/A"} /{" "}
-                {(httpReqDurationStats.p95 || httpReqDurationP95) ?? "N/A"} /{" "}
-                {httpReqDurationStats.max ?? "N/A"}
+                {(httpReqDurationStats.avg || httpReqDurationAvg) ??
+                  t("load_test_page.result_summary.not_available")}{" "}
+                /{" "}
+                {(httpReqDurationStats.p95 || httpReqDurationP95) ??
+                  t("load_test_page.result_summary.not_available")}{" "}
+                /{" "}
+                {httpReqDurationStats.max ??
+                  t("load_test_page.result_summary.not_available")}
               </Descriptions.Item>
               <Descriptions.Item
                 label={t("load_test_page.result_summary.request_rate_desc")}
@@ -1766,12 +2436,16 @@ export default function Page() {
               <Descriptions.Item
                 label={t("load_test_page.result_summary.failure_rate_desc")}
               >
-                {failureRate ? `${failureRate}%` : "N/A"}
+                {failureRate
+                  ? `${failureRate}%`
+                  : t("load_test_page.result_summary.not_available")}
               </Descriptions.Item>
               <Descriptions.Item
                 label={t("load_test_page.result_summary.success_rate_desc")}
               >
-                {successRate ? `${successRate}%` : "N/A"}
+                {successRate
+                  ? `${successRate}%`
+                  : t("load_test_page.result_summary.not_available")}
               </Descriptions.Item>
               <Descriptions.Item
                 label={t("load_test_page.result_summary.data_received_sent")}
@@ -1788,38 +2462,69 @@ export default function Page() {
         </>
       )}
       {output && (
-        <Card
-          title={
-            <Space>
-              <FileTextOutlined />
-              {t("load_test_page.log_report.title")}
-            </Space>
-          }
-          style={{ marginBottom: 16 }}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
         >
-          <LogViewer
-            output={output}
-            expandedLines={expandedLines}
-            setExpandedLines={setExpandedLines}
-          />
-        </Card>
+          <Card
+            className="glass-card"
+            title={
+              <Space>
+                <FileTextOutlined style={{ color: token.colorPrimary }} />
+                <span style={{ fontWeight: 700 }}>
+                  {t("load_test_page.log_report.title")}
+                </span>
+              </Space>
+            }
+            style={{ marginBottom: 16, borderRadius: 24, overflow: "hidden" }}
+          >
+            <LogViewer
+              output={output}
+              expandedLines={expandedLines}
+              setExpandedLines={setExpandedLines}
+            />
+          </Card>
+        </motion.div>
       )}
 
       {showMetrics && metrics.length > 0 && (
-        <MetricsTable
-          metrics={metrics}
-          expandedLines={expandedLines}
-          setExpandedLines={setExpandedLines}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <MetricsTable
+            metrics={metrics}
+            expandedLines={expandedLines}
+            setExpandedLines={setExpandedLines}
+          />
+        </motion.div>
       )}
 
       <Modal
-        title={t("load_test_page.modal.title")}
+        title={
+          <Space>
+            <RocketOutlined style={{ color: token.colorPrimary }} />
+            <span style={{ fontWeight: 800 }}>
+              {t("load_test_page.modal.title")}
+            </span>
+          </Space>
+        }
         open={isReportOpen}
         onCancel={() => setIsReportOpen(false)}
-        width={960}
+        width={1000}
+        centered
+        className="premium-modal"
         footer={[
-          <Button key="close" onClick={() => setIsReportOpen(false)}>
+          <Button
+            key="close"
+            onClick={() => setIsReportOpen(false)}
+            size="large"
+            style={{ borderRadius: 12 }}
+          >
             {t("load_test_page.modal.close")}
           </Button>,
           <Button
@@ -1827,6 +2532,8 @@ export default function Page() {
             type="primary"
             icon={<DownloadOutlined />}
             onClick={downloadReportDoc}
+            size="large"
+            style={{ borderRadius: 12 }}
           >
             {t("load_test_page.modal.download_doc")}
           </Button>,
@@ -1834,135 +2541,266 @@ export default function Page() {
             key="download-pdf"
             icon={<DownloadOutlined />}
             onClick={downloadReportPdf}
+            size="large"
+            style={{ borderRadius: 12 }}
           >
             {t("load_test_page.modal.print_pdf")}
           </Button>,
         ]}
       >
-        <Descriptions
-          size="middle"
-          column={2}
-          bordered
-          style={{ marginBottom: 16 }}
-        >
-          <Descriptions.Item
-            label={t("load_test_page.modal.target_url")}
-            span={2}
+        <div style={{ padding: "12px 0" }}>
+          <Descriptions
+            size="middle"
+            column={{ xs: 1, sm: 2, md: 3 }}
+            bordered
+            layout="vertical"
+            style={{ marginBottom: 24, borderRadius: 16, overflow: "hidden" }}
           >
-            {targetUrl}
-          </Descriptions.Item>
-          <Descriptions.Item label={t("load_test_page.modal.script")}>
-            {scriptName}
-          </Descriptions.Item>
-          <Descriptions.Item label={t("load_test_page.modal.generated_at")}>
-            {lastRunAt || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label={t("load_test_page.modal.status")}>
-            <Badge
-              status={
-                runStatus === "running"
-                  ? "processing"
-                  : runStatus === "done"
-                  ? "success"
-                  : runStatus === "error"
-                  ? "error"
-                  : "default"
+            <Descriptions.Item
+              label={
+                <Space>
+                  <GlobalOutlined /> {t("load_test_page.modal.target_url")}
+                </Space>
               }
-              text={runStatus}
+              span={3}
+            >
+              <Typography.Link
+                href={targetUrl}
+                target="_blank"
+                style={{ fontWeight: 600 }}
+              >
+                {targetUrl}
+              </Typography.Link>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={
+                <Space>
+                  <CodeOutlined /> {t("load_test_page.modal.script")}
+                </Space>
+              }
+            >
+              <Tag color="blue">{scriptName}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={
+                <Space>
+                  <ClockCircleOutlined />{" "}
+                  {t("load_test_page.modal.generated_at")}
+                </Space>
+              }
+            >
+              {lastRunAt || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={
+                <Space>
+                  <SafetyOutlined /> {t("load_test_page.modal.status")}
+                </Space>
+              }
+            >
+              <Badge
+                status={
+                  runStatus === "running"
+                    ? "processing"
+                    : runStatus === "done"
+                    ? "success"
+                    : runStatus === "error"
+                    ? "error"
+                    : "default"
+                }
+                text={
+                  <span
+                    style={{ fontWeight: 600, textTransform: "capitalize" }}
+                  >
+                    {runStatus}
+                  </span>
+                }
+              />
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={
+                <Space>
+                  <ControlOutlined /> {t("load_test_page.modal.parameters")}
+                </Space>
+              }
+              span={3}
+            >
+              <Space split={<Divider type="vertical" />}>
+                <span>
+                  VUs: <strong>{vus}</strong>
+                </span>
+                <span>
+                  Duration: <strong>{durationSeconds}s</strong>
+                </span>
+                <span>
+                  Config:{" "}
+                  <strong>
+                    {Object.keys(advancedConfig).length ? "Custom" : "Standard"}
+                  </strong>
+                </span>
+              </Space>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={
+                <Space>
+                  <CheckCircleOutlined /> {t("load_test_page.modal.checks")}
+                </Space>
+              }
+            >
+              <div style={{ display: "flex", gap: 12 }}>
+                <span style={{ color: token.colorTextSecondary }}>
+                  Total:{" "}
+                  <strong style={{ color: token.colorText }}>
+                    {checks.total}
+                  </strong>
+                </span>
+                <span style={{ color: token.colorSuccess }}>
+                  Ok: <strong>{checks.success}</strong>
+                </span>
+                <span style={{ color: token.colorError }}>
+                  Failed: <strong>{checks.failed}</strong>
+                </span>
+              </div>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={
+                <Space>
+                  <CloudOutlined />{" "}
+                  {t("load_test_page.result_summary.http_requests")}
+                </Space>
+              }
+            >
+              <strong>
+                {httpReqs || t("load_test_page.result_summary.not_available")}
+              </strong>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={
+                <Space>
+                  <LineOutlined />{" "}
+                  {t("load_test_page.result_summary.avg_duration")}
+                </Space>
+              }
+            >
+              <strong>{httpReqDurationAvg}</strong>
+            </Descriptions.Item>
+          </Descriptions>
+
+          <Typography.Title level={4} style={{ marginBottom: 16 }}>
+            <ThunderboltOutlined
+              style={{ marginRight: 8, color: token.colorPrimary }}
             />
-          </Descriptions.Item>
-          <Descriptions.Item
-            label={t("load_test_page.modal.parameters")}
-            span={2}
-          >
-            VUs: {vus} / Duration: {durationSeconds}s
-          </Descriptions.Item>
-          <Descriptions.Item label={t("load_test_page.modal.checks")}>
-            {`Total ${checks.total} | Success ${checks.success} | Failed ${checks.failed}`}
-          </Descriptions.Item>
-          <Descriptions.Item
-            label={t("load_test_page.result_summary.http_requests")}
-          >
-            {httpReqs || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item
-            label={t("load_test_page.result_summary.avg_duration")}
-          >
-            {httpReqDurationAvg}
-          </Descriptions.Item>
-        </Descriptions>
+            {t("load_test_page.modal.metrics_snapshot")}
+          </Typography.Title>
+          {metrics.length ? (
+            <Table
+              size="small"
+              pagination={false}
+              dataSource={metrics
+                .slice(0, 50)
+                .map((m, idx) => ({ ...m, key: idx }))}
+              columns={[
+                {
+                  title: t("load_test_page.metrics_report.metric_col"),
+                  dataIndex: "key",
+                  width: 320,
+                  render: (text) => (
+                    <Typography.Text strong style={{ fontSize: 13 }}>
+                      {text}
+                    </Typography.Text>
+                  ),
+                },
+                {
+                  title: t("load_test_page.metrics_report.value_col"),
+                  dataIndex: "value",
+                  render: (text) => (
+                    <code style={{ color: "#d946ef", fontSize: 13 }}>
+                      {text}
+                    </code>
+                  ),
+                },
+              ]}
+              style={{
+                marginBottom: 24,
+                border: `1px solid ${token.colorBorderSecondary}`,
+                borderRadius: 12,
+                overflow: "hidden",
+              }}
+              footer={() =>
+                metrics.length > 50 ? (
+                  <div style={{ textAlign: "center", padding: "8px 0" }}>
+                    <Typography.Text type="secondary">
+                      {t("load_test_page.metrics_report.more_items", {
+                        count: metrics.length - 50,
+                      })}
+                    </Typography.Text>
+                  </div>
+                ) : undefined
+              }
+            />
+          ) : (
+            <Empty
+              description={t("load_test_page.metrics_report.empty_metrics")}
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              style={{ padding: "20px 0" }}
+            />
+          )}
 
-        <Typography.Title level={5} style={{ marginTop: 12 }}>
-          {t("load_test_page.modal.metrics_snapshot")}
-        </Typography.Title>
-        {metrics.length ? (
-          <Table
+          <Divider style={{ margin: "24px 0" }} />
+
+          <Typography.Title level={4} style={{ marginBottom: 16 }}>
+            <FileTextOutlined
+              style={{ marginRight: 8, color: token.colorPrimary }}
+            />
+            {t("load_test_page.modal.log_latest")}
+          </Typography.Title>
+          <Card
             size="small"
-            pagination={false}
-            dataSource={metrics
-              .slice(0, 50)
-              .map((m, idx) => ({ ...m, key: idx }))}
-            columns={[
-              {
-                title: t("load_test_page.metrics_report.metric_col"),
-                dataIndex: "key",
-                width: 320,
-              },
-              {
-                title: t("load_test_page.metrics_report.value_col"),
-                dataIndex: "value",
-              },
-            ]}
-            style={{ marginBottom: 16 }}
-            footer={() =>
-              metrics.length > 50 ? (
-                <Typography.Text
-                  type="secondary"
-                  style={{ textAlign: "center", display: "block" }}
-                >
-                  {t("load_test_page.metrics_report.more_items", {
-                    count: metrics.length - 50,
-                  })}
-                </Typography.Text>
-              ) : undefined
-            }
-          />
-        ) : (
-          <Empty
-            description={t("load_test_page.metrics_report.empty_metrics")}
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-          />
-        )}
-
-        <Divider />
-        <Typography.Title level={5} style={{ marginBottom: 8 }}>
-          {t("load_test_page.modal.log_latest")}
-        </Typography.Title>
-        <Card size="small" style={{ background: token.colorBgContainer }}>
-          <pre
+            bordered={false}
             style={{
-              margin: 0,
-              whiteSpace: "pre-wrap",
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-              maxHeight: 280,
-              overflow: "auto",
+              background: "#0f172a",
+              borderRadius: 16,
+              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)",
             }}
           >
-            {reportLogDisplay}
-          </pre>
-          {logTail.length > reportLogPreviewLimit && (
-            <Button
-              type="link"
-              size="small"
-              style={{ paddingLeft: 0 }}
-              onClick={() => setShowFullReportLog((prev) => !prev)}
-            >
-              {showFullReportLog
-                ? t("load_test_page.modal.show_less")
-                : t("load_test_page.log_report.see_more")}
-            </Button>
-          )}
-        </Card>
+            <div style={{ padding: 12 }}>
+              <pre
+                style={{
+                  margin: 0,
+                  whiteSpace: "pre-wrap",
+                  color: "#e2e8f0",
+                  fontSize: 12,
+                  fontFamily: "'Fira Code', 'Cascadia Code', monospace",
+                  maxHeight: 300,
+                  overflow: "auto",
+                  lineHeight: 1.6,
+                }}
+              >
+                {reportLogDisplay}
+              </pre>
+              {logTail.length > reportLogPreviewLimit && (
+                <div
+                  style={{
+                    borderTop: "1px solid #1e293b",
+                    marginTop: 12,
+                    paddingTop: 8,
+                  }}
+                >
+                  <Button
+                    type="link"
+                    size="small"
+                    style={{ padding: 0, color: "#38bdf8" }}
+                    onClick={() => setShowFullReportLog((prev) => !prev)}
+                  >
+                    {showFullReportLog
+                      ? t("load_test_page.modal.show_less")
+                      : t("load_test_page.log_report.see_more")}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
       </Modal>
     </DashboardLayout>
   );

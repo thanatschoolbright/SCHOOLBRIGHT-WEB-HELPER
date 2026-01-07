@@ -68,9 +68,78 @@ export default function DashboardLayout({
 
   return (
     <Layout
-      className="min-h-screen transition-colors duration-300 relative"
+      className="min-h-screen transition-colors duration-300 relative overflow-hidden"
       style={{ background: token.colorBgLayout }}
     >
+      <style jsx global>{`
+        @keyframes blob-float {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+        }
+        .bg-blob {
+          position: fixed;
+          width: 600px;
+          height: 600px;
+          filter: blur(100px);
+          opacity: 0.12;
+          z-index: 0;
+          border-radius: 50%;
+          pointer-events: none;
+          animation: blob-float 25s infinite alternate ease-in-out;
+        }
+        .glass-card {
+          background: rgba(255, 255, 255, 0.65) !important;
+          backdrop-filter: blur(14px) !important;
+          border: 1px solid rgba(255, 255, 255, 0.4) !important;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04) !important;
+        }
+        .dark .glass-card {
+          background: rgba(20, 20, 20, 0.65) !important;
+          border: 1px solid rgba(255, 255, 255, 0.08) !important;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+        }
+      `}</style>
+
+      {/* 🌌 Animated Background Decor */}
+      <div
+        className="bg-blob"
+        style={{
+          top: "-150px",
+          right: "-100px",
+          background: token.colorPrimary,
+          animationDelay: "0s",
+        }}
+      />
+      <div
+        className="bg-blob"
+        style={{
+          bottom: "-150px",
+          left: "-100px",
+          background: token.colorSuccess,
+          animationDelay: "-5s",
+        }}
+      />
+      <div
+        className="bg-blob"
+        style={{
+          top: "40%",
+          left: "30%",
+          width: 400,
+          height: 400,
+          background: token.colorInfo,
+          opacity: 0.08,
+          animationDelay: "-10s",
+        }}
+      />
+
       {/* 📱 Mobile Sidebar (Drawer) */}
       {isMobile && (
         <Drawer
@@ -140,7 +209,7 @@ export default function DashboardLayout({
       )}
 
       {/* 🔹 Main Layout Content Wrapper */}
-      <Layout className="transition-all duration-300 bg-transparent">
+      <Layout className="transition-all duration-300 bg-transparent z-10">
         {/* 🧭 Header */}
         <Header
           className="sticky top-0 z-30 w-full p-0 h-20"
@@ -153,7 +222,7 @@ export default function DashboardLayout({
         <Content
           className="p-4 sm:p-6 overflow-x-hidden min-h-0"
           style={{
-            background: token.colorBgLayout,
+            background: "transparent",
           }}
         >
           <Flex vertical gap="middle" style={{ height: "100%" }}>

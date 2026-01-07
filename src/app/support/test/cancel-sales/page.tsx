@@ -16,6 +16,7 @@ import {
   Divider,
   Tooltip,
   Progress,
+  Flex,
 } from "antd";
 import {
   HomeOutlined,
@@ -32,6 +33,7 @@ import {
   FileTextOutlined,
   QuestionCircleOutlined, // Added for tooltips
   InfoCircleOutlined, // Added for tooltips
+  CodeOutlined,
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import Link from "next/link";
@@ -115,6 +117,7 @@ export default function Page() {
   const dispatch = useDispatch<AppDispatch>();
   const [form] = Form.useForm<CancelSalesState["draftValues"]>();
   const { token } = theme.useToken();
+  const { Title, Text, Paragraph } = Typography;
 
   const cancelSalesState = useAppSelector((state) => state.callCancelSales);
   const schoolListState = useAppSelector((state) => state.callSchoolList);
@@ -748,445 +751,481 @@ export default function Page() {
 
   return (
     <DashboardLayout>
+      <style jsx>{`
+        .form-section-title {
+          font-size: 14px;
+          font-weight: 700;
+          color: ${token.colorPrimary};
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-bottom: 20px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .step-node {
+          padding: 12px 20px;
+          border-radius: 12px;
+          transition: all 0.3s ease;
+          border: 1px solid transparent;
+        }
+        .step-node.active {
+          background: ${token.colorPrimaryBg};
+          border-color: ${token.colorPrimaryBorder};
+        }
+      `}</style>
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{
-          padding: "32px",
-          background: `linear-gradient(135deg, ${token.colorBgLayout} 0%, ${token.colorBgContainer} 100%)`,
-          minHeight: "100vh",
-        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        style={{ position: "relative", zIndex: 1, padding: "24px" }}
       >
         <AiChatWidget
-          title="AI Assistant สำหรับยกเลิกรายการ"
-          placeholder="พิมพ์คำสั่ง เช่น ยกเลิกการขายให้โรงเรียน ... พร้อมข้อมูลที่จำเป็น"
+          title="ระบบผู้ช่วย AI อัจฉริยะ (AI Sales Assistant)"
+          placeholder="พิมพ์เพื่อยกเลิกรายการ เช่น 'ยกเลิกรายการขายที่หน้าร้าน...'"
           cancellationLog={lastCancellationLog as any}
           onCancellationInfo={handleCancellationInfo}
           onConfirmCancellation={handleChatConfirmCancellation}
         />
 
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          {/* Header Card */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card
-              variant="borderless"
-              style={{
-                background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorPrimaryActive} 100%)`,
-                borderRadius: 16,
-                boxShadow: `0 8px 32px ${token.colorPrimary}30`,
-              }}
-              styles={{ body: { padding: "32px" } }}
-            >
-              <Space
-                direction="vertical"
-                size="small"
-                style={{ width: "100%" }}
-              >
-                <Space align="center">
-                  <SafetyOutlined style={{ fontSize: 32, color: "white" }} />
-                  <Typography.Title
-                    level={2}
-                    style={{ margin: 0, color: "white", fontWeight: 700 }}
-                  >
-                    ยกเลิกรายการขาย เกิน 7 วัน
-                  </Typography.Title>
-                </Space>
-                <Typography.Text
-                  style={{ color: "rgba(255,255,255,0.9)", fontSize: 16 }}
-                >
-                  ระบบยกเลิกรายการขายที่เกินกำหนดเวลา พร้อม AI Assistant
-                </Typography.Text>
-              </Space>
-            </Card>
-          </motion.div>
-
-          {/* Progress Steps */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card
-              style={{
-                borderRadius: 16,
-                boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-              }}
-            >
-              <Steps
-                current={currentStep}
-                items={[
-                  {
-                    title: "เลือกโรงเรียน",
-                    icon: <HomeOutlined />,
-                  },
-                  {
-                    title: "ระบุผู้ซื้อ/ผู้ขาย",
-                    icon: <TeamOutlined />,
-                  },
-                  {
-                    title: "กรอก Transaction ID",
-                    icon: <CreditCardOutlined />,
-                  },
-                  {
-                    title: "เสร็จสิ้น",
-                    icon: <CheckCircleOutlined />,
-                  },
-                ]}
-              />
-              <Divider />
-              <div>
-                <Typography.Text type="secondary">
-                  ความคืบหน้าการกรอกข้อมูล
-                </Typography.Text>
-                <Progress
-                  percent={Math.round(getFormProgress())}
-                  strokeColor={{
-                    "0%": token.colorPrimary,
-                    "100%": token.colorSuccess,
-                  }}
-                  size={8}
-                />
-              </div>
-            </Card>
-          </motion.div>
-
-          {/* Main Form Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card
-              variant="borderless"
-              title={
-                <Space>
-                  <FileTextOutlined style={{ color: token.colorPrimary }} />
-                  <Typography.Title level={4} style={{ margin: 0 }}>
-                    แบบฟอร์มยกเลิกรายการ
-                  </Typography.Title>
-                </Space>
-              }
-              style={{
-                borderRadius: 16,
-                boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-              }}
-            >
-              <Skeleton
-                active
-                loading={isResourceLoading}
-                paragraph={{ rows: 8 }}
-                title={false}
-              >
-                <Form
-                  form={form}
-                  layout="vertical"
-                  initialValues={initialFormValues}
-                  onFinish={handleSubmitForm}
-                  onValuesChange={() => {
-                    const values = form.getFieldsValue();
-                    let step = 0;
-                    if (values.SchoolID) step = 1;
-                    if (values.sID && values.sID2) step = 2;
-                    if (values.sSellID) step = 2;
-                    setCurrentStep(step);
-                  }}
-                >
-                  <Form.Item
-                    name="SchoolID"
-                    label={
-                      <Space>
-                        <HomeOutlined style={{ color: token.colorPrimary }} />
-                        <span style={{ fontWeight: 600 }}>เลือกโรงเรียน</span>
-                        <Tooltip title="ค้นหาโรงเรียนที่ต้องการทำรายการ โดยพิมพ์ชื่อหรือรหัสโรงเรียน">
-                          <QuestionCircleOutlined
-                            style={{ color: token.colorTextSecondary }}
-                          />
-                        </Tooltip>
-                      </Space>
-                    }
-                    rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
-                  >
-                    <Select
-                      showSearch
-                      allowClear
-                      placeholder="🏫 เลือกโรงเรียน"
-                      size="large"
-                      options={[
-                        { label: "เลือกรายการ", value: "" },
-                        ...schoolOptions,
-                      ]}
-                      optionFilterProp="label"
-                      style={{
-                        boxShadow: `0 2px 8px ${token.colorPrimary}10`,
-                      }}
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    name="sID"
-                    label={
-                      <Space>
-                        <UserOutlined style={{ color: token.colorSuccess }} />
-                        <span style={{ fontWeight: 600 }}>
-                          กรอกรหัส User ID (ของผู้ซื้อสินค้า)
-                        </span>
-                        <Tooltip title="ระบุ User ID ของผู้ที่ทำรายการซื้อ (Buyer) สามารถค้นหาจากชื่อ หรือ ID">
-                          <InfoCircleOutlined
-                            style={{ color: token.colorTextSecondary }}
-                          />
-                        </Tooltip>
-                      </Space>
-                    }
-                    rules={[{ required: true, message: "กรุณาเลือกผู้ซื้อ" }]}
-                  >
-                    <Select
-                      showSearch
-                      allowClear
-                      placeholder="👤 เลือกผู้ซื้อสินค้า"
-                      size="large"
-                      options={[
-                        { label: "เลือกรายการ", value: "" },
-                        ...userList,
-                      ]}
-                      optionFilterProp="label"
-                      disabled={!selectedSchoolId}
-                      loading={isFetchingUsers}
-                      style={{
-                        boxShadow: `0 2px 8px ${token.colorSuccess}10`,
-                      }}
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    name="sID2"
-                    label={
-                      <Space>
-                        <TeamOutlined style={{ color: token.colorWarning }} />
-                        <span style={{ fontWeight: 600 }}>
-                          กรอกรหัส User ID (ของผู้ขายสินค้า)
-                        </span>
-                        <Tooltip title="ระบุ User ID ของร้านค้าหรือผู้ขาย (Seller) ที่รับชำระเงิน">
-                          <InfoCircleOutlined
-                            style={{ color: token.colorTextSecondary }}
-                          />
-                        </Tooltip>
-                      </Space>
-                    }
-                    rules={[{ required: true, message: "กรุณาเลือกผู้ขาย" }]}
-                  >
-                    <Select
-                      showSearch
-                      allowClear
-                      placeholder="👥 เลือกผู้ขายสินค้า"
-                      size="large"
-                      options={[
-                        { label: "เลือกรายการ", value: "" },
-                        ...userList,
-                      ]}
-                      optionFilterProp="label"
-                      disabled={!selectedSchoolId}
-                      loading={isFetchingUsers}
-                      style={{
-                        boxShadow: `0 2px 8px ${token.colorWarning}10`,
-                      }}
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    name="sSellID"
-                    label={
-                      <Space>
-                        <CreditCardOutlined
-                          style={{ color: token.colorError }}
-                        />
-                        <span style={{ fontWeight: 600 }}>
-                          รหัส Transaction Id (sSellID)
-                        </span>
-                        <Tooltip title="ใส่รหัส sSellID ของรายการที่ต้องการยกเลิก ตรวจสอบได้จากรายงานการขาย">
-                          <QuestionCircleOutlined
-                            style={{ color: token.colorTextSecondary }}
-                          />
-                        </Tooltip>
-                      </Space>
-                    }
-                    rules={[
-                      { required: true, message: "กรุณากรอก Transaction ID" },
-                    ]}
-                  >
-                    <Input
-                      placeholder="💳 กรุณากรอกรหัส Transaction ID"
-                      size="large"
-                      prefix={<CreditCardOutlined />}
-                      style={{
-                        boxShadow: `0 2px 8px ${token.colorError}10`,
-                      }}
-                    />
-                  </Form.Item>
-
-                  <Form.Item>
-                    <Space size="middle">
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        loading={isSubmitting}
-                        size="large"
-                        icon={<ThunderboltOutlined />}
-                        style={{
-                          borderRadius: 8,
-                          background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorPrimaryActive})`,
-                          border: "none",
-                          boxShadow: `0 4px 16px ${token.colorPrimary}40`,
-                          fontWeight: 600,
-                        }}
-                      >
-                        ยืนยันยกเลิกรายการ
-                      </Button>
-                      <Button
-                        htmlType="button"
-                        danger
-                        size="large"
-                        icon={<ReloadOutlined />}
-                        onClick={handleResetForm}
-                        style={{
-                          borderRadius: 8,
-                          fontWeight: 600,
-                        }}
-                      >
-                        ล้างข้อมูล
-                      </Button>
-                    </Space>
-                  </Form.Item>
-                </Form>
-              </Skeleton>
-            </Card>
-          </motion.div>
-
-          {/* Response Card */}
-          {responsePayload.data && (
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          {/* Header Section */}
+          <header style={{ marginBottom: 40, textAlign: "center" }}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6 }}
             >
-              <Card
-                title={
-                  <Space>
-                    <CheckCircleOutlined
-                      style={{ color: token.colorSuccess, fontSize: 20 }}
-                    />
-                    <Typography.Title level={4} style={{ margin: 0 }}>
-                      ผลลัพธ์การดำเนินการ
-                    </Typography.Title>
-                  </Space>
-                }
-                style={{
-                  borderRadius: 16,
-                  boxShadow: `0 4px 16px ${token.colorSuccess}20`,
-                  border: `2px solid ${token.colorSuccess}30`,
-                }}
+              <Badge
+                count="Support Tool"
+                offset={[-60, 0]}
+                color={token.colorPrimary}
               >
-                <Space
-                  direction="vertical"
-                  size="middle"
-                  style={{ width: "100%" }}
+                <Title
+                  level={1}
+                  style={{ margin: "0 0 8px 0", fontSize: 40, fontWeight: 900 }}
                 >
-                  {getResponseAlert(responsePayload.data)}
+                  ระบบจัดการรายการขายพิเศษ
+                </Title>
+              </Badge>
+              <Paragraph
+                style={{ fontSize: 18, color: token.colorTextSecondary }}
+              >
+                เครื่องมือช่วยเหลือสำหรับการยกเลิกรายการขายที่เกินกำหนด 7 วัน
+                พร้อมระบบวิเคราะห์ข้อมูลอัตโนมัติ
+              </Paragraph>
+            </motion.div>
+          </header>
 
-                  <div
-                    style={{
-                      padding: 16,
-                      borderRadius: 12,
-                      background: token.colorFillAlter,
-                      maxHeight: 300,
-                      overflow: "auto",
-                    }}
-                  >
-                    <pre style={{ margin: 0, fontSize: 12 }}>
-                      <code>
-                        {JSON.stringify(responsePayload.data, null, 2)}
-                      </code>
-                    </pre>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 340px",
+              gap: 32,
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+              {/* Main Interaction Area */}
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card className="glass-card" style={{ borderRadius: 32 }}>
+                  <div className="form-section-title">
+                    <FileTextOutlined /> รายละเอียดการขอทำรายการ (Cancellation
+                    Details)
                   </div>
 
-                  <Space wrap>
-                    <Tooltip title="คัดลอก Response">
-                      <Button
-                        type="primary"
-                        icon={<CopyOutlined />}
-                        onClick={() =>
-                          handleCopyResponse(
-                            JSON.stringify(responsePayload.data, null, 2),
-                            "คัดลอก Response แล้ว"
-                          )
-                        }
+                  <Skeleton
+                    active
+                    loading={isResourceLoading}
+                    paragraph={{ rows: 10 }}
+                  >
+                    <Form
+                      form={form}
+                      layout="vertical"
+                      initialValues={initialFormValues}
+                      onFinish={handleSubmitForm}
+                      onValuesChange={() => {
+                        const values = form.getFieldsValue();
+                        let step = 0;
+                        if (values.SchoolID) step = 1;
+                        if (values.sID && values.sID2) step = 2;
+                        if (values.sSellID) step = 3;
+                        setCurrentStep(step);
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: "0 24px",
+                        }}
                       >
-                        Copy Response
-                      </Button>
-                    </Tooltip>
+                        <Form.Item
+                          name="SchoolID"
+                          style={{ gridColumn: "span 2" }}
+                          label={
+                            <Space>
+                              <HomeOutlined
+                                style={{ color: token.colorPrimary }}
+                              />
+                              <Text strong>สถานศึกษาที่ต้องการดำเนินการ</Text>
+                            </Space>
+                          }
+                          rules={[
+                            { required: true, message: "กรุณาระบุโรงเรียน" },
+                          ]}
+                        >
+                          <Select
+                            showSearch
+                            placeholder="🏫 ค้นหาโรงเรียนโดยชื่อหรือรหัส..."
+                            size="large"
+                            options={schoolOptions}
+                            optionFilterProp="label"
+                            style={{ width: "100%" }}
+                          />
+                        </Form.Item>
 
-                    <Tooltip title="คัดลอก CURL Command">
-                      <Button
-                        icon={<CopyOutlined />}
-                        onClick={() =>
-                          responsePayload.curl &&
-                          handleCopyResponse(
-                            responsePayload.curl.toString(),
-                            "คัดลอก CURL แล้ว"
-                          )
-                        }
-                        disabled={!responsePayload.curl}
-                      >
-                        Copy CURL
-                      </Button>
-                    </Tooltip>
-                  </Space>
-                </Space>
-              </Card>
-            </motion.div>
-          )}
+                        <Form.Item
+                          name="sID"
+                          label={
+                            <Space>
+                              <UserOutlined
+                                style={{ color: token.colorInfo }}
+                              />
+                              <Text strong>ผู้ซื้อสินค้า (User ID)</Text>
+                            </Space>
+                          }
+                          rules={[{ required: true, message: "ระบุผู้ซื้อ" }]}
+                        >
+                          <Select
+                            showSearch
+                            placeholder="👤 ระบุรหัสผู้ซื้อ"
+                            size="large"
+                            options={userList}
+                            disabled={!selectedSchoolId}
+                            loading={isFetchingUsers}
+                          />
+                        </Form.Item>
 
-          {/* Help Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card
-              style={{
-                borderRadius: 16,
-                background: `linear-gradient(135deg, ${token.colorInfoBg} 0%, ${token.colorBgContainer} 100%)`,
-                border: `1px solid ${token.colorInfoBorder}`,
-              }}
-            >
-              <Space direction="vertical" size="small">
-                <Space>
-                  <RocketOutlined
-                    style={{ fontSize: 20, color: token.colorInfo }}
-                  />
-                  <Typography.Text strong style={{ fontSize: 16 }}>
-                    วิธีการใช้งาน Cancel Sales
-                  </Typography.Text>
-                </Space>
-                <Link
-                  href="https://drive.google.com/file/d/11JeMTt22jWK12BjsW07fFYteuZgDGjAe/view?usp=sharing"
-                  target="_blank"
-                  style={{
-                    color: token.colorPrimary,
-                    textDecoration: "underline",
-                    fontSize: 15,
-                  }}
+                        <Form.Item
+                          name="sID2"
+                          label={
+                            <Space>
+                              <TeamOutlined
+                                style={{ color: token.colorWarning }}
+                              />
+                              <Text strong>ผู้ขาย/ร้านค้า (User ID)</Text>
+                            </Space>
+                          }
+                          rules={[{ required: true, message: "ระบุผู้ขาย" }]}
+                        >
+                          <Select
+                            showSearch
+                            placeholder="👥 ระบุรหัสผู้ขาย"
+                            size="large"
+                            options={userList}
+                            disabled={!selectedSchoolId}
+                            loading={isFetchingUsers}
+                          />
+                        </Form.Item>
+
+                        <Form.Item
+                          name="sSellID"
+                          style={{ gridColumn: "span 2" }}
+                          label={
+                            <Space>
+                              <CreditCardOutlined
+                                style={{ color: token.colorError }}
+                              />
+                              <Text strong>
+                                รหัสหมายเลขรายการ (Transaction / sSellID)
+                              </Text>
+                            </Space>
+                          }
+                          rules={[
+                            {
+                              required: true,
+                              message: "กรุณาระบุเลขที่รายการ",
+                            },
+                          ]}
+                        >
+                          <Input
+                            placeholder="💳 ตัวอย่าง: 12345678"
+                            size="large"
+                            style={{
+                              height: 50,
+                              fontSize: 18,
+                              letterSpacing: 2,
+                              fontWeight: 700,
+                            }}
+                          />
+                        </Form.Item>
+                      </div>
+
+                      <Divider style={{ margin: "12px 0 24px" }} />
+
+                      <Flex gap={16}>
+                        <Button
+                          type="primary"
+                          htmlType="submit"
+                          loading={isSubmitting}
+                          size="large"
+                          icon={<ThunderboltOutlined />}
+                          style={{
+                            height: 54,
+                            flex: 1,
+                            borderRadius: 16,
+                            fontSize: 16,
+                            fontWeight: 700,
+                            background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+                            boxShadow: `0 12px 24px ${token.colorPrimary}30`,
+                            border: "none",
+                          }}
+                        >
+                          เริ่มดำเนินการยกเลิกตอนนี้
+                        </Button>
+                        <Button
+                          icon={<ReloadOutlined />}
+                          size="large"
+                          onClick={handleResetForm}
+                          style={{ height: 54, borderRadius: 16, width: 100 }}
+                        />
+                      </Flex>
+                    </Form>
+                  </Skeleton>
+                </Card>
+              </motion.div>
+
+              {/* Status Report Section */}
+              {responsePayload.data && (
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
                 >
-                  📺 คลิกที่นี่เพื่อดูคลิปสอนการใช้งานภายใน 2 นาที!
-                </Link>
-              </Space>
-            </Card>
-          </motion.div>
-        </Space>
+                  <Card
+                    className="glass-card"
+                    style={{
+                      borderRadius: 32,
+                      border: `2px solid ${token.colorSuccess}40`,
+                    }}
+                    title={
+                      <Flex align="center" gap={12}>
+                        <CheckCircleOutlined
+                          style={{ fontSize: 24, color: token.colorSuccess }}
+                        />
+                        <Title level={4} style={{ margin: 0 }}>
+                          ผลลัพธ์การร้องขอ (Operation Result)
+                        </Title>
+                      </Flex>
+                    }
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 24,
+                      }}
+                    >
+                      {getResponseAlert(responsePayload.data)}
+
+                      <div style={{ position: "relative" }}>
+                        <div
+                          style={{
+                            padding: "24px",
+                            borderRadius: 20,
+                            background: token.colorFillAlter,
+                            fontFamily: "'Fira Code', monospace",
+                            fontSize: 13,
+                            maxHeight: 400,
+                            overflow: "auto",
+                            border: `1px solid ${token.colorBorderSecondary}`,
+                          }}
+                        >
+                          <pre style={{ margin: 0 }}>
+                            {JSON.stringify(responsePayload.data, null, 2)}
+                          </pre>
+                        </div>
+                        <Flex gap={12} style={{ marginTop: 16 }}>
+                          <Button
+                            icon={<CopyOutlined />}
+                            onClick={() =>
+                              handleCopyResponse(
+                                JSON.stringify(responsePayload.data, null, 2),
+                                "คัดลอก JSON แล้ว"
+                              )
+                            }
+                            style={{ borderRadius: 12 }}
+                          >
+                            คัดลอกข้อมูล JSON
+                          </Button>
+                          <Button
+                            icon={<CodeOutlined />}
+                            disabled={!responsePayload.curl}
+                            onClick={() =>
+                              responsePayload.curl &&
+                              handleCopyResponse(
+                                responsePayload.curl.toString(),
+                                "คัดลอก cURL แล้ว"
+                              )
+                            }
+                            style={{ borderRadius: 12 }}
+                          >
+                            คัดลอก cURL
+                          </Button>
+                        </Flex>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Side Panel: Steps & Info */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              <motion.div
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Card className="glass-card" style={{ borderRadius: 24 }}>
+                  <div className="form-section-title">
+                    <RocketOutlined /> ความคืบหน้า (Progress)
+                  </div>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  >
+                    {[
+                      {
+                        step: 1,
+                        title: "ยืนยันสถานศึกษา",
+                        icon: <HomeOutlined />,
+                      },
+                      {
+                        step: 2,
+                        title: "ระบุคู่ค้า (Buyer/Seller)",
+                        icon: <TeamOutlined />,
+                      },
+                      {
+                        step: 3,
+                        title: "เลขที่รายการ (Transaction)",
+                        icon: <CreditCardOutlined />,
+                      },
+                      {
+                        step: 4,
+                        title: "ดำเนินการสำเร็จ",
+                        icon: <CheckCircleOutlined />,
+                      },
+                    ].map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`step-node ${
+                          currentStep >= idx ? "active" : ""
+                        }`}
+                      >
+                        <Flex align="center" gap={12}>
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              background:
+                                currentStep >= idx
+                                  ? token.colorPrimary
+                                  : token.colorFillSecondary,
+                              color:
+                                currentStep >= idx
+                                  ? "white"
+                                  : token.colorTextPlaceholder,
+                            }}
+                          >
+                            {currentStep > idx ? (
+                              <CheckCircleOutlined />
+                            ) : (
+                              item.icon
+                            )}
+                          </div>
+                          <Text
+                            strong={currentStep >= idx}
+                            style={{
+                              color:
+                                currentStep >= idx
+                                  ? token.colorText
+                                  : token.colorTextPlaceholder,
+                            }}
+                          >
+                            {item.title}
+                          </Text>
+                        </Flex>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 20 }}>
+                    <Progress
+                      percent={Math.round(getFormProgress())}
+                      strokeColor={token.colorPrimary}
+                      showInfo={false}
+                      strokeWidth={6}
+                      status="active"
+                    />
+                    <Text
+                      type="secondary"
+                      style={{
+                        fontSize: 12,
+                        display: "block",
+                        marginTop: 8,
+                        textAlign: "center",
+                      }}
+                    >
+                      ความสมบูรณ์ของชุดข้อมูล: {Math.round(getFormProgress())}%
+                    </Text>
+                  </div>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Card
+                  className="glass-card"
+                  style={{ borderRadius: 24, background: token.colorInfoBg }}
+                >
+                  <div className="form-section-title">
+                    <InfoCircleOutlined /> ศูนย์ช่วยเหลือ (Help Center)
+                  </div>
+                  <Paragraph style={{ fontSize: 14 }}>
+                    หากคุณไม่แน่ใจเกี่ยวกับขั้นตอนการใช้งาน
+                    โปรดอ่านคู่มือหรือรับชมวิดีโอแนะนำสั้นๆ
+                  </Paragraph>
+                  <Link
+                    href="https://drive.google.com/file/d/11JeMTt22jWK12BjsW07fFYteuZgDGjAe/view?usp=sharing"
+                    target="_blank"
+                  >
+                    <Button
+                      block
+                      type="link"
+                      style={{ textAlign: "left", padding: 0 }}
+                    >
+                      📺 วิดีโอสอนการใช้งาน (2 นาที)
+                    </Button>
+                  </Link>
+                  <Divider style={{ margin: "12px 0" }} />
+                  <div style={{ color: token.colorTextTertiary, fontSize: 12 }}>
+                    ⚠️ หมายเหตุ: รายการที่แสดงด้วยสีเหลืองในผลลัพธ์
+                    อาจหมายถึงรายการไม่ถูกพบในระบบจริง
+                  </div>
+                </Card>
+              </motion.div>
+            </div>
+          </div>
+        </div>
       </motion.div>
     </DashboardLayout>
   );
