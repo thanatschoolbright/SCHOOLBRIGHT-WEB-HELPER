@@ -1,0 +1,150 @@
+name: 🏥 Enterprise System Health Check (Separated Steps)
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+env:
+  TZ: "Asia/Bangkok"
+  TARGET_URL: "https://sb-helper.schoolbright.co/api/v1/health-check/server/system"
+
+jobs:
+  health-check-monitor:
+    name: 🩺 Monitor & Alert
+    runs-on: ubuntu-latest
+
+    steps:
+      # --------------------------------------------------------
+      # STEP 1: เตรียมข้อมูล (Setup & Config)
+      # --------------------------------------------------------
+      - name: ⚙️ 1. Setup Configuration
+        id: setup
+        run: |
+          # สร้าง Timestamp
+          START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
+
+          # กำหนด Payload
+          PAYLOAD='{"mode": "discord"}'
+
+          # ส่งค่าไปเก็บใน Environment Variable เพื่อใช้ใน Step ถัดไป
+          echo "START_TIME=$START_TIME" >> $GITHUB_ENV
+          echo "PAYLOAD=$PAYLOAD" >> $GITHUB_ENV
+
+          echo "✅ Config loaded."
+          echo "Target: ${{ env.TARGET_URL }}"
+          echo "Time: $START_TIME"
+
+      # --------------------------------------------------------
+      # STEP 2: ยิง Request (Execution)
+      # --------------------------------------------------------
+      - name: 📡 2. Send API Request
+        id: api_request
+        run: |
+          echo "Sending request to server..."
+
+          # ยิง Curl และเก็บ HTTP Code ลงตัวแปร
+          # เก็บ Response Body ลงไฟล์ response.json (ไฟล์จะค้างอยู่ใน Runner ใช้ได้ทุก Step)
+          HTTP_CODE=$(curl -s -S -L -w "%{http_code}" -o response.json \
+            --max-time 30 \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d "${{ env.PAYLOAD }}" \
+            "${{ env.TARGET_URL }}")
+
+          echo "✅ Request finished."
+          echo "HTTP Status: $HTTP_CODE"
+
+          # ส่ง HTTP Code ออกไปให้ Step อื่นเรียกใช้ได้ ผ่านตัวแปร steps.api_request.outputs.http_code
+          echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+
+      # --------------------------------------------------------
+      # STEP 3: วิเคราะห์ผลลัพธ์ (Analysis & Logging)
+      # --------------------------------------------------------
+      - name: 🔍 3. Analyze Response
+        id: analyze
+        run: |
+          echo "Reading response file..."
+
+          if [ -s response.json ]; then
+            echo "::group::📄 Raw JSON Body"
+            # ใช้ jq จัด format ถ้ามี error ให้ข้าม
+            cat response.json | jq . 2>/dev/null || cat response.json
+            echo "::endgroup::"
+            
+            # เก็บตัวอย่าง Response 200 ตัวอักษรแรก เพื่อไปใส่ใน Summary
+            PREVIEW=$(cat response.json | tr -d '\n' | cut -c 1-200)
+          else
+            echo "⚠️ Response body is empty."
+            PREVIEW="Empty Response"
+          fi
+
+          # ส่งค่า Preview ไป Step ถัดไป
+          echo "response_preview=$PREVIEW" >> $GITHUB_OUTPUT
+
+      # --------------------------------------------------------
+      # STEP 4: สร้างรายงานสรุป (Reporting)
+      # --------------------------------------------------------
+      - name: 📊 4. Generate Job Summary
+        if: always() # รันเสมอแม้ Step ก่อนหน้าจะพัง (เผื่ออยากเห็น Log)
+        run: |
+          # ดึงค่าจาก Step 2
+          CODE=${{ steps.api_request.outputs.http_code }}
+          PREVIEW='${{ steps.analyze.outputs.response_preview }}'
+
+          # กำหนดสถานะ
+          if [ "$CODE" -eq 200 ]; then
+            STATUS_ICON="✅"
+            STATUS_TEXT="PASS"
+          else
+            STATUS_ICON="❌"
+            STATUS_TEXT="FAILED"
+          fi
+
+          # เขียนลง Job Summary (Markdown)
+          {
+            echo "### $STATUS_ICON System Health Check Report"
+            echo "| Metric | Details |"
+            echo "| :--- | :--- |"
+            echo "| **Timestamp** | ${{ env.START_TIME }} |"
+            echo "| **Status** | **$STATUS_TEXT** |"
+            echo "| **HTTP Code** | \`$CODE\` |"
+            echo "| **Target API** | \`${{ env.TARGET_URL }}\` |"
+            echo ""
+            echo "#### 📄 Response Snippet"
+            echo "\`\`\`json"
+            echo "$PREVIEW..."
+            echo "\`\`\`"
+          } >> $GITHUB_STEP_SUMMARY
+
+      # --------------------------------------------------------
+      # STEP 5: ตรวจสอบความถูกต้องและแจ้งเตือน (Decision)
+      # --------------------------------------------------------
+      - name: 🚨 5. Final Decision & Alert
+        run: |
+          CODE=${{ steps.api_request.outputs.http_code }}
+
+          if [ "$CODE" -eq 200 ]; then
+            echo "✅ SYSTEM HEALTHY: All checks passed."
+            exit 0
+          else
+            echo "::error title=Critical Failure::API returned HTTP $CODE"
+            
+            echo "❌ SYSTEM FAILURE DETECTED"
+            echo "========================================"
+            echo "💡 Debugging Guide:"
+            
+            if [ "$CODE" -ge 500 ]; then
+               echo "   - Server Error (5xx). Check PHP/Laravel Logs."
+            elif [ "$CODE" -eq 404 ]; then
+               echo "   - Endpoint Not Found (404). Check URL."
+            elif [ "$CODE" -eq 000 ]; then
+               echo "   - Connection Failed (000). Check DNS/Firewall."
+            else
+               echo "   - Unexpected Error. Check Payload or Auth."
+            fi
+            echo "========================================"
+            
+            # สั่งให้ Job FAILED (สีแดง)
+            exit 1
+          fi
