@@ -23,114 +23,118 @@ export default function FiltersSection({
 }: FiltersSectionProps): JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
 
-  const hasActiveFilters =
+  /*
+   * * Ensure hasActiveFilters is a boolean
+   * * Fixes: Type 'string' is not assignable to type 'boolean | undefined'
+   */
+  const hasActiveFilters = Boolean(
     filters.search ||
-    filters.province ||
-    filters.schoolType ||
-    filters.grade ||
-    filters.status ||
-    filters.schoolGroup;
+      filters.province ||
+      filters.schoolType ||
+      filters.grade ||
+      filters.status ||
+      filters.schoolGroup
+  );
 
   return (
-    <Card
-      title={
-        <Space>
-          <FilterOutlined />
-          <span>{TRANSLATION("bypass_page.filters_title")}</span>
-        </Space>
-      }
-      extra={
-        <Button
-          icon={<ClearOutlined />}
-          onClick={onClearFilters}
-          disabled={!hasActiveFilters}
-        >
-          {TRANSLATION("bypass_page.clear_filters")}
-        </Button>
-      }
-      
-      className="shadow-sm"
-    >
-      <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-        {/* Search Input */}
+    <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+      {/* Search Input & Actions */}
+      <div className="flex gap-2">
         <Input
           size="large"
-          placeholder={TRANSLATION("bypass_page.search_placeholder")}
+          placeholder="ค้นหาโรงเรียน (ชื่อ, รหัส, จังหวัด)..."
           prefix={<SearchOutlined />}
           value={filters.search}
           onChange={(e) => onFilterChange("search", e.target.value)}
           allowClear
+          className="flex-1"
         />
+        <Button
+          size="large"
+          icon={<ClearOutlined />}
+          onClick={onClearFilters}
+          disabled={!hasActiveFilters}
+          type="default"
+          danger={hasActiveFilters}
+        >
+          ล้างตัวกรอง
+        </Button>
+      </div>
 
-        {/* Filter Row 1 */}
-        <Row gutter={[12, 12]}>
-          <Col xs={24} sm={12} md={8}>
-            <Select
-              placeholder={TRANSLATION("bypass_page.filter_province")}
-              options={filterOptions.provinces}
-              value={filters.province}
-              onChange={(value) => onFilterChange("province", value)}
-              allowClear
-              showSearch
-              style={{ width: "100%" }}
-            />
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <Select
-              placeholder={TRANSLATION("bypass_page.filter_school_type")}
-              options={filterOptions.schoolTypes}
-              value={filters.schoolType}
-              onChange={(value) => onFilterChange("schoolType", value)}
-              allowClear
-              style={{ width: "100%" }}
-            />
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <Select
-              placeholder={TRANSLATION("bypass_page.filter_school_group")}
-              options={filterOptions.schoolGroups}
-              value={filters.schoolGroup}
-              onChange={(value) => onFilterChange("schoolGroup", value)}
-              allowClear
-              showSearch
-              style={{ width: "100%" }}
-            />
-          </Col>
-        </Row>
+      {/* Filter Row 1 */}
+      <Row gutter={[12, 12]}>
+        <Col xs={24} sm={12} md={8}>
+          <Select
+            placeholder="จังหวัด"
+            options={filterOptions.provinces}
+            value={filters.province}
+            onChange={(value) => onFilterChange("province", value)}
+            allowClear
+            showSearch
+            style={{ width: "100%" }}
+            size="large"
+          />
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Select
+            placeholder="ประเภทโรงเรียน"
+            options={filterOptions.schoolTypes}
+            value={filters.schoolType}
+            onChange={(value) => onFilterChange("schoolType", value)}
+            allowClear
+            style={{ width: "100%" }}
+            size="large"
+          />
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Select
+            placeholder="กลุ่มโรงเรียน"
+            options={filterOptions.schoolGroups}
+            value={filters.schoolGroup}
+            onChange={(value) => onFilterChange("schoolGroup", value)}
+            allowClear
+            showSearch
+            style={{ width: "100%" }}
+            size="large"
+          />
+        </Col>
+      </Row>
 
-        {/* Filter Row 2 */}
-        <Row gutter={[12, 12]}>
-          <Col xs={24} sm={12} md={8}>
-            <Select
-              placeholder={TRANSLATION("bypass_page.filter_grade")}
-              options={filterOptions.grades}
-              value={filters.grade}
-              onChange={(value) => onFilterChange("grade", value)}
-              allowClear
-              style={{ width: "100%" }}
-            />
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <Select
-              placeholder={TRANSLATION("bypass_page.filter_status")}
-              options={[
-                {
-                  label: TRANSLATION("bypass_page.status_active"),
-                  value: "active",
-                },
-                {
-                  label: TRANSLATION("bypass_page.status_inactive"),
-                  value: "inactive",
-                },
-              ]}
-              value={filters.status}
-              onChange={(value) => onFilterChange("status", value)}
-              allowClear
-              style={{ width: "100%" }}
-            />
-          </Col>
-        </Row>
-      </Space>
-    </Card>
+      {/* Filter Row 2 */}
+      <Row gutter={[12, 12]}>
+        <Col xs={24} sm={12} md={8}>
+          <Select
+            placeholder="ระดับชั้น"
+            options={filterOptions.grades}
+            value={filters.grade}
+            onChange={(value) => onFilterChange("grade", value)}
+            allowClear
+            style={{ width: "100%" }}
+            size="large"
+          />
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Select
+            placeholder="สถานะ"
+            options={[
+              {
+                label: "ใช้งานอยู่ (Active)",
+                value: "active",
+              },
+              {
+                label: "ไม่ได้ใช้งาน (Inactive)",
+                value: "inactive",
+              },
+            ]}
+            value={filters.status}
+            onChange={(value) => onFilterChange("status", value)}
+            allowClear
+            style={{ width: "100%" }}
+            size="large"
+          />
+        </Col>
+        {/* Empty Col for alignment if needed, or remove */}
+      </Row>
+    </Space>
   );
 }

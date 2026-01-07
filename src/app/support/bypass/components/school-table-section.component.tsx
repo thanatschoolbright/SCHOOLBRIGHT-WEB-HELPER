@@ -39,40 +39,20 @@ export default function SchoolTableSection({
   );
 
   return (
-    <Card
-      title={
-        <Space>
-          <TeamOutlined />
-          <span>{TRANSLATION("bypass_page.table_title")}</span>
-        </Space>
-      }
-      extra={
-        <Badge
-          count={dataSource.length}
-          showZero
-          style={{ backgroundColor: "#52c41a" }}
-        />
-      }
-      
-      className="shadow-sm"
-    >
-      <Table<SchoolDetail>
-        columns={columns}
-        
-        dataSource={dataSource}
-        loading={loading}
-        rowKey={(record) => String(record.school_id ?? record.company_name)}
-        pagination={{
-          pageSize,
-          showSizeChanger: true,
-          pageSizeOptions: ["10", "20", "50", "100", "200"],
-          showTotal: (total) =>
-            `${TRANSLATION("bypass_page.total_items", { count: total })}`,
-        }}
-        scroll={{ x: 1600 }}
-        onChange={onTableChange}
-        size="middle"
-      />
-    </Card>
+    <Table<SchoolDetail>
+      columns={columns}
+      dataSource={dataSource}
+      loading={loading}
+      rowKey={(record) => String(record.school_id ?? record.company_name)}
+      pagination={{
+        pageSize,
+        showSizeChanger: true,
+        pageSizeOptions: ["10", "20", "50", "100", "200"],
+        showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+      }}
+      scroll={{ x: 1600 }}
+      onChange={onTableChange}
+      size="middle"
+    />
   );
 }

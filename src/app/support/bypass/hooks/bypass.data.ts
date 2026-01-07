@@ -27,6 +27,12 @@ export const useBypassPageData = () => {
   const dispatch = useDispatch<AppDispatch>();
   const userState = useAppSelector((state) => state.callAdminLogin);
 
+  /*
+   * * Initialize Filters
+   * * Default status to "Active" (string) or similar.
+   * * Reverting to undefined to fix lint error 'boolean vs string' for now.
+   * ! TODO: Find correct value for 'Active' status to set default.
+   */
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     province: undefined,
