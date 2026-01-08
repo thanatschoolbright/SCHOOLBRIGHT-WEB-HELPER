@@ -26,4 +26,6 @@ export type SaleStatistics = {
   testStudents: number;
   freeStudents: number;
   otherStudents: number;
+  // * KPI & Target
+  targetStudents: number;
 };

@@ -17,6 +17,7 @@ import {
   Statistic,
   Input,
   Button,
+  Segmented,
 } from "antd";
 import {
   TrophyOutlined,
@@ -75,7 +76,7 @@ type SaleRankingModalProps = {
 };
 
 const SECRET_CODE = "LIGHT";
-const INCOME_PER_STUDENT = 203; // THB per term
+const INCOME_PER_STUDENT = 250; // THB per term
 
 /**
  * * SaleRankingModal
@@ -99,6 +100,9 @@ export default function SaleRankingModal({
   const [isIncomeVisible, setIsIncomeVisible] = useState(false);
   const [passcode, setPasscode] = useState("");
   const [showPasscodeInput, setShowPasscodeInput] = useState(false);
+  const [viewMode, setViewMode] = useState<"all" | "customer" | "contract">(
+    "all"
+  );
 
   // * ==========================================================================
   // * AUTHENTICATION FOR INCOME
@@ -152,6 +156,7 @@ export default function SaleRankingModal({
         gradeA: acc.gradeA + item.gradeACount,
         gradeB: acc.gradeB + item.gradeBCount,
         gradeC: acc.gradeC + item.gradeCCount,
+        totalTargetStudents: acc.totalTargetStudents + item.targetStudents,
       }),
       {
         totalSchools: 0,
@@ -167,6 +172,7 @@ export default function SaleRankingModal({
         gradeA: 0,
         gradeB: 0,
         gradeC: 0,
+        totalTargetStudents: 0,
       }
     );
     return calculated;
@@ -326,6 +332,95 @@ export default function SaleRankingModal({
             <Text strong>{text}</Text>
           </Space>
         ),
+      },
+      {
+        key: "viewModeSwitcher",
+        width: 250,
+        fixed: "left",
+        title: (
+          <Segmented
+            size="small"
+            value={viewMode}
+            onChange={(v) => setViewMode(v as any)}
+            options={[
+              { label: "ทั้งหมด", value: "all" },
+              { label: "ลูกค้า", value: "customer" },
+              { label: "สัญญา", value: "contract" },
+            ]}
+          />
+        ),
+        render: (_, record) => {
+          const currentStudents =
+            viewMode === "all"
+              ? record.customerStudents + record.contractStudents
+              : viewMode === "customer"
+              ? record.customerStudents
+              : record.contractStudents;
+          const currentSchools =
+            viewMode === "all"
+              ? record.customerCount + record.contractCount
+              : viewMode === "customer"
+              ? record.customerCount
+              : record.contractCount;
+
+          return (
+            <Space direction="vertical" size={0}>
+              <Text strong>
+                {currentSchools} รร. (โหมด:{" "}
+                {viewMode === "all"
+                  ? "รวม"
+                  : viewMode === "customer"
+                  ? "ลูกค้า"
+                  : "สัญญา"}
+                )
+              </Text>
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                นร. {currentStudents.toLocaleString()}
+              </Text>
+            </Space>
+          );
+        },
+      },
+      {
+        title: (
+          <Space>
+            <span>KPI (เป้าหมาย)</span>
+            <Tooltip title="เทียบจำนวนนักเรียน (จ่ายเงิน) กับเป้าหมายที่ตั้งไว้">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
+        key: "kpi",
+        width: 180,
+        align: "center",
+        render: (_, record) => {
+          const paying = record.customerStudents + record.contractStudents;
+          const percent = Math.min(100, (paying / record.targetStudents) * 100);
+          const color =
+            percent >= 100
+              ? token.colorSuccess
+              : percent >= 80
+              ? token.colorWarning
+              : token.colorError;
+          return (
+            <div style={{ width: "100%", padding: "0 8px" }}>
+              <div className="flex justify-between items-center mb-1">
+                <Text type="secondary" style={{ fontSize: 10 }}>
+                  เป้า: {record.targetStudents.toLocaleString()}
+                </Text>
+                <Text strong style={{ fontSize: 10, color }}>
+                  {percent.toFixed(1)}%
+                </Text>
+              </div>
+              <Progress
+                percent={percent}
+                size="small"
+                strokeColor={color}
+                showInfo={false}
+              />
+            </div>
+          );
+        },
       },
       {
         title: (
@@ -868,10 +963,10 @@ export default function SaleRankingModal({
               <Statistic
                 title={
                   <span className="text-orange-900 font-semibold text-base">
-                    ประสิทธิภาพทีม
+                    ความสำเร็จตามเป้า (KPI)
                   </span>
                 }
-                value={(stats.activeSchools / stats.totalSchools) * 100}
+                value={(stats.payingStudents / stats.totalTargetStudents) * 100}
                 precision={1}
                 prefix={
                   <RocketOutlined className="text-orange-500 text-2xl mr-2" />
@@ -889,11 +984,13 @@ export default function SaleRankingModal({
               />
               <div className="mt-4 flex items-center gap-2">
                 <Tag color="orange" className="m-0 rounded-full px-3 border-0">
-                  Active Rate
+                  Total KPI
                 </Tag>
                 <div className="flex-1 w-full max-w-[80px]">
                   <Progress
-                    percent={(stats.activeSchools / stats.totalSchools) * 100}
+                    percent={
+                      (stats.payingStudents / stats.totalTargetStudents) * 100
+                    }
                     showInfo={false}
                     size="small"
                     strokeColor="#f97316"

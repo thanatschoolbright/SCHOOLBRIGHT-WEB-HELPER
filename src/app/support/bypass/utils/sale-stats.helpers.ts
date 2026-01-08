@@ -154,6 +154,11 @@ export const calculateSaleStatistics = (
       testStudents,
       freeStudents,
       otherStudents,
+      // * Set a default target for KPI (e.g., 20,000 students or more if they already exceed it)
+      targetStudents: Math.max(
+        20000,
+        Math.ceil((customerStudents + contractStudents) / 5000) * 5000 + 5000
+      ),
     });
   });
 
