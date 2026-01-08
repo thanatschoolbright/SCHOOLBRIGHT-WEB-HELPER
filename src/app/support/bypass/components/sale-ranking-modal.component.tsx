@@ -360,17 +360,32 @@ export default function SaleRankingModal({
           a.contractCount -
           (b.customerCount + b.contractCount),
         render: (_, record) => (
-          <Space direction="vertical" size={0} align="end">
-            <Text strong className="text-blue-600">
-              {(record.customerCount + record.contractCount).toLocaleString()}
-            </Text>
-            <Text type="secondary" style={{ fontSize: 10 }}>
-              นร.{" "}
-              {(
-                record.customerStudents + record.contractStudents
-              ).toLocaleString()}
-            </Text>
-          </Space>
+          <Tooltip
+            title={
+              <div className="text-xs">
+                <div>
+                  ลูกค้า: {record.customerCount} แห่ง (
+                  {record.customerStudents.toLocaleString()} นร.)
+                </div>
+                <div>
+                  ทำสัญญา: {record.contractCount} แห่ง (
+                  {record.contractStudents.toLocaleString()} นร.)
+                </div>
+              </div>
+            }
+          >
+            <Space direction="vertical" size={0} align="end">
+              <Text strong className="text-blue-600">
+                {(record.customerCount + record.contractCount).toLocaleString()}
+              </Text>
+              <Text type="secondary" style={{ fontSize: 10 }}>
+                นร.{" "}
+                {(
+                  record.customerStudents + record.contractStudents
+                ).toLocaleString()}
+              </Text>
+            </Space>
+          </Tooltip>
         ),
       },
       {
@@ -388,14 +403,34 @@ export default function SaleRankingModal({
         sorter: (a, b) =>
           a.testCount + a.freeCount - (b.testCount + b.freeCount),
         render: (_, record) => (
-          <Space direction="vertical" size={0} align="end">
-            <Text strong className="text-amber-600">
-              {(record.testCount + record.freeCount).toLocaleString()}
-            </Text>
-            <Text type="secondary" style={{ fontSize: 10 }}>
-              นร. {(record.testStudents + record.freeStudents).toLocaleString()}
-            </Text>
-          </Space>
+          <Tooltip
+            title={
+              <div className="text-xs">
+                <div>
+                  Test: {record.testCount} แห่ง (
+                  {record.testStudents.toLocaleString()} นร.)
+                </div>
+                <div>
+                  ลูกค้าฟรี: {record.freeCount} แห่ง (
+                  {record.freeStudents.toLocaleString()} นร.)
+                </div>
+                <div>
+                  หลักสูตรอิสลาม: {record.otherCount} แห่ง (
+                  {record.otherStudents.toLocaleString()} นร.)
+                </div>
+              </div>
+            }
+          >
+            <Space direction="vertical" size={0} align="end">
+              <Text strong className="text-amber-600">
+                {(record.testCount + record.freeCount).toLocaleString()}
+              </Text>
+              <Text type="secondary" style={{ fontSize: 10 }}>
+                นร.{" "}
+                {(record.testStudents + record.freeStudents).toLocaleString()}
+              </Text>
+            </Space>
+          </Tooltip>
         ),
       },
       {
@@ -468,7 +503,7 @@ export default function SaleRankingModal({
         width: 150,
         sorter: (a, b) => a.activationRate - b.activationRate,
         render: (val) => (
-          <Tooltip title={`${val.toFixed(2)}% Active Rate`}>
+          <Tooltip title={`${val.toFixed(2)}% อัตราการใช้งาน`}>
             <Progress
               percent={val}
               size="small"
@@ -503,7 +538,7 @@ export default function SaleRankingModal({
         title: (
           <Space>
             <CrownOutlined style={{ color: token.colorWarning }} />
-            <span>Grade A</span>
+            <span>เกรด A</span>
           </Space>
         ),
         dataIndex: "gradeACount",
@@ -682,7 +717,7 @@ export default function SaleRankingModal({
                   color="geekblue"
                   className="m-0 rounded-full px-3 border-0"
                 >
-                  Sales Team
+                  ทีมขาย
                 </Tag>
                 <span className="text-xs text-blue-400">บุคลากรฝ่ายขาย</span>
               </div>
@@ -727,10 +762,10 @@ export default function SaleRankingModal({
                     color="purple"
                     className="m-0 rounded-full px-3 border-0"
                   >
-                    Revenue Base
+                    ฐานรายได้
                   </Tag>
                   <Tooltip
-                    title={`รวมนักเรียนทั้งหมด (Paying + Non-Paying): ${stats.totalStudents.toLocaleString()} คน`}
+                    title={`รวมนักเรียนทั้งหมด (จ่ายเงิน + ไม่จ่าย): ${stats.totalStudents.toLocaleString()} คน`}
                   >
                     <span className="text-xs text-purple-400 border-b border-dotted border-purple-200 cursor-help">
                       เทียบกับ {stats.totalStudents.toLocaleString()} นร. รวม
@@ -794,7 +829,7 @@ export default function SaleRankingModal({
                       color="success"
                       className="m-0 rounded-full px-3 border-0"
                     >
-                      Estimated
+                      ประมาณการ
                     </Tag>
                     <span className="text-xs text-emerald-500">
                       ~{(INCOME_PER_STUDENT / 1000).toFixed(1)}k / คน
