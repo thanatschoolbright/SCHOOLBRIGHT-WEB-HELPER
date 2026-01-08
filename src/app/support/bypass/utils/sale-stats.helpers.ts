@@ -51,6 +51,50 @@ export const calculateSaleStatistics = (
       (s) => s.school_type === "Single Authen"
     ).length;
 
+    // * Counts by school_data_type
+    const customerSchools = schoolsInSale.filter(
+      (s) => s.school_data_type === "ลูกค้า"
+    );
+    const contractSchools = schoolsInSale.filter(
+      (s) => s.school_data_type === "ทำสัญญา"
+    );
+    const testSchools = schoolsInSale.filter(
+      (s) => s.school_data_type === "Test"
+    );
+    const freeSchools = schoolsInSale.filter(
+      (s) => s.school_data_type === "ลูกค้าฟรี"
+    );
+    const otherSchools = schoolsInSale.filter(
+      (s) => s.school_data_type === "หลักสูตรอิสลาม"
+    );
+
+    const customerCount = customerSchools.length;
+    const contractCount = contractSchools.length;
+    const testCount = testSchools.length;
+    const freeCount = freeSchools.length;
+    const otherCount = otherSchools.length;
+
+    const customerStudents = customerSchools.reduce(
+      (sum, s) => sum + normalizeStudentCount(s),
+      0
+    );
+    const contractStudents = contractSchools.reduce(
+      (sum, s) => sum + normalizeStudentCount(s),
+      0
+    );
+    const testStudents = testSchools.reduce(
+      (sum, s) => sum + normalizeStudentCount(s),
+      0
+    );
+    const freeStudents = freeSchools.reduce(
+      (sum, s) => sum + normalizeStudentCount(s),
+      0
+    );
+    const otherStudents = otherSchools.reduce(
+      (sum, s) => sum + normalizeStudentCount(s),
+      0
+    );
+
     const gradePoints = schoolsInSale.reduce((sum, school) => {
       const grade = school.school_grade?.trim().toUpperCase();
       const points: Record<string, number> = {
@@ -100,12 +144,25 @@ export const calculateSaleStatistics = (
       activeStudents,
       averageStudentsPerSchool,
       studentCoverageRate,
+      customerCount,
+      contractCount,
+      testCount,
+      freeCount,
+      otherCount,
+      customerStudents,
+      contractStudents,
+      testStudents,
+      freeStudents,
+      otherStudents,
     });
   });
 
   return statistics.sort((a, b) => {
-    if (b.totalStudents !== a.totalStudents) {
-      return b.totalStudents - a.totalStudents;
+    // * Default sort by Paying Students (Customer + Contract)
+    const bPaying = b.customerStudents + b.contractStudents;
+    const aPaying = a.customerStudents + a.contractStudents;
+    if (bPaying !== aPaying) {
+      return bPaying - aPaying;
     }
     return b.totalSchools - a.totalSchools;
   });

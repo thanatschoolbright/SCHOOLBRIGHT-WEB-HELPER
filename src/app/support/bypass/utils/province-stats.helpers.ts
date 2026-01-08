@@ -40,6 +40,23 @@ export const calculateProvinceStatistics = (
       (s) => s.school_type === "Single Authen"
     ).length;
 
+    // * Counts by school_data_type
+    const customerCount = schoolsInProvince.filter(
+      (s) => s.school_data_type === "ลูกค้า"
+    ).length;
+    const contractCount = schoolsInProvince.filter(
+      (s) => s.school_data_type === "ทำสัญญา"
+    ).length;
+    const testCount = schoolsInProvince.filter(
+      (s) => s.school_data_type === "Test"
+    ).length;
+    const freeCount = schoolsInProvince.filter(
+      (s) => s.school_data_type === "ลูกค้าฟรี"
+    ).length;
+    const otherCount = schoolsInProvince.filter(
+      (s) => s.school_data_type === "หลักสูตรอิสลาม"
+    ).length;
+
     const gradePoints = schoolsInProvince.reduce((sum, school) => {
       const grade = school.school_grade?.trim().toUpperCase();
       const points: Record<string, number> = {
@@ -70,6 +87,11 @@ export const calculateProvinceStatistics = (
       singleAuthenCount,
       averageGrade,
       activationRate,
+      customerCount,
+      contractCount,
+      testCount,
+      freeCount,
+      otherCount,
     });
   });
 

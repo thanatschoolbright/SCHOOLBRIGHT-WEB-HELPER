@@ -24,6 +24,11 @@ import {
   PieChartOutlined,
   BarChartOutlined,
   StarFilled,
+  TeamOutlined,
+  FileDoneOutlined,
+  ExperimentOutlined,
+  GiftOutlined,
+  GlobalOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { ColumnsType } from "antd/es/table";
@@ -88,8 +93,24 @@ export default function ProvinceRankingModal({
         gradeA: acc.gradeA + item.gradeACount,
         gradeB: acc.gradeB + item.gradeBCount,
         gradeC: acc.gradeC + item.gradeCCount,
+        customerCount: acc.customerCount + (item.customerCount || 0),
+        contractCount: acc.contractCount + (item.contractCount || 0),
+        testCount: acc.testCount + (item.testCount || 0),
+        freeCount: acc.freeCount + (item.freeCount || 0),
+        otherCount: acc.otherCount + (item.otherCount || 0),
       }),
-      { totalSchools: 0, activeSchools: 0, gradeA: 0, gradeB: 0, gradeC: 0 }
+      {
+        totalSchools: 0,
+        activeSchools: 0,
+        gradeA: 0,
+        gradeB: 0,
+        gradeC: 0,
+        customerCount: 0,
+        contractCount: 0,
+        testCount: 0,
+        freeCount: 0,
+        otherCount: 0,
+      }
     );
   }, [data]);
 
@@ -126,6 +147,31 @@ export default function ProvinceRankingModal({
           token.colorWarning,
           token.colorSuccess,
           token.colorInfo,
+        ],
+        borderColor: token.colorBgContainer,
+        borderWidth: 2,
+        hoverOffset: 10,
+      },
+    ],
+  };
+
+  const schoolDataTypeChartData = {
+    labels: ["ลูกค้า", "ทำสัญญา", "Test", "ลูกค้าฟรี", "หลักสูตรอิสลาม"],
+    datasets: [
+      {
+        data: [
+          stats.customerCount,
+          stats.contractCount,
+          stats.testCount,
+          stats.freeCount,
+          stats.otherCount,
+        ],
+        backgroundColor: [
+          "#3b82f6", // Blue
+          "#10b981", // Emerald
+          "#f59e0b", // Amber
+          "#8b5cf6", // Violet
+          "#6366f1", // Indigo
         ],
         borderColor: token.colorBgContainer,
         borderWidth: 2,
@@ -275,6 +321,42 @@ export default function ProvinceRankingModal({
         ),
       },
       {
+        title: "ลูกค้า",
+        dataIndex: "customerCount",
+        key: "customerCount",
+        width: 100,
+        align: "right",
+        sorter: (a, b) => a.customerCount - b.customerCount,
+        render: (val) => <Text style={{ color: "#3b82f6" }}>{val}</Text>,
+      },
+      {
+        title: "ทำสัญญา",
+        dataIndex: "contractCount",
+        key: "contractCount",
+        width: 110,
+        align: "right",
+        sorter: (a, b) => a.contractCount - b.contractCount,
+        render: (val) => <Text style={{ color: "#10b981" }}>{val}</Text>,
+      },
+      {
+        title: "Test",
+        dataIndex: "testCount",
+        key: "testCount",
+        width: 100,
+        align: "right",
+        sorter: (a, b) => a.testCount - b.testCount,
+        render: (val) => <Text style={{ color: "#f59e0b" }}>{val}</Text>,
+      },
+      {
+        title: "ฟรี",
+        dataIndex: "freeCount",
+        key: "freeCount",
+        width: 100,
+        align: "right",
+        sorter: (a, b) => a.freeCount - b.freeCount,
+        render: (val) => <Text style={{ color: "#8b5cf6" }}>{val}</Text>,
+      },
+      {
         title: (
           <Space>
             <CrownOutlined style={{ color: token.colorWarning }} />
@@ -335,17 +417,28 @@ export default function ProvinceRankingModal({
       }
       open={open}
       onCancel={onClose}
-      width={1200}
+      width="95vw"
+      style={{ top: 20 }}
       footer={null}
       destroyOnHidden
       centered
       styles={{
-        content: { borderRadius: 20, overflow: "hidden", padding: 0 },
+        content: {
+          borderRadius: 24,
+          overflow: "hidden",
+          padding: 0,
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+        },
         header: {
-          padding: "20px 24px",
+          padding: "24px 32px",
           borderBottom: `1px solid ${token.colorBorderSecondary}`,
         },
-        body: { padding: "24px", backgroundColor: token.colorBgLayout },
+        body: {
+          padding: "32px",
+          backgroundColor: token.colorBgLayout,
+          maxHeight: "calc(100vh - 120px)",
+          overflowY: "auto",
+        },
       }}
     >
       <div className="space-y-6">
@@ -375,7 +468,11 @@ export default function ProvinceRankingModal({
                 }
                 value={stats.totalSchools}
                 prefix={<BankOutlined className="text-indigo-500" />}
-                valueStyle={{ fontWeight: 800, color: token.colorText }}
+                valueStyle={{
+                  fontWeight: 800,
+                  color: token.colorText,
+                  fontSize: 32,
+                }}
                 suffix={
                   <span className="text-sm text-slate-400 font-normal">
                     แห่ง
@@ -412,7 +509,11 @@ export default function ProvinceRankingModal({
                 }
                 value={stats.activeSchools}
                 prefix={<CheckCircleOutlined className="text-emerald-500" />}
-                valueStyle={{ fontWeight: 800, color: token.colorSuccess }}
+                valueStyle={{
+                  fontWeight: 800,
+                  color: token.colorSuccess,
+                  fontSize: 32,
+                }}
                 suffix={
                   <span className="text-sm font-normal text-emerald-600/80 ml-1">
                     (
@@ -453,7 +554,11 @@ export default function ProvinceRankingModal({
                 }
                 value={stats.gradeA}
                 prefix={<CrownOutlined className="text-amber-500" />}
-                valueStyle={{ fontWeight: 800, color: token.colorWarning }}
+                valueStyle={{
+                  fontWeight: 800,
+                  color: token.colorWarning,
+                  fontSize: 32,
+                }}
                 suffix={
                   <span className="text-sm text-slate-400 font-normal">
                     แห่ง
@@ -467,34 +572,187 @@ export default function ProvinceRankingModal({
           </Col>
         </Row>
 
-        {/* 2. Charts Analysis Section */}
+        {/* 2. School Data Type Summary Cards */}
+        <div style={{ marginBottom: 16 }}>
+          <AntTitle
+            level={5}
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              marginBottom: 16,
+            }}
+          >
+            <InfoCircleOutlined style={{ color: token.colorPrimary }} />
+            <span>สรุปประเภทข้อมูลโรงเรียน</span>
+          </AntTitle>
+          <Row gutter={[16, 16]}>
+            <Col
+              xs={24}
+              sm={12}
+              lg={4.8}
+              style={{ flex: "0 0 20%", maxWidth: "20%" }}
+            >
+              <Card
+                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
+                style={{ background: token.colorBgContainer }}
+              >
+                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-blue-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
+                  <TeamOutlined />
+                </div>
+                <Statistic
+                  title="ลูกค้า"
+                  value={stats.customerCount}
+                  valueStyle={{
+                    fontWeight: 800,
+                    color: "#3b82f6",
+                    fontSize: 28,
+                  }}
+                  suffix={
+                    <span className="text-xs text-slate-400 font-normal">
+                      แห่ง
+                    </span>
+                  }
+                />
+              </Card>
+            </Col>
+            <Col
+              xs={24}
+              sm={12}
+              lg={4.8}
+              style={{ flex: "0 0 20%", maxWidth: "20%" }}
+            >
+              <Card
+                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
+                style={{ background: token.colorBgContainer }}
+              >
+                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-emerald-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
+                  <FileDoneOutlined />
+                </div>
+                <Statistic
+                  title="ทำสัญญา"
+                  value={stats.contractCount}
+                  valueStyle={{
+                    fontWeight: 800,
+                    color: "#10b981",
+                    fontSize: 28,
+                  }}
+                  suffix={
+                    <span className="text-xs text-slate-400 font-normal">
+                      แห่ง
+                    </span>
+                  }
+                />
+              </Card>
+            </Col>
+            <Col
+              xs={24}
+              sm={12}
+              lg={4.8}
+              style={{ flex: "0 0 20%", maxWidth: "20%" }}
+            >
+              <Card
+                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
+                style={{ background: token.colorBgContainer }}
+              >
+                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-amber-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
+                  <ExperimentOutlined />
+                </div>
+                <Statistic
+                  title="Test"
+                  value={stats.testCount}
+                  valueStyle={{
+                    fontWeight: 800,
+                    color: "#f59e0b",
+                    fontSize: 28,
+                  }}
+                  suffix={
+                    <span className="text-xs text-slate-400 font-normal">
+                      แห่ง
+                    </span>
+                  }
+                />
+              </Card>
+            </Col>
+            <Col
+              xs={24}
+              sm={12}
+              lg={4.8}
+              style={{ flex: "0 0 20%", maxWidth: "20%" }}
+            >
+              <Card
+                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
+                style={{ background: token.colorBgContainer }}
+              >
+                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-violet-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
+                  <GiftOutlined />
+                </div>
+                <Statistic
+                  title="ลูกค้าฟรี"
+                  value={stats.freeCount}
+                  valueStyle={{
+                    fontWeight: 800,
+                    color: "#8b5cf6",
+                    fontSize: 28,
+                  }}
+                  suffix={
+                    <span className="text-xs text-slate-400 font-normal">
+                      แห่ง
+                    </span>
+                  }
+                />
+              </Card>
+            </Col>
+            <Col
+              xs={24}
+              sm={12}
+              lg={4.8}
+              style={{ flex: "0 0 20%", maxWidth: "20%" }}
+            >
+              <Card
+                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
+                style={{ background: token.colorBgContainer }}
+              >
+                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-indigo-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
+                  <GlobalOutlined />
+                </div>
+                <Statistic
+                  title="หลักสูตรอิสลาม"
+                  value={stats.otherCount}
+                  valueStyle={{
+                    fontWeight: 800,
+                    color: "#6366f1",
+                    fontSize: 28,
+                  }}
+                  suffix={
+                    <span className="text-xs text-slate-400 font-normal">
+                      แห่ง
+                    </span>
+                  }
+                />
+              </Card>
+            </Col>
+          </Row>
+        </div>
+
+        {/* 3. Charts Analysis Section */}
         <Row gutter={[16, 16]}>
-          <Col xs={24} lg={16}>
+          <Col xs={24} lg={12}>
             <Card
               title={
                 <Space>
                   <BarChartOutlined style={{ color: token.colorPrimary }} />
                   <span>เปรียบเทียบการใช้งาน 10 อันดับแรก</span>
-                  <Tooltip title="กราฟแสดงจำนวนโรงเรียนที่ Active vs Inactive แยกตามจังหวัด">
-                    <InfoCircleOutlined
-                      style={{ color: token.colorTextSecondary }}
-                    />
-                  </Tooltip>
                 </Space>
               }
               className="shadow-sm rounded-2xl h-full"
-              extra={
-                <Tag color="blue" bordered={false}>
-                  กราฟ 10 อันดับ
-                </Tag>
-              }
             >
-              <div style={{ height: 320 }}>
+              <div style={{ height: 450 }}>
                 <Bar options={chartOptions} data={barChartData} />
               </div>
             </Card>
           </Col>
-          <Col xs={24} lg={8}>
+          <Col xs={24} lg={6}>
             <Card
               title={
                 <Space>
@@ -506,7 +764,7 @@ export default function ProvinceRankingModal({
             >
               <div
                 style={{
-                  height: 320,
+                  height: 400,
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
@@ -519,7 +777,48 @@ export default function ProvinceRankingModal({
                     plugins: {
                       legend: {
                         position: "bottom",
-                        labels: { color: token.colorText, padding: 20 },
+                        labels: {
+                          color: token.colorText,
+                          padding: 10,
+                          font: { size: 10 },
+                        },
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} lg={6}>
+            <Card
+              title={
+                <Space>
+                  <PieChartOutlined style={{ color: token.colorInfo }} />
+                  <span>สัดส่วนประเภทข้อมูล</span>
+                </Space>
+              }
+              className="shadow-sm rounded-2xl h-full"
+            >
+              <div
+                style={{
+                  height: 400,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Doughnut
+                  data={schoolDataTypeChartData}
+                  options={{
+                    ...chartOptions,
+                    plugins: {
+                      legend: {
+                        position: "bottom",
+                        labels: {
+                          color: token.colorText,
+                          padding: 10,
+                          font: { size: 10 },
+                        },
                       },
                     },
                   }}
@@ -549,7 +848,7 @@ export default function ProvinceRankingModal({
             dataSource={top10Data}
             rowKey="province"
             pagination={false}
-            scroll={{ x: 900 }}
+            scroll={{ x: 1400, y: "calc(100vh - 450px)" }}
             size="middle"
           />
         </Card>

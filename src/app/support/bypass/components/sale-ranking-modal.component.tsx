@@ -139,7 +139,16 @@ export default function SaleRankingModal({
         totalSchools: acc.totalSchools + item.totalSchools,
         activeSchools: acc.activeSchools + item.activeSchools,
         totalStudents: acc.totalStudents + item.totalStudents,
-        totalIncome: acc.totalIncome + item.totalStudents * INCOME_PER_STUDENT,
+        payingStudents:
+          acc.payingStudents + (item.customerStudents + item.contractStudents),
+        totalIncome:
+          acc.totalIncome +
+          (item.customerStudents + item.contractStudents) * INCOME_PER_STUDENT,
+        customerStudents: acc.customerStudents + item.customerStudents,
+        contractStudents: acc.contractStudents + item.contractStudents,
+        testStudents: acc.testStudents + item.testStudents,
+        freeStudents: acc.freeStudents + item.freeStudents,
+        otherStudents: acc.otherStudents + item.otherStudents,
         gradeA: acc.gradeA + item.gradeACount,
         gradeB: acc.gradeB + item.gradeBCount,
         gradeC: acc.gradeC + item.gradeCCount,
@@ -148,7 +157,13 @@ export default function SaleRankingModal({
         totalSchools: 0,
         activeSchools: 0,
         totalStudents: 0,
+        payingStudents: 0,
         totalIncome: 0,
+        customerStudents: 0,
+        contractStudents: 0,
+        testStudents: 0,
+        freeStudents: 0,
+        otherStudents: 0,
         gradeA: 0,
         gradeB: 0,
         gradeC: 0,
@@ -166,16 +181,16 @@ export default function SaleRankingModal({
     labels: top5Sales.map((s) => s.saleName),
     datasets: [
       {
-        label: "โรงเรียนทั้งหมด",
-        data: top5Sales.map((s) => s.totalSchools),
-        backgroundColor: token.colorPrimary,
+        label: "จ่ายเงิน (Customer/Contract)",
+        data: top5Sales.map((s) => s.customerCount + s.contractCount),
+        backgroundColor: "#3b82f6",
         borderRadius: 4,
         barPercentage: 0.6,
       },
       {
-        label: "ใช้งานอยู่ (Active)",
-        data: top5Sales.map((s) => s.activeSchools),
-        backgroundColor: token.colorSuccess,
+        label: "ฟรี/Test (Trial/Free)",
+        data: top5Sales.map((s) => s.testCount + s.freeCount),
+        backgroundColor: "#f59e0b",
         borderRadius: 4,
         barPercentage: 0.6,
       },
@@ -192,6 +207,38 @@ export default function SaleRankingModal({
           token.colorWarning,
           token.colorSuccess,
           token.colorInfo,
+        ],
+        borderColor: token.colorBgContainer,
+        borderWidth: 2,
+        hoverOffset: 10,
+      },
+    ],
+  };
+
+  // * Doughnut Chart: School Type Distribution
+  const typeDoughnutData = {
+    labels: [
+      "ลูกค้า (Paying)",
+      "ทำสัญญา (Paying)",
+      "Test",
+      "ลูกค้าฟรี",
+      "หลักสูตรอิสลาม",
+    ],
+    datasets: [
+      {
+        data: [
+          stats.customerStudents,
+          stats.contractStudents,
+          stats.testStudents,
+          stats.freeStudents,
+          stats.otherStudents,
+        ],
+        backgroundColor: [
+          "#3b82f6", // Blue
+          "#10b981", // Emerald
+          "#f59e0b", // Amber
+          "#8b5cf6", // Violet
+          "#6366f1", // Indigo
         ],
         borderColor: token.colorBgContainer,
         borderWidth: 2,
@@ -299,8 +346,63 @@ export default function SaleRankingModal({
       {
         title: (
           <Space>
+            <span>ลูกค้า/สัญญา</span>
+            <Tooltip title="โรงเรียนที่เป็น 'ลูกค้า' หรือ 'ทำสัญญา' (นับเป็นรายได้)">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
+        key: "payingSchools",
+        width: 130,
+        align: "right",
+        sorter: (a, b) =>
+          a.customerCount +
+          a.contractCount -
+          (b.customerCount + b.contractCount),
+        render: (_, record) => (
+          <Space direction="vertical" size={0} align="end">
+            <Text strong className="text-blue-600">
+              {(record.customerCount + record.contractCount).toLocaleString()}
+            </Text>
+            <Text type="secondary" style={{ fontSize: 10 }}>
+              นร.{" "}
+              {(
+                record.customerStudents + record.contractStudents
+              ).toLocaleString()}
+            </Text>
+          </Space>
+        ),
+      },
+      {
+        title: (
+          <Space>
+            <span>Test/ฟรี</span>
+            <Tooltip title="โรงเรียนที่มีคนใช้แบบ 'Test' หรือ 'ลูกค้าฟรี' (ไม่นับเป็นรายได้)">
+              <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
+            </Tooltip>
+          </Space>
+        ),
+        key: "nonPayingSchools",
+        width: 120,
+        align: "right",
+        sorter: (a, b) =>
+          a.testCount + a.freeCount - (b.testCount + b.freeCount),
+        render: (_, record) => (
+          <Space direction="vertical" size={0} align="end">
+            <Text strong className="text-amber-600">
+              {(record.testCount + record.freeCount).toLocaleString()}
+            </Text>
+            <Text type="secondary" style={{ fontSize: 10 }}>
+              นร. {(record.testStudents + record.freeStudents).toLocaleString()}
+            </Text>
+          </Space>
+        ),
+      },
+      {
+        title: (
+          <Space>
             <span>รายได้ประมาณการ</span>
-            <Tooltip title="คำนวณจาก จำนวนนักเรียน x 300 บาท/คน (เฉพาะที่เห็น)">
+            <Tooltip title="คำนวณจาก (ลูกค้า + ทำสัญญา) x 203 บาท/คน">
               {isIncomeVisible ? (
                 <EyeOutlined style={{ color: token.colorSuccess }} />
               ) : (
@@ -317,7 +419,11 @@ export default function SaleRankingModal({
         render: (_, record) =>
           isIncomeVisible ? (
             <Text type="success" strong>
-              {(record.totalStudents * INCOME_PER_STUDENT).toLocaleString()} ฿
+              {(
+                (record.customerStudents + record.contractStudents) *
+                INCOME_PER_STUDENT
+              ).toLocaleString()}{" "}
+              ฿
             </Text>
           ) : (
             <Text
@@ -596,13 +702,13 @@ export default function SaleRankingModal({
               <Statistic
                 title={
                   <span className="text-purple-900 font-semibold text-base">
-                    ดูแลนักเรียนรวม
+                    จำนวนนักเรียนที่คิดเงิน (Paying)
                   </span>
                 }
-                value={stats.totalStudents}
+                value={stats.payingStudents}
                 formatter={(val) => val.toLocaleString()}
                 prefix={
-                  <TeamOutlined className="text-purple-500 text-2xl mr-2" />
+                  <DollarOutlined className="text-purple-500 text-2xl mr-2" />
                 }
                 valueStyle={{
                   fontWeight: 800,
@@ -615,13 +721,29 @@ export default function SaleRankingModal({
                   </span>
                 }
               />
-              <div className="mt-4 flex items-center gap-2">
-                <Tag color="purple" className="m-0 rounded-full px-3 border-0">
-                  Total Reach
-                </Tag>
-                <span className="text-xs text-purple-400">
-                  ยอดรวมทุกโรงเรียน
-                </span>
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Tag
+                    color="purple"
+                    className="m-0 rounded-full px-3 border-0"
+                  >
+                    Revenue Base
+                  </Tag>
+                  <Tooltip
+                    title={`รวมนักเรียนทั้งหมด (Paying + Non-Paying): ${stats.totalStudents.toLocaleString()} คน`}
+                  >
+                    <span className="text-xs text-purple-400 border-b border-dotted border-purple-200 cursor-help">
+                      เทียบกับ {stats.totalStudents.toLocaleString()} นร. รวม
+                    </span>
+                  </Tooltip>
+                </div>
+                <Text type="secondary" style={{ fontSize: 10 }}>
+                  (
+                  {((stats.payingStudents / stats.totalStudents) * 100).toFixed(
+                    1
+                  )}
+                  %)
+                </Text>
               </div>
             </Card>
           </Col>
@@ -750,7 +872,7 @@ export default function SaleRankingModal({
 
         {/* 2. Charts Analysis Section - Side by Side Large */}
         <Row gutter={[24, 24]} align="stretch">
-          <Col xs={24} lg={16}>
+          <Col xs={24} lg={8}>
             <Card
               title={
                 <div className="flex items-center gap-3">
@@ -758,14 +880,14 @@ export default function SaleRankingModal({
                     <LineChartOutlined style={{ fontSize: 18 }} />
                   </div>
                   <span className="font-bold text-lg text-slate-700">
-                    5 อันดับยอดดูแลสูงสุด (Top Performers)
+                    5 อันดับยอดดูแลสูงสุด
                   </span>
                 </div>
               }
               bordered={false}
               className="shadow-md rounded-3xl h-full border border-slate-100"
             >
-              <div className="h-[400px] w-full p-4">
+              <div className="h-[350px] w-full p-2">
                 <Bar
                   options={{
                     ...chartOptions,
@@ -777,6 +899,44 @@ export default function SaleRankingModal({
               </div>
             </Card>
           </Col>
+
+          <Col xs={24} lg={8}>
+            <Card
+              title={
+                <div className="flex items-center gap-3">
+                  <div className="bg-indigo-50 p-2 rounded-lg text-indigo-600">
+                    <PieChartOutlined style={{ fontSize: 18 }} />
+                  </div>
+                  <span className="font-bold text-lg text-slate-700">
+                    สัดส่วนประเภทบัญชี (นร.)
+                  </span>
+                </div>
+              }
+              bordered={false}
+              className="shadow-md rounded-3xl h-full border border-slate-100"
+            >
+              <div className="h-[350px] flex items-center justify-center p-2">
+                <Doughnut
+                  data={typeDoughnutData}
+                  options={{
+                    ...chartOptions,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: "bottom",
+                        labels: {
+                          padding: 10,
+                          boxWidth: 8,
+                          font: { size: 10, family: "Kanit" },
+                        },
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </Card>
+          </Col>
+
           <Col xs={24} lg={8}>
             <Card
               title={
@@ -792,7 +952,7 @@ export default function SaleRankingModal({
               bordered={false}
               className="shadow-md rounded-3xl h-full border border-slate-100"
             >
-              <div className="h-[400px] flex items-center justify-center p-4">
+              <div className="h-[350px] flex items-center justify-center p-2">
                 <Doughnut
                   data={doughnutChartData}
                   options={{

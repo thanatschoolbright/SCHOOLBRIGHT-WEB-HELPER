@@ -10,4 +10,10 @@ export type ProvinceStatistics = {
   singleAuthenCount: number;
   averageGrade: string;
   activationRate: number;
+  // * Summary by school_data_type
+  customerCount: number; // ลูกค้า
+  contractCount: number; // ทำสัญญา
+  testCount: number; // Test
+  freeCount: number; // ลูกค้าฟรี
+  otherCount: number; // หลักสูตรอิสลาม (Other)
 };

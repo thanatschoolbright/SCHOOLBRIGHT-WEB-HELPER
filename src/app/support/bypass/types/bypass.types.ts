@@ -18,6 +18,7 @@ export type SchoolDetail = {
   Status?: string;
   Grade?: string;
   SchoolGroup?: string;
+  school_data_type?: string;
 };
 
 export type Environment = {
