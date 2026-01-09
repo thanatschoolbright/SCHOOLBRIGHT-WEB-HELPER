@@ -1,10 +1,10 @@
 import React from "react";
-import { Card, Skeleton, Statistic, Typography } from "antd";
+import { Card, Skeleton, Statistic, Typography, theme } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
 
 interface TimesheetStatCardProps {
   //** หัวข้อของการ์ด */
-  title: string;
+  title: React.ReactNode;
   //** ค่าที่แสดง */
   value: number;
   //** หน่วย */
@@ -27,34 +27,70 @@ export const TimesheetStatCard: React.FC<TimesheetStatCardProps> = ({
   description,
   icon,
 }) => {
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase === "#0B0F19";
+
   return (
     <Card
       loading={loading}
       style={{
         minWidth: 200,
-
-        borderRadius: 12,
+        borderRadius: 24,
+        border: `1px solid ${
+          isDark ? token.colorBorderSecondary : `${color}15`
+        }`,
+        background: isDark
+          ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${color}10 100%)`
+          : `linear-gradient(135deg, #ffffff 0%, ${color}08 100%)`,
+        boxShadow: isDark ? "none" : `0 10px 20px -5px ${color}15`,
+        position: "relative",
+        overflow: "hidden",
       }}
       styles={{
-        body: { padding: "20px" },
+        body: { padding: "24px" },
       }}
     >
+      <div
+        style={{
+          position: "absolute",
+          top: -20,
+          right: -20,
+          width: 80,
+          height: 80,
+          borderRadius: "50%",
+          background: `${color}10`,
+          filter: "blur(20px)",
+        }}
+      />
       {loading ? (
         <Skeleton active paragraph={{ rows: 2 }} />
       ) : (
         <>
           {/* ไอคอนและหัวข้อ */}
-          <div style={{ marginBottom: 8 }}>
+          <div style={{ marginBottom: 12 }}>
             <Typography.Text
-              type="secondary"
               style={{
                 fontSize: 14,
                 display: "flex",
                 alignItems: "center",
-                gap: 6,
+                gap: 8,
+                color: isDark
+                  ? token.colorTextSecondary
+                  : token.colorTextHeading,
+                fontWeight: 500,
               }}
             >
-              {icon || <ClockCircleOutlined style={{ color }} />}
+              <div
+                style={{
+                  display: "flex",
+                  padding: 6,
+                  borderRadius: 10,
+                  background: `${color}15`,
+                  color: color,
+                }}
+              >
+                {icon || <ClockCircleOutlined />}
+              </div>
               {title}
             </Typography.Text>
           </div>

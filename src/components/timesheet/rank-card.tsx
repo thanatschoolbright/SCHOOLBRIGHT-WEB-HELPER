@@ -77,8 +77,49 @@ export const RankCard: React.FC<RankCardProps> = ({
   record,
   isCompact,
   isCurrentUser = false,
+  rank,
 }) => {
   const { token } = theme.useToken();
+  const isDark = token.colorBgBase === "#0B0F19";
+  const rankNum = Number(rank);
+
+  // Special backgrounds for Top 3
+  const topRankStyles = useMemo(() => {
+    if (rankNum === 1)
+      return {
+        background: isDark
+          ? "linear-gradient(135deg, #332100 0%, #1a1100 100%)"
+          : "linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)",
+        border: isDark ? "#B45309" : "#FDBA74",
+        glow: isDark
+          ? "0 0 20px rgba(217, 119, 6, 0.2)"
+          : "0 10px 20px rgba(251, 146, 60, 0.2)",
+        tagColor: "#F97316",
+      };
+    if (rankNum === 2)
+      return {
+        background: isDark
+          ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
+          : "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)",
+        border: isDark ? "#475569" : "#CBD5E1",
+        glow: isDark
+          ? "0 0 20px rgba(100, 116, 139, 0.1)"
+          : "0 10px 20px rgba(148, 163, 184, 0.1)",
+        tagColor: "#64748B",
+      };
+    if (rankNum === 3)
+      return {
+        background: isDark
+          ? "linear-gradient(135deg, #2a1a00 0%, #170d00 100%)"
+          : "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)",
+        border: isDark ? "#92400E" : "#FED7AA",
+        glow: isDark
+          ? "0 0 20px rgba(180, 83, 9, 0.1)"
+          : "0 10px 20px rgba(245, 158, 11, 0.1)",
+        tagColor: "#B45309",
+      };
+    return null;
+  }, [rankNum, isDark]);
 
   // Get Configuration based on Rank
   const config = rankConfig[record.rank] || rankConfig.E;
@@ -94,17 +135,25 @@ export const RankCard: React.FC<RankCardProps> = ({
       borderRadius: 16,
       border: isCurrentUser
         ? `2px solid ${token.colorPrimary}`
-        : `1px solid ${token.colorBorderSecondary}`,
-      background: config.bgGradient || token.colorBgContainer,
+        : `${
+            topRankStyles
+              ? `1.5px solid ${topRankStyles.border}`
+              : `1px solid ${token.colorBorderSecondary}`
+          }`,
+      background: topRankStyles
+        ? topRankStyles.background
+        : config.bgGradient || token.colorBgContainer,
       boxShadow: isCurrentUser
         ? `0 0 0 4px ${token.colorPrimaryBg}`
+        : topRankStyles
+        ? topRankStyles.glow
         : config.shadow || "0 2px 8px rgba(0,0,0,0.02)",
-      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
       position: "relative",
       overflow: "hidden",
       cursor: "default",
     }),
-    [config, isCurrentUser, token]
+    [config, isCurrentUser, token, topRankStyles]
   );
 
   return (
@@ -112,11 +161,10 @@ export const RankCard: React.FC<RankCardProps> = ({
       size="small"
       style={cardStyle}
       styles={{
-        body:{
-          padding: isCompact ? "12px 16px" : "16px 20px" 
-        }
+        body: {
+          padding: isCompact ? "12px 16px" : "16px 20px",
+        },
       }}
-      
       className="rank-card-hover" // Class for hover effect via global css or style tag
     >
       {/* CSS Overlay for Hover Effect (Optional if using Global CSS) */}

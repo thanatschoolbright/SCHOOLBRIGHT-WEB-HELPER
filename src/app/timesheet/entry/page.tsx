@@ -77,6 +77,12 @@ import {
   CloseCircleFilled,
   ExclamationCircleFilled,
   StopOutlined,
+  TeamOutlined,
+  LockOutlined,
+  UnlockOutlined,
+  SunOutlined,
+  CloudOutlined,
+  MoonOutlined,
 } from "@ant-design/icons";
 
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -138,12 +144,14 @@ interface PageHeaderProps {
   adminName: string;
   onAddClick: () => void;
   onAddMultiClick: () => void;
+  onBulkAllClick: () => void;
   token: any;
 }
 const PageHeader: React.FC<PageHeaderProps> = ({
   adminName,
   onAddClick,
   onAddMultiClick,
+  onBulkAllClick,
   token,
 }) => {
   // Custom greeting logic specifically for Thai to ensure no English slips through
@@ -155,8 +163,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   };
 
   const greeting = getThaiGreeting();
-  const timeEmoji =
-    dayjs().hour() < 18 ? (dayjs().hour() < 12 ? "☀️" : "🌤️") : "🌙";
+  const timeIcon =
+    dayjs().hour() < 18 ? (
+      dayjs().hour() < 12 ? (
+        <SunOutlined />
+      ) : (
+        <CloudOutlined />
+      )
+    ) : (
+      <MoonOutlined />
+    );
 
   const handleOpenGuide = () => {
     window.open(
@@ -165,27 +181,35 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       "noopener,noreferrer"
     );
   };
+  const isDark = token.colorBgBase === "#0B0F19";
   return (
     <Card
       bordered={false}
       style={{
-        background: `linear-gradient(120deg, ${token.colorBgContainer} 60%, ${token.colorPrimary}15 100%)`,
+        background: isDark
+          ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorPrimary}25 100%)`
+          : `linear-gradient(135deg, ${token.colorBgContainer} 40%, ${token.colorPrimary}08 100%)`,
         borderRadius: 24,
-        boxShadow: "0 8px 30px rgba(0,0,0,0.04)",
+        boxShadow: isDark
+          ? "0 8px 32px rgba(0,0,0,0.4)"
+          : "0 8px 30px rgba(0,0,0,0.04)",
         overflow: "hidden",
         position: "relative",
+        border: `1px solid ${token.colorBorderSecondary}`,
       }}
       bodyStyle={{ padding: "32px 40px" }}
     >
+      {/* Decorative Orbs */}
       <div
+        className="absolute -top-10 -right-10 w-60 h-60 rounded-full filter blur-2xl"
         style={{
-          position: "absolute",
-          top: -40,
-          right: -40,
-          width: 200,
-          height: 200,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${token.colorPrimary}20 0%, transparent 70%)`,
+          background: `radial-gradient(circle, ${token.colorPrimary}30 0%, transparent 70%)`,
+        }}
+      />
+      <div
+        className="absolute -bottom-[60px] -left-5 w-[180px] h-[180px] rounded-full filter blur-2xl"
+        style={{
+          background: `radial-gradient(circle, ${token.colorInfo}20 0%, transparent 70%)`,
         }}
       />
 
@@ -193,15 +217,21 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         <Col flex="auto">
           <Flex vertical gap={6}>
             <Space align="center" size={12}>
-              <div style={{ fontSize: 32 }}>{timeEmoji}</div>
+              <div
+                className="text-[32px]"
+                style={{
+                  color:
+                    dayjs().hour() < 18 ? token.colorWarning : token.colorInfo,
+                }}
+              >
+                {timeIcon}
+              </div>
               <Typography.Title
                 level={2}
                 style={{
                   margin: 0,
                   fontWeight: 800,
-                  background: `linear-gradient(45deg, ${token.colorText}, ${token.colorPrimary})`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
+                  color: token.colorTextHeading,
                 }}
               >
                 {greeting}, คุณ{adminName}
@@ -210,7 +240,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             <Typography.Text type="secondary" style={{ fontSize: 16 }}>
               จัดการเวลาทำงานของคุณได้ที่นี่ •{" "}
               <span style={{ color: token.colorSuccess }}>
-                พร้อมลุยงานวันนี้หรือยัง? 🚀
+                พร้อมลุยงานวันนี้หรือยัง? <RocketOutlined />
               </span>
             </Typography.Text>
           </Flex>
@@ -243,21 +273,45 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             >
               ลงเวลาทำงาน
             </Button>
-            <Badge count="ใหม่" offset={[-5, 5]} color={token.colorError}>
+            <Badge
+              count="พบกันเร็วๆนี้"
+              offset={[-15, 5]}
+              color={token.colorTextDisabled}
+            >
               <Button
                 size="large"
                 icon={<AppstoreAddOutlined />}
                 onClick={onAddMultiClick}
+                disabled={true}
                 style={{
                   height: 48,
                   borderRadius: 24,
                   background: token.colorFillSecondary,
                   border: "none",
-                  color: token.colorText,
+                  color: token.colorTextDisabled,
                 }}
               >
                 ลงเวลาหลายรายการ
               </Button>
+            </Badge>
+            <Badge count="ใหม่" offset={[-5, 5]} color={token.colorError}>
+              <Tooltip title="ลง Timesheet ให้พนักงานทุกคน (ต้องใช้รหัสผ่าน)">
+                <Button
+                  size="large"
+                  icon={<TeamOutlined />}
+                  onClick={onBulkAllClick}
+                  style={{
+                    height: 48,
+                    borderRadius: 24,
+                    background: `linear-gradient(135deg, ${token.colorWarning}15 0%, ${token.colorError}15 100%)`,
+                    border: `1px solid ${token.colorWarning}40`,
+                    color: token.colorWarning,
+                    fontWeight: 600,
+                  }}
+                >
+                  ลงแบบทุกคน
+                </Button>
+              </Tooltip>
             </Badge>
           </Space>
         </Col>
@@ -367,15 +421,20 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
       ? dayjs(metadata.generated_at).format("D MMM BB HH:mm")
       : null;
 
+    const isDark = token.colorBgBase === "#0B0F19";
     return (
       <Card
         hoverable
         style={{
           height: "100%",
           borderRadius: 24,
-          border: "none",
-          boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08)",
-          background: `linear-gradient(165deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`,
+          border: `1px solid ${token.colorBorderSecondary}`,
+          boxShadow: isDark
+            ? "0 10px 40px -10px rgba(0,0,0,0.4)"
+            : "0 10px 40px -10px rgba(0,0,0,0.08)",
+          background: isDark
+            ? `linear-gradient(165deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`
+            : `linear-gradient(165deg, #ffffff 0%, ${token.colorFillAlter} 100%)`,
           overflow: "hidden",
           transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
@@ -389,30 +448,14 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
         }}
       >
         <div
+          className="absolute -top-10 -right-10 w-[150px] h-[150px] rounded-full pointer-events-none filter blur-[40px]"
           style={{
-            position: "absolute",
-            top: -50,
-            right: -50,
-            width: 150,
-            height: 150,
-            borderRadius: "50%",
             background: token.colorPrimary,
             opacity: 0.08,
-            filter: "blur(40px)",
-            pointerEvents: "none",
           }}
         />
-        <div style={{ padding: "24px 24px 16px 24px" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              marginBottom: 16,
-              flexWrap: "wrap",
-              gap: 16,
-            }}
-          >
+        <div className="p-6 pb-4">
+          <div className="flex justify-between items-start mb-4 flex-wrap gap-4">
             <div>
               <Typography.Title
                 level={4}
@@ -425,22 +468,15 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                 }}
               >
                 <div
+                  className="p-2 rounded-xl"
                   style={{
-                    padding: 8,
-                    borderRadius: 12,
                     background: `${token.colorWarning}20`,
                     color: token.colorWarning,
                   }}
                 >
                   <TrophyFilled />
                 </div>
-                <span
-                  style={{
-                    background: `linear-gradient(90deg, ${token.colorText} 0%, ${token.colorTextSecondary} 100%)`,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
+                <span style={{ color: token.colorTextHeading }}>
                   {currentAdminId ? "อันดับของคุณ" : "พนักงานดีเด่น"}
                 </span>
               </Typography.Title>
@@ -448,7 +484,8 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                 type="secondary"
                 style={{ fontSize: 12, marginTop: 4, display: "block" }}
               >
-                🔥 ใครขยันที่สุดในเดือนนี้?
+                <FireOutlined style={{ color: token.colorError }} />{" "}
+                ใครขยันที่สุดในเดือนนี้?
               </Typography.Text>
             </div>
           </div>
@@ -463,14 +500,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
           />
         </div>
 
-        <div
-          style={{
-            padding: "0 24px 24px 24px",
-            flex: 1,
-            overflowY: "auto",
-            position: "relative",
-          }}
-        >
+        <div className="px-6 pb-6 flex-1 overflow-y-auto relative">
           <AnimatePresence mode="wait">
             {loading ? (
               <motion.div
@@ -494,7 +524,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                         }}
                       >
                         <Skeleton.Avatar active size={40} shape="circle" />
-                        <div style={{ flex: 1 }}>
+                        <div className="flex-1">
                           <Skeleton.Input
                             active
                             style={{
@@ -570,7 +600,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                 }}
               >
                 <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                  {visibleRecords.map((record) => (
+                  {visibleRecords.map((record, index) => (
                     <motion.div
                       key={record.admin_id}
                       variants={{
@@ -582,7 +612,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                         record={record}
                         isCompact={isCompact}
                         isCurrentUser={record.admin_id === currentAdminId}
-                        rank={record.rank}
+                        rank={String(index + 1)}
                       />
                     </motion.div>
                   ))}
@@ -661,7 +691,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
       <Col xs={24} lg={15} xl={17}>
         <Flex vertical gap={24} style={{ height: "100%" }}>
           {/* Weekly Chart */}
-          <div style={{ flex: 1 }}>
+          <div className="flex-1">
             <WeeklySummary
               weeklySummary={weeklySummary}
               targetHours={DAILY_TARGET_HOURS}
@@ -673,7 +703,11 @@ const StatsGrid: React.FC<StatsGridProps> = ({
           <Row gutter={[24, 24]}>
             <Col xs={24} sm={12}>
               <TimesheetStatCard
-                title="โครงการยอดนิยม 🚀"
+                title={
+                  <Space>
+                    โครงการยอดนิยม <RocketOutlined />
+                  </Space>
+                }
                 value={topProjectUsage ? topProjectUsage.hours : 0}
                 color={token.colorPrimary}
                 loading={loading}
@@ -684,7 +718,11 @@ const StatsGrid: React.FC<StatsGridProps> = ({
             </Col>
             <Col xs={24} sm={12}>
               <TimesheetStatCard
-                title="ฟีเจอร์มาแรง 🔥"
+                title={
+                  <Space>
+                    ฟีเจอร์มาแรง <FireOutlined />
+                  </Space>
+                }
                 value={topFeatureUsage ? topFeatureUsage.hours : 0}
                 color={token.colorError}
                 loading={loading}
@@ -798,158 +836,149 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
     () => [
       {
         title: (
-          <span
-            style={{
-              color: token.colorTextSecondary,
-              fontSize: 13,
-              fontWeight: 600,
-            }}
-          >
-            วันที่
-          </span>
+          <Space>
+            <CalendarOutlined style={{ color: token.colorPrimary }} />
+            <span
+              className="text-[13px] font-semibold"
+              style={{ color: token.colorTextSecondary }}
+            >
+              วันที่
+            </span>
+          </Space>
         ),
         dataIndex: "date",
-        width: 90,
+        width: 110,
         align: "center",
         responsive: ["md"],
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           dayjs(a.date).valueOf() - dayjs(b.date).valueOf(),
-        render: (value: string) => (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 60,
-              height: 60,
-              borderRadius: 16,
-              background: token.colorFillQuaternary,
-              border: `1px solid ${token.colorBorderSecondary}`,
-              margin: "0 auto",
-            }}
-          >
-            <Typography.Text
-              strong
-              style={{ fontSize: 20, color: token.colorPrimary, lineHeight: 1 }}
-            >
-              {dayjs(value).format("DD")}
-            </Typography.Text>
-            <Typography.Text
-              type="secondary"
+        render: (value: string) => {
+          const day = dayjs(value).day();
+          const dayColors = [
+            { bg: "#FFF1F0", text: "#F5222D", border: "#FFA39E" }, // Sun
+            { bg: "#FCFFE6", text: "#A0D911", border: "#EAFF8F" }, // Mon
+            { bg: "#FFF0F6", text: "#EB2F96", border: "#FFADD2" }, // Tue
+            { bg: "#F6FFED", text: "#52C41A", border: "#B7EB8F" }, // Wed
+            { bg: "#FFF7E6", text: "#FA8C16", border: "#FFD591" }, // Thu
+            { bg: "#E6F7FF", text: "#1890FF", border: "#91D5FF" }, // Fri
+            { bg: "#F9F0FF", text: "#722ED1", border: "#D3ADF7" }, // Sat
+          ];
+          const color = dayColors[day];
+          const isDark = token.colorBgBase === "#0B0F19";
+
+          return (
+            <div
+              className="flex flex-col items-center justify-center w-[64px] h-[64px] rounded-2xl mx-auto border border-solid transition-transform hover:scale-105"
               style={{
-                fontSize: 10,
-                textTransform: "uppercase",
-                letterSpacing: 1,
+                background: isDark ? `${color.text}20` : color.bg,
+                borderColor: isDark ? `${color.border}40` : color.border,
+                boxShadow: isDark ? "none" : `0 4px 12px ${color.text}10`,
               }}
             >
-              {dayjs(value).format("MMM")}
-            </Typography.Text>
-          </div>
-        ),
+              <Typography.Text
+                strong
+                className="text-2xl leading-none"
+                style={{ color: isDark ? color.border : color.text }}
+              >
+                {dayjs(value).format("DD")}
+              </Typography.Text>
+              <Typography.Text
+                className="text-[10px] uppercase font-bold tracking-tighter"
+                style={{
+                  color: isDark ? color.border : color.text,
+                  opacity: 0.8,
+                }}
+              >
+                {dayjs(value).format("MMM YYYY")}
+              </Typography.Text>
+            </div>
+          );
+        },
       },
       {
         title: (
-          <span
-            style={{
-              color: token.colorTextSecondary,
-              fontSize: 13,
-              fontWeight: 600,
-            }}
-          >
-            โครงการ / งาน
-          </span>
+          <Space>
+            <ProjectOutlined style={{ color: token.colorInfo }} />
+            <span
+              className="text-[13px] font-semibold"
+              style={{ color: token.colorTextSecondary }}
+            >
+              โครงการ / งาน
+            </span>
+          </Space>
         ),
         dataIndex: "project_name",
-        width: 320,
+        width: 350,
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           a.project_name.localeCompare(b.project_name),
         ...getColumnSearchProps("project_name", "โครงการ"),
         render: (value: string, record: TimesheetEntry) => {
           const avatarColor = stringToColor(value);
-          const isTop = false; // Mock logic
+          const isDark = token.colorBgBase === "#0B0F19";
           return (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 16,
-                padding: "8px 0",
-              }}
-            >
-              <div style={{ position: "relative" }}>
+            <div className="flex items-center gap-4 py-2">
+              <div className="relative group">
+                <div
+                  className="absolute inset-0 rounded-2xl blur-md opacity-0 group-hover:opacity-40 transition-opacity"
+                  style={{ background: avatarColor }}
+                />
                 <Avatar
                   shape="square"
-                  size={48}
-                  src={`https://api.dicebear.com/9.x/icons/svg?seed=${record.project_id}`}
+                  size={52}
+                  src={`https://api.dicebear.com/9.x/identicon/svg?seed=${
+                    record.project_id
+                  }&backgroundColor=${avatarColor.replace("#", "")}`}
+                  className="relative border-2 border-solid rounded-2xl p-1"
                   style={{
-                    backgroundColor: `${avatarColor}15`,
-                    border: `1px solid ${avatarColor}30`,
-                    borderRadius: 14,
-                    padding: 8,
+                    backgroundColor: isDark ? "#1f1f1f" : "#ffffff",
+                    borderColor: `${avatarColor}40`,
                   }}
                 />
-                {isTop && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: -5,
-                      right: -5,
-                      background: "orange",
-                      borderRadius: "50%",
-                      width: 16,
-                      height: 16,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 10,
-                      border: "2px solid white",
-                    }}
-                  >
-                    🔥
-                  </div>
-                )}
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  height: 48,
-                }}
-              >
-                <Typography.Text
-                  strong
-                  style={{ fontSize: 16, color: token.colorTextHeading }}
-                  ellipsis
-                >
-                  {value}
-                </Typography.Text>
-                {record.feature_name ? (
-                  <Space size={4} style={{ marginTop: 2 }}>
+              <div className="flex flex-col justify-center min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <Typography.Text
+                    strong
+                    className="text-base truncate max-w-[200px]"
+                    style={{ color: token.colorTextHeading }}
+                  >
+                    {value}
+                  </Typography.Text>
+                  {record.category_type && (
                     <Tag
-                      color="cyan"
+                      bordered={false}
+                      className="text-[10px] px-1.5 py-0 leading-none h-4 flex items-center"
                       style={{
-                        margin: 0,
-                        borderRadius: 4,
-                        fontSize: 10,
-                        border: "none",
-                        lineHeight: "16px",
+                        background:
+                          record.category_type === "EXTERNAL"
+                            ? `${token.colorSuccess}15`
+                            : `${token.colorInfo}15`,
+                        color:
+                          record.category_type === "EXTERNAL"
+                            ? token.colorSuccess
+                            : token.colorInfo,
                       }}
                     >
-                      ฟีเจอร์
+                      {record.category_type}
                     </Tag>
+                  )}
+                </div>
+                {record.feature_name ? (
+                  <div className="flex items-center gap-2 opacity-80">
+                    <div className="w-1 h-3 rounded-full bg-cyan-500" />
                     <Typography.Text
+                      className="text-[13px] truncate"
                       type="secondary"
-                      style={{ fontSize: 13 }}
-                      ellipsis
                     >
                       {record.feature_name}
                     </Typography.Text>
-                  </Space>
+                  </div>
                 ) : (
-                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                    -
+                  <Typography.Text
+                    className="text-[12px] italic opacity-40"
+                    type="secondary"
+                  >
+                    ไม่มีระบุฟีเจอร์
                   </Typography.Text>
                 )}
               </div>
@@ -959,15 +988,15 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       },
       {
         title: (
-          <span
-            style={{
-              color: token.colorTextSecondary,
-              fontSize: 13,
-              fontWeight: 600,
-            }}
-          >
-            สถานะ
-          </span>
+          <Space>
+            <CheckCircleOutlined style={{ color: token.colorSuccess }} />
+            <span
+              className="text-[13px] font-semibold"
+              style={{ color: token.colorTextSecondary }}
+            >
+              สถานะ
+            </span>
+          </Space>
         ),
         dataIndex: "status",
         width: 140,
@@ -989,24 +1018,24 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
               StatusIcon = SyncOutlined;
               isSpin = true;
               bgStyle = {
-                background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${config.color}15 100%)`,
+                background: `linear-gradient(135deg, ${config.color}20 0%, ${config.color}05 100%)`,
               };
               break;
             case "COMPLETED":
             case "DONE":
             case "APPROVED":
               StatusIcon = CheckCircleFilled;
-              bgStyle = { background: `${config.color}10` };
+              bgStyle = { background: `${config.color}15` };
               break;
             case "REJECTED":
             case "CANCELLED":
               StatusIcon = CloseCircleFilled;
-              bgStyle = { background: `${config.color}10` };
+              bgStyle = { background: `${config.color}15` };
               break;
             case "DRAFT":
             case "PENDING":
               StatusIcon = ClockCircleOutlined;
-              bgStyle = { borderStyle: "dashed" };
+              bgStyle = { borderStyle: "dashed", background: "transparent" };
               break;
             default:
               StatusIcon = TagOutlined;
@@ -1014,85 +1043,75 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
 
           return (
             <div
+              className="inline-flex items-center justify-center gap-x-2 px-4 py-2 rounded-2xl font-bold text-[13px] whitespace-nowrap min-w-[125px] transition-all hover:brightness-110 relative overflow-hidden group shadow-sm border border-solid"
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                columnGap: 8,
-                padding: "6px 14px",
-                borderRadius: 30,
-                border: `1.5px solid ${config.color}40`,
+                borderColor: `${config.color}40`,
                 color: config.color,
-                fontWeight: 600,
-                fontSize: 13,
-                boxShadow: `0 4px 10px -4px ${config.color}60`,
-                transition: "all 0.3s ease",
-                cursor: "default",
-                minWidth: 120,
                 ...bgStyle,
               }}
-              className="status-badge"
             >
-              <StatusIcon spin={isSpin} style={{ fontSize: 16 }} />
-              {label}
+              <div className="relative flex items-center gap-2">
+                {value === "IN_PROGRESS" ? (
+                  <div className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-current"></span>
+                  </div>
+                ) : (
+                  <StatusIcon style={{ fontSize: 16 }} />
+                )}
+                <span>{label}</span>
+              </div>
             </div>
           );
         },
       },
       {
         title: (
-          <span
-            style={{
-              color: token.colorTextSecondary,
-              fontSize: 13,
-              fontWeight: 600,
-            }}
-          >
-            ระยะเวลา
-          </span>
+          <Space>
+            <ClockCircleOutlined style={{ color: token.colorWarning }} />
+            <span
+              className="text-[13px] font-semibold"
+              style={{ color: token.colorTextSecondary }}
+            >
+              ระยะเวลา
+            </span>
+          </Space>
         ),
         dataIndex: "hours",
-        width: 180,
+        width: 150,
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           Number(a.hours || 0) - Number(b.hours || 0),
         render: (value: number) => {
           const hours = Number(value) || 0;
+          let color = token.colorTextHeading;
+          if (hours >= 8) color = token.colorSuccess;
+          else if (hours >= 4) color = token.colorPrimary;
+          else if (hours > 0) color = token.colorWarning;
+
           return (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                paddingRight: 12,
-              }}
-            >
+            <div className="flex items-center gap-3">
               <div
+                className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: token.colorFillSecondary,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: token.colorTextTertiary,
+                  background: `${color}10`,
+                  color: color,
+                  border: `1px solid ${color}20`,
                 }}
               >
-                <ClockCircleOutlined style={{ fontSize: 16 }} />
+                <ThunderboltOutlined className="text-lg" />
               </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
+              <div className="flex flex-col">
                 <span
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 16,
-                    color: token.colorTextHeading,
-                    lineHeight: 1.2,
-                  }}
+                  className="font-black text-lg leading-none"
+                  style={{ color }}
                 >
                   {hours.toFixed(2)}
                 </span>
-                <span style={{ fontSize: 11, color: token.colorTextSecondary }}>
-                  ชั่วโมง
+                <span
+                  className="text-[10px] font-bold opacity-60 uppercase"
+                  style={{ color }}
+                >
+                  Hours
                 </span>
               </div>
             </div>
@@ -1102,70 +1121,81 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       {
         key: "actions",
         fixed: "right",
-        width: 100,
+        width: 110,
         align: "center",
         render: (_: any, r: TimesheetEntry) => (
-          <Space.Compact
-            size="middle"
-            className="actions-group"
-            style={{ opacity: 0.8, transition: "0.3s" }}
-          >
+          <div className="flex justify-center gap-2">
             <Tooltip title="แก้ไข">
               <Button
                 type="text"
-                shape="circle"
+                size="large"
+                className="flex items-center justify-center hover:scale-110 transition-transform"
                 icon={<EditOutlined style={{ color: token.colorWarning }} />}
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit(r);
                 }}
-                style={{ background: token.colorFillQuaternary }}
+                style={{
+                  background: `${token.colorWarning}15`,
+                  borderRadius: 14,
+                  width: 40,
+                  height: 40,
+                }}
               />
             </Tooltip>
             <Tooltip title="คัดลอก">
               <Button
                 type="text"
-                shape="circle"
+                size="large"
+                className="flex items-center justify-center hover:scale-110 transition-transform"
                 icon={<CopyOutlined style={{ color: token.colorSuccess }} />}
                 onClick={(e) => {
                   e.stopPropagation();
                   onCopy(r);
                 }}
-                style={{ background: token.colorFillQuaternary }}
+                style={{
+                  background: `${token.colorSuccess}15`,
+                  borderRadius: 14,
+                  width: 40,
+                  height: 40,
+                }}
               />
             </Tooltip>
-          </Space.Compact>
+          </div>
         ),
       },
     ],
     [onEdit, onCopy, getColumnSearchProps, token]
   );
 
+  const isDark = token.colorBgBase === "#0B0F19";
   return (
     <Card
       bordered={false}
       title={
         <div className="flex items-center gap-4">
           <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center"
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
               background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: `0 4px 12px ${token.colorPrimary}40`,
+              boxShadow: `0 4px 12px ${token.colorPrimary}60`,
             }}
           >
             <ThunderboltOutlined style={{ fontSize: 24, color: "white" }} />
           </div>
           <div>
-            <Typography.Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+            <Typography.Title
+              level={4}
+              style={{
+                margin: 0,
+                fontWeight: 700,
+                color: token.colorTextHeading,
+              }}
+            >
               บันทึกเวลาทำงาน
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              ตารางแสดงรายการลงเวลาทั้งหมด
+              จัดการและตรวจสอบรายการลงเวลาทั้งหมดของคุณ
             </Typography.Text>
           </div>
         </div>
@@ -1180,19 +1210,31 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
           onDelete={onDelete}
         />
       }
+      className="glass-effect"
       style={{
         borderRadius: 24,
-        boxShadow: "0 8px 30px rgba(0,0,0,0.04)",
+        boxShadow: isDark
+          ? "0 8px 32px rgba(0,0,0,0.4)"
+          : "0 8px 30px rgba(0,0,0,0.04)",
         overflow: "hidden",
+        border: `1px solid ${token.colorBorderSecondary}`,
       }}
       bodyStyle={{ padding: 0 }}
     >
       <style jsx global>{`
         .ant-table-wrapper .ant-table-thead > tr > th {
-          background: ${token.colorBgContainer} !important;
-          border-bottom: 2px solid ${token.colorFillSecondary} !important;
+          background: ${isDark
+            ? token.colorFillQuaternary
+            : token.colorFillAlter} !important;
+          border-bottom: 2px solid ${token.colorPrimary}20 !important;
           padding-top: 20px !important;
           padding-bottom: 20px !important;
+        }
+        .ant-table-row {
+          transition: all 0.3s ease !important;
+        }
+        .ant-table-row:hover > td {
+          background: ${token.colorPrimary}05 !important;
         }
         .ant-table-row:hover .actions-group {
           opacity: 1 !important;
@@ -1336,7 +1378,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
             level={3}
             style={{ margin: 0, color: token.colorPrimary }}
           >
-            ⚡ ลงเวลาทำงาน
+            <ThunderboltOutlined /> ลงเวลาทำงาน
           </Typography.Title>
         </Space>
       }
@@ -1577,7 +1619,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
           showIcon
           style={{ marginBottom: 24 }}
         />
-        <div style={{ maxHeight: "60vh", overflowY: "auto", paddingRight: 8 }}>
+        <div className="max-h-[60vh] overflow-y-auto pr-2">
           <Space direction="vertical" style={{ width: "100%" }}>
             {entries.map((entry, idx) => (
               <Card
@@ -1709,6 +1751,659 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
   );
 };
 
+// --- Bulk Entry All Users Modal ---
+interface UserFromStorage {
+  admin_id: number;
+  employee_code: string | null;
+  firstname: string;
+  lastname: string;
+  nickname: string | null;
+  position: string | null;
+  email: string;
+  backlog_email: string | null;
+  tel: string | null;
+}
+
+interface BulkProgressItem {
+  admin_id: number;
+  name: string;
+  employee_code: string | null;
+  status: "pending" | "processing" | "success" | "error";
+  message?: string;
+}
+
+interface BulkEntryAllUsersModalProps {
+  open: boolean;
+  onCancel: () => void;
+  projects: ProjectData[];
+  subProject: SubProjectData[];
+  fetchSubProjects: (id: string) => void;
+  refetchEntries: () => void;
+  rankBoardRefetch?: () => void;
+}
+
+const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
+  open,
+  onCancel,
+  projects,
+  subProject,
+  fetchSubProjects,
+  refetchEntries,
+  rankBoardRefetch,
+}) => {
+  const { token } = theme.useToken();
+  const [form] = Form.useForm();
+  const [passwordForm] = Form.useForm();
+
+  // State
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progressList, setProgressList] = useState<BulkProgressItem[]>([]);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [users, setUsers] = useState<UserFromStorage[]>([]);
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!open) {
+      setIsUnlocked(false);
+      setIsProcessing(false);
+      setProgressList([]);
+      setCompletedCount(0);
+      setUsers([]);
+      form.resetFields();
+      passwordForm.resetFields();
+    }
+  }, [open, form, passwordForm]);
+
+  // Fetch users from localStorage when modal opens
+  useEffect(() => {
+    if (open && isUnlocked) {
+      try {
+        const usersData = localStorage.getItem("users");
+        if (usersData) {
+          const parsedUsers = JSON.parse(usersData);
+          setUsers(Array.isArray(parsedUsers) ? parsedUsers : []);
+        }
+      } catch (error) {
+        console.error("Error parsing users from localStorage:", error);
+        toast.error("ไม่สามารถโหลดข้อมูลผู้ใช้ได้");
+      }
+    }
+  }, [open, isUnlocked]);
+
+  const handlePasswordSubmit = () => {
+    const password = passwordForm.getFieldValue("password");
+    if (password === "LIGHT") {
+      setIsUnlocked(true);
+      toast.success("ปลดล็อคสำเร็จ! สามารถลงเวลาให้ทุกคนได้แล้ว", {
+        icon: <CheckCircleOutlined style={{ color: token.colorSuccess }} />,
+      });
+    } else {
+      toast.error("รหัสผ่านไม่ถูกต้อง");
+    }
+  };
+
+  const projectOptions = useMemo(
+    () =>
+      projects.map((p) => ({
+        label: (
+          <Space>
+            <ProjectOutlined style={{ color: token.colorPrimary }} />
+            {p.name}
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              (ID: {p.id})
+            </Typography.Text>
+          </Space>
+        ),
+        value: Number(p.id),
+        labelString: p.name,
+      })),
+    [projects, token]
+  );
+
+  const subProjectOptions = useMemo(
+    () =>
+      subProject.map((s) => ({
+        label: (
+          <Space>
+            <ApartmentOutlined style={{ color: token.colorWarning }} />
+            {s.name}
+          </Space>
+        ),
+        value: Number(s.id),
+        labelString: s.name,
+      })),
+    [subProject, token]
+  );
+
+  const statusOptions = useMemo(
+    () =>
+      STATUS_OPTIONS.map((s) => ({
+        label: <Tag color={getStatusConfig(s.value).color}>{s.label_th}</Tag>,
+        value: s.value,
+      })),
+    []
+  );
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+
+      if (users.length === 0) {
+        toast.error("ไม่พบข้อมูลผู้ใช้ในระบบ");
+        return;
+      }
+
+      setIsProcessing(true);
+      setCompletedCount(0);
+
+      // Initialize progress list
+      const initialProgress: BulkProgressItem[] = users.map((user) => ({
+        admin_id: user.admin_id,
+        name: `${user.firstname} ${user.lastname}`,
+        employee_code: user.employee_code,
+        status: "pending",
+      }));
+      setProgressList(initialProgress);
+
+      // Process each user sequentially
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+
+        // Update status to processing
+        setProgressList((prev) =>
+          prev.map((item) =>
+            item.admin_id === user.admin_id
+              ? { ...item, status: "processing", message: "กำลังส่งข้อมูล..." }
+              : item
+          )
+        );
+
+        try {
+          const payload = {
+            project_id: values.project_id,
+            sub_project_id: values.sub_project_id,
+            description: values.description ?? "",
+            work_hour: values.work_hour,
+            status: values.status,
+            date: values.date ? values.date.toDate() : undefined,
+            by: user.admin_id,
+          };
+
+          await axios.post("/api/v1/timesheet/entry/insert/", payload, {
+            headers: { "Content-Type": "application/json" },
+          });
+
+          // Update status to success
+          setProgressList((prev) =>
+            prev.map((item) =>
+              item.admin_id === user.admin_id
+                ? { ...item, status: "success", message: "สำเร็จ" }
+                : item
+            )
+          );
+        } catch (error: any) {
+          // Update status to error
+          setProgressList((prev) =>
+            prev.map((item) =>
+              item.admin_id === user.admin_id
+                ? {
+                    ...item,
+                    status: "error",
+                    message: error?.message || "เกิดข้อผิดพลาด",
+                  }
+                : item
+            )
+          );
+        }
+
+        setCompletedCount((prev) => prev + 1);
+
+        // Small delay to avoid overwhelming the server
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      const successCount = users.filter((_, idx) => {
+        const item = progressList[idx];
+        return item?.status === "success";
+      }).length;
+
+      toast.success(
+        `ส่งข้อมูลเสร็จสิ้น! สำเร็จ ${completedCount} จาก ${users.length} คน`
+      );
+      refetchEntries();
+      rankBoardRefetch?.();
+    } catch (error) {
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const progressPercent =
+    users.length > 0 ? Math.round((completedCount / users.length) * 100) : 0;
+
+  // Password Gate UI
+  if (!isUnlocked) {
+    return (
+      <Modal
+        open={open}
+        title={
+          <Space>
+            <div
+              className="p-2 rounded-xl"
+              style={{
+                background: `${token.colorWarning}20`,
+                color: token.colorWarning,
+              }}
+            >
+              <LockOutlined style={{ fontSize: 20 }} />
+            </div>
+            <div>
+              <Typography.Title level={4} className="m-0">
+                ลงเวลาทำงานให้ทุกคน
+              </Typography.Title>
+              <Typography.Text type="secondary" className="text-[12px]">
+                ต้องใช้รหัสผ่านเพื่อเข้าถึงฟีเจอร์นี้
+              </Typography.Text>
+            </div>
+          </Space>
+        }
+        onCancel={onCancel}
+        width={500}
+        centered
+        footer={null}
+      >
+        <div className="py-8 px-6 text-center">
+          <div
+            className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
+            style={{
+              background: `${token.colorWarning}20`,
+            }}
+          >
+            <LockOutlined style={{ fontSize: 40, color: token.colorWarning }} />
+          </div>
+
+          <Typography.Title level={5} className="mb-2">
+            ฟีเจอร์นี้ต้องใช้รหัสผ่านเพิ่มเติม
+          </Typography.Title>
+          <Typography.Text type="secondary" className="block mb-6">
+            เพื่อป้องกันการใช้งานโดยไม่ได้ตั้งใจ กรุณาใส่รหัสผ่าน
+          </Typography.Text>
+
+          <Form form={passwordForm} onFinish={handlePasswordSubmit}>
+            <Form.Item
+              name="password"
+              rules={[{ required: true, message: "กรุณาใส่รหัสผ่าน" }]}
+            >
+              <Input.Password
+                size="large"
+                placeholder="ใส่รหัสผ่าน..."
+                prefix={<LockOutlined />}
+                className="rounded-xl"
+                onPressEnter={handlePasswordSubmit}
+              />
+            </Form.Item>
+            <Button
+              type="primary"
+              size="large"
+              block
+              icon={<UnlockOutlined />}
+              onClick={handlePasswordSubmit}
+              className="h-12 rounded-xl font-semibold border-none"
+              style={{
+                background: token.colorWarning,
+              }}
+            >
+              ปลดล็อค
+            </Button>
+          </Form>
+        </div>
+      </Modal>
+    );
+  }
+
+  // Main Form UI (after unlocked)
+  return (
+    <Modal
+      open={open}
+      title={
+        <Space>
+          <div
+            className="p-2 rounded-xl"
+            style={{
+              background: `${token.colorSuccess}20`,
+              color: token.colorSuccess,
+            }}
+          >
+            <TeamOutlined style={{ fontSize: 20 }} />
+          </div>
+          <div>
+            <Typography.Title
+              level={4}
+              className="m-0"
+              style={{
+                color: token.colorSuccess,
+              }}
+            >
+              ลงเวลาทำงานให้ทุกคน
+            </Typography.Title>
+            <Typography.Text type="secondary" className="text-[12px]">
+              พร้อมส่งข้อมูลให้เพื่อนร่วมงานทั้ง {users.length} คน
+            </Typography.Text>
+          </div>
+        </Space>
+      }
+      onCancel={onCancel}
+      width={900}
+      centered
+      footer={null}
+      maskClosable={!isProcessing}
+      closable={!isProcessing}
+    >
+      {/* Processing Progress View */}
+      {isProcessing && (
+        <div className="mb-6">
+          <Card
+            bordered={false}
+            className="rounded-2xl"
+            style={{
+              background: token.colorPrimaryBg,
+            }}
+          >
+            <Flex vertical align="center" gap={16}>
+              <Progress
+                type="circle"
+                percent={progressPercent}
+                strokeColor={{
+                  "0%": token.colorPrimary,
+                  "100%": token.colorSuccess,
+                }}
+                format={() => (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">
+                      {completedCount}/{users.length}
+                    </div>
+                    <div className="text-xs text-secondary-text">คน</div>
+                  </div>
+                )}
+              />
+              <Typography.Text strong>กำลังดำเนินการ...</Typography.Text>
+            </Flex>
+          </Card>
+
+          {/* Progress List */}
+          <div className="max-h-[300px] overflow-y-auto mt-4 px-2">
+            <Space direction="vertical" style={{ width: "100%" }} size={8}>
+              {progressList.map((item) => (
+                <div
+                  key={item.admin_id}
+                  className="px-4 py-3 rounded-xl transition-all duration-300 border border-solid"
+                  style={{
+                    background:
+                      item.status === "processing"
+                        ? `${token.colorPrimaryBg}`
+                        : item.status === "success"
+                        ? `${token.colorSuccessBg}`
+                        : item.status === "error"
+                        ? `${token.colorErrorBg}`
+                        : token.colorFillQuaternary,
+                    borderColor:
+                      item.status === "processing"
+                        ? token.colorPrimary
+                        : item.status === "success"
+                        ? token.colorSuccess
+                        : item.status === "error"
+                        ? token.colorError
+                        : token.colorBorder,
+                  }}
+                >
+                  <Flex justify="space-between" align="center">
+                    <Space>
+                      {item.status === "pending" && (
+                        <ClockCircleOutlined
+                          style={{ color: token.colorTextSecondary }}
+                        />
+                      )}
+                      {item.status === "processing" && (
+                        <SyncOutlined
+                          spin
+                          style={{ color: token.colorPrimary }}
+                        />
+                      )}
+                      {item.status === "success" && (
+                        <CheckCircleFilled
+                          style={{ color: token.colorSuccess }}
+                        />
+                      )}
+                      {item.status === "error" && (
+                        <CloseCircleFilled
+                          style={{ color: token.colorError }}
+                        />
+                      )}
+                      <div>
+                        <Typography.Text strong>{item.name}</Typography.Text>
+                        {item.employee_code && (
+                          <Typography.Text
+                            type="secondary"
+                            style={{ fontSize: 12, marginLeft: 8 }}
+                          >
+                            ({item.employee_code})
+                          </Typography.Text>
+                        )}
+                      </div>
+                    </Space>
+                    <Typography.Text
+                      style={{
+                        color:
+                          item.status === "processing"
+                            ? token.colorPrimary
+                            : item.status === "success"
+                            ? token.colorSuccess
+                            : item.status === "error"
+                            ? token.colorError
+                            : token.colorTextSecondary,
+                        fontSize: 12,
+                      }}
+                    >
+                      {item.status === "pending" && "รอดำเนินการ"}
+                      {item.status === "processing" &&
+                        `กำลังส่งข้อมูลของ ${item.name}${
+                          item.employee_code ? ` (${item.employee_code})` : ""
+                        }`}
+                      {item.status === "success" &&
+                        `ส่งข้อมูลของ ${item.name}${
+                          item.employee_code ? ` (${item.employee_code})` : ""
+                        } สำเร็จ`}
+                      {item.status === "error" && item.message}
+                    </Typography.Text>
+                  </Flex>
+                </div>
+              ))}
+            </Space>
+          </div>
+        </div>
+      )}
+
+      {/* Form View (when not processing) */}
+      {!isProcessing && (
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{ status: "IN_PROGRESS", date: dayjs() }}
+        >
+          <Alert
+            message={
+              <Space>
+                <InfoCircleOutlined />
+                <span>
+                  ระบบจะลง Timesheet ให้พนักงานทุกคน ({users.length} คน)
+                  ด้วยข้อมูลเดียวกัน
+                </span>
+              </Space>
+            }
+            type="warning"
+            showIcon={false}
+            style={{ marginBottom: 24, borderRadius: 12 }}
+          />
+
+          <Card
+            bordered={false}
+            style={{
+              background: `linear-gradient(135deg, ${token.colorFillAlter} 0%, ${token.colorBgContainer} 100%)`,
+              marginBottom: 24,
+              borderRadius: token.borderRadiusLG,
+            }}
+          >
+            <Row gutter={16}>
+              <Col span={24}>
+                <Typography.Text
+                  strong
+                  style={{
+                    color: token.colorPrimary,
+                    marginBottom: 16,
+                    display: "block",
+                  }}
+                >
+                  <ProjectOutlined className="mr-2" /> โครงการที่รับผิดชอบ
+                </Typography.Text>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="โครงการหลัก"
+                  name="project_id"
+                  rules={[{ required: true, message: "กรุณาเลือกโครงการ" }]}
+                >
+                  <Select
+                    placeholder="เลือกโครงการ..."
+                    options={projectOptions}
+                    onChange={(v) => {
+                      form.setFieldsValue({ sub_project_id: undefined });
+                      if (v) fetchSubProjects(String(v));
+                    }}
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.labelString ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="งานย่อย / ฟีเจอร์"
+                  name="sub_project_id"
+                  rules={[{ required: true, message: "กรุณาเลือกงานย่อย" }]}
+                  dependencies={["project_id"]}
+                >
+                  <Select
+                    placeholder="เลือกงานย่อย..."
+                    options={subProjectOptions}
+                    disabled={!form.getFieldValue("project_id")}
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.labelString ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Card>
+
+          <div
+            style={{
+              background: `${token.colorFillAlter}30`,
+              padding: 24,
+              borderRadius: token.borderRadiusLG,
+            }}
+          >
+            <Row gutter={20}>
+              <Col xs={12} sm={8}>
+                <Form.Item
+                  label="วันที่"
+                  name="date"
+                  rules={[{ required: true, message: "กรุณาเลือกวันที่" }]}
+                >
+                  <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+                </Form.Item>
+              </Col>
+              <Col xs={12} sm={8}>
+                <Form.Item
+                  label="ระยะเวลา (ชม.)"
+                  name="work_hour"
+                  rules={[
+                    { required: true, message: "กรุณาระบุจำนวนชั่วโมง" },
+                    {
+                      type: "number",
+                      min: 0.1,
+                      max: 24,
+                      message: "ระบุ 0.1-24 ชั่วโมง",
+                    },
+                  ]}
+                >
+                  <InputNumber style={{ width: "100%" }} min={0} step={0.5} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={8}>
+                <Form.Item label="สถานะ" name="status">
+                  <Select options={statusOptions} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Divider />
+            <Form.Item label="รายละเอียดการทำงาน" name="description">
+              <Input.TextArea
+                rows={4}
+                showCount
+                maxLength={500}
+                placeholder="ระบุรายละเอียดงานที่ทำ (จะใช้กับทุกคน)..."
+              />
+            </Form.Item>
+          </div>
+
+          <Flex
+            justify="space-between"
+            align="center"
+            style={{ marginTop: 24 }}
+          >
+            <Typography.Text type="secondary">
+              <TeamOutlined /> จะส่งให้ทั้งหมด {users.length} คน
+            </Typography.Text>
+            <Space>
+              <Button onClick={onCancel}>ยกเลิก</Button>
+              <Button
+                type="primary"
+                icon={<TeamOutlined />}
+                onClick={handleSubmit}
+                loading={isProcessing}
+                style={{
+                  background: `linear-gradient(135deg, ${token.colorWarning} 0%, ${token.colorSuccess} 100%)`,
+                  border: "none",
+                  fontWeight: 600,
+                }}
+              >
+                ลงเวลาให้ทุกคน ({users.length} คน)
+              </Button>
+            </Space>
+          </Flex>
+        </Form>
+      )}
+
+      {/* Show close button after processing is done */}
+      {!isProcessing && completedCount > 0 && (
+        <Flex justify="center" style={{ marginTop: 16 }}>
+          <Button onClick={onCancel} type="primary">
+            ปิด
+          </Button>
+        </Flex>
+      )}
+    </Modal>
+  );
+};
+
 // ==========================================
 // 2. MAIN PAGE COMPONENT
 // ==========================================
@@ -1720,11 +2415,13 @@ export default function TimesheetEntryPage() {
   const isMountedRef = useRef(true);
   const rankBoardRef = useRef<MonthlyRankBoardRef>(null);
   const { token } = theme.useToken();
+  const isDark = token.colorBgBase === "#0B0F19";
   const authState = useAppSelector((state) => state.callAdminLogin);
   const timesheetState = useAppSelector((state) => state.timesheet);
 
   // State
   const [multiEntryModalOpen, setMultiEntryModalOpen] = useState(false);
+  const [bulkAllUsersModalOpen, setBulkAllUsersModalOpen] = useState(false);
   const [subProjectsCache, setSubProjectsCache] = useState<
     Record<string, any[]>
   >({});
@@ -1882,6 +2579,16 @@ export default function TimesheetEntryPage() {
     setMultiEntryModalOpen(false);
     setSubProjectsCache({});
   }, []);
+
+  // Bulk All Users Entry Logic
+  const openBulkAllUsersModal = useCallback(
+    () => setBulkAllUsersModalOpen(true),
+    []
+  );
+  const closeBulkAllUsersModal = useCallback(
+    () => setBulkAllUsersModalOpen(false),
+    []
+  );
   const fetchSubProjectsForMulti = useCallback(
     async (projectId: string) => {
       if (subProjectsCache[projectId]) return;
@@ -1943,7 +2650,14 @@ export default function TimesheetEntryPage() {
           style={{
             padding: "32px",
             minHeight: "100vh",
-            background: token.colorBgLayout,
+            background: isDark
+              ? `radial-gradient(at 0% 0%, ${token.colorPrimary}10 0px, transparent 50%), 
+                 radial-gradient(at 100% 0%, ${token.colorInfo}10 0px, transparent 50%),
+                 ${token.colorBgLayout}`
+              : `radial-gradient(at 0% 0%, ${token.colorPrimary}05 0px, transparent 50%), 
+                 radial-gradient(at 100% 0%, ${token.colorInfo}05 0px, transparent 50%),
+                 ${token.colorBgLayout}`,
+            transition: "background 0.5s ease",
           }}
         >
           <Space direction="vertical" size={24} style={{ width: "100%" }}>
@@ -1951,6 +2665,7 @@ export default function TimesheetEntryPage() {
               adminName={adminName}
               onAddClick={openCreateForm}
               onAddMultiClick={openMultiEntryForm}
+              onBulkAllClick={openBulkAllUsersModal}
               token={token}
             />
             <StatsGrid
@@ -2022,6 +2737,15 @@ export default function TimesheetEntryPage() {
             subProjects={subProjectsCache}
             fetchSubProjects={fetchSubProjectsForMulti}
             disabled={actionLoading}
+          />
+          <BulkEntryAllUsersModal
+            open={bulkAllUsersModalOpen}
+            onCancel={closeBulkAllUsersModal}
+            projects={timesheetState.projects}
+            subProject={timesheetState.subProjects}
+            fetchSubProjects={(id) => fetchSubProjects(Number(id))}
+            refetchEntries={refetchEntries}
+            rankBoardRefetch={() => rankBoardRef.current?.refetch()}
           />
         </motion.div>
       </DashboardLayout>
