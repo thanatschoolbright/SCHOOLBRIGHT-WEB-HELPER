@@ -1009,58 +1009,93 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             STATUS_OPTIONS.find((s) => s.value === value)?.label_th ||
             config.text;
 
+          // Resolve Ant Design color presets to actual hex/theme colors
+          const colorMap: Record<string, string> = {
+            success: token.colorSuccess,
+            processing: token.colorPrimary,
+            error: token.colorError,
+            warning: token.colorWarning,
+            geekblue: "#2f54eb",
+            gold: "#faad14",
+            magenta: "#eb2f96",
+            default: "#8c8c8c",
+          };
+
+          const statusColor = colorMap[config.color] || colorMap.default;
+
           let StatusIcon: any = ExclamationCircleFilled;
-          let isSpin = false;
           let bgStyle = {};
+          let iconBg = `${statusColor}15`;
 
           switch (value) {
             case "IN_PROGRESS":
               StatusIcon = SyncOutlined;
-              isSpin = true;
               bgStyle = {
-                background: `linear-gradient(135deg, ${config.color}20 0%, ${config.color}05 100%)`,
+                background: `linear-gradient(135deg, ${statusColor}15 0%, ${statusColor}05 100%)`,
               };
+              iconBg = statusColor;
               break;
             case "COMPLETED":
             case "DONE":
             case "APPROVED":
               StatusIcon = CheckCircleFilled;
-              bgStyle = { background: `${config.color}15` };
+              bgStyle = { background: `${statusColor}10` };
+              iconBg = `${statusColor}20`;
               break;
             case "REJECTED":
             case "CANCELLED":
               StatusIcon = CloseCircleFilled;
-              bgStyle = { background: `${config.color}15` };
+              bgStyle = { background: `${statusColor}10` };
+              iconBg = `${statusColor}20`;
               break;
             case "DRAFT":
             case "PENDING":
               StatusIcon = ClockCircleOutlined;
               bgStyle = { borderStyle: "dashed", background: "transparent" };
+              iconBg = `${statusColor}10`;
               break;
             default:
               StatusIcon = TagOutlined;
+              bgStyle = { background: `${statusColor}10` };
+              iconBg = `${statusColor}15`;
           }
+
+          const isDark = token.colorBgBase === "#0B0F19";
 
           return (
             <div
-              className="inline-flex items-center justify-center gap-x-2 px-4 py-2 rounded-2xl font-bold text-[13px] whitespace-nowrap min-w-[125px] transition-all hover:brightness-110 relative overflow-hidden group shadow-sm border border-solid"
+              className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl font-bold text-[13px] whitespace-nowrap min-w-[130px] transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group border border-solid"
               style={{
-                borderColor: `${config.color}40`,
-                color: config.color,
+                borderColor: `${statusColor}30`,
+                color: isDark ? statusColor : statusColor,
                 ...bgStyle,
+                boxShadow: isDark ? "none" : `0 2px 8px ${statusColor}10`,
               }}
             >
-              <div className="relative flex items-center gap-2">
+              <div
+                className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0 transition-transform group-hover:rotate-12"
+                style={{
+                  background: iconBg,
+                  color: value === "IN_PROGRESS" ? "#fff" : statusColor,
+                  boxShadow:
+                    value === "IN_PROGRESS"
+                      ? `0 0 10px ${statusColor}40`
+                      : "none",
+                }}
+              >
                 {value === "IN_PROGRESS" ? (
-                  <div className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-current"></span>
-                  </div>
+                  <SyncOutlined spin style={{ fontSize: 14 }} />
                 ) : (
-                  <StatusIcon style={{ fontSize: 16 }} />
+                  <StatusIcon style={{ fontSize: 14 }} />
                 )}
-                <span>{label}</span>
               </div>
+              <span className="tracking-tight">{label}</span>
+
+              {/* Subtle hover glow */}
+              <div
+                className="absolute inset-x-0 bottom-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: statusColor }}
+              />
             </div>
           );
         },
