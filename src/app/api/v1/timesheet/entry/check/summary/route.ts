@@ -11,6 +11,7 @@ const TARGET_POSITIONS = new Set([
   "business development",
   "admin",
   "business analyst",
+  "system analyst",
   "ux/ui",
 ]);
 const WORKING_HOURS_PER_DAY = 8;

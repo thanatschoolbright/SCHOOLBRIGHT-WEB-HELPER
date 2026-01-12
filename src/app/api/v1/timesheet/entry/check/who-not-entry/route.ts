@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { Service } from "@/services/backend/timesheet/entry.service";
-import axios from "axios"
+import axios from "axios";
 import { API_URL } from "@services/api-url";
 
 type TimesheetEntry = {
@@ -29,6 +29,8 @@ const TARGET_POSITIONS = new Set([
   "business development",
   "admin",
   "business analyst",
+  "system analyst",
+  "ux/ui",
 ]);
 
 const normalizePosition = (position?: string) =>

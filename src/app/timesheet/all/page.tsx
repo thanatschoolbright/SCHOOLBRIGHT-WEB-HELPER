@@ -29,6 +29,7 @@ import {
   InfoCircleOutlined,
   DownOutlined,
   FileTextOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 
 import PermissionLayout from "@/components/layouts/permission-layout";
@@ -48,6 +49,7 @@ import ExportModal from "@components/modal/timesheet-export-modal";
 import ExportModalByProject from "@components/modal/timesheet-export-modal-by-project";
 import ExportModalTemplate3 from "@components/modal/timesheet-export-modal-template3";
 import ExportModalTemplate4 from "@components/modal/timesheet-export-modal-template4";
+import { toast } from "sonner";
 
 const { Title, Text } = Typography;
 
@@ -228,6 +230,38 @@ export default function TimesheetAllPage() {
     []
   );
 
+  const handleCopyDiscord = useCallback(() => {
+    if (filteredRecords.length === 0) {
+      toast.error("ไม่มีข้อมูลในตาราง");
+      return;
+    }
+
+    const title = `รายงานไทม์ชีท ${
+      metadata?.range?.label_th ? `ประจำ${metadata.range.label_th}` : ""
+    }`;
+    const body = filteredRecords
+      .map((rec, index) => {
+        const gapText =
+          rec.hours_gap > 0 ? ` (ขาด ${rec.hours_gap} ชั่วโมง)` : "";
+        return `${index + 1}. ${rec.full_name} เวลาลงทำงาน ${rec.total_hours}/${
+          rec.required_hours
+        } ชั่วโมง${gapText}`;
+      })
+      .join("\n");
+
+    const fullText = `${title}\n${body}`;
+
+    navigator.clipboard
+      .writeText(fullText)
+      .then(() => {
+        toast.success("คัดลอกรายงานลง Clipboard แล้ว");
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+        toast.error("ไม่สามารถคัดลอกข้อมูลได้");
+      });
+  }, [filteredRecords, metadata]);
+
   useEffect(() => {
     const allUsers = getUserData();
     if (allUsers) dispatch(setUsers(allUsers));
@@ -335,6 +369,15 @@ export default function TimesheetAllPage() {
                     </Space>
                   </Button>
                 </Dropdown>
+
+                <Button
+                  icon={<CopyOutlined />}
+                  onClick={handleCopyDiscord}
+                  shape="round"
+                  className="shadow-sm border-0 bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:opacity-90"
+                >
+                  คัดลอกข้อมูล (Discord)
+                </Button>
               </Flex>
 
               <Divider style={{ margin: 0, opacity: 0.1 }} />
