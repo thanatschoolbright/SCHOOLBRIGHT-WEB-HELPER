@@ -38,6 +38,8 @@ import {
   Alert,
   FormInstance,
   Flex,
+  Checkbox,
+  Popover,
 } from "antd";
 import { TableProps, ColumnType } from "antd/lib/table";
 import { motion, AnimatePresence } from "framer-motion";
@@ -83,6 +85,9 @@ import {
   SunOutlined,
   CloudOutlined,
   MoonOutlined,
+  FileTextOutlined,
+  SafetyCertificateFilled,
+  SettingOutlined,
 } from "@ant-design/icons";
 
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -184,7 +189,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   const isDark = token.colorBgBase === "#0B0F19";
   return (
     <Card
-      bordered={false}
       style={{
         background: isDark
           ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorPrimary}25 100%)`
@@ -756,6 +760,15 @@ interface TimesheetTableProps {
   onAdd: () => void;
   onDelete: () => void;
 }
+const ALL_TIMESHEET_COLUMNS = [
+  { key: "date", label: "วันที่" },
+  { key: "project_name", label: "โครงการ / งาน" },
+  { key: "status", label: "สถานะ" },
+  { key: "description", label: "รายละเอียด" },
+  { key: "hours", label: "เวลา" },
+  { key: "actions", label: "จัดการ" },
+];
+
 const TimesheetTable: React.FC<TimesheetTableProps> = ({
   entries,
   loading,
@@ -774,6 +787,23 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
   onDelete,
 }) => {
   const { token } = theme.useToken();
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("timesheet-visible-columns");
+      return saved
+        ? JSON.parse(saved)
+        : ALL_TIMESHEET_COLUMNS.map((c) => c.key);
+    }
+    return ALL_TIMESHEET_COLUMNS.map((c) => c.key);
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "timesheet-visible-columns",
+      JSON.stringify(visibleColumns)
+    );
+  }, [visibleColumns]);
+
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
@@ -868,11 +898,10 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
 
           return (
             <div
-              className="flex flex-col items-center justify-center w-[64px] h-[64px] rounded-2xl mx-auto border border-solid transition-transform hover:scale-105"
+              className="flex flex-col items-center justify-center w-[64px] h-[64px] rounded-2xl mx-auto border border-solid transition-all hover:shadow-md hover:-translate-y-0.5"
               style={{
                 background: isDark ? `${color.text}20` : color.bg,
                 borderColor: isDark ? `${color.border}40` : color.border,
-                boxShadow: isDark ? "none" : `0 4px 12px ${color.text}10`,
               }}
             >
               <Typography.Text
@@ -883,10 +912,10 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 {dayjs(value).format("DD")}
               </Typography.Text>
               <Typography.Text
-                className="text-[10px] uppercase font-bold tracking-tighter"
+                className="text-[10px] uppercase font-bold tracking-tight mt-1"
                 style={{
                   color: isDark ? color.border : color.text,
-                  opacity: 0.8,
+                  opacity: 0.7,
                 }}
               >
                 {dayjs(value).format("MMM YYYY")}
@@ -898,7 +927,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       {
         title: (
           <Space>
-            <ProjectOutlined style={{ color: token.colorInfo }} />
+            <ProjectOutlined style={{ color: token.colorPrimary }} />
             <span
               className="text-[13px] font-semibold"
               style={{ color: token.colorTextSecondary }}
@@ -908,7 +937,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
           </Space>
         ),
         dataIndex: "project_name",
-        width: 350,
+        width: 320,
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           a.project_name.localeCompare(b.project_name),
         ...getColumnSearchProps("project_name", "โครงการ"),
@@ -916,76 +945,56 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
           const avatarColor = stringToColor(value);
           const isDark = token.colorBgBase === "#0B0F19";
           return (
-            <div className="flex items-center gap-4 py-2">
-              <div className="relative group">
-                <div
-                  className="absolute inset-0 rounded-2xl blur-md opacity-0 group-hover:opacity-40 transition-opacity"
-                  style={{ background: avatarColor }}
-                />
-                <Avatar
-                  shape="square"
-                  size={52}
-                  src={`https://api.dicebear.com/9.x/identicon/svg?seed=${
-                    record.project_id
-                  }&backgroundColor=${avatarColor.replace("#", "")}`}
-                  className="relative border-2 border-solid rounded-2xl p-1"
-                  style={{
-                    backgroundColor: isDark ? "#1f1f1f" : "#ffffff",
-                    borderColor: `${avatarColor}40`,
-                  }}
-                />
-              </div>
-              <div className="flex flex-col justify-center min-w-0">
+            <div className="flex items-center gap-4 py-1">
+              <Avatar
+                shape="square"
+                size={48}
+                src={`https://api.dicebear.com/9.x/identicon/svg?seed=${
+                  record.project_id
+                }&backgroundColor=${avatarColor.replace("#", "")}`}
+                className="border-2 border-solid rounded-xl p-1 shrink-0"
+                style={{
+                  backgroundColor: isDark ? "#1f1f1f" : "#ffffff",
+                  borderColor: `${avatarColor}30`,
+                }}
+              />
+              <div className="flex flex-col justify-center min-w-0 overflow-hidden">
                 <div className="flex items-center gap-2 mb-0.5">
                   <Typography.Text
                     strong
-                    className="text-base truncate max-w-[200px]"
-                    style={{ color: token.colorTextHeading }}
+                    className="text-[15px] truncate max-w-[180px]"
                   >
                     {value}
                   </Typography.Text>
                   {record.category_type && (
                     <Tag
                       bordered={false}
-                      className="text-[10px] px-1.5 py-0 leading-none h-4 flex items-center"
-                      style={{
-                        background:
-                          record.category_type === "EXTERNAL"
-                            ? `${token.colorSuccess}15`
-                            : `${token.colorInfo}15`,
-                        color:
-                          record.category_type === "EXTERNAL"
-                            ? token.colorSuccess
-                            : token.colorInfo,
-                      }}
+                      color={
+                        record.category_type === "EXTERNAL"
+                          ? "success"
+                          : "processing"
+                      }
+                      className="text-[10px] m-0 px-1.5 leading-tight rounded-md"
                     >
                       {record.category_type}
                     </Tag>
                   )}
                 </div>
-                {record.feature_name ? (
-                  <div className="flex items-center gap-2 opacity-80">
-                    <div className="w-1 h-3 rounded-full bg-cyan-500" />
-                    <Typography.Text
-                      className="text-[13px] truncate"
-                      type="secondary"
-                    >
-                      {record.feature_name}
-                    </Typography.Text>
-                  </div>
-                ) : (
-                  <Typography.Text
-                    className="text-[12px] italic opacity-40"
-                    type="secondary"
-                  >
-                    ไม่มีระบุฟีเจอร์
-                  </Typography.Text>
-                )}
+                <Typography.Text
+                  type="secondary"
+                  className="text-[12px] flex items-center gap-1.5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                  <span className="truncate">
+                    {record.feature_name || "General Task"}
+                  </span>
+                </Typography.Text>
               </div>
             </div>
           );
         },
       },
+
       {
         title: (
           <Space>
@@ -1001,104 +1010,95 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataIndex: "status",
         width: 140,
         align: "center",
-        sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
-          (a.status ?? "").localeCompare(b.status ?? ""),
         render: (value: string) => {
           const config = getStatusConfig(value);
           const label =
             STATUS_OPTIONS.find((s) => s.value === value)?.label_th ||
             config.text;
 
-          // Resolve Ant Design color presets to actual hex/theme colors
-          const colorMap: Record<string, string> = {
-            success: token.colorSuccess,
-            processing: token.colorPrimary,
-            error: token.colorError,
-            warning: token.colorWarning,
-            geekblue: "#2f54eb",
-            gold: "#faad14",
-            magenta: "#eb2f96",
-            default: "#8c8c8c",
+          // Dynamic colors and icons based on status
+          const isDark = token.colorBgBase === "#0B0F19";
+          const statusMap: any = {
+            IN_PROGRESS: {
+              icon: <SyncOutlined spin />,
+              color: token.colorPrimary,
+              bg: `${token.colorPrimary}15`,
+            },
+            COMPLETED: {
+              icon: <CheckCircleFilled />,
+              color: token.colorSuccess,
+              bg: `${token.colorSuccess}15`,
+            },
+            APPROVED: {
+              icon: <SafetyCertificateFilled />,
+              color: token.colorSuccess,
+              bg: `${token.colorSuccess}15`,
+            },
+            REJECTED: {
+              icon: <CloseCircleFilled />,
+              color: token.colorError,
+              bg: `${token.colorError}15`,
+            },
+            DRAFT: {
+              icon: <ClockCircleOutlined />,
+              color: token.colorTextDescription,
+              bg: `${token.colorFillSecondary}`,
+            },
           };
 
-          const statusColor = colorMap[config.color] || colorMap.default;
-
-          let StatusIcon: any = ExclamationCircleFilled;
-          let bgStyle = {};
-          let iconBg = `${statusColor}15`;
-
-          switch (value) {
-            case "IN_PROGRESS":
-              StatusIcon = SyncOutlined;
-              bgStyle = {
-                background: `linear-gradient(135deg, ${statusColor}15 0%, ${statusColor}05 100%)`,
-              };
-              iconBg = statusColor;
-              break;
-            case "COMPLETED":
-            case "DONE":
-            case "APPROVED":
-              StatusIcon = CheckCircleFilled;
-              bgStyle = { background: `${statusColor}10` };
-              iconBg = `${statusColor}20`;
-              break;
-            case "REJECTED":
-            case "CANCELLED":
-              StatusIcon = CloseCircleFilled;
-              bgStyle = { background: `${statusColor}10` };
-              iconBg = `${statusColor}20`;
-              break;
-            case "DRAFT":
-            case "PENDING":
-              StatusIcon = ClockCircleOutlined;
-              bgStyle = { borderStyle: "dashed", background: "transparent" };
-              iconBg = `${statusColor}10`;
-              break;
-            default:
-              StatusIcon = TagOutlined;
-              bgStyle = { background: `${statusColor}10` };
-              iconBg = `${statusColor}15`;
-          }
-
-          const isDark = token.colorBgBase === "#0B0F19";
+          const current = statusMap[value] || {
+            icon: <TagOutlined />,
+            color: token.colorWarning,
+            bg: `${token.colorWarning}15`,
+          };
 
           return (
             <div
-              className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl font-bold text-[13px] whitespace-nowrap min-w-[130px] transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group border border-solid"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-bold border border-solid"
               style={{
-                borderColor: `${statusColor}30`,
-                color: isDark ? statusColor : statusColor,
-                ...bgStyle,
-                boxShadow: isDark ? "none" : `0 2px 8px ${statusColor}10`,
+                color: current.color,
+                backgroundColor: isDark ? `${current.color}10` : current.bg,
+                borderColor: `${current.color}30`,
               }}
             >
-              <div
-                className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0 transition-transform group-hover:rotate-12"
-                style={{
-                  background: iconBg,
-                  color: value === "IN_PROGRESS" ? "#fff" : statusColor,
-                  boxShadow:
-                    value === "IN_PROGRESS"
-                      ? `0 0 10px ${statusColor}40`
-                      : "none",
-                }}
-              >
-                {value === "IN_PROGRESS" ? (
-                  <SyncOutlined spin style={{ fontSize: 14 }} />
-                ) : (
-                  <StatusIcon style={{ fontSize: 14 }} />
-                )}
-              </div>
-              <span className="tracking-tight">{label}</span>
-
-              {/* Subtle hover glow */}
-              <div
-                className="absolute inset-x-0 bottom-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: statusColor }}
-              />
+              {current.icon}
+              <span>{label}</span>
             </div>
           );
         },
+      },
+      {
+        title: (
+          <Space>
+            <FileTextOutlined style={{ color: token.colorInfo }} />
+            <span
+              className="text-[13px] font-semibold"
+              style={{ color: token.colorTextSecondary }}
+            >
+              รายละเอียด
+            </span>
+          </Space>
+        ),
+        dataIndex: "description",
+        width: 280,
+        render: (value: string) => (
+          <Tooltip title={value} placement="topLeft" mouseEnterDelay={0.5}>
+            <div className="group relative">
+              <Typography.Paragraph
+                ellipsis={{ rows: 2 }}
+                className="text-[13px] m-0 pr-4 leading-relaxed italic"
+                style={{ color: token.colorTextSecondary }}
+              >
+                {value || (
+                  <span className="opacity-30">ไม่มีรายละเอียดระบุไว้</span>
+                )}
+              </Typography.Paragraph>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-40 transition-opacity">
+                <InfoCircleOutlined style={{ fontSize: 12 }} />
+              </div>
+            </div>
+          </Tooltip>
+        ),
       },
       {
         title: (
@@ -1108,47 +1108,33 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
               className="text-[13px] font-semibold"
               style={{ color: token.colorTextSecondary }}
             >
-              ระยะเวลา
+              เวลา
             </span>
           </Space>
         ),
         dataIndex: "hours",
-        width: 150,
+        width: 130,
+        align: "right",
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           Number(a.hours || 0) - Number(b.hours || 0),
         render: (value: number) => {
           const hours = Number(value) || 0;
-          let color = token.colorTextHeading;
-          if (hours >= 8) color = token.colorSuccess;
-          else if (hours >= 4) color = token.colorPrimary;
-          else if (hours > 0) color = token.colorWarning;
-
+          const isSuccess = hours >= 8;
           return (
-            <div className="flex items-center gap-3">
-              <div
-                className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+            <div className="inline-flex items-end gap-1">
+              <span
+                className="text-xl font-black leading-none"
                 style={{
-                  background: `${color}10`,
-                  color: color,
-                  border: `1px solid ${color}20`,
+                  color: isSuccess
+                    ? token.colorSuccess
+                    : token.colorTextHeading,
                 }}
               >
-                <ThunderboltOutlined className="text-lg" />
-              </div>
-              <div className="flex flex-col">
-                <span
-                  className="font-black text-lg leading-none"
-                  style={{ color }}
-                >
-                  {hours.toFixed(2)}
-                </span>
-                <span
-                  className="text-[10px] font-bold opacity-60 uppercase"
-                  style={{ color }}
-                >
-                  Hours
-                </span>
-              </div>
+                {hours.toFixed(1)}
+              </span>
+              <span className="text-[10px] font-bold mb-0.5 opacity-50 uppercase">
+                ชั่วโมง
+              </span>
             </div>
           );
         },
@@ -1156,57 +1142,56 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       {
         key: "actions",
         fixed: "right",
-        width: 110,
+        width: 100,
         align: "center",
         render: (_: any, r: TimesheetEntry) => (
-          <div className="flex justify-center gap-2">
+          <Space size="middle">
             <Tooltip title="แก้ไข">
               <Button
                 type="text"
-                size="large"
-                className="flex items-center justify-center hover:scale-110 transition-transform"
+                size="small"
+                shape="circle"
                 icon={<EditOutlined style={{ color: token.colorWarning }} />}
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit(r);
                 }}
-                style={{
-                  background: `${token.colorWarning}15`,
-                  borderRadius: 14,
-                  width: 40,
-                  height: 40,
-                }}
+                className="hover:bg-orange-50"
               />
             </Tooltip>
             <Tooltip title="คัดลอก">
               <Button
                 type="text"
-                size="large"
-                className="flex items-center justify-center hover:scale-110 transition-transform"
+                size="small"
+                shape="circle"
                 icon={<CopyOutlined style={{ color: token.colorSuccess }} />}
                 onClick={(e) => {
                   e.stopPropagation();
                   onCopy(r);
                 }}
-                style={{
-                  background: `${token.colorSuccess}15`,
-                  borderRadius: 14,
-                  width: 40,
-                  height: 40,
-                }}
+                className="hover:bg-green-50"
               />
             </Tooltip>
-          </div>
+          </Space>
         ),
       },
     ],
     [onEdit, onCopy, getColumnSearchProps, token]
   );
 
+  const filteredColumns = useMemo(
+    () =>
+      columns.filter(
+        (col: any) =>
+          visibleColumns.includes(col.dataIndex as string) ||
+          visibleColumns.includes(col.key as string)
+      ),
+    [columns, visibleColumns]
+  );
+
   const isDark = token.colorBgBase === "#0B0F19";
   return (
     <Card
-      bordered={false}
       title={
         <div className="flex items-center gap-4">
           <div
@@ -1236,14 +1221,79 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         </div>
       }
       extra={
-        <TimesheetActions
-          selectedCount={selectedRowKeys?.length}
-          loading={actionLoading}
-          refreshLoading={loading}
-          onRefresh={onRefresh}
-          onAdd={onAdd}
-          onDelete={onDelete}
-        />
+        <Space size="middle">
+          <Popover
+            content={
+              <div
+                className="flex flex-col gap-3 min-w-[200px] p-1"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-1 pb-2 border-0 border-b border-solid border-slate-100">
+                  <Typography.Text strong style={{ fontSize: 14 }}>
+                    ตั้งค่าการแสดงผลคอลัมน์
+                  </Typography.Text>
+                  <Tooltip title="รีเซ็ต">
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<ReloadOutlined style={{ fontSize: 12 }} />}
+                      onClick={() =>
+                        setVisibleColumns(
+                          ALL_TIMESHEET_COLUMNS.map((c) => c.key)
+                        )
+                      }
+                    />
+                  </Tooltip>
+                </div>
+                <Checkbox.Group
+                  value={visibleColumns}
+                  onChange={(checkedValues) =>
+                    setVisibleColumns(checkedValues as string[])
+                  }
+                  className="w-full"
+                >
+                  <Flex vertical gap={10}>
+                    {ALL_TIMESHEET_COLUMNS.map((col) => (
+                      <Checkbox
+                        key={col.key}
+                        value={col.key}
+                        className="hover:bg-slate-50 p-1 rounded-md transition-colors w-full"
+                      >
+                        <span style={{ fontSize: 13 }}>{col.label}</span>
+                      </Checkbox>
+                    ))}
+                  </Flex>
+                </Checkbox.Group>
+              </div>
+            }
+            trigger="click"
+            placement="bottomRight"
+            arrow={false}
+          >
+            <Tooltip title="ตั้งค่าแสดงคอลัมน์">
+              <Button
+                icon={<SettingOutlined />}
+                size="large"
+                style={{
+                  borderRadius: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                }}
+              />
+            </Tooltip>
+          </Popover>
+          <TimesheetActions
+            selectedCount={selectedRowKeys?.length}
+            loading={actionLoading}
+            refreshLoading={loading}
+            onRefresh={onRefresh}
+            onAdd={onAdd}
+            onDelete={onDelete}
+          />
+        </Space>
       }
       className="glass-effect"
       style={{
@@ -1278,7 +1328,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       `}</style>
       <Table<TimesheetEntry>
         rowKey={(r) => String(r.id)}
-        columns={columns}
+        columns={filteredColumns}
         dataSource={entries}
         loading={loading}
         rowSelection={{
@@ -1424,7 +1474,6 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
     >
       <Form form={form} layout="vertical" onFinish={onSubmit}>
         <Card
-          bordered={false}
           style={{
             background: `linear-gradient(135deg, ${token.colorFillAlter} 0%, ${token.colorBgContainer} 100%)`,
             marginBottom: 24,
@@ -2140,7 +2189,6 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
       {isProcessing && (
         <div className="mb-6">
           <Card
-            bordered={false}
             className="rounded-2xl"
             style={{
               background: token.colorPrimaryBg,
@@ -2283,7 +2331,6 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
           />
 
           <Card
-            bordered={false}
             style={{
               background: `linear-gradient(135deg, ${token.colorFillAlter} 0%, ${token.colorBgContainer} 100%)`,
               marginBottom: 24,

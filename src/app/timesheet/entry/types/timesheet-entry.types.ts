@@ -10,6 +10,7 @@ export interface TimesheetEntry {
   description?: string | null;
   created_at?: string;
   updated_at?: string;
+  category_type?: string;
 }
 
 export type SearchableColumnKey =
