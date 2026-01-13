@@ -29,6 +29,7 @@ import {
   List,
   AutoComplete,
   Empty,
+  InputNumber,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -412,6 +413,44 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
     background: bg,
   });
 
+  const tooltipContent = (
+    label: string,
+    source: string,
+    calc: string,
+    utility: string
+  ) => (
+    <div style={{ padding: "4px" }}>
+      <div
+        style={{
+          fontWeight: 700,
+          marginBottom: 8,
+          borderBottom: `1px solid rgba(255,255,255,0.2)`,
+          paddingBottom: 4,
+        }}
+      >
+        {label}
+      </div>
+      <div style={{ marginBottom: 4 }}>
+        <Text strong style={{ color: "#fff", fontSize: 11 }}>
+          ที่มา:
+        </Text>{" "}
+        <span style={{ fontSize: 11 }}>{source}</span>
+      </div>
+      <div style={{ marginBottom: 4 }}>
+        <Text strong style={{ color: "#fff", fontSize: 11 }}>
+          การคำนวณ:
+        </Text>{" "}
+        <span style={{ fontSize: 11 }}>{calc}</span>
+      </div>
+      <div>
+        <Text strong style={{ color: "#fff", fontSize: 11 }}>
+          ประโยชน์:
+        </Text>{" "}
+        <span style={{ fontSize: 11 }}>{utility}</span>
+      </div>
+    </div>
+  );
+
   const items = [
     {
       label: "โครงการทั้งหมด",
@@ -421,6 +460,12 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
       bg: token.colorPrimaryBg,
       icon: <AppstoreOutlined />,
       suffix: "โครงการ",
+      tooltip: tooltipContent(
+        "โครงการทั้งหมด",
+        "ดึงข้อมูลจากฐานข้อมูลโครงการ (ยกเว้นที่ถูกลบ)",
+        "นับจำนวนโครงการทั้งหมดที่อยู่ในระบบ",
+        "ใช้ดูภาพรวมปริมาณโครงการทั้งหมดที่เคยบริหารจัดการ"
+      ),
     },
     {
       label: "กำลังดำเนินการ",
@@ -430,6 +475,12 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
       bg: token.colorSuccessBg,
       icon: <RocketOutlined />,
       suffix: "โครงการ",
+      tooltip: tooltipContent(
+        "กำลังดำเนินการ",
+        "โครงการที่มีสถานะเป็น 'เปิดใช้งาน'",
+        "กรองโครงการที่มีสถานะ Open",
+        "ช่วยติดตามความคืบหน้าของงานปัจจุบันที่กำลังทำอยู่"
+      ),
     },
     {
       label: "ปิดโครงการแล้ว",
@@ -439,6 +490,12 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
       bg: token.colorFillSecondary,
       icon: <CheckCircleOutlined />,
       suffix: "โครงการ",
+      tooltip: tooltipContent(
+        "ปิดโครงการแล้ว",
+        "โครงการที่มีสถานะเป็น 'ปิดโครงการ' หรือเสร็จแล้ว",
+        "กรองโครงการที่มีสถานะ Closed",
+        "ใช้สำรวจโครงการที่จบไปแล้วเพื่อสรุปยอดหรืองานย้อนหลัง"
+      ),
     },
     {
       label: "อัตราความสำเร็จ",
@@ -448,6 +505,12 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
       bg: token.colorWarningBg,
       icon: <PieChartOutlined />,
       suffix: "%",
+      tooltip: tooltipContent(
+        "อัตราความสำเร็จ",
+        "คำนวณจากสัดส่วนโครงการที่ปิดแล้ว",
+        "(จำนวนที่ปิด / จำนวนทั้งหมด) x 100",
+        "วัดประสิทธิภาพการบริหารโครงการให้เสร็จสิ้นตามเป้าหมาย"
+      ),
     },
   ];
 
@@ -462,9 +525,17 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
           >
             <Flex justify="space-between" align="start">
               <Flex vertical gap={4}>
-                <Text type="secondary" style={{ fontSize: 13 }}>
-                  {item.label}
-                </Text>
+                <Tooltip title={item.tooltip} placement="topLeft" arrow>
+                  <Text
+                    type="secondary"
+                    style={{ fontSize: 13, cursor: "help" }}
+                  >
+                    {item.label}{" "}
+                    <InfoCircleOutlined
+                      style={{ fontSize: 10, opacity: 0.5 }}
+                    />
+                  </Text>
+                </Tooltip>
                 <Statistic
                   value={item.value}
                   valueStyle={{
@@ -578,37 +649,78 @@ const CategorySummaryCards = ({
             (p) => String(p.categoryType) === String(cat.id)
           ).length;
 
+          const categoryTooltip = (
+            <div style={{ padding: "4px" }}>
+              <div
+                style={{
+                  fontWeight: 700,
+                  marginBottom: 8,
+                  borderBottom: `1px solid rgba(255,255,255,0.2)`,
+                  paddingBottom: 4,
+                }}
+              >
+                หมวดหมู่: {cat.name}
+              </div>
+              <div style={{ marginBottom: 4 }}>
+                <Text strong style={{ color: "#fff", fontSize: 11 }}>
+                  ที่มา:
+                </Text>{" "}
+                <span style={{ fontSize: 11 }}>
+                  แยกตามประเภทที่ระบุในโครงการ
+                </span>
+              </div>
+              <div style={{ marginBottom: 4 }}>
+                <Text strong style={{ color: "#fff", fontSize: 11 }}>
+                  การคำนวณ:
+                </Text>{" "}
+                <span style={{ fontSize: 11 }}>
+                  กรองเฉพาะโครงการที่เป็นประเภท {cat.id}
+                </span>
+              </div>
+              <div>
+                <Text strong style={{ color: "#fff", fontSize: 11 }}>
+                  ประโยชน์:
+                </Text>{" "}
+                <span style={{ fontSize: 11 }}>
+                  ใช้สำหรับการทำแผนผังทรัพยากรและการจัดการงบประมาณตามหมวดหมู่
+                </span>
+              </div>
+            </div>
+          );
+
           return (
             <Col xs={12} sm={8} md={6} xl={4} key={cat.id}>
-              <Card
-                size="small"
-                style={cardStyle}
-                className="hover:shadow-sm transition-all"
-              >
-                <Flex justify="space-between" align="start" className="mb-2">
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 8,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 16,
-                      color: getColor(cat.id),
-                      background: getBg(cat.id),
-                    }}
-                  >
-                    {getIcon(cat.id)}
-                  </div>
-                  <Tag color={count > 0 ? getColor(cat.id) : "default"}>
-                    {count}/{total}
-                  </Tag>
-                </Flex>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  {cat.name}
-                </Text>
-              </Card>
+              <Tooltip title={categoryTooltip} placement="top">
+                <Card
+                  size="small"
+                  style={cardStyle}
+                  className="hover:shadow-sm transition-all cursor-help"
+                >
+                  <Flex justify="space-between" align="start" className="mb-2">
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 8,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 16,
+                        color: getColor(cat.id),
+                        background: getBg(cat.id),
+                      }}
+                    >
+                      {getIcon(cat.id)}
+                    </div>
+                    <Tag color={count > 0 ? getColor(cat.id) : "default"}>
+                      {count}/{total}
+                    </Tag>
+                  </Flex>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {cat.name}
+                  </Text>
+                </Card>
+              </Tooltip>
             </Col>
           );
         })}
@@ -650,6 +762,7 @@ export default function ProjectManagementPage() {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
   const [users, setUsers] = useState<any[]>([]);
+  const [costPerHour, setCostPerHour] = useState<number>(0);
 
   const [filters, setFilters] = useState({
     searchText: "",
@@ -1591,7 +1704,7 @@ export default function ProjectManagementPage() {
             onCancel={closeModal}
             footer={null}
             centered
-            width={700}
+            width={850}
             styles={{
               content: { borderRadius: 24, padding: 0, overflow: "hidden" },
             }}
@@ -1614,60 +1727,145 @@ export default function ProjectManagementPage() {
                     className="hover:bg-white/20"
                     onClick={closeModal}
                   />
-                  <Flex justify="space-between" align="center" gap={32}>
-                    <Flex gap={8} vertical style={{ flex: 1 }}>
-                      <Space size={12}>
-                        <TeamOutlined
-                          style={{ color: "white", fontSize: 24 }}
-                        />
-                        <Title
-                          level={4}
-                          style={{ color: "white", margin: 0, fontWeight: 700 }}
-                        >
-                          รายชื่อผู้จัดทำโครงการ
-                        </Title>
-                      </Space>
-                      <Text
-                        style={{
-                          color: "rgba(255,255,255,0.85)",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {modalState.data.name}
-                      </Text>
-                    </Flex>
-                    <Card
-                      size="small"
-                      bordered={false}
-                      style={{
-                        background: "rgba(255,255,255,0.15)",
-                        backdropFilter: "blur(8px)",
-                        borderRadius: 16,
-                        minWidth: 160,
-                      }}
-                    >
-                      <Statistic
-                        title={
-                          <span
+                  <Flex vertical gap={24}>
+                    <Flex justify="space-between" align="center" gap={32}>
+                      <Flex gap={8} vertical style={{ flex: 1 }}>
+                        <Space size={12}>
+                          <TeamOutlined
+                            style={{ color: "white", fontSize: 24 }}
+                          />
+                          <Title
+                            level={4}
                             style={{
-                              color: "rgba(255,255,255,0.7)",
-                              fontSize: 10,
+                              color: "white",
+                              margin: 0,
                               fontWeight: 700,
-                              letterSpacing: 1,
                             }}
                           >
-                            จำนวนชั่วโมงทั้งหมด
-                          </span>
-                        }
-                        value={modalState.data.estimate_hour || 0}
-                        valueStyle={{
-                          color: "white",
-                          fontWeight: 900,
-                          fontSize: 24,
-                        }}
-                        formatter={(val) => Number(val).toLocaleString()}
+                            รายชื่อผู้จัดทำโครงการ
+                          </Title>
+                        </Space>
+                        <Text
+                          style={{
+                            color: "rgba(255,255,255,0.85)",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          {modalState.data.name}
+                        </Text>
+                      </Flex>
+
+                      <Space size={16}>
+                        <Card
+                          size="small"
+                          bordered={false}
+                          style={{
+                            background: "rgba(255,255,255,0.15)",
+                            backdropFilter: "blur(8px)",
+                            borderRadius: 16,
+                            minWidth: 140,
+                          }}
+                        >
+                          <Statistic
+                            title={
+                              <span
+                                style={{
+                                  color: "rgba(255,255,255,0.7)",
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  letterSpacing: 1,
+                                }}
+                              >
+                                จำนวนชั่วโมงทั้งหมด
+                              </span>
+                            }
+                            value={modalState.data.estimate_hour || 0}
+                            valueStyle={{
+                              color: "white",
+                              fontWeight: 900,
+                              fontSize: 20,
+                            }}
+                            suffix={
+                              <span style={{ fontSize: 12, color: "white" }}>
+                                ชม.
+                              </span>
+                            }
+                            formatter={(val) => Number(val).toLocaleString()}
+                          />
+                        </Card>
+
+                        {costPerHour > 0 && (
+                          <Card
+                            size="small"
+                            bordered={false}
+                            style={{
+                              background: "rgba(255,255,255,0.25)",
+                              backdropFilter: "blur(8px)",
+                              borderRadius: 16,
+                              minWidth: 180,
+                              border: "1px solid rgba(255,255,255,0.3)",
+                            }}
+                          >
+                            <Statistic
+                              title={
+                                <span
+                                  style={{
+                                    color: "rgba(255,255,255,0.9)",
+                                    fontSize: 10,
+                                    fontWeight: 800,
+                                    letterSpacing: 1,
+                                  }}
+                                >
+                                  ประมาณการต้นทุนรวม
+                                </span>
+                              }
+                              value={
+                                (modalState.data.estimate_hour || 0) *
+                                costPerHour
+                              }
+                              valueStyle={{
+                                color: "#fff",
+                                fontWeight: 900,
+                                fontSize: 24,
+                                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                              }}
+                              prefix="฿"
+                              formatter={(val) => Number(val).toLocaleString()}
+                            />
+                          </Card>
+                        )}
+                      </Space>
+                    </Flex>
+
+                    {/* Cost Input Section */}
+                    <Flex
+                      align="center"
+                      gap={16}
+                      style={{
+                        background: "rgba(0,0,0,0.1)",
+                        padding: "12px 20px",
+                        borderRadius: 16,
+                        width: "fit-content",
+                        backdropFilter: "blur(4px)",
+                      }}
+                    >
+                      <Text style={{ color: "white", fontWeight: 600 }}>
+                        กำหนดต้นทุนรายชั่วโมง:
+                      </Text>
+                      <InputNumber
+                        min={0}
+                        placeholder="ระบุบาทต่อชั่วโมง"
+                        value={costPerHour}
+                        onChange={(val) => setCostPerHour(val || 0)}
+                        style={{ width: 180 }}
+                        prefix="฿"
+                        size="large"
+                        className="rounded-lg"
                       />
-                    </Card>
+                      <Text style={{ color: "rgba(255,255,255,0.7)" }}>
+                        ต่อ 1 Man-Hour
+                      </Text>
+                    </Flex>
                   </Flex>
                 </div>
 
@@ -1689,6 +1887,7 @@ export default function ProjectManagementPage() {
                         const individualHours =
                           (modalState.data?.estimate_hour || 0) /
                           (modalState.data?.projectAssignees?.length || 1);
+                        const individualCost = individualHours * costPerHour;
 
                         return (
                           <List.Item
@@ -1713,7 +1912,7 @@ export default function ProjectManagementPage() {
                               }
                               title={
                                 <Flex justify="space-between" align="start">
-                                  <Flex vertical>
+                                  <Flex vertical style={{ flex: 1 }}>
                                     <Text
                                       strong
                                       style={{
@@ -1734,24 +1933,48 @@ export default function ProjectManagementPage() {
                                       {item.position || "ไม่ระบุตำแหน่ง"}
                                     </Tag>
                                   </Flex>
-                                  <Tooltip title="สัดส่วนเวลารับผิดชอบรายบุคคล">
-                                    <Tag
-                                      color="warning"
-                                      icon={<ClockCircleOutlined />}
-                                      style={{
-                                        padding: "4px 12px",
-                                        borderRadius: 8,
-                                        fontWeight: 700,
-                                        marginRight: 0,
-                                      }}
-                                    >
-                                      {individualHours.toLocaleString(
-                                        undefined,
-                                        { maximumFractionDigits: 1 }
-                                      )}{" "}
-                                      ชม.
-                                    </Tag>
-                                  </Tooltip>
+
+                                  <Flex gap={12} align="center">
+                                    <Tooltip title="สัดส่วนเวลารับผิดชอบรายบุคคล">
+                                      <Tag
+                                        color="blue"
+                                        icon={<ClockCircleOutlined />}
+                                        style={{
+                                          padding: "4px 12px",
+                                          borderRadius: 8,
+                                          fontWeight: 600,
+                                          marginRight: 0,
+                                        }}
+                                      >
+                                        {individualHours.toLocaleString(
+                                          undefined,
+                                          { maximumFractionDigits: 1 }
+                                        )}{" "}
+                                        ชม.
+                                      </Tag>
+                                    </Tooltip>
+
+                                    {costPerHour > 0 && (
+                                      <Tooltip title="ประมาณการณ์ต้นทุนของสมาชิกท่านนี้">
+                                        <Tag
+                                          color="success"
+                                          style={{
+                                            padding: "4px 12px",
+                                            borderRadius: 8,
+                                            fontWeight: 700,
+                                            fontSize: 14,
+                                            marginRight: 0,
+                                          }}
+                                        >
+                                          ฿{" "}
+                                          {individualCost.toLocaleString(
+                                            undefined,
+                                            { maximumFractionDigits: 0 }
+                                          )}
+                                        </Tag>
+                                      </Tooltip>
+                                    )}
+                                  </Flex>
                                 </Flex>
                               }
                             />
