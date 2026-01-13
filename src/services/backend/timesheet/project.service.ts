@@ -1,5 +1,44 @@
 import { PrismaTimesheet } from "@helpers/prisma-timesheet";
 
+const calculateWorkingDays = (
+  startDate: Date | null,
+  endDate: Date | null
+): number => {
+  if (!startDate || !endDate) return 0;
+
+  let count = 0;
+  const curDate = new Date(startDate);
+  const finalDate = new Date(endDate);
+
+  // Set to midnight to avoid issues with time
+  curDate.setHours(0, 0, 0, 0);
+  finalDate.setHours(0, 0, 0, 0);
+
+  while (curDate <= finalDate) {
+    const dayOfWeek = curDate.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      // Not Sunday (0) or Saturday (6)
+      count++;
+    }
+    curDate.setDate(curDate.getDate() + 1);
+  }
+  return count;
+};
+
+const withEstimateHours = (project: any) => {
+  const assigneesCount = project.projectAssignees?.length || 0;
+  const workingDays = calculateWorkingDays(
+    project.start_date,
+    project.end_date
+  );
+  const estimate_hour = assigneesCount * 8 * workingDays;
+
+  return {
+    ...project,
+    estimate_hour,
+  };
+};
+
 export const Service = {
   // * ดึงข้อมูล Project ทั้งหมด พร้อม pagination
   async findAll(
@@ -14,16 +53,20 @@ export const Service = {
       }),
       PrismaTimesheet.project.count(),
     ]);
-    return { items, total };
+    return {
+      items: items.map(withEstimateHours),
+      total,
+    };
   },
 
   // * ดึงข้อมูล Project ตาม ID พร้อมโครงสร้างข้อมูลแบบเดียวกับ findAll
   async findById(id: number) {
     const project = await PrismaTimesheet.project.findFirst({
       where: { id },
+      include: { features: true, projectAssignees: true },
     });
     if (project) {
-      return { items: [project], total: 1 };
+      return { items: [withEstimateHours(project)], total: 1 };
     } else {
       return { items: [], total: 0 };
     }

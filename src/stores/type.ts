@@ -560,6 +560,7 @@ export interface UserProfile {
   username: string;
   lastname?: string;
   image_profile: string;
+  profile_image?: string;
   backlog_email?: string;
   status: string;
   firstname?: string;

@@ -25,6 +25,7 @@ export interface Project {
   projectAssignees?: ProjectAssignee[];
   start_date?: string;
   end_date?: string;
+  estimate_hour?: number;
   is_deleted?: boolean;
 }
 

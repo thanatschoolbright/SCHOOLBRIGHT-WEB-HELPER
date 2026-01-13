@@ -28,6 +28,7 @@ import {
   Dropdown,
   List,
   AutoComplete,
+  Empty,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -1250,7 +1251,7 @@ export default function ProjectManagementPage() {
                 <div
                   style={{
                     background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorLink})`,
-                    padding: "32px 32px 48px 32px",
+                    padding: "32px 32px 64px 32px",
                   }}
                   className="relative"
                 >
@@ -1260,8 +1261,8 @@ export default function ProjectManagementPage() {
                     className="absolute top-4 right-4 hover:bg-white/20"
                     onClick={closeModal}
                   />
-                  <Flex justify="space-between" align="start">
-                    <Flex gap={12} vertical className="w-full">
+                  <Flex justify="space-between" align="start" gap={32}>
+                    <Flex gap={12} vertical style={{ flex: 1 }}>
                       <Space size={12}>
                         <Tag
                           color="rgba(255,255,255,0.2)"
@@ -1286,12 +1287,12 @@ export default function ProjectManagementPage() {
                       </Space>
                       <Title
                         level={2}
-                        style={{ color: "white", margin: 0, fontWeight: 700 }}
+                        style={{ color: "white", margin: 0, fontWeight: 800 }}
                       >
                         {modalState.data.name}
                       </Title>
                       {modalState.data.name_en && (
-                        <Text className="text-white/80 text-lg">
+                        <Text className="text-white/80 text-xl italic">
                           {modalState.data.name_en}
                         </Text>
                       )}
@@ -1299,12 +1300,12 @@ export default function ProjectManagementPage() {
                   </Flex>
                 </div>
 
-                <div className="px-8 pb-8 -mt-8">
+                <div className="px-8 pb-8 -mt-10">
                   {/* Stats Cards - Floating overlapping banner */}
                   <Row gutter={16} className="mb-6">
                     <Col span={8}>
                       <Card
-                        className="shadow-md h-full rounded-2xl"
+                        className="shadow-md h-full rounded-2xl border-l-4 border-l-blue-500"
                         bodyStyle={{ padding: 20 }}
                       >
                         <Statistic
@@ -1333,7 +1334,31 @@ export default function ProjectManagementPage() {
                     </Col>
                     <Col span={8}>
                       <Card
-                        className="shadow-md h-full rounded-2xl"
+                        className="shadow-md h-full rounded-2xl border-l-4 border-l-orange-500"
+                        bodyStyle={{ padding: 20 }}
+                      >
+                        <Statistic
+                          title={
+                            <Space className="text-sm font-medium text-gray-400">
+                              <ClockCircleOutlined /> ประมาณการชั่วโมงรวม
+                            </Space>
+                          }
+                          value={modalState.data.estimate_hour || 0}
+                          suffix="Hours"
+                          valueStyle={{
+                            fontSize: 24,
+                            fontWeight: 700,
+                            color: "#fa8c16",
+                          }}
+                        />
+                        <div className="text-[10px] text-gray-400 mt-2">
+                          * คำนวณจาก (จำนวนทีมงาน x 8 ชม. x วันทำการ)
+                        </div>
+                      </Card>
+                    </Col>
+                    <Col span={8}>
+                      <Card
+                        className="shadow-md h-full rounded-2xl border-l-4 border-l-green-500"
                         bodyStyle={{ padding: 20 }}
                       >
                         <Statistic
@@ -1351,44 +1376,9 @@ export default function ProjectManagementPage() {
                           valueStyle={{
                             fontSize: 24,
                             fontWeight: 700,
-                            color: token.colorPrimary,
+                            color: "#52c41a",
                           }}
                         />
-                      </Card>
-                    </Col>
-                    <Col span={8}>
-                      <Card
-                        className="shadow-md h-full rounded-2xl"
-                        bodyStyle={{ padding: 20 }}
-                      >
-                        <div className="text-sm font-medium text-gray-400 mb-3">
-                          <UserOutlined /> ผู้สร้างโครงการ
-                        </div>
-                        <Space>
-                          <Avatar
-                            size={40}
-                            style={{
-                              backgroundColor: token.colorPrimaryBg,
-                              color: token.colorPrimary,
-                            }}
-                          >
-                            {
-                              getUserById(modalState.data.createdBy)
-                                ?.firstname?.[0]
-                            }
-                          </Avatar>
-                          <div className="flex flex-col">
-                            <Text strong>
-                              {getUserById(modalState.data.createdBy)
-                                ?.firstname || "System"}
-                            </Text>
-                            <Text type="secondary" style={{ fontSize: 11 }}>
-                              {convertToThaiDateDDMMYYY(
-                                modalState.data.createdAt
-                              )}
-                            </Text>
-                          </div>
-                        </Space>
                       </Card>
                     </Col>
                   </Row>
@@ -1396,19 +1386,55 @@ export default function ProjectManagementPage() {
                   <Row gutter={24}>
                     {/* Left Main */}
                     <Col span={16}>
-                      <Card
-                        title={
+                      <div className="flex flex-col gap-6">
+                        <Card
+                          className="shadow-md h-full rounded-2xl border-l-4 border-l-purple-500"
+                          bodyStyle={{ padding: 20 }}
+                        >
+                          <div className="text-sm font-medium text-gray-400 mb-3">
+                            <UserOutlined /> ผู้สร้างโครงการ
+                          </div>
                           <Space>
-                            <FileTextOutlined /> รายละเอียด
+                            <Avatar
+                              size={40}
+                              style={{
+                                backgroundColor: token.colorPrimaryBg,
+                                color: token.colorPrimary,
+                              }}
+                            >
+                              {
+                                getUserById(modalState.data.createdBy)
+                                  ?.firstname?.[0]
+                              }
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <Text strong>
+                                {getUserById(modalState.data.createdBy)
+                                  ?.firstname || "System"}
+                              </Text>
+                              <Text type="secondary" style={{ fontSize: 11 }}>
+                                {convertToThaiDateDDMMYYY(
+                                  modalState.data.createdAt
+                                )}
+                              </Text>
+                            </div>
                           </Space>
-                        }
-                        className="shadow-sm rounded-2xl mb-6"
-                      >
-                        <Text className="text-gray-600 dark:text-gray-300 leading-relaxed text-base">
-                          {modalState.data.description ||
-                            "ไม่มีรายละเอียดเพิ่มเติม"}
-                        </Text>
-                      </Card>
+                        </Card>
+
+                        <Card
+                          title={
+                            <Space>
+                              <FileTextOutlined /> รายละเอียด
+                            </Space>
+                          }
+                          className="shadow-sm rounded-2xl"
+                        >
+                          <Text className="text-gray-600 dark:text-gray-300 leading-relaxed text-base">
+                            {modalState.data.description ||
+                              "ไม่มีรายละเอียดเพิ่มเติม"}
+                          </Text>
+                        </Card>
+                      </div>
 
                       <Card
                         title={
@@ -1416,8 +1442,12 @@ export default function ProjectManagementPage() {
                             <AppstoreOutlined /> รายการฟีเจอร์ (Features)
                           </Space>
                         }
-                        className="shadow-sm rounded-2xl"
-                        bodyStyle={{ padding: "0 24px 24px" }}
+                        className="shadow-sm rounded-2xl mt-5"
+                        styles={{
+                          body: {
+                            padding: "0 24px 24px",
+                          },
+                        }}
                       >
                         <List
                           itemLayout="horizontal"
@@ -1555,57 +1585,210 @@ export default function ProjectManagementPage() {
             )}
           </Modal>
 
-          {/* Assignees List Modal */}
+          {/* Assignees List Modal - Refactored for Dark Mode & V5 */}
           <Modal
-            title={
-              <Space>
-                <TeamOutlined style={{ color: token.colorPrimary }} />
-                <Text strong>
-                  รายชื่อผู้จัดทำโครงการ (
-                  {modalState.data?.projectAssignees?.length || 0})
-                </Text>
-              </Space>
-            }
             open={modalState.type === "assignees"}
             onCancel={closeModal}
-            footer={<Button onClick={closeModal}>ปิด</Button>}
+            footer={null}
             centered
+            width={700}
+            styles={{
+              content: { borderRadius: 24, padding: 0, overflow: "hidden" },
+            }}
+            closable={false}
           >
-            <List
-              dataSource={modalState.data?.projectAssignees || []}
-              renderItem={(item) => {
-                const user = getUserById(item.userId);
-                return (
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={
-                        <Avatar
-                          style={{
-                            backgroundColor: token.colorPrimaryBg,
-                            color: token.colorPrimary,
-                          }}
+            {modalState.data && (
+              <div style={{ backgroundColor: token.colorBgLayout }}>
+                {/* Header Banner */}
+                <div
+                  style={{
+                    background: `linear-gradient(135deg, ${token.colorInfoActive}, ${token.colorPrimary})`,
+                    padding: "32px 32px 64px 32px",
+                    position: "relative",
+                  }}
+                >
+                  <Button
+                    icon={<CloseOutlined style={{ color: "white" }} />}
+                    type="text"
+                    style={{ position: "absolute", top: 16, right: 16 }}
+                    className="hover:bg-white/20"
+                    onClick={closeModal}
+                  />
+                  <Flex justify="space-between" align="center" gap={32}>
+                    <Flex gap={8} vertical style={{ flex: 1 }}>
+                      <Space size={12}>
+                        <TeamOutlined
+                          style={{ color: "white", fontSize: 24 }}
+                        />
+                        <Title
+                          level={4}
+                          style={{ color: "white", margin: 0, fontWeight: 700 }}
                         >
-                          {user?.firstname?.[0] || "U"}
-                        </Avatar>
-                      }
-                      title={
-                        <Text strong>
-                          {user?.firstname} {user?.lastname}
-                        </Text>
-                      }
-                      description={
-                        item.position ? (
-                          <Tag color="blue">{item.position}</Tag>
-                        ) : (
-                          <Text type="secondary">ไม่ระบุตำแหน่ง</Text>
-                        )
-                      }
+                          รายชื่อผู้จัดทำโครงการ
+                        </Title>
+                      </Space>
+                      <Text
+                        style={{
+                          color: "rgba(255,255,255,0.85)",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {modalState.data.name}
+                      </Text>
+                    </Flex>
+                    <Card
+                      size="small"
+                      bordered={false}
+                      style={{
+                        background: "rgba(255,255,255,0.15)",
+                        backdropFilter: "blur(8px)",
+                        borderRadius: 16,
+                        minWidth: 160,
+                      }}
+                    >
+                      <Statistic
+                        title={
+                          <span
+                            style={{
+                              color: "rgba(255,255,255,0.7)",
+                              fontSize: 10,
+                              fontWeight: 700,
+                              letterSpacing: 1,
+                            }}
+                          >
+                            จำนวนชั่วโมงทั้งหมด
+                          </span>
+                        }
+                        value={modalState.data.estimate_hour || 0}
+                        valueStyle={{
+                          color: "white",
+                          fontWeight: 900,
+                          fontSize: 24,
+                        }}
+                        formatter={(val) => Number(val).toLocaleString()}
+                      />
+                    </Card>
+                  </Flex>
+                </div>
+
+                {/* Content Section */}
+                <div style={{ padding: "0 32px 32px", marginTop: -40 }}>
+                  <Card
+                    bordered={false}
+                    style={{
+                      borderRadius: 20,
+                      boxShadow: token.boxShadowSecondary,
+                      background: token.colorBgElevated,
+                    }}
+                    bodyStyle={{ padding: 0 }}
+                  >
+                    <List
+                      dataSource={modalState.data.projectAssignees || []}
+                      renderItem={(item) => {
+                        const user = getUserById(item.userId);
+                        const individualHours =
+                          (modalState.data?.estimate_hour || 0) /
+                          (modalState.data?.projectAssignees?.length || 1);
+
+                        return (
+                          <List.Item
+                            style={{
+                              padding: "16px 24px",
+                              borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                            }}
+                          >
+                            <List.Item.Meta
+                              avatar={
+                                <Avatar
+                                  size={54}
+                                  src={user?.profile_image}
+                                  style={{
+                                    backgroundColor: token.colorPrimaryBg,
+                                    color: token.colorPrimary,
+                                    border: `2px solid ${token.colorBgContainer}`,
+                                  }}
+                                >
+                                  {user?.firstname?.[0]}
+                                </Avatar>
+                              }
+                              title={
+                                <Flex justify="space-between" align="start">
+                                  <Flex vertical>
+                                    <Text
+                                      strong
+                                      style={{
+                                        fontSize: 16,
+                                        color: token.colorText,
+                                      }}
+                                    >
+                                      {user?.firstname} {user?.lastname}
+                                    </Text>
+                                    <Tag
+                                      color="processing"
+                                      bordered={false}
+                                      style={{
+                                        width: "fit-content",
+                                        marginTop: 4,
+                                      }}
+                                    >
+                                      {item.position || "ไม่ระบุตำแหน่ง"}
+                                    </Tag>
+                                  </Flex>
+                                  <Tooltip title="สัดส่วนเวลารับผิดชอบรายบุคคล">
+                                    <Tag
+                                      color="warning"
+                                      icon={<ClockCircleOutlined />}
+                                      style={{
+                                        padding: "4px 12px",
+                                        borderRadius: 8,
+                                        fontWeight: 700,
+                                        marginRight: 0,
+                                      }}
+                                    >
+                                      {individualHours.toLocaleString(
+                                        undefined,
+                                        { maximumFractionDigits: 1 }
+                                      )}{" "}
+                                      ชม.
+                                    </Tag>
+                                  </Tooltip>
+                                </Flex>
+                              }
+                            />
+                          </List.Item>
+                        );
+                      }}
+                      locale={{
+                        emptyText: (
+                          <Empty
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                            description="ยังไม่มีข้อมูลทีมงาน"
+                            style={{ padding: "40px 0" }}
+                          />
+                        ),
+                      }}
                     />
-                  </List.Item>
-                );
-              }}
-              locale={{ emptyText: "ไม่มีผู้รับผิดชอบโครงการที่ระบุไว้" }}
-            />
+                  </Card>
+
+                  <Flex justify="center" style={{ marginTop: 24 }}>
+                    <Button
+                      type="primary"
+                      size="large"
+                      onClick={closeModal}
+                      style={{
+                        borderRadius: 12,
+                        padding: "0 48px",
+                        height: 48,
+                        fontWeight: 600,
+                        boxShadow: token.boxShadow,
+                      }}
+                    >
+                      ตกลง
+                    </Button>
+                  </Flex>
+                </div>
+              </div>
+            )}
           </Modal>
         </div>
       </DashboardLayout>

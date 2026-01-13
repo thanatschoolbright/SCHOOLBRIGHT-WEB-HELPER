@@ -24,6 +24,7 @@ import {
   InfoCircleOutlined,
   DeleteOutlined,
   TeamOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
@@ -176,6 +177,37 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
           </div>
         );
       },
+    },
+    {
+      title: "ประมาณการ (ชม.)",
+      dataIndex: "estimate_hour",
+      key: "estimate_hour",
+      width: 140,
+      align: "center",
+      sorter: (a, b) => (a.estimate_hour || 0) - (b.estimate_hour || 0),
+      render: (val: number) => (
+        <Tooltip title="ประมาณการชั่วโมงการทำงานรวม (Man-Hours)">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              backgroundColor: "#fff7e6",
+              padding: "4px 12px",
+              borderRadius: 6,
+              border: "1px solid #ffe7ba",
+              width: "fit-content",
+              margin: "0 auto",
+            }}
+          >
+            <ClockCircleOutlined style={{ color: "#fa8c16" }} />
+            <Typography.Text strong style={{ color: "#d46b08" }}>
+              {(val || 0).toLocaleString()}
+            </Typography.Text>
+          </div>
+        </Tooltip>
+      ),
     },
     {
       title: "สุขภาพโครงการ",
