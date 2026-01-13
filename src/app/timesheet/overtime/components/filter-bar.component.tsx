@@ -10,6 +10,7 @@ import {
   DatePicker,
   Button,
   Divider,
+  theme,
 } from "antd";
 import {
   SearchOutlined,
@@ -49,11 +50,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   loading,
 }) => {
   const { t } = useTranslation();
+  const { token } = theme.useToken();
 
   return (
     <Affix offsetTop={20}>
       <Card
-        
         className="shadow-md rounded-xl"
         bodyStyle={{ padding: "12px 24px" }}
       >
@@ -62,7 +63,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <Space wrap>
               <Input
                 placeholder={t("overtime_page.search_placeholder")}
-                prefix={<SearchOutlined className="text-gray-400" />}
+                prefix={
+                  <SearchOutlined
+                    style={{ color: token.colorTextDescription }}
+                  />
+                }
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 style={{ width: 280, borderRadius: 8 }}

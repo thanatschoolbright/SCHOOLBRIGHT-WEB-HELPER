@@ -9,6 +9,7 @@ import {
   Typography,
   Space,
   Skeleton,
+  theme,
 } from "antd";
 import { FileTextOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
@@ -31,12 +32,13 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   selectedDetail,
 }) => {
   const { t } = useTranslation();
+  const { token } = theme.useToken();
 
   return (
     <Modal
       title={
         <Space>
-          <FileTextOutlined className="text-blue-500" />
+          <FileTextOutlined style={{ color: token.colorPrimary }} />
           {t("overtime_page.detail_title")}
         </Space>
       }

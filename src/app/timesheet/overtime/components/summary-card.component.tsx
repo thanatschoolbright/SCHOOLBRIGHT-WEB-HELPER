@@ -27,15 +27,20 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
 
   return (
     <Card
-      
       className="shadow-sm hover:shadow-md transition-all duration-300 h-full border-b-4"
       style={{ borderBottomColor: color, borderRadius: token.borderRadiusLG }}
       bodyStyle={{ padding: "20px 24px" }}
     >
       {loading ? (
         <div className="animate-pulse space-y-2">
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+          <div
+            className="h-4 rounded w-1/2"
+            style={{ backgroundColor: token.colorFill }}
+          ></div>
+          <div
+            className="h-8 rounded w-3/4"
+            style={{ backgroundColor: token.colorFill }}
+          ></div>
         </div>
       ) : (
         <div className="flex justify-between items-start">

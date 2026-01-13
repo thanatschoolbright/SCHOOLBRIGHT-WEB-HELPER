@@ -14,6 +14,7 @@ import {
   Divider,
   Space,
   Typography,
+  theme,
 } from "antd";
 import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
@@ -41,6 +42,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   loading,
 }) => {
   const { t } = useTranslation();
+  const { token } = theme.useToken();
   const [form] = Form.useForm();
 
   const handleClose = () => {
@@ -104,7 +106,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
     <Modal
       title={
         <Space>
-          <PlusOutlined className="text-blue-500" />
+          <PlusOutlined style={{ color: token.colorPrimary }} />
           {t("overtime_page.modal_create_title")}
         </Space>
       }
@@ -183,7 +185,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   <Card
                     key={field.key}
                     size="small"
-                    className="bg-gray-50 border-gray-200"
+                    style={{
+                      backgroundColor: token.colorFillAlter,
+                      borderColor: token.colorBorderSecondary,
+                    }}
                   >
                     <Row gutter={16} align="top">
                       <Col span={22}>
@@ -246,7 +251,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                               <Text type="secondary" className="text-sm">
                                 {t("overtime_page.auto_calculated_duration")}:
                               </Text>
-                              <Text strong className="text-blue-600">
+                              <Text
+                                strong
+                                style={{ color: token.colorPrimary }}
+                              >
                                 {calculatedDuration} {t("overtime_page.hours")}
                               </Text>
                             </div>

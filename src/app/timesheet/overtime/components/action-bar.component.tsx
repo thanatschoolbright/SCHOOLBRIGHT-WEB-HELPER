@@ -10,6 +10,7 @@ import {
   Typography,
   Divider,
   ConfigProvider,
+  theme,
 } from "antd";
 import {
   PlusOutlined,
@@ -24,6 +25,7 @@ import {
 } from "@ant-design/icons";
 
 const { Text } = Typography;
+const { useToken } = theme;
 
 interface ActionBarProps {
   selectedRowKeys: React.Key[];
@@ -49,6 +51,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   setAnalyticsVisible,
 }) => {
   const hasSelected = selectedRowKeys.length > 0;
+  const { token } = useToken();
 
   return (
     <ConfigProvider
@@ -132,7 +135,9 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                 </>
               ) : (
                 <Space>
-                  <InfoCircleOutlined style={{ color: "#bfbfbf" }} />
+                  <InfoCircleOutlined
+                    style={{ color: token.colorTextDescription }}
+                  />
                   <Text type="secondary">
                     เลือกรายการในตารางด้านล่างเพื่อเปิดใช้งานการจัดการแบบกลุ่ม
                   </Text>

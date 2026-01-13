@@ -14,6 +14,7 @@ import {
   Timeline,
   ConfigProvider,
   Avatar,
+  theme,
 } from "antd";
 import {
   ClockCircleOutlined,
@@ -78,6 +79,8 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
     router,
   });
 
+  const { token } = theme.useToken();
+
   // ส่วนขยายแสดงรายละเอียดงานภายในตาราง (Expanded Row)
   const expandedRowRender = (record: any) => {
     const descriptions = record.descriptions || [];
@@ -92,7 +95,8 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
           style={{
             padding: "20px",
             textAlign: "center",
-            background: "#fafafa",
+            background: token.colorFillAlter,
+            borderRadius: "0 0 12px 12px",
           }}
         >
           <Empty
@@ -107,8 +111,9 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
       <div
         style={{
           padding: "24px",
-          background: "linear-gradient(180deg, #f0f5ff 0%, #ffffff 100%)",
+          background: token.colorBgContainer, // Use container background
           borderRadius: "0 0 12px 12px",
+          borderTop: `1px solid ${token.colorSplit}`,
         }}
       >
         <div
@@ -122,7 +127,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
           <Space size="middle">
             <div
               style={{
-                background: "#1890ff",
+                background: token.colorPrimary,
                 padding: "8px",
                 borderRadius: "8px",
               }}
@@ -139,22 +144,22 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
             </div>
             <Badge
               count={descriptions.length}
-              style={{ backgroundColor: "#1890ff" }}
+              style={{ backgroundColor: token.colorPrimary }}
             />
           </Space>
 
           <Tooltip title="รวมเวลาปฏิบัติงานทั้งหมดในใบคำขอนี้">
             <div
               style={{
-                background: "#fff",
+                background: token.colorBgElevated,
                 padding: "8px 16px",
                 borderRadius: "20px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                border: "1px solid #e6f7ff",
+                boxShadow: token.boxShadowSecondary,
+                border: `1px solid ${token.colorBorderSecondary}`,
               }}
             >
               <Space>
-                <ClockCircleOutlined style={{ color: "#1890ff" }} />
+                <ClockCircleOutlined style={{ color: token.colorPrimary }} />
                 <Text strong>รวมเวลาทั้งหมด:</Text>
                 <Text type="danger" strong style={{ fontSize: "16px" }}>
                   {totalHours.toFixed(2)} ชม.
@@ -180,7 +185,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
               color: "blue",
               label: (
                 <div style={{ paddingRight: "12px" }}>
-                  <Text strong style={{ color: "#1890ff" }}>
+                  <Text strong style={{ color: token.colorPrimary }}>
                     ลำดับที่ {index + 1}
                   </Text>
                   {startTime && (
@@ -206,7 +211,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
                   style={{
                     marginBottom: "12px",
                     borderRadius: "8px",
-                    border: "1px solid #d6e4ff",
+                    border: `1px solid ${token.colorBorderSecondary}`,
                   }}
                   bodyStyle={{ padding: "12px 16px" }}
                 >
@@ -303,7 +308,9 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: "6px",
-                    background: expanded ? "#ff4d4f" : "#1890ff",
+                    background: expanded
+                      ? token.colorError
+                      : token.colorPrimary,
                     color: "#fff",
                     transition: "all 0.3s",
                   }}
@@ -361,11 +368,14 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
             triggerAsc: "คลิกเพื่อเรียงจากน้อยไปมาก",
             cancelSort: "คลิกเพื่อยกเลิกการเรียงลำดับ",
           }}
-          rowClassName={(record) =>
-            selectedRowKeys.includes(record.id)
-              ? "bg-blue-50 transition-all"
-              : "hover:bg-gray-50 transition-all"
-          }
+          onRow={(record) => ({
+            style: {
+              background: selectedRowKeys.includes(record.id)
+                ? token.colorPrimaryBg
+                : undefined,
+              transition: "background 0.3s",
+            },
+          })}
         />
       </Card>
     </ConfigProvider>
