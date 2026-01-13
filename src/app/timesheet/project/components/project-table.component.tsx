@@ -202,6 +202,32 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
       },
     },
     {
+      title: "สุขภาพโครงการ",
+      key: "health",
+      width: 120,
+      align: "center",
+      render: (_, record) => {
+        if (record.status === "close") {
+          return <Tag color="success">Completed</Tag>;
+        }
+        if (!record.end_date) {
+          return <Tag color="default">- No Plan -</Tag>;
+        }
+
+        const now = dayjs();
+        const end = dayjs(record.end_date);
+        const daysRemaining = end.diff(now, "day");
+
+        if (daysRemaining < 0) {
+          return <Tag color="error">Overdue</Tag>;
+        }
+        if (daysRemaining <= 7) {
+          return <Tag color="warning">Due Soon</Tag>;
+        }
+        return <Tag color="success">Healthy</Tag>;
+      },
+    },
+    {
       title: t("project_page.table_sub_projects"),
       key: "features",
       align: "center",
