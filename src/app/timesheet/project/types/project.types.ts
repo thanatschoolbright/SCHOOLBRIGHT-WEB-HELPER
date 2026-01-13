@@ -2,6 +2,7 @@ export interface ProjectAssignee {
   id: number;
   userId: number;
   position?: string;
+  profile_image?: any;
 }
 
 export interface Project {

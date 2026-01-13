@@ -455,7 +455,6 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
       {items.map((item, idx) => (
         <Col xs={24} sm={12} xl={6} key={idx}>
           <Card
-            bordered={false}
             bodyStyle={{ padding: 24 }}
             className="hover:-translate-y-1 transition-transform duration-300 shadow-sm hover:shadow-md"
             style={cardStyle}
@@ -582,7 +581,6 @@ const CategorySummaryCards = ({
             <Col xs={12} sm={8} md={6} xl={4} key={cat.id}>
               <Card
                 size="small"
-                bordered={false}
                 style={cardStyle}
                 className="hover:shadow-sm transition-all"
               >
@@ -780,7 +778,6 @@ export default function ProjectManagementPage() {
 
           {/* Filter Bar */}
           <Card
-            bordered={false}
             className="mb-6 shadow-sm rounded-2xl"
             style={{
               background: token.colorBgContainer,
@@ -882,7 +879,6 @@ export default function ProjectManagementPage() {
           {/* Main Content Area */}
           {viewMode === "table" ? (
             <Card
-              bordered={false}
               className="shadow-sm rounded-2xl overflow-hidden"
               style={{
                 background: token.colorBgContainer,
@@ -1308,7 +1304,6 @@ export default function ProjectManagementPage() {
                   <Row gutter={16} className="mb-6">
                     <Col span={8}>
                       <Card
-                        bordered={false}
                         className="shadow-md h-full rounded-2xl"
                         bodyStyle={{ padding: 20 }}
                       >
@@ -1328,7 +1323,7 @@ export default function ProjectManagementPage() {
                               <span className="text-xs text-gray-400">
                                 ถึง{" "}
                                 {convertToThaiDateDDMMYYY(
-                                  modalState.data.end_date
+                                  modalState?.data?.end_date
                                 )}
                               </span>
                             </div>
@@ -1338,7 +1333,6 @@ export default function ProjectManagementPage() {
                     </Col>
                     <Col span={8}>
                       <Card
-                        bordered={false}
                         className="shadow-md h-full rounded-2xl"
                         bodyStyle={{ padding: 20 }}
                       >
@@ -1364,7 +1358,6 @@ export default function ProjectManagementPage() {
                     </Col>
                     <Col span={8}>
                       <Card
-                        bordered={false}
                         className="shadow-md h-full rounded-2xl"
                         bodyStyle={{ padding: 20 }}
                       >
@@ -1409,7 +1402,6 @@ export default function ProjectManagementPage() {
                             <FileTextOutlined /> รายละเอียด
                           </Space>
                         }
-                        bordered={false}
                         className="shadow-sm rounded-2xl mb-6"
                       >
                         <Text className="text-gray-600 dark:text-gray-300 leading-relaxed text-base">
@@ -1424,7 +1416,6 @@ export default function ProjectManagementPage() {
                             <AppstoreOutlined /> รายการฟีเจอร์ (Features)
                           </Space>
                         }
-                        bordered={false}
                         className="shadow-sm rounded-2xl"
                         bodyStyle={{ padding: "0 24px 24px" }}
                       >
@@ -1502,9 +1493,7 @@ export default function ProjectManagementPage() {
                             {modalState.data.projectAssignees?.length || 0})
                           </Space>
                         }
-                        bordered={false}
                         className="shadow-sm rounded-2xl h-full"
-                        titleStyle={{ fontSize: 16 }}
                       >
                         <List
                           itemLayout="horizontal"
