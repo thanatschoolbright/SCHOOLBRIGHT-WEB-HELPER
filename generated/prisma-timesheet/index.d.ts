@@ -24,6 +24,11 @@ export type Group = $Result.DefaultSelection<Prisma.$GroupPayload>
  */
 export type Project = $Result.DefaultSelection<Prisma.$ProjectPayload>
 /**
+ * Model ProjectAssignee
+ * 
+ */
+export type ProjectAssignee = $Result.DefaultSelection<Prisma.$ProjectAssigneePayload>
+/**
  * Model Feature
  * 
  */
@@ -203,6 +208,16 @@ export class PrismaClient<
     * ```
     */
   get project(): Prisma.ProjectDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.projectAssignee`: Exposes CRUD operations for the **ProjectAssignee** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProjectAssignees
+    * const projectAssignees = await prisma.projectAssignee.findMany()
+    * ```
+    */
+  get projectAssignee(): Prisma.ProjectAssigneeDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.feature`: Exposes CRUD operations for the **Feature** model.
@@ -696,6 +711,7 @@ export namespace Prisma {
   export const ModelName: {
     Group: 'Group',
     Project: 'Project',
+    ProjectAssignee: 'ProjectAssignee',
     Feature: 'Feature',
     TimesheetEntry: 'TimesheetEntry',
     ApiLog: 'ApiLog',
@@ -719,7 +735,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "group" | "project" | "feature" | "timesheetEntry" | "apiLog" | "overtime" | "overtimeDescription"
+      modelProps: "group" | "project" | "projectAssignee" | "feature" | "timesheetEntry" | "apiLog" | "overtime" | "overtimeDescription"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -868,6 +884,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ProjectCountArgs<ExtArgs>
             result: $Utils.Optional<ProjectCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProjectAssignee: {
+        payload: Prisma.$ProjectAssigneePayload<ExtArgs>
+        fields: Prisma.ProjectAssigneeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProjectAssigneeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProjectAssigneeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload>
+          }
+          findFirst: {
+            args: Prisma.ProjectAssigneeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProjectAssigneeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload>
+          }
+          findMany: {
+            args: Prisma.ProjectAssigneeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload>[]
+          }
+          create: {
+            args: Prisma.ProjectAssigneeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload>
+          }
+          createMany: {
+            args: Prisma.ProjectAssigneeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProjectAssigneeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload>[]
+          }
+          delete: {
+            args: Prisma.ProjectAssigneeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload>
+          }
+          update: {
+            args: Prisma.ProjectAssigneeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload>
+          }
+          deleteMany: {
+            args: Prisma.ProjectAssigneeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProjectAssigneeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProjectAssigneeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload>[]
+          }
+          upsert: {
+            args: Prisma.ProjectAssigneeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectAssigneePayload>
+          }
+          aggregate: {
+            args: Prisma.ProjectAssigneeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProjectAssignee>
+          }
+          groupBy: {
+            args: Prisma.ProjectAssigneeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProjectAssigneeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProjectAssigneeCountArgs<ExtArgs>
+            result: $Utils.Optional<ProjectAssigneeCountAggregateOutputType> | number
           }
         }
       }
@@ -1339,6 +1429,7 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     group?: GroupOmit
     project?: ProjectOmit
+    projectAssignee?: ProjectAssigneeOmit
     feature?: FeatureOmit
     timesheetEntry?: TimesheetEntryOmit
     apiLog?: ApiLogOmit
@@ -1457,11 +1548,13 @@ export namespace Prisma {
   export type ProjectCountOutputType = {
     features: number
     timesheets: number
+    projectAssignees: number
   }
 
   export type ProjectCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     features?: boolean | ProjectCountOutputTypeCountFeaturesArgs
     timesheets?: boolean | ProjectCountOutputTypeCountTimesheetsArgs
+    projectAssignees?: boolean | ProjectCountOutputTypeCountProjectAssigneesArgs
   }
 
   // Custom InputTypes
@@ -1489,6 +1582,13 @@ export namespace Prisma {
     where?: TimesheetEntryWhereInput
   }
 
+  /**
+   * ProjectCountOutputType without action
+   */
+  export type ProjectCountOutputTypeCountProjectAssigneesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectAssigneeWhereInput
+  }
+
 
   /**
    * Count Type FeatureCountOutputType
@@ -1496,10 +1596,12 @@ export namespace Prisma {
 
   export type FeatureCountOutputType = {
     timesheets: number
+    projectAssignees: number
   }
 
   export type FeatureCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     timesheets?: boolean | FeatureCountOutputTypeCountTimesheetsArgs
+    projectAssignees?: boolean | FeatureCountOutputTypeCountProjectAssigneesArgs
   }
 
   // Custom InputTypes
@@ -1518,6 +1620,13 @@ export namespace Prisma {
    */
   export type FeatureCountOutputTypeCountTimesheetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TimesheetEntryWhereInput
+  }
+
+  /**
+   * FeatureCountOutputType without action
+   */
+  export type FeatureCountOutputTypeCountProjectAssigneesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectAssigneeWhereInput
   }
 
 
@@ -2935,6 +3044,7 @@ export namespace Prisma {
     features?: boolean | Project$featuresArgs<ExtArgs>
     group?: boolean | Project$groupArgs<ExtArgs>
     timesheets?: boolean | Project$timesheetsArgs<ExtArgs>
+    projectAssignees?: boolean | Project$projectAssigneesArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
 
@@ -3002,6 +3112,7 @@ export namespace Prisma {
     features?: boolean | Project$featuresArgs<ExtArgs>
     group?: boolean | Project$groupArgs<ExtArgs>
     timesheets?: boolean | Project$timesheetsArgs<ExtArgs>
+    projectAssignees?: boolean | Project$projectAssigneesArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProjectIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3017,6 +3128,7 @@ export namespace Prisma {
       features: Prisma.$FeaturePayload<ExtArgs>[]
       group: Prisma.$GroupPayload<ExtArgs> | null
       timesheets: Prisma.$TimesheetEntryPayload<ExtArgs>[]
+      projectAssignees: Prisma.$ProjectAssigneePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -3432,6 +3544,7 @@ export namespace Prisma {
     features<T extends Project$featuresArgs<ExtArgs> = {}>(args?: Subset<T, Project$featuresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     group<T extends Project$groupArgs<ExtArgs> = {}>(args?: Subset<T, Project$groupArgs<ExtArgs>>): Prisma__GroupClient<$Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     timesheets<T extends Project$timesheetsArgs<ExtArgs> = {}>(args?: Subset<T, Project$timesheetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TimesheetEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    projectAssignees<T extends Project$projectAssigneesArgs<ExtArgs> = {}>(args?: Subset<T, Project$projectAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3940,6 +4053,30 @@ export namespace Prisma {
   }
 
   /**
+   * Project.projectAssignees
+   */
+  export type Project$projectAssigneesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    where?: ProjectAssigneeWhereInput
+    orderBy?: ProjectAssigneeOrderByWithRelationInput | ProjectAssigneeOrderByWithRelationInput[]
+    cursor?: ProjectAssigneeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProjectAssigneeScalarFieldEnum | ProjectAssigneeScalarFieldEnum[]
+  }
+
+  /**
    * Project without action
    */
   export type ProjectDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3955,6 +4092,1137 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProjectInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProjectAssignee
+   */
+
+  export type AggregateProjectAssignee = {
+    _count: ProjectAssigneeCountAggregateOutputType | null
+    _avg: ProjectAssigneeAvgAggregateOutputType | null
+    _sum: ProjectAssigneeSumAggregateOutputType | null
+    _min: ProjectAssigneeMinAggregateOutputType | null
+    _max: ProjectAssigneeMaxAggregateOutputType | null
+  }
+
+  export type ProjectAssigneeAvgAggregateOutputType = {
+    id: number | null
+    projectId: number | null
+    featureId: number | null
+    userId: number | null
+  }
+
+  export type ProjectAssigneeSumAggregateOutputType = {
+    id: number | null
+    projectId: number | null
+    featureId: number | null
+    userId: number | null
+  }
+
+  export type ProjectAssigneeMinAggregateOutputType = {
+    id: number | null
+    projectId: number | null
+    featureId: number | null
+    userId: number | null
+    position: string | null
+  }
+
+  export type ProjectAssigneeMaxAggregateOutputType = {
+    id: number | null
+    projectId: number | null
+    featureId: number | null
+    userId: number | null
+    position: string | null
+  }
+
+  export type ProjectAssigneeCountAggregateOutputType = {
+    id: number
+    projectId: number
+    featureId: number
+    userId: number
+    position: number
+    _all: number
+  }
+
+
+  export type ProjectAssigneeAvgAggregateInputType = {
+    id?: true
+    projectId?: true
+    featureId?: true
+    userId?: true
+  }
+
+  export type ProjectAssigneeSumAggregateInputType = {
+    id?: true
+    projectId?: true
+    featureId?: true
+    userId?: true
+  }
+
+  export type ProjectAssigneeMinAggregateInputType = {
+    id?: true
+    projectId?: true
+    featureId?: true
+    userId?: true
+    position?: true
+  }
+
+  export type ProjectAssigneeMaxAggregateInputType = {
+    id?: true
+    projectId?: true
+    featureId?: true
+    userId?: true
+    position?: true
+  }
+
+  export type ProjectAssigneeCountAggregateInputType = {
+    id?: true
+    projectId?: true
+    featureId?: true
+    userId?: true
+    position?: true
+    _all?: true
+  }
+
+  export type ProjectAssigneeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProjectAssignee to aggregate.
+     */
+    where?: ProjectAssigneeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectAssignees to fetch.
+     */
+    orderBy?: ProjectAssigneeOrderByWithRelationInput | ProjectAssigneeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProjectAssigneeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectAssignees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectAssignees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProjectAssignees
+    **/
+    _count?: true | ProjectAssigneeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProjectAssigneeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProjectAssigneeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProjectAssigneeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProjectAssigneeMaxAggregateInputType
+  }
+
+  export type GetProjectAssigneeAggregateType<T extends ProjectAssigneeAggregateArgs> = {
+        [P in keyof T & keyof AggregateProjectAssignee]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProjectAssignee[P]>
+      : GetScalarType<T[P], AggregateProjectAssignee[P]>
+  }
+
+
+
+
+  export type ProjectAssigneeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectAssigneeWhereInput
+    orderBy?: ProjectAssigneeOrderByWithAggregationInput | ProjectAssigneeOrderByWithAggregationInput[]
+    by: ProjectAssigneeScalarFieldEnum[] | ProjectAssigneeScalarFieldEnum
+    having?: ProjectAssigneeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProjectAssigneeCountAggregateInputType | true
+    _avg?: ProjectAssigneeAvgAggregateInputType
+    _sum?: ProjectAssigneeSumAggregateInputType
+    _min?: ProjectAssigneeMinAggregateInputType
+    _max?: ProjectAssigneeMaxAggregateInputType
+  }
+
+  export type ProjectAssigneeGroupByOutputType = {
+    id: number
+    projectId: number
+    featureId: number | null
+    userId: number
+    position: string | null
+    _count: ProjectAssigneeCountAggregateOutputType | null
+    _avg: ProjectAssigneeAvgAggregateOutputType | null
+    _sum: ProjectAssigneeSumAggregateOutputType | null
+    _min: ProjectAssigneeMinAggregateOutputType | null
+    _max: ProjectAssigneeMaxAggregateOutputType | null
+  }
+
+  type GetProjectAssigneeGroupByPayload<T extends ProjectAssigneeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProjectAssigneeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProjectAssigneeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProjectAssigneeGroupByOutputType[P]>
+            : GetScalarType<T[P], ProjectAssigneeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProjectAssigneeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    featureId?: boolean
+    userId?: boolean
+    position?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    feature?: boolean | ProjectAssignee$featureArgs<ExtArgs>
+  }, ExtArgs["result"]["projectAssignee"]>
+
+  export type ProjectAssigneeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    featureId?: boolean
+    userId?: boolean
+    position?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    feature?: boolean | ProjectAssignee$featureArgs<ExtArgs>
+  }, ExtArgs["result"]["projectAssignee"]>
+
+  export type ProjectAssigneeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    featureId?: boolean
+    userId?: boolean
+    position?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    feature?: boolean | ProjectAssignee$featureArgs<ExtArgs>
+  }, ExtArgs["result"]["projectAssignee"]>
+
+  export type ProjectAssigneeSelectScalar = {
+    id?: boolean
+    projectId?: boolean
+    featureId?: boolean
+    userId?: boolean
+    position?: boolean
+  }
+
+  export type ProjectAssigneeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "featureId" | "userId" | "position", ExtArgs["result"]["projectAssignee"]>
+  export type ProjectAssigneeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    feature?: boolean | ProjectAssignee$featureArgs<ExtArgs>
+  }
+  export type ProjectAssigneeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    feature?: boolean | ProjectAssignee$featureArgs<ExtArgs>
+  }
+  export type ProjectAssigneeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    feature?: boolean | ProjectAssignee$featureArgs<ExtArgs>
+  }
+
+  export type $ProjectAssigneePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProjectAssignee"
+    objects: {
+      project: Prisma.$ProjectPayload<ExtArgs>
+      feature: Prisma.$FeaturePayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      projectId: number
+      featureId: number | null
+      userId: number
+      position: string | null
+    }, ExtArgs["result"]["projectAssignee"]>
+    composites: {}
+  }
+
+  type ProjectAssigneeGetPayload<S extends boolean | null | undefined | ProjectAssigneeDefaultArgs> = $Result.GetResult<Prisma.$ProjectAssigneePayload, S>
+
+  type ProjectAssigneeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProjectAssigneeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProjectAssigneeCountAggregateInputType | true
+    }
+
+  export interface ProjectAssigneeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProjectAssignee'], meta: { name: 'ProjectAssignee' } }
+    /**
+     * Find zero or one ProjectAssignee that matches the filter.
+     * @param {ProjectAssigneeFindUniqueArgs} args - Arguments to find a ProjectAssignee
+     * @example
+     * // Get one ProjectAssignee
+     * const projectAssignee = await prisma.projectAssignee.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProjectAssigneeFindUniqueArgs>(args: SelectSubset<T, ProjectAssigneeFindUniqueArgs<ExtArgs>>): Prisma__ProjectAssigneeClient<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProjectAssignee that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProjectAssigneeFindUniqueOrThrowArgs} args - Arguments to find a ProjectAssignee
+     * @example
+     * // Get one ProjectAssignee
+     * const projectAssignee = await prisma.projectAssignee.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProjectAssigneeFindUniqueOrThrowArgs>(args: SelectSubset<T, ProjectAssigneeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProjectAssigneeClient<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProjectAssignee that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectAssigneeFindFirstArgs} args - Arguments to find a ProjectAssignee
+     * @example
+     * // Get one ProjectAssignee
+     * const projectAssignee = await prisma.projectAssignee.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProjectAssigneeFindFirstArgs>(args?: SelectSubset<T, ProjectAssigneeFindFirstArgs<ExtArgs>>): Prisma__ProjectAssigneeClient<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProjectAssignee that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectAssigneeFindFirstOrThrowArgs} args - Arguments to find a ProjectAssignee
+     * @example
+     * // Get one ProjectAssignee
+     * const projectAssignee = await prisma.projectAssignee.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProjectAssigneeFindFirstOrThrowArgs>(args?: SelectSubset<T, ProjectAssigneeFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProjectAssigneeClient<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProjectAssignees that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectAssigneeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProjectAssignees
+     * const projectAssignees = await prisma.projectAssignee.findMany()
+     * 
+     * // Get first 10 ProjectAssignees
+     * const projectAssignees = await prisma.projectAssignee.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const projectAssigneeWithIdOnly = await prisma.projectAssignee.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProjectAssigneeFindManyArgs>(args?: SelectSubset<T, ProjectAssigneeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProjectAssignee.
+     * @param {ProjectAssigneeCreateArgs} args - Arguments to create a ProjectAssignee.
+     * @example
+     * // Create one ProjectAssignee
+     * const ProjectAssignee = await prisma.projectAssignee.create({
+     *   data: {
+     *     // ... data to create a ProjectAssignee
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProjectAssigneeCreateArgs>(args: SelectSubset<T, ProjectAssigneeCreateArgs<ExtArgs>>): Prisma__ProjectAssigneeClient<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProjectAssignees.
+     * @param {ProjectAssigneeCreateManyArgs} args - Arguments to create many ProjectAssignees.
+     * @example
+     * // Create many ProjectAssignees
+     * const projectAssignee = await prisma.projectAssignee.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProjectAssigneeCreateManyArgs>(args?: SelectSubset<T, ProjectAssigneeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProjectAssignees and returns the data saved in the database.
+     * @param {ProjectAssigneeCreateManyAndReturnArgs} args - Arguments to create many ProjectAssignees.
+     * @example
+     * // Create many ProjectAssignees
+     * const projectAssignee = await prisma.projectAssignee.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProjectAssignees and only return the `id`
+     * const projectAssigneeWithIdOnly = await prisma.projectAssignee.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProjectAssigneeCreateManyAndReturnArgs>(args?: SelectSubset<T, ProjectAssigneeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProjectAssignee.
+     * @param {ProjectAssigneeDeleteArgs} args - Arguments to delete one ProjectAssignee.
+     * @example
+     * // Delete one ProjectAssignee
+     * const ProjectAssignee = await prisma.projectAssignee.delete({
+     *   where: {
+     *     // ... filter to delete one ProjectAssignee
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProjectAssigneeDeleteArgs>(args: SelectSubset<T, ProjectAssigneeDeleteArgs<ExtArgs>>): Prisma__ProjectAssigneeClient<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProjectAssignee.
+     * @param {ProjectAssigneeUpdateArgs} args - Arguments to update one ProjectAssignee.
+     * @example
+     * // Update one ProjectAssignee
+     * const projectAssignee = await prisma.projectAssignee.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProjectAssigneeUpdateArgs>(args: SelectSubset<T, ProjectAssigneeUpdateArgs<ExtArgs>>): Prisma__ProjectAssigneeClient<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProjectAssignees.
+     * @param {ProjectAssigneeDeleteManyArgs} args - Arguments to filter ProjectAssignees to delete.
+     * @example
+     * // Delete a few ProjectAssignees
+     * const { count } = await prisma.projectAssignee.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProjectAssigneeDeleteManyArgs>(args?: SelectSubset<T, ProjectAssigneeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProjectAssignees.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectAssigneeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProjectAssignees
+     * const projectAssignee = await prisma.projectAssignee.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProjectAssigneeUpdateManyArgs>(args: SelectSubset<T, ProjectAssigneeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProjectAssignees and returns the data updated in the database.
+     * @param {ProjectAssigneeUpdateManyAndReturnArgs} args - Arguments to update many ProjectAssignees.
+     * @example
+     * // Update many ProjectAssignees
+     * const projectAssignee = await prisma.projectAssignee.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProjectAssignees and only return the `id`
+     * const projectAssigneeWithIdOnly = await prisma.projectAssignee.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProjectAssigneeUpdateManyAndReturnArgs>(args: SelectSubset<T, ProjectAssigneeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProjectAssignee.
+     * @param {ProjectAssigneeUpsertArgs} args - Arguments to update or create a ProjectAssignee.
+     * @example
+     * // Update or create a ProjectAssignee
+     * const projectAssignee = await prisma.projectAssignee.upsert({
+     *   create: {
+     *     // ... data to create a ProjectAssignee
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProjectAssignee we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProjectAssigneeUpsertArgs>(args: SelectSubset<T, ProjectAssigneeUpsertArgs<ExtArgs>>): Prisma__ProjectAssigneeClient<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProjectAssignees.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectAssigneeCountArgs} args - Arguments to filter ProjectAssignees to count.
+     * @example
+     * // Count the number of ProjectAssignees
+     * const count = await prisma.projectAssignee.count({
+     *   where: {
+     *     // ... the filter for the ProjectAssignees we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProjectAssigneeCountArgs>(
+      args?: Subset<T, ProjectAssigneeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProjectAssigneeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProjectAssignee.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectAssigneeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProjectAssigneeAggregateArgs>(args: Subset<T, ProjectAssigneeAggregateArgs>): Prisma.PrismaPromise<GetProjectAssigneeAggregateType<T>>
+
+    /**
+     * Group by ProjectAssignee.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectAssigneeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProjectAssigneeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProjectAssigneeGroupByArgs['orderBy'] }
+        : { orderBy?: ProjectAssigneeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProjectAssigneeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProjectAssigneeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProjectAssignee model
+   */
+  readonly fields: ProjectAssigneeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProjectAssignee.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProjectAssigneeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    feature<T extends ProjectAssignee$featureArgs<ExtArgs> = {}>(args?: Subset<T, ProjectAssignee$featureArgs<ExtArgs>>): Prisma__FeatureClient<$Result.GetResult<Prisma.$FeaturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProjectAssignee model
+   */
+  interface ProjectAssigneeFieldRefs {
+    readonly id: FieldRef<"ProjectAssignee", 'Int'>
+    readonly projectId: FieldRef<"ProjectAssignee", 'Int'>
+    readonly featureId: FieldRef<"ProjectAssignee", 'Int'>
+    readonly userId: FieldRef<"ProjectAssignee", 'Int'>
+    readonly position: FieldRef<"ProjectAssignee", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProjectAssignee findUnique
+   */
+  export type ProjectAssigneeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectAssignee to fetch.
+     */
+    where: ProjectAssigneeWhereUniqueInput
+  }
+
+  /**
+   * ProjectAssignee findUniqueOrThrow
+   */
+  export type ProjectAssigneeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectAssignee to fetch.
+     */
+    where: ProjectAssigneeWhereUniqueInput
+  }
+
+  /**
+   * ProjectAssignee findFirst
+   */
+  export type ProjectAssigneeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectAssignee to fetch.
+     */
+    where?: ProjectAssigneeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectAssignees to fetch.
+     */
+    orderBy?: ProjectAssigneeOrderByWithRelationInput | ProjectAssigneeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProjectAssignees.
+     */
+    cursor?: ProjectAssigneeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectAssignees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectAssignees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProjectAssignees.
+     */
+    distinct?: ProjectAssigneeScalarFieldEnum | ProjectAssigneeScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectAssignee findFirstOrThrow
+   */
+  export type ProjectAssigneeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectAssignee to fetch.
+     */
+    where?: ProjectAssigneeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectAssignees to fetch.
+     */
+    orderBy?: ProjectAssigneeOrderByWithRelationInput | ProjectAssigneeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProjectAssignees.
+     */
+    cursor?: ProjectAssigneeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectAssignees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectAssignees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProjectAssignees.
+     */
+    distinct?: ProjectAssigneeScalarFieldEnum | ProjectAssigneeScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectAssignee findMany
+   */
+  export type ProjectAssigneeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectAssignees to fetch.
+     */
+    where?: ProjectAssigneeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectAssignees to fetch.
+     */
+    orderBy?: ProjectAssigneeOrderByWithRelationInput | ProjectAssigneeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProjectAssignees.
+     */
+    cursor?: ProjectAssigneeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectAssignees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectAssignees.
+     */
+    skip?: number
+    distinct?: ProjectAssigneeScalarFieldEnum | ProjectAssigneeScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectAssignee create
+   */
+  export type ProjectAssigneeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProjectAssignee.
+     */
+    data: XOR<ProjectAssigneeCreateInput, ProjectAssigneeUncheckedCreateInput>
+  }
+
+  /**
+   * ProjectAssignee createMany
+   */
+  export type ProjectAssigneeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProjectAssignees.
+     */
+    data: ProjectAssigneeCreateManyInput | ProjectAssigneeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProjectAssignee createManyAndReturn
+   */
+  export type ProjectAssigneeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProjectAssignees.
+     */
+    data: ProjectAssigneeCreateManyInput | ProjectAssigneeCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProjectAssignee update
+   */
+  export type ProjectAssigneeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProjectAssignee.
+     */
+    data: XOR<ProjectAssigneeUpdateInput, ProjectAssigneeUncheckedUpdateInput>
+    /**
+     * Choose, which ProjectAssignee to update.
+     */
+    where: ProjectAssigneeWhereUniqueInput
+  }
+
+  /**
+   * ProjectAssignee updateMany
+   */
+  export type ProjectAssigneeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProjectAssignees.
+     */
+    data: XOR<ProjectAssigneeUpdateManyMutationInput, ProjectAssigneeUncheckedUpdateManyInput>
+    /**
+     * Filter which ProjectAssignees to update
+     */
+    where?: ProjectAssigneeWhereInput
+    /**
+     * Limit how many ProjectAssignees to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProjectAssignee updateManyAndReturn
+   */
+  export type ProjectAssigneeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * The data used to update ProjectAssignees.
+     */
+    data: XOR<ProjectAssigneeUpdateManyMutationInput, ProjectAssigneeUncheckedUpdateManyInput>
+    /**
+     * Filter which ProjectAssignees to update
+     */
+    where?: ProjectAssigneeWhereInput
+    /**
+     * Limit how many ProjectAssignees to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProjectAssignee upsert
+   */
+  export type ProjectAssigneeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProjectAssignee to update in case it exists.
+     */
+    where: ProjectAssigneeWhereUniqueInput
+    /**
+     * In case the ProjectAssignee found by the `where` argument doesn't exist, create a new ProjectAssignee with this data.
+     */
+    create: XOR<ProjectAssigneeCreateInput, ProjectAssigneeUncheckedCreateInput>
+    /**
+     * In case the ProjectAssignee was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProjectAssigneeUpdateInput, ProjectAssigneeUncheckedUpdateInput>
+  }
+
+  /**
+   * ProjectAssignee delete
+   */
+  export type ProjectAssigneeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    /**
+     * Filter which ProjectAssignee to delete.
+     */
+    where: ProjectAssigneeWhereUniqueInput
+  }
+
+  /**
+   * ProjectAssignee deleteMany
+   */
+  export type ProjectAssigneeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProjectAssignees to delete
+     */
+    where?: ProjectAssigneeWhereInput
+    /**
+     * Limit how many ProjectAssignees to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProjectAssignee.feature
+   */
+  export type ProjectAssignee$featureArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feature
+     */
+    select?: FeatureSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feature
+     */
+    omit?: FeatureOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureInclude<ExtArgs> | null
+    where?: FeatureWhereInput
+  }
+
+  /**
+   * ProjectAssignee without action
+   */
+  export type ProjectAssigneeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
   }
 
 
@@ -4238,6 +5506,7 @@ export namespace Prisma {
     name_en?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     timesheets?: boolean | Feature$timesheetsArgs<ExtArgs>
+    projectAssignees?: boolean | Feature$projectAssigneesArgs<ExtArgs>
     _count?: boolean | FeatureCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
 
@@ -4298,6 +5567,7 @@ export namespace Prisma {
   export type FeatureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     timesheets?: boolean | Feature$timesheetsArgs<ExtArgs>
+    projectAssignees?: boolean | Feature$projectAssigneesArgs<ExtArgs>
     _count?: boolean | FeatureCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type FeatureIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4312,6 +5582,7 @@ export namespace Prisma {
     objects: {
       project: Prisma.$ProjectPayload<ExtArgs>
       timesheets: Prisma.$TimesheetEntryPayload<ExtArgs>[]
+      projectAssignees: Prisma.$ProjectAssigneePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -4724,6 +5995,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     timesheets<T extends Feature$timesheetsArgs<ExtArgs> = {}>(args?: Subset<T, Feature$timesheetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TimesheetEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    projectAssignees<T extends Feature$projectAssigneesArgs<ExtArgs> = {}>(args?: Subset<T, Feature$projectAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5184,6 +6456,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TimesheetEntryScalarFieldEnum | TimesheetEntryScalarFieldEnum[]
+  }
+
+  /**
+   * Feature.projectAssignees
+   */
+  export type Feature$projectAssigneesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectAssignee
+     */
+    select?: ProjectAssigneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectAssignee
+     */
+    omit?: ProjectAssigneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectAssigneeInclude<ExtArgs> | null
+    where?: ProjectAssigneeWhereInput
+    orderBy?: ProjectAssigneeOrderByWithRelationInput | ProjectAssigneeOrderByWithRelationInput[]
+    cursor?: ProjectAssigneeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProjectAssigneeScalarFieldEnum | ProjectAssigneeScalarFieldEnum[]
   }
 
   /**
@@ -9976,6 +11272,17 @@ export namespace Prisma {
   export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
+  export const ProjectAssigneeScalarFieldEnum: {
+    id: 'id',
+    projectId: 'projectId',
+    featureId: 'featureId',
+    userId: 'userId',
+    position: 'position'
+  };
+
+  export type ProjectAssigneeScalarFieldEnum = (typeof ProjectAssigneeScalarFieldEnum)[keyof typeof ProjectAssigneeScalarFieldEnum]
+
+
   export const FeatureScalarFieldEnum: {
     id: 'id',
     projectId: 'projectId',
@@ -10307,6 +11614,7 @@ export namespace Prisma {
     features?: FeatureListRelationFilter
     group?: XOR<GroupNullableScalarRelationFilter, GroupWhereInput> | null
     timesheets?: TimesheetEntryListRelationFilter
+    projectAssignees?: ProjectAssigneeListRelationFilter
   }
 
   export type ProjectOrderByWithRelationInput = {
@@ -10329,6 +11637,7 @@ export namespace Prisma {
     features?: FeatureOrderByRelationAggregateInput
     group?: GroupOrderByWithRelationInput
     timesheets?: TimesheetEntryOrderByRelationAggregateInput
+    projectAssignees?: ProjectAssigneeOrderByRelationAggregateInput
   }
 
   export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -10354,6 +11663,7 @@ export namespace Prisma {
     features?: FeatureListRelationFilter
     group?: XOR<GroupNullableScalarRelationFilter, GroupWhereInput> | null
     timesheets?: TimesheetEntryListRelationFilter
+    projectAssignees?: ProjectAssigneeListRelationFilter
   }, "id">
 
   export type ProjectOrderByWithAggregationInput = {
@@ -10402,6 +11712,66 @@ export namespace Prisma {
     group_id?: IntNullableWithAggregatesFilter<"Project"> | number | null
   }
 
+  export type ProjectAssigneeWhereInput = {
+    AND?: ProjectAssigneeWhereInput | ProjectAssigneeWhereInput[]
+    OR?: ProjectAssigneeWhereInput[]
+    NOT?: ProjectAssigneeWhereInput | ProjectAssigneeWhereInput[]
+    id?: IntFilter<"ProjectAssignee"> | number
+    projectId?: IntFilter<"ProjectAssignee"> | number
+    featureId?: IntNullableFilter<"ProjectAssignee"> | number | null
+    userId?: IntFilter<"ProjectAssignee"> | number
+    position?: StringNullableFilter<"ProjectAssignee"> | string | null
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    feature?: XOR<FeatureNullableScalarRelationFilter, FeatureWhereInput> | null
+  }
+
+  export type ProjectAssigneeOrderByWithRelationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    featureId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    position?: SortOrderInput | SortOrder
+    project?: ProjectOrderByWithRelationInput
+    feature?: FeatureOrderByWithRelationInput
+  }
+
+  export type ProjectAssigneeWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: ProjectAssigneeWhereInput | ProjectAssigneeWhereInput[]
+    OR?: ProjectAssigneeWhereInput[]
+    NOT?: ProjectAssigneeWhereInput | ProjectAssigneeWhereInput[]
+    projectId?: IntFilter<"ProjectAssignee"> | number
+    featureId?: IntNullableFilter<"ProjectAssignee"> | number | null
+    userId?: IntFilter<"ProjectAssignee"> | number
+    position?: StringNullableFilter<"ProjectAssignee"> | string | null
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    feature?: XOR<FeatureNullableScalarRelationFilter, FeatureWhereInput> | null
+  }, "id">
+
+  export type ProjectAssigneeOrderByWithAggregationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    featureId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    position?: SortOrderInput | SortOrder
+    _count?: ProjectAssigneeCountOrderByAggregateInput
+    _avg?: ProjectAssigneeAvgOrderByAggregateInput
+    _max?: ProjectAssigneeMaxOrderByAggregateInput
+    _min?: ProjectAssigneeMinOrderByAggregateInput
+    _sum?: ProjectAssigneeSumOrderByAggregateInput
+  }
+
+  export type ProjectAssigneeScalarWhereWithAggregatesInput = {
+    AND?: ProjectAssigneeScalarWhereWithAggregatesInput | ProjectAssigneeScalarWhereWithAggregatesInput[]
+    OR?: ProjectAssigneeScalarWhereWithAggregatesInput[]
+    NOT?: ProjectAssigneeScalarWhereWithAggregatesInput | ProjectAssigneeScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ProjectAssignee"> | number
+    projectId?: IntWithAggregatesFilter<"ProjectAssignee"> | number
+    featureId?: IntNullableWithAggregatesFilter<"ProjectAssignee"> | number | null
+    userId?: IntWithAggregatesFilter<"ProjectAssignee"> | number
+    position?: StringNullableWithAggregatesFilter<"ProjectAssignee"> | string | null
+  }
+
   export type FeatureWhereInput = {
     AND?: FeatureWhereInput | FeatureWhereInput[]
     OR?: FeatureWhereInput[]
@@ -10422,6 +11792,7 @@ export namespace Prisma {
     name_en?: StringNullableFilter<"Feature"> | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     timesheets?: TimesheetEntryListRelationFilter
+    projectAssignees?: ProjectAssigneeListRelationFilter
   }
 
   export type FeatureOrderByWithRelationInput = {
@@ -10441,6 +11812,7 @@ export namespace Prisma {
     name_en?: SortOrderInput | SortOrder
     project?: ProjectOrderByWithRelationInput
     timesheets?: TimesheetEntryOrderByRelationAggregateInput
+    projectAssignees?: ProjectAssigneeOrderByRelationAggregateInput
   }
 
   export type FeatureWhereUniqueInput = Prisma.AtLeast<{
@@ -10463,6 +11835,7 @@ export namespace Prisma {
     name_en?: StringNullableFilter<"Feature"> | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     timesheets?: TimesheetEntryListRelationFilter
+    projectAssignees?: ProjectAssigneeListRelationFilter
   }, "id">
 
   export type FeatureOrderByWithAggregationInput = {
@@ -10941,6 +12314,7 @@ export namespace Prisma {
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
+    projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateInput = {
@@ -10962,6 +12336,7 @@ export namespace Prisma {
     group_id?: number | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
+    projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectUpdateInput = {
@@ -10982,6 +12357,7 @@ export namespace Prisma {
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
+    projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateInput = {
@@ -11003,6 +12379,7 @@ export namespace Prisma {
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
+    projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectCreateManyInput = {
@@ -11060,6 +12437,57 @@ export namespace Prisma {
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
+  export type ProjectAssigneeCreateInput = {
+    userId: number
+    position?: string | null
+    project: ProjectCreateNestedOneWithoutProjectAssigneesInput
+    feature?: FeatureCreateNestedOneWithoutProjectAssigneesInput
+  }
+
+  export type ProjectAssigneeUncheckedCreateInput = {
+    id?: number
+    projectId: number
+    featureId?: number | null
+    userId: number
+    position?: string | null
+  }
+
+  export type ProjectAssigneeUpdateInput = {
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    project?: ProjectUpdateOneRequiredWithoutProjectAssigneesNestedInput
+    feature?: FeatureUpdateOneWithoutProjectAssigneesNestedInput
+  }
+
+  export type ProjectAssigneeUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    projectId?: IntFieldUpdateOperationsInput | number
+    featureId?: NullableIntFieldUpdateOperationsInput | number | null
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ProjectAssigneeCreateManyInput = {
+    id?: number
+    projectId: number
+    featureId?: number | null
+    userId: number
+    position?: string | null
+  }
+
+  export type ProjectAssigneeUpdateManyMutationInput = {
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ProjectAssigneeUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    projectId?: IntFieldUpdateOperationsInput | number
+    featureId?: NullableIntFieldUpdateOperationsInput | number | null
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type FeatureCreateInput = {
     name: string
     createdAt?: Date | string
@@ -11075,6 +12503,7 @@ export namespace Prisma {
     name_en?: string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
+    projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
   }
 
   export type FeatureUncheckedCreateInput = {
@@ -11093,6 +12522,7 @@ export namespace Prisma {
     status?: string
     name_en?: string | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
+    projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
   }
 
   export type FeatureUpdateInput = {
@@ -11110,6 +12540,7 @@ export namespace Prisma {
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
+    projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
   }
 
   export type FeatureUncheckedUpdateInput = {
@@ -11128,6 +12559,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
+    projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
   export type FeatureCreateManyInput = {
@@ -11787,11 +13219,21 @@ export namespace Prisma {
     none?: TimesheetEntryWhereInput
   }
 
+  export type ProjectAssigneeListRelationFilter = {
+    every?: ProjectAssigneeWhereInput
+    some?: ProjectAssigneeWhereInput
+    none?: ProjectAssigneeWhereInput
+  }
+
   export type FeatureOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type TimesheetEntryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProjectAssigneeOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -11917,6 +13359,54 @@ export namespace Prisma {
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
+
+  export type ProjectScalarRelationFilter = {
+    is?: ProjectWhereInput
+    isNot?: ProjectWhereInput
+  }
+
+  export type FeatureNullableScalarRelationFilter = {
+    is?: FeatureWhereInput | null
+    isNot?: FeatureWhereInput | null
+  }
+
+  export type ProjectAssigneeCountOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    featureId?: SortOrder
+    userId?: SortOrder
+    position?: SortOrder
+  }
+
+  export type ProjectAssigneeAvgOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    featureId?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type ProjectAssigneeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    featureId?: SortOrder
+    userId?: SortOrder
+    position?: SortOrder
+  }
+
+  export type ProjectAssigneeMinOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    featureId?: SortOrder
+    userId?: SortOrder
+    position?: SortOrder
+  }
+
+  export type ProjectAssigneeSumOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    featureId?: SortOrder
+    userId?: SortOrder
+  }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -11946,11 +13436,6 @@ export namespace Prisma {
     in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
     notIn?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
     not?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel> | $Enums.ProjectAssetCaptureType
-  }
-
-  export type ProjectScalarRelationFilter = {
-    is?: ProjectWhereInput
-    isNot?: ProjectWhereInput
   }
 
   export type FeatureCountOrderByAggregateInput = {
@@ -12431,6 +13916,13 @@ export namespace Prisma {
     connect?: TimesheetEntryWhereUniqueInput | TimesheetEntryWhereUniqueInput[]
   }
 
+  export type ProjectAssigneeCreateNestedManyWithoutProjectInput = {
+    create?: XOR<ProjectAssigneeCreateWithoutProjectInput, ProjectAssigneeUncheckedCreateWithoutProjectInput> | ProjectAssigneeCreateWithoutProjectInput[] | ProjectAssigneeUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectAssigneeCreateOrConnectWithoutProjectInput | ProjectAssigneeCreateOrConnectWithoutProjectInput[]
+    createMany?: ProjectAssigneeCreateManyProjectInputEnvelope
+    connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+  }
+
   export type FeatureUncheckedCreateNestedManyWithoutProjectInput = {
     create?: XOR<FeatureCreateWithoutProjectInput, FeatureUncheckedCreateWithoutProjectInput> | FeatureCreateWithoutProjectInput[] | FeatureUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: FeatureCreateOrConnectWithoutProjectInput | FeatureCreateOrConnectWithoutProjectInput[]
@@ -12443,6 +13935,13 @@ export namespace Prisma {
     connectOrCreate?: TimesheetEntryCreateOrConnectWithoutProjectInput | TimesheetEntryCreateOrConnectWithoutProjectInput[]
     createMany?: TimesheetEntryCreateManyProjectInputEnvelope
     connect?: TimesheetEntryWhereUniqueInput | TimesheetEntryWhereUniqueInput[]
+  }
+
+  export type ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput = {
+    create?: XOR<ProjectAssigneeCreateWithoutProjectInput, ProjectAssigneeUncheckedCreateWithoutProjectInput> | ProjectAssigneeCreateWithoutProjectInput[] | ProjectAssigneeUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectAssigneeCreateOrConnectWithoutProjectInput | ProjectAssigneeCreateOrConnectWithoutProjectInput[]
+    createMany?: ProjectAssigneeCreateManyProjectInputEnvelope
+    connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -12503,6 +14002,20 @@ export namespace Prisma {
     deleteMany?: TimesheetEntryScalarWhereInput | TimesheetEntryScalarWhereInput[]
   }
 
+  export type ProjectAssigneeUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<ProjectAssigneeCreateWithoutProjectInput, ProjectAssigneeUncheckedCreateWithoutProjectInput> | ProjectAssigneeCreateWithoutProjectInput[] | ProjectAssigneeUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectAssigneeCreateOrConnectWithoutProjectInput | ProjectAssigneeCreateOrConnectWithoutProjectInput[]
+    upsert?: ProjectAssigneeUpsertWithWhereUniqueWithoutProjectInput | ProjectAssigneeUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: ProjectAssigneeCreateManyProjectInputEnvelope
+    set?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    disconnect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    delete?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    update?: ProjectAssigneeUpdateWithWhereUniqueWithoutProjectInput | ProjectAssigneeUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: ProjectAssigneeUpdateManyWithWhereWithoutProjectInput | ProjectAssigneeUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: ProjectAssigneeScalarWhereInput | ProjectAssigneeScalarWhereInput[]
+  }
+
   export type FeatureUncheckedUpdateManyWithoutProjectNestedInput = {
     create?: XOR<FeatureCreateWithoutProjectInput, FeatureUncheckedCreateWithoutProjectInput> | FeatureCreateWithoutProjectInput[] | FeatureUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: FeatureCreateOrConnectWithoutProjectInput | FeatureCreateOrConnectWithoutProjectInput[]
@@ -12531,6 +14044,50 @@ export namespace Prisma {
     deleteMany?: TimesheetEntryScalarWhereInput | TimesheetEntryScalarWhereInput[]
   }
 
+  export type ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<ProjectAssigneeCreateWithoutProjectInput, ProjectAssigneeUncheckedCreateWithoutProjectInput> | ProjectAssigneeCreateWithoutProjectInput[] | ProjectAssigneeUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectAssigneeCreateOrConnectWithoutProjectInput | ProjectAssigneeCreateOrConnectWithoutProjectInput[]
+    upsert?: ProjectAssigneeUpsertWithWhereUniqueWithoutProjectInput | ProjectAssigneeUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: ProjectAssigneeCreateManyProjectInputEnvelope
+    set?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    disconnect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    delete?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    update?: ProjectAssigneeUpdateWithWhereUniqueWithoutProjectInput | ProjectAssigneeUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: ProjectAssigneeUpdateManyWithWhereWithoutProjectInput | ProjectAssigneeUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: ProjectAssigneeScalarWhereInput | ProjectAssigneeScalarWhereInput[]
+  }
+
+  export type ProjectCreateNestedOneWithoutProjectAssigneesInput = {
+    create?: XOR<ProjectCreateWithoutProjectAssigneesInput, ProjectUncheckedCreateWithoutProjectAssigneesInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutProjectAssigneesInput
+    connect?: ProjectWhereUniqueInput
+  }
+
+  export type FeatureCreateNestedOneWithoutProjectAssigneesInput = {
+    create?: XOR<FeatureCreateWithoutProjectAssigneesInput, FeatureUncheckedCreateWithoutProjectAssigneesInput>
+    connectOrCreate?: FeatureCreateOrConnectWithoutProjectAssigneesInput
+    connect?: FeatureWhereUniqueInput
+  }
+
+  export type ProjectUpdateOneRequiredWithoutProjectAssigneesNestedInput = {
+    create?: XOR<ProjectCreateWithoutProjectAssigneesInput, ProjectUncheckedCreateWithoutProjectAssigneesInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutProjectAssigneesInput
+    upsert?: ProjectUpsertWithoutProjectAssigneesInput
+    connect?: ProjectWhereUniqueInput
+    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutProjectAssigneesInput, ProjectUpdateWithoutProjectAssigneesInput>, ProjectUncheckedUpdateWithoutProjectAssigneesInput>
+  }
+
+  export type FeatureUpdateOneWithoutProjectAssigneesNestedInput = {
+    create?: XOR<FeatureCreateWithoutProjectAssigneesInput, FeatureUncheckedCreateWithoutProjectAssigneesInput>
+    connectOrCreate?: FeatureCreateOrConnectWithoutProjectAssigneesInput
+    upsert?: FeatureUpsertWithoutProjectAssigneesInput
+    disconnect?: FeatureWhereInput | boolean
+    delete?: FeatureWhereInput | boolean
+    connect?: FeatureWhereUniqueInput
+    update?: XOR<XOR<FeatureUpdateToOneWithWhereWithoutProjectAssigneesInput, FeatureUpdateWithoutProjectAssigneesInput>, FeatureUncheckedUpdateWithoutProjectAssigneesInput>
+  }
+
   export type ProjectCreateNestedOneWithoutFeaturesInput = {
     create?: XOR<ProjectCreateWithoutFeaturesInput, ProjectUncheckedCreateWithoutFeaturesInput>
     connectOrCreate?: ProjectCreateOrConnectWithoutFeaturesInput
@@ -12544,11 +14101,25 @@ export namespace Prisma {
     connect?: TimesheetEntryWhereUniqueInput | TimesheetEntryWhereUniqueInput[]
   }
 
+  export type ProjectAssigneeCreateNestedManyWithoutFeatureInput = {
+    create?: XOR<ProjectAssigneeCreateWithoutFeatureInput, ProjectAssigneeUncheckedCreateWithoutFeatureInput> | ProjectAssigneeCreateWithoutFeatureInput[] | ProjectAssigneeUncheckedCreateWithoutFeatureInput[]
+    connectOrCreate?: ProjectAssigneeCreateOrConnectWithoutFeatureInput | ProjectAssigneeCreateOrConnectWithoutFeatureInput[]
+    createMany?: ProjectAssigneeCreateManyFeatureInputEnvelope
+    connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+  }
+
   export type TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput = {
     create?: XOR<TimesheetEntryCreateWithoutFeatureInput, TimesheetEntryUncheckedCreateWithoutFeatureInput> | TimesheetEntryCreateWithoutFeatureInput[] | TimesheetEntryUncheckedCreateWithoutFeatureInput[]
     connectOrCreate?: TimesheetEntryCreateOrConnectWithoutFeatureInput | TimesheetEntryCreateOrConnectWithoutFeatureInput[]
     createMany?: TimesheetEntryCreateManyFeatureInputEnvelope
     connect?: TimesheetEntryWhereUniqueInput | TimesheetEntryWhereUniqueInput[]
+  }
+
+  export type ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput = {
+    create?: XOR<ProjectAssigneeCreateWithoutFeatureInput, ProjectAssigneeUncheckedCreateWithoutFeatureInput> | ProjectAssigneeCreateWithoutFeatureInput[] | ProjectAssigneeUncheckedCreateWithoutFeatureInput[]
+    connectOrCreate?: ProjectAssigneeCreateOrConnectWithoutFeatureInput | ProjectAssigneeCreateOrConnectWithoutFeatureInput[]
+    createMany?: ProjectAssigneeCreateManyFeatureInputEnvelope
+    connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
   }
 
   export type EnumProjectAssetCaptureTypeFieldUpdateOperationsInput = {
@@ -12577,6 +14148,20 @@ export namespace Prisma {
     deleteMany?: TimesheetEntryScalarWhereInput | TimesheetEntryScalarWhereInput[]
   }
 
+  export type ProjectAssigneeUpdateManyWithoutFeatureNestedInput = {
+    create?: XOR<ProjectAssigneeCreateWithoutFeatureInput, ProjectAssigneeUncheckedCreateWithoutFeatureInput> | ProjectAssigneeCreateWithoutFeatureInput[] | ProjectAssigneeUncheckedCreateWithoutFeatureInput[]
+    connectOrCreate?: ProjectAssigneeCreateOrConnectWithoutFeatureInput | ProjectAssigneeCreateOrConnectWithoutFeatureInput[]
+    upsert?: ProjectAssigneeUpsertWithWhereUniqueWithoutFeatureInput | ProjectAssigneeUpsertWithWhereUniqueWithoutFeatureInput[]
+    createMany?: ProjectAssigneeCreateManyFeatureInputEnvelope
+    set?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    disconnect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    delete?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    update?: ProjectAssigneeUpdateWithWhereUniqueWithoutFeatureInput | ProjectAssigneeUpdateWithWhereUniqueWithoutFeatureInput[]
+    updateMany?: ProjectAssigneeUpdateManyWithWhereWithoutFeatureInput | ProjectAssigneeUpdateManyWithWhereWithoutFeatureInput[]
+    deleteMany?: ProjectAssigneeScalarWhereInput | ProjectAssigneeScalarWhereInput[]
+  }
+
   export type TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput = {
     create?: XOR<TimesheetEntryCreateWithoutFeatureInput, TimesheetEntryUncheckedCreateWithoutFeatureInput> | TimesheetEntryCreateWithoutFeatureInput[] | TimesheetEntryUncheckedCreateWithoutFeatureInput[]
     connectOrCreate?: TimesheetEntryCreateOrConnectWithoutFeatureInput | TimesheetEntryCreateOrConnectWithoutFeatureInput[]
@@ -12589,6 +14174,20 @@ export namespace Prisma {
     update?: TimesheetEntryUpdateWithWhereUniqueWithoutFeatureInput | TimesheetEntryUpdateWithWhereUniqueWithoutFeatureInput[]
     updateMany?: TimesheetEntryUpdateManyWithWhereWithoutFeatureInput | TimesheetEntryUpdateManyWithWhereWithoutFeatureInput[]
     deleteMany?: TimesheetEntryScalarWhereInput | TimesheetEntryScalarWhereInput[]
+  }
+
+  export type ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput = {
+    create?: XOR<ProjectAssigneeCreateWithoutFeatureInput, ProjectAssigneeUncheckedCreateWithoutFeatureInput> | ProjectAssigneeCreateWithoutFeatureInput[] | ProjectAssigneeUncheckedCreateWithoutFeatureInput[]
+    connectOrCreate?: ProjectAssigneeCreateOrConnectWithoutFeatureInput | ProjectAssigneeCreateOrConnectWithoutFeatureInput[]
+    upsert?: ProjectAssigneeUpsertWithWhereUniqueWithoutFeatureInput | ProjectAssigneeUpsertWithWhereUniqueWithoutFeatureInput[]
+    createMany?: ProjectAssigneeCreateManyFeatureInputEnvelope
+    set?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    disconnect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    delete?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
+    update?: ProjectAssigneeUpdateWithWhereUniqueWithoutFeatureInput | ProjectAssigneeUpdateWithWhereUniqueWithoutFeatureInput[]
+    updateMany?: ProjectAssigneeUpdateManyWithWhereWithoutFeatureInput | ProjectAssigneeUpdateManyWithWhereWithoutFeatureInput[]
+    deleteMany?: ProjectAssigneeScalarWhereInput | ProjectAssigneeScalarWhereInput[]
   }
 
   export type FeatureCreateNestedOneWithoutTimesheetsInput = {
@@ -13003,6 +14602,7 @@ export namespace Prisma {
     approval_status?: string
     features?: FeatureCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
+    projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutGroupInput = {
@@ -13023,6 +14623,7 @@ export namespace Prisma {
     approval_status?: string
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
+    projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutGroupInput = {
@@ -13087,6 +14688,7 @@ export namespace Prisma {
     status?: string
     name_en?: string | null
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
+    projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
   }
 
   export type FeatureUncheckedCreateWithoutProjectInput = {
@@ -13104,6 +14706,7 @@ export namespace Prisma {
     status?: string
     name_en?: string | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
+    projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
   }
 
   export type FeatureCreateOrConnectWithoutProjectInput = {
@@ -13166,6 +14769,29 @@ export namespace Prisma {
 
   export type TimesheetEntryCreateManyProjectInputEnvelope = {
     data: TimesheetEntryCreateManyProjectInput | TimesheetEntryCreateManyProjectInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProjectAssigneeCreateWithoutProjectInput = {
+    userId: number
+    position?: string | null
+    feature?: FeatureCreateNestedOneWithoutProjectAssigneesInput
+  }
+
+  export type ProjectAssigneeUncheckedCreateWithoutProjectInput = {
+    id?: number
+    featureId?: number | null
+    userId: number
+    position?: string | null
+  }
+
+  export type ProjectAssigneeCreateOrConnectWithoutProjectInput = {
+    where: ProjectAssigneeWhereUniqueInput
+    create: XOR<ProjectAssigneeCreateWithoutProjectInput, ProjectAssigneeUncheckedCreateWithoutProjectInput>
+  }
+
+  export type ProjectAssigneeCreateManyProjectInputEnvelope = {
+    data: ProjectAssigneeCreateManyProjectInput | ProjectAssigneeCreateManyProjectInput[]
     skipDuplicates?: boolean
   }
 
@@ -13261,6 +14887,217 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"TimesheetEntry"> | boolean
   }
 
+  export type ProjectAssigneeUpsertWithWhereUniqueWithoutProjectInput = {
+    where: ProjectAssigneeWhereUniqueInput
+    update: XOR<ProjectAssigneeUpdateWithoutProjectInput, ProjectAssigneeUncheckedUpdateWithoutProjectInput>
+    create: XOR<ProjectAssigneeCreateWithoutProjectInput, ProjectAssigneeUncheckedCreateWithoutProjectInput>
+  }
+
+  export type ProjectAssigneeUpdateWithWhereUniqueWithoutProjectInput = {
+    where: ProjectAssigneeWhereUniqueInput
+    data: XOR<ProjectAssigneeUpdateWithoutProjectInput, ProjectAssigneeUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type ProjectAssigneeUpdateManyWithWhereWithoutProjectInput = {
+    where: ProjectAssigneeScalarWhereInput
+    data: XOR<ProjectAssigneeUpdateManyMutationInput, ProjectAssigneeUncheckedUpdateManyWithoutProjectInput>
+  }
+
+  export type ProjectAssigneeScalarWhereInput = {
+    AND?: ProjectAssigneeScalarWhereInput | ProjectAssigneeScalarWhereInput[]
+    OR?: ProjectAssigneeScalarWhereInput[]
+    NOT?: ProjectAssigneeScalarWhereInput | ProjectAssigneeScalarWhereInput[]
+    id?: IntFilter<"ProjectAssignee"> | number
+    projectId?: IntFilter<"ProjectAssignee"> | number
+    featureId?: IntNullableFilter<"ProjectAssignee"> | number | null
+    userId?: IntFilter<"ProjectAssignee"> | number
+    position?: StringNullableFilter<"ProjectAssignee"> | string | null
+  }
+
+  export type ProjectCreateWithoutProjectAssigneesInput = {
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
+    categoryType?: string | null
+    status?: string
+    end_date?: Date | string | null
+    name_en?: string | null
+    start_date?: Date | string | null
+    approval?: string
+    approval_status?: string
+    features?: FeatureCreateNestedManyWithoutProjectInput
+    group?: GroupCreateNestedOneWithoutProjectsInput
+    timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutProjectAssigneesInput = {
+    id?: number
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
+    categoryType?: string | null
+    status?: string
+    end_date?: Date | string | null
+    name_en?: string | null
+    start_date?: Date | string | null
+    approval?: string
+    approval_status?: string
+    group_id?: number | null
+    features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
+    timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutProjectAssigneesInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutProjectAssigneesInput, ProjectUncheckedCreateWithoutProjectAssigneesInput>
+  }
+
+  export type FeatureCreateWithoutProjectAssigneesInput = {
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    is_deleted?: boolean
+    endDate?: Date | string | null
+    startDate?: Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
+    status?: string
+    name_en?: string | null
+    project: ProjectCreateNestedOneWithoutFeaturesInput
+    timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
+  }
+
+  export type FeatureUncheckedCreateWithoutProjectAssigneesInput = {
+    id?: number
+    projectId: number
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    is_deleted?: boolean
+    endDate?: Date | string | null
+    startDate?: Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
+    status?: string
+    name_en?: string | null
+    timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
+  }
+
+  export type FeatureCreateOrConnectWithoutProjectAssigneesInput = {
+    where: FeatureWhereUniqueInput
+    create: XOR<FeatureCreateWithoutProjectAssigneesInput, FeatureUncheckedCreateWithoutProjectAssigneesInput>
+  }
+
+  export type ProjectUpsertWithoutProjectAssigneesInput = {
+    update: XOR<ProjectUpdateWithoutProjectAssigneesInput, ProjectUncheckedUpdateWithoutProjectAssigneesInput>
+    create: XOR<ProjectCreateWithoutProjectAssigneesInput, ProjectUncheckedCreateWithoutProjectAssigneesInput>
+    where?: ProjectWhereInput
+  }
+
+  export type ProjectUpdateToOneWithWhereWithoutProjectAssigneesInput = {
+    where?: ProjectWhereInput
+    data: XOR<ProjectUpdateWithoutProjectAssigneesInput, ProjectUncheckedUpdateWithoutProjectAssigneesInput>
+  }
+
+  export type ProjectUpdateWithoutProjectAssigneesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    categoryType?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approval?: StringFieldUpdateOperationsInput | string
+    approval_status?: StringFieldUpdateOperationsInput | string
+    features?: FeatureUpdateManyWithoutProjectNestedInput
+    group?: GroupUpdateOneWithoutProjectsNestedInput
+    timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutProjectAssigneesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    categoryType?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approval?: StringFieldUpdateOperationsInput | string
+    approval_status?: StringFieldUpdateOperationsInput | string
+    group_id?: NullableIntFieldUpdateOperationsInput | number | null
+    features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
+    timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type FeatureUpsertWithoutProjectAssigneesInput = {
+    update: XOR<FeatureUpdateWithoutProjectAssigneesInput, FeatureUncheckedUpdateWithoutProjectAssigneesInput>
+    create: XOR<FeatureCreateWithoutProjectAssigneesInput, FeatureUncheckedCreateWithoutProjectAssigneesInput>
+    where?: FeatureWhereInput
+  }
+
+  export type FeatureUpdateToOneWithWhereWithoutProjectAssigneesInput = {
+    where?: FeatureWhereInput
+    data: XOR<FeatureUpdateWithoutProjectAssigneesInput, FeatureUncheckedUpdateWithoutProjectAssigneesInput>
+  }
+
+  export type FeatureUpdateWithoutProjectAssigneesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    status?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
+    timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
+  }
+
+  export type FeatureUncheckedUpdateWithoutProjectAssigneesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    projectId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    status?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
+  }
+
   export type ProjectCreateWithoutFeaturesInput = {
     name: string
     createdAt?: Date | string
@@ -13278,6 +15115,7 @@ export namespace Prisma {
     approval_status?: string
     group?: GroupCreateNestedOneWithoutProjectsInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
+    projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutFeaturesInput = {
@@ -13298,6 +15136,7 @@ export namespace Prisma {
     approval_status?: string
     group_id?: number | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
+    projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutFeaturesInput = {
@@ -13342,6 +15181,29 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ProjectAssigneeCreateWithoutFeatureInput = {
+    userId: number
+    position?: string | null
+    project: ProjectCreateNestedOneWithoutProjectAssigneesInput
+  }
+
+  export type ProjectAssigneeUncheckedCreateWithoutFeatureInput = {
+    id?: number
+    projectId: number
+    userId: number
+    position?: string | null
+  }
+
+  export type ProjectAssigneeCreateOrConnectWithoutFeatureInput = {
+    where: ProjectAssigneeWhereUniqueInput
+    create: XOR<ProjectAssigneeCreateWithoutFeatureInput, ProjectAssigneeUncheckedCreateWithoutFeatureInput>
+  }
+
+  export type ProjectAssigneeCreateManyFeatureInputEnvelope = {
+    data: ProjectAssigneeCreateManyFeatureInput | ProjectAssigneeCreateManyFeatureInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ProjectUpsertWithoutFeaturesInput = {
     update: XOR<ProjectUpdateWithoutFeaturesInput, ProjectUncheckedUpdateWithoutFeaturesInput>
     create: XOR<ProjectCreateWithoutFeaturesInput, ProjectUncheckedCreateWithoutFeaturesInput>
@@ -13370,6 +15232,7 @@ export namespace Prisma {
     approval_status?: StringFieldUpdateOperationsInput | string
     group?: GroupUpdateOneWithoutProjectsNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
+    projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutFeaturesInput = {
@@ -13390,6 +15253,7 @@ export namespace Prisma {
     approval_status?: StringFieldUpdateOperationsInput | string
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
+    projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type TimesheetEntryUpsertWithWhereUniqueWithoutFeatureInput = {
@@ -13408,6 +15272,22 @@ export namespace Prisma {
     data: XOR<TimesheetEntryUpdateManyMutationInput, TimesheetEntryUncheckedUpdateManyWithoutFeatureInput>
   }
 
+  export type ProjectAssigneeUpsertWithWhereUniqueWithoutFeatureInput = {
+    where: ProjectAssigneeWhereUniqueInput
+    update: XOR<ProjectAssigneeUpdateWithoutFeatureInput, ProjectAssigneeUncheckedUpdateWithoutFeatureInput>
+    create: XOR<ProjectAssigneeCreateWithoutFeatureInput, ProjectAssigneeUncheckedCreateWithoutFeatureInput>
+  }
+
+  export type ProjectAssigneeUpdateWithWhereUniqueWithoutFeatureInput = {
+    where: ProjectAssigneeWhereUniqueInput
+    data: XOR<ProjectAssigneeUpdateWithoutFeatureInput, ProjectAssigneeUncheckedUpdateWithoutFeatureInput>
+  }
+
+  export type ProjectAssigneeUpdateManyWithWhereWithoutFeatureInput = {
+    where: ProjectAssigneeScalarWhereInput
+    data: XOR<ProjectAssigneeUpdateManyMutationInput, ProjectAssigneeUncheckedUpdateManyWithoutFeatureInput>
+  }
+
   export type FeatureCreateWithoutTimesheetsInput = {
     name: string
     createdAt?: Date | string
@@ -13422,6 +15302,7 @@ export namespace Prisma {
     status?: string
     name_en?: string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
+    projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
   }
 
   export type FeatureUncheckedCreateWithoutTimesheetsInput = {
@@ -13439,6 +15320,7 @@ export namespace Prisma {
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     status?: string
     name_en?: string | null
+    projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
   }
 
   export type FeatureCreateOrConnectWithoutTimesheetsInput = {
@@ -13463,6 +15345,7 @@ export namespace Prisma {
     approval_status?: string
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
+    projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectUncheckedCreateWithoutTimesheetsInput = {
@@ -13483,6 +15366,7 @@ export namespace Prisma {
     approval_status?: string
     group_id?: number | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
+    projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutTimesheetsInput = {
@@ -13515,6 +15399,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
+    projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
   }
 
   export type FeatureUncheckedUpdateWithoutTimesheetsInput = {
@@ -13532,6 +15417,7 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
   export type ProjectUpsertWithoutTimesheetsInput = {
@@ -13562,6 +15448,7 @@ export namespace Prisma {
     approval_status?: StringFieldUpdateOperationsInput | string
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
+    projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutTimesheetsInput = {
@@ -13582,6 +15469,7 @@ export namespace Prisma {
     approval_status?: StringFieldUpdateOperationsInput | string
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
+    projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type OvertimeDescriptionCreateWithoutOvertimeInput = {
@@ -13740,6 +15628,7 @@ export namespace Prisma {
     approval_status?: StringFieldUpdateOperationsInput | string
     features?: FeatureUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
+    projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutGroupInput = {
@@ -13760,6 +15649,7 @@ export namespace Prisma {
     approval_status?: StringFieldUpdateOperationsInput | string
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
+    projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateManyWithoutGroupInput = {
@@ -13810,6 +15700,13 @@ export namespace Prisma {
     is_deleted?: boolean
   }
 
+  export type ProjectAssigneeCreateManyProjectInput = {
+    id?: number
+    featureId?: number | null
+    userId: number
+    position?: string | null
+  }
+
   export type FeatureUpdateWithoutProjectInput = {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13824,6 +15721,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
+    projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
   }
 
   export type FeatureUncheckedUpdateWithoutProjectInput = {
@@ -13841,6 +15739,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
+    projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
   export type FeatureUncheckedUpdateManyWithoutProjectInput = {
@@ -13900,6 +15799,26 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type ProjectAssigneeUpdateWithoutProjectInput = {
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    feature?: FeatureUpdateOneWithoutProjectAssigneesNestedInput
+  }
+
+  export type ProjectAssigneeUncheckedUpdateWithoutProjectInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    featureId?: NullableIntFieldUpdateOperationsInput | number | null
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ProjectAssigneeUncheckedUpdateManyWithoutProjectInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    featureId?: NullableIntFieldUpdateOperationsInput | number | null
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type TimesheetEntryCreateManyFeatureInput = {
     id?: number
     projectId: number
@@ -13912,6 +15831,13 @@ export namespace Prisma {
     updatedAt?: Date | string
     updatedBy?: number | null
     is_deleted?: boolean
+  }
+
+  export type ProjectAssigneeCreateManyFeatureInput = {
+    id?: number
+    projectId: number
+    userId: number
+    position?: string | null
   }
 
   export type TimesheetEntryUpdateWithoutFeatureInput = {
@@ -13953,6 +15879,26 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type ProjectAssigneeUpdateWithoutFeatureInput = {
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    project?: ProjectUpdateOneRequiredWithoutProjectAssigneesNestedInput
+  }
+
+  export type ProjectAssigneeUncheckedUpdateWithoutFeatureInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    projectId?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ProjectAssigneeUncheckedUpdateManyWithoutFeatureInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    projectId?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    position?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OvertimeDescriptionCreateManyOvertimeInput = {

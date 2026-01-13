@@ -26,6 +26,8 @@ import {
   Avatar,
   Tooltip,
   Dropdown,
+  List,
+  AutoComplete,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -43,6 +45,16 @@ import {
   BarsOutlined,
   CalendarOutlined,
   UserOutlined,
+  MinusCircleOutlined,
+  TeamOutlined,
+  ApartmentOutlined,
+  GlobalOutlined,
+  ToolOutlined,
+  MedicineBoxOutlined,
+  CompassOutlined,
+  AuditOutlined,
+  CloseOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -50,7 +62,7 @@ import dayjs from "dayjs";
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { useAppSelector } from "@stores/store";
-import { getUserById } from "@helpers/local_storage/user.storage";
+import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
 import { categoryType } from "@data/timesheet.category.type";
 
@@ -119,19 +131,19 @@ const KanbanBoard = ({
     return [
       {
         id: "todo",
-        title: "ยังไม่เริ่ม (Upcoming)",
+        title: "ยังไม่เริ่ม",
         items: todo,
         color: token.colorWarning,
       },
       {
         id: "process",
-        title: "กำลังดำเนินการ (In Progress)",
+        title: "กำลังดำเนินการ",
         items: inProgress,
         color: token.colorPrimary,
       },
       {
         id: "done",
-        title: "เสร็จสิ้น (Completed)",
+        title: "เสร็จสิ้น",
         items: done,
         color: token.colorSuccess,
       },
@@ -402,7 +414,8 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
   const items = [
     {
       label: "โครงการทั้งหมด",
-      value: stats.total,
+      value: `${stats.total}/${stats.total}`,
+      percent: 100,
       color: token.colorPrimary,
       bg: token.colorPrimaryBg,
       icon: <AppstoreOutlined />,
@@ -410,23 +423,26 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
     },
     {
       label: "กำลังดำเนินการ",
-      value: stats.active,
+      value: `${stats.active}/${stats.total}`,
+      percent: stats.total > 0 ? (stats.active / stats.total) * 100 : 0,
       color: token.colorSuccess,
       bg: token.colorSuccessBg,
       icon: <RocketOutlined />,
-      suffix: "รายการ",
+      suffix: "โครงการ",
     },
     {
       label: "ปิดโครงการแล้ว",
-      value: stats.closed,
+      value: `${stats.closed}/${stats.total}`,
+      percent: stats.total > 0 ? (stats.closed / stats.total) * 100 : 0,
       color: token.colorTextSecondary,
       bg: token.colorFillSecondary,
       icon: <CheckCircleOutlined />,
-      suffix: "รายการ",
+      suffix: "โครงการ",
     },
     {
       label: "อัตราความสำเร็จ",
       value: stats.successRate,
+      percent: stats.successRate,
       color: token.colorWarning,
       bg: token.colorWarningBg,
       icon: <PieChartOutlined />,
@@ -469,7 +485,7 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
             </Flex>
             <div className="mt-4">
               <Progress
-                percent={item.label === "อัตราความสำเร็จ" ? item.value : 100}
+                percent={item.percent}
                 showInfo={false}
                 strokeColor={item.color}
                 trailColor={token.colorFillSecondary}
@@ -480,6 +496,125 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
         </Col>
       ))}
     </Row>
+  );
+};
+
+// ==========================================
+// 3. CATEGORY CARDS
+// ==========================================
+
+const CategorySummaryCards = ({
+  projects,
+  token,
+}: {
+  projects: Project[];
+  token: any;
+}) => {
+  const getIcon = (id: string) => {
+    switch (id) {
+      case "INTERNAL":
+        return <ApartmentOutlined />;
+      case "EXTERNAL":
+        return <GlobalOutlined />;
+      case "MAINTENANCE":
+        return <ToolOutlined />;
+      case "LEAVE":
+        return <MedicineBoxOutlined />;
+      default:
+        return <AppstoreOutlined />;
+    }
+  };
+
+  const getColor = (id: string) => {
+    switch (id) {
+      case "INTERNAL":
+        return token.colorPrimary;
+      case "EXTERNAL":
+        return token.colorSuccess;
+      case "MAINTENANCE":
+        return token.colorWarning;
+      case "LEAVE":
+        return "#eb2f96"; // Pink
+      default:
+        return token.colorTextSecondary;
+    }
+  };
+
+  const getBg = (id: string) => {
+    switch (id) {
+      case "INTERNAL":
+        return token.colorPrimaryBg;
+      case "EXTERNAL":
+        return token.colorSuccessBg;
+      case "MAINTENANCE":
+        return token.colorWarningBg;
+      case "LEAVE":
+        return "#fff0f6";
+      default:
+        return token.colorFillTertiary;
+    }
+  };
+
+  const cardStyle = {
+    background: token.colorBgContainer,
+    borderRadius: 12,
+    border: `1px solid ${token.colorBorderSecondary}`,
+    height: "100%",
+  };
+
+  // Filter out deleted projects for all calculations
+  const validProjects = projects.filter((p) => !p.is_deleted);
+  const total = validProjects.length;
+
+  return (
+    <div className="mb-6">
+      <Space className="mb-4">
+        <AppstoreOutlined />
+        <Text strong>แยกตามประเภท (By Category)</Text>
+      </Space>
+      <Row gutter={[12, 12]}>
+        {categoryType.map((cat) => {
+          const count = validProjects.filter(
+            (p) => String(p.categoryType) === String(cat.id)
+          ).length;
+
+          return (
+            <Col xs={12} sm={8} md={6} xl={4} key={cat.id}>
+              <Card
+                size="small"
+                bordered={false}
+                style={cardStyle}
+                className="hover:shadow-sm transition-all"
+              >
+                <Flex justify="space-between" align="start" className="mb-2">
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 8,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 16,
+                      color: getColor(cat.id),
+                      background: getBg(cat.id),
+                    }}
+                  >
+                    {getIcon(cat.id)}
+                  </div>
+                  <Tag color={count > 0 ? getColor(cat.id) : "default"}>
+                    {count}/{total}
+                  </Tag>
+                </Flex>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {cat.name}
+                </Text>
+              </Card>
+            </Col>
+          );
+        })}
+      </Row>
+    </div>
   );
 };
 
@@ -515,20 +650,22 @@ export default function ProjectManagementPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
+  const [users, setUsers] = useState<any[]>([]);
 
-  // Filters State
   const [filters, setFilters] = useState({
     searchText: "",
-    statusFilter: "ALL", // Changed default to ALL for better UX
+    statusFilter: "ALL",
     categoryFilter: "ALL",
   });
 
-  // Initial Setting: 100 items per page
+  // Initial Setting
   useEffect(() => {
-    setPagination((prev) => ({ ...prev, pageSize: 100, current: 1 }));
+    const u = getUserData();
+    if (u) setUsers(u);
   }, []);
 
-  const getCategoryName = useCallback((categoryId: string) => {
+  const getCategoryName = useCallback((categoryId?: string) => {
+    if (!categoryId) return "-";
     return (
       categoryType.find((c) => String(c.id) === String(categoryId))?.name ||
       categoryId
@@ -549,21 +686,38 @@ export default function ProjectManagementPage() {
         filters.categoryFilter === "ALL" ||
         String(project.categoryType) === filters.categoryFilter;
 
-      // Ensure we don't show deleted unless strictly requested (if logic existed)
-      // Assuming API handles is_deleted=false by default, but filtering safely here:
-      const matchDeleted = !project.is_deleted;
-
-      return matchSearch && matchStatus && matchCategory && matchDeleted;
+      return matchSearch && matchStatus && matchCategory;
     });
   }, [projects, filters]);
 
   const stats = useMemo(() => {
-    const total = filteredProjects.length;
-    const active = filteredProjects.filter((p) => p.status === "open").length;
-    const closed = filteredProjects.filter((p) => p.status === "close").length;
+    // Calculated from API response directly (projects)
+    // EXCLUDE deleted projects from ALL stats
+    const validProjects = projects.filter((p) => !p.is_deleted);
+
+    const total = validProjects.length;
+
+    // Active: Open status
+    const active = validProjects.filter((p) => p.status === "open").length;
+
+    // Closed: Close status
+    const closed = validProjects.filter((p) => p.status === "close").length;
+
+    // Success Rate: Closed / Total (Valid projects only)
     const successRate = total > 0 ? Math.round((closed / total) * 100) : 0;
+
     return { total, active, closed, successRate };
-  }, [filteredProjects]);
+  }, [projects]);
+
+  const positionOptions = useMemo(() => {
+    const positions = new Set<string>();
+    users.forEach((u) => {
+      if (u.position) {
+        positions.add(u.position);
+      }
+    });
+    return Array.from(positions).map((p) => ({ value: p }));
+  }, [users]);
 
   // Handlers
   const handleResetFilters = () =>
@@ -584,6 +738,10 @@ export default function ProjectManagementPage() {
       ...record,
       start_date: record.start_date ? dayjs(record.start_date) : undefined,
       end_date: record.end_date ? dayjs(record.end_date) : undefined,
+      assignees: record.projectAssignees?.map((a) => ({
+        userId: a.userId,
+        position: a.position,
+      })),
     });
     setModalState({ type: "edit", data: record });
   };
@@ -617,6 +775,8 @@ export default function ProjectManagementPage() {
           />
 
           <SummaryCards stats={stats} token={token} />
+
+          <CategorySummaryCards projects={projects} token={token} />
 
           {/* Filter Bar */}
           <Card
@@ -766,6 +926,9 @@ export default function ProjectManagementPage() {
                     setModalState({ type: "detail", data: record })
                   }
                   getCategoryName={getCategoryName}
+                  onShowAssignees={(record) =>
+                    setModalState({ type: "assignees", data: record })
+                  }
                 />
               )}
             </Card>
@@ -783,6 +946,7 @@ export default function ProjectManagementPage() {
           )}
 
           {/* --- Modals Section --- */}
+          {/* Create/Edit Modal */}
           <Modal
             open={modalState.type === "create" || modalState.type === "edit"}
             title={
@@ -870,11 +1034,11 @@ export default function ProjectManagementPage() {
                       placeholder="เลือกสถานะ"
                       options={[
                         {
-                          label: <Tag color="success">เปิดโครงการ (Open)</Tag>,
+                          label: <Tag color="success">เปิดโครงการ</Tag>,
                           value: "open",
                         },
                         {
-                          label: <Tag color="default">ปิดโครงการ (Close)</Tag>,
+                          label: <Tag color="default">ปิดโครงการ</Tag>,
                           value: "close",
                         },
                       ]}
@@ -909,7 +1073,92 @@ export default function ProjectManagementPage() {
                   placeholder="รายละเอียดหรือหมายเหตุ..."
                 />
               </Form.Item>
+
+              <Divider
+                dashed
+                orientation="left"
+                style={{ borderColor: token.colorBorder }}
+              >
+                <Space>
+                  <TeamOutlined /> ทีมงานผู้รับผิดชอบ
+                </Space>
+              </Divider>
+
+              <Form.List name="assignees">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <Row
+                        key={key}
+                        gutter={12}
+                        align="middle"
+                        className="mb-2"
+                      >
+                        <Col span={10}>
+                          <Form.Item
+                            {...restField}
+                            name={[name, "userId"]}
+                            rules={[
+                              { required: true, message: "ระบุผู้รับผิดชอบ" },
+                            ]}
+                            className="mb-0"
+                          >
+                            <Select
+                              placeholder="เลือกผู้รับผิดชอบ"
+                              showSearch
+                              filterOption={(input, option) =>
+                                (option?.label ?? "")
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase())
+                              }
+                              options={users.map((u) => ({
+                                label: `${u.firstname} ${u.lastname}`,
+                                value: u.admin_id,
+                              }))}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item
+                            {...restField}
+                            name={[name, "position"]}
+                            className="mb-0"
+                          >
+                            <AutoComplete
+                              options={positionOptions}
+                              placeholder="ตำแหน่ง / หน้าที่ (Optional)"
+                              filterOption={(inputValue, option) =>
+                                (option?.value ?? "")
+                                  .toUpperCase()
+                                  .indexOf(inputValue.toUpperCase()) !== -1
+                              }
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={2}>
+                          <MinusCircleOutlined
+                            onClick={() => remove(name)}
+                            style={{ color: "red", fontSize: 18 }}
+                          />
+                        </Col>
+                      </Row>
+                    ))}
+                    <Form.Item>
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        block
+                        icon={<PlusOutlined />}
+                      >
+                        เพิ่มผู้รับผิดชอบ
+                      </Button>
+                    </Form.Item>
+                  </>
+                )}
+              </Form.List>
+
               <Divider />
+
               <Flex justify="end" gap={12}>
                 <Button
                   onClick={closeModal}
@@ -932,6 +1181,7 @@ export default function ProjectManagementPage() {
             </Form>
           </Modal>
 
+          {/* Delete Modal */}
           <Modal
             open={modalState.type === "delete"}
             title={
@@ -986,66 +1236,387 @@ export default function ProjectManagementPage() {
             </Flex>
           </Modal>
 
+          {/* Detail Modal - Redesigned */}
+          <Modal
+            open={modalState.type === "detail"}
+            onCancel={closeModal}
+            footer={null}
+            centered
+            width={900}
+            styles={{
+              content: { borderRadius: 24, padding: 0, overflow: "hidden" },
+            }}
+            closable={false}
+          >
+            {modalState.data && (
+              <div className="relative bg-gray-50 dark:bg-gray-900">
+                {/* Header Banner */}
+                <div
+                  style={{
+                    background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorLink})`,
+                    padding: "32px 32px 48px 32px",
+                  }}
+                  className="relative"
+                >
+                  <Button
+                    icon={<CloseOutlined style={{ color: "white" }} />}
+                    type="text"
+                    className="absolute top-4 right-4 hover:bg-white/20"
+                    onClick={closeModal}
+                  />
+                  <Flex justify="space-between" align="start">
+                    <Flex gap={12} vertical className="w-full">
+                      <Space size={12}>
+                        <Tag
+                          color="rgba(255,255,255,0.2)"
+                          className="text-white border-none px-3 py-1 font-semibold backdrop-blur-sm"
+                        >
+                          {getCategoryName(
+                            String(modalState.data.categoryType)
+                          )}
+                        </Tag>
+                        <Tag
+                          color={
+                            modalState.data.status === "open"
+                              ? "#87d068"
+                              : "default"
+                          }
+                          className="border-none px-3 py-1 font-semibold"
+                        >
+                          {modalState.data.status === "open"
+                            ? "เปิดใช้งาน"
+                            : "ปิดโครงการ"}
+                        </Tag>
+                      </Space>
+                      <Title
+                        level={2}
+                        style={{ color: "white", margin: 0, fontWeight: 700 }}
+                      >
+                        {modalState.data.name}
+                      </Title>
+                      {modalState.data.name_en && (
+                        <Text className="text-white/80 text-lg">
+                          {modalState.data.name_en}
+                        </Text>
+                      )}
+                    </Flex>
+                  </Flex>
+                </div>
+
+                <div className="px-8 pb-8 -mt-8">
+                  {/* Stats Cards - Floating overlapping banner */}
+                  <Row gutter={16} className="mb-6">
+                    <Col span={8}>
+                      <Card
+                        bordered={false}
+                        className="shadow-md h-full rounded-2xl"
+                        bodyStyle={{ padding: 20 }}
+                      >
+                        <Statistic
+                          title={
+                            <Space className="text-sm font-medium text-gray-400">
+                              <CalendarOutlined /> ระยะเวลาโครงการ
+                            </Space>
+                          }
+                          value={convertToThaiDateDDMMYYY(
+                            modalState.data.start_date
+                          )}
+                          valueStyle={{ fontSize: 16, fontWeight: 700 }}
+                          formatter={(val) => (
+                            <div className="flex flex-col gap-1 mt-1">
+                              <span>{val}</span>
+                              <span className="text-xs text-gray-400">
+                                ถึง{" "}
+                                {convertToThaiDateDDMMYYY(
+                                  modalState.data.end_date
+                                )}
+                              </span>
+                            </div>
+                          )}
+                        />
+                      </Card>
+                    </Col>
+                    <Col span={8}>
+                      <Card
+                        bordered={false}
+                        className="shadow-md h-full rounded-2xl"
+                        bodyStyle={{ padding: 20 }}
+                      >
+                        <Statistic
+                          title={
+                            <Space className="text-sm font-medium text-gray-400">
+                              <AppstoreOutlined /> ฟีเจอร์ย่อย
+                            </Space>
+                          }
+                          value={
+                            modalState.data.features?.filter(
+                              (f) => !f.is_deleted
+                            ).length || 0
+                          }
+                          suffix="รายการ"
+                          valueStyle={{
+                            fontSize: 24,
+                            fontWeight: 700,
+                            color: token.colorPrimary,
+                          }}
+                        />
+                      </Card>
+                    </Col>
+                    <Col span={8}>
+                      <Card
+                        bordered={false}
+                        className="shadow-md h-full rounded-2xl"
+                        bodyStyle={{ padding: 20 }}
+                      >
+                        <div className="text-sm font-medium text-gray-400 mb-3">
+                          <UserOutlined /> ผู้สร้างโครงการ
+                        </div>
+                        <Space>
+                          <Avatar
+                            size={40}
+                            style={{
+                              backgroundColor: token.colorPrimaryBg,
+                              color: token.colorPrimary,
+                            }}
+                          >
+                            {
+                              getUserById(modalState.data.createdBy)
+                                ?.firstname?.[0]
+                            }
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <Text strong>
+                              {getUserById(modalState.data.createdBy)
+                                ?.firstname || "System"}
+                            </Text>
+                            <Text type="secondary" style={{ fontSize: 11 }}>
+                              {convertToThaiDateDDMMYYY(
+                                modalState.data.createdAt
+                              )}
+                            </Text>
+                          </div>
+                        </Space>
+                      </Card>
+                    </Col>
+                  </Row>
+
+                  <Row gutter={24}>
+                    {/* Left Main */}
+                    <Col span={16}>
+                      <Card
+                        title={
+                          <Space>
+                            <FileTextOutlined /> รายละเอียด
+                          </Space>
+                        }
+                        bordered={false}
+                        className="shadow-sm rounded-2xl mb-6"
+                      >
+                        <Text className="text-gray-600 dark:text-gray-300 leading-relaxed text-base">
+                          {modalState.data.description ||
+                            "ไม่มีรายละเอียดเพิ่มเติม"}
+                        </Text>
+                      </Card>
+
+                      <Card
+                        title={
+                          <Space>
+                            <AppstoreOutlined /> รายการฟีเจอร์ (Features)
+                          </Space>
+                        }
+                        bordered={false}
+                        className="shadow-sm rounded-2xl"
+                        bodyStyle={{ padding: "0 24px 24px" }}
+                      >
+                        <List
+                          itemLayout="horizontal"
+                          dataSource={
+                            modalState.data.features?.filter(
+                              (f) => !f.is_deleted
+                            ) || []
+                          }
+                          renderItem={(item) => (
+                            <List.Item>
+                              <List.Item.Meta
+                                avatar={
+                                  <div
+                                    style={{
+                                      width: 40,
+                                      height: 40,
+                                      borderRadius: 10,
+                                      background:
+                                        item.status === "open"
+                                          ? token.colorPrimaryBg
+                                          : token.colorFillSecondary,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      color:
+                                        item.status === "open"
+                                          ? token.colorPrimary
+                                          : token.colorTextSecondary,
+                                    }}
+                                  >
+                                    <ProjectOutlined />
+                                  </div>
+                                }
+                                title={
+                                  <Text strong style={{ fontSize: 15 }}>
+                                    {item.name}
+                                  </Text>
+                                }
+                                description={
+                                  <Tag
+                                    bordered={false}
+                                    color={
+                                      item.status === "open"
+                                        ? "processing"
+                                        : "default"
+                                    }
+                                  >
+                                    {item.status === "open"
+                                      ? "Active"
+                                      : "Closed"}
+                                  </Tag>
+                                }
+                              />
+                            </List.Item>
+                          )}
+                        />
+                        {(!modalState.data.features ||
+                          modalState.data.features.filter((f) => !f.is_deleted)
+                            .length === 0) && (
+                          <div className="text-center py-8 text-gray-400">
+                            ไม่มีรายการฟีเจอร์
+                          </div>
+                        )}
+                      </Card>
+                    </Col>
+
+                    {/* Right Side */}
+                    <Col span={8}>
+                      <Card
+                        title={
+                          <Space>
+                            <TeamOutlined /> ทีมงาน (
+                            {modalState.data.projectAssignees?.length || 0})
+                          </Space>
+                        }
+                        bordered={false}
+                        className="shadow-sm rounded-2xl h-full"
+                        titleStyle={{ fontSize: 16 }}
+                      >
+                        <List
+                          itemLayout="horizontal"
+                          dataSource={modalState.data.projectAssignees || []}
+                          locale={{ emptyText: "ยังไม่มีผู้รับผิดชอบ" }}
+                          renderItem={(item) => {
+                            const u = getUserById(item.userId);
+                            return (
+                              <List.Item
+                                style={{
+                                  padding: "12px 0",
+                                  borderBottom: "1px dashed #f0f0f0",
+                                }}
+                              >
+                                <List.Item.Meta
+                                  avatar={
+                                    <Avatar
+                                      src={u?.profile_image}
+                                      style={{
+                                        backgroundColor: token.colorPrimary,
+                                      }}
+                                    >
+                                      {u?.firstname?.[0]}
+                                    </Avatar>
+                                  }
+                                  title={
+                                    <Text style={{ fontSize: 14 }}>
+                                      {u?.firstname} {u?.lastname}
+                                    </Text>
+                                  }
+                                  description={
+                                    item.position ? (
+                                      <Tag
+                                        color="blue"
+                                        bordered={false}
+                                        className="text-[10px] m-0 mt-1"
+                                      >
+                                        {item.position}
+                                      </Tag>
+                                    ) : (
+                                      <Text
+                                        type="secondary"
+                                        className="text-[11px]"
+                                      >
+                                        ไม่ระบุตำแหน่ง
+                                      </Text>
+                                    )
+                                  }
+                                />
+                              </List.Item>
+                            );
+                          }}
+                        />
+                      </Card>
+                    </Col>
+                  </Row>
+                </div>
+              </div>
+            )}
+          </Modal>
+
+          {/* Assignees List Modal */}
           <Modal
             title={
               <Space>
-                <InfoCircleOutlined style={{ color: token.colorInfo }} />
-                <Text strong>รายละเอียดโครงการ</Text>
+                <TeamOutlined style={{ color: token.colorPrimary }} />
+                <Text strong>
+                  รายชื่อผู้จัดทำโครงการ (
+                  {modalState.data?.projectAssignees?.length || 0})
+                </Text>
               </Space>
             }
-            open={modalState.type === "detail"}
+            open={modalState.type === "assignees"}
             onCancel={closeModal}
-            footer={
-              <Button onClick={closeModal} size="large" className="rounded-lg">
-                ปิดหน้าต่าง
-              </Button>
-            }
+            footer={<Button onClick={closeModal}>ปิด</Button>}
             centered
-            width={600}
-            styles={{ content: { borderRadius: 16 } }}
           >
-            {modalState.data && (
-              <Descriptions
-                column={1}
-                bordered
-                size="middle"
-                className="mt-4"
-                labelStyle={{ width: 150 }}
-              >
-                <Descriptions.Item label="ชื่อโครงการ (TH)">
-                  <Text strong>{modalState.data.name}</Text>
-                </Descriptions.Item>
-                <Descriptions.Item label="ชื่อโครงการ (EN)">
-                  {modalState.data.name_en || "-"}
-                </Descriptions.Item>
-                <Descriptions.Item label="ประเภท">
-                  <Tag color="cyan">
-                    {getCategoryName(String(modalState.data.categoryType))}
-                  </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="สถานะ">
-                  {modalState.data.status === "open" ? (
-                    <Tag color="success">เปิดอยู่</Tag>
-                  ) : (
-                    <Tag color="default">ปิดแล้ว</Tag>
-                  )}
-                </Descriptions.Item>
-                <Descriptions.Item label="ระยะเวลา">
-                  {convertToThaiDateDDMMYYY(modalState.data.start_date)} -{" "}
-                  {convertToThaiDateDDMMYYY(modalState.data.end_date)}
-                </Descriptions.Item>
-                <Descriptions.Item label="สร้างเมื่อ">
-                  {convertToThaiDateDDMMYYY(modalState.data.createdAt)}
-                </Descriptions.Item>
-                <Descriptions.Item label="ผู้รับผิดชอบ">
-                  {getUserById(modalState.data.createdBy)?.firstname ??
-                    "ไม่ระบุ"}
-                </Descriptions.Item>
-                <Descriptions.Item label="รายละเอียด">
-                  {modalState.data.description || "-"}
-                </Descriptions.Item>
-              </Descriptions>
-            )}
+            <List
+              dataSource={modalState.data?.projectAssignees || []}
+              renderItem={(item) => {
+                const user = getUserById(item.userId);
+                return (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar
+                          style={{
+                            backgroundColor: token.colorPrimaryBg,
+                            color: token.colorPrimary,
+                          }}
+                        >
+                          {user?.firstname?.[0] || "U"}
+                        </Avatar>
+                      }
+                      title={
+                        <Text strong>
+                          {user?.firstname} {user?.lastname}
+                        </Text>
+                      }
+                      description={
+                        item.position ? (
+                          <Tag color="blue">{item.position}</Tag>
+                        ) : (
+                          <Text type="secondary">ไม่ระบุตำแหน่ง</Text>
+                        )
+                      }
+                    />
+                  </List.Item>
+                );
+              }}
+              locale={{ emptyText: "ไม่มีผู้รับผิดชอบโครงการที่ระบุไว้" }}
+            />
           </Modal>
         </div>
       </DashboardLayout>

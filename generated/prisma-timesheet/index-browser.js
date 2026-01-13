@@ -146,6 +146,14 @@ exports.Prisma.ProjectScalarFieldEnum = {
   group_id: 'group_id'
 };
 
+exports.Prisma.ProjectAssigneeScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  featureId: 'featureId',
+  userId: 'userId',
+  position: 'position'
+};
+
 exports.Prisma.FeatureScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
@@ -257,6 +265,7 @@ exports.ProjectAssetCaptureType = exports.$Enums.ProjectAssetCaptureType = {
 exports.Prisma.ModelName = {
   Group: 'Group',
   Project: 'Project',
+  ProjectAssignee: 'ProjectAssignee',
   Feature: 'Feature',
   TimesheetEntry: 'TimesheetEntry',
   ApiLog: 'ApiLog',

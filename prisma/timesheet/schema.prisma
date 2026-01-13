@@ -44,11 +44,16 @@ model Project {
 }
 
 model ProjectAssignee {
-  id        Int @id @default(autoincrement()) @map("id")
-  projectId Int @map("project_id")
-  userId    Int @map("user_id")
+  id        Int     @id @default(autoincrement()) @map("id")
+  projectId Int     @map("project_id")
+  featureId Int?    @map("sub_project_id")
+  userId    Int     @map("user_id")
+  position  String? @map("position")
 
-  project Project @relation(fields: [projectId], references: [id])
+  project Project  @relation(fields: [projectId], references: [id])
+  feature Feature? @relation(fields: [featureId], references: [id])
+
+  @@map("project_assignee")
 }
 
 model Feature {
@@ -68,6 +73,7 @@ model Feature {
   name_en            String?                 @map("name_en")
   project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
   timesheets         TimesheetEntry[]
+  projectAssignees   ProjectAssignee[]
 
   @@map("feature")
 }

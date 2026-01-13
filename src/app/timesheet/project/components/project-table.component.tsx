@@ -23,25 +23,13 @@ import {
   MoreOutlined,
   InfoCircleOutlined,
   DeleteOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
+import { categoryType } from "@/data/timesheet.category.type";
 
-interface Project {
-  id: number;
-  name: string;
-  name_en?: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: number;
-  categoryType: string;
-  status: string;
-  features?: Array<{ is_deleted: boolean }>;
-  start_date?: string;
-  end_date?: string;
-  is_deleted?: boolean;
-}
+import type { Project } from "../types/project.types";
 
 interface ProjectTableProps {
   projects: Project[];
@@ -56,6 +44,7 @@ interface ProjectTableProps {
   onDelete: (record: Project) => void;
   onViewDetail: (record: Project) => void;
   getCategoryName: (id: string) => string;
+  onShowAssignees: (record: Project) => void;
 }
 
 export const ProjectTable: React.FC<ProjectTableProps> = ({
@@ -67,6 +56,7 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
   onDelete,
   onViewDetail,
   getCategoryName,
+  onShowAssignees,
 }) => {
   const { t } = useTranslation("translate");
 
@@ -161,42 +151,28 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
         }
 
         const isExpired = dayjs(record.end_date).isBefore(dayjs());
-        const progress = calculateProgress(record.start_date, record.end_date);
+
+        // Format to Thai Date only (DD/MM/YYYY)
+        const formatDate = (d: string) =>
+          new Date(d).toLocaleDateString("th-TH", {
+            timeZone: "Asia/Bangkok",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          });
 
         return (
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <div
-              style={{ display: "flex", alignItems: "center", fontSize: 12 }}
+          <div style={{ display: "flex", alignItems: "center", fontSize: 12 }}>
+            <CalendarOutlined style={{ marginRight: 8, opacity: 0.7 }} />
+            <span>{formatDate(record.start_date)}</span>
+            <ArrowRightOutlined
+              style={{ margin: "0 8px", fontSize: 10, opacity: 0.5 }}
+            />
+            <span
+              style={{ textDecoration: isExpired ? "line-through" : "none" }}
             >
-              <CalendarOutlined style={{ marginRight: 8, opacity: 0.7 }} />
-              <span>{convertToThaiDateDDMMYYY(record.start_date)}</span>
-              <ArrowRightOutlined
-                style={{ margin: "0 8px", fontSize: 10, opacity: 0.5 }}
-              />
-              <span
-                style={{ textDecoration: isExpired ? "line-through" : "none" }}
-              >
-                {convertToThaiDateDDMMYYY(record.end_date)}
-              </span>
-            </div>
-            <div
-              style={{
-                width: "100%",
-                height: 4,
-                borderRadius: 2,
-                backgroundColor: "#f0f0f0",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  height: "100%",
-                  width: `${progress}%`,
-                  backgroundColor: isExpired ? "#d9d9d9" : "#1890ff",
-                  transition: "width 0.3s",
-                }}
-              />
-            </div>
+              {formatDate(record.end_date)}
+            </span>
           </div>
         );
       },
@@ -208,10 +184,10 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
       align: "center",
       render: (_, record) => {
         if (record.status === "close") {
-          return <Tag color="success">Completed</Tag>;
+          return <Tag color="success">เสร็จสิ้น</Tag>;
         }
         if (!record.end_date) {
-          return <Tag color="default">- No Plan -</Tag>;
+          return <Tag color="default">- ไม่มีกำหนด -</Tag>;
         }
 
         const now = dayjs();
@@ -219,12 +195,35 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
         const daysRemaining = end.diff(now, "day");
 
         if (daysRemaining < 0) {
-          return <Tag color="error">Overdue</Tag>;
+          return <Tag color="error">เกินกำหนด</Tag>;
         }
         if (daysRemaining <= 7) {
-          return <Tag color="warning">Due Soon</Tag>;
+          return <Tag color="warning">ใกล้ถึงกำหนด</Tag>;
         }
-        return <Tag color="success">Healthy</Tag>;
+        return <Tag color="success">ปกติ</Tag>;
+      },
+      filters: [
+        { text: "เสร็จสิ้น (Completed)", value: "completed" },
+        { text: "ไม่มีกำหนด (No Plan)", value: "no_plan" },
+        { text: "เกินกำหนด (Overdue)", value: "overdue" },
+        { text: "ใกล้ถึงกำหนด (Due Soon)", value: "due_soon" },
+        { text: "ปกติ (Healthy)", value: "healthy" },
+      ],
+      onFilter: (value: any, record) => {
+        if (record.status === "close" && value === "completed") return true;
+        if (!record.end_date && value === "no_plan") return true;
+
+        if (record.end_date && record.status === "open") {
+          const now = dayjs();
+          const end = dayjs(record.end_date);
+          const daysRemaining = end.diff(now, "day");
+
+          if (value === "overdue" && daysRemaining < 0) return true;
+          if (value === "due_soon" && daysRemaining >= 0 && daysRemaining <= 7)
+            return true;
+          if (value === "healthy" && daysRemaining > 7) return true;
+        }
+        return false;
       },
     },
     {
@@ -273,6 +272,17 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
           </div>
         );
       },
+      filters: [
+        { text: "เปิดโครงการ (Active)", value: "open" },
+        { text: "ปิดโครงการ (Closed)", value: "close" },
+        ...categoryType.map((c) => ({ text: c.name, value: c.id })),
+      ],
+      onFilter: (value: any, record) => {
+        return (
+          record.status === value ||
+          String(record.categoryType) === String(value)
+        );
+      },
     },
     {
       title: t("project_page.table_deleted_status"),
@@ -294,6 +304,11 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
           />
         );
       },
+      filters: [
+        { text: "ใช้งานอยู่ (Active)", value: false },
+        { text: "ถูกลบ (Deleted)", value: true },
+      ],
+      onFilter: (value: any, record) => !!record.is_deleted === value,
     },
     {
       title: "",
@@ -339,6 +354,15 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
                   shape="circle"
                   icon={<EditOutlined />}
                   onClick={() => onEdit(record)}
+                />
+              </Tooltip>
+              <Tooltip title="แสดงรายชื่อผู้จัดทำโครงการ">
+                <Button
+                  type="text"
+                  size="small"
+                  shape="circle"
+                  icon={<TeamOutlined />}
+                  onClick={() => onShowAssignees(record)}
                 />
               </Tooltip>
               <Dropdown

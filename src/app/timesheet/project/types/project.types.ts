@@ -1,3 +1,9 @@
+export interface ProjectAssignee {
+  id: number;
+  userId: number;
+  position?: string;
+}
+
 export interface Project {
   id: number;
   name: string;
@@ -6,16 +12,23 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
   createdBy: number;
+  updatedBy?: number;
   categoryType: string;
   status: string;
-  features?: Array<{ is_deleted: boolean }>;
+  features?: Array<{
+    id: number;
+    name: string;
+    status: string;
+    is_deleted: boolean;
+  }>;
+  projectAssignees?: ProjectAssignee[];
   start_date?: string;
   end_date?: string;
   is_deleted?: boolean;
 }
 
 export interface ModalState {
-  type: "" | "create" | "edit" | "delete" | "detail";
+  type: "" | "create" | "edit" | "delete" | "detail" | "assignees";
   data?: Project | null;
 }
 
@@ -33,4 +46,5 @@ export interface FormValues {
   status: string;
   start_date?: any;
   end_date?: any;
+  assignees?: { userId: number; position?: string }[];
 }

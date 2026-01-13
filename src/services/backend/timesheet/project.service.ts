@@ -10,7 +10,7 @@ export const Service = {
         take: opts.limit,
         skip: opts.skip,
         orderBy: { createdAt: "desc" },
-        include: { features: true },
+        include: { features: true, projectAssignees: true },
       }),
       PrismaTimesheet.project.count(),
     ]);
@@ -39,6 +39,7 @@ export const Service = {
     end_date?: string;
     createdBy?: number;
     status?: string;
+    assignees?: { userId: number; position?: string }[];
   }) {
     return await PrismaTimesheet.project.create({
       data: {
@@ -50,6 +51,14 @@ export const Service = {
         end_date: data.end_date,
         createdBy: data.createdBy !== undefined ? data.createdBy : 0,
         status: data.status !== undefined ? data.status : "open",
+        projectAssignees: data.assignees
+          ? {
+              create: data.assignees.map((a) => ({
+                userId: a.userId,
+                position: a.position,
+              })),
+            }
+          : undefined,
       },
     });
   },
@@ -67,13 +76,24 @@ export const Service = {
       start_date?: string;
       end_date?: string;
       name_en?: string;
+      assignees?: { userId: number; position?: string }[];
     }
   ) {
+    const { assignees, ...projectData } = data;
     return await PrismaTimesheet.project.update({
       where: { id },
       data: {
-        ...data,
+        ...projectData,
         updatedBy: data.updatedBy ?? 0,
+        projectAssignees: assignees
+          ? {
+              deleteMany: {},
+              create: assignees.map((a) => ({
+                userId: a.userId,
+                position: a.position,
+              })),
+            }
+          : undefined,
       },
     });
   },

@@ -2,34 +2,14 @@ import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 
-interface Project {
-  id: number;
-  name: string;
-  name_en?: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: number;
-  categoryType: string;
-  status: string;
-  features?: Array<{ is_deleted: boolean }>;
-  start_date?: string;
-  end_date?: string;
-  is_deleted?: boolean;
-}
-
-interface PaginationState {
-  current: number;
-  pageSize: number;
-  total: number;
-}
+import type { Project, PaginationState } from "../types/project.types";
 
 export const useProjectData = (adminId: number) => {
   const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     current: 1,
-    pageSize: 20,
+    pageSize: 1000,
     total: 0,
   });
 
