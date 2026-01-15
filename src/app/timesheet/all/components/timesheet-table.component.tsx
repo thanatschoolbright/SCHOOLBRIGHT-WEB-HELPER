@@ -17,6 +17,7 @@ import {
   Steps,
   Avatar,
   Flex,
+  theme,
 } from "antd";
 import { toast } from "sonner";
 import type { ColumnsType, TableProps } from "antd/es/table";
@@ -28,6 +29,14 @@ import {
   PhoneOutlined,
   TrophyOutlined,
   SolutionOutlined,
+  RocketOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  LoadingOutlined,
+  EnvironmentOutlined,
+  CarOutlined,
+  HistoryOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
@@ -43,7 +52,7 @@ import { StatusBadge } from "./status-badge.component";
 import { fetchUserRanking } from "@/services/timesheet/find-ranking.service";
 
 const { RangePicker } = DatePicker;
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 type TimesheetTableProps = {
   records: SummaryRecord[];
@@ -59,6 +68,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   onRefetch,
 }) => {
   const { t } = useTranslation("translate");
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
 
   // --- States ---
   const [filteredInfo, setFilteredInfo] = useState<
@@ -231,50 +242,190 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
       {
         title: "#",
         dataIndex: "rank",
-        width: 70,
+        width: 60,
         align: "center",
         fixed: "left",
         render: (rank: number) => (
-          <div className="relative inline-flex items-center justify-center">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold bg-gray-500 bg-opacity-10">
-              {rank}
-            </div>
-            {rank <= 3 && (
-              <TrophyOutlined className="absolute -top-2 -right-2 text-yellow-500 text-xs" />
-            )}
-          </div>
+          <Text
+            strong
+            style={{
+              color: token.colorTextDescription,
+              opacity: 0.6,
+              fontSize: 13,
+            }}
+          >
+            {rank.toString().padStart(2, "0")}
+          </Text>
         ),
       },
       {
-        title: "ชื่อ-นามสกุล",
+        title: "พนักงาน",
         key: "name",
-        width: 280,
+        width: 300,
         fixed: "left",
         render: (_value, record) => (
-          <Space size={12}>
-            <Avatar
-              src={record.image_profile}
-              icon={<UserOutlined />}
-              size={42}
-              className="border border-solid border-gray-500 border-opacity-10 shadow-sm"
-            />
-            <div className="flex flex-col">
-              <Text strong className="text-sm leading-tight">
+          <Flex align="center" gap={12}>
+            <div style={{ position: "relative" }}>
+              <Avatar
+                src={record.image_profile}
+                size={44}
+                style={{
+                  border: `2px solid ${token.colorBorderSecondary}`,
+                  background: record.image_profile
+                    ? token.colorBgContainer
+                    : getAvatarColor(record.full_name || ""),
+                  color: "#fff",
+                  fontSize: 18,
+                  fontWeight: 600,
+                }}
+              >
+                {!record.image_profile && record.full_name?.charAt(0)}
+              </Avatar>
+              {record.completion_rate >= 100 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: -2,
+                    right: -2,
+                    background: token.colorSuccess,
+                    borderRadius: "50%",
+                    width: 14,
+                    height: 14,
+                    border: `2px solid ${token.colorBgContainer}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <TrophyOutlined style={{ color: "#fff", fontSize: 8 }} />
+                </div>
+              )}
+            </div>
+            <Flex vertical gap={0}>
+              <Text
+                strong
+                style={{
+                  fontSize: 15,
+                  lineHeight: 1.3,
+                  color: token.colorTextHeading,
+                }}
+              >
                 {buildFullName(record)}
               </Text>
-              <Text type="secondary" className="text-xs">
+              <Text
+                type="secondary"
+                style={{ fontSize: 11, color: token.colorTextDescription }}
+              >
                 {formatNickname(record.nickname)} •{" "}
-                {record.employee_code || "N/A"}
+                {record.employee_code || "JD-XXXX"}
               </Text>
-            </div>
-          </Space>
+            </Flex>
+          </Flex>
         ),
       },
       {
-        title: "เกรด",
+        title: "ตำแหน่ง",
+        dataIndex: "position",
+        key: "position",
+        width: 140,
+        filters: Array.from(new Set(records.map((rec) => rec.position))).map(
+          (pos) => ({ text: pos, value: pos })
+        ),
+        onFilter: (value, record) => record.position === value,
+        render: (position: string) => (
+          <Tag
+            color={getPositionColor(position)}
+            bordered={false}
+            style={{
+              borderRadius: 6,
+              fontSize: 10,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: 0.5,
+              padding: "0 8px",
+            }}
+          >
+            {position}
+          </Tag>
+        ),
+      },
+      {
+        title: "เวลาทำงาน",
+        key: "hours",
+        width: 160,
+        render: (_, record) => (
+          <Flex vertical gap={2}>
+            <Flex align="baseline" gap={4}>
+              <Title
+                level={4}
+                style={{
+                  margin: 0,
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color:
+                    record.total_hours >= record.required_hours
+                      ? token.colorSuccess
+                      : token.colorWarning,
+                }}
+              >
+                {record.total_hours}
+              </Title>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                / {record.required_hours} ชม.
+              </Text>
+            </Flex>
+            <Text
+              type="secondary"
+              style={{ fontSize: 10, textTransform: "uppercase", opacity: 0.6 }}
+            >
+              ชั่วโมงที่ต้องกรอก
+            </Text>
+          </Flex>
+        ),
+      },
+      {
+        title: "ความคืบหน้า",
+        dataIndex: "completion_rate",
+        key: "completion_rate",
+        width: 220,
+        render: (percent) => {
+          const isDone = percent >= 100;
+          return (
+            <Flex vertical gap={6}>
+              <Flex justify="space-between" align="end">
+                <Text
+                  strong
+                  style={{
+                    fontSize: 13,
+                    color: isDone ? token.colorSuccess : token.colorPrimary,
+                  }}
+                >
+                  {percent.toFixed(1)}%
+                </Text>
+              </Flex>
+              <Progress
+                percent={Number(percent.toFixed(1))}
+                size="small"
+                strokeColor={{
+                  "0%": isDone ? token.colorSuccess : token.colorPrimary,
+                  "100%": isDone
+                    ? addAlpha(token.colorSuccess, 0.7)
+                    : token.colorInfo,
+                }}
+                showInfo={false}
+                trailColor={token.colorFillTertiary}
+                strokeWidth={8}
+                strokeLinecap="round"
+              />
+            </Flex>
+          );
+        },
+      },
+      {
+        title: "ระดับผลงาน",
         key: "grade",
         align: "center",
-        width: 100,
+        width: 120,
         render: (_value, record) => (
           <StatusBadge
             completionRate={record.completion_rate}
@@ -284,104 +435,96 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         ),
       },
       {
-        title: "ความคืบหน้า",
-        dataIndex: "completion_rate",
-        key: "completion_rate",
-        width: 220,
-        render: (percent, record) => {
-          const isDone = percent >= 100;
+        title: "สถานะ",
+        dataIndex: "status_label",
+        key: "status_label",
+        width: 150,
+        render: (status: string, record) => {
+          const isWarning = record.hours_gap > 0;
           return (
-            <div className="flex flex-col gap-1">
-              <Progress
-                percent={Number(percent.toFixed(1))}
-                size="small"
-                strokeColor={isDone ? "#22c55e" : "#3b82f6"}
-                showInfo={false}
-                trailColor="rgba(128, 128, 128, 0.1)"
+            <div
+              style={{
+                padding: "4px 10px",
+                borderRadius: 8,
+                background: addAlpha(
+                  isWarning ? token.colorError : token.colorSuccess,
+                  0.05
+                ),
+                border: `1px solid ${addAlpha(
+                  isWarning ? token.colorError : token.colorSuccess,
+                  0.15
+                )}`,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <div
+                className={!isWarning ? "animate-pulse" : ""}
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: isWarning ? token.colorError : token.colorSuccess,
+                  boxShadow: isWarning
+                    ? "none"
+                    : `0 0 8px ${token.colorSuccess}`,
+                }}
               />
-              <Flex justify="space-between">
-                <Text type="secondary" style={{ fontSize: 10 }}>
-                  {record.progress_text}
-                </Text>
-                <Text
-                  strong
-                  style={{
-                    fontSize: 10,
-                    color: isDone ? "#22c55e" : "#3b82f6",
-                  }}
-                >
-                  {percent.toFixed(1)}%
-                </Text>
-              </Flex>
+              <Text
+                strong
+                style={{
+                  fontSize: 11,
+                  color: isWarning ? token.colorError : token.colorSuccess,
+                }}
+              >
+                {status}
+              </Text>
             </div>
           );
         },
       },
-      {
-        title: "ตำแหน่ง",
-        dataIndex: "position",
-        key: "position",
-        width: 150,
-        filters: Array.from(new Set(records.map((rec) => rec.position))).map(
-          (pos) => ({ text: pos, value: pos })
-        ),
-        onFilter: (value, record) => record.position === value,
-        render: (position: string) => (
-          <Tag
-            color={getPositionColor(position)}
-            className="border-0 rounded-full px-3 text-[10px] uppercase font-bold tracking-wider"
-          >
-            {position}
-          </Tag>
-        ),
-      },
-      {
-        title: "ข้อมูลติดต่อ",
-        key: "contact",
-        width: 200,
-        render: (_, record) => (
-          <div className="flex flex-col gap-1">
-            <Text type="secondary" className="text-[11px] truncate w-40">
-              <MailOutlined className="mr-1" /> {record.email || "-"}
-            </Text>
-            <Text type="secondary" className="text-[11px]">
-              <PhoneOutlined className="mr-1" /> {record.tel || "-"}
-            </Text>
-          </div>
-        ),
-      },
-      {
-        title: "สถานะ",
-        dataIndex: "status_label",
-        key: "status_label",
-        width: 120,
-        render: (status: string) => {
-          const isWarning = status.includes("ขาด");
-          return (
-            <Tag
-              color={isWarning ? "volcano" : "green"}
-              className="m-0 rounded-md border-0 bg-opacity-20"
-              style={{
-                backgroundColor: isWarning
-                  ? "rgba(255, 77, 79, 0.1)"
-                  : "rgba(82, 196, 26, 0.1)",
-              }}
-            >
-              <span className="flex items-center gap-1">
-                <div
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    isWarning ? "bg-red-500" : "bg-green-500"
-                  }`}
-                />
-                {status}
-              </span>
-            </Tag>
-          );
-        },
-      },
     ],
-    [records, rankingMap, t]
+    [records, rankingMap, token]
   );
+
+  const getAvatarColor = (name: string) => {
+    const colors = [
+      "#f5222d",
+      "#fa541c",
+      "#fa8c16",
+      "#faad14",
+      "#fadb14",
+      "#a0d911",
+      "#52c41a",
+      "#13c2c2",
+      "#1890ff",
+      "#2f54eb",
+      "#722ed1",
+      "#eb2f96",
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const addAlpha = (color: string, alpha: number) => {
+    if (color.startsWith("#")) {
+      let hex = color.slice(1);
+      if (hex.length === 3)
+        hex = hex
+          .split("")
+          .map((c) => c + c)
+          .join("");
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    return color;
+  };
 
   return (
     <Card
@@ -428,7 +571,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           rowExpandable: (record) => record.breakdown.length > 0,
         }}
         pagination={{
-          pageSize: 20,
+          pageSize: 100,
           showSizeChanger: true,
           className: "px-4 pb-4",
           showTotal: (total) => (
@@ -439,75 +582,253 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         }}
       />
 
+      {/* Automation Modal - Redesigned to Tracking Style */}
       <Modal
         title={
-          <Flex align="center" gap={8}>
-            <ThunderboltOutlined className="text-yellow-500" />
-            <span>อัปเดต Timesheet อัตโนมัติ</span>
+          <Flex align="center" gap={12} style={{ paddingBottom: 16 }}>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                fontSize: 20,
+              }}
+            >
+              <RocketOutlined />
+            </div>
+            <div>
+              <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+                ส่งข้อมูลไทม์ชีทอัตโนมัติ
+              </Title>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                ระบบจะทำการจัดส่งข้อมูลของคุณไปยังคลาวด์โดยตรง
+              </Text>
+            </div>
           </Flex>
         }
         open={autoFillOpen}
         onOk={handleSubmitAutoFill}
         onCancel={() => setAutoFillOpen(false)}
         confirmLoading={autoFillLoading}
-        width={500}
+        width={540}
         centered
+        footer={!autoFillLoading ? undefined : null}
+        maskClosable={!autoFillLoading}
+        closable={!autoFillLoading}
+        styles={{
+          body: { padding: "8px 4px 24px" },
+        }}
       >
-        <Space direction="vertical" size="large" className="w-full mt-4">
-          <Flex vertical gap={4}>
-            <Text strong className="text-xs uppercase">
-              1. เลือกพนักงาน
-            </Text>
-            <Select
-              className="w-full"
-              placeholder="ค้นหาชื่อพนักงาน..."
-              options={userOptions}
-              value={selectedUser}
-              onChange={setSelectedUser}
-              showSearch
-              size="large"
-            />
-          </Flex>
+        <Space direction="vertical" size={24} className="w-full">
+          {!autoFillLoading ? (
+            <div className="space-y-6">
+              <section>
+                <Flex align="center" gap={8} className="mb-3">
+                  <div
+                    style={{
+                      padding: 6,
+                      borderRadius: 8,
+                      background: addAlpha(token.colorPrimary, 0.1),
+                      color: token.colorPrimary,
+                    }}
+                  >
+                    <UserOutlined />
+                  </div>
+                  <Text
+                    strong
+                    style={{
+                      fontSize: 13,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    1. เลือกผู้รับการทำรายการ
+                  </Text>
+                </Flex>
+                <Select
+                  className="w-full"
+                  placeholder="ค้นหาชื่อหรือรหัสพนักงาน..."
+                  options={userOptions}
+                  value={selectedUser}
+                  onChange={setSelectedUser}
+                  showSearch
+                  size="large"
+                  style={{ borderRadius: 12 }}
+                />
+              </section>
 
-          <Flex vertical gap={4}>
-            <Text strong className="text-xs uppercase">
-              2. ช่วงวันที่ต้องการเติมข้อมูล
-            </Text>
-            <RangePicker
-              className="w-full"
-              size="large"
-              value={selectedRange}
-              onChange={(r) => setSelectedRange(r ?? [null, null])}
-            />
-          </Flex>
+              <section>
+                <Flex align="center" gap={8} className="mb-3">
+                  <div
+                    style={{
+                      padding: 6,
+                      borderRadius: 8,
+                      background: addAlpha(token.colorPrimary, 0.1),
+                      color: token.colorPrimary,
+                    }}
+                  >
+                    <EnvironmentOutlined />
+                  </div>
+                  <Text
+                    strong
+                    style={{
+                      fontSize: 13,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    2. กำหนดปลายทาง (ช่วงวันที่)
+                  </Text>
+                </Flex>
+                <RangePicker
+                  className="w-full"
+                  size="large"
+                  value={selectedRange}
+                  onChange={(r) => setSelectedRange(r ?? [null, null])}
+                  style={{ borderRadius: 12 }}
+                />
+              </section>
 
-          {selectedRange[0]?.isSame(selectedRange[1], "day") && (
-            <Flex vertical gap={4}>
-              <Text strong className="text-xs uppercase">
-                3. จำนวนชั่วโมง (ระบุเองเฉพาะกรณีเลือกวันเดียว)
-              </Text>
-              <InputNumber
-                className="w-full"
-                placeholder="ตัวอย่าง: 8"
-                min={0}
-                max={24}
-                value={manualHours}
-                onChange={(v) => setManualHours(v)}
-                size="large"
-              />
-            </Flex>
-          )}
+              {selectedRange[0]?.isSame(selectedRange[1], "day") && (
+                <section className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  <Flex align="center" gap={8} className="mb-3">
+                    <div
+                      style={{
+                        padding: 6,
+                        borderRadius: 8,
+                        background: addAlpha(token.colorPrimary, 0.1),
+                        color: token.colorPrimary,
+                      }}
+                    >
+                      <ClockCircleOutlined />
+                    </div>
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 13,
+                        textTransform: "uppercase",
+                        letterSpacing: 0.5,
+                      }}
+                    >
+                      3. ระบุปริมาณงาน (ชั่วโมง)
+                    </Text>
+                  </Flex>
+                  <InputNumber
+                    className="w-full"
+                    placeholder="ใส่จำนวนชั่วโมง เช่น 8"
+                    min={0}
+                    max={24}
+                    value={manualHours}
+                    onChange={(v) => setManualHours(v)}
+                    size="large"
+                    style={{ borderRadius: 12 }}
+                  />
+                </section>
+              )}
+            </div>
+          ) : (
+            <div className="py-2">
+              <div
+                className="p-6 rounded-2xl border border-solid mb-6"
+                style={{
+                  background: isDark
+                    ? addAlpha(token.colorPrimary, 0.05)
+                    : addAlpha(token.colorPrimary, 0.02),
+                  borderColor: addAlpha(token.colorPrimary, 0.1),
+                }}
+              >
+                <Flex align="center" gap={16}>
+                  <div className="relative">
+                    <Progress
+                      type="circle"
+                      percent={Math.round(
+                        (autoFillProgress.filter((p) => p.status === "finish")
+                          .length /
+                          autoFillProgress.length) *
+                          100
+                      )}
+                      size={80}
+                      strokeWidth={10}
+                      strokeColor={{
+                        "0%": token.colorPrimary,
+                        "100%": token.colorInfo,
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <Text strong style={{ fontSize: 18, display: "block" }}>
+                      กำลังจัดส่งข้อมูล...
+                    </Text>
+                    <Text type="secondary">
+                      {
+                        autoFillProgress.filter((p) => p.status === "finish")
+                          .length
+                      }{" "}
+                      จาก {autoFillProgress.length} รายการ
+                    </Text>
+                  </div>
+                </Flex>
+              </div>
 
-          {autoFillProgress.length > 0 && (
-            <div className="p-4 rounded-lg bg-gray-500 bg-opacity-5 max-h-40 overflow-y-auto">
-              <Steps
-                direction="vertical"
-                size="small"
-                items={autoFillProgress.map((item) => ({
-                  title: item.label,
-                  status: item.status,
-                }))}
-              />
+              <div
+                style={{ maxHeight: 300, overflowY: "auto", paddingRight: 8 }}
+              >
+                <Steps
+                  direction="vertical"
+                  size="small"
+                  className="tracking-steps"
+                  items={autoFillProgress.map((item, idx) => ({
+                    title: (
+                      <Text
+                        strong
+                        style={{
+                          fontSize: 14,
+                          color:
+                            item.status === "process"
+                              ? token.colorPrimary
+                              : "inherit",
+                        }}
+                      >
+                        {item.status === "process" && (
+                          <RightOutlined
+                            style={{ marginRight: 8, fontSize: 12 }}
+                          />
+                        )}
+                        จัดส่งรอบที่ {idx + 1}: {item.label}
+                      </Text>
+                    ),
+                    description: (
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        {item.status === "finish"
+                          ? "ข้อมูลเข้าสู่ระบบเรียบร้อย"
+                          : item.status === "process"
+                          ? "กำลังพยายามเชื่อมต่อ..."
+                          : "รอคิวการจัดส่ง"}
+                      </Text>
+                    ),
+                    status: item.status as any,
+                    icon:
+                      item.status === "finish" ? (
+                        <CheckCircleOutlined
+                          style={{ color: token.colorSuccess }}
+                        />
+                      ) : item.status === "process" ? (
+                        <LoadingOutlined
+                          style={{ color: token.colorPrimary }}
+                        />
+                      ) : (
+                        <HistoryOutlined
+                          style={{ color: token.colorTextQuaternary }}
+                        />
+                      ),
+                  }))}
+                />
+              </div>
             </div>
           )}
         </Space>

@@ -16,6 +16,7 @@ import {
   Badge,
   Dropdown,
   MenuProps,
+  theme,
 } from "antd";
 import {
   ClockCircleOutlined,
@@ -57,39 +58,86 @@ const { Title, Text } = Typography;
 // INTERNAL SUB-COMPONENTS (Layout Style)
 // ==========================================
 
-const PageHeader = ({ metadata, onRefresh, loading }: any) => (
-  <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-6 rounded-2xl ">
-    <Space size={16}>
-      <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md">
-        <ClockCircleOutlined style={{ fontSize: 24, color: "#fff" }} />
-      </div>
-      <div>
-        <Title
-          level={3}
-          style={{ margin: 0, fontWeight: 700, letterSpacing: "-0.5px" }}
-        >
-          จัดการบันทึกเวลา
-        </Title>
-        <Text type="secondary" className="text-sm">
-          {metadata
-            ? `ช่วงวันที่: ${metadata.range.label_th}`
-            : "Timesheet Management System"}
-        </Text>
-      </div>
-    </Space>
-    <Button
-      icon={<ReloadOutlined spin={loading} />}
-      onClick={onRefresh}
-      size="large"
-      shape="round"
-      className="shadow-sm"
-    >
-      รีเฟรชข้อมูล
-    </Button>
-  </div>
-);
+// ==========================================
+// INTERNAL SUB-COMPONENTS (Layout Style)
+// ==========================================
 
-const CustomSummaryCards = ({ records, metadata, loading, t }: any) => {
+const PageHeader = ({ metadata, onRefresh, loading }: any) => {
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
+
+  return (
+    <div
+      className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-8 rounded-3xl border border-solid"
+      style={{
+        background: isDark
+          ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
+              token.colorPrimary,
+              0.05
+            )} 100%)`
+          : `linear-gradient(135deg, #fff 0%, ${addAlpha(
+              token.colorPrimary,
+              0.03
+            )} 100%)`,
+        borderColor: addAlpha(token.colorBorder, 0.6),
+      }}
+    >
+      <Space size={20}>
+        <div
+          className="flex items-center justify-center w-16 h-16 rounded-2xl"
+          style={{
+            background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+          }}
+        >
+          <ClockCircleOutlined style={{ fontSize: 28, color: "#fff" }} />
+        </div>
+        <div>
+          <Title
+            level={2}
+            style={{
+              margin: 0,
+              fontWeight: 800,
+              letterSpacing: "-1px",
+              color: token.colorTextHeading,
+            }}
+          >
+            จัดการบันทึกเวลา
+          </Title>
+          <Flex align="center" gap={8} className="mt-1">
+            <CalendarOutlined
+              style={{ color: token.colorTextSecondary, fontSize: 14 }}
+            />
+            <Text type="secondary" style={{ fontSize: 14, fontWeight: 500 }}>
+              {metadata
+                ? `ช่วงวันที่: ${metadata.range.label_th}`
+                : "ระบบบริหารจัดการข้อมูลการลงเวลาทำงาน"}
+            </Text>
+          </Flex>
+        </div>
+      </Space>
+      <Button
+        icon={<ReloadOutlined spin={loading} />}
+        onClick={onRefresh}
+        size="large"
+        shape="round"
+        style={{
+          height: 48,
+          padding: "0 24px",
+          fontWeight: 600,
+          border: `1px solid ${token.colorBorder}`,
+          background: token.colorBgContainer,
+        }}
+      >
+        รีเฟรชข้อมูล
+      </Button>
+    </div>
+  );
+};
+
+const CustomSummaryCards = ({ records, metadata, loading }: any) => {
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
+
   const metrics = [
     {
       label: "รายการทั้งหมด",
@@ -106,14 +154,14 @@ const CustomSummaryCards = ({ records, metadata, loading, t }: any) => {
       desc: "ไม่รวมวันหยุด",
     },
     {
-      label: "โครงการที่มีส่วนร่วม",
+      label: "โครงการที่รับผิดชอบ",
       value: new Set(records?.map((r: any) => r.project_id)).size || 0,
       color: "#f59e0b",
       icon: <ProjectOutlined />,
-      desc: "โครงการที่ active",
+      desc: "โครงการที่มีส่วนร่วม",
     },
     {
-      label: "พนักงาน",
+      label: "พนักงานทั้งหมด",
       value: new Set(records?.map((r: any) => r.admin_id)).size || 0,
       color: "#8b5cf6",
       icon: <TeamOutlined />,
@@ -122,42 +170,82 @@ const CustomSummaryCards = ({ records, metadata, loading, t }: any) => {
   ];
 
   return (
-    <Row gutter={[16, 16]} className="mb-6">
+    <Row gutter={[20, 20]} className="mb-8">
       {metrics.map((m, idx) => (
         <Col xs={24} sm={12} md={6} key={idx}>
-          <Card className="shadow-sm border-0 rounded-xl overflow-hidden relative h-full">
-            <div className="absolute right-[-10px] top-[-10px] opacity-10 rotate-12">
-              <span style={{ fontSize: "6rem", color: m.color }}>{m.icon}</span>
+          <div
+            className="p-6 rounded-2xl border border-solid h-full transition-all group overflow-hidden relative"
+            style={{
+              background: token.colorBgContainer,
+              borderColor: addAlpha(m.color, 0.2),
+            }}
+          >
+            <div
+              className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity"
+              style={{ fontSize: "100px", color: m.color }}
+            >
+              {m.icon}
             </div>
-            <Flex align="center" gap={16}>
+
+            <Flex vertical gap={12} className="relative z-10">
               <div
-                className="flex items-center justify-center w-12 h-12 rounded-lg text-2xl"
-                style={{ backgroundColor: `${m.color}20`, color: m.color }}
+                className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl"
+                style={{
+                  backgroundColor: addAlpha(m.color, isDark ? 0.2 : 0.1),
+                  color: m.color,
+                }}
               >
                 {m.icon}
               </div>
-              <div className="z-10">
+
+              <div>
                 <Text
                   type="secondary"
-                  className="block text-xs uppercase font-bold tracking-wider"
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    color: addAlpha(token.colorTextSecondary, 0.8),
+                  }}
                 >
                   {m.label}
                 </Text>
-                <div className="flex items-baseline gap-2">
-                  <Title level={2} style={{ margin: 0, fontWeight: 800 }}>
-                    {loading ? "..." : m.value}
+                <div className="flex items-baseline gap-2 mt-1">
+                  <Title
+                    level={2}
+                    style={{ margin: 0, fontWeight: 900, fontSize: 32 }}
+                  >
+                    {loading ? "..." : m.value.toLocaleString()}
                   </Title>
                 </div>
-                <Text type="secondary" className="text-xs">
+                <Text type="secondary" style={{ fontSize: 12, opacity: 0.7 }}>
                   {m.desc}
                 </Text>
               </div>
             </Flex>
-          </Card>
+          </div>
         </Col>
       ))}
     </Row>
   );
+};
+
+// --- Helper for color alpha ---
+const addAlpha = (color: string, alpha: number) => {
+  if (color.startsWith("#")) {
+    let hex = color.slice(1);
+    if (hex.length === 3)
+      hex = hex
+        .split("")
+        .map((c) => c + c)
+        .join("");
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  return color;
 };
 
 // ==========================================
@@ -168,6 +256,8 @@ export default function TimesheetAllPage() {
   const { t } = useTranslation("translate");
   const dispatch = useDispatch();
   const router = useRouter();
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
 
   // Report Dropdown Items
   const reportMenuItems: MenuProps["items"] = [
@@ -176,7 +266,10 @@ export default function TimesheetAllPage() {
       label: (
         <Space>
           รายงานแคปทรัพย์สิน
-          <Badge count="ใหม่" style={{ backgroundColor: "#52c41a" }} />
+          <Badge
+            count="ใหม่"
+            style={{ backgroundColor: token.colorSuccess, fontSize: 10 }}
+          />
         </Space>
       ),
       icon: <ProjectOutlined />,
@@ -236,25 +329,25 @@ export default function TimesheetAllPage() {
       return;
     }
 
-    const title = `รายงานไทม์ชีท ${
+    const title = `📊 รายงานไทม์ชีท ${
       metadata?.range?.label_th ? `ประจำ${metadata.range.label_th}` : ""
     }`;
     const body = filteredRecords
       .map((rec, index) => {
         const gapText =
-          rec.hours_gap > 0 ? ` (ขาด ${rec.hours_gap} ชั่วโมง)` : "";
-        return `${index + 1}. ${rec.full_name} เวลาลงทำงาน ${rec.total_hours}/${
-          rec.required_hours
-        } ชั่วโมง${gapText}`;
+          rec.hours_gap > 0 ? ` ⚠️ ขาด ${rec.hours_gap} ชม.` : " ✅ ครบ";
+        return `${index + 1}. ${rec.full_name} (${rec.nickname || "-"}) | ${
+          rec.total_hours
+        }/${rec.required_hours} ชม.${gapText}`;
       })
       .join("\n");
 
-    const fullText = `${title}\n${body}`;
+    const fullText = `${title}\n${"=".repeat(30)}\n${body}`;
 
     navigator.clipboard
       .writeText(fullText)
       .then(() => {
-        toast.success("คัดลอกรายงานลง Clipboard แล้ว");
+        toast.success("คัดลอกรายงานลง Clipboard สำเร็จ");
       })
       .catch((err) => {
         console.error("Failed to copy text: ", err);
@@ -272,34 +365,32 @@ export default function TimesheetAllPage() {
     {
       key: "1",
       label: "Export Template 1",
-      icon: <FileExcelOutlined className="text-green-500" />,
+      icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
       onClick: () => handleOpenModal("exportModal"),
     },
     {
       key: "2",
       label: "Export Template 2 (By Project)",
-      icon: <FileExcelOutlined className="text-green-500" />,
+      icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
       onClick: () => handleOpenModal("exportModal2"),
     },
     {
       key: "3",
       label: "Export Template 3",
-      icon: <FileExcelOutlined className="text-green-500" />,
+      icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
       onClick: () => handleOpenModal("exportModal3"),
     },
     {
       key: "4",
       label: "Export Template 4",
-      icon: <FileExcelOutlined className="text-green-500" />,
+      icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
       onClick: () => handleOpenModal("exportModal4"),
     },
-    {
-      type: "divider",
-    },
+    { type: "divider" },
     {
       key: "all",
       label: "Export All Records",
-      icon: <FileTextOutlined className="text-blue-500" />,
+      icon: <FileTextOutlined style={{ color: token.colorInfo }} />,
       onClick: handleExportAll,
       disabled: exportLoading,
     },
@@ -308,7 +399,10 @@ export default function TimesheetAllPage() {
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
-        <div className="w-full p-4 md:p-6 space-y-6">
+        <div
+          className="w-full p-4 md:p-8 space-y-8"
+          style={{ background: token.colorBgLayout, minHeight: "100vh" }}
+        >
           {/* 1. Header Section */}
           <PageHeader
             metadata={metadata}
@@ -321,17 +415,44 @@ export default function TimesheetAllPage() {
             records={records}
             metadata={metadata}
             loading={loading}
-            t={t}
           />
 
           {/* 3. Filter & Export Bar */}
-          <Card className="border-0 shadow-sm rounded-xl mb-6">
-            <Flex vertical gap={20}>
-              {/* Export Controls Integrated as Dropdown */}
-              <Flex gap={12} wrap="wrap" align="center">
-                <Text strong className="mr-2">
-                  <ExportOutlined /> {"จัดการรายงาน"}
-                </Text>
+          <div
+            className="p-6 rounded-3xl border border-solid overflow-hidden"
+            style={{
+              background: token.colorBgContainer,
+              borderColor: token.colorBorderSecondary,
+            }}
+          >
+            <Flex vertical gap={24}>
+              <Flex gap={16} wrap="wrap" align="center">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginRight: 8,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      background: addAlpha(token.colorPrimary, 0.1),
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: token.colorPrimary,
+                    }}
+                  >
+                    <ExportOutlined />
+                  </div>
+                  <Text strong style={{ fontSize: 16 }}>
+                    จัดการรายงาน
+                  </Text>
+                </div>
 
                 <Dropdown
                   menu={{ items: exportMenuItems }}
@@ -343,10 +464,16 @@ export default function TimesheetAllPage() {
                     icon={<FileExcelOutlined />}
                     loading={exportLoading}
                     shape="round"
-                    className="shadow-sm"
+                    size="large"
+                    style={{
+                      padding: "0 24px",
+                      fontWeight: 600,
+                      background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+                      border: "none",
+                    }}
                   >
                     <Space>
-                      ส่งออกข้อมูล (Excel)
+                      ส่งออก Excel
                       <DownOutlined style={{ fontSize: "12px" }} />
                     </Space>
                   </Button>
@@ -358,10 +485,14 @@ export default function TimesheetAllPage() {
                   placement="bottomLeft"
                 >
                   <Button
-                    type="default"
                     icon={<FileTextOutlined />}
                     shape="round"
-                    className="shadow-sm"
+                    size="large"
+                    style={{
+                      padding: "0 24px",
+                      fontWeight: 600,
+                      background: token.colorBgContainer,
+                    }}
                   >
                     <Space>
                       รายงานตรวจสอบ
@@ -374,15 +505,27 @@ export default function TimesheetAllPage() {
                   icon={<CopyOutlined />}
                   onClick={handleCopyDiscord}
                   shape="round"
-                  className="shadow-sm border-0 bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:opacity-90"
+                  size="large"
+                  style={{
+                    padding: "0 24px",
+                    fontWeight: 600,
+                    background: `linear-gradient(135deg, #a855f7 0%, #6366f1 100%)`,
+                    color: "#fff",
+                    border: "none",
+                  }}
                 >
-                  คัดลอกข้อมูล (Discord)
+                  คัดลอก (Discord)
                 </Button>
               </Flex>
 
-              <Divider style={{ margin: 0, opacity: 0.1 }} />
+              <div
+                style={{
+                  height: 1,
+                  background: token.colorBorderSecondary,
+                  opacity: 0.5,
+                }}
+              />
 
-              {/* Advanced Filter Component */}
               <TimesheetFilters
                 keyword={keyword}
                 onKeywordChange={setKeyword}
@@ -396,28 +539,58 @@ export default function TimesheetAllPage() {
                 loading={loading}
               />
             </Flex>
-          </Card>
+          </div>
 
           {/* 4. Table Card */}
-          <Card
-            className="shadow-sm rounded-xl border-0 overflow-hidden"
-            title={
-              <Space size={12}>
-                <SolutionOutlined className="text-blue-500" />
-                <span>ตารางบันทึกเวลา</span>
-                {!loading && (
-                  <Badge
-                    count={filteredRecords.length}
-                    overflowCount={9999}
-                    style={{ backgroundColor: "#52c41a" }}
-                  />
-                )}
-              </Space>
-            }
+          <div
+            className="rounded-3xl border border-solid overflow-hidden"
+            style={{
+              background: token.colorBgContainer,
+              borderColor: token.colorBorderSecondary,
+            }}
           >
+            <div
+              className="p-6 border-b border-solid"
+              style={{ borderColor: token.colorBorderSecondary }}
+            >
+              <Flex justify="space-between" align="center">
+                <Space size={12}>
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 12,
+                      background: addAlpha(token.colorInfo, 0.1),
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: token.colorInfo,
+                    }}
+                  >
+                    <SolutionOutlined />
+                  </div>
+                  <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+                    ตารางบันทึกเวลา
+                  </Title>
+                  {!loading && (
+                    <Badge
+                      count={filteredRecords.length}
+                      overflowCount={999}
+                      showZero
+                      style={{
+                        backgroundColor: token.colorSuccess,
+                        fontWeight: 700,
+                        border: "none",
+                      }}
+                    />
+                  )}
+                </Space>
+              </Flex>
+            </div>
+
             {loading ? (
               <div className="p-10">
-                <Skeleton active />
+                <Skeleton active paragraph={{ rows: 10 }} />
               </div>
             ) : (
               <TimesheetTable
@@ -429,14 +602,25 @@ export default function TimesheetAllPage() {
             )}
 
             {metadata?.notes && (
-              <div className="mt-4 p-3 rounded-lg bg-gray-500 bg-opacity-5 border border-dashed border-gray-500 border-opacity-20">
-                <Text type="secondary" className="text-xs italic">
-                  <InfoCircleOutlined className="mr-1" />{" "}
+              <div
+                className="m-6 p-4 rounded-xl border border-dashed flex items-start gap-3"
+                style={{
+                  backgroundColor: addAlpha(token.colorInfo, 0.03),
+                  borderColor: addAlpha(token.colorInfo, 0.2),
+                }}
+              >
+                <InfoCircleOutlined
+                  style={{ color: token.colorInfo, marginTop: 4 }}
+                />
+                <Text
+                  type="secondary"
+                  style={{ fontSize: 13, fontStyle: "italic" }}
+                >
                   {t("timesheet_page.notes_label")}: {metadata.notes}
                 </Text>
               </div>
             )}
-          </Card>
+          </div>
         </div>
 
         {/* Modals Section */}

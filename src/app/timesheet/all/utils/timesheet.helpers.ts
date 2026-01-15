@@ -15,9 +15,9 @@ export const POSITION_COLORS: Record<string, string> = {
 };
 
 export const buildDefaultRange = (): [Dayjs, Dayjs] => {
-  const monday = dayjs().startOf("week").add(1, "day");
-  const friday = monday.add(4, "day");
-  return [monday, friday];
+  const startOfMonth = dayjs().startOf("month");
+  const yesterday = dayjs().subtract(1, "day");
+  return [startOfMonth, yesterday];
 };
 
 export const buildFullName = ({ full_name }: SummaryRecord): string =>
