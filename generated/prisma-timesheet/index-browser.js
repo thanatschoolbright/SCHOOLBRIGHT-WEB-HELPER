@@ -171,6 +171,13 @@ exports.Prisma.FeatureScalarFieldEnum = {
   name_en: 'name_en'
 };
 
+exports.Prisma.ProjectStatusScalarFieldEnum = {
+  id: 'id',
+  priority: 'priority',
+  nameTh: 'nameTh',
+  nameEn: 'nameEn'
+};
+
 exports.Prisma.TimesheetEntryScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
@@ -267,6 +274,7 @@ exports.Prisma.ModelName = {
   Project: 'Project',
   ProjectAssignee: 'ProjectAssignee',
   Feature: 'Feature',
+  ProjectStatus: 'ProjectStatus',
   TimesheetEntry: 'TimesheetEntry',
   ApiLog: 'ApiLog',
   Overtime: 'Overtime',

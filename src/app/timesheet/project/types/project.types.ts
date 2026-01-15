@@ -50,3 +50,10 @@ export interface FormValues {
   end_date?: any;
   assignees?: { userId: number; position?: string }[];
 }
+
+export interface ProjectStatus {
+  id: number;
+  priority: number;
+  nameTh: string;
+  nameEn?: string | null;
+}

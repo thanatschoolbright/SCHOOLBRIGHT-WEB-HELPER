@@ -71,6 +71,7 @@ import { categoryType } from "@data/timesheet.category.type";
 // Sub Components & Hooks
 import { ProjectTable } from "./components/project-table.component";
 import { AnalyticsDashboard } from "./components/analytics-dashboard.component";
+import { ProjectStatusModal } from "./components/project-status-modal.component";
 import { useProjectData } from "./hooks/use-project-data";
 import { exportProjectsToExcel } from "./utils/export-excel";
 import type { ModalState, FormValues, Project } from "./types/project.types";
@@ -309,6 +310,7 @@ const HeaderSection = ({
   onRefresh,
   onCreate,
   onViewTimeline,
+  onManageStatus,
   token,
 }: {
   title: string;
@@ -316,6 +318,7 @@ const HeaderSection = ({
   onRefresh: () => void;
   onCreate: () => void;
   onViewTimeline: () => void;
+  onManageStatus: () => void;
   token: any;
 }) => (
   <Flex
@@ -359,6 +362,17 @@ const HeaderSection = ({
     </Space>
 
     <Space size={12} wrap>
+      <Tooltip title="จัดการขั้นตอนการทำงานและสถานะ (SDLC Step)">
+        <Button
+          icon={<CheckCircleOutlined />}
+          onClick={onManageStatus}
+          size="large"
+          className="rounded-xl border-dashed"
+          style={{ color: token.colorPrimary, borderColor: token.colorPrimary }}
+        >
+          เพิ่มสถานะโครงการ/โครงการย่อย
+        </Button>
+      </Tooltip>
       <Button
         icon={<ClockCircleOutlined />}
         onClick={onViewTimeline}
@@ -760,6 +774,7 @@ export default function ProjectManagementPage() {
   const [confirmDeleteText, setConfirmDeleteText] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
   const [users, setUsers] = useState<any[]>([]);
   const [costPerHour, setCostPerHour] = useState<number>(0);
@@ -883,6 +898,7 @@ export default function ProjectManagementPage() {
             onRefresh={fetchProjects}
             onCreate={() => setModalState({ type: "create" })}
             onViewTimeline={() => router.push("/timesheet/timeline")}
+            onManageStatus={() => setStatusModalOpen(true)}
             token={token}
           />
 
@@ -1055,7 +1071,12 @@ export default function ProjectManagementPage() {
             />
           )}
 
-          {/* --- Modals Section --- */}
+          {/* Status Management Modal */}
+          <ProjectStatusModal
+            open={statusModalOpen}
+            onClose={() => setStatusModalOpen(false)}
+          />
+
           {/* Create/Edit Modal */}
           <Modal
             open={modalState.type === "create" || modalState.type === "edit"}

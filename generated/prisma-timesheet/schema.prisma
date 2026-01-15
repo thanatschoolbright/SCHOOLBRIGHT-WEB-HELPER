@@ -78,6 +78,13 @@ model Feature {
   @@map("feature")
 }
 
+model ProjectStatus {
+  id       Int     @id @default(autoincrement()) @map("id")
+  priority Int     @default(0) @map("priority")
+  nameTh   String  @map("name_th")
+  nameEn   String? @map("name_en")
+}
+
 model TimesheetEntry {
   id          Int      @id @default(autoincrement()) @map("id")
   projectId   Int      @map("project_id")
