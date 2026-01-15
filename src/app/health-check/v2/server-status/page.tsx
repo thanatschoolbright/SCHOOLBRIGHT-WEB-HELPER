@@ -30,6 +30,7 @@ import {
   Spin,
   Divider,
   Descriptions,
+  Select,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -54,6 +55,7 @@ import {
   BankOutlined,
   IdcardOutlined,
   CodeOutlined,
+  ConsoleSqlOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -99,6 +101,33 @@ export default function ServerStatusPage() {
   const [statusFilterType, setStatusFilterType] = useState<
     "ALL" | "ONLINE" | "ERROR"
   >("ALL");
+  const [groupFilterType, setGroupFilterType] = useState<string>("ALL");
+  const [methodFilterType, setMethodFilterType] = useState<string>("ALL");
+
+  const groupOptions = useMemo(() => {
+    const groups = Array.from(
+      new Set(serverHealthData.map((item) => item.group || "other"))
+    );
+    return [
+      { label: "ทุกกลุ่ม", value: "ALL" },
+      ...groups.map((g) => ({
+        label: g.toUpperCase().replace("-", " "),
+        value: g,
+      })),
+    ];
+  }, [serverHealthData]);
+
+  const methodOptions = [
+    { label: "ทุกโปรโตคอล", value: "ALL" },
+    { label: "GET", value: "GET" },
+    { label: "POST", value: "POST" },
+  ];
+
+  const statusOptions = [
+    { label: "สถานะทั้งหมด", value: "ALL" },
+    { label: "ปกติ (Online)", value: "ONLINE" },
+    { label: "ผิดพลาด (Error)", value: "ERROR" },
+  ];
 
   // --- Pagination State ---
   const [currentPage, setCurrentPage] = useState(1);
@@ -107,7 +136,7 @@ export default function ServerStatusPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQueryString, statusFilterType]);
+  }, [searchQueryString, statusFilterType, groupFilterType]);
 
   // --- Simulated Progress Effect ---
   useEffect(() => {
@@ -218,59 +247,6 @@ export default function ServerStatusPage() {
     return { totalCount, onlineCount, offlineCount, healthScorePercentage };
   }, [serverHealthData]);
 
-  // --- Deep Insight Helper ---
-  // Calculates specific metrics from known modules
-  const insightMetrics = useMemo(() => {
-    let unreadNotifications = 0;
-    let loginStatus = "-";
-    let verificationStatus = "-";
-    let hardwareStatus = "-";
-    let schoolCount = 0;
-
-    serverHealthData.forEach((item) => {
-      // Notification
-      if (item.module === "notification" && item.response) {
-        const resp = item.response as any;
-        if (typeof resp.UnRead === "number") {
-          unreadNotifications = resp.UnRead;
-        }
-      }
-      // Login
-      if (item.module === "login" && item.response) {
-        const resp = item.response as any;
-        loginStatus = resp.Desc || (item.status === "200" ? "OK" : "Fail");
-      }
-      // Verification
-      if (item.module === "verification" && item.response) {
-        const resp = item.response as any;
-        if (resp.authentication?.resCode === 200) {
-          verificationStatus = "ผ่านการตรวจสอบ";
-        } else {
-          verificationStatus = "รอตรวจสอบ";
-        }
-      }
-      // Hardware / Facial Scan
-      if (item.module === "facial-scan" && item.response) {
-        if (Array.isArray(item.response) && item.response.length > 0) {
-          const firstLog = item.response[0];
-          hardwareStatus = firstLog.UserID ? "Active" : "No Data";
-        }
-      }
-      // School List
-      if (item.module === "get-school-list" && Array.isArray(item.response)) {
-        schoolCount = item.response.length;
-      }
-    });
-
-    return {
-      unreadNotifications,
-      loginStatus,
-      verificationStatus,
-      hardwareStatus,
-      schoolCount,
-    };
-  }, [serverHealthData]);
-
   const filteredServerHealthData = useMemo(() => {
     return serverHealthData.filter((item) => {
       const lowerCaseSearchQuery = searchQueryString.toLowerCase();
@@ -279,13 +255,27 @@ export default function ServerStatusPage() {
         item.service.toLowerCase().includes(lowerCaseSearchQuery) ||
         item.module.toLowerCase().includes(lowerCaseSearchQuery);
 
-      if (statusFilterType === "ONLINE")
-        return matchesSearch && item.status === "200";
-      if (statusFilterType === "ERROR")
-        return matchesSearch && item.status !== "200";
-      return matchesSearch;
+      const matchesStatus =
+        statusFilterType === "ALL" ||
+        (statusFilterType === "ONLINE" && item.status === "200") ||
+        (statusFilterType === "ERROR" && item.status !== "200");
+
+      const matchesGroup =
+        groupFilterType === "ALL" || item.group === groupFilterType;
+
+      const matchesMethod =
+        methodFilterType === "ALL" ||
+        (item.request?.method || "GET") === methodFilterType;
+
+      return matchesSearch && matchesStatus && matchesGroup && matchesMethod;
     });
-  }, [serverHealthData, searchQueryString, statusFilterType]);
+  }, [
+    serverHealthData,
+    searchQueryString,
+    statusFilterType,
+    groupFilterType,
+    methodFilterType,
+  ]);
 
   // --- UI Helpers ---
   const handleCopyToClipboard = (textToCopy: string) => {
@@ -323,6 +313,19 @@ export default function ServerStatusPage() {
 
   const tableColumns: ColumnsType<ServerStatusData> = [
     {
+      title: "กลุ่มระบบ",
+      dataIndex: "group",
+      width: 150,
+      render: (group) => (
+        <Tag
+          color="blue-inverse"
+          style={{ borderRadius: 6, fontWeight: 500, border: "none" }}
+        >
+          {group?.toUpperCase() || "OTHER"}
+        </Tag>
+      ),
+    },
+    {
       title: "ชื่อระบบ (System Module)",
       key: "name",
       render: (_, record) => (
@@ -358,67 +361,30 @@ export default function ServerStatusPage() {
       title: "จุดเชื่อมต่อ (Endpoint)",
       dataIndex: "service",
       responsive: ["md"],
-      render: (serviceName, record) => (
-        <Flex vertical>
-          <Space size={4}>
-            <Tag color="cyan" bordered={false} style={{ margin: 0 }}>
-              {record.request?.method || "GET"}
-            </Tag>
-            <Text style={{ fontSize: 13 }}>{serviceName}</Text>
-          </Space>
-          <Text
-            type="secondary"
-            style={{ fontSize: 11 }}
-            ellipsis={{ tooltip: record.request?.url }}
-          >
-            {record.request?.url || "-"}
-          </Text>
-        </Flex>
-      ),
-    },
-    {
-      title: "ตัวชี้วัด (Indicator)",
-      key: "indicator",
-      render: (_, record) => {
-        // Custom indicators based on module
-        let content = <Text type="secondary">-</Text>;
-
-        if (
-          record.module === "notification" &&
-          (record.response as any)?.UnRead !== undefined
-        ) {
-          content = (
-            <Badge
-              count={(record.response as any).UnRead}
-              overflowCount={999}
-              color={token.colorError}
-            />
-          );
-        } else if (
-          record.module === "get-school-list" &&
-          Array.isArray(record.response)
-        ) {
-          content = <Tag color="blue">{record.response.length} โรงเรียน</Tag>;
-        } else if (
-          record.module === "login" &&
-          (record.response as any)?.Desc
-        ) {
-          content = <Tag color="green">{(record.response as any).Desc}</Tag>;
-        } else if (record.status === "200") {
-          content = (
-            <Tag color="success" bordered={false}>
-              ปกติ
-            </Tag>
-          );
-        } else {
-          content = (
-            <Tag color="error" bordered={false}>
-              พบปัญหา
-            </Tag>
-          );
-        }
-
-        return content;
+      render: (serviceName, record) => {
+        const method = record.request?.method || "GET";
+        const methodColor = method === "POST" ? "red" : "green";
+        return (
+          <Flex vertical>
+            <Space size={4}>
+              <Tag
+                color={methodColor}
+                bordered={false}
+                style={{ margin: 0, fontWeight: "bold" }}
+              >
+                {method}
+              </Tag>
+              <Text style={{ fontSize: 13 }}>{serviceName}</Text>
+            </Space>
+            <Text
+              type="secondary"
+              style={{ fontSize: 11 }}
+              ellipsis={{ tooltip: record.request?.url }}
+            >
+              {record.request?.url || "-"}
+            </Text>
+          </Flex>
+        );
       },
     },
     {
@@ -438,18 +404,22 @@ export default function ServerStatusPage() {
       ),
     },
     {
-      title: "",
-      width: 60,
+      title: "การกระทำ",
+      key: "action",
+      width: 180,
       align: "center",
       render: (_, record) => (
         <Button
-          type="text"
+          type="primary"
           icon={<EyeOutlined />}
           onClick={() => {
             setSelectedServerStatusItem(record);
             setIsDetailModalVisible(true);
           }}
-        />
+          style={{ borderRadius: 8 }}
+        >
+          ดูรายละเอียด
+        </Button>
       ),
     },
   ];
@@ -592,245 +562,6 @@ export default function ServerStatusPage() {
           </Space>
         </Flex>
 
-        {/* --- 1. Summary Cards Overview (Redesigned) --- */}
-        <Row gutter={[16, 16]}>
-          {/* --- Health Score Card --- */}
-          <Col xs={24} sm={12} lg={6}>
-            <Card
-              bordered={false}
-              className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300 backdrop-blur-md"
-              style={{
-                height: "100%",
-                borderRadius: 16,
-                background: token.colorBgContainer, // Use token for dark mode support
-                border: `1px solid ${token.colorBorderSecondary}`,
-              }}
-            >
-              <Flex justify="space-between" align="start">
-                <Flex vertical gap={4}>
-                  <Text type="secondary">คะแนนสุขภาพรวม</Text>
-                  <Title level={3} style={{ margin: 0 }}>
-                    {serverHealthStatistics.healthScorePercentage}%
-                  </Title>
-                </Flex>
-                <Progress
-                  type="dashboard"
-                  percent={serverHealthStatistics.healthScorePercentage}
-                  size={50}
-                  strokeWidth={12}
-                  showInfo={false}
-                  strokeColor={token.colorSuccess}
-                />
-              </Flex>
-              <Divider style={{ margin: "12px 0" }} />
-              <Space size={4}>
-                {serverHealthStatistics.healthScorePercentage >= 90 ? (
-                  <CheckCircleFilled style={{ color: token.colorSuccess }} />
-                ) : (
-                  <BugOutlined style={{ color: token.colorError }} />
-                )}
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  สถานะ:{" "}
-                  {serverHealthStatistics.healthScorePercentage >= 90
-                    ? "ทำงานปกติ"
-                    : "ไม่เสถียร"}
-                </Text>
-              </Space>
-            </Card>
-          </Col>
-
-          {/* --- Total Services Card --- */}
-          <Col xs={24} sm={12} lg={6}>
-            <Card
-              bordered={false}
-              className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300 backdrop-blur-md"
-              style={{
-                height: "100%",
-                borderRadius: 16,
-                background: token.colorBgContainer,
-                border: `1px solid ${token.colorBorderSecondary}`,
-              }}
-            >
-              <Flex align="center" gap={16}>
-                <div
-                  style={{
-                    background: token.colorFillSecondary,
-                    padding: 12,
-                    borderRadius: 12,
-                  }}
-                >
-                  <ApiOutlined
-                    style={{ fontSize: 24, color: token.colorPrimary }}
-                  />
-                </div>
-                <Flex vertical>
-                  <Text type="secondary">ระบบทั้งหมด</Text>
-                  <Title level={3} style={{ margin: 0 }}>
-                    {serverHealthStatistics.totalCount}
-                  </Title>
-                </Flex>
-              </Flex>
-              <Divider style={{ margin: "12px 0" }} />
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                โมดูลที่ถูกเฝ้าระวัง
-              </Text>
-            </Card>
-          </Col>
-
-          {/* --- Online Services Card --- */}
-          <Col xs={24} sm={12} lg={6}>
-            <Card
-              bordered={false}
-              className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300 backdrop-blur-md"
-              style={{
-                height: "100%",
-                borderRadius: 16,
-                background: token.colorBgContainer,
-                border: `1px solid ${token.colorBorderSecondary}`,
-              }}
-            >
-              <Flex align="center" gap={16}>
-                <div
-                  style={{
-                    background: token.colorSuccessBg,
-                    padding: 12,
-                    borderRadius: 12,
-                  }}
-                >
-                  <CheckCircleFilled
-                    style={{ fontSize: 24, color: token.colorSuccess }}
-                  />
-                </div>
-                <Flex vertical>
-                  <Text type="secondary">ทำงานปกติ</Text>
-                  <Title
-                    level={3}
-                    style={{ margin: 0, color: token.colorSuccess }}
-                  >
-                    {serverHealthStatistics.onlineCount}
-                  </Title>
-                </Flex>
-              </Flex>
-              <Divider style={{ margin: "12px 0" }} />
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                จุดเชื่อมต่อพร้อมใช้งาน
-              </Text>
-            </Card>
-          </Col>
-
-          {/* --- Error/Issue Card --- */}
-          <Col xs={24} sm={12} lg={6}>
-            <Card
-              bordered={false}
-              className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300 backdrop-blur-md"
-              style={{
-                height: "100%",
-                borderRadius: 16,
-                background: token.colorBgContainer,
-                border: `1px solid ${token.colorBorderSecondary}`,
-              }}
-            >
-              <Flex align="center" gap={16}>
-                <div
-                  style={{
-                    background: token.colorErrorBg,
-                    padding: 12,
-                    borderRadius: 12,
-                  }}
-                >
-                  <BugOutlined
-                    style={{ fontSize: 24, color: token.colorError }}
-                  />
-                </div>
-                <Flex vertical>
-                  <Text type="secondary">พบปัญหา</Text>
-                  <Title
-                    level={3}
-                    style={{
-                      margin: 0,
-                      color:
-                        serverHealthStatistics.offlineCount > 0
-                          ? token.colorError
-                          : token.colorText,
-                    }}
-                  >
-                    {serverHealthStatistics.offlineCount}
-                  </Title>
-                </Flex>
-              </Flex>
-              <Divider style={{ margin: "12px 0" }} />
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                ต้องได้รับการแก้ไข
-              </Text>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* --- 2. Deep Insights / Highlight Section (NEW) --- */}
-        {serverHealthData.length > 0 && (
-          <Card
-            title={
-              <Space>
-                <ThunderboltFilled style={{ color: token.colorPrimary }} />{" "}
-                <Text strong>ไฮไลท์ของระบบ (System Insights)</Text>
-              </Space>
-            }
-            bordered={false}
-            className="animate-fade-in"
-            style={{ borderRadius: 16, boxShadow: token.boxShadowTertiary }}
-          >
-            <Row gutter={[24, 24]}>
-              <Col xs={12} md={6}>
-                <Statistic
-                  title="การแจ้งเตือนที่ยังไม่อ่าน"
-                  value={insightMetrics.unreadNotifications}
-                  prefix={<BellOutlined />}
-                  valueStyle={{
-                    color:
-                      insightMetrics.unreadNotifications > 0
-                        ? token.colorWarning
-                        : token.colorText,
-                  }}
-                />
-              </Col>
-              <Col xs={12} md={6}>
-                <Statistic
-                  title="จำนวนโรงเรียน"
-                  value={insightMetrics.schoolCount}
-                  prefix={<BankOutlined />}
-                />
-              </Col>
-              <Col xs={12} md={6}>
-                <Statistic
-                  title="บริการเข้าสู่ระบบ"
-                  value={insightMetrics.loginStatus}
-                  valueStyle={{
-                    fontSize: 16,
-                    color:
-                      insightMetrics.loginStatus.includes("Success") ||
-                      insightMetrics.loginStatus === "OK"
-                        ? token.colorSuccess
-                        : token.colorError,
-                  }}
-                />
-              </Col>
-              <Col xs={12} md={6}>
-                <Statistic
-                  title="ระบบยืนยันตัวตน"
-                  value={insightMetrics.verificationStatus}
-                  valueStyle={{
-                    fontSize: 18,
-                    color:
-                      insightMetrics.verificationStatus === "ผ่านการตรวจสอบ"
-                        ? token.colorSuccess
-                        : token.colorText,
-                  }}
-                />
-              </Col>
-            </Row>
-          </Card>
-        )}
-
         {/* --- Alert Banner --- */}
         {serverHealthStatistics.offlineCount > 0 && !isFetchingServerStatus && (
           <Alert
@@ -847,70 +578,122 @@ export default function ServerStatusPage() {
         )}
 
         {/* --- Filters & Search --- */}
-        <Flex gap={16} wrap="wrap">
-          <div className="w-full md:w-80">
-            <input
-              placeholder="ค้นหาชื่อระบบ, โมดูล หรือ จุดเชื่อมต่อ..."
-              className="w-full px-4 py-2 rounded-xl border outline-none transition-colors"
-              style={{
-                background: token.colorBgContainer,
-                borderColor: token.colorBorder,
-                color: token.colorText,
-              }}
-              value={searchQueryString}
-              onChange={(e) => setSearchQueryString(e.target.value)}
-            />
-          </div>
-          <Segmented
-            options={[
-              { label: "ทั้งหมด", value: "ALL", icon: <GlobalOutlined /> },
-              {
-                label: "ปกติ (Online)",
-                value: "ONLINE",
-                icon: (
-                  <CheckCircleFilled style={{ color: token.colorSuccess }} />
-                ),
-              },
-              {
-                label: "ขัดข้อง (Error)",
-                value: "ERROR",
-                icon: <CloseCircleFilled style={{ color: token.colorError }} />,
-              },
-            ]}
-            value={statusFilterType}
-            onChange={(value) => setStatusFilterType(value as any)}
-            size="large"
-          />
-        </Flex>
+        <Card
+          bordered={false}
+          style={{
+            borderRadius: 20,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+            background: token.colorBgContainer,
+          }}
+        >
+          <Row gutter={[16, 16]} align="middle">
+            <Col xs={24} lg={8}>
+              <Flex vertical gap={4}>
+                <Text
+                  strong
+                  style={{ fontSize: 13, color: token.colorTextDescription }}
+                >
+                  ค้นหา
+                </Text>
+                <input
+                  placeholder="ค้นหาชื่อระบบ, โมดูล หรือ จุดเชื่อมต่อ..."
+                  className="w-full px-4 py-2 rounded-xl border outline-none transition-all focus:ring-2 focus:ring-primary/20"
+                  style={{
+                    background: token.colorFillQuaternary,
+                    borderColor: token.colorBorder,
+                    color: token.colorText,
+                    height: 40,
+                  }}
+                  value={searchQueryString}
+                  onChange={(e) => setSearchQueryString(e.target.value)}
+                />
+              </Flex>
+            </Col>
+            <Col xs={24} sm={8} lg={5}>
+              <Flex vertical gap={4}>
+                <Text
+                  strong
+                  style={{ fontSize: 13, color: token.colorTextDescription }}
+                >
+                  กลุ่มระบบ
+                </Text>
+                <Select
+                  style={{ width: "100%", height: 40 }}
+                  options={groupOptions}
+                  value={groupFilterType}
+                  onChange={setGroupFilterType}
+                  placeholder="เลือกกลุ่มระบบ"
+                  dropdownStyle={{ borderRadius: 12 }}
+                />
+              </Flex>
+            </Col>
+            <Col xs={24} sm={8} lg={5}>
+              <Flex vertical gap={4}>
+                <Text
+                  strong
+                  style={{ fontSize: 13, color: token.colorTextDescription }}
+                >
+                  สถานะ
+                </Text>
+                <Select
+                  style={{ width: "100%", height: 40 }}
+                  options={statusOptions}
+                  value={statusFilterType}
+                  onChange={setStatusFilterType}
+                  placeholder="เลือกสถานะ"
+                  dropdownStyle={{ borderRadius: 12 }}
+                />
+              </Flex>
+            </Col>
+            <Col xs={24} sm={8} lg={6}>
+              <Flex vertical gap={4}>
+                <Text
+                  strong
+                  style={{ fontSize: 13, color: token.colorTextDescription }}
+                >
+                  ประเภท (Method)
+                </Text>
+                <Segmented
+                  block
+                  options={methodOptions}
+                  value={methodFilterType}
+                  onChange={(value) => setMethodFilterType(value as string)}
+                  style={{ height: 40, padding: 4 }}
+                />
+              </Flex>
+            </Col>
+          </Row>
+        </Card>
 
         {/* --- Data Table --- */}
         <Card
           bordered={false}
           style={{
             borderRadius: 24,
-            overflow: "hidden",
             boxShadow: token.boxShadowTertiary,
+            background: token.colorBgContainer,
           }}
-          bodyStyle={{ padding: 0 }}
+          bodyStyle={{ padding: screens.md ? "24px" : "12px" }}
         >
           {filteredServerHealthData.length > 0 ? (
             <Table
               columns={tableColumns}
               dataSource={filteredServerHealthData}
               rowKey={(record) => record.module + record.service}
+              size="large"
               pagination={{
-                current: currentPage,
-                pageSize: pageSize,
-                total: filteredServerHealthData.length,
-                onChange: (page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                },
+                pageSize: 15,
                 showSizeChanger: true,
                 showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+                position: ["bottomRight"],
               }}
               loading={isFetchingServerStatus}
-              scroll={{ x: 800 }}
+              scroll={{ x: 1000 }}
+              style={{
+                borderRadius: 16,
+                overflow: "hidden",
+                border: `1px solid ${token.colorBorderSecondary}`,
+              }}
             />
           ) : (
             <Empty
@@ -929,10 +712,27 @@ export default function ServerStatusPage() {
       {/* --- Detail Modal --- */}
       <Modal
         title={
-          <Space>
-            <CodeOutlined />
-            <Text strong>ข้อมูลทางเทคนิค (Technical Details)</Text>
-          </Space>
+          <Flex align="center" gap={12} style={{ paddingBottom: 16 }}>
+            <div
+              style={{
+                background: token.colorFillSecondary,
+                padding: 10,
+                borderRadius: 12,
+              }}
+            >
+              <CodeOutlined
+                style={{ fontSize: 20, color: token.colorPrimary }}
+              />
+            </div>
+            <Flex vertical gap={2}>
+              <Title level={4} style={{ margin: 0 }}>
+                ข้อมูลทางเทคนิค (Technical Details)
+              </Title>
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                ตรวจสอบรายละเอียดการเชื่อมต่อและข้อมูลตอบกลับจากระบบ
+              </Text>
+            </Flex>
+          </Flex>
         }
         open={isDetailModalVisible}
         onCancel={() => setIsDetailModalVisible(false)}
@@ -940,99 +740,163 @@ export default function ServerStatusPage() {
           <Button
             key="close"
             onClick={() => setIsDetailModalVisible(false)}
-            style={{ borderRadius: 8 }}
+            size="large"
+            style={{ borderRadius: 12, minWidth: 120 }}
           >
             ปิดหน้าต่าง
           </Button>,
           <Button
             key="copy"
             type="primary"
+            size="large"
             icon={<CopyOutlined />}
             onClick={() =>
               handleCopyToClipboard(
                 JSON.stringify(selectedServerStatusItem, null, 2)
               )
             }
-            style={{ borderRadius: 8 }}
+            style={{ borderRadius: 12, minWidth: 150 }}
           >
             คัดลอก JSON
           </Button>,
         ]}
-        width={800}
+        width={1100}
         centered
-        styles={{ content: { borderRadius: 16 } }}
+        styles={{
+          content: { borderRadius: 24, padding: 32 },
+          header: { marginBottom: 24 },
+        }}
       >
         {selectedServerStatusItem && (
-          <Flex vertical gap={16} style={{ marginTop: 16 }}>
-            <Descriptions bordered column={{ xs: 1, sm: 2 }} size="small">
-              <Descriptions.Item label="ชื่อระบบ">
-                {selectedServerStatusItem.name_th} (
-                {selectedServerStatusItem.name_en})
-              </Descriptions.Item>
-              <Descriptions.Item label="โมดูล">
-                <Tag color="cyan">{selectedServerStatusItem.module}</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="สถานะ">
-                <Badge
-                  status={
-                    selectedServerStatusItem.status === "200"
-                      ? "success"
-                      : "error"
-                  }
-                  text={
-                    selectedServerStatusItem.status === "200"
-                      ? "ทำงานปกติ (200)"
-                      : `พบปัญหา (${selectedServerStatusItem.status})`
-                  }
-                />
-              </Descriptions.Item>
-              <Descriptions.Item label="จุดเชื่อมต่อ">
-                <Text ellipsis style={{ maxWidth: 300 }}>
-                  {selectedServerStatusItem.service}
-                </Text>
-              </Descriptions.Item>
-            </Descriptions>
+          <Row gutter={[24, 24]}>
+            <Col xs={24} lg={10}>
+              <Flex vertical gap={24}>
+                {/* Basic Info */}
+                <Card
+                  size="small"
+                  title="ข้อมูลพื้นฐาน"
+                  bordered={false}
+                  style={{
+                    background: token.colorFillTertiary,
+                    borderRadius: 16,
+                  }}
+                >
+                  <Descriptions column={1} size="small" layout="vertical">
+                    <Descriptions.Item label="ชื่อระบบ">
+                      <Text strong style={{ fontSize: 16 }}>
+                        {selectedServerStatusItem.name_th}
+                      </Text>
+                      <br />
+                      <Text type="secondary">
+                        {selectedServerStatusItem.name_en}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="โมดูล">
+                      <Tag color="blue" style={{ borderRadius: 6 }}>
+                        {selectedServerStatusItem.module}
+                      </Tag>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="กลุ่มระบบ">
+                      <Tag color="geekblue" style={{ borderRadius: 6 }}>
+                        {selectedServerStatusItem.group}
+                      </Tag>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="สถานะการเชื่อมต่อ">
+                      <Badge
+                        status={
+                          selectedServerStatusItem.status === "200"
+                            ? "success"
+                            : "error"
+                        }
+                        text={
+                          <Text
+                            strong
+                            style={{
+                              color:
+                                selectedServerStatusItem.status === "200"
+                                  ? token.colorSuccess
+                                  : token.colorError,
+                            }}
+                          >
+                            {selectedServerStatusItem.status === "200"
+                              ? "ปกติ (200 OK)"
+                              : `ผิดพลาด (${selectedServerStatusItem.status})`}
+                          </Text>
+                        }
+                      />
+                    </Descriptions.Item>
+                  </Descriptions>
+                </Card>
 
-            {/* CURL Command */}
-            <Card
-              size="small"
-              title={
-                <Text strong style={{ fontSize: 12 }}>
-                  คำสั่ง CURL
-                </Text>
-              }
-              style={{
-                background: token.colorFillAlter,
-                borderColor: token.colorBorderSecondary,
-              }}
-            >
-              <Text
-                code
-                copyable
-                style={{ fontSize: 12, wordBreak: "break-all" }}
-              >
-                {selectedServerStatusItem.curl}
-              </Text>
-            </Card>
+                {/* CURL Command */}
+                <Card
+                  size="small"
+                  title={
+                    <Flex justify="space-between" align="center">
+                      <Space>
+                        <ConsoleSqlOutlined /> คำสั่ง CURL
+                      </Space>
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<CopyOutlined />}
+                        onClick={() =>
+                          handleCopyToClipboard(selectedServerStatusItem.curl)
+                        }
+                      />
+                    </Flex>
+                  }
+                  style={{
+                    background: "#1e1e1e",
+                    borderColor: token.colorBorderSecondary,
+                    borderRadius: 16,
+                  }}
+                  bodyStyle={{ padding: 12 }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontFamily: "'Fira Code', 'Roboto Mono', monospace",
+                      color: "#d4d4d4",
+                      wordBreak: "break-all",
+                      display: "block",
+                      maxHeight: 200,
+                      overflowY: "auto",
+                    }}
+                  >
+                    {selectedServerStatusItem.curl}
+                  </Text>
+                </Card>
+              </Flex>
+            </Col>
 
-            {/* Response Viewer */}
-            <div>
-              <Text strong style={{ marginBottom: 8, display: "block" }}>
-                ข้อมูลตอบกลับ (Full API Response):
-              </Text>
-              <div
-                className="p-4 rounded-lg overflow-auto max-h-[400px] text-xs font-mono"
-                style={{
-                  background: token.colorFillQuaternary,
-                  color: token.colorTextSecondary,
-                }}
-              >
-                <pre style={{ margin: 0 }}>
-                  {JSON.stringify(selectedServerStatusItem.response, null, 2)}
-                </pre>
-              </div>
-            </div>
-          </Flex>
+            <Col xs={24} lg={14}>
+              <Flex vertical gap={8} style={{ height: "100%" }}>
+                <Text strong style={{ fontSize: 16 }}>
+                  ข้อมูลตอบกลับหน่วยประมวลผล (API Response):
+                </Text>
+                <div
+                  className="rounded-xl overflow-auto custom-scrollbar"
+                  style={{
+                    background: "#1e1e1e",
+                    color: "#9cdcfe",
+                    padding: 24,
+                    flex: 1,
+                    minHeight: 500,
+                    maxHeight: 700,
+                    border: `1px solid ${token.colorBorderSecondary}`,
+                    fontFamily: "'Fira Code', 'Roboto Mono', monospace",
+                    fontSize: 13,
+                    boxShadow: "inset 0 2px 8px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                    {JSON.stringify(selectedServerStatusItem.response, null, 2)}
+                  </pre>
+                </div>
+              </Flex>
+            </Col>
+          </Row>
         )}
       </Modal>
     </DashboardLayout>

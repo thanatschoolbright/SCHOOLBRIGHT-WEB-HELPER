@@ -10,6 +10,7 @@ interface RequestConfig {
 
 export interface ServerStatusData {
   module: string;
+  group: string;
   name_th: string;
   name_en: string;
   status: string;
