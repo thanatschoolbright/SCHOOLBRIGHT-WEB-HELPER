@@ -22,8 +22,11 @@ import {
   Divider,
   Tag,
   Empty,
-  Typography, // เพิ่ม Typography
+  Typography,
+  theme,
+  Flex,
 } from "antd";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CreditCardOutlined,
   SearchOutlined,
@@ -134,6 +137,23 @@ const useNFCSearchLogic = () => {
   };
 };
 
+const addAlpha = (color: string, alpha: number) => {
+  if (!color) return "rgba(0,0,0,0)";
+  if (color.startsWith("#")) {
+    let hex = color.slice(1);
+    if (hex.length === 3)
+      hex = hex
+        .split("")
+        .map((c) => c + c)
+        .join("");
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  return color;
+};
+
 // ==================== Sub-Components ====================
 
 const SearchCriteriaForm: React.FC<{
@@ -142,99 +162,137 @@ const SearchCriteriaForm: React.FC<{
   isLoading: boolean;
   onFinish: (values: NFCSearchFormValues) => void;
   onReset: () => void;
-}> = ({ formInstance, schoolOptions, isLoading, onFinish, onReset }) => (
-  <Card
-    className="shadow-sm rounded-lg"
-    title={
-      <Space>
-        <SearchOutlined className="text-lg" />
-        <span>เงื่อนไขการค้นหา</span>
-      </Space>
-    }
-  >
-    <Form
-      form={formInstance}
-      layout="vertical"
-      onFinish={onFinish}
-      autoComplete="off"
-      size="large"
+}> = ({ formInstance, schoolOptions, isLoading, onFinish, onReset }) => {
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
+
+  return (
+    <div
+      className="p-8 rounded-[32px] border border-solid"
+      style={{
+        background: token.colorBgContainer,
+        borderColor: token.colorBorderSecondary,
+        boxShadow: isDark ? "none" : "0 8px 32px -8px rgba(0,0,0,0.05)",
+      }}
     >
-      <Row gutter={[24, 0]}>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name="schoolId"
-            label={
-              <Space>
-                <HomeOutlined />
-                {UI_TEXT.LABEL_SCHOOL}
-              </Space>
-            }
-            rules={[{ required: true, message: "กรุณาระบุโรงเรียน" }]}
-            tooltip={UI_TEXT.TOOLTIP_SCHOOL}
-          >
-            <Select
-              showSearch
-              allowClear
-              placeholder={UI_TEXT.PLACEHOLDER_SCHOOL}
-              options={schoolOptions}
-              optionFilterProp="label"
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
+      <Flex align="center" gap={16} className="mb-8">
+        <div
+          className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg"
+          style={{
+            background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+            color: "#fff",
+          }}
+        >
+          <SearchOutlined />
+        </div>
+        <div>
+          <Typography.Title level={4} style={{ margin: 0, fontWeight: 800 }}>
+            เงื่อนไขการค้นหา
+          </Typography.Title>
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+            ระบุโรงเรียนและรหัสบัตรที่ต้องการตรวจสอบข้อมูล
+          </Typography.Text>
+        </div>
+      </Flex>
+
+      <Form
+        form={formInstance}
+        layout="vertical"
+        onFinish={onFinish}
+        autoComplete="off"
+        size="large"
+      >
+        <Row gutter={[24, 0]}>
+          <Col xs={24} md={12}>
+            <Form.Item
+              name="schoolId"
+              label={
+                <Space style={{ fontWeight: 600 }}>
+                  <HomeOutlined style={{ color: token.colorPrimary }} />
+                  {UI_TEXT.LABEL_SCHOOL}
+                </Space>
               }
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name="nfcCardId"
-            label={
-              <Space>
-                <CreditCardOutlined />
-                {UI_TEXT.LABEL_NFC}
-              </Space>
-            }
-            rules={[{ required: true, message: "กรุณาระบุรหัสบัตร" }]}
-            tooltip={UI_TEXT.TOOLTIP_NFC}
-          >
-            <Input
-              placeholder={UI_TEXT.PLACEHOLDER_NFC}
-              allowClear
-              prefix={<ScanOutlined />}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
+              rules={[{ required: true, message: "กรุณาระบุโรงเรียน" }]}
+              tooltip={UI_TEXT.TOOLTIP_SCHOOL}
+            >
+              <Select
+                showSearch
+                allowClear
+                placeholder={UI_TEXT.PLACEHOLDER_SCHOOL}
+                options={schoolOptions}
+                optionFilterProp="label"
+                style={{ borderRadius: 12 }}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            <Form.Item
+              name="nfcCardId"
+              label={
+                <Space style={{ fontWeight: 600 }}>
+                  <CreditCardOutlined style={{ color: token.colorInfo }} />
+                  {UI_TEXT.LABEL_NFC}
+                </Space>
+              }
+              rules={[{ required: true, message: "กรุณาระบุรหัสบัตร" }]}
+              tooltip={UI_TEXT.TOOLTIP_NFC}
+            >
+              <Input
+                placeholder={UI_TEXT.PLACEHOLDER_NFC}
+                allowClear
+                style={{ borderRadius: 12 }}
+                prefix={<ScanOutlined style={{ color: token.colorInfo }} />}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
 
-      <Divider className="my-4" />
+        <Divider className="my-6" />
 
-      <Row justify="end">
-        <Space>
+        <div className="flex justify-end items-center gap-3">
           <Button
+            size="large"
             icon={<ClearOutlined />}
             onClick={onReset}
             disabled={isLoading}
+            style={{ borderRadius: 12, fontWeight: 600 }}
           >
             {UI_TEXT.BTN_RESET}
           </Button>
           <Button
             type="primary"
+            size="large"
             htmlType="submit"
             icon={<SearchOutlined />}
             loading={isLoading}
+            style={{
+              borderRadius: 12,
+              fontWeight: 700,
+              padding: "0 32px",
+              height: 48,
+              background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+              border: "none",
+            }}
           >
             {UI_TEXT.BTN_SUBMIT}
           </Button>
-        </Space>
-      </Row>
-    </Form>
-  </Card>
-);
+        </div>
+      </Form>
+    </div>
+  );
+};
 
 const SearchResultDisplay: React.FC<{
   resultData: any;
 }> = ({ resultData }) => {
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
+
   const executeCopyToClipboard = async (content: string) => {
     try {
       await navigator.clipboard.writeText(content);
@@ -246,16 +304,27 @@ const SearchResultDisplay: React.FC<{
 
   if (!resultData) {
     return (
-      <Card className="shadow-sm rounded-lg">
+      <div
+        className="p-16 rounded-[32px] border border-dashed text-center"
+        style={{
+          borderColor: token.colorBorder,
+          background: isDark ? "transparent" : "rgba(0,0,0,0.01)",
+        }}
+      >
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description="รอการค้นหาข้อมูล"
-        >
-          <div className="text-gray-400">
-            กรุณากรอกข้อมูลด้านบนเพื่อเริ่มตรวจสอบ
-          </div>
-        </Empty>
-      </Card>
+          description={
+            <div className="flex flex-col gap-2">
+              <Typography.Text strong style={{ fontSize: 16 }}>
+                รอการค้นหาข้อมูล
+              </Typography.Text>
+              <Typography.Text type="secondary">
+                กรุณากรอกข้อมูลด้านบนเพื่อเริ่มตรวจสอบสถานะบัตร NFC
+              </Typography.Text>
+            </div>
+          }
+        />
+      </div>
     );
   }
 
@@ -264,22 +333,42 @@ const SearchResultDisplay: React.FC<{
   const curlString = resultData?.curl?.toString() || "";
 
   return (
-    // ✅ 1. ลบ Badge.Ribbon ออก เพื่อแก้ปัญหาปุ่มทับกัน
-    <Card
-      className="shadow-sm rounded-lg"
-      title={
-        <Space>
-          <ApiOutlined />
-          <span>ผลลัพธ์จากระบบ (API Response)</span>
-        </Space>
-      }
-      extra={
-        <Space>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-8 rounded-[32px] border border-solid"
+      style={{
+        background: token.colorBgContainer,
+        borderColor: token.colorBorderSecondary,
+      }}
+    >
+      <Flex justify="space-between" align="center" className="mb-6" wrap="wrap">
+        <Flex align="center" gap={12}>
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+            style={{
+              background: addAlpha(token.colorInfo, 0.1),
+              color: token.colorInfo,
+            }}
+          >
+            <ApiOutlined />
+          </div>
+          <div>
+            <Typography.Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+              ผลลัพธ์จากระบบ (API Response)
+            </Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              ข้อมูลดิบที่ได้รับจาก Vimal API
+            </Typography.Text>
+          </div>
+        </Flex>
+
+        <Space className="mt-4 md:mt-0">
           <Tooltip title={UI_TEXT.TOOLTIP_CURL}>
             <Button
               icon={<CodeOutlined />}
-              size="small"
               onClick={() => executeCopyToClipboard(curlString)}
+              style={{ borderRadius: 8, fontWeight: 600 }}
             >
               {UI_TEXT.BTN_COPY_CURL}
             </Button>
@@ -288,108 +377,189 @@ const SearchResultDisplay: React.FC<{
             <Button
               type="primary"
               ghost
-              size="small"
               icon={<CopyOutlined />}
               onClick={() => executeCopyToClipboard(jsonString)}
+              style={{ borderRadius: 8, fontWeight: 600 }}
             >
               {UI_TEXT.BTN_COPY_JSON}
             </Button>
           </Tooltip>
         </Space>
-      }
-    >
-      <div className="flex flex-col gap-4">
+      </Flex>
+
+      <div
+        className="relative group p-4 rounded-2xl mb-6 overflow-hidden border border-solid"
+        style={{
+          background: "black",
+          borderColor: token.colorBorderSecondary,
+        }}
+      >
         <Input.TextArea
           value={jsonString}
           readOnly
-          autoSize={{ minRows: 8, maxRows: 24 }}
-          className="font-mono text-xs rounded-md"
+          autoSize={{ minRows: 10, maxRows: 30 }}
+          style={{
+            background: "black",
+            border: "none",
+            fontFamily: "'Fira Code', 'Monaco', 'Cascadia Code', monospace",
+            fontSize: 13,
+            color: isDark ? "#FFF" : "#312E81",
+          }}
         />
-
-        {/* ✅ 2. ย้ายสถานะมาแสดงที่มุมขวาล่างแทน */}
-        <div className="flex justify-end items-center">
-          <Space>
-            <Typography.Text type="secondary" className="text-xs">
-              สถานะข้อมูล:
-            </Typography.Text>
-            {isDataFound ? (
-              <Tag color="success" icon={<CheckCircleOutlined />}>
-                พบข้อมูล
-              </Tag>
-            ) : (
-              <Tag color="warning" icon={<WarningOutlined />}>
-                ไม่พบข้อมูล
-              </Tag>
-            )}
-          </Space>
-        </div>
       </div>
-    </Card>
+
+      <div
+        className="p-4 rounded-2xl flex items-center justify-between"
+        style={{
+          background: isDataFound
+            ? addAlpha(token.colorSuccess, 0.05)
+            : addAlpha(token.colorWarning, 0.05),
+          border: `1px solid ${
+            isDataFound
+              ? addAlpha(token.colorSuccess, 0.2)
+              : addAlpha(token.colorWarning, 0.2)
+          }`,
+        }}
+      >
+        <Space>
+          <InfoCircleOutlined
+            style={{
+              color: isDataFound ? token.colorSuccess : token.colorWarning,
+            }}
+          />
+          <Typography.Text strong>ข้อมูลสถานะบัตร:</Typography.Text>
+        </Space>
+
+        {isDataFound ? (
+          <Tag
+            color="success"
+            icon={<CheckCircleOutlined />}
+            bordered={false}
+            style={{
+              padding: "4px 12px",
+              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 13,
+            }}
+          >
+            พบข้อมูลในระบบ
+          </Tag>
+        ) : (
+          <Tag
+            color="warning"
+            icon={<WarningOutlined />}
+            bordered={false}
+            style={{
+              padding: "4px 12px",
+              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 13,
+            }}
+          >
+            ไม่พบข้อมูลในระบบ
+          </Tag>
+        )}
+      </div>
+    </motion.div>
   );
 };
 
-const TroubleshootingGuide: React.FC = () => (
-  <Card
-    title={
-      <Space>
-        <InfoCircleOutlined />
-        <span>คำแนะนำการแก้ปัญหาเบื้องต้น (Troubleshooting)</span>
-      </Space>
-    }
-    bordered={false}
-    className="shadow-none bg-transparent"
-    size="small"
-  >
-    <Row gutter={[16, 16]}>
-      <Col xs={24} md={12}>
-        <Alert
-          message="กรณีค้นหาแล้วไม่พบข้อมูล"
-          description={
-            <ul className="list-disc pl-5 m-0">
+const TroubleshootingGuide: React.FC = () => {
+  const { token } = theme.useToken();
+
+  return (
+    <div className="mt-8">
+      <Flex align="center" gap={12} className="mb-6 px-4">
+        <InfoCircleOutlined
+          style={{ color: token.colorTextQuaternary, fontSize: 18 }}
+        />
+        <Typography.Text
+          strong
+          style={{
+            fontSize: 14,
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            color: token.colorTextQuaternary,
+          }}
+        >
+          คำแนะนำการแก้ปัญหาเบื้องต้น
+        </Typography.Text>
+      </Flex>
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={12}>
+          <div
+            className="p-6 rounded-2xl border border-solid h-full"
+            style={{
+              background: addAlpha(token.colorWarning, 0.02),
+              borderColor: addAlpha(token.colorWarning, 0.2),
+            }}
+          >
+            <Flex gap={12} className="mb-4">
+              <QuestionCircleOutlined
+                style={{ color: token.colorWarning, fontSize: 20 }}
+              />
+              <Typography.Text strong style={{ fontSize: 16 }}>
+                กรณีค้นหาแล้วไม่พบข้อมูล
+              </Typography.Text>
+            </Flex>
+            <ul className="space-y-2 opacity-80 text-sm pl-8">
               <li>
                 ระบบจะคืนค่าสถานะเป็น <code>'not have number id'</code>
               </li>
               <li>
-                ตรวจสอบว่าเลือก <b>โรงเรียน</b> ถูกต้องตามสังกัดหรือไม่
+                ตรวจสอบว่าเลือก{" "}
+                <Typography.Text strong>โรงเรียน</Typography.Text>{" "}
+                ถูกต้องตามสังกัดหรือไม่
               </li>
               <li>
-                ตรวจสอบเลข <b>UID</b> ของบัตรว่าถูกต้องครบถ้วน
+                ตรวจสอบเลข <Typography.Text strong>UID</Typography.Text>{" "}
+                ของบัตรว่าถูกต้องครบถ้วน
               </li>
             </ul>
-          }
-          type="warning"
-          showIcon
-          icon={<QuestionCircleOutlined />}
-          className="rounded-md"
-        />
-      </Col>
-      <Col xs={24} md={12}>
-        <Alert
-          message="กรณีข้อมูลไม่ตรงกับหน้าเว็บ Canteen"
-          description={
-            <ul className="list-disc pl-5 m-0">
+          </div>
+        </Col>
+        <Col xs={24} md={12}>
+          <div
+            className="p-6 rounded-2xl border border-solid h-full"
+            style={{
+              background: addAlpha(token.colorInfo, 0.02),
+              borderColor: addAlpha(token.colorInfo, 0.2),
+            }}
+          >
+            <Flex gap={12} className="mb-4">
+              <RocketOutlined
+                style={{ color: token.colorInfo, fontSize: 20 }}
+              />
+              <Typography.Text strong style={{ fontSize: 16 }}>
+                กรณีข้อมูลไม่ตรงกับหน้าเว็บ Canteen
+              </Typography.Text>
+            </Flex>
+            <ul className="space-y-2 opacity-80 text-sm pl-8">
               <li>หาก API เจอข้อมูล แต่หน้าเว็บ Canteen ไม่เจอ</li>
               <li>
-                อาจเกิดจากปัญหา <b>Memory Sharing / Caching</b>
+                อาจเกิดจากปัญหา{" "}
+                <Typography.Text strong>
+                  Memory Sharing / Caching
+                </Typography.Text>
               </li>
               <li>ให้แจ้งทีม Developer (Vimal) พร้อมแนบ cURL เพื่อตรวจสอบ</li>
             </ul>
-          }
-          type="info"
-          showIcon
-          icon={<RocketOutlined />}
-          className="rounded-md"
-        />
-      </Col>
-    </Row>
-  </Card>
-);
+          </div>
+        </Col>
+      </Row>
+    </div>
+  );
+};
 
 // ==================== Main Page Component ====================
 
 const NFCCardSearchPage: React.FC = () => {
   const reduxDispatch = useDispatch<AppDispatch>();
   const formattedSchoolOptions = useSchoolListOptions();
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
+
   const {
     searchForm,
     isSearchLoading,
@@ -409,28 +579,97 @@ const NFCCardSearchPage: React.FC = () => {
         size="large"
         tip="กำลังเชื่อมต่อฐานข้อมูล..."
       >
-        <Space direction="vertical" size="large" className="w-full">
-          <HeaderBar
-            title={UI_TEXT.TITLE}
-            subTitle={UI_TEXT.SUBTITLE}
-            icon={<FileTextOutlined />}
-            color="none"
-          />
+        <div className="w-full max-w-6xl mx-auto py-4 space-y-8">
+          {/* Header Section */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-8 rounded-[32px] border border-solid overflow-hidden relative"
+            style={{
+              background: isDark
+                ? `linear-gradient(135deg, ${
+                    token.colorBgContainer
+                  } 0%, ${addAlpha(token.colorPrimary, 0.05)} 100%)`
+                : `linear-gradient(135deg, #fff 0%, ${addAlpha(
+                    token.colorPrimary,
+                    0.03
+                  )} 100%)`,
+              borderColor: token.colorBorderSecondary,
+            }}
+          >
+            <div
+              className="absolute -right-20 -top-20 opacity-[0.03] transition-opacity pointer-events-none"
+              style={{ fontSize: "300px", color: token.colorPrimary }}
+            >
+              <ScanOutlined />
+            </div>
 
-          <SearchCriteriaForm
-            formInstance={searchForm}
-            schoolOptions={formattedSchoolOptions}
-            isLoading={isSearchLoading}
-            onFinish={handleSearchSubmit}
-            onReset={handleResetForm}
-          />
+            <Space size={24} align="center">
+              <div
+                className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-xl"
+                style={{
+                  background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+                  color: "#fff",
+                }}
+              >
+                <CreditCardOutlined style={{ fontSize: 32 }} />
+              </div>
+              <div>
+                <Typography.Title
+                  level={2}
+                  style={{
+                    margin: 0,
+                    fontWeight: 900,
+                    letterSpacing: "-1px",
+                    fontSize: 28,
+                  }}
+                >
+                  {UI_TEXT.TITLE}
+                </Typography.Title>
+                <Typography.Text
+                  type="secondary"
+                  style={{ fontSize: 14, fontWeight: 500 }}
+                >
+                  {UI_TEXT.SUBTITLE}
+                </Typography.Text>
+              </div>
+            </Space>
 
-          <div className="animate-fade-in">
-            <SearchResultDisplay resultData={searchResultData} />
+            <Tag
+              color="blue"
+              style={{
+                borderRadius: 20,
+                padding: "4px 16px",
+                fontWeight: 600,
+                border: "none",
+                background: addAlpha(token.colorInfo, 0.1),
+                color: token.colorInfo,
+              }}
+            >
+              Vimal System Engine
+            </Tag>
+          </motion.div>
+
+          {/* Form & Results Container */}
+          <div className="space-y-6">
+            <SearchCriteriaForm
+              formInstance={searchForm}
+              schoolOptions={formattedSchoolOptions}
+              isLoading={isSearchLoading}
+              onFinish={handleSearchSubmit}
+              onReset={handleResetForm}
+            />
+
+            <AnimatePresence mode="wait">
+              <SearchResultDisplay
+                key={searchResultData ? "result" : "empty"}
+                resultData={searchResultData}
+              />
+            </AnimatePresence>
+
+            <TroubleshootingGuide />
           </div>
-
-          <TroubleshootingGuide />
-        </Space>
+        </div>
       </Spin>
     </DashboardLayout>
   );
