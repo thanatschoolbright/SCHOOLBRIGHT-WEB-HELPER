@@ -162,4 +162,27 @@ export const Service = {
       },
     });
   },
+
+  async search(query: string, { limit = 50 }: { limit?: number } = {}) {
+    return await PrismaTimesheet.feature.findMany({
+      where: {
+        is_deleted: false,
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { name_en: { contains: query, mode: "insensitive" } },
+        ],
+      },
+      take: limit,
+      orderBy: { createdAt: "desc" },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            name_en: true,
+          },
+        },
+      },
+    });
+  },
 };

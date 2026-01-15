@@ -1,7 +1,7 @@
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Tag, Tooltip, ConfigProvider, Grid } from "antd";
+import { Menu, Tag, Tooltip, ConfigProvider, Grid, theme } from "antd";
 import type { MenuProps } from "antd";
 
 const SB_ORANGE_PRIMARY = "#FF7F00";
@@ -23,7 +23,7 @@ function MenuTooltip({
   return (
     <Tooltip title={label} placement="right" mouseEnterDelay={0.3}>
       <span
-        className={`truncate block font-medium tracking-wide w-full ${
+        className={`truncate block font-semibold tracking-wide w-full ${
           className || ""
         }`}
       >
@@ -41,20 +41,20 @@ function StatusTag({ type }: { type: "new" | "revamp" | string }) {
       style={{
         marginLeft: "auto",
         marginRight: 0,
-        fontSize: 9,
-        fontWeight: 600,
+        fontSize: 10,
+        fontWeight: 700,
         letterSpacing: "0.5px",
-        lineHeight: "14px",
-        borderRadius: 8,
-        padding: "1px 6px",
+        lineHeight: "16px",
+        borderRadius: 10,
+        padding: "2px 8px",
         background: isNew
           ? `linear-gradient(135deg, ${SB_ORANGE_GRADIENT_START} 0%, ${SB_ORANGE_GRADIENT_END} 100%)`
           : "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
         color: "white",
         boxShadow: isNew
-          ? "0 2px 6px rgba(255, 127, 0, 0.25)"
-          : "0 2px 6px rgba(24, 144, 255, 0.25)",
-        transform: "scale(0.9)",
+          ? "0 3px 8px rgba(255, 127, 0, 0.35)"
+          : "0 3px 8px rgba(24, 144, 255, 0.35)",
+        transform: "scale(0.95)",
       }}
     >
       {type.toUpperCase()}
@@ -76,6 +76,8 @@ export default function SidebarContent({
   const router = useRouter();
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const screens = useBreakpoint();
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase === "#0B0F19";
 
   useEffect(() => {
     if (collapsed) return;
@@ -89,25 +91,33 @@ export default function SidebarContent({
 
   const items: MenuProps["items"] = useMemo(() => {
     return menu.map((m) => {
-      // 1. Label Content (Parent & Single Item)
       const labelContent = (
         <div
-          className="sb-menu-label-wrapper" // ใช้ class แทน inline style
+          className="sb-menu-label-wrapper"
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
+            gap: 8,
           }}
         >
           {!collapsed ? (
             <MenuTooltip label={m.label}>
-              <span style={{ fontWeight: 500, letterSpacing: "0.3px" }}>
+              <span
+                style={{
+                  fontWeight: 600,
+                  letterSpacing: "0.3px",
+                  fontSize: 15,
+                }}
+              >
                 {m.label}
               </span>
             </MenuTooltip>
           ) : (
-            <span style={{ fontWeight: 500, letterSpacing: "0.3px" }}>
+            <span
+              style={{ fontWeight: 600, letterSpacing: "0.3px", fontSize: 15 }}
+            >
               {m.label}
             </span>
           )}
@@ -117,11 +127,15 @@ export default function SidebarContent({
               color="orange"
               bordered={false}
               style={{
-                borderRadius: 6,
-                fontSize: 10,
+                borderRadius: 8,
+                fontSize: 11,
+                fontWeight: 600,
                 color: SB_ORANGE_PRIMARY,
-                background: "rgba(255, 127, 0, 0.1)",
+                background: isDark
+                  ? "rgba(255, 127, 0, 0.2)"
+                  : "rgba(255, 127, 0, 0.12)",
                 marginLeft: 8,
+                padding: "2px 8px",
               }}
             >
               {m.tag}
@@ -130,7 +144,6 @@ export default function SidebarContent({
         </div>
       );
 
-      // 2. Submenu (Children)
       if (m.children && m.children.length) {
         return {
           key: m.label,
@@ -141,17 +154,19 @@ export default function SidebarContent({
             icon: c.icon,
             label: (
               <div
-                className="sb-submenu-label-wrapper" // Class สำหรับจัดการ Style ใน Popup
+                className="sb-submenu-label-wrapper"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   width: "100%",
+                  gap: 8,
                 }}
               >
                 <MenuTooltip label={c.label}>
-                  {/* ไม่ใส่ color ปล่อยให้ Theme จัดการ */}
-                  <span>{c.label}</span>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>
+                    {c.label}
+                  </span>
                 </MenuTooltip>
                 <>
                   {c.news && <StatusTag type="new" />}
@@ -163,14 +178,13 @@ export default function SidebarContent({
         };
       }
 
-      // 3. Single Item
       return {
         key: m.href || m.label,
         icon: m.icon,
         label: labelContent,
       };
     });
-  }, [menu, collapsed]);
+  }, [menu, collapsed, isDark]);
 
   const onClick: MenuProps["onClick"] = (info) => {
     const key = String(info.key);
@@ -187,17 +201,27 @@ export default function SidebarContent({
       theme={{
         components: {
           Menu: {
-            itemBorderRadius: 8,
-            itemMarginInline: collapsed ? 4 : 12,
-            itemHeight: 42,
-            itemSelectedBg: SB_ORANGE_LIGHT,
+            itemBorderRadius: 12,
+            itemMarginInline: collapsed ? 6 : 16,
+            itemHeight: 48,
+            itemPaddingInline: collapsed ? 16 : 20,
+            itemSelectedBg: isDark
+              ? `rgba(255, 127, 0, 0.12)`
+              : "rgba(255, 127, 0, 0.08)",
             itemSelectedColor: SB_ORANGE_PRIMARY,
-            itemHoverBg: "rgba(0, 0, 0, 0.02)",
+            itemHoverBg: isDark
+              ? "rgba(255, 255, 255, 0.05)"
+              : "rgba(0, 0, 0, 0.03)",
             itemHoverColor: SB_ORANGE_PRIMARY,
-            fontSize: 14,
-            iconSize: 18,
+            fontSize: 15,
+            iconSize: 22,
+            iconMarginInlineEnd: 14,
             subMenuItemBg: "transparent",
-            popupBg: "#ffffff", // มั่นใจว่าพื้นหลัง Popup เป็นสีขาว
+            popupBg: isDark ? token.colorBgElevated : "#ffffff",
+            itemColor: isDark ? token.colorText : "#262626",
+            itemActiveBg: isDark
+              ? "rgba(255, 127, 0, 0.12)"
+              : "rgba(255, 127, 0, 0.08)",
           },
         },
       }}
@@ -206,7 +230,7 @@ export default function SidebarContent({
         className="sb-modern-sidebar-wrapper"
         style={{
           height: "100%",
-          padding: "16px 0",
+          padding: "20px 0",
           overflowY: "auto",
           overflowX: "hidden",
           fontFamily: "'Sarabun', 'Prompt', sans-serif",
@@ -229,46 +253,64 @@ export default function SidebarContent({
         <style jsx global>{`
           .ant-menu-item,
           .ant-menu-submenu-title {
-            transition: all 0.25s ease-in-out !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            margin-bottom: 4px !important;
+            backdrop-filter: blur(8px);
           }
 
           .ant-menu-item-selected {
             position: relative;
-            font-weight: 500 !important;
-            background: linear-gradient(
-              90deg,
-              ${SB_ORANGE_LIGHT} 0%,
-              #ffffff 100%
-            ) !important;
+            font-weight: 600 !important;
+            background: ${isDark
+              ? `linear-gradient(90deg, rgba(255, 127, 0, 0.15) 0%, rgba(255, 127, 0, 0.08) 100%)`
+              : `linear-gradient(90deg, rgba(255, 127, 0, 0.12) 0%, rgba(255, 127, 0, 0.06) 100%)`} !important;
+            backdrop-filter: blur(12px);
+            box-shadow: ${isDark
+              ? "0 4px 12px rgba(255, 127, 0, 0.15)"
+              : "0 4px 12px rgba(255, 127, 0, 0.1)"};
+          }
+
+          .ant-menu-item:hover,
+          .ant-menu-submenu-title:hover {
+            backdrop-filter: blur(10px);
           }
 
           .ant-menu-item-selected::before {
             content: "";
             position: absolute;
             left: 0;
-            top: 20%;
-            height: 60%;
-            width: 4px;
-            background: ${SB_ORANGE_PRIMARY};
-            border-radius: 0 4px 4px 0;
+            top: 15%;
+            height: 70%;
+            width: 5px;
+            background: linear-gradient(
+              180deg,
+              ${SB_ORANGE_GRADIENT_START} 0%,
+              ${SB_ORANGE_GRADIENT_END} 100%
+            );
+            border-radius: 0 6px 6px 0;
             opacity: ${collapsed ? 0 : 1};
-            box-shadow: 2px 0 8px rgba(255, 127, 0, 0.3);
+            box-shadow: 3px 0 12px rgba(255, 127, 0, 0.4);
+          }
+
+          .ant-menu-item:hover,
+          .ant-menu-submenu-title:hover {
+            transform: translateX(4px);
           }
 
           .ant-menu-item .anticon,
           .ant-menu-submenu-title .anticon {
-            color: #8c8c8c;
-            transition: color 0.3s;
+            font-size: 22px !important;
+            color: ${isDark ? token.colorTextSecondary : "#8c8c8c"};
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           }
 
           .ant-menu-item-selected .anticon,
           .ant-menu-item:hover .anticon,
           .ant-menu-submenu-title:hover .anticon {
             color: ${SB_ORANGE_PRIMARY};
+            transform: scale(1.1);
           }
 
-          /* --- FIX: Display Text in Popup --- */
-          /* เอา color ออก ปล่อยให้ Theme จัดการ */
           .ant-menu-submenu-popup .ant-menu-item-title-content,
           .ant-menu-submenu-popup .ant-menu-title-content {
             display: block !important;
@@ -278,21 +320,25 @@ export default function SidebarContent({
             overflow: visible !important;
           }
 
-          /* ปรับความกว้าง Popup ให้พอดีกับ Content */
           .ant-menu-submenu-popup .ant-menu {
-            min-width: 220px;
+            min-width: 240px;
+            border-radius: 12px;
+            box-shadow: ${isDark
+              ? "0 8px 32px rgba(0, 0, 0, 0.6)"
+              : "0 8px 32px rgba(0, 0, 0, 0.12)"};
+            backdrop-filter: blur(10px);
+            background: ${isDark
+              ? `${token.colorBgElevated} !important`
+              : "#ffffff !important"};
           }
 
-          /* ถ้ายังมองไม่เห็น ลอง Reset สีเป็น inherit ดูครับ (เผื่อ Parent set เป็น transparent) */
           .ant-menu-submenu-popup .sb-submenu-label-wrapper span {
             color: inherit;
           }
 
-          /* ------------------------------------------- */
-
           .ant-menu-inline-collapsed .ant-menu-item-icon,
           .ant-menu-inline-collapsed .anticon {
-            min-width: 18px;
+            min-width: 22px;
             line-height: 1;
             vertical-align: middle;
             margin-right: 0 !important;
@@ -300,15 +346,18 @@ export default function SidebarContent({
 
           .ant-menu-submenu-expand-icon,
           .ant-menu-submenu-arrow {
-            color: #bfbfbf !important;
+            color: ${isDark ? token.colorTextTertiary : "#bfbfbf"} !important;
+            font-size: 12px !important;
           }
 
           .sb-modern-sidebar-wrapper::-webkit-scrollbar {
-            width: 3px;
+            width: 4px;
           }
           .sb-modern-sidebar-wrapper::-webkit-scrollbar-thumb {
-            background: #e0e0e0;
-            border-radius: 4px;
+            background: ${isDark
+              ? "rgba(255, 255, 255, 0.2)"
+              : "rgba(0, 0, 0, 0.15)"};
+            border-radius: 6px;
           }
           .sb-modern-sidebar-wrapper::-webkit-scrollbar-track {
             background: transparent;

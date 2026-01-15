@@ -39,6 +39,7 @@ import {
   FormInstance,
   Flex,
   Checkbox,
+  Radio,
   Popover,
   Dropdown,
 } from "antd";
@@ -1609,12 +1610,60 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
   formMode = "create",
 }) => {
   const { token } = theme.useToken();
+  const [searchMode, setSearchMode] = useState<"hierarchy" | "direct">(
+    "hierarchy"
+  );
+  const [subProjectOptionsSearch, setSubProjectOptionsSearch] = useState<any[]>(
+    []
+  );
+  const [searching, setSearching] = useState(false);
+  const searchRef = useRef<any>(null);
+
+  const handleSearchSubProject = (value: string) => {
+    if (searchRef.current) clearTimeout(searchRef.current);
+    if (!value) {
+      setSubProjectOptionsSearch([]);
+      return;
+    }
+    setSearching(true);
+    searchRef.current = setTimeout(async () => {
+      try {
+        const res = await axios.get(
+          `/api/v1/timesheet/project/sub-project/search?q=${encodeURIComponent(
+            value
+          )}`
+        );
+        if (res.data?.data) {
+          setSubProjectOptionsSearch(
+            res.data.data.map((item: any) => ({
+              label: item.display_label,
+              value: item.id,
+              item: item,
+            }))
+          );
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setSearching(false);
+      }
+    }, 500);
+  };
+
   useEffect(() => {
     if (open && formMode === "create") {
       form.resetFields();
       form.setFieldsValue({ status: "IN_PROGRESS", date: dayjs() });
     }
   }, [open, formMode, form]);
+
+  useEffect(() => {
+    if (searchMode === "hierarchy") {
+      form.setFieldsValue({ sub_project_search: undefined });
+    } else {
+      form.setFieldsValue({ project_id: undefined, sub_project_id: undefined });
+    }
+  }, [searchMode, form]);
 
   const projectOptions = useMemo(
     () =>
@@ -1686,24 +1735,43 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
             borderRadius: token.borderRadiusLG,
           }}
         >
-          <Row gutter={16}>
-            <Col span={24}>
-              <Typography.Text
-                strong
-                style={{
-                  color: token.colorPrimary,
-                  marginBottom: 16,
-                  display: "block",
-                }}
-              >
-                <ProjectOutlined className="mr-2" /> โครงการที่รับผิดชอบ
-              </Typography.Text>
-            </Col>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 16,
+              flexWrap: "wrap",
+              gap: 8,
+            }}
+          >
+            <Typography.Text
+              strong
+              style={{
+                color: token.colorPrimary,
+              }}
+            >
+              <ProjectOutlined className="mr-2" /> โครงการที่รับผิดชอบ
+            </Typography.Text>
+            <Radio.Group
+              value={searchMode}
+              onChange={(e) => setSearchMode(e.target.value)}
+              buttonStyle="solid"
+            >
+              <Radio.Button value="hierarchy">เลือกตามโครงการ</Radio.Button>
+              <Radio.Button value="direct">ค้นหางานย่อย</Radio.Button>
+            </Radio.Group>
+          </div>
+
+          <Row
+            gutter={16}
+            style={{ display: searchMode === "hierarchy" ? "flex" : "none" }}
+          >
             <Col xs={24} md={12}>
               <Form.Item
                 label="โครงการหลัก"
                 name="project_id"
-                rules={[{ required: true }]}
+                rules={[{ required: searchMode === "hierarchy" }]}
               >
                 <Select
                   placeholder="เลือกโครงการ..."
@@ -1725,7 +1793,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
               <Form.Item
                 label="งานย่อย / ฟีเจอร์"
                 name="sub_project_id"
-                rules={[{ required: true }]}
+                rules={[{ required: searchMode === "hierarchy" }]}
                 dependencies={["project_id"]}
               >
                 <Select
@@ -1742,6 +1810,53 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
               </Form.Item>
             </Col>
           </Row>
+
+          <div style={{ display: searchMode === "direct" ? "block" : "none" }}>
+            <Form.Item
+              label="ค้นหางานย่อย"
+              name="sub_project_search"
+              rules={[
+                {
+                  required: searchMode === "direct",
+                  message: "กรุณาค้นหาและเลือกงานย่อย",
+                },
+                {
+                  validator: async (_, value) => {
+                    if (searchMode === "direct") {
+                      const projectId = form.getFieldValue("project_id");
+                      const subProjectId = form.getFieldValue("sub_project_id");
+                      if (!projectId || !subProjectId) {
+                        return Promise.reject(
+                          new Error("กรุณาเลือกงานย่อยจากรายการ")
+                        );
+                      }
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Select
+                showSearch
+                placeholder="พิมพ์ชื่องานย่อย, โครงการหลัก หรือ ID..."
+                options={subProjectOptionsSearch}
+                onSearch={handleSearchSubProject}
+                loading={searching}
+                filterOption={false}
+                notFoundContent={searching ? "กำลังค้นหา..." : "ไม่พบข้อมูล"}
+                onChange={(value, option: any) => {
+                  if (option?.item) {
+                    form.setFieldsValue({
+                      project_id: option.item.main_project_id,
+                      sub_project_id: option.item.id,
+                    });
+                    fetchSubProjects(String(option.item.main_project_id));
+                  }
+                }}
+                suffixIcon={<SearchOutlined />}
+              />
+            </Form.Item>
+          </div>
         </Card>
         <div
           style={{
