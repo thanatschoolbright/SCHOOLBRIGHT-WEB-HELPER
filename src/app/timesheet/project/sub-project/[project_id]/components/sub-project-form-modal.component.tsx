@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Form,
@@ -12,6 +12,8 @@ import {
   Space,
   Typography,
   Card,
+  Tag,
+  AutoComplete,
 } from "antd";
 import {
   PlusOutlined,
@@ -21,6 +23,9 @@ import {
   LinkOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  TeamOutlined,
+  UserOutlined,
+  MinusCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
@@ -30,6 +35,7 @@ import type {
 } from "../types/sub-project.types";
 import { calculateWorkingHours } from "../utils/date-helpers";
 import { ASSET_OPTIONS } from "../utils/constants";
+import { getUserData } from "@helpers/local_storage/user.storage";
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
@@ -43,6 +49,31 @@ interface SubProjectFormModalProps {
   onCancel: () => void;
 }
 
+const PROJECT_STATUS_OPTIONS = [
+  { label: "ยังไม่เริ่มต้น", value: "ยังไม่เริ่มต้น" },
+  { label: "ค้นคว้าเอกสาร", value: "ค้นคว้าเอกสาร" },
+  { label: "พัฒนา", value: "พัฒนา" },
+  { label: "ทดสอบระบบ", value: "ทดสอบระบบ" },
+  {
+    label: "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)",
+    value: "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)",
+  },
+  {
+    label: "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)",
+    value: "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)",
+  },
+];
+
+const POSITION_OPTIONS = [
+  { value: "Project Manager" },
+  { value: "Full-stack Developer" },
+  { value: "Frontend Developer" },
+  { value: "Backend Developer" },
+  { value: "QA / Tester" },
+  { value: "UI/UX Designer" },
+  { value: "System Analyst" },
+];
+
 export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   open,
   mode,
@@ -54,12 +85,19 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const watchedDateRange = Form.useWatch("dateRange", form);
+  const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
     if (open) {
+      const userData = getUserData();
+      if (userData) setUsers(userData);
+
       if (mode === "create") {
         form.resetFields();
-        form.setFieldsValue({ asset_capture_type: "CAPTUREABLE" });
+        form.setFieldsValue({
+          asset_capture_type: "CAPTUREABLE",
+          status: "ยังไม่เริ่มต้น",
+        });
       } else if (mode === "edit" && data) {
         const range =
           data.startDate && data.endDate
@@ -70,12 +108,18 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           name: data.name,
           name_en: data.name_en,
           asset_capture_type: data.assetCaptureType,
+          status: data.status || "ยังไม่เริ่มต้น",
           dateRange: range,
           estimate_time: calculateWorkingHours(
             data.startDate || "",
             data.endDate || ""
           ).text,
           backlogDescription: data.backlogDescription,
+          assignees:
+            data.projectAssignees?.map((a) => ({
+              userId: a.userId,
+              position: a.position,
+            })) || [],
         });
       }
     }
@@ -100,6 +144,8 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       startDate: values.dateRange?.[0]?.toISOString(),
       endDate: values.dateRange?.[1]?.toISOString(),
       backlogDescription: values.backlogDescription,
+      status: values.status,
+      assignees: values.assignees,
     };
 
     const success = await onSubmit(payload as any);
@@ -123,7 +169,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           </Text>
         </Space>
       }
-      width={720}
+      width={800}
       footer={null}
       destroyOnClose
       centered
@@ -133,34 +179,46 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         layout="vertical"
         onFinish={handleFinish}
         className="pt-4"
+        size="large"
       >
-        <Form.Item
-          name="name"
-          label={t("sub_project_page.form_name_th")}
-          rules={[
-            {
-              required: true,
-              message: t("sub_project_page.form_name_required"),
-            },
-          ]}
-        >
-          <Input
-            placeholder={t("sub_project_page.form_name_placeholder")}
-            size="large"
-            prefix={<FileTextOutlined />}
-          />
-        </Form.Item>
-
         <Row gutter={16}>
-          <Col span={16}>
+          <Col span={12}>
+            <Form.Item
+              name="name"
+              label={t("sub_project_page.form_name_th")}
+              rules={[
+                {
+                  required: true,
+                  message: t("sub_project_page.form_name_required"),
+                },
+              ]}
+            >
+              <Input
+                placeholder={t("sub_project_page.form_name_placeholder")}
+                prefix={<FileTextOutlined />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
             <Form.Item
               name="name_en"
               label={t("sub_project_page.form_name_en")}
             >
               <Input
                 placeholder={t("sub_project_page.form_name_en_placeholder")}
-                size="large"
               />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={8}>
+            <Form.Item
+              name="status"
+              label="สถานะการดำเนินงาน"
+              rules={[{ required: true }]}
+            >
+              <Select options={PROJECT_STATUS_OPTIONS} />
             </Form.Item>
           </Col>
           <Col span={8}>
@@ -169,39 +227,105 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
               label={t("sub_project_page.form_asset_type")}
               rules={[{ required: true }]}
             >
-              <Select options={ASSET_OPTIONS} size="large" />
+              <Select options={ASSET_OPTIONS} />
             </Form.Item>
           </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="dateRange"
-              label={t("sub_project_page.form_date_range")}
-              rules={[
-                {
-                  required: true,
-                  message: t("sub_project_page.form_date_range_required"),
-                },
-              ]}
-            >
-              <RangePicker
-                className="w-full"
-                size="large"
-                format="DD/MM/YYYY"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
+          <Col span={8}>
             <Form.Item
               name="estimate_time"
               label={t("sub_project_page.form_estimate_time")}
             >
-              <Input readOnly prefix={<ClockCircleOutlined />} size="large" />
+              <Input readOnly prefix={<ClockCircleOutlined />} />
             </Form.Item>
           </Col>
         </Row>
+
+        <Form.Item
+          name="dateRange"
+          label={t("sub_project_page.form_date_range")}
+          rules={[
+            {
+              required: true,
+              message: t("sub_project_page.form_date_range_required"),
+            },
+          ]}
+        >
+          <RangePicker className="w-full" format="DD/MM/YYYY" />
+        </Form.Item>
+
+        <Divider orientation="left" plain>
+          <Space>
+            <TeamOutlined /> ทีมงานผู้รับผิดชอบ
+          </Space>
+        </Divider>
+
+        <Form.List name="assignees">
+          {(fields, { add, remove }) => (
+            <>
+              {fields.map(({ key, name, ...restField }) => (
+                <Row key={key} gutter={12} align="middle" className="mb-2">
+                  <Col span={11}>
+                    <Form.Item
+                      {...restField}
+                      name={[name, "userId"]}
+                      rules={[{ required: true, message: "ระบุผู้รับผิดชอบ" }]}
+                      className="mb-0"
+                    >
+                      <Select
+                        placeholder="เลือกผู้รับผิดชอบ"
+                        showSearch
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={users.map((u) => ({
+                          label: `${u.firstname} ${u.lastname}`,
+                          value: u.admin_id,
+                        }))}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={11}>
+                    <Form.Item
+                      {...restField}
+                      name={[name, "position"]}
+                      className="mb-0"
+                    >
+                      <AutoComplete
+                        options={POSITION_OPTIONS}
+                        placeholder="ตำแหน่ง / หน้าที่"
+                        filterOption={(inputValue, option) =>
+                          (option?.value ?? "")
+                            .toUpperCase()
+                            .indexOf(inputValue.toUpperCase()) !== -1
+                        }
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={2}>
+                    <Button
+                      type="text"
+                      danger
+                      icon={<MinusCircleOutlined />}
+                      onClick={() => remove(name)}
+                    />
+                  </Col>
+                </Row>
+              ))}
+              <Form.Item>
+                <Button
+                  type="dashed"
+                  onClick={() => add()}
+                  block
+                  icon={<PlusOutlined />}
+                >
+                  เพิ่มผู้รับผิดชอบ
+                </Button>
+              </Form.Item>
+            </>
+          )}
+        </Form.List>
 
         <Divider orientation="left" plain>
           {t("sub_project_page.form_additional_details")}
@@ -219,7 +343,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
 
         <Form.List name={["backlogDescription", "backlogs"]}>
           {(fields, { add, remove }) => (
-            <Card style={{ borderStyle: "dashed" }}>
+            <Card style={{ borderStyle: "dashed" }} size="small">
               <div className="flex justify-between mb-3">
                 <Text strong>
                   <LinkOutlined /> {t("sub_project_page.form_attachments")}

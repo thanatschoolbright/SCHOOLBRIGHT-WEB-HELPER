@@ -12,6 +12,7 @@ import {
   Popconfirm,
   Empty,
   theme,
+  Tooltip,
 } from "antd";
 import {
   FileTextOutlined,
@@ -21,6 +22,8 @@ import {
   DeleteOutlined,
   MoreOutlined,
   CopyOutlined,
+  UserOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
@@ -33,6 +36,7 @@ import {
   calculateProgress,
 } from "../utils/date-helpers";
 import { ASSET_OPTIONS } from "../utils/constants";
+import { getUserById } from "@helpers/local_storage/user.storage";
 
 const { Text } = Typography;
 
@@ -45,6 +49,25 @@ interface SubProjectTableProps {
   onDelete: (id: number) => void;
   onViewDetail: (record: SubProject) => void;
 }
+
+const getStatusConfig = (status?: string) => {
+  switch (status) {
+    case "ยังไม่เริ่มต้น":
+      return { color: "default", icon: <ClockCircleOutlined /> };
+    case "ค้นคว้าเอกสาร":
+      return { color: "cyan", icon: <FileTextOutlined /> };
+    case "พัฒนา":
+      return { color: "processing", icon: <EditOutlined /> };
+    case "ทดสอบระบบ":
+      return { color: "warning", icon: <InfoCircleOutlined /> };
+    case "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)":
+      return { color: "blue", icon: <Badge status="processing" /> };
+    case "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)":
+      return { color: "success", icon: <CheckCircleOutlined /> };
+    default:
+      return { color: "default", icon: null };
+  }
+};
 
 export const SubProjectTable: React.FC<SubProjectTableProps> = ({
   dataSource,
@@ -72,7 +95,7 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
         title: t("sub_project_page.table_feature"),
         dataIndex: "name",
         key: "name",
-        width: 300,
+        width: 250,
         render: (name, record) => {
           const handleCopy = async () => {
             try {
@@ -103,16 +126,6 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
                     {record.name_en}
                   </Text>
                 )}
-                {record.backlogDescription?.note && (
-                  <Text
-                    type="secondary"
-                    italic
-                    ellipsis
-                    style={{ fontSize: token.fontSizeSM, maxWidth: 200 }}
-                  >
-                    {record.backlogDescription.note}
-                  </Text>
-                )}
               </div>
               <Button
                 type="text"
@@ -127,25 +140,44 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
         },
       },
       {
-        title: t("sub_project_page.table_type"),
-        dataIndex: "assetCaptureType",
-        key: "type",
-        width: 150,
-        align: "center",
-        render: (type) => {
-          const option = ASSET_OPTIONS.find((o) => o.value === type);
-          return <Tag color={option?.color}>{option?.label || type}</Tag>;
-        },
+        title: "ผู้รับผิดชอบ",
+        key: "assignees",
+        width: 120,
+        render: (_, record) => (
+          <Avatar.Group maxCount={3} size="small" className="flex items-center">
+            {record.projectAssignees?.map((a) => {
+              const u = getUserById(a.userId);
+              return (
+                <Tooltip
+                  title={`${u?.firstname || "Unknown"} ${u?.lastname || ""} ${
+                    a.position ? `(${a.position})` : ""
+                  }`}
+                  key={a.id}
+                >
+                  <Avatar
+                    src={u?.profile_image}
+                    style={{ backgroundColor: token.colorPrimary }}
+                  >
+                    {u?.firstname?.[0] || <UserOutlined />}
+                  </Avatar>
+                </Tooltip>
+              );
+            })}
+            {(!record.projectAssignees ||
+              record.projectAssignees.length === 0) && (
+              <Text type="secondary" style={{ fontSize: 10 }}>
+                N/A
+              </Text>
+            )}
+          </Avatar.Group>
+        ),
       },
       {
         title: t("sub_project_page.table_status"),
         key: "status",
-        width: 200,
+        width: 180,
         render: (_, record) => {
-          const { label, status } = determineProjectStatus(
-            record.startDate || "",
-            record.endDate || ""
-          );
+          const config = getStatusConfig(record.status);
           const percent = calculateProgress(
             record.startDate || "",
             record.endDate || ""
@@ -154,19 +186,21 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
           return (
             <div className="w-full">
               <div className="flex justify-between items-center mb-1">
-                <Badge status={status as any} text={label} />
-                <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
-                  {record.endDate
-                    ? dayjs(record.endDate).format("DD MMM")
-                    : "-"}
+                <Tag color={config.color} className="m-0 text-[10px] font-bold">
+                  {record.status || "ยังไม่เริ่มต้น"}
+                </Tag>
+                <Text type="secondary" style={{ fontSize: 10 }}>
+                  {record.endDate ? dayjs(record.endDate).format("DD/MM") : "-"}
                 </Text>
               </div>
               <Progress
                 percent={percent}
-                size="small"
+                size={[0, 4]}
                 showInfo={false}
                 strokeColor={
-                  status === "processing" ? token.colorPrimary : undefined
+                  record.status === "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)"
+                    ? token.colorSuccess
+                    : token.colorPrimary
                 }
               />
             </div>
@@ -174,25 +208,24 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
         },
       },
       {
-        title: t("sub_project_page.table_estimate_time"),
-        key: "estimate",
-        width: 120,
+        title: t("sub_project_page.table_type"),
+        dataIndex: "assetCaptureType",
+        key: "type",
+        width: 100,
         align: "center",
-        render: (_, record) => (
-          <Tag icon={<ClockCircleOutlined />}>
-            {
-              calculateWorkingHours(
-                record.startDate || "",
-                record.endDate || ""
-              ).text
-            }
-          </Tag>
-        ),
+        render: (type) => {
+          const option = ASSET_OPTIONS.find((o) => o.value === type);
+          return (
+            <Tag color={option?.color} style={{ fontSize: 10 }}>
+              {option?.label || type}
+            </Tag>
+          );
+        },
       },
       {
         title: t("sub_project_page.table_actions"),
         key: "action",
-        width: 100,
+        width: 60,
         align: "center",
         render: (_, record) => (
           <Dropdown
@@ -243,6 +276,9 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
       pagination.current,
       pagination.pageSize,
       token.colorPrimary,
+      token.colorSuccess,
+      token.fontSizeSM,
+      token.colorPrimaryBg,
       t,
       onEdit,
       onDelete,

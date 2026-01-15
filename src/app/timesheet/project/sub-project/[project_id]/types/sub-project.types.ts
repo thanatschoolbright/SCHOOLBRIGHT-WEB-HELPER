@@ -1,3 +1,11 @@
+export interface ProjectAssignee {
+  id: number;
+  projectId: number;
+  featureId: number;
+  userId: number;
+  position?: string;
+}
+
 export interface SubProject {
   id: number;
   name: string;
@@ -6,6 +14,8 @@ export interface SubProject {
   startDate?: string | Date;
   endDate?: string | Date;
   assetCaptureType: "CAPTUREABLE" | "UN_CAPTUREABLE";
+  status?: string;
+  projectAssignees?: ProjectAssignee[];
   backlogDescription?: {
     note?: string;
     backlogs?: Array<{
@@ -22,11 +32,14 @@ export interface Project {
 }
 
 export interface SubProjectFormValues {
+  id?: number;
   name: string;
   name_en?: string;
   asset_capture_type: "CAPTUREABLE" | "UN_CAPTUREABLE";
   dateRange: [any, any];
   estimate_time?: string;
+  status?: string;
+  assignees?: { userId: number; position?: string }[];
   backlogDescription?: {
     note?: string;
     backlogs?: Array<{

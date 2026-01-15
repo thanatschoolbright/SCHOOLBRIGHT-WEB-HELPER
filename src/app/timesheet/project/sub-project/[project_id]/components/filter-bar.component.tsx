@@ -74,17 +74,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               style={{ width: "100%" }}
               options={[
                 { value: null, label: t("sub_project_page.all_status") },
+                { value: "ยังไม่เริ่มต้น", label: "ยังไม่เริ่มต้น" },
+                { value: "ค้นคว้าเอกสาร", label: "ค้นคว้าเอกสาร" },
+                { value: "พัฒนา", label: "พัฒนา" },
+                { value: "ทดสอบระบบ", label: "ทดสอบระบบ" },
                 {
-                  value: "processing",
-                  label: t("sub_project_page.status_in_progress"),
+                  value: "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)",
+                  label: "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)",
                 },
                 {
-                  value: "success",
-                  label: t("sub_project_page.status_completed"),
-                },
-                {
-                  value: "default",
-                  label: t("sub_project_page.status_not_started"),
+                  value: "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)",
+                  label: "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)",
                 },
               ]}
             />

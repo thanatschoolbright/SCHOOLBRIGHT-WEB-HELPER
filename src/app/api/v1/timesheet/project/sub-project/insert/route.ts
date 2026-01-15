@@ -19,6 +19,8 @@ export async function POST(request: NextRequest) {
     startDate,
     endDate,
     asset_capture_type,
+    status,
+    assignees,
   } = data;
 
   const projectId = Number(project_id);
@@ -36,6 +38,8 @@ export async function POST(request: NextRequest) {
       assetCaptureType,
       startDate,
       endDate,
+      status,
+      assignees,
     };
 
     if (id) {

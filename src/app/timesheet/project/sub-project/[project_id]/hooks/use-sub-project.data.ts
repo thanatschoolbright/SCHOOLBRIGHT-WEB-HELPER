@@ -94,10 +94,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
     }
 
     if (filters.statusFilter) {
-      result = result.filter((item) => {
-        const { status } = determineProjectStatus(item.startDate, item.endDate);
-        return status === filters.statusFilter;
-      });
+      result = result.filter((item) => item.status === filters.statusFilter);
     }
 
     return result;
@@ -114,10 +111,6 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
   const stats: SubProjectStats = useMemo(() => {
     return filteredSubProjects.reduce(
       (acc, curr) => {
-        const { status } = determineProjectStatus(
-          curr.startDate || "",
-          curr.endDate || ""
-        );
         const { hours } = calculateWorkingHours(
           curr.startDate || "",
           curr.endDate || ""
@@ -125,8 +118,12 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
 
         acc.total++;
         acc.totalHours += hours;
-        if (status === "processing") acc.processing++;
-        if (status === "success") acc.completed++;
+
+        if (curr.status === "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)") {
+          acc.completed++;
+        } else if (curr.status && curr.status !== "ยังไม่เริ่มต้น") {
+          acc.processing++;
+        }
 
         return acc;
       },
