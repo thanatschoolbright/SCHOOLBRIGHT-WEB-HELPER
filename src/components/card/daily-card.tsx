@@ -8,12 +8,15 @@ import {
   Typography,
   Skeleton,
   Tooltip,
+  Flex,
 } from "antd";
 import {
   CheckCircleFilled,
   ClockCircleFilled,
   ExclamationCircleFilled,
   FireFilled,
+  CalendarOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import React, { useMemo } from "react";
@@ -65,42 +68,43 @@ export const DailyCard: React.FC<DailyCardProps> = ({
   loading = false,
 }) => {
   const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
 
   const computedData = useMemo(() => {
     const today = dayjs();
     const dayDate = dayjs(item.dateKey);
     const isFutureDay = dayDate.isAfter(today, "day");
 
-    const neutralAccent = token.colorTextQuaternary;
-    const successAccent = token.colorSuccess;
-    const warningAccent = token.colorWarning;
-    const errorAccent = token.colorError;
-
-    let accentColor = errorAccent;
-    let statusIcon = <ExclamationCircleFilled style={{ color: errorAccent }} />;
+    let accentColor = token.colorError;
+    let statusIcon = <ExclamationCircleFilled />;
     let statusLabel = "ยังไม่ครบ";
-    let bgOpacity = 0.04;
+    let bgOpacity = isDark ? 0.15 : 0.05;
+    let borderOpacity = isDark ? 0.3 : 0.1;
 
     if (isFutureDay) {
-      accentColor = neutralAccent;
-      statusIcon = (
-        <ClockCircleFilled style={{ color: token.colorTextTertiary }} />
-      );
+      accentColor = token.colorTextQuaternary;
+      statusIcon = <ClockCircleFilled />;
       statusLabel = "เร็วๆ นี้";
     } else if (item.isCompleted) {
-      accentColor = successAccent;
-      statusIcon = <CheckCircleFilled style={{ color: successAccent }} />;
+      accentColor = token.colorSuccess;
+      statusIcon = <CheckCircleFilled />;
       statusLabel = "ครบถ้วน";
-      bgOpacity = 0.08;
+      bgOpacity = isDark ? 0.2 : 0.08;
     } else if (item.totalHours > 0) {
-      accentColor = warningAccent;
-      statusIcon = <ExclamationCircleFilled style={{ color: warningAccent }} />;
+      accentColor = token.colorWarning;
+      statusIcon = <ExclamationCircleFilled />;
       statusLabel = "กำลังลงเวลา";
     }
 
-    const cardBackground = `linear-gradient(145deg, ${
-      token.colorBgContainer
-    } 40%, ${addAlpha(accentColor, bgOpacity)} 100%)`;
+    const cardBackground = isDark
+      ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
+          accentColor,
+          0.05
+        )} 100%)`
+      : `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
+          accentColor,
+          0.02
+        )} 100%)`;
 
     return {
       isFutureDay,
@@ -111,175 +115,245 @@ export const DailyCard: React.FC<DailyCardProps> = ({
       cardBackground,
       statusIcon,
       statusLabel,
+      bgOpacity,
+      borderOpacity,
     };
-  }, [item, targetHours, token]);
+  }, [item, targetHours, token, isDark]);
 
   if (loading) {
     return (
-      /* Render ส่วน Loading State:
-         ใช้ Skeleton แทนการใช้ Text ธรรมดา เพื่อให้ UI ดูลื่นไหลและ Modern 
-         รักษาโครงสร้างความกว้างและความสูงให้ใกล้เคียงกับการ์ดจริงเพื่อลด Layout Shift
-      */
       <div
         style={{
           background: token.colorBgContainer,
-          borderRadius: token.borderRadiusLG,
+          borderRadius: 16,
           border: `1px solid ${token.colorBorderSecondary}`,
-          padding: 20,
-          minWidth: 240,
-          height: 156,
+          padding: 16,
+          minWidth: 200,
+          height: 140,
         }}
       >
-        <Space direction="vertical" style={{ width: "100%" }} size="large">
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Space direction="vertical" style={{ width: "100%" }} size="small">
+          <Flex justify="space-between">
             <Skeleton.Input active size="small" style={{ width: 80 }} />
-            <Skeleton.Button
-              active
-              size="small"
-              shape="round"
-              style={{ width: 60 }}
-            />
-          </div>
-          <Skeleton paragraph={{ rows: 2 }} active />
+            <Skeleton.Avatar active size="small" shape="circle" />
+          </Flex>
+          <Skeleton title={false} paragraph={{ rows: 2 }} active />
         </Space>
       </div>
     );
   }
 
   return (
-    /* Render ส่วน Main Card:
-       ใช้ div ปรับแต่ง style เองแทน Card ของ AntD เพื่อรองรับ Custom Gradient Background
-       และเพิ่ม transition สำหรับ hover interaction
-    */
     <div
       style={{
-        minWidth: 240,
+        minWidth: 200,
         background: computedData.cardBackground,
-        borderRadius: token.borderRadiusLG,
-        // ใช้ Box Shadow แบบ Soft เงาฟุ้งเพื่อให้ดูลอยตัวและสะอาดตา
-        boxShadow: `0 4px 20px ${addAlpha(token.colorTextBase, 0.05)}`,
-        padding: 20,
-        border: `1px solid ${addAlpha(computedData.accentColor, 0.2)}`,
+        borderRadius: 16,
+        padding: "16px 14px 12px",
+        border: `1px solid ${addAlpha(
+          computedData.accentColor,
+          computedData.borderOpacity
+        )}`,
         position: "relative",
-        transition: "all 0.3s ease",
-        cursor: "default",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        cursor: "pointer",
+        overflow: "hidden",
       }}
       onMouseEnter={(e) => {
-        // Interaction: เมื่อเอาเมาส์วาง ให้การ์ดยกตัวขึ้นเล็กน้อยและเงาเข้มขึ้น
-        e.currentTarget.style.transform = "translateY(-4px)";
-        e.currentTarget.style.boxShadow = `0 12px 28px ${addAlpha(
+        e.currentTarget.style.borderColor = addAlpha(
           computedData.accentColor,
-          0.15
-        )}`;
+          isDark ? 0.6 : 0.4
+        );
+        e.currentTarget.style.backgroundColor = addAlpha(
+          computedData.accentColor,
+          isDark ? 0.1 : 0.03
+        );
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = `0 4px 20px ${addAlpha(
-          token.colorTextBase,
-          0.05
-        )}`;
+        e.currentTarget.style.borderColor = addAlpha(
+          computedData.accentColor,
+          computedData.borderOpacity
+        );
+        e.currentTarget.style.backgroundColor = isDark ? "transparent" : "";
       }}
     >
-      <Space direction="vertical" style={{ width: "100%" }} size={16}>
-        {/* Header Section:
-           แสดงข้อมูลวันที่และ Status Badge
-           ใช้ Flexbox (justify-between) เพื่อดันข้อมูลไปชิดซ้าย-ขวา
-        */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-          }}
-        >
-          <div>
-            <Typography.Text strong style={{ fontSize: 16, display: "block" }}>
+      {/* Decorative Accent Bar */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: computedData.accentColor,
+          opacity: 0.8,
+        }}
+      />
+
+      <Space direction="vertical" style={{ width: "100%" }} size={12}>
+        <Flex justify="space-between" align="start">
+          <Flex vertical gap={2}>
+            <Typography.Text
+              strong
+              style={{ fontSize: 14, color: token.colorTextHeading }}
+            >
               {item.label}
             </Typography.Text>
-            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-              <ClockCircleFilled style={{ marginRight: 6, fontSize: 12 }} />
+            <Typography.Text
+              type="secondary"
+              style={{
+                fontSize: 11,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <CalendarOutlined style={{ fontSize: 11 }} />
               {item.displayDate}
             </Typography.Text>
-          </div>
+          </Flex>
 
-          {/* Status Tag: ใช้สีที่คำนวณมา (accentColor) เพื่อให้ Badge ตรงกับ Theme ของการ์ด */}
-          <Tag
-            color={addAlpha(computedData.accentColor, 0.15)}
+          <div
             style={{
+              padding: 6,
+              borderRadius: 10,
+              background: addAlpha(
+                computedData.accentColor,
+                computedData.bgOpacity
+              ),
               color: computedData.accentColor,
-              marginRight: 0,
               display: "flex",
               alignItems: "center",
-              gap: 4,
-              fontWeight: 600,
-              borderRadius: 12,
-              padding: "2px 10px",
+              justifyContent: "center",
+              fontSize: 14,
             }}
           >
             {computedData.statusIcon}
-            {computedData.statusLabel}
-          </Tag>
-        </div>
-
-        {/* Body Section: Progress Bar
-           แสดงหลอดพลังงานการทำงาน ปรับ styling ให้ดูโค้งมน (strokeLinecap="round")
-        */}
-        <div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: 4,
-            }}
-          >
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              ความคืบหน้า
-            </Typography.Text>
-            <Typography.Text strong style={{ color: computedData.accentColor }}>
-              {item.totalHours.toFixed(2)} / {targetHours} ชม.
-            </Typography.Text>
           </div>
+        </Flex>
+
+        <div>
+          <Flex justify="space-between" align="end" style={{ marginBottom: 4 }}>
+            <Flex vertical gap={0}>
+              <Typography.Text
+                type="secondary"
+                style={{
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.4,
+                }}
+              >
+                ก้าวหน้า
+              </Typography.Text>
+              <Typography.Text
+                strong
+                style={{ fontSize: 13, color: computedData.accentColor }}
+              >
+                {item.totalHours.toFixed(2)}{" "}
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 400,
+                    color: token.colorTextSecondary,
+                  }}
+                >
+                  / {targetHours}
+                </span>
+              </Typography.Text>
+            </Flex>
+            <Typography.Text
+              strong
+              style={{ fontSize: 11, color: computedData.accentColor }}
+            >
+              {Math.round(computedData.percentForBar)}%
+            </Typography.Text>
+          </Flex>
+
           <Progress
             percent={computedData.percentForBar}
-            strokeColor={computedData.accentColor}
-            trailColor={token.colorFillSecondary}
+            strokeColor={{
+              "0%": computedData.accentColor,
+              "100%": addAlpha(computedData.accentColor, 0.7),
+            }}
+            trailColor={
+              isDark ? token.colorFillTertiary : token.colorFillSecondary
+            }
             showInfo={false}
+            strokeWidth={6}
             strokeLinecap="round"
-            size={["100%", 8]}
           />
         </div>
 
-        {/* Footer Section: Contextual Message
-           แสดงข้อความสรุปสถานะ เช่น ขาดอีกกี่ชั่วโมง หรือ ทำเกินเป้าหมาย (Overachieved)
-           กรณี FutureDay จะแสดงข้อความสีจาง
-        */}
-        <div style={{ minHeight: 22 }}>
+        <Flex align="center" style={{ minHeight: 20 }}>
           {computedData.isFutureDay ? (
-            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-              รอการดำเนินการ
-            </Typography.Text>
+            <Tag
+              bordered={false}
+              icon={<ClockCircleOutlined />}
+              style={{
+                borderRadius: 6,
+                margin: 0,
+                fontSize: 10,
+                padding: "0 6px",
+              }}
+            >
+              รอ
+            </Tag>
           ) : computedData.remainingHours > 0 ? (
-            <Typography.Text type="warning" style={{ fontSize: 13 }}>
-              ขาดอีก <b>{computedData.remainingHours.toFixed(2)}</b> ชม.
-              ตามเป้าหมาย
-            </Typography.Text>
+            <Flex align="center" gap={4}>
+              <div
+                style={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  background: token.colorWarning,
+                  boxShadow: `0 0 6px ${token.colorWarning}`,
+                }}
+              />
+              <Typography.Text
+                style={{ fontSize: 11, color: token.colorTextSecondary }}
+              >
+                ขาดอีก{" "}
+                <b style={{ color: token.colorWarning }}>
+                  {computedData.remainingHours.toFixed(2)}
+                </b>{" "}
+                ชม.
+              </Typography.Text>
+            </Flex>
           ) : computedData.surplusHours > 0 ? (
             <Tooltip title="ยอดเยี่ยม! คุณทำงานเกินเป้าหมาย">
-              <Tag color="gold" style={{ border: "none", margin: 0 }}>
-                <Space size={4}>
-                  <FireFilled />
-                  <span>
-                    เกินเป้า +{computedData.surplusHours.toFixed(2)} ชม.
-                  </span>
-                </Space>
+              <Tag
+                color="gold"
+                bordered={false}
+                icon={<FireFilled />}
+                style={{
+                  borderRadius: 6,
+                  margin: 0,
+                  padding: "0 8px",
+                  fontWeight: 600,
+                  fontSize: 11,
+                  background: isDark ? "rgba(255, 215, 0, 0.15)" : "",
+                }}
+              >
+                +{computedData.surplusHours.toFixed(2)} ชม.
               </Tag>
             </Tooltip>
           ) : (
-            <Typography.Text type="success" style={{ fontSize: 13 }}>
-              ลงเวลาครบตามเป้าหมายแล้ว
-            </Typography.Text>
+            <Tag
+              color="success"
+              bordered={false}
+              icon={<CheckCircleFilled />}
+              style={{
+                borderRadius: 6,
+                margin: 0,
+                padding: "0 8px",
+                fontWeight: 600,
+                fontSize: 11,
+              }}
+            >
+              ครบถ้วน
+            </Tag>
           )}
-        </div>
+        </Flex>
       </Space>
     </div>
   );
