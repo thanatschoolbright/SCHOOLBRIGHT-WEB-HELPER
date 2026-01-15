@@ -58,6 +58,6 @@ export const ASSET_OPTIONS = [
   { value: "UN_CAPTUREABLE", label: "ไม่สามารถแคปทรัพย์สินได้" },
 ];
 
-export const CELL_WIDTH = 40;
-export const HEADER_HEIGHT = 50;
-export const ROW_HEIGHT = 48;
+export const CELL_WIDTH = 45;
+export const HEADER_HEIGHT = 60;
+export const ROW_HEIGHT = 64;

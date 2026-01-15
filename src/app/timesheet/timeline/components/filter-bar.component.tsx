@@ -1,5 +1,17 @@
 import React from "react";
-import { Button, Card, Input, Select, DatePicker, Row, Col } from "antd";
+import {
+  Button,
+  Card,
+  Input,
+  Select,
+  DatePicker,
+  Row,
+  Col,
+  Collapse,
+  Space,
+  Typography,
+  theme,
+} from "antd";
 import {
   PlusOutlined,
   SearchOutlined,
@@ -9,11 +21,15 @@ import {
   EyeOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
+  FilterOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { TimelineFilters } from "../types/timeline.types";
 
 const { RangePicker } = DatePicker;
+const { Text } = Typography;
+const { Panel } = Collapse;
 
 interface FilterBarProps {
   filters: TimelineFilters;
@@ -33,249 +49,212 @@ export const FilterBarComponent: React.FC<FilterBarProps> = ({
   loading,
 }) => {
   const { t } = useTranslation("translate");
+  const { token } = theme.useToken();
 
   return (
-    <Card
-      className="mb-6"
-      styles={{
-        body: { padding: 32 },
-      }}
-    >
-      <Row gutter={[24, 24]}>
-        <Col xs={24} xl={20}>
-          <Card
-            title={
-              <div>
-                <SearchOutlined /> ค้นหาและกรองข้อมูล
-              </div>
-            }
-          >
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12}>
-                <div>
-                  <div className="mb-2">
-                    <SearchOutlined /> ค้นหาโครงการ
-                  </div>
-                  <Input
-                    placeholder={t("timeline_page.filters.search_placeholder")}
-                    prefix={<SearchOutlined />}
-                    size="large"
-                    allowClear
-                    onChange={(e) =>
-                      setFilters({ ...filters, keyword: e.target.value })
-                    }
+    <div className="mb-6">
+      <Collapse
+        defaultActiveKey={["1"]}
+        expandIcon={({ isActive }) => (
+          <DownOutlined
+            rotate={isActive ? 180 : 0}
+            style={{ color: token.colorPrimary }}
+          />
+        )}
+        style={{
+          background: token.colorBgContainer,
+          borderRadius: 16,
+          border: `1px solid ${token.colorBorderSecondary}`,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          overflow: "hidden",
+        }}
+      >
+        <Panel
+          header={
+            <div className="flex items-center justify-between w-full pr-4">
+              <Space size="middle">
+                <div
+                  style={{
+                    backgroundColor: token.colorPrimaryBg,
+                    padding: 8,
+                    borderRadius: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <FilterOutlined
+                    style={{ color: token.colorPrimary, fontSize: 18 }}
                   />
                 </div>
-              </Col>
+                <Text strong style={{ fontSize: 16 }}>
+                  {t("timeline_page.filters.title") ||
+                    "การค้นหาและตัวกรองข้อมูล"}
+                </Text>
+              </Space>
 
-              <Col xs={24} sm={12}>
-                <div>
-                  <div className="mb-2">
-                    <CalendarOutlined /> ช่วงเวลา
-                  </div>
-                  <RangePicker
-                    size="large"
-                    value={filters.dateRange}
-                    onChange={(dates) =>
-                      setFilters({ ...filters, dateRange: dates })
-                    }
-                  />
-                </div>
-              </Col>
-
-              <Col xs={12} sm={8}>
-                <div>
-                  <div className="mb-2">
-                    <CheckCircleOutlined /> สถานะ
-                  </div>
-                  <Select
-                    defaultValue="All"
-                    size="large"
-                    style={{ width: "100%" }}
-                    onChange={(val) => setFilters({ ...filters, status: val })}
-                    options={[
-                      {
-                        value: "All",
-                        label: (
-                          <>
-                            <CheckCircleOutlined />{" "}
-                            {t("timeline_page.filters.status_all")}
-                          </>
-                        ),
-                      },
-                      {
-                        value: "open",
-                        label: (
-                          <>
-                            <CheckCircleOutlined />{" "}
-                            {t("timeline_page.filters.status_open")}
-                          </>
-                        ),
-                      },
-                      {
-                        value: "close",
-                        label: (
-                          <>
-                            <CheckCircleOutlined />{" "}
-                            {t("timeline_page.filters.status_closed")}
-                          </>
-                        ),
-                      },
-                    ]}
-                  />
-                </div>
-              </Col>
-
-              <Col xs={12} sm={8}>
-                <div>
-                  <div className="mb-2">
-                    <EyeOutlined /> มุมมอง
-                  </div>
-                  <Select
-                    defaultValue="all"
-                    size="large"
-                    style={{ width: "100%" }}
-                    onChange={(val) =>
-                      setFilters({
-                        ...filters,
-                        viewType: val as "all" | "project",
-                      })
-                    }
-                    options={[
-                      {
-                        value: "all",
-                        label: (
-                          <>
-                            <EyeOutlined />{" "}
-                            {t("timeline_page.filters.view_full")}
-                          </>
-                        ),
-                      },
-                      {
-                        value: "project",
-                        label: (
-                          <>
-                            <EyeOutlined />{" "}
-                            {t("timeline_page.filters.view_project")}
-                          </>
-                        ),
-                      },
-                    ]}
-                  />
-                </div>
-              </Col>
-
-              <Col xs={24} sm={8}>
-                <div>
-                  <div className="mb-2">
-                    <ZoomInOutlined /> ระดับซูม
-                  </div>
-                  <Select
-                    defaultValue="day"
-                    size="large"
-                    style={{ width: "100%" }}
-                    value={filters.zoomLevel}
-                    onChange={(val) =>
-                      setFilters({
-                        ...filters,
-                        zoomLevel: val as "day" | "week" | "month",
-                      })
-                    }
-                    options={[
-                      {
-                        value: "day",
-                        label: (
-                          <>
-                            <CalendarOutlined />{" "}
-                            {t("timeline_page.filters.zoom_day")}
-                          </>
-                        ),
-                      },
-                      {
-                        value: "week",
-                        label: (
-                          <>
-                            <CalendarOutlined />{" "}
-                            {t("timeline_page.filters.zoom_week")}
-                          </>
-                        ),
-                      },
-                      {
-                        value: "month",
-                        label: (
-                          <>
-                            <CalendarOutlined />{" "}
-                            {t("timeline_page.filters.zoom_month")}
-                          </>
-                        ),
-                      },
-                    ]}
-                  />
-                </div>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-
-        <Col xs={24} xl={4}>
-          <Card
-            title={
-              <div>
-                <ClockCircleOutlined /> การจัดการด่วน
-              </div>
-            }
-          >
-            <Row gutter={[16, 16]}>
-              <Col xs={24}>
+              <Space onClick={(e) => e.stopPropagation()}>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={onCreateProject}
+                  style={{ borderRadius: 8 }}
+                >
+                  {t("timeline_page.filters.new_project")}
+                </Button>
                 <Button
                   icon={<ReloadOutlined />}
                   onClick={onRefresh}
                   loading={loading}
-                  size="large"
-                  block
-                  type="default"
-                  style={{ height: 120 }}
-                  title={t("timeline_page.filters.refresh")}
+                  style={{ borderRadius: 8 }}
                 >
-                  <div>รีเฟรช</div>
+                  รีเฟรช
                 </Button>
+              </Space>
+            </div>
+          }
+          key="1"
+          style={{ border: "none" }}
+        >
+          <div className="p-2">
+            <Row gutter={[24, 24]}>
+              <Col xs={24} md={12} lg={8}>
+                <Text strong style={{ display: "block", marginBottom: 8 }}>
+                  <SearchOutlined className="mr-2" />
+                  ค้นหาโครงการ
+                </Text>
+                <Input
+                  placeholder={t("timeline_page.filters.search_placeholder")}
+                  prefix={
+                    <SearchOutlined
+                      style={{ color: token.colorTextTertiary }}
+                    />
+                  }
+                  size="large"
+                  allowClear
+                  style={{ borderRadius: 10 }}
+                  value={filters.keyword}
+                  onChange={(e) =>
+                    setFilters({ ...filters, keyword: e.target.value })
+                  }
+                />
               </Col>
 
-              {onScrollToToday && (
-                <Col xs={12}>
-                  <Button
-                    icon={<CalendarOutlined />}
-                    onClick={onScrollToToday}
-                    size="large"
-                    block
-                    type="primary"
-                    danger
-                    style={{ height: 120 }}
-                    title="ไปที่วันนี้"
-                  >
-                    <div>
-                      <CalendarOutlined style={{ fontSize: 32 }} />
-                      <div>วันนี้</div>
-                    </div>
-                  </Button>
-                </Col>
-              )}
-            </Row>
-          </Card>
-        </Col>
+              <Col xs={24} md={12} lg={8}>
+                <Text strong style={{ display: "block", marginBottom: 8 }}>
+                  <CalendarOutlined className="mr-2" />
+                  ช่วงเวลา
+                </Text>
+                <RangePicker
+                  size="large"
+                  style={{ width: "100%", borderRadius: 10 }}
+                  value={filters.dateRange}
+                  onChange={(dates) =>
+                    setFilters({ ...filters, dateRange: dates })
+                  }
+                />
+              </Col>
 
-        <Col xs={20}>
-          <Button
-            type="primary"
-            icon={<PlusOutlined style={{ fontSize: 20 }} />}
-            size="large"
-            block
-            onClick={onCreateProject}
-          >
-            {t("timeline_page.filters.new_project")}
-          </Button>
-        </Col>
-      </Row>
-    </Card>
+              <Col xs={24} lg={8}>
+                <Row gutter={[16, 16]}>
+                  <Col span={8}>
+                    <Text strong style={{ display: "block", marginBottom: 8 }}>
+                      สถานะ
+                    </Text>
+                    <Select
+                      defaultValue="All"
+                      size="large"
+                      style={{ width: "100%" }}
+                      value={filters.status}
+                      onChange={(val) =>
+                        setFilters({ ...filters, status: val })
+                      }
+                      dropdownStyle={{ borderRadius: 8 }}
+                      suffixIcon={<DownOutlined style={{ fontSize: 10 }} />}
+                      options={[
+                        {
+                          value: "All",
+                          label:
+                            t("timeline_page.filters.status_all") || "ทั้งหมด",
+                        },
+                        {
+                          value: "open",
+                          label:
+                            t("timeline_page.filters.status_open") ||
+                            "กำลังเปิด",
+                        },
+                        {
+                          value: "close",
+                          label:
+                            t("timeline_page.filters.status_closed") ||
+                            "ปิดแล้ว",
+                        },
+                      ]}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Text strong style={{ display: "block", marginBottom: 8 }}>
+                      มุมมอง
+                    </Text>
+                    <Select
+                      defaultValue="all"
+                      size="large"
+                      style={{ width: "100%" }}
+                      value={filters.viewType}
+                      onChange={(val) =>
+                        setFilters({
+                          ...filters,
+                          viewType: val as "all" | "project",
+                        })
+                      }
+                      options={[
+                        { value: "all", label: "ทั้งหมด" },
+                        { value: "project", label: "เฉพาะโครงการ" },
+                      ]}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Text strong style={{ display: "block", marginBottom: 8 }}>
+                      ซูม
+                    </Text>
+                    <Select
+                      defaultValue="day"
+                      size="large"
+                      style={{ width: "100%" }}
+                      value={filters.zoomLevel}
+                      onChange={(val) =>
+                        setFilters({
+                          ...filters,
+                          zoomLevel: val as "day" | "week" | "month",
+                        })
+                      }
+                      options={[
+                        { value: "day", label: "วัน" },
+                        { value: "week", label: "สัปดาห์" },
+                        { value: "month", label: "เดือน" },
+                      ]}
+                    />
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+
+            {onScrollToToday && (
+              <div className="mt-6 flex justify-end">
+                <Button
+                  icon={<CalendarOutlined />}
+                  onClick={onScrollToToday}
+                  size="middle"
+                  type="link"
+                  style={{ color: token.colorError }}
+                >
+                  เลื่อนไปที่วันนี้
+                </Button>
+              </div>
+            )}
+          </div>
+        </Panel>
+      </Collapse>
+    </div>
   );
 };
