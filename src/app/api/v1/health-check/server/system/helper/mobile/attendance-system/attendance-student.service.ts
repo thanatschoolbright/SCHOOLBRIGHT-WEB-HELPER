@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 export async function checkFlagPoleAttendanceService(
   accessToken?: string
@@ -30,6 +30,7 @@ export async function checkFlagPoleAttendanceService(
 
   const baseResult = {
     module: "flagpole-attendance",
+    group: "attendance-system",
     name_th: "ระบบเช็กชื่อหน้าเสาธง - ดึงข้อมูลนักเรียน",
     name_en: "Flag Pole Attendance - Get Student Data",
     service: domain,

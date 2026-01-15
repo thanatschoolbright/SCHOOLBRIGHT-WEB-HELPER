@@ -35,6 +35,7 @@ export async function checkLeaveUploadService(
 
   const baseResult = {
     module: "check-leave-upload",
+    group: "leave-system",
     name_th: "ระบบการลา - แนบรูปภาพ (Upload Image)",
     name_en: "Leave System - Upload Image",
     service: domain,

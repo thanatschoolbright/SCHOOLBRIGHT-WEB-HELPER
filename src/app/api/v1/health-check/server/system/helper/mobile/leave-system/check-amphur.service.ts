@@ -30,6 +30,7 @@ export async function checkAmphurService(
 
   const baseResult = {
     module: "check-amphur",
+    group: "leave-system",
     name_th: "ระบบการลา - ดึงข้อมูลอำเภอ/เขต (Get Amphur)",
     name_en: "Leave System - Get Amphur List",
     service: domain,

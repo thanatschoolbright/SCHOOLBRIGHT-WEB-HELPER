@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 export async function checkVerificationService(
   accessToken?: string
@@ -44,6 +44,7 @@ export async function checkVerificationService(
 
   const baseResult = {
     module: "verification",
+    group: "user-system",
     name_th: "ระบบยืนยันตัวตน",
     name_en: "Verification Service",
     service: domain,

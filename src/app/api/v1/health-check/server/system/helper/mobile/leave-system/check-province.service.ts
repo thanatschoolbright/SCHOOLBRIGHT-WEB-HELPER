@@ -29,6 +29,7 @@ export async function checkProvinceService(
 
   const baseResult = {
     module: "check-province",
+    group: "leave-system",
     name_th: "ระบบการลา - ดึงข้อมูลจังหวัด (Get Province)",
     name_en: "Leave System - Get Province List",
     service: domain,

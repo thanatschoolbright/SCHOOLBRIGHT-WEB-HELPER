@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 export async function checkRefreshTokenService(
   accessToken?: string
@@ -32,6 +32,7 @@ export async function checkRefreshTokenService(
 
   const baseResult = {
     module: "refresh-token",
+    group: "login-system",
     name_th: "ระบบยืนยันตัวตน - ต่ออายุการใช้งาน (Refresh Token)",
     name_en: "Authentication - Refresh Token",
     service: domain,

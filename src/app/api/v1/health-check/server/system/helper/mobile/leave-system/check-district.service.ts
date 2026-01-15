@@ -30,6 +30,7 @@ export async function checkDistrictService(
 
   const baseResult = {
     module: "check-district",
+    group: "leave-system",
     name_th: "ระบบการลา - ดึงข้อมูลแขวง/ตำบล (Get District)",
     name_en: "Leave System - Get District List",
     service: domain,

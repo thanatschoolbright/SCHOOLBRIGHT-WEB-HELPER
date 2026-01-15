@@ -51,6 +51,7 @@ export async function checkSubmitLeaveService(
 
   const baseResult = {
     module: "check-submit-leave",
+    group: "leave-system",
     name_th: "ระบบการลา - ยืนยันการส่งใบลา (Submit Leave)",
     name_en: "Leave System - Submit Leave Form",
     service: domain,

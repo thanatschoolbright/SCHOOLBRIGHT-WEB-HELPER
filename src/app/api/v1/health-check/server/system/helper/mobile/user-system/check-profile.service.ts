@@ -1,19 +1,19 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
-export async function checkStudentLeaveTypeService(
+export async function checkProfileService(
   accessToken?: string
 ): Promise<HealthCheckResult> {
   const targetToken =
     accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
 
-  const LEAVE_TYPE_CONFIG = {
-    url: `${API_URL.PROD_SB_API_URL}/api/studentLeave/GetStudentLeaveType`,
+  const PROFILE_CONFIG = {
+    url: `${API_URL.PROD_SB_API_URL}/api/user`,
     method: "GET",
     params: {
-      schoolId: 1054,
+      userid: "1230336",
     },
     headers: {
       "JabjaiKey-849-1230336": targetToken,
@@ -22,22 +22,23 @@ export async function checkStudentLeaveTypeService(
 
   let domain = "localhost";
   try {
-    domain = new URL(LEAVE_TYPE_CONFIG.url).hostname;
+    domain = new URL(PROFILE_CONFIG.url).hostname;
   } catch {}
 
-  const curlCommand = generateCurlCommand(LEAVE_TYPE_CONFIG);
+  const curlCommand = generateCurlCommand(PROFILE_CONFIG);
 
   const baseResult = {
-    module: "check-student-leave-type",
-    name_th: "ระบบการลา - ตรวจสอบประเภทการลา (Student Leave Type)",
-    name_en: "Leave System - Get Student Leave Type",
+    module: "check-profile",
+    group: "user-system",
+    name_th: "ระบบข้อมูลผู้ใช้งาน - ดึงข้อมูลโปรไฟล์ (Mobile)",
+    name_en: "User System - Get Profile",
     service: domain,
     curl: curlCommand,
-    request: LEAVE_TYPE_CONFIG,
+    request: PROFILE_CONFIG,
   };
 
   try {
-    const res = await axios(LEAVE_TYPE_CONFIG);
+    const res = await axios(PROFILE_CONFIG);
     return {
       ...baseResult,
       status: String(res.status),

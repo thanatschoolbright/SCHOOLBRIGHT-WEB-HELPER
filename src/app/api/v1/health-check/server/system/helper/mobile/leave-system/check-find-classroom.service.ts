@@ -29,6 +29,7 @@ export async function checkFindClassroomService(
 
   const baseResult = {
     module: "check-find-classroom",
+    group: "leave-system",
     name_th: "ระบบการลา - ดึงข้อมูลครูประจำชั้น (Get Homeroom Teacher)",
     name_en: "Leave System - Get Classroom/Teacher Info",
     service: domain,

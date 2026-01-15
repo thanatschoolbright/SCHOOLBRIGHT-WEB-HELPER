@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 const SERVER_STATUS_CONFIG = {
   url: `${API_URL.PROD_SB_API_URL}/api/SeverStatus`,
@@ -20,6 +20,7 @@ export async function checkServerStatusService(): Promise<HealthCheckResult> {
   // สร้าง Base Object ลดการเขียนซ้ำ
   const baseResult = {
     module: "server-status-v1",
+    group: "server-system",
     name_th: "สถานะเซิร์ฟเวอร์หลัก",
     name_en: "Core API Server Status",
     service: domain,

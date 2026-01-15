@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 export async function checkFlagPoleScanService(
   accessToken?: string
@@ -38,6 +38,7 @@ export async function checkFlagPoleScanService(
 
   const baseResult = {
     module: "flagpole-scan",
+    group: "attendance-system",
     name_th: "ระบบเช็กชื่อหน้าเสาธง - แสกนข้อมูลนักเรียน (ส่งสถานะการเช็กชื่อ)",
     name_en: "Flag Pole Attendance - Update Scan Status",
     service: domain,

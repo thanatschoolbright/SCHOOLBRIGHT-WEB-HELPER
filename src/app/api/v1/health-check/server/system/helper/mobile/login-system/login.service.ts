@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 const LOGIN_CONFIG = {
   url: `${API_URL.PROD_SB_API_URL}/api/login`,
@@ -26,6 +26,7 @@ export async function checkLoginService(): Promise<HealthCheckResult> {
   // สร้าง Base Object เพื่อลด Code ซ้ำใน try/catch
   const baseResult = {
     module: "login",
+    group: "login-system",
     name_th: "ระบบเข้าสู่ระบบ",
     name_en: "Login Service",
     service: domain,

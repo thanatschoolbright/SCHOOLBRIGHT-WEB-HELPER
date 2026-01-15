@@ -29,6 +29,7 @@ export async function checkStudentLeaveInfoService(
 
   const baseResult = {
     module: "check-student-leave-info",
+    group: "leave-system",
     name_th: "ระบบการลา - ตรวจสอบยอดคงเหลือการลา (Leave Balance)",
     name_en: "Leave System - Get Leave Info",
     service: domain,

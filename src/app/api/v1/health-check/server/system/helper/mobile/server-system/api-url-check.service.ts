@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 export async function checkSystemApiUrlsService(
   accessToken?: string
@@ -29,6 +29,7 @@ export async function checkSystemApiUrlsService(
 
   const baseResult = {
     module: "check-system-api-urls",
+    group: "server-system",
     name_th: "ระบบเซ็ตค่า API เริ่มต้น - ดึงข้อมูล API URL ทั้งหมด",
     name_en: "Set API System - Get All API URLs",
     service: domain,

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 // รับ accessToken เข้ามาเป็น Argument (Optional)
 export async function checkNotificationService(
@@ -27,6 +27,7 @@ export async function checkNotificationService(
 
   const baseResult = {
     module: "notification",
+    group: "notification-system",
     name_th: "ระบบแจ้งเตือนขวามือบนในแอป SB APP",
     name_en: "Notification Service (Top-Right)",
     service: domain,

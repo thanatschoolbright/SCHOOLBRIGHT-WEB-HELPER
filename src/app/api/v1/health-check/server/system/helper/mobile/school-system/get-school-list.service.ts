@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 export async function checkGetSchoolListService(): Promise<HealthCheckResult> {
   // 1. Setup Config
@@ -23,6 +23,7 @@ export async function checkGetSchoolListService(): Promise<HealthCheckResult> {
 
   const baseResult = {
     module: "get-school-list",
+    group: "school-system",
     name_th: "ดึงข้อมูล - โรงเรียนทั้งหมดแสดงผลในหน้าล็อกอิน",
     name_en: "Get School List (Login Page)",
     service: domain,

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../health-check.type";
-import { generateCurlCommand } from "../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
+import { generateCurlCommand } from "../../generate-curl.helper";
 
 export async function checkEmailVerificationService(
   accessToken?: string
@@ -32,6 +32,7 @@ export async function checkEmailVerificationService(
 
   const baseResult = {
     module: "check-email-verification",
+    group: "user-system",
     name_th: "ระบบตรวจสอบช่องทางการยืนยันตัวตน (Email)",
     name_en: "User Verification - Check Email Channel",
     service: domain,
