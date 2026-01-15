@@ -103,7 +103,12 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
     }
 
     if (filters.statusFilter) {
-      result = result.filter((item) => item.status === filters.statusFilter);
+      // Allow filtering by either status name (legacy) or projectStatusId (new)
+      result = result.filter(
+        (item) =>
+          String(item.status) === String(filters.statusFilter) ||
+          String(item.projectStatusId) === String(filters.statusFilter)
+      );
     }
 
     return result;
@@ -122,8 +127,11 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
     const sortedStatuses = [...projectStatuses].sort(
       (a, b) => a.priority - b.priority
     );
-    const startStatus = sortedStatuses[0]?.nameTh;
-    const endStatus = sortedStatuses[sortedStatuses.length - 1]?.nameTh;
+    const startStatusId = sortedStatuses[0]?.id;
+    const endStatusId = sortedStatuses[sortedStatuses.length - 1]?.id;
+
+    const startStatusName = sortedStatuses[0]?.nameTh;
+    const endStatusName = sortedStatuses[sortedStatuses.length - 1]?.nameTh;
 
     return filteredSubProjects.reduce(
       (acc, curr) => {
@@ -135,9 +143,18 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
         acc.total++;
         acc.totalHours += hours;
 
-        if (endStatus && curr.status === endStatus) {
+        // Check by ID first, then fallback to name for backward compatibility
+        const isCompleted = endStatusId
+          ? curr.projectStatusId === endStatusId
+          : curr.status === endStatusName;
+
+        const isStarted = startStatusId
+          ? curr.projectStatusId === startStatusId
+          : curr.status === startStatusName;
+
+        if (isCompleted) {
           acc.completed++;
-        } else if (curr.status && curr.status !== startStatus) {
+        } else if ((curr.projectStatusId || curr.status) && !isStarted) {
           acc.processing++;
         }
 

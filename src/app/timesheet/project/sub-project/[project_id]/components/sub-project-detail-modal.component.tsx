@@ -34,22 +34,15 @@ interface SubProjectDetailModalProps {
 }
 
 const getStatusColor = (status?: string) => {
-  switch (status) {
-    case "ยังไม่เริ่มต้น":
-      return "default";
-    case "ค้นคว้าเอกสาร":
-      return "cyan";
-    case "พัฒนา":
-      return "processing";
-    case "ทดสอบระบบ":
-      return "warning";
-    case "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)":
-      return "blue";
-    case "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)":
-      return "success";
-    default:
-      return "default";
-  }
+  if (!status) return "default";
+  const s = status.toLowerCase();
+  if (s.includes("ยังไม่เริ่มต้น") || s.includes("ความต้องการ"))
+    return "default";
+  if (s.includes("ออกแบบ") || s.includes("ค้นคว้า")) return "cyan";
+  if (s.includes("พัฒนา")) return "processing";
+  if (s.includes("ทดสอบ") || s.includes("uat")) return "warning";
+  if (s.includes("ส่งมอบ") || s.includes("เสร็จสิ้น")) return "success";
+  return "default";
 };
 
 export const SubProjectDetailModal: React.FC<SubProjectDetailModalProps> = ({
@@ -87,8 +80,12 @@ export const SubProjectDetailModal: React.FC<SubProjectDetailModalProps> = ({
               {data.name}
             </Title>
             <div className="mt-1 flex gap-2">
-              <Tag color={getStatusColor(data.status)}>
-                {data.status || "ยังไม่เริ่มต้น"}
+              <Tag
+                color={getStatusColor(
+                  data.projectStatus?.nameTh || data.status
+                )}
+              >
+                {data.projectStatus?.nameTh || data.status || "ยังไม่เริ่มต้น"}
               </Tag>
               <Tag color={option?.color}>{option?.label}</Tag>
             </div>

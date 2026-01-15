@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
     endDate,
     asset_capture_type,
     status,
+    projectStatusId,
     assignees,
   } = data;
 
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
       startDate,
       endDate,
       status,
+      projectStatusId,
       assignees,
     };
 

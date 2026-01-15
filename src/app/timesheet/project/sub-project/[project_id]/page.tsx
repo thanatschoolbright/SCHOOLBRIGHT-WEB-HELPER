@@ -298,6 +298,7 @@ export default function SubProjectPage() {
               onViewDetail={(record) =>
                 setModalState({ type: "detail", data: record })
               }
+              statuses={projectStatuses}
             />
           )}
         </Card>

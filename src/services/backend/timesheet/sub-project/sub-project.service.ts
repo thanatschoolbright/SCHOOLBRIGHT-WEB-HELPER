@@ -17,6 +17,7 @@ interface CreateFeatureDto {
   endDate: Date | string;
   assetCaptureType?: SubProjectAssetCaptureType;
   status?: string;
+  projectStatusId?: number | null;
   assignees?: { userId: number; position?: string | null }[];
 }
 
@@ -29,6 +30,7 @@ interface UpdateFeatureDto {
   endDate?: Date | string;
   assetCaptureType?: SubProjectAssetCaptureType;
   status?: string;
+  projectStatusId?: number | null;
   assignees?: { userId: number; position?: string | null }[];
 }
 
@@ -56,7 +58,7 @@ export const Service = {
         take: limit,
         skip,
         orderBy: { createdAt: "desc" },
-        include: { projectAssignees: true },
+        include: { projectAssignees: true, projectStatus: true },
       }),
       PrismaTimesheet.feature.count({ where }),
     ]);
@@ -67,7 +69,7 @@ export const Service = {
   async findById(id: number) {
     const feature = await PrismaTimesheet.feature.findFirst({
       where: { id, is_deleted: false },
-      include: { projectAssignees: true },
+      include: { projectAssignees: true, projectStatus: true },
     });
 
     return feature ? { items: [feature], total: 1 } : { items: [], total: 0 };
@@ -85,7 +87,7 @@ export const Service = {
         take: limit,
         skip,
         orderBy: { createdAt: "desc" },
-        include: { projectAssignees: true },
+        include: { projectAssignees: true, projectStatus: true },
       }),
       PrismaTimesheet.feature.count({ where }),
     ]);
@@ -100,7 +102,6 @@ export const Service = {
         ...rest,
         createdBy: data.createdBy ?? 0,
         assetCaptureType: data.assetCaptureType ?? "CAPTUREABLE",
-        status: data.status ?? "ยังไม่เริ่มต้น",
         projectAssignees: {
           create: assignees?.map((a) => ({
             userId: a.userId,
@@ -109,7 +110,7 @@ export const Service = {
           })),
         },
       },
-      include: { projectAssignees: true },
+      include: { projectAssignees: true, projectStatus: true },
     });
   },
 
@@ -148,7 +149,7 @@ export const Service = {
         ...rest,
         updatedBy: data.updatedBy ?? 0,
       },
-      include: { projectAssignees: true },
+      include: { projectAssignees: true, projectStatus: true },
     });
   },
 

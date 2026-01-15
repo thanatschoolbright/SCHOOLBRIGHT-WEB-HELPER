@@ -76,7 +76,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
 
   const statusOptions = statuses
     .sort((a, b) => a.priority - b.priority)
-    .map((s) => ({ label: s.nameTh, value: s.nameTh }));
+    .map((s) => ({ label: s.nameTh, value: s.id }));
 
   useEffect(() => {
     if (open) {
@@ -87,7 +87,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         form.resetFields();
         form.setFieldsValue({
           asset_capture_type: "CAPTUREABLE",
-          status: statusOptions[0]?.value,
+          projectStatusId: statusOptions[0]?.value,
         });
       } else if (mode === "edit" && data) {
         const range =
@@ -99,7 +99,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           name: data.name,
           name_en: data.name_en,
           asset_capture_type: data.assetCaptureType,
-          status: data.status || "ยังไม่เริ่มต้น",
+          projectStatusId: data.projectStatusId,
           dateRange: range,
           estimate_time: calculateWorkingHours(
             data.startDate || "",
@@ -114,7 +114,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         });
       }
     }
-  }, [open, mode, data, form]);
+  }, [open, mode, data, form, statusOptions.length]);
 
   useEffect(() => {
     if (watchedDateRange) {
@@ -135,7 +135,8 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       startDate: values.dateRange?.[0]?.toISOString(),
       endDate: values.dateRange?.[1]?.toISOString(),
       backlogDescription: values.backlogDescription,
-      status: values.status,
+      projectStatusId: values.projectStatusId,
+      status: statuses.find((s) => s.id === values.projectStatusId)?.nameTh,
       assignees: values.assignees,
     };
 
@@ -205,7 +206,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         <Row gutter={16}>
           <Col span={8}>
             <Form.Item
-              name="status"
+              name="projectStatusId"
               label="สถานะการดำเนินงาน"
               rules={[{ required: true }]}
             >

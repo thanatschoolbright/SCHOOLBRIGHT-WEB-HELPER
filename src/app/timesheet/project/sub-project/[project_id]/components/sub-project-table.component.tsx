@@ -48,25 +48,128 @@ interface SubProjectTableProps {
   onEdit: (record: SubProject) => void;
   onDelete: (id: number) => void;
   onViewDetail: (record: SubProject) => void;
+  statuses?: any[];
 }
 
-const getStatusConfig = (status?: string) => {
-  switch (status) {
-    case "ยังไม่เริ่มต้น":
-      return { color: "default", icon: <ClockCircleOutlined /> };
-    case "ค้นคว้าเอกสาร":
-      return { color: "cyan", icon: <FileTextOutlined /> };
-    case "พัฒนา":
-      return { color: "processing", icon: <EditOutlined /> };
-    case "ทดสอบระบบ":
-      return { color: "warning", icon: <InfoCircleOutlined /> };
-    case "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)":
-      return { color: "blue", icon: <Badge status="processing" /> };
-    case "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)":
-      return { color: "success", icon: <CheckCircleOutlined /> };
-    default:
-      return { color: "default", icon: null };
-  }
+const StatusStepTracker: React.FC<{
+  currentStatusId?: number | null;
+  currentStatusName?: string;
+  statuses: any[];
+}> = ({ currentStatusId, currentStatusName, statuses }) => {
+  const { token } = theme.useToken();
+  const sortedStatuses = useMemo(
+    () => [...statuses].sort((a, b) => a.priority - b.priority),
+    [statuses]
+  );
+
+  // Find current status priority
+  const currentStatus = useMemo(() => {
+    if (currentStatusId) return statuses.find((s) => s.id === currentStatusId);
+    if (currentStatusName)
+      return statuses.find((s) => s.nameTh === currentStatusName);
+    return null;
+  }, [currentStatusId, currentStatusName, statuses]);
+
+  const currentPriority = currentStatus?.priority || 0;
+  // Exclude 'On Hold' (99) from the main progress steps if it's too high?
+  // Let's filter out anything > 10 for the line, or just show all.
+  // The user sample had priority 99 for On Hold.
+  const mainStages = sortedStatuses.filter((s) => s.priority < 90);
+  const onHoldStatus = sortedStatuses.find((s) => s.priority === 99);
+
+  const isOnHold = currentPriority === 99;
+
+  return (
+    <div className="flex flex-col gap-3 w-full py-2">
+      <div className="flex items-center gap-1 relative h-6">
+        {mainStages.map((status, index) => {
+          const isCompleted = !isOnHold && currentPriority >= status.priority;
+          const isActive = !isOnHold && currentPriority === status.priority;
+
+          return (
+            <React.Fragment key={status.id}>
+              {/* Connector */}
+              {index > 0 && (
+                <div
+                  className="h-[3px] flex-1 rounded-full transition-all duration-700"
+                  style={{
+                    background: isCompleted
+                      ? `linear-gradient(90deg, ${token.colorPrimary}, ${token.colorPrimaryHover})`
+                      : token.colorFillSecondary,
+                  }}
+                />
+              )}
+              {/* Step Dot */}
+              <Tooltip title={`Step ${status.priority}: ${status.nameTh}`}>
+                <div
+                  className={`relative flex items-center justify-center transition-all duration-500 ${
+                    isActive ? "scale-125" : "scale-100"
+                  }`}
+                >
+                  {isActive && (
+                    <div
+                      className="absolute w-5 h-5 rounded-full animate-ping opacity-20"
+                      style={{ backgroundColor: token.colorPrimary }}
+                    />
+                  )}
+                  <div
+                    className="w-3 h-3 rounded-full z-10 transition-all duration-500 border-2"
+                    style={{
+                      backgroundColor: isCompleted
+                        ? token.colorPrimary
+                        : "#fff",
+                      borderColor: isCompleted
+                        ? token.colorPrimary
+                        : token.colorFillSecondary,
+                      boxShadow: isActive
+                        ? `0 0 10px ${token.colorPrimary}80`
+                        : "none",
+                    }}
+                  />
+                </div>
+              </Tooltip>
+            </React.Fragment>
+          );
+        })}
+      </div>
+      <div className="flex justify-between items-center px-0.5">
+        <div className="flex flex-col">
+          <Text
+            strong
+            className="text-[11px]"
+            style={{ color: isOnHold ? token.colorError : token.colorPrimary }}
+          >
+            {currentStatus?.nameTh || currentStatusName || "Ready to Start"}
+          </Text>
+          {isOnHold && (
+            <Text type="danger" style={{ fontSize: 9 }} className="italic">
+              Paused at priority {currentStatus?.priority}
+            </Text>
+          )}
+        </div>
+        <div
+          className="px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
+          style={{
+            backgroundColor: isOnHold
+              ? `${token.colorError}15`
+              : `${token.colorPrimary}15`,
+            color: isOnHold ? token.colorError : token.colorPrimary,
+          }}
+        >
+          {currentPriority > 0 && !isOnHold
+            ? `${Math.round(
+                ((mainStages.findIndex((s) => s.priority === currentPriority) +
+                  1) /
+                  mainStages.length) *
+                  100
+              )}%`
+            : isOnHold
+            ? "ON HOLD"
+            : "0%"}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export const SubProjectTable: React.FC<SubProjectTableProps> = ({
@@ -77,6 +180,7 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
   onEdit,
   onDelete,
   onViewDetail,
+  statuses = [],
 }) => {
   const { token } = theme.useToken();
   const { t } = useTranslation();
@@ -86,8 +190,9 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
       {
         title: "#",
         key: "index",
-        width: 60,
+        width: 50,
         align: "center",
+        className: "text-gray-400 font-medium",
         render: (_, __, idx) =>
           (pagination.current - 1) * pagination.pageSize + idx + 1,
       },
@@ -95,7 +200,7 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
         title: t("sub_project_page.table_feature"),
         dataIndex: "name",
         key: "name",
-        width: 250,
+        width: 280,
         render: (name, record) => {
           const handleCopy = async () => {
             try {
@@ -110,120 +215,148 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
           };
 
           return (
-            <Space align="start" className="w-full group">
-              <Avatar
-                shape="square"
-                icon={<FileTextOutlined />}
+            <div className="flex items-center gap-4 group py-1">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0 transition-transform group-hover:scale-105"
                 style={{
-                  backgroundColor: token.colorPrimaryBg,
-                  color: token.colorPrimary,
+                  background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorPrimaryHover})`,
+                  color: "#fff",
                 }}
-              />
-              <div className="flex flex-col flex-1">
-                <Text strong>{name}</Text>
-                {record.name_en && (
-                  <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
+              >
+                <FileTextOutlined style={{ fontSize: 18 }} />
+              </div>
+              <div className="flex flex-col min-w-0 flex-1">
+                <Text
+                  strong
+                  className="truncate text-[14px]"
+                  style={{ color: token.colorText }}
+                >
+                  {name}
+                </Text>
+                {record.name_en ? (
+                  <Text
+                    type="secondary"
+                    className="truncate text-[11px] font-medium opacity-70"
+                  >
                     {record.name_en}
+                  </Text>
+                ) : (
+                  <Text
+                    type="secondary"
+                    className="italic text-[10px] opacity-40"
+                  >
+                    No English Name
                   </Text>
                 )}
               </div>
-              <Button
-                type="text"
-                size="small"
-                icon={<CopyOutlined />}
-                onClick={handleCopy}
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ flexShrink: 0 }}
-              />
-            </Space>
-          );
-        },
-      },
-      {
-        title: "ผู้รับผิดชอบ",
-        key: "assignees",
-        width: 120,
-        render: (_, record) => (
-          <Avatar.Group maxCount={3} size="small" className="flex items-center">
-            {record.projectAssignees?.map((a) => {
-              const u = getUserById(a.userId);
-              return (
-                <Tooltip
-                  title={`${u?.firstname || "Unknown"} ${u?.lastname || ""} ${
-                    a.position ? `(${a.position})` : ""
-                  }`}
-                  key={a.id}
-                >
-                  <Avatar
-                    src={u?.profile_image}
-                    style={{ backgroundColor: token.colorPrimary }}
-                  >
-                    {u?.firstname?.[0] || <UserOutlined />}
-                  </Avatar>
-                </Tooltip>
-              );
-            })}
-            {(!record.projectAssignees ||
-              record.projectAssignees.length === 0) && (
-              <Text type="secondary" style={{ fontSize: 10 }}>
-                N/A
-              </Text>
-            )}
-          </Avatar.Group>
-        ),
-      },
-      {
-        title: t("sub_project_page.table_status"),
-        key: "status",
-        width: 180,
-        render: (_, record) => {
-          const config = getStatusConfig(record.status);
-          const percent = calculateProgress(
-            record.startDate || "",
-            record.endDate || ""
-          );
-
-          return (
-            <div className="w-full">
-              <div className="flex justify-between items-center mb-1">
-                <Tag color={config.color} className="m-0 text-[10px] font-bold">
-                  {record.status || "ยังไม่เริ่มต้น"}
-                </Tag>
-                <Text type="secondary" style={{ fontSize: 10 }}>
-                  {record.endDate ? dayjs(record.endDate).format("DD/MM") : "-"}
-                </Text>
-              </div>
-              <Progress
-                percent={percent}
-                size={[0, 4]}
-                showInfo={false}
-                strokeColor={
-                  record.status === "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)"
-                    ? token.colorSuccess
-                    : token.colorPrimary
-                }
-              />
+              <Tooltip title="Copy name">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CopyOutlined />}
+                  onClick={handleCopy}
+                  className="opacity-0 group-hover:opacity-100 transition-all hover:bg-gray-100 rounded-lg"
+                />
+              </Tooltip>
             </div>
           );
         },
       },
       {
+        title: "ทีมงานผู้รับผิดชอบ",
+        key: "assignees",
+        width: 140,
+        render: (_, record) => (
+          <div className="flex flex-col gap-1">
+            <Avatar.Group
+              maxCount={3}
+              size="small"
+              className="flex items-center"
+              maxStyle={{
+                color: token.colorPrimary,
+                backgroundColor: `${token.colorPrimary}15`,
+                fontSize: 10,
+                fontWeight: 600,
+              }}
+            >
+              {record.projectAssignees?.map((a) => {
+                const u = getUserById(a.userId);
+                return (
+                  <Tooltip
+                    title={
+                      <div className="text-[11px]">
+                        <div className="font-bold">{`${
+                          u?.firstname || "Unknown"
+                        } ${u?.lastname || ""}`}</div>
+                        {a.position && (
+                          <div className="opacity-80 italic">{a.position}</div>
+                        )}
+                      </div>
+                    }
+                    key={a.id}
+                  >
+                    <Avatar
+                      src={u?.profile_image}
+                      className="border-2 border-white"
+                      style={{ backgroundColor: token.colorPrimary }}
+                    >
+                      {u?.firstname?.[0] || <UserOutlined />}
+                    </Avatar>
+                  </Tooltip>
+                );
+              })}
+            </Avatar.Group>
+            {record.projectAssignees && record.projectAssignees.length > 0 ? (
+              <Text type="secondary" style={{ fontSize: 9 }} className="pl-1">
+                {record.projectAssignees.length} members
+              </Text>
+            ) : (
+              <Tag
+                color="default"
+                className="w-fit text-[9px] h-4 leading-[14px] m-0 opacity-50"
+              >
+                Unassigned
+              </Tag>
+            )}
+          </div>
+        ),
+      },
+      {
+        title: t("sub_project_page.table_status"),
+        key: "status",
+        width: 220,
+        render: (_, record) => (
+          <StatusStepTracker
+            currentStatusId={record.projectStatusId}
+            currentStatusName={record.status}
+            statuses={statuses}
+          />
+        ),
+      },
+      {
         title: t("sub_project_page.table_type"),
         dataIndex: "assetCaptureType",
         key: "type",
-        width: 100,
+        width: 110,
         align: "center",
         render: (type) => {
           const option = ASSET_OPTIONS.find((o) => o.value === type);
           return (
-            <Tag color={option?.color} style={{ fontSize: 10 }}>
+            <Tag
+              className="m-0 border-none rounded-full px-3 text-[10px] uppercase font-bold tracking-tighter"
+              style={{
+                backgroundColor:
+                  `${option?.color}15` || token.colorFillSecondary,
+                color: option?.color || token.colorTextSecondary,
+              }}
+            >
               {option?.label || type}
             </Tag>
           );
         },
       },
       {
-        title: t("sub_project_page.table_actions"),
+        title: "",
         key: "action",
         width: 60,
         align: "center",
@@ -233,13 +366,13 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
               items: [
                 {
                   key: "view",
-                  label: t("sub_project_page.action_view"),
+                  label: "ดูรายละเอียด",
                   icon: <InfoCircleOutlined />,
                   onClick: () => onViewDetail(record),
                 },
                 {
                   key: "edit",
-                  label: t("sub_project_page.action_edit"),
+                  label: "แก้ไขข้อมูล",
                   icon: <EditOutlined />,
                   onClick: () => onEdit(record),
                 },
@@ -248,26 +381,32 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
                   key: "delete",
                   label: (
                     <Popconfirm
-                      title={t("sub_project_page.delete_confirm_title")}
-                      description={t("sub_project_page.delete_confirm_desc")}
+                      title="ยืนยันการลบ?"
+                      description="ข้อมูลที่ถูกลบไม่สามารถกู้คืนได้"
                       onConfirm={() => onDelete(record.id)}
-                      okText={t("sub_project_page.delete_ok")}
-                      cancelText={t("sub_project_page.delete_cancel")}
+                      okText="ยืนยัน"
+                      cancelText="ยกเลิก"
                       okButtonProps={{ danger: true }}
                     >
-                      <span className="w-full inline-block">
-                        {t("sub_project_page.action_delete")}
+                      <span className="w-full inline-block text-red-500">
+                        ลบฟีเจอร์
                       </span>
                     </Popconfirm>
                   ),
-                  icon: <DeleteOutlined />,
+                  icon: <DeleteOutlined className="text-red-500" />,
                   danger: true,
                 },
               ],
             }}
+            placement="bottomRight"
             trigger={["click"]}
           >
-            <Button type="text" shape="circle" icon={<MoreOutlined />} />
+            <Button
+              type="text"
+              shape="circle"
+              icon={<MoreOutlined style={{ fontSize: 20 }} />}
+              className="hover:bg-gray-100"
+            />
           </Dropdown>
         ),
       },
@@ -276,13 +415,15 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
       pagination.current,
       pagination.pageSize,
       token.colorPrimary,
-      token.colorSuccess,
-      token.fontSizeSM,
-      token.colorPrimaryBg,
+      token.colorPrimaryHover,
+      token.colorText,
+      token.colorFillSecondary,
+      token.colorError,
       t,
       onEdit,
       onDelete,
       onViewDetail,
+      statuses,
     ]
   );
 
@@ -292,17 +433,37 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
       dataSource={dataSource}
       rowKey={(r) => r.id}
       loading={loading}
+      className="premium-table"
       pagination={{
         current: pagination.current,
         pageSize: pagination.pageSize,
         total: pagination.total,
         onChange: onPaginationChange,
         showSizeChanger: false,
-        showTotal: (total) =>
-          t("sub_project_page.total_items", { count: total }),
+        className: "px-6 pb-4",
       }}
+      rowClassName={() =>
+        "hover:bg-gray-50/50 transition-colors pointer-cursor"
+      }
+      scroll={{ x: 800 }}
       locale={{
-        emptyText: <Empty description={t("sub_project_page.no_data")} />,
+        emptyText: (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              <div className="flex flex-col gap-2">
+                <Text type="secondary">{t("sub_project_page.no_data")}</Text>
+                <Button
+                  type="link"
+                  size="small"
+                  onClick={() => onPaginationChange(1)}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            }
+          />
+        ),
       }}
     />
   );

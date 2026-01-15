@@ -30,7 +30,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     { value: null, label: t("sub_project_page.all_status") },
     ...statuses
       .sort((a, b) => a.priority - b.priority)
-      .map((s) => ({ label: s.nameTh, value: s.nameTh })),
+      .map((s) => ({ label: s.nameTh, value: s.id })),
   ];
 
   return (

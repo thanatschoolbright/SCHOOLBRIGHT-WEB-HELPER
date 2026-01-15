@@ -11,6 +11,7 @@ export const Schema = z.object({
   startDate: z.union([z.date(), z.string()]),
   endDate: z.union([z.date(), z.string()]),
   status: z.string().optional(),
+  projectStatusId: z.number().optional().nullable(),
   assignees: z
     .array(
       z.object({
