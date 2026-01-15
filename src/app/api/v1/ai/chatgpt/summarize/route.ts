@@ -1,0 +1,95 @@
+import { NextRequest, NextResponse } from "next/server";
+import axios from "axios";
+import { z } from "zod";
+import { QA_TASK_SUMMARY_TASK_PROMPT } from "@/constants/prompts";
+import { successResponse, errorResponse } from "@/helpers/api/response";
+import { logger } from "@/helpers/logger";
+
+const requestSchema = z.object({
+  summary: z.string().min(1, "Summary is required").optional(),
+  description: z.string().optional(),
+});
+
+export async function POST(request: NextRequest) {
+  const apiKey = process.env.CHATGPT_API_KEY;
+  const requestId = Math.random().toString(36).substring(7);
+
+  if (!apiKey) {
+    return NextResponse.json(
+      errorResponse({
+        status: 500,
+        message_th: "ChatGPT API Key missing (CHATGPT_API_KEY)",
+      }),
+      { status: 500 }
+    );
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const result = requestSchema.safeParse(body);
+  if (!result.success) {
+    return NextResponse.json(
+      errorResponse({ status: 400, message_th: "ข้อมูลไม่ถูกต้อง" }),
+      { status: 400 }
+    );
+  }
+
+  const { summary, description } = result.data;
+
+  try {
+    logger.info(`[${requestId}] Attempting ChatGPT Summarization`);
+
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4o-mini", // Use a cost-effective model as default
+        messages: [
+          {
+            role: "system",
+            content: QA_TASK_SUMMARY_TASK_PROMPT,
+          },
+          {
+            role: "user",
+            content: `--- INPUT ---\nSummary: ${summary || "-"}\nDescription: ${
+              description || "-"
+            }`,
+          },
+        ],
+        temperature: 0.4,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        timeout: 30000,
+      }
+    );
+
+    const markdown = response.data?.choices?.[0]?.message?.content;
+
+    if (markdown) {
+      logger.info(`[${requestId}] Success with ChatGPT`);
+      return NextResponse.json(
+        successResponse({
+          data: { markdown, model_used: "gpt-4o-mini" },
+          message_th: "สรุปด้วย ChatGPT สำเร็จ",
+        })
+      );
+    } else {
+      throw new Error("No content returned from OpenAI");
+    }
+  } catch (error: any) {
+    logger.error(`[${requestId}] ChatGPT API Error: ${error.message}`);
+    const statusCode = error.response?.status || 500;
+    const errorMessage = error.response?.data?.error?.message || error.message;
+
+    return NextResponse.json(
+      errorResponse({
+        status: statusCode,
+        message_en: errorMessage,
+        message_th: "เกิดข้อผิดพลาดในการเรียกใช้ ChatGPT",
+      }),
+      { status: statusCode }
+    );
+  }
+}

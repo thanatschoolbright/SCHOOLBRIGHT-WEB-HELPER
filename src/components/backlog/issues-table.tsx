@@ -17,6 +17,7 @@ import {
 import {
   Avatar,
   Button,
+  Modal,
   Space,
   Table,
   Tag,
@@ -85,6 +86,14 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
     Record<string, "processing" | "success" | "error">
   >({});
 
+  const [engineSelectModal, setEngineSelectModal] = React.useState<{
+    open: boolean;
+    issue: Issue | null;
+  }>({
+    open: false,
+    issue: null,
+  });
+
   // Define AI Processing Steps
   const aiSteps = [
     {
@@ -124,7 +133,12 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
     },
   ];
 
-  const onClickAI = async (issue: Issue) => {
+  const [aiEngine, setAiEngine] = React.useState<"gemini" | "chatgpt">(
+    "gemini"
+  );
+
+  const onClickAI = async (issue: Issue, engine: "gemini" | "chatgpt") => {
+    setAiEngine(engine);
     // เปิด AI Processing Modal
     setAiProcessing({
       open: true,
@@ -150,14 +164,18 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
       setAiProcessing((prev) => ({ ...prev, currentStep: 0 }));
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate preparation time
 
-      // Step 2: ส่งคำขอไปยัง Gemini
+      // Step 2: ส่งคำขอ
       setAiProcessing((prev) => ({ ...prev, currentStep: 1 }));
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Step 3: ประมวลผลด้วย AI
       setAiProcessing((prev) => ({ ...prev, currentStep: 2 }));
 
-      const response = await axios.post("/api/v1/ai/gemini/summarize", {
+      const endpoint =
+        engine === "chatgpt"
+          ? "/api/v1/ai/chatgpt/summarize"
+          : "/api/v1/ai/gemini/summarize";
+      const response = await axios.post(endpoint, {
         summary: issue.summary,
         description: issue.description,
       });
@@ -240,7 +258,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
 
   const handleAiRegenerate = () => {
     if (aiModal.issue) {
-      onClickAI(aiModal.issue);
+      onClickAI(aiModal.issue, aiEngine);
     }
   };
 
@@ -554,7 +572,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
           <Button
             size="small"
             icon={<RobotOutlined />}
-            onClick={() => onClickAI(record)}
+            onClick={() => setEngineSelectModal({ open: true, issue: record })}
           />
         </Tooltip>
       ),
@@ -747,12 +765,93 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
       <AIProcessingModal
         open={aiProcessing.open}
         currentStep={aiProcessing.currentStep}
-        steps={aiSteps}
+        steps={aiSteps.map((step, idx) => {
+          if (idx === 1) {
+            return {
+              ...step,
+              title:
+                aiEngine === "chatgpt"
+                  ? "ส่งคำขอไปยัง ChatGPT"
+                  : "ส่งคำขอไปยัง Gemini AI",
+              description:
+                aiEngine === "chatgpt"
+                  ? "กำลังส่งข้อมูลไปยัง OpenAI เพื่อประมวลผล"
+                  : "กำลังส่งข้อมูลไปยัง Google Gemini เพื่อประมวลผล",
+            };
+          }
+          return step;
+        })}
         processingTime={aiProcessing.processingTime}
         onCancel={() =>
           setAiProcessing({ open: false, currentStep: 0, processingTime: 0 })
         }
       />
+
+      {/* Model Selection Modal */}
+      <Modal
+        title={
+          <Space>
+            <RobotOutlined className="text-blue-500" />
+            <span>เลือก AI Engine ที่ต้องการใช้งาน</span>
+          </Space>
+        }
+        open={engineSelectModal.open}
+        onCancel={() => setEngineSelectModal({ open: false, issue: null })}
+        footer={null}
+        width={400}
+        centered
+      >
+        <div className="flex flex-col gap-3 py-2">
+          <Button
+            size="large"
+            type="primary"
+            className="h-16 flex items-center justify-start gap-4"
+            icon={
+              <div className="bg-white/20 p-2 rounded-lg">
+                <RobotOutlined style={{ fontSize: 24 }} />
+              </div>
+            }
+            onClick={() => {
+              if (engineSelectModal.issue) {
+                onClickAI(engineSelectModal.issue, "gemini");
+                setEngineSelectModal({ open: false, issue: null });
+              }
+            }}
+          >
+            <div className="flex flex-col items-start">
+              <span className="font-bold">Google Gemini</span>
+              <span className="text-xs opacity-80">
+                ประมวลผลรวดเร็ว แม่นยำ (ฟรี)
+              </span>
+            </div>
+          </Button>
+
+          <Button
+            size="large"
+            style={{ backgroundColor: "#10a37f", borderColor: "#10a37f" }}
+            type="primary"
+            className="h-16 flex items-center justify-start gap-4"
+            icon={
+              <div className="bg-white/20 p-2 rounded-lg">
+                <RobotOutlined style={{ fontSize: 24 }} />
+              </div>
+            }
+            onClick={() => {
+              if (engineSelectModal.issue) {
+                onClickAI(engineSelectModal.issue, "chatgpt");
+                setEngineSelectModal({ open: false, issue: null });
+              }
+            }}
+          >
+            <div className="flex flex-col items-start">
+              <span className="font-bold">ChatGPT (OpenAI)</span>
+              <span className="text-xs opacity-80">
+                ฉลาดล้ำเลิศ สรุปได้ลึกซึ้ง (GPT-4o)
+              </span>
+            </div>
+          </Button>
+        </div>
+      </Modal>
     </>
   );
 };

@@ -14,6 +14,8 @@ import {
   Divider,
   theme,
   Tooltip,
+  Row,
+  Col,
 } from "antd";
 import { useRouter } from "next/navigation";
 import React, { useState, useRef, useEffect } from "react";
@@ -29,6 +31,7 @@ import {
   InfoCircleOutlined,
   MinusOutlined,
   AppstoreAddOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 
@@ -80,7 +83,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
   const [bulkTabKey, setBulkTabKey] = useState<"ai" | "manual">("ai");
   const [autoCategoryEnabled, setAutoCategoryEnabled] = useState(false);
-  const [autoDescriptionEnabled, setAutoDescriptionEnabled] = useState(false);
+  const [autoGeminiEnabled, setAutoGeminiEnabled] = useState(false);
+  const [autoChatGptEnabled, setAutoChatGptEnabled] = useState(false);
   const [autoCategoryLoading, setAutoCategoryLoading] = useState(false);
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [resultsModalVisible, setResultsModalVisible] = useState(false);
@@ -161,7 +165,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
     try {
       if (!issue) throw new Error("ไม่พบข้อมูลงาน");
-      const response = await axios.post("/api/v1/ai/gemini/summarize", {
+      const endpoint = autoChatGptEnabled
+        ? "/api/v1/ai/chatgpt/summarize"
+        : "/api/v1/ai/gemini/summarize";
+      const response = await axios.post(endpoint, {
         summary: issue.summary,
         description: issue.description,
       });
@@ -217,8 +224,14 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     if (checked) setBulkCategoryIds(undefined);
   };
 
-  const handleAutoDescriptionToggle = (checked: boolean) => {
-    setAutoDescriptionEnabled(checked);
+  const handleAutoGeminiToggle = (checked: boolean) => {
+    setAutoGeminiEnabled(checked);
+    if (checked) setAutoChatGptEnabled(false);
+  };
+
+  const handleAutoChatGptToggle = (checked: boolean) => {
+    setAutoChatGptEnabled(checked);
+    if (checked) setAutoGeminiEnabled(false);
   };
 
   const clearBulkForm = () => {
@@ -229,14 +242,16 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     setBulkMilestoneIds(undefined);
     setBulkCategoryIds(undefined);
     setAutoCategoryEnabled(false);
-    setAutoDescriptionEnabled(false);
+    setAutoGeminiEnabled(false);
+    setAutoChatGptEnabled(false);
     setResultsModalVisible(false); // Close result modal on clear
     setProcessingResults([]); // Clear results
   };
 
   const hasBulkUpdates =
     autoCategoryEnabled ||
-    autoDescriptionEnabled ||
+    autoGeminiEnabled ||
+    autoChatGptEnabled ||
     bulkStatusId !== undefined ||
     bulkPriorityId !== undefined ||
     bulkStartDate !== undefined ||
@@ -260,7 +275,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
     if (
       !autoCategoryEnabled &&
-      !autoDescriptionEnabled &&
+      !(autoGeminiEnabled || autoChatGptEnabled) &&
       !Object.keys(sharedUpdates).length
     ) {
       toast.error("กรุณาเลือกข้อมูลที่จะอัปเดต");
@@ -271,7 +286,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     const toastId = toast.loading("กำลังอัปเดตงานแบบกลุ่ม...");
 
     try {
-      if (autoCategoryEnabled || autoDescriptionEnabled) {
+      if (autoCategoryEnabled || autoGeminiEnabled || autoChatGptEnabled) {
         // AI-assisted update
         const selectedIssueMap = new Map(
           issues.map((issueItem) => {
@@ -294,9 +309,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
         }));
 
         if (autoCategoryEnabled) {
-          toast.message("กำลังวิเคราะห์หมวดหมู่ด้วย Gemini...", {
+          toast.message(`กำลังวิเคราะห์หมวดหมู่ด้วย Gemini...`, {
             id: toastId,
           });
+          // Note: auto-category is currently only implemented for Gemini in the backend.
           const { data: autoCategoryResponse } = await axios.post(
             "/api/v1/ai/gemini/auto-category",
             {
@@ -323,7 +339,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           });
         }
 
-        if (autoDescriptionEnabled) {
+        if (autoGeminiEnabled || autoChatGptEnabled) {
           // Prepare processing results and open modal
           perIssuePayloadsRef.current = perIssuePayloads;
 
@@ -413,229 +429,209 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
   return (
     <Card
       size="small"
-      styles={{ body: { padding: 16 } }}
+      styles={{ body: { padding: 24 } }}
       style={{
         ...elevatedCardStyle,
         border: "none",
-        boxShadow:
-          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-        borderRadius: 12,
+        boxShadow: "none",
+        borderRadius: 24,
       }}
       title={
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
-          <Space align="center" size={10}>
-            <AppstoreAddOutlined style={{ color: token.colorPrimary }} />
-            <Typography.Title level={5} style={{ margin: 0 }}>
-              จัดการหลายรายการ (Bulk Actions)
-            </Typography.Title>
-            <Tag
-              color="blue"
-              bordered={false}
-              style={{ borderRadius: 12, fontSize: 12 }}
-            >
-              เลือกแล้ว: {selectedRowKeys.length} รายการ
-            </Tag>
+        <div className="flex items-center justify-between py-2">
+          <Space align="center" size={16}>
+            <div className="bg-blue-50 p-3 rounded-2xl">
+              <AppstoreAddOutlined
+                style={{ color: token.colorPrimary, fontSize: 24 }}
+              />
+            </div>
+            <div>
+              <Typography.Title
+                level={4}
+                style={{ margin: 0, fontWeight: 800 }}
+              >
+                จัดการหลายรายการพร้อมกัน
+              </Typography.Title>
+              <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                จัดการข้อมูลและใช้ AI ช่วยสรุปงานจำนวนมากในครั้งเดียว
+              </Typography.Text>
+            </div>
           </Space>
+          <Tag
+            color="blue"
+            style={{
+              borderRadius: 12,
+              padding: "4px 12px",
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            เลือกแล้ว {selectedRowKeys.length} รายการ
+          </Tag>
         </div>
       }
     >
       <Skeleton
         active
         loading={optionsLoading}
-        paragraph={{ rows: 6 }}
+        paragraph={{ rows: 8 }}
         title={false}
       >
-        <Tabs
-          activeKey={bulkTabKey}
-          onChange={(key) => setBulkTabKey(key as "ai" | "manual")}
-          type="card"
-          items={[
-            {
-              key: "ai",
-              label: (
+        <Row gutter={[40, 40]}>
+          {/* Left Column: AI Power Tools */}
+          <Col xs={24} lg={9}>
+            <div className="flex flex-col gap-6">
+              <Divider orientation="left" style={{ margin: "0 0 16px 0" }}>
                 <Space>
-                  <RobotOutlined />
-                  อัปเดตด้วย AI
+                  <RobotOutlined style={{ color: token.colorPrimary }} />
+                  <Typography.Text strong>
+                    เครื่องมือ AI อัจฉริยะ
+                  </Typography.Text>
+                  <Tooltip title="ใช้ AI เพื่อประมวลผลข้อมูลอัตโนมัติ ช่วยลดเวลาการทำงานซ้ำ ๆ">
+                    <InfoCircleOutlined className="text-gray-300" />
+                  </Tooltip>
                 </Space>
-              ),
-              children: (
-                <div style={{ marginTop: 16 }}>
-                  {/* Flattened Layout: Control Header + Form */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      justifyContent: "space-between",
-                      padding: "12px 16px",
-                      background: token.colorFillAlter,
-                      borderRadius: token.borderRadiusLG,
-                      marginBottom: 16,
-                      border: `1px solid ${token.colorBorderSecondary}`,
-                    }}
-                  >
-                    <Space direction="vertical" size={2}>
-                      <Space>
-                        <RobotOutlined style={{ color: "#1677ff" }} />
-                        <Typography.Text strong>
-                          ตัวช่วยกรองอัจฉริยะ (Smart Filters)
-                        </Typography.Text>
-                      </Space>
-                      <Typography.Text
-                        type="secondary"
-                        style={{ fontSize: 13, maxWidth: 400 }}
-                      >
-                        จัดหมวดหมู่และสรุปงานอัตโนมัติด้วย Gemini AI
-                        โดยเปิดใช้งานตัวเลือกด้านล่าง
-                      </Typography.Text>
-                    </Space>
+              </Divider>
 
-                    <Space size={16}>
-                      <AutoCategoryToggle
-                        disabled={
-                          autoCategoryLoading ||
-                          bulkUpdating ||
-                          !categoryOptions.length
-                        }
-                        enabled={autoCategoryEnabled}
-                        onChange={handleAutoCategoryToggle}
-                      />
-                      <AutoAiDescriptionToggle
-                        enabled={autoDescriptionEnabled}
-                        onChange={handleAutoDescriptionToggle}
-                        disabled={bulkUpdating}
-                      />
-                    </Space>
-                  </div>
+              <div className="flex flex-col gap-8">
+                <AutoCategoryToggle
+                  disabled={
+                    autoCategoryLoading ||
+                    bulkUpdating ||
+                    !categoryOptions.length
+                  }
+                  enabled={autoCategoryEnabled}
+                  onChange={handleAutoCategoryToggle}
+                />
 
-                  {/* Clean Form Panel */}
-                  <div style={{ padding: "0 8px" }}>
-                    <BulkUpdatePanel
-                      autoCategoryEnabled={autoCategoryEnabled}
-                      autoAiDescriptionEnabled={autoDescriptionEnabled}
-                      autoCategoryLoading={autoCategoryLoading}
-                      bulkCategoryIds={bulkCategoryIds}
-                      bulkDueDate={bulkDueDate}
-                      bulkMilestoneIds={bulkMilestoneIds}
-                      bulkPriorityId={bulkPriorityId}
-                      bulkStartDate={bulkStartDate}
-                      bulkStatusId={bulkStatusId}
-                      bulkUpdating={bulkUpdating}
-                      categoryOptions={categoryOptions}
-                      milestoneOptions={milestoneOptions}
-                      onCategoryChange={(values) =>
-                        setBulkCategoryIds(
-                          values && values.length ? values : []
-                        )
-                      }
-                      onClear={clearBulkForm}
-                      onDueDateChange={(value) => setBulkDueDate(value ?? null)}
-                      onManageMilestone={() => {
-                        router.push(
-                          `/backlogs/projects/${projectId}/milestones?space=${encodeURIComponent(
-                            space
-                          )}&name=${encodeURIComponent(projectName)}`
-                        );
-                      }}
-                      onMilestoneChange={(values) =>
-                        setBulkMilestoneIds(
-                          values && values.length ? values : []
-                        )
-                      }
-                      onPriorityChange={(value) => setBulkPriorityId(value)}
-                      onStartDateChange={(value) =>
-                        setBulkStartDate(value ?? null)
-                      }
-                      onStatusChange={(value) => setBulkStatusId(value)}
-                      onSubmit={handleBulkUpdate}
-                      priorityOptions={priorityOptions}
-                      selectedCount={selectedRowKeys.length}
-                      statusOptions={statusOptions}
-                      submitDisabled={
-                        !selectedRowKeys.length ||
-                        !hasBulkUpdates ||
-                        bulkUpdating
-                      }
-                    />
-                  </div>
+                <div className="flex flex-col gap-4">
+                  <AutoAiDescriptionToggle
+                    label="สรุปด้วย Gemini"
+                    description="เหมาะสำหรับการวิเคราะห์งานทั่วไปที่รวดเร็ว"
+                    enabled={autoGeminiEnabled}
+                    onChange={handleAutoGeminiToggle}
+                    disabled={bulkUpdating}
+                  />
+
+                  <AutoAiDescriptionToggle
+                    label="สรุปด้วย ChatGPT"
+                    description="สรุปได้ลึกซึ้ง เหมาะสำหรับงานที่ซับซ้อน (GPT-4o)"
+                    activeColor="#10a37f"
+                    enabled={autoChatGptEnabled}
+                    onChange={handleAutoChatGptToggle}
+                    disabled={bulkUpdating}
+                  />
                 </div>
-              ),
-            },
-          ]}
-        />
-      </Skeleton>
-
-      {/* Results Modal - Cleaned up */}
-      <Modal
-        title={
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginRight: 24,
-            }}
-          >
-            <Space>
-              <div
-                style={{
-                  padding: 6,
-                  background: "#e6f4ff",
-                  borderRadius: "50%",
-                }}
-              >
-                <RobotOutlined style={{ color: "#1677ff", fontSize: 18 }} />
               </div>
-              <div>
-                <Typography.Title level={5} style={{ margin: 0 }}>
-                  ผลลัพธ์การประมวลผล AI
-                </Typography.Title>
+
+              <div className="bg-gray-50/50 p-4 rounded-2xl mt-4">
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  AI Processing Results
+                  <InfoCircleOutlined className="mr-2" />* เมื่อเปิดใช้งาน AI
+                  ระบบจะทำการประมวลผลทีละรายการอัตโนมัติหลังจากที่คุณกดปุ่ม
+                  "อัปเดตงานทั้งหมด"
                 </Typography.Text>
               </div>
-            </Space>
-            {onRequestMinimize && (
-              <Tooltip title="ย่อหน้าต่างลง (Minimize)">
-                <Button
-                  type="text"
-                  icon={<MinusOutlined />}
-                  onClick={onRequestMinimize}
-                  style={{ color: "#666" }}
-                />
-              </Tooltip>
-            )}
-          </div>
-        }
+            </div>
+          </Col>
+
+          {/* Right Column: Manual Updates Fields */}
+          <Col xs={24} lg={15}>
+            <div className="flex flex-col gap-6">
+              <Divider orientation="left" style={{ margin: "0 0 16px 0" }}>
+                <Space>
+                  <EditOutlined style={{ color: "#faad14" }} />
+                  <Typography.Text strong>ตั้งค่าข้อมูลพื้นฐาน</Typography.Text>
+                  <Tooltip title="ใส่ข้อมูลที่ต้องการให้มีผลกับทุกรายการงานที่เลือก">
+                    <InfoCircleOutlined className="text-gray-300" />
+                  </Tooltip>
+                </Space>
+              </Divider>
+
+              <BulkUpdatePanel
+                autoCategoryEnabled={autoCategoryEnabled}
+                autoAiDescriptionEnabled={
+                  autoGeminiEnabled || autoChatGptEnabled
+                }
+                autoCategoryLoading={autoCategoryLoading}
+                bulkCategoryIds={bulkCategoryIds}
+                bulkDueDate={bulkDueDate}
+                bulkMilestoneIds={bulkMilestoneIds}
+                bulkPriorityId={bulkPriorityId}
+                bulkStartDate={bulkStartDate}
+                bulkStatusId={bulkStatusId}
+                bulkUpdating={bulkUpdating}
+                categoryOptions={categoryOptions}
+                milestoneOptions={milestoneOptions}
+                onCategoryChange={(values) => setBulkCategoryIds(values || [])}
+                onClear={clearBulkForm}
+                onDueDateChange={(value) => setBulkDueDate(value ?? null)}
+                onManageMilestone={() => {
+                  router.push(
+                    `/backlogs/projects/${projectId}/milestones?space=${encodeURIComponent(
+                      space
+                    )}&name=${encodeURIComponent(projectName)}`
+                  );
+                }}
+                onMilestoneChange={(values) =>
+                  setBulkMilestoneIds(values || [])
+                }
+                onPriorityChange={(value) => setBulkPriorityId(value)}
+                onStartDateChange={(value) => setBulkStartDate(value ?? null)}
+                onStatusChange={(value) => setBulkStatusId(value)}
+                onSubmit={handleBulkUpdate}
+                priorityOptions={priorityOptions}
+                selectedCount={selectedRowKeys.length}
+                statusOptions={statusOptions}
+                submitDisabled={
+                  !selectedRowKeys.length || !hasBulkUpdates || bulkUpdating
+                }
+              />
+            </div>
+          </Col>
+        </Row>
+      </Skeleton>
+
+      {/* Results Modal */}
+      <Modal
+        title={null}
         open={resultsModalVisible && !minimized}
         onCancel={() => setResultsModalVisible(false)}
         footer={null}
-        width={900}
-        styles={{ body: { padding: "20px 24px" } }}
+        width={1400}
+        styles={{ body: { padding: "40px" } }}
         centered
         maskClosable={false}
         destroyOnClose={false}
       >
-        <div style={{ marginBottom: 24 }}>
-          {/* Progress Header */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: 8,
-            }}
-          >
-            <Typography.Text strong>กำลังประมวลผล...</Typography.Text>
-            <Typography.Text type="secondary">
-              {processingResults.filter((r) => r.status === "success").length} /{" "}
-              {processingResults.length} เสร็จสิ้น
-            </Typography.Text>
+        <div style={{ marginBottom: 40 }}>
+          <div className="flex justify-between items-center mb-10">
+            <Space align="center" size={24}>
+              <div className="bg-blue-50 p-2 rounded-xl">
+                <RobotOutlined
+                  style={{ color: token.colorPrimary, fontSize: 20 }}
+                />
+              </div>
+              <div>
+                <Typography.Title level={4} style={{ margin: 0 }}>
+                  ผลลัพธ์การประมวลผลด้วย AI
+                </Typography.Title>
+                <Typography.Text type="secondary">
+                  ประมวลผลเสร็จสิ้น{" "}
+                  {
+                    processingResults.filter(
+                      (r) => r.status === "success" || r.status === "error"
+                    ).length
+                  }{" "}
+                  / {processingResults.length} รายการ
+                </Typography.Text>
+              </div>
+            </Space>
+            {onRequestMinimize && (
+              <Button
+                type="text"
+                icon={<MinusOutlined />}
+                onClick={onRequestMinimize}
+              />
+            )}
           </div>
 
           <Progress
@@ -647,55 +643,48 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 100
             )}
             status="active"
-            strokeColor={{ "0%": "#108ee9", "100%": "#87d068" }}
-            showInfo={false}
+            strokeColor={{
+              "0%": token.colorPrimary,
+              "100%": token.colorSuccess,
+            }}
+            strokeWidth={12}
+            className="mb-0"
           />
         </div>
 
-        <div
-          style={{
-            border: `1px solid ${token.colorBorderSecondary}`,
-            borderRadius: 8,
-            overflow: "hidden",
-            marginBottom: 16,
-          }}
-        >
+        <div className="border border-gray-100 rounded-2xl overflow-hidden mb-6">
           <Table
             dataSource={processingResults}
             rowKey={(r) => String(r.issueKeyOrId)}
             pagination={false}
-            scroll={{ y: 360 }}
-            size="small"
+            scroll={{ y: 500 }}
+            size="middle"
             expandable={{
               expandedRowRender: (record) => (
-                <div style={{ padding: "12px 20px", background: "#fafafa" }}>
+                <div className="p-4 bg-gray-50/50 rounded-xl m-2 border border-gray-100">
                   {record.status === "error" && (
-                    <div style={{ marginBottom: 8 }}>
-                      <Typography.Text type="danger" strong>
-                        <CloseCircleOutlined /> ข้อผิดพลาด:
+                    <div className="mb-4">
+                      <Typography.Text
+                        type="danger"
+                        strong
+                        className="flex items-center gap-2"
+                      >
+                        <CloseCircleOutlined /> ข้อผิดพลาดทางเทคนิค:
                       </Typography.Text>
-                      <Typography.Paragraph type="danger" style={{ margin: 0 }}>
+                      <Typography.Paragraph
+                        type="danger"
+                        className="mt-1 mb-0 border-l-4 border-red-200 pl-4 py-1 italic"
+                      >
                         {record.message}
                       </Typography.Paragraph>
                     </div>
                   )}
                   {record.summary && (
                     <div>
-                      <Typography.Text type="secondary">
-                        ผลลัพธ์ Markdown:
+                      <Typography.Text type="secondary" strong>
+                        ตัวอย่างคําอธิบายที่สร้างใหม่:
                       </Typography.Text>
-                      <div
-                        style={{
-                          marginTop: 4,
-                          padding: 8,
-                          background: "#fff",
-                          border: "1px solid #eee",
-                          borderRadius: 4,
-                          maxHeight: 100,
-                          overflow: "auto",
-                          fontSize: 12,
-                        }}
-                      >
+                      <div className="mt-2 p-3 bg-white border border-gray-100 rounded-lg max-h-[150px] overflow-auto text-sm leading-relaxed">
                         {record.summary}
                       </div>
                     </div>
@@ -707,30 +696,32 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             }}
             columns={[
               {
-                title: "งาน (Issue)",
+                title: "รหัสงาน",
                 dataIndex: "title",
                 key: "title",
-                width: 150,
+                width: 180,
                 render: (text) => (
-                  <Typography.Text strong>{text}</Typography.Text>
+                  <Typography.Text strong className="text-blue-600">
+                    {text}
+                  </Typography.Text>
                 ),
               },
               {
-                title: "สถานะ",
+                title: "สถานะประมวลผล",
                 dataIndex: "status",
                 key: "status",
-                width: 120,
+                width: 200,
                 render: (status) => {
                   const config = {
                     queue: {
                       color: "default",
                       icon: <ClockCircleOutlined />,
-                      text: "รอคิว",
+                      text: "ในคิว",
                     },
                     pending: {
                       color: "processing",
                       icon: <LoadingOutlined />,
-                      text: "กำลังทำ",
+                      text: "กำลังสรุป",
                     },
                     success: {
                       color: "success",
@@ -747,12 +738,11 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     icon: null,
                     text: status,
                   };
-
                   return (
                     <Tag
                       color={config.color}
                       icon={config.icon}
-                      bordered={false}
+                      className="rounded-full px-3"
                     >
                       {config.text}
                     </Tag>
@@ -760,7 +750,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 },
               },
               {
-                title: "ตัวอย่าง (Preview)",
+                title: "ตัวอย่างเนื้อหา",
                 dataIndex: "summary",
                 key: "summary",
                 render: (md, row) => {
@@ -777,12 +767,16 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                         italic
                         style={{ fontSize: 12 }}
                       >
-                        รอประมวลผล...
+                        กําลังวิเคราะห์ข้อมูล...
                       </Typography.Text>
                     );
                   return (
-                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                      {md.replace(/<[^>]*>?/gm, "").slice(0, 60)}...
+                    <Typography.Text
+                      type="secondary"
+                      ellipsis
+                      style={{ fontSize: 12, maxWidth: 300 }}
+                    >
+                      {md.replace(/<[^>]*>?/gm, "").slice(0, 80)}...
                     </Typography.Text>
                   );
                 },
@@ -791,13 +785,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           />
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <div className="flex justify-between items-center">
           <Button
             icon={<ReloadOutlined />}
             onClick={async () => {
@@ -886,10 +874,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
         width={600}
         onCancel={() => setDetailModal({ open: false })}
         title={
-          <Space>
+          <Space size={16}>
             <InfoCircleOutlined style={{ color: "#ff4d4f" }} />
             <span>
-              Error Details{" "}
+              รายละเอียดข้อผิดพลาด{" "}
               {detailModal.statusCode ? `(${detailModal.statusCode})` : ""}
             </span>
           </Space>

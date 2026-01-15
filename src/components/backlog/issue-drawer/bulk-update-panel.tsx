@@ -1,18 +1,27 @@
-"use client";
-
 import {
   Button,
-  Card,
   DatePicker,
   Select,
   Space,
   Tag,
   theme,
   Typography,
+  Row,
+  Col,
+  Tooltip,
+  Divider,
 } from "antd";
+import {
+  InfoCircleOutlined,
+  CalendarOutlined,
+  TagOutlined,
+  FlagOutlined,
+  CheckCircleOutlined,
+  ClearOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import type { Dayjs } from "dayjs";
 import type { OptionItem } from "./types";
-import { useMemo } from "react";
 
 export type BulkUpdatePanelProps = {
   autoCategoryEnabled: boolean;
@@ -42,7 +51,6 @@ export type BulkUpdatePanelProps = {
   autoAiDescriptionEnabled?: boolean;
 };
 
-//** กล่องควบคุมการอัปเดตแบบกลุ่ม (เลือก Status, Priority, Milestone, Category ฯลฯ)
 export default function BulkUpdatePanel({
   autoCategoryEnabled,
   autoCategoryLoading,
@@ -71,135 +79,255 @@ export default function BulkUpdatePanel({
   submitDisabled,
 }: BulkUpdatePanelProps) {
   const { token } = theme.useToken();
-  const { colorBgContainer, colorBorderSecondary, colorBgBase } = token;
-  const isDarkMode = colorBgBase?.toLowerCase() === "#141414";
-  const cardStyle = useMemo(
-    () => ({
-      background: colorBgContainer,
-      border: `1px solid ${colorBorderSecondary}`,
-      borderRadius: 16,
-      boxShadow: isDarkMode
-        ? "0 12px 28px rgba(0,0,0,0.45)"
-        : "0 12px 28px rgba(15, 23, 42, 0.06)",
-    }),
-    [colorBgContainer, colorBorderSecondary, isDarkMode]
-  );
 
   return (
-    <Card
-      size="small"
-      styles={{
-        body: {
-          padding: 12,
-        },
-      }}
-      style={cardStyle}
-      title={<Typography.Text strong>อัปเดตแบบกลุ่ม</Typography.Text>}
-    >
-      <Space direction="vertical" size={12} style={{ width: "100%" }}>
-        <Space align="center" size={8} wrap>
-          <Typography.Text type="secondary">
-            เลือกงานด้วย Checkbox เพื่ออัปเดตแบบกลุ่ม ({selectedCount})
-          </Typography.Text>
-          <Tag color={autoCategoryEnabled ? "green" : "default"} >
-            Auto Category: {autoCategoryEnabled ? "ON" : "OFF"}
-            {autoCategoryLoading ? " (กำลังประมวลผล)" : ""}
-          </Tag>
-          <Tag color={autoAiDescriptionEnabled ? "geekblue" : "default"} >
-            AI Description: {autoAiDescriptionEnabled ? "ON" : "OFF"}
-          </Tag>
-        </Space>
+    <div className="flex flex-col gap-8">
+      {/* Top Section: Selection Summary & AI Indicators */}
+      <div
+        className="p-5 rounded-2xl"
+        style={{
+          backgroundColor: token.colorFillAlter,
+          border: `1px solid ${token.colorBorderSecondary}`,
+        }}
+      >
+        <Row align="middle" justify="space-between" gutter={[16, 16]}>
+          <Col>
+            <Space size={16}>
+              <Typography.Text type="secondary" style={{ fontSize: 14 }}>
+                รายการที่เลือกทั้งหมด:{" "}
+                <Typography.Text
+                  strong
+                  style={{ fontSize: 18, color: token.colorPrimary }}
+                >
+                  {selectedCount}
+                </Typography.Text>{" "}
+                รายการ
+              </Typography.Text>
+              <Divider type="vertical" style={{ height: 24 }} />
+              <Space size={8}>
+                {autoCategoryEnabled && (
+                  <Tag
+                    color="green"
+                    icon={<CheckCircleOutlined />}
+                    className="px-3 py-1 rounded-lg"
+                  >
+                    หมวดหมู่โดย AI
+                  </Tag>
+                )}
+                {autoAiDescriptionEnabled && (
+                  <Tag
+                    color="blue"
+                    icon={<CheckCircleOutlined />}
+                    className="px-3 py-1 rounded-lg"
+                  >
+                    สรุปรายละเอียดโดย AI
+                  </Tag>
+                )}
+                {!autoCategoryEnabled && !autoAiDescriptionEnabled && (
+                  <Typography.Text
+                    type="secondary"
+                    italic
+                    style={{ fontSize: 12 }}
+                  >
+                    (ไม่ได้เปิดใช้งานระบบ AI สำหรับคำขอนี้)
+                  </Typography.Text>
+                )}
+              </Space>
+            </Space>
+          </Col>
+          <Col>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              <InfoCircleOutlined className="mr-1" />{" "}
+              ตรวจสอบข้อมูลก่อนกดปุ่มอัปเดตด้านล่าง
+            </Typography.Text>
+          </Col>
+        </Row>
+      </div>
 
-        <Space align="center" wrap size={10} style={{ width: "100%" }}>
-          <Select
-            allowClear
-            options={statusOptions}
-            placeholder="สถานะใหม่"
-            style={{ minWidth: 200 }}
-            value={bulkStatusId}
-            onChange={(value) => onStatusChange(value as number | undefined)}
-          />
+      {/* Middle Section: Manual Input Fields */}
+      <Row gutter={[32, 32]}>
+        {/* Row 1: Status & Priority */}
+        <Col xs={24} md={12}>
+          <Space direction="vertical" size={6} className="w-full">
+            <Typography.Text strong className="flex items-center gap-1">
+              <CheckCircleOutlined style={{ color: token.colorPrimary }} />{" "}
+              สถานะงาน
+              <Tooltip title="เปลี่ยนสถานะของงานทั้งหมดที่เลือก เช่น จาก Open เป็น Closed">
+                <InfoCircleOutlined className="text-gray-400 cursor-help" />
+              </Tooltip>
+            </Typography.Text>
+            <Select
+              allowClear
+              options={statusOptions}
+              placeholder="เลือกสถานะใหม่..."
+              className="w-full"
+              size="large"
+              value={bulkStatusId}
+              onChange={(value) => onStatusChange(value as number | undefined)}
+            />
+          </Space>
+        </Col>
 
-          <Select
-            allowClear
-            options={priorityOptions}
-            placeholder="ระดับความสำคัญใหม่"
-            style={{ minWidth: 200 }}
-            value={bulkPriorityId}
-            onChange={(value) => onPriorityChange(value as number | undefined)}
-          />
+        <Col xs={24} md={12}>
+          <Space direction="vertical" size={6} className="w-full">
+            <Typography.Text strong className="flex items-center gap-1">
+              <FlagOutlined style={{ color: "#fa8c16" }} /> ระดับความสำคัญ
+              <Tooltip title="ปรับระดับความสำคัญของงาน เช่น High, Normal, Low">
+                <InfoCircleOutlined className="text-gray-400 cursor-help" />
+              </Tooltip>
+            </Typography.Text>
+            <Select
+              allowClear
+              options={priorityOptions}
+              placeholder="เลือกระดับความสำคัญใหม่..."
+              className="w-full"
+              size="large"
+              value={bulkPriorityId}
+              onChange={(value) =>
+                onPriorityChange(value as number | undefined)
+              }
+            />
+          </Space>
+        </Col>
 
-          <Space align="center" size={6} wrap>
+        {/* Row 2: Milestone & Category */}
+        <Col xs={24} md={12}>
+          <Space direction="vertical" size={6} className="w-full">
+            <div className="flex justify-between items-center">
+              <Typography.Text strong className="flex items-center gap-1">
+                <TagOutlined style={{ color: token.colorSuccess }} /> ไมล์สโตน
+                <Tooltip title="ระบุไมล์สโตน (Milestone) หรือรอบการทำงาน">
+                  <InfoCircleOutlined className="text-gray-400 cursor-help" />
+                </Tooltip>
+              </Typography.Text>
+              <Button
+                size="small"
+                type="link"
+                onClick={onManageMilestone}
+                className="p-0 h-auto"
+              >
+                เพิ่ม/แก้ไขไมล์สโตน
+              </Button>
+            </div>
             <Select
               allowClear
               mode="multiple"
+              maxTagCount="responsive"
               options={milestoneOptions}
-              placeholder="ไมล์สโตนใหม่"
-              style={{ minWidth: 220 }}
-              value={
-                bulkMilestoneIds === undefined ? undefined : bulkMilestoneIds
-              }
-              onChange={(values) =>
-                onMilestoneChange(
-                  Array.isArray(values) && values.length
-                    ? (values as number[])
-                    : []
-                )
-              }
+              placeholder="เลือกไมล์สโตน..."
+              className="w-full"
+              size="large"
+              value={bulkMilestoneIds}
+              onChange={(values) => onMilestoneChange(values || [])}
             />
-            <Button onClick={onManageMilestone}>จัดการไมล์สโตน</Button>
           </Space>
-        </Space>
+        </Col>
 
-        <Space align="center" wrap size={10} style={{ width: "100%" }}>
-          <Select
-            allowClear
-            disabled={autoCategoryEnabled}
-            mode="multiple"
-            options={categoryOptions}
-            placeholder="หมวดหมู่ใหม่"
-            style={{ minWidth: 220 }}
-            value={bulkCategoryIds === undefined ? undefined : bulkCategoryIds}
-            onChange={(values) =>
-              onCategoryChange(
-                Array.isArray(values) && values.length ? (values as number[]) : []
-              )
-            }
-          />
+        <Col xs={24} md={12}>
+          <Space direction="vertical" size={6} className="w-full">
+            <Typography.Text strong className="flex items-center gap-1">
+              <TagOutlined style={{ color: "#722ed1" }} /> หมวดหมู่
+              <Tooltip
+                title={
+                  autoCategoryEnabled
+                    ? "AI กำลังจัดการหมวดหมู่ให้อัตโนมัติ"
+                    : "เลือกหมวดหมู่ที่เหมาะสมกับรายการงาน"
+                }
+              >
+                <InfoCircleOutlined className="text-gray-400 cursor-help" />
+              </Tooltip>
+            </Typography.Text>
+            <Select
+              allowClear
+              disabled={autoCategoryEnabled}
+              mode="multiple"
+              maxTagCount="responsive"
+              options={categoryOptions}
+              placeholder={
+                autoCategoryEnabled
+                  ? "AI กำลังเลือกหมวดหมู่ให้..."
+                  : "เลือกหมวดหมู่..."
+              }
+              className="w-full"
+              size="large"
+              value={bulkCategoryIds}
+              onChange={(values) => onCategoryChange(values || [])}
+            />
+          </Space>
+        </Col>
 
-          <DatePicker
-            allowClear
-            placeholder="วันที่เริ่มต้น"
-            style={{ minWidth: 160 }}
-            value={bulkStartDate === undefined ? null : bulkStartDate}
-            onChange={(value) => onStartDateChange(value ?? null)}
-          />
+        {/* Row 3: Dates */}
+        <Col xs={24} md={12}>
+          <Space direction="vertical" size={6} className="w-full">
+            <Typography.Text strong className="flex items-center gap-1">
+              <CalendarOutlined style={{ color: token.colorInfo }} />{" "}
+              วันที่เริ่มต้น
+              <Tooltip title="ตั้งวันเริ่มงานใหม่สำหรับทุกรายการ">
+                <InfoCircleOutlined className="text-gray-400 cursor-help" />
+              </Tooltip>
+            </Typography.Text>
+            <DatePicker
+              className="w-full"
+              size="large"
+              placeholder="วันที่เริ่มงาน"
+              value={bulkStartDate}
+              onChange={(value) => onStartDateChange(value ?? null)}
+            />
+          </Space>
+        </Col>
 
-          <DatePicker
-            allowClear
-            placeholder="วันที่ครบกำหนด"
-            style={{ minWidth: 160 }}
-            value={bulkDueDate === undefined ? null : bulkDueDate}
-            onChange={(value) => onDueDateChange(value ?? null)}
-          />
+        <Col xs={24} md={12}>
+          <Space direction="vertical" size={6} className="w-full">
+            <Typography.Text strong className="flex items-center gap-1">
+              <CalendarOutlined style={{ color: token.colorError }} />{" "}
+              วันที่สิ้นสุด
+              <Tooltip title="ตั้งกำหนดส่งงาน (Due Date) ใหม่">
+                <InfoCircleOutlined className="text-gray-400 cursor-help" />
+              </Tooltip>
+            </Typography.Text>
+            <DatePicker
+              className="w-full"
+              size="large"
+              placeholder="วันที่ครบกำหนด"
+              value={bulkDueDate}
+              onChange={(value) => onDueDateChange(value ?? null)}
+            />
+          </Space>
+        </Col>
+      </Row>
 
-          <Space>
+      {/* Bottom Section: Action Buttons */}
+      <div className="mt-4 pt-6 border-t border-gray-100">
+        <Row gutter={16} justify="end">
+          <Col>
             <Button
-              loading={bulkUpdating}
+              icon={<ClearOutlined />}
+              onClick={onClear}
+              disabled={bulkUpdating}
+              size="large"
+              className="px-6 rounded-xl hover:bg-gray-50"
+            >
+              ล้างค่าทั้งหมด
+            </Button>
+          </Col>
+          <Col>
+            <Button
               type="primary"
+              size="large"
+              icon={<SaveOutlined />}
+              loading={bulkUpdating}
               disabled={
-                submitDisabled || (autoCategoryEnabled && !categoryOptions.length)
+                submitDisabled ||
+                (autoCategoryEnabled && !categoryOptions.length)
               }
               onClick={onSubmit}
+              className="px-12 rounded-xl shadow-lg shadow-blue-100"
             >
-              อัปเดตแบบกลุ่ม
+              อัปเดตงานทั้งหมด
             </Button>
-            <Button disabled={bulkUpdating} onClick={onClear}>
-              ล้างค่า
-            </Button>
-          </Space>
-        </Space>
-      </Space>
-    </Card>
+          </Col>
+        </Row>
+      </div>
+    </div>
   );
 }
