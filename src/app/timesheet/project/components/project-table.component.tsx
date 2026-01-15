@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Card,
   Table,
@@ -10,6 +10,11 @@ import {
   Dropdown,
   Skeleton,
   Space,
+  Avatar,
+  theme,
+  Progress,
+  Flex,
+  Steps,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { MenuProps } from "antd";
@@ -25,12 +30,18 @@ import {
   DeleteOutlined,
   TeamOutlined,
   ClockCircleOutlined,
+  UserOutlined,
+  CheckCircleFilled,
+  HistoryOutlined,
+  SendOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
-import { categoryType } from "@/data/timesheet.category.type";
+import { getUserById } from "@helpers/local_storage/user.storage";
 
-import type { Project } from "../types/project.types";
+import type { Project, ProjectStatus } from "../types/project.types";
+
+const { Text } = Typography;
 
 interface ProjectTableProps {
   projects: Project[];
@@ -46,8 +57,124 @@ interface ProjectTableProps {
   onViewDetail: (record: Project) => void;
   getCategoryName: (id: string) => string;
   onShowAssignees: (record: Project) => void;
-  statuses?: any[];
+  onShowTracking: (record: Project) => void;
+  statuses?: ProjectStatus[];
 }
+
+/**
+ * Status Tracker Component (Delivery Tracking style)
+ */
+export const StatusTracker: React.FC<{
+  currentStatus: string;
+  allStatuses: ProjectStatus[];
+  token: any;
+  direction?: "horizontal" | "vertical";
+}> = ({ currentStatus, allStatuses, token, direction = "horizontal" }) => {
+  const sortedStatuses = useMemo(() => {
+    return [...allStatuses]
+      .filter((s) => s.priority < 99)
+      .sort((a, b) => a.priority - b.priority);
+  }, [allStatuses]);
+
+  const matchedStatus = allStatuses.find((s) => s.nameTh === currentStatus);
+  const currentPriority = matchedStatus?.priority || 0;
+  const isOnHold =
+    matchedStatus?.priority === 99 || currentStatus === "On Hold";
+
+  // If status is "open" or "close" but not in ProjectStatus list
+  let activeStep = -1;
+  if (currentStatus === "close") {
+    activeStep = sortedStatuses.length;
+  } else if (matchedStatus) {
+    activeStep = sortedStatuses.findIndex((s) => s.id === matchedStatus.id);
+  }
+
+  if (isOnHold) {
+    return (
+      <Tag
+        color="error"
+        icon={<ClockCircleOutlined />}
+        className="px-3 py-1 rounded-full font-bold"
+      >
+        ระงับชั่วคราว (ON HOLD)
+      </Tag>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        minWidth: direction === "horizontal" ? 280 : "100%",
+        padding: "8px 0",
+      }}
+    >
+      <Steps
+        size="small"
+        current={currentStatus === "close" ? sortedStatuses.length : activeStep}
+        labelPlacement={direction === "horizontal" ? "vertical" : "horizontal"}
+        direction={direction}
+        items={sortedStatuses.map((s) => ({
+          title: (
+            <span
+              style={{
+                fontSize: 13,
+                fontWeight: activeStep >= sortedStatuses.indexOf(s) ? 600 : 400,
+                opacity: activeStep >= sortedStatuses.indexOf(s) ? 1 : 0.4,
+              }}
+            >
+              {s.nameTh}
+            </span>
+          ),
+          description:
+            direction === "vertical" &&
+            activeStep === sortedStatuses.indexOf(s) ? (
+              <Tag color="processing" bordered={false} style={{ marginTop: 4 }}>
+                กำลังดำเนินการ
+              </Tag>
+            ) : null,
+        }))}
+      />
+      {direction === "horizontal" && (
+        <div style={{ marginTop: 8 }}>
+          {matchedStatus ? (
+            <Badge
+              status="processing"
+              text={
+                <Text
+                  strong
+                  style={{ fontSize: 12, color: token.colorPrimary }}
+                >
+                  {matchedStatus.nameTh}
+                </Text>
+              }
+            />
+          ) : currentStatus === "close" ? (
+            <Badge
+              status="success"
+              text={
+                <Text
+                  strong
+                  style={{ fontSize: 12, color: token.colorSuccess }}
+                >
+                  เสร็จสิ้น/ส่งมอบ
+                </Text>
+              }
+            />
+          ) : (
+            <Badge
+              status="default"
+              text={
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {currentStatus}
+                </Text>
+              }
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const ProjectTable: React.FC<ProjectTableProps> = ({
   projects,
@@ -59,18 +186,11 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
   onViewDetail,
   getCategoryName,
   onShowAssignees,
+  onShowTracking,
   statuses = [],
 }) => {
   const { t } = useTranslation("translate");
-
-  const calculateProgress = (startDate: string, endDate: string) => {
-    const start = dayjs(startDate);
-    const end = dayjs(endDate);
-    const now = dayjs();
-    const total = end.diff(start, "day");
-    const elapsed = now.diff(start, "day");
-    return Math.min(Math.max((elapsed / total) * 100, 0), 100);
-  };
+  const { token } = theme.useToken();
 
   const getSubProjectCount = (features?: Array<{ is_deleted: boolean }>) => {
     return features?.filter((f) => !f.is_deleted).length || 0;
@@ -78,314 +198,265 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
 
   const columns: ColumnsType<Project> = [
     {
-      title: t("project_page.table_index"),
+      title: "ลำดับ",
       key: "index",
       align: "center",
-      width: 60,
+      width: 70,
       render: (_, __, idx) => (
-        <Typography.Text strong>
+        <Text strong style={{ color: token.colorTextSecondary }}>
           {(pagination.current - 1) * pagination.pageSize + idx + 1}
-        </Typography.Text>
+        </Text>
       ),
     },
     {
-      title: t("project_page.table_id"),
-      dataIndex: "id",
-      key: "id",
-      align: "center",
-      width: 80,
-      sorter: (a, b) => a.id - b.id,
-      render: (id: number) => (
-        <Typography.Text copyable={{ text: String(id) }} code>
-          {String(id).padStart(4, "0")}
-        </Typography.Text>
-      ),
-    },
-    {
-      title: t("project_page.table_project"),
+      title: "ข้อมูลโครงการ",
       key: "project_name",
-      width: 280,
+      width: 350,
       sorter: (a, b) => a.name.localeCompare(b.name),
-      render: (_, record) => (
-        <div style={{ display: "flex", alignItems: "start", gap: 12 }}>
-          <div
-            style={{
-              minWidth: 40,
-              height: 40,
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid #e6f4ff",
-              backgroundColor: "#f0f5ff",
-            }}
-          >
-            <ProjectOutlined style={{ color: "#1890ff", fontSize: 18 }} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <Typography.Text strong style={{ display: "block" }}>
-              {record.name}
-            </Typography.Text>
-            {record.name_en ? (
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                {record.name_en}
-              </Typography.Text>
-            ) : (
-              <Typography.Text type="secondary" italic style={{ fontSize: 12 }}>
-                {t("project_page.no_english_name")}
-              </Typography.Text>
-            )}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: t("project_page.table_duration"),
-      key: "duration",
-      width: 200,
-      sorter: (a, b) => {
-        const dateA = a.start_date ? dayjs(a.start_date).valueOf() : 0;
-        const dateB = b.start_date ? dayjs(b.start_date).valueOf() : 0;
-        return dateA - dateB;
-      },
-      render: (_, record) => {
-        if (!record.start_date || !record.end_date) {
-          return <Typography.Text type="secondary">-</Typography.Text>;
-        }
-
-        const isExpired = dayjs(record.end_date).isBefore(dayjs());
-
-        // Format to Thai Date only (DD/MM/YYYY)
-        const formatDate = (d: string) =>
-          new Date(d).toLocaleDateString("th-TH", {
-            timeZone: "Asia/Bangkok",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          });
-
-        return (
-          <div style={{ display: "flex", alignItems: "center", fontSize: 12 }}>
-            <CalendarOutlined style={{ marginRight: 8, opacity: 0.7 }} />
-            <span>{formatDate(record.start_date)}</span>
-            <ArrowRightOutlined
-              style={{ margin: "0 8px", fontSize: 10, opacity: 0.5 }}
-            />
-            <span
-              style={{ textDecoration: isExpired ? "line-through" : "none" }}
-            >
-              {formatDate(record.end_date)}
-            </span>
-          </div>
-        );
-      },
-    },
-    {
-      title: "ประมาณการ (ชม.)",
-      dataIndex: "estimate_hour",
-      key: "estimate_hour",
-      width: 140,
-      align: "center",
-      sorter: (a, b) => (a.estimate_hour || 0) - (b.estimate_hour || 0),
-      render: (val: number) => (
-        <Tooltip title="ประมาณการชั่วโมงการทำงานรวม (Man-Hours)">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              backgroundColor: "#fff7e6",
-              padding: "4px 12px",
-              borderRadius: 6,
-              border: "1px solid #ffe7ba",
-              width: "fit-content",
-              margin: "0 auto",
-            }}
-          >
-            <ClockCircleOutlined style={{ color: "#fa8c16" }} />
-            <Typography.Text strong style={{ color: "#d46b08" }}>
-              {(val || 0).toLocaleString()}
-            </Typography.Text>
-          </div>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "สุขภาพโครงการ",
-      key: "health",
-      width: 120,
-      align: "center",
-      render: (_, record) => {
-        if (record.status === "close") {
-          return <Tag color="success">เสร็จสิ้น</Tag>;
-        }
-        if (!record.end_date) {
-          return <Tag color="default">- ไม่มีกำหนด -</Tag>;
-        }
-
-        const now = dayjs();
-        const end = dayjs(record.end_date);
-        const daysRemaining = end.diff(now, "day");
-
-        if (daysRemaining < 0) {
-          return <Tag color="error">เกินกำหนด</Tag>;
-        }
-        if (daysRemaining <= 7) {
-          return <Tag color="warning">ใกล้ถึงกำหนด</Tag>;
-        }
-        return <Tag color="success">ปกติ</Tag>;
-      },
-      filters: [
-        { text: "เสร็จสิ้น (Completed)", value: "completed" },
-        { text: "ไม่มีกำหนด (No Plan)", value: "no_plan" },
-        { text: "เกินกำหนด (Overdue)", value: "overdue" },
-        { text: "ใกล้ถึงกำหนด (Due Soon)", value: "due_soon" },
-        { text: "ปกติ (Healthy)", value: "healthy" },
-      ],
-      onFilter: (value: any, record) => {
-        if (record.status === "close" && value === "completed") return true;
-        if (!record.end_date && value === "no_plan") return true;
-
-        if (record.end_date && record.status === "open") {
-          const now = dayjs();
-          const end = dayjs(record.end_date);
-          const daysRemaining = end.diff(now, "day");
-
-          if (value === "overdue" && daysRemaining < 0) return true;
-          if (value === "due_soon" && daysRemaining >= 0 && daysRemaining <= 7)
-            return true;
-          if (value === "healthy" && daysRemaining > 7) return true;
-        }
-        return false;
-      },
-    },
-    {
-      title: t("project_page.table_sub_projects"),
-      key: "features",
-      align: "center",
-      width: 100,
-      sorter: (a, b) =>
-        getSubProjectCount(a.features) - getSubProjectCount(b.features),
-      render: (_, record) => {
-        const count = getSubProjectCount(record.features);
-        return (
-          <Tooltip title={`${count} ${t("project_page.sub_projects_count")}`}>
-            <Badge
-              count={count}
-              showZero
-              style={{
-                backgroundColor: count > 0 ? "#722ed1" : "#d9d9d9",
-              }}
-            />
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: t("project_page.table_status"),
-      key: "status_type",
-      width: 160,
-      render: (_, record) => {
-        const categoryName = getCategoryName(record.categoryType || "");
-        const matchedStatus = statuses.find((s) => s.nameTh === record.status);
-
-        if (matchedStatus) {
-          return (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <Tag
-                color="blue"
-                style={{
-                  margin: 0,
-                  borderRadius: 4,
-                  fontWeight: 600,
-                  fontSize: 12,
-                }}
-              >
-                Step {matchedStatus.priority}: {matchedStatus.nameTh}
-              </Tag>
-              <Tag style={{ margin: 0, fontSize: 11 }}>{categoryName}</Tag>
-            </div>
-          );
-        }
-
-        const isOpen = record.status === "open";
-
-        return (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <Badge
-              status={isOpen ? "processing" : "default"}
-              text={
-                <span style={{ color: isOpen ? "#52c41a" : "#8c8c8c" }}>
-                  {isOpen
-                    ? t("project_page.status_active")
-                    : t("project_page.status_closed")}
-                </span>
-              }
-            />
-            <Tag style={{ margin: 0, fontSize: 11 }}>{categoryName}</Tag>
-          </div>
-        );
-      },
-      filters: [
-        { text: "จุดเริ่มต้น (Open)", value: "open" },
-        { text: "สิ้นสุด (Closed)", value: "close" },
-        ...statuses.map((s) => ({ text: s.nameTh, value: s.nameTh })),
-        ...categoryType.map((c) => ({ text: c.name, value: c.id })),
-      ],
-      onFilter: (value: any, record) => {
-        return (
-          record.status === value ||
-          String(record.categoryType) === String(value)
-        );
-      },
-    },
-    {
-      title: t("project_page.table_deleted_status"),
-      key: "is_deleted",
-      width: 120,
-      align: "center",
       render: (_, record) => {
         const isDeleted = record.is_deleted === true;
         return (
-          <Badge
-            status={isDeleted ? "error" : "success"}
-            text={
-              <span style={{ color: isDeleted ? "#ff4d4f" : "#52c41a" }}>
-                {isDeleted
-                  ? t("project_page.deleted")
-                  : t("project_page.active")}
-              </span>
-            }
-          />
+          <Flex gap={16} align="start">
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 14,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: isDeleted
+                  ? token.colorErrorBg
+                  : `linear-gradient(135deg, ${token.colorPrimaryBg} 0%, ${token.colorInfoBgHover} 100%)`,
+                border: `1px solid ${
+                  isDeleted ? token.colorErrorBorder : token.colorInfoBorder
+                }`,
+                boxShadow: "none",
+              }}
+            >
+              <ProjectOutlined
+                style={{
+                  color: isDeleted ? token.colorError : token.colorPrimary,
+                  fontSize: 22,
+                }}
+              />
+            </div>
+            <Flex vertical gap={2} style={{ flex: 1 }}>
+              <Space size={4}>
+                <Text
+                  strong
+                  style={{
+                    fontSize: 15,
+                    color: isDeleted
+                      ? token.colorTextDisabled
+                      : token.colorTextHeading,
+                    textDecoration: isDeleted ? "line-through" : "none",
+                  }}
+                >
+                  {record.name}
+                </Text>
+                {isDeleted && <Tag color="error">ลบแล้ว</Tag>}
+              </Space>
+              {record.name_en && (
+                <Text
+                  type="secondary"
+                  style={{ fontSize: 13, fontStyle: "italic" }}
+                >
+                  {record.name_en}
+                </Text>
+              )}
+              <Flex gap={8} style={{ marginTop: 4 }}>
+                <Tag
+                  bordered={false}
+                  style={{
+                    fontSize: 11,
+                    background: token.colorFillTertiary,
+                    margin: 0,
+                    borderRadius: 4,
+                  }}
+                >
+                  ID: {String(record.id).padStart(4, "0")}
+                </Tag>
+                <Tag
+                  bordered={false}
+                  color="blue"
+                  style={{ fontSize: 11, margin: 0, borderRadius: 4 }}
+                >
+                  {getCategoryName(record.categoryType || "")}
+                </Tag>
+              </Flex>
+            </Flex>
+          </Flex>
         );
       },
-      filters: [
-        { text: "ใช้งานอยู่ (Active)", value: false },
-        { text: "ถูกลบ (Deleted)", value: true },
-      ],
-      onFilter: (value: any, record) => !!record.is_deleted === value,
     },
     {
-      title: "",
+      title: "ผู้รับผิดชอบ",
+      key: "assignees",
+      width: 180,
+      render: (_, record) => {
+        const assignees = record.projectAssignees || [];
+        if (assignees.length === 0) {
+          return (
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              ยังไม่มีคนรับผิดชอบ
+            </Text>
+          );
+        }
+
+        return (
+          <Avatar.Group
+            maxCount={4}
+            size="large"
+            maxStyle={{
+              color: token.colorWhite,
+              backgroundColor: token.colorPrimary,
+              cursor: "pointer",
+            }}
+          >
+            {assignees.map((a, i) => {
+              const u = getUserById(a.userId);
+              return (
+                <Tooltip
+                  key={i}
+                  title={
+                    <div style={{ textAlign: "center" }}>
+                      <Text strong style={{ color: "white" }}>
+                        {u?.firstname} {u?.lastname}
+                      </Text>
+                      <br />
+                      <Text
+                        style={{ color: "rgba(255,255,255,0.8)", fontSize: 11 }}
+                      >
+                        {a.position || "Member"}
+                      </Text>
+                    </div>
+                  }
+                >
+                  <Avatar
+                    src={u?.profile_image}
+                    style={{
+                      backgroundColor: token.colorPrimary,
+                      border: `2px solid ${token.colorBgContainer}`,
+                    }}
+                  >
+                    {u?.firstname?.[0] || <UserOutlined />}
+                  </Avatar>
+                </Tooltip>
+              );
+            })}
+          </Avatar.Group>
+        );
+      },
+    },
+    {
+      title: "สถานะปัจจุบัน",
+      key: "current_status_tag",
+      width: 160,
+      render: (_, record) => {
+        const matchedStatus = statuses.find((s) => s.nameTh === record.status);
+        if (record.status === "close")
+          return <Tag color="success">เสร็จสิ้น</Tag>;
+        if (matchedStatus)
+          return <Tag color="processing">{matchedStatus.nameTh}</Tag>;
+        return <Tag color="default">{record.status || "Open"}</Tag>;
+      },
+    },
+    {
+      title: "ระยะเวลา / กายภาพ",
+      key: "duration_metrics",
+      width: 200,
+      render: (_, record) => {
+        const count = getSubProjectCount(record.features);
+        return (
+          <Flex vertical gap={8}>
+            {record.start_date && record.end_date ? (
+              <Tooltip
+                title={`ระยะเวลา: ${convertToThaiDateDDMMYYY(
+                  record.start_date
+                )} - ${convertToThaiDateDDMMYYY(record.end_date)}`}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 12,
+                  }}
+                >
+                  <CalendarOutlined
+                    style={{ color: token.colorTextSecondary }}
+                  />
+                  <Text style={{ fontSize: 11 }}>
+                    {dayjs(record.start_date).format("DD/MM/YY")} -{" "}
+                    {dayjs(record.end_date).format("DD/MM/YY")}
+                  </Text>
+                </div>
+              </Tooltip>
+            ) : (
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                ไม่มีกำหนดวันที่
+              </Text>
+            )}
+
+            <Flex gap={8} align="center">
+              <Tooltip title="ฟีเจอร์ย่อย">
+                <Badge
+                  count={count}
+                  showZero
+                  style={{
+                    backgroundColor:
+                      count > 0 ? "#722ed1" : token.colorTextDisabled,
+                    boxShadow: "none",
+                  }}
+                />
+              </Tooltip>
+              <Tooltip title="ประมาณการชั่วโมงการทำงาน">
+                <Tag
+                  icon={<ClockCircleOutlined />}
+                  color="orange"
+                  style={{ margin: 0, borderRadius: 6, fontWeight: 600 }}
+                >
+                  {(record.estimate_hour || 0).toLocaleString()} ชม.
+                </Tag>
+              </Tooltip>
+            </Flex>
+          </Flex>
+        );
+      },
+    },
+    {
+      title: "จัดการ",
       key: "action",
       align: "center",
-      width: 140,
+      width: 150,
       fixed: "right",
       render: (_, record) => {
         const menuItems: MenuProps["items"] = [
           {
             key: "detail",
-            label: t("project_page.action_view_detail"),
+            label: "ดูรายละเอียดเชิงลึก",
             icon: <InfoCircleOutlined />,
             onClick: () => onViewDetail(record),
+          },
+          {
+            key: "assign",
+            label: "จัดการผู้รับผิดชอบ",
+            icon: <TeamOutlined />,
+            onClick: () => onShowAssignees(record),
+          },
+          {
+            key: "tracking",
+            label: "ดูความคืบหน้า (Tracking)",
+            icon: <HistoryOutlined />,
+            onClick: () => onShowTracking(record),
           },
           {
             type: "divider",
           },
           {
             key: "delete",
-            label: t("project_page.action_delete"),
+            label: "ลบโครงการ",
             icon: <DeleteOutlined />,
             danger: true,
             onClick: () => onDelete(record),
@@ -393,60 +464,45 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
         ];
 
         return (
-          <Space>
-            <div
-              style={{
-                display: "flex",
-                gap: 4,
-                padding: "4px 8px",
-                borderRadius: 20,
-                border: "1px solid #f0f0f0",
-              }}
-            >
-              <Tooltip title={t("project_page.action_edit")}>
-                <Button
-                  type="text"
-                  size="small"
-                  shape="circle"
-                  icon={<EditOutlined />}
-                  onClick={() => onEdit(record)}
-                />
-              </Tooltip>
-              <Tooltip title="แสดงรายชื่อผู้จัดทำโครงการ">
-                <Button
-                  type="text"
-                  size="small"
-                  shape="circle"
-                  icon={<TeamOutlined />}
-                  onClick={() => onShowAssignees(record)}
-                />
-              </Tooltip>
-              <Dropdown
-                menu={{ items: menuItems }}
-                trigger={["click"]}
-                placement="bottomRight"
-              >
-                <Tooltip title={t("project_page.action_more")}>
-                  <Button
-                    type="text"
-                    size="small"
-                    shape="circle"
-                    icon={<MoreOutlined />}
-                  />
-                </Tooltip>
-              </Dropdown>
-            </div>
-            <Tooltip title={t("project_page.action_enter_project")}>
+          <Flex gap={8} justify="center">
+            <Tooltip title="Tracking">
+              <Button
+                type="text"
+                shape="circle"
+                icon={<HistoryOutlined style={{ color: token.colorInfo }} />}
+                onClick={() => onShowTracking(record)}
+                style={{ background: token.colorInfoBg }}
+              />
+            </Tooltip>
+            <Tooltip title="แก้ไข">
+              <Button
+                type="text"
+                shape="circle"
+                icon={<EditOutlined style={{ color: token.colorWarning }} />}
+                onClick={() => onEdit(record)}
+                style={{ background: token.colorWarningBg }}
+              />
+            </Tooltip>
+            <Tooltip title="เข้าสู่โครงการ">
               <Link href={`/timesheet/project/sub-project/${record.id}`}>
                 <Button
                   type="primary"
-                  size="small"
                   shape="circle"
                   icon={<ArrowRightOutlined />}
+                  style={{
+                    boxShadow: "none",
+                  }}
                 />
               </Link>
             </Tooltip>
-          </Space>
+            <Dropdown
+              menu={{ items: menuItems }}
+              trigger={["click"]}
+              placement="bottomRight"
+            >
+              <Button type="text" shape="circle" icon={<MoreOutlined />} />
+            </Dropdown>
+          </Flex>
         );
       },
     },
@@ -454,29 +510,32 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
 
   if (loading) {
     return (
-      <Card>
-        <Skeleton active paragraph={{ rows: 8 }} />
+      <Card bordered={false}>
+        <Skeleton active paragraph={{ rows: 10 }} />
       </Card>
     );
   }
 
   return (
-    <Card>
-      <Table
-        rowKey={(r) => r.id}
-        columns={columns}
-        dataSource={projects}
-        loading={loading}
-        pagination={{
-          ...pagination,
-          showSizeChanger: true,
-          pageSizeOptions: ["10", "20", "50", "100"],
-          onChange: onPaginationChange,
-          showTotal: (total) =>
-            `${t("project_page.total_items", { count: total })}`,
-        }}
-        scroll={{ x: 1200 }}
-      />
-    </Card>
+    <Table
+      rowKey={(r) => r.id}
+      columns={columns}
+      dataSource={projects}
+      loading={loading}
+      className="modern-project-table"
+      pagination={{
+        ...pagination,
+        showSizeChanger: true,
+        pageSizeOptions: ["10", "20", "50", "100"],
+        onChange: onPaginationChange,
+        showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+      }}
+      scroll={{ x: 1300 }}
+      rowClassName={(record) => (record.is_deleted ? "deleted-row" : "")}
+      style={{
+        background: token.colorBgContainer,
+        borderRadius: token.borderRadiusLG,
+      }}
+    />
   );
 };

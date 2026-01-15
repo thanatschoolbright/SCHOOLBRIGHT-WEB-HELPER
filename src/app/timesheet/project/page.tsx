@@ -53,10 +53,19 @@ import {
   GlobalOutlined,
   ToolOutlined,
   MedicineBoxOutlined,
-  CompassOutlined,
   AuditOutlined,
   CloseOutlined,
   FileTextOutlined,
+  SendOutlined,
+  CompassOutlined,
+  FormatPainterOutlined,
+  CodeOutlined,
+  BugOutlined,
+  SafetyCertificateOutlined,
+  CloudUploadOutlined,
+  LaptopOutlined,
+  ExperimentOutlined,
+  HighlightOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -69,12 +78,20 @@ import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
 import { categoryType } from "@data/timesheet.category.type";
 
 // Sub Components & Hooks
-import { ProjectTable } from "./components/project-table.component";
+import {
+  ProjectTable,
+  StatusTracker,
+} from "./components/project-table.component";
 import { AnalyticsDashboard } from "./components/analytics-dashboard.component";
 import { ProjectStatusModal } from "./components/project-status-modal.component";
 import { useProjectData } from "./hooks/use-project-data";
 import { exportProjectsToExcel } from "./utils/export-excel";
-import type { ModalState, FormValues, Project } from "./types/project.types";
+import type {
+  ModalState,
+  FormValues,
+  Project,
+  ProjectStatus,
+} from "./types/project.types";
 
 const { Title, Text } = Typography;
 
@@ -326,7 +343,7 @@ const HeaderSection = ({
     align="center"
     wrap="wrap"
     gap={16}
-    className="p-6 rounded-2xl shadow-sm border mb-6 transition-all duration-300 hover:shadow-md"
+    className="p-6 rounded-2xl border mb-6 transition-all duration-300"
     style={{
       background: token.colorBgContainer,
       borderColor: token.colorBorderSecondary,
@@ -334,7 +351,7 @@ const HeaderSection = ({
   >
     <Space size={20}>
       <div
-        className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-inner"
+        className="flex items-center justify-center w-16 h-16 rounded-2xl"
         style={{
           background: `linear-gradient(135deg, ${token.colorPrimaryBg}, ${token.colorFillSecondary})`,
           border: `1px solid ${token.colorBorder}`,
@@ -394,7 +411,7 @@ const HeaderSection = ({
         icon={<PlusOutlined />}
         onClick={onCreate}
         size="large"
-        className="rounded-xl shadow-lg hover:shadow-xl transition-all"
+        className="rounded-xl transition-all"
         style={{ fontWeight: 600 }}
       >
         เพิ่มโครงการ
@@ -468,7 +485,7 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
   const items = [
     {
       label: "โครงการทั้งหมด",
-      value: `${stats.total}/${stats.total}`,
+      value: stats.total,
       percent: 100,
       color: token.colorPrimary,
       bg: token.colorPrimaryBg,
@@ -483,7 +500,7 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
     },
     {
       label: "กำลังดำเนินการ",
-      value: `${stats.active}/${stats.total}`,
+      value: stats.active,
       percent: stats.total > 0 ? (stats.active / stats.total) * 100 : 0,
       color: token.colorSuccess,
       bg: token.colorSuccessBg,
@@ -498,7 +515,7 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
     },
     {
       label: "ปิดโครงการแล้ว",
-      value: `${stats.closed}/${stats.total}`,
+      value: stats.closed,
       percent: stats.total > 0 ? (stats.closed / stats.total) * 100 : 0,
       color: token.colorTextSecondary,
       bg: token.colorFillSecondary,
@@ -529,58 +546,260 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
   ];
 
   return (
-    <Row gutter={[16, 16]} className="mb-6">
-      {items.map((item, idx) => (
-        <Col xs={24} sm={12} xl={6} key={idx}>
-          <Card
-            bodyStyle={{ padding: 24 }}
-            className="hover:-translate-y-1 transition-transform duration-300 shadow-sm hover:shadow-md"
-            style={cardStyle}
-          >
-            <Flex justify="space-between" align="start">
-              <Flex vertical gap={4}>
-                <Tooltip title={item.tooltip} placement="topLeft" arrow>
-                  <Text
-                    type="secondary"
-                    style={{ fontSize: 13, cursor: "help" }}
-                  >
-                    {item.label}{" "}
-                    <InfoCircleOutlined
-                      style={{ fontSize: 10, opacity: 0.5 }}
-                    />
-                  </Text>
-                </Tooltip>
-                <Statistic
-                  value={item.value}
-                  valueStyle={{
-                    fontWeight: 700,
-                    fontSize: 32,
-                    color: token.colorText,
-                  }}
-                  suffix={
-                    <span
-                      style={{ fontSize: 14, color: token.colorTextQuaternary }}
+    <div className="mb-6">
+      <Space className="mb-4">
+        <PieChartOutlined />
+        <Text strong>ภาพรวมโครงการ (Project Health)</Text>
+      </Space>
+      <Row gutter={[16, 16]}>
+        {items.map((item, idx) => (
+          <Col xs={24} sm={12} xl={6} key={idx}>
+            <Card
+              bodyStyle={{ padding: 24 }}
+              className="transition-shadow"
+              style={cardStyle}
+            >
+              <Flex justify="space-between" align="start">
+                <Flex vertical gap={4}>
+                  <Tooltip title={item.tooltip} placement="topLeft" arrow>
+                    <Text
+                      type="secondary"
+                      style={{ fontSize: 13, cursor: "help" }}
                     >
-                      {item.suffix}
-                    </span>
-                  }
-                />
+                      {item.label}{" "}
+                      <InfoCircleOutlined
+                        style={{ fontSize: 10, opacity: 0.5 }}
+                      />
+                    </Text>
+                  </Tooltip>
+                  <Statistic
+                    value={item.value}
+                    valueStyle={{
+                      fontWeight: 700,
+                      fontSize: 32,
+                      color: token.colorText,
+                    }}
+                    suffix={
+                      <span
+                        style={{
+                          fontSize: 14,
+                          color: token.colorTextQuaternary,
+                        }}
+                      >
+                        {item.suffix}
+                      </span>
+                    }
+                  />
+                </Flex>
+                <div style={iconBoxStyle(item.color, item.bg)}>{item.icon}</div>
               </Flex>
-              <div style={iconBoxStyle(item.color, item.bg)}>{item.icon}</div>
-            </Flex>
-            <div className="mt-4">
-              <Progress
-                percent={item.percent}
-                showInfo={false}
-                strokeColor={item.color}
-                trailColor={token.colorFillSecondary}
-                size="small"
-              />
-            </div>
-          </Card>
-        </Col>
-      ))}
-    </Row>
+              <div className="mt-4">
+                <Progress
+                  percent={item.percent}
+                  showInfo={false}
+                  strokeColor={item.color}
+                  trailColor={token.colorFillSecondary}
+                  size="small"
+                />
+              </div>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </div>
+  );
+};
+
+const SdlcSummaryCards = ({
+  stats,
+  token,
+  allStatuses = [],
+}: {
+  stats: any;
+  token: any;
+  allStatuses?: ProjectStatus[];
+}) => {
+  const cardStyle = {
+    background: token.colorBgContainer,
+    borderRadius: 12,
+    border: `1px solid ${token.colorBorderSecondary}`,
+    height: "100%",
+  };
+
+  const getSdlcStyle = (priority: number, name: string) => {
+    // Standard SDLC Mapping based on priority or keywords
+    if (
+      name.includes("Requirement") ||
+      name.includes("ความต้องการ") ||
+      priority === 1
+    ) {
+      return {
+        color: "#1890ff",
+        bg: "rgba(24, 144, 255, 0.1)",
+        gradient: "linear-gradient(135deg, #1890ff 0%, #36cfc9 100%)",
+        icon: <CompassOutlined />,
+      };
+    }
+    if (name.includes("Design") || name.includes("ออกแบบ") || priority === 2) {
+      return {
+        color: "#722ed1",
+        bg: "rgba(114, 46, 209, 0.1)",
+        gradient: "linear-gradient(135deg, #722ed1 0%, #b37feb 100%)",
+        icon: <FormatPainterOutlined />,
+      };
+    }
+    if (
+      name.includes("Develop") ||
+      name.includes("Coding") ||
+      name.includes("พัฒนา") ||
+      priority === 3
+    ) {
+      return {
+        color: "#13c2c2",
+        bg: "rgba(19, 194, 194, 0.1)",
+        gradient: "linear-gradient(135deg, #13c2c2 0%, #5cdbd3 100%)",
+        icon: <CodeOutlined />,
+      };
+    }
+    if (
+      name.includes("Test") ||
+      name.includes("QA") ||
+      name.includes("ทดสอบ") ||
+      priority === 4
+    ) {
+      return {
+        color: "#faad14",
+        bg: "rgba(250, 173, 20, 0.1)",
+        gradient: "linear-gradient(135deg, #faad14 0%, #ffec3d 100%)",
+        icon: <BugOutlined />,
+      };
+    }
+    if (name.includes("UAT") || priority === 5) {
+      return {
+        color: "#52c41a",
+        bg: "rgba(82, 196, 26, 0.1)",
+        gradient: "linear-gradient(135deg, #52c41a 0%, #95de64 100%)",
+        icon: <SafetyCertificateOutlined />,
+      };
+    }
+    if (
+      name.includes("Deploy") ||
+      name.includes("Release") ||
+      name.includes("ส่งมอบ") ||
+      priority >= 6
+    ) {
+      return {
+        color: "#f5222d",
+        bg: "rgba(245, 34, 45, 0.1)",
+        gradient: "linear-gradient(135deg, #f5222d 0%, #ff7875 100%)",
+        icon: <CloudUploadOutlined />,
+      };
+    }
+    return {
+      color: token.colorPrimary,
+      bg: token.colorPrimaryBg,
+      gradient: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+      icon: <RocketOutlined />,
+    };
+  };
+
+  const statusItems = useMemo(() => {
+    const sortedActive = [...allStatuses]
+      .filter((s) => s.priority < 99)
+      .sort((a, b) => a.priority - b.priority);
+
+    return sortedActive.map((s) => {
+      const count = stats.byStatus[s.nameTh] || 0;
+      const percent = stats.total > 0 ? (count / stats.total) * 100 : 0;
+      const style = getSdlcStyle(s.priority, s.nameTh);
+
+      return {
+        label: s.nameTh,
+        value: `${count}/${stats.total}`,
+        percent,
+        style,
+      };
+    });
+  }, [allStatuses, stats, token, getSdlcStyle]);
+
+  if (statusItems.length === 0) return null;
+
+  return (
+    <div className="mb-6">
+      <Space className="mb-4">
+        <RocketOutlined />
+        <Text strong>สถานะการดำเนินการ (Trackings)</Text>
+      </Space>
+      <Row gutter={[12, 12]}>
+        {statusItems.map((item, idx) => (
+          <Col xs={12} sm={8} md={6} xl={4} key={idx}>
+            <Card size="small" style={cardStyle} className="transition-all">
+              <Flex justify="space-between" align="start" className="mb-2">
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 10,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 18,
+                    color: "#fff",
+                    background: item.style.gradient,
+                    boxShadow: "none",
+                  }}
+                >
+                  {item.style.icon}
+                </div>
+                <Tag
+                  color={item.percent > 0 ? "blue" : "default"}
+                  bordered={false}
+                  style={{
+                    margin: 0,
+                    borderRadius: 6,
+                    background: item.percent > 0 ? item.style.bg : undefined,
+                  }}
+                >
+                  <Text
+                    strong
+                    style={{
+                      color:
+                        item.percent > 0
+                          ? item.style.color
+                          : token.colorTextDisabled,
+                      fontSize: 12,
+                    }}
+                  >
+                    {item.value}
+                  </Text>
+                </Tag>
+              </Flex>
+              <Text
+                type="secondary"
+                style={{
+                  fontSize: 13,
+                  fontWeight: item.percent > 0 ? 600 : 400,
+                  color: item.percent > 0 ? token.colorTextHeading : undefined,
+                }}
+                ellipsis
+              >
+                {item.label}
+              </Text>
+              <div className="mt-2">
+                <Progress
+                  percent={item.percent}
+                  showInfo={false}
+                  strokeColor={item.style.gradient}
+                  trailColor={token.colorFillSecondary}
+                  size="small"
+                  strokeWidth={4}
+                />
+              </div>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </div>
   );
 };
 
@@ -708,7 +927,7 @@ const CategorySummaryCards = ({
                 <Card
                   size="small"
                   style={cardStyle}
-                  className="hover:shadow-sm transition-all cursor-help"
+                  className="transition-all cursor-help"
                 >
                   <Flex justify="space-between" align="start" className="mb-2">
                     <div
@@ -819,22 +1038,22 @@ export default function ProjectManagementPage() {
   }, [projects, filters]);
 
   const stats = useMemo(() => {
-    // Calculated from API response directly (projects)
-    // EXCLUDE deleted projects from ALL stats
     const validProjects = projects.filter((p) => !p.is_deleted);
-
     const total = validProjects.length;
 
-    // Active: Open status
+    // Detailed stats by SDLC status
+    const byStatus: Record<string, number> = {};
+    validProjects.forEach((p) => {
+      if (p.status && p.status !== "close") {
+        byStatus[p.status] = (byStatus[p.status] || 0) + 1;
+      }
+    });
+
     const active = validProjects.filter((p) => p.status === "open").length;
-
-    // Closed: Close status
     const closed = validProjects.filter((p) => p.status === "close").length;
-
-    // Success Rate: Closed / Total (Valid projects only)
     const successRate = total > 0 ? Math.round((closed / total) * 100) : 0;
 
-    return { total, active, closed, successRate };
+    return { total, active, closed, successRate, byStatus };
   }, [projects]);
 
   const positionOptions = useMemo(() => {
@@ -905,11 +1124,17 @@ export default function ProjectManagementPage() {
 
           <SummaryCards stats={stats} token={token} />
 
+          <SdlcSummaryCards
+            stats={stats}
+            token={token}
+            allStatuses={statuses}
+          />
+
           <CategorySummaryCards projects={projects} token={token} />
 
           {/* Filter Bar */}
           <Card
-            className="mb-6 shadow-sm rounded-2xl"
+            className="mb-6 rounded-2xl"
             style={{
               background: token.colorBgContainer,
               border: `1px solid ${token.colorBorderSecondary}`,
@@ -1010,7 +1235,7 @@ export default function ProjectManagementPage() {
           {/* Main Content Area */}
           {viewMode === "table" ? (
             <Card
-              className="shadow-sm rounded-2xl overflow-hidden"
+              className="rounded-2xl overflow-hidden"
               style={{
                 background: token.colorBgContainer,
                 border: `1px solid ${token.colorBorderSecondary}`,
@@ -1057,6 +1282,9 @@ export default function ProjectManagementPage() {
                   onShowAssignees={(record) =>
                     setModalState({ type: "assignees", data: record })
                   }
+                  onShowTracking={(record) =>
+                    setModalState({ type: "tracking", data: record })
+                  }
                 />
               )}
             </Card>
@@ -1072,6 +1300,44 @@ export default function ProjectManagementPage() {
               }
             />
           )}
+
+          {/* Tracking Modal */}
+          <Modal
+            open={modalState.type === "tracking"}
+            onCancel={closeModal}
+            footer={null}
+            centered
+            width={500}
+            title={
+              <Space>
+                <RocketOutlined className="text-blue-500" />
+                <Text strong style={{ fontSize: 18 }}>
+                  ติดตามสถานะความคืบหน้า (Delivery Tracking)
+                </Text>
+              </Space>
+            }
+            styles={{ content: { borderRadius: 20 } }}
+          >
+            {modalState.data && (
+              <div className="py-6 px-4">
+                <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    โครงการ:
+                  </Text>
+                  <br />
+                  <Text strong style={{ fontSize: 16 }}>
+                    {modalState.data.name}
+                  </Text>
+                </div>
+                <StatusTracker
+                  currentStatus={modalState.data.status}
+                  allStatuses={statuses || []}
+                  token={token}
+                  direction="vertical"
+                />
+              </div>
+            )}
+          </Modal>
 
           {/* Status Management Modal */}
           <ProjectStatusModal
@@ -1451,7 +1717,7 @@ export default function ProjectManagementPage() {
                   <Row gutter={16} className="mb-6">
                     <Col span={8}>
                       <Card
-                        className="shadow-md h-full rounded-2xl border-l-4 border-l-blue-500"
+                        className="h-full rounded-2xl border-l-4 border-l-blue-500"
                         bodyStyle={{ padding: 20 }}
                       >
                         <Statistic
@@ -1480,7 +1746,7 @@ export default function ProjectManagementPage() {
                     </Col>
                     <Col span={8}>
                       <Card
-                        className="shadow-md h-full rounded-2xl border-l-4 border-l-orange-500"
+                        className="h-full rounded-2xl border-l-4 border-l-orange-500"
                         bodyStyle={{ padding: 20 }}
                       >
                         <Statistic
@@ -1504,7 +1770,7 @@ export default function ProjectManagementPage() {
                     </Col>
                     <Col span={8}>
                       <Card
-                        className="shadow-md h-full rounded-2xl border-l-4 border-l-green-500"
+                        className="h-full rounded-2xl border-l-4 border-l-green-500"
                         bodyStyle={{ padding: 20 }}
                       >
                         <Statistic
@@ -1534,7 +1800,7 @@ export default function ProjectManagementPage() {
                     <Col span={16}>
                       <div className="flex flex-col gap-6">
                         <Card
-                          className="shadow-md h-full rounded-2xl border-l-4 border-l-purple-500"
+                          className="h-full rounded-2xl border-l-4 border-l-purple-500"
                           bodyStyle={{ padding: 20 }}
                         >
                           <div className="text-sm font-medium text-gray-400 mb-3">
@@ -1573,7 +1839,7 @@ export default function ProjectManagementPage() {
                               <FileTextOutlined /> รายละเอียด
                             </Space>
                           }
-                          className="shadow-sm rounded-2xl"
+                          className="rounded-2xl"
                         >
                           <Text className="text-gray-600 dark:text-gray-300 leading-relaxed text-base">
                             {modalState.data.description ||
@@ -1588,7 +1854,7 @@ export default function ProjectManagementPage() {
                             <AppstoreOutlined /> รายการฟีเจอร์ (Features)
                           </Space>
                         }
-                        className="shadow-sm rounded-2xl mt-5"
+                        className="rounded-2xl mt-5"
                         styles={{
                           body: {
                             padding: "0 24px 24px",
@@ -1669,7 +1935,7 @@ export default function ProjectManagementPage() {
                             {modalState.data.projectAssignees?.length || 0})
                           </Space>
                         }
-                        className="shadow-sm rounded-2xl h-full"
+                        className="rounded-2xl h-full"
                       >
                         <List
                           itemLayout="horizontal"
@@ -1860,7 +2126,6 @@ export default function ProjectManagementPage() {
                                 color: "#fff",
                                 fontWeight: 900,
                                 fontSize: 24,
-                                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
                               }}
                               prefix="฿"
                               formatter={(val) => Number(val).toLocaleString()}
@@ -1908,7 +2173,7 @@ export default function ProjectManagementPage() {
                     bordered={false}
                     style={{
                       borderRadius: 20,
-                      boxShadow: token.boxShadowSecondary,
+                      boxShadow: "none",
                       background: token.colorBgElevated,
                     }}
                     bodyStyle={{ padding: 0 }}
@@ -2036,7 +2301,7 @@ export default function ProjectManagementPage() {
                         padding: "0 48px",
                         height: 48,
                         fontWeight: 600,
-                        boxShadow: token.boxShadow,
+                        boxShadow: "none",
                       }}
                     >
                       ตกลง

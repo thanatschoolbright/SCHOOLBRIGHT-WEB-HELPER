@@ -78,7 +78,7 @@ export const DailyCard: React.FC<DailyCardProps> = ({
 
     let accentColor = errorAccent;
     let statusIcon = <ExclamationCircleFilled style={{ color: errorAccent }} />;
-    let statusLabel = "Incomplete";
+    let statusLabel = "ยังไม่ครบ";
     let bgOpacity = 0.04;
 
     if (isFutureDay) {
@@ -86,16 +86,16 @@ export const DailyCard: React.FC<DailyCardProps> = ({
       statusIcon = (
         <ClockCircleFilled style={{ color: token.colorTextTertiary }} />
       );
-      statusLabel = "Upcoming";
+      statusLabel = "เร็วๆ นี้";
     } else if (item.isCompleted) {
       accentColor = successAccent;
       statusIcon = <CheckCircleFilled style={{ color: successAccent }} />;
-      statusLabel = "Completed";
+      statusLabel = "ครบถ้วน";
       bgOpacity = 0.08;
     } else if (item.totalHours > 0) {
       accentColor = warningAccent;
       statusIcon = <ExclamationCircleFilled style={{ color: warningAccent }} />;
-      statusLabel = "In Progress";
+      statusLabel = "กำลังลงเวลา";
     }
 
     const cardBackground = `linear-gradient(145deg, ${
@@ -204,7 +204,6 @@ export const DailyCard: React.FC<DailyCardProps> = ({
 
           {/* Status Tag: ใช้สีที่คำนวณมา (accentColor) เพื่อให้ Badge ตรงกับ Theme ของการ์ด */}
           <Tag
-            
             color={addAlpha(computedData.accentColor, 0.15)}
             style={{
               color: computedData.accentColor,

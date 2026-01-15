@@ -30,7 +30,7 @@ export interface Project {
 }
 
 export interface ModalState {
-  type: "" | "create" | "edit" | "delete" | "detail" | "assignees";
+  type: "" | "create" | "edit" | "delete" | "detail" | "assignees" | "tracking";
   data?: Project | null;
 }
 

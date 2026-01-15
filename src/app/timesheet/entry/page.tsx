@@ -40,7 +40,9 @@ import {
   Flex,
   Checkbox,
   Popover,
+  Dropdown,
 } from "antd";
+import type { MenuProps } from "antd";
 import { TableProps, ColumnType } from "antd/lib/table";
 import { motion, AnimatePresence } from "framer-motion";
 import dayjs, { Dayjs } from "dayjs";
@@ -88,6 +90,8 @@ import {
   FileTextOutlined,
   SafetyCertificateFilled,
   SettingOutlined,
+  MoreOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -144,12 +148,169 @@ dayjs.locale("th");
 // 1. HELPER COMPONENTS
 // ==========================================
 
+// --- My Work Modal ---
+interface MyWorkItem {
+  id: number;
+  projectId: number;
+  featureId: number | null;
+  userId: number;
+  position: string | null;
+  project: {
+    id: number;
+    name: string;
+    name_en: string | null;
+    status: string;
+  };
+  feature: {
+    id: number;
+    name: string;
+    name_en: string | null;
+    status: string;
+  } | null;
+}
+
+interface MyWorkModalProps {
+  open: boolean;
+  onCancel: () => void;
+  userId?: number;
+}
+
+const MyWorkModal: React.FC<MyWorkModalProps> = ({
+  open,
+  onCancel,
+  userId,
+}) => {
+  const { token } = theme.useToken();
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<MyWorkItem[]>([]);
+
+  const fetchData = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `/api/v1/timesheet/my-work?user_id=${userId}`
+      );
+      setData(response.data?.data ?? []);
+    } catch (error) {
+      toast.error("ไม่สามารถโหลดข้อมูลงานคืนได้");
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (open) fetchData();
+  }, [open, fetchData]);
+
+  const columns = [
+    {
+      title: "โครงการ",
+      dataIndex: ["project", "name"],
+      key: "project",
+      render: (text: string, record: MyWorkItem) => (
+        <Space direction="vertical" size={0}>
+          <Typography.Text strong>{text}</Typography.Text>
+          {record.project.name_en && (
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              {record.project.name_en}
+            </Typography.Text>
+          )}
+        </Space>
+      ),
+    },
+    {
+      title: "งานย่อย / ฟีเจอร์",
+      dataIndex: ["feature", "name"],
+      key: "feature",
+      render: (text: string, record: MyWorkItem) =>
+        text ? (
+          <Space direction="vertical" size={0}>
+            <Typography.Text>{text}</Typography.Text>
+            {record.feature?.name_en && (
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                {record.feature.name_en}
+              </Typography.Text>
+            )}
+          </Space>
+        ) : (
+          <Typography.Text type="secondary">-</Typography.Text>
+        ),
+    },
+    {
+      title: "ตำแหน่ง / บทบาท",
+      dataIndex: "position",
+      key: "position",
+      render: (text: string) =>
+        text || <Typography.Text type="secondary">ไม่ได้ระบุ</Typography.Text>,
+    },
+    {
+      title: "สถานะ",
+      key: "status",
+      render: (_: any, record: MyWorkItem) => (
+        <Space>
+          <Tag
+            color={record.project.status === "open" ? "processing" : "default"}
+          >
+            Project: {record.project.status.toUpperCase()}
+          </Tag>
+          {record.feature && (
+            <Tag color={record.feature.status === "open" ? "cyan" : "default"}>
+              Feature: {record.feature.status.toUpperCase()}
+            </Tag>
+          )}
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <Modal
+      open={open}
+      title={
+        <Space size={12}>
+          <div className="p-2 rounded-xl bg-blue-50 text-blue-500">
+            <UserOutlined style={{ fontSize: 20 }} />
+          </div>
+          <div>
+            <Typography.Title level={4} style={{ margin: 0 }}>
+              งานของฉัน
+            </Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              รายการโครงการและฟีเจอร์ที่คุณได้รับมอบหมาย
+            </Typography.Text>
+          </div>
+        </Space>
+      }
+      onCancel={onCancel}
+      width={1000}
+      footer={[
+        <Button key="close" onClick={onCancel}>
+          ปิด
+        </Button>,
+      ]}
+    >
+      <div className="py-4">
+        <Table
+          dataSource={data}
+          columns={columns}
+          loading={loading}
+          rowKey="id"
+          pagination={false}
+          locale={{ emptyText: "ไม่พบข้อมูลงานที่ได้รับมอบหมาย" }}
+        />
+      </div>
+    </Modal>
+  );
+};
+
 // --- Page Header ---
 interface PageHeaderProps {
   adminName: string;
   onAddClick: () => void;
   onAddMultiClick: () => void;
   onBulkAllClick: () => void;
+  onMyWorkClick: () => void;
   token: any;
 }
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -157,8 +318,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   onAddClick,
   onAddMultiClick,
   onBulkAllClick,
+  onMyWorkClick,
   token,
 }) => {
+  const { Text } = Typography;
   // Custom greeting logic specifically for Thai to ensure no English slips through
   const getThaiGreeting = () => {
     const hour = dayjs().hour();
@@ -251,15 +414,36 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         </Col>
         <Col>
           <Space size="middle">
-            <Tooltip title="คู่มือการใช้งาน">
-              <Button
-                size="large"
-                shape="circle"
-                icon={<BookOutlined />}
-                onClick={handleOpenGuide}
-                style={{ border: `1px solid ${token.colorBorder}` }}
-              />
-            </Tooltip>
+            {/* My Work Button with "New" Badge */}
+            <Badge
+              count="ใหม่"
+              size="small"
+              color={token.colorInfo}
+              offset={[-8, 8]}
+              style={{ fontWeight: 600, fontSize: 10, padding: "0 6px" }}
+            >
+              <Tooltip title="งานของฉัน (My Work)">
+                <Button
+                  size="large"
+                  shape="circle"
+                  icon={<UserOutlined />}
+                  onClick={onMyWorkClick}
+                  className="hover:scale-105 transition-transform"
+                  style={{
+                    height: 48,
+                    width: 48,
+                    borderRadius: 24,
+                    border: `1px solid ${token.colorBorder}`,
+                    background: isDark ? token.colorBgElevated : "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                />
+              </Tooltip>
+            </Badge>
+
+            {/* Primary Action Button */}
             <Button
               type="primary"
               size="large"
@@ -268,55 +452,77 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               style={{
                 height: 48,
                 paddingLeft: 24,
-                paddingRight: 24,
+                paddingRight: 12,
                 borderRadius: 24,
                 fontSize: 16,
                 fontWeight: 600,
                 boxShadow: `0 4px 14px ${token.colorPrimary}60`,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
               }}
             >
-              ลงเวลาทำงาน
+              <span className="mr-2">ลงเวลาทำงาน</span>
             </Button>
-            <Badge
-              count="พบกันเร็วๆนี้"
-              offset={[-15, 5]}
-              color={token.colorTextDisabled}
+
+            {/* Secondary Actions Dropdown */}
+            <Dropdown
+              trigger={["click"]}
+              placement="bottomRight"
+              menu={{
+                items: [
+                  {
+                    key: "bulk",
+                    label: (
+                      <Space>
+                        <span>ลงแบบทุกคน (Bulk)</span>
+                        <Badge
+                          count="ใหม่"
+                          color={token.colorError}
+                          size="small"
+                        />
+                      </Space>
+                    ),
+                    icon: <TeamOutlined />,
+                    onClick: onBulkAllClick,
+                  },
+                  {
+                    key: "multi",
+                    label: (
+                      <Space>
+                        <span>ลงเวลาหลายรายการ</span>
+                        <Text type="secondary" style={{ fontSize: 10 }}>
+                          (เร็วๆนี้)
+                        </Text>
+                      </Space>
+                    ),
+                    icon: <AppstoreAddOutlined />,
+                    onClick: onAddMultiClick,
+                    disabled: true,
+                  },
+                  { type: "divider" },
+                  {
+                    key: "guide",
+                    label: "คู่มือการใช้งาน",
+                    icon: <BookOutlined />,
+                    onClick: handleOpenGuide,
+                  },
+                ],
+              }}
             >
               <Button
                 size="large"
-                icon={<AppstoreAddOutlined />}
-                onClick={onAddMultiClick}
-                disabled={true}
+                shape="circle"
+                icon={<MoreOutlined />}
                 style={{
                   height: 48,
+                  width: 48,
                   borderRadius: 24,
-                  background: token.colorFillSecondary,
-                  border: "none",
-                  color: token.colorTextDisabled,
+                  border: `1px solid ${token.colorBorder}`,
+                  background: isDark ? token.colorBgElevated : "#fff",
                 }}
-              >
-                ลงเวลาหลายรายการ
-              </Button>
-            </Badge>
-            <Badge count="ใหม่" offset={[-5, 5]} color={token.colorError}>
-              <Tooltip title="ลง Timesheet ให้พนักงานทุกคน (ต้องใช้รหัสผ่าน)">
-                <Button
-                  size="large"
-                  icon={<TeamOutlined />}
-                  onClick={onBulkAllClick}
-                  style={{
-                    height: 48,
-                    borderRadius: 24,
-                    background: `linear-gradient(135deg, ${token.colorWarning}15 0%, ${token.colorError}15 100%)`,
-                    border: `1px solid ${token.colorWarning}40`,
-                    color: token.colorWarning,
-                    fontWeight: 600,
-                  }}
-                >
-                  ลงแบบทุกคน
-                </Button>
-              </Tooltip>
-            </Badge>
+              />
+            </Dropdown>
           </Space>
         </Col>
       </Row>
@@ -2504,6 +2710,7 @@ export default function TimesheetEntryPage() {
   // State
   const [multiEntryModalOpen, setMultiEntryModalOpen] = useState(false);
   const [bulkAllUsersModalOpen, setBulkAllUsersModalOpen] = useState(false);
+  const [myWorkModalOpen, setMyWorkModalOpen] = useState(false);
   const [subProjectsCache, setSubProjectsCache] = useState<
     Record<string, any[]>
   >({});
@@ -2748,6 +2955,7 @@ export default function TimesheetEntryPage() {
               onAddClick={openCreateForm}
               onAddMultiClick={openMultiEntryForm}
               onBulkAllClick={openBulkAllUsersModal}
+              onMyWorkClick={() => setMyWorkModalOpen(true)}
               token={token}
             />
             <StatsGrid
@@ -2828,6 +3036,11 @@ export default function TimesheetEntryPage() {
             fetchSubProjects={(id) => fetchSubProjects(Number(id))}
             refetchEntries={refetchEntries}
             rankBoardRefetch={() => rankBoardRef.current?.refetch()}
+          />
+          <MyWorkModal
+            open={myWorkModalOpen}
+            onCancel={() => setMyWorkModalOpen(false)}
+            userId={adminId}
           />
         </motion.div>
       </DashboardLayout>
