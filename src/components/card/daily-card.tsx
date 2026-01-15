@@ -257,7 +257,7 @@ export const DailyCard: React.FC<DailyCardProps> = ({
                     color: token.colorTextSecondary,
                   }}
                 >
-                  / {targetHours}
+                  / {targetHours} ชั่วโมง
                 </span>
               </Typography.Text>
             </Flex>
