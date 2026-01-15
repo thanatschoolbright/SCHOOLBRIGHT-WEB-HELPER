@@ -15,6 +15,16 @@ import { HealthCheckResult } from "./helper/health-check.type";
 import { checkGetSchoolListService } from "./helper/mobile/get-school-list.service";
 import { checkProfileService } from "./helper/mobile/check-profile.service";
 import { checkRefreshTokenService } from "./helper/mobile/refresh-token.service";
+import { checkEmailVerificationService } from "./helper/mobile/check-verify-email.service";
+import { checkSystemApiUrlsService } from "./helper/mobile/api-url-check.service";
+import { checkStudentLeaveTypeService } from "./helper/mobile/check-student-leave-type.service";
+import { checkStudentLeaveInfoService } from "./helper/mobile/leave-system/check-student-leave-info.service";
+import { checkProvinceService } from "./helper/mobile/leave-system/check-province.service";
+import { checkDistrictService } from "./helper/mobile/leave-system/check-district.service";
+import { checkAmphurService } from "./helper/mobile/leave-system/check-amphur.service";
+import { checkLeaveUploadService } from "./helper/mobile/leave-system/check-leave-upload.service";
+import { checkFindClassroomService } from "./helper/mobile/leave-system/check-find-classroom.service";
+import { checkSubmitLeaveService } from "./helper/mobile/leave-system/check-submit-leave.service";
 
 dayjs.locale("th");
 
@@ -181,6 +191,16 @@ async function executeHealthChecks(): Promise<HealthCheckResult[]> {
     checkGetSchoolListService(),
     checkProfileService(freshToken),
     checkRefreshTokenService(freshToken),
+    checkEmailVerificationService(freshToken),
+    checkSystemApiUrlsService(freshToken),
+    checkStudentLeaveTypeService(freshToken),
+    checkStudentLeaveInfoService(freshToken),
+    checkProvinceService(freshToken),
+    checkDistrictService(freshToken),
+    checkAmphurService(freshToken),
+    checkLeaveUploadService(freshToken),
+    checkFindClassroomService(freshToken),
+    checkSubmitLeaveService(freshToken),
   ]);
 
   return [loginResult, ...otherServicesResults];

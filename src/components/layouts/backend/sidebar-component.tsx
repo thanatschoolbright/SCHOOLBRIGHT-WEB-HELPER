@@ -336,12 +336,52 @@ export default function SidebarContent({
             color: inherit;
           }
 
+          /* Fix collapsed menu popup visibility */
+          .ant-menu-inline-collapsed > .ant-menu-item,
+          .ant-menu-inline-collapsed
+            > .ant-menu-submenu
+            > .ant-menu-submenu-title {
+            padding-inline: 16px !important;
+          }
+
           .ant-menu-inline-collapsed .ant-menu-item-icon,
           .ant-menu-inline-collapsed .anticon {
             min-width: 22px;
             line-height: 1;
             vertical-align: middle;
             margin-right: 0 !important;
+          }
+
+          /* Ensure popup menu text is visible when collapsed */
+          .ant-menu-inline-collapsed
+            + .ant-menu-submenu-popup
+            .ant-menu-item-title-content,
+          .ant-menu-inline-collapsed
+            + .ant-menu-submenu-popup
+            .ant-menu-title-content,
+          .ant-menu-inline-collapsed
+            ~ .ant-menu-submenu-popup
+            .ant-menu-item-title-content,
+          .ant-menu-inline-collapsed
+            ~ .ant-menu-submenu-popup
+            .ant-menu-title-content {
+            display: inline-block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            color: ${isDark ? token.colorText : "#262626"} !important;
+          }
+
+          /* Popup menu items styling */
+          .ant-menu-submenu-popup .ant-menu-item,
+          .ant-menu-submenu-popup .ant-menu-submenu-title {
+            color: ${isDark ? token.colorText : "#262626"} !important;
+          }
+
+          .ant-menu-submenu-popup .ant-menu-item .ant-menu-title-content,
+          .ant-menu-submenu-popup
+            .ant-menu-submenu-title
+            .ant-menu-title-content {
+            color: ${isDark ? token.colorText : "#262626"} !important;
           }
 
           .ant-menu-submenu-expand-icon,
