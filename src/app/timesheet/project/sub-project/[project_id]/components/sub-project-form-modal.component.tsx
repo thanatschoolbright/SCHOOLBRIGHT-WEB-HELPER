@@ -47,22 +47,8 @@ interface SubProjectFormModalProps {
   loading: boolean;
   onSubmit: (values: SubProjectFormValues) => Promise<boolean>;
   onCancel: () => void;
+  statuses?: any[];
 }
-
-const PROJECT_STATUS_OPTIONS = [
-  { label: "ยังไม่เริ่มต้น", value: "ยังไม่เริ่มต้น" },
-  { label: "ค้นคว้าเอกสาร", value: "ค้นคว้าเอกสาร" },
-  { label: "พัฒนา", value: "พัฒนา" },
-  { label: "ทดสอบระบบ", value: "ทดสอบระบบ" },
-  {
-    label: "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)",
-    value: "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)",
-  },
-  {
-    label: "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)",
-    value: "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)",
-  },
-];
 
 const POSITION_OPTIONS = [
   { value: "Project Manager" },
@@ -81,11 +67,16 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   loading,
   onSubmit,
   onCancel,
+  statuses = [],
 }) => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const watchedDateRange = Form.useWatch("dateRange", form);
   const [users, setUsers] = useState<any[]>([]);
+
+  const statusOptions = statuses
+    .sort((a, b) => a.priority - b.priority)
+    .map((s) => ({ label: s.nameTh, value: s.nameTh }));
 
   useEffect(() => {
     if (open) {
@@ -96,7 +87,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         form.resetFields();
         form.setFieldsValue({
           asset_capture_type: "CAPTUREABLE",
-          status: "ยังไม่เริ่มต้น",
+          status: statusOptions[0]?.value,
         });
       } else if (mode === "edit" && data) {
         const range =
@@ -218,7 +209,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
               label="สถานะการดำเนินงาน"
               rules={[{ required: true }]}
             >
-              <Select options={PROJECT_STATUS_OPTIONS} />
+              <Select options={statusOptions} />
             </Form.Item>
           </Col>
           <Col span={8}>

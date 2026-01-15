@@ -39,6 +39,8 @@ model Project {
   group            Group?            @relation(fields: [group_id], references: [id])
   timesheets       TimesheetEntry[]
   projectAssignees ProjectAssignee[]
+  projectStatus    ProjectStatus?    @relation(fields: [projectStatusId], references: [id])
+  projectStatusId  Int?              @map("project_status_id")
 
   @@map("project")
 }
@@ -74,6 +76,8 @@ model Feature {
   project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
   timesheets         TimesheetEntry[]
   projectAssignees   ProjectAssignee[]
+  projectStatus      ProjectStatus?          @relation(fields: [projectStatusId], references: [id])
+  projectStatusId    Int?                    @map("project_status_id")
 
   @@map("feature")
 }
@@ -83,6 +87,11 @@ model ProjectStatus {
   priority Int     @default(0) @map("priority")
   nameTh   String  @map("name_th")
   nameEn   String? @map("name_en")
+
+  projects Project[]
+  features Feature[]
+
+  @@map("project_status")
 }
 
 model TimesheetEntry {

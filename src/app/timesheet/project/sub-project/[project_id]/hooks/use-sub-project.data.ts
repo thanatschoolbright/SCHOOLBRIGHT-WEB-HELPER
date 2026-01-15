@@ -19,6 +19,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
   const [projectData, setProjectData] = useState<Project | null>(null);
   const [subProjects, setSubProjects] = useState<SubProject[]>([]);
   const [allSubProjects, setAllSubProjects] = useState<SubProject[]>([]);
+  const [projectStatuses, setProjectStatuses] = useState<any[]>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     current: DEFAULT_CURRENT_PAGE,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -33,7 +34,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [projectRes, subProjectRes] = await Promise.all([
+      const [projectRes, subProjectRes, statusRes] = await Promise.all([
         fetch("/api/v1/timesheet/project/read/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -48,13 +49,21 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
             project_id: projectId,
           }),
         }),
+        fetch("/api/v1/timesheet/project/status/read/", {
+          method: "POST",
+        }),
       ]);
 
       const projectJson = await projectRes.json();
       const subProjectJson = await subProjectRes.json();
+      const statusJson = await statusRes.json();
 
       if (projectJson?.data?.items?.length)
         setProjectData(projectJson.data.items[0]);
+
+      if (statusJson?.status === 200) {
+        setProjectStatuses(statusJson.data);
+      }
 
       const fetchedSubProjects = subProjectJson?.data || [];
       setAllSubProjects(fetchedSubProjects);
@@ -109,6 +118,13 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
   }, [filteredSubProjects]);
 
   const stats: SubProjectStats = useMemo(() => {
+    // Find min and max priority status to identify initial and final steps dynamically
+    const sortedStatuses = [...projectStatuses].sort(
+      (a, b) => a.priority - b.priority
+    );
+    const startStatus = sortedStatuses[0]?.nameTh;
+    const endStatus = sortedStatuses[sortedStatuses.length - 1]?.nameTh;
+
     return filteredSubProjects.reduce(
       (acc, curr) => {
         const { hours } = calculateWorkingHours(
@@ -119,9 +135,9 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
         acc.total++;
         acc.totalHours += hours;
 
-        if (curr.status === "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)") {
+        if (endStatus && curr.status === endStatus) {
           acc.completed++;
-        } else if (curr.status && curr.status !== "ยังไม่เริ่มต้น") {
+        } else if (curr.status && curr.status !== startStatus) {
           acc.processing++;
         }
 
@@ -129,7 +145,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
       },
       { total: 0, processing: 0, completed: 0, totalHours: 0 }
     );
-  }, [filteredSubProjects]);
+  }, [filteredSubProjects, projectStatuses]);
 
   const handleSubmit = async (values: any) => {
     setIsActionLoading(true);
@@ -183,6 +199,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
     isActionLoading,
     projectData,
     subProjects,
+    projectStatuses,
     pagination,
     stats,
     filters,

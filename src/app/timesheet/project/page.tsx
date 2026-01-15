@@ -764,6 +764,7 @@ export default function ProjectManagementPage() {
     createProject,
     updateProject,
     deleteProject,
+    statuses,
   } = useProjectData(adminId);
 
   // States
@@ -1035,6 +1036,7 @@ export default function ProjectManagementPage() {
               ) : (
                 <ProjectTable
                   projects={filteredProjects}
+                  statuses={statuses}
                   loading={loading}
                   pagination={pagination}
                   onPaginationChange={(page, size) =>
@@ -1165,13 +1167,23 @@ export default function ProjectManagementPage() {
                       placeholder="เลือกสถานะ"
                       options={[
                         {
-                          label: <Tag color="success">เปิดโครงการ</Tag>,
+                          label: <Tag color="success">จุดเริ่มต้น (Open)</Tag>,
                           value: "open",
                         },
                         {
-                          label: <Tag color="default">ปิดโครงการ</Tag>,
+                          label: <Tag color="default">สิ้นสุด (Closed)</Tag>,
                           value: "close",
                         },
+                        ...(statuses || [])
+                          .sort((a: any, b: any) => a.priority - b.priority)
+                          .map((s: any) => ({
+                            label: (
+                              <Tag color="blue">
+                                Step {s.priority}: {s.nameTh}
+                              </Tag>
+                            ),
+                            value: s.nameTh,
+                          })),
                       ]}
                     />
                   </Form.Item>

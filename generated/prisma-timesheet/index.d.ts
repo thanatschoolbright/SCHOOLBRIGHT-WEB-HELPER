@@ -1722,6 +1722,46 @@ export namespace Prisma {
 
 
   /**
+   * Count Type ProjectStatusCountOutputType
+   */
+
+  export type ProjectStatusCountOutputType = {
+    projects: number
+    features: number
+  }
+
+  export type ProjectStatusCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    projects?: boolean | ProjectStatusCountOutputTypeCountProjectsArgs
+    features?: boolean | ProjectStatusCountOutputTypeCountFeaturesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ProjectStatusCountOutputType without action
+   */
+  export type ProjectStatusCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectStatusCountOutputType
+     */
+    select?: ProjectStatusCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProjectStatusCountOutputType without action
+   */
+  export type ProjectStatusCountOutputTypeCountProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectWhereInput
+  }
+
+  /**
+   * ProjectStatusCountOutputType without action
+   */
+  export type ProjectStatusCountOutputTypeCountFeaturesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeatureWhereInput
+  }
+
+
+  /**
    * Count Type OvertimeCountOutputType
    */
 
@@ -2851,6 +2891,7 @@ export namespace Prisma {
     createdBy: number | null
     updatedBy: number | null
     group_id: number | null
+    projectStatusId: number | null
   }
 
   export type ProjectSumAggregateOutputType = {
@@ -2858,6 +2899,7 @@ export namespace Prisma {
     createdBy: number | null
     updatedBy: number | null
     group_id: number | null
+    projectStatusId: number | null
   }
 
   export type ProjectMinAggregateOutputType = {
@@ -2877,6 +2919,7 @@ export namespace Prisma {
     approval: string | null
     approval_status: string | null
     group_id: number | null
+    projectStatusId: number | null
   }
 
   export type ProjectMaxAggregateOutputType = {
@@ -2896,6 +2939,7 @@ export namespace Prisma {
     approval: string | null
     approval_status: string | null
     group_id: number | null
+    projectStatusId: number | null
   }
 
   export type ProjectCountAggregateOutputType = {
@@ -2915,6 +2959,7 @@ export namespace Prisma {
     approval: number
     approval_status: number
     group_id: number
+    projectStatusId: number
     _all: number
   }
 
@@ -2924,6 +2969,7 @@ export namespace Prisma {
     createdBy?: true
     updatedBy?: true
     group_id?: true
+    projectStatusId?: true
   }
 
   export type ProjectSumAggregateInputType = {
@@ -2931,6 +2977,7 @@ export namespace Prisma {
     createdBy?: true
     updatedBy?: true
     group_id?: true
+    projectStatusId?: true
   }
 
   export type ProjectMinAggregateInputType = {
@@ -2950,6 +2997,7 @@ export namespace Prisma {
     approval?: true
     approval_status?: true
     group_id?: true
+    projectStatusId?: true
   }
 
   export type ProjectMaxAggregateInputType = {
@@ -2969,6 +3017,7 @@ export namespace Prisma {
     approval?: true
     approval_status?: true
     group_id?: true
+    projectStatusId?: true
   }
 
   export type ProjectCountAggregateInputType = {
@@ -2988,6 +3037,7 @@ export namespace Prisma {
     approval?: true
     approval_status?: true
     group_id?: true
+    projectStatusId?: true
     _all?: true
   }
 
@@ -3094,6 +3144,7 @@ export namespace Prisma {
     approval: string
     approval_status: string
     group_id: number | null
+    projectStatusId: number | null
     _count: ProjectCountAggregateOutputType | null
     _avg: ProjectAvgAggregateOutputType | null
     _sum: ProjectSumAggregateOutputType | null
@@ -3132,10 +3183,12 @@ export namespace Prisma {
     approval?: boolean
     approval_status?: boolean
     group_id?: boolean
+    projectStatusId?: boolean
     features?: boolean | Project$featuresArgs<ExtArgs>
     group?: boolean | Project$groupArgs<ExtArgs>
     timesheets?: boolean | Project$timesheetsArgs<ExtArgs>
     projectAssignees?: boolean | Project$projectAssigneesArgs<ExtArgs>
+    projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
 
@@ -3156,7 +3209,9 @@ export namespace Prisma {
     approval?: boolean
     approval_status?: boolean
     group_id?: boolean
+    projectStatusId?: boolean
     group?: boolean | Project$groupArgs<ExtArgs>
+    projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
 
   export type ProjectSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3176,7 +3231,9 @@ export namespace Prisma {
     approval?: boolean
     approval_status?: boolean
     group_id?: boolean
+    projectStatusId?: boolean
     group?: boolean | Project$groupArgs<ExtArgs>
+    projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
 
   export type ProjectSelectScalar = {
@@ -3196,21 +3253,25 @@ export namespace Prisma {
     approval?: boolean
     approval_status?: boolean
     group_id?: boolean
+    projectStatusId?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "description" | "is_deleted" | "categoryType" | "status" | "end_date" | "name_en" | "start_date" | "approval" | "approval_status" | "group_id", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "description" | "is_deleted" | "categoryType" | "status" | "end_date" | "name_en" | "start_date" | "approval" | "approval_status" | "group_id" | "projectStatusId", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     features?: boolean | Project$featuresArgs<ExtArgs>
     group?: boolean | Project$groupArgs<ExtArgs>
     timesheets?: boolean | Project$timesheetsArgs<ExtArgs>
     projectAssignees?: boolean | Project$projectAssigneesArgs<ExtArgs>
+    projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProjectIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     group?: boolean | Project$groupArgs<ExtArgs>
+    projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
   }
   export type ProjectIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     group?: boolean | Project$groupArgs<ExtArgs>
+    projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
   }
 
   export type $ProjectPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3220,6 +3281,7 @@ export namespace Prisma {
       group: Prisma.$GroupPayload<ExtArgs> | null
       timesheets: Prisma.$TimesheetEntryPayload<ExtArgs>[]
       projectAssignees: Prisma.$ProjectAssigneePayload<ExtArgs>[]
+      projectStatus: Prisma.$ProjectStatusPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -3238,6 +3300,7 @@ export namespace Prisma {
       approval: string
       approval_status: string
       group_id: number | null
+      projectStatusId: number | null
     }, ExtArgs["result"]["project"]>
     composites: {}
   }
@@ -3636,6 +3699,7 @@ export namespace Prisma {
     group<T extends Project$groupArgs<ExtArgs> = {}>(args?: Subset<T, Project$groupArgs<ExtArgs>>): Prisma__GroupClient<$Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     timesheets<T extends Project$timesheetsArgs<ExtArgs> = {}>(args?: Subset<T, Project$timesheetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TimesheetEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     projectAssignees<T extends Project$projectAssigneesArgs<ExtArgs> = {}>(args?: Subset<T, Project$projectAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    projectStatus<T extends Project$projectStatusArgs<ExtArgs> = {}>(args?: Subset<T, Project$projectStatusArgs<ExtArgs>>): Prisma__ProjectStatusClient<$Result.GetResult<Prisma.$ProjectStatusPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3681,6 +3745,7 @@ export namespace Prisma {
     readonly approval: FieldRef<"Project", 'String'>
     readonly approval_status: FieldRef<"Project", 'String'>
     readonly group_id: FieldRef<"Project", 'Int'>
+    readonly projectStatusId: FieldRef<"Project", 'Int'>
   }
     
 
@@ -4165,6 +4230,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProjectAssigneeScalarFieldEnum | ProjectAssigneeScalarFieldEnum[]
+  }
+
+  /**
+   * Project.projectStatus
+   */
+  export type Project$projectStatusArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectStatus
+     */
+    select?: ProjectStatusSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectStatus
+     */
+    omit?: ProjectStatusOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
+    where?: ProjectStatusWhereInput
   }
 
   /**
@@ -5334,6 +5418,7 @@ export namespace Prisma {
     projectId: number | null
     createdBy: number | null
     updatedBy: number | null
+    projectStatusId: number | null
   }
 
   export type FeatureSumAggregateOutputType = {
@@ -5341,6 +5426,7 @@ export namespace Prisma {
     projectId: number | null
     createdBy: number | null
     updatedBy: number | null
+    projectStatusId: number | null
   }
 
   export type FeatureMinAggregateOutputType = {
@@ -5357,6 +5443,7 @@ export namespace Prisma {
     assetCaptureType: $Enums.ProjectAssetCaptureType | null
     status: string | null
     name_en: string | null
+    projectStatusId: number | null
   }
 
   export type FeatureMaxAggregateOutputType = {
@@ -5373,6 +5460,7 @@ export namespace Prisma {
     assetCaptureType: $Enums.ProjectAssetCaptureType | null
     status: string | null
     name_en: string | null
+    projectStatusId: number | null
   }
 
   export type FeatureCountAggregateOutputType = {
@@ -5390,6 +5478,7 @@ export namespace Prisma {
     assetCaptureType: number
     status: number
     name_en: number
+    projectStatusId: number
     _all: number
   }
 
@@ -5399,6 +5488,7 @@ export namespace Prisma {
     projectId?: true
     createdBy?: true
     updatedBy?: true
+    projectStatusId?: true
   }
 
   export type FeatureSumAggregateInputType = {
@@ -5406,6 +5496,7 @@ export namespace Prisma {
     projectId?: true
     createdBy?: true
     updatedBy?: true
+    projectStatusId?: true
   }
 
   export type FeatureMinAggregateInputType = {
@@ -5422,6 +5513,7 @@ export namespace Prisma {
     assetCaptureType?: true
     status?: true
     name_en?: true
+    projectStatusId?: true
   }
 
   export type FeatureMaxAggregateInputType = {
@@ -5438,6 +5530,7 @@ export namespace Prisma {
     assetCaptureType?: true
     status?: true
     name_en?: true
+    projectStatusId?: true
   }
 
   export type FeatureCountAggregateInputType = {
@@ -5455,6 +5548,7 @@ export namespace Prisma {
     assetCaptureType?: true
     status?: true
     name_en?: true
+    projectStatusId?: true
     _all?: true
   }
 
@@ -5559,6 +5653,7 @@ export namespace Prisma {
     assetCaptureType: $Enums.ProjectAssetCaptureType
     status: string
     name_en: string | null
+    projectStatusId: number | null
     _count: FeatureCountAggregateOutputType | null
     _avg: FeatureAvgAggregateOutputType | null
     _sum: FeatureSumAggregateOutputType | null
@@ -5595,9 +5690,11 @@ export namespace Prisma {
     assetCaptureType?: boolean
     status?: boolean
     name_en?: boolean
+    projectStatusId?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     timesheets?: boolean | Feature$timesheetsArgs<ExtArgs>
     projectAssignees?: boolean | Feature$projectAssigneesArgs<ExtArgs>
+    projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
     _count?: boolean | FeatureCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
 
@@ -5616,7 +5713,9 @@ export namespace Prisma {
     assetCaptureType?: boolean
     status?: boolean
     name_en?: boolean
+    projectStatusId?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
+    projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
 
   export type FeatureSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5634,7 +5733,9 @@ export namespace Prisma {
     assetCaptureType?: boolean
     status?: boolean
     name_en?: boolean
+    projectStatusId?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
+    projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
 
   export type FeatureSelectScalar = {
@@ -5652,20 +5753,24 @@ export namespace Prisma {
     assetCaptureType?: boolean
     status?: boolean
     name_en?: boolean
+    projectStatusId?: boolean
   }
 
-  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "is_deleted" | "endDate" | "startDate" | "backlogDescription" | "assetCaptureType" | "status" | "name_en", ExtArgs["result"]["feature"]>
+  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "is_deleted" | "endDate" | "startDate" | "backlogDescription" | "assetCaptureType" | "status" | "name_en" | "projectStatusId", ExtArgs["result"]["feature"]>
   export type FeatureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     timesheets?: boolean | Feature$timesheetsArgs<ExtArgs>
     projectAssignees?: boolean | Feature$projectAssigneesArgs<ExtArgs>
+    projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
     _count?: boolean | FeatureCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type FeatureIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
+    projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
   }
   export type FeatureIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
+    projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
   }
 
   export type $FeaturePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5674,6 +5779,7 @@ export namespace Prisma {
       project: Prisma.$ProjectPayload<ExtArgs>
       timesheets: Prisma.$TimesheetEntryPayload<ExtArgs>[]
       projectAssignees: Prisma.$ProjectAssigneePayload<ExtArgs>[]
+      projectStatus: Prisma.$ProjectStatusPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -5690,6 +5796,7 @@ export namespace Prisma {
       assetCaptureType: $Enums.ProjectAssetCaptureType
       status: string
       name_en: string | null
+      projectStatusId: number | null
     }, ExtArgs["result"]["feature"]>
     composites: {}
   }
@@ -6087,6 +6194,7 @@ export namespace Prisma {
     project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     timesheets<T extends Feature$timesheetsArgs<ExtArgs> = {}>(args?: Subset<T, Feature$timesheetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TimesheetEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     projectAssignees<T extends Feature$projectAssigneesArgs<ExtArgs> = {}>(args?: Subset<T, Feature$projectAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    projectStatus<T extends Feature$projectStatusArgs<ExtArgs> = {}>(args?: Subset<T, Feature$projectStatusArgs<ExtArgs>>): Prisma__ProjectStatusClient<$Result.GetResult<Prisma.$ProjectStatusPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6130,6 +6238,7 @@ export namespace Prisma {
     readonly assetCaptureType: FieldRef<"Feature", 'ProjectAssetCaptureType'>
     readonly status: FieldRef<"Feature", 'String'>
     readonly name_en: FieldRef<"Feature", 'String'>
+    readonly projectStatusId: FieldRef<"Feature", 'Int'>
   }
     
 
@@ -6574,6 +6683,25 @@ export namespace Prisma {
   }
 
   /**
+   * Feature.projectStatus
+   */
+  export type Feature$projectStatusArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectStatus
+     */
+    select?: ProjectStatusSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectStatus
+     */
+    omit?: ProjectStatusOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
+    where?: ProjectStatusWhereInput
+  }
+
+  /**
    * Feature without action
    */
   export type FeatureDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6786,6 +6914,9 @@ export namespace Prisma {
     priority?: boolean
     nameTh?: boolean
     nameEn?: boolean
+    projects?: boolean | ProjectStatus$projectsArgs<ExtArgs>
+    features?: boolean | ProjectStatus$featuresArgs<ExtArgs>
+    _count?: boolean | ProjectStatusCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["projectStatus"]>
 
   export type ProjectStatusSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6810,10 +6941,20 @@ export namespace Prisma {
   }
 
   export type ProjectStatusOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "priority" | "nameTh" | "nameEn", ExtArgs["result"]["projectStatus"]>
+  export type ProjectStatusInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    projects?: boolean | ProjectStatus$projectsArgs<ExtArgs>
+    features?: boolean | ProjectStatus$featuresArgs<ExtArgs>
+    _count?: boolean | ProjectStatusCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ProjectStatusIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ProjectStatusIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $ProjectStatusPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ProjectStatus"
-    objects: {}
+    objects: {
+      projects: Prisma.$ProjectPayload<ExtArgs>[]
+      features: Prisma.$FeaturePayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       priority: number
@@ -7213,6 +7354,8 @@ export namespace Prisma {
    */
   export interface Prisma__ProjectStatusClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    projects<T extends ProjectStatus$projectsArgs<ExtArgs> = {}>(args?: Subset<T, ProjectStatus$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    features<T extends ProjectStatus$featuresArgs<ExtArgs> = {}>(args?: Subset<T, ProjectStatus$featuresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7263,6 +7406,10 @@ export namespace Prisma {
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
+    /**
      * Filter, which ProjectStatus to fetch.
      */
     where: ProjectStatusWhereUniqueInput
@@ -7281,6 +7428,10 @@ export namespace Prisma {
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
+    /**
      * Filter, which ProjectStatus to fetch.
      */
     where: ProjectStatusWhereUniqueInput
@@ -7298,6 +7449,10 @@ export namespace Prisma {
      * Omit specific fields from the ProjectStatus
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
     /**
      * Filter, which ProjectStatus to fetch.
      */
@@ -7347,6 +7502,10 @@ export namespace Prisma {
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
+    /**
      * Filter, which ProjectStatus to fetch.
      */
     where?: ProjectStatusWhereInput
@@ -7395,6 +7554,10 @@ export namespace Prisma {
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
+    /**
      * Filter, which ProjectStatuses to fetch.
      */
     where?: ProjectStatusWhereInput
@@ -7437,6 +7600,10 @@ export namespace Prisma {
      * Omit specific fields from the ProjectStatus
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
     /**
      * The data needed to create a ProjectStatus.
      */
@@ -7485,6 +7652,10 @@ export namespace Prisma {
      * Omit specific fields from the ProjectStatus
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
     /**
      * The data needed to update a ProjectStatus.
      */
@@ -7552,6 +7723,10 @@ export namespace Prisma {
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
+    /**
      * The filter to search for the ProjectStatus to update in case it exists.
      */
     where: ProjectStatusWhereUniqueInput
@@ -7578,6 +7753,10 @@ export namespace Prisma {
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
+    /**
      * Filter which ProjectStatus to delete.
      */
     where: ProjectStatusWhereUniqueInput
@@ -7598,6 +7777,54 @@ export namespace Prisma {
   }
 
   /**
+   * ProjectStatus.projects
+   */
+  export type ProjectStatus$projectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Project
+     */
+    select?: ProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Project
+     */
+    omit?: ProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectInclude<ExtArgs> | null
+    where?: ProjectWhereInput
+    orderBy?: ProjectOrderByWithRelationInput | ProjectOrderByWithRelationInput[]
+    cursor?: ProjectWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProjectScalarFieldEnum | ProjectScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectStatus.features
+   */
+  export type ProjectStatus$featuresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feature
+     */
+    select?: FeatureSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feature
+     */
+    omit?: FeatureOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureInclude<ExtArgs> | null
+    where?: FeatureWhereInput
+    orderBy?: FeatureOrderByWithRelationInput | FeatureOrderByWithRelationInput[]
+    cursor?: FeatureWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FeatureScalarFieldEnum | FeatureScalarFieldEnum[]
+  }
+
+  /**
    * ProjectStatus without action
    */
   export type ProjectStatusDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7609,6 +7836,10 @@ export namespace Prisma {
      * Omit specific fields from the ProjectStatus
      */
     omit?: ProjectStatusOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectStatusInclude<ExtArgs> | null
   }
 
 
@@ -12377,7 +12608,8 @@ export namespace Prisma {
     start_date: 'start_date',
     approval: 'approval',
     approval_status: 'approval_status',
-    group_id: 'group_id'
+    group_id: 'group_id',
+    projectStatusId: 'projectStatusId'
   };
 
   export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
@@ -12408,7 +12640,8 @@ export namespace Prisma {
     backlogDescription: 'backlogDescription',
     assetCaptureType: 'assetCaptureType',
     status: 'status',
-    name_en: 'name_en'
+    name_en: 'name_en',
+    projectStatusId: 'projectStatusId'
   };
 
   export type FeatureScalarFieldEnum = (typeof FeatureScalarFieldEnum)[keyof typeof FeatureScalarFieldEnum]
@@ -12732,10 +12965,12 @@ export namespace Prisma {
     approval?: StringFilter<"Project"> | string
     approval_status?: StringFilter<"Project"> | string
     group_id?: IntNullableFilter<"Project"> | number | null
+    projectStatusId?: IntNullableFilter<"Project"> | number | null
     features?: FeatureListRelationFilter
     group?: XOR<GroupNullableScalarRelationFilter, GroupWhereInput> | null
     timesheets?: TimesheetEntryListRelationFilter
     projectAssignees?: ProjectAssigneeListRelationFilter
+    projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
   }
 
   export type ProjectOrderByWithRelationInput = {
@@ -12755,10 +12990,12 @@ export namespace Prisma {
     approval?: SortOrder
     approval_status?: SortOrder
     group_id?: SortOrderInput | SortOrder
+    projectStatusId?: SortOrderInput | SortOrder
     features?: FeatureOrderByRelationAggregateInput
     group?: GroupOrderByWithRelationInput
     timesheets?: TimesheetEntryOrderByRelationAggregateInput
     projectAssignees?: ProjectAssigneeOrderByRelationAggregateInput
+    projectStatus?: ProjectStatusOrderByWithRelationInput
   }
 
   export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -12781,10 +13018,12 @@ export namespace Prisma {
     approval?: StringFilter<"Project"> | string
     approval_status?: StringFilter<"Project"> | string
     group_id?: IntNullableFilter<"Project"> | number | null
+    projectStatusId?: IntNullableFilter<"Project"> | number | null
     features?: FeatureListRelationFilter
     group?: XOR<GroupNullableScalarRelationFilter, GroupWhereInput> | null
     timesheets?: TimesheetEntryListRelationFilter
     projectAssignees?: ProjectAssigneeListRelationFilter
+    projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
   }, "id">
 
   export type ProjectOrderByWithAggregationInput = {
@@ -12804,6 +13043,7 @@ export namespace Prisma {
     approval?: SortOrder
     approval_status?: SortOrder
     group_id?: SortOrderInput | SortOrder
+    projectStatusId?: SortOrderInput | SortOrder
     _count?: ProjectCountOrderByAggregateInput
     _avg?: ProjectAvgOrderByAggregateInput
     _max?: ProjectMaxOrderByAggregateInput
@@ -12831,6 +13071,7 @@ export namespace Prisma {
     approval?: StringWithAggregatesFilter<"Project"> | string
     approval_status?: StringWithAggregatesFilter<"Project"> | string
     group_id?: IntNullableWithAggregatesFilter<"Project"> | number | null
+    projectStatusId?: IntNullableWithAggregatesFilter<"Project"> | number | null
   }
 
   export type ProjectAssigneeWhereInput = {
@@ -12911,9 +13152,11 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Feature"> | $Enums.ProjectAssetCaptureType
     status?: StringFilter<"Feature"> | string
     name_en?: StringNullableFilter<"Feature"> | string | null
+    projectStatusId?: IntNullableFilter<"Feature"> | number | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     timesheets?: TimesheetEntryListRelationFilter
     projectAssignees?: ProjectAssigneeListRelationFilter
+    projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
   }
 
   export type FeatureOrderByWithRelationInput = {
@@ -12931,9 +13174,11 @@ export namespace Prisma {
     assetCaptureType?: SortOrder
     status?: SortOrder
     name_en?: SortOrderInput | SortOrder
+    projectStatusId?: SortOrderInput | SortOrder
     project?: ProjectOrderByWithRelationInput
     timesheets?: TimesheetEntryOrderByRelationAggregateInput
     projectAssignees?: ProjectAssigneeOrderByRelationAggregateInput
+    projectStatus?: ProjectStatusOrderByWithRelationInput
   }
 
   export type FeatureWhereUniqueInput = Prisma.AtLeast<{
@@ -12954,9 +13199,11 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Feature"> | $Enums.ProjectAssetCaptureType
     status?: StringFilter<"Feature"> | string
     name_en?: StringNullableFilter<"Feature"> | string | null
+    projectStatusId?: IntNullableFilter<"Feature"> | number | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     timesheets?: TimesheetEntryListRelationFilter
     projectAssignees?: ProjectAssigneeListRelationFilter
+    projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
   }, "id">
 
   export type FeatureOrderByWithAggregationInput = {
@@ -12974,6 +13221,7 @@ export namespace Prisma {
     assetCaptureType?: SortOrder
     status?: SortOrder
     name_en?: SortOrderInput | SortOrder
+    projectStatusId?: SortOrderInput | SortOrder
     _count?: FeatureCountOrderByAggregateInput
     _avg?: FeatureAvgOrderByAggregateInput
     _max?: FeatureMaxOrderByAggregateInput
@@ -12999,6 +13247,7 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeWithAggregatesFilter<"Feature"> | $Enums.ProjectAssetCaptureType
     status?: StringWithAggregatesFilter<"Feature"> | string
     name_en?: StringNullableWithAggregatesFilter<"Feature"> | string | null
+    projectStatusId?: IntNullableWithAggregatesFilter<"Feature"> | number | null
   }
 
   export type ProjectStatusWhereInput = {
@@ -13009,6 +13258,8 @@ export namespace Prisma {
     priority?: IntFilter<"ProjectStatus"> | number
     nameTh?: StringFilter<"ProjectStatus"> | string
     nameEn?: StringNullableFilter<"ProjectStatus"> | string | null
+    projects?: ProjectListRelationFilter
+    features?: FeatureListRelationFilter
   }
 
   export type ProjectStatusOrderByWithRelationInput = {
@@ -13016,6 +13267,8 @@ export namespace Prisma {
     priority?: SortOrder
     nameTh?: SortOrder
     nameEn?: SortOrderInput | SortOrder
+    projects?: ProjectOrderByRelationAggregateInput
+    features?: FeatureOrderByRelationAggregateInput
   }
 
   export type ProjectStatusWhereUniqueInput = Prisma.AtLeast<{
@@ -13026,6 +13279,8 @@ export namespace Prisma {
     priority?: IntFilter<"ProjectStatus"> | number
     nameTh?: StringFilter<"ProjectStatus"> | string
     nameEn?: StringNullableFilter<"ProjectStatus"> | string | null
+    projects?: ProjectListRelationFilter
+    features?: FeatureListRelationFilter
   }, "id">
 
   export type ProjectStatusOrderByWithAggregationInput = {
@@ -13485,6 +13740,7 @@ export namespace Prisma {
     group?: GroupCreateNestedOneWithoutProjectsInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
+    projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
   }
 
   export type ProjectUncheckedCreateInput = {
@@ -13504,6 +13760,7 @@ export namespace Prisma {
     approval?: string
     approval_status?: string
     group_id?: number | null
+    projectStatusId?: number | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
@@ -13528,6 +13785,7 @@ export namespace Prisma {
     group?: GroupUpdateOneWithoutProjectsNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
+    projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
   }
 
   export type ProjectUncheckedUpdateInput = {
@@ -13547,6 +13805,7 @@ export namespace Prisma {
     approval?: StringFieldUpdateOperationsInput | string
     approval_status?: StringFieldUpdateOperationsInput | string
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
@@ -13569,6 +13828,7 @@ export namespace Prisma {
     approval?: string
     approval_status?: string
     group_id?: number | null
+    projectStatusId?: number | null
   }
 
   export type ProjectUpdateManyMutationInput = {
@@ -13605,6 +13865,7 @@ export namespace Prisma {
     approval?: StringFieldUpdateOperationsInput | string
     approval_status?: StringFieldUpdateOperationsInput | string
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type ProjectAssigneeCreateInput = {
@@ -13674,6 +13935,7 @@ export namespace Prisma {
     project: ProjectCreateNestedOneWithoutFeaturesInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
+    projectStatus?: ProjectStatusCreateNestedOneWithoutFeaturesInput
   }
 
   export type FeatureUncheckedCreateInput = {
@@ -13691,6 +13953,7 @@ export namespace Prisma {
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     status?: string
     name_en?: string | null
+    projectStatusId?: number | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
   }
@@ -13711,6 +13974,7 @@ export namespace Prisma {
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
+    projectStatus?: ProjectStatusUpdateOneWithoutFeaturesNestedInput
   }
 
   export type FeatureUncheckedUpdateInput = {
@@ -13728,6 +13992,7 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
   }
@@ -13747,6 +14012,7 @@ export namespace Prisma {
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     status?: string
     name_en?: string | null
+    projectStatusId?: number | null
   }
 
   export type FeatureUpdateManyMutationInput = {
@@ -13779,12 +14045,15 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type ProjectStatusCreateInput = {
     priority?: number
     nameTh: string
     nameEn?: string | null
+    projects?: ProjectCreateNestedManyWithoutProjectStatusInput
+    features?: FeatureCreateNestedManyWithoutProjectStatusInput
   }
 
   export type ProjectStatusUncheckedCreateInput = {
@@ -13792,12 +14061,16 @@ export namespace Prisma {
     priority?: number
     nameTh: string
     nameEn?: string | null
+    projects?: ProjectUncheckedCreateNestedManyWithoutProjectStatusInput
+    features?: FeatureUncheckedCreateNestedManyWithoutProjectStatusInput
   }
 
   export type ProjectStatusUpdateInput = {
     priority?: IntFieldUpdateOperationsInput | number
     nameTh?: StringFieldUpdateOperationsInput | string
     nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    projects?: ProjectUpdateManyWithoutProjectStatusNestedInput
+    features?: FeatureUpdateManyWithoutProjectStatusNestedInput
   }
 
   export type ProjectStatusUncheckedUpdateInput = {
@@ -13805,6 +14078,8 @@ export namespace Prisma {
     priority?: IntFieldUpdateOperationsInput | number
     nameTh?: StringFieldUpdateOperationsInput | string
     nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    projects?: ProjectUncheckedUpdateManyWithoutProjectStatusNestedInput
+    features?: FeatureUncheckedUpdateManyWithoutProjectStatusNestedInput
   }
 
   export type ProjectStatusCreateManyInput = {
@@ -14441,6 +14716,11 @@ export namespace Prisma {
     none?: ProjectAssigneeWhereInput
   }
 
+  export type ProjectStatusNullableScalarRelationFilter = {
+    is?: ProjectStatusWhereInput | null
+    isNot?: ProjectStatusWhereInput | null
+  }
+
   export type FeatureOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -14470,6 +14750,7 @@ export namespace Prisma {
     approval?: SortOrder
     approval_status?: SortOrder
     group_id?: SortOrder
+    projectStatusId?: SortOrder
   }
 
   export type ProjectAvgOrderByAggregateInput = {
@@ -14477,6 +14758,7 @@ export namespace Prisma {
     createdBy?: SortOrder
     updatedBy?: SortOrder
     group_id?: SortOrder
+    projectStatusId?: SortOrder
   }
 
   export type ProjectMaxOrderByAggregateInput = {
@@ -14496,6 +14778,7 @@ export namespace Prisma {
     approval?: SortOrder
     approval_status?: SortOrder
     group_id?: SortOrder
+    projectStatusId?: SortOrder
   }
 
   export type ProjectMinOrderByAggregateInput = {
@@ -14515,6 +14798,7 @@ export namespace Prisma {
     approval?: SortOrder
     approval_status?: SortOrder
     group_id?: SortOrder
+    projectStatusId?: SortOrder
   }
 
   export type ProjectSumOrderByAggregateInput = {
@@ -14522,6 +14806,7 @@ export namespace Prisma {
     createdBy?: SortOrder
     updatedBy?: SortOrder
     group_id?: SortOrder
+    projectStatusId?: SortOrder
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -14669,6 +14954,7 @@ export namespace Prisma {
     assetCaptureType?: SortOrder
     status?: SortOrder
     name_en?: SortOrder
+    projectStatusId?: SortOrder
   }
 
   export type FeatureAvgOrderByAggregateInput = {
@@ -14676,6 +14962,7 @@ export namespace Prisma {
     projectId?: SortOrder
     createdBy?: SortOrder
     updatedBy?: SortOrder
+    projectStatusId?: SortOrder
   }
 
   export type FeatureMaxOrderByAggregateInput = {
@@ -14692,6 +14979,7 @@ export namespace Prisma {
     assetCaptureType?: SortOrder
     status?: SortOrder
     name_en?: SortOrder
+    projectStatusId?: SortOrder
   }
 
   export type FeatureMinOrderByAggregateInput = {
@@ -14708,6 +14996,7 @@ export namespace Prisma {
     assetCaptureType?: SortOrder
     status?: SortOrder
     name_en?: SortOrder
+    projectStatusId?: SortOrder
   }
 
   export type FeatureSumOrderByAggregateInput = {
@@ -14715,6 +15004,7 @@ export namespace Prisma {
     projectId?: SortOrder
     createdBy?: SortOrder
     updatedBy?: SortOrder
+    projectStatusId?: SortOrder
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -15170,6 +15460,12 @@ export namespace Prisma {
     connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
   }
 
+  export type ProjectStatusCreateNestedOneWithoutProjectsInput = {
+    create?: XOR<ProjectStatusCreateWithoutProjectsInput, ProjectStatusUncheckedCreateWithoutProjectsInput>
+    connectOrCreate?: ProjectStatusCreateOrConnectWithoutProjectsInput
+    connect?: ProjectStatusWhereUniqueInput
+  }
+
   export type FeatureUncheckedCreateNestedManyWithoutProjectInput = {
     create?: XOR<FeatureCreateWithoutProjectInput, FeatureUncheckedCreateWithoutProjectInput> | FeatureCreateWithoutProjectInput[] | FeatureUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: FeatureCreateOrConnectWithoutProjectInput | FeatureCreateOrConnectWithoutProjectInput[]
@@ -15261,6 +15557,16 @@ export namespace Prisma {
     update?: ProjectAssigneeUpdateWithWhereUniqueWithoutProjectInput | ProjectAssigneeUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: ProjectAssigneeUpdateManyWithWhereWithoutProjectInput | ProjectAssigneeUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: ProjectAssigneeScalarWhereInput | ProjectAssigneeScalarWhereInput[]
+  }
+
+  export type ProjectStatusUpdateOneWithoutProjectsNestedInput = {
+    create?: XOR<ProjectStatusCreateWithoutProjectsInput, ProjectStatusUncheckedCreateWithoutProjectsInput>
+    connectOrCreate?: ProjectStatusCreateOrConnectWithoutProjectsInput
+    upsert?: ProjectStatusUpsertWithoutProjectsInput
+    disconnect?: ProjectStatusWhereInput | boolean
+    delete?: ProjectStatusWhereInput | boolean
+    connect?: ProjectStatusWhereUniqueInput
+    update?: XOR<XOR<ProjectStatusUpdateToOneWithWhereWithoutProjectsInput, ProjectStatusUpdateWithoutProjectsInput>, ProjectStatusUncheckedUpdateWithoutProjectsInput>
   }
 
   export type FeatureUncheckedUpdateManyWithoutProjectNestedInput = {
@@ -15355,6 +15661,12 @@ export namespace Prisma {
     connect?: ProjectAssigneeWhereUniqueInput | ProjectAssigneeWhereUniqueInput[]
   }
 
+  export type ProjectStatusCreateNestedOneWithoutFeaturesInput = {
+    create?: XOR<ProjectStatusCreateWithoutFeaturesInput, ProjectStatusUncheckedCreateWithoutFeaturesInput>
+    connectOrCreate?: ProjectStatusCreateOrConnectWithoutFeaturesInput
+    connect?: ProjectStatusWhereUniqueInput
+  }
+
   export type TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput = {
     create?: XOR<TimesheetEntryCreateWithoutFeatureInput, TimesheetEntryUncheckedCreateWithoutFeatureInput> | TimesheetEntryCreateWithoutFeatureInput[] | TimesheetEntryUncheckedCreateWithoutFeatureInput[]
     connectOrCreate?: TimesheetEntryCreateOrConnectWithoutFeatureInput | TimesheetEntryCreateOrConnectWithoutFeatureInput[]
@@ -15409,6 +15721,16 @@ export namespace Prisma {
     deleteMany?: ProjectAssigneeScalarWhereInput | ProjectAssigneeScalarWhereInput[]
   }
 
+  export type ProjectStatusUpdateOneWithoutFeaturesNestedInput = {
+    create?: XOR<ProjectStatusCreateWithoutFeaturesInput, ProjectStatusUncheckedCreateWithoutFeaturesInput>
+    connectOrCreate?: ProjectStatusCreateOrConnectWithoutFeaturesInput
+    upsert?: ProjectStatusUpsertWithoutFeaturesInput
+    disconnect?: ProjectStatusWhereInput | boolean
+    delete?: ProjectStatusWhereInput | boolean
+    connect?: ProjectStatusWhereUniqueInput
+    update?: XOR<XOR<ProjectStatusUpdateToOneWithWhereWithoutFeaturesInput, ProjectStatusUpdateWithoutFeaturesInput>, ProjectStatusUncheckedUpdateWithoutFeaturesInput>
+  }
+
   export type TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput = {
     create?: XOR<TimesheetEntryCreateWithoutFeatureInput, TimesheetEntryUncheckedCreateWithoutFeatureInput> | TimesheetEntryCreateWithoutFeatureInput[] | TimesheetEntryUncheckedCreateWithoutFeatureInput[]
     connectOrCreate?: TimesheetEntryCreateOrConnectWithoutFeatureInput | TimesheetEntryCreateOrConnectWithoutFeatureInput[]
@@ -15435,6 +15757,90 @@ export namespace Prisma {
     update?: ProjectAssigneeUpdateWithWhereUniqueWithoutFeatureInput | ProjectAssigneeUpdateWithWhereUniqueWithoutFeatureInput[]
     updateMany?: ProjectAssigneeUpdateManyWithWhereWithoutFeatureInput | ProjectAssigneeUpdateManyWithWhereWithoutFeatureInput[]
     deleteMany?: ProjectAssigneeScalarWhereInput | ProjectAssigneeScalarWhereInput[]
+  }
+
+  export type ProjectCreateNestedManyWithoutProjectStatusInput = {
+    create?: XOR<ProjectCreateWithoutProjectStatusInput, ProjectUncheckedCreateWithoutProjectStatusInput> | ProjectCreateWithoutProjectStatusInput[] | ProjectUncheckedCreateWithoutProjectStatusInput[]
+    connectOrCreate?: ProjectCreateOrConnectWithoutProjectStatusInput | ProjectCreateOrConnectWithoutProjectStatusInput[]
+    createMany?: ProjectCreateManyProjectStatusInputEnvelope
+    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+  }
+
+  export type FeatureCreateNestedManyWithoutProjectStatusInput = {
+    create?: XOR<FeatureCreateWithoutProjectStatusInput, FeatureUncheckedCreateWithoutProjectStatusInput> | FeatureCreateWithoutProjectStatusInput[] | FeatureUncheckedCreateWithoutProjectStatusInput[]
+    connectOrCreate?: FeatureCreateOrConnectWithoutProjectStatusInput | FeatureCreateOrConnectWithoutProjectStatusInput[]
+    createMany?: FeatureCreateManyProjectStatusInputEnvelope
+    connect?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+  }
+
+  export type ProjectUncheckedCreateNestedManyWithoutProjectStatusInput = {
+    create?: XOR<ProjectCreateWithoutProjectStatusInput, ProjectUncheckedCreateWithoutProjectStatusInput> | ProjectCreateWithoutProjectStatusInput[] | ProjectUncheckedCreateWithoutProjectStatusInput[]
+    connectOrCreate?: ProjectCreateOrConnectWithoutProjectStatusInput | ProjectCreateOrConnectWithoutProjectStatusInput[]
+    createMany?: ProjectCreateManyProjectStatusInputEnvelope
+    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+  }
+
+  export type FeatureUncheckedCreateNestedManyWithoutProjectStatusInput = {
+    create?: XOR<FeatureCreateWithoutProjectStatusInput, FeatureUncheckedCreateWithoutProjectStatusInput> | FeatureCreateWithoutProjectStatusInput[] | FeatureUncheckedCreateWithoutProjectStatusInput[]
+    connectOrCreate?: FeatureCreateOrConnectWithoutProjectStatusInput | FeatureCreateOrConnectWithoutProjectStatusInput[]
+    createMany?: FeatureCreateManyProjectStatusInputEnvelope
+    connect?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+  }
+
+  export type ProjectUpdateManyWithoutProjectStatusNestedInput = {
+    create?: XOR<ProjectCreateWithoutProjectStatusInput, ProjectUncheckedCreateWithoutProjectStatusInput> | ProjectCreateWithoutProjectStatusInput[] | ProjectUncheckedCreateWithoutProjectStatusInput[]
+    connectOrCreate?: ProjectCreateOrConnectWithoutProjectStatusInput | ProjectCreateOrConnectWithoutProjectStatusInput[]
+    upsert?: ProjectUpsertWithWhereUniqueWithoutProjectStatusInput | ProjectUpsertWithWhereUniqueWithoutProjectStatusInput[]
+    createMany?: ProjectCreateManyProjectStatusInputEnvelope
+    set?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    disconnect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    delete?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    update?: ProjectUpdateWithWhereUniqueWithoutProjectStatusInput | ProjectUpdateWithWhereUniqueWithoutProjectStatusInput[]
+    updateMany?: ProjectUpdateManyWithWhereWithoutProjectStatusInput | ProjectUpdateManyWithWhereWithoutProjectStatusInput[]
+    deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
+  }
+
+  export type FeatureUpdateManyWithoutProjectStatusNestedInput = {
+    create?: XOR<FeatureCreateWithoutProjectStatusInput, FeatureUncheckedCreateWithoutProjectStatusInput> | FeatureCreateWithoutProjectStatusInput[] | FeatureUncheckedCreateWithoutProjectStatusInput[]
+    connectOrCreate?: FeatureCreateOrConnectWithoutProjectStatusInput | FeatureCreateOrConnectWithoutProjectStatusInput[]
+    upsert?: FeatureUpsertWithWhereUniqueWithoutProjectStatusInput | FeatureUpsertWithWhereUniqueWithoutProjectStatusInput[]
+    createMany?: FeatureCreateManyProjectStatusInputEnvelope
+    set?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+    disconnect?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+    delete?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+    connect?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+    update?: FeatureUpdateWithWhereUniqueWithoutProjectStatusInput | FeatureUpdateWithWhereUniqueWithoutProjectStatusInput[]
+    updateMany?: FeatureUpdateManyWithWhereWithoutProjectStatusInput | FeatureUpdateManyWithWhereWithoutProjectStatusInput[]
+    deleteMany?: FeatureScalarWhereInput | FeatureScalarWhereInput[]
+  }
+
+  export type ProjectUncheckedUpdateManyWithoutProjectStatusNestedInput = {
+    create?: XOR<ProjectCreateWithoutProjectStatusInput, ProjectUncheckedCreateWithoutProjectStatusInput> | ProjectCreateWithoutProjectStatusInput[] | ProjectUncheckedCreateWithoutProjectStatusInput[]
+    connectOrCreate?: ProjectCreateOrConnectWithoutProjectStatusInput | ProjectCreateOrConnectWithoutProjectStatusInput[]
+    upsert?: ProjectUpsertWithWhereUniqueWithoutProjectStatusInput | ProjectUpsertWithWhereUniqueWithoutProjectStatusInput[]
+    createMany?: ProjectCreateManyProjectStatusInputEnvelope
+    set?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    disconnect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    delete?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    update?: ProjectUpdateWithWhereUniqueWithoutProjectStatusInput | ProjectUpdateWithWhereUniqueWithoutProjectStatusInput[]
+    updateMany?: ProjectUpdateManyWithWhereWithoutProjectStatusInput | ProjectUpdateManyWithWhereWithoutProjectStatusInput[]
+    deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
+  }
+
+  export type FeatureUncheckedUpdateManyWithoutProjectStatusNestedInput = {
+    create?: XOR<FeatureCreateWithoutProjectStatusInput, FeatureUncheckedCreateWithoutProjectStatusInput> | FeatureCreateWithoutProjectStatusInput[] | FeatureUncheckedCreateWithoutProjectStatusInput[]
+    connectOrCreate?: FeatureCreateOrConnectWithoutProjectStatusInput | FeatureCreateOrConnectWithoutProjectStatusInput[]
+    upsert?: FeatureUpsertWithWhereUniqueWithoutProjectStatusInput | FeatureUpsertWithWhereUniqueWithoutProjectStatusInput[]
+    createMany?: FeatureCreateManyProjectStatusInputEnvelope
+    set?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+    disconnect?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+    delete?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+    connect?: FeatureWhereUniqueInput | FeatureWhereUniqueInput[]
+    update?: FeatureUpdateWithWhereUniqueWithoutProjectStatusInput | FeatureUpdateWithWhereUniqueWithoutProjectStatusInput[]
+    updateMany?: FeatureUpdateManyWithWhereWithoutProjectStatusInput | FeatureUpdateManyWithWhereWithoutProjectStatusInput[]
+    deleteMany?: FeatureScalarWhereInput | FeatureScalarWhereInput[]
   }
 
   export type FeatureCreateNestedOneWithoutTimesheetsInput = {
@@ -15850,6 +16256,7 @@ export namespace Prisma {
     features?: FeatureCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
+    projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
   }
 
   export type ProjectUncheckedCreateWithoutGroupInput = {
@@ -15868,6 +16275,7 @@ export namespace Prisma {
     start_date?: Date | string | null
     approval?: string
     approval_status?: string
+    projectStatusId?: number | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
@@ -15919,6 +16327,7 @@ export namespace Prisma {
     approval?: StringFilter<"Project"> | string
     approval_status?: StringFilter<"Project"> | string
     group_id?: IntNullableFilter<"Project"> | number | null
+    projectStatusId?: IntNullableFilter<"Project"> | number | null
   }
 
   export type FeatureCreateWithoutProjectInput = {
@@ -15936,6 +16345,7 @@ export namespace Prisma {
     name_en?: string | null
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
+    projectStatus?: ProjectStatusCreateNestedOneWithoutFeaturesInput
   }
 
   export type FeatureUncheckedCreateWithoutProjectInput = {
@@ -15952,6 +16362,7 @@ export namespace Prisma {
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     status?: string
     name_en?: string | null
+    projectStatusId?: number | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
   }
@@ -16042,6 +16453,26 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ProjectStatusCreateWithoutProjectsInput = {
+    priority?: number
+    nameTh: string
+    nameEn?: string | null
+    features?: FeatureCreateNestedManyWithoutProjectStatusInput
+  }
+
+  export type ProjectStatusUncheckedCreateWithoutProjectsInput = {
+    id?: number
+    priority?: number
+    nameTh: string
+    nameEn?: string | null
+    features?: FeatureUncheckedCreateNestedManyWithoutProjectStatusInput
+  }
+
+  export type ProjectStatusCreateOrConnectWithoutProjectsInput = {
+    where: ProjectStatusWhereUniqueInput
+    create: XOR<ProjectStatusCreateWithoutProjectsInput, ProjectStatusUncheckedCreateWithoutProjectsInput>
+  }
+
   export type FeatureUpsertWithWhereUniqueWithoutProjectInput = {
     where: FeatureWhereUniqueInput
     update: XOR<FeatureUpdateWithoutProjectInput, FeatureUncheckedUpdateWithoutProjectInput>
@@ -16076,6 +16507,7 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Feature"> | $Enums.ProjectAssetCaptureType
     status?: StringFilter<"Feature"> | string
     name_en?: StringNullableFilter<"Feature"> | string | null
+    projectStatusId?: IntNullableFilter<"Feature"> | number | null
   }
 
   export type GroupUpsertWithoutProjectsInput = {
@@ -16161,6 +16593,32 @@ export namespace Prisma {
     position?: StringNullableFilter<"ProjectAssignee"> | string | null
   }
 
+  export type ProjectStatusUpsertWithoutProjectsInput = {
+    update: XOR<ProjectStatusUpdateWithoutProjectsInput, ProjectStatusUncheckedUpdateWithoutProjectsInput>
+    create: XOR<ProjectStatusCreateWithoutProjectsInput, ProjectStatusUncheckedCreateWithoutProjectsInput>
+    where?: ProjectStatusWhereInput
+  }
+
+  export type ProjectStatusUpdateToOneWithWhereWithoutProjectsInput = {
+    where?: ProjectStatusWhereInput
+    data: XOR<ProjectStatusUpdateWithoutProjectsInput, ProjectStatusUncheckedUpdateWithoutProjectsInput>
+  }
+
+  export type ProjectStatusUpdateWithoutProjectsInput = {
+    priority?: IntFieldUpdateOperationsInput | number
+    nameTh?: StringFieldUpdateOperationsInput | string
+    nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    features?: FeatureUpdateManyWithoutProjectStatusNestedInput
+  }
+
+  export type ProjectStatusUncheckedUpdateWithoutProjectsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    priority?: IntFieldUpdateOperationsInput | number
+    nameTh?: StringFieldUpdateOperationsInput | string
+    nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    features?: FeatureUncheckedUpdateManyWithoutProjectStatusNestedInput
+  }
+
   export type ProjectCreateWithoutProjectAssigneesInput = {
     name: string
     createdAt?: Date | string
@@ -16179,6 +16637,7 @@ export namespace Prisma {
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
+    projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
   }
 
   export type ProjectUncheckedCreateWithoutProjectAssigneesInput = {
@@ -16198,6 +16657,7 @@ export namespace Prisma {
     approval?: string
     approval_status?: string
     group_id?: number | null
+    projectStatusId?: number | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -16222,6 +16682,7 @@ export namespace Prisma {
     name_en?: string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
+    projectStatus?: ProjectStatusCreateNestedOneWithoutFeaturesInput
   }
 
   export type FeatureUncheckedCreateWithoutProjectAssigneesInput = {
@@ -16239,6 +16700,7 @@ export namespace Prisma {
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     status?: string
     name_en?: string | null
+    projectStatusId?: number | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
   }
 
@@ -16276,6 +16738,7 @@ export namespace Prisma {
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
+    projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutProjectAssigneesInput = {
@@ -16295,6 +16758,7 @@ export namespace Prisma {
     approval?: StringFieldUpdateOperationsInput | string
     approval_status?: StringFieldUpdateOperationsInput | string
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -16325,6 +16789,7 @@ export namespace Prisma {
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
+    projectStatus?: ProjectStatusUpdateOneWithoutFeaturesNestedInput
   }
 
   export type FeatureUncheckedUpdateWithoutProjectAssigneesInput = {
@@ -16342,6 +16807,7 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
@@ -16363,6 +16829,7 @@ export namespace Prisma {
     group?: GroupCreateNestedOneWithoutProjectsInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
+    projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
   }
 
   export type ProjectUncheckedCreateWithoutFeaturesInput = {
@@ -16382,6 +16849,7 @@ export namespace Prisma {
     approval?: string
     approval_status?: string
     group_id?: number | null
+    projectStatusId?: number | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -16451,6 +16919,26 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ProjectStatusCreateWithoutFeaturesInput = {
+    priority?: number
+    nameTh: string
+    nameEn?: string | null
+    projects?: ProjectCreateNestedManyWithoutProjectStatusInput
+  }
+
+  export type ProjectStatusUncheckedCreateWithoutFeaturesInput = {
+    id?: number
+    priority?: number
+    nameTh: string
+    nameEn?: string | null
+    projects?: ProjectUncheckedCreateNestedManyWithoutProjectStatusInput
+  }
+
+  export type ProjectStatusCreateOrConnectWithoutFeaturesInput = {
+    where: ProjectStatusWhereUniqueInput
+    create: XOR<ProjectStatusCreateWithoutFeaturesInput, ProjectStatusUncheckedCreateWithoutFeaturesInput>
+  }
+
   export type ProjectUpsertWithoutFeaturesInput = {
     update: XOR<ProjectUpdateWithoutFeaturesInput, ProjectUncheckedUpdateWithoutFeaturesInput>
     create: XOR<ProjectCreateWithoutFeaturesInput, ProjectUncheckedCreateWithoutFeaturesInput>
@@ -16480,6 +16968,7 @@ export namespace Prisma {
     group?: GroupUpdateOneWithoutProjectsNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
+    projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutFeaturesInput = {
@@ -16499,6 +16988,7 @@ export namespace Prisma {
     approval?: StringFieldUpdateOperationsInput | string
     approval_status?: StringFieldUpdateOperationsInput | string
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -16535,6 +17025,164 @@ export namespace Prisma {
     data: XOR<ProjectAssigneeUpdateManyMutationInput, ProjectAssigneeUncheckedUpdateManyWithoutFeatureInput>
   }
 
+  export type ProjectStatusUpsertWithoutFeaturesInput = {
+    update: XOR<ProjectStatusUpdateWithoutFeaturesInput, ProjectStatusUncheckedUpdateWithoutFeaturesInput>
+    create: XOR<ProjectStatusCreateWithoutFeaturesInput, ProjectStatusUncheckedCreateWithoutFeaturesInput>
+    where?: ProjectStatusWhereInput
+  }
+
+  export type ProjectStatusUpdateToOneWithWhereWithoutFeaturesInput = {
+    where?: ProjectStatusWhereInput
+    data: XOR<ProjectStatusUpdateWithoutFeaturesInput, ProjectStatusUncheckedUpdateWithoutFeaturesInput>
+  }
+
+  export type ProjectStatusUpdateWithoutFeaturesInput = {
+    priority?: IntFieldUpdateOperationsInput | number
+    nameTh?: StringFieldUpdateOperationsInput | string
+    nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    projects?: ProjectUpdateManyWithoutProjectStatusNestedInput
+  }
+
+  export type ProjectStatusUncheckedUpdateWithoutFeaturesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    priority?: IntFieldUpdateOperationsInput | number
+    nameTh?: StringFieldUpdateOperationsInput | string
+    nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    projects?: ProjectUncheckedUpdateManyWithoutProjectStatusNestedInput
+  }
+
+  export type ProjectCreateWithoutProjectStatusInput = {
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
+    categoryType?: string | null
+    status?: string
+    end_date?: Date | string | null
+    name_en?: string | null
+    start_date?: Date | string | null
+    approval?: string
+    approval_status?: string
+    features?: FeatureCreateNestedManyWithoutProjectInput
+    group?: GroupCreateNestedOneWithoutProjectsInput
+    timesheets?: TimesheetEntryCreateNestedManyWithoutProjectInput
+    projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutProjectStatusInput = {
+    id?: number
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
+    categoryType?: string | null
+    status?: string
+    end_date?: Date | string | null
+    name_en?: string | null
+    start_date?: Date | string | null
+    approval?: string
+    approval_status?: string
+    group_id?: number | null
+    features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
+    timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
+    projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutProjectStatusInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutProjectStatusInput, ProjectUncheckedCreateWithoutProjectStatusInput>
+  }
+
+  export type ProjectCreateManyProjectStatusInputEnvelope = {
+    data: ProjectCreateManyProjectStatusInput | ProjectCreateManyProjectStatusInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type FeatureCreateWithoutProjectStatusInput = {
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    is_deleted?: boolean
+    endDate?: Date | string | null
+    startDate?: Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
+    status?: string
+    name_en?: string | null
+    project: ProjectCreateNestedOneWithoutFeaturesInput
+    timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
+    projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
+  }
+
+  export type FeatureUncheckedCreateWithoutProjectStatusInput = {
+    id?: number
+    projectId: number
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    is_deleted?: boolean
+    endDate?: Date | string | null
+    startDate?: Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
+    status?: string
+    name_en?: string | null
+    timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
+    projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
+  }
+
+  export type FeatureCreateOrConnectWithoutProjectStatusInput = {
+    where: FeatureWhereUniqueInput
+    create: XOR<FeatureCreateWithoutProjectStatusInput, FeatureUncheckedCreateWithoutProjectStatusInput>
+  }
+
+  export type FeatureCreateManyProjectStatusInputEnvelope = {
+    data: FeatureCreateManyProjectStatusInput | FeatureCreateManyProjectStatusInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProjectUpsertWithWhereUniqueWithoutProjectStatusInput = {
+    where: ProjectWhereUniqueInput
+    update: XOR<ProjectUpdateWithoutProjectStatusInput, ProjectUncheckedUpdateWithoutProjectStatusInput>
+    create: XOR<ProjectCreateWithoutProjectStatusInput, ProjectUncheckedCreateWithoutProjectStatusInput>
+  }
+
+  export type ProjectUpdateWithWhereUniqueWithoutProjectStatusInput = {
+    where: ProjectWhereUniqueInput
+    data: XOR<ProjectUpdateWithoutProjectStatusInput, ProjectUncheckedUpdateWithoutProjectStatusInput>
+  }
+
+  export type ProjectUpdateManyWithWhereWithoutProjectStatusInput = {
+    where: ProjectScalarWhereInput
+    data: XOR<ProjectUpdateManyMutationInput, ProjectUncheckedUpdateManyWithoutProjectStatusInput>
+  }
+
+  export type FeatureUpsertWithWhereUniqueWithoutProjectStatusInput = {
+    where: FeatureWhereUniqueInput
+    update: XOR<FeatureUpdateWithoutProjectStatusInput, FeatureUncheckedUpdateWithoutProjectStatusInput>
+    create: XOR<FeatureCreateWithoutProjectStatusInput, FeatureUncheckedCreateWithoutProjectStatusInput>
+  }
+
+  export type FeatureUpdateWithWhereUniqueWithoutProjectStatusInput = {
+    where: FeatureWhereUniqueInput
+    data: XOR<FeatureUpdateWithoutProjectStatusInput, FeatureUncheckedUpdateWithoutProjectStatusInput>
+  }
+
+  export type FeatureUpdateManyWithWhereWithoutProjectStatusInput = {
+    where: FeatureScalarWhereInput
+    data: XOR<FeatureUpdateManyMutationInput, FeatureUncheckedUpdateManyWithoutProjectStatusInput>
+  }
+
   export type FeatureCreateWithoutTimesheetsInput = {
     name: string
     createdAt?: Date | string
@@ -16550,6 +17198,7 @@ export namespace Prisma {
     name_en?: string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
+    projectStatus?: ProjectStatusCreateNestedOneWithoutFeaturesInput
   }
 
   export type FeatureUncheckedCreateWithoutTimesheetsInput = {
@@ -16567,6 +17216,7 @@ export namespace Prisma {
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     status?: string
     name_en?: string | null
+    projectStatusId?: number | null
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
   }
 
@@ -16593,6 +17243,7 @@ export namespace Prisma {
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
+    projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
   }
 
   export type ProjectUncheckedCreateWithoutTimesheetsInput = {
@@ -16612,6 +17263,7 @@ export namespace Prisma {
     approval?: string
     approval_status?: string
     group_id?: number | null
+    projectStatusId?: number | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -16647,6 +17299,7 @@ export namespace Prisma {
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
+    projectStatus?: ProjectStatusUpdateOneWithoutFeaturesNestedInput
   }
 
   export type FeatureUncheckedUpdateWithoutTimesheetsInput = {
@@ -16664,6 +17317,7 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
@@ -16696,6 +17350,7 @@ export namespace Prisma {
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
+    projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutTimesheetsInput = {
@@ -16715,6 +17370,7 @@ export namespace Prisma {
     approval?: StringFieldUpdateOperationsInput | string
     approval_status?: StringFieldUpdateOperationsInput | string
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -16856,6 +17512,7 @@ export namespace Prisma {
     start_date?: Date | string | null
     approval?: string
     approval_status?: string
+    projectStatusId?: number | null
   }
 
   export type ProjectUpdateWithoutGroupInput = {
@@ -16876,6 +17533,7 @@ export namespace Prisma {
     features?: FeatureUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
+    projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutGroupInput = {
@@ -16894,6 +17552,7 @@ export namespace Prisma {
     start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     approval?: StringFieldUpdateOperationsInput | string
     approval_status?: StringFieldUpdateOperationsInput | string
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
@@ -16915,6 +17574,7 @@ export namespace Prisma {
     start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     approval?: StringFieldUpdateOperationsInput | string
     approval_status?: StringFieldUpdateOperationsInput | string
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type FeatureCreateManyProjectInput = {
@@ -16931,6 +17591,7 @@ export namespace Prisma {
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     status?: string
     name_en?: string | null
+    projectStatusId?: number | null
   }
 
   export type TimesheetEntryCreateManyProjectInput = {
@@ -16969,6 +17630,7 @@ export namespace Prisma {
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
+    projectStatus?: ProjectStatusUpdateOneWithoutFeaturesNestedInput
   }
 
   export type FeatureUncheckedUpdateWithoutProjectInput = {
@@ -16985,6 +17647,7 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
   }
@@ -17003,6 +17666,7 @@ export namespace Prisma {
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     status?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type TimesheetEntryUpdateWithoutProjectInput = {
@@ -17146,6 +17810,158 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     userId?: IntFieldUpdateOperationsInput | number
     position?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ProjectCreateManyProjectStatusInput = {
+    id?: number
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    description: string
+    is_deleted?: boolean
+    categoryType?: string | null
+    status?: string
+    end_date?: Date | string | null
+    name_en?: string | null
+    start_date?: Date | string | null
+    approval?: string
+    approval_status?: string
+    group_id?: number | null
+  }
+
+  export type FeatureCreateManyProjectStatusInput = {
+    id?: number
+    projectId: number
+    name: string
+    createdAt?: Date | string
+    createdBy?: number | null
+    updatedAt?: Date | string
+    updatedBy?: number | null
+    is_deleted?: boolean
+    endDate?: Date | string | null
+    startDate?: Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
+    status?: string
+    name_en?: string | null
+  }
+
+  export type ProjectUpdateWithoutProjectStatusInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    categoryType?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approval?: StringFieldUpdateOperationsInput | string
+    approval_status?: StringFieldUpdateOperationsInput | string
+    features?: FeatureUpdateManyWithoutProjectNestedInput
+    group?: GroupUpdateOneWithoutProjectsNestedInput
+    timesheets?: TimesheetEntryUpdateManyWithoutProjectNestedInput
+    projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutProjectStatusInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    categoryType?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approval?: StringFieldUpdateOperationsInput | string
+    approval_status?: StringFieldUpdateOperationsInput | string
+    group_id?: NullableIntFieldUpdateOperationsInput | number | null
+    features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
+    timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
+    projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateManyWithoutProjectStatusInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    description?: StringFieldUpdateOperationsInput | string
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    categoryType?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approval?: StringFieldUpdateOperationsInput | string
+    approval_status?: StringFieldUpdateOperationsInput | string
+    group_id?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type FeatureUpdateWithoutProjectStatusInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    status?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
+    timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
+    projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
+  }
+
+  export type FeatureUncheckedUpdateWithoutProjectStatusInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    projectId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    status?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
+    projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
+  }
+
+  export type FeatureUncheckedUpdateManyWithoutProjectStatusInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    projectId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlogDescription?: NullableJsonNullValueInput | InputJsonValue
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    status?: StringFieldUpdateOperationsInput | string
+    name_en?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OvertimeDescriptionCreateManyOvertimeInput = {

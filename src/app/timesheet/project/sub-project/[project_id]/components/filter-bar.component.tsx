@@ -15,14 +15,23 @@ interface FilterBarProps {
   filters: FilterState;
   onFilterChange: (filters: FilterState) => void;
   onClear: () => void;
+  statuses?: any[];
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
   filters,
   onFilterChange,
   onClear,
+  statuses = [],
 }) => {
   const { t } = useTranslation();
+
+  const statusOptions = [
+    { value: null, label: t("sub_project_page.all_status") },
+    ...statuses
+      .sort((a, b) => a.priority - b.priority)
+      .map((s) => ({ label: s.nameTh, value: s.nameTh })),
+  ];
 
   return (
     <Card>
@@ -72,21 +81,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               }
               allowClear
               style={{ width: "100%" }}
-              options={[
-                { value: null, label: t("sub_project_page.all_status") },
-                { value: "ยังไม่เริ่มต้น", label: "ยังไม่เริ่มต้น" },
-                { value: "ค้นคว้าเอกสาร", label: "ค้นคว้าเอกสาร" },
-                { value: "พัฒนา", label: "พัฒนา" },
-                { value: "ทดสอบระบบ", label: "ทดสอบระบบ" },
-                {
-                  value: "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)",
-                  label: "ส่งมอบงาน (บนเซิฟเวอร์พัฒนา)",
-                },
-                {
-                  value: "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)",
-                  label: "ส่งมอบงาน (บนเซิฟเวอร์โปรดักชัน)",
-                },
-              ]}
+              options={statusOptions}
             />
           </Col>
         </Row>

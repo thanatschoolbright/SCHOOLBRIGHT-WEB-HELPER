@@ -46,6 +46,7 @@ interface ProjectTableProps {
   onViewDetail: (record: Project) => void;
   getCategoryName: (id: string) => string;
   onShowAssignees: (record: Project) => void;
+  statuses?: any[];
 }
 
 export const ProjectTable: React.FC<ProjectTableProps> = ({
@@ -58,6 +59,7 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
   onViewDetail,
   getCategoryName,
   onShowAssignees,
+  statuses = [],
 }) => {
   const { t } = useTranslation("translate");
 
@@ -285,7 +287,28 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
       key: "status_type",
       width: 160,
       render: (_, record) => {
-        const categoryName = getCategoryName(record.categoryType);
+        const categoryName = getCategoryName(record.categoryType || "");
+        const matchedStatus = statuses.find((s) => s.nameTh === record.status);
+
+        if (matchedStatus) {
+          return (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <Tag
+                color="blue"
+                style={{
+                  margin: 0,
+                  borderRadius: 4,
+                  fontWeight: 600,
+                  fontSize: 12,
+                }}
+              >
+                Step {matchedStatus.priority}: {matchedStatus.nameTh}
+              </Tag>
+              <Tag style={{ margin: 0, fontSize: 11 }}>{categoryName}</Tag>
+            </div>
+          );
+        }
+
         const isOpen = record.status === "open";
 
         return (
@@ -305,8 +328,9 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
         );
       },
       filters: [
-        { text: "เปิดโครงการ (Active)", value: "open" },
-        { text: "ปิดโครงการ (Closed)", value: "close" },
+        { text: "จุดเริ่มต้น (Open)", value: "open" },
+        { text: "สิ้นสุด (Closed)", value: "close" },
+        ...statuses.map((s) => ({ text: s.nameTh, value: s.nameTh })),
         ...categoryType.map((c) => ({ text: c.name, value: c.id })),
       ],
       onFilter: (value: any, record) => {

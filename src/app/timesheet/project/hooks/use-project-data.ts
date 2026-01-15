@@ -7,6 +7,7 @@ import type { Project, PaginationState } from "../types/project.types";
 export const useProjectData = (adminId: number) => {
   const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [statuses, setStatuses] = useState<any[]>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     current: 1,
     pageSize: 1000,
@@ -16,15 +17,23 @@ export const useProjectData = (adminId: number) => {
   const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.post("/api/v1/timesheet/project/read/", {
-        limit: pagination.pageSize,
-        page: pagination.current,
-      });
-      setProjects(response.data.data || []);
+      const [projectRes, statusRes] = await Promise.all([
+        axios.post("/api/v1/timesheet/project/read/", {
+          limit: pagination.pageSize,
+          page: pagination.current,
+        }),
+        axios.post("/api/v1/timesheet/project/status/read/"),
+      ]);
+
+      setProjects(projectRes.data.data || []);
       setPagination((prev) => ({
         ...prev,
-        total: response.data.pagination?.total || 0,
+        total: projectRes.data.pagination?.total || 0,
       }));
+
+      if (statusRes.data.status === 200) {
+        setStatuses(statusRes.data.data);
+      }
     } catch {
       toast.error("ไม่สามารถโหลดข้อมูลโครงการได้");
       setProjects([]);
@@ -40,6 +49,7 @@ export const useProjectData = (adminId: number) => {
         by: adminId,
       });
       toast.success("สร้างโครงการสำเร็จ");
+      await fetchProjects();
       return true;
     } catch {
       toast.error("ทำรายการล้มเหลว กรุณาลองใหม่");
@@ -55,6 +65,7 @@ export const useProjectData = (adminId: number) => {
         by: adminId,
       });
       toast.success("อัปเดตโครงการสำเร็จ");
+      await fetchProjects();
       return true;
     } catch {
       toast.error("ทำรายการล้มเหลว กรุณาลองใหม่");
@@ -69,6 +80,7 @@ export const useProjectData = (adminId: number) => {
         by: adminId,
       });
       toast.success("ลบโครงการเรียบร้อยแล้ว");
+      await fetchProjects();
       return true;
     } catch {
       toast.error("ลบข้อมูลล้มเหลว");
@@ -83,6 +95,7 @@ export const useProjectData = (adminId: number) => {
   return {
     loading,
     projects,
+    statuses,
     pagination,
     setPagination,
     fetchProjects,

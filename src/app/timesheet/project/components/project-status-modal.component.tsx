@@ -42,6 +42,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
 }) => {
   const { token } = theme.useToken();
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [statuses, setStatuses] = useState<ProjectStatus[]>([]);
   const [editingKey, setEditingKey] = useState<number | null>(null);
   const [form] = Form.useForm();
@@ -53,7 +54,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
         method: "POST",
       });
       const json = await res.json();
-      if (json.success) {
+      if (json.status === 200) {
         setStatuses(json.data);
       }
     } catch (error) {
@@ -102,6 +103,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
   };
 
   const handleSave = async (id: number) => {
+    setActionLoading(true);
     try {
       const row = await form.validateFields();
       const payload = { ...row, id: id === 0 ? undefined : id };
@@ -113,19 +115,27 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
       });
 
       const json = await res.json();
-      if (json.success) {
+      if (json.status === 200) {
         toast.success(id === 0 ? "เพิ่มสถานะสำเร็จ" : "อัปเดตสถานะสำเร็จ");
         setEditingKey(null);
-        fetchStatuses();
+        await fetchStatuses();
       } else {
-        toast.error(json.message_th || "เกิดข้อผิดพลาด");
+        toast.error(json.message_th || "เกิดข้อผิดพลาดในการบันทึก");
       }
-    } catch (errInfo) {
-      console.log("Validate Failed:", errInfo);
+    } catch (errInfo: any) {
+      if (errInfo?.errorFields) {
+        console.log("Validation Failed:", errInfo);
+      } else {
+        toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+        console.error("Save Error:", errInfo);
+      }
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleDelete = async (id: number) => {
+    setActionLoading(true);
     try {
       const res = await fetch("/api/v1/timesheet/project/status/delete/", {
         method: "POST",
@@ -133,14 +143,16 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
         body: JSON.stringify({ id }),
       });
       const json = await res.json();
-      if (json.success) {
+      if (json.status === 200) {
         toast.success("ลบสถานะสำเร็จ");
-        fetchStatuses();
+        await fetchStatuses();
       } else {
         toast.error(json.message_th || "ไม่สามารถลบได้");
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาดในการลบ");
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -226,6 +238,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
                 icon={<SaveOutlined />}
                 size="small"
                 onClick={() => handleSave(record.id)}
+                loading={actionLoading}
               />
             </Tooltip>
             <Tooltip title="ยกเลิกการแก้ไข">
@@ -233,6 +246,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
                 icon={<CloseOutlined />}
                 size="small"
                 onClick={handleCancel}
+                disabled={actionLoading}
               />
             </Tooltip>
           </Space>
@@ -243,7 +257,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
                 type="text"
                 icon={<EditOutlined />}
                 size="small"
-                disabled={editingKey !== null}
+                disabled={editingKey !== null || actionLoading}
                 onClick={() => handleEdit(record)}
               />
             </Tooltip>
@@ -252,6 +266,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
               onConfirm={() => handleDelete(record.id)}
               okText="ยืนยัน"
               cancelText="ยกเลิก"
+              disabled={actionLoading}
             >
               <Tooltip title="ลบข้อมูลสถานะ">
                 <Button
@@ -259,7 +274,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
                   danger
                   icon={<DeleteOutlined />}
                   size="small"
-                  disabled={editingKey !== null}
+                  disabled={editingKey !== null || actionLoading}
                 />
               </Tooltip>
             </Popconfirm>
@@ -339,7 +354,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
           icon={<PlusOutlined />}
           onClick={handleAdd}
           className="rounded-lg shadow-sm"
-          disabled={editingKey !== null}
+          disabled={editingKey !== null || actionLoading}
           size="large"
         >
           เพิ่มลำดับสถานะใหม่

@@ -143,7 +143,8 @@ exports.Prisma.ProjectScalarFieldEnum = {
   start_date: 'start_date',
   approval: 'approval',
   approval_status: 'approval_status',
-  group_id: 'group_id'
+  group_id: 'group_id',
+  projectStatusId: 'projectStatusId'
 };
 
 exports.Prisma.ProjectAssigneeScalarFieldEnum = {
@@ -168,7 +169,8 @@ exports.Prisma.FeatureScalarFieldEnum = {
   backlogDescription: 'backlogDescription',
   assetCaptureType: 'assetCaptureType',
   status: 'status',
-  name_en: 'name_en'
+  name_en: 'name_en',
+  projectStatusId: 'projectStatusId'
 };
 
 exports.Prisma.ProjectStatusScalarFieldEnum = {

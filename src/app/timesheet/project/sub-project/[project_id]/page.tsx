@@ -186,6 +186,7 @@ export default function SubProjectPage() {
     isActionLoading,
     projectData,
     subProjects,
+    projectStatuses,
     pagination,
     stats,
     filters,
@@ -241,6 +242,7 @@ export default function SubProjectPage() {
           <FilterBar
             filters={filters}
             onFilterChange={setFilters}
+            statuses={projectStatuses}
             onClear={() =>
               setFilters({
                 searchText: "",
@@ -307,6 +309,7 @@ export default function SubProjectPage() {
           data={modalState.data}
           loading={isActionLoading}
           onSubmit={handleSubmit}
+          statuses={projectStatuses}
           onCancel={() => setModalState({ type: null, data: null })}
         />
 
