@@ -10,32 +10,22 @@ type SchoolTableSectionProps = {
   dataSource: SchoolDetail[];
   loading: boolean;
   pageSize: number;
-  openDropdownFor: string | null;
   onTableChange: TableProps<SchoolDetail>["onChange"];
-  onBypassClick: (compositeKey: string, record: SchoolDetail) => Promise<void>;
-  onDropdownOpenChange: (open: boolean, schoolId: string) => void;
+  onOpenBypassModal: (record: SchoolDetail) => void;
 };
 
 export default function SchoolTableSection({
   dataSource,
   loading,
   pageSize,
-  openDropdownFor,
   onTableChange,
-  onBypassClick,
-  onDropdownOpenChange,
+  onOpenBypassModal,
 }: SchoolTableSectionProps): JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
 
   const columns = useMemo<ColumnsType<SchoolDetail>>(
-    () =>
-      buildTableColumns(
-        TRANSLATION,
-        openDropdownFor,
-        onBypassClick,
-        onDropdownOpenChange
-      ),
-    [TRANSLATION, openDropdownFor, onBypassClick, onDropdownOpenChange]
+    () => buildTableColumns(TRANSLATION, onOpenBypassModal),
+    [TRANSLATION, onOpenBypassModal]
   );
 
   return (

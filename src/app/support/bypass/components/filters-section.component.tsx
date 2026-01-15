@@ -1,5 +1,16 @@
 import React from "react";
-import { Card, Space, Button, Input, Row, Col, Select } from "antd";
+import {
+  Card,
+  Space,
+  Button,
+  Input,
+  Row,
+  Col,
+  Select,
+  theme,
+  Typography,
+  Flex,
+} from "antd";
 import {
   FilterOutlined,
   ClearOutlined,
@@ -36,105 +47,143 @@ export default function FiltersSection({
       filters.schoolGroup
   );
 
-  return (
-    <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-      {/* Search Input & Actions */}
-      <div className="flex gap-2">
-        <Input
-          size="large"
-          placeholder="ค้นหาโรงเรียน (ชื่อ, รหัส, จังหวัด)..."
-          prefix={<SearchOutlined />}
-          value={filters.search}
-          onChange={(e) => onFilterChange("search", e.target.value)}
-          allowClear
-          className="flex-1"
-        />
-        <Button
-          size="large"
-          icon={<ClearOutlined />}
-          onClick={onClearFilters}
-          disabled={!hasActiveFilters}
-          type="default"
-          danger={hasActiveFilters}
-        >
-          ล้างตัวกรอง
-        </Button>
-      </div>
+  const { token } = theme.useToken();
 
-      {/* Filter Row 1 */}
-      <Row gutter={[12, 12]}>
-        <Col xs={24} sm={12} md={8}>
+  return (
+    <div className="space-y-6">
+      {/* Search & Actions Bar */}
+      <Row gutter={[16, 16]} align="middle">
+        <Col xs={24} md={18} lg={20}>
+          <Input
+            size="large"
+            placeholder="ค้นหาชื่อโรงเรียน, รหัสโรงเรียน, หรือจังหวัด..."
+            prefix={
+              <SearchOutlined style={{ color: token.colorTextQuaternary }} />
+            }
+            value={filters.search}
+            onChange={(e) => onFilterChange("search", e.target.value)}
+            allowClear
+            style={{ borderRadius: 12 }}
+          />
+        </Col>
+        <Col xs={24} md={6} lg={4}>
+          <Button
+            block
+            size="large"
+            icon={<ClearOutlined />}
+            onClick={onClearFilters}
+            disabled={!hasActiveFilters}
+            style={{
+              borderRadius: 12,
+              fontWeight: 600,
+              background: hasActiveFilters
+                ? token.colorErrorBg
+                : token.colorBgContainer,
+              color: hasActiveFilters
+                ? token.colorError
+                : token.colorTextDisabled,
+              borderColor: hasActiveFilters
+                ? token.colorErrorBorder
+                : token.colorBorder,
+            }}
+          >
+            ล้างตัวกรอง
+          </Button>
+        </Col>
+      </Row>
+
+      {/* Advanced Filters Grid */}
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={6}>
+          <Typography.Text
+            strong
+            className="block mb-2 text-xs uppercase opacity-60 ml-1"
+          >
+            จังหวัด
+          </Typography.Text>
           <Select
-            placeholder="จังหวัด"
+            className="w-full"
+            placeholder="ทุกจังหวัด"
             options={filterOptions.provinces}
             value={filters.province}
             onChange={(value) => onFilterChange("province", value)}
             allowClear
             showSearch
-            style={{ width: "100%" }}
             size="large"
+            style={{ borderRadius: 12 }}
           />
         </Col>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
+          <Typography.Text
+            strong
+            className="block mb-2 text-xs uppercase opacity-60 ml-1"
+          >
+            ประเภทโรงเรียน
+          </Typography.Text>
           <Select
-            placeholder="ประเภทโรงเรียน"
+            className="w-full"
+            placeholder="ทุกประเภท"
             options={filterOptions.schoolTypes}
             value={filters.schoolType}
             onChange={(value) => onFilterChange("schoolType", value)}
             allowClear
-            style={{ width: "100%" }}
             size="large"
+            style={{ borderRadius: 12 }}
           />
         </Col>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
+          <Typography.Text
+            strong
+            className="block mb-2 text-xs uppercase opacity-60 ml-1"
+          >
+            กลุ่มโรงเรียน
+          </Typography.Text>
           <Select
-            placeholder="กลุ่มโรงเรียน"
+            className="w-full"
+            placeholder="ทุกกลุ่ม"
             options={filterOptions.schoolGroups}
             value={filters.schoolGroup}
             onChange={(value) => onFilterChange("schoolGroup", value)}
             allowClear
             showSearch
-            style={{ width: "100%" }}
             size="large"
+            style={{ borderRadius: 12 }}
           />
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Typography.Text
+            strong
+            className="block mb-2 text-xs uppercase opacity-60 ml-1"
+          >
+            ระดับชั้น / สถานะ
+          </Typography.Text>
+          <Flex gap={8}>
+            <Select
+              className="flex-1"
+              placeholder="เกรด"
+              options={filterOptions.grades}
+              value={filters.grade}
+              onChange={(value) => onFilterChange("grade", value)}
+              allowClear
+              size="large"
+              style={{ borderRadius: 12 }}
+            />
+            <Select
+              className="flex-1"
+              placeholder="สถานะ"
+              options={[
+                { label: "Active", value: "active" },
+                { label: "Inactive", value: "inactive" },
+              ]}
+              value={filters.status}
+              onChange={(value) => onFilterChange("status", value)}
+              allowClear
+              size="large"
+              style={{ borderRadius: 12 }}
+            />
+          </Flex>
         </Col>
       </Row>
-
-      {/* Filter Row 2 */}
-      <Row gutter={[12, 12]}>
-        <Col xs={24} sm={12} md={8}>
-          <Select
-            placeholder="ระดับชั้น"
-            options={filterOptions.grades}
-            value={filters.grade}
-            onChange={(value) => onFilterChange("grade", value)}
-            allowClear
-            style={{ width: "100%" }}
-            size="large"
-          />
-        </Col>
-        <Col xs={24} sm={12} md={8}>
-          <Select
-            placeholder="สถานะ"
-            options={[
-              {
-                label: "ใช้งานอยู่ (Active)",
-                value: "active",
-              },
-              {
-                label: "ไม่ได้ใช้งาน (Inactive)",
-                value: "inactive",
-              },
-            ]}
-            value={filters.status}
-            onChange={(value) => onFilterChange("status", value)}
-            allowClear
-            style={{ width: "100%" }}
-            size="large"
-          />
-        </Col>
-        {/* Empty Col for alignment if needed, or remove */}
-      </Row>
-    </Space>
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import type { MenuProps } from "antd";
 
 export const BYPASS_TARGETS: Record<string, BypassTarget> = {
   system: {
-    label: "✨ System",
+    label: "System",
     environments: {
       production: {
         label: "Production",
@@ -20,7 +20,7 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
     },
   },
   academic: {
-    label: "👩🏻‍🏫 Academic",
+    label: "Academic",
     environments: {
       production: {
         label: "Production",
@@ -37,7 +37,7 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
     },
   },
   accounting: {
-    label: "🧾 Accounting",
+    label: "Accounting",
     environments: {
       production: {
         label: "Production",
@@ -50,7 +50,7 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
     },
   },
   library: {
-    label: "📔 Library",
+    label: "Library",
     environments: {
       production: {
         label: "Production",
@@ -63,7 +63,7 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
     },
   },
   canteen: {
-    label: "🥪 Canteen",
+    label: "Canteen",
     environments: {
       production: {
         label: "Production",
@@ -76,7 +76,7 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
     },
   },
   kindergarten: {
-    label: "👶🏻 Kindergarten",
+    label: "Kindergarten",
     environments: {
       production: {
         label: "Production",
@@ -93,7 +93,7 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
     },
   },
   activity: {
-    label: "🎃 Mark Activity",
+    label: "Mark Activity",
     environments: {
       production: {
         label: "Production",
@@ -108,7 +108,7 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
     },
   },
   exam: {
-    label: "🚀 SB Exam",
+    label: "SB Exam",
     environments: {
       production: {
         label: "Production",

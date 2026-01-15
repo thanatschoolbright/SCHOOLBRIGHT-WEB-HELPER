@@ -427,7 +427,8 @@ export default function ProvinceRankingModal({
           borderRadius: 24,
           overflow: "hidden",
           padding: 0,
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          border: `1px solid ${token.colorBorderSecondary}`,
+          background: token.colorBgContainer,
         },
         header: {
           padding: "24px 32px",

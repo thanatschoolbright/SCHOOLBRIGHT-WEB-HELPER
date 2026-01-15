@@ -1,0 +1,341 @@
+"use client";
+
+import React from "react";
+import {
+  Modal,
+  Row,
+  Col,
+  Card,
+  Typography,
+  Space,
+  theme,
+  Button,
+  Divider,
+  Tag,
+  Flex,
+  Tooltip,
+  Alert,
+} from "antd";
+import {
+  AppstoreOutlined,
+  ReadOutlined,
+  WalletOutlined,
+  BookOutlined,
+  RestOutlined,
+  SmileOutlined,
+  FireOutlined,
+  FileProtectOutlined,
+  ArrowRightOutlined,
+  GlobalOutlined,
+  ThunderboltOutlined,
+  SafetyCertificateOutlined,
+  BankOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
+import { BYPASS_TARGETS } from "../utils/bypass-targets";
+import type { SchoolDetail } from "../types/bypass.types";
+
+const { Text, Title } = Typography;
+
+const TARGET_ICON_MAP: Record<string, React.ReactNode> = {
+  system: <AppstoreOutlined />,
+  academic: <ReadOutlined />,
+  accounting: <WalletOutlined />,
+  library: <BookOutlined />,
+  canteen: <RestOutlined />,
+  kindergarten: <SmileOutlined />,
+  activity: <FireOutlined />,
+  exam: <FileProtectOutlined />,
+};
+
+const TARGET_DESC_MAP: Record<string, string> = {
+  system: "จัดการข้อมูลพื้นฐาน, โครงสร้างโรงเรียน และการตั้งค่าหลัก",
+  academic: "จัดการเกรด, เช็คชื่อ, แผนการสอน และข้อมูลการเรียน",
+  accounting: "จัดการค่าธรรมเนียมการเรียน, ใบเสร็จ และการเงิน",
+  library: "จัดการยืม-คืนหนังสือ และทรัพยากรห้องสมุด",
+  canteen: "จัดการร้านค้า, เมนูอาหาร และการใช้จ่ายในโรงอาหาร",
+  kindergarten: "จัดการพัฒนาการเด็กเล็ก และกิจกรรมช่วงวัยอนุบาล",
+  activity: "บันทึกคะแนนกิจกรรมพัฒนาผู้เรียน และชุมนุม",
+  exam: "คลังข้อสอบ, จัดสอบออนไลน์ และวิเคราะห์ผลสอบ",
+};
+
+const ENV_DESC_MAP: Record<string, string> = {
+  production: "เข้าสู่ระบบที่โรงเรียนใช้งานอยู่จริงในปัจจุบัน",
+  staging: "เข้าสู่ระบบทดสอบสำหรับดูฟีเจอร์ใหม่ที่กำลังจะออนไลน์",
+  development: "สำหรับทีมพัฒนาเท่านั้น (ข้อมูลอาจไม่เป็นปัจจุบัน)",
+  ui: "สำหรับตรวจสอบหน้าตาระบบใหม่ (ทีมดีไซน์)",
+  legacy: "ระบบเวอร์ชั่นเดิมที่ยังเปิดให้ใช้งานอยู่",
+};
+
+type BypassSelectionModalProps = {
+  open: boolean;
+  onClose: () => void;
+  school: SchoolDetail | null;
+  onSelect: (targetKey: string, envKey: string) => void;
+};
+
+export default function BypassSelectionModal({
+  open,
+  onClose,
+  school,
+  onSelect,
+}: BypassSelectionModalProps) {
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
+
+  if (!school) return null;
+
+  return (
+    <Modal
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      width={1100}
+      centered
+      styles={{
+        content: {
+          borderRadius: 24,
+          padding: 0,
+          overflow: "hidden",
+          background: token.colorBgContainer,
+          border: `1px solid ${token.colorBorderSecondary}`,
+        },
+        body: {
+          padding: 0,
+        },
+      }}
+      title={null}
+      closable={false}
+    >
+      <div className="flex flex-col md:flex-row min-h-[500px]">
+        {/* Left Side: School Info */}
+        <div
+          className="w-full md:w-1/3 p-8 flex flex-col justify-between"
+          style={{
+            background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+            borderRight: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          <div>
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-3xl mb-6 shadow-lg"
+              style={{
+                background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+              }}
+            >
+              <BankOutlined />
+            </div>
+            <Title level={3} style={{ margin: 0, fontWeight: 800 }}>
+              เลือกเข้าสู่ระบบ
+            </Title>
+            <Text
+              type="secondary"
+              style={{ fontSize: 13, display: "block", marginTop: 4 }}
+            >
+              ระบุระบบที่ต้องการ Bypass ไปยังโรงเรียน:
+            </Text>
+            <Text strong style={{ color: token.colorPrimary, fontSize: 16 }}>
+              {school.company_name}
+            </Text>
+
+            <Divider />
+
+            <Space direction="vertical" size={16} className="w-full">
+              <div className="flex flex-col">
+                <Text
+                  type="secondary"
+                  style={{
+                    fontSize: 12,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    fontWeight: 700,
+                  }}
+                >
+                  School ID
+                </Text>
+                <Text strong style={{ fontSize: 18 }}>
+                  {school.school_id || "-"}
+                </Text>
+              </div>
+              <div className="flex flex-col">
+                <Text
+                  type="secondary"
+                  style={{
+                    fontSize: 12,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    fontWeight: 700,
+                  }}
+                >
+                  จังหวัด
+                </Text>
+                <Text strong style={{ fontSize: 18 }}>
+                  {school.province || "-"}
+                </Text>
+              </div>
+              <div className="flex flex-col">
+                <Text
+                  type="secondary"
+                  style={{
+                    fontSize: 12,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    fontWeight: 700,
+                  }}
+                >
+                  กลุ่มโรงเรียน
+                </Text>
+                <Text strong style={{ fontSize: 18 }}>
+                  {school.school_group || "ทั่วไป"}
+                </Text>
+              </div>
+            </Space>
+          </div>
+
+          <Button
+            block
+            size="large"
+            onClick={onClose}
+            style={{
+              marginTop: 32,
+              borderRadius: 12,
+              height: 48,
+              fontWeight: 600,
+            }}
+          >
+            ปิดหน้าต่างนี้
+          </Button>
+        </div>
+
+        {/* Right Side: Selection Grid */}
+        <div className="w-full md:w-2/3 p-8 max-h-[85vh] overflow-y-auto">
+          {/* CS Guide Section */}
+          <Alert
+            message="คู่มือแนะนำสำหรับ CS/Staff"
+            description={
+              <Space direction="vertical" size={2}>
+                <Text style={{ fontSize: 13 }}>
+                  1. เลือกระบบที่คุณต้องการตรวจสอบข้อมูล (เช่น วิชาการ หรือ
+                  บัญชี)
+                </Text>
+                <Text style={{ fontSize: 13 }}>
+                  2. เลือก{" "}
+                  <Tag color="success" style={{ margin: 0, fontSize: 10 }}>
+                    Production
+                  </Tag>{" "}
+                  เพื่อดูข้อมูลจริงที่โรงเรียนกำลังส่งเข้ามา
+                </Text>
+                <Text style={{ fontSize: 13 }}>
+                  3. ระบบจะทำการ Bypass และ Login ให้คุณอัตโนมัติใน Tab ใหม่
+                </Text>
+              </Space>
+            }
+            type="info"
+            showIcon
+            icon={<InfoCircleOutlined />}
+            style={{ borderRadius: 16, marginBottom: 24 }}
+          />
+          <Row gutter={[16, 16]}>
+            {Object.entries(BYPASS_TARGETS).map(([targetKey, target]) => (
+              <Col xs={24} key={targetKey}>
+                <div
+                  className="p-6 rounded-2xl border border-solid transition-all"
+                  style={{
+                    background: token.colorBgContainer,
+                    borderColor: token.colorBorderSecondary,
+                  }}
+                >
+                  <Flex justify="space-between" align="center" className="mb-4">
+                    <Space size={12}>
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                        style={{
+                          background: isDark
+                            ? "rgba(255,255,255,0.05)"
+                            : "rgba(0,0,0,0.05)",
+                          color: token.colorPrimary,
+                        }}
+                      >
+                        {TARGET_ICON_MAP[targetKey] || <GlobalOutlined />}
+                      </div>
+                      <div>
+                        <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+                          {target.label}
+                        </Title>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {TARGET_DESC_MAP[targetKey] ||
+                            "เข้าสู่ระบบเพื่อจัดการข้อมูลส่วนงานนี้"}
+                        </Text>
+                      </div>
+                    </Space>
+                    <Tooltip title={TARGET_DESC_MAP[targetKey]}>
+                      <InfoCircleOutlined
+                        style={{
+                          color: token.colorTextQuaternary,
+                          cursor: "help",
+                        }}
+                      />
+                    </Tooltip>
+                  </Flex>
+
+                  <Row gutter={[12, 12]}>
+                    {Object.entries(target.environments).map(
+                      ([envKey, env]) => (
+                        <Col xs={12} sm={8} key={envKey}>
+                          <Tooltip
+                            title={
+                              ENV_DESC_MAP[envKey] || "คลิกเพื่อไปที่หน้านี้"
+                            }
+                          >
+                            <Button
+                              block
+                              size="large"
+                              icon={<ArrowRightOutlined />}
+                              iconPosition="end"
+                              onClick={() => onSelect(targetKey, envKey)}
+                              style={{
+                                height: 44,
+                                borderRadius: 10,
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                textAlign: "left",
+                                background:
+                                  envKey === "production"
+                                    ? isDark
+                                      ? "rgba(82, 196, 26, 0.1)"
+                                      : "#f6ffed"
+                                    : undefined,
+                                border:
+                                  envKey === "production"
+                                    ? `1px solid ${
+                                        isDark
+                                          ? "rgba(82, 196, 26, 0.3)"
+                                          : "#b7eb8f"
+                                      }`
+                                    : undefined,
+                                color:
+                                  envKey === "production"
+                                    ? isDark
+                                      ? "#52c41a"
+                                      : "#389e0d"
+                                    : undefined,
+                                fontWeight: 700,
+                              }}
+                            >
+                              {env.label}
+                            </Button>
+                          </Tooltip>
+                        </Col>
+                      )
+                    )}
+                  </Row>
+                </div>
+              </Col>
+            ))}
+          </Row>
+        </div>
+      </div>
+    </Modal>
+  );
+}

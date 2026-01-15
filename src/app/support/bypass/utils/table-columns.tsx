@@ -1,5 +1,15 @@
 import React from "react";
-import { Badge, Tag, Button, Dropdown } from "antd";
+import {
+  Badge,
+  Tag,
+  Button,
+  Dropdown,
+  Avatar,
+  Typography,
+  Space,
+  theme,
+  Flex,
+} from "antd";
 import {
   LoginOutlined,
   CheckCircleOutlined,
@@ -11,63 +21,136 @@ import {
   AlertOutlined,
   ThunderboltOutlined,
   SafetyCertificateOutlined,
+  UserOutlined,
+  CopyOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { TFunction } from "i18next";
 import type { SchoolDetail } from "../types/bypass.types";
 import { compareValues } from "./bypass.helpers";
-import { buildBypassMenuItems } from "./bypass-targets";
 
 const STATUS_COLOR_MAP: Record<string, string> = {
   active: "success",
   inactive: "error",
 };
 
+const getAvatarColor = (name: string) => {
+  const colors = [
+    "#f5222d",
+    "#fa541c",
+    "#fa8c16",
+    "#faad14",
+    "#fadb14",
+    "#a0d911",
+    "#52c41a",
+    "#13c2c2",
+    "#1890ff",
+    "#2f54eb",
+    "#722ed1",
+    "#eb2f96",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+};
+
+const addAlpha = (color: string, alpha: number) => {
+  if (!color) return "rgba(0,0,0,0)";
+  if (color.startsWith("#")) {
+    let hex = color.slice(1);
+    if (hex.length === 3)
+      hex = hex
+        .split("")
+        .map((c) => c + c)
+        .join("");
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  return color;
+};
+
 const GRADE_CONFIG: Record<string, { color: string; icon: React.ReactNode }> = {
-  A: { color: "gold", icon: <CrownOutlined /> },
-  B: { color: "green", icon: <StarOutlined /> },
-  C: { color: "blue", icon: <RocketOutlined /> },
-  D: { color: "orange", icon: <ToolOutlined /> },
-  E: { color: "red", icon: <AlertOutlined /> },
-  F: { color: "purple", icon: <ThunderboltOutlined /> },
-  "-": { color: "default", icon: <SafetyCertificateOutlined /> },
+  A: { color: "#faad14", icon: <CrownOutlined /> },
+  B: { color: "#52c41a", icon: <StarOutlined /> },
+  C: { color: "#1890ff", icon: <RocketOutlined /> },
+  D: { color: "#fa8c16", icon: <ToolOutlined /> },
+  E: { color: "#f5222d", icon: <AlertOutlined /> },
+  F: { color: "#722ed1", icon: <ThunderboltOutlined /> },
+  "-": { color: "#8c8c8c", icon: <SafetyCertificateOutlined /> },
 };
 
 export const buildTableColumns = (
   TRANSLATION: TFunction,
-  openDropdownFor: string | null,
-  onBypassClick: (compositeKey: string, record: SchoolDetail) => Promise<void>,
-  onDropdownOpenChange: (open: boolean, schoolId: string) => void
+  onOpenBypassModal: (record: SchoolDetail) => void
 ): ColumnsType<SchoolDetail> => [
   {
-    title: TRANSLATION("bypass_page.col_index"),
+    title: "#",
     key: "index",
-    width: 80,
+    width: 70,
     align: "center",
     fixed: "left",
     render: (_value, _record, index) => (
-      <Badge count={index + 1} showZero color="blue" />
+      <Typography.Text strong style={{ opacity: 0.4, fontSize: 13 }}>
+        {(index + 1).toString().padStart(2, "0")}
+      </Typography.Text>
     ),
   },
   {
     title: TRANSLATION("bypass_page.col_school_id"),
     dataIndex: "school_id",
     key: "school_id",
-    width: 140,
+    width: 120,
     sorter: (a, b) => compareValues(a.school_id, b.school_id),
     render: (value) => (
-      <Tag color="blue" style={{ fontFamily: "monospace" }}>
+      <Tag
+        bordered={false}
+        style={{
+          borderRadius: 6,
+          fontWeight: 700,
+          fontSize: 11,
+          background: "rgba(0,0,0,0.05)",
+        }}
+      >
         {value ?? "-"}
       </Tag>
     ),
   },
   {
     title: TRANSLATION("bypass_page.col_school_name"),
-    dataIndex: "company_name",
     key: "company_name",
-    width: 300,
+    width: 350,
+    fixed: "left",
     sorter: (a, b) => compareValues(a.company_name, b.company_name),
-    render: (value) => <span style={{ fontWeight: 500 }}>{value || "-"}</span>,
+    render: (_value, r) => (
+      <Flex align="center" gap={16}>
+        <Avatar
+          size={48}
+          style={{
+            background: getAvatarColor(r.company_name || ""),
+            color: "#fff",
+            fontSize: 20,
+            fontWeight: 800,
+            borderRadius: 14,
+            border: "2px solid rgba(255,255,255,0.1)",
+          }}
+        >
+          {r.company_name?.charAt(0)}
+        </Avatar>
+        <Flex vertical gap={0}>
+          <Typography.Text strong style={{ fontSize: 16, lineHeight: 1.3 }}>
+            {r.company_name || "-"}
+          </Typography.Text>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {r.province || "-"} • {r.school_group || "N/A"}
+          </Typography.Text>
+        </Flex>
+      </Flex>
+    ),
   },
   {
     title: TRANSLATION("bypass_page.col_province"),
@@ -133,7 +216,18 @@ export const buildTableColumns = (
       const normalized = (value ?? "-").trim().toUpperCase();
       const config = GRADE_CONFIG[normalized] ?? GRADE_CONFIG["-"];
       return (
-        <Tag color={config.color} icon={config.icon}>
+        <Tag
+          bordered={false}
+          icon={config.icon}
+          style={{
+            borderRadius: 6,
+            fontWeight: 700,
+            fontSize: 12,
+            background: addAlpha(config.color, 0.1),
+            color: config.color,
+            padding: "2px 10px",
+          }}
+        >
           {normalized}
         </Tag>
       );
@@ -148,16 +242,24 @@ export const buildTableColumns = (
     sorter: (a, b) => compareValues(a.isActive, b.isActive),
     render: (value) => {
       if (!value) return <Tag>-</Tag>;
-      const color = STATUS_COLOR_MAP[value.toLowerCase()] ?? "default";
+      const lower = value.toLowerCase();
+      const color = lower === "active" ? "#52c41a" : "#f5222d";
       const icon =
-        value.toLowerCase() === "active" ? (
-          <CheckCircleOutlined />
-        ) : (
-          <CloseCircleOutlined />
-        );
+        lower === "active" ? <CheckCircleOutlined /> : <CloseCircleOutlined />;
       return (
-        <Tag color={color} icon={icon}>
-          {value}
+        <Tag
+          bordered={false}
+          icon={icon}
+          style={{
+            borderRadius: 6,
+            fontWeight: 700,
+            fontSize: 11,
+            background: addAlpha(color, 0.1),
+            color: color,
+            padding: "2px 10px",
+          }}
+        >
+          {value.toUpperCase()}
         </Tag>
       );
     },
@@ -168,26 +270,22 @@ export const buildTableColumns = (
     fixed: "right",
     width: 160,
     align: "center",
-    render: (_value, record) => {
-      const schoolId = String(record.school_id ?? "");
-      const isOpen = openDropdownFor === schoolId;
-
-      return (
-        <Dropdown
-          menu={{
-            items: buildBypassMenuItems(),
-            onClick: ({ key }) => void onBypassClick(String(key), record),
-          }}
-          trigger={["click"]}
-          placement="bottomRight"
-          open={isOpen}
-          onOpenChange={(open) => onDropdownOpenChange(open, schoolId)}
-        >
-          <Button type="primary" icon={<LoginOutlined />} iconPosition="end">
-            {TRANSLATION("bypass_page.select_system")}
-          </Button>
-        </Dropdown>
-      );
-    },
+    render: (_value, record) => (
+      <Button
+        type="primary"
+        icon={<LoginOutlined />}
+        iconPosition="end"
+        shape="round"
+        onClick={() => onOpenBypassModal(record)}
+        style={{
+          fontWeight: 600,
+          background: "linear-gradient(135deg, #1890ff 0%, #1d39c4 100%)",
+          border: "none",
+          height: 36,
+        }}
+      >
+        {TRANSLATION("bypass_page.select_system")}
+      </Button>
+    ),
   },
 ];

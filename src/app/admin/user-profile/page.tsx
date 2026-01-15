@@ -117,6 +117,45 @@ const formatUserCopyText = (u: UserProfile): string =>
     `Ref: https://adminsystem.schoolbright.co`,
   ].join("\n");
 
+const getAvatarColor = (name: string) => {
+  const colors = [
+    "#f5222d",
+    "#fa541c",
+    "#fa8c16",
+    "#faad14",
+    "#fadb14",
+    "#a0d911",
+    "#52c41a",
+    "#13c2c2",
+    "#1890ff",
+    "#2f54eb",
+    "#722ed1",
+    "#eb2f96",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+};
+
+const addAlpha = (color: string, alpha: number) => {
+  if (!color) return "rgba(0,0,0,0)";
+  if (color.startsWith("#")) {
+    let hex = color.slice(1);
+    if (hex.length === 3)
+      hex = hex
+        .split("")
+        .map((c) => c + c)
+        .join("");
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  return color;
+};
+
 const buildSummaryMetrics = (users: UserProfile[]): UserSummaryMetric[] => [
   {
     key: "total",
@@ -124,23 +163,23 @@ const buildSummaryMetrics = (users: UserProfile[]): UserSummaryMetric[] => [
     value: users.length,
     color: "#3b82f6",
     icon: <TeamOutlined />,
-    desc: "จำนวนผู้ใช้งานในระบบทั้งหมด",
+    desc: "จำนวนสมาชิกในระบบ",
   },
   {
     key: "contactable",
-    label: "ติดต่อได้ (มีอีเมล)",
+    label: "ติดต่อได้",
     value: users.filter((u) => u.email).length,
     color: "#22c55e",
     icon: <MailOutlined />,
-    desc: "ผู้ใช้งานที่มีข้อมูลอีเมล",
+    desc: "สมาชิกที่มีอีเมล",
   },
   {
     key: "unique_positions",
     label: "ตำแหน่งงาน",
     value: new Set(users.map((u) => u.position).filter(Boolean)).size,
-    color: "#f59e0b",
-    icon: <PushpinOutlined />,
-    desc: "จำนวนตำแหน่งงานที่แตกต่างกัน",
+    color: "#8b5cf6",
+    icon: <SolutionOutlined />,
+    desc: "ประเภทตำแหน่ง",
   },
 ];
 
@@ -149,59 +188,121 @@ const buildSummaryMetrics = (users: UserProfile[]): UserSummaryMetric[] => [
 // ==========================================
 
 // --- Summary Cards ---
-const SummaryCards = ({ metrics }: { metrics: UserSummaryMetric[] }) => (
-  <Row gutter={[16, 16]}>
-    {metrics.map((m) => (
-      <Col xs={24} md={8} key={m.key}>
-        <Card className="shadow-sm hover:shadow-md transition-shadow border-0 rounded-xl overflow-hidden relative h-full">
-          <div className="absolute right-0 top-0 p-3 opacity-10">
-            <span style={{ fontSize: "6rem", color: m.color }}>{m.icon}</span>
-          </div>
-          <Flex align="center" gap={16}>
+const SummaryCards = ({ metrics }: { metrics: UserSummaryMetric[] }) => {
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
+
+  return (
+    <Row gutter={[20, 20]} className="mb-8">
+      {metrics.map((m) => (
+        <Col xs={24} sm={12} md={8} key={m.key}>
+          <div
+            className="p-6 rounded-2xl border border-solid h-full transition-all group overflow-hidden relative"
+            style={{
+              background: token.colorBgContainer,
+              borderColor: addAlpha(m.color, 0.2),
+            }}
+          >
             <div
-              className="flex items-center justify-center w-12 h-12 rounded-lg text-2xl"
-              style={{ backgroundColor: `${m.color}15`, color: m.color }}
+              className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity"
+              style={{ fontSize: "100px", color: m.color }}
             >
               {m.icon}
             </div>
-            <div>
-              <Typography.Text
-                type="secondary"
-                className="block text-xs uppercase tracking-wider font-semibold"
+
+            <Flex vertical gap={12} className="relative z-10">
+              <div
+                className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl"
+                style={{
+                  backgroundColor: addAlpha(m.color, isDark ? 0.2 : 0.1),
+                  color: m.color,
+                }}
               >
-                {m.label}
-              </Typography.Text>
-              <Statistic
-                value={m.value}
-                valueStyle={{ fontWeight: 700, fontSize: "1.5rem" }}
-              />
-              <Typography.Text type="secondary" className="text-xs">
-                {m.desc}
-              </Typography.Text>
-            </div>
-          </Flex>
-        </Card>
-      </Col>
-    ))}
-  </Row>
-);
+                {m.icon}
+              </div>
+
+              <div>
+                <Typography.Text
+                  type="secondary"
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    color: addAlpha(token.colorTextSecondary, 0.8),
+                  }}
+                >
+                  {m.label}
+                </Typography.Text>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <Typography.Title
+                    level={2}
+                    style={{ margin: 0, fontWeight: 900, fontSize: 32 }}
+                  >
+                    {m.value.toLocaleString()}
+                  </Typography.Title>
+                </div>
+                <Typography.Text
+                  type="secondary"
+                  style={{ fontSize: 12, opacity: 0.7 }}
+                >
+                  {m.desc}
+                </Typography.Text>
+              </div>
+            </Flex>
+          </div>
+        </Col>
+      ))}
+    </Row>
+  );
+};
 
 // --- Header ---
 const HeaderSection = ({ title, subtitle, refreshLabel, onRefresh }: any) => {
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
+
   return (
-    <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4  p-6 rounded-2xl ">
-      <Space size={16}>
-        <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white ">
-          <ContactsOutlined style={{ fontSize: 24 }} />
+    <div
+      className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-8 rounded-3xl border border-solid"
+      style={{
+        background: isDark
+          ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
+              token.colorPrimary,
+              0.05
+            )} 100%)`
+          : `linear-gradient(135deg, #fff 0%, ${addAlpha(
+              token.colorPrimary,
+              0.03
+            )} 100%)`,
+        borderColor: addAlpha(token.colorBorder, 0.6),
+      }}
+    >
+      <Space size={20}>
+        <div
+          className="flex items-center justify-center w-16 h-16 rounded-2xl"
+          style={{
+            background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+          }}
+        >
+          <ContactsOutlined style={{ fontSize: 28, color: "#fff" }} />
         </div>
         <div>
           <Typography.Title
-            level={3}
-            style={{ margin: 0, fontWeight: 700, letterSpacing: "-0.5px" }}
+            level={2}
+            style={{
+              margin: 0,
+              fontWeight: 800,
+              letterSpacing: "-1px",
+              color: token.colorTextHeading,
+            }}
           >
             {title}
           </Typography.Title>
-          <Typography.Text type="secondary" className="text-sm">
+          <Typography.Text
+            type="secondary"
+            style={{ fontSize: 14, fontWeight: 500 }}
+          >
             {subtitle}
           </Typography.Text>
         </div>
@@ -211,6 +312,13 @@ const HeaderSection = ({ title, subtitle, refreshLabel, onRefresh }: any) => {
         onClick={onRefresh}
         size="large"
         shape="round"
+        style={{
+          height: 48,
+          padding: "0 24px",
+          fontWeight: 600,
+          border: `1px solid ${token.colorBorder}`,
+          background: token.colorBgContainer,
+        }}
       >
         {refreshLabel}
       </Button>
@@ -226,47 +334,65 @@ const Filters = ({
   onPositionChange,
   onDateRangeChange,
   onReset,
-}: any) => (
-  <Card className="border-0 shadow-sm rounded-xl mb-6">
-    <Flex gap={12} wrap="wrap" align="center">
-      <div className="flex-1 min-w-[200px]">
-        <Input
-          prefix={<SearchOutlined className="text-gray-400" />}
-          placeholder="ค้นหา ชื่อ, อีเมล, รหัสพนักงาน..."
-          allowClear
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="rounded-lg"
-        />
-      </div>
-      <Select
-        className="min-w-[150px]"
-        placeholder="เลือกตำแหน่ง"
-        allowClear
-        value={filters.position}
-        onChange={onPositionChange}
-        options={positions.map((p: string) => ({ label: p, value: p }))}
-        suffixIcon={<FilterOutlined />}
-      />
-      <DatePicker.RangePicker
-        className="w-full md:w-auto rounded-lg"
-        value={filters.dateRange}
-        onChange={onDateRangeChange}
-        placeholder={["วันที่เริ่ม", "วันที่สิ้นสุด"]}
-      />
-      <Button
-        onClick={onReset}
-        icon={<ReloadOutlined />}
-        type="dashed"
-        className="rounded-lg"
-      >
-        ล้างตัวเลือก
-      </Button>
-    </Flex>
-  </Card>
-);
+}: any) => {
+  const { token } = theme.useToken();
+  return (
+    <div
+      className="p-6 rounded-3xl border border-solid mb-8"
+      style={{
+        background: token.colorBgContainer,
+        borderColor: token.colorBorderSecondary,
+      }}
+    >
+      <Row gutter={[16, 16]} align="middle">
+        <Col xs={24} md={10} lg={12}>
+          <Input
+            prefix={
+              <SearchOutlined style={{ color: token.colorTextQuaternary }} />
+            }
+            placeholder="ค้นหาตาม ชื่อ, อีเมล, หรือพนักงาน..."
+            allowClear
+            size="large"
+            onChange={(e) => onSearchChange(e.target.value)}
+            style={{ borderRadius: 12 }}
+          />
+        </Col>
+        <Col xs={24} sm={12} md={7} lg={6}>
+          <Select
+            className="w-full"
+            placeholder="ตำแหน่งทั้งหมด"
+            allowClear
+            size="large"
+            value={filters.position}
+            onChange={onPositionChange}
+            options={positions.map((p: string) => ({ label: p, value: p }))}
+            suffixIcon={<FilterOutlined />}
+            style={{ borderRadius: 12 }}
+          />
+        </Col>
+        <Col xs={24} sm={12} md={7} lg={6}>
+          <Button
+            block
+            size="large"
+            onClick={onReset}
+            icon={<ReloadOutlined />}
+            style={{
+              borderRadius: 12,
+              fontWeight: 600,
+              background: token.colorBgContainer,
+              color: token.colorTextSecondary,
+            }}
+          >
+            รีเซ็ตตัวกรอง
+          </Button>
+        </Col>
+      </Row>
+    </div>
+  );
+};
 
 // --- Modals ---
-const UserFormFields = ({ isEdit = false, positions = [] }: any) => (
+const UserFormFields = ({ isEdit = false, positions = [], onCancel }: any) => (
   <>
     {!isEdit && (
       <div className="grid grid-cols-2 gap-4">
@@ -339,7 +465,7 @@ const UserFormFields = ({ isEdit = false, positions = [] }: any) => (
     )}
     <Divider />
     <Flex justify="end" gap={8}>
-      <Button onClick={() => Modal.destroyAll()}>ยกเลิก</Button>
+      <Button onClick={onCancel}>ยกเลิก</Button>
       <Button type="primary" htmlType="submit" icon={<CheckCircleOutlined />}>
         บันทึกข้อมูล
       </Button>
@@ -355,6 +481,8 @@ export default function Page() {
   const { t } = useTranslation("translate");
   const authState = useAppSelector((state) => state.callAdminLogin);
   const adminId = authState?.response?.data?.user_data?.admin_id;
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
 
   // --- State ---
   const [state, setState] = useState({
@@ -463,81 +591,138 @@ export default function Page() {
   // --- Columns ---
   const columns: ColumnsType<UserProfile> = [
     {
-      title: (
-        <Tooltip title="ลำดับ">
-          <Space>
-            #<InfoCircleOutlined />
-          </Space>
-        </Tooltip>
-      ),
-      render: (_, __, i) => i + 1,
+      title: "#",
+      key: "rank",
       width: 60,
       align: "center",
+      render: (_, __, i) => (
+        <Typography.Text
+          strong
+          style={{
+            color: token.colorTextDescription,
+            opacity: 0.6,
+            fontSize: 13,
+          }}
+        >
+          {(i + 1).toString().padStart(2, "0")}
+        </Typography.Text>
+      ),
     },
     {
-      title: "ชื่อ-นามสกุล",
+      title: "ผู้ใช้งาน",
       render: (_, r) => (
-        <Space>
-          <Badge dot status={r.status === "ACTIVE" ? "success" : "default"}>
-            <Avatar
-              src={r.image_profile}
-              icon={<UserOutlined />}
-              className="border border-indigo-100"
-            />
-          </Badge>
-          <div className="flex flex-col">
-            <Flex gap={4} align="center">
-              <Typography.Text strong>
+        <Flex align="center" gap={16}>
+          <div style={{ position: "relative" }}>
+            <Badge
+              dot
+              status={r.status === "ACTIVE" ? "success" : "default"}
+              offset={[-4, 38]}
+            >
+              <Avatar
+                src={r.image_profile}
+                size={52}
+                style={{
+                  border: `2px solid ${token.colorBorderSecondary}`,
+                  background: r.image_profile
+                    ? token.colorBgContainer
+                    : getAvatarColor(r.firstname || ""),
+                  color: "#fff",
+                  fontSize: 22,
+                  fontWeight: 800,
+                }}
+              >
+                {!r.image_profile && r.firstname?.charAt(0)}
+              </Avatar>
+            </Badge>
+          </div>
+          <Flex vertical gap={0}>
+            <Flex gap={8} align="center">
+              <Typography.Text
+                strong
+                style={{
+                  fontSize: 18,
+                  lineHeight: 1.3,
+                  color: token.colorTextHeading,
+                }}
+              >
                 {r.firstname} {r.lastname}
               </Typography.Text>
-              <Tooltip title="คัดลอกชื่อ-นามสกุล">
+              <Tooltip title="คัดลอกชื่อ">
                 <Button
                   type="text"
                   size="small"
-                  className="text-gray-400 hover:text-blue-600"
-                  icon={<CopyOutlined style={{ fontSize: 10 }} />}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  icon={
+                    <CopyOutlined
+                      style={{ fontSize: 12, color: token.colorPrimary }}
+                    />
+                  }
                   onClick={() =>
                     handleCopy(`${r.firstname} ${r.lastname}`, "ชื่อ-นามสกุล")
                   }
                 />
               </Tooltip>
             </Flex>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              {r.nickname}
+            <Typography.Text
+              type="secondary"
+              style={{ fontSize: 13, fontWeight: 500 }}
+            >
+              {r.nickname || "-"} • {r.employee_code || "JD-XXXX"}
             </Typography.Text>
-          </div>
-        </Space>
+          </Flex>
+        </Flex>
       ),
     },
     {
-      title: (
-        <Tooltip title="ข้อมูลการติดต่อ">
-          <Space>
-            <ContactsOutlined /> ติดต่อ
-            <QuestionCircleOutlined />
-          </Space>
-        </Tooltip>
-      ),
+      title: "ข้อมูลการติดต่อ",
       render: (_, r) => (
-        <div className="text-xs text-gray-500">
-          <div className="flex items-center gap-1">
-            <MailOutlined />
-            <span>{r.email}</span>
-            <Tooltip title="คัดลอกอีเมล">
+        <Flex vertical gap={4}>
+          <div className="flex items-center gap-2 group">
+            <div
+              style={{
+                padding: 4,
+                borderRadius: 6,
+                background: addAlpha(token.colorPrimary, 0.1),
+                color: token.colorPrimary,
+                display: "flex",
+              }}
+            >
+              <MailOutlined style={{ fontSize: 12 }} />
+            </div>
+            <Typography.Text style={{ fontSize: 13 }}>
+              {r.email || "-"}
+            </Typography.Text>
+            {r.email && (
               <Button
                 type="text"
                 size="small"
-                className="text-gray-400 hover:text-blue-600 h-auto p-0 ml-1"
-                icon={<CopyOutlined style={{ fontSize: 10 }} />}
+                className="opacity-0 group-hover:opacity-100 p-0 h-auto"
+                icon={
+                  <CopyOutlined
+                    style={{ fontSize: 10, color: token.colorPrimary }}
+                  />
+                }
                 onClick={() => handleCopy(r.email || "", "อีเมล")}
               />
-            </Tooltip>
+            )}
           </div>
-          <div className="flex items-center gap-1 mt-1">
-            <PhoneOutlined />
-            <span>{r.tel || "-"}</span>
+          <div className="flex items-center gap-2">
+            <div
+              style={{
+                padding: 4,
+                borderRadius: 6,
+                background: addAlpha(token.colorSuccess, 0.1),
+                color: token.colorSuccess,
+                display: "flex",
+              }}
+            >
+              <PhoneOutlined style={{ fontSize: 12 }} />
+            </div>
+            <Typography.Text style={{ fontSize: 13 }}>
+              {r.tel || "-"}
+            </Typography.Text>
           </div>
-        </div>
+        </Flex>
       ),
     },
     {
@@ -546,60 +731,63 @@ export default function Page() {
       render: (v) => (
         <Tag
           color={POSITION_COLORS[v] || "default"}
-          className="rounded-full px-2"
+          bordered={false}
+          style={{
+            borderRadius: 6,
+            fontSize: 11,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: 0.5,
+            padding: "2px 10px",
+          }}
         >
           {v || "ไม่ระบุ"}
         </Tag>
       ),
     },
     {
-      title: (
-        <Tooltip title="รหัสพนักงงาน">
-          <Space>
-            รหัสพนักงาน <InfoCircleOutlined />
-          </Space>
-        </Tooltip>
-      ),
-      dataIndex: "employee_code",
-      render: (v) =>
-        v ? <Tag icon={<SafetyCertificateOutlined />}>{v}</Tag> : "-",
-    },
-    {
       title: "จัดการ",
       fixed: "right",
-      width: 140,
+      width: 150,
+      align: "center",
       render: (_, r) => (
-        <Space.Compact>
+        <Space size={8}>
           <Tooltip title="คัดลอกข้อมูลทั้งหมด">
             <Button
               type="text"
-              icon={<CopyOutlined className="text-blue-500" />}
+              shape="circle"
+              icon={<CopyOutlined style={{ color: token.colorPrimary }} />}
               onClick={async () => {
                 await navigator.clipboard.writeText(formatUserCopyText(r));
                 toast.success("คัดลอกข้อมูลทั้งหมดเรียบร้อยแล้ว");
               }}
+              style={{ background: addAlpha(token.colorPrimary, 0.05) }}
             />
           </Tooltip>
           <Tooltip title="แก้ไข">
             <Button
               type="text"
-              icon={<EditOutlined className="text-orange-500" />}
+              shape="circle"
+              icon={<EditOutlined style={{ color: token.colorWarning }} />}
               onClick={() => {
                 setState((s) => ({ ...s, selectedUser: r, modalType: "edit" }));
               }}
+              style={{ background: addAlpha(token.colorWarning, 0.05) }}
             />
           </Tooltip>
           <Tooltip title="ลบ">
             <Button
               type="text"
+              shape="circle"
               danger
               icon={<DeleteOutlined />}
               onClick={() =>
                 setState((s) => ({ ...s, deleteId: r.id, modalType: "delete" }))
               }
+              style={{ background: addAlpha(token.colorError, 0.05) }}
             />
           </Tooltip>
-        </Space.Compact>
+        </Space>
       ),
     },
   ];
@@ -640,47 +828,99 @@ export default function Page() {
             }
           />
 
-          <Card
-            className="shadow-sm rounded-xl border-0"
-            title={
-              <Space>
-                <SolutionOutlined />
-                รายชื่อผู้ใช้งาน
-              </Space>
-            }
-            extra={
-              <Button
-                type="primary"
-                onClick={() =>
-                  setState((s) => ({
-                    ...s,
-                    selectedUser: null,
-                    modalType: "create",
-                  }))
-                }
-                icon={<UserOutlined />}
-              >
-                เพิ่มผู้ใช้งาน
-              </Button>
-            }
+          <div
+            className="rounded-3xl border border-solid overflow-hidden"
+            style={{
+              background: token.colorBgContainer,
+              borderColor: token.colorBorderSecondary,
+            }}
           >
-            {state.loading ? (
-              <Skeleton active />
-            ) : (
-              <Table
-                dataSource={filteredUsers}
-                columns={columns}
-                rowKey="id"
-                scroll={{ x: 800 }}
-                pagination={{
-                  pageSize: state.pageSize,
-                  onChange: (_, size) =>
-                    setState((s) => ({ ...s, pageSize: size })),
-                  showSizeChanger: true,
-                }}
-              />
-            )}
-          </Card>
+            <div
+              className="p-6 border-b border-solid"
+              style={{ borderColor: token.colorBorderSecondary }}
+            >
+              <Flex justify="space-between" align="center">
+                <Space size={12}>
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 12,
+                      background: addAlpha(token.colorInfo, 0.1),
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: token.colorInfo,
+                    }}
+                  >
+                    <SolutionOutlined />
+                  </div>
+                  <Typography.Title
+                    level={4}
+                    style={{ margin: 0, fontWeight: 700 }}
+                  >
+                    รายชื่อสมาชิก
+                  </Typography.Title>
+                  {!state.loading && (
+                    <Badge
+                      count={filteredUsers.length}
+                      overflowCount={999}
+                      showZero
+                      style={{
+                        backgroundColor: token.colorSuccess,
+                        fontWeight: 700,
+                        border: "none",
+                      }}
+                    />
+                  )}
+                </Space>
+                <Button
+                  type="primary"
+                  onClick={() =>
+                    setState((s) => ({
+                      ...s,
+                      selectedUser: null,
+                      modalType: "create",
+                    }))
+                  }
+                  icon={<UserOutlined />}
+                  shape="round"
+                  size="large"
+                  style={{
+                    padding: "0 24px",
+                    fontWeight: 600,
+                    background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+                    border: "none",
+                  }}
+                >
+                  เพิ่มสมาชิกใหม่
+                </Button>
+              </Flex>
+            </div>
+
+            <div className="p-0">
+              {state.loading ? (
+                <div className="p-10">
+                  <Skeleton active />
+                </div>
+              ) : (
+                <Table
+                  dataSource={filteredUsers}
+                  columns={columns}
+                  rowKey="id"
+                  className="group"
+                  scroll={{ x: 800 }}
+                  pagination={{
+                    pageSize: state.pageSize,
+                    onChange: (_, size) =>
+                      setState((s) => ({ ...s, pageSize: size })),
+                    showSizeChanger: true,
+                    className: "px-6 py-4",
+                  }}
+                />
+              )}
+            </div>
+          </div>
 
           {/* Create Modal */}
           <Modal
@@ -694,7 +934,9 @@ export default function Page() {
             onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
           >
             <Form layout="vertical" onFinish={(v) => handleSubmit(v, false)}>
-              <UserFormFields />
+              <UserFormFields
+                onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
+              />
             </Form>
           </Modal>
 
@@ -723,7 +965,12 @@ export default function Page() {
                 )
               }
             >
-              <UserFormFields isEdit positions={state.positions} form={null} />
+              <UserFormFields
+                isEdit
+                positions={state.positions}
+                form={null}
+                onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
+              />
             </Form>
           </Modal>
 

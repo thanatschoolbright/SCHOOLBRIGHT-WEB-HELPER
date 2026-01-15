@@ -15,6 +15,7 @@ import {
   theme,
   Alert,
   Divider,
+  Flex,
 } from "antd";
 import {
   LoginOutlined,
@@ -44,27 +45,150 @@ import SaleRankingModal from "./components/sale-ranking-modal.component";
 import { calculateSaleStatistics } from "./utils/sale-stats.helpers";
 import type { SaleStatistics } from "./types/sale-stats.types";
 import type { ProvinceStatistics } from "./types/province-stats.types";
+import type { SchoolDetail } from "./types/bypass.types";
+import BypassSelectionModal from "./components/bypass-selection-modal.component";
 
 const { Title, Text } = Typography;
 
-/**
- * * BypassPage Component
- * * --------------------------------------------------------------------------
- * * Displays a dashboard for managing and accessing school systems (Bypass).
- * * Features:
- * * - Summary Statistics Cards (Total, Active, Inactive, Grade A)
- * * - Filter Section for advanced searching
- * * - Dynamic Data Table for schools
- * * - Ranking Modals (Province & Sale)
- * * - Modern, Dark Mode compatible UI
- * * --------------------------------------------------------------------------
- */
+const getAvatarColor = (name: string) => {
+  const colors = [
+    "#f5222d",
+    "#fa541c",
+    "#fa8c16",
+    "#faad14",
+    "#fadb14",
+    "#a0d911",
+    "#52c41a",
+    "#13c2c2",
+    "#1890ff",
+    "#2f54eb",
+    "#722ed1",
+    "#eb2f96",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+};
+
+const addAlpha = (color: string, alpha: number) => {
+  if (!color) return "rgba(0,0,0,0)";
+  if (color.startsWith("#")) {
+    let hex = color.slice(1);
+    if (hex.length === 3)
+      hex = hex
+        .split("")
+        .map((c) => c + c)
+        .join("");
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  return color;
+};
+
+const HeaderSection = ({
+  TRANSLATION,
+  onProvinceRanking,
+  onSaleRanking,
+}: any) => {
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
+
+  return (
+    <div
+      className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-8 rounded-3xl border border-solid"
+      style={{
+        background: isDark
+          ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
+              token.colorPrimary,
+              0.05
+            )} 100%)`
+          : `linear-gradient(135deg, #fff 0%, ${addAlpha(
+              token.colorPrimary,
+              0.03
+            )} 100%)`,
+        borderColor: addAlpha(token.colorBorder, 0.6),
+      }}
+    >
+      <Space size={20}>
+        <div
+          className="flex items-center justify-center w-16 h-16 rounded-2xl"
+          style={{
+            background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+          }}
+        >
+          <LoginOutlined style={{ fontSize: 28, color: "#fff" }} />
+        </div>
+        <div>
+          <Title
+            level={2}
+            style={{
+              margin: 0,
+              fontWeight: 800,
+              letterSpacing: "-1px",
+              color: token.colorTextHeading,
+            }}
+          >
+            {TRANSLATION("bypass_page.title")}
+          </Title>
+          <Text type="secondary" style={{ fontSize: 14, fontWeight: 500 }}>
+            {TRANSLATION("bypass_page.subtitle")}
+          </Text>
+        </div>
+      </Space>
+      <Space size="middle" wrap>
+        <Button
+          onClick={onProvinceRanking}
+          size="large"
+          shape="round"
+          icon={<TrophyOutlined />}
+          style={{
+            height: 48,
+            padding: "0 24px",
+            fontWeight: 600,
+            border: `1px solid ${addAlpha("#8b5cf6", 0.3)}`,
+            background: addAlpha("#8b5cf6", 0.05),
+            color: "#8b5cf6",
+          }}
+        >
+          {TRANSLATION("bypass_page.view_province_ranking")}
+        </Button>
+        <Button
+          onClick={onSaleRanking}
+          size="large"
+          shape="round"
+          icon={<TeamOutlined />}
+          style={{
+            height: 48,
+            padding: "0 24px",
+            fontWeight: 600,
+            border: `1px solid ${addAlpha("#f59e0b", 0.3)}`,
+            background: addAlpha("#f59e0b", 0.05),
+            color: "#f59e0b",
+          }}
+        >
+          {TRANSLATION("bypass_page.view_sale_ranking")}
+        </Button>
+      </Space>
+    </div>
+  );
+};
 export default function BypassPage(): JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
   const { token } = theme.useToken();
   const { state, handlers } = useBypassPageData();
   const [showProvinceRanking, setShowProvinceRanking] = useState(false);
   const [showSaleRanking, setShowSaleRanking] = useState(false);
+  const [bypassModal, setBypassModal] = useState<{
+    open: boolean;
+    school: SchoolDetail | null;
+  }>({
+    open: false,
+    school: null,
+  });
 
   // * Calculate Province Ranking Data Memoized
   const provinceStatistics = useMemo<ProvinceStatistics[]>(
@@ -81,323 +205,204 @@ export default function BypassPage(): JSX.Element {
   return (
     <DashboardLayout>
       <div className="w-full space-y-6">
-        {/* 1. Header Section with Enhanced Branding */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div
-            className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-5 rounded-2xl shadow-sm border transition-colors duration-200"
-            style={{
-              background: token.colorBgContainer,
-              borderColor: token.colorBorderSecondary,
-            }}
-          >
-            <div className="flex items-center gap-5">
+        {/* 1. Header Section */}
+        <HeaderSection
+          TRANSLATION={TRANSLATION}
+          onProvinceRanking={() => setShowProvinceRanking(true)}
+          onSaleRanking={() => setShowSaleRanking(true)}
+        />
+
+        {/* 2. Summary Statistics Cards */}
+        <Row gutter={[20, 20]} className="mb-8">
+          {[
+            {
+              label: "โรงเรียนทั้งหมด",
+              value: state.statistics.total,
+              color: token.colorPrimary,
+              icon: <BankOutlined />,
+              desc: "จำนวนโรงเรียน",
+            },
+            {
+              label: "ใช้งานอยู่",
+              value: state.statistics.active,
+              color: token.colorSuccess,
+              icon: <ThunderboltOutlined />,
+              desc: "ออนไลน์ปกติ",
+            },
+            {
+              label: "ไม่ได้ใช้งาน",
+              value: state.statistics.inactive,
+              color: token.colorError,
+              icon: <CloseCircleOutlined />,
+              desc: "ควรตรวจสอบ",
+            },
+            {
+              label: "เกรด A (ดีเยี่ยม)",
+              value: state.statistics.gradeA,
+              color: token.colorWarning,
+              icon: <TrophyOutlined />,
+              desc: "ประสิทธิภาพสูง",
+            },
+          ].map((m, idx) => (
+            <Col xs={24} sm={12} lg={6} key={idx}>
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg"
+                className="p-6 rounded-2xl border border-solid h-full transition-all group overflow-hidden relative"
                 style={{
-                  background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorPrimaryActive} 100%)`,
+                  background: token.colorBgContainer,
+                  borderColor: addAlpha(m.color, 0.2),
                 }}
               >
-                <LoginOutlined />
+                <div
+                  className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity"
+                  style={{ fontSize: "100px", color: m.color }}
+                >
+                  {m.icon}
+                </div>
+
+                <Flex vertical gap={12} className="relative z-10">
+                  <div
+                    className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl"
+                    style={{
+                      backgroundColor: addAlpha(
+                        m.color,
+                        token.colorBgBase !== "#ffffff" ? 0.2 : 0.1
+                      ),
+                      color: m.color,
+                    }}
+                  >
+                    {m.icon}
+                  </div>
+
+                  <div>
+                    <Text
+                      type="secondary"
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "1px",
+                        color: addAlpha(token.colorTextSecondary, 0.8),
+                      }}
+                    >
+                      {m.label}
+                    </Text>
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <Title
+                        level={2}
+                        style={{ margin: 0, fontWeight: 900, fontSize: 32 }}
+                      >
+                        {m.value.toLocaleString()}
+                      </Title>
+                    </div>
+                    <Typography.Text
+                      type="secondary"
+                      style={{ fontSize: 12, opacity: 0.7 }}
+                    >
+                      {m.desc}
+                    </Typography.Text>
+                  </div>
+                </Flex>
               </div>
-              <div>
-                <Title level={2} style={{ margin: 0, fontWeight: 800 }}>
-                  {TRANSLATION("bypass_page.title")}
-                </Title>
-                <Text type="secondary" className="text-base">
-                  {TRANSLATION("bypass_page.subtitle")}
-                </Text>
-              </div>
-            </div>
+            </Col>
+          ))}
+        </Row>
 
-            <Space size="middle" wrap>
-              <Button
-                type="default"
-                size="large"
-                icon={<TrophyOutlined style={{ color: "#8b5cf6" }} />}
-                onClick={() => setShowProvinceRanking(true)}
-                className="font-semibold border-violet-200 text-violet-600 hover:!text-violet-700 hover:!border-violet-300 bg-violet-50"
-              >
-                {TRANSLATION("bypass_page.view_province_ranking")}
-              </Button>
-              <Button
-                type="default"
-                size="large"
-                icon={<TeamOutlined style={{ color: "#f59e0b" }} />}
-                onClick={() => setShowSaleRanking(true)}
-                className="font-semibold border-amber-200 text-amber-600 hover:!text-amber-700 hover:!border-amber-300 bg-amber-50"
-              >
-                {TRANSLATION("bypass_page.view_sale_ranking")}
-              </Button>
-            </Space>
-          </div>
-        </motion.div>
-
-        {/* 2. Modern Summary Statistics Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.5 }}
+        {/* 3. Filters Section */}
+        <div
+          className="p-8 rounded-[32px] border border-solid mb-8"
+          style={{
+            background: token.colorBgContainer,
+            borderColor: token.colorBorderSecondary,
+          }}
         >
-          <Row gutter={[16, 16]}>
-            {/* Total Schools */}
-            <Col xs={24} sm={12} lg={6}>
-              <Card
-                bordered={false}
-                className="shadow-sm rounded-2xl overflow-hidden relative h-full border transition-all duration-300 hover:shadow-md"
-                style={{
-                  borderColor: token.colorBorderSecondary,
-                  background: token.colorBgContainer,
-                }}
-              >
-                <div
-                  className="absolute -right-4 -bottom-4 text-8xl opacity-[0.08] pointer-events-none rotate-12"
-                  style={{ color: token.colorPrimary }}
-                >
-                  <BankOutlined />
-                </div>
-                <div className="relative z-10">
-                  <Text
-                    type="secondary"
-                    className="font-semibold text-xs uppercase tracking-wider"
-                  >
-                    โรงเรียนทั้งหมด
-                  </Text>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <Title level={2} style={{ margin: 0, fontWeight: 800 }}>
-                      {state.statistics.total}
-                    </Title>
-                    <Text type="secondary" className="text-xs">
-                      แห่ง
-                    </Text>
-                  </div>
-                  <div className="mt-3 w-fit px-2 py-0.5 rounded-md text-xs font-semibold bg-orange-50 text-orange-600 border border-orange-100 dark:bg-orange-900/20 dark:border-orange-900/30">
-                    โรงเรียนทั้งหมด
-                  </div>
-                </div>
-              </Card>
-            </Col>
-
-            {/* Active Schools */}
-            <Col xs={24} sm={12} lg={6}>
-              <Card
-                bordered={false}
-                className="shadow-sm rounded-2xl overflow-hidden relative h-full border transition-all duration-300 hover:shadow-md"
-                style={{
-                  borderColor: token.colorBorderSecondary,
-                  background: token.colorBgContainer,
-                }}
-              >
-                <div
-                  className="absolute -right-4 -bottom-4 text-8xl opacity-[0.08] pointer-events-none rotate-12"
-                  style={{ color: token.colorSuccess }}
-                >
-                  <ThunderboltOutlined />
-                </div>
-                <div className="relative z-10">
-                  <Text
-                    type="secondary"
-                    style={{ color: token.colorSuccess }}
-                    className="font-semibold text-xs uppercase tracking-wider"
-                  >
-                    ใช้งานอยู่
-                  </Text>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <Title
-                      level={2}
-                      style={{
-                        margin: 0,
-                        fontWeight: 800,
-                        color: token.colorSuccess,
-                      }}
-                    >
-                      {state.statistics.active}
-                    </Title>
-                    <Text type="secondary" className="text-xs">
-                      แห่ง
-                    </Text>
-                  </div>
-                  <div className="mt-3 flex items-center gap-1 text-xs text-emerald-600">
-                    <CheckCircleOutlined /> <span>ระบบออนไลน์ปกติ</span>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-
-            {/* Inactive Schools */}
-            <Col xs={24} sm={12} lg={6}>
-              <Card
-                bordered={false}
-                className="shadow-sm rounded-2xl overflow-hidden relative h-full border transition-all duration-300 hover:shadow-md"
-                style={{
-                  borderColor: token.colorBorderSecondary,
-                  background: token.colorBgContainer,
-                }}
-              >
-                <div
-                  className="absolute -right-4 -bottom-4 text-8xl opacity-[0.08] pointer-events-none rotate-12"
-                  style={{ color: token.colorError }}
-                >
-                  <CloseCircleOutlined />
-                </div>
-                <div className="relative z-10">
-                  <Text
-                    type="secondary"
-                    style={{ color: token.colorError }}
-                    className="font-semibold text-xs uppercase tracking-wider"
-                  >
-                    ไม่ได้ใช้งาน
-                  </Text>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <Title
-                      level={2}
-                      style={{
-                        margin: 0,
-                        fontWeight: 800,
-                        color: token.colorError,
-                      }}
-                    >
-                      {state.statistics.inactive}
-                    </Title>
-                    <Text type="secondary" className="text-xs">
-                      แห่ง
-                    </Text>
-                  </div>
-                  <div className="mt-3 flex items-center gap-1 text-xs text-rose-600">
-                    <WarningOutlined /> <span>ควรตรวจสอบ</span>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-
-            {/* Grade A Schools */}
-            <Col xs={24} sm={12} lg={6}>
-              <Card
-                bordered={false}
-                className="shadow-sm rounded-2xl overflow-hidden relative h-full border transition-all duration-300 hover:shadow-md"
-                style={{
-                  borderColor: token.colorBorderSecondary,
-                  background: token.colorBgContainer,
-                }}
-              >
-                <div
-                  className="absolute -right-4 -bottom-4 text-8xl opacity-[0.08] pointer-events-none rotate-12"
-                  style={{ color: token.colorWarning }}
-                >
-                  <TrophyOutlined />
-                </div>
-                <div className="relative z-10">
-                  <Text
-                    type="secondary"
-                    style={{ color: token.colorWarning }}
-                    className="font-semibold text-xs uppercase tracking-wider"
-                  >
-                    เกรด A (ดีเยี่ยม)
-                  </Text>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <Title
-                      level={2}
-                      style={{
-                        margin: 0,
-                        fontWeight: 800,
-                        color: token.colorWarning,
-                      }}
-                    >
-                      {state.statistics.gradeA}
-                    </Title>
-                    <Text type="secondary" className="text-xs">
-                      แห่ง
-                    </Text>
-                  </div>
-                  <div className="mt-3 w-fit px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-900/20 dark:border-amber-900/30">
-                    ประสิทธิภาพสูง
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-        </motion.div>
-
-        {/* 3. Filters Section - Clean Design (No Nested Card) */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <div
-            className="p-6 rounded-2xl shadow-sm border"
-            style={{
-              background: token.colorBgContainer,
-              borderColor: token.colorBorderSecondary,
-            }}
-          >
-            <Space className="mb-4">
-              <FilterOutlined
-                style={{ color: token.colorPrimary, fontSize: 18 }}
-              />
-              <span className="font-bold text-lg">ค้นหาและกรองข้อมูล</span>
-            </Space>
-
-            <FiltersSection
-              filters={state.filters}
-              filterOptions={state.filterOptions}
-              onFilterChange={handlers.handleFilterChange}
-              onClearFilters={handlers.handleClearFilters}
-            />
-          </div>
-        </motion.div>
-
-        {/* 4. Main Table Section - Clean Design */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-        >
-          <div
-            className="rounded-2xl shadow-sm border overflow-hidden"
-            style={{
-              borderColor: token.colorBorderSecondary,
-              background: token.colorBgContainer,
-            }}
-          >
-            {/* Custom Table Header */}
+          <Flex align="center" gap={12} className="mb-6">
             <div
-              className="px-6 py-4 border-b flex items-center justify-between"
-              style={{ borderColor: token.colorBorderSecondary }}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                background: addAlpha(token.colorPrimary, 0.1),
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: token.colorPrimary,
+              }}
             >
-              <Space>
-                <TableOutlined
-                  style={{ color: token.colorPrimary, fontSize: 18 }}
-                />
-                <span className="font-bold text-lg">รายชื่อโรงเรียน</span>
+              <FilterOutlined style={{ fontSize: 16 }} />
+            </div>
+            <Typography.Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+              ค้นหาและกรองข้อมูล
+            </Typography.Title>
+          </Flex>
+
+          <FiltersSection
+            filters={state.filters}
+            filterOptions={state.filterOptions}
+            onFilterChange={handlers.handleFilterChange}
+            onClearFilters={handlers.handleClearFilters}
+          />
+        </div>
+
+        {/* 4. Main Table Section */}
+        <div
+          className="rounded-[32px] border border-solid overflow-hidden"
+          style={{
+            borderColor: token.colorBorderSecondary,
+            background: token.colorBgContainer,
+          }}
+        >
+          <div
+            className="px-8 py-6 border-b border-solid flex items-center justify-between"
+            style={{ borderColor: token.colorBorderSecondary }}
+          >
+            <Space size={12}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 12,
+                  background: addAlpha(token.colorInfo, 0.1),
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: token.colorInfo,
+                }}
+              >
+                <TableOutlined style={{ fontSize: 18 }} />
+              </div>
+              <Typography.Title
+                level={4}
+                style={{ margin: 0, fontWeight: 700 }}
+              >
+                รายชื่อโรงเรียนในระบบ
+              </Typography.Title>
+              {!state.loading && (
                 <Badge
                   count={state.filteredSchools.length}
-                  overflowCount={999}
+                  overflowCount={9999}
+                  showZero
                   style={{
-                    backgroundColor: token.colorPrimary,
-                    boxShadow: "none",
+                    backgroundColor: token.colorSuccess,
+                    fontWeight: 700,
+                    border: "none",
                   }}
                 />
-              </Space>
-            </div>
-
-            {/* Table Content */}
-            <div className="p-0">
-              <SchoolTableSection
-                dataSource={state.filteredSchools}
-                loading={state.loading}
-                pageSize={state.pageSize}
-                openDropdownFor={state.openDropdownFor}
-                onTableChange={handlers.handleTableChange}
-                onBypassClick={handlers.handleBypassClick}
-                onDropdownOpenChange={handlers.handleDropdownOpenChange}
-              />
-            </div>
+              )}
+            </Space>
           </div>
-        </motion.div>
+
+          <div className="p-0">
+            <SchoolTableSection
+              dataSource={state.filteredSchools}
+              loading={state.loading}
+              pageSize={state.pageSize}
+              onTableChange={handlers.handleTableChange}
+              onOpenBypassModal={(school) =>
+                setBypassModal({ open: true, school })
+              }
+            />
+          </div>
+        </div>
 
         {/* Hidden Rankings Modals */}
         <ProvinceRankingModal
@@ -409,6 +414,21 @@ export default function BypassPage(): JSX.Element {
           open={showSaleRanking}
           onClose={() => setShowSaleRanking(false)}
           data={saleStatistics}
+        />
+
+        <BypassSelectionModal
+          open={bypassModal.open}
+          school={bypassModal.school}
+          onClose={() => setBypassModal({ open: false, school: null })}
+          onSelect={(targetKey, envKey) => {
+            if (bypassModal.school) {
+              void handlers.handleBypassClick(
+                `${targetKey}|${envKey}`,
+                bypassModal.school
+              );
+              setBypassModal({ open: false, school: null });
+            }
+          }}
         />
       </div>
     </DashboardLayout>
