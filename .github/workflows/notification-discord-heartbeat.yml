@@ -20,7 +20,10 @@ jobs:
               run: |
                   echo "Sending health check request..."
                   response=$(curl -s -o /dev/null -w "%{http_code}" \
-                    "https://sb-helper.schoolbright.co/api/v1/health-check/server/heartbeats/notification/discord")
+                    -X POST \
+                    -H "Content-Type: application/json" \
+                    -d '{"mode":"discord"}' \
+                    "https://sb-helper.schoolbright.co/api/v1/health-check/server/system")
 
                   echo "HTTP Status: $response"
 
