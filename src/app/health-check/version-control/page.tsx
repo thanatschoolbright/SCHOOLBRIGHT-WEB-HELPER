@@ -609,7 +609,7 @@ const EnvPill = ({
   if (!active) {
     return (
       <div
-        className="flex-1 h-16 rounded-lg border border-dashed flex flex-col items-center justify-center opacity-50"
+        className="flex-1 min-h-[90px] rounded-lg border border-dashed flex flex-col items-center justify-center opacity-50"
         style={{
           background: token.colorFillQuaternary,
           borderColor: token.colorBorder,
@@ -633,7 +633,7 @@ const EnvPill = ({
 
   return (
     <div
-      className="flex-1 h-16 rounded-lg cursor-pointer relative overflow-hidden transition-all hover:brightness-95 flex flex-col items-center justify-center border"
+      className="flex-1 min-h-[90px] rounded-lg cursor-pointer relative overflow-hidden transition-all hover:brightness-95 flex flex-col items-center justify-center border p-1"
       style={{
         background: colorObj.bg,
         borderColor: colorObj.border,
@@ -645,21 +645,31 @@ const EnvPill = ({
       )}
 
       <span
-        className="text-[9px] font-bold opacity-70 mb-0.5"
+        className="text-[9px] font-bold opacity-70"
         style={{ color: colorObj.text }}
       >
         {env}
       </span>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 my-0.5">
         <span className="text-sm font-bold" style={{ color: token.colorText }}>
           v.{data.version || "?"}
         </span>
       </div>
+
+      {/* Date */}
       <span
-        className="text-[9px] font-mono opacity-60"
+        className="text-[10px] font-mono leading-tight"
+        style={{ color: token.colorTextSecondary }}
+      >
+        {dayjs(data.updated_at).format("DD/MM/YYYY HH:mm")}
+      </span>
+
+      {/* Build Number */}
+      <span
+        className="text-[9px] font-mono opacity-60 mt-0.5"
         style={{ color: token.colorText }}
       >
-        #{data.build.substring(0, 4)}
+        #{data.build.substring(0, 5)}
       </span>
     </div>
   );
