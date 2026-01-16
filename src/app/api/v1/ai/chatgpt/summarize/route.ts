@@ -8,6 +8,8 @@ import { logger } from "@/helpers/logger";
 const requestSchema = z.object({
   summary: z.string().min(1, "Summary is required").optional(),
   description: z.string().optional(),
+  issueKey: z.string().optional(),
+  details: z.any().optional(), // Receive full issue object
 });
 
 export async function POST(request: NextRequest) {
@@ -33,10 +35,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { summary, description } = result.data;
+  const { summary, description, details, issueKey } = result.data;
 
   try {
-    logger.info(`[${requestId}] Attempting ChatGPT Summarization`);
+    logger.info(
+      `[${requestId}] Attempting ChatGPT Summarization for ${
+        issueKey || "Unknown Issue"
+      }`
+    );
 
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
@@ -49,9 +55,16 @@ export async function POST(request: NextRequest) {
           },
           {
             role: "user",
-            content: `--- INPUT ---\nSummary: ${summary || "-"}\nDescription: ${
-              description || "-"
-            }`,
+            content: `--- INPUT ISSUE DATA ---\n
+Issue Key: ${issueKey || "-"}
+Summary: ${summary || "-"}
+Description: ${description || "-"}
+
+Full Context (JSON):
+\`\`\`json
+${JSON.stringify(details || {}, null, 2)}
+\`\`\`
+`,
           },
         ],
         temperature: 0.4,
