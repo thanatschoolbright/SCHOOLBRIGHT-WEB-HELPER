@@ -1254,7 +1254,7 @@ export default function ProjectManagementPage() {
   };
 
   return (
-    <PermissionLayout role={["ALL"]}>
+    <PermissionLayout role={["ADMIN"]}>
       <DashboardLayout>
         <div className="mx-auto p-6 pb-20">
           <HeaderSection
