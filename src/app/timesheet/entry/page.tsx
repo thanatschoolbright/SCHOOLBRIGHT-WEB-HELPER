@@ -93,6 +93,7 @@ import {
   SettingOutlined,
   MoreOutlined,
   DownOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -1653,7 +1654,12 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
   useEffect(() => {
     if (open && formMode === "create") {
       form.resetFields();
-      form.setFieldsValue({ status: "IN_PROGRESS", date: dayjs() });
+      form.resetFields();
+      form.setFieldsValue({
+        status: "IN_PROGRESS",
+        date: dayjs(),
+        work_hour: 8,
+      });
     }
   }, [open, formMode, form]);
 
@@ -1689,6 +1695,9 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
           <Space>
             <ApartmentOutlined style={{ color: token.colorWarning }} />
             {s.name}
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              (ID: {s.id})
+            </Typography.Text>
           </Space>
         ),
         value: Number(s.id),
@@ -1769,7 +1778,16 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
           >
             <Col xs={24} md={12}>
               <Form.Item
-                label="โครงการหลัก"
+                label={
+                  <Space>
+                    <span>โครงการหลัก</span>
+                    <Tooltip title="ค้นหาได้ทั้ง ชื่อโครงการ และ Project ID">
+                      <InfoCircleOutlined
+                        style={{ color: token.colorTextSecondary }}
+                      />
+                    </Tooltip>
+                  </Space>
+                }
                 name="project_id"
                 rules={[{ required: searchMode === "hierarchy" }]}
               >
@@ -1781,17 +1799,29 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                     if (v) fetchSubProjects(String(v));
                   }}
                   showSearch
-                  filterOption={(input, option) =>
-                    (option?.labelString ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+                  filterOption={(input, option) => {
+                    const labelStr = (option?.labelString ?? "").toLowerCase();
+                    const inputStr = input.toLowerCase();
+                    const valueStr = String(option?.value).toLowerCase();
+                    return (
+                      labelStr.includes(inputStr) || valueStr.includes(inputStr)
+                    );
+                  }}
                 />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
-                label="งานย่อย / ฟีเจอร์"
+                label={
+                  <Space>
+                    <span>งานย่อย / ฟีเจอร์</span>
+                    <Tooltip title="ค้นหาได้ทั้ง ชื่องานย่อย และ Feature ID">
+                      <InfoCircleOutlined
+                        style={{ color: token.colorTextSecondary }}
+                      />
+                    </Tooltip>
+                  </Space>
+                }
                 name="sub_project_id"
                 rules={[{ required: searchMode === "hierarchy" }]}
                 dependencies={["project_id"]}
@@ -1801,11 +1831,14 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                   options={subProjectOptions}
                   disabled={!form.getFieldValue("project_id")}
                   showSearch
-                  filterOption={(input, option) =>
-                    (option?.labelString ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+                  filterOption={(input, option) => {
+                    const labelStr = (option?.labelString ?? "").toLowerCase();
+                    const inputStr = input.toLowerCase();
+                    const valueStr = String(option?.value).toLowerCase();
+                    return (
+                      labelStr.includes(inputStr) || valueStr.includes(inputStr)
+                    );
+                  }}
                 />
               </Form.Item>
             </Col>
@@ -1882,7 +1915,36 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                 rules={[
                   { required: true },
                   { type: "number", min: 0.1, max: 24 },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || value <= 8) {
+                        return Promise.resolve();
+                      }
+                      return Promise.resolve(); // Warning is handled by extra content
+                    },
+                  }),
                 ]}
+                extra={
+                  <Form.Item
+                    noStyle
+                    shouldUpdate={(prev, curr) =>
+                      prev.work_hour !== curr.work_hour
+                    }
+                  >
+                    {({ getFieldValue }) => {
+                      const hours = getFieldValue("work_hour");
+                      return hours > 8 ? (
+                        <Typography.Text
+                          type="warning"
+                          style={{ fontSize: 12 }}
+                        >
+                          <ExclamationCircleOutlined /> คุณกำลังกรอกเวลาเกิน 8
+                          ชั่วโมง
+                        </Typography.Text>
+                      ) : null;
+                    }}
+                  </Form.Item>
+                }
               >
                 <InputNumber style={{ width: "100%" }} min={0} step={0.5} />
               </Form.Item>

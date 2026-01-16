@@ -221,11 +221,18 @@ const KanbanBoard = ({
         {columns.map((col) => (
           <div
             key={col.id}
-            className={`flex-1 min-w-[300px] flex flex-col gap-4 p-4 rounded-xl border transition-all duration-200 ${
-              dragOverColumnId === col.id
-                ? "bg-indigo-50/50 border-indigo-200 border-dashed"
-                : "bg-gray-50/50 dark:bg-gray-900/20 border-gray-100 dark:border-gray-800"
-            }`}
+            className="flex-1 min-w-[300px] flex flex-col gap-4 p-4 rounded-xl border transition-all duration-200"
+            style={{
+              background:
+                dragOverColumnId === col.id
+                  ? token.colorFillSecondary
+                  : token.colorFillQuaternary,
+              borderColor:
+                dragOverColumnId === col.id
+                  ? token.colorPrimary
+                  : token.colorBorderSecondary,
+              borderStyle: dragOverColumnId === col.id ? "dashed" : "solid",
+            }}
             onDragOver={(e) => handleDragOver(e, col.id)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, col.id)}
@@ -314,7 +321,10 @@ const KanbanBoard = ({
                       <div className="flex gap-2 mb-3">
                         <Tag
                           bordered={false}
-                          className="text-xs m-0 px-1 py-0 bg-gray-100 dark:bg-gray-800"
+                          style={{
+                            background: token.colorFillQuaternary,
+                            color: token.colorTextSecondary,
+                          }}
                         >
                           {dayjs(item.createdAt).format("DD/MM/YY")}
                         </Tag>
@@ -937,7 +947,7 @@ const CategorySummaryCards = ({ stats, token }: { stats: any; token: any }) => {
       case "MAINTENANCE":
         return token.colorWarningBg;
       case "LEAVE":
-        return "#fff0f6";
+        return "rgba(235, 47, 150, 0.1)";
       default:
         return token.colorFillTertiary;
     }
@@ -1283,7 +1293,6 @@ export default function ProjectManagementPage() {
             style={{
               backgroundColor: token.colorBgContainer,
               border: `1px solid ${token.colorBorderSecondary}`,
-              backdropFilter: "blur(10px)",
             }}
           >
             <Flex vertical gap={24}>
@@ -1308,7 +1317,12 @@ export default function ProjectManagementPage() {
                       }
                       placeholder="ชื่อโครงการ, รหัสโครงการ หรือรายละเอียด..."
                       size="large"
-                      className="rounded-xl border-gray-200 h-12"
+                      className="rounded-xl h-12"
+                      style={{
+                        backgroundColor: token.colorBgLayout,
+                        borderColor: token.colorBorder,
+                        color: token.colorText,
+                      }}
                       value={filters.searchText}
                       onChange={(e) =>
                         setFilters({ ...filters, searchText: e.target.value })
@@ -1455,7 +1469,11 @@ export default function ProjectManagementPage() {
                         onClick={handleResetFilters}
                         icon={<ReloadOutlined />}
                         size="large"
-                        className="rounded-xl border-none bg-gray-100 hover:bg-gray-200 flex items-center"
+                        className="rounded-xl border-none flex items-center"
+                        style={{
+                          background: token.colorFillQuaternary,
+                          color: token.colorTextSecondary,
+                        }}
                       >
                         ล้างค่า
                       </Button>
@@ -1484,9 +1502,9 @@ export default function ProjectManagementPage() {
                       size="large"
                       className="rounded-xl flex items-center font-semibold"
                       style={{
-                        color: "#1d6f42",
-                        borderColor: "#1d6f42",
-                        background: "#f0fdf4",
+                        color: token.colorSuccess,
+                        borderColor: token.colorSuccess,
+                        background: token.colorSuccessBg,
                       }}
                     >
                       ส่งออก Excel
@@ -1499,10 +1517,21 @@ export default function ProjectManagementPage() {
             <style jsx global>{`
               .custom-select-rounded .ant-select-selector {
                 border-radius: 12px !important;
-                border-color: #e5e7eb !important;
+                border-color: ${token.colorBorder} !important;
+                background-color: ${token.colorBgLayout} !important;
+                color: ${token.colorText} !important;
               }
               .custom-select-rounded .ant-select-selector:hover {
                 border-color: ${token.colorPrimary} !important;
+              }
+              .custom-select-rounded .ant-select-selection-item {
+                color: ${token.colorText} !important;
+              }
+              .custom-select-rounded .ant-select-selection-placeholder {
+                color: ${token.colorTextPlaceholder} !important;
+              }
+              .custom-select-rounded .ant-select-arrow {
+                color: ${token.colorTextDescription} !important;
               }
             `}</style>
           </div>
