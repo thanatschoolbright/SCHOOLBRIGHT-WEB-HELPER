@@ -18,7 +18,9 @@ const MODEL_FALLBACKS: string[] = [
 ].filter(Boolean) as string[];
 
 const extractText = (payload: any) =>
-  payload?.data?.candidates?.[0]?.content?.parts?.[0]?.text as string | undefined;
+  payload?.data?.candidates?.[0]?.content?.parts?.[0]?.text as
+    | string
+    | undefined;
 
 export async function generateDescriptionWithGemini({
   history,
@@ -38,13 +40,18 @@ export async function generateDescriptionWithGemini({
     feature: item.feature?.name,
   }));
 
-  const prompt = `ช่วยสร้างคำอธิบาย timesheet แบบสั้น โดยดูจากตัวอย่างด้านล่าง แล้วสุ่มแนวทางให้คล้ายกับตัวอย่าง
-ควรกล่าวถึงงานหรือฟีเจอร์ที่ทำอยู่ และไม่ต้องยาวเกินไป
+  const prompt = `ช่วยสร้างคำอธิบาย Timesheet สำหรับการบันทึกงาน โดยวิเคราะห์จากประวัติงานย้อนหลัง (History) ด้านล่างนี้:
 
-ตัวอย่าง:
+Guidelines:
+1. เขียนบรรยายงานที่ทำสั้นๆ กระชับ และดูเป็นธรรมชาติ (Human-like) เข้าใจง่าย
+2. **สำคัญมาก**: ห้ามสร้างรหัส Ticket มั่วๆ (เช่น DEV-123, TASK-001) โดยเด็ดขาด
+3. หากจะระบุรหัสงาน (Task ID) ต้องขึ้นต้นด้วย Prefix เหล่านี้เท่านั้น: "SB-", "SBAPP-", "ACA-", "SH-", "ACC-" ตามด้วยตัวเลข
+4. หากไม่มีข้อมูลเลขงานที่ชัดเจน ให้เขียนบรรยายเนื้องานหรือฟีเจอร์แทน
+
+ประวัติงานย้อนหลัง (History):
 ${JSON.stringify(historySample, null, 2)}
 
-ให้ตอบเป็นข้อความสั้นบรรทัดเดียวเท่านั้น`;
+Output: ขอข้อความสั้นๆ บรรทัดเดียว`;
 
   const contents = [{ role: "user", parts: [{ text: prompt }] }];
 

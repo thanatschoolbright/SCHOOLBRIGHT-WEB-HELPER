@@ -80,7 +80,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const [selectedUser, setSelectedUser] = useState<string | number>();
   const [selectedRange, setSelectedRange] = useState<
     [dayjs.Dayjs | null, dayjs.Dayjs | null]
-  >([null, null]);
+  >([dayjs().startOf("month"), dayjs()]);
   const [manualHours, setManualHours] = useState<number | null>(null);
   const [autoFillProgress, setAutoFillProgress] = useState<any[]>([]);
   const [rankingMap, setRankingMap] = useState<Record<string, any>>({});
@@ -89,7 +89,9 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const userOptions = useMemo(
     () =>
       records.map((rec) => ({
-        label: `${buildFullName(rec)} ${formatNickname(rec.nickname)}`,
+        label: `${buildFullName(rec)} ${formatNickname(rec.nickname)} ${
+          rec.employee_code ? `(${rec.employee_code})` : ""
+        }`,
         value: rec.admin_id,
       })),
     [records]
@@ -533,7 +535,10 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         <Button
           type="primary"
           icon={<ThunderboltOutlined />}
-          onClick={() => setAutoFillOpen(true)}
+          onClick={() => {
+            setSelectedRange([dayjs().startOf("month"), dayjs()]);
+            setAutoFillOpen(true);
+          }}
           loading={autoFillLoading}
           className="shadow-sm border-0 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
           shape="round"
@@ -657,6 +662,11 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   value={selectedUser}
                   onChange={setSelectedUser}
                   showSearch
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
                   size="large"
                   style={{ borderRadius: 12 }}
                 />
