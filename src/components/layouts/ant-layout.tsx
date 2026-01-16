@@ -95,7 +95,7 @@ const createThemeConfig = (isDark: boolean): ThemeConfig => {
 
       // --- Typography (Balanced & Modern) ---
       fontFamily:
-        '"Inter", "Kanit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        '"GoogleSans","Inter", "Kanit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       fontSize: 14, // Back to standard 14px for better density
       fontSizeHeading1: 28, // Scaled down slightly
       fontSizeHeading2: 24,
