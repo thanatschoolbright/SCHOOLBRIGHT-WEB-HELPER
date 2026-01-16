@@ -1,5 +1,15 @@
 import React from "react";
-import { Input, Select, Button, Row, Col, Typography, Space, Flex } from "antd";
+import {
+  Input,
+  Select,
+  Button,
+  Row,
+  Col,
+  Typography,
+  Space,
+  Flex,
+  theme,
+} from "antd";
 import {
   SearchOutlined,
   ClearOutlined,
@@ -25,6 +35,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   statuses = [],
 }) => {
   const { t } = useTranslation();
+  const { token } = theme.useToken();
 
   const statusOptions = [
     { value: null, label: t("sub_project_page.all_status") },
@@ -35,22 +46,32 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
   return (
     <div
-      className="mb-6 px-6 py-5 rounded-2xl shadow-sm border-0"
+      className="mb-6 px-6 py-5 rounded-2xl shadow-sm"
       style={{
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
-        backdropFilter: "blur(10px)",
-        border: "1px solid rgba(255, 255, 255, 0.3)",
+        backgroundColor: token.colorBgContainer,
+        border: `1px solid ${token.colorBorderSecondary}`,
       }}
     >
       <Flex vertical gap={20}>
         <Flex align="center" justify="space-between" className="w-full">
           <Space align="center" size={10}>
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500">
+            <div
+              className="flex items-center justify-center w-8 h-8 rounded-lg"
+              style={{
+                background: token.colorFillQuaternary,
+                color: token.colorPrimary,
+              }}
+            >
               <FilterOutlined style={{ fontSize: 16 }} />
             </div>
             <Title
               level={5}
-              style={{ margin: 0, fontWeight: 700, letterSpacing: -0.3 }}
+              style={{
+                margin: 0,
+                fontWeight: 700,
+                letterSpacing: -0.3,
+                color: token.colorText,
+              }}
             >
               {t("sub_project_page.filter_title")}
             </Title>
@@ -60,7 +81,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             type="text"
             icon={<ClearOutlined />}
             onClick={onClear}
-            className="text-gray-400 hover:text-red-500 flex items-center gap-1"
+            style={{ color: token.colorTextSecondary }}
+            className="hover:!text-red-500 flex items-center gap-1"
           >
             {t("sub_project_page.clear_filters")}
           </Button>
@@ -76,19 +98,29 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   fontWeight: 600,
                   textTransform: "uppercase",
                   marginLeft: 4,
+                  color: token.colorTextSecondary,
                 }}
               >
                 ค้นหาฟีเจอร์
               </Text>
               <Input
                 placeholder={t("sub_project_page.search_placeholder")}
-                prefix={<SearchOutlined className="text-gray-400" />}
+                prefix={
+                  <SearchOutlined
+                    style={{ color: token.colorTextDescription }}
+                  />
+                }
                 value={filters.searchText}
                 onChange={(e) =>
                   onFilterChange({ ...filters, searchText: e.target.value })
                 }
                 allowClear
-                className="rounded-xl border-gray-200 hover:border-indigo-400 focus:border-indigo-500 h-11"
+                className="h-11 rounded-xl"
+                style={{
+                  backgroundColor: token.colorBgLayout,
+                  borderColor: token.colorBorder,
+                  color: token.colorText,
+                }}
               />
             </div>
           </Col>
@@ -101,6 +133,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   fontWeight: 600,
                   textTransform: "uppercase",
                   marginLeft: 4,
+                  color: token.colorTextSecondary,
                 }}
               >
                 ประเภทงาน
@@ -114,6 +147,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 allowClear
                 className="w-full h-11 custom-select-rounded"
                 dropdownStyle={{ borderRadius: "12px" }}
+                style={{}} // Let style jsx handle base style, but we override internal with tokens in global style
                 options={[
                   ...ASSET_OPTIONS.map((opt) => ({
                     value: opt.value,
@@ -132,6 +166,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   fontWeight: 600,
                   textTransform: "uppercase",
                   marginLeft: 4,
+                  color: token.colorTextSecondary,
                 }}
               >
                 สถานะล่าสุด
@@ -155,12 +190,23 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <style jsx global>{`
         .custom-select-rounded .ant-select-selector {
           border-radius: 12px !important;
-          border-color: #e5e7eb !important;
+          border-color: ${token.colorBorder} !important;
+          background-color: ${token.colorBgLayout} !important;
+          color: ${token.colorText} !important;
           display: flex !important;
           align-items: center !important;
         }
         .custom-select-rounded .ant-select-selector:hover {
-          border-color: #818cf8 !important;
+          border-color: ${token.colorPrimary} !important;
+        }
+        .custom-select-rounded .ant-select-selection-placeholder {
+          color: ${token.colorTextDescription} !important;
+        }
+        .custom-select-rounded .ant-select-selection-item {
+          color: ${token.colorText} !important;
+        }
+        .custom-select-rounded .ant-select-arrow {
+          color: ${token.colorTextDescription} !important;
         }
       `}</style>
     </div>
