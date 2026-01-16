@@ -9,35 +9,46 @@ import "dayjs/locale/th";
 
 dayjs.locale("th");
 
-// --- School Bright Brand Color Palette ---
-const BRAND_ORANGE = {
-  primary: "#F97316", // Main Orange
-  hover: "#FB923C",
-  active: "#EA580C",
-  subtle: "rgba(249, 115, 22, 0.15)", // เพิ่มความเข้มเล็กน้อยให้เห็นชัดขึ้น
-  outline: "rgba(249, 115, 22, 0.2)", // สี Ring เวลา Focus
+// --- Modern & Balanced Color Palette (Orange Primary) ---
+const BRAND_TOKENS = {
+  primary: "#F97316", // Vibrant Orange (Tailwind Orange-500)
+  primaryHover: "#FB923C", // Lighter for hover
+  primaryActive: "#EA580C", // Darker for active
+  primaryShadow: "rgba(249, 115, 22, 0.25)",
+  success: "#10B981", // Emerald-500
+  warning: "#F59E0B", // Amber-500
+  error: "#EF4444", // Red-500
+  info: "#3B82F6", // Blue-500
 };
 
 const SYSTEM_COLORS = {
   light: {
-    primary: BRAND_ORANGE.primary,
-    bgBase: "#F8FAFC", // Slate-50
+    bgBase: "#FFFFFF", // Clean White
+    bgLayout: "#F8FAFC", // Slate-50 (Very subtle grey for background)
     bgContainer: "#FFFFFF",
     bgElevated: "#FFFFFF",
-    textMain: "#1E293B", // Slate-800 (เข้มขึ้นให้อ่านชัด)
-    textSub: "#64748B", // Slate-500
+    textMain: "#0F172A", // Slate-900 (High contrast)
+    textSub: "#64748B", // Slate-500 (Readable secondary)
+    textPlaceholder: "#94A3B8",
     border: "#E2E8F0", // Slate-200
-    shadow: "0 10px 30px -10px rgba(249, 115, 22, 0.15)",
+    shadowSm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+    shadowMd:
+      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+    shadowLg:
+      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
   },
   dark: {
-    primary: BRAND_ORANGE.primary,
-    bgBase: "#0B0F19",
-    bgContainer: "#111827", // Gray-900
-    bgElevated: "#1F2937", // Gray-800
-    textMain: "#F8FAFC", // Slate-50
+    bgBase: "#0B0F19", // Deep Blue-Black
+    bgLayout: "#111827", // Gray-900
+    bgContainer: "#1F2937", // Gray-800
+    bgElevated: "#1F2937",
+    textMain: "#F1F5F9", // Slate-100
     textSub: "#94A3B8", // Slate-400
+    textPlaceholder: "#475569",
     border: "#374151", // Gray-700
-    shadow: "0 10px 30px -10px rgba(0, 0, 0, 0.6)",
+    shadowSm: "0 1px 2px 0 rgba(0, 0, 0, 0.3)",
+    shadowMd: "0 4px 6px -1px rgba(0, 0, 0, 0.4)",
+    shadowLg: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
   },
 };
 
@@ -64,107 +75,126 @@ const createThemeConfig = (isDark: boolean): ThemeConfig => {
     algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
     token: {
       // --- Colors ---
-      colorPrimary: colors.primary,
-      colorInfo: colors.primary,
-      colorSuccess: "#10B981",
-      colorWarning: "#F59E0B",
-      colorError: "#EF4444",
+      colorPrimary: BRAND_TOKENS.primary,
+      colorInfo: BRAND_TOKENS.info,
+      colorSuccess: BRAND_TOKENS.success,
+      colorWarning: BRAND_TOKENS.warning,
+      colorError: BRAND_TOKENS.error,
 
-      colorTextBase: colors.textMain,
-      colorTextSecondary: colors.textSub,
       colorBgBase: colors.bgBase,
+      colorBgLayout: colors.bgLayout,
       colorBgContainer: colors.bgContainer,
       colorBgElevated: colors.bgElevated,
 
+      colorTextBase: colors.textMain,
+      colorTextSecondary: colors.textSub,
+      colorTextPlaceholder: colors.textPlaceholder,
+
       colorBorder: colors.border,
-      colorBorderSecondary: isDark ? "#374151" : "#E2E8F0",
+      colorBorderSecondary: isDark ? "#4B5563" : "#F1F5F9",
 
-      // --- Typography & Sizing (ขยายให้ใหญ่ขึ้น) ---
-      fontFamily: '"Inter", "Kanit", "GoogleSans", -apple-system, sans-serif',
-      fontSize: 15, // ขยายจาก 14 เป็น 15 เพื่อให้อ่านง่าย
-      fontSizeHeading1: 32,
-      fontSizeHeading2: 26,
-      fontSizeHeading3: 22,
+      // --- Typography (Balanced & Modern) ---
+      fontFamily:
+        '"Inter", "Kanit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontSize: 14, // Back to standard 14px for better density
+      fontSizeHeading1: 28, // Scaled down slightly
+      fontSizeHeading2: 24,
+      fontSizeHeading3: 20,
+      fontSizeHeading4: 18,
+      fontSizeHeading5: 16,
 
-      // --- Shape & Dimension ---
-      borderRadius: 8, // Standard Component (Input, Button) ให้ดู Modern ไม่กลมเกินไป
-      borderRadiusLG: 16, // Large Component (Card, Modal)
+      // --- Shape & Dimension (Sleek & Compact) ---
+      borderRadius: 8, // Smooth but not pill-shaped
+      borderRadiusLG: 12,
+      borderRadiusSM: 4,
 
-      controlHeight: 42, // ขยายความสูง Input/Button จาก 40 เป็น 42
-      controlHeightLG: 50,
-      controlHeightSM: 32,
+      // Balanced Heights
+      controlHeight: 38, // 38px is the sweet spot (modern SaaS feel, not too chunky)
+      controlHeightLG: 46,
+      controlHeightSM: 30,
 
-      lineWidth: 1,
+      // Spacing
+      paddingContentHorizontal: 16,
+      marginXS: 8,
+      marginSM: 12,
+      margin: 16,
+
+      wireframe: false,
     },
     components: {
       Button: {
-        controlHeight: 42,
+        controlHeight: 38,
         borderRadius: 8,
-        fontWeight: 600,
-        contentFontSize: 15,
-        paddingInline: 20, // เพิ่ม Padding แนวนอน
-        primaryShadow: "0 4px 10px rgba(249, 115, 22, 0.25)", // เงาปุ่มที่สวยขึ้น
-        defaultShadow: "none",
+        fontWeight: 500,
+        contentFontSize: 14,
+        paddingInline: 16,
+        primaryShadow: isDark ? "none" : BRAND_TOKENS.primaryShadow,
+        defaultShadow: isDark ? "none" : colors.shadowSm,
+        defaultBorderColor: colors.border,
       },
       Card: {
-        borderRadiusLG: 20, // โค้งมน
-        paddingLG: 32, // เพิ่ม Padding ภายใน Card ให้เนื้อหาหายใจสะดวก (Space)
-        headerFontSize: 18,
-        headerFontWeight: 600,
+        borderRadiusLG: 16,
+        paddingLG: 24, // Reduced from 32 for better content density
+        headerFontSize: 16,
+        boxShadow: isDark ? "none" : colors.shadowSm, // Subtle shadow for cards
       },
       Table: {
-        borderRadiusLG: 12,
-        headerBg: isDark ? "#1F2937" : "#FFF7ED", // สีหัวตาราง Orange Tint อ่อนๆ
-        headerColor: isDark ? colors.textSub : "#9A3412", // Text สีส้มเข้ม
-        headerBorderRadius: 12,
+        borderRadiusLG: 10,
+        headerBg: isDark ? "#1F2937" : "#F8FAFC", // Subtle header background
+        headerColor: isDark ? colors.textMain : colors.textSub,
         headerSplitColor: "transparent",
-        cellPaddingBlock: 16, // เพิ่มความสูงของแต่ละ Row
+        cellPaddingBlock: 12, // More compact rows (was 16)
         rowHoverBg: isDark ? "rgba(249, 115, 22, 0.08)" : "#FFF7ED",
+        fontSize: 14,
       },
       Input: {
-        controlHeight: 42,
+        controlHeight: 38,
         borderRadius: 8,
-        paddingInline: 16,
         colorBgContainer: isDark ? "#111827" : "#FFFFFF",
-        activeBorderColor: BRAND_ORANGE.primary,
-        hoverBorderColor: BRAND_ORANGE.hover,
-        activeShadow: `0 0 0 3px ${BRAND_ORANGE.outline}`, // Focus ring สวยๆ
+        activeBorderColor: BRAND_TOKENS.primary,
+        hoverBorderColor: BRAND_TOKENS.primaryHover,
       },
       Select: {
-        controlHeight: 42,
+        controlHeight: 38,
         borderRadius: 8,
-        controlItemBgActive: BRAND_ORANGE.subtle,
+        optionSelectedBg: isDark ? "rgba(249, 115, 22, 0.15)" : "#FFF7ED",
       },
       Modal: {
-        borderRadiusLG: 20,
+        borderRadiusLG: 16,
         headerBg: colors.bgElevated,
         contentBg: colors.bgElevated,
-        titleFontSize: 20,
-        paddingContentHorizontalLG: 32, // Modal กว้างขึ้น สบายตา
+        titleFontSize: 18,
       },
       Menu: {
+        itemHeight: 40, // Reduced from 44 to 40 for better balance
         itemBorderRadius: 8,
-        itemHeight: 44, // เมนูสูงขึ้น กดง่าย
-        itemSelectedBg: BRAND_ORANGE.subtle,
-        itemSelectedColor: BRAND_ORANGE.primary,
+        itemMarginInline: 8, // Add side margins for "floating" feel
+        itemSelectedBg: isDark ? "rgba(249, 115, 22, 0.15)" : "#FFF7ED",
+        itemSelectedColor: BRAND_TOKENS.primary,
         subMenuItemBg: "transparent",
+        activeBarBorderWidth: 0, // Remove the side line for a cleaner look
       },
       Tabs: {
-        itemSelectedColor: BRAND_ORANGE.primary,
-        itemHoverColor: BRAND_ORANGE.hover,
-        titleFontSize: 15,
+        itemSelectedColor: BRAND_TOKENS.primary,
+        itemHoverColor: BRAND_TOKENS.primaryHover,
+        inkBarColor: BRAND_TOKENS.primary,
+        titleFontSize: 14,
       },
       Tag: {
-        borderRadiusSM: 6,
-        fontWeightStrong: 500,
-        fontSize: 13,
+        borderRadiusSM: 4,
+        fontSize: 12,
       },
-      Form: {
-        itemMarginBottom: 24, // ระยะห่างระหว่าง Input field มากขึ้น
-        labelFontSize: 14,
-        labelColor: colors.textSub,
+      Layout: {
+        bodyBg: colors.bgLayout,
+        headerBg: colors.bgContainer,
+        siderBg: colors.bgContainer,
       },
-    } as any,
+      Typography: {
+        colorText: colors.textMain,
+        colorTextDescription: colors.textSub,
+        colorTextHeading: colors.textMain,
+      },
+    },
   };
 };
 
@@ -187,89 +217,105 @@ export default function AntThemeProvider({
       <style jsx global>{`
         /* Global Reset & Body */
         body {
-          background-color: ${currentColors.bgBase} !important;
+          background-color: ${currentColors.bgLayout} !important;
           color: ${currentColors.textMain};
-          font-size: 15px; /* Base font size ใหญ่ขึ้น */
-          line-height: 1.6;
-          transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        /* Smooth Fonts */
-        * {
+          font-family: "Inter", "Kanit", sans-serif;
+          font-size: 14px;
+          line-height: 1.5;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
+          transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Modern Gradient Button */
-        .ant-btn-primary:not(:disabled) {
-          background: linear-gradient(
-            145deg,
-            ${BRAND_ORANGE.primary} 0%,
-            ${BRAND_ORANGE.active} 100%
-          ) !important;
-          border: none !important;
-          transition: all 0.2s ease-in-out;
-        }
-        .ant-btn-primary:not(:disabled):hover {
-          transform: translateY(-1px); /* ยกปุ่มขึ้นเล็กน้อยเวลา Hover */
-          box-shadow: 0 6px 15px rgba(249, 115, 22, 0.35);
-        }
-
-        /* Card Enhancement */
-        .ant-card {
-          border: 1px solid
-            ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"} !important;
-          box-shadow: ${currentColors.shadow} !important;
-          transition: box-shadow 0.3s ease, transform 0.3s ease;
-        }
-        /* ถ้าเป็น Interactive Card ให้มี Effect */
-        .ant-card-hoverable:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.15) !important;
-        }
-
-        /* Modal & Popover Background Fix */
-        .ant-modal-content,
-        .ant-modal-header,
-        .ant-popover-inner,
-        .ant-select-dropdown {
-          background-color: ${isDark
-            ? SYSTEM_COLORS.dark.bgElevated
-            : "#FFFFFF"} !important;
-          border: 1px solid ${isDark ? "rgba(255,255,255,0.05)" : "transparent"};
-        }
-
-        /* Glassmorphism Class (Optional usage) */
-        .glass-panel {
-          background: ${isDark
-            ? "rgba(17, 24, 39, 0.75)"
-            : "rgba(255, 255, 255, 0.75)"} !important;
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid
-            ${isDark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.4)"};
-        }
-
-        /* Scrollbar Styling */
+        /* Modern Scrollbar */
         ::-webkit-scrollbar {
-          width: 7px;
-          height: 7px;
+          width: 8px;
+          height: 8px;
         }
         ::-webkit-scrollbar-track {
           background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-          background: ${isDark ? "#374151" : "#CBD5E1"};
-          border-radius: 10px;
+          background-color: ${isDark ? "#4B5563" : "#CBD5E1"};
+          border-radius: 99px;
+          border: 2px solid transparent;
+          background-clip: content-box;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: ${BRAND_ORANGE.primary};
+          background-color: ${BRAND_TOKENS.primary};
         }
 
-        /* Selection Color */
+        /* Glassmorphism Utilities */
+        .glass {
+          background: ${isDark
+            ? "rgba(31, 41, 55, 0.7)"
+            : "rgba(255, 255, 255, 0.7)"};
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid
+            ${isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.5)"};
+        }
+
+        /* Gradient Text */
+        .text-gradient {
+          background: linear-gradient(
+            135deg,
+            ${BRAND_TOKENS.primary},
+            ${BRAND_TOKENS.warning}
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        /* Smooth Transitions */
+        a,
+        button,
+        input {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Selection */
         ::selection {
-          background: ${BRAND_ORANGE.subtle};
-          color: ${BRAND_ORANGE.active};
+          background: ${BRAND_TOKENS.primaryShadow};
+          color: ${BRAND_TOKENS.primaryActive};
+        }
+
+        /* Card Hover Effect */
+        .hover-card {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hover-card:hover {
+          transform: translateY(-2px);
+          box-shadow: ${currentColors.shadowLg};
+        }
+
+        /* Ant Design Overrides */
+        .ant-btn-primary {
+          box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3) !important;
+        }
+        .ant-btn-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 8px -1px rgba(249, 115, 22, 0.4) !important;
+        }
+        .ant-menu-item-selected {
+          font-weight: 500;
+        }
+
+        /* Layout Fixes */
+        .ant-layout {
+          background: ${currentColors.bgLayout} !important;
+        }
+        .ant-layout-header {
+          height: 64px;
+          padding-inline: 24px;
+          line-height: 64px;
+          background: ${currentColors.bgContainer} !important;
+          border-bottom: 1px solid ${currentColors.border};
+        }
+
+        .ant-layout-sider {
+          background: ${currentColors.bgContainer} !important;
+          border-right: 1px solid ${currentColors.border};
         }
       `}</style>
       {children}
