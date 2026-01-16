@@ -8,6 +8,7 @@ export const useProjectData = (adminId: number) => {
   const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [statuses, setStatuses] = useState<any[]>([]);
+  const [backendStats, setBackendStats] = useState<any>(null);
   const [pagination, setPagination] = useState<PaginationState>({
     current: 1,
     pageSize: 1000,
@@ -17,13 +18,16 @@ export const useProjectData = (adminId: number) => {
   const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
-      const [projectRes, statusRes] = await Promise.all([
+      const results = await Promise.all([
         axios.post("/api/v1/timesheet/project/read/", {
           limit: pagination.pageSize,
           page: pagination.current,
         }),
         axios.post("/api/v1/timesheet/project/status/read/"),
+        axios.post("/api/v1/timesheet/project/stats/"),
       ]);
+
+      const [projectRes, statusRes, statsRes] = results;
 
       setProjects(projectRes.data.data || []);
       setPagination((prev) => ({
@@ -33,6 +37,10 @@ export const useProjectData = (adminId: number) => {
 
       if (statusRes.data.status === 200) {
         setStatuses(statusRes.data.data);
+      }
+
+      if (statsRes.data.status === 200) {
+        setBackendStats(statsRes.data.data);
       }
     } catch {
       toast.error("ไม่สามารถโหลดข้อมูลโครงการได้");
@@ -102,5 +110,6 @@ export const useProjectData = (adminId: number) => {
     createProject,
     updateProject,
     deleteProject,
+    stats: backendStats,
   };
 };

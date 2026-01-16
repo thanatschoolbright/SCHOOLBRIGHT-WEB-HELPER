@@ -31,6 +31,7 @@ interface UpdateFeatureDto {
   assetCaptureType?: SubProjectAssetCaptureType;
   status?: string;
   projectStatusId?: number | null;
+  projectId?: number;
   assignees?: { userId: number; position?: string | null }[];
 }
 
@@ -135,7 +136,7 @@ export const Service = {
             data: assignees.map((a) => ({
               userId: a.userId,
               position: a.position,
-              projectId: feature.projectId,
+              projectId: data.projectId ?? feature.projectId,
               featureId: id,
             })),
           });

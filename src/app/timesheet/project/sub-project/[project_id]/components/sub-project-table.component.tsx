@@ -269,15 +269,17 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
         render: (_, record) => (
           <div className="flex flex-col gap-1">
             <Avatar.Group
-              maxCount={3}
+              max={{
+                count: 3,
+                style: {
+                  color: token.colorPrimary,
+                  backgroundColor: `${token.colorPrimary}15`,
+                  fontSize: 10,
+                  fontWeight: 600,
+                },
+              }}
               size="small"
               className="flex items-center"
-              maxStyle={{
-                color: token.colorPrimary,
-                backgroundColor: `${token.colorPrimary}15`,
-                fontSize: 10,
-                fontWeight: 600,
-              }}
             >
               {record.projectAssignees?.map((a) => {
                 const u = getUserById(a.userId);

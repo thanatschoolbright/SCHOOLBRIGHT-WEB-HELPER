@@ -10,6 +10,7 @@ export const Schema = z.object({
   name_en: z.string().optional(),
   start_date: z.string().optional(),
   end_date: z.string().optional(),
+  projectStatusId: z.number().nullable().optional(),
   assignees: z
     .array(z.object({ userId: z.number(), position: z.string().optional() }))
     .optional(),

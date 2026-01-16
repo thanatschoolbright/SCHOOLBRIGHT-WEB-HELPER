@@ -20,6 +20,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
   const [subProjects, setSubProjects] = useState<SubProject[]>([]);
   const [allSubProjects, setAllSubProjects] = useState<SubProject[]>([]);
   const [projectStatuses, setProjectStatuses] = useState<any[]>([]);
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     current: DEFAULT_CURRENT_PAGE,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -34,35 +35,45 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [projectRes, subProjectRes, statusRes] = await Promise.all([
-        fetch("/api/v1/timesheet/project/read/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ limit: 1, page: 1, id: projectId }),
-        }),
-        fetch("/api/v1/timesheet/project/sub-project/read/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            limit: DEFAULT_PAGE_SIZE,
-            page: pagination.current,
-            project_id: projectId,
+      const [projectRes, subProjectRes, statusRes, allProjectsRes] =
+        await Promise.all([
+          fetch("/api/v1/timesheet/project/read/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ limit: 1, page: 1, id: projectId }),
           }),
-        }),
-        fetch("/api/v1/timesheet/project/status/read/", {
-          method: "POST",
-        }),
-      ]);
+          fetch("/api/v1/timesheet/project/sub-project/read/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              limit: DEFAULT_PAGE_SIZE,
+              page: pagination.current,
+              project_id: projectId,
+            }),
+          }),
+          fetch("/api/v1/timesheet/project/status/read/", {
+            method: "POST",
+          }),
+          fetch("/api/v1/timesheet/project/read/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ limit: 1000, page: 1 }),
+          }),
+        ]);
 
       const projectJson = await projectRes.json();
       const subProjectJson = await subProjectRes.json();
       const statusJson = await statusRes.json();
+      const allProjectsJson = await allProjectsRes.json();
 
-      if (projectJson?.data?.items?.length)
-        setProjectData(projectJson.data.items[0]);
+      if (projectJson?.data?.length) setProjectData(projectJson.data[0]);
 
       if (statusJson?.status === 200) {
         setProjectStatuses(statusJson.data);
+      }
+
+      if (allProjectsJson?.data) {
+        setAllProjects(allProjectsJson.data);
       }
 
       const fetchedSubProjects = subProjectJson?.data || [];
@@ -169,7 +180,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
     try {
       const payload = {
         ...values,
-        project_id: projectId,
+        project_id: values.project_id || projectId,
         by: adminId,
       };
 
@@ -225,5 +236,6 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
     handleSubmit,
     handleDelete,
     fetchData,
+    allProjects,
   };
 };

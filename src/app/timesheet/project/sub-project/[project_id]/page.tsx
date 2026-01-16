@@ -195,6 +195,7 @@ export default function SubProjectPage() {
     handleSubmit,
     handleDelete,
     fetchData,
+    allProjects,
   } = useSubProjectData(projectId, adminId);
 
   const [modalState, setModalState] = useState<ModalState>({
@@ -237,21 +238,19 @@ export default function SubProjectPage() {
         {/* Stats Section */}
         <SummaryCards stats={stats} loading={isLoading} t={t} />
 
-        {/* Filter Card (Merged Style) */}
-        <Card className="border-0 shadow-sm rounded-xl mb-6">
-          <FilterBar
-            filters={filters}
-            onFilterChange={setFilters}
-            statuses={projectStatuses}
-            onClear={() =>
-              setFilters({
-                searchText: "",
-                assetType: null,
-                statusFilter: null,
-              })
-            }
-          />
-        </Card>
+        {/* Filter Section */}
+        <FilterBar
+          filters={filters}
+          onFilterChange={setFilters}
+          statuses={projectStatuses}
+          onClear={() =>
+            setFilters({
+              searchText: "",
+              assetType: null,
+              statusFilter: null,
+            })
+          }
+        />
 
         {/* Table Card */}
         <Card
@@ -311,6 +310,7 @@ export default function SubProjectPage() {
           loading={isActionLoading}
           onSubmit={handleSubmit}
           statuses={projectStatuses}
+          allProjects={allProjects}
           onCancel={() => setModalState({ type: null, data: null })}
         />
 

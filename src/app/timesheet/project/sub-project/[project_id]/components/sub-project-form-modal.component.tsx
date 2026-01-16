@@ -14,6 +14,7 @@ import {
   Card,
   Tag,
   AutoComplete,
+  Flex,
 } from "antd";
 import {
   PlusOutlined,
@@ -26,8 +27,13 @@ import {
   TeamOutlined,
   UserOutlined,
   MinusCircleOutlined,
+  SwapOutlined,
+  InteractionOutlined,
+  RocketOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import type {
   SubProject,
@@ -48,6 +54,7 @@ interface SubProjectFormModalProps {
   onSubmit: (values: SubProjectFormValues) => Promise<boolean>;
   onCancel: () => void;
   statuses?: any[];
+  allProjects?: any[];
 }
 
 const POSITION_OPTIONS = [
@@ -58,8 +65,12 @@ const POSITION_OPTIONS = [
   { value: "QA / Tester" },
   { value: "UI/UX Designer" },
   { value: "System Analyst" },
+  { value: "Head of Technology" },
+  { value: "Chief Technology Officer" },
+  { value: "DevOps Engineer" },
+  { value: "Mobile Developer" },
+  { value: "Data Engineer" },
 ];
-
 export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   open,
   mode,
@@ -68,11 +79,15 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   onSubmit,
   onCancel,
   statuses = [],
+  allProjects = [],
 }) => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const watchedDateRange = Form.useWatch("dateRange", form);
   const [users, setUsers] = useState<any[]>([]);
+  const [isMoving, setIsMoving] = useState(false);
+  const [moveConfirmText, setMoveConfirmText] = useState("");
+  const [targetProjectId, setTargetProjectId] = useState<number | null>(null);
 
   const statusOptions = statuses
     .sort((a, b) => a.priority - b.priority)
@@ -117,6 +132,14 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   }, [open, mode, data, form, statusOptions.length]);
 
   useEffect(() => {
+    if (!open) {
+      setIsMoving(false);
+      setMoveConfirmText("");
+      setTargetProjectId(null);
+    }
+  }, [open]);
+
+  useEffect(() => {
     if (watchedDateRange) {
       const { text } = calculateWorkingHours(
         watchedDateRange[0],
@@ -138,7 +161,14 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       projectStatusId: values.projectStatusId,
       status: statuses.find((s) => s.id === values.projectStatusId)?.nameTh,
       assignees: values.assignees,
+      project_id:
+        isMoving && targetProjectId ? targetProjectId : data?.project_id,
     };
+
+    if (isMoving && moveConfirmText !== "Confirm") {
+      toast.error("กรุณาพิมพ์คำว่า Confirm เพื่อยืนยันการย้ายโครงการ");
+      return;
+    }
 
     const success = await onSubmit(payload as any);
     if (success) {
@@ -260,19 +290,49 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                     <Form.Item
                       {...restField}
                       name={[name, "userId"]}
-                      rules={[{ required: true, message: "ระบุผู้รับผิดชอบ" }]}
+                      rules={[
+                        { required: true, message: "ระบุผู้รับผิดชอบ" },
+                        ({ getFieldValue }) => ({
+                          validator(_, value) {
+                            const assignees = getFieldValue("assignees") || [];
+                            const duplicates = assignees.filter(
+                              (a: any) =>
+                                a?.userId === value && value !== undefined
+                            );
+                            if (duplicates.length > 1) {
+                              return Promise.reject(
+                                new Error("ชื่อผู้ใช้ซ้ำกัน!")
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        }),
+                      ]}
                       className="mb-0"
                     >
                       <Select
-                        placeholder="เลือกผู้รับผิดชอบ"
+                        placeholder="เลือกผู้รับผิดชอบ (ค้นหาชื่อ/ชื่อเล่น)"
                         showSearch
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
+                        filterOption={(input, option) => {
+                          const label = (option?.label ?? "").toLowerCase();
+                          const searchStr = input.toLowerCase();
+                          return label.includes(searchStr);
+                        }}
+                        onChange={(userId) => {
+                          const user = users.find((u) => u.admin_id === userId);
+                          if (user?.position) {
+                            const currentAssignees =
+                              form.getFieldValue("assignees");
+                            currentAssignees[name].position = user.position;
+                            form.setFieldsValue({
+                              assignees: currentAssignees,
+                            });
+                          }
+                        }}
                         options={users.map((u) => ({
-                          label: `${u.firstname} ${u.lastname}`,
+                          label: `${u.firstname} ${u.lastname}${
+                            u.nickname ? ` (${u.nickname})` : ""
+                          }`,
                           value: u.admin_id,
                         }))}
                       />
@@ -412,6 +472,100 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
             </Card>
           )}
         </Form.List>
+
+        {mode === "edit" && (
+          <div className="mt-8 p-6 bg-orange-50 rounded-xl border border-orange-100 shadow-sm relative overflow-hidden transition-all duration-300">
+            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+              <RocketOutlined style={{ fontSize: "80px" }} />
+            </div>
+
+            <Flex align="center" justify="space-between">
+              <Space direction="vertical" size={2}>
+                <Text
+                  strong
+                  className="text-orange-800 text-lg flex align-center gap-2"
+                >
+                  <InteractionOutlined /> พื้นที่อันตราย: การย้ายโครงการหลัก
+                </Text>
+                <Text className="text-orange-600/80">
+                  ย้ายโครงการย่อยนี้ไปยังโครงการหลักอื่น
+                  ประวัติและข้อมูลจะถูกย้ายตามไปด้วย
+                </Text>
+              </Space>
+              <Button
+                danger
+                type={isMoving ? "default" : "primary"}
+                onClick={() => setIsMoving(!isMoving)}
+                className={`rounded-lg transition-all duration-300 ${
+                  !isMoving ? "hover:scale-105 shadow-md shadow-orange-200" : ""
+                }`}
+                icon={isMoving ? <CloseOutlined /> : <SwapOutlined />}
+              >
+                {isMoving ? "ยกเลิกการย้าย" : "ย้ายโครงการ"}
+              </Button>
+            </Flex>
+
+            {isMoving && (
+              <div className="mt-6 p-6 bg-white rounded-xl border border-orange-200 shadow-inner animate-in slide-in-from-top-4 duration-300">
+                <Row gutter={24} align="bottom">
+                  <Col span={24} className="mb-4">
+                    <Form.Item
+                      label={
+                        <Text strong className="text-gray-700">
+                          เลือกโครงการปลายทาง
+                        </Text>
+                      }
+                    >
+                      <Select
+                        showSearch
+                        className="w-full rounded-lg h-11"
+                        placeholder="ค้นหาโครงการที่ต้องการย้ายไป..."
+                        optionFilterProp="children"
+                        onChange={(val) => setTargetProjectId(val)}
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={allProjects
+                          .filter((p: any) => p.id !== data?.project_id)
+                          .map((p: any) => ({
+                            label: p.name,
+                            value: p.id,
+                          }))}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={24}>
+                    <Form.Item
+                      label={
+                        <Text strong className="text-gray-700">
+                          ยืนยันการเพิ่มพื้นที่อันตราย
+                        </Text>
+                      }
+                      extra={
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          พิมพ์คำว่า{" "}
+                          <Text strong className="text-orange-600 italic">
+                            Confirm
+                          </Text>{" "}
+                          เพื่อปลดล็อคการยืนยัน
+                        </Text>
+                      }
+                    >
+                      <Input
+                        placeholder='พิมพ์คำว่า "Confirm" เพื่อยืนยัน'
+                        value={moveConfirmText}
+                        onChange={(e) => setMoveConfirmText(e.target.value)}
+                        className="rounded-lg h-11 border-orange-200 focus:border-red-500 focus:ring-red-200"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex justify-end gap-2 mt-6">
           <Button onClick={onCancel}>
