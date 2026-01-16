@@ -168,6 +168,9 @@ export const Service = {
     return await PrismaTimesheet.feature.findMany({
       where: {
         is_deleted: false,
+        project: {
+          is_deleted: false,
+        },
         OR: [
           { name: { contains: query, mode: "insensitive" } },
           { name_en: { contains: query, mode: "insensitive" } },
