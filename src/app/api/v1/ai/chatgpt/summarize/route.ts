@@ -44,6 +44,15 @@ export async function POST(request: NextRequest) {
       }`
     );
 
+    // Extract valid metadata from details if available
+    const assigneeName = details?.assignee?.name || "Unassigned";
+    const priorityName = details?.priority?.name || "-";
+    const statusName = details?.status?.name || "-";
+    const creatorName = details?.createdUser?.name || "-";
+    const attachmentNames =
+      details?.attachments?.map((a: any) => a.name).join(", ") || "None";
+    const projectId = details?.projectId || "-";
+
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -55,7 +64,15 @@ export async function POST(request: NextRequest) {
           },
           {
             role: "user",
-            content: `--- INPUT ISSUE DATA ---\n
+            content: `--- KEY METADATA ---
+Project ID: ${projectId}
+Assignee: ${assigneeName}
+Priority: ${priorityName}
+Status: ${statusName}
+Creator: ${creatorName}
+Attachments: ${attachmentNames}
+
+--- INPUT ISSUE DATA ---
 Issue Key: ${issueKey || "-"}
 Summary: ${summary || "-"}
 Description: ${description || "-"}
