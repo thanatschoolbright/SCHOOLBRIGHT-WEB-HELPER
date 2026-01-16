@@ -17,6 +17,8 @@ import {
   Steps,
   Avatar,
   Flex,
+  Timeline,
+  Collapse,
   theme,
 } from "antd";
 import { toast } from "sonner";
@@ -37,6 +39,10 @@ import {
   CarOutlined,
   HistoryOutlined,
   RightOutlined,
+  FileTextOutlined,
+  ClockCircleTwoTone,
+  CalendarOutlined,
+  LinkOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
@@ -84,6 +90,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const [manualHours, setManualHours] = useState<number | null>(null);
   const [autoFillProgress, setAutoFillProgress] = useState<any[]>([]);
   const [rankingMap, setRankingMap] = useState<Record<string, any>>({});
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [currentRecord, setCurrentRecord] = useState<any>(null);
 
   // --- Memos ---
   const userOptions = useMemo(
@@ -486,6 +494,25 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           );
         },
       },
+      {
+        title: "",
+        key: "action",
+        width: 80,
+        fixed: "right",
+        render: (_: any, record: SummaryRecord) => (
+          <Button
+            type="text"
+            icon={<FileTextOutlined />}
+            onClick={() => {
+              setCurrentRecord(record);
+              setDetailsModalOpen(true);
+            }}
+            style={{
+              color: token.colorTextSecondary,
+            }}
+          />
+        ),
+      },
     ],
     [records, rankingMap, token]
   );
@@ -842,6 +869,227 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             </div>
           )}
         </Space>
+      </Modal>
+
+      {/* Details Modal */}
+      <Modal
+        title={
+          <Flex align="center" gap={12}>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                background: addAlpha(token.colorPrimary, 0.1),
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: token.colorPrimary,
+                fontSize: 20,
+              }}
+            >
+              <FileTextOutlined />
+            </div>
+            <div>
+              <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+                รายละเอียดการบันทึกเวลา
+              </Title>
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                {currentRecord &&
+                  `${buildFullName(currentRecord)} (${formatNickname(
+                    currentRecord.nickname
+                  )})`}
+              </Text>
+            </div>
+          </Flex>
+        }
+        open={detailsModalOpen}
+        onCancel={() => setDetailsModalOpen(false)}
+        footer={null}
+        width={1000}
+        centered
+      >
+        <div
+          style={{ maxHeight: "70vh", overflowY: "auto", padding: "24px 40px" }}
+        >
+          {!currentRecord?.entries || currentRecord.entries.length === 0 ? (
+            <Empty description="ไม่มีประวัติการบันทึกเวลา" />
+          ) : (
+            <Timeline
+              items={currentRecord.entries.map((entry: any, index: number) => {
+                const isBacklogObject =
+                  entry.backlogDescription &&
+                  typeof entry.backlogDescription === "object";
+                const backlogNote = isBacklogObject
+                  ? entry.backlogDescription.note
+                  : null;
+                const backlogsList = isBacklogObject
+                  ? entry.backlogDescription.backlogs
+                  : [];
+
+                return {
+                  color: entry.hours >= 8 ? "green" : "orange",
+                  children: (
+                    <div style={{ paddingBottom: 20 }}>
+                      <Flex align="center" gap={12} style={{ marginBottom: 8 }}>
+                        <Text strong style={{ fontSize: 14 }}>
+                          {dayjs(entry.date).format("DD MMM YYYY")}
+                        </Text>
+                        <Tag
+                          color={entry.hours >= 8 ? "success" : "warning"}
+                          style={{ margin: 0 }}
+                        >
+                          {entry.hours} ชม.
+                        </Tag>
+                      </Flex>
+
+                      <div
+                        style={{
+                          padding: "16px",
+                          background: token.colorBgContainer,
+                          border: `1px solid ${token.colorBorderSecondary}`,
+                          borderRadius: 12,
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                        }}
+                      >
+                        <Space
+                          direction="vertical"
+                          size={12}
+                          style={{ width: "100%" }}
+                        >
+                          <Flex gap={8} wrap="wrap">
+                            <Tag color="geekblue" style={{ margin: 0 }}>
+                              Project: {entry.project_name}
+                            </Tag>
+                            <Tag color="cyan" style={{ margin: 0 }}>
+                              Feature: {entry.feature_name}
+                            </Tag>
+                          </Flex>
+                          {entry.description ? (
+                            <div style={{ wordBreak: "break-word" }}>
+                              <Text style={{ fontSize: 14 }}>
+                                {entry.description}
+                              </Text>
+                            </div>
+                          ) : (
+                            <Text type="secondary" italic>
+                              No description
+                            </Text>
+                          )}
+
+                          {(backlogNote ||
+                            (backlogsList && backlogsList.length > 0)) && (
+                            <Collapse
+                              size="small"
+                              ghost
+                              items={[
+                                {
+                                  key: "1",
+                                  label: (
+                                    <Space>
+                                      <InfoCircleOutlined
+                                        style={{ color: token.colorInfo }}
+                                      />
+                                      <Text
+                                        type="secondary"
+                                        style={{ fontSize: 13 }}
+                                      >
+                                        รายละเอียดงาน (Backlog)
+                                      </Text>
+                                    </Space>
+                                  ),
+                                  children: (
+                                    <div style={{ paddingLeft: 8 }}>
+                                      {backlogNote && (
+                                        <div style={{ marginBottom: 8 }}>
+                                          <Text
+                                            strong
+                                            style={{
+                                              fontSize: 12,
+                                              display: "block",
+                                            }}
+                                          >
+                                            Note:
+                                          </Text>
+                                          <Text
+                                            type="secondary"
+                                            style={{
+                                              fontSize: 12,
+                                              whiteSpace: "pre-line",
+                                            }}
+                                          >
+                                            {backlogNote}
+                                          </Text>
+                                        </div>
+                                      )}
+                                      {backlogsList &&
+                                        backlogsList.length > 0 && (
+                                          <div>
+                                            <Text
+                                              strong
+                                              style={{
+                                                fontSize: 12,
+                                                display: "block",
+                                                marginBottom: 4,
+                                              }}
+                                            >
+                                              Ref Links:
+                                            </Text>
+                                            <ul
+                                              style={{
+                                                paddingLeft: 20,
+                                                margin: 0,
+                                              }}
+                                            >
+                                              {backlogsList.map(
+                                                (bg: any, idx: number) => (
+                                                  <li
+                                                    key={idx}
+                                                    style={{
+                                                      fontSize: 12,
+                                                      marginBottom: 4,
+                                                    }}
+                                                  >
+                                                    {bg.link ? (
+                                                      <a
+                                                        href={bg.link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                          display: "flex",
+                                                          alignItems: "center",
+                                                          gap: 4,
+                                                        }}
+                                                      >
+                                                        <LinkOutlined />{" "}
+                                                        {bg.title || "Link"}
+                                                      </a>
+                                                    ) : (
+                                                      <Text type="secondary">
+                                                        {bg.title || "-"}
+                                                      </Text>
+                                                    )}
+                                                  </li>
+                                                )
+                                              )}
+                                            </ul>
+                                          </div>
+                                        )}
+                                    </div>
+                                  ),
+                                },
+                              ]}
+                            />
+                          )}
+                        </Space>
+                      </div>
+                    </div>
+                  ),
+                };
+              })}
+            />
+          )}
+        </div>
       </Modal>
     </Card>
   );

@@ -20,7 +20,7 @@ interface UpdateTimesheetEntryInput {
   updatedBy?: number;
 }
 
-import { logger } from '@/helpers/logger';
+import { logger } from "@/helpers/logger";
 
 export const Service = {
   async validatorID(id: number) {
@@ -148,6 +148,20 @@ export const Service = {
         createdBy: true,
         hours: true,
         date: true,
+        description: true,
+        project: {
+          select: {
+            name: true,
+            name_en: true,
+          },
+        },
+        feature: {
+          select: {
+            name: true,
+            name_en: true,
+            backlogDescription: true,
+          },
+        },
       },
     });
   },
@@ -216,7 +230,7 @@ export const Service = {
 
   // * อัปเดต ตาม ID
   async update(id: number, data: UpdateTimesheetEntryInput) {
-  logger.info("UPDATE ENTRY TIMESHEET");
+    logger.info("UPDATE ENTRY TIMESHEET");
     if (!id || id <= 0) {
       throw new Error("Invalid id for update");
     }
@@ -234,7 +248,7 @@ export const Service = {
       },
     });
 
-  logger.info("[UPDATE TIMESHEET ENTRY]", response);
+    logger.info("[UPDATE TIMESHEET ENTRY]", response);
 
     return response;
   },
