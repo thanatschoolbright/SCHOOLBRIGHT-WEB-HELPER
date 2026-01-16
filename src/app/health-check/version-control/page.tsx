@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { CallAPI as GET_VERSION_CONTROL } from "@/stores/actions/health-check/version-control/action";
 import { ResponseVersionControl } from "@/stores/type";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/th";
@@ -34,6 +35,7 @@ import {
 } from "antd";
 import {
   RocketOutlined,
+  ArrowLeftOutlined,
   DeploymentUnitOutlined,
   SyncOutlined,
   SearchOutlined,
@@ -69,6 +71,7 @@ const isRecent = (dateStr: string) => {
 
 export default function VersionControlDashboard() {
   const { token } = theme.useToken();
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
   // Redux Selectors
@@ -188,9 +191,23 @@ export default function VersionControlDashboard() {
 
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
+              <Button
+                type="text"
+                icon={<ArrowLeftOutlined style={{ color: "white" }} />}
+                onClick={() => router.back()}
+                style={{
+                  color: "white",
+                  marginBottom: 8,
+                  paddingLeft: 0,
+                  fontSize: 14,
+                  fontWeight: 500,
+                }}
+              >
+                ย้อนกลับ
+              </Button>
               <Typography.Title
                 level={2}
-                style={{ color: "#fff", marginBottom: 8 }}
+                style={{ color: "#fff", marginBottom: 8, marginTop: 0 }}
               >
                 <RocketOutlined className="mr-3" />
                 ศูนย์ควบคุมเวอร์ชันระบบ

@@ -4,6 +4,7 @@ import { Button, DatePicker, Space, Typography } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 import { Dayjs } from "dayjs";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface RankBoardHeaderProps {
   monthLabel: string;
@@ -28,6 +29,7 @@ export const RankBoardHeader: React.FC<RankBoardHeaderProps> = ({
   loading,
   isCompact,
 }) => {
+  const { t } = useTranslation();
   return (
     <Space
       style={{ width: "100%", justifyContent: "space-between" }}
@@ -35,11 +37,19 @@ export const RankBoardHeader: React.FC<RankBoardHeaderProps> = ({
     >
       <Space direction="vertical" size={isCompact ? 2 : 4}>
         <Typography.Text strong style={{ letterSpacing: 0.5 }}>
-          อันดับการทำเวลาประจำเดือน
+          {t(
+            "timesheet_components.rank_board_title",
+            "อันดับการทำเวลาประจำเดือน"
+          )}
         </Typography.Text>
         <Typography.Text type="secondary">
           {monthLabel}
-          {generatedAt ? ` · อัปเดตล่าสุด ${generatedAt}` : ""}
+          {generatedAt
+            ? ` ${t(
+                "timesheet_components.last_updated",
+                "· อัปเดตล่าสุด"
+              )} ${generatedAt}`
+            : ""}
         </Typography.Text>
       </Space>
       <Space size={isCompact ? 4 : 8}>
@@ -61,7 +71,7 @@ export const RankBoardHeader: React.FC<RankBoardHeaderProps> = ({
           disabled={loading}
           size={isCompact ? "small" : "middle"}
         >
-          รีเฟรช
+          {t("timesheet_components.refresh", "รีเฟรช")}
         </Button>
       </Space>
     </Space>
