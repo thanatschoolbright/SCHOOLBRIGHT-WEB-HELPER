@@ -28,17 +28,45 @@
 
 * {
   font-family: "Kanit", sans-serif;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.3px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ปรับ Toast ให้ใช้ font-family ตามระบบ */
 [data-sonner-toaster] {
-  font-family: "GoogleSans" !important;
+  font-family: "Kanit", sans-serif !important;
+}
+
+/* Headings Optimization */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: 0.2px;
+  line-height: 1.3;
+  margin-bottom: 0.5em;
+}
+
+p, span, li, td, th, label {
+  line-height: 1.6;
+}
+
+/* Links */
+a {
+  transition: color 0.2s ease;
+}
+
+/* Input Fields */
+input, textarea, select {
+  line-height: 1.5;
 }
 
 @layer utilities {

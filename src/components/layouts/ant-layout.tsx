@@ -95,69 +95,91 @@ const createThemeConfig = (isDark: boolean): ThemeConfig => {
 
       // --- Typography (Balanced & Modern) ---
       fontFamily:
-        '"GoogleSans","Inter", "Kanit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      fontSize: 14, // Back to standard 14px for better density
-      fontSizeHeading1: 28, // Scaled down slightly
-      fontSizeHeading2: 24,
-      fontSizeHeading3: 20,
-      fontSizeHeading4: 18,
-      fontSizeHeading5: 16,
+        '"Kanit", -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, sans-serif',
+      fontSize: 14,
+      lineHeight: 1.6,
+      lineHeightHeading1: 1.3,
+      lineHeightHeading2: 1.35,
+      lineHeightHeading3: 1.4,
+      lineHeightHeading4: 1.45,
+      lineHeightHeading5: 1.5,
+      fontSizeHeading1: 32,
+      fontSizeHeading2: 28,
+      fontSizeHeading3: 24,
+      fontSizeHeading4: 20,
+      fontSizeHeading5: 18,
 
       // --- Shape & Dimension (Sleek & Compact) ---
-      borderRadius: 8, // Smooth but not pill-shaped
+      borderRadius: 8,
       borderRadiusLG: 12,
       borderRadiusSM: 4,
 
-      // Balanced Heights
-      controlHeight: 38, // 38px is the sweet spot (modern SaaS feel, not too chunky)
-      controlHeightLG: 46,
-      controlHeightSM: 30,
+      // Balanced Heights (More spacious for readability)
+      controlHeight: 40,
+      controlHeightLG: 48,
+      controlHeightSM: 32,
 
-      // Spacing
-      paddingContentHorizontal: 16,
+      // Spacing (Better breathing room)
+      paddingContentHorizontal: 20,
       marginXS: 8,
-      marginSM: 12,
-      margin: 16,
+      marginSM: 16,
+      margin: 20,
 
       wireframe: false,
     },
     components: {
       Button: {
-        controlHeight: 38,
+        controlHeight: 40,
         borderRadius: 8,
         fontWeight: 500,
         contentFontSize: 14,
-        paddingInline: 16,
+        paddingInline: 18,
+        paddingBlock: 8,
+        lineHeight: 1.5,
         primaryShadow: isDark ? "none" : BRAND_TOKENS.primaryShadow,
         defaultShadow: isDark ? "none" : colors.shadowSm,
         defaultBorderColor: colors.border,
       },
       Card: {
         borderRadiusLG: 16,
-        paddingLG: 24, // Reduced from 32 for better content density
+        paddingLG: 28,
+        paddingMD: 24,
+        paddingSM: 20,
         headerFontSize: 16,
-        boxShadow: isDark ? "none" : colors.shadowSm, // Subtle shadow for cards
+        headerLineHeight: 1.5,
+        boxShadow: isDark ? "none" : colors.shadowSm,
       },
       Table: {
         borderRadiusLG: 10,
-        headerBg: isDark ? "#1F2937" : "#F8FAFC", // Subtle header background
+        headerBg: isDark ? "#1F2937" : "#F8FAFC",
         headerColor: isDark ? colors.textMain : colors.textSub,
         headerSplitColor: "transparent",
-        cellPaddingBlock: 12, // More compact rows (was 16)
+        cellPaddingBlock: 14,
+        cellPaddingInline: 16,
         rowHoverBg: isDark ? "rgba(249, 115, 22, 0.08)" : "#FFF7ED",
         fontSize: 14,
+        lineHeight: 1.6,
       },
       Input: {
-        controlHeight: 38,
+        controlHeight: 40,
         borderRadius: 8,
+        paddingBlock: 10,
+        paddingInline: 12,
         colorBgContainer: isDark ? "#111827" : "#FFFFFF",
         activeBorderColor: BRAND_TOKENS.primary,
         hoverBorderColor: BRAND_TOKENS.primaryHover,
+        fontSize: 14,
+        lineHeight: 1.5,
       },
       Select: {
-        controlHeight: 38,
+        controlHeight: 40,
         borderRadius: 8,
+        paddingBlock: 10,
+        paddingInline: 12,
         optionSelectedBg: isDark ? "rgba(249, 115, 22, 0.15)" : "#FFF7ED",
+        optionLineHeight: 1.6,
+        fontSize: 14,
+        lineHeight: 1.5,
       },
       Modal: {
         borderRadiusLG: 16,
@@ -166,13 +188,17 @@ const createThemeConfig = (isDark: boolean): ThemeConfig => {
         titleFontSize: 18,
       },
       Menu: {
-        itemHeight: 40, // Reduced from 44 to 40 for better balance
+        itemHeight: 44,
         itemBorderRadius: 8,
-        itemMarginInline: 8, // Add side margins for "floating" feel
+        itemMarginInline: 8,
+        itemPaddingBlock: 10,
+        itemPaddingInline: 12,
         itemSelectedBg: isDark ? "rgba(249, 115, 22, 0.15)" : "#FFF7ED",
         itemSelectedColor: BRAND_TOKENS.primary,
         subMenuItemBg: "transparent",
-        activeBarBorderWidth: 0, // Remove the side line for a cleaner look
+        activeBarBorderWidth: 0,
+        fontSize: 14,
+        lineHeight: 1.5,
       },
       Tabs: {
         itemSelectedColor: BRAND_TOKENS.primary,
@@ -219,12 +245,19 @@ export default function AntThemeProvider({
         body {
           background-color: ${currentColors.bgLayout} !important;
           color: ${currentColors.textMain};
-          font-family: "Inter", "Kanit", sans-serif;
+          font-family: "Kanit", -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
           font-size: 14px;
-          line-height: 1.5;
+          line-height: 1.6;
+          letter-spacing: 0.3px;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
           transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+          letter-spacing: 0.2px;
+          line-height: 1.3;
+          margin-bottom: 0.5em;
         }
 
         /* Modern Scrollbar */
