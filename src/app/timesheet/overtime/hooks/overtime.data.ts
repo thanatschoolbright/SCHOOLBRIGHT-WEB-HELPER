@@ -21,13 +21,13 @@ export const useOvertimeData = () => {
   const [visible, setVisible] = useState(false);
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState<OvertimeRecord | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<OvertimeRecord[]>([]);
   const [userOptions, setUserOptions] = useState<SelectOption[]>([]);
   const [descriptionOptions, setDescriptionOptions] = useState<SelectOption[]>(
-    []
+    [],
   );
   const [paginationState, setPaginationState] = useState<PaginationState>({
     current: 1,
@@ -37,7 +37,7 @@ export const useOvertimeData = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [batchProcessing, setBatchProcessing] = useState(false);
   const [processedItems, setProcessedItems] = useState<Set<React.Key>>(
-    new Set()
+    new Set(),
   );
   const [batchStatusModalVisible, setBatchStatusModalVisible] = useState(false);
   const [batchSelectedStatus, setBatchSelectedStatus] =
@@ -48,10 +48,10 @@ export const useOvertimeData = () => {
   const stats = useMemo(() => {
     const total = paginationState.total;
     const pending = dataSource.filter(
-      (item) => item.status === "pending"
+      (item) => item.status === "pending",
     ).length;
     const approved = dataSource.filter(
-      (item) => item.status === "approved"
+      (item) => item.status === "approved",
     ).length;
 
     return { total, pending, approved };
@@ -80,7 +80,7 @@ export const useOvertimeData = () => {
 
       const response = await callApiService.post(
         "/api/v1/timesheet/entry/read/",
-        payload
+        payload,
       );
       const result = response?.data ?? {};
       const items = result?.data ?? [];
@@ -97,7 +97,7 @@ export const useOvertimeData = () => {
           }
           return acc;
         },
-        []
+        [],
       );
 
       setDescriptionOptions(uniqueOptions);
@@ -129,21 +129,21 @@ export const useOvertimeData = () => {
             ? { id: String(id) }
             : { id: String(id), request_id: currentUserId }
           : isBypassUser
-          ? {
-              limit: pageSize,
-              offset: (page - 1) * pageSize,
-              ...filters,
-            }
-          : {
-              limit: pageSize,
-              offset: (page - 1) * pageSize,
-              request_id: currentUserId,
-              ...filters,
-            };
+            ? {
+                limit: pageSize,
+                offset: (page - 1) * pageSize,
+                ...filters,
+              }
+            : {
+                limit: pageSize,
+                offset: (page - 1) * pageSize,
+                request_id: currentUserId,
+                ...filters,
+              };
 
         const response = await callApiService.post(
           "/api/v1/timesheet/overtime/read",
-          payload
+          payload,
         );
         const body = response?.data;
 
@@ -157,11 +157,46 @@ export const useOvertimeData = () => {
           return items;
         }
 
-        setDataSource(items.map((item: any) => ({ key: item.id, ...item })));
+        // กรองข้อมูลตามเดือนที่เลือก (ฝั่ง frontend)
+        let filteredItems = items;
+        if (selectedMonth && !id) {
+          const startOfMonth = selectedMonth.startOf("month");
+          const endOfMonth = selectedMonth.endOf("month");
+
+          filteredItems = items.filter((item: any) => {
+            if (!item.request_date) return false;
+            const requestDate = dayjs(item.request_date);
+            return (
+              requestDate.isSameOrAfter(startOfMonth, "day") &&
+              requestDate.isSameOrBefore(endOfMonth, "day")
+            );
+          });
+        }
+
+        // กรองตาม searchText
+        if (searchText && !id) {
+          const lowerSearchText = searchText.toLowerCase();
+          filteredItems = filteredItems.filter((item: any) => {
+            const searchableFields = [
+              item.id?.toString(),
+              item.requester_id?.toString(),
+              item.status,
+              item.descriptions?.map((d: any) => d.description).join(" "),
+            ].filter(Boolean);
+
+            return searchableFields.some((field) =>
+              field?.toLowerCase().includes(lowerSearchText),
+            );
+          });
+        }
+
+        setDataSource(
+          filteredItems.map((item: any) => ({ key: item.id, ...item })),
+        );
         setPaginationState({
           current: body.pagination?.page ?? page,
           pageSize: body.pagination?.page_size ?? pageSize,
-          total: body.pagination?.total ?? items.length,
+          total: filteredItems.length, // ใช้จำนวนที่กรองแล้ว
         });
 
         return items;
@@ -172,7 +207,7 @@ export const useOvertimeData = () => {
         setLoading(false);
       }
     },
-    [authentication, paginationState.pageSize]
+    [authentication, paginationState.pageSize, selectedMonth, searchText],
   );
 
   const createOvertime = async (payload: any) => {
@@ -187,7 +222,7 @@ export const useOvertimeData = () => {
 
       const response = await callApiService.post(
         "/api/v1/timesheet/overtime/create",
-        bodyPayload
+        bodyPayload,
       );
       const body = response?.data;
 
@@ -211,7 +246,7 @@ export const useOvertimeData = () => {
       const deleterId = await getCurrentUserId(authentication);
       const response = await callApiService.post(
         `/api/v1/timesheet/overtime/delete?id=${id}`,
-        { deleted_by: String(deleterId) }
+        { deleted_by: String(deleterId) },
       );
       const body = response?.data;
 
@@ -230,7 +265,7 @@ export const useOvertimeData = () => {
 
   const approveOvertime = async (
     id?: string | number,
-    status: string = "approved"
+    status: string = "approved",
   ) => {
     if (!id) return;
     try {
@@ -238,7 +273,7 @@ export const useOvertimeData = () => {
       const approverId = await getCurrentUserId(authentication);
       const response = await callApiService.post(
         `/api/v1/timesheet/overtime/change-status?id=${id}`,
-        { status, updated_by: Number(approverId) }
+        { status, updated_by: Number(approverId) },
       );
       const body = response?.data;
 
@@ -268,7 +303,7 @@ export const useOvertimeData = () => {
 
       const response = await callApiService.post(
         "/api/v1/timesheet/overtime/send-email",
-        payload
+        payload,
       );
       const body = response?.data;
 
@@ -301,7 +336,7 @@ export const useOvertimeData = () => {
         const approverId = await getCurrentUserId(authentication);
         const response = await callApiService.post(
           `/api/v1/timesheet/overtime/change-status?id=${id}`,
-          { status, updated_by: Number(approverId) }
+          { status, updated_by: Number(approverId) },
         );
         if (response?.data?.status === 200) {
           successCount++;
@@ -315,7 +350,7 @@ export const useOvertimeData = () => {
     setBatchProcessing(false);
     if (successCount > 0) {
       toast.success(
-        `สำเร็จ ${successCount} รายการ, ล้มเหลว ${failCount} รายการ`
+        `สำเร็จ ${successCount} รายการ, ล้มเหลว ${failCount} รายการ`,
       );
       await fetchOvertimeList({ page: paginationState.current });
     }
@@ -345,7 +380,7 @@ export const useOvertimeData = () => {
         };
         const response = await callApiService.post(
           "/api/v1/timesheet/overtime/send-email",
-          payload
+          payload,
         );
 
         if (response?.data?.status === 200 || response?.data?.status === 201) {
@@ -383,12 +418,7 @@ export const useOvertimeData = () => {
     if (filters.status && filters.status.length > 0)
       payloadFilters.status = filters.status[0];
 
-    if (selectedMonth) {
-      const startOfMonth = selectedMonth.startOf("month").format("YYYY-MM-DD");
-      const endOfMonth = selectedMonth.endOf("month").format("YYYY-MM-DD");
-      payloadFilters.start_date = startOfMonth;
-      payloadFilters.end_date = endOfMonth;
-    }
+    // ไม่ต้องส่ง date filter ไปที่ backend เพราะกรองฝั่ง frontend แล้ว
 
     fetchOvertimeList({
       page: current || 1,

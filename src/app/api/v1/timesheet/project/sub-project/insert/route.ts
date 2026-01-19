@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
     if (id) {
       const updatedProject = await Service.update(Number(id), {
         ...commonPayload,
+        projectId,
         updatedBy: userId,
       });
 

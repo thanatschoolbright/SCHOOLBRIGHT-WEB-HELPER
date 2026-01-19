@@ -7,4 +7,5 @@ export interface HealthCheckResult {
   curl: string;
   request: any;
   response: any;
+  group: any;
 }

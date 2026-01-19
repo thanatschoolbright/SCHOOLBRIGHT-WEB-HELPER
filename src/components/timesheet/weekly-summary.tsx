@@ -2,6 +2,7 @@
 
 import { Collapse, Skeleton } from "antd";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { DailyCard, DailySummaryItem } from "@components/card/daily-card";
 
@@ -20,11 +21,15 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
   targetHours = 8,
   loading = false,
 }) => {
+  const { t } = useTranslation();
   if (loading) {
     const items = [
       {
         key: "1",
-        label: "กำลังโหลดข้อมูลสรุปชั่วโมงรายวัน...",
+        label: t(
+          "timesheet_components.daily_summary_loading",
+          "กำลังโหลดข้อมูลสรุปชั่วโมงรายวัน..."
+        ),
         children: (
           <div
             style={{
@@ -56,7 +61,10 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
   const items = [
     {
       key: "1",
-      label: `สรุปชั่วโมงรายวัน (เป้าหมาย ${targetHours} ชม./วัน)`,
+      label: t("timesheet_components.daily_summary_title", {
+        targetHours,
+        defaultValue: `สรุปชั่วโมงรายวัน (เป้าหมาย ${targetHours} ชม./วัน)`,
+      }),
       children: (
         <div
           style={{

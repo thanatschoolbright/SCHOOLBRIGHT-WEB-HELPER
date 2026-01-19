@@ -26,7 +26,18 @@ const calculateWorkingDays = (
 };
 
 const withEstimateHours = (project: any) => {
-  const assigneesCount = project.projectAssignees?.length || 0;
+  // * กรองรายชื่อผู้รับผิดชอบที่ไม่ซ้ำกัน (Distinct by userId)
+  const uniqueAssigneesMap = new Map();
+  if (project.projectAssignees) {
+    project.projectAssignees.forEach((assignee: any) => {
+      if (!uniqueAssigneesMap.has(assignee.userId)) {
+        uniqueAssigneesMap.set(assignee.userId, assignee);
+      }
+    });
+  }
+  const uniqueAssignees = Array.from(uniqueAssigneesMap.values());
+
+  const assigneesCount = uniqueAssignees.length;
   const workingDays = calculateWorkingDays(
     project.start_date,
     project.end_date
@@ -35,6 +46,7 @@ const withEstimateHours = (project: any) => {
 
   return {
     ...project,
+    projectAssignees: uniqueAssignees,
     estimate_hour,
   };
 };
@@ -82,6 +94,7 @@ export const Service = {
     end_date?: string;
     createdBy?: number;
     status?: string;
+    projectStatusId?: number | null;
     assignees?: { userId: number; position?: string }[];
   }) {
     return await PrismaTimesheet.project.create({
@@ -94,6 +107,7 @@ export const Service = {
         end_date: data.end_date,
         createdBy: data.createdBy !== undefined ? data.createdBy : 0,
         status: data.status !== undefined ? data.status : "open",
+        projectStatusId: data.projectStatusId,
         projectAssignees: data.assignees
           ? {
               create: data.assignees.map((a) => ({
@@ -119,6 +133,7 @@ export const Service = {
       start_date?: string;
       end_date?: string;
       name_en?: string;
+      projectStatusId?: number | null;
       assignees?: { userId: number; position?: string }[];
     }
   ) {
@@ -150,5 +165,46 @@ export const Service = {
         updatedBy: query.deletedBy,
       },
     });
+  },
+
+  // * คำนวณสถิติต่างๆ ของโปรเจกต์
+  async getStats() {
+    const validProjects = await PrismaTimesheet.project.findMany({
+      where: { is_deleted: false },
+      include: { projectStatus: true },
+    });
+
+    const total = validProjects.length;
+    const active = validProjects.filter((p) => p.status === "open").length;
+    const closed = validProjects.filter((p) => p.status === "close").length;
+    const successRate = total > 0 ? Math.round((closed / total) * 100) : 0;
+
+    // Detailed stats by status name (English for API standardization)
+    const trackings: Record<string, number> = {};
+    validProjects.forEach((p) => {
+      const statusKey = p.projectStatus?.nameEn || p.status || "unspecified";
+      if (statusKey !== "close" && statusKey !== "Closed") {
+        trackings[statusKey] = (trackings[statusKey] || 0) + 1;
+      }
+    });
+
+    // Stats by Category
+    const byCategory: Record<string, number> = {};
+    validProjects.forEach((p) => {
+      if (p.categoryType) {
+        byCategory[p.categoryType] = (byCategory[p.categoryType] || 0) + 1;
+      }
+    });
+
+    return {
+      health: {
+        total,
+        active,
+        closed,
+        success_rate: successRate,
+      },
+      trackings,
+      by_category: byCategory,
+    };
   },
 };

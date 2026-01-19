@@ -59,7 +59,7 @@ const StatusStepTracker: React.FC<{
   const { token } = theme.useToken();
   const sortedStatuses = useMemo(
     () => [...statuses].sort((a, b) => a.priority - b.priority),
-    [statuses]
+    [statuses],
   );
 
   // Find current status priority
@@ -161,11 +161,11 @@ const StatusStepTracker: React.FC<{
                 ((mainStages.findIndex((s) => s.priority === currentPriority) +
                   1) /
                   mainStages.length) *
-                  100
+                  100,
               )}%`
             : isOnHold
-            ? "ON HOLD"
-            : "0%"}
+              ? "ON HOLD"
+              : "0%"}
         </div>
       </div>
     </div>
@@ -269,15 +269,17 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
         render: (_, record) => (
           <div className="flex flex-col gap-1">
             <Avatar.Group
-              maxCount={3}
+              max={{
+                count: 3,
+                style: {
+                  color: token.colorPrimary,
+                  backgroundColor: `${token.colorPrimary}15`,
+                  fontSize: 10,
+                  fontWeight: 600,
+                },
+              }}
               size="small"
               className="flex items-center"
-              maxStyle={{
-                color: token.colorPrimary,
-                backgroundColor: `${token.colorPrimary}15`,
-                fontSize: 10,
-                fontWeight: 600,
-              }}
             >
               {record.projectAssignees?.map((a) => {
                 const u = getUserById(a.userId);
@@ -332,6 +334,97 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
             statuses={statuses}
           />
         ),
+      },
+      {
+        title: (
+          <Space size={4}>
+            <span>วันที่เริ่มต้น - สิ้นสุด</span>
+          </Space>
+        ),
+        key: "dateRange",
+        width: 200,
+        render: (_, record) => {
+          const startDate = record.startDate
+            ? dayjs(record.startDate).format("DD/MM/YYYY")
+            : "-";
+          const endDate = record.endDate
+            ? dayjs(record.endDate).format("DD/MM/YYYY")
+            : "-";
+
+          return (
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1">
+                <Text type="secondary" style={{ fontSize: 10 }}>
+                  เริ่ม:
+                </Text>
+                <Text style={{ fontSize: 11 }}>{startDate}</Text>
+              </div>
+              <div className="flex items-center gap-1">
+                <Text type="secondary" style={{ fontSize: 10 }}>
+                  สิ้นสุด:
+                </Text>
+                <Text style={{ fontSize: 11 }}>{endDate}</Text>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        title: (
+          <Tooltip
+            title={
+              <div style={{ fontSize: 11 }}>
+                <div className="font-bold mb-1">สูตรการคำนวณ Man-Hour:</div>
+                <div>จำนวนคน × 8 ชม./วัน × 22 วัน/เดือน × จำนวนเดือน</div>
+                <div className="mt-2 opacity-80">
+                  ตัวอย่าง: 1 คน × 8 × 22 × 1 เดือน = 176 ชม.
+                </div>
+              </div>
+            }
+          >
+            <Space size={4}>
+              <span>ชั่วโมงรวม (Est.)</span>
+              <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
+            </Space>
+          </Tooltip>
+        ),
+        key: "estimatedHours",
+        width: 140,
+        align: "center",
+        render: (_, record) => {
+          const hours = record.estimate_sub_feature_workhours || 0;
+          const teamSize = record.projectAssignees?.length || 1;
+
+          return (
+            <Tooltip
+              title={
+                <div style={{ fontSize: 10 }}>
+                  <div>จำนวนทีม: {teamSize} คน</div>
+                  <div>
+                    ระยะเวลาโครงการ:{" "}
+                    {record.startDate && record.endDate
+                      ? dayjs(record.endDate)
+                          .diff(dayjs(record.startDate), "month", true)
+                          .toFixed(1) + " เดือน"
+                      : "-"}
+                  </div>
+                </div>
+              }
+            >
+              <div className="flex flex-col items-center">
+                <Text
+                  strong
+                  style={{ fontSize: 16, color: token.colorPrimary }}
+                >
+                  {hours.toLocaleString()}
+                </Text>
+                <Text type="secondary" style={{ fontSize: 9 }}>
+                  ชั่วโมง
+                </Text>
+              </div>
+            </Tooltip>
+          );
+        },
       },
       {
         title: t("sub_project_page.table_type"),
@@ -424,7 +517,7 @@ export const SubProjectTable: React.FC<SubProjectTableProps> = ({
       onDelete,
       onViewDetail,
       statuses,
-    ]
+    ],
   );
 
   return (

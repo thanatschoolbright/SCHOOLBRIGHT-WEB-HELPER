@@ -11,6 +11,8 @@ import {
   Divider,
   ConfigProvider,
   theme,
+  Row,
+  Col,
 } from "antd";
 import {
   PlusOutlined,
@@ -22,6 +24,7 @@ import {
   CloseCircleOutlined,
   InfoCircleOutlined,
   ThunderboltOutlined,
+  StarOutlined,
 } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -37,6 +40,7 @@ interface ActionBarProps {
   batchSendEmail: () => void;
   router: any;
   setAnalyticsVisible: (visible: boolean) => void;
+  setRulesVisible?: (visible: boolean) => void;
 }
 
 export const ActionBar: React.FC<ActionBarProps> = ({
@@ -49,6 +53,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   batchSendEmail,
   router,
   setAnalyticsVisible,
+  setRulesVisible,
 }) => {
   const hasSelected = selectedRowKeys.length > 0;
   const { token } = useToken();
@@ -57,32 +62,69 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     <ConfigProvider
       theme={{
         token: {
-          borderRadius: 12,
+          borderRadius: 16,
         },
       }}
     >
       <Card
-        className="shadow-md mb-6"
-        bodyStyle={{ padding: "16px 24px" }}
-        style={{ borderLeft: "4px solid #1890ff" }}
+        className="shadow-lg hover:shadow-xl transition-all duration-500 mb-6 overflow-hidden relative"
+        bodyStyle={{ padding: "24px 28px" }}
+        style={{
+          background: `linear-gradient(135deg, #667eea15 0%, #764ba215 100%)`,
+          border: "2px solid #667eea30",
+        }}
       >
-        <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
-          {/* ฝั่งซ้าย: การจัดการรายการที่เลือก (Bulk Actions) */}
-          <div style={{ display: "flex", alignItems: "center" }}>
+        {/* Decorative background elements */}
+        <div
+          className="absolute top-0 left-0 w-32 h-32 rounded-full opacity-10"
+          style={{
+            background: "radial-gradient(circle, #667eea 0%, transparent 70%)",
+            transform: "translate(-50%, -50%)",
+          }}
+        />
+
+        <Row gutter={[16, 16]} align="middle">
+          {/* ฝั่งซ้าย: การจัดการรายการที่เลือก */}
+          <Col xs={24} lg={14}>
             <Space wrap size="middle">
               {hasSelected ? (
                 <>
                   <Badge
                     count={selectedRowKeys.length}
-                    color="#1890ff"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+                    }}
                     showZero={false}
                   >
-                    <Text strong style={{ fontSize: "16px", marginRight: 8 }}>
-                      รายการที่เลือก
-                    </Text>
+                    <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm">
+                      <StarOutlined
+                        style={{ color: "#667eea", fontSize: "16px" }}
+                      />
+                      <Text
+                        strong
+                        style={{ fontSize: "15px", color: "#667eea" }}
+                      >
+                        เลือกไว้แล้ว
+                      </Text>
+                    </div>
                   </Badge>
 
-                  <Tooltip title="ดาวน์โหลดหรือดูเอกสาร PDF สำหรับรายการที่เลือกทั้งหมด">
+                  <Tooltip
+                    title={
+                      <div className="text-center">
+                        <div className="font-semibold mb-1">
+                          📄 ดูเอกสาร PDF แบบกลุ่ม
+                        </div>
+                        <div className="text-xs">
+                          รวมรายการที่เลือกทั้งหมดในเอกสารเดียว
+                          สะดวกต่อการพิมพ์และเก็บเป็นหลักฐาน
+                        </div>
+                      </div>
+                    }
+                    overlayStyle={{ maxWidth: "300px" }}
+                  >
                     <Button
                       type="primary"
                       ghost
@@ -90,36 +132,75 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                       onClick={() => {
                         const ids = selectedRowKeys.join(",");
                         router.push(
-                          `/timesheet/overtime/preview/bulk?ids=${ids}`
+                          `/timesheet/overtime/preview/bulk?ids=${ids}`,
                         );
                       }}
+                      className="hover:scale-105 transition-transform"
                     >
                       ดูแบบกลุ่ม (PDF)
                     </Button>
                   </Tooltip>
 
-                  <Tooltip title="เปลี่ยนสถานะคำขอ (เช่น อนุมัติ/ปฏิเสธ) พร้อมกันหลายรายการ">
+                  <Tooltip
+                    title={
+                      <div className="text-center">
+                        <div className="font-semibold mb-1">
+                          ✅ จัดการสถานะพร้อมกัน
+                        </div>
+                        <div className="text-xs">
+                          เปลี่ยนสถานะหลายรายการในคราวเดียว เช่น อนุมัติ,
+                          ปฏิเสธ, หรือรอการพิจารณา
+                        </div>
+                      </div>
+                    }
+                    overlayStyle={{ maxWidth: "300px" }}
+                  >
                     <Button
                       type="primary"
                       icon={<CheckOutlined />}
                       onClick={() => setBatchStatusModalVisible(true)}
                       loading={batchProcessing}
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
+                        border: "none",
+                        boxShadow: "0 4px 12px rgba(17, 153, 142, 0.3)",
+                      }}
+                      className="hover:scale-105 transition-transform"
                     >
                       จัดการสถานะ
                     </Button>
                   </Tooltip>
 
-                  <Tooltip title="ส่งอีเมลแจ้งเตือนไปยังผู้ที่เกี่ยวข้องสำหรับรายการที่เลือก">
+                  <Tooltip
+                    title={
+                      <div className="text-center">
+                        <div className="font-semibold mb-1">
+                          📧 ส่งอีเมลแจ้งเตือน
+                        </div>
+                        <div className="text-xs">
+                          ส่งอีเมลแจ้งเตือนไปยัง HR
+                          และผู้เกี่ยวข้องสำหรับรายการที่เลือกทั้งหมด
+                        </div>
+                      </div>
+                    }
+                    overlayStyle={{ maxWidth: "300px" }}
+                  >
                     <Button
                       icon={<MailOutlined />}
                       onClick={batchSendEmail}
                       loading={batchProcessing}
+                      style={{
+                        borderColor: "#ff6b6b",
+                        color: "#ff6b6b",
+                      }}
+                      className="hover:scale-105 transition-transform"
                     >
-                      ส่งอีเมลแจ้งเตือน
+                      ส่งอีเมล
                     </Button>
                   </Tooltip>
 
-                  <Tooltip title="ยกเลิกการเลือกทั้งหมด">
+                  <Tooltip title="ยกเลิกการเลือกทั้งหมดและเริ่มต้นใหม่">
                     <Button
                       type="text"
                       danger
@@ -128,75 +209,138 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                         setSelectedRowKeys([]);
                         setProcessedItems(new Set());
                       }}
+                      className="hover:scale-105 transition-transform"
                     >
                       ยกเลิก
                     </Button>
                   </Tooltip>
                 </>
               ) : (
-                <Space>
-                  <InfoCircleOutlined
-                    style={{ color: token.colorTextDescription }}
-                  />
-                  <Text type="secondary">
-                    เลือกรายการในตารางด้านล่างเพื่อเปิดใช้งานการจัดการแบบกลุ่ม
-                  </Text>
-                </Space>
+                <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-3 rounded-xl border border-blue-200">
+                  <div className="p-2 bg-white rounded-lg shadow-sm">
+                    <InfoCircleOutlined
+                      style={{ color: "#667eea", fontSize: "20px" }}
+                    />
+                  </div>
+                  <div>
+                    <Text
+                      strong
+                      style={{
+                        color: "#667eea",
+                        display: "block",
+                        fontSize: "14px",
+                      }}
+                    >
+                      💡 เคล็ดลับการใช้งาน
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: "12px" }}>
+                      คลิกเลือกรายการในตารางด้านล่างเพื่อใช้งานฟีเจอร์จัดการแบบกลุ่ม
+                    </Text>
+                  </div>
+                </div>
               )}
             </Space>
-          </div>
+          </Col>
 
-          {/* ฝั่งขวา: การจัดการทั่วไป (Global Actions) */}
-          <Space wrap>
-            <Tooltip title="อ่านระเบียบการและเงื่อนไขการเบิก OT เพื่อความถูกต้อง">
-              <Button
-                icon={<FileTextOutlined />}
-                onClick={() =>
-                  window.open(
-                    "https://docs.google.com/document/d/12eEuCzFtCxE3C_CfhkGZ9J8yo3jiKVD2uANYBMXXnUE/edit?usp=sharing",
-                    "_blank"
-                  )
+          {/* ฝั่งขวา: การจัดการทั่วไป */}
+          <Col xs={24} lg={10}>
+            <Space
+              wrap
+              style={{ justifyContent: "flex-end", width: "100%" }}
+              size="middle"
+            >
+              <Tooltip
+                title={
+                  <div className="text-center">
+                    <div className="font-semibold mb-1">
+                      📋 ระเบียบการทำงาน OT
+                    </div>
+                    <div className="text-xs">
+                      อ่านระเบียบและเงื่อนไขการขอทำงานล่วงเวลาให้ครบถ้วนก่อนยื่นคำขอ
+                      เพื่อให้การดำเนินการถูกต้องตามขั้นตอน
+                    </div>
+                  </div>
                 }
-                danger
-                ghost
+                overlayStyle={{ maxWidth: "300px" }}
               >
-                ระเบียบการ OT
-              </Button>
-            </Tooltip>
+                <Button
+                  icon={<FileTextOutlined />}
+                  onClick={() => setRulesVisible?.(true)}
+                  style={{
+                    borderColor: "#ee5a6f",
+                    color: "#ee5a6f",
+                    background: "#fff",
+                  }}
+                  className="hover:scale-105 transition-transform"
+                >
+                  ระเบียบการ OT
+                </Button>
+              </Tooltip>
 
-            <Tooltip title="เปิดดูสถิติและภาพรวมการทำ OT สำหรับผู้บริหาร">
-              <Button
-                icon={<RiseOutlined />}
-                onClick={() => setAnalyticsVisible(true)}
-                style={{
-                  borderColor: "#1890ff",
-                  color: "#1890ff",
-                  display: "flex",
-                  alignItems: "center",
-                }}
+              <Tooltip
+                title={
+                  <div className="text-center">
+                    <div className="font-semibold mb-1">📊 วิเคราะห์ข้อมูล</div>
+                    <div className="text-xs">
+                      ดูภาพรวมสถิติการทำงานล่วงเวลา กราฟ และรายงานต่างๆ
+                      สำหรับผู้บริหารและ HR
+                    </div>
+                  </div>
+                }
+                overlayStyle={{ maxWidth: "300px" }}
               >
-                ภาพรวมวิเคราะห์ข้อมูล
-              </Button>
-            </Tooltip>
+                <Button
+                  icon={<RiseOutlined />}
+                  onClick={() => setAnalyticsVisible(true)}
+                  style={{
+                    borderColor: "#667eea",
+                    color: "#667eea",
+                    background: "#fff",
+                  }}
+                  className="hover:scale-105 transition-transform"
+                >
+                  วิเคราะห์ข้อมูล
+                </Button>
+              </Tooltip>
 
-            <Divider type="vertical" style={{ height: "32px" }} />
+              <Divider
+                type="vertical"
+                style={{ height: "36px", borderColor: "#667eea40" }}
+              />
 
-            <Tooltip title="สร้างคำขอทำงานล่วงเวลาใบใหม่">
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => setVisible(true)}
-                size="large"
-                style={{
-                  boxShadow: "0 4px 10px rgba(24, 144, 255, 0.3)",
-                  fontWeight: "bold",
-                }}
+              <Tooltip
+                title={
+                  <div className="text-center">
+                    <div className="font-semibold mb-1">✨ สร้างคำขอใหม่</div>
+                    <div className="text-xs">
+                      กรอกฟอร์มขอทำงานล่วงเวลาใหม่ พร้อมระบุวันที่ เวลา
+                      และรายละเอียดงาน
+                    </div>
+                  </div>
+                }
+                overlayStyle={{ maxWidth: "300px" }}
               >
-                เพิ่มคำขอ OT
-              </Button>
-            </Tooltip>
-          </Space>
-        </div>
+                <Button
+                  type="primary"
+                  icon={<ThunderboltOutlined />}
+                  onClick={() => setVisible(true)}
+                  size="large"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    border: "none",
+                    boxShadow: "0 6px 20px rgba(102, 126, 234, 0.4)",
+                    fontWeight: "bold",
+                    fontSize: "15px",
+                  }}
+                  className="hover:scale-105 hover:shadow-2xl transition-all duration-300"
+                >
+                  สร้างคำขอ OT ใหม่
+                </Button>
+              </Tooltip>
+            </Space>
+          </Col>
+        </Row>
       </Card>
     </ConfigProvider>
   );

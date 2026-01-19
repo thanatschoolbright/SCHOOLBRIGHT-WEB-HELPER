@@ -20,6 +20,7 @@ import {
   WarningFilled,
 } from "@ant-design/icons";
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 import { SummaryRecord } from "@/types/timesheet";
 
@@ -79,6 +80,7 @@ export const RankCard: React.FC<RankCardProps> = ({
   isCurrentUser = false,
   rank,
 }) => {
+  const { t } = useTranslation();
   const { token } = theme.useToken();
   const isDark = token.colorBgBase === "#0B0F19";
   const rankNum = Number(rank);
@@ -274,12 +276,17 @@ export const RankCard: React.FC<RankCardProps> = ({
           {/* Row 2: Description or Rank (Compact) */}
           <Flex justify="space-between" align="center">
             <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-              {record.rank_description || "ยังไม่มีข้อมูลเพิ่มเติม"}
+              {record.rank_description ||
+                t(
+                  "timesheet_components.no_additional_info",
+                  "ยังไม่มีข้อมูลเพิ่มเติม"
+                )}
             </Typography.Text>
 
             <Typography.Text type="secondary" style={{ fontSize: 11 }}>
               {record.total_hours.toFixed(1)} /{" "}
-              {record.expected_hours.toFixed(1)} ชม.
+              {record.expected_hours.toFixed(1)}{" "}
+              {t("timesheet_components.hours_abbr", "ชม.")}
             </Typography.Text>
           </Flex>
 

@@ -178,6 +178,9 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
       const response = await axios.post(endpoint, {
         summary: issue.summary,
         description: issue.description,
+        // Send full issue details for better Context
+        details: issue,
+        issueKey: issue.issueKey || String(issue.id),
       });
 
       // Step 4: จัดรูปแบบผลลัพธ์

@@ -306,13 +306,15 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
 
         return (
           <Avatar.Group
-            maxCount={4}
-            size="large"
-            maxStyle={{
-              color: token.colorWhite,
-              backgroundColor: token.colorPrimary,
-              cursor: "pointer",
+            max={{
+              count: 4,
+              style: {
+                color: token.colorWhite,
+                backgroundColor: token.colorPrimary,
+                cursor: "pointer",
+              },
             }}
+            size="large"
           >
             {assignees.map((a, i) => {
               const u = getUserById(a.userId);
@@ -525,6 +527,7 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
       className="modern-project-table"
       pagination={{
         ...pagination,
+        total: projects.length,
         showSizeChanger: true,
         pageSizeOptions: ["10", "20", "50", "100"],
         onChange: onPaginationChange,

@@ -40,6 +40,16 @@ interface TimesheetEntryRow {
   createdBy: number | null;
   hours: any;
   date: Date;
+  description?: string | null;
+  feature?: {
+    name: string;
+    name_en: string | null;
+    backlogDescription?: any;
+  };
+  project?: {
+    name: string;
+    name_en: string | null;
+  };
 }
 
 const normalizePosition = (position?: string) =>
@@ -118,6 +128,14 @@ const aggregateEntriesByUser = (entries: TimesheetEntryRow[]) => {
     {
       total: number;
       breakdown: Map<string, number>;
+      entries: Array<{
+        date: Date;
+        description: string;
+        backlogDescription: any;
+        hours: number;
+        project_name: string;
+        feature_name: string;
+      }>;
     }
   >();
 
@@ -128,6 +146,7 @@ const aggregateEntriesByUser = (entries: TimesheetEntryRow[]) => {
     const bucket = map.get(key) ?? {
       total: 0,
       breakdown: new Map<string, number>(),
+      entries: [],
     };
 
     const isoDate = toISODate(new Date(row.date));
@@ -135,6 +154,16 @@ const aggregateEntriesByUser = (entries: TimesheetEntryRow[]) => {
 
     bucket.total += hours;
     bucket.breakdown.set(isoDate, (bucket.breakdown.get(isoDate) ?? 0) + hours);
+
+    // Collect details
+    bucket.entries.push({
+      date: row.date,
+      description: row.description || "",
+      backlogDescription: row.feature?.backlogDescription,
+      hours: hours,
+      project_name: row.project?.name_en || row.project?.name || "-",
+      feature_name: row.feature?.name_en || row.feature?.name || "-",
+    });
 
     map.set(key, bucket);
   });
@@ -200,6 +229,14 @@ const buildSummaryRecords = (
           expectedHours
         )} ชั่วโมง`,
         breakdown: makeBreakdownRows(aggregatedData?.breakdown),
+        entries: aggregatedData?.entries
+          ? aggregatedData.entries
+              .sort((a, b) => b.date.getTime() - a.date.getTime())
+              .map((e) => ({
+                ...e,
+                date_str: formatThaiDate(e.date),
+              }))
+          : [],
       };
     });
 

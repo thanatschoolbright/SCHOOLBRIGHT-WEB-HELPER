@@ -93,6 +93,7 @@ import {
   SettingOutlined,
   MoreOutlined,
   DownOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -181,6 +182,7 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
   onCancel,
   userId,
 }) => {
+  const { t } = useTranslation();
   const { token } = theme.useToken();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<MyWorkItem[]>([]);
@@ -206,7 +208,7 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
 
   const columns = [
     {
-      title: "โครงการ",
+      title: t("timesheet_entry_page.table_project", "โครงการ"),
       dataIndex: ["project", "name"],
       key: "project",
       render: (text: string, record: MyWorkItem) => (
@@ -221,7 +223,7 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
       ),
     },
     {
-      title: "งานย่อย / ฟีเจอร์",
+      title: t("timesheet_entry_page.sub_task_feature", "งานย่อย / ฟีเจอร์"),
       dataIndex: ["feature", "name"],
       key: "feature",
       render: (text: string, record: MyWorkItem) =>
@@ -239,14 +241,18 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
         ),
     },
     {
-      title: "ตำแหน่ง / บทบาท",
+      title: t("timesheet_entry_page.position_role", "ตำแหน่ง / บทบาท"),
       dataIndex: "position",
       key: "position",
       render: (text: string) =>
-        text || <Typography.Text type="secondary">ไม่ได้ระบุ</Typography.Text>,
+        text || (
+          <Typography.Text type="secondary">
+            {t("timesheet_entry_page.not_specified", "ไม่ได้ระบุ")}
+          </Typography.Text>
+        ),
     },
     {
-      title: "สถานะ",
+      title: t("timesheet_entry_page.table_status", "สถานะ"),
       key: "status",
       render: (_: any, record: MyWorkItem) => (
         <Space>
@@ -275,10 +281,13 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
           </div>
           <div>
             <Typography.Title level={4} style={{ margin: 0 }}>
-              งานของฉัน
+              {t("timesheet_entry_page.my_work", "งานของฉัน")}
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              รายการโครงการและฟีเจอร์ที่คุณได้รับมอบหมาย
+              {t(
+                "timesheet_entry_page.my_work_description",
+                "รายการโครงการและฟีเจอร์ที่คุณได้รับมอบหมาย"
+              )}
             </Typography.Text>
           </div>
         </Space>
@@ -298,7 +307,12 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
           loading={loading}
           rowKey="id"
           pagination={false}
-          locale={{ emptyText: "ไม่พบข้อมูลงานที่ได้รับมอบหมาย" }}
+          locale={{
+            emptyText: t(
+              "timesheet_entry_page.no_assigned_work",
+              "ไม่พบข้อมูลงานที่ได้รับมอบหมาย"
+            ),
+          }}
         />
       </div>
     </Modal>
@@ -322,16 +336,19 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   onMyWorkClick,
   token,
 }) => {
+  const { t } = useTranslation();
   const { Text } = Typography;
-  // Custom greeting logic specifically for Thai to ensure no English slips through
-  const getThaiGreeting = () => {
+  // Custom greeting logic
+  const getGreeting = () => {
     const hour = dayjs().hour();
-    if (hour < 12) return "สวัสดีตอนเช้า";
-    if (hour < 17) return "สวัสดีตอนบ่าย";
-    return "สวัสดีตอนเย็น";
+    if (hour < 12)
+      return t("timesheet_entry_page.good_morning", "สวัสดีตอนเช้า");
+    if (hour < 17)
+      return t("timesheet_entry_page.good_afternoon", "สวัสดีตอนบ่าย");
+    return t("timesheet_entry_page.good_evening", "สวัสดีตอนเย็น");
   };
 
-  const greeting = getThaiGreeting();
+  const greeting = getGreeting();
   const timeIcon =
     dayjs().hour() < 18 ? (
       dayjs().hour() < 12 ? (
@@ -406,9 +423,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               </Typography.Title>
             </Space>
             <Typography.Text type="secondary" style={{ fontSize: 16 }}>
-              จัดการเวลาทำงานของคุณได้ที่นี่ •{" "}
+              {t(
+                "timesheet_entry_page.manage_your_work_time_here",
+                "จัดการเวลาทำงานของคุณได้ที่นี่"
+              )}{" "}
+              •{" "}
               <span style={{ color: token.colorSuccess }}>
-                พร้อมลุยงานวันนี้หรือยัง? <RocketOutlined />
+                {t(
+                  "timesheet_entry_page.ready_to_work",
+                  "พร้อมลุยงานวันนี้หรือยัง?"
+                )}{" "}
+                <RocketOutlined />
               </span>
             </Typography.Text>
           </Flex>
@@ -463,7 +488,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 gap: 8,
               }}
             >
-              <span className="mr-2">ลงเวลาทำงาน</span>
+              <span className="mr-2">
+                {t("timesheet_entry_page.log_time", "ลงเวลาทำงาน")}
+              </span>
             </Button>
 
             {/* Secondary Actions Dropdown */}
@@ -476,7 +503,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     key: "bulk",
                     label: (
                       <Space>
-                        <span>ลงแบบทุกคน (Bulk)</span>
+                        <span>
+                          {t(
+                            "timesheet_entry_page.bulk_entry",
+                            "ลงแบบทุกคน (Bulk)"
+                          )}
+                        </span>
                         <Badge
                           count="ใหม่"
                           color={token.colorError}
@@ -491,9 +523,14 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     key: "multi",
                     label: (
                       <Space>
-                        <span>ลงเวลาหลายรายการ</span>
+                        <span>
+                          {t(
+                            "timesheet_entry_page.multi_entry",
+                            "ลงเวลาหลายรายการ"
+                          )}
+                        </span>
                         <Text type="secondary" style={{ fontSize: 10 }}>
-                          (เร็วๆนี้)
+                          {t("timesheet_entry_page.coming_soon", "(เร็วๆนี้)")}
                         </Text>
                       </Space>
                     ),
@@ -598,6 +635,7 @@ const useMonthlyRankData = () => {
 
 const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
   ({ currentAdminId, variant = "wide", onVariantChange }, ref) => {
+    const { t } = useTranslation();
     const { token } = theme.useToken();
     const {
       records,
@@ -688,7 +726,12 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                   <TrophyFilled />
                 </div>
                 <span style={{ color: token.colorTextHeading }}>
-                  {currentAdminId ? "อันดับของคุณ" : "พนักงานดีเด่น"}
+                  {currentAdminId
+                    ? t("timesheet_entry_page.your_rank", "อันดับของคุณ")
+                    : t(
+                        "timesheet_entry_page.employee_of_the_month",
+                        "พนักงานดีเด่น"
+                      )}
                 </span>
               </Typography.Title>
               <Typography.Text
@@ -696,7 +739,10 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                 style={{ fontSize: 12, marginTop: 4, display: "block" }}
               >
                 <FireOutlined style={{ color: token.colorError }} />{" "}
-                ใครขยันที่สุดในเดือนนี้?
+                {t(
+                  "timesheet_entry_page.who_is_most_diligent",
+                  "ใครขยันที่สุดในเดือนนี้?"
+                )}
               </Typography.Text>
             </div>
           </div>
@@ -849,7 +895,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
             onClick={refetch}
             style={{ color: token.colorTextSecondary }}
           >
-            อัปเดตข้อมูล
+            {t("timesheet_entry_page.update_data", "อัปเดตข้อมูล")}
           </Button>
         </div>
       </Card>
@@ -875,6 +921,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
   topFeatureUsage,
   loading,
 }) => {
+  const { t } = useTranslation();
   const { token } = theme.useToken();
   const [variant, setVariant] = useState<"compact" | "wide">("compact");
   // Adjusted spans for better balance
@@ -916,14 +963,20 @@ const StatsGrid: React.FC<StatsGridProps> = ({
               <TimesheetStatCard
                 title={
                   <Space>
-                    โครงการยอดนิยม <RocketOutlined />
+                    {t(
+                      "timesheet_entry_page.popular_projects",
+                      "โครงการยอดนิยม"
+                    )}{" "}
+                    <RocketOutlined />
                   </Space>
                 }
                 value={topProjectUsage ? topProjectUsage.hours : 0}
                 color={token.colorPrimary}
                 loading={loading}
                 description={
-                  topProjectUsage ? topProjectUsage.name : "ยังไม่มีข้อมูล"
+                  topProjectUsage
+                    ? topProjectUsage.name
+                    : t("timesheet_entry_page.no_data", "ยังไม่มีข้อมูล")
                 }
               />
             </Col>
@@ -931,14 +984,17 @@ const StatsGrid: React.FC<StatsGridProps> = ({
               <TimesheetStatCard
                 title={
                   <Space>
-                    ฟีเจอร์มาแรง <FireOutlined />
+                    {t("timesheet_entry_page.top_features", "ฟีเจอร์มาแรง")}{" "}
+                    <FireOutlined />
                   </Space>
                 }
                 value={topFeatureUsage ? topFeatureUsage.hours : 0}
                 color={token.colorError}
                 loading={loading}
                 description={
-                  topFeatureUsage ? topFeatureUsage.name : "ยังไม่มีข้อมูล"
+                  topFeatureUsage
+                    ? topFeatureUsage.name
+                    : t("timesheet_entry_page.no_data", "ยังไม่มีข้อมูล")
                 }
               />
             </Col>
@@ -967,15 +1023,6 @@ interface TimesheetTableProps {
   onAdd: () => void;
   onDelete: () => void;
 }
-const ALL_TIMESHEET_COLUMNS = [
-  { key: "date", label: "วันที่" },
-  { key: "project_name", label: "โครงการ / งาน" },
-  { key: "status", label: "สถานะ" },
-  { key: "description", label: "รายละเอียด" },
-  { key: "hours", label: "เวลา" },
-  { key: "actions", label: "จัดการ" },
-];
-
 const TimesheetTable: React.FC<TimesheetTableProps> = ({
   entries,
   loading,
@@ -993,15 +1040,45 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
   onAdd,
   onDelete,
 }) => {
+  const { t } = useTranslation();
   const { token } = theme.useToken();
+
+  const ALL_TIMESHEET_COLUMNS = useMemo(
+    () => [
+      { key: "date", label: t("timesheet_entry_page.table_date", "วันที่") },
+      {
+        key: "project_name",
+        label: t("timesheet_entry_page.project_and_task", "โครงการ / งาน"),
+      },
+      { key: "status", label: t("timesheet_entry_page.table_status", "สถานะ") },
+      {
+        key: "description",
+        label: t("timesheet_entry_page.table_description", "รายละเอียด"),
+      },
+      { key: "hours", label: t("timesheet_entry_page.table_hours", "เวลา") },
+      {
+        key: "actions",
+        label: t("timesheet_entry_page.table_actions", "จัดการ"),
+      },
+    ],
+    [t]
+  );
+
   const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("timesheet-visible-columns");
       return saved
         ? JSON.parse(saved)
-        : ALL_TIMESHEET_COLUMNS.map((c) => c.key);
+        : ["date", "project_name", "status", "description", "hours", "actions"];
     }
-    return ALL_TIMESHEET_COLUMNS.map((c) => c.key);
+    return [
+      "date",
+      "project_name",
+      "status",
+      "description",
+      "hours",
+      "actions",
+    ];
   });
 
   useEffect(() => {
@@ -1031,7 +1108,10 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         return (
           <TableSearch
             value={value}
-            placeholder={`ค้นหา ${title}`}
+            placeholder={
+              t("timesheet_entry_page.search_placeholder", "ค้นหา") +
+              ` ${title}`
+            }
             inputRef={
               searchInputRefs.current[dataIndex]
                 ? { current: searchInputRefs.current[dataIndex] }
@@ -1077,9 +1157,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             <CalendarOutlined style={{ color: token.colorPrimary }} />
             <span
               className="text-[13px] font-semibold"
-              style={{ color: token.colorTextSecondary }}
+              style={{ color: token.colorText }}
             >
-              วันที่
+              {t("timesheet_entry_page.table_date", "วันที่")}
             </span>
           </Space>
         ),
@@ -1137,9 +1217,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             <ProjectOutlined style={{ color: token.colorPrimary }} />
             <span
               className="text-[13px] font-semibold"
-              style={{ color: token.colorTextSecondary }}
+              style={{ color: token.colorText }}
             >
-              โครงการ / งาน
+              {t("timesheet_entry_page.project_and_task", "โครงการ / งาน")}
             </span>
           </Space>
         ),
@@ -1147,7 +1227,11 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         width: 320,
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           a.project_name.localeCompare(b.project_name),
-        ...getColumnSearchProps("project_name", "โครงการ"),
+        sortDirections: ["descend", "ascend"],
+        ...getColumnSearchProps(
+          "project_name",
+          t("timesheet_entry_page.table_project", "โครงการ")
+        ),
         render: (value: string, record: TimesheetEntry) => {
           const avatarColor = stringToColor(value);
           const isDark = token.colorBgBase === "#0B0F19";
@@ -1208,9 +1292,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             <CheckCircleOutlined style={{ color: token.colorSuccess }} />
             <span
               className="text-[13px] font-semibold"
-              style={{ color: token.colorTextSecondary }}
+              style={{ color: token.colorText }}
             >
-              สถานะ
+              {t("timesheet_entry_page.table_status", "สถานะ")}
             </span>
           </Space>
         ),
@@ -1280,9 +1364,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             <FileTextOutlined style={{ color: token.colorInfo }} />
             <span
               className="text-[13px] font-semibold"
-              style={{ color: token.colorTextSecondary }}
+              style={{ color: token.colorText }}
             >
-              รายละเอียด
+              {t("timesheet_entry_page.table_description", "รายละเอียด")}
             </span>
           </Space>
         ),
@@ -1297,7 +1381,12 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 style={{ color: token.colorTextSecondary }}
               >
                 {value || (
-                  <span className="opacity-30">ไม่มีรายละเอียดระบุไว้</span>
+                  <span className="opacity-30">
+                    {t(
+                      "timesheet_entry_page.no_description",
+                      "ไม่มีรายละเอียดระบุไว้"
+                    )}
+                  </span>
                 )}
               </Typography.Paragraph>
               <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-40 transition-opacity">
@@ -1313,9 +1402,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             <ClockCircleOutlined style={{ color: token.colorWarning }} />
             <span
               className="text-[13px] font-semibold"
-              style={{ color: token.colorTextSecondary }}
+              style={{ color: token.colorText }}
             >
-              เวลา
+              {t("timesheet_entry_page.table_hours", "เวลา")}
             </span>
           </Space>
         ),
@@ -1340,7 +1429,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 {hours.toFixed(1)}
               </span>
               <span className="text-[10px] font-bold mb-0.5 opacity-50 uppercase">
-                ชั่วโมง
+                {t("timesheet_entry_page.hrs", "ชม.")}
               </span>
             </div>
           );
@@ -1400,9 +1489,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
   return (
     <Card
       title={
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 m-4">
           <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center"
+            className="w-11 h-11 rounded-xl flex items-center justify-center m"
             style={{
               background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
               boxShadow: `0 4px 12px ${token.colorPrimary}60`,
@@ -1419,10 +1508,10 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 color: token.colorTextHeading,
               }}
             >
-              บันทึกเวลาทำงาน
+              {t("timesheet_entry_page.timesheet_log")}
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              จัดการและตรวจสอบรายการลงเวลาทั้งหมดของคุณ
+              {t("timesheet_entry_page.manage_and_check_timesheet")}
             </Typography.Text>
           </div>
         </div>
@@ -1504,6 +1593,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       }
       className="glass-effect"
       style={{
+        margin: "24px 0",
         borderRadius: 24,
         boxShadow: isDark
           ? "0 8px 32px rgba(0,0,0,0.4)"
@@ -1519,8 +1609,8 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             ? token.colorFillQuaternary
             : token.colorFillAlter} !important;
           border-bottom: 2px solid ${token.colorPrimary}20 !important;
-          padding-top: 20px !important;
-          padding-bottom: 20px !important;
+          padding-top: 24px !important;
+          padding-bottom: 24px !important;
         }
         .ant-table-row {
           transition: all 0.3s ease !important;
@@ -1554,13 +1644,13 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             if (type === "prev")
               return (
                 <Button type="text" size="small">
-                  ก่อนหน้า
+                  {t("timesheet_entry_page.prev", "ก่อนหน้า")}
                 </Button>
               );
             if (type === "next")
               return (
                 <Button type="text" size="small">
-                  ถัดไป
+                  {t("timesheet_entry_page.next", "ถัดไป")}
                 </Button>
               );
             return element;
@@ -1609,6 +1699,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
   disabled,
   formMode = "create",
 }) => {
+  const { t } = useTranslation("timesheet");
   const { token } = theme.useToken();
   const [searchMode, setSearchMode] = useState<"hierarchy" | "direct">(
     "hierarchy"
@@ -1653,7 +1744,12 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
   useEffect(() => {
     if (open && formMode === "create") {
       form.resetFields();
-      form.setFieldsValue({ status: "IN_PROGRESS", date: dayjs() });
+      form.resetFields();
+      form.setFieldsValue({
+        status: "IN_PROGRESS",
+        date: dayjs(),
+        work_hour: 8,
+      });
     }
   }, [open, formMode, form]);
 
@@ -1689,6 +1785,9 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
           <Space>
             <ApartmentOutlined style={{ color: token.colorWarning }} />
             {s.name}
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              (ID: {s.id})
+            </Typography.Text>
           </Space>
         ),
         value: Number(s.id),
@@ -1718,7 +1817,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
             level={3}
             style={{ margin: 0, color: token.colorPrimary }}
           >
-            <ThunderboltOutlined /> ลงเวลาทำงาน
+            <ThunderboltOutlined /> {t("logWorkTime", "ลงเวลาทำงาน")}
           </Typography.Title>
         </Space>
       }
@@ -1751,15 +1850,20 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                 color: token.colorPrimary,
               }}
             >
-              <ProjectOutlined className="mr-2" /> โครงการที่รับผิดชอบ
+              <ProjectOutlined className="mr-2" />{" "}
+              {t("responsibleProject", "โครงการที่รับผิดชอบ")}
             </Typography.Text>
             <Radio.Group
               value={searchMode}
               onChange={(e) => setSearchMode(e.target.value)}
               buttonStyle="solid"
             >
-              <Radio.Button value="hierarchy">เลือกตามโครงการ</Radio.Button>
-              <Radio.Button value="direct">ค้นหางานย่อย</Radio.Button>
+              <Radio.Button value="hierarchy">
+                {t("selectByProject", "เลือกตามโครงการ")}
+              </Radio.Button>
+              <Radio.Button value="direct">
+                {t("searchSubTask", "ค้นหางานย่อย")}
+              </Radio.Button>
             </Radio.Group>
           </div>
 
@@ -1769,7 +1873,21 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
           >
             <Col xs={24} md={12}>
               <Form.Item
-                label="โครงการหลัก"
+                label={
+                  <Space>
+                    <span>{t("mainProject", "โครงการหลัก")}</span>
+                    <Tooltip
+                      title={t(
+                        "searchProjectTip",
+                        "ค้นหาได้ทั้ง ชื่อโครงการ และ Project ID"
+                      )}
+                    >
+                      <InfoCircleOutlined
+                        style={{ color: token.colorTextSecondary }}
+                      />
+                    </Tooltip>
+                  </Space>
+                }
                 name="project_id"
                 rules={[{ required: searchMode === "hierarchy" }]}
               >
@@ -1781,17 +1899,34 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                     if (v) fetchSubProjects(String(v));
                   }}
                   showSearch
-                  filterOption={(input, option) =>
-                    (option?.labelString ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+                  filterOption={(input, option) => {
+                    const labelStr = (option?.labelString ?? "").toLowerCase();
+                    const inputStr = input.toLowerCase();
+                    const valueStr = String(option?.value).toLowerCase();
+                    return (
+                      labelStr.includes(inputStr) || valueStr.includes(inputStr)
+                    );
+                  }}
                 />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
-                label="งานย่อย / ฟีเจอร์"
+                label={
+                  <Space>
+                    <span>{t("subTaskFeature", "งานย่อย / ฟีเจอร์")}</span>
+                    <Tooltip
+                      title={t(
+                        "searchSubTaskTip",
+                        "ค้นหาได้ทั้ง ชื่องานย่อย และ Feature ID"
+                      )}
+                    >
+                      <InfoCircleOutlined
+                        style={{ color: token.colorTextSecondary }}
+                      />
+                    </Tooltip>
+                  </Space>
+                }
                 name="sub_project_id"
                 rules={[{ required: searchMode === "hierarchy" }]}
                 dependencies={["project_id"]}
@@ -1801,11 +1936,14 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                   options={subProjectOptions}
                   disabled={!form.getFieldValue("project_id")}
                   showSearch
-                  filterOption={(input, option) =>
-                    (option?.labelString ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+                  filterOption={(input, option) => {
+                    const labelStr = (option?.labelString ?? "").toLowerCase();
+                    const inputStr = input.toLowerCase();
+                    const valueStr = String(option?.value).toLowerCase();
+                    return (
+                      labelStr.includes(inputStr) || valueStr.includes(inputStr)
+                    );
+                  }}
                 />
               </Form.Item>
             </Col>
@@ -1813,12 +1951,15 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
 
           <div style={{ display: searchMode === "direct" ? "block" : "none" }}>
             <Form.Item
-              label="ค้นหางานย่อย"
+              label={t("searchSubTask", "ค้นหางานย่อย")}
               name="sub_project_search"
               rules={[
                 {
                   required: searchMode === "direct",
-                  message: "กรุณาค้นหาและเลือกงานย่อย",
+                  message: t(
+                    "pleaseSelectSubTask",
+                    "กรุณาค้นหาและเลือกงานย่อย"
+                  ),
                 },
                 {
                   validator: async (_, value) => {
@@ -1827,7 +1968,9 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                       const subProjectId = form.getFieldValue("sub_project_id");
                       if (!projectId || !subProjectId) {
                         return Promise.reject(
-                          new Error("กรุณาเลือกงานย่อยจากรายการ")
+                          new Error(
+                            t("selectFromList", "กรุณาเลือกงานย่อยจากรายการ")
+                          )
                         );
                       }
                     }
@@ -1838,12 +1981,19 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
             >
               <Select
                 showSearch
-                placeholder="พิมพ์ชื่องานย่อย, โครงการหลัก หรือ ID..."
+                placeholder={t(
+                  "searchPlaceholderDirect",
+                  "พิมพ์ชื่องานย่อย, โครงการหลัก หรือ ID..."
+                )}
                 options={subProjectOptionsSearch}
                 onSearch={handleSearchSubProject}
                 loading={searching}
                 filterOption={false}
-                notFoundContent={searching ? "กำลังค้นหา..." : "ไม่พบข้อมูล"}
+                notFoundContent={
+                  searching
+                    ? t("searching", "กำลังค้นหา...")
+                    : t("notFound", "ไม่พบข้อมูล")
+                }
                 onChange={(value, option: any) => {
                   if (option?.item) {
                     form.setFieldsValue({
@@ -1868,7 +2018,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
           <Row gutter={20}>
             <Col xs={12} sm={8}>
               <Form.Item
-                label="วันที่"
+                label={t("date", "วันที่")}
                 name="date"
                 rules={[{ required: true }]}
               >
@@ -1877,41 +2027,79 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
             </Col>
             <Col xs={12} sm={8}>
               <Form.Item
-                label="ระยะเวลา (ชม.)"
+                label={t("durationHours", "ระยะเวลา (ชม.)")}
                 name="work_hour"
                 rules={[
                   { required: true },
                   { type: "number", min: 0.1, max: 24 },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || value <= 8) {
+                        return Promise.resolve();
+                      }
+                      return Promise.resolve(); // Warning is handled by extra content
+                    },
+                  }),
                 ]}
+                extra={
+                  <Form.Item
+                    noStyle
+                    shouldUpdate={(prev, curr) =>
+                      prev.work_hour !== curr.work_hour
+                    }
+                  >
+                    {({ getFieldValue }) => {
+                      const hours = getFieldValue("work_hour");
+                      return hours > 8 ? (
+                        <Typography.Text
+                          type="warning"
+                          style={{ fontSize: 12 }}
+                        >
+                          <ExclamationCircleOutlined />{" "}
+                          {t(
+                            "over8HoursWarning",
+                            "คุณกำลังกรอกเวลาเกิน 8 ชั่วโมง"
+                          )}
+                        </Typography.Text>
+                      ) : null;
+                    }}
+                  </Form.Item>
+                }
               >
                 <InputNumber style={{ width: "100%" }} min={0} step={0.5} />
               </Form.Item>
             </Col>
             <Col xs={24} sm={8}>
-              <Form.Item label="สถานะ" name="status">
+              <Form.Item label={t("status", "สถานะ")} name="status">
                 <Select options={statusOptions} />
               </Form.Item>
             </Col>
           </Row>
           <Divider />
-          <Form.Item label="รายละเอียดการทำงาน" name="description">
+          <Form.Item
+            label={t("workDescription", "รายละเอียดการทำงาน")}
+            name="description"
+          >
             <Input.TextArea
               rows={4}
               showCount
               maxLength={500}
-              placeholder="ระบุรายละเอียดงานที่ทำ..."
+              placeholder={t(
+                "workDescriptionPlaceholder",
+                "ระบุรายละเอียดงานที่ทำ..."
+              )}
             />
           </Form.Item>
         </div>
         <Flex justify="end" gap={8} style={{ marginTop: 24 }}>
-          <Button onClick={onCancel}>ยกเลิก</Button>
+          <Button onClick={onCancel}>{t("cancel", "ยกเลิก")}</Button>
           <Button
             type="primary"
             htmlType="submit"
             loading={disabled}
             icon={<SaveOutlined />}
           >
-            บันทึกข้อมูล
+            {t("saveData", "บันทึกข้อมูล")}
           </Button>
         </Flex>
       </Form>

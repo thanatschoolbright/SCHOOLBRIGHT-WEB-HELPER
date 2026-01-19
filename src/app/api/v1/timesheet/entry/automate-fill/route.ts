@@ -50,15 +50,13 @@ export async function POST(request: Request) {
     const useGemini = Boolean(process.env.GOOGLE_GEMINI_API_KEY);
     const createdEntries = [];
 
-    const randomStatus =
-      STATUS_OPTIONS[Math.floor(Math.random() * STATUS_OPTIONS.length)]
-        ?.value || "DRAFT";
+    const status = "IN_PROGRESS";
 
     logger.info("[automate-fill] start creating timesheets", {
       user_id,
       dates: dates.length,
       useGemini,
-      randomStatus,
+      status,
       history_sample: history.slice(0, 3).map((h) => h.id ?? h),
     });
 
@@ -99,7 +97,7 @@ export async function POST(request: Request) {
         subProjectId,
         date: new Date(rawDate),
         hour: Number(hours),
-        status: randomStatus,
+        status,
       });
 
       createdEntries.push(created);
@@ -107,7 +105,7 @@ export async function POST(request: Request) {
         date: rawDate,
         projectId: randomEntry.projectId,
         subProjectId,
-        status: randomStatus,
+        status,
       });
     }
 

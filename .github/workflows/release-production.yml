@@ -220,3 +220,46 @@ jobs:
         run: |
           HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:3000 || echo "FAILED")
           if [ "$HTTP_STATUS" == "200" ]; then echo "✅ OK"; else echo "⚠️ Status: $HTTP_STATUS"; fi
+
+  # ============================================
+  # 6. Deployment Summary
+  # ============================================
+  summary:
+    name: 📝 Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [pre_flight_checks, quality-gates, build, deploy, verify]
+    if: always()
+    steps:
+      - name: Generate Summary Table
+        run: |
+          # กำหนด Emoji ตามสถานะของ Job
+          get_status_emoji() {
+            case "$1" in
+              success) echo "✅ Success" ;;
+              failure) echo "❌ Failed" ;;
+              cancelled) echo "🚫 Cancelled" ;;
+              skipped) echo "⏭️ Skipped" ;;
+              *) echo "❓ Unknown" ;;
+            esac
+          }
+
+          PRE_FLIGHT=$(get_status_emoji "${{ needs.pre_flight_checks.result }}")
+          QUALITY=$(get_status_emoji "${{ needs.quality-gates.result }}")
+          BUILD=$(get_status_emoji "${{ needs.build.result }}")
+          DEPLOY=$(get_status_emoji "${{ needs.deploy.result }}")
+          VERIFY=$(get_status_emoji "${{ needs.verify.result }}")
+
+          # เขียน Markdown ลงใน $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Production Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job Name | Status | Details |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 Pre-flight Checks | $PRE_FLIGHT | Ref: \`${{ needs.pre_flight_checks.outputs.deployment_ref }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🛡️ Quality Gates | $QUALITY | Lint & Unit Tests |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔨 Build Artifact | $BUILD | Node v${{ env.NODE_VERSION }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🚀 Production Deploy | $DEPLOY | Path: \`${{ env.DEPLOY_PATH }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| ✅ Health Check | $VERIFY | URL: [schoolbright.co](https://sb-helper.schoolbright.co) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** @${{ github.actor }} via \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment Time:** $(date '+%Y-%m-%d %H:%M:%S') (UTC)" >> $GITHUB_STEP_SUMMARY

@@ -29,9 +29,9 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
     stats.total > 0 ? (stats.approved / stats.total) * 100 : 0;
 
   return (
-    <Row gutter={[20, 20]} className="mb-6">
+    <Row gutter={[24, 24]} className="mb-6">
       {/* 1. รายการคำขอทั้งหมด */}
-      <Col xs={24} sm={12} md={8}>
+      <Col xs={24} sm={12} lg={8}>
         <Tooltip
           title="ยอดรวมคำขอทำงานล่วงเวลาทั้งหมดที่คุณเคยส่งในระบบ (รวมทุกสถานะ)"
           placement="topLeft"
@@ -58,7 +58,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
       </Col>
 
       {/* 2. รายการที่รออนุมัติ */}
-      <Col xs={24} sm={12} md={8}>
+      <Col xs={24} sm={12} lg={8}>
         <Tooltip
           title={`มีอีก ${stats.pending} รายการที่กำลังรอหัวหน้างานตรวจสอบ`}
           placement="topLeft"
@@ -96,7 +96,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
       </Col>
 
       {/* 3. รายการที่อนุมัติแล้ว */}
-      <Col xs={24} sm={12} md={8}>
+      <Col xs={24} sm={12} lg={8}>
         <Tooltip
           title="รายการที่ผ่านการอนุมัติเรียบร้อยแล้วและพร้อมสำหรับการจ่ายเงินงวดถัดไป"
           placement="topLeft"

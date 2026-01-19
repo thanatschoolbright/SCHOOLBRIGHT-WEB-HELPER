@@ -1,12 +1,6 @@
 import React from "react";
-import { Modal, Steps, Typography, Progress, Spin } from "antd";
-import {
-  LoadingOutlined,
-  RobotOutlined,
-  FileTextOutlined,
-  CheckCircleOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+import { Modal, Steps, Typography, Progress, Spin, theme } from "antd";
+import { LoadingOutlined, RobotOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -31,8 +25,8 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
   currentStep,
   steps,
   processingTime,
-  onCancel,
 }) => {
+  const { token } = theme.useToken();
   const [isMobile, setIsMobile] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -73,6 +67,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           padding: isMobile ? "16px" : "32px",
           borderRadius: "16px",
           margin: isMobile ? "8px" : "auto",
+          backgroundColor: token.colorBgContainer, // Dynamic background
         },
         mask: {
           backgroundColor: "rgba(0, 0, 0, 0.7)",
@@ -86,14 +81,14 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           <RobotOutlined
             style={{
               fontSize: isMobile ? "36px" : "48px",
-              color: "#1890ff",
+              color: token.colorPrimary,
               marginBottom: isMobile ? "12px" : "16px",
               display: "block",
             }}
           />
           <Title
             level={isMobile ? 4 : 3}
-            style={{ margin: 0, marginBottom: "8px" }}
+            style={{ margin: 0, marginBottom: "8px", color: token.colorText }}
           >
             กำลังประมวลผลด้วย AI
           </Title>
@@ -110,10 +105,10 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           <Progress
             percent={progressPercent}
             strokeColor={{
-              "0%": "#87d068",
-              "100%": "#1890ff",
+              "0%": token.colorSuccess,
+              "100%": token.colorPrimary,
             }}
-            trailColor="#f5f5f5"
+            trailColor={token.colorFillSecondary}
             size={isMobile ? 6 : 8}
             showInfo={false}
           />
@@ -123,7 +118,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
               justifyContent: "space-between",
               marginTop: "8px",
               fontSize: isMobile ? "12px" : "14px",
-              color: "#666",
+              color: token.colorTextSecondary,
             }}
           >
             <span>
@@ -137,8 +132,8 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
         {currentStepData && (
           <div
             style={{
-              background: "linear-gradient(135deg, #f6f9fc 0%, #e9f4ff 100%)",
-              border: "2px solid #1890ff",
+              background: token.colorBgLayout, // Use layout background for contrast
+              border: `2px solid ${token.colorPrimaryBorder}`,
               borderRadius: isMobile ? "12px" : "16px",
               padding: isMobile ? "20px 16px" : "32px 24px",
               marginBottom: isMobile ? "20px" : "32px",
@@ -146,7 +141,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
               overflow: "hidden",
             }}
           >
-            {/* Background Animation */}
+            {/* Background Animation - Subtle Shimmer */}
             <div
               style={{
                 position: "absolute",
@@ -154,10 +149,10 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                 left: 0,
                 right: 0,
                 bottom: 0,
-                background:
-                  "linear-gradient(90deg, transparent 0%, rgba(24, 144, 255, 0.1) 50%, transparent 100%)",
+                background: `linear-gradient(90deg, transparent 0%, ${token.colorPrimaryBg} 50%, transparent 100%)`, // Use theme-aware transparent color
                 animation: "shimmer 2s infinite linear",
                 zIndex: 0,
+                opacity: 0.3,
               }}
             />
 
@@ -180,22 +175,6 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                   opacity: 0.7;
                 }
               }
-
-              @keyframes bounce {
-                0%,
-                20%,
-                50%,
-                80%,
-                100% {
-                  transform: translateY(0);
-                }
-                40% {
-                  transform: translateY(-5px);
-                }
-                60% {
-                  transform: translateY(-3px);
-                }
-              }
             `}</style>
 
             <div style={{ position: "relative", zIndex: 1 }}>
@@ -203,7 +182,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                 style={{
                   fontSize: isMobile ? "32px" : "40px",
                   marginBottom: isMobile ? "12px" : "16px",
-                  color: "#1890ff",
+                  color: token.colorPrimary,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -214,17 +193,17 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                     width: isMobile ? "48px" : "64px",
                     height: isMobile ? "48px" : "64px",
                     borderRadius: "50%",
-                    background: "linear-gradient(45deg, #1890ff, #52c41a)",
+                    background: `linear-gradient(45deg, ${token.colorPrimary}, ${token.colorSuccess})`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 4px 20px rgba(24, 144, 255, 0.3)",
+                    boxShadow: `0 4px 20px -5px ${token.colorPrimary}`,
                   }}
                 >
                   <Spin
                     indicator={
                       <LoadingOutlined
-                        style={{ fontSize: isMobile ? 20 : 28, color: "white" }}
+                        style={{ fontSize: isMobile ? 20 : 28, color: "#fff" }}
                       />
                     }
                   />
@@ -235,7 +214,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                 style={{
                   margin: 0,
                   marginBottom: "12px",
-                  color: "#1890ff",
+                  color: token.colorPrimary,
                   textAlign: "center",
                 }}
               >
@@ -244,7 +223,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
               <Text
                 style={{
                   fontSize: isMobile ? "14px" : "16px",
-                  color: "#666",
+                  color: token.colorTextSecondary,
                   display: "block",
                   textAlign: "center",
                   lineHeight: "1.5",
@@ -260,11 +239,12 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
       {/* Steps Progress - Horizontal Delivery Tracking Style */}
       <div
         style={{
-          background: "white",
+          background: token.colorBgContainer,
           borderRadius: "12px",
           padding: "24px",
-          boxShadow: "0 2px 12px rgba(0, 0, 0, 0.08)",
+          boxShadow: token.boxShadowTertiary, // Use theme shadow
           marginBottom: "16px",
+          border: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
         <Steps
@@ -273,118 +253,126 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           current={currentStep}
           labelPlacement={isMobile ? "horizontal" : "vertical"}
           responsive={false}
-          items={steps.map((step, index) => ({
-            title: (
-              <div
-                style={{
-                  color:
-                    index < currentStep
-                      ? "#52c41a"
-                      : index === currentStep
-                      ? "#1890ff"
-                      : "#8c8c8c",
-                  fontWeight: index === currentStep ? "bold" : "normal",
-                  fontSize: isMobile ? "12px" : "14px",
-                  textAlign: isMobile ? "left" : "center",
-                  marginTop: isMobile ? "0" : "8px",
-                  marginLeft: isMobile ? "8px" : "0",
-                }}
-              >
-                {step.title}
-                {index < currentStep && (
-                  <div
-                    style={{
-                      color: "#52c41a",
-                      fontSize: isMobile ? "10px" : "12px",
-                      fontWeight: "normal",
-                      marginTop: "4px",
-                    }}
-                  >
-                    ✓ เสร็จสิ้น
-                  </div>
-                )}
-              </div>
-            ),
-            description: (
-              <div
-                style={{
-                  color:
-                    index < currentStep
-                      ? "#73d13d"
-                      : index === currentStep
-                      ? "#69c0ff"
-                      : "#d9d9d9",
-                  fontSize: isMobile ? "10px" : "12px",
-                  lineHeight: "1.3",
-                  textAlign: isMobile ? "left" : "center",
-                  marginTop: "4px",
-                  marginLeft: isMobile ? "8px" : "0",
-                  maxWidth: isMobile ? "200px" : "120px",
-                }}
-              >
-                {isMobile
-                  ? step.description.slice(0, 50) +
-                    (step.description.length > 50 ? "..." : "")
-                  : step.description}
-              </div>
-            ),
-            icon: (
-              <div
-                style={{
-                  fontSize: isMobile ? "14px" : "16px",
-                  color:
-                    index < currentStep
-                      ? "#52c41a"
-                      : index === currentStep
-                      ? "#1890ff"
-                      : "#d9d9d9",
-                  width: isMobile ? "32px" : "40px",
-                  height: isMobile ? "32px" : "40px",
-                  borderRadius: "50%",
-                  background:
-                    index < currentStep
-                      ? "#f6ffed"
-                      : index === currentStep
-                      ? "#e6f7ff"
-                      : "#f5f5f5",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: `${isMobile ? "2px" : "3px"} solid ${
-                    index < currentStep
-                      ? "#52c41a"
-                      : index === currentStep
-                      ? "#1890ff"
-                      : "#d9d9d9"
-                  }`,
-                  transition: "all 0.3s ease",
-                  boxShadow:
-                    index === currentStep
-                      ? "0 0 12px rgba(24, 144, 255, 0.4)"
-                      : index < currentStep
-                      ? "0 0 8px rgba(82, 196, 26, 0.3)"
+          items={steps.map((step, index) => {
+            const isCompleted = index < currentStep;
+            const isCurrent = index === currentStep;
+            const isPending = index > currentStep;
+
+            // Colors based on state
+            const iconColor = isCompleted
+              ? token.colorSuccess
+              : isCurrent
+              ? token.colorPrimary
+              : token.colorTextDisabled;
+
+            const titleColor = isCompleted
+              ? token.colorSuccessText
+              : isCurrent
+              ? token.colorPrimaryText
+              : token.colorTextDisabled;
+
+            const descColor = isCompleted
+              ? token.colorSuccessTextActive
+              : isCurrent
+              ? token.colorPrimaryTextActive
+              : token.colorTextQuaternary;
+
+            const iconBg = isCompleted
+              ? token.colorSuccessBg
+              : isCurrent
+              ? token.colorPrimaryBg
+              : token.colorFillQuaternary;
+
+            const iconBorder = isCompleted
+              ? token.colorSuccess
+              : isCurrent
+              ? token.colorPrimary
+              : token.colorBorder;
+
+            return {
+              title: (
+                <div
+                  style={{
+                    color: titleColor,
+                    fontWeight: isCurrent ? "bold" : "normal",
+                    fontSize: isMobile ? "12px" : "14px",
+                    textAlign: isMobile ? "left" : "center",
+                    marginTop: isMobile ? "0" : "8px",
+                    marginLeft: isMobile ? "8px" : "0",
+                  }}
+                >
+                  {step.title}
+                  {isCompleted && (
+                    <div
+                      style={{
+                        color: token.colorSuccess,
+                        fontSize: isMobile ? "10px" : "12px",
+                        fontWeight: "normal",
+                        marginTop: "4px",
+                      }}
+                    >
+                      ✓ เสร็จสิ้น
+                    </div>
+                  )}
+                </div>
+              ),
+              description: (
+                <div
+                  style={{
+                    color: descColor,
+                    fontSize: isMobile ? "10px" : "12px",
+                    lineHeight: "1.3",
+                    textAlign: isMobile ? "left" : "center",
+                    marginTop: "4px",
+                    marginLeft: isMobile ? "8px" : "0",
+                    maxWidth: isMobile ? "200px" : "120px",
+                  }}
+                >
+                  {isMobile
+                    ? step.description.slice(0, 50) +
+                      (step.description.length > 50 ? "..." : "")
+                    : step.description}
+                </div>
+              ),
+              icon: (
+                <div
+                  style={{
+                    fontSize: isMobile ? "14px" : "16px",
+                    color: iconColor,
+                    width: isMobile ? "32px" : "40px",
+                    height: isMobile ? "32px" : "40px",
+                    borderRadius: "50%",
+                    background: iconBg,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: `${isMobile ? "2px" : "3px"} solid ${iconBorder}`,
+                    transition: "all 0.3s ease",
+                    boxShadow: isCurrent
+                      ? `0 0 12px ${token.colorPrimaryBg}`
                       : "none",
-                }}
-              >
-                {index < currentStep ? (
-                  "✓"
-                ) : index === currentStep ? (
-                  <Spin
-                    indicator={
-                      <LoadingOutlined
-                        style={{
-                          fontSize: isMobile ? 14 : 16,
-                          color: "#1890ff",
-                        }}
-                      />
-                    }
-                  />
-                ) : (
-                  step.icon
-                )}
-              </div>
-            ),
-          }))}
+                  }}
+                >
+                  {isCompleted ? (
+                    "✓"
+                  ) : isCurrent ? (
+                    <Spin
+                      indicator={
+                        <LoadingOutlined
+                          style={{
+                            fontSize: isMobile ? 14 : 16,
+                            color: token.colorPrimary,
+                          }}
+                        />
+                      }
+                    />
+                  ) : (
+                    step.icon
+                  )}
+                </div>
+              ),
+            };
+          })}
         />
       </div>
 
@@ -393,9 +381,9 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
         style={{
           textAlign: "center",
           padding: isMobile ? "16px 12px" : "20px 16px",
-          background: "linear-gradient(135deg, #f6f9fc 0%, #e9f4ff 100%)",
+          background: token.colorBgLayout, // Theme-aware background
           borderRadius: "12px",
-          border: "1px solid #e6f7ff",
+          border: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
         <div
@@ -410,7 +398,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           <RobotOutlined
             style={{
               fontSize: isMobile ? "16px" : "18px",
-              color: "#1890ff",
+              color: token.colorPrimary,
               animation: "pulse 2s infinite",
             }}
           />
@@ -418,7 +406,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
             style={{
               fontSize: isMobile ? "14px" : "16px",
               fontWeight: "bold",
-              color: "#1890ff",
+              color: token.colorPrimary,
             }}
           >
             AI กำลังทำงาน
@@ -428,7 +416,6 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           type="secondary"
           style={{
             fontSize: isMobile ? "12px" : "14px",
-            color: "#666",
             lineHeight: "1.4",
           }}
         >

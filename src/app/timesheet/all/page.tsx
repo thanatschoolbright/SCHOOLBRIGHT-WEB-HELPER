@@ -97,7 +97,7 @@ const PageHeader = ({ metadata, onRefresh, loading }: any) => {
             style={{
               margin: 0,
               fontWeight: 800,
-              letterSpacing: "-1px",
+              letterSpcing: "-1px",
               color: token.colorTextHeading,
             }}
           >

@@ -31,7 +31,7 @@ dayjs.locale("th");
 const DISCORD_CONFIG = {
   WEBHOOK_URL:
     process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_DAILY_MONITOR_SERVER ?? "",
-  ALERT_USER_ID: "<@692372441699319900>",
+  ALERT_USER_ID: "<@1344189022561636445>",
   BOT_NAME: "SB System Monitor",
   AVATAR_URL:
     "https://play-lh.googleusercontent.com/5tMDW7qOj174fR8MVrUOC1xBRx6a8jYg97yYzMw0JwlcS13gazRD8J3HmumEhFi3aQ",
@@ -52,6 +52,17 @@ const THEMES = {
   },
 };
 
+const GROUP_LABELS: Record<string, string> = {
+  "login-system": "🔐 ระบบเข้าสู่ระบบ",
+  "user-system": "👤 ระบบผู้ใช้งาน",
+  "attendance-system": "📅 ระบบการมาเรียน",
+  "leave-system": "✈️ ระบบการลา",
+  "server-system": "🖥️ ระบบเซิร์ฟเวอร์",
+  "school-system": "🏫 ระบบโรงเรียน",
+  "notification-system": "🔔 ระบบแจ้งเตือน",
+  other: "🛠️ ระบบอื่นๆ",
+};
+
 const getProgressBar = (percentage: number) => {
   const blocks = 10;
   const filled = Math.round((percentage / 100) * blocks);
@@ -66,7 +77,26 @@ const analyzeResults = (results: HealthCheckResult[]) => {
   const healthScore =
     total === 0 ? 0 : Math.round((passed.length / total) * 100);
 
-  return { total, passed, failed, healthScore };
+  // Grouping logic
+  const groupedResults: Record<
+    string,
+    { passed: number; failed: number; items: HealthCheckResult[] }
+  > = {};
+
+  results.forEach((r) => {
+    const groupKey = r.group || "other";
+    if (!groupedResults[groupKey]) {
+      groupedResults[groupKey] = { passed: 0, failed: 0, items: [] };
+    }
+    groupedResults[groupKey].items.push(r);
+    if (r.status === "200") {
+      groupedResults[groupKey].passed++;
+    } else {
+      groupedResults[groupKey].failed++;
+    }
+  });
+
+  return { total, passed, failed, healthScore, groupedResults };
 };
 
 const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
@@ -77,34 +107,40 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
     title: `${theme.icon} ${theme.title}`,
     description: `> **รายงานสถานะระบบประจำวัน**\n> 📅 วันที่: \`${dayjs().format(
       "D MMMM YYYY"
-    )}\`\n> 🕒 เวลา: \`${dayjs().format("HH:mm น.")}\``,
+    )}\`\n> 🕒 เวลา: \`${dayjs().format("HH:mm น.")}\`\n\n${
+      stats.healthScore === 100
+        ? "🎉 **ยอดเยี่ยม!** ระบบทั้งหมดทำงานได้ตามปกติ"
+        : "⚠️ **แจ้งเตือน!** พบปัญหาในบางระบบ กรุณาตรวจสอบ"
+    }`,
     color: theme.color,
     thumbnail: { url: DISCORD_CONFIG.AVATAR_URL },
     image: { url: theme.image },
     fields: [
       {
-        name: "📊 **ความสมบูรณ์ของระบบ**",
+        name: "📊 **คะแนนความสมบูรณ์**",
         value: `\`\`\`ini\n${getProgressBar(stats.healthScore)}\n\`\`\``,
         inline: false,
       },
-      {
-        name: "✅ **ทำงานปกติ**",
-        value: `\` ${stats.passed.length} \` ระบบ`,
-        inline: true,
-      },
-      {
-        name: "❌ **พบปัญหา**",
-        value: `\` ${stats.failed.length} \` ระบบ`,
-        inline: true,
-      },
-      {
-        name: "🤖 **ตรวจสอบทั้งหมด**",
-        value: `\` ${stats.total} \` รายการ`,
-        inline: true,
-      },
+      ...Object.entries(stats.groupedResults).map(([groupKey, data]) => {
+        const groupName = GROUP_LABELS[groupKey] || GROUP_LABELS.other;
+
+        // Build list of items in Thai
+        const itemList = data.items
+          .map((item) => {
+            const statusIcon = item.status === "200" ? "✅" : "❌";
+            return `${statusIcon} ${item.name_th}`;
+          })
+          .join("\n");
+
+        return {
+          name: `${groupName} (${data.passed}/${data.items.length})`,
+          value: `\`\`\`\n${itemList}\n\`\`\``,
+          inline: false, // Changed to false to give full width/more room for list
+        };
+      }),
     ],
     footer: {
-      text: "ระบบตรวจสอบสถานะอัตโนมัติ SchoolBright",
+      text: "ระบบตรวจสอบสถานะอัตโนมัติ SchoolBright | ทีม Monitoring",
       icon_url: DISCORD_CONFIG.AVATAR_URL,
     },
     timestamp: new Date().toISOString(),
@@ -112,41 +148,41 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
 
   const embeds: any[] = [mainEmbed];
 
+  // If critical, add detailed error embed for each group that has failure
   if (isCritical) {
-    const errorFields = stats.failed.map((service) => ({
-      name: `❌ ${service.name_th} (${service.module})`,
-      value: `**สถานะ:** \`${service.status}\`\n**จุดเชื่อมต่อ:** \`${service.service}\`\n**คำสั่งตรวจสอบ (cURL):**\n\`\`\`bash\n${service.curl}\n\`\`\``,
-      inline: false,
-    }));
+    Object.entries(stats.groupedResults).forEach(([groupKey, data]) => {
+      if (data.failed > 0) {
+        const groupName = GROUP_LABELS[groupKey] || GROUP_LABELS.other;
+        const failedItems = data.items.filter((item) => item.status !== "200");
 
-    embeds.push({
-      title: `🚨 พบปัญหาจำนวน ${stats.failed.length} รายการ`,
-      description: "กรุณาตรวจสอบระบบดังต่อไปนี้โดยด่วน",
-      color: 0xed4245,
-      fields: errorFields,
+        const fieldDetails = failedItems.map((item) => ({
+          name: `❌ ${item.name_th} (${item.module})`,
+          value: `**สถานะ:** \`${item.status}\`\n**จุดเชื่อมต่อ:** \`${item.service}\`\n**คำสั่งตรวจสอบ:**\n\`\`\`bash\n${item.curl}\n\`\`\``,
+          inline: false,
+        }));
+
+        embeds.push({
+          title: `🚨 รายละเอียดปัญหา: ${groupName}`,
+          description: `พบข้อผิดพลาดจำนวน ${data.failed} รายการในกลุ่มนี้`,
+          color: 0xed4245,
+          fields: fieldDetails,
+        });
+      }
     });
+
+    // Add a summary mention for critical alert
+    const content = `# 🔥 แจ้งเตือนวิกฤต!\nเรียน ${DISCORD_CONFIG.ALERT_USER_ID} พบความผิดปกติของระบบจำนวน ${stats.failed.length} จุด กรุณาตรวจสอบด่วน!`;
+    return {
+      username: DISCORD_CONFIG.BOT_NAME,
+      avatar_url: DISCORD_CONFIG.AVATAR_URL,
+      content,
+      embeds,
+    };
   }
-
-  if (stats.passed.length > 0) {
-    const passedList = stats.passed
-      .map((s) => `✅ **${s.name_th}**`)
-      .join("\n");
-
-    embeds.push({
-      title: "✨ ระบบที่ทำงานปกติ",
-      description: passedList,
-      color: 0x2ecc71,
-    });
-  }
-
-  const content = isCritical
-    ? `# 🔥 แจ้งเตือนวิกฤต!\nเรียน ${DISCORD_CONFIG.ALERT_USER_ID} พบความผิดปกติของระบบ กรุณาตรวจสอบด่วน!`
-    : undefined;
 
   return {
     username: DISCORD_CONFIG.BOT_NAME,
     avatar_url: DISCORD_CONFIG.AVATAR_URL,
-    content,
     embeds,
   };
 };

@@ -27,6 +27,7 @@ export interface Project {
   end_date?: string;
   estimate_hour?: number;
   is_deleted?: boolean;
+  projectStatusId?: number | null;
 }
 
 export interface ModalState {
@@ -46,6 +47,8 @@ export interface FormValues {
   description?: string;
   categoryType: string;
   status: string;
+  projectStatusId?: number | null;
+  projectStatusId_display?: number | null;
   start_date?: any;
   end_date?: any;
   assignees?: { userId: number; position?: string }[];

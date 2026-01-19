@@ -1,14 +1,16 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { HeaderBar } from "@components/typhography/header-bar-component";
-import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { toast } from "sonner";
 import { CallAPI as GET_VERSION_CONTROL } from "@/stores/actions/health-check/version-control/action";
 import { ResponseVersionControl } from "@/stores/type";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/th";
 
 // Ant Design V5
 import {
@@ -18,7 +20,6 @@ import {
   Drawer,
   Space,
   Typography,
-  Tooltip,
   theme,
   Avatar,
   Badge,
@@ -29,30 +30,30 @@ import {
   Statistic,
   Empty,
   Divider,
+  Progress,
+  Tooltip,
 } from "antd";
 import {
   RocketOutlined,
+  ArrowLeftOutlined,
   DeploymentUnitOutlined,
-  BugOutlined,
   SyncOutlined,
   SearchOutlined,
   UserOutlined,
   HistoryOutlined,
   BranchesOutlined,
   GlobalOutlined,
-  WarningOutlined,
   CodeOutlined,
   FileTextOutlined,
+  CheckCircleFilled,
+  ClockCircleFilled,
+  FireFilled,
 } from "@ant-design/icons";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/th";
 
 // Setup Dayjs
 dayjs.extend(relativeTime);
 dayjs.locale("th");
 
-// Types
 type SystemGroup = {
   systemName: string;
   repo: string;
@@ -63,41 +64,22 @@ type SystemGroup = {
 };
 
 // --- Helper Functions ---
-
-// เช็คว่าเป็นรายการใหม่ (น้อยกว่า 24 ชม.)
 const isRecent = (dateStr: string) => {
   if (!dateStr) return false;
   return dayjs().diff(dayjs(dateStr), "hour") < 24;
 };
 
-// แปลงชื่อ Environment เป็นภาษาไทย
-const getThaiEnvName = (env: string) => {
-  switch (env.toLowerCase()) {
-    case "production":
-      return "เซิร์ฟเวอร์โปรดักชัน";
-    case "beta":
-      return "เซิร์ฟเวอร์เบต้า";
-    case "development":
-      return "เซิร์ฟเวอร์พัฒนา";
-    default:
-      return env.toUpperCase();
-  }
-};
-
-export default function OperationsDashboardPage() {
+export default function VersionControlDashboard() {
   const { token } = theme.useToken();
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
   // Redux Selectors
-  const SCHOOL_LIST_STATE = useAppSelector((state) => state.callSchoolList);
   const GET_VERSION_CONTROL_STATE = useAppSelector(
     (state) => state.callVersionControlReducer
   );
 
-  const isLoading = [
-    SCHOOL_LIST_STATE.loading,
-    GET_VERSION_CONTROL_STATE.loading,
-  ].some(Boolean);
+  const isLoading = GET_VERSION_CONTROL_STATE.loading;
 
   // States
   const [rawData, setRawData] = useState<
@@ -115,7 +97,6 @@ export default function OperationsDashboardPage() {
 
   useEffect(() => {
     const response = GET_VERSION_CONTROL_STATE?.response?.data?.data ?? [];
-    // Sort by updated_at desc (ล่าสุดอยู่บน)
     const sorted = [...response].sort(
       (a, b) =>
         new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
@@ -123,7 +104,7 @@ export default function OperationsDashboardPage() {
     setRawData(sorted);
   }, [GET_VERSION_CONTROL_STATE]);
 
-  // Data Transformation
+  // Transform Data
   const groupedSystems = useMemo(() => {
     const groups: Record<string, SystemGroup> = {};
 
@@ -135,7 +116,6 @@ export default function OperationsDashboardPage() {
           last_updated: item.updated_at,
         };
       }
-
       if (item.environment === "production")
         groups[item.system].production = item;
       else if (item.environment === "beta") groups[item.system].beta = item;
@@ -160,22 +140,15 @@ export default function OperationsDashboardPage() {
       );
   }, [rawData, searchText]);
 
-  const recentActivities = useMemo(() => {
-    return rawData.slice(0, 10);
-  }, [rawData]);
+  const recentActivities = useMemo(() => rawData.slice(0, 15), [rawData]);
 
-  const getEnvColor = (env: string) => {
-    switch (env) {
-      case "production":
-        return token.colorSuccess;
-      case "beta":
-        return token.colorWarning;
-      case "development":
-        return token.colorPrimary;
-      default:
-        return token.colorTextSecondary;
-    }
-  };
+  const stats = useMemo(() => {
+    const total = groupedSystems.length;
+    const activeToday = rawData.filter((r) => isRecent(r.updated_at)).length;
+    const stableProd = groupedSystems.filter((g) => g.production).length;
+    const deployRate = total > 0 ? Math.round((stableProd / total) * 100) : 0;
+    return { total, activeToday, deployRate };
+  }, [groupedSystems, rawData]);
 
   const handleOpenDetail = (
     item?: ResponseVersionControl["data"]["data"][number]
@@ -186,375 +159,640 @@ export default function OperationsDashboardPage() {
     }
   };
 
+  // --- Styled Components Logic ---
+  const glassStyle = {
+    background: token.colorBgContainer + "CC", // Add transparency
+    backdropFilter: "blur(10px)",
+    border: `1px solid ${token.colorBorderSecondary}`,
+  };
+
+  const gradientHeaderStyle = {
+    background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorInfo})`,
+    color: "#fff",
+  };
+
   return (
     <DashboardLayout>
-      <HeaderBar
-        title="ระบบตรวจสอบการทำงาน (Operations Monitor)"
-        subTitle="ติดตามการ Deploy และตรวจสอบเวอร์ชันรายระบบ"
-        icon={<GlobalOutlined />}
-        color="none"
-      />
+      <div className="min-h-screen pb-10">
+        {/* --- Hero / Header Section --- */}
+        <div
+          className="rounded-3xl p-8 mb-8 shadow-lg relative overflow-hidden"
+          style={gradientHeaderStyle}
+        >
+          {/* Background decoration circles */}
+          <div
+            className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 pointer-events-none mix-blend-overlay"
+            style={{ filter: "blur(40px)" }}
+          />
+          <div
+            className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-8 -mb-8 pointer-events-none mix-blend-overlay"
+            style={{ filter: "blur(40px)" }}
+          />
 
-      <div className="w-full space-y-6">
-        {/* Top Controls */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4  p-4 rounded-xl shadow-sm  ">
-          <Space>
-            <Statistic
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div>
+              <Button
+                type="text"
+                icon={<ArrowLeftOutlined style={{ color: "white" }} />}
+                onClick={() => router.back()}
+                style={{
+                  color: "white",
+                  marginBottom: 8,
+                  paddingLeft: 0,
+                  fontSize: 14,
+                  fontWeight: 500,
+                }}
+              >
+                ย้อนกลับ
+              </Button>
+              <Typography.Title
+                level={2}
+                style={{ color: "#fff", marginBottom: 8, marginTop: 0 }}
+              >
+                <RocketOutlined className="mr-3" />
+                ศูนย์ควบคุมเวอร์ชันระบบ
+              </Typography.Title>
+              <Typography.Text className="text-white/80 text-lg">
+                ภาพรวมการ Deploy และสถานะเวอร์ชันของระบบทั้งหมด
+              </Typography.Text>
+            </div>
+            <div className="flex gap-4">
+              <Link href="/health-check/version-control/release-note">
+                <Button
+                  size="large"
+                  type="default"
+                  ghost
+                  className="!border-white/40 !text-white hover:!bg-white/20 hover:!border-white"
+                  icon={<FileTextOutlined />}
+                >
+                  บันทึกการอัปเดต
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Review Stats Cards within Hero */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+            <StatCard
               title="ระบบทั้งหมด"
-              value={groupedSystems.length}
-              prefix={<DeploymentUnitOutlined />}
-              valueStyle={{ fontSize: 18, fontWeight: 600 }}
+              value={stats.total}
+              icon={<DeploymentUnitOutlined />}
+              bg="rgba(255,255,255,0.15)"
             />
-            <Divider type="vertical" className="h-8" />
-            <Statistic
-              title="การอัปเดต (24 ชม.)"
-              value={rawData.filter((r) => isRecent(r.updated_at)).length}
-              prefix={<HistoryOutlined />}
-              valueStyle={{
-                fontSize: 18,
-                fontWeight: 600,
-                color: token.colorSuccess, // Changed to Success Color (Green) to avoid confusion
-              }}
+            <StatCard
+              title="อัปเดตวันนี้"
+              value={stats.activeToday}
+              icon={<FireFilled />} // Use FireFilled for "Hot" activity
+              bg="rgba(255,255,255,0.15)"
+              isTime
             />
-          </Space>
-
-          <Space>
-            <Input
-              placeholder="ค้นหาระบบ..."
-              prefix={
-                <SearchOutlined style={{ color: token.colorTextPlaceholder }} />
-              }
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 250 }}
-              allowClear
+            <StatCard
+              title="ความพร้อมใช้งาน"
+              value={`${stats.deployRate}%`}
+              icon={<CheckCircleFilled />}
+              bg="rgba(255,255,255,0.15)"
             />
-            <Button
-              icon={<SyncOutlined spin={isLoading} />}
-              onClick={() => {
-                dispatch(GET_VERSION_CONTROL());
-                toast.success("ดึงข้อมูลล่าสุดเรียบร้อย");
+            <div
+              className="rounded-xl p-4 flex items-center justify-between text-white"
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                backdropFilter: "blur(5px)",
               }}
             >
-              รีเฟรชข้อมูล
-            </Button>
+              <div>
+                <div className="text-white/70 text-xs uppercase font-bold tracking-wider">
+                  เวลาเซิร์ฟเวอร์
+                </div>
+                <div className="text-2xl font-bold mt-1 font-mono">
+                  {dayjs().format("HH:mm")}
+                </div>
+              </div>
+              <ClockCircleFilled className="text-3xl opacity-50" />
+            </div>
+          </div>
+        </div>
 
-            {/* ✅ Added Release Note Button with Badge */}
-            <Link href="/health-check/version-control/release-note">
-              <Badge count="ใหม่" offset={[-5, 5]} color={token.colorSuccess}>
-                <Button type="default" icon={<FileTextOutlined />}>
-                  Release Note
-                </Button>
-              </Badge>
-            </Link>
-          </Space>
+        {/* --- Toolbar --- */}
+        <div
+          className="sticky top-4 z-20 rounded-2xl p-3 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm transition-all duration-300"
+          style={glassStyle}
+        >
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div
+              className="p-2 rounded-lg"
+              style={{ background: token.colorFillTertiary }}
+            >
+              <BranchesOutlined
+                style={{ fontSize: 18, color: token.colorText }}
+              />
+            </div>
+            <Typography.Text strong style={{ fontSize: 16 }}>
+              ท่อส่งงานระบบ (Pipelines)
+            </Typography.Text>
+          </div>
+
+          <div className="flex gap-3 w-full sm:w-auto">
+            <Input
+              prefix={
+                <SearchOutlined style={{ color: token.colorTextDescription }} />
+              }
+              placeholder="ค้นหาชื่อระบบ..."
+              allowClear
+              className="hover:!border-primary"
+              style={{
+                borderRadius: 12,
+                background: token.colorFillAlter,
+                border: "none",
+                width: 280,
+              }}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            <Tooltip title="รีเฟรชข้อมูล">
+              <Button
+                type="text"
+                shape="circle"
+                icon={<SyncOutlined spin={isLoading} />}
+                onClick={() => {
+                  dispatch(GET_VERSION_CONTROL());
+                  toast.success("อัปเดตข้อมูลแล้ว!");
+                }}
+                style={{
+                  background: token.colorFillAlter,
+                  color: token.colorPrimary,
+                }}
+              />
+            </Tooltip>
+          </div>
         </div>
 
         <Row gutter={[24, 24]}>
-          {/* LEFT COLUMN: Main System Grid */}
-          <Col xs={24} xl={16}>
-            <Typography.Title level={5} className="mb-4 ">
-              <BranchesOutlined /> ภาพรวมสถานะระบบ (System Status)
-            </Typography.Title>
-
-            <div className="grid grid-cols-1 gap-4">
-              {groupedSystems.map((group) => (
-                <Card
-                  key={group.systemName}
-                  hoverable
-                  size="small"
-                  className="overflow-hidden border-l-4"
-                  style={{ borderLeftColor: token.colorPrimary }}
-                >
-                  <div className="p-4  border-b flex justify-between items-center">
-                    <Space>
-                      <Avatar
-                        shape="square"
-                        style={{
-                          color: token.colorPrimary,
-                        }}
-                      >
-                        {group.systemName.charAt(0)}
-                      </Avatar>
-                      <div>
-                        <Typography.Text strong className="block text-base">
-                          {group.systemName}
-                        </Typography.Text>
-                        <Typography.Text type="secondary" className="text-xs">
-                          {group.repo}
-                        </Typography.Text>
-                      </div>
-                    </Space>
-                    <Typography.Text type="secondary" className="text-xs">
-                      อัปเดต {dayjs(group.last_updated).fromNow()}
-                    </Typography.Text>
-                  </div>
-
-                  <div className="grid grid-cols-3 divide-x">
-                    <EnvSlot
-                      title="เซิร์ฟเวอร์พัฒนา"
-                      data={group.development}
-                      color="blue"
-                      onClick={() => handleOpenDetail(group.development)}
-                    />
-                    <EnvSlot
-                      title="เซิร์ฟเวอร์เบต้า"
-                      data={group.beta}
-                      color="orange"
-                      onClick={() => handleOpenDetail(group.beta)}
-                    />
-                    <EnvSlot
-                      title="เซิร์ฟเวอร์โปรดักชัน"
-                      data={group.production}
-                      color="green"
-                      onClick={() => handleOpenDetail(group.production)}
-                    />
-                  </div>
-                </Card>
-              ))}
-
-              {groupedSystems.length === 0 && (
-                <Empty description="ไม่พบข้อมูลระบบ" />
-              )}
-            </div>
+          {/* --- Main Grid: Systems --- */}
+          <Col xs={24} xl={16} xxl={17}>
+            {groupedSystems.length > 0 ? (
+              <div className="grid grid-cols-1 gap-5">
+                {groupedSystems.map((group) => (
+                  <SystemPipelineCard
+                    key={group.systemName}
+                    group={group}
+                    token={token}
+                    onClickDetail={handleOpenDetail}
+                  />
+                ))}
+              </div>
+            ) : (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="ไม่พบข้อมูลระบบ"
+                className="mt-20"
+              />
+            )}
           </Col>
 
-          {/* RIGHT COLUMN: Live Feed */}
-          <Col xs={24} xl={8}>
-            <div className="sticky top-4">
-              <Card
-                title={
-                  <Space>
-                    <HistoryOutlined />{" "}
-                    {/* ✅ Changed to Green to indicate Normal Status */}
-                    <span style={{ color: token.colorSuccess }}>Live Deploy Feed</span>
-                  </Space>
-                }
-                className="shadow-sm"
-                bodyStyle={{ padding: "0px 24px 24px 24px" }}
+          {/* --- Right Sidebar: Live Feed --- */}
+          <Col xs={24} xl={8} xxl={7}>
+            <div className="sticky top-24">
+              <div
+                className="rounded-2xl p-5 shadow-sm border"
+                style={{
+                  background: token.colorBgContainer,
+                  borderColor: token.colorBorderSecondary,
+                }}
               >
-                {/* ✅ Changed Alert Box Style to Blue/Info instead of Red/Warning */}
-                <div className="my-4 p-3 bg-blue-50 rounded-lg border border-blue-100 text-xs text-blue-600 flex items-start gap-2">
-                  <WarningOutlined />
-                  <span>
-                    Feed นี้แสดงรายการ Deploy ล่าสุดเรียงตามเวลา
-                    ช่วยให้ตรวจสอบได้ว่าใคร Deploy อะไรเข้ามาบ้าง
-                  </span>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <Typography.Title level={5} style={{ margin: 0 }}>
+                      ความเคลื่อนไหวล่าสุด
+                    </Typography.Title>
+                  </div>
+                  <Tag color="cyan" className="rounded-full px-3 border-0">
+                    เรียลไทม์
+                  </Tag>
                 </div>
 
                 <Timeline
-                  className="mt-6"
                   items={recentActivities.map((item) => ({
-                    // ✅ Force Green Color for all items
-                    color: token.colorSuccess,
-                    dot: isRecent(item.updated_at) ? (
-                      // ✅ Pulse Green for recent items
-                      <div className="animate-pulse w-3 h-3 rounded-full bg-green-500" />
-                    ) : undefined,
+                    dot: (
+                      <div
+                        className={`w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 ${
+                          isRecent(item.updated_at)
+                            ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"
+                            : "bg-gray-300 dark:bg-gray-600"
+                        }`}
+                      />
+                    ),
                     children: (
                       <div
-                        className="cursor-pointer p-2 -ml-2 rounded transition-colors group"
+                        className="group cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 p-3 -mt-2 -ml-2 rounded-xl transition-all"
                         onClick={() => handleOpenDetail(item)}
                       >
-                        <div className="flex justify-between items-start gap-2">
-                          <Typography.Text
-                            strong
-                            style={{ fontSize: 13 }}
-                            className="truncate"
+                        <div className="flex justify-between items-start">
+                          <span
+                            className="font-bold text-sm block mb-1 truncate w-40"
+                            style={{ color: token.colorText }}
                           >
                             {item.system}
-                          </Typography.Text>
-
-                          {/* ✅ แสดง วัน/เดือน/ปี และเวลา */}
-                          <Tag
-                            bordered={false}
-                            className="mr-0 text-[10px]  whitespace-nowrap"
+                          </span>
+                          <span
+                            className="text-[10px]"
+                            style={{ color: token.colorTextDescription }}
                           >
-                            {dayjs(item.updated_at).format("DD/MM/YYYY HH:mm")}
-                          </Tag>
+                            {dayjs(item.updated_at).fromNow(true)}
+                          </span>
                         </div>
-
                         <div className="flex items-center gap-2 mt-1">
-                          {/* ✅ แสดงชื่อเซิร์ฟเวอร์เป็นภาษาไทยเต็มๆ */}
-                          <Tag
-                            color={getEnvColor(item.environment)}
-                            className="mr-0 text-[10px] px-2"
-                          >
-                            {getThaiEnvName(item.environment)}
-                          </Tag>
-
-                          <span className="text-xs text-gray-400">
-                            Build: {item.build.substring(0, 6)}
+                          <SmallEnvBadge env={item.environment} />
+                          <span className="text-xs font-mono text-gray-500">
+                            #{item.build.substring(0, 4)}
                           </span>
                         </div>
 
-                        <div className="mt-2 flex items-center gap-2">
+                        <div className="flex items-center gap-2 mt-2">
                           <Avatar
-                            size={16}
+                            size={18}
                             icon={<UserOutlined />}
-                            className="bg-slate-300"
+                            style={{ background: token.colorFillContent }}
                           />
-                          <Typography.Text
-                            type="secondary"
-                            style={{ fontSize: 11 }}
-                            className="group-hover:text-blue-500 transition-colors"
-                          >
+                          <span className="text-xs text-gray-500 group-hover:text-primary transition-colors">
                             {item.deployed_by}
-                          </Typography.Text>
+                          </span>
                         </div>
                       </div>
                     ),
                   }))}
                 />
-              </Card>
+
+                <div className="mt-4 pt-4 border-t text-center">
+                  <Button type="link" size="small" className="text-gray-400">
+                    ดูประวัติทั้งหมด
+                  </Button>
+                </div>
+              </div>
             </div>
           </Col>
         </Row>
       </div>
 
       <Drawer
-        title="รายละเอียดการติดตั้ง (Deployment Details)"
+        title={
+          <Space>
+            <RocketOutlined style={{ color: token.colorPrimary }} />
+            <span>รายละเอียดการติดตั้ง</span>
+          </Space>
+        }
         placement="right"
+        width={500}
         onClose={() => setDrawerOpen(false)}
         open={drawerOpen}
-        width={500}
+        styles={{
+          header: { borderBottom: `1px solid ${token.colorBorderSecondary}` },
+        }}
       >
-        {selectedItem && (
-          <div className="flex flex-col gap-6">
-            <div className="text-center py-6 rounded-lg border ">
-              <Tag
-                color={getEnvColor(selectedItem.environment)}
-                className="mb-2 text-sm px-3 py-1"
-              >
-                {getThaiEnvName(selectedItem.environment)}
-              </Tag>
-              <Typography.Title level={4} style={{ margin: 0 }}>
-                {selectedItem.system}
-              </Typography.Title>
-              <Typography.Text type="secondary">
-                {selectedItem.repo}
-              </Typography.Text>
-            </div>
-
-            <div className="space-y-4">
-              <DetailRow
-                label="ผู้ดำเนินการ"
-                value={selectedItem.deployed_by}
-                icon={<UserOutlined />}
-                highlight
-              />
-              <DetailRow
-                label="เวอร์ชัน"
-                value={selectedItem.version || "N/A"}
-                icon={<RocketOutlined />}
-              />
-              <DetailRow
-                label="รหัส Build"
-                value={selectedItem.build}
-                code
-                icon={<CodeOutlined />}
-              />
-              <DetailRow
-                label="Branch"
-                value={selectedItem.branch}
-                code
-                icon={<BranchesOutlined />}
-              />
-              <DetailRow
-                label="เวลาที่ติดตั้ง"
-                value={`${dayjs(selectedItem.updated_at).format(
-                  "DD/MM/YYYY HH:mm"
-                )} (${dayjs(selectedItem.updated_at).fromNow()})`}
-                icon={<HistoryOutlined />}
-              />
-            </div>
-
-            <Divider orientation="left" style={{ margin: "12px 0" }}>
-              ข้อความ / รายละเอียด
-            </Divider>
-            <div className=" text-green-400 p-4 rounded-md font-mono text-sm">
-              {">"} {selectedItem.description}
-            </div>
-          </div>
-        )}
+        <DrawerContent item={selectedItem} token={token} />
       </Drawer>
     </DashboardLayout>
   );
 }
 
-// ✅ Sub-components
-const EnvSlot = ({
-  title,
-  data,
-  color,
-  onClick,
-}: {
-  title: string;
-  data?: any;
-  color: string;
-  onClick: () => void;
-}) => {
-  const isSuccess = !!data;
+// --- Sub Components ---
 
+const StatCard = ({ title, value, icon, bg, isTime }: any) => (
+  <div
+    className="rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group"
+    style={{ background: bg, backdropFilter: "blur(5px)" }}
+  >
+    <div className="flex justify-between items-start z-10">
+      <div className="text-white/70 text-xs uppercase font-bold tracking-wider">
+        {title}
+      </div>
+      <div className="text-white/50 text-xl group-hover:scale-110 transition-transform duration-500">
+        {icon}
+      </div>
+    </div>
+    <div className="text-2xl font-bold text-white mt-1 z-10 flex items-center gap-2">
+      {value}
+      {isTime && (
+        <span className="text-xs font-normal text-white/60 bg-white/10 px-2 py-0.5 rounded-full">
+          Times
+        </span>
+      )}
+    </div>
+  </div>
+);
+
+const SystemPipelineCard = ({
+  group,
+  token,
+  onClickDetail,
+}: {
+  group: SystemGroup;
+  token: any;
+  onClickDetail: (item: any) => void;
+}) => {
   return (
     <div
-      className={`p-4 flex flex-col justify-center min-h-[100px] transition-all cursor-pointer hover:bg-${color}-50`}
-      onClick={isSuccess ? onClick : undefined}
+      className="rounded-2xl p-5 border shadow-sm hover:shadow-md transition-all duration-300 group"
+      style={{
+        background: token.colorBgContainer,
+        borderColor: token.colorBorderSecondary,
+      }}
     >
-      <div className="flex justify-between mb-2">
-        <span
-          className={`text-[10px] font-bold text-${color}-600 bg-${color}-50 px-2 py-0.5 rounded border border-${color}-100`}
-        >
-          {title}
-        </span>
-        {data && isRecent(data.updated_at) && (
-          <Badge dot color="red" offset={[0, 0]}>
-            <span className="text-[10px] text-red-400 ml-1">ใหม่</span>
-          </Badge>
-        )}
-      </div>
-
-      {data ? (
-        <>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl font-semibold ">
-              {data.version || "v.?"}
-            </span>
-            <span className="text-xs font-mono">
-              #{data.build.substring(0, 5)}
-            </span>
+      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+        {/* Left: Info */}
+        <div className="flex-1 min-w-[200px]">
+          <div className="flex items-center gap-3 mb-1">
+            <Avatar
+              shape="square"
+              size={48}
+              style={{
+                background: token.colorPrimaryBg,
+                color: token.colorPrimary,
+                fontSize: 24,
+                borderRadius: 12,
+              }}
+            >
+              {group.systemName.charAt(0)}
+            </Avatar>
+            <div>
+              <Typography.Title
+                level={5}
+                className="!mb-0 group-hover:text-primary transition-colors"
+              >
+                {group.systemName}
+              </Typography.Title>
+              <Typography.Text
+                type="secondary"
+                className="text-xs flex items-center gap-1"
+              >
+                <BranchesOutlined /> {group.repo}
+              </Typography.Text>
+            </div>
           </div>
-          <div className="mt-2 flex items-center gap-1 overflow-hidden">
-            <UserOutlined style={{ fontSize: 10, color: "#94a3b8" }} />
-            <span className="text-[11px]  truncate max-w-full">
-              {data.deployed_by}
-            </span>
-          </div>
-          <span className="text-[10px]  mt-1 block">
-            {dayjs(data.updated_at).fromNow()}
-          </span>
-        </>
-      ) : (
-        <div className="flex flex-col items-center justify-center h-full opacity-30">
-          <span className="text-2xl">-</span>
-          <span className="text-xs">ไม่มีข้อมูล</span>
         </div>
-      )}
+
+        {/* Center: Pipeline */}
+        <div
+          className="flex-1 w-full md:w-auto flex items-center gap-2 p-2 rounded-xl"
+          style={{ background: token.colorFillQuaternary }}
+        >
+          <EnvPill
+            env="DEV"
+            data={group.development}
+            color="blue"
+            onClick={onClickDetail}
+            token={token}
+          />
+          <div
+            className="h-[2px] w-4 rounded-full"
+            style={{ background: token.colorBorder }}
+          />
+          <EnvPill
+            env="BETA"
+            data={group.beta}
+            color="orange"
+            onClick={onClickDetail}
+            token={token}
+          />
+          <div
+            className="h-[2px] w-4 rounded-full"
+            style={{ background: token.colorBorder }}
+          />
+          <EnvPill
+            env="PROD"
+            data={group.production}
+            color="green"
+            onClick={onClickDetail}
+            token={token}
+          />
+        </div>
+
+        {/* Right: Meta */}
+        <div className="hidden md:flex flex-col items-end gap-1 min-w-[100px]">
+          <Typography.Text type="secondary" className="text-xs">
+            อัปเดตล่าสุด
+          </Typography.Text>
+          <Tag
+            className="m-0 rounded-full border-0"
+            style={{
+              background: token.colorFillQuaternary,
+              color: token.colorTextSecondary,
+            }}
+          >
+            {dayjs(group.last_updated).fromNow()}
+          </Tag>
+        </div>
+      </div>
     </div>
   );
 };
 
-const DetailRow = ({ label, value, icon, code, highlight }: any) => (
-  <div className="flex justify-between items-center pb-3 border-b  last:border-0">
-    <Space className="">
-      {icon}
-      <span>{label}</span>
-    </Space>
-    {highlight ? (
-      <Tag color="geekblue">{value}</Tag>
-    ) : (
-      <Typography.Text code={code} strong>
-        {value}
-      </Typography.Text>
-    )}
-  </div>
-);
+const EnvPill = ({
+  env,
+  data,
+  color,
+  token,
+  onClick,
+}: {
+  env: string;
+  data: any;
+  color: "blue" | "green" | "orange";
+  token: any;
+  onClick: (item: any) => void;
+}) => {
+  const active = !!data;
+  const recent = active && isRecent(data.updated_at);
+
+  let colorObj = { bg: "", text: "", border: "" };
+  if (color === "blue") {
+    colorObj = {
+      bg: token.colorInfoBg,
+      text: token.colorInfo,
+      border: token.colorInfoBorder,
+    };
+  } else if (color === "orange") {
+    colorObj = {
+      bg: token.colorWarningBg,
+      text: token.colorWarning,
+      border: token.colorWarningBorder,
+    };
+  } else {
+    colorObj = {
+      bg: token.colorSuccessBg,
+      text: token.colorSuccess,
+      border: token.colorSuccessBorder,
+    };
+  }
+
+  if (!active) {
+    return (
+      <div
+        className="flex-1 min-h-[90px] rounded-lg border border-dashed flex flex-col items-center justify-center opacity-50"
+        style={{
+          background: token.colorFillQuaternary,
+          borderColor: token.colorBorder,
+        }}
+      >
+        <span
+          className="text-[10px] font-bold"
+          style={{ color: token.colorTextDisabled }}
+        >
+          {env}
+        </span>
+        <span
+          className="text-[10px]"
+          style={{ color: token.colorTextDisabled }}
+        >
+          -
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex-1 min-h-[90px] rounded-lg cursor-pointer relative overflow-hidden transition-all hover:brightness-95 flex flex-col items-center justify-center border p-1"
+      style={{
+        background: colorObj.bg,
+        borderColor: colorObj.border,
+      }}
+      onClick={() => onClick(data)}
+    >
+      {recent && (
+        <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full shadow-sm m-1 animate-pulse" />
+      )}
+
+      <span
+        className="text-[9px] font-bold opacity-70"
+        style={{ color: colorObj.text }}
+      >
+        {env}
+      </span>
+      <div className="flex items-center gap-1 my-0.5">
+        <span className="text-sm font-bold" style={{ color: token.colorText }}>
+          v.{data.version || "?"}
+        </span>
+      </div>
+
+      {/* Date */}
+      <span
+        className="text-[10px] font-mono leading-tight"
+        style={{ color: token.colorTextSecondary }}
+      >
+        {dayjs(data.updated_at).format("DD/MM/YYYY HH:mm")}
+      </span>
+
+      {/* Build Number */}
+      <span
+        className="text-[9px] font-mono opacity-60 mt-0.5"
+        style={{ color: token.colorText }}
+      >
+        #{data.build.substring(0, 5)}
+      </span>
+    </div>
+  );
+};
+
+const SmallEnvBadge = ({ env }: { env: string }) => {
+  let color = "gray";
+  let sub = "UNK";
+  if (env === "production") {
+    color = "green";
+    sub = "PROD";
+  }
+  if (env === "beta") {
+    color = "orange";
+    sub = "BETA";
+  }
+  if (env === "development") {
+    color = "blue";
+    sub = "DEV";
+  }
+
+  return (
+    <Tag
+      color={color}
+      className="mr-0 text-[10px] px-1 py-[1px] leading-tight rounded border-0"
+    >
+      {sub}
+    </Tag>
+  );
+};
+
+const DrawerContent = ({ item, token }: { item: any; token: any }) => {
+  if (!item) return null;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div
+        className="p-4 rounded-xl text-center border"
+        style={{
+          background: token.colorFillQuaternary,
+          borderColor: token.colorBorderSecondary,
+        }}
+      >
+        <Typography.Title level={3} style={{ margin: 0 }}>
+          v.{item.version}
+        </Typography.Title>
+        <div className="flex justify-center gap-2 mt-2">
+          <SmallEnvBadge env={item.environment} />
+          <span
+            className="font-mono"
+            style={{ color: token.colorTextSecondary }}
+          >
+            #{item.build}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div
+          className="flex justify-between border-b pb-2"
+          style={{ borderColor: token.colorBorderSecondary }}
+        >
+          <span style={{ color: token.colorTextSecondary }}>ผู้ดำเนินการ</span>
+          <span className="font-semibold flex items-center gap-2">
+            <Avatar size="small" icon={<UserOutlined />} /> {item.deployed_by}
+          </span>
+        </div>
+        <div
+          className="flex justify-between border-b pb-2"
+          style={{ borderColor: token.colorBorderSecondary }}
+        >
+          <span style={{ color: token.colorTextSecondary }}>
+            เวลาที่ติดตั้ง
+          </span>
+          <span className="font-semibold">
+            {dayjs(item.updated_at).format("DD MMM YYYY, HH:mm")}
+          </span>
+        </div>
+        <div
+          className="flex justify-between border-b pb-2"
+          style={{ borderColor: token.colorBorderSecondary }}
+        >
+          <span style={{ color: token.colorTextSecondary }}>สาขา (Branch)</span>
+          <span
+            className="font-mono px-2 rounded text-xs"
+            style={{
+              background: token.colorFillQuaternary,
+              color: token.colorText,
+            }}
+          >
+            {item.branch}
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-2">
+        <Typography.Text strong className="mb-2 block">
+          รายละเอียด / ข้อความ
+        </Typography.Text>
+        <div
+          className="p-4 rounded-xl font-mono text-sm leading-relaxed"
+          style={{ background: token.colorFillContent, color: token.colorText }}
+        >
+          {item.description}
+        </div>
+      </div>
+    </div>
+  );
+};

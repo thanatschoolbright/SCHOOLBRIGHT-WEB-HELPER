@@ -30,6 +30,7 @@ export interface SubProject {
       link: string;
     }>;
   };
+  estimate_sub_feature_workhours?: number; // เพิ่มฟิลด์นี้
 }
 
 export interface Project {

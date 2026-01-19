@@ -168,9 +168,13 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
       const endpoint = autoChatGptEnabled
         ? "/api/v1/ai/chatgpt/summarize"
         : "/api/v1/ai/gemini/summarize";
+
       const response = await axios.post(endpoint, {
         summary: issue.summary,
         description: issue.description,
+        // Send full issue details for better Context
+        details: issue,
+        issueKey: issue.issueKey || String(issue.id),
       });
       const markdown = response?.data?.data?.markdown || "";
       payload.updates.description = markdown;

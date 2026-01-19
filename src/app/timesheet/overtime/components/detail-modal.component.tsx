@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Modal,
   Descriptions,
@@ -10,10 +10,26 @@ import {
   Space,
   Skeleton,
   theme,
+  Avatar,
+  Timeline,
+  Divider,
+  Badge,
+  Row,
+  Col,
+  Statistic,
 } from "antd";
-import { FileTextOutlined } from "@ant-design/icons";
+import {
+  FileTextOutlined,
+  UserOutlined,
+  ClockCircleOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  TeamOutlined,
+  FieldTimeOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
+import "dayjs/locale/th";
 import type { OvertimeRecord } from "../types/overtime.types";
 import { OT_STATUS } from "../types/overtime.types";
 import { getUserById } from "@helpers/local_storage/user.storage";
@@ -34,99 +50,455 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const { t } = useTranslation();
   const { token } = theme.useToken();
 
+  // ดึงข้อมูลผู้ใช้จริง
+  const requesterUser = useMemo(() => {
+    if (!selectedDetail?.requester_id) return null;
+    return getUserById(selectedDetail.requester_id);
+  }, [selectedDetail?.requester_id]);
+
+  const creatorUser = useMemo(() => {
+    if (!selectedDetail?.created_by) return null;
+    return getUserById(selectedDetail.created_by);
+  }, [selectedDetail?.created_by]);
+
+  // คำนวณรวมชั่วโมง
+  const totalHours = useMemo(() => {
+    if (!selectedDetail?.descriptions) return 0;
+    return selectedDetail.descriptions.reduce(
+      (sum, item) => sum + Number(item.duration || 0),
+      0,
+    );
+  }, [selectedDetail?.descriptions]);
+
+  // หาสถานะ
+  const statusConfig = useMemo(() => {
+    return OT_STATUS.find((s) => s.value === selectedDetail?.status);
+  }, [selectedDetail?.status]);
+
   return (
     <Modal
       title={
-        <Space>
-          <FileTextOutlined style={{ color: token.colorPrimary }} />
-          {t("overtime_page.detail_title")}
-        </Space>
+        <div
+          className="flex items-center gap-3 p-4 rounded-t-2xl"
+          style={{
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            margin: "-20px -24px 0",
+            padding: "24px",
+          }}
+        >
+          <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+            <FileTextOutlined style={{ color: "#fff", fontSize: "24px" }} />
+          </div>
+          <div>
+            <span style={{ fontSize: "20px", fontWeight: 700, color: "#fff" }}>
+              รายละเอียดคำขอทำงานล่วงเวลา
+            </span>
+            <div
+              style={{
+                fontSize: "13px",
+                color: "#fff",
+                opacity: 0.9,
+                marginTop: 4,
+              }}
+            >
+              ข้อมูลคำขอ OT ฉบับเต็ม
+            </div>
+          </div>
+        </div>
       }
       open={visible}
       onCancel={() => setVisible(false)}
       footer={null}
-      width={700}
+      width={900}
       centered
+      closeIcon={<span style={{ color: "#fff", fontSize: "20px" }}>✕</span>}
     >
       {selectedDetail ? (
         <div className="pt-4 space-y-6">
-          <Descriptions
-            bordered
-            column={1}
-            labelStyle={{ width: 150, fontWeight: 600 }}
-          >
-            <Descriptions.Item label={t("overtime_page.document_id")}>
-              {selectedDetail.id}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("overtime_page.requester")}>
-              {selectedDetail.requester_id}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("overtime_page.request_date")}>
-              {selectedDetail.request_date
-                ? dayjs(selectedDetail.request_date).format("DD/MM/YYYY")
-                : "-"}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("overtime_page.status")}>
-              {OT_STATUS.find((s) => s.value === selectedDetail.status)?.text ||
-                selectedDetail.status}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("overtime_page.created_by")}>
-              {selectedDetail.created_by}
-            </Descriptions.Item>
-          </Descriptions>
-
-          <div>
-            <Title level={5}>{t("overtime_page.work_list")}</Title>
-            <div className="space-y-3">
-              {selectedDetail.descriptions?.map((item, idx) => (
-                <Card
-                  key={idx}
-                  size="small"
-                  type="inner"
-                  title={`${t("overtime_page.item")} ${idx + 1}`}
+          {/* Status and Summary Cards */}
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={8}>
+              <Card
+                className="text-center"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #667eea20 0%, #764ba220 100%)",
+                  border: "2px solid #667eea30",
+                  borderRadius: 16,
+                }}
+              >
+                <Statistic
+                  title={
+                    <Text strong style={{ color: "#667eea" }}>
+                      เลขที่เอกสาร
+                    </Text>
+                  }
+                  value={selectedDetail.id}
+                  prefix={<FileTextOutlined style={{ color: "#667eea" }} />}
+                  valueStyle={{
+                    color: "#667eea",
+                    fontSize: 24,
+                    fontWeight: 700,
+                  }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={8}>
+              <Card
+                className="text-center"
+                style={{
+                  background:
+                    statusConfig?.color === "gold"
+                      ? "linear-gradient(135deg, #faad1420 0%, #ffd70020 100%)"
+                      : statusConfig?.color === "green"
+                        ? "linear-gradient(135deg, #52c41a20 0%, #73d13d20 100%)"
+                        : "linear-gradient(135deg, #ff4d4f20 0%, #ff7a4520 100%)",
+                  border: `2px solid ${statusConfig?.color === "gold" ? "#faad1430" : statusConfig?.color === "green" ? "#52c41a30" : "#ff4d4f30"}`,
+                  borderRadius: 16,
+                }}
+              >
+                <div className="mb-2">
+                  <Text strong style={{ fontSize: 14 }}>
+                    สถานะ
+                  </Text>
+                </div>
+                <Tag
+                  color={statusConfig?.color}
+                  style={{
+                    fontSize: 16,
+                    padding: "8px 24px",
+                    borderRadius: 20,
+                    fontWeight: 600,
+                  }}
                 >
-                  <div className="space-y-2">
-                    {item.startDate && item.endDate && (
-                      <div className="flex justify-between">
-                        <Text type="secondary">
-                          {t("overtime_page.time_range")}:
-                        </Text>
-                        <Text strong>
-                          {dayjs(item.startDate).format("DD/MM/YYYY HH:mm")} -{" "}
-                          {dayjs(item.endDate).format("DD/MM/YYYY HH:mm")}
-                        </Text>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <Text type="secondary">
-                        {t("overtime_page.description")}:
+                  {statusConfig?.text || selectedDetail.status}
+                </Tag>
+              </Card>
+            </Col>
+            <Col xs={24} sm={8}>
+              <Card
+                className="text-center"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #ff6b6b20 0%, #ee5a6f20 100%)",
+                  border: "2px solid #ff6b6b30",
+                  borderRadius: 16,
+                }}
+              >
+                <Statistic
+                  title={
+                    <Text strong style={{ color: "#ff6b6b" }}>
+                      รวมชั่วโมง
+                    </Text>
+                  }
+                  value={totalHours.toFixed(2)}
+                  suffix="ชม."
+                  prefix={<ClockCircleOutlined style={{ color: "#ff6b6b" }} />}
+                  valueStyle={{
+                    color: "#ff6b6b",
+                    fontSize: 24,
+                    fontWeight: 700,
+                  }}
+                />
+              </Card>
+            </Col>
+          </Row>
+
+          {/* User Information */}
+          <Card
+            title={
+              <Space>
+                <TeamOutlined style={{ color: "#667eea", fontSize: 18 }} />
+                <Text strong style={{ fontSize: 16 }}>
+                  ข้อมูลผู้เกี่ยวข้อง
+                </Text>
+              </Space>
+            }
+            style={{
+              borderRadius: 16,
+              border: "2px solid #667eea20",
+            }}
+          >
+            <Row gutter={[24, 24]}>
+              <Col xs={24} sm={12}>
+                <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                  <Avatar
+                    size={64}
+                    src={requesterUser?.avatar}
+                    icon={<UserOutlined />}
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
+                    }}
+                  />
+                  <div className="flex-1">
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      ผู้ยื่นคำขอ
+                    </Text>
+                    <div>
+                      <Text strong style={{ fontSize: 16, color: "#667eea" }}>
+                        {requesterUser
+                          ? `${requesterUser.firstname} ${requesterUser.lastname}`
+                          : selectedDetail.requester_id}
                       </Text>
-                      <Text strong>{item.description}</Text>
                     </div>
-                    <div className="flex justify-between">
-                      <Text type="secondary">
-                        {t("overtime_page.duration")}:
+                    {requesterUser && (
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        รหัส: {selectedDetail.requester_id}
                       </Text>
-                      <Tag color="blue">
-                        {item.duration} {t("overtime_page.hours")}
-                      </Tag>
-                    </div>
-                    {item.assignee && (
-                      <div className="flex justify-between">
-                        <Text type="secondary">
-                          {t("overtime_page.assignee")}:
-                        </Text>
-                        <Text>
-                          {getUserById(item.assignee)?.firstname ?? ""}{" "}
-                          {getUserById(item.assignee)?.lastname ?? ""}
-                        </Text>
-                      </div>
                     )}
                   </div>
-                </Card>
-              ))}
-            </div>
-          </div>
+                </div>
+              </Col>
+              <Col xs={24} sm={12}>
+                <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                  <Avatar
+                    size={64}
+                    src={creatorUser?.avatar}
+                    icon={<UserOutlined />}
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                      boxShadow: "0 4px 12px rgba(240, 147, 251, 0.3)",
+                    }}
+                  />
+                  <div className="flex-1">
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      ผู้สร้างรายการ
+                    </Text>
+                    <div>
+                      <Text strong style={{ fontSize: 16, color: "#f5576c" }}>
+                        {creatorUser
+                          ? `${creatorUser.firstname} ${creatorUser.lastname}`
+                          : selectedDetail.created_by}
+                      </Text>
+                    </div>
+                    {creatorUser && (
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        รหัส: {selectedDetail.created_by}
+                      </Text>
+                    )}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+
+          {/* Date Information */}
+          <Card
+            title={
+              <Space>
+                <CalendarOutlined style={{ color: "#52c41a", fontSize: 18 }} />
+                <Text strong style={{ fontSize: 16 }}>
+                  วันที่และเวลา
+                </Text>
+              </Space>
+            }
+            style={{
+              borderRadius: 16,
+              border: "2px solid #52c41a20",
+            }}
+          >
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12}>
+                <div className="p-4 bg-green-50 rounded-xl">
+                  <Space
+                    direction="vertical"
+                    size={4}
+                    style={{ width: "100%" }}
+                  >
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      วันที่ยื่นคำขอ
+                    </Text>
+                    <Text strong style={{ fontSize: 16, color: "#52c41a" }}>
+                      {selectedDetail.request_date
+                        ? dayjs(selectedDetail.request_date)
+                            .locale("th")
+                            .format("DD MMMM BBBB")
+                        : "-"}
+                    </Text>
+                  </Space>
+                </div>
+              </Col>
+              <Col xs={24} sm={12}>
+                <div className="p-4 bg-blue-50 rounded-xl">
+                  <Space
+                    direction="vertical"
+                    size={4}
+                    style={{ width: "100%" }}
+                  >
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      สร้างเมื่อ
+                    </Text>
+                    <Text strong style={{ fontSize: 16, color: "#1890ff" }}>
+                      {selectedDetail.created_at
+                        ? dayjs(selectedDetail.created_at)
+                            .locale("th")
+                            .format("DD MMM BBBB HH:mm")
+                        : "-"}
+                    </Text>
+                  </Space>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+
+          {/* Work Details Timeline */}
+          <Card
+            title={
+              <Space>
+                <FieldTimeOutlined style={{ color: "#ff6b6b", fontSize: 18 }} />
+                <Text strong style={{ fontSize: 16 }}>
+                  รายละเอียดงานที่ทำล่วงเวลา
+                </Text>
+                <Badge
+                  count={selectedDetail.descriptions?.length || 0}
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)",
+                  }}
+                />
+              </Space>
+            }
+            style={{
+              borderRadius: 16,
+              border: "2px solid #ff6b6b20",
+            }}
+          >
+            <Timeline
+              mode="left"
+              items={selectedDetail.descriptions?.map((item, idx) => {
+                const assigneeUser = item.assignee
+                  ? getUserById(item.assignee)
+                  : null;
+                return {
+                  color: "#667eea",
+                  label: (
+                    <div className="text-right pr-4">
+                      <Text strong style={{ color: "#667eea", fontSize: 14 }}>
+                        งานที่ {idx + 1}
+                      </Text>
+                      {item.date && (
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "#8c8c8c",
+                            marginTop: 4,
+                          }}
+                        >
+                          <CalendarOutlined />{" "}
+                          {dayjs(item.date).locale("th").format("DD MMM BBBB")}
+                        </div>
+                      )}
+                    </div>
+                  ),
+                  children: (
+                    <Card
+                      size="small"
+                      className="shadow-sm"
+                      style={{
+                        borderRadius: 12,
+                        background:
+                          "linear-gradient(135deg, #f6f9fc 0%, #ffffff 100%)",
+                        border: "1px solid #e8e8e8",
+                      }}
+                    >
+                      <Space
+                        direction="vertical"
+                        size={12}
+                        style={{ width: "100%" }}
+                      >
+                        {/* Time Range */}
+                        {item.startDate && item.endDate && (
+                          <div className="flex items-center justify-between p-3 bg-indigo-50 rounded-lg">
+                            <Space>
+                              <ClockCircleOutlined
+                                style={{ color: "#667eea" }}
+                              />
+                              <Text strong style={{ color: "#667eea" }}>
+                                ช่วงเวลา
+                              </Text>
+                            </Space>
+                            <Text strong>
+                              {dayjs(item.startDate).format("HH:mm")} -{" "}
+                              {dayjs(item.endDate).format("HH:mm")}
+                            </Text>
+                          </div>
+                        )}
+
+                        {/* Description */}
+                        <div className="p-3 bg-yellow-50 rounded-lg">
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            รายละเอียดงาน
+                          </Text>
+                          <div className="mt-1">
+                            <Text strong style={{ fontSize: 14 }}>
+                              {item.description || "ไม่ได้ระบุ"}
+                            </Text>
+                          </div>
+                        </div>
+
+                        {/* Duration and Assignee */}
+                        <Row gutter={[12, 12]}>
+                          <Col span={12}>
+                            <div className="p-3 bg-green-50 rounded-lg text-center">
+                              <Text
+                                type="secondary"
+                                style={{ fontSize: 12, display: "block" }}
+                              >
+                                ระยะเวลา
+                              </Text>
+                              <Tag
+                                color="success"
+                                style={{
+                                  marginTop: 8,
+                                  fontSize: 16,
+                                  padding: "4px 16px",
+                                  borderRadius: 20,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {Number(item.duration || 0).toFixed(2)} ชม.
+                              </Tag>
+                            </div>
+                          </Col>
+                          {assigneeUser && (
+                            <Col span={12}>
+                              <div className="p-3 bg-purple-50 rounded-lg">
+                                <Text
+                                  type="secondary"
+                                  style={{
+                                    fontSize: 12,
+                                    display: "block",
+                                    marginBottom: 8,
+                                  }}
+                                >
+                                  ผู้รับมอบหมาย
+                                </Text>
+                                <Space>
+                                  <Avatar
+                                    size="small"
+                                    src={assigneeUser.avatar}
+                                    icon={<UserOutlined />}
+                                    style={{ background: "#722ed1" }}
+                                  />
+                                  <Text strong style={{ fontSize: 13 }}>
+                                    {assigneeUser.firstname}{" "}
+                                    {assigneeUser.lastname}
+                                  </Text>
+                                </Space>
+                              </div>
+                            </Col>
+                          )}
+                        </Row>
+                      </Space>
+                    </Card>
+                  ),
+                };
+              })}
+            />
+          </Card>
         </div>
       ) : (
         <Skeleton active />

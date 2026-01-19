@@ -18,7 +18,9 @@ const MODEL_FALLBACKS: string[] = [
 ].filter(Boolean) as string[];
 
 const extractText = (payload: any) =>
-  payload?.data?.candidates?.[0]?.content?.parts?.[0]?.text as string | undefined;
+  payload?.data?.candidates?.[0]?.content?.parts?.[0]?.text as
+    | string
+    | undefined;
 
 export async function generateDescriptionWithGemini({
   history,
@@ -38,13 +40,23 @@ export async function generateDescriptionWithGemini({
     feature: item.feature?.name,
   }));
 
-  const prompt = `ช่วยสร้างคำอธิบาย timesheet แบบสั้น โดยดูจากตัวอย่างด้านล่าง แล้วสุ่มแนวทางให้คล้ายกับตัวอย่าง
-ควรกล่าวถึงงานหรือฟีเจอร์ที่ทำอยู่ และไม่ต้องยาวเกินไป
+  const prompt = `Role: คุณคือ AI Assistant ที่ช่วยเขียน Timesheet สำหรับบริษัท Software ด้านการศึกษา (EdTech) ที่พัฒนาจัดการโรงเรียนครบวงจร
 
-ตัวอย่าง:
+Context:
+- งานต้องเกี่ยวข้องกับระบบการศึกษา เช่น: **ระบบวิชาการ, ระบบเกรด/วัดผล, ระบบพฤติกรรม, ระบบตารางสอน, ระบบห้องเรียน, ระบบการเงินโรงเรียน, ระบบรับสมัครนักเรียน** เป็นต้น
+- ต้องเขียนให้สอดคล้องกับ "Project" และ "Feature" ที่ระบุใน Input เสมอ
+
+Guidelines:
+1. เขียนบรรยายงานสั้นๆ (One-liner) กระชับ เป็นธรรมชาติ
+2. **ห้าม** สร้างรหัส Ticket MOCK UP (เช่น DEV-123) เด็ดขาด
+3. ถ้าจะใส่รหัสงาน ต้องใช้ Prefix ที่ถูกต้องเท่านั้น: "SB-", "SBAPP-", "ACA-", "SH-", "ACC-"
+4. ถ้าไม่มีรหัสในประวัติ ให้เน้นชื่อ Feature หรือ Module เป็นหลัก
+5. ภาษาที่ใช้: ทางการแต่ทันสมัย (Semi-formal) เหมาะกับคนทำงาน Tech ในสายการศึกษา
+
+Input History (ประวัติงานที่ผ่านมา):
 ${JSON.stringify(historySample, null, 2)}
 
-ให้ตอบเป็นข้อความสั้นบรรทัดเดียวเท่านั้น`;
+Output: ขอข้อความสั้นๆ 1 บรรทัด สำหรับรายการล่าสุด`;
 
   const contents = [{ role: "user", parts: [{ text: prompt }] }];
 

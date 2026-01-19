@@ -25,6 +25,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { TimesheetEntry } from "@/stores/type";
 
 // --- Mock Data & Helpers ---
@@ -84,6 +85,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   onCancel,
   record,
 }) => {
+  const { t } = useTranslation();
   const { token } = theme.useToken();
 
   if (!record) return null;
@@ -91,9 +93,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const statusConfig = getStatusConfig(record.status, token);
 
   const getStatusLabel = (status: string) => {
-    const option = STATUS_OPTIONS.find((item) => item.value === status);
-    if (!option) return status;
-    return i18next.language === "th" ? option.label_th : option.label_en;
+    const key = `timesheet_components.status_${status.toLowerCase()}`;
+    return t(key, status);
   };
 
   // --- Components ---
@@ -283,8 +284,11 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
             <Col span={12} sm={8}>
               <InfoCard
-                title="ชั่วโมงงาน"
-                value={`${record.hours} ชม.`}
+                title={t("timesheet_components.work_hours", "ชั่วโมงงาน")}
+                value={`${record.hours} ${t(
+                  "timesheet_components.hours_abbr",
+                  "ชม."
+                )}`}
                 icon={<ClockCircleFilled />}
                 color={token.colorInfo}
                 delay={100}
@@ -292,7 +296,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             </Col>
             <Col span={12} sm={8}>
               <InfoCard
-                title="ฟีเจอร์"
+                title={t("timesheet_components.feature", "ฟีเจอร์")}
                 value={record.feature_name || "-"}
                 icon={<CodeOutlined />}
                 delay={200}
@@ -300,8 +304,11 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             </Col>
             <Col span={24} sm={8}>
               <InfoCard
-                title="กิจกรรม"
-                value="Development" // ตัวอย่าง Mock หรือดึงจาก record.activity_type
+                title={t("timesheet_components.activity", "กิจกรรม")}
+                value={
+                  (record as any).activity_type ||
+                  t("timesheet_components.development", "Development")
+                }
                 icon={<ThunderboltFilled />}
                 color={token.colorWarning}
                 delay={300}
@@ -325,7 +332,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               <FileTextOutlined
                 style={{ marginRight: 8, color: token.colorPrimary }}
               />
-              รายละเอียดงาน
+              {t("timesheet_components.work_description", "รายละเอียดงาน")}
             </Typography.Text>
 
             <div
@@ -353,7 +360,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       fontStyle: "italic",
                     }}
                   >
-                    ไม่มีรายละเอียดระบุไว้...
+                    {t(
+                      "timesheet_components.no_description_provided",
+                      "ไม่มีรายละเอียดระบุไว้..."
+                    )}
                   </span>
                 )}
               </Typography.Paragraph>
@@ -369,7 +379,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 <Typography.Text
                   style={{ fontSize: 11, color: token.colorTextQuaternary }}
                 >
-                  สร้างเมื่อ:{" "}
+                  {t("timesheet_components.created_at", "สร้างเมื่อ")}:{" "}
                   {record.created_at
                     ? dayjs(record.created_at).format("DD MMM YYYY, HH:mm")
                     : "-"}
@@ -377,7 +387,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 <Typography.Text
                   style={{ fontSize: 11, color: token.colorTextQuaternary }}
                 >
-                  แก้ไขล่าสุด:{" "}
+                  {t("timesheet_components.last_edited", "แก้ไขล่าสุด")}:{" "}
                   {record.updated_at
                     ? dayjs(record.updated_at).format("DD MMM YYYY, HH:mm")
                     : "-"}
@@ -390,7 +400,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 onClick={onCancel}
                 style={{ borderRadius: 20, padding: "0 24px" }}
               >
-                ปิดหน้าต่าง
+                {t("timesheet_components.close_window", "ปิดหน้าต่าง")}
               </Button>
             </Col>
           </Row>

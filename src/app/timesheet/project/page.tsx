@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   Form,
   Modal,
@@ -106,6 +107,8 @@ const KanbanBoard = ({
   onDelete,
   onViewDetail,
   token,
+  allStatuses,
+  onProjectStatusChange,
 }: {
   projects: Project[];
   loading: boolean;
@@ -113,62 +116,102 @@ const KanbanBoard = ({
   onDelete: (p: Project) => void;
   onViewDetail: (p: Project) => void;
   token: any;
+  allStatuses: ProjectStatus[];
+  onProjectStatusChange: (
+    projectId: number,
+    newStatusId: number | null
+  ) => void;
 }) => {
+  const [draggingProjectId, setDraggingProjectId] = useState<number | null>(
+    null
+  );
+  const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, projectId: number) => {
+    setDraggingProjectId(projectId);
+    e.dataTransfer.setData("projectId", String(projectId));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragEnd = () => {
+    setDraggingProjectId(null);
+    setDragOverColumnId(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, columnId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverColumnId !== columnId) {
+      setDragOverColumnId(columnId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverColumnId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, columnId: string) => {
+    e.preventDefault();
+    const projectId = Number(e.dataTransfer.getData("projectId"));
+    const statusId = columnId === "unspecified" ? null : Number(columnId);
+    setDragOverColumnId(null);
+    onProjectStatusChange(projectId, statusId);
+  };
+
   const getHealthStatus = (project: Project) => {
     if (project.status === "close")
       return { color: "green", text: "เสร็จสิ้น" };
     if (!project.end_date) return { color: "blue", text: "ไม่มีกำหนดวัน" };
-
     const now = dayjs();
     const end = dayjs(project.end_date);
     const daysRemaining = end.diff(now, "day");
-
     if (daysRemaining < 0) return { color: "red", text: "เกินกำหนด" };
     if (daysRemaining <= 7) return { color: "gold", text: "ใกล้ถึงกำหนด" };
     return { color: "green", text: "ปกติ" };
   };
 
   const columns = useMemo(() => {
-    const todo: Project[] = [];
-    const inProgress: Project[] = [];
-    const done: Project[] = [];
-
+    const statusGroups = new Map<number | "null", Project[]>();
     projects.forEach((p) => {
-      if (p.status === "close") {
-        done.push(p);
-      } else {
-        const start = p.start_date ? dayjs(p.start_date) : null;
-        const now = dayjs();
-        // If start date is in the future, it's To Do. Otherwise In Progress.
-        if (start && start.isAfter(now)) {
-          todo.push(p);
-        } else {
-          inProgress.push(p);
-        }
-      }
+      const key = p.projectStatusId || "null";
+      if (!statusGroups.has(key)) statusGroups.set(key, []);
+      statusGroups.get(key)?.push(p);
     });
 
-    return [
-      {
-        id: "todo",
-        title: "ยังไม่เริ่ม",
-        items: todo,
-        color: token.colorWarning,
-      },
-      {
-        id: "process",
-        title: "กำลังดำเนินการ",
-        items: inProgress,
-        color: token.colorPrimary,
-      },
-      {
-        id: "done",
-        title: "เสร็จสิ้น",
-        items: done,
-        color: token.colorSuccess,
-      },
-    ];
-  }, [projects, token]);
+    const result = [];
+    const sortedMasterStatuses = [...allStatuses].sort(
+      (a, b) => (a.priority || 0) - (b.priority || 0)
+    );
+
+    result.push({
+      id: "unspecified",
+      title: "ยังไม่ระบุ",
+      items: statusGroups.get("null") || [],
+      color: token.colorTextDescription,
+    });
+    statusGroups.delete("null");
+
+    sortedMasterStatuses.forEach((status) => {
+      result.push({
+        id: String(status.id),
+        title: status.nameTh,
+        items: statusGroups.get(status.id) || [],
+        color: status.priority === 99 ? token.colorError : token.colorPrimary,
+      });
+      statusGroups.delete(status.id);
+    });
+
+    statusGroups.forEach((items, key) => {
+      result.push({
+        id: String(key),
+        title: `Unknown (${key})`,
+        items,
+        color: token.colorTextDescription,
+      });
+    });
+
+    return result;
+  }, [projects, allStatuses, token]);
 
   if (loading) return <Skeleton active paragraph={{ rows: 10 }} />;
 
@@ -178,130 +221,151 @@ const KanbanBoard = ({
         {columns.map((col) => (
           <div
             key={col.id}
-            className="flex-1 min-w-[300px] flex flex-col gap-4 bg-gray-50/50 dark:bg-gray-900/20 p-4 rounded-xl border border-gray-100 dark:border-gray-800"
+            className="flex-1 min-w-[300px] flex flex-col gap-4 p-4 rounded-xl border transition-all duration-200"
+            style={{
+              background:
+                dragOverColumnId === col.id
+                  ? token.colorFillSecondary
+                  : token.colorFillQuaternary,
+              borderColor:
+                dragOverColumnId === col.id
+                  ? token.colorPrimary
+                  : token.colorBorderSecondary,
+              borderStyle: dragOverColumnId === col.id ? "dashed" : "solid",
+            }}
+            onDragOver={(e) => handleDragOver(e, col.id)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, col.id)}
           >
             <div className="flex justify-between items-center mb-2 px-2">
               <Text strong style={{ fontSize: 16 }}>
                 {col.title}
               </Text>
-              <Tag
-                color={
-                  col.id === "done"
-                    ? "success"
-                    : col.id === "process"
-                    ? "blue"
-                    : "orange"
-                }
-              >
+              <Tag color={col.id === "unspecified" ? "default" : "blue"}>
                 {col.items.length}
               </Tag>
             </div>
 
             <div className="flex flex-col gap-3">
-              {col.items.map((item) => {
+              {col.items.map((item: Project) => {
                 const health = getHealthStatus(item);
                 return (
-                  <Card
+                  <div
                     key={item.id}
-                    hoverable
-                    size="small"
-                    className="cursor-pointer shadow-sm hover:shadow-md transition-all border-l-4"
-                    style={{
-                      borderLeftColor:
-                        health.color === "red"
-                          ? "#ff4d4f"
-                          : health.color === "gold"
-                          ? "#faad14"
-                          : token.colorSuccess,
-                      background: token.colorBgContainer,
-                    }}
-                    onClick={() => onViewDetail(item)}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, item.id)}
+                    onDragEnd={handleDragEnd}
+                    className="transition-transform active:scale-95"
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <Text
-                        strong
-                        className="line-clamp-2 leading-snug text-sm flex-1 mr-2"
-                      >
-                        {item.name}
-                      </Text>
-                      <Dropdown
-                        menu={{
-                          items: [
-                            {
-                              key: "edit",
-                              label: "แก้ไข",
-                              icon: <ProjectOutlined />,
-                              onClick: (e) => {
-                                e.domEvent.stopPropagation();
-                                onEdit(item);
-                              },
-                            },
-                            {
-                              key: "delete",
-                              label: "ลบ",
-                              icon: <ExclamationCircleOutlined />,
-                              danger: true,
-                              onClick: (e) => {
-                                e.domEvent.stopPropagation();
-                                onDelete(item);
-                              },
-                            },
-                          ],
-                        }}
-                        trigger={["click"]}
-                      >
-                        <Button
-                          type="text"
-                          size="small"
-                          icon={<div className="rotate-90">...</div>}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </Dropdown>
-                    </div>
-
-                    <div className="flex gap-2 mb-3">
-                      <Tag
-                        bordered={false}
-                        className="text-xs m-0 px-1 py-0 bg-gray-100 dark:bg-gray-800"
-                      >
-                        {dayjs(item.createdAt).format("DD/MM/YY")}
-                      </Tag>
-                      {health.text !== "ปกติ" &&
-                        health.text !== "เสร็จสิ้น" && (
-                          <Tag
-                            color={health.color}
-                            className="text-xs m-0 px-1 py-0"
-                          >
-                            {health.text}
-                          </Tag>
-                        )}
-                    </div>
-
-                    <Divider className="my-2" />
-
-                    <div className="flex justify-between items-center">
-                      <Space size={4}>
-                        <UserOutlined className="text-xs text-gray-400" />
-                        <Text type="secondary" className="text-xs">
-                          {getUserById(item.createdBy)?.firstname || "ไม่ระบุ"}
+                    <Card
+                      hoverable
+                      size="small"
+                      className={`cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md transition-all border-l-4 ${
+                        draggingProjectId === item.id
+                          ? "opacity-30"
+                          : "opacity-100"
+                      }`}
+                      style={{
+                        borderLeftColor:
+                          health.color === "red"
+                            ? "#ff4d4f"
+                            : health.color === "gold"
+                            ? "#faad14"
+                            : token.colorSuccess,
+                        background: token.colorBgContainer,
+                      }}
+                      onClick={() => onViewDetail(item)}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <Text
+                          strong
+                          className="line-clamp-2 leading-snug text-sm flex-1 mr-2"
+                        >
+                          {item.name}
                         </Text>
-                      </Space>
-                      <Avatar.Group maxCount={2} size="small">
-                        <Tooltip title="Features count">
-                          <Avatar
-                            style={{
-                              backgroundColor: token.colorPrimaryBg,
-                              color: token.colorPrimary,
-                              fontSize: 10,
-                            }}
-                          >
-                            {item.features?.filter((f) => !f.is_deleted)
-                              .length || 0}
-                          </Avatar>
-                        </Tooltip>
-                      </Avatar.Group>
-                    </div>
-                  </Card>
+                        <Dropdown
+                          menu={{
+                            items: [
+                              {
+                                key: "edit",
+                                label: "แก้ไข",
+                                icon: <ProjectOutlined />,
+                                onClick: (e) => {
+                                  e.domEvent.stopPropagation();
+                                  onEdit(item);
+                                },
+                              },
+                              {
+                                key: "delete",
+                                label: "ลบ",
+                                icon: <ExclamationCircleOutlined />,
+                                danger: true,
+                                onClick: (e) => {
+                                  e.domEvent.stopPropagation();
+                                  onDelete(item);
+                                },
+                              },
+                            ],
+                          }}
+                          trigger={["click"]}
+                        >
+                          <Button
+                            type="text"
+                            size="small"
+                            icon={<div className="rotate-90">...</div>}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </Dropdown>
+                      </div>
+
+                      <div className="flex gap-2 mb-3">
+                        <Tag
+                          bordered={false}
+                          style={{
+                            background: token.colorFillQuaternary,
+                            color: token.colorTextSecondary,
+                          }}
+                        >
+                          {dayjs(item.createdAt).format("DD/MM/YY")}
+                        </Tag>
+                        {health.text !== "ปกติ" &&
+                          health.text !== "เสร็จสิ้น" && (
+                            <Tag
+                              color={health.color}
+                              className="text-xs m-0 px-1 py-0"
+                            >
+                              {health.text}
+                            </Tag>
+                          )}
+                      </div>
+
+                      <Divider className="my-2" />
+
+                      <div className="flex justify-between items-center">
+                        <Space size={4}>
+                          <UserOutlined className="text-xs text-gray-400" />
+                          <Text type="secondary" className="text-xs">
+                            {getUserById(item.createdBy)?.firstname ||
+                              "ไม่ระบุ"}
+                          </Text>
+                        </Space>
+                        <Avatar.Group max={{ count: 2 }} size="small">
+                          <Tooltip title="Features count">
+                            <Avatar
+                              style={{
+                                backgroundColor: token.colorPrimaryBg,
+                                color: token.colorPrimary,
+                                fontSize: 10,
+                              }}
+                            >
+                              {item.features?.filter((f) => !f.is_deleted)
+                                .length || 0}
+                            </Avatar>
+                          </Tooltip>
+                        </Avatar.Group>
+                      </div>
+                    </Card>
+                  </div>
                 );
               })}
               {col.items.length === 0 && (
@@ -482,10 +546,26 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
     </div>
   );
 
+  if (!stats?.health) {
+    return (
+      <div className="mb-6">
+        <Row gutter={[16, 16]}>
+          {[1, 2, 3, 4].map((i) => (
+            <Col xs={24} sm={12} xl={6} key={i}>
+              <Skeleton active />
+            </Col>
+          ))}
+        </Row>
+      </div>
+    );
+  }
+
+  const { health } = stats;
+
   const items = [
     {
       label: "โครงการทั้งหมด",
-      value: stats.total,
+      value: health.total,
       percent: 100,
       color: token.colorPrimary,
       bg: token.colorPrimaryBg,
@@ -500,8 +580,8 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
     },
     {
       label: "กำลังดำเนินการ",
-      value: stats.active,
-      percent: stats.total > 0 ? (stats.active / stats.total) * 100 : 0,
+      value: health.active,
+      percent: health.total > 0 ? (health.active / health.total) * 100 : 0,
       color: token.colorSuccess,
       bg: token.colorSuccessBg,
       icon: <RocketOutlined />,
@@ -515,8 +595,8 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
     },
     {
       label: "ปิดโครงการแล้ว",
-      value: stats.closed,
-      percent: stats.total > 0 ? (stats.closed / stats.total) * 100 : 0,
+      value: health.closed,
+      percent: health.total > 0 ? (health.closed / health.total) * 100 : 0,
       color: token.colorTextSecondary,
       bg: token.colorFillSecondary,
       icon: <CheckCircleOutlined />,
@@ -530,8 +610,8 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
     },
     {
       label: "อัตราความสำเร็จ",
-      value: stats.successRate,
-      percent: stats.successRate,
+      value: health.success_rate,
+      percent: health.success_rate,
       color: token.colorWarning,
       bg: token.colorWarningBg,
       icon: <PieChartOutlined />,
@@ -555,7 +635,7 @@ const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
         {items.map((item, idx) => (
           <Col xs={24} sm={12} xl={6} key={idx}>
             <Card
-              bodyStyle={{ padding: 24 }}
+              styles={{ body: { padding: 24 } }}
               className="transition-shadow"
               style={cardStyle}
             >
@@ -704,23 +784,44 @@ const SdlcSummaryCards = ({
   };
 
   const statusItems = useMemo(() => {
+    if (!stats?.trackings) return [];
+
     const sortedActive = [...allStatuses]
       .filter((s) => s.priority < 99)
       .sort((a, b) => a.priority - b.priority);
 
     return sortedActive.map((s) => {
-      const count = stats.byStatus[s.nameTh] || 0;
-      const percent = stats.total > 0 ? (count / stats.total) * 100 : 0;
+      const count = (s.nameEn ? stats.trackings[s.nameEn] : 0) || 0;
+      const total = stats.health?.total || 1;
+      const percent = (count / total) * 100;
       const style = getSdlcStyle(s.priority, s.nameTh);
 
       return {
         label: s.nameTh,
-        value: `${count}/${stats.total}`,
+        value: `${count}/${total}`,
         percent,
         style,
       };
     });
   }, [allStatuses, stats, token, getSdlcStyle]);
+
+  if (!stats?.trackings) {
+    return (
+      <div className="mb-6">
+        <Space className="mb-4">
+          <RocketOutlined />
+          <Text strong>สถานะการดำเนินการ (Trackings)</Text>
+        </Space>
+        <Row gutter={[12, 12]}>
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Col xs={12} sm={8} md={6} xl={4} key={i}>
+              <Skeleton active />
+            </Col>
+          ))}
+        </Row>
+      </div>
+    );
+  }
 
   if (statusItems.length === 0) return null;
 
@@ -791,8 +892,7 @@ const SdlcSummaryCards = ({
                   showInfo={false}
                   strokeColor={item.style.gradient}
                   trailColor={token.colorFillSecondary}
-                  size="small"
-                  strokeWidth={4}
+                  size={4}
                 />
               </div>
             </Card>
@@ -807,13 +907,7 @@ const SdlcSummaryCards = ({
 // 3. CATEGORY CARDS
 // ==========================================
 
-const CategorySummaryCards = ({
-  projects,
-  token,
-}: {
-  projects: Project[];
-  token: any;
-}) => {
+const CategorySummaryCards = ({ stats, token }: { stats: any; token: any }) => {
   const getIcon = (id: string) => {
     switch (id) {
       case "INTERNAL":
@@ -853,7 +947,7 @@ const CategorySummaryCards = ({
       case "MAINTENANCE":
         return token.colorWarningBg;
       case "LEAVE":
-        return "#fff0f6";
+        return "rgba(235, 47, 150, 0.1)";
       default:
         return token.colorFillTertiary;
     }
@@ -866,9 +960,21 @@ const CategorySummaryCards = ({
     height: "100%",
   };
 
-  // Filter out deleted projects for all calculations
-  const validProjects = projects.filter((p) => !p.is_deleted);
-  const total = validProjects.length;
+  if (!stats?.by_category) {
+    return (
+      <div className="mb-6">
+        <Row gutter={[12, 12]}>
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Col xs={12} sm={8} md={6} xl={4} key={i}>
+              <Skeleton active />
+            </Col>
+          ))}
+        </Row>
+      </div>
+    );
+  }
+
+  const { total } = stats.health || { total: 0 };
 
   return (
     <div className="mb-6">
@@ -878,9 +984,7 @@ const CategorySummaryCards = ({
       </Space>
       <Row gutter={[12, 12]}>
         {categoryType.map((cat) => {
-          const count = validProjects.filter(
-            (p) => String(p.categoryType) === String(cat.id)
-          ).length;
+          const count = stats.by_category[cat.id] || 0;
 
           const categoryTooltip = (
             <div style={{ padding: "4px" }}>
@@ -984,6 +1088,7 @@ export default function ProjectManagementPage() {
     updateProject,
     deleteProject,
     statuses,
+    stats: backendStats,
   } = useProjectData(adminId);
 
   // States
@@ -1003,6 +1108,7 @@ export default function ProjectManagementPage() {
     searchText: "",
     statusFilter: "ALL",
     categoryFilter: "ALL",
+    isDeletedFilter: "ACTIVE" as "ALL" | "ACTIVE" | "DELETED",
   });
 
   // Initial Setting
@@ -1010,6 +1116,27 @@ export default function ProjectManagementPage() {
     const u = getUserData();
     if (u) setUsers(u);
   }, []);
+
+  // Set form values when modal opens
+  useEffect(() => {
+    if (modalState.type === "edit" && modalState.data) {
+      form.setFieldsValue({
+        ...modalState.data,
+        start_date: modalState.data.start_date
+          ? dayjs(modalState.data.start_date)
+          : undefined,
+        end_date: modalState.data.end_date
+          ? dayjs(modalState.data.end_date)
+          : undefined,
+        assignees: modalState.data.projectAssignees?.map((a) => ({
+          userId: a.userId,
+          position: a.position,
+        })),
+      });
+    } else if (modalState.type === "create") {
+      form.resetFields();
+    }
+  }, [modalState.type, modalState.data, form]);
 
   const getCategoryName = useCallback((categoryId?: string) => {
     if (!categoryId) return "-";
@@ -1033,31 +1160,31 @@ export default function ProjectManagementPage() {
         filters.categoryFilter === "ALL" ||
         String(project.categoryType) === filters.categoryFilter;
 
-      return matchSearch && matchStatus && matchCategory;
+      const matchDeleted =
+        filters.isDeletedFilter === "ALL" ||
+        (filters.isDeletedFilter === "ACTIVE" && !project.is_deleted) ||
+        (filters.isDeletedFilter === "DELETED" && project.is_deleted);
+
+      return matchSearch && matchStatus && matchCategory && matchDeleted;
     });
   }, [projects, filters]);
 
-  const stats = useMemo(() => {
-    const validProjects = projects.filter((p) => !p.is_deleted);
-    const total = validProjects.length;
-
-    // Detailed stats by SDLC status
-    const byStatus: Record<string, number> = {};
-    validProjects.forEach((p) => {
-      if (p.status && p.status !== "close") {
-        byStatus[p.status] = (byStatus[p.status] || 0) + 1;
-      }
-    });
-
-    const active = validProjects.filter((p) => p.status === "open").length;
-    const closed = validProjects.filter((p) => p.status === "close").length;
-    const successRate = total > 0 ? Math.round((closed / total) * 100) : 0;
-
-    return { total, active, closed, successRate, byStatus };
-  }, [projects]);
-
   const positionOptions = useMemo(() => {
-    const positions = new Set<string>();
+    const defaultPositions = [
+      "Project Manager",
+      "Full-stack Developer",
+      "Frontend Developer",
+      "Backend Developer",
+      "QA / Tester",
+      "UI/UX Designer",
+      "System Analyst",
+      "Head of Technology",
+      "Chief Technology Officer",
+      "DevOps Engineer",
+      "Mobile Developer",
+      "Data Engineer",
+    ];
+    const positions = new Set<string>(defaultPositions);
     users.forEach((u) => {
       if (u.position) {
         positions.add(u.position);
@@ -1072,24 +1199,15 @@ export default function ProjectManagementPage() {
       searchText: "",
       statusFilter: "ALL",
       categoryFilter: "ALL",
+      isDeletedFilter: "ACTIVE",
     });
 
   const closeModal = () => {
     setModalState({ type: "", data: null });
     setConfirmDeleteText("");
-    form.resetFields();
   };
 
   const openEditModal = (record: Project) => {
-    form.setFieldsValue({
-      ...record,
-      start_date: record.start_date ? dayjs(record.start_date) : undefined,
-      end_date: record.end_date ? dayjs(record.end_date) : undefined,
-      assignees: record.projectAssignees?.map((a) => ({
-        userId: a.userId,
-        position: a.position,
-      })),
-    });
     setModalState({ type: "edit", data: record });
   };
 
@@ -1108,8 +1226,45 @@ export default function ProjectManagementPage() {
     }
   };
 
+  const handleProjectStatusChange = async (
+    projectId: number,
+    newStatusId: number | null
+  ) => {
+    const project = projects.find((p) => p.id === projectId);
+    if (!project) return;
+
+    // หากสถานะเดิมกับสถานะใหม่เหมือนกัน ไม่ต้องทำอะไร
+    if (project.projectStatusId === newStatusId) return;
+
+    setActionLoading(true);
+    try {
+      const statusName =
+        newStatusId === null
+          ? "open"
+          : statuses.find((s) => s.id === newStatusId)?.nameTh ||
+            project.status;
+
+      const success = await updateProject(projectId, {
+        ...project,
+        projectStatusId: newStatusId,
+        status: statusName,
+        start_date: project.start_date,
+        end_date: project.end_date,
+      });
+
+      if (success) {
+        toast.success(`ย้ายโครงการไปสู้สถานะ "${statusName}" เรียบร้อย`);
+        fetchProjects();
+      }
+    } catch (error) {
+      toast.error("ไม่สามารถเปลี่ยนสถานะโครงการได้");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return (
-    <PermissionLayout role={["ALL"]}>
+    <PermissionLayout role={["ADMIN"]}>
       <DashboardLayout>
         <div className="mx-auto p-6 pb-20">
           <HeaderSection
@@ -1122,106 +1277,264 @@ export default function ProjectManagementPage() {
             token={token}
           />
 
-          <SummaryCards stats={stats} token={token} />
+          <SummaryCards stats={backendStats} token={token} />
 
           <SdlcSummaryCards
-            stats={stats}
+            stats={backendStats}
             token={token}
             allStatuses={statuses}
           />
 
-          <CategorySummaryCards projects={projects} token={token} />
+          <CategorySummaryCards stats={backendStats} token={token} />
 
-          {/* Filter Bar */}
-          <Card
-            className="mb-6 rounded-2xl"
+          {/* Redesigned Filter Section */}
+          <div
+            className="mb-8 p-6 rounded-2xl shadow-sm"
             style={{
-              background: token.colorBgContainer,
+              backgroundColor: token.colorBgContainer,
               border: `1px solid ${token.colorBorderSecondary}`,
             }}
           >
-            <Flex gap={16} wrap="wrap" align="center" justify="space-between">
-              <Flex gap={12} wrap="wrap" className="flex-1">
-                <Input
-                  prefix={
-                    <SearchOutlined
-                      style={{ color: token.colorTextPlaceholder }}
+            <Flex vertical gap={24}>
+              {/* Top Row: Search and Core Filters */}
+              <Row gutter={[20, 20]} align="middle">
+                <Col xs={24} lg={10}>
+                  <div className="flex flex-col gap-2">
+                    <Text
+                      type="secondary"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        color: token.colorTextDescription,
+                      }}
+                    >
+                      ค้นหาโครงการ
+                    </Text>
+                    <Input
+                      prefix={
+                        <SearchOutlined style={{ color: token.colorPrimary }} />
+                      }
+                      placeholder="ชื่อโครงการ, รหัสโครงการ หรือรายละเอียด..."
+                      size="large"
+                      className="rounded-xl h-12"
+                      style={{
+                        backgroundColor: token.colorBgLayout,
+                        borderColor: token.colorBorder,
+                        color: token.colorText,
+                      }}
+                      value={filters.searchText}
+                      onChange={(e) =>
+                        setFilters({ ...filters, searchText: e.target.value })
+                      }
+                      allowClear
                     />
-                  }
-                  placeholder="พิมพ์เพื่อค้นหาโครงการ..."
-                  size="large"
-                  className="rounded-xl w-full md:w-80"
-                  value={filters.searchText}
-                  onChange={(e) =>
-                    setFilters({ ...filters, searchText: e.target.value })
-                  }
-                  style={{ background: token.colorFillAlter }}
-                />
-                <Select
-                  size="large"
-                  placeholder="ประเภทโครงการ"
-                  value={filters.categoryFilter}
-                  onChange={(v) =>
-                    setFilters({ ...filters, categoryFilter: v })
-                  }
-                  options={[
-                    { label: "ทุกประเภท", value: "ALL" },
-                    ...categoryType.map((c) => ({
-                      label: c.name,
-                      value: String(c.id),
-                    })),
-                  ]}
-                  style={{ width: 200 }}
-                  className="rounded-xl"
-                />
-              </Flex>
+                  </div>
+                </Col>
+                <Col xs={24} sm={12} lg={4}>
+                  <div className="flex flex-col gap-2">
+                    <Text
+                      type="secondary"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        color: token.colorTextDescription,
+                      }}
+                    >
+                      ประเภทโครงการ
+                    </Text>
+                    <Select
+                      size="large"
+                      className="w-full custom-select-rounded h-12"
+                      placeholder="ระบุประเภท"
+                      value={filters.categoryFilter}
+                      onChange={(v) =>
+                        setFilters({ ...filters, categoryFilter: v })
+                      }
+                      options={[
+                        { label: "โครงการทั้งหมด", value: "ALL" },
+                        ...categoryType.map((c) => ({
+                          label: c.name,
+                          value: String(c.id),
+                        })),
+                      ]}
+                    />
+                  </div>
+                </Col>
+                <Col xs={24} sm={12} lg={5}>
+                  <div className="flex flex-col gap-2">
+                    <Text
+                      type="secondary"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        color: token.colorTextDescription,
+                      }}
+                    >
+                      สถานะโครงการ
+                    </Text>
+                    <Select
+                      size="large"
+                      className="w-full custom-select-rounded h-12"
+                      placeholder="ระบุสถานะ"
+                      value={filters.statusFilter}
+                      onChange={(v) =>
+                        setFilters({ ...filters, statusFilter: v })
+                      }
+                      options={[
+                        { label: "ทุกสถานะ", value: "ALL" },
+                        { label: "เปิดโครงการ (Open)", value: "open" },
+                        { label: "ปิดโครงการ (Close)", value: "close" },
+                        ...Array.from(new Set(projects.map((p) => p.status)))
+                          .filter((s) => s && s !== "open" && s !== "close")
+                          .map((s) => ({
+                            label: s,
+                            value: s,
+                          })),
+                      ]}
+                    />
+                  </div>
+                </Col>
+                <Col xs={24} sm={12} lg={5}>
+                  <div className="flex flex-col gap-2">
+                    <Text
+                      type="secondary"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        color: token.colorTextDescription,
+                      }}
+                    >
+                      สถานะการใช้งาน
+                    </Text>
+                    <Select
+                      size="large"
+                      className="w-full custom-select-rounded h-12"
+                      placeholder="สถานะการลบ"
+                      value={filters.isDeletedFilter}
+                      onChange={(v) =>
+                        setFilters({ ...filters, isDeletedFilter: v })
+                      }
+                      options={[
+                        { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
+                        { label: "รายการที่ลบ (Deleted)", value: "DELETED" },
+                        { label: "แสดงทั้งหมด (All)", value: "ALL" },
+                      ]}
+                    />
+                  </div>
+                </Col>
+              </Row>
 
-              <Flex gap={8}>
-                <Segmented
-                  options={[
-                    { value: "table", icon: <BarsOutlined />, label: "ตาราง" },
-                    {
-                      value: "kanban",
-                      icon: <AppstoreOutlined />,
-                      label: "บอร์ดงาน",
-                    },
-                  ]}
-                  value={viewMode}
-                  onChange={setViewMode as any}
-                  size="large"
-                />
-                <Button
-                  onClick={handleResetFilters}
-                  icon={<ReloadOutlined />}
-                  size="large"
-                  className="rounded-xl"
-                >
-                  ล้างค่า
-                </Button>
-                <Button
-                  icon={<PieChartOutlined />}
-                  onClick={() => setShowAnalytics(!showAnalytics)}
-                  type={showAnalytics ? "primary" : "default"}
-                  size="large"
-                  className="rounded-xl"
-                  ghost={showAnalytics}
-                >
-                  {showAnalytics ? "ซ่อนกราฟ" : "วิเคราะห์"}
-                </Button>
-                <Button
-                  icon={<FileExcelOutlined />}
-                  onClick={() =>
-                    exportProjectsToExcel(filteredProjects, getCategoryName)
-                  }
-                  size="large"
-                  className="rounded-xl"
-                  style={{ color: "#217346", borderColor: "#217346" }}
-                >
-                  Excel
-                </Button>
-              </Flex>
+              <Divider style={{ margin: 0, opacity: 0.5 }} />
+
+              {/* Bottom Row: View Modes & Actions */}
+              <Row gutter={[20, 20]} align="middle" justify="space-between">
+                <Col xs={24} md={12}>
+                  <Space size={16}>
+                    <div className="flex flex-col gap-1">
+                      <Text
+                        type="secondary"
+                        style={{ fontSize: 11, fontWeight: 600 }}
+                      >
+                        มุมมองรายการ
+                      </Text>
+                      <Segmented
+                        options={[
+                          {
+                            value: "table",
+                            icon: <BarsOutlined />,
+                            label: "ตาราง",
+                          },
+                          {
+                            value: "kanban",
+                            icon: <AppstoreOutlined />,
+                            label: "บอร์ดงาน",
+                          },
+                        ]}
+                        value={viewMode}
+                        onChange={setViewMode as any}
+                        size="large"
+                        className="rounded-xl p-1"
+                      />
+                    </div>
+                  </Space>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Flex justify="end" gap={12} wrap="wrap">
+                    <Tooltip title="ล้างค่าการกรองทั้งหมด">
+                      <Button
+                        onClick={handleResetFilters}
+                        icon={<ReloadOutlined />}
+                        size="large"
+                        className="rounded-xl border-none flex items-center"
+                        style={{
+                          background: token.colorFillQuaternary,
+                          color: token.colorTextSecondary,
+                        }}
+                      >
+                        ล้างค่า
+                      </Button>
+                    </Tooltip>
+
+                    <Button
+                      icon={<PieChartOutlined />}
+                      onClick={() => setShowAnalytics(!showAnalytics)}
+                      type={showAnalytics ? "primary" : "default"}
+                      size="large"
+                      className="rounded-xl flex items-center"
+                      style={{
+                        boxShadow: showAnalytics
+                          ? `0 4px 12px ${token.colorPrimary}40`
+                          : "none",
+                      }}
+                    >
+                      {showAnalytics ? "ซ่อนบทวิเคราะห์" : "บทวิเคราะห์"}
+                    </Button>
+
+                    <Button
+                      icon={<FileExcelOutlined />}
+                      onClick={() =>
+                        exportProjectsToExcel(filteredProjects, getCategoryName)
+                      }
+                      size="large"
+                      className="rounded-xl flex items-center font-semibold"
+                      style={{
+                        color: token.colorSuccess,
+                        borderColor: token.colorSuccess,
+                        background: token.colorSuccessBg,
+                      }}
+                    >
+                      ส่งออก Excel
+                    </Button>
+                  </Flex>
+                </Col>
+              </Row>
             </Flex>
-          </Card>
+
+            <style jsx global>{`
+              .custom-select-rounded .ant-select-selector {
+                border-radius: 12px !important;
+                border-color: ${token.colorBorder} !important;
+                background-color: ${token.colorBgLayout} !important;
+                color: ${token.colorText} !important;
+              }
+              .custom-select-rounded .ant-select-selector:hover {
+                border-color: ${token.colorPrimary} !important;
+              }
+              .custom-select-rounded .ant-select-selection-item {
+                color: ${token.colorText} !important;
+              }
+              .custom-select-rounded .ant-select-selection-placeholder {
+                color: ${token.colorTextPlaceholder} !important;
+              }
+              .custom-select-rounded .ant-select-arrow {
+                color: ${token.colorTextDescription} !important;
+              }
+            `}</style>
+          </div>
 
           {showAnalytics && (
             <div className="mb-6 animate-pulse-once">
@@ -1293,11 +1606,15 @@ export default function ProjectManagementPage() {
               projects={filteredProjects}
               loading={loading}
               token={token}
+              allStatuses={statuses || []}
               onEdit={openEditModal}
-              onDelete={(item) => setModalState({ type: "delete", data: item })}
-              onViewDetail={(item) =>
+              onDelete={(item: Project) =>
+                setModalState({ type: "delete", data: item })
+              }
+              onViewDetail={(item: Project) =>
                 setModalState({ type: "detail", data: item })
               }
+              onProjectStatusChange={handleProjectStatusChange}
             />
           )}
 
@@ -1423,23 +1740,31 @@ export default function ProjectManagementPage() {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
+                  <Form.Item name="status" hidden>
+                    <Input />
+                  </Form.Item>
                   <Form.Item
-                    name="status"
-                    label="สถานะโครงการ"
+                    name="projectStatusId"
+                    label="สถานะโครงการ (SDLC Step)"
                     rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
                   >
                     <Select
                       className="rounded-lg"
-                      placeholder="เลือกสถานะ"
+                      placeholder="เลือกขั้นตอนหลัก (SDLC)"
+                      allowClear
+                      onChange={(val) => {
+                        const selectedStatus = statuses.find(
+                          (s) => s.id === val
+                        );
+                        if (selectedStatus) {
+                          form.setFieldsValue({
+                            status: selectedStatus.nameTh,
+                          });
+                        } else {
+                          form.setFieldsValue({ status: "open" });
+                        }
+                      }}
                       options={[
-                        {
-                          label: <Tag color="success">จุดเริ่มต้น (Open)</Tag>,
-                          value: "open",
-                        },
-                        {
-                          label: <Tag color="default">สิ้นสุด (Closed)</Tag>,
-                          value: "close",
-                        },
                         ...(statuses || [])
                           .sort((a: any, b: any) => a.priority - b.priority)
                           .map((s: any) => ({
@@ -1448,7 +1773,7 @@ export default function ProjectManagementPage() {
                                 Step {s.priority}: {s.nameTh}
                               </Tag>
                             ),
-                            value: s.nameTh,
+                            value: s.id,
                           })),
                       ]}
                     />
@@ -1509,19 +1834,54 @@ export default function ProjectManagementPage() {
                             name={[name, "userId"]}
                             rules={[
                               { required: true, message: "ระบุผู้รับผิดชอบ" },
+                              ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                  const assignees =
+                                    getFieldValue("assignees") || [];
+                                  const duplicates = assignees.filter(
+                                    (a: any) =>
+                                      a?.userId === value && value !== undefined
+                                  );
+                                  if (duplicates.length > 1) {
+                                    return Promise.reject(
+                                      new Error("ชื่อผู้ใช้ซ้ำกัน!")
+                                    );
+                                  }
+                                  return Promise.resolve();
+                                },
+                              }),
                             ]}
                             className="mb-0"
                           >
                             <Select
-                              placeholder="เลือกผู้รับผิดชอบ"
+                              placeholder="เลือกผู้รับผิดชอบ (ค้นหาชื่อ/ชื่อเล่น)"
                               showSearch
-                              filterOption={(input, option) =>
-                                (option?.label ?? "")
-                                  .toLowerCase()
-                                  .includes(input.toLowerCase())
-                              }
+                              disabled={modalState.type === "edit"}
+                              filterOption={(input, option) => {
+                                const label = (
+                                  option?.label ?? ""
+                                ).toLowerCase();
+                                const searchStr = input.toLowerCase();
+                                return label.includes(searchStr);
+                              }}
+                              onChange={(userId) => {
+                                const user = users.find(
+                                  (u) => u.admin_id === userId
+                                );
+                                if (user?.position) {
+                                  const currentAssignees =
+                                    form.getFieldValue("assignees");
+                                  currentAssignees[name].position =
+                                    user.position;
+                                  form.setFieldsValue({
+                                    assignees: currentAssignees,
+                                  });
+                                }
+                              }}
                               options={users.map((u) => ({
-                                label: `${u.firstname} ${u.lastname}`,
+                                label: `${u.firstname} ${u.lastname}${
+                                  u.nickname ? ` (${u.nickname})` : ""
+                                }`,
                                 value: u.admin_id,
                               }))}
                             />
@@ -1535,6 +1895,7 @@ export default function ProjectManagementPage() {
                           >
                             <AutoComplete
                               options={positionOptions}
+                              disabled={modalState.type === "edit"}
                               placeholder="ตำแหน่ง / หน้าที่ (Optional)"
                               filterOption={(inputValue, option) =>
                                 (option?.value ?? "")
@@ -1545,22 +1906,33 @@ export default function ProjectManagementPage() {
                           </Form.Item>
                         </Col>
                         <Col span={2}>
-                          <MinusCircleOutlined
-                            onClick={() => remove(name)}
-                            style={{ color: "red", fontSize: 18 }}
-                          />
+                          {modalState.type !== "edit" && (
+                            <MinusCircleOutlined
+                              onClick={() => remove(name)}
+                              style={{ color: "red", fontSize: 18 }}
+                            />
+                          )}
                         </Col>
                       </Row>
                     ))}
                     <Form.Item>
-                      <Button
-                        type="dashed"
-                        onClick={() => add()}
-                        block
-                        icon={<PlusOutlined />}
-                      >
-                        เพิ่มผู้รับผิดชอบ
-                      </Button>
+                      {modalState.type === "edit" ? (
+                        <div className="text-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            <InfoCircleOutlined className="mr-1" />{" "}
+                            ทีมงานผู้รับผิดชอบไม่สามารถแก้ไขได้ในหน้านี้
+                          </Text>
+                        </div>
+                      ) : (
+                        <Button
+                          type="dashed"
+                          onClick={() => add()}
+                          block
+                          icon={<PlusOutlined />}
+                        >
+                          เพิ่มผู้รับผิดชอบ
+                        </Button>
+                      )}
                     </Form.Item>
                   </>
                 )}
@@ -1718,7 +2090,7 @@ export default function ProjectManagementPage() {
                     <Col span={8}>
                       <Card
                         className="h-full rounded-2xl border-l-4 border-l-blue-500"
-                        bodyStyle={{ padding: 20 }}
+                        styles={{ body: { padding: 20 } }}
                       >
                         <Statistic
                           title={
@@ -1747,7 +2119,7 @@ export default function ProjectManagementPage() {
                     <Col span={8}>
                       <Card
                         className="h-full rounded-2xl border-l-4 border-l-orange-500"
-                        bodyStyle={{ padding: 20 }}
+                        styles={{ body: { padding: 20 } }}
                       >
                         <Statistic
                           title={
@@ -1771,7 +2143,7 @@ export default function ProjectManagementPage() {
                     <Col span={8}>
                       <Card
                         className="h-full rounded-2xl border-l-4 border-l-green-500"
-                        bodyStyle={{ padding: 20 }}
+                        styles={{ body: { padding: 20 } }}
                       >
                         <Statistic
                           title={
@@ -1801,7 +2173,7 @@ export default function ProjectManagementPage() {
                       <div className="flex flex-col gap-6">
                         <Card
                           className="h-full rounded-2xl border-l-4 border-l-purple-500"
-                          bodyStyle={{ padding: 20 }}
+                          styles={{ body: { padding: 20 } }}
                         >
                           <div className="text-sm font-medium text-gray-400 mb-3">
                             <UserOutlined /> ผู้สร้างโครงการ
@@ -2176,7 +2548,7 @@ export default function ProjectManagementPage() {
                       boxShadow: "none",
                       background: token.colorBgElevated,
                     }}
-                    bodyStyle={{ padding: 0 }}
+                    styles={{ body: { padding: 0 } }}
                   >
                     <List
                       dataSource={modalState.data.projectAssignees || []}
