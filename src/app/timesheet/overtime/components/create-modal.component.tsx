@@ -51,7 +51,12 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   };
 
   const onFinish = async (values: any) => {
-    const { request_date, descriptions, ...rest } = values;
+    const { request_date, descriptions, assignee, ...rest } = values;
+
+    // Validate that assignee is present
+    if (!assignee) {
+      return;
+    }
 
     const formattedDescriptions = descriptions?.map((desc: any) => {
       const startDate = desc.timeRange?.[0]
@@ -73,12 +78,13 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         endDate,
         date: startDate,
         duration: calculatedDuration,
-        assignee: values.assignee,
+        assignee: assignee,
       };
     });
 
     const payload = {
       ...rest,
+      assignee,
       request_date: request_date
         ? request_date.toISOString()
         : new Date().toISOString(),
