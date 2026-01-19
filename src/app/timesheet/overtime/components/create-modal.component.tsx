@@ -11,7 +11,6 @@ import {
   AutoComplete,
   Card,
   Button,
-  Divider,
   Space,
   Typography,
   theme,
@@ -24,7 +23,6 @@ import {
   MinusCircleOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
-  UserOutlined,
   FileTextOutlined,
   ThunderboltOutlined,
   SaveOutlined,
@@ -50,7 +48,7 @@ interface CreateModalProps {
 export const CreateModal: React.FC<CreateModalProps> = ({
   visible,
   setVisible,
-  userOptions,
+  userOptions, // NOTE: Use this for Assignee or OT Type as needed
   descriptionOptions,
   handleFormSubmit,
   loading,
@@ -134,7 +132,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             <span style={{ fontSize: "20px", fontWeight: 700, color: "#fff" }}>
               เพิ่มรายการโอทีใหม่
             </span>
-            <div style={{ fontSize: "13px", color: "#fff", opacity: 0.9, marginTop: 4 }}>
+            <div
+              style={{
+                fontSize: "13px",
+                color: "#fff",
+                opacity: 0.9,
+                marginTop: 4,
+              }}
+            >
               สร้างคำขอทำงานล่วงเวลา
             </div>
           </div>
@@ -203,10 +208,27 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 name="overtimeType"
                 rules={[{ required: true, message: "กรุณาเลือกประเภท" }]}
               >
+                {/* --- FIX STARTED HERE --- */}
                 <Select
                   size="large"
                   placeholder="เลือกประเภท"
-                  className="hov, idx) => {
+                  className="hover:border-purple-400 transition-all"
+                  // You might need to add options={...} here if they aren't static
+                  options={[
+                    { value: "Normal", label: "Normal OT" },
+                    { value: "Holiday", label: "Holiday OT" },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Card>
+
+        {/* Dynamic Form List */}
+        <Form.List name="descriptions">
+          {(fields, { add, remove }) => (
+            <div className="flex flex-col gap-4">
+              {fields.map((field, idx) => {
                 const descriptions = form.getFieldValue("descriptions") || [];
                 const currentDesc = descriptions[field.name] || {};
                 const calculatedDuration =
@@ -217,7 +239,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     key={field.key}
                     className="shadow-sm hover:shadow-lg transition-all duration-300"
                     style={{
-                      background: "linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)",
+                      background:
+                        "linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)",
                       borderRadius: 16,
                       border: "2px solid #667eea20",
                     }}
@@ -227,12 +250,18 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                           <div
                             className="p-2 rounded-lg"
                             style={{
-                              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                              background:
+                                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                             }}
                           >
-                            <FileTextOutlined style={{ color: "#fff", fontSize: 16 }} />
+                            <FileTextOutlined
+                              style={{ color: "#fff", fontSize: 16 }}
+                            />
                           </div>
-                          <Text strong style={{ fontSize: 15, color: "#667eea" }}>
+                          <Text
+                            strong
+                            style={{ fontSize: 15, color: "#667eea" }}
+                          >
                             งานที่ {idx + 1}
                           </Text>
                         </Space>
@@ -240,7 +269,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                           <Button
                             type="text"
                             danger
-                            icon={<MinusCircleOutlined style={{ fontSize: 18 }} />}
+                            icon={
+                              <MinusCircleOutlined style={{ fontSize: 18 }} />
+                            }
                             onClick={() => remove(field.name)}
                             className="hover:scale-110 transition-transform"
                           />
@@ -254,7 +285,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                           {...field}
                           label={
                             <Space>
-                              <ClockCircleOutlined style={{ color: "#52c41a" }} />
+                              <ClockCircleOutlined
+                                style={{ color: "#52c41a" }}
+                              />
                               <Text strong>ช่วงเวลาทำงาน</Text>
                             </Space>
                           }
@@ -300,34 +333,52 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                           style={{ marginBottom: 12 }}
                           tooltip="อธิบายงานที่ทำล่วงเวลา หรือเลือกจากรายการ"
                         >
-                          <TextArea
-                            rows={3}
-                            placeholder="พิมพ์รายละเอียดงานที่ทำล่วงเวลา... หรือเลือกจากรายการด้านล่าง"
+                          <AutoComplete
+                            options={descriptionOptions}
+                            placeholder="พิมพ์รายละเอียดงาน... หรือเลือกจากรายการ"
+                            filterOption={(inputValue, option) =>
+                              String(option?.value ?? "")
+                                .toLowerCase()
+                                .includes(String(inputValue).toLowerCase())
+                            }
                             size="large"
-                            showCount
-                            maxLength={500}
                             className="hover:border-blue-400 transition-all"
-                          />
+                          >
+                            <TextArea
+                              rows={3}
+                              size="large"
+                              showCount
+                              maxLength={500}
+                            />
+                          </AutoComplete>
                         </Form.Item>
                       </Col>
                       <Col span={24}>
                         <div
                           className="p-4 rounded-xl flex items-center justify-between"
                           style={{
-                            background: "linear-gradient(135deg, #52c41a10 0%, #73d13d10 100%)",
+                            background:
+                              "linear-gradient(135deg, #52c41a10 0%, #73d13d10 100%)",
                             border: "2px solid #52c41a30",
                           }}
                         >
                           <Space>
-                            <ClockCircleOutlined style={{ color: "#52c41a", fontSize: 18 }} />
-                            <Text type="secondary" strong style={{ fontSize: 14 }}>
+                            <ClockCircleOutlined
+                              style={{ color: "#52c41a", fontSize: 18 }}
+                            />
+                            <Text
+                              type="secondary"
+                              strong
+                              style={{ fontSize: 14 }}
+                            >
                               ระยะเวลาคำนวณอัตโนมัติ:
                             </Text>
                           </Space>
                           <Badge
                             count={`${calculatedDuration} ชั่วโมง`}
                             style={{
-                              background: "linear-gradient(135deg, #52c41a 0%, #73d13d 100%)",
+                              background:
+                                "linear-gradient(135deg, #52c41a 0%, #73d13d 100%)",
                               fontSize: 16,
                               padding: "6px 16px",
                               height: "auto",
@@ -355,45 +406,13 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 }}
               >
                 <Text strong>เพิ่มรายการงาน</Text>
-                              ]}
-                              style={{ marginBottom: 12 }}
-                            >
-                              <RangePicker
-                                showTime={{ format: "HH:mm" }}
-                                format="DD/MM/YYYY HH:mm"
-                                style={{ width: "100%" }}
-                                onChange={(dates) =>
-                                  handleTimeRangeChange(field.name, dates)
-                                }
-                              />
-                            </Form.Item>
-                          </Col>
-                          <Col span={24}>
-                            <Form.Item
-                              {...field}
-                              label={t("overtime_page.description_label")}
-                              name={[field.name, "description"]}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: t(
-                                    "overtime_page.description_required"
-                                  ),
-                                },
-                              ]}
-                              style={{ marginBottom: 8 }}
-                            >
-                              <AutoComplete
-                                options={descriptionOptions}
-                                placeholder={t(
-                                  "overtime_page.description_placeholder"
-                                )}
-                                filterOption={(inputValue, option) =>
-                                  String(option?.value ?? "")
-                                    .toLowerCase()
-                                    .includes(String(inputValue).toLowerCase())
-                                }
-                              />3 mt-8">
+              </Button>
+            </div>
+          )}
+        </Form.List>
+
+        {/* Footer Buttons */}
+        <div className="flex justify-end gap-3 mt-8">
           <Button
             onClick={handleClose}
             size="large"
@@ -428,50 +447,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             }}
             className="hover:scale-105 transition-all duration-300"
           >
-            บันทึกรายการ={{ color: token.colorPrimary }}
-                              >
-                                {calculatedDuration} {t("overtime_page.hours")}
-                              </Text>
-                            </div>
-                          </Col>
-                        </Row>
-                      </Col>
-                      <Col span={2} className="flex justify-end pt-8">
-                        <Button
-                          type="text"
-                          danger
-                          icon={<MinusCircleOutlined />}
-                          onClick={() => remove(field.name)}
-                        />
-                      </Col>
-                    </Row>
-                  </Card>
-                );
-              })}
-              <Button
-                type="dashed"
-                onClick={() => add()}
-                block
-                icon={<PlusOutlined />}
-                size="large"
-              >
-                {t("overtime_page.add_work_detail")}
-              </Button>
-            </div>
-          )}
-        </Form.List>
-
-        <div className="flex justify-end gap-2 mt-6">
-          <Button onClick={handleClose} size="large">
-            {t("overtime_page.cancel")}
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            size="large"
-          >
-            {t("overtime_page.save")}
+            บันทึกรายการ
           </Button>
         </div>
       </Form>

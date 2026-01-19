@@ -1,6 +1,32 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import dayjs from "dayjs";
 
 export type SubProjectAssetCaptureType = "CAPTUREABLE" | "UN_CAPTUREABLE";
+
+// ฟังก์ชันคำนวณ Man Hour จากวันที่เริ่มต้นถึงสิ้นสุด
+// สูตร: จำนวนคน x 8 ชม./วัน x 22 วันทำงาน/เดือน
+const calculateEstimateManHours = (
+  startDate: Date | string | null,
+  endDate: Date | string | null,
+  numberOfPeople: number = 1,
+): number => {
+  if (!startDate || !endDate) return 0;
+
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+
+  if (!start.isValid() || !end.isValid() || start.isAfter(end)) {
+    return 0;
+  }
+
+  // คำนวณจำนวนเดือนระหว่างสองวัน
+  const months = end.diff(start, "month", true); // true = รวมเศษส่วนของเดือน
+
+  // สูตร: จำนวนคน x 8 ชั่วโมง/วัน x 22 วัน/เดือน x จำนวนเดือน
+  const estimatedHours = Math.ceil(numberOfPeople * 8 * 22 * months);
+
+  return estimatedHours > 0 ? estimatedHours : 0;
+};
 
 interface PaginationOptions {
   limit?: number;
@@ -64,7 +90,17 @@ export const Service = {
       PrismaTimesheet.feature.count({ where }),
     ]);
 
-    return { items, total };
+    // เพิ่มการคำนวณ estimate_sub_feature_workhours
+    const itemsWithEstimate = items.map((item) => ({
+      ...item,
+      estimate_sub_feature_workhours: calculateEstimateManHours(
+        item.startDate,
+        item.endDate,
+        item.projectAssignees?.length || 1,
+      ),
+    }));
+
+    return { items: itemsWithEstimate, total };
   },
 
   async findById(id: number) {
@@ -73,12 +109,25 @@ export const Service = {
       include: { projectAssignees: true, projectStatus: true },
     });
 
-    return feature ? { items: [feature], total: 1 } : { items: [], total: 0 };
+    if (!feature) {
+      return { items: [], total: 0 };
+    }
+
+    const featureWithEstimate = {
+      ...feature,
+      estimate_sub_feature_workhours: calculateEstimateManHours(
+        feature.startDate,
+        feature.endDate,
+        feature.projectAssignees?.length || 1,
+      ),
+    };
+
+    return { items: [featureWithEstimate], total: 1 };
   },
 
   async findByProjectId(
     projectId: number,
-    { limit, skip = 0 }: PaginationOptions = {}
+    { limit, skip = 0 }: PaginationOptions = {},
   ) {
     const where = { projectId, is_deleted: false };
 
@@ -93,7 +142,17 @@ export const Service = {
       PrismaTimesheet.feature.count({ where }),
     ]);
 
-    return { items, total };
+    // เพิ่มการคำนวณ estimate_sub_feature_workhours
+    const itemsWithEstimate = items.map((item) => ({
+      ...item,
+      estimate_sub_feature_workhours: calculateEstimateManHours(
+        item.startDate,
+        item.endDate,
+        item.projectAssignees?.length || 1,
+      ),
+    }));
+
+    return { items: itemsWithEstimate, total };
   },
 
   async create(data: CreateFeatureDto) {

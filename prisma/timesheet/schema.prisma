@@ -1,3 +1,7 @@
+// =========================================================
+// 1. CONFIGURATION
+// =========================================================
+
 generator timesheet_client {
   provider      = "prisma-client-js"
   output        = "../../generated/prisma-timesheet"
@@ -9,6 +13,15 @@ datasource timesheet {
   url      = env("DATABASE_TIMESHEET_URL")
 }
 
+enum ProjectAssetCaptureType {
+  CAPTUREABLE
+  UN_CAPTUREABLE
+}
+
+// =========================================================
+// 2. ORGANIZATION & MASTER DATA
+// =========================================================
+
 model Group {
   id       Int       @id @default(autoincrement()) @map("id")
   name_th  String    @map("name_th")
@@ -16,70 +29,6 @@ model Group {
   projects Project[]
 
   @@map("group")
-}
-
-model Project {
-  id               Int               @id @default(autoincrement()) @map("id")
-  name             String            @map("name")
-  createdAt        DateTime          @default(now()) @map("created_at")
-  createdBy        Int?              @map("created_by")
-  updatedAt        DateTime          @updatedAt @map("updated_at")
-  updatedBy        Int?              @map("updated_by")
-  description      String
-  is_deleted       Boolean           @default(false)
-  categoryType     String?           @map("category_type")
-  status           String            @default("open") @map("status")
-  end_date         DateTime?         @map("end_date")
-  name_en          String?           @map("name_en")
-  start_date       DateTime?         @map("start_date")
-  approval         String            @default("pending") @map("approval")
-  approval_status  String            @default("pending") @map("approval_status")
-  group_id         Int?              @map("group_id")
-  features         Feature[]
-  group            Group?            @relation(fields: [group_id], references: [id])
-  timesheets       TimesheetEntry[]
-  projectAssignees ProjectAssignee[]
-  projectStatus    ProjectStatus?    @relation(fields: [projectStatusId], references: [id])
-  projectStatusId  Int?              @map("project_status_id")
-
-  @@map("project")
-}
-
-model ProjectAssignee {
-  id        Int     @id @default(autoincrement()) @map("id")
-  projectId Int     @map("project_id")
-  featureId Int?    @map("sub_project_id")
-  userId    Int     @map("user_id")
-  position  String? @map("position")
-
-  project Project  @relation(fields: [projectId], references: [id])
-  feature Feature? @relation(fields: [featureId], references: [id])
-
-  @@map("project_assignee")
-}
-
-model Feature {
-  id                 Int                     @id @default(autoincrement()) @map("id")
-  projectId          Int                     @map("project_id")
-  name               String                  @map("name")
-  createdAt          DateTime                @default(now()) @map("created_at")
-  createdBy          Int?                    @map("created_by")
-  updatedAt          DateTime                @updatedAt @map("updated_at")
-  updatedBy          Int?                    @map("updated_by")
-  is_deleted         Boolean                 @default(false)
-  endDate            DateTime?               @map("end_date")
-  startDate          DateTime?               @map("start_date")
-  backlogDescription Json?                   @map("backlog_description")
-  assetCaptureType   ProjectAssetCaptureType @default(CAPTUREABLE) @map("asset_capture_type")
-  status             String                  @default("open") @map("status")
-  name_en            String?                 @map("name_en")
-  project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  timesheets         TimesheetEntry[]
-  projectAssignees   ProjectAssignee[]
-  projectStatus      ProjectStatus?          @relation(fields: [projectStatusId], references: [id])
-  projectStatusId    Int?                    @map("project_status_id")
-
-  @@map("feature")
 }
 
 model ProjectStatus {
@@ -94,66 +43,142 @@ model ProjectStatus {
   @@map("project_status")
 }
 
+// =========================================================
+// 3. PROJECT CORE (Project, Feature, Assignee)
+// =========================================================
+
+model Project {
+  id              Int     @id @default(autoincrement()) @map("id")
+  // --- Info ---
+  name            String  @map("name")
+  name_en         String? @map("name_en")
+  description     String
+  categoryType    String? @map("category_type")
+  approval        String  @default("pending") @map("approval")
+  approval_status String  @default("pending") @map("approval_status")
+  status          String  @default("open") @map("status")
+
+  // --- Timeline & Budget ---
+  start_date        DateTime? @map("start_date")
+  end_date          DateTime? @map("end_date")
+  completeDate      DateTime? @map("complete_date")
+  estimateWorkhours Decimal?  @map("estimate_workhours")
+
+  // --- Relations Keys ---
+  group_id        Int? @map("group_id")
+  projectStatusId Int? @map("project_status_id")
+
+  // --- Meta ---
+  is_deleted Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  createdBy  Int?     @map("created_by")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  updatedBy  Int?     @map("updated_by")
+
+  // --- Relations ---
+  group            Group?            @relation(fields: [group_id], references: [id])
+  projectStatus    ProjectStatus?    @relation(fields: [projectStatusId], references: [id])
+  features         Feature[]
+  projectAssignees ProjectAssignee[]
+  timesheets       TimesheetEntry[]
+
+  @@map("project")
+}
+
+model Feature {
+  id                 Int                     @id @default(autoincrement()) @map("id")
+  projectId          Int                     @map("project_id")
+  // --- Info ---
+  name               String                  @map("name")
+  name_en            String?                 @map("name_en")
+  status             String                  @default("open") @map("status")
+  assetCaptureType   ProjectAssetCaptureType @default(CAPTUREABLE) @map("asset_capture_type")
+  backlogDescription Json?                   @map("backlog_description")
+
+  // --- Timeline & Budget ---
+  startDate         DateTime? @map("start_date")
+  endDate           DateTime? @map("end_date")
+  completeDate      DateTime? @map("complete_date")
+  estimateWorkhours Decimal?  @map("estimate_workhours")
+
+  // --- Relations Keys ---
+  projectStatusId Int? @map("project_status_id")
+
+  // --- Meta ---
+  is_deleted Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  createdBy  Int?     @map("created_by")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  updatedBy  Int?     @map("updated_by")
+
+  // --- Relations ---
+  project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectStatus    ProjectStatus?    @relation(fields: [projectStatusId], references: [id])
+  projectAssignees ProjectAssignee[]
+  timesheets       TimesheetEntry[]
+
+  @@map("feature")
+}
+
+model ProjectAssignee {
+  id        Int     @id @default(autoincrement()) @map("id")
+  userId    Int     @map("user_id")
+  projectId Int     @map("project_id")
+  featureId Int?    @map("sub_project_id")
+  position  String? @map("position")
+
+  project Project  @relation(fields: [projectId], references: [id])
+  feature Feature? @relation(fields: [featureId], references: [id])
+
+  @@map("project_assignee")
+}
+
+// =========================================================
+// 4. TIMESHEET TRANSACTIONS
+// =========================================================
+
 model TimesheetEntry {
   id          Int      @id @default(autoincrement()) @map("id")
   projectId   Int      @map("project_id")
   featureId   Int      @map("feature_id")
+  // --- Data ---
   date        DateTime @map("date")
   hours       Decimal  @map("hours")
   description String?  @map("description")
   status      String   @default("DRAFT") @map("status")
-  createdAt   DateTime @default(now()) @map("created_at")
-  createdBy   Int?     @map("created_by")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  updatedBy   Int?     @map("updated_by")
-  is_deleted  Boolean  @default(false)
-  feature     Feature  @relation(fields: [featureId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  // --- Meta ---
+  is_deleted Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  createdBy  Int?     @map("created_by")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  updatedBy  Int?     @map("updated_by")
+
+  // --- Relations ---
+  feature Feature @relation(fields: [featureId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  project Project @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("timesheet_entry")
 }
 
-model ApiLog {
-  id             BigInt    @id @default(autoincrement()) @map("id")
-  request_time   DateTime  @map("request_time")
-  response_time  DateTime? @map("response_time")
-  duration_ms    Int?      @map("duration_ms")
-  method         String?   @map("method")
-  status_code    Int?      @map("status_code")
-  url            String?   @map("url")
-  endpoint       String?   @map("endpoint")
-  service_name   String?   @map("service_name")
-  request_header Json?     @map("request_header")
-  request_body   Json?     @map("request_body")
-  response_body  Json?     @map("response_body")
-  ip_address     String?   @map("ip_address")
-  user_agent     String?   @map("user_agent")
-  called_by      String?   @map("called_by")
-  trace_id       String?   @map("trace_id")
-  error_message  String?   @map("error_message")
-  is_success     Boolean   @default(true) @map("is_success")
-  created_at     DateTime  @default(now()) @map("created_at")
-  is_archived    Boolean   @default(false) @map("is_archived")
-
-  @@index([endpoint])
-  @@index([service_name])
-  @@index([status_code])
-  @@index([request_time])
-  @@index([trace_id])
-  @@index([called_by])
-  @@map("api_log")
-}
+// =========================================================
+// 5. OVERTIME MODULE
+// =========================================================
 
 model Overtime {
-  id           Int                   @id @default(autoincrement()) @map("id")
-  requesterId  String                @map("requester_id")
-  requestDate  DateTime              @map("request_date")
-  status       String                @map("status")
-  createdBy    String                @map("created_by")
-  updatedBy    String?               @map("updated_by")
-  createdAt    DateTime              @default(now()) @map("created_at")
-  updatedAt    DateTime              @updatedAt @map("updated_at")
-  isDeleted    Boolean               @default(false) @map("is_deleted")
+  id          Int      @id @default(autoincrement()) @map("id")
+  requesterId String   @map("requester_id")
+  requestDate DateTime @map("request_date")
+  status      String   @map("status")
+
+  // --- Meta ---
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy String   @map("created_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy String?  @map("updated_by")
+
+  // --- Relations ---
   descriptions OvertimeDescription[] @relation("OvertimeDescriptions")
 
   @@index([requesterId, isDeleted])
@@ -165,20 +190,55 @@ model Overtime {
 model OvertimeDescription {
   id          Int       @id @default(autoincrement()) @map("id")
   overtimeId  Int       @map("overtime_id")
-  date        DateTime? @map("date")
-  duration    Decimal   @map("duration")
-  description String    @map("description")
   assignee    String    @map("assignee")
-  endDate     DateTime? @map("end_date")
+  description String    @map("description")
+  duration    Decimal   @map("duration")
+  date        DateTime? @map("date")
   startDate   DateTime? @map("start_date")
-  overtime    Overtime  @relation("OvertimeDescriptions", fields: [overtimeId], references: [id], onDelete: Cascade)
+  endDate     DateTime? @map("end_date")
+
+  overtime Overtime @relation("OvertimeDescriptions", fields: [overtimeId], references: [id], onDelete: Cascade)
 
   @@index([overtimeId])
   @@index([assignee, date])
   @@map("timesheet_overtime_descriptions")
 }
 
-enum ProjectAssetCaptureType {
-  CAPTUREABLE
-  UN_CAPTUREABLE
+// =========================================================
+// 6. SYSTEM UTILITIES
+// =========================================================
+
+model ApiLog {
+  id             BigInt    @id @default(autoincrement()) @map("id")
+  // --- Request Info ---
+  service_name   String?   @map("service_name")
+  endpoint       String?   @map("endpoint")
+  url            String?   @map("url")
+  method         String?   @map("method")
+  ip_address     String?   @map("ip_address")
+  user_agent     String?   @map("user_agent")
+  // --- Payload ---
+  request_header Json?     @map("request_header")
+  request_body   Json?     @map("request_body")
+  response_body  Json?     @map("response_body")
+  // --- Performance & Status ---
+  status_code    Int?      @map("status_code")
+  is_success     Boolean   @default(true) @map("is_success")
+  error_message  String?   @map("error_message")
+  request_time   DateTime  @map("request_time")
+  response_time  DateTime? @map("response_time")
+  duration_ms    Int?      @map("duration_ms")
+  // --- Meta ---
+  trace_id       String?   @map("trace_id")
+  called_by      String?   @map("called_by")
+  created_at     DateTime  @default(now()) @map("created_at")
+  is_archived    Boolean   @default(false) @map("is_archived")
+
+  @@index([endpoint])
+  @@index([service_name])
+  @@index([status_code])
+  @@index([request_time])
+  @@index([trace_id])
+  @@index([called_by])
+  @@map("api_log")
 }

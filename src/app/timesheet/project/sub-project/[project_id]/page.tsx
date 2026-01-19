@@ -125,6 +125,7 @@ const SummaryCards = ({ stats, loading, t }: any) => {
       icon: <ClockCircleOutlined />,
       desc: "ชั่วโมงทำงานสะสม",
       suffix: t("sub_project_page.hours_suffix"),
+      tooltip: "คำนวณจาก: จำนวนคน × 8 ชม./วัน × 22 วัน/เดือน × ระยะเวลา",
     },
   ];
 
@@ -148,7 +149,16 @@ const SummaryCards = ({ stats, loading, t }: any) => {
                   type="secondary"
                   className="block text-xs uppercase font-bold tracking-wider"
                 >
-                  {m.label}
+                  {m.tooltip ? (
+                    <Tooltip title={m.tooltip}>
+                      <span style={{ cursor: "help" }}>
+                        {m.label}{" "}
+                        <InfoCircleOutlined style={{ fontSize: 10 }} />
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    m.label
+                  )}
                 </Text>
                 <Statistic
                   value={m.value}

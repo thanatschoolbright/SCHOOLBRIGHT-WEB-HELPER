@@ -103,13 +103,13 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
         (item) =>
           item.name?.toLowerCase().includes(searchLower) ||
           item.name_en?.toLowerCase().includes(searchLower) ||
-          item.backlogDescription?.note?.toLowerCase().includes(searchLower)
+          item.backlogDescription?.note?.toLowerCase().includes(searchLower),
       );
     }
 
     if (filters.assetType) {
       result = result.filter(
-        (item) => item.assetCaptureType === filters.assetType
+        (item) => item.assetCaptureType === filters.assetType,
       );
     }
 
@@ -118,7 +118,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
       result = result.filter(
         (item) =>
           String(item.status) === String(filters.statusFilter) ||
-          String(item.projectStatusId) === String(filters.statusFilter)
+          String(item.projectStatusId) === String(filters.statusFilter),
       );
     }
 
@@ -136,7 +136,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
   const stats: SubProjectStats = useMemo(() => {
     // Find min and max priority status to identify initial and final steps dynamically
     const sortedStatuses = [...projectStatuses].sort(
-      (a, b) => a.priority - b.priority
+      (a, b) => a.priority - b.priority,
     );
     const startStatusId = sortedStatuses[0]?.id;
     const endStatusId = sortedStatuses[sortedStatuses.length - 1]?.id;
@@ -146,10 +146,8 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
 
     return filteredSubProjects.reduce(
       (acc, curr) => {
-        const { hours } = calculateWorkingHours(
-          curr.startDate || "",
-          curr.endDate || ""
-        );
+        // ใช้ค่าจาก backend แทนการคำนวณใหม่
+        const hours = curr.estimate_sub_feature_workhours || 0;
 
         acc.total++;
         acc.totalHours += hours;
@@ -171,7 +169,7 @@ export const useSubProjectData = (projectId: number, adminId?: number) => {
 
         return acc;
       },
-      { total: 0, processing: 0, completed: 0, totalHours: 0 }
+      { total: 0, processing: 0, completed: 0, totalHours: 0 },
     );
   }, [filteredSubProjects, projectStatuses]);
 
