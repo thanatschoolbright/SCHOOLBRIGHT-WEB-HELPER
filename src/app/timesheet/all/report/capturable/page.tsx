@@ -106,7 +106,7 @@ export default function CapturableReportPage() {
         {
           start_date: dateRange[0].format("YYYY-MM-DD"),
           end_date: dateRange[1].format("YYYY-MM-DD"),
-        }
+        },
       );
 
       if (response.data.status === 200) {
@@ -120,7 +120,7 @@ export default function CapturableReportPage() {
     } catch (error: any) {
       toast.error(
         error.response?.data?.message_th || "เกิดข้อผิดพลาดในการดึงข้อมูล",
-        { id: toastId }
+        { id: toastId },
       );
     } finally {
       setLoading(false);
@@ -143,7 +143,7 @@ export default function CapturableReportPage() {
         },
         {
           responseType: "blob",
-        }
+        },
       );
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -152,8 +152,8 @@ export default function CapturableReportPage() {
       link.setAttribute(
         "download",
         `capturable-report-${dateRange[0].format(
-          "YYYY-MM-DD"
-        )}-to-${dateRange[1].format("YYYY-MM-DD")}.xlsx`
+          "YYYY-MM-DD",
+        )}-to-${dateRange[1].format("YYYY-MM-DD")}.xlsx`,
       );
       document.body.appendChild(link);
       link.click();
@@ -217,7 +217,7 @@ export default function CapturableReportPage() {
       title: (
         <Space size={4}>
           <BuildOutlined style={{ color: token.colorSuccess }} />
-          <span>งานสร้างใหม่ (Asset)</span>
+          <span>งานสร้างใหม่ (capitalization)</span>
         </Space>
       ),
       dataIndex: "capturable_percent",
@@ -307,7 +307,7 @@ export default function CapturableReportPage() {
   // * Dynamic Column Filtering
   const filteredColumns = useMemo(() => {
     return allColumns.filter((col) =>
-      visibleColumns.includes(col.key as string)
+      visibleColumns.includes(col.key as string),
     );
   }, [allColumns, visibleColumns]);
 
@@ -356,7 +356,7 @@ export default function CapturableReportPage() {
               />
               <div>
                 <Title level={4} style={{ margin: 0 }}>
-                  รายงานวิเคราะห์ทรัพย์สิน (Capturable)
+                  รายงานวิเคราะห์ทรัพย์สิน (Capitalization)
                 </Title>
                 <Text type="secondary" className="text-xs">
                   วิเคราะห์สัดส่วนงานรายโครงการเพื่อแยกประเภทสินทรัพย์
@@ -654,13 +654,13 @@ export default function CapturableReportPage() {
               summary={(pageData) => {
                 if (pageData.length === 0) return undefined;
                 const hoursIdx = filteredColumns.findIndex(
-                  (c) => c.key === "hours"
+                  (c) => c.key === "hours",
                 );
                 if (hoursIdx === -1) return undefined;
 
                 const total = pageData.reduce(
                   (acc, curr) => acc + curr.hours,
-                  0
+                  0,
                 );
 
                 return (
