@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, Row, Col } from "antd";
 import { TeamOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -16,6 +16,7 @@ import { CreateModal } from "./components/create-modal.component";
 import { DetailModal } from "./components/detail-modal.component";
 import { BatchStatusModal } from "./components/batch-status-modal.component";
 import { AnalyticsModal } from "./components/analytics-modal.component";
+import { RulesModal } from "./components/rules-modal.component";
 
 export default function OvertimeManagementPage() {
   const router = useRouter();
@@ -57,9 +58,12 @@ export default function OvertimeManagementPage() {
   } = useOvertimeData();
 
   const [analyticsVisible, setAnalyticsVisible] = React.useState(false);
+  const [rulesVisible, setRulesVisible] = useState(true);
 
   useEffect(() => {
     document.title = t("overtime_page.title");
+    // แสดง Modal ระเบียบการทุกครั้งที่เข้าหน้า
+    setRulesVisible(true);
   }, [t]);
 
   return (
@@ -72,57 +76,117 @@ export default function OvertimeManagementPage() {
           },
         }}
       >
-        <div className="w-full space-y-6 animate-fade-in pb-10">
-          <HeaderBar
-            icon={<TeamOutlined />}
-            title={t("overtime_page.title")}
-            subTitle={t("overtime_page.subtitle")}
-            color="none"
-          />
+        <div className="w-full space-y-6 pb-10">
+          {/* Enhanced Header with Gradient */}
+          <div
+            className="relative overflow-hidden rounded-3xl p-8 shadow-2xl animate-fade-in"
+            style={{
+              background:
+                "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+            }}
+          >
+            {/* Animated background circles */}
+            <div
+              className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl animate-pulse"
+              style={{ transform: "translate(30%, -30%)" }}
+            />
+            <div
+              className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl animate-pulse"
+              style={{
+                transform: "translate(-30%, 30%)",
+                animationDelay: "1s",
+              }}
+            />
 
-          <SummaryCards stats={stats} loading={loading && !dataSource.length} />
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="p-4 rounded-2xl shadow-lg bg-white/20 backdrop-blur-sm">
+                <TeamOutlined style={{ fontSize: 40, color: "#fff" }} />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
+                  ระบบจัดการการทำงานล่วงเวลา (OT)
+                </h1>
+                <p className="text-white/90 text-lg">
+                  บันทึก ติดตาม และอนุมัติการทำงานนอกเวลาอย่างมีประสิทธิภาพ
+                </p>
+                <div className="mt-3 flex items-center gap-3 flex-wrap">
+                  <div className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium">
+                    อนุมัติรวดเร็ว
+                  </div>
+                  <div className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium">
+                    รายงานครบถ้วน
+                  </div>
+                  <div className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium">
+                    แจ้งเตือนอัตโนมัติ
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <ActionBar
-            selectedRowKeys={selectedRowKeys}
-            setSelectedRowKeys={setSelectedRowKeys}
-            setProcessedItems={setProcessedItems}
-            batchProcessing={batchProcessing}
-            setVisible={setVisible}
-            setBatchStatusModalVisible={setBatchStatusModalVisible}
-            batchSendEmail={batchSendEmail}
-            router={router}
-            setAnalyticsVisible={setAnalyticsVisible}
-          />
+          <Row gutter={[16, 16]}>
+            <Col xs={24}>
+              <SummaryCards
+                stats={stats}
+                loading={loading && !dataSource.length}
+              />
+            </Col>
+          </Row>
 
-          <FilterBar
-            searchText={searchText}
-            setSearchText={setSearchText}
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-            loading={loading}
-            paginationState={paginationState}
-            handleTableChange={handleTableChange}
-            fetchOvertimeList={fetchOvertimeList}
-          />
+          <Row gutter={[16, 16]}>
+            <Col xs={24}>
+              <ActionBar
+                selectedRowKeys={selectedRowKeys}
+                setSelectedRowKeys={setSelectedRowKeys}
+                setProcessedItems={setProcessedItems}
+                batchProcessing={batchProcessing}
+                setVisible={setVisible}
+                setBatchStatusModalVisible={setBatchStatusModalVisible}
+                batchSendEmail={batchSendEmail}
+                router={router}
+                setAnalyticsVisible={setAnalyticsVisible}
+                setRulesVisible={setRulesVisible}
+              />
+            </Col>
+          </Row>
 
-          <OvertimeTable
-            dataSource={dataSource}
-            columns={[]}
-            loading={loading}
-            paginationState={paginationState}
-            selectedRowKeys={selectedRowKeys}
-            setSelectedRowKeys={setSelectedRowKeys}
-            setProcessedItems={setProcessedItems}
-            batchProcessing={batchProcessing}
-            processedItems={processedItems}
-            handleTableChange={handleTableChange}
-            deleteOvertime={deleteOvertime}
-            approveOvertime={approveOvertime}
-            sendEmailToHR={sendEmailToHR}
-            fetchOvertimeDetail={fetchOvertimeDetail}
-            setDetailVisible={setDetailVisible}
-            router={router}
-          />
+          <Row gutter={[16, 16]}>
+            <Col xs={24}>
+              <FilterBar
+                searchText={searchText}
+                setSearchText={setSearchText}
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+                loading={loading}
+                paginationState={paginationState}
+                handleTableChange={handleTableChange}
+                fetchOvertimeList={fetchOvertimeList}
+              />
+            </Col>
+          </Row>
+
+          <Row gutter={[16, 16]}>
+            <Col xs={24}>
+              <OvertimeTable
+                dataSource={dataSource}
+                columns={[]}
+                loading={loading}
+                paginationState={paginationState}
+                selectedRowKeys={selectedRowKeys}
+                setSelectedRowKeys={setSelectedRowKeys}
+                setProcessedItems={setProcessedItems}
+                batchProcessing={batchProcessing}
+                processedItems={processedItems}
+                handleTableChange={handleTableChange}
+                deleteOvertime={deleteOvertime}
+                approveOvertime={approveOvertime}
+                sendEmailToHR={sendEmailToHR}
+                fetchOvertimeDetail={fetchOvertimeDetail}
+                setDetailVisible={setDetailVisible}
+                router={router}
+              />
+            </Col>
+          </Row>
 
           <CreateModal
             visible={visible}
@@ -153,6 +217,11 @@ export default function OvertimeManagementPage() {
             visible={analyticsVisible}
             setVisible={setAnalyticsVisible}
             dataSource={dataSource}
+          />
+
+          <RulesModal
+            visible={rulesVisible}
+            onClose={() => setRulesVisible(false)}
           />
         </div>
       </ConfigProvider>
