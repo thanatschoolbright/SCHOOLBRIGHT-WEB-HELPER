@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     backlogDescription,
     startDate,
     endDate,
-    asset_capture_type,
+    assetCaptureType,
     status,
     projectStatusId,
     assignees,
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   const projectId = Number(project_id);
   const userId = Number(by);
-  const assetCaptureType = asset_capture_type ?? "UN_CAPTUREABLE";
+  const assetCaptureType = assetCaptureType ?? "UN_CAPTUREABLE";
 
   try {
     const isProjectValid = await projectIdValidation(projectId);
