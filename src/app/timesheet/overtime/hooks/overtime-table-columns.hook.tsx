@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   Button,
   Dropdown,
@@ -8,6 +8,11 @@ import {
   Typography,
   Modal,
   Select,
+  Row,
+  Col,
+  theme,
+  Card,
+  Descriptions,
 } from "antd";
 import {
   CheckOutlined,
@@ -17,6 +22,9 @@ import {
   DeleteOutlined,
   MoreOutlined,
   UserOutlined,
+  FileTextOutlined,
+  EditOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
@@ -27,6 +35,155 @@ import { toast } from "sonner";
 import { useAppSelector } from "@/stores/store";
 
 const { Text } = Typography;
+
+interface ChangeStatusModalProps {
+  record: any;
+  onStatusChange: (id: string | number, status: string) => void;
+  t: (key: string) => string;
+}
+
+const ChangeStatusModalContent: React.FC<ChangeStatusModalProps> = ({
+  record,
+  onStatusChange,
+  t,
+}) => {
+  const { token } = theme.useToken();
+  const user = getUserById(record.requester_id);
+  const displayName = user
+    ? `${user.firstname} ${user.lastname}`
+    : record.requester_id;
+
+  return (
+    <>
+      <Space
+        style={{
+          width: "100%",
+          paddingBottom: 16,
+          borderBottom: `2px solid ${token.colorBorderSecondary}`,
+        }}
+      >
+        <Avatar
+          size={48}
+          style={{
+            background: token.colorSuccessBg,
+          }}
+          icon={
+            <CheckOutlined
+              style={{
+                color: token.colorSuccess,
+                fontSize: 24,
+              }}
+            />
+          }
+        />
+        <Space direction="vertical" size={0}>
+          <Typography.Title level={4} style={{ margin: 0 }}>
+            {t("overtime_page.change_status")}
+          </Typography.Title>
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+            เปลี่ยนสถานะการอนุมัติคำขอ OT
+          </Typography.Text>
+        </Space>
+      </Space>
+
+      <Space
+        direction="vertical"
+        size={16}
+        style={{ width: "100%", paddingTop: 16 }}
+      >
+        <Space direction="vertical" size={12} style={{ width: "100%" }}>
+          <Space align="center">
+            <FileTextOutlined
+              style={{ fontSize: 16, color: token.colorPrimary }}
+            />
+            <Typography.Text strong style={{ fontSize: 14 }}>
+              รายละเอียดคำขอ
+            </Typography.Text>
+          </Space>
+          <Card
+            size="small"
+            styles={{
+              body: {
+                background: token.colorSuccessBg,
+                borderColor: token.colorSuccessBorder,
+              },
+            }}
+          >
+            <Descriptions column={1} size="small" colon={false}>
+              <Descriptions.Item
+                label={
+                  <Typography.Text type="secondary">
+                    เลขที่เอกสาร
+                  </Typography.Text>
+                }
+              >
+                <Typography.Text strong>{record.id}</Typography.Text>
+              </Descriptions.Item>
+              <Descriptions.Item
+                label={
+                  <Typography.Text type="secondary">
+                    ผู้ยื่นคำขอ
+                  </Typography.Text>
+                }
+              >
+                <Typography.Text strong>{displayName}</Typography.Text>
+              </Descriptions.Item>
+              <Descriptions.Item
+                label={
+                  <Typography.Text type="secondary">
+                    วันที่ยื่นคำขอ
+                  </Typography.Text>
+                }
+              >
+                <Typography.Text strong>
+                  {record.request_date
+                    ? dayjs(record.request_date).format("DD/MM/YYYY")
+                    : "-"}
+                </Typography.Text>
+              </Descriptions.Item>
+            </Descriptions>
+          </Card>
+        </Space>
+
+        <Space direction="vertical" size={12} style={{ width: "100%" }}>
+          <Space align="center">
+            <EditOutlined style={{ fontSize: 16, color: token.colorPrimary }} />
+            <Typography.Text strong style={{ fontSize: 14 }}>
+              เลือกสถานะใหม่
+            </Typography.Text>
+          </Space>
+          <Select
+            defaultValue={record.status || "pending"}
+            style={{ width: "100%" }}
+            size="large"
+            onChange={(v) => onStatusChange(record.id, v)}
+            options={OT_STATUS.map((s) => ({
+              label: (
+                <Space>
+                  <Tag color={s.color}>{s.text}</Tag>
+                </Space>
+              ),
+              value: s.value,
+            }))}
+            placeholder="เลือกสถานะ"
+          />
+          <Space align="start" size={4}>
+            <InfoCircleOutlined
+              style={{
+                fontSize: 12,
+                color: token.colorTextSecondary,
+                marginTop: 2,
+              }}
+            />
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              การเปลี่ยนสถานะจะมีผลทันที และระบบจะบันทึกประวัติการเปลี่ยนแปลง
+            </Typography.Text>
+          </Space>
+        </Space>
+      </Space>
+    </>
+  );
+};
 
 interface UseOvertimeTableColumnsProps {
   processedItems: Set<React.Key>;
@@ -47,6 +204,7 @@ export const useOvertimeTableColumns = ({
 }: UseOvertimeTableColumnsProps) => {
   const { t } = useTranslation();
   const authentication = useAppSelector((state) => state.callAdminLogin);
+  const { token } = theme.useToken();
 
   return useMemo(
     () => [
@@ -57,7 +215,9 @@ export const useOvertimeTableColumns = ({
         align: "center" as const,
         render: (_: any, record: any) =>
           processedItems.has(record.id) && (
-            <CheckOutlined className="text-green-500 text-lg font-bold" />
+            <CheckOutlined
+              style={{ color: token.colorSuccess, fontSize: 18 }}
+            />
           ),
       },
       {
@@ -92,11 +252,7 @@ export const useOvertimeTableColumns = ({
         filters: OT_STATUS.map((s) => ({ text: s.text, value: s.value })),
         render: (status: string) => {
           const s = OT_STATUS.find((o) => o.value === status) || OT_STATUS[0];
-          return (
-            <Tag color={s.color} className="px-2 py-1 rounded-full">
-              {s.text}
-            </Tag>
-          );
+          return <Tag color={s.color}>{s.text}</Tag>;
         },
       },
       {
@@ -146,28 +302,25 @@ export const useOvertimeTableColumns = ({
                   label: t("overtime_page.change_status"),
                   icon: <CheckOutlined />,
                   onClick: async () => {
-                    const currentUserId = await getCurrentUserId(
-                      authentication
-                    );
+                    const currentUserId =
+                      await getCurrentUserId(authentication);
                     if (currentUserId !== "117")
                       return toast.error(t("overtime_page.no_permission"));
+
                     Modal.confirm({
-                      title: t("overtime_page.change_status"),
+                      title: null,
                       content: (
-                        <div className="pt-4">
-                          <Select
-                            defaultValue={record.status || "pending"}
-                            style={{ width: "100%" }}
-                            onChange={(v) => approveOvertime(record.id, v)}
-                            options={OT_STATUS.map((s) => ({
-                              label: s.text,
-                              value: s.value,
-                            }))}
-                          />
-                        </div>
+                        <ChangeStatusModalContent
+                          record={record}
+                          onStatusChange={approveOvertime}
+                          t={t}
+                        />
                       ),
+                      width: 600,
+                      centered: true,
                       footer: null,
                       closable: true,
+                      icon: null,
                     });
                   },
                 },
@@ -176,9 +329,8 @@ export const useOvertimeTableColumns = ({
                   label: t("overtime_page.send_email"),
                   icon: <MailOutlined />,
                   onClick: async () => {
-                    const currentUserId = await getCurrentUserId(
-                      authentication
-                    );
+                    const currentUserId =
+                      await getCurrentUserId(authentication);
                     if (currentUserId !== "117")
                       return toast.error(t("overtime_page.no_permission"));
                     sendEmailToHR(record.id);
@@ -218,6 +370,6 @@ export const useOvertimeTableColumns = ({
       fetchOvertimeDetail,
       router,
       authentication,
-    ]
+    ],
   );
 };

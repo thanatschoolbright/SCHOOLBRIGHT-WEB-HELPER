@@ -121,22 +121,23 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               <Card
                 className="text-center"
                 style={{
-                  background:
-                    "linear-gradient(135deg, #667eea20 0%, #764ba220 100%)",
-                  border: "2px solid #667eea30",
+                  background: token.colorPrimaryBg,
+                  border: `2px solid ${token.colorPrimaryBorder}`,
                   borderRadius: 16,
                 }}
               >
                 <Statistic
                   title={
-                    <Text strong style={{ color: "#667eea" }}>
+                    <Text strong style={{ color: token.colorPrimary }}>
                       เลขที่เอกสาร
                     </Text>
                   }
                   value={selectedDetail.id}
-                  prefix={<FileTextOutlined style={{ color: "#667eea" }} />}
+                  prefix={
+                    <FileTextOutlined style={{ color: token.colorPrimary }} />
+                  }
                   valueStyle={{
-                    color: "#667eea",
+                    color: token.colorPrimary,
                     fontSize: 24,
                     fontWeight: 700,
                   }}
@@ -149,11 +150,17 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 style={{
                   background:
                     statusConfig?.color === "gold"
-                      ? "linear-gradient(135deg, #faad1420 0%, #ffd70020 100%)"
+                      ? token.colorWarningBg
                       : statusConfig?.color === "green"
-                        ? "linear-gradient(135deg, #52c41a20 0%, #73d13d20 100%)"
-                        : "linear-gradient(135deg, #ff4d4f20 0%, #ff7a4520 100%)",
-                  border: `2px solid ${statusConfig?.color === "gold" ? "#faad1430" : statusConfig?.color === "green" ? "#52c41a30" : "#ff4d4f30"}`,
+                        ? token.colorSuccessBg
+                        : token.colorErrorBg,
+                  border: `2px solid ${
+                    statusConfig?.color === "gold"
+                      ? token.colorWarningBorder
+                      : statusConfig?.color === "green"
+                        ? token.colorSuccessBorder
+                        : token.colorErrorBorder
+                  }`,
                   borderRadius: 16,
                 }}
               >
@@ -179,23 +186,24 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               <Card
                 className="text-center"
                 style={{
-                  background:
-                    "linear-gradient(135deg, #ff6b6b20 0%, #ee5a6f20 100%)",
-                  border: "2px solid #ff6b6b30",
+                  background: token.colorErrorBg,
+                  border: `2px solid ${token.colorErrorBorder}`,
                   borderRadius: 16,
                 }}
               >
                 <Statistic
                   title={
-                    <Text strong style={{ color: "#ff6b6b" }}>
+                    <Text strong style={{ color: token.colorError }}>
                       รวมชั่วโมง
                     </Text>
                   }
                   value={totalHours.toFixed(2)}
                   suffix="ชม."
-                  prefix={<ClockCircleOutlined style={{ color: "#ff6b6b" }} />}
+                  prefix={
+                    <ClockCircleOutlined style={{ color: token.colorError }} />
+                  }
                   valueStyle={{
-                    color: "#ff6b6b",
+                    color: token.colorError,
                     fontSize: 24,
                     fontWeight: 700,
                   }}
@@ -208,7 +216,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           <Card
             title={
               <Space>
-                <TeamOutlined style={{ color: "#667eea", fontSize: 18 }} />
+                <TeamOutlined
+                  style={{ color: token.colorPrimary, fontSize: 18 }}
+                />
                 <Text strong style={{ fontSize: 16 }}>
                   ข้อมูลผู้เกี่ยวข้อง
                 </Text>
@@ -216,12 +226,17 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             }
             style={{
               borderRadius: 16,
-              border: "2px solid #667eea20",
+              border: `2px solid ${token.colorPrimaryBorder}`,
             }}
           >
             <Row gutter={[24, 24]}>
               <Col xs={24} sm={12}>
-                <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                <div
+                  className="flex items-start gap-4 p-4 rounded-xl"
+                  style={{
+                    background: token.colorPrimaryBg,
+                  }}
+                >
                   <Avatar
                     size={64}
                     src={requesterUser?.avatar}
@@ -237,7 +252,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       ผู้ยื่นคำขอ
                     </Text>
                     <div>
-                      <Text strong style={{ fontSize: 16, color: "#667eea" }}>
+                      <Text
+                        strong
+                        style={{ fontSize: 16, color: token.colorPrimary }}
+                      >
                         {requesterUser
                           ? `${requesterUser.firstname} ${requesterUser.lastname}`
                           : selectedDetail.requester_id}
@@ -252,7 +270,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 </div>
               </Col>
               <Col xs={24} sm={12}>
-                <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                <div
+                  className="flex items-start gap-4 p-4 rounded-xl"
+                  style={{
+                    background: token.colorErrorBg,
+                  }}
+                >
                   <Avatar
                     size={64}
                     src={creatorUser?.avatar}
@@ -268,7 +291,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       ผู้สร้างรายการ
                     </Text>
                     <div>
-                      <Text strong style={{ fontSize: 16, color: "#f5576c" }}>
+                      <Text
+                        strong
+                        style={{ fontSize: 16, color: token.colorError }}
+                      >
                         {creatorUser
                           ? `${creatorUser.firstname} ${creatorUser.lastname}`
                           : selectedDetail.created_by}
@@ -289,7 +315,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           <Card
             title={
               <Space>
-                <CalendarOutlined style={{ color: "#52c41a", fontSize: 18 }} />
+                <CalendarOutlined
+                  style={{ color: token.colorSuccess, fontSize: 18 }}
+                />
                 <Text strong style={{ fontSize: 16 }}>
                   วันที่และเวลา
                 </Text>
@@ -297,12 +325,17 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             }
             style={{
               borderRadius: 16,
-              border: "2px solid #52c41a20",
+              border: `2px solid ${token.colorSuccessBorder}`,
             }}
           >
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12}>
-                <div className="p-4 bg-green-50 rounded-xl">
+                <div
+                  className="p-4 rounded-xl"
+                  style={{
+                    background: token.colorSuccessBg,
+                  }}
+                >
                   <Space
                     direction="vertical"
                     size={4}
@@ -311,7 +344,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       วันที่ยื่นคำขอ
                     </Text>
-                    <Text strong style={{ fontSize: 16, color: "#52c41a" }}>
+                    <Text
+                      strong
+                      style={{ fontSize: 16, color: token.colorSuccess }}
+                    >
                       {selectedDetail.request_date
                         ? dayjs(selectedDetail.request_date)
                             .locale("th")
@@ -322,7 +358,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 </div>
               </Col>
               <Col xs={24} sm={12}>
-                <div className="p-4 bg-blue-50 rounded-xl">
+                <div
+                  className="p-4 rounded-xl"
+                  style={{
+                    background: token.colorInfoBg,
+                  }}
+                >
                   <Space
                     direction="vertical"
                     size={4}
@@ -331,7 +372,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       สร้างเมื่อ
                     </Text>
-                    <Text strong style={{ fontSize: 16, color: "#1890ff" }}>
+                    <Text
+                      strong
+                      style={{ fontSize: 16, color: token.colorInfo }}
+                    >
                       {selectedDetail.created_at
                         ? dayjs(selectedDetail.created_at)
                             .locale("th")
@@ -348,7 +392,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           <Card
             title={
               <Space>
-                <FieldTimeOutlined style={{ color: "#ff6b6b", fontSize: 18 }} />
+                <FieldTimeOutlined
+                  style={{ color: token.colorError, fontSize: 18 }}
+                />
                 <Text strong style={{ fontSize: 16 }}>
                   รายละเอียดงานที่ทำล่วงเวลา
                 </Text>
@@ -363,7 +409,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             }
             style={{
               borderRadius: 16,
-              border: "2px solid #ff6b6b20",
+              border: `2px solid ${token.colorErrorBorder}`,
             }}
           >
             <Timeline
@@ -373,10 +419,13 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   ? getUserById(item.assignee)
                   : null;
                 return {
-                  color: "#667eea",
+                  color: token.colorPrimary,
                   label: (
                     <div className="text-right pr-4">
-                      <Text strong style={{ color: "#667eea", fontSize: 14 }}>
+                      <Text
+                        strong
+                        style={{ color: token.colorPrimary, fontSize: 14 }}
+                      >
                         งานที่ {idx + 1}
                       </Text>
                       {item.date && (
@@ -399,9 +448,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       className="shadow-sm"
                       style={{
                         borderRadius: 12,
-                        background:
-                          "linear-gradient(135deg, #f6f9fc 0%, #ffffff 100%)",
-                        border: "1px solid #e8e8e8",
+                        background: token.colorBgContainer,
+                        border: `1px solid ${token.colorBorder}`,
                       }}
                     >
                       <Space
@@ -411,12 +459,20 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       >
                         {/* Time Range */}
                         {item.startDate && item.endDate && (
-                          <div className="flex items-center justify-between p-3 bg-indigo-50 rounded-lg">
+                          <div
+                            className="flex items-center justify-between p-3 rounded-lg"
+                            style={{
+                              background: token.colorPrimaryBg,
+                            }}
+                          >
                             <Space>
                               <ClockCircleOutlined
-                                style={{ color: "#667eea" }}
+                                style={{ color: token.colorPrimary }}
                               />
-                              <Text strong style={{ color: "#667eea" }}>
+                              <Text
+                                strong
+                                style={{ color: token.colorPrimary }}
+                              >
                                 ช่วงเวลา
                               </Text>
                             </Space>
@@ -428,7 +484,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                         )}
 
                         {/* Description */}
-                        <div className="p-3 bg-yellow-50 rounded-lg">
+                        <div
+                          className="p-3 rounded-lg"
+                          style={{
+                            background: token.colorWarningBg,
+                          }}
+                        >
                           <Text type="secondary" style={{ fontSize: 12 }}>
                             รายละเอียดงาน
                           </Text>
@@ -442,7 +503,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                         {/* Duration and Assignee */}
                         <Row gutter={[12, 12]}>
                           <Col span={12}>
-                            <div className="p-3 bg-green-50 rounded-lg text-center">
+                            <div
+                              className="p-3 rounded-lg text-center"
+                              style={{
+                                background: token.colorSuccessBg,
+                              }}
+                            >
                               <Text
                                 type="secondary"
                                 style={{ fontSize: 12, display: "block" }}
@@ -465,7 +531,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                           </Col>
                           {assigneeUser && (
                             <Col span={12}>
-                              <div className="p-3 bg-purple-50 rounded-lg">
+                              <div
+                                className="p-3 rounded-lg"
+                                style={{
+                                  background: token.colorPrimaryBg,
+                                }}
+                              >
                                 <Text
                                   type="secondary"
                                   style={{
@@ -481,7 +552,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                                     size="small"
                                     src={assigneeUser.avatar}
                                     icon={<UserOutlined />}
-                                    style={{ background: "#722ed1" }}
+                                    style={{ background: token.colorPrimary }}
                                   />
                                   <Text strong style={{ fontSize: 13 }}>
                                     {assigneeUser.firstname}{" "}
