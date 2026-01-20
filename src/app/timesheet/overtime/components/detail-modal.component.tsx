@@ -315,7 +315,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       {selectedDetail.request_date
                         ? dayjs(selectedDetail.request_date)
                             .locale("th")
-                            .format("DD MMMM BBBB")
+                            .format("DD MMMM YYYY")
                         : "-"}
                     </Text>
                   </Space>
@@ -335,7 +335,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       {selectedDetail.created_at
                         ? dayjs(selectedDetail.created_at)
                             .locale("th")
-                            .format("DD MMM BBBB HH:mm")
+                            .format("DD MMM YYYY HH:mm")
                         : "-"}
                     </Text>
                   </Space>
@@ -388,7 +388,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                           }}
                         >
                           <CalendarOutlined />{" "}
-                          {dayjs(item.date).locale("th").format("DD MMM BBBB")}
+                          {dayjs(item.date).locale("th").format("DD MMM YYYY")}
                         </div>
                       )}
                     </div>

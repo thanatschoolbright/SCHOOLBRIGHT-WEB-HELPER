@@ -87,6 +87,7 @@ import { AnalyticsDashboard } from "./components/analytics-dashboard.component";
 import { ProjectStatusModal } from "./components/project-status-modal.component";
 import { useProjectData } from "./hooks/use-project-data";
 import { exportProjectsToExcel } from "./utils/export-excel";
+import SummaryCards from "@components/card/summary-card/summary-card-component";
 import type {
   ModalState,
   FormValues,
@@ -119,11 +120,11 @@ const KanbanBoard = ({
   allStatuses: ProjectStatus[];
   onProjectStatusChange: (
     projectId: number,
-    newStatusId: number | null
+    newStatusId: number | null,
   ) => void;
 }) => {
   const [draggingProjectId, setDraggingProjectId] = useState<number | null>(
-    null
+    null,
   );
   const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
 
@@ -180,7 +181,7 @@ const KanbanBoard = ({
 
     const result = [];
     const sortedMasterStatuses = [...allStatuses].sort(
-      (a, b) => (a.priority || 0) - (b.priority || 0)
+      (a, b) => (a.priority || 0) - (b.priority || 0),
     );
 
     result.push({
@@ -270,8 +271,8 @@ const KanbanBoard = ({
                           health.color === "red"
                             ? "#ff4d4f"
                             : health.color === "gold"
-                            ? "#faad14"
-                            : token.colorSuccess,
+                              ? "#faad14"
+                              : token.colorSuccess,
                         background: token.colorBgContainer,
                       }}
                       onClick={() => onViewDetail(item)}
@@ -488,207 +489,7 @@ const HeaderSection = ({
 // 2. STATISTICS CARDS
 // ==========================================
 
-const SummaryCards = ({ stats, token }: { stats: any; token: any }) => {
-  const cardStyle = {
-    background: token.colorBgContainer,
-    borderRadius: 16,
-    border: `1px solid ${token.colorBorderSecondary}`,
-    height: "100%",
-  };
-
-  const iconBoxStyle = (color: string, bg: string) => ({
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 24,
-    color: color,
-    background: bg,
-  });
-
-  const tooltipContent = (
-    label: string,
-    source: string,
-    calc: string,
-    utility: string
-  ) => (
-    <div style={{ padding: "4px" }}>
-      <div
-        style={{
-          fontWeight: 700,
-          marginBottom: 8,
-          borderBottom: `1px solid rgba(255,255,255,0.2)`,
-          paddingBottom: 4,
-        }}
-      >
-        {label}
-      </div>
-      <div style={{ marginBottom: 4 }}>
-        <Text strong style={{ color: "#fff", fontSize: 11 }}>
-          ที่มา:
-        </Text>{" "}
-        <span style={{ fontSize: 11 }}>{source}</span>
-      </div>
-      <div style={{ marginBottom: 4 }}>
-        <Text strong style={{ color: "#fff", fontSize: 11 }}>
-          การคำนวณ:
-        </Text>{" "}
-        <span style={{ fontSize: 11 }}>{calc}</span>
-      </div>
-      <div>
-        <Text strong style={{ color: "#fff", fontSize: 11 }}>
-          ประโยชน์:
-        </Text>{" "}
-        <span style={{ fontSize: 11 }}>{utility}</span>
-      </div>
-    </div>
-  );
-
-  if (!stats?.health) {
-    return (
-      <div className="mb-6">
-        <Row gutter={[16, 16]}>
-          {[1, 2, 3, 4].map((i) => (
-            <Col xs={24} sm={12} xl={6} key={i}>
-              <Skeleton active />
-            </Col>
-          ))}
-        </Row>
-      </div>
-    );
-  }
-
-  const { health } = stats;
-
-  const items = [
-    {
-      label: "โครงการทั้งหมด",
-      value: health.total,
-      percent: 100,
-      color: token.colorPrimary,
-      bg: token.colorPrimaryBg,
-      icon: <AppstoreOutlined />,
-      suffix: "โครงการ",
-      tooltip: tooltipContent(
-        "โครงการทั้งหมด",
-        "ดึงข้อมูลจากฐานข้อมูลโครงการ (ยกเว้นที่ถูกลบ)",
-        "นับจำนวนโครงการทั้งหมดที่อยู่ในระบบ",
-        "ใช้ดูภาพรวมปริมาณโครงการทั้งหมดที่เคยบริหารจัดการ"
-      ),
-    },
-    {
-      label: "กำลังดำเนินการ",
-      value: health.active,
-      percent: health.total > 0 ? (health.active / health.total) * 100 : 0,
-      color: token.colorSuccess,
-      bg: token.colorSuccessBg,
-      icon: <RocketOutlined />,
-      suffix: "โครงการ",
-      tooltip: tooltipContent(
-        "กำลังดำเนินการ",
-        "โครงการที่มีสถานะเป็น 'เปิดใช้งาน'",
-        "กรองโครงการที่มีสถานะ Open",
-        "ช่วยติดตามความคืบหน้าของงานปัจจุบันที่กำลังทำอยู่"
-      ),
-    },
-    {
-      label: "ปิดโครงการแล้ว",
-      value: health.closed,
-      percent: health.total > 0 ? (health.closed / health.total) * 100 : 0,
-      color: token.colorTextSecondary,
-      bg: token.colorFillSecondary,
-      icon: <CheckCircleOutlined />,
-      suffix: "โครงการ",
-      tooltip: tooltipContent(
-        "ปิดโครงการแล้ว",
-        "โครงการที่มีสถานะเป็น 'ปิดโครงการ' หรือเสร็จแล้ว",
-        "กรองโครงการที่มีสถานะ Closed",
-        "ใช้สำรวจโครงการที่จบไปแล้วเพื่อสรุปยอดหรืองานย้อนหลัง"
-      ),
-    },
-    {
-      label: "อัตราความสำเร็จ",
-      value: health.success_rate,
-      percent: health.success_rate,
-      color: token.colorWarning,
-      bg: token.colorWarningBg,
-      icon: <PieChartOutlined />,
-      suffix: "%",
-      tooltip: tooltipContent(
-        "อัตราความสำเร็จ",
-        "คำนวณจากสัดส่วนโครงการที่ปิดแล้ว",
-        "(จำนวนที่ปิด / จำนวนทั้งหมด) x 100",
-        "วัดประสิทธิภาพการบริหารโครงการให้เสร็จสิ้นตามเป้าหมาย"
-      ),
-    },
-  ];
-
-  return (
-    <div className="mb-6">
-      <Space className="mb-4">
-        <PieChartOutlined />
-        <Text strong>ภาพรวมโครงการ (Project Health)</Text>
-      </Space>
-      <Row gutter={[16, 16]}>
-        {items.map((item, idx) => (
-          <Col xs={24} sm={12} xl={6} key={idx}>
-            <Card
-              styles={{ body: { padding: 24 } }}
-              className="transition-shadow"
-              style={cardStyle}
-            >
-              <Flex justify="space-between" align="start">
-                <Flex vertical gap={4}>
-                  <Tooltip title={item.tooltip} placement="topLeft" arrow>
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: 13, cursor: "help" }}
-                    >
-                      {item.label}{" "}
-                      <InfoCircleOutlined
-                        style={{ fontSize: 10, opacity: 0.5 }}
-                      />
-                    </Text>
-                  </Tooltip>
-                  <Statistic
-                    value={item.value}
-                    valueStyle={{
-                      fontWeight: 700,
-                      fontSize: 32,
-                      color: token.colorText,
-                    }}
-                    suffix={
-                      <span
-                        style={{
-                          fontSize: 14,
-                          color: token.colorTextQuaternary,
-                        }}
-                      >
-                        {item.suffix}
-                      </span>
-                    }
-                  />
-                </Flex>
-                <div style={iconBoxStyle(item.color, item.bg)}>{item.icon}</div>
-              </Flex>
-              <div className="mt-4">
-                <Progress
-                  percent={item.percent}
-                  showInfo={false}
-                  strokeColor={item.color}
-                  trailColor={token.colorFillSecondary}
-                  size="small"
-                />
-              </div>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-    </div>
-  );
-};
+// SummaryCards component has been moved to @components/card/summary-card/summary-card-component.tsx
 
 const SdlcSummaryCards = ({
   stats,
@@ -1151,7 +952,7 @@ export default function ProjectManagementPage() {
       const matchSearch =
         !filters.searchText ||
         [project.name, project.name_en, project.description].some((s) =>
-          s?.toLowerCase().includes(filters.searchText.toLowerCase())
+          s?.toLowerCase().includes(filters.searchText.toLowerCase()),
         );
       const matchStatus =
         filters.statusFilter === "ALL" ||
@@ -1228,7 +1029,7 @@ export default function ProjectManagementPage() {
 
   const handleProjectStatusChange = async (
     projectId: number,
-    newStatusId: number | null
+    newStatusId: number | null,
   ) => {
     const project = projects.find((p) => p.id === projectId);
     if (!project) return;
@@ -1754,7 +1555,7 @@ export default function ProjectManagementPage() {
                       allowClear
                       onChange={(val) => {
                         const selectedStatus = statuses.find(
-                          (s) => s.id === val
+                          (s) => s.id === val,
                         );
                         if (selectedStatus) {
                           form.setFieldsValue({
@@ -1840,11 +1641,12 @@ export default function ProjectManagementPage() {
                                     getFieldValue("assignees") || [];
                                   const duplicates = assignees.filter(
                                     (a: any) =>
-                                      a?.userId === value && value !== undefined
+                                      a?.userId === value &&
+                                      value !== undefined,
                                   );
                                   if (duplicates.length > 1) {
                                     return Promise.reject(
-                                      new Error("ชื่อผู้ใช้ซ้ำกัน!")
+                                      new Error("ชื่อผู้ใช้ซ้ำกัน!"),
                                     );
                                   }
                                   return Promise.resolve();
@@ -1866,7 +1668,7 @@ export default function ProjectManagementPage() {
                               }}
                               onChange={(userId) => {
                                 const user = users.find(
-                                  (u) => u.admin_id === userId
+                                  (u) => u.admin_id === userId,
                                 );
                                 if (user?.position) {
                                   const currentAssignees =
@@ -2053,7 +1855,7 @@ export default function ProjectManagementPage() {
                           className="text-white border-none px-3 py-1 font-semibold backdrop-blur-sm"
                         >
                           {getCategoryName(
-                            String(modalState.data.categoryType)
+                            String(modalState.data.categoryType),
                           )}
                         </Tag>
                         <Tag
@@ -2099,7 +1901,7 @@ export default function ProjectManagementPage() {
                             </Space>
                           }
                           value={convertToThaiDateDDMMYYY(
-                            modalState.data.start_date
+                            modalState.data.start_date,
                           )}
                           valueStyle={{ fontSize: 16, fontWeight: 700 }}
                           formatter={(val) => (
@@ -2108,7 +1910,7 @@ export default function ProjectManagementPage() {
                               <span className="text-xs text-gray-400">
                                 ถึง{" "}
                                 {convertToThaiDateDDMMYYY(
-                                  modalState?.data?.end_date
+                                  modalState?.data?.end_date,
                                 )}
                               </span>
                             </div>
@@ -2153,7 +1955,7 @@ export default function ProjectManagementPage() {
                           }
                           value={
                             modalState.data.features?.filter(
-                              (f) => !f.is_deleted
+                              (f) => !f.is_deleted,
                             ).length || 0
                           }
                           suffix="รายการ"
@@ -2198,7 +2000,7 @@ export default function ProjectManagementPage() {
                               </Text>
                               <Text type="secondary" style={{ fontSize: 11 }}>
                                 {convertToThaiDateDDMMYYY(
-                                  modalState.data.createdAt
+                                  modalState.data.createdAt,
                                 )}
                               </Text>
                             </div>
@@ -2237,7 +2039,7 @@ export default function ProjectManagementPage() {
                           itemLayout="horizontal"
                           dataSource={
                             modalState.data.features?.filter(
-                              (f) => !f.is_deleted
+                              (f) => !f.is_deleted,
                             ) || []
                           }
                           renderItem={(item) => (
@@ -2618,7 +2420,7 @@ export default function ProjectManagementPage() {
                                       >
                                         {individualHours.toLocaleString(
                                           undefined,
-                                          { maximumFractionDigits: 1 }
+                                          { maximumFractionDigits: 1 },
                                         )}{" "}
                                         ชม.
                                       </Tag>
@@ -2639,7 +2441,7 @@ export default function ProjectManagementPage() {
                                           ฿{" "}
                                           {individualCost.toLocaleString(
                                             undefined,
-                                            { maximumFractionDigits: 0 }
+                                            { maximumFractionDigits: 0 },
                                           )}
                                         </Tag>
                                       </Tooltip>

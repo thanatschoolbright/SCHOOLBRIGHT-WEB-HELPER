@@ -2,13 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConfigProvider, Row, Col } from "antd";
-import { TeamOutlined } from "@ant-design/icons";
+import { ConfigProvider, Row, Col, theme } from "antd";
+import {
+  TeamOutlined,
+  FileTextOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
+import SummaryCards from "@components/card/summary-card/summary-card-component";
 import { useOvertimeData } from "./hooks/overtime.data";
-import { SummaryCards } from "./components/summary-cards.component";
 import { FilterBar } from "./components/filter-bar.component";
 import { ActionBar } from "./components/action-bar.component";
 import { OvertimeTable } from "./components/overtime-table.component";
@@ -21,6 +26,7 @@ import { RulesModal } from "./components/rules-modal.component";
 export default function OvertimeManagementPage() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { token } = theme.useToken();
   const {
     loading,
     dataSource,
@@ -124,14 +130,97 @@ export default function OvertimeManagementPage() {
             </div>
           </div>
 
-          <Row gutter={[16, 16]}>
-            <Col xs={24}>
-              <SummaryCards
-                stats={stats}
-                loading={loading && !dataSource.length}
-              />
-            </Col>
-          </Row>
+          <SummaryCards
+            stats={{
+              health: {
+                total: stats.total,
+                active: stats.pending,
+                closed: stats.approved,
+                success_rate:
+                  stats.total > 0 ? (stats.approved / stats.total) * 100 : 0,
+              },
+            }}
+            token={token}
+            title="ภาพรวมการทำงานล่วงเวลา (OT Overview)"
+            icon={<TeamOutlined />}
+            items={[
+              {
+                label: "คำขอทั้งหมด",
+                value: stats.total,
+                percent: 100,
+                color: token.colorPrimary,
+                bg: token.colorPrimaryBg,
+                icon: <FileTextOutlined />,
+                suffix: "รายการ",
+                tooltip: (
+                  <div style={{ padding: "4px" }}>
+                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                      คำขอทั้งหมด
+                    </div>
+                    <div>ยอดรวมคำขอทำงานล่วงเวลาทั้งหมดที่บันทึกในระบบ</div>
+                  </div>
+                ),
+              },
+              {
+                label: "รอการพิจารณา",
+                value: stats.pending,
+                percent:
+                  stats.total > 0 ? (stats.pending / stats.total) * 100 : 0,
+                color: token.colorWarning,
+                bg: token.colorWarningBg,
+                icon: <ClockCircleOutlined />,
+                suffix: "รายการ",
+                tooltip: (
+                  <div style={{ padding: "4px" }}>
+                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                      รอการพิจารณา
+                    </div>
+                    <div>คำขอที่กำลังรอหัวหน้างานตรวจสอบและอนุมัติ</div>
+                  </div>
+                ),
+              },
+              {
+                label: "อนุมัติแล้ว",
+                value: stats.approved,
+                percent:
+                  stats.total > 0 ? (stats.approved / stats.total) * 100 : 0,
+                color: token.colorSuccess,
+                bg: token.colorSuccessBg,
+                icon: <CheckCircleOutlined />,
+                suffix: "รายการ",
+                tooltip: (
+                  <div style={{ padding: "4px" }}>
+                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                      อนุมัติแล้ว
+                    </div>
+                    <div>คำขอที่ผ่านการอนุมัติเรียบร้อยแล้ว</div>
+                  </div>
+                ),
+              },
+              {
+                label: "อัตราการอนุมัติ",
+                value:
+                  stats.total > 0
+                    ? Number(((stats.approved / stats.total) * 100).toFixed(1))
+                    : 0,
+                percent:
+                  stats.total > 0 ? (stats.approved / stats.total) * 100 : 0,
+                color: token.colorInfo,
+                bg: token.colorInfoBg,
+                icon: <CheckCircleOutlined />,
+                suffix: "%",
+                tooltip: (
+                  <div style={{ padding: "4px" }}>
+                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                      อัตราการอนุมัติ
+                    </div>
+                    <div>เปอร์เซ็นต์ของคำขอที่ได้รับการอนุมัติ</div>
+                  </div>
+                ),
+              },
+            ]}
+            loading={loading && !dataSource.length}
+          />
 
           <Row gutter={[16, 16]}>
             <Col xs={24}>

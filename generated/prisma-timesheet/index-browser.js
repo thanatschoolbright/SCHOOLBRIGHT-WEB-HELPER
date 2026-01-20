@@ -127,57 +127,61 @@ exports.Prisma.GroupScalarFieldEnum = {
   name_en: 'name_en'
 };
 
+exports.Prisma.ProjectStatusScalarFieldEnum = {
+  id: 'id',
+  priority: 'priority',
+  nameTh: 'nameTh',
+  nameEn: 'nameEn'
+};
+
 exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  name_en: 'name_en',
+  description: 'description',
+  categoryType: 'categoryType',
+  approval: 'approval',
+  approval_status: 'approval_status',
+  status: 'status',
+  start_date: 'start_date',
+  end_date: 'end_date',
+  completeDate: 'completeDate',
+  estimateWorkhours: 'estimateWorkhours',
+  group_id: 'group_id',
+  projectStatusId: 'projectStatusId',
+  is_deleted: 'is_deleted',
   createdAt: 'createdAt',
   createdBy: 'createdBy',
   updatedAt: 'updatedAt',
-  updatedBy: 'updatedBy',
-  description: 'description',
-  is_deleted: 'is_deleted',
-  categoryType: 'categoryType',
-  status: 'status',
-  end_date: 'end_date',
-  name_en: 'name_en',
-  start_date: 'start_date',
-  approval: 'approval',
-  approval_status: 'approval_status',
-  group_id: 'group_id',
-  projectStatusId: 'projectStatusId'
-};
-
-exports.Prisma.ProjectAssigneeScalarFieldEnum = {
-  id: 'id',
-  projectId: 'projectId',
-  featureId: 'featureId',
-  userId: 'userId',
-  position: 'position'
+  updatedBy: 'updatedBy'
 };
 
 exports.Prisma.FeatureScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
   name: 'name',
+  name_en: 'name_en',
+  status: 'status',
+  assetCaptureType: 'assetCaptureType',
+  backlogDescription: 'backlogDescription',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  completeDate: 'completeDate',
+  estimateWorkhours: 'estimateWorkhours',
+  projectStatusId: 'projectStatusId',
+  is_deleted: 'is_deleted',
   createdAt: 'createdAt',
   createdBy: 'createdBy',
   updatedAt: 'updatedAt',
-  updatedBy: 'updatedBy',
-  is_deleted: 'is_deleted',
-  endDate: 'endDate',
-  startDate: 'startDate',
-  backlogDescription: 'backlogDescription',
-  assetCaptureType: 'assetCaptureType',
-  status: 'status',
-  name_en: 'name_en',
-  projectStatusId: 'projectStatusId'
+  updatedBy: 'updatedBy'
 };
 
-exports.Prisma.ProjectStatusScalarFieldEnum = {
+exports.Prisma.ProjectAssigneeScalarFieldEnum = {
   id: 'id',
-  priority: 'priority',
-  nameTh: 'nameTh',
-  nameEn: 'nameEn'
+  userId: 'userId',
+  projectId: 'projectId',
+  featureId: 'featureId',
+  position: 'position'
 };
 
 exports.Prisma.TimesheetEntryScalarFieldEnum = {
@@ -188,34 +192,11 @@ exports.Prisma.TimesheetEntryScalarFieldEnum = {
   hours: 'hours',
   description: 'description',
   status: 'status',
+  is_deleted: 'is_deleted',
   createdAt: 'createdAt',
   createdBy: 'createdBy',
   updatedAt: 'updatedAt',
-  updatedBy: 'updatedBy',
-  is_deleted: 'is_deleted'
-};
-
-exports.Prisma.ApiLogScalarFieldEnum = {
-  id: 'id',
-  request_time: 'request_time',
-  response_time: 'response_time',
-  duration_ms: 'duration_ms',
-  method: 'method',
-  status_code: 'status_code',
-  url: 'url',
-  endpoint: 'endpoint',
-  service_name: 'service_name',
-  request_header: 'request_header',
-  request_body: 'request_body',
-  response_body: 'response_body',
-  ip_address: 'ip_address',
-  user_agent: 'user_agent',
-  called_by: 'called_by',
-  trace_id: 'trace_id',
-  error_message: 'error_message',
-  is_success: 'is_success',
-  created_at: 'created_at',
-  is_archived: 'is_archived'
+  updatedBy: 'updatedBy'
 };
 
 exports.Prisma.OvertimeScalarFieldEnum = {
@@ -223,22 +204,45 @@ exports.Prisma.OvertimeScalarFieldEnum = {
   requesterId: 'requesterId',
   requestDate: 'requestDate',
   status: 'status',
-  createdBy: 'createdBy',
-  updatedBy: 'updatedBy',
+  isDeleted: 'isDeleted',
   createdAt: 'createdAt',
+  createdBy: 'createdBy',
   updatedAt: 'updatedAt',
-  isDeleted: 'isDeleted'
+  updatedBy: 'updatedBy'
 };
 
 exports.Prisma.OvertimeDescriptionScalarFieldEnum = {
   id: 'id',
   overtimeId: 'overtimeId',
-  date: 'date',
-  duration: 'duration',
-  description: 'description',
   assignee: 'assignee',
-  endDate: 'endDate',
-  startDate: 'startDate'
+  description: 'description',
+  duration: 'duration',
+  date: 'date',
+  startDate: 'startDate',
+  endDate: 'endDate'
+};
+
+exports.Prisma.ApiLogScalarFieldEnum = {
+  id: 'id',
+  service_name: 'service_name',
+  endpoint: 'endpoint',
+  url: 'url',
+  method: 'method',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent',
+  request_header: 'request_header',
+  request_body: 'request_body',
+  response_body: 'response_body',
+  status_code: 'status_code',
+  is_success: 'is_success',
+  error_message: 'error_message',
+  request_time: 'request_time',
+  response_time: 'response_time',
+  duration_ms: 'duration_ms',
+  trace_id: 'trace_id',
+  called_by: 'called_by',
+  created_at: 'created_at',
+  is_archived: 'is_archived'
 };
 
 exports.Prisma.SortOrder = {
@@ -273,14 +277,14 @@ exports.ProjectAssetCaptureType = exports.$Enums.ProjectAssetCaptureType = {
 
 exports.Prisma.ModelName = {
   Group: 'Group',
-  Project: 'Project',
-  ProjectAssignee: 'ProjectAssignee',
-  Feature: 'Feature',
   ProjectStatus: 'ProjectStatus',
+  Project: 'Project',
+  Feature: 'Feature',
+  ProjectAssignee: 'ProjectAssignee',
   TimesheetEntry: 'TimesheetEntry',
-  ApiLog: 'ApiLog',
   Overtime: 'Overtime',
-  OvertimeDescription: 'OvertimeDescription'
+  OvertimeDescription: 'OvertimeDescription',
+  ApiLog: 'ApiLog'
 };
 
 /**

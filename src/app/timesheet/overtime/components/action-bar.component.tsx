@@ -216,17 +216,28 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                   </Tooltip>
                 </>
               ) : (
-                <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-3 rounded-xl border border-blue-200">
-                  <div className="p-2 bg-white rounded-lg shadow-sm">
+                <div
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                  style={{
+                    background: token.colorInfoBg,
+                    border: `1px solid ${token.colorInfoBorder}`,
+                  }}
+                >
+                  <div
+                    className="p-2 rounded-lg shadow-sm"
+                    style={{
+                      background: token.colorBgContainer,
+                    }}
+                  >
                     <InfoCircleOutlined
-                      style={{ color: "#667eea", fontSize: "20px" }}
+                      style={{ color: token.colorPrimary, fontSize: "20px" }}
                     />
                   </div>
                   <div>
                     <Text
                       strong
                       style={{
-                        color: "#667eea",
+                        color: token.colorPrimary,
                         display: "block",
                         fontSize: "14px",
                       }}

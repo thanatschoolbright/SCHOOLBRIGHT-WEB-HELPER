@@ -60,10 +60,17 @@ export const useOvertimeData = () => {
   const fetchUserList = useCallback(async () => {
     try {
       const users = await getUserData();
-      const options = users.map((user: UserProfile) => ({
-        label: `${user.firstname} ${user.lastname}`,
-        value: user.admin_id,
-      }));
+      const options = users.map((user: UserProfile) => {
+        const nickname = user.nickname ? `(${user.nickname})` : "";
+        const employeeCode = user.employee_code
+          ? `(${user.employee_code})`
+          : "";
+        return {
+          label:
+            `${user.firstname} ${user.lastname} ${nickname} ${employeeCode}`.trim(),
+          value: user.admin_id,
+        };
+      });
       setUserOptions(options);
     } catch (error) {
       console.error("Error fetching user list:", error);

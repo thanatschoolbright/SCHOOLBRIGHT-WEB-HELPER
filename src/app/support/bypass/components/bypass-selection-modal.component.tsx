@@ -236,103 +236,170 @@ export default function BypassSelectionModal({
             style={{ borderRadius: 16, marginBottom: 24 }}
           />
           <Row gutter={[16, 16]}>
-            {Object.entries(BYPASS_TARGETS).map(([targetKey, target]) => (
-              <Col xs={24} key={targetKey}>
-                <div
-                  className="p-6 rounded-2xl border border-solid transition-all"
-                  style={{
-                    background: token.colorBgContainer,
-                    borderColor: token.colorBorderSecondary,
-                  }}
-                >
-                  <Flex justify="space-between" align="center" className="mb-4">
-                    <Space size={12}>
-                      <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                        style={{
-                          background: isDark
-                            ? "rgba(255,255,255,0.05)"
-                            : "rgba(0,0,0,0.05)",
-                          color: token.colorPrimary,
-                        }}
-                      >
-                        {TARGET_ICON_MAP[targetKey] || <GlobalOutlined />}
-                      </div>
-                      <div>
-                        <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
-                          {target.label}
-                        </Title>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          {TARGET_DESC_MAP[targetKey] ||
-                            "เข้าสู่ระบบเพื่อจัดการข้อมูลส่วนงานนี้"}
-                        </Text>
-                      </div>
-                    </Space>
-                    <Tooltip title={TARGET_DESC_MAP[targetKey]}>
-                      <InfoCircleOutlined
-                        style={{
-                          color: token.colorTextQuaternary,
-                          cursor: "help",
-                        }}
-                      />
-                    </Tooltip>
-                  </Flex>
+            {Object.entries(BYPASS_TARGETS).map(([targetKey, target]) => {
+              const isExamDisabled = targetKey === "exam";
 
-                  <Row gutter={[12, 12]}>
-                    {Object.entries(target.environments).map(
-                      ([envKey, env]) => (
-                        <Col xs={12} sm={8} key={envKey}>
-                          <Tooltip
-                            title={
-                              ENV_DESC_MAP[envKey] || "คลิกเพื่อไปที่หน้านี้"
-                            }
-                          >
-                            <Button
-                              block
-                              size="large"
-                              icon={<ArrowRightOutlined />}
-                              iconPosition="end"
-                              onClick={() => onSelect(targetKey, envKey)}
+              return (
+                <Col xs={24} key={targetKey}>
+                  <div
+                    className="p-6 rounded-2xl border border-solid transition-all"
+                    style={{
+                      background: isExamDisabled
+                        ? isDark
+                          ? "rgba(0,0,0,0.2)"
+                          : "rgba(0,0,0,0.02)"
+                        : token.colorBgContainer,
+                      borderColor: isExamDisabled
+                        ? token.colorBorder
+                        : token.colorBorderSecondary,
+                      opacity: isExamDisabled ? 0.6 : 1,
+                      position: "relative",
+                    }}
+                  >
+                    <Flex
+                      justify="space-between"
+                      align="center"
+                      className="mb-4"
+                    >
+                      <Space size={12}>
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                          style={{
+                            background: isDark
+                              ? "rgba(255,255,255,0.05)"
+                              : "rgba(0,0,0,0.05)",
+                            color: isExamDisabled
+                              ? token.colorTextDisabled
+                              : token.colorPrimary,
+                          }}
+                        >
+                          {TARGET_ICON_MAP[targetKey] || <GlobalOutlined />}
+                        </div>
+                        <div>
+                          <Space align="center" size={8}>
+                            <Title
+                              level={4}
                               style={{
-                                height: 44,
-                                borderRadius: 10,
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                textAlign: "left",
-                                background:
-                                  envKey === "production"
-                                    ? isDark
-                                      ? "rgba(82, 196, 26, 0.1)"
-                                      : "#f6ffed"
-                                    : undefined,
-                                border:
-                                  envKey === "production"
-                                    ? `1px solid ${
-                                        isDark
-                                          ? "rgba(82, 196, 26, 0.3)"
-                                          : "#b7eb8f"
-                                      }`
-                                    : undefined,
-                                color:
-                                  envKey === "production"
-                                    ? isDark
-                                      ? "#52c41a"
-                                      : "#389e0d"
-                                    : undefined,
+                                margin: 0,
                                 fontWeight: 700,
+                                color: isExamDisabled
+                                  ? token.colorTextDisabled
+                                  : undefined,
                               }}
                             >
-                              {env.label}
-                            </Button>
-                          </Tooltip>
-                        </Col>
-                      )
-                    )}
-                  </Row>
-                </div>
-              </Col>
-            ))}
+                              {target.label}
+                            </Title>
+                            {isExamDisabled && (
+                              <Tag
+                                color="warning"
+                                style={{
+                                  margin: 0,
+                                  fontWeight: 600,
+                                  fontSize: 11,
+                                  padding: "2px 8px",
+                                }}
+                              >
+                                ปิดปรับปรุง
+                              </Tag>
+                            )}
+                          </Space>
+                          <Text
+                            type="secondary"
+                            style={{
+                              fontSize: 12,
+                              color: isExamDisabled
+                                ? token.colorTextDisabled
+                                : undefined,
+                            }}
+                          >
+                            {isExamDisabled
+                              ? "ระบบกำลังปรับปรุงใหม่ จะกลับมาให้บริการเร็วๆ นี้"
+                              : TARGET_DESC_MAP[targetKey] ||
+                                "เข้าสู่ระบบเพื่อจัดการข้อมูลส่วนงานนี้"}
+                          </Text>
+                        </div>
+                      </Space>
+                      <Tooltip
+                        title={
+                          isExamDisabled
+                            ? "ระบบปิดปรับปรุงชั่วคราว"
+                            : TARGET_DESC_MAP[targetKey]
+                        }
+                      >
+                        <InfoCircleOutlined
+                          style={{
+                            color: isExamDisabled
+                              ? token.colorTextDisabled
+                              : token.colorTextQuaternary,
+                            cursor: "help",
+                          }}
+                        />
+                      </Tooltip>
+                    </Flex>
+
+                    <Row gutter={[12, 12]}>
+                      {Object.entries(target.environments).map(
+                        ([envKey, env]) => (
+                          <Col xs={12} sm={8} key={envKey}>
+                            <Tooltip
+                              title={
+                                isExamDisabled
+                                  ? "ระบบปิดปรับปรุงชั่วคราว ไม่สามารถใช้งานได้"
+                                  : ENV_DESC_MAP[envKey] ||
+                                    "คลิกเพื่อไปที่หน้านี้"
+                              }
+                            >
+                              <Button
+                                block
+                                size="large"
+                                icon={<ArrowRightOutlined />}
+                                iconPosition="end"
+                                onClick={() => onSelect(targetKey, envKey)}
+                                disabled={isExamDisabled}
+                                style={{
+                                  height: 44,
+                                  borderRadius: 10,
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  textAlign: "left",
+                                  background:
+                                    envKey === "production"
+                                      ? isDark
+                                        ? "rgba(82, 196, 26, 0.1)"
+                                        : "#f6ffed"
+                                      : undefined,
+                                  border:
+                                    envKey === "production"
+                                      ? `1px solid ${
+                                          isDark
+                                            ? "rgba(82, 196, 26, 0.3)"
+                                            : "#b7eb8f"
+                                        }`
+                                      : undefined,
+                                  color:
+                                    envKey === "production" && !isExamDisabled
+                                      ? isDark
+                                        ? "#52c41a"
+                                        : "#389e0d"
+                                      : undefined,
+                                  fontWeight: 700,
+                                  cursor: isExamDisabled
+                                    ? "not-allowed"
+                                    : "pointer",
+                                }}
+                              >
+                                {env.label}
+                              </Button>
+                            </Tooltip>
+                          </Col>
+                        ),
+                      )}
+                    </Row>
+                  </div>
+                </Col>
+              );
+            })}
           </Row>
         </div>
       </div>

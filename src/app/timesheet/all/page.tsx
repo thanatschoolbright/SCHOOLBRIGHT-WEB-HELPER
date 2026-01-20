@@ -73,11 +73,11 @@ const PageHeader = ({ metadata, onRefresh, loading }: any) => {
         background: isDark
           ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
               token.colorPrimary,
-              0.05
+              0.05,
             )} 100%)`
           : `linear-gradient(135deg, #fff 0%, ${addAlpha(
               token.colorPrimary,
-              0.03
+              0.03,
             )} 100%)`,
         borderColor: addAlpha(token.colorBorder, 0.6),
       }}
@@ -202,10 +202,10 @@ const CustomSummaryCards = ({ records, metadata, loading }: any) => {
                 <Text
                   type="secondary"
                   style={{
-                    fontSize: 11,
-                    fontWeight: 700,
+                    fontSize: 13,
+                    fontWeight: 600,
                     textTransform: "uppercase",
-                    letterSpacing: "1px",
+                    letterSpacing: "0.5px",
                     color: addAlpha(token.colorTextSecondary, 0.8),
                   }}
                 >
@@ -214,7 +214,7 @@ const CustomSummaryCards = ({ records, metadata, loading }: any) => {
                 <div className="flex items-baseline gap-2 mt-1">
                   <Title
                     level={2}
-                    style={{ margin: 0, fontWeight: 900, fontSize: 32 }}
+                    style={{ margin: 0, fontWeight: 700, fontSize: 32 }}
                   >
                     {loading ? "..." : m.value.toLocaleString()}
                   </Title>
@@ -309,7 +309,7 @@ export default function TimesheetAllPage() {
 
   const filteredRecords = useMemo(
     () => filterRecords(records, keyword),
-    [records, keyword]
+    [records, keyword],
   );
 
   const handleOpenModal = useCallback((modalType: keyof typeof modalStates) => {
@@ -320,7 +320,7 @@ export default function TimesheetAllPage() {
     (modalType: keyof typeof modalStates) => {
       setModalStates((prev) => ({ ...prev, [modalType]: false }));
     },
-    []
+    [],
   );
 
   const handleCopyDiscord = useCallback(() => {

@@ -27,8 +27,10 @@ import {
   ThunderboltOutlined,
   SaveOutlined,
   CloseOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import type { SelectOption } from "@stores/type";
 import dayjs from "dayjs";
 
@@ -57,16 +59,40 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   const { token } = theme.useToken();
   const [form] = Form.useForm();
 
+  // Set default assignee to user named "ธนัท" when userOptions change
+  React.useEffect(() => {
+    if (userOptions && userOptions.length > 0) {
+      const thanatUser = userOptions.find((option) => {
+        const label = String(option.label || "");
+        return label.includes("ธนัท");
+      });
+
+      if (thanatUser) {
+        form.setFieldValue("assignee", thanatUser.value);
+      }
+    }
+  }, [userOptions, form]);
+
   const handleClose = () => {
     setVisible(false);
     form.resetFields();
   };
 
   const onFinish = async (values: any) => {
-    const { request_date, descriptions, assignee, ...rest } = values;
+    console.log("Form submitted with values:", values); // Debug log
 
-    // Validate that assignee is present
+    const { request_date, descriptions, overtimeType, assignee, ...rest } =
+      values;
+
+    // Validate assignee
     if (!assignee) {
+      toast.error("กรุณาเลือกผู้มอบหมายงาน");
+      return;
+    }
+
+    // Validate descriptions
+    if (!descriptions || descriptions.length === 0) {
+      toast.error("กรุณาเพิ่มรายการงานอย่างน้อย 1 รายการ");
       return;
     }
 
@@ -90,19 +116,20 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         endDate,
         date: startDate,
         duration: calculatedDuration,
-        assignee: assignee,
+        assignee: String(assignee), // ผู้มอบหมายงาน
       };
     });
 
     const payload = {
       ...rest,
-      assignee,
+      overtimeType: overtimeType || "Normal",
       request_date: request_date
         ? request_date.toISOString()
         : new Date().toISOString(),
       descriptions: formattedDescriptions,
     };
 
+    console.log("Submitting payload:", payload); // Debug log
     await handleFormSubmit(payload);
   };
 
@@ -164,14 +191,19 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         <Card
           className="mb-6"
           style={{
-            background: "linear-gradient(135deg, #f6f9fc 0%, #ffffff 100%)",
+            background: token.colorBgContainer,
             borderRadius: 16,
-            border: "2px solid #667eea30",
+            border: `2px solid ${token.colorBorderSecondary}`,
+          }}
+          styles={{
+            body: {},
           }}
           title={
             <Space>
-              <CalendarOutlined style={{ color: "#667eea", fontSize: 18 }} />
-              <Text strong style={{ fontSize: 16, color: "#667eea" }}>
+              <CalendarOutlined
+                style={{ color: token.colorPrimary, fontSize: 18 }}
+              />
+              <Text strong style={{ fontSize: 16, color: token.colorPrimary }}>
                 ข้อมูลพื้นฐาน
               </Text>
             </Space>
@@ -182,11 +214,12 @@ export const CreateModal: React.FC<CreateModalProps> = ({
               <Form.Item
                 label={
                   <Space>
-                    <CalendarOutlined style={{ color: "#667eea" }} />
+                    <CalendarOutlined style={{ color: token.colorPrimary }} />
                     <Text strong>วันที่ยื่นคำขอ</Text>
                   </Space>
                 }
                 name="request_date"
+                initialValue={dayjs()}
                 rules={[
                   {
                     required: true,
@@ -207,23 +240,50 @@ export const CreateModal: React.FC<CreateModalProps> = ({
               <Form.Item
                 label={
                   <Space>
-                    <ThunderboltOutlined style={{ color: "#ff6b6b" }} />
+                    <ThunderboltOutlined style={{ color: token.colorError }} />
                     <Text strong>ประเภทการทำโอที</Text>
                   </Space>
                 }
                 name="overtimeType"
+                initialValue="Normal"
                 rules={[{ required: true, message: "กรุณาเลือกประเภท" }]}
               >
-                {/* --- FIX STARTED HERE --- */}
                 <Select
                   size="large"
                   placeholder="เลือกประเภท"
                   className="hover:border-purple-400 transition-all"
-                  // You might need to add options={...} here if they aren't static
                   options={[
                     { value: "Normal", label: "Normal OT" },
                     { value: "Holiday", label: "Holiday OT" },
                   ]}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[16, 16]}>
+            <Col xs={24}>
+              <Form.Item
+                label={
+                  <Space>
+                    <UserOutlined style={{ color: token.colorSuccess }} />
+                    <Text strong>ผู้มอบหมายงาน (Assignee)</Text>
+                  </Space>
+                }
+                name="assignee"
+                rules={[{ required: true, message: "กรุณาเลือกผู้มอบหมายงาน" }]}
+                tooltip="เลือกพนักงานที่จะเป็นผู้รับมอบหมายงานโอที"
+              >
+                <Select
+                  size="large"
+                  placeholder="เลือกผู้มอบหมายงาน"
+                  className="hover:border-green-400 transition-all"
+                  options={userOptions}
+                  showSearch
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
                 />
               </Form.Item>
             </Col>
@@ -245,10 +305,12 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     key={field.key}
                     className="shadow-sm hover:shadow-lg transition-all duration-300"
                     style={{
-                      background:
-                        "linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)",
+                      background: token.colorBgContainer,
                       borderRadius: 16,
-                      border: "2px solid #667eea20",
+                      border: `2px solid ${token.colorBorderSecondary}`,
+                    }}
+                    styles={{
+                      body: {},
                     }}
                     title={
                       <div className="flex items-center justify-between">
@@ -266,12 +328,12 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                           </div>
                           <Text
                             strong
-                            style={{ fontSize: 15, color: "#667eea" }}
+                            style={{ fontSize: 15, color: token.colorPrimary }}
                           >
                             งานที่ {idx + 1}
                           </Text>
                         </Space>
-                        <Tooltip title="ลบรายการนี้">
+                        <Tooltip title="ลบรายการนี้" styles={{ root: {} }}>
                           <Button
                             type="text"
                             danger
@@ -286,25 +348,26 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     }
                   >
                     <Row gutter={[16, 16]}>
-                      <Col span={24}>
+                      {/* Time Range */}
+                      <Col xs={24} lg={16}>
                         <Form.Item
-                          {...field}
+                          key={field.key}
+                          name={[field.name, "timeRange"]}
                           label={
                             <Space>
                               <ClockCircleOutlined
-                                style={{ color: "#52c41a" }}
+                                style={{ color: token.colorSuccess }}
                               />
                               <Text strong>ช่วงเวลาทำงาน</Text>
                             </Space>
                           }
-                          name={[field.name, "timeRange"]}
                           rules={[
                             {
                               required: true,
                               message: "กรุณาเลือกช่วงเวลา",
                             },
                           ]}
-                          style={{ marginBottom: 12 }}
+                          style={{ marginBottom: 0 }}
                           tooltip="เลือกวันเวลาเริ่มต้นและสิ้นสุดการทำงานล่วงเวลา"
                         >
                           <RangePicker
@@ -320,24 +383,67 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                           />
                         </Form.Item>
                       </Col>
-                      <Col span={24}>
+
+                      {/* Duration Display */}
+                      <Col xs={24} lg={8}>
                         <Form.Item
-                          {...field}
                           label={
                             <Space>
-                              <FileTextOutlined style={{ color: "#1890ff" }} />
+                              <ClockCircleOutlined
+                                style={{ color: token.colorSuccess }}
+                              />
+                              <Text strong>ระยะเวลา</Text>
+                            </Space>
+                          }
+                          style={{ marginBottom: 0 }}
+                        >
+                          <div
+                            className="rounded-lg flex items-center justify-center"
+                            style={{
+                              background: token.colorSuccessBg,
+                              border: `2px solid ${token.colorSuccessBorder}`,
+                              height: "40px",
+                            }}
+                          >
+                            <Badge
+                              count={`${calculatedDuration} ชั่วโมง`}
+                              style={{
+                                background:
+                                  "linear-gradient(135deg, #52c41a 0%, #73d13d 100%)",
+                                fontSize: 14,
+                                padding: "4px 12px",
+                                height: "auto",
+                                fontWeight: 600,
+                              }}
+                            />
+                          </div>
+                        </Form.Item>
+                      </Col>
+
+                      {/* Description */}
+                      <Col span={24}>
+                        <Form.Item
+                          key={`${field.key}-desc`}
+                          name={[field.name, "description"]}
+                          label={
+                            <Space>
+                              <FileTextOutlined
+                                style={{ color: token.colorInfo }}
+                              />
                               <Text strong>รายละเอียดงาน</Text>
                             </Space>
                           }
-                          name={[field.name, "description"]}
                           rules={[
                             {
                               required: true,
                               message: "กรุณาระบุรายละเอียดงาน",
                             },
                           ]}
-                          style={{ marginBottom: 12 }}
-                          tooltip="อธิบายงานที่ทำล่วงเวลา หรือเลือกจากรายการ"
+                          style={{ marginBottom: 0 }}
+                          tooltip={{
+                            title: "อธิบายงานที่ทำล่วงเวลา หรือเลือกจากรายการ",
+                            styles: { root: {} },
+                          }}
                         >
                           <AutoComplete
                             options={descriptionOptions}
@@ -347,51 +453,12 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                 .toLowerCase()
                                 .includes(String(inputValue).toLowerCase())
                             }
-                            size="large"
                             className="hover:border-blue-400 transition-all"
+                            size="large"
                           >
-                            <TextArea
-                              rows={3}
-                              size="large"
-                              showCount
-                              maxLength={500}
-                            />
+                            <Input style={{ fontSize: 16 }} />
                           </AutoComplete>
                         </Form.Item>
-                      </Col>
-                      <Col span={24}>
-                        <div
-                          className="p-4 rounded-xl flex items-center justify-between"
-                          style={{
-                            background:
-                              "linear-gradient(135deg, #52c41a10 0%, #73d13d10 100%)",
-                            border: "2px solid #52c41a30",
-                          }}
-                        >
-                          <Space>
-                            <ClockCircleOutlined
-                              style={{ color: "#52c41a", fontSize: 18 }}
-                            />
-                            <Text
-                              type="secondary"
-                              strong
-                              style={{ fontSize: 14 }}
-                            >
-                              ระยะเวลาคำนวณอัตโนมัติ:
-                            </Text>
-                          </Space>
-                          <Badge
-                            count={`${calculatedDuration} ชั่วโมง`}
-                            style={{
-                              background:
-                                "linear-gradient(135deg, #52c41a 0%, #73d13d 100%)",
-                              fontSize: 16,
-                              padding: "6px 16px",
-                              height: "auto",
-                              fontWeight: 700,
-                            }}
-                          />
-                        </div>
                       </Col>
                     </Row>
                   </Card>
