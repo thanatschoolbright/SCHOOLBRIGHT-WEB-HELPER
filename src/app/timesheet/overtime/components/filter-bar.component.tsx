@@ -30,34 +30,34 @@ import dayjs from "dayjs";
 const { Text } = Typography;
 
 interface FilterBarProps {
-  searchText: string;
-  setSearchText: (text: string) => void;
-  selectedMonth: dayjs.Dayjs | null;
-  setSelectedMonth: (month: dayjs.Dayjs | null) => void;
+  filterSearchText: string;
+  setFilterSearchText: (text: string) => void;
+  filterSelectedMonth: dayjs.Dayjs | null;
+  setFilterSelectedMonth: (month: dayjs.Dayjs | null) => void;
   paginationState: PaginationState;
-  handleTableChange: (pagination: any, filters: any) => void;
-  fetchOvertimeList: (options?: any) => void;
-  loading: boolean;
+  onTableChange: (pagination: any, filters: any) => void;
+  fetchOvertimeRequestList: (options?: any) => void;
+  isLoading: boolean;
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
-  searchText,
-  setSearchText,
-  selectedMonth,
-  setSelectedMonth,
+  filterSearchText,
+  setFilterSearchText,
+  filterSelectedMonth,
+  setFilterSelectedMonth,
   paginationState,
-  handleTableChange,
-  fetchOvertimeList,
-  loading,
+  onTableChange,
+  fetchOvertimeRequestList,
+  isLoading,
 }) => {
-  const { t } = useTranslation();
-  const { token } = theme.useToken();
+  const { t: translate } = useTranslation();
+  const { token: themeToken } = theme.useToken();
 
   return (
     <Card
       style={{
         borderRadius: 16,
-        border: `2px solid ${token.colorBorderSecondary}`,
+        border: `2px solid ${themeToken.colorBorderSecondary}`,
       }}
       styles={{
         body: { padding: "24px 28px" },
@@ -68,15 +68,18 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <div
             className="p-2 rounded-xl"
             style={{
-              background: token.colorPrimaryBg,
+              background: themeToken.colorPrimaryBg,
             }}
           >
             <FilterOutlined
-              style={{ color: token.colorPrimary, fontSize: 20 }}
+              style={{ color: themeToken.colorPrimary, fontSize: 20 }}
             />
           </div>
           <div>
-            <Text strong style={{ fontSize: 18, color: token.colorPrimary }}>
+            <Text
+              strong
+              style={{ fontSize: 18, color: themeToken.colorPrimary }}
+            >
               🔍 ค้นหาและกรองข้อมูล
             </Text>
             <div>
@@ -233,7 +236,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   format="MMMM YYYY"
                   size="large"
                   suffixIcon={
-                    <CalendarOutlined style={{ color: token.colorInfo }} />
+                    <CalendarOutlined style={{ color: themeToken.colorInfo }} />
                   }
                 />
               </div>
@@ -256,19 +259,19 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 <div className="mb-2">
                   <Text
                     strong
-                    style={{ fontSize: 13, color: token.colorError }}
+                    style={{ fontSize: 13, color: themeToken.colorError }}
                   >
                     รีเซ็ตการค้นหา
                   </Text>
                 </div>
                 <Button
-                  icon={<ReloadOutlined spin={loading} />}
+                  icon={<ReloadOutlined spin={isLoading} />}
                   onClick={() => {
-                    setSelectedMonth(null);
-                    setSearchText("");
-                    fetchOvertimeList({ page: 1 });
+                    setFilterSelectedMonth(null);
+                    setFilterSearchText("");
+                    fetchOvertimeRequestList({ page: 1 });
                   }}
-                  loading={loading}
+                  loading={isLoading}
                   size="large"
                   danger
                   style={{

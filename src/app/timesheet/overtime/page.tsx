@@ -24,53 +24,53 @@ import { AnalyticsModal } from "./components/analytics-modal.component";
 import { RulesModal } from "./components/rules-modal.component";
 
 export default function OvertimeManagementPage() {
-  const router = useRouter();
-  const { t } = useTranslation();
-  const { token } = theme.useToken();
+  const navigationRouter = useRouter();
+  const { t: translate } = useTranslation();
+  const { token: themeToken } = theme.useToken();
   const {
-    loading,
-    dataSource,
+    loading: isLoadingOvertimeData,
+    dataSource: overtimeDataSource,
     paginationState,
-    stats,
-    visible,
-    setVisible,
-    detailVisible,
-    setDetailVisible,
-    selectedDetail,
+    stats: overtimeStatistics,
+    visible: isCreateModalVisible,
+    setVisible: setIsCreateModalVisible,
+    detailVisible: isDetailModalVisible,
+    setDetailVisible: setIsDetailModalVisible,
+    selectedDetail: selectedOvertimeDetail,
     selectedRowKeys,
     setSelectedRowKeys,
-    batchProcessing,
-    processedItems,
-    setProcessedItems,
-    batchStatusModalVisible,
-    setBatchStatusModalVisible,
-    batchSelectedStatus,
-    setBatchSelectedStatus,
-    searchText,
-    setSearchText,
-    selectedMonth,
-    setSelectedMonth,
-    userOptions,
-    descriptionOptions,
-    fetchOvertimeList,
-    handleFormSubmit,
-    handleTableChange,
-    deleteOvertime,
-    approveOvertime,
-    sendEmailToHR,
-    batchApproveOvertime,
-    batchSendEmail,
-    fetchOvertimeDetail,
+    batchProcessing: isBatchProcessing,
+    processedItems: processedRecordItems,
+    setProcessedItems: setProcessedRecordItems,
+    batchStatusModalVisible: isBatchStatusModalVisible,
+    setBatchStatusModalVisible: setIsBatchStatusModalVisible,
+    batchSelectedStatus: selectedBatchStatus,
+    setBatchSelectedStatus: setSelectedBatchStatus,
+    searchText: filterSearchText,
+    setSearchText: setFilterSearchText,
+    selectedMonth: filterSelectedMonth,
+    setSelectedMonth: setFilterSelectedMonth,
+    userOptions: userSelectionOptions,
+    descriptionOptions: descriptionSelectionOptions,
+    fetchOvertimeList: fetchOvertimeRequestList,
+    handleFormSubmit: onFormSubmit,
+    handleTableChange: onTableChange,
+    deleteOvertime: deleteOvertimeRecord,
+    approveOvertime: approveOvertimeRecord,
+    sendEmailToHR: sendEmailToHRDepartment,
+    batchApproveOvertime: batchApproveOvertimeRecords,
+    batchSendEmail: batchSendOvertimeEmail,
+    fetchOvertimeDetail: fetchOvertimeRequestDetail,
   } = useOvertimeData();
 
-  const [analyticsVisible, setAnalyticsVisible] = React.useState(false);
-  const [rulesVisible, setRulesVisible] = useState(true);
+  const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] =
+    React.useState(false);
+  const [isRulesModalVisible, setIsRulesModalVisible] = useState(true);
 
   useEffect(() => {
-    document.title = t("overtime_page.title");
-    // แสดง Modal ระเบียบการทุกครั้งที่เข้าหน้า
-    setRulesVisible(true);
-  }, [t]);
+    document.title = translate("overtime_page.title");
+    setIsRulesModalVisible(true);
+  }, [translate]);
 
   return (
     <DashboardLayout>
@@ -83,15 +83,15 @@ export default function OvertimeManagementPage() {
         }}
       >
         <div className="w-full space-y-6 pb-10">
-          {/* Enhanced Header with Gradient */}
+          {/* ส่วนที่ 1: ส่วนหัวของหน้าจอ พร้อมเอฟเฟกต์ Gradient และพื้นหลังเคลื่อนไหว */}
           <div
             className="relative overflow-hidden rounded-3xl p-8 shadow-2xl animate-fade-in"
             style={{
               background:
-                "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+                "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FBBF24 100%)",
             }}
           >
-            {/* Animated background circles */}
+            {/* วงกลมพื้นหลังเพื่อความสวยงาม */}
             <div
               className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl animate-pulse"
               style={{ transform: "translate(30%, -30%)" }}
@@ -130,26 +130,30 @@ export default function OvertimeManagementPage() {
             </div>
           </div>
 
+          {/* ส่วนที่ 2: การ์ดสรุปข้อมูลสถิติ (Statistics Cards) */}
           <SummaryCards
             stats={{
               health: {
-                total: stats.total,
-                active: stats.pending,
-                closed: stats.approved,
+                total: overtimeStatistics.total,
+                active: overtimeStatistics.pending,
+                closed: overtimeStatistics.approved,
                 success_rate:
-                  stats.total > 0 ? (stats.approved / stats.total) * 100 : 0,
+                  overtimeStatistics.total > 0
+                    ? (overtimeStatistics.approved / overtimeStatistics.total) *
+                      100
+                    : 0,
               },
             }}
-            token={token}
+            token={themeToken}
             title="ภาพรวมการทำงานล่วงเวลา (OT Overview)"
             icon={<TeamOutlined />}
             items={[
               {
                 label: "คำขอทั้งหมด",
-                value: stats.total,
+                value: overtimeStatistics.total,
                 percent: 100,
-                color: token.colorPrimary,
-                bg: token.colorPrimaryBg,
+                color: themeToken.colorPrimary,
+                bg: themeToken.colorPrimaryBg,
                 icon: <FileTextOutlined />,
                 suffix: "รายการ",
                 tooltip: (
@@ -163,11 +167,14 @@ export default function OvertimeManagementPage() {
               },
               {
                 label: "รอการพิจารณา",
-                value: stats.pending,
+                value: overtimeStatistics.pending,
                 percent:
-                  stats.total > 0 ? (stats.pending / stats.total) * 100 : 0,
-                color: token.colorWarning,
-                bg: token.colorWarningBg,
+                  overtimeStatistics.total > 0
+                    ? (overtimeStatistics.pending / overtimeStatistics.total) *
+                      100
+                    : 0,
+                color: themeToken.colorWarning,
+                bg: themeToken.colorWarningBg,
                 icon: <ClockCircleOutlined />,
                 suffix: "รายการ",
                 tooltip: (
@@ -181,11 +188,14 @@ export default function OvertimeManagementPage() {
               },
               {
                 label: "อนุมัติแล้ว",
-                value: stats.approved,
+                value: overtimeStatistics.approved,
                 percent:
-                  stats.total > 0 ? (stats.approved / stats.total) * 100 : 0,
-                color: token.colorSuccess,
-                bg: token.colorSuccessBg,
+                  overtimeStatistics.total > 0
+                    ? (overtimeStatistics.approved / overtimeStatistics.total) *
+                      100
+                    : 0,
+                color: themeToken.colorSuccess,
+                bg: themeToken.colorSuccessBg,
                 icon: <CheckCircleOutlined />,
                 suffix: "รายการ",
                 tooltip: (
@@ -200,13 +210,22 @@ export default function OvertimeManagementPage() {
               {
                 label: "อัตราการอนุมัติ",
                 value:
-                  stats.total > 0
-                    ? Number(((stats.approved / stats.total) * 100).toFixed(1))
+                  overtimeStatistics.total > 0
+                    ? Number(
+                        (
+                          (overtimeStatistics.approved /
+                            overtimeStatistics.total) *
+                          100
+                        ).toFixed(1),
+                      )
                     : 0,
                 percent:
-                  stats.total > 0 ? (stats.approved / stats.total) * 100 : 0,
-                color: token.colorInfo,
-                bg: token.colorInfoBg,
+                  overtimeStatistics.total > 0
+                    ? (overtimeStatistics.approved / overtimeStatistics.total) *
+                      100
+                    : 0,
+                color: themeToken.colorInfo,
+                bg: themeToken.colorInfoBg,
                 icon: <CheckCircleOutlined />,
                 suffix: "%",
                 tooltip: (
@@ -219,98 +238,105 @@ export default function OvertimeManagementPage() {
                 ),
               },
             ]}
-            loading={loading && !dataSource.length}
+            loading={isLoadingOvertimeData && !overtimeDataSource.length}
           />
 
+          {/* ส่วนที่ 3: แถบเครื่องมือจัดการหลัก (Action Bar) */}
           <Row gutter={[16, 16]}>
             <Col xs={24}>
               <ActionBar
                 selectedRowKeys={selectedRowKeys}
                 setSelectedRowKeys={setSelectedRowKeys}
-                setProcessedItems={setProcessedItems}
-                batchProcessing={batchProcessing}
-                setVisible={setVisible}
-                setBatchStatusModalVisible={setBatchStatusModalVisible}
-                batchSendEmail={batchSendEmail}
-                router={router}
-                setAnalyticsVisible={setAnalyticsVisible}
-                setRulesVisible={setRulesVisible}
+                setProcessedItems={setProcessedRecordItems}
+                batchProcessing={isBatchProcessing}
+                setVisible={setIsCreateModalVisible}
+                setBatchStatusModalVisible={setIsBatchStatusModalVisible}
+                batchSendEmail={batchSendOvertimeEmail}
+                router={navigationRouter}
+                setAnalyticsVisible={setIsAnalyticsModalVisible}
+                setRulesVisible={setIsRulesModalVisible}
               />
             </Col>
           </Row>
 
+          {/* ส่วนที่ 4: แถบตัวกรองข้อมูล (Filter Bar) */}
           <Row gutter={[16, 16]}>
             <Col xs={24}>
               <FilterBar
-                searchText={searchText}
-                setSearchText={setSearchText}
-                selectedMonth={selectedMonth}
-                setSelectedMonth={setSelectedMonth}
-                loading={loading}
+                searchText={filterSearchText}
+                setSearchText={setFilterSearchText}
+                selectedMonth={filterSelectedMonth}
+                setSelectedMonth={setFilterSelectedMonth}
+                loading={isLoadingOvertimeData}
                 paginationState={paginationState}
-                handleTableChange={handleTableChange}
-                fetchOvertimeList={fetchOvertimeList}
+                handleTableChange={onTableChange}
+                fetchOvertimeList={fetchOvertimeRequestList}
               />
             </Col>
           </Row>
 
+          {/* ส่วนที่ 5: ตารางแสดงรายการข้อมูลหลัก (Main Data Table) */}
           <Row gutter={[16, 16]}>
             <Col xs={24}>
               <OvertimeTable
-                dataSource={dataSource}
-                columns={[]}
-                loading={loading}
+                dataSource={overtimeDataSource}
+                isLoading={isLoadingOvertimeData}
                 paginationState={paginationState}
                 selectedRowKeys={selectedRowKeys}
                 setSelectedRowKeys={setSelectedRowKeys}
-                setProcessedItems={setProcessedItems}
-                batchProcessing={batchProcessing}
-                processedItems={processedItems}
-                handleTableChange={handleTableChange}
-                deleteOvertime={deleteOvertime}
-                approveOvertime={approveOvertime}
-                sendEmailToHR={sendEmailToHR}
-                fetchOvertimeDetail={fetchOvertimeDetail}
-                setDetailVisible={setDetailVisible}
-                router={router}
+                setProcessedRecordItems={setProcessedRecordItems}
+                isBatchProcessing={isBatchProcessing}
+                processedRecordItems={processedRecordItems}
+                onTableChange={onTableChange}
+                deleteOvertimeRecord={deleteOvertimeRecord}
+                approveOvertimeRecord={approveOvertimeRecord}
+                sendEmailToHRDepartment={sendEmailToHRDepartment}
+                fetchOvertimeRequestDetail={fetchOvertimeRequestDetail}
+                setIsDetailModalVisible={setIsDetailModalVisible}
+                navigationRouter={navigationRouter}
               />
             </Col>
           </Row>
 
+          {/* ส่วนที่ 6: มอดัลสำหรับสร้างรายการใหม่ (Create Modal) */}
           <CreateModal
-            visible={visible}
-            setVisible={setVisible}
-            userOptions={userOptions}
-            descriptionOptions={descriptionOptions}
-            handleFormSubmit={handleFormSubmit}
-            loading={loading}
+            visible={isCreateModalVisible}
+            setVisible={setIsCreateModalVisible}
+            userOptions={userSelectionOptions}
+            descriptionOptions={descriptionSelectionOptions}
+            handleFormSubmit={onFormSubmit}
+            loading={isLoadingOvertimeData}
           />
 
+          {/* ส่วนที่ 7: มอดัลสำหรับจัดการสถานะแบบกลุ่ม (Batch Status Modal) */}
           <BatchStatusModal
-            visible={batchStatusModalVisible}
-            setVisible={setBatchStatusModalVisible}
+            visible={isBatchStatusModalVisible}
+            setVisible={setIsBatchStatusModalVisible}
             selectedRowKeys={selectedRowKeys}
-            batchSelectedStatus={batchSelectedStatus}
-            setBatchSelectedStatus={setBatchSelectedStatus}
-            batchApproveOvertime={batchApproveOvertime}
-            batchProcessing={batchProcessing}
+            batchSelectedStatus={selectedBatchStatus}
+            setBatchSelectedStatus={setSelectedBatchStatus}
+            batchApproveOvertime={batchApproveOvertimeRecords}
+            batchProcessing={isBatchProcessing}
           />
 
+          {/* ส่วนที่ 8: มอดัลสำหรับแสดงรายละเอียดคิว (Detail Modal) */}
           <DetailModal
-            visible={detailVisible}
-            setVisible={setDetailVisible}
-            selectedDetail={selectedDetail}
+            visible={isDetailModalVisible}
+            setVisible={setIsDetailModalVisible}
+            selectedDetail={selectedOvertimeDetail}
           />
 
+          {/* ส่วนที่ 9: มอดัลสำหรับแสดงการวิเคราะห์ข้อมูล (Analytics Modal) */}
           <AnalyticsModal
-            visible={analyticsVisible}
-            setVisible={setAnalyticsVisible}
-            dataSource={dataSource}
+            visible={isAnalyticsModalVisible}
+            setVisible={setIsAnalyticsModalVisible}
+            dataSource={overtimeDataSource}
           />
 
+          {/* ส่วนที่ 10: มอดัลสำหรับแสดงระเบียบการ (Rules Modal) */}
           <RulesModal
-            visible={rulesVisible}
-            onClose={() => setRulesVisible(false)}
+            visible={isRulesModalVisible}
+            onClose={() => setIsRulesModalVisible(false)}
           />
         </div>
       </ConfigProvider>

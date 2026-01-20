@@ -36,47 +36,49 @@ const { Text, Title } = Typography;
 
 interface OvertimeTableProps {
   dataSource: OvertimeRecord[];
-  columns: any[];
-  loading: boolean;
+  isLoading: boolean;
   paginationState: PaginationState;
   selectedRowKeys: React.Key[];
   setSelectedRowKeys: (keys: React.Key[]) => void;
-  setProcessedItems: (items: Set<React.Key>) => void;
-  batchProcessing: boolean;
-  processedItems: Set<React.Key>;
-  handleTableChange: (pagination: any, filters: any) => void;
-  deleteOvertime: (id?: string | number) => void;
-  approveOvertime: (id?: string | number, status?: string) => void;
-  sendEmailToHR: (id?: string | number) => void;
-  fetchOvertimeDetail: (id: string | number) => void;
-  setDetailVisible: (visible: boolean) => void;
-  router: any;
+  setProcessedRecordItems: (items: Set<React.Key>) => void;
+  isBatchProcessing: boolean;
+  processedRecordItems: Set<React.Key>;
+  onTableChange: (pagination: any, filters: any) => void;
+  deleteOvertimeRecord: (overtimeRecordId?: string | number) => void;
+  approveOvertimeRecord: (
+    overtimeRecordId?: string | number,
+    selectedStatus?: string,
+  ) => void;
+  sendEmailToHRDepartment: (overtimeRecordId?: string | number) => void;
+  fetchOvertimeRequestDetail: (overtimeRecordId: string | number) => void;
+  setIsDetailModalVisible: (visible: boolean) => void;
+  navigationRouter: any;
 }
 
 export const OvertimeTable: React.FC<OvertimeTableProps> = ({
   dataSource,
-  loading,
+  isLoading,
   paginationState,
   selectedRowKeys,
   setSelectedRowKeys,
-  setProcessedItems,
-  batchProcessing,
-  processedItems,
-  handleTableChange,
-  deleteOvertime,
-  approveOvertime,
-  sendEmailToHR,
-  fetchOvertimeDetail,
-  router,
+  setProcessedRecordItems,
+  isBatchProcessing,
+  processedRecordItems,
+  onTableChange,
+  deleteOvertimeRecord,
+  approveOvertimeRecord,
+  sendEmailToHRDepartment,
+  fetchOvertimeRequestDetail,
+  navigationRouter,
 }) => {
   // เรียกใช้ Hook สำหรับ Columns (ตรวจสอบให้แน่ใจว่าใน Hook เป็นภาษาไทยด้วย)
   const columns = useOvertimeTableColumns({
-    processedItems,
-    deleteOvertime,
-    approveOvertime,
-    sendEmailToHR,
-    fetchOvertimeDetail,
-    router,
+    processedRecordItems,
+    deleteOvertimeRecord,
+    approveOvertimeRecord,
+    sendEmailToHRDepartment,
+    fetchOvertimeRequestDetail,
+    navigationRouter,
   });
 
   const { token } = theme.useToken();
@@ -86,7 +88,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
     const descriptions = record.descriptions || [];
     const totalHours = descriptions.reduce(
       (sum: number, desc: any) => sum + Number(desc.duration || 0),
-      0
+      0,
     );
 
     if (descriptions.length === 0) {
@@ -176,8 +178,8 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
             const startTime = hasTimeRange
               ? dayjs(desc.start_date)
               : desc.date
-              ? dayjs(desc.date)
-              : null;
+                ? dayjs(desc.date)
+                : null;
             const endTime = hasTimeRange ? dayjs(desc.end_date) : null;
             const assigneeUser = getUserById(desc.assignee);
 
@@ -239,7 +241,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
                       <Badge
                         color="blue"
                         text={`${Number(desc.duration || 0).toFixed(
-                          2
+                          2,
                         )} ชั่วโมง`}
                       />
                     </Descriptions.Item>
@@ -279,7 +281,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
       ...record,
       totalHours: (record.descriptions || []).reduce(
         (sum: number, desc: any) => sum + Number(desc.duration || 0),
-        0
+        0,
       ),
       descriptionCount: (record.descriptions || []).length,
     }));
@@ -330,9 +332,9 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
             selectedRowKeys,
             onChange: (keys) => {
               setSelectedRowKeys(keys);
-              setProcessedItems(new Set());
+              setProcessedRecordItems(new Set());
             },
-            getCheckboxProps: () => ({ disabled: batchProcessing }),
+            getCheckboxProps: () => ({ disabled: isBatchProcessing }),
           }}
           pagination={{
             current: paginationState.current,
@@ -352,8 +354,8 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
             ),
             pageSizeOptions: ["10", "20", "50", "100"],
           }}
-          loading={loading}
-          onChange={handleTableChange}
+          loading={isLoading}
+          onChange={onTableChange}
           scroll={{ x: 1300 }}
           locale={{
             emptyText: (

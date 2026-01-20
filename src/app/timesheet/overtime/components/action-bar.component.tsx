@@ -33,27 +33,27 @@ const { useToken } = theme;
 interface ActionBarProps {
   selectedRowKeys: React.Key[];
   setSelectedRowKeys: (keys: React.Key[]) => void;
-  setProcessedItems: (items: Set<React.Key>) => void;
-  batchProcessing: boolean;
-  setVisible: (visible: boolean) => void;
-  setBatchStatusModalVisible: (visible: boolean) => void;
-  batchSendEmail: () => void;
-  router: any;
-  setAnalyticsVisible: (visible: boolean) => void;
-  setRulesVisible?: (visible: boolean) => void;
+  setProcessedRecordItems: (items: Set<React.Key>) => void;
+  isBatchProcessing: boolean;
+  setIsCreateModalVisible: (visible: boolean) => void;
+  setIsBatchStatusModalVisible: (visible: boolean) => void;
+  batchSendOvertimeEmail: () => void;
+  navigationRouter: any;
+  setIsAnalyticsModalVisible: (visible: boolean) => void;
+  setIsRulesModalVisible?: (visible: boolean) => void;
 }
 
 export const ActionBar: React.FC<ActionBarProps> = ({
   selectedRowKeys,
   setSelectedRowKeys,
-  setProcessedItems,
-  batchProcessing,
-  setVisible,
-  setBatchStatusModalVisible,
-  batchSendEmail,
-  router,
-  setAnalyticsVisible,
-  setRulesVisible,
+  setProcessedRecordItems,
+  isBatchProcessing,
+  setIsCreateModalVisible,
+  setIsBatchStatusModalVisible,
+  batchSendOvertimeEmail,
+  navigationRouter,
+  setIsAnalyticsModalVisible,
+  setIsRulesModalVisible,
 }) => {
   const hasSelected = selectedRowKeys.length > 0;
   const { token } = useToken();
@@ -131,7 +131,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                       icon={<FilePdfOutlined />}
                       onClick={() => {
                         const ids = selectedRowKeys.join(",");
-                        router.push(
+                        navigationRouter.push(
                           `/timesheet/overtime/preview/bulk?ids=${ids}`,
                         );
                       }}
@@ -158,8 +158,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                     <Button
                       type="primary"
                       icon={<CheckOutlined />}
-                      onClick={() => setBatchStatusModalVisible(true)}
-                      loading={batchProcessing}
+                      onClick={() => setIsBatchStatusModalVisible(true)}
+                      loading={isBatchProcessing}
                       style={{
                         background:
                           "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
@@ -188,8 +188,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                   >
                     <Button
                       icon={<MailOutlined />}
-                      onClick={batchSendEmail}
-                      loading={batchProcessing}
+                      onClick={batchSendOvertimeEmail}
+                      loading={isBatchProcessing}
                       style={{
                         borderColor: "#ff6b6b",
                         color: "#ff6b6b",
@@ -207,7 +207,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                       icon={<CloseCircleOutlined />}
                       onClick={() => {
                         setSelectedRowKeys([]);
-                        setProcessedItems(new Set());
+                        setProcessedRecordItems(new Set());
                       }}
                       className="hover:scale-105 transition-transform"
                     >
@@ -276,7 +276,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               >
                 <Button
                   icon={<FileTextOutlined />}
-                  onClick={() => setRulesVisible?.(true)}
+                  onClick={() => setIsRulesModalVisible?.(true)}
                   style={{
                     borderColor: "#ee5a6f",
                     color: "#ee5a6f",
@@ -302,7 +302,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               >
                 <Button
                   icon={<RiseOutlined />}
-                  onClick={() => setAnalyticsVisible(true)}
+                  onClick={() => setIsAnalyticsModalVisible(true)}
                   style={{
                     borderColor: "#667eea",
                     color: "#667eea",
@@ -334,7 +334,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                 <Button
                   type="primary"
                   icon={<ThunderboltOutlined />}
-                  onClick={() => setVisible(true)}
+                  onClick={() => setIsCreateModalVisible(true)}
                   size="large"
                   style={{
                     background:
