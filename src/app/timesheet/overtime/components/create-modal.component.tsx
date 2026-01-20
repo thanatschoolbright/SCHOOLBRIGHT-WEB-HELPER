@@ -45,6 +45,7 @@ interface CreateModalProps {
   descriptionOptions: SelectOption[];
   handleFormSubmit: (values: any) => Promise<void>;
   loading: boolean;
+  form: any;
 }
 
 export const CreateModal: React.FC<CreateModalProps> = ({
@@ -54,10 +55,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   descriptionOptions,
   handleFormSubmit,
   loading,
+  form,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
-  const [form] = Form.useForm();
 
   // Set default assignee to user named "ธนัท" when userOptions change
   React.useEffect(() => {

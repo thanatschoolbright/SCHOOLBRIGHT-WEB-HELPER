@@ -61,6 +61,7 @@ export default function OvertimeManagementPage() {
     batchApproveOvertime: batchApproveOvertimeRecords,
     batchSendEmail: batchSendOvertimeEmail,
     fetchOvertimeDetail: fetchOvertimeRequestDetail,
+    form: overtimeForm,
   } = useOvertimeData();
 
   const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] =
@@ -306,6 +307,7 @@ export default function OvertimeManagementPage() {
             descriptionOptions={descriptionSelectionOptions}
             handleFormSubmit={onFormSubmit}
             loading={isLoadingOvertimeData}
+            form={overtimeForm}
           />
 
           {/* ส่วนที่ 7: มอดัลสำหรับจัดการสถานะแบบกลุ่ม (Batch Status Modal) */}

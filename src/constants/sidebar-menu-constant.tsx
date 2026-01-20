@@ -39,8 +39,13 @@ import {
   ScheduleOutlined,
   ReadOutlined,
   TagsOutlined,
-  GoogleOutlined,
-  ApiFilled,
+  DesktopOutlined,
+  SafetyCertificateOutlined,
+  ThunderboltOutlined,
+  MonitorOutlined,
+  SolutionOutlined,
+  DeploymentUnitOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 
 interface SidebarChild {
@@ -86,7 +91,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("testing.children.load_testing"),
             href: "/testing/load-test",
-            icon: <RocketOutlined />,
+            icon: <ThunderboltOutlined />, // ปรับให้สื่อถึงความแรง/โหลด
           },
         ],
       },
@@ -97,14 +102,14 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("support.children.bypass_school"),
             href: "/support/bypass",
-            icon: <UnlockOutlined />,
-            revamp: true,
+            icon: <SafetyCertificateOutlined />, // ปรับให้เกี่ยวกับการอนุญาต/Security
+            revamp: false,
           },
           {
             label: t("support.children.test_nfc_card"),
             href: "/support/test/nfc",
             icon: <ScanOutlined />,
-            revamp: true,
+            revamp: false,
           },
           {
             label: t("support.children.cancel_sales"),
@@ -120,26 +125,26 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("health_check.children.server_status"),
             href: "/health-check/v2/server-status",
-            icon: <ApiFilled />,
-            news: true,
+            icon: <DesktopOutlined />, // ปรับให้เหมือนการตรวจสอบหน้าจอเซิร์ฟเวอร์
+            news: false,
           },
           {
             label: t("health_check.children.all_server_status"),
             href: "/health-check/all-server-status",
-            icon: <CloudServerOutlined />,
-            revamp: true,
+            icon: <MonitorOutlined />, // รายงานรวม
+            revamp: false,
           },
           {
             label: t("health_check.children.online_status"),
             href: "/health-check/online-status",
             icon: <SignalFilled />,
-            revamp: true,
+            revamp: false,
           },
           {
             label: t("health_check.children.version_control"),
             href: "/health-check/version-control",
-            icon: <BranchesOutlined />,
-            revamp: true,
+            icon: <DeploymentUnitOutlined />, // ปรับให้สื่อถึงการกระจายเวอร์ชัน/Branch
+            revamp: false,
           },
           {
             label: t("health_check.children.transaction_log"),
@@ -149,8 +154,8 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("health_check.children.heartbeats"),
             href: "/health-check/heartbeats",
-            revamp: true,
             icon: <HeartFilled />,
+            revamp: false,
           },
         ],
       },
@@ -162,12 +167,12 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("mobile_app.children.mobile_notification"),
             href: "/mobile/notification",
             icon: <NotificationFilled />,
-            revamp: true,
+            revamp: false,
           },
           {
             label: t("mobile_app.children.mobile_leave_letter"),
             href: "/mobile/leave-letter",
-            icon: <CoffeeOutlined />,
+            icon: <FormOutlined />, // ปรับเป็นไอคอนเอกสาร/ใบลา
           },
           {
             label: t("mobile_app.children.statistics"),
@@ -177,13 +182,13 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("mobile_app.children.qrcode_health_check"),
             href: "/mobile/qrcode-health-check",
-            news: false,
             icon: <QrcodeOutlined />,
+            news: false,
           },
           {
             label: t("mobile_app.children.mobile_check_attendance"),
             href: "/mobile/check-attendance",
-            icon: <EnvironmentOutlined />,
+            icon: <CheckCircleOutlined />, // ปรับเป็นไอคอนเช็กชื่อ
           },
         ],
       },
@@ -205,32 +210,32 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.project"),
             href: "/timesheet/project",
-            news: false,
             icon: <FundProjectionScreenOutlined />,
+            news: false,
           },
           {
             label: t("timesheet_system.children.entry"),
             href: "/timesheet/entry",
-            news: false,
             icon: <FormOutlined />,
+            news: false,
           },
           {
             label: t("timesheet_system.children.timeline"),
             href: "/timesheet/timeline",
-            news: false,
             icon: <FieldTimeOutlined />,
+            news: false,
           },
           {
             label: t("timesheet_system.children.all"),
             href: "/timesheet/all",
+            icon: <SolutionOutlined />, // ปรับเป็นรูปรายงานรวมพนักงาน
             news: false,
-            icon: <UnorderedListOutlined />,
           },
           {
             label: t("timesheet_system.children.overtime"),
             href: "/timesheet/overtime",
-            news: false,
             icon: <FireOutlined />,
+            news: false,
           },
         ],
       },
@@ -241,8 +246,8 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("backlogs.children.report"),
             href: "/backlogs/report",
-            news: false,
             icon: <BugFilled />,
+            news: false,
           },
         ],
       },
