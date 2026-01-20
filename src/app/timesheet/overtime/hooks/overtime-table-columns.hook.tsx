@@ -195,12 +195,12 @@ interface UseOvertimeTableColumnsProps {
 }
 
 export const useOvertimeTableColumns = ({
-  processedItems,
-  deleteOvertime,
-  approveOvertime,
-  sendEmailToHR,
-  fetchOvertimeDetail,
-  router,
+  processedItems = new Set(),
+  deleteOvertime = () => {},
+  approveOvertime = () => {},
+  sendEmailToHR = () => {},
+  fetchOvertimeDetail = () => {},
+  router = { push: () => {} },
 }: UseOvertimeTableColumnsProps) => {
   const { t } = useTranslation();
   const authentication = useAppSelector((state) => state.callAdminLogin);
@@ -214,7 +214,7 @@ export const useOvertimeTableColumns = ({
         width: 50,
         align: "center" as const,
         render: (_: any, record: any) =>
-          processedItems.has(record.id) && (
+          processedItems?.has?.(record.id) && (
             <CheckOutlined
               style={{ color: token.colorSuccess, fontSize: 18 }}
             />

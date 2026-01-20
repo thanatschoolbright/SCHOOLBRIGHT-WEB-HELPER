@@ -68,7 +68,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     >
       <Card
         className="shadow-lg hover:shadow-xl transition-all duration-500 mb-6 overflow-hidden relative"
-        bodyStyle={{ padding: "24px 28px" }}
+        styles={{ body: { padding: "24px 28px" } }}
         style={{
           background: `linear-gradient(135deg, #667eea15 0%, #764ba215 100%)`,
           border: "2px solid #667eea30",
@@ -123,7 +123,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                         </div>
                       </div>
                     }
-                    overlayStyle={{ maxWidth: "300px" }}
+                    styles={{ root: { maxWidth: "300px" } }}
                   >
                     <Button
                       type="primary"
@@ -153,7 +153,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                         </div>
                       </div>
                     }
-                    overlayStyle={{ maxWidth: "300px" }}
+                    styles={{ root: { maxWidth: "300px" } }}
                   >
                     <Button
                       type="primary"
@@ -184,7 +184,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                         </div>
                       </div>
                     }
-                    overlayStyle={{ maxWidth: "300px" }}
+                    styles={{ root: { maxWidth: "300px" } }}
                   >
                     <Button
                       icon={<MailOutlined />}
@@ -272,7 +272,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                     </div>
                   </div>
                 }
-                overlayStyle={{ maxWidth: "300px" }}
+                styles={{ root: { maxWidth: "300px" } }}
               >
                 <Button
                   icon={<FileTextOutlined />}
@@ -298,7 +298,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                     </div>
                   </div>
                 }
-                overlayStyle={{ maxWidth: "300px" }}
+                styles={{ root: { maxWidth: "300px" } }}
               >
                 <Button
                   icon={<RiseOutlined />}
@@ -329,7 +329,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                     </div>
                   </div>
                 }
-                overlayStyle={{ maxWidth: "300px" }}
+                styles={{ root: { maxWidth: "300px" } }}
               >
                 <Button
                   type="primary"

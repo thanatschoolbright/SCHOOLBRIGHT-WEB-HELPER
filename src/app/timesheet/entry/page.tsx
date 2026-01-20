@@ -192,7 +192,7 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
     setLoading(true);
     try {
       const response = await axios.get(
-        `/api/v1/timesheet/my-work?user_id=${userId}`
+        `/api/v1/timesheet/my-work?user_id=${userId}`,
       );
       setData(response.data?.data ?? []);
     } catch (error) {
@@ -286,7 +286,7 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               {t(
                 "timesheet_entry_page.my_work_description",
-                "รายการโครงการและฟีเจอร์ที่คุณได้รับมอบหมาย"
+                "รายการโครงการและฟีเจอร์ที่คุณได้รับมอบหมาย",
               )}
             </Typography.Text>
           </div>
@@ -310,7 +310,7 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
           locale={{
             emptyText: t(
               "timesheet_entry_page.no_assigned_work",
-              "ไม่พบข้อมูลงานที่ได้รับมอบหมาย"
+              "ไม่พบข้อมูลงานที่ได้รับมอบหมาย",
             ),
           }}
         />
@@ -364,7 +364,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     window.open(
       "https://docs.google.com/document/d/1bfkhcYs_X79c5j2uZ5pH-C5QAeIjN91aSVNNZEf2guI/edit?usp=sharing",
       "_blank",
-      "noopener,noreferrer"
+      "noopener,noreferrer",
     );
   };
   const isDark = token.colorBgBase === "#0B0F19";
@@ -382,7 +382,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         position: "relative",
         border: `1px solid ${token.colorBorderSecondary}`,
       }}
-      bodyStyle={{ padding: "32px 40px" }}
+      styles={{ body: { padding: "32px 40px" } }}
     >
       {/* Decorative Orbs */}
       <div
@@ -425,13 +425,13 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             <Typography.Text type="secondary" style={{ fontSize: 16 }}>
               {t(
                 "timesheet_entry_page.manage_your_work_time_here",
-                "จัดการเวลาทำงานของคุณได้ที่นี่"
+                "จัดการเวลาทำงานของคุณได้ที่นี่",
               )}{" "}
               •{" "}
               <span style={{ color: token.colorSuccess }}>
                 {t(
                   "timesheet_entry_page.ready_to_work",
-                  "พร้อมลุยงานวันนี้หรือยัง?"
+                  "พร้อมลุยงานวันนี้หรือยัง?",
                 )}{" "}
                 <RocketOutlined />
               </span>
@@ -506,7 +506,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                         <span>
                           {t(
                             "timesheet_entry_page.bulk_entry",
-                            "ลงแบบทุกคน (Bulk)"
+                            "ลงแบบทุกคน (Bulk)",
                           )}
                         </span>
                         <Badge
@@ -526,7 +526,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                         <span>
                           {t(
                             "timesheet_entry_page.multi_entry",
-                            "ลงเวลาหลายรายการ"
+                            "ลงเวลาหลายรายการ",
                           )}
                         </span>
                         <Text type="secondary" style={{ fontSize: 10 }}>
@@ -600,7 +600,7 @@ const useMonthlyRankData = () => {
             month: selectedMonth.format("M"),
             year: selectedMonth.format("YYYY"),
           },
-          { headers: { "Content-Type": "application/json" } }
+          { headers: { "Content-Type": "application/json" } },
         );
         setRecords(response.data?.data?.records ?? []);
         setMetadata(response.data?.data?.metadata ?? null);
@@ -611,13 +611,13 @@ const useMonthlyRankData = () => {
           toast.error(
             error?.response?.data?.message_th ||
               "เกิดข้อผิดพลาดในการโหลดข้อมูล",
-            { id: "monthly-rank-toast" }
+            { id: "monthly-rank-toast" },
           );
       } finally {
         setLoading(false);
       }
     },
-    [selectedMonth]
+    [selectedMonth],
   );
 
   useEffect(() => {
@@ -656,7 +656,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
     const visibleRecords = useMemo(() => {
       if (currentAdminId) {
         const selfRecord = records.find(
-          (record) => record.admin_id === currentAdminId
+          (record) => record.admin_id === currentAdminId,
         );
         return selfRecord ? [selfRecord] : [];
       }
@@ -730,7 +730,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                     ? t("timesheet_entry_page.your_rank", "อันดับของคุณ")
                     : t(
                         "timesheet_entry_page.employee_of_the_month",
-                        "พนักงานดีเด่น"
+                        "พนักงานดีเด่น",
                       )}
                 </span>
               </Typography.Title>
@@ -741,7 +741,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                 <FireOutlined style={{ color: token.colorError }} />{" "}
                 {t(
                   "timesheet_entry_page.who_is_most_diligent",
-                  "ใครขยันที่สุดในเดือนนี้?"
+                  "ใครขยันที่สุดในเดือนนี้?",
                 )}
               </Typography.Text>
             </div>
@@ -801,7 +801,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                           />
                         </div>
                       </div>
-                    )
+                    ),
                   )}
                 </Space>
               </motion.div>
@@ -900,7 +900,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
         </div>
       </Card>
     );
-  }
+  },
 );
 MonthlyRankBoard.displayName = "MonthlyRankBoard";
 
@@ -965,7 +965,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
                   <Space>
                     {t(
                       "timesheet_entry_page.popular_projects",
-                      "โครงการยอดนิยม"
+                      "โครงการยอดนิยม",
                     )}{" "}
                     <RocketOutlined />
                   </Space>
@@ -1061,7 +1061,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         label: t("timesheet_entry_page.table_actions", "จัดการ"),
       },
     ],
-    [t]
+    [t],
   );
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
@@ -1084,7 +1084,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
   useEffect(() => {
     localStorage.setItem(
       "timesheet-visible-columns",
-      JSON.stringify(visibleColumns)
+      JSON.stringify(visibleColumns),
     );
   }, [visibleColumns]);
 
@@ -1095,7 +1095,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const getColumnSearchProps = useCallback(
     (
       dataIndex: SearchableColumnKey,
-      title: string
+      title: string,
     ): Partial<ColumnType<TimesheetEntry>> => ({
       key: dataIndex,
       filterDropdown: ({
@@ -1146,7 +1146,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         },
       },
     }),
-    [token.colorPrimary]
+    [token.colorPrimary],
   );
 
   const columns = useMemo<any>(
@@ -1230,7 +1230,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         sortDirections: ["descend", "ascend"],
         ...getColumnSearchProps(
           "project_name",
-          t("timesheet_entry_page.table_project", "โครงการ")
+          t("timesheet_entry_page.table_project", "โครงการ"),
         ),
         render: (value: string, record: TimesheetEntry) => {
           const avatarColor = stringToColor(value);
@@ -1384,7 +1384,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   <span className="opacity-30">
                     {t(
                       "timesheet_entry_page.no_description",
-                      "ไม่มีรายละเอียดระบุไว้"
+                      "ไม่มีรายละเอียดระบุไว้",
                     )}
                   </span>
                 )}
@@ -1472,7 +1472,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         ),
       },
     ],
-    [onEdit, onCopy, getColumnSearchProps, token]
+    [onEdit, onCopy, getColumnSearchProps, token],
   );
 
   const filteredColumns = useMemo(
@@ -1480,9 +1480,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       columns.filter(
         (col: any) =>
           visibleColumns.includes(col.dataIndex as string) ||
-          visibleColumns.includes(col.key as string)
+          visibleColumns.includes(col.key as string),
       ),
-    [columns, visibleColumns]
+    [columns, visibleColumns],
   );
 
   const isDark = token.colorBgBase === "#0B0F19";
@@ -1535,7 +1535,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                       icon={<ReloadOutlined style={{ fontSize: 12 }} />}
                       onClick={() =>
                         setVisibleColumns(
-                          ALL_TIMESHEET_COLUMNS.map((c) => c.key)
+                          ALL_TIMESHEET_COLUMNS.map((c) => c.key),
                         )
                       }
                     />
@@ -1601,7 +1601,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         overflow: "hidden",
         border: `1px solid ${token.colorBorderSecondary}`,
       }}
-      bodyStyle={{ padding: 0 }}
+      styles={{ body: { padding: 0 } }}
     >
       <style jsx global>{`
         .ant-table-wrapper .ant-table-thead > tr > th {
@@ -1702,10 +1702,10 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
   const { t } = useTranslation("timesheet");
   const { token } = theme.useToken();
   const [searchMode, setSearchMode] = useState<"hierarchy" | "direct">(
-    "hierarchy"
+    "hierarchy",
   );
   const [subProjectOptionsSearch, setSubProjectOptionsSearch] = useState<any[]>(
-    []
+    [],
   );
   const [searching, setSearching] = useState(false);
   const searchRef = useRef<any>(null);
@@ -1721,8 +1721,8 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
       try {
         const res = await axios.get(
           `/api/v1/timesheet/project/sub-project/search?q=${encodeURIComponent(
-            value
-          )}`
+            value,
+          )}`,
         );
         if (res.data?.data) {
           setSubProjectOptionsSearch(
@@ -1730,7 +1730,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
               label: item.display_label,
               value: item.id,
               item: item,
-            }))
+            })),
           );
         }
       } catch (err) {
@@ -1776,7 +1776,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
         value: Number(p.id),
         labelString: p.name,
       })),
-    [projects, token]
+    [projects, token],
   );
   const subProjectOptions = useMemo(
     () =>
@@ -1793,7 +1793,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
         value: Number(s.id),
         labelString: s.name,
       })),
-    [subProject, token]
+    [subProject, token],
   );
   const statusOptions = useMemo(
     () =>
@@ -1805,7 +1805,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
         ),
         value: s.value,
       })),
-    [i18n.language]
+    [i18n.language],
   );
 
   return (
@@ -1879,7 +1879,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                     <Tooltip
                       title={t(
                         "searchProjectTip",
-                        "ค้นหาได้ทั้ง ชื่อโครงการ และ Project ID"
+                        "ค้นหาได้ทั้ง ชื่อโครงการ และ Project ID",
                       )}
                     >
                       <InfoCircleOutlined
@@ -1918,7 +1918,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                     <Tooltip
                       title={t(
                         "searchSubTaskTip",
-                        "ค้นหาได้ทั้ง ชื่องานย่อย และ Feature ID"
+                        "ค้นหาได้ทั้ง ชื่องานย่อย และ Feature ID",
                       )}
                     >
                       <InfoCircleOutlined
@@ -1958,7 +1958,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                   required: searchMode === "direct",
                   message: t(
                     "pleaseSelectSubTask",
-                    "กรุณาค้นหาและเลือกงานย่อย"
+                    "กรุณาค้นหาและเลือกงานย่อย",
                   ),
                 },
                 {
@@ -1969,8 +1969,8 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                       if (!projectId || !subProjectId) {
                         return Promise.reject(
                           new Error(
-                            t("selectFromList", "กรุณาเลือกงานย่อยจากรายการ")
-                          )
+                            t("selectFromList", "กรุณาเลือกงานย่อยจากรายการ"),
+                          ),
                         );
                       }
                     }
@@ -1983,7 +1983,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                 showSearch
                 placeholder={t(
                   "searchPlaceholderDirect",
-                  "พิมพ์ชื่องานย่อย, โครงการหลัก หรือ ID..."
+                  "พิมพ์ชื่องานย่อย, โครงการหลัก หรือ ID...",
                 )}
                 options={subProjectOptionsSearch}
                 onSearch={handleSearchSubProject}
@@ -2058,7 +2058,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                           <ExclamationCircleOutlined />{" "}
                           {t(
                             "over8HoursWarning",
-                            "คุณกำลังกรอกเวลาเกิน 8 ชั่วโมง"
+                            "คุณกำลังกรอกเวลาเกิน 8 ชั่วโมง",
                           )}
                         </Typography.Text>
                       ) : null;
@@ -2086,7 +2086,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
               maxLength={500}
               placeholder={t(
                 "workDescriptionPlaceholder",
-                "ระบุรายละเอียดงานที่ทำ..."
+                "ระบุรายละเอียดงานที่ทำ...",
               )}
             />
           </Form.Item>
@@ -2151,7 +2151,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
     setEntries((prev) => prev.filter((e) => e.id !== id));
   const updateEntry = (id: string, field: string, value: any) =>
     setEntries((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e))
+      prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
     );
 
   const handleProjectChange = async (id: string, projectId: any) => {
@@ -2182,7 +2182,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
         value: p.id,
         labelString: p.name,
       })),
-    [projects]
+    [projects],
   );
   const getSubProjectOptions = (pid?: number) =>
     pid && subProjects[String(pid)]
@@ -2451,7 +2451,7 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
         value: Number(p.id),
         labelString: p.name,
       })),
-    [projects, token]
+    [projects, token],
   );
 
   const subProjectOptions = useMemo(
@@ -2466,7 +2466,7 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
         value: Number(s.id),
         labelString: s.name,
       })),
-    [subProject, token]
+    [subProject, token],
   );
 
   const statusOptions = useMemo(
@@ -2475,7 +2475,7 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
         label: <Tag color={getStatusConfig(s.value).color}>{s.label_th}</Tag>,
         value: s.value,
       })),
-    []
+    [],
   );
 
   const handleSubmit = async () => {
@@ -2508,8 +2508,8 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
           prev.map((item) =>
             item.admin_id === user.admin_id
               ? { ...item, status: "processing", message: "กำลังส่งข้อมูล..." }
-              : item
-          )
+              : item,
+          ),
         );
 
         try {
@@ -2532,8 +2532,8 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
             prev.map((item) =>
               item.admin_id === user.admin_id
                 ? { ...item, status: "success", message: "สำเร็จ" }
-                : item
-            )
+                : item,
+            ),
           );
         } catch (error: any) {
           // Update status to error
@@ -2545,8 +2545,8 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
                     status: "error",
                     message: error?.message || "เกิดข้อผิดพลาด",
                   }
-                : item
-            )
+                : item,
+            ),
           );
         }
 
@@ -2562,7 +2562,7 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
       }).length;
 
       toast.success(
-        `ส่งข้อมูลเสร็จสิ้น! สำเร็จ ${completedCount} จาก ${users.length} คน`
+        `ส่งข้อมูลเสร็จสิ้น! สำเร็จ ${completedCount} จาก ${users.length} คน`,
       );
       refetchEntries();
       rankBoardRefetch?.();
@@ -2736,18 +2736,18 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
                       item.status === "processing"
                         ? `${token.colorPrimaryBg}`
                         : item.status === "success"
-                        ? `${token.colorSuccessBg}`
-                        : item.status === "error"
-                        ? `${token.colorErrorBg}`
-                        : token.colorFillQuaternary,
+                          ? `${token.colorSuccessBg}`
+                          : item.status === "error"
+                            ? `${token.colorErrorBg}`
+                            : token.colorFillQuaternary,
                     borderColor:
                       item.status === "processing"
                         ? token.colorPrimary
                         : item.status === "success"
-                        ? token.colorSuccess
-                        : item.status === "error"
-                        ? token.colorError
-                        : token.colorBorder,
+                          ? token.colorSuccess
+                          : item.status === "error"
+                            ? token.colorError
+                            : token.colorBorder,
                   }}
                 >
                   <Flex justify="space-between" align="center">
@@ -2791,10 +2791,10 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
                           item.status === "processing"
                             ? token.colorPrimary
                             : item.status === "success"
-                            ? token.colorSuccess
-                            : item.status === "error"
-                            ? token.colorError
-                            : token.colorTextSecondary,
+                              ? token.colorSuccess
+                              : item.status === "error"
+                                ? token.colorError
+                                : token.colorTextSecondary,
                         fontSize: 12,
                       }}
                     >
@@ -3020,7 +3020,7 @@ export default function TimesheetEntryPage() {
 
   const adminId = useMemo(
     () => Number(authState?.response?.data?.user_data?.admin_id) || undefined,
-    [authState?.response?.data?.user_data?.admin_id]
+    [authState?.response?.data?.user_data?.admin_id],
   );
   const adminName = authState?.response?.data?.user_data?.firstname || "User";
 
@@ -3039,14 +3039,14 @@ export default function TimesheetEntryPage() {
   const { topProjectUsage, topFeatureUsage } = useTopUsage(entries);
   const { actionLoading, submitTimesheet, deleteTimesheet } =
     useTimesheetActions(adminId, isMountedRef, refetchEntries, () =>
-      rankBoardRef.current?.refetch()
+      rankBoardRef.current?.refetch(),
     );
   const { fetchProjects, fetchSubProjects } = useProjectData(
     isMountedRef,
     dispatch,
     setProjects,
     setSubProjects,
-    setLoading
+    setLoading,
   );
 
   useEffect(() => {
@@ -3099,7 +3099,7 @@ export default function TimesheetEntryPage() {
       });
       dispatch(setModalType("form"));
     },
-    [dispatch, fetchSubProjects, form]
+    [dispatch, fetchSubProjects, form],
   );
 
   const openCopyForm = useCallback(
@@ -3120,7 +3120,7 @@ export default function TimesheetEntryPage() {
       });
       dispatch(setModalType("form"));
     },
-    [dispatch, fetchSubProjects, form]
+    [dispatch, fetchSubProjects, form],
   );
 
   const openDetailModal = useCallback(
@@ -3128,7 +3128,7 @@ export default function TimesheetEntryPage() {
       dispatch(setActiveRecord(record));
       dispatch(setModalType("detail"));
     },
-    [dispatch]
+    [dispatch],
   );
   const openDeleteModal = useCallback(() => {
     dispatch(setModalType("delete"));
@@ -3140,7 +3140,7 @@ export default function TimesheetEntryPage() {
       const success = await submitTimesheet(
         values,
         timesheetState.formMode,
-        timesheetState.activeRecord?.id
+        timesheetState.activeRecord?.id,
       );
       if (success && isMountedRef.current) closeModal();
     } catch {}
@@ -3159,13 +3159,13 @@ export default function TimesheetEntryPage() {
       setCurrentPage(page);
       if (size && size !== pageSize) setPageSize(size);
     },
-    [pageSize, setCurrentPage, setPageSize]
+    [pageSize, setCurrentPage, setPageSize],
   );
 
   // Multi Entry Logic
   const openMultiEntryForm = useCallback(
     () => setMultiEntryModalOpen(true),
-    []
+    [],
   );
   const closeMultiEntryModal = useCallback(() => {
     setMultiEntryModalOpen(false);
@@ -3175,11 +3175,11 @@ export default function TimesheetEntryPage() {
   // Bulk All Users Entry Logic
   const openBulkAllUsersModal = useCallback(
     () => setBulkAllUsersModalOpen(true),
-    []
+    [],
   );
   const closeBulkAllUsersModal = useCallback(
     () => setBulkAllUsersModalOpen(false),
-    []
+    [],
   );
   const fetchSubProjectsForMulti = useCallback(
     async (projectId: string) => {
@@ -3191,7 +3191,7 @@ export default function TimesheetEntryPage() {
           [projectId]: timesheetState.subProjects,
         }));
     },
-    [fetchSubProjects, subProjectsCache, timesheetState.subProjects]
+    [fetchSubProjects, subProjectsCache, timesheetState.subProjects],
   );
 
   const handleSubmitMultipleTimesheets = useCallback(
@@ -3210,8 +3210,8 @@ export default function TimesheetEntryPage() {
               date: entry.date,
             },
             "create",
-            undefined
-          )
+            undefined,
+          ),
         );
         const results = await Promise.all(promises);
         const successCount = results.filter((r) => r).length;
@@ -3221,7 +3221,7 @@ export default function TimesheetEntryPage() {
           closeMultiEntryModal();
         } else {
           toast.warning(
-            `บันทึกสำเร็จ ${successCount} จาก ${entries.length} รายการ`
+            `บันทึกสำเร็จ ${successCount} จาก ${entries.length} รายการ`,
           );
         }
       } catch {
@@ -3229,7 +3229,7 @@ export default function TimesheetEntryPage() {
         toast.error("เกิดข้อผิดพลาดในการบันทึก");
       }
     },
-    [adminId, submitTimesheet, closeMultiEntryModal]
+    [adminId, submitTimesheet, closeMultiEntryModal],
   );
 
   return (

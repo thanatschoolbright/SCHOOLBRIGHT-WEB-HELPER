@@ -33,7 +33,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
         background: `linear-gradient(135deg, ${color}10 0%, ${color}05 100%)`,
         border: `2px solid ${color}30`,
       }}
-      bodyStyle={{ padding: "24px", position: "relative", zIndex: 1 }}
+      styles={{ body: { padding: "24px", position: "relative", zIndex: 1 } }}
     >
       {/* Background decoration */}
       <div

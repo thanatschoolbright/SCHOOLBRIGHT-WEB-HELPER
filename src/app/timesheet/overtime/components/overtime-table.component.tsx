@@ -71,14 +71,14 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
   fetchOvertimeRequestDetail,
   navigationRouter,
 }) => {
-  // เรียกใช้ Hook สำหรับ Columns (ตรวจสอบให้แน่ใจว่าใน Hook เป็นภาษาไทยด้วย)
+  // เรียกใช้ Hook สำหรับ Columns
   const columns = useOvertimeTableColumns({
-    processedRecordItems,
-    deleteOvertimeRecord,
-    approveOvertimeRecord,
-    sendEmailToHRDepartment,
-    fetchOvertimeRequestDetail,
-    navigationRouter,
+    processedItems: processedRecordItems,
+    deleteOvertime: deleteOvertimeRecord,
+    approveOvertime: approveOvertimeRecord,
+    sendEmailToHR: sendEmailToHRDepartment,
+    fetchOvertimeDetail: fetchOvertimeRequestDetail,
+    router: navigationRouter,
   });
 
   const { token } = theme.useToken();
@@ -215,7 +215,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
                     borderRadius: "8px",
                     border: `1px solid ${token.colorBorderSecondary}`,
                   }}
-                  bodyStyle={{ padding: "12px 16px" }}
+                  styles={{ body: { padding: "12px 16px" } }}
                 >
                   <Descriptions column={{ xs: 1, sm: 1, md: 2 }} size="small">
                     <Descriptions.Item
@@ -257,7 +257,10 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
                         <Space>
                           <Avatar
                             size="small"
-                            src={assigneeUser.avatar}
+                            src={
+                              assigneeUser?.profile_image ||
+                              assigneeUser?.image_profile
+                            }
                             icon={<UserOutlined />}
                           />
                           <Text>
@@ -289,7 +292,10 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
 
   return (
     <ConfigProvider theme={{ token: { borderRadius: 12 } }}>
-      <Card className="shadow-sm overflow-hidden" bodyStyle={{ padding: 0 }}>
+      <Card
+        className="shadow-sm overflow-hidden"
+        styles={{ body: { padding: 0 } }}
+      >
         <Table
           columns={columns}
           dataSource={enhancedDataSource}

@@ -125,11 +125,11 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
     (id: string, field: keyof TimesheetEntryItem, value: any) => {
       setEntries((prev) =>
         prev.map((entry) =>
-          entry.id === id ? { ...entry, [field]: value } : entry
-        )
+          entry.id === id ? { ...entry, [field]: value } : entry,
+        ),
       );
     },
-    []
+    [],
   );
 
   const handleProjectChange = useCallback(
@@ -150,7 +150,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
       // 4. Fetch ข้อมูลใหม่
       await fetchSubProjects(String(projectId));
     },
-    [updateEntry, fetchSubProjects, form] // เพิ่ม form ใน dependency
+    [updateEntry, fetchSubProjects, form], // เพิ่ม form ใน dependency
   );
 
   const handleSubmit = useCallback(async () => {
@@ -198,7 +198,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
         value: p.id, // <--- แก้ตรงนี้: ไม่ต้องแปลงเป็น Number ถ้า id เป็น string
         labelString: p.name,
       })),
-    [projects, token.colorPrimary]
+    [projects, token.colorPrimary],
   );
 
   const getSubProjectOptions = useCallback(
@@ -216,7 +216,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
         labelString: s.name,
       }));
     },
-    [subProjects, token.colorWarning]
+    [subProjects, token.colorWarning],
   );
 
   const statusOptions = useMemo(
@@ -233,7 +233,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
           rawLabel: label,
         };
       }),
-    [i18n.language]
+    [i18n.language],
   );
 
   return (
@@ -337,7 +337,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                 borderRadius: token.borderRadiusLG,
                 border: `2px solid ${token.colorBorder}`,
               }}
-              bodyStyle={{ padding: 24 }}
+              styles={{ body: { padding: 24 } }}
               title={
                 <Space>
                   <Badge
@@ -383,7 +383,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                     <Select
                       showSearch
                       placeholder={t(
-                        "timesheet_entry_page.project_placeholder"
+                        "timesheet_entry_page.project_placeholder",
                       )}
                       size="large"
                       variant="filled"
@@ -412,7 +412,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                     <Select
                       showSearch
                       placeholder={t(
-                        "timesheet_entry_page.sub_project_placeholder"
+                        "timesheet_entry_page.sub_project_placeholder",
                       )}
                       size="large"
                       variant="filled"
@@ -529,7 +529,7 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
               >
                 <Input.TextArea
                   placeholder={t(
-                    "timesheet_entry_page.description_placeholder"
+                    "timesheet_entry_page.description_placeholder",
                   )}
                   rows={3}
                   size="large"

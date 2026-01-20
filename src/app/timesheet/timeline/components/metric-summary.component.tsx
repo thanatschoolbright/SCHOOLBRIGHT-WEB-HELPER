@@ -74,7 +74,7 @@ export const MetricSummaryComponent: React.FC<MetricSummaryProps> = ({
             <Tooltip title={item.tooltip} placement="bottom">
               <Card
                 className="shadow-sm border-0 rounded-xl overflow-hidden relative h-full"
-                bodyStyle={{ padding: "20px 16px" }}
+                styles={{ body: { padding: "20px 16px" } }}
               >
                 {/* 1. Watermark Icon (ลูกเล่นที่คุณชอบ) */}
                 <div

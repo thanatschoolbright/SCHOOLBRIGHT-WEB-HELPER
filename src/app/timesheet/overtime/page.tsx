@@ -247,14 +247,14 @@ export default function OvertimeManagementPage() {
               <ActionBar
                 selectedRowKeys={selectedRowKeys}
                 setSelectedRowKeys={setSelectedRowKeys}
-                setProcessedItems={setProcessedRecordItems}
-                batchProcessing={isBatchProcessing}
-                setVisible={setIsCreateModalVisible}
-                setBatchStatusModalVisible={setIsBatchStatusModalVisible}
-                batchSendEmail={batchSendOvertimeEmail}
-                router={navigationRouter}
-                setAnalyticsVisible={setIsAnalyticsModalVisible}
-                setRulesVisible={setIsRulesModalVisible}
+                setProcessedRecordItems={setProcessedRecordItems}
+                isBatchProcessing={isBatchProcessing}
+                setIsCreateModalVisible={setIsCreateModalVisible}
+                setIsBatchStatusModalVisible={setIsBatchStatusModalVisible}
+                batchSendOvertimeEmail={batchSendOvertimeEmail}
+                navigationRouter={navigationRouter}
+                setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
+                setIsRulesModalVisible={setIsRulesModalVisible}
               />
             </Col>
           </Row>
@@ -263,14 +263,14 @@ export default function OvertimeManagementPage() {
           <Row gutter={[16, 16]}>
             <Col xs={24}>
               <FilterBar
-                searchText={filterSearchText}
-                setSearchText={setFilterSearchText}
-                selectedMonth={filterSelectedMonth}
-                setSelectedMonth={setFilterSelectedMonth}
-                loading={isLoadingOvertimeData}
+                filterSearchText={filterSearchText}
+                setFilterSearchText={setFilterSearchText}
+                filterSelectedMonth={filterSelectedMonth}
+                setFilterSelectedMonth={setFilterSelectedMonth}
+                isLoading={isLoadingOvertimeData}
                 paginationState={paginationState}
-                handleTableChange={onTableChange}
-                fetchOvertimeList={fetchOvertimeRequestList}
+                onTableChange={onTableChange}
+                fetchOvertimeRequestList={fetchOvertimeRequestList}
               />
             </Col>
           </Row>

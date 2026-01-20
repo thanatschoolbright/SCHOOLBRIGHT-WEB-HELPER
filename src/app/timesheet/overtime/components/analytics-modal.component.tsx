@@ -55,7 +55,7 @@ ChartJS.register(
   Legend,
   ArcElement,
   PointElement,
-  LineElement
+  LineElement,
 );
 
 interface AnalyticsModalProps {
@@ -101,7 +101,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
       const recordHours =
         record.descriptions?.reduce(
           (sum, desc) => sum + (Number(desc.duration) || 0),
-          0
+          0,
         ) || 0;
       totalHours += recordHours;
 
@@ -116,7 +116,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
     });
 
     const sortedMonths = Object.keys(monthlyHours).sort(
-      (a, b) => dayjs(a, "MMM YYYY").unix() - dayjs(b, "MMM YYYY").unix()
+      (a, b) => dayjs(a, "MMM YYYY").unix() - dayjs(b, "MMM YYYY").unix(),
     );
     const topRequesters = Object.entries(requesterHours)
       .sort(([, a], [, b]) => b - a)
@@ -175,7 +175,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
           {/* Section 1: Key Performance Indicators */}
           <Row gutter={[16, 16]}>
             <Col xs={24} sm={12} lg={6}>
-              <Card hoverable bodyStyle={{ padding: "20px" }}>
+              <Card hoverable styles={{ body: { padding: "20px" } }}>
                 <Statistic
                   title={
                     <Space>
@@ -189,7 +189,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
               </Card>
             </Col>
             <Col xs={24} sm={12} lg={6}>
-              <Card hoverable bodyStyle={{ padding: "20px" }}>
+              <Card hoverable styles={{ body: { padding: "20px" } }}>
                 <Statistic
                   title={
                     <Space>
@@ -204,7 +204,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
               </Card>
             </Col>
             <Col xs={24} sm={12} lg={6}>
-              <Card hoverable bodyStyle={{ padding: "20px" }}>
+              <Card hoverable styles={{ body: { padding: "20px" } }}>
                 <div
                   style={{
                     display: "flex",
@@ -233,7 +233,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
               </Card>
             </Col>
             <Col xs={24} sm={12} lg={6}>
-              <Card hoverable bodyStyle={{ padding: "20px" }}>
+              <Card hoverable styles={{ body: { padding: "20px" } }}>
                 <Statistic
                   title={
                     <Space>
@@ -360,7 +360,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
                     }}
                     data={{
                       labels: analyticsData.topRequesters.map(
-                        (r) => r.displayName
+                        (r) => r.displayName,
                       ),
                       datasets: [
                         {

@@ -239,7 +239,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 >
                   <Avatar
                     size={64}
-                    src={requesterUser?.avatar}
+                    src={
+                      requesterUser?.profile_image ||
+                      requesterUser?.image_profile
+                    }
                     icon={<UserOutlined />}
                     style={{
                       background:
@@ -278,7 +281,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 >
                   <Avatar
                     size={64}
-                    src={creatorUser?.avatar}
+                    src={
+                      creatorUser?.profile_image || creatorUser?.image_profile
+                    }
                     icon={<UserOutlined />}
                     style={{
                       background:
@@ -550,7 +555,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                                 <Space>
                                   <Avatar
                                     size="small"
-                                    src={assigneeUser.avatar}
+                                    src={
+                                      assigneeUser?.profile_image ||
+                                      assigneeUser?.image_profile
+                                    }
                                     icon={<UserOutlined />}
                                     style={{ background: token.colorPrimary }}
                                   />

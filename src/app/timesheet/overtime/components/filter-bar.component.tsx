@@ -51,13 +51,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   isLoading,
 }) => {
   const { t: translate } = useTranslation();
-  const { token: themeToken } = theme.useToken();
+  const { token } = theme.useToken();
 
   return (
     <Card
       style={{
         borderRadius: 16,
-        border: `2px solid ${themeToken.colorBorderSecondary}`,
+        border: `2px solid ${token.colorBorderSecondary}`,
       }}
       styles={{
         body: { padding: "24px 28px" },
@@ -68,18 +68,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <div
             className="p-2 rounded-xl"
             style={{
-              background: themeToken.colorPrimaryBg,
+              background: token.colorPrimaryBg,
             }}
           >
             <FilterOutlined
-              style={{ color: themeToken.colorPrimary, fontSize: 20 }}
+              style={{ color: token.colorPrimary, fontSize: 20 }}
             />
           </div>
           <div>
-            <Text
-              strong
-              style={{ fontSize: 18, color: themeToken.colorPrimary }}
-            >
+            <Text strong style={{ fontSize: 18, color: token.colorPrimary }}>
               🔍 ค้นหาและกรองข้อมูล
             </Text>
             <div>
@@ -122,8 +119,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       style={{ color: token.colorTextDescription }}
                     />
                   }
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
+                  value={filterSearchText}
+                  onChange={(e) => setFilterSearchText(e.target.value)}
                   style={{
                     width: "100%",
                   }}
@@ -180,7 +177,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     value: s.value,
                   }))}
                   onChange={(val) =>
-                    handleTableChange(
+                    onTableChange(
                       { current: 1, pageSize: paginationState.pageSize },
                       { status: val ? [val] : [] },
                     )
@@ -223,10 +220,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 <DatePicker
                   picker="month"
                   placeholder="เลือกเดือน..."
-                  value={selectedMonth}
+                  value={filterSelectedMonth}
                   onChange={(date) => {
-                    setSelectedMonth(date);
-                    handleTableChange(
+                    setFilterSelectedMonth(date);
+                    onTableChange(
                       { current: 1, pageSize: paginationState.pageSize },
                       {},
                     );
@@ -236,7 +233,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   format="MMMM YYYY"
                   size="large"
                   suffixIcon={
-                    <CalendarOutlined style={{ color: themeToken.colorInfo }} />
+                    <CalendarOutlined style={{ color: token.colorInfo }} />
                   }
                 />
               </div>
@@ -259,7 +256,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 <div className="mb-2">
                   <Text
                     strong
-                    style={{ fontSize: 13, color: themeToken.colorError }}
+                    style={{ fontSize: 13, color: token.colorError }}
                   >
                     รีเซ็ตการค้นหา
                   </Text>
