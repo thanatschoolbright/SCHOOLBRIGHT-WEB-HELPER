@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const user_id = searchParams.get("user_id");
   const page = searchParams.get("page");
   const apiUrl = `${API_URL.DEV_SB_API_URL}`;
-  const endpoint = `/v1/insider/notification/today/${user_id}?page=${page}&lang=th`;
+  const endpoint = `/v1/internal/notification/today/${user_id}?page=${page}&lang=th`;
 
   const callAPI = apiUrl + endpoint;
   const curlHeader = `--header 'Content-Type: application/json'`;
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       { data: responseFromAPI.data, curl: curlCommand },
       {
         status: responseFromAPI.status,
-      }
+      },
     );
   } catch (error: any) {
     const ERROR = {
