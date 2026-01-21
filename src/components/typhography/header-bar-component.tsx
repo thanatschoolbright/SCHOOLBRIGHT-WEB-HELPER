@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { Row, Col, Typography, theme, Space } from "antd";
 
@@ -19,77 +20,81 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 }) => {
   const { token } = theme.useToken();
 
-  // สไตล์เน้นความโปร่งโล่ง (Clean & Flat)
-  const containerStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: 20,
-    padding: "8px 0", // ใช้ Padding เล็กน้อย ไม่ใช้พื้นหลังสี
-    background: "transparent", // ถอดสีพื้นหลังทั้งหมด
-    boxShadow: "none", // ห้ามมี Shadow
-    border: "none", // ห้ามมี Border
-    position: "relative",
-  };
-
   return (
-    <Row
-      align="middle"
-      justify="space-between"
+    <div
       style={{
         marginBottom: token.marginLG,
-        paddingBottom: 16,
-        borderBottom: `1px solid ${token.colorSplit}`, // ใช้เส้นแบ่งบางๆ แทนการใช้กล่อง
+        paddingBottom: 20,
+        borderBottom: `1px solid ${token.colorBorderSecondary}`,
+        background: "transparent",
       }}
     >
-      <Col flex="auto">
-        <div role="banner" aria-label={title} style={containerStyle}>
-          {/* Icon Section - ถอด Shadow และ Background ออก */}
-          <div
-            style={{
-              color: token.colorPrimary,
-              fontSize: 32, // ปรับขนาดไอคอนให้ดูเด่นขึ้นทดแทนสีพื้น
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {icon}
-          </div>
-
-          {/* Text Section - ภาษาไทย 100% */}
-          <Space direction="vertical" size={0} style={{ flex: 1 }}>
-            <Title
-              level={2}
+      <Row align="middle" justify="space-between" gutter={[16, 16]}>
+        <Col flex="auto">
+          <Space size={16} align="center">
+            {/* Minimal Clean Icon Container */}
+            <div
               style={{
-                margin: 0,
-                color: token.colorTextHeading,
-                fontWeight: 600,
-                letterSpacing: "-0.5px",
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                background: token.colorPrimary,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                fontSize: 24,
+                flexShrink: 0,
               }}
             >
-              {title}
-            </Title>
-            {subTitle && (
-              <Text
-                type="secondary"
+              {icon}
+            </div>
+
+            {/* Typography Section */}
+            <Space direction="vertical" size={2}>
+              <Title
+                level={2}
                 style={{
-                  fontSize: token.fontSize,
+                  margin: 0,
+                  fontWeight: 700,
+                  fontSize: 24,
+                  letterSpacing: "0.02em",
+                  color: token.colorTextHeading,
                 }}
               >
-                {subTitle}
-              </Text>
-            )}
+                {title}
+              </Title>
+              {subTitle && (
+                <Text
+                  type="secondary"
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 400,
+                    color: token.colorTextDescription,
+                  }}
+                >
+                  {subTitle}
+                </Text>
+              )}
+            </Space>
           </Space>
-        </div>
-      </Col>
-
-      {/* Action Section ด้านขวา */}
-      {extra && (
-        <Col>
-          <div style={{ marginLeft: 16 }}>{extra}</div>
         </Col>
-      )}
-    </Row>
+
+        {/* Extra Actions */}
+        {extra && (
+          <Col xs={24} sm="auto">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {extra}
+            </div>
+          </Col>
+        )}
+      </Row>
+    </div>
   );
 };
 
