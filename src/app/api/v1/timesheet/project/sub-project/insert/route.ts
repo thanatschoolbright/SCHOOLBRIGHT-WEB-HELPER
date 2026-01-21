@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   const projectId = Number(project_id);
   const userId = Number(by);
-  const assetCaptureType = assetCaptureType ?? "UN_CAPTUREABLE";
+  const assetCaptureTypeVal = assetCaptureType ?? "UN_CAPTUREABLE";
 
   try {
     const isProjectValid = await projectIdValidation(projectId);
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       name,
       name_en,
       backlogDescription,
-      assetCaptureType,
+      assetCaptureTypeVal,
       startDate,
       endDate,
       status,
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
           data: updatedProject,
           message_en: "Sub Project updated successfully",
           message_th: "อัปเดตโครงการย่อยสำเร็จ",
-        })
+        }),
       );
     }
 
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
         data: newProject,
         message_en: "Sub Project created successfully",
         message_th: "สร้างโครงการย่อยสำเร็จ",
-      })
+      }),
     );
   } catch (error: any) {
     return NextResponse.json(
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
         message_en: error.message,
         message_th: "เกิดข้อผิดพลาด",
         error,
-      })
+      }),
     );
   }
 }
