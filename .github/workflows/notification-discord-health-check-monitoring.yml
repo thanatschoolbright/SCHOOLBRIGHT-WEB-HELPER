@@ -2,13 +2,13 @@ name: 🏥 Enterprise System Health Check Monitor
 
 on:
   schedule:
-    - cron: "0 * * * *"  # Every hour
+    - cron: "0 * * * *" # Every hour
   workflow_dispatch:
     inputs:
       verbose:
-        description: 'Enable verbose logging'
+        description: "Enable verbose logging"
         required: false
-        default: 'false'
+        default: "false"
 
 env:
   TZ: "Asia/Bangkok"
@@ -25,7 +25,7 @@ jobs:
   health-check-monitor:
     name: 🩺 Enterprise Health Monitor
     runs-on: ubuntu-latest
-    
+
     outputs:
       overall_status: ${{ steps.final_status.outputs.status }}
       duration: ${{ steps.final_status.outputs.duration }}
@@ -40,19 +40,19 @@ jobs:
           JOB_START=$(date +%s)
           START_TIME=$(date '+%Y-%m-%d %H:%M:%S %Z')
           RUN_ID="${{ github.run_id }}"
-          
+
           echo "job_start=$JOB_START" >> $GITHUB_OUTPUT
           echo "start_time=$START_TIME" >> $GITHUB_OUTPUT
-          
+
           mkdir -p logs artifacts
-          
+
           cat > logs/execution.log << 'EOF'
           ╔════════════════════════════════════════════════════════════╗
           ║        ENTERPRISE SYSTEM HEALTH CHECK MONITOR              ║
           ║                  Health Status Report                      ║
           ╚════════════════════════════════════════════════════════════╝
           EOF
-          
+
           echo "" >> logs/execution.log
           echo "📅 Job Execution Details:" >> logs/execution.log
           echo "   Start Time: $START_TIME" >> logs/execution.log
@@ -66,10 +66,10 @@ jobs:
         run: |
           PAYLOAD='{"mode":"discord"}'
           VERBOSE="${{ github.event.inputs.verbose }}"
-          
+
           echo "payload=$PAYLOAD" >> $GITHUB_OUTPUT
           echo "verbose=$VERBOSE" >> $GITHUB_OUTPUT
-          
+
           echo "✅ Configuration initialized"
           echo "🎯 Target: ${{ env.TARGET_URL }}"
           echo "🔄 Retries: ${{ env.MAX_RETRIES }}"
@@ -82,10 +82,10 @@ jobs:
         id: preflight
         run: |
           echo "🔍 Checking network connectivity..."
-          
+
           # Extract host from URL
           HOST=$(echo "${{ env.TARGET_URL }}" | sed -E 's|https?://([^/]+).*|\1|')
-          
+
           if ping -c 1 -W 5 "$HOST" &> /dev/null; then
             echo "✅ Host is reachable: $HOST"
             echo "reachable=true" >> $GITHUB_OUTPUT
@@ -93,7 +93,7 @@ jobs:
             echo "⚠️ Host unreachable, proceeding with HTTP check..."
             echo "reachable=false" >> $GITHUB_OUTPUT
           fi
-          
+
           # DNS check
           if nslookup "$HOST" &> /dev/null; then
             echo "✅ DNS resolution: OK"
@@ -112,7 +112,7 @@ jobs:
           ATTEMPT=0
           MAX_RETRIES=${{ env.MAX_RETRIES }}
           RETRY_DELAY=${{ env.RETRY_DELAY }}
-          
+
           while [ $ATTEMPT -lt $MAX_RETRIES ]; do
             ATTEMPT=$((ATTEMPT + 1))
             echo "🔄 Attempt $ATTEMPT/$MAX_RETRIES..."
@@ -151,57 +151,12 @@ jobs:
               sleep $RETRY_DELAY
             fi
           done
-          
+
           # All retries failed
           echo "❌ All $MAX_RETRIES attempts failed (Final Code: $HTTP_CODE)"
           echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
           echo "attempts=$MAX_RETRIES" >> $GITHUB_OUTPUT
           exit 1
-
-      # ============================================================
-      # PHASE 4: RESPONSE ANALYSIS & PARSING
-      # ============================================================
-      - name: 🔍 Analyze Response
-        id: analyze
-        if: always()
-        run: |
-          HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
-          DURATION="${{ steps.api_request.outputs.duration_ms }}"
-          
-          echo "📊 Analyzing response (HTTP $HTTP_CODE)..."
-          
-          if [ -f response.json ]; then
-            FILE_SIZE=$(stat -f%z response.json 2>/dev/null || stat -c%s response.json)
-            echo "file_size=$FILE_SIZE" >> $GITHUB_OUTPUT
-            
-            # Try to parse JSON
-            if command -v jq &> /dev/null; then
-              if jq . response.json > /dev/null 2>&1; then
-                echo "✅ Valid JSON response"
-                echo "json_valid=true" >> $GITHUB_OUTPUT
-                
-                # Extract key fields if present
-                PREVIEW=$(jq -r 'to_entries | map("\(.key): \(.value)") | .[]' response.json 2>/dev/null | head -5 || echo "N/A")
-              else
-                echo "⚠️ Invalid JSON in response"
-                echo "json_valid=false" >> $GITHUB_OUTPUT
-                PREVIEW=$(head -c 300 response.json)
-              fi
-            else
-              PREVIEW=$(head -c 300 response.json)
-            fi
-            
-            echo "response_preview=$PREVIEW" >> $GITHUB_OUTPUT
-            
-            # Show response in logs
-            echo "::group::📄 Full Response Body"
-            cat response.json | jq . 2>/dev/null || cat response.json
-            echo "::endgroup::"
-          else
-            echo "❌ No response file found"
-            echo "json_valid=false" >> $GITHUB_OUTPUT
-            echo "response_preview=No response" >> $GITHUB_OUTPUT
-          fi
 
       # ============================================================
       # PHASE 5: HEALTH STATUS EVALUATION
@@ -213,7 +168,7 @@ jobs:
           HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
           ATTEMPTS="${{ steps.api_request.outputs.attempts }}"
           DURATION="${{ steps.api_request.outputs.duration_ms }}"
-          
+
           # Determine health status
           if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
             STATUS="HEALTHY"
@@ -236,12 +191,12 @@ jobs:
             COLOR="gray"
             SEVERITY="unknown"
           fi
-          
+
           # Performance evaluation
           if [ -z "$DURATION" ]; then
             DURATION=0
           fi
-          
+
           if [ "$DURATION" -lt 500 ]; then
             PERF="EXCELLENT"
           elif [ "$DURATION" -lt 1000 ]; then
@@ -251,13 +206,13 @@ jobs:
           else
             PERF="SLOW"
           fi
-          
+
           echo "status=$STATUS" >> $GITHUB_OUTPUT
           echo "icon=$ICON" >> $GITHUB_OUTPUT
           echo "color=$COLOR" >> $GITHUB_OUTPUT
           echo "severity=$SEVERITY" >> $GITHUB_OUTPUT
           echo "performance=$PERF" >> $GITHUB_OUTPUT
-          
+
           echo "$ICON System Status: **$STATUS**"
           echo "⚡ Performance: **$PERF** (${DURATION}ms)"
 
@@ -276,18 +231,18 @@ jobs:
           STATUS="${{ steps.health_status.outputs.status }}"
           ICON="${{ steps.health_status.outputs.icon }}"
           PERF="${{ steps.health_status.outputs.performance }}"
-          
+
           JOB_END=$(date +%s)
           TOTAL_DURATION=$((JOB_END - JOB_START))
-          
+
           # Create markdown report
           REPORT_FILE="artifacts/health-report-$(date +%Y%m%d-%H%M%S).md"
-          
+
           cat > "$REPORT_FILE" << 'REPORT'
           # 🏥 System Health Check Report
-          
+
           REPORT
-          
+
           {
             echo ""
             echo "## 📋 Executive Summary"
@@ -355,7 +310,7 @@ jobs:
             echo "Generated: $(date '+%Y-%m-%d %H:%M:%S %Z')"
             echo "Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           } >> "$REPORT_FILE"
-          
+
           echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
 
       # ============================================================
@@ -370,7 +325,7 @@ jobs:
           DURATION="${{ steps.api_request.outputs.duration_ms }}"
           ATTEMPTS="${{ steps.api_request.outputs.attempts }}"
           PERF="${{ steps.health_status.outputs.performance }}"
-          
+
           {
             echo "$ICON # System Health Check Report"
             echo ""
@@ -461,11 +416,11 @@ jobs:
           JOB_START="${{ steps.init.outputs.job_start }}"
           JOB_END=$(date +%s)
           DURATION=$((JOB_END - JOB_START))
-          
+
           echo "status=$STATUS" >> $GITHUB_OUTPUT
           echo "duration=${DURATION}s" >> $GITHUB_OUTPUT
           echo "severity=$SEVERITY" >> $GITHUB_OUTPUT
-          
+
           if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
             echo ""
             echo "✅ ═════════════════════════════════════════"
