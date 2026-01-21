@@ -103,7 +103,7 @@ export default function Page() {
   const schoolState = useAppSelector((state) => state.callSchoolList);
   const userState = useAppSelector((state) => state.callGetuserBySchoolId);
   const notificationMessageState = useAppSelector(
-    (state) => state.callGetNotificationMessage
+    (state) => state.callGetNotificationMessage,
   );
 
   const searchInputRefs = useRef<
@@ -127,16 +127,16 @@ export default function Page() {
             item?.UserID
           })`,
           value: String(item?.UserID),
-        })
+        }),
       ) ?? []
     );
   }, [userState]);
 
   const overallLoading = Boolean(
     schoolState.loading ||
-      userState.loading ||
-      todayDataset.loading ||
-      weekDataset.loading
+    userState.loading ||
+    todayDataset.loading ||
+    weekDataset.loading,
   );
 
   const currentDataset =
@@ -146,7 +146,7 @@ export default function Page() {
   const summaryStats = useMemo(() => {
     const total = currentDataset.length;
     const read = currentDataset.filter(
-      (item) => Number(item.nStatus) === 1
+      (item) => Number(item.nStatus) === 1,
     ).length;
     const unread = total - read;
     return { total, read, unread };
@@ -165,7 +165,7 @@ export default function Page() {
         toast.error("ไม่สามารถโหลดรายชื่อผู้ใช้", { id: loadingToast });
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   const fetchNotifications = useCallback(
@@ -181,10 +181,10 @@ export default function Page() {
 
       try {
         const weekly = await dispatch(
-          GET_NOTIFICATION_WEEK_LIST({ user_id: userID, page: pageText })
+          GET_NOTIFICATION_WEEK_LIST({ user_id: userID, page: pageText }),
         ).unwrap();
         const today = await dispatch(
-          GET_NOTIFICATION_TODAY_LIST({ user_id: userID, page: pageText })
+          GET_NOTIFICATION_TODAY_LIST({ user_id: userID, page: pageText }),
         ).unwrap();
 
         const hasErrorStatus =
@@ -221,7 +221,7 @@ export default function Page() {
         });
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleFormSubmit = useCallback(async () => {
@@ -237,7 +237,7 @@ export default function Page() {
       setPage(nextPage);
       await fetchNotifications(values.userID, nextPage);
     },
-    [fetchNotifications, form]
+    [fetchNotifications, form],
   );
 
   const openDetailModal = useCallback(
@@ -254,7 +254,7 @@ export default function Page() {
           GET_NOTIFICATION_MESSAGE({
             user_id: values.userID,
             message_id: String(notificationId),
-          })
+          }),
         ).unwrap();
         setDetailModalVisible(true);
         toast.success("โหลดรายละเอียดสำเร็จ", { id: loadingToast });
@@ -264,7 +264,7 @@ export default function Page() {
         });
       }
     },
-    [dispatch, form]
+    [dispatch, form],
   );
 
   const getColumnSearchProps = useCallback(
@@ -335,7 +335,7 @@ export default function Page() {
         },
       },
     }),
-    []
+    [],
   );
 
   const columns = useMemo<ColumnsType<ResponseNotification>>(
@@ -483,7 +483,7 @@ export default function Page() {
       getColumnSearchProps,
       openDetailModal,
       page,
-    ]
+    ],
   );
 
   // Handle school selection logic
@@ -731,7 +731,7 @@ export default function Page() {
                   icon={<CopyOutlined />}
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      notificationMessageState.response.curl || ""
+                      notificationMessageState.response.curl || "",
                     );
                     toast.success("คัดลอก CURL แล้ว");
                   }}

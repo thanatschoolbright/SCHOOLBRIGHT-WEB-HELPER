@@ -1,9 +1,9 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
-import { getHeaders } from "@/services/api-header";
 import { sanitizeForwardHeaders } from "@/services/api-header";
 import https from "https";
+import { logger } from "@/helpers/logger";
 
 const agent = new https.Agent({ rejectUnauthorized: false });
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const user_id = searchParams.get("user_id");
   const page = searchParams.get("page");
   const apiUrl = `${API_URL.DEV_SB_API_URL}`;
-  const endpoint = `/v1/insider/notification/week/${user_id}?page=${page}&lang=th`;
+  const endpoint = `/v1/internal/notification/week/${user_id}?page=${page}&lang=th`;
   const callAPI = apiUrl + endpoint;
   const curlHeader = `--header 'Content-Type: application/json'`;
   const curlCommand = `curl --location ${curlHeader} \ '${callAPI}' `;
@@ -22,12 +22,13 @@ export async function GET(request: NextRequest) {
       headers,
       httpsAgent: agent,
     });
+    logger.info("✅ Response Data: ", responseFromAPI.data);
 
     return NextResponse.json(
       { data: responseFromAPI.data, curl: curlCommand },
       {
         status: responseFromAPI.status,
-      }
+      },
     );
   } catch (error: any) {
     const ERROR = {
