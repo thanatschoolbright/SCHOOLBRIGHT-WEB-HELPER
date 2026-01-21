@@ -20,6 +20,8 @@ import {
   Flex,
   Divider,
   Modal,
+  Dropdown,
+  Menu,
 } from "antd";
 import { toast } from "sonner";
 import {
@@ -38,6 +40,10 @@ import {
   EyeOutlined,
   LinkOutlined,
   CopyOutlined,
+  PrinterOutlined,
+  FilePdfOutlined,
+  FileWordOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
@@ -45,6 +51,22 @@ import buddhistEra from "dayjs/plugin/buddhistEra";
 import relativeTime from "dayjs/plugin/relativeTime";
 import isBetween from "dayjs/plugin/isBetween";
 import { useSearchParams } from "next/navigation";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import {
+  Document,
+  Packer,
+  Paragraph,
+  Table as DocxTable,
+  TableCell,
+  TableRow,
+  TextRun,
+  AlignmentType,
+  HeadingLevel,
+  WidthType,
+} from "docx";
+import { saveAs } from "file-saver";
+import { KANIT_REGULAR_B64, KANIT_BOLD_B64 } from "@/constants/fonts-base64";
 
 // Components
 import DashboardLayout from "@/components/layouts/backend-layout";
@@ -464,6 +486,258 @@ export default function ReleaseNotesPage() {
     return elements;
   };
 
+  /**
+   * ฟังก์ชันสำหรับแปลง Markdown Table เป็น Array of Arrays สำหรับ Export
+   */
+  const parseMarkdownTable = (text: string) => {
+    const rows = text.split("\n");
+    const tableData: string[][] = [];
+    let isInsideTable = false;
+
+    rows.forEach((line) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("|")) {
+        // Skip separator lines | --- | --- |
+        if (trimmed.includes("---")) return;
+
+        const cells = trimmed
+          .split("|")
+          .filter((_, i, arr) => i > 0 && i < arr.length - 1)
+          .map((c) => {
+            // Clean markdown: [**ID**](url) -> ID, **text** -> text
+            return c
+              .trim()
+              .replace(/\[\*\*([^*]+)\*\*\]\([^)]+\)/g, "$1") // Link with bold ID
+              .replace(/\*\*([^*]+)\*\*/g, "$1") // Bold text
+              .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1"); // Regular Link
+          });
+        tableData.push(cells);
+      }
+    });
+
+    return tableData;
+  };
+
+  /**
+   * ส่งออกไฟล์ PDF มาตรฐาน IPO
+   */
+  const requestExportPDF = (record: GitHubReleaseItem) => {
+    const doc = new jsPDF();
+
+    // Embed and set Thai fonts
+    doc.addFileToVFS("Kanit-Regular.ttf", KANIT_REGULAR_B64);
+    doc.addFont("Kanit-Regular.ttf", "Kanit", "normal");
+    doc.addFileToVFS("Kanit-Bold.ttf", KANIT_BOLD_B64);
+    doc.addFont("Kanit-Bold.ttf", "Kanit", "bold");
+
+    doc.setFont("Kanit", "normal");
+
+    const systemName = responseGetSystemNameTH(record.system);
+    const dateStr = dayjs(record.release_date).format("D MMMM BBBB");
+
+    // 1. Header (Formal)
+    doc.setFontSize(18);
+    doc.setFont("Kanit", "bold");
+    doc.setTextColor(40);
+    doc.text("บันทึกรายการเปลี่ยนแปลงระบบ (Release Notes)", 105, 20, {
+      align: "center",
+    });
+
+    doc.setFontSize(12);
+    doc.setFont("Kanit", "normal");
+    doc.text(`โรงเรียนในเครือ SchoolBright`, 105, 30, { align: "center" });
+
+    doc.setDrawColor(200);
+    doc.line(20, 35, 190, 35);
+
+    // 2. Info Section
+    doc.setFontSize(10);
+    doc.text(`ระบบ: ${systemName}`, 20, 45);
+    doc.text(`เวอร์ชัน: ${record.tag}`, 20, 52);
+    doc.text(`วันที่อัปเดต: ${dateStr}`, 140, 45);
+    doc.text(`ผู้รับผิดชอบ: ${record.author}`, 140, 52);
+
+    // 3. Main Title
+    doc.setFontSize(14);
+    doc.setFont("Kanit", "bold");
+    doc.text(
+      record.title || `รายละเอียดการอัปเดตเวอร์ชัน ${record.tag}`,
+      20,
+      65,
+    );
+
+    // 4. Content Table
+    doc.setFont("Kanit", "normal");
+    const tableData = parseMarkdownTable(record.notes);
+    if (tableData.length > 0) {
+      const headers = [tableData[0]];
+      const body = tableData.slice(1);
+
+      autoTable(doc, {
+        head: headers,
+        body: body,
+        startY: 75,
+        theme: "grid",
+        styles: { font: "Kanit", fontSize: 8 },
+        headStyles: {
+          fillColor: [249, 115, 22],
+          textColor: [255, 255, 255],
+          font: "Kanit",
+          fontStyle: "bold",
+        },
+        columnStyles: { 0: { cellWidth: 25 }, 1: { cellWidth: 30 } },
+        didParseCell: (data) => {
+          data.cell.styles.font = "Kanit";
+        },
+      });
+    } else {
+      doc.setFontSize(10);
+      doc.text(record.notes, 20, 75, { maxWidth: 170 });
+    }
+
+    // 5. Footer
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.text(`หน้า ${i} จาก ${pageCount}`, 105, 285, { align: "center" });
+      doc.text(`เอกสารรับรองระบบเทคโนโลยีสารสนเทศเพื่อการ IPO`, 20, 285);
+    }
+
+    doc.save(`ReleaseNote_${systemName}_${record.tag}.pdf`);
+    toast.success("ส่งออก PDF สำเร็จ");
+  };
+
+  /**
+   * ส่งออกไฟล์ DOC มาตรฐาน IPO
+   */
+  const requestExportDOC = async (record: GitHubReleaseItem) => {
+    const systemName = responseGetSystemNameTH(record.system);
+    const dateStr = dayjs(record.release_date).format("D MMMM BBBB");
+    const tableData = parseMarkdownTable(record.notes);
+
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new Paragraph({
+              text: "บันทึกรายการเปลี่ยนแปลงระบบ (Release Notes)",
+              heading: HeadingLevel.TITLE,
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "โรงเรียนในเครือ SchoolBright",
+                  size: 24,
+                  font: "Kanit",
+                }),
+              ],
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 400 },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `ระบบ: ${systemName}`,
+                  bold: true,
+                  font: "Kanit",
+                }),
+                new TextRun({
+                  text: `\t\tวันที่อัปเดต: ${dateStr}`,
+                  bold: true,
+                  font: "Kanit",
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `เวอร์ชัน: ${record.tag}`,
+                  bold: true,
+                  font: "Kanit",
+                }),
+                new TextRun({
+                  text: `\t\t\tผู้รับผิดชอบ: ${record.author}`,
+                  bold: true,
+                  font: "Kanit",
+                }),
+              ],
+              spacing: { after: 400 },
+            }),
+            new Paragraph({
+              text: "รายละเอียดการอัปเดต",
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 200, after: 200 },
+            }),
+            ...(tableData.length > 0
+              ? [
+                  new DocxTable({
+                    width: { size: 100, type: WidthType.PERCENTAGE },
+                    rows: tableData.map(
+                      (row, i) =>
+                        new TableRow({
+                          children: row.map(
+                            (cell) =>
+                              new TableCell({
+                                children: [
+                                  new Paragraph({
+                                    children: [
+                                      new TextRun({
+                                        text: cell,
+                                        size: 20,
+                                        font: "Kanit",
+                                      }),
+                                    ],
+                                  }),
+                                ],
+                                shading:
+                                  i === 0
+                                    ? { fill: "F97316", color: "FFFFFF" }
+                                    : undefined,
+                              }),
+                          ),
+                        }),
+                    ),
+                  }),
+                ]
+              : [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: record.notes, font: "Kanit" }),
+                    ],
+                  }),
+                ]),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "\n(เอกสารรับรองระบบเทคโนโลยีสารสนเทศเพื่อการ IPO)",
+                  font: "Kanit",
+                }),
+              ],
+              alignment: AlignmentType.LEFT,
+              spacing: { before: 1000 },
+            }),
+          ],
+        },
+      ],
+      styles: {
+        default: {
+          document: {
+            run: {
+              font: "Kanit",
+            },
+          },
+        },
+      },
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, `ReleaseNote_${systemName}_${record.tag}.docx`);
+    toast.success("ส่งออก DOC สำเร็จ");
+  };
+
   // --- Table Configuration ---
   const columns = [
     {
@@ -493,6 +767,7 @@ export default function ReleaseNotesPage() {
     {
       title: "ระบบ / รายละเอียด",
       key: "system",
+      width: 220,
       sorter: (a: GitHubReleaseItem, b: GitHubReleaseItem) =>
         a.system.localeCompare(b.system),
       render: (_: any, record: GitHubReleaseItem) => (
@@ -556,35 +831,62 @@ export default function ReleaseNotesPage() {
     {
       title: "ดำเนินการ",
       key: "action",
-      width: 280,
+      width: 120,
       fixed: "right" as const,
-      render: (_: any, record: GitHubReleaseItem) => (
-        <Space>
-          <Button
-            type="primary"
-            icon={<EyeOutlined />}
-            size="small"
-            onClick={() => requestOpenDetailModal(record)}
-            style={{ borderRadius: 6 }}
-          >
-            ดูรายละเอียด
-          </Button>
-          <Button
-            icon={<CopyOutlined />}
-            size="small"
-            onClick={() => {
-              const url = new URL(window.location.href);
-              url.searchParams.set("system", record.system);
-              url.searchParams.set("tag", record.tag);
-              navigator.clipboard.writeText(url.toString());
-              toast.success("คัดลอกลิงก์ไปยัง Release Content เรียบร้อยแล้ว");
+      render: (_: any, record: GitHubReleaseItem) => {
+        const url = new URL(window.location.origin + window.location.pathname);
+        url.searchParams.set("system", record.system);
+        url.searchParams.set("tag", record.tag);
+        const systemName = responseGetSystemNameTH(record.system);
+        const copyTemplate = `🚀 รายการอัปเดตใหม่!\n\nชื่อระบบ: ${systemName}\n\nเวอร์ชัน: ${record.tag}\n\n\n🌐  ตรวจสอบรายละเอียดการเปลี่ยนแปลงได้ที่นี่:\n\nLink: ${url.toString()}`;
+
+        return (
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: "view",
+                  label: "ดูรายละเอียด",
+                  icon: <EyeOutlined />,
+                  onClick: () => requestOpenDetailModal(record),
+                },
+                {
+                  key: "copy",
+                  label: "คัดลอกลิงก์",
+                  icon: <CopyOutlined />,
+                  onClick: () => {
+                    navigator.clipboard.writeText(copyTemplate);
+                    toast.success("คัดลอกข้อมูลในรูปแบบ Template แล้ว");
+                  },
+                },
+                { type: "divider" },
+                {
+                  key: "pdf",
+                  label: "พิมพ์ PDF",
+                  icon: <FilePdfOutlined />,
+                  onClick: () => requestExportPDF(record),
+                },
+                {
+                  key: "doc",
+                  label: "พิมพ์ DOC",
+                  icon: <FileWordOutlined />,
+                  onClick: () => requestExportDOC(record),
+                },
+              ],
             }}
-            style={{ borderRadius: 6 }}
+            placement="bottomRight"
+            arrow
           >
-            คัดลอกลิงก์
-          </Button>
-        </Space>
-      ),
+            <Button
+              type="primary"
+              icon={<PrinterOutlined />}
+              style={{ borderRadius: 6, width: "100%" }}
+            >
+              ดำเนินการ
+            </Button>
+          </Dropdown>
+        );
+      },
     },
   ];
 
