@@ -12,7 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
-import SummaryCards from "@components/card/summary-card/summary-card-component";
+import SummaryCards from "@/components/card/summary-card/summary-card.component";
 import { useOvertimeData } from "./hooks/overtime.data";
 import { FilterBar } from "./components/filter-bar.component";
 import { ActionBar } from "./components/action-bar.component";

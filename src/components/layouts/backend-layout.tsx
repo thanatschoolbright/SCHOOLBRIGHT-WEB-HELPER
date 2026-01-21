@@ -53,7 +53,7 @@ export default function DashboardLayout({
         </div>
       </Flex>
     ),
-    []
+    [],
   );
 
   // 🌙 Dark Mode Toggle Section

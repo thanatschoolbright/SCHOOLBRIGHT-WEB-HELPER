@@ -6,7 +6,7 @@ import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { useAppSelector } from "@stores/store";
 import { HeaderSectionComponent } from "./components/header-section.component";
-import SummaryCards from "@components/card/summary-card/summary-card-component";
+import SummaryCards from "@/components/card/summary-card/summary-card.component";
 import { FilterBarComponent } from "./components/filter-bar.component";
 import { TimelineChartComponent } from "./components/timeline-chart.component";
 import { ProjectEditModalComponent } from "./components/project-edit-modal.component";

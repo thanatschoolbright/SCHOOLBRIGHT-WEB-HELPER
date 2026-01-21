@@ -87,7 +87,7 @@ import { AnalyticsDashboard } from "./components/analytics-dashboard.component";
 import { ProjectStatusModal } from "./components/project-status-modal.component";
 import { useProjectData } from "./hooks/use-project-data";
 import { exportProjectsToExcel } from "./utils/export-excel";
-import SummaryCards from "@components/card/summary-card/summary-card-component";
+import SummaryCards from "@/components/card/summary-card/summary-card.component";
 import type {
   ModalState,
   FormValues,

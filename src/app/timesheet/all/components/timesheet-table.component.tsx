@@ -65,6 +65,8 @@ type TimesheetTableProps = {
   loading: boolean;
   metadata?: SummaryMetadata | null;
   onRefetch?: () => void;
+  autoFillOpen?: boolean;
+  onAutoFillClose?: () => void;
 };
 
 export const TimesheetTable: React.FC<TimesheetTableProps> = ({
@@ -72,6 +74,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   loading,
   metadata,
   onRefetch,
+  autoFillOpen,
+  onAutoFillClose,
 }) => {
   const { t } = useTranslation("translate");
   const { token } = theme.useToken();
@@ -82,7 +86,6 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
     Record<string, (string | number)[] | null>
   >({});
   const [autoFillLoading, setAutoFillLoading] = useState(false);
-  const [autoFillOpen, setAutoFillOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | number>();
   const [selectedRange, setSelectedRange] = useState<
     [dayjs.Dayjs | null, dayjs.Dayjs | null]
@@ -102,7 +105,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         }`,
         value: rec.admin_id,
       })),
-    [records]
+    [records],
   );
 
   const expectedHoursPerDay = useMemo(() => {
@@ -114,7 +117,10 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
 
   // --- Ranking Loader ---
   useEffect(() => {
-    const loadRankings = async () => {
+    /**
+     * ดึงข้อมูลการจัดอันดับของพนักงานตามช่วงเดือนและปีของรายงาน
+     */
+    const requestUserRankingList = async () => {
       if (!metadata || !records.length) return;
       const month = dayjs(metadata.range.start_date).format("MM");
       const year = dayjs(metadata.range.start_date).format("YYYY");
@@ -140,7 +146,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 description: null,
               };
             }
-          })
+          }),
         );
         const map: any = {};
         entries.forEach((item) => {
@@ -151,18 +157,21 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         console.error(e);
       }
     };
-    loadRankings();
+    requestUserRankingList();
   }, [metadata, records]);
 
   // --- Handlers ---
   const handleTableChange: TableProps<SummaryRecord>["onChange"] = (
     _pagination,
-    filters
+    filters,
   ) => {
     setFilteredInfo(filters as Record<string, (string | number)[] | null>);
   };
 
-  const handleSubmitAutoFill = async () => {
+  /**
+   * บันทึกข้อมูลไทม์ชีทอัตโนมัติตามเงื่อนไขที่ผู้ใช้งานระบุ (Auto-fill)
+   */
+  const requestAutoFillTimesheet = async () => {
     if (!metadata) return toast.error("ไม่พบข้อมูลช่วงวันที่");
     if (!selectedUser) return toast.error("กรุณาเลือกผู้ใช้");
     const [start, end] = selectedRange;
@@ -175,11 +184,11 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         {
           start_date: start.format("YYYY-MM-DD"),
           end_date: end.format("YYYY-MM-DD"),
-        }
+        },
       );
 
       const userRecord = summaryResponse.data?.data?.records?.find(
-        (rec: any) => String(rec.admin_id) === String(selectedUser)
+        (rec: any) => String(rec.admin_id) === String(selectedUser),
       );
 
       if (!userRecord) throw new Error("ไม่พบข้อมูลผู้ใช้งานในระบบ");
@@ -207,7 +216,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
 
       if (tasks.length === 0) {
         toast.info("ไม่มีข้อมูลที่ต้องอัปเดตเพิ่มเติม");
-        setAutoFillOpen(false);
+        onAutoFillClose?.();
         return;
       }
 
@@ -215,14 +224,14 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         tasks.map((t) => ({
           label: `${t.date} (${t.hours} ชม.)`,
           status: "wait",
-        }))
+        })),
       );
 
       for (let i = 0; i < tasks.length; i++) {
         setAutoFillProgress((prev) =>
           prev.map((item, idx) =>
-            idx === i ? { ...item, status: "process" } : item
-          )
+            idx === i ? { ...item, status: "process" } : item,
+          ),
         );
         await axios.post("/api/v1/timesheet/entry/automate-fill", {
           user_id: selectedUser,
@@ -231,14 +240,14 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         });
         setAutoFillProgress((prev) =>
           prev.map((item, idx) =>
-            idx === i ? { ...item, status: "finish" } : item
-          )
+            idx === i ? { ...item, status: "finish" } : item,
+          ),
         );
       }
 
       toast.success("อัปเดตข้อมูลสำเร็จ");
       onRefetch?.();
-      setAutoFillOpen(false);
+      onAutoFillClose?.();
     } catch (error: any) {
       toast.error(error.message || "เกิดข้อผิดพลาดในการอัปเดต");
     } finally {
@@ -339,7 +348,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         key: "position",
         width: 140,
         filters: Array.from(new Set(records.map((rec) => rec.position))).map(
-          (pos) => ({ text: pos, value: pos })
+          (pos) => ({ text: pos, value: pos }),
         ),
         onFilter: (value, record) => record.position === value,
         render: (position: string) => (
@@ -458,11 +467,11 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 borderRadius: 8,
                 background: addAlpha(
                   isWarning ? token.colorError : token.colorSuccess,
-                  0.05
+                  0.05,
                 ),
                 border: `1px solid ${addAlpha(
                   isWarning ? token.colorError : token.colorSuccess,
-                  0.15
+                  0.15,
                 )}`,
                 display: "inline-flex",
                 alignItems: "center",
@@ -514,7 +523,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         ),
       },
     ],
-    [records, rankingMap, token]
+    [records, rankingMap, token],
   );
 
   const getAvatarColor = (name: string) => {
@@ -556,24 +565,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   };
 
   return (
-    <Card
-      className="border-0 shadow-sm rounded-xl overflow-hidden"
-      extra={
-        <Button
-          type="primary"
-          icon={<ThunderboltOutlined />}
-          onClick={() => {
-            setSelectedRange([dayjs().startOf("month"), dayjs()]);
-            setAutoFillOpen(true);
-          }}
-          loading={autoFillLoading}
-          className="shadow-sm border-0 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-          shape="round"
-        >
-          เติมข้อมูลอัตโนมัติ
-        </Button>
-      }
-    >
+    <>
       <Table<SummaryRecord>
         rowKey={(record) => String(record.admin_id)}
         columns={columns}
@@ -644,8 +636,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           </Flex>
         }
         open={autoFillOpen}
-        onOk={handleSubmitAutoFill}
-        onCancel={() => setAutoFillOpen(false)}
+        onOk={requestAutoFillTimesheet}
+        onCancel={onAutoFillClose}
         confirmLoading={autoFillLoading}
         width={540}
         centered
@@ -787,7 +779,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                         (autoFillProgress.filter((p) => p.status === "finish")
                           .length /
                           autoFillProgress.length) *
-                          100
+                          100,
                       )}
                       size={80}
                       strokeWidth={10}
@@ -844,8 +836,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                         {item.status === "finish"
                           ? "ข้อมูลเข้าสู่ระบบเรียบร้อย"
                           : item.status === "process"
-                          ? "กำลังพยายามเชื่อมต่อ..."
-                          : "รอคิวการจัดส่ง"}
+                            ? "กำลังพยายามเชื่อมต่อ..."
+                            : "รอคิวการจัดส่ง"}
                       </Text>
                     ),
                     status: item.status as any,
@@ -897,7 +889,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
               <Text type="secondary" style={{ fontSize: 13 }}>
                 {currentRecord &&
                   `${buildFullName(currentRecord)} (${formatNickname(
-                    currentRecord.nickname
+                    currentRecord.nickname,
                   )})`}
               </Text>
             </div>
@@ -1070,7 +1062,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                                                       </Text>
                                                     )}
                                                   </li>
-                                                )
+                                                ),
                                               )}
                                             </ul>
                                           </div>
@@ -1091,6 +1083,6 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           )}
         </div>
       </Modal>
-    </Card>
+    </>
   );
 };

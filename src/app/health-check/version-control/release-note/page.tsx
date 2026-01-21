@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import {
@@ -9,55 +9,62 @@ import {
   Space,
   Tag,
   theme,
-  Divider,
   Button,
-  Skeleton,
-  Select,
-  DatePicker,
   Row,
   Col,
+  Table,
+  Input,
+  DatePicker,
+  Select,
   Tooltip,
-  message,
+  Flex,
+  Divider,
+  Modal,
 } from "antd";
+import { toast } from "sonner";
 import {
   RocketOutlined,
   ClockCircleOutlined,
   TagOutlined,
-  DownOutlined,
-  UpOutlined,
-  LinkOutlined,
-  GithubOutlined,
-  SyncOutlined,
-  BugFilled,
-  ThunderboltFilled,
-  ToolFilled,
-  FilterFilled,
-  ClearOutlined,
   ArrowLeftOutlined,
+  FilterOutlined,
+  ClearOutlined,
+  SearchOutlined,
   AppstoreOutlined,
   UserOutlined,
-  CalendarOutlined,
-  InfoCircleOutlined,
-  CopyOutlined,
+  HistoryOutlined,
   SafetyCertificateOutlined,
+  CheckCircleOutlined,
+  EyeOutlined,
+  LinkOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import relativeTime from "dayjs/plugin/relativeTime";
 import isBetween from "dayjs/plugin/isBetween";
-import DashboardLayout from "@/components/layouts/backend-layout";
+import { useSearchParams } from "next/navigation";
 
+// Components
+import DashboardLayout from "@/components/layouts/backend-layout";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
+import SummaryCard from "@/components/card/summary-card";
+
+const { Title, Text } = Typography;
+
+// Setup Dayjs
 dayjs.extend(buddhistEra);
 dayjs.extend(relativeTime);
 dayjs.extend(isBetween);
 dayjs.locale("th");
 
-// URL Data Source
+// Constants
 const GITHUB_RAW_URL =
   "https://raw.githubusercontent.com/Jabjai-Corporation/meta-version/main/version-control.tag.json";
 const BACKLOG_URL_PREFIX = "https://jabjai.backlog.com/view/";
 
+// Types
 interface GitHubReleaseItem {
   system: string;
   tag: string;
@@ -69,746 +76,795 @@ interface GitHubReleaseItem {
   synced_at: string;
 }
 
-// --- 1. Helper: Map System Name to Thai ---
-const getSystemNameTH = (systemName: string) => {
-  // Mapping รายชื่อระบบที่ทราบ
-  const map: Record<string, string> = {
-    "schoolbright-sb-web-accounting": "เว็บระบบบัญชี/การเงิน",
-    "schoolbright-sb-web-system": "เว็บระบบข้อมูลบุคคล",
-    "schoolbright-sb-api-mobile": "ระบบ API Mobile",
-    "schoolbright-sb-app-mobile": "แอปพลิเคชัน Mobile",
-    "schoolbright-sb-web-canteen": "เว็บระบบโรงอาหาร",
-    "schoolbright-sb-web-library": "เว็บระบบห้องสมุด",
-    "schoolbright-sb-web-exam": "เว็บระบบคลังข้อสอบ",
-    "schoolbright-sb-api-hardware": "ระบบ API Hardware",
-    "schoolbright-sb-web-helper": "เว็บระบบช่วยเหลือ (Web Helper)",
-  };
-
-  // กรณีมีใน Map ให้คืนค่าภาษาไทย + (ชื่อเดิม)
-  if (map[systemName]) {
-    return `${map[systemName]} (${systemName})`;
-  }
-
-  // กรณีไม่ทราบชื่อ (Fallback): ตัดคำว่า schoolbright-sb- ออก แล้วแสดงเป็นชื่อย่อ
-  const suffix = systemName
-    ? systemName.replace("schoolbright-sb-", "")
-    : "Unknown";
-  return `เว็บระบบข้อมูล ${suffix} (${systemName})`;
-};
-
-// --- Helper: Extract Impact Scope ---
-const extractImpactScope = (text: string) => {
-  const schoolRegex = /(รร\.|โรงเรียน|School)\s?([^\)\n\|]+)/g;
-  const matches = [...text.matchAll(schoolRegex)];
-
-  if (matches.length > 0) {
-    const schools = [...new Set(matches.map((m) => m[0].trim()))];
-    return schools;
-  }
-
-  if (text.includes("ทุกโรงเรียน") || text.includes("All Schools")) {
-    return ["All Schools"];
-  }
-
-  return [];
-};
-
-// --- Enhanced Markdown Parser ---
-const renderMarkdownContent = (text: string) => {
-  if (!text) return null;
-
-  const lines = text.split("\n");
-
-  return lines.map((line, index) => {
-    const lineKey = `line-${index}`;
-
-    // 1. Headers
-    if (line.startsWith("#")) {
-      const level = line.match(/^#+/)?.[0].length || 0;
-      const content = line.replace(/^#+\s*/, "");
-      const fontSize = level === 1 ? 20 : level === 2 ? 18 : 16;
-      return (
-        <Typography.Title
-          key={lineKey}
-          level={5}
-          style={{
-            fontSize,
-            marginTop: 16,
-            marginBottom: 8,
-            color: level === 1 ? "#1677ff" : "inherit",
-          }}
-        >
-          {content}
-        </Typography.Title>
-      );
-    }
-
-    // 2. Lists
-    if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
-      const content = line.trim().substring(2);
-      return (
-        <div
-          key={lineKey}
-          style={{ display: "flex", gap: 8, marginLeft: 8, marginBottom: 4 }}
-        >
-          <span style={{ color: "#faad14" }}>•</span>
-          <Typography.Text>{parseInlineStyles(content, index)}</Typography.Text>
-        </div>
-      );
-    }
-
-    // 3. Table Rows
-    if (line.trim().startsWith("|")) {
-      if (line.includes("---")) return null;
-      const cols = line.split("|").filter((c) => c.trim() !== "");
-      return (
-        <div
-          key={lineKey}
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${cols.length}, 1fr)`,
-            gap: 8,
-            background: "#fafafa",
-            padding: "6px 12px",
-            borderBottom: "1px solid #f0f0f0",
-            fontSize: 13,
-          }}
-        >
-          {cols.map((col, i) => (
-            <div key={`${lineKey}-col-${i}`}>
-              {parseInlineStyles(col.trim(), index * 100 + i)}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    // 4. Normal Text
-    if (line.trim() === "") return <br key={lineKey} />;
-
-    return (
-      <div key={lineKey} style={{ marginBottom: 4 }}>
-        {parseInlineStyles(line, index)}
-      </div>
-    );
-  });
-};
-
-const parseInlineStyles = (text: string, lineIndex: number) => {
-  const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g;
-  const boldRegex = /\*\*([^\*]+)\*\*/g;
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const ticketRegex = /((SBAPP|SB|ACC|CT)-(\d+))/g;
-
-  let parts: (string | JSX.Element)[] = [text];
-
-  const processPattern = (
-    regex: RegExp,
-    replacer: (match: RegExpMatchArray, index: number) => JSX.Element
-  ) => {
-    const newParts: (string | JSX.Element)[] = [];
-    parts.forEach((part, partIndex) => {
-      if (typeof part !== "string") {
-        newParts.push(part);
-        return;
-      }
-      let lastIndex = 0;
-      const matches = [...part.matchAll(regex)];
-      if (matches.length === 0) {
-        newParts.push(part);
-        return;
-      }
-      matches.forEach((match, matchIndex) => {
-        const index = match.index!;
-        if (index > lastIndex) newParts.push(part.substring(lastIndex, index));
-        newParts.push(
-          replacer(match, parseInt(`${lineIndex}${partIndex}${matchIndex}`))
-        );
-        lastIndex = index + match[0].length;
-      });
-      if (lastIndex < part.length) newParts.push(part.substring(lastIndex));
-    });
-    parts = newParts;
-  };
-
-  processPattern(boldRegex, (match, i) => (
-    <strong key={`bold-${i}`} style={{ color: "#262626" }}>
-      {match[1]}
-    </strong>
-  ));
-
-  processPattern(ticketRegex, (match, i) => (
-    <a
-      key={`ticket-${i}`}
-      href={`${BACKLOG_URL_PREFIX}${match[0]}`}
-      target="_blank"
-      rel="noreferrer"
-      style={{
-        color: "#d4380d",
-        fontWeight: 600,
-        background: "#fff2e8",
-        padding: "0 4px",
-        borderRadius: 4,
-        border: "1px solid #ffbb96",
-        marginRight: 4,
-      }}
-    >
-      <TagOutlined style={{ marginRight: 2 }} />
-      {match[0]}
-    </a>
-  ));
-
-  processPattern(urlRegex, (match, i) => (
-    <a
-      key={`url-${i}`}
-      href={match[0]}
-      target="_blank"
-      rel="noreferrer"
-      style={{ color: "#1677ff" }}
-    >
-      {match[0]} <LinkOutlined style={{ fontSize: 10 }} />
-    </a>
-  ));
-
-  return parts;
-};
-
-const ReleaseCard: React.FC<{ item: GitHubReleaseItem; isLatest: boolean }> = ({
-  item,
-  isLatest,
-}) => {
-  const { token } = theme.useToken();
-  const [expanded, setExpanded] = useState(isLatest);
-  const [messageApi, contextHolder] = message.useMessage();
-
-  const hasBugFix = item.notes.toLowerCase().includes("bug");
-  const hasFeature = item.notes.toLowerCase().includes("feature");
-  const hasImprovement = item.notes.toLowerCase().includes("improvement");
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(
-      `System: ${getSystemNameTH(item.system)}\nVersion: ${item.tag}\n\n${
-        item.notes
-      }`
-    );
-    messageApi.success("คัดลอกรายละเอียดเรียบร้อย");
-  };
-
-  return (
-    <>
-      {contextHolder}
-      <Card
-        variant="outlined"
-        style={{
-          borderRadius: 16,
-          boxShadow: isLatest ? "0 4px 20px rgba(0,0,0,0.08)" : "none",
-          border: `1px solid ${
-            isLatest ? token.colorPrimaryBorder : token.colorBorderSecondary
-          }`,
-          background: token.colorBgContainer,
-          overflow: "hidden",
-          transition: "all 0.3s ease",
-          marginBottom: 24,
-        }}
-        styles={{ body: { padding: 0 } }}
-      >
-        <div
-          onClick={() => !isLatest && setExpanded(!expanded)}
-          style={{
-            padding: "16px 24px",
-            background: isLatest
-              ? `linear-gradient(90deg, ${token.colorFillQuaternary} 0%, ${token.colorBgContainer} 100%)`
-              : token.colorBgContainer,
-            borderBottom: expanded
-              ? `1px solid ${token.colorBorderSecondary}`
-              : "none",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 12,
-            cursor: isLatest ? "default" : "pointer",
-          }}
-        >
-          <Space size="middle" align="center" wrap>
-            {!isLatest && (
-              <div style={{ color: token.colorTextTertiary, fontSize: 12 }}>
-                {expanded ? <UpOutlined /> : <DownOutlined />}
-              </div>
-            )}
-
-            <Tag
-              color={isLatest ? "blue" : "default"}
-              style={{
-                fontSize: 14,
-                padding: "4px 10px",
-                borderRadius: 6,
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <TagOutlined /> {item.tag}
-            </Tag>
-
-            {/* ✅ 2. เพิ่มชื่อ System ลงใน Header ของ Card */}
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <Typography.Text strong style={{ fontSize: 16 }}>
-                {item.title && item.title !== item.tag
-                  ? item.title
-                  : `เวอร์ชัน ${item.tag}`}
-              </Typography.Text>
-
-              <Typography.Text
-                type="secondary"
-                style={{ fontSize: 13, color: token.colorPrimary }}
-              >
-                {getSystemNameTH(item.system)}
-              </Typography.Text>
-            </div>
-
-            {isLatest && <Tag color="#f50">ล่าสุด (LATEST)</Tag>}
-
-            {!isLatest && !expanded && (
-              <Space size={4}>
-                {hasBugFix && (
-                  <Tag color="error" bordered={false}>
-                    <BugFilled /> แก้บั๊ก
-                  </Tag>
-                )}
-                {hasFeature && (
-                  <Tag color="success" bordered={false}>
-                    <ThunderboltFilled /> ฟีเจอร์ใหม่
-                  </Tag>
-                )}
-                {hasImprovement && (
-                  <Tag color="warning" bordered={false}>
-                    <ToolFilled /> ปรับปรุง
-                  </Tag>
-                )}
-              </Space>
-            )}
-          </Space>
-
-          <Space>
-            <Tooltip title="วันที่ปล่อยอัปเดต">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  color: token.colorTextSecondary,
-                }}
-              >
-                <ClockCircleOutlined />
-                <Typography.Text type="secondary">
-                  {dayjs(item.release_date).format("D MMM BBBB • HH:mm น.")}
-                </Typography.Text>
-              </div>
-            </Tooltip>
-
-            <Tooltip title="ก๊อปปี้รายละเอียดไปตอบลูกค้า">
-              <Button
-                type="text"
-                icon={<CopyOutlined />}
-                onClick={handleCopy}
-                size="small"
-              />
-            </Tooltip>
-          </Space>
-        </div>
-
-        {expanded && (
-          <div
-            style={{ padding: "24px", animation: "fadeIn 0.3s ease-in-out" }}
-          >
-            <div
-              style={{
-                marginBottom: 20,
-                padding: 12,
-                background: token.colorFillQuaternary,
-                borderRadius: 8,
-                border: `1px solid ${token.colorBorderSecondary}`,
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 16,
-                alignItems: "center",
-              }}
-            >
-              <Space>
-                <GithubOutlined style={{ color: token.colorTextTertiary }} />
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  Author:
-                </Typography.Text>
-                <span style={{ fontWeight: 500 }}>{item.author}</span>
-              </Space>
-
-              <Divider type="vertical" />
-
-              <Space>
-                <SafetyCertificateOutlined
-                  style={{ color: token.colorTextTertiary }}
-                />
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  Environment:
-                </Typography.Text>
-                <Tooltip
-                  title={
-                    item.type === "production"
-                      ? "ใช้งานจริง (Live) - ลูกค้าเห็นการเปลี่ยนแปลง"
-                      : "ทดสอบ (Test) - เฉพาะภายใน"
-                  }
-                >
-                  <Tag
-                    color={item.type === "production" ? "green" : "orange"}
-                    style={{ cursor: "help", margin: 0 }}
-                  >
-                    {item.type.toUpperCase()}{" "}
-                    <InfoCircleOutlined style={{ fontSize: 10 }} />
-                  </Tag>
-                </Tooltip>
-              </Space>
-
-              <Divider type="vertical" />
-
-              <Space>
-                <AppstoreOutlined style={{ color: token.colorTextTertiary }} />
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  System:
-                </Typography.Text>
-                {/* แสดงชื่อระบบในส่วนรายละเอียดด้วย */}
-                <span style={{ fontWeight: 500 }}>
-                  {getSystemNameTH(item.system)}
-                </span>
-              </Space>
-            </div>
-
-            <div
-              style={{
-                fontSize: 14,
-                lineHeight: 1.8,
-                color: token.colorText,
-                background: "#fff",
-                padding: 0,
-              }}
-            >
-              {renderMarkdownContent(item.notes)}
-            </div>
-          </div>
-        )}
-      </Card>
-    </>
-  );
-};
-
-export const GitHubReleaseNotes: React.FC = () => {
+/**
+ * หน้าแสดงรายการบันทึกการอัปเดตระบบ (GitHub Release Notes)
+ * รวมข้อมูลการอัปเดตล่าสุด ฟิลเตอร์ และสถิติภาพรวม
+ */
+export default function ReleaseNotesPage() {
   const { token } = theme.useToken();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<GitHubReleaseItem[]>([]);
+  const searchParams = useSearchParams();
 
-  // --- Filter States ---
+  // --- State ---
+  const [loading, setLoading] = useState<boolean>(true);
+  const [rawData, setRawData] = useState<GitHubReleaseItem[]>([]); // ข้อมูลดั้งเดิมจาก API
+  const [searchValue, setSearchValue] = useState<string>("");
   const [selectedSystem, setSelectedSystem] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
   >(null);
 
-  const fetchReleaseNotes = async () => {
+  // Modal State
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedRelease, setSelectedRelease] =
+    useState<GitHubReleaseItem | null>(null);
+
+  /**
+   * ฟังก์ชันดึงข้อมูล Release Notes จาก GitHub
+   */
+  const requestFetchReleaseNotes = useCallback(async () => {
+    const toastId = toast.loading("กำลังดึงข้อมูล Release Notes...");
     setLoading(true);
     try {
       const response = await axios.get<GitHubReleaseItem[]>(GITHUB_RAW_URL);
       const sortedData = response.data.sort(
         (a, b) =>
           new Date(b.release_date).getTime() -
-          new Date(a.release_date).getTime()
+          new Date(a.release_date).getTime(),
       );
-      setData(sortedData);
+      setRawData(sortedData);
+      toast.success("ดึงข้อมูลสำเร็จ", { id: toastId });
     } catch (error) {
       console.error("Failed to fetch release notes:", error);
+      toast.error("ไม่สามารถดึงข้อมูลได้ กรุณาลองใหม่อีกครั้ง", {
+        id: toastId,
+      });
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchReleaseNotes();
   }, []);
 
-  // ✅ 3. Update Filter Options to use Thai Name
-  const systemOptions = useMemo(
-    () =>
-      [...new Set(data.map((item) => item.system))].map((v) => ({
-        label: getSystemNameTH(v), // แสดงชื่อไทยใน Dropdown
-        value: v, // ค่าที่ส่งยังเป็น system ID เดิม
-      })),
-    [data]
-  );
+  useEffect(() => {
+    requestFetchReleaseNotes();
+  }, [requestFetchReleaseNotes]);
 
-  const typeOptions = useMemo(
-    () =>
-      [...new Set(data.map((item) => item.type))].map((v) => ({
-        label: v.toUpperCase(),
-        value: v,
-      })),
-    [data]
-  );
-  const authorOptions = useMemo(
-    () =>
-      [...new Set(data.map((item) => item.author))].map((v) => ({
-        label: v,
-        value: v,
-      })),
-    [data]
-  );
-
-  const filteredData = useMemo(() => {
-    return data.filter((item) => {
-      if (selectedSystem && item.system !== selectedSystem) return false;
-      if (selectedType && item.type !== selectedType) return false;
-      if (selectedAuthor && item.author !== selectedAuthor) return false;
-      if (dateRange && dateRange[0] && dateRange[1]) {
-        const itemDate = dayjs(item.release_date);
-        const startDate = dateRange[0].startOf("day");
-        const endDate = dateRange[1].endOf("day");
-        if (!itemDate.isBetween(startDate, endDate, "day", "[]")) return false;
+  /**
+   * จัดการ Deep Linking เมื่อเปิดผ่านกระเป๋าลิงก์
+   */
+  useEffect(() => {
+    if (rawData.length > 0) {
+      const tag = searchParams.get("tag");
+      const system = searchParams.get("system");
+      if (tag && system) {
+        const match = rawData.find((r) => r.tag === tag && r.system === system);
+        if (match) {
+          setSelectedRelease(match);
+          setIsModalVisible(true);
+        }
       }
-      return true;
-    });
-  }, [data, selectedSystem, selectedType, selectedAuthor, dateRange]);
+    }
+  }, [rawData, searchParams]);
 
-  const handleClearFilters = () => {
+  /**
+   * แปลงชื่อระบบเป็นภาษาไทย
+   */
+  const responseGetSystemNameTH = (systemName: string) => {
+    const map: Record<string, string> = {
+      "schoolbright-sb-web-accounting": "บัญชี/การเงิน",
+      "schoolbright-sb-web-system": "ข้อมูลบุคคล",
+      "schoolbright-sb-api-mobile": "API Mobile",
+      "schoolbright-sb-app-mobile": "App Mobile",
+      "schoolbright-sb-web-canteen": "โรงอาหาร",
+      "schoolbright-sb-web-library": "ห้องสมุด",
+      "schoolbright-sb-web-exam": "คลังข้อสอบ",
+      "schoolbright-sb-api-hardware": "API Hardware",
+      "schoolbright-sb-web-helper": "Web Helper",
+    };
+    return map[systemName] || systemName.replace("schoolbright-sb-", "");
+  };
+
+  /**
+   * คำนวณข้อมูลสถิติจากข้อมูลดั้งเดิม (Summary Cards)
+   */
+  const metrics = useMemo(() => {
+    const total = rawData.length;
+    const productionCount = rawData.filter(
+      (item) => item.type === "production",
+    ).length;
+    const testCount = rawData.filter((item) => item.type === "test").length;
+    const uniqueSystems = new Set(rawData.map((item) => item.system)).size;
+
+    return [
+      {
+        title: "รายการทั้งหมด",
+        value: total,
+        subtitle: "ประวัติการอัปเดตทั้งหมด",
+        icon: <HistoryOutlined />,
+        color: token.colorPrimary,
+        iconBg: `${token.colorPrimary}15`,
+        percent: 100,
+      },
+      {
+        title: "เวอร์ชันใช้งานจริง",
+        value: productionCount,
+        subtitle: "Production Environment",
+        icon: <RocketOutlined />,
+        color: token.colorSuccess,
+        iconBg: `${token.colorSuccess}15`,
+        percent: total > 0 ? (productionCount / total) * 100 : 0,
+      },
+      {
+        title: "กำลังทดสอบ",
+        value: testCount,
+        subtitle: "Test / Beta Environment",
+        icon: <SafetyCertificateOutlined />,
+        color: token.colorWarning,
+        iconBg: `${token.colorWarning}15`,
+        percent: total > 0 ? (testCount / total) * 100 : 0,
+      },
+      {
+        title: "ระบบที่รองรับ",
+        value: uniqueSystems,
+        subtitle: "จำนวน Modules ทั้งหมด",
+        icon: <AppstoreOutlined />,
+        color: token.colorInfo,
+        iconBg: `${token.colorInfo}15`,
+        percent: 100,
+      },
+    ];
+  }, [rawData, token]);
+
+  /**
+   * กรองข้อมูลสำหรับแสดงผลในตาราง
+   */
+  const filteredData = useMemo(() => {
+    return rawData.filter((item) => {
+      const matchSearch =
+        !searchValue ||
+        item.tag.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.notes.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.author.toLowerCase().includes(searchValue.toLowerCase());
+
+      const matchSystem = !selectedSystem || item.system === selectedSystem;
+
+      const matchDate =
+        !dateRange?.[0] ||
+        !dateRange?.[1] ||
+        dayjs(item.release_date).isBetween(
+          dateRange[0].startOf("day"),
+          dateRange[1].endOf("day"),
+          "day",
+          "[]",
+        );
+
+      return matchSearch && matchSystem && matchDate;
+    });
+  }, [rawData, searchValue, selectedSystem, dateRange]);
+
+  /**
+   * ล้างค่าตัวกรองทั้งหมด
+   */
+  const responseHandleClearFilters = () => {
+    setSearchValue("");
     setSelectedSystem(null);
-    setSelectedType(null);
-    setSelectedAuthor(null);
     setDateRange(null);
   };
 
-  return (
-    <DashboardLayout>
-      <div style={{ margin: "0 auto", padding: "24px 0" }}>
-        <style>{`
-          @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        `}</style>
+  /**
+   * แสดง Modal รายละเอียด
+   */
+  const requestOpenDetailModal = (item: GitHubReleaseItem) => {
+    setSelectedRelease(item);
+    setIsModalVisible(true);
+  };
 
-        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-          {/* Header */}
-          <div style={{ position: "relative", marginBottom: 16 }}>
-            <div style={{ position: "absolute", left: 0, top: 0 }}>
-              <Button
-                icon={<ArrowLeftOutlined />}
-                onClick={() => router.back()}
-                type="text"
-              >
-                ย้อนกลับ
-              </Button>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <Typography.Title level={2} style={{ marginBottom: 8 }}>
-                <RocketOutlined
-                  style={{ color: token.colorPrimary, marginRight: 12 }}
-                />
-                บันทึกการอัปเดตระบบ
-              </Typography.Title>
-              <Typography.Text type="secondary">
-                ติดตามรายการเปลี่ยนแปลง เวอร์ชันล่าสุด และประวัติการแก้ไขทั้งหมด
-              </Typography.Text>
-            </div>
-          </div>
+  /**
+   * ฟังก์ชันสำหรับแปลง Markdown อย่างง่ายเป็น HTML Component
+   */
+  const renderMarkdown = (text: string) => {
+    if (!text) return null;
 
-          {/* Filter Section */}
-          <Card
-            size="small"
-            style={{
-              borderRadius: 16,
-              background: token.colorFillQuaternary,
-              border: "none",
-              marginBottom: 16,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-              animation: "slideDown 0.5s ease-out",
-            }}
+    const lines = text.split("\n");
+    const elements: JSX.Element[] = [];
+
+    let currentTableData: string[][] = [];
+    let isInsideTable = false;
+
+    const flushTable = () => {
+      if (currentTableData.length > 0) {
+        const header = currentTableData[0];
+        const rows = currentTableData
+          .slice(1)
+          .filter((r) => !r.join("").includes("---"));
+
+        elements.push(
+          <div
+            key={`table-${elements.length}`}
+            style={{ overflowX: "auto", marginBottom: 16 }}
           >
-            <div
+            <table
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 16,
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: 13,
+                border: `1px solid ${token.colorBorderSecondary}`,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <FilterFilled style={{ color: token.colorPrimary }} />
-                <Typography.Text strong style={{ fontSize: 16 }}>
-                  ตัวกรองข้อมูล
+              <thead>
+                <tr style={{ background: token.colorFillTertiary }}>
+                  {header.map((cell, i) => (
+                    <th
+                      key={i}
+                      style={{
+                        padding: "10px 12px",
+                        border: `1px solid ${token.colorBorderSecondary}`,
+                        textAlign: "left",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {parseInline(cell)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, i) => (
+                  <tr
+                    key={i}
+                    style={{
+                      borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                    }}
+                  >
+                    {row.map((cell, j) => (
+                      <td
+                        key={j}
+                        style={{
+                          padding: "10px 12px",
+                          border: `1px solid ${token.colorBorderSecondary}`,
+                        }}
+                      >
+                        {parseInline(cell)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>,
+        );
+        currentTableData = [];
+      }
+      isInsideTable = false;
+    };
+
+    const parseInline = (s: string) => {
+      const parts: (string | JSX.Element)[] = [s];
+
+      // Links [text](url)
+      const processLinks = (input: (string | JSX.Element)[]) => {
+        const result: (string | JSX.Element)[] = [];
+        input.forEach((part) => {
+          if (typeof part !== "string") {
+            result.push(part);
+            return;
+          }
+          const regex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g;
+          let lastIdx = 0;
+          let match;
+          while ((match = regex.exec(part)) !== null) {
+            if (match.index > lastIdx)
+              result.push(part.substring(lastIdx, match.index));
+            result.push(
+              <a
+                key={match.index}
+                href={match[2]}
+                target="_blank"
+                rel="noreferrer"
+                style={{ fontWeight: 600 }}
+              >
+                {match[1]}
+              </a>,
+            );
+            lastIdx = regex.lastIndex;
+          }
+          if (lastIdx < part.length) result.push(part.substring(lastIdx));
+        });
+        return result;
+      };
+
+      // Bold **text**
+      const processBold = (input: (string | JSX.Element)[]) => {
+        const result: (string | JSX.Element)[] = [];
+        input.forEach((part) => {
+          if (typeof part !== "string") {
+            result.push(part);
+            return;
+          }
+          const regex = /\*\*([^\*]+)\*\*/g;
+          let lastIdx = 0;
+          let match;
+          while ((match = regex.exec(part)) !== null) {
+            if (match.index > lastIdx)
+              result.push(part.substring(lastIdx, match.index));
+            result.push(
+              <strong key={match.index} style={{ fontWeight: 700 }}>
+                {match[1]}
+              </strong>,
+            );
+            lastIdx = regex.lastIndex;
+          }
+          if (lastIdx < part.length) result.push(part.substring(lastIdx));
+        });
+        return result;
+      };
+
+      return processBold(processLinks(parts));
+    };
+
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+
+      // Table detection
+      if (trimmed.startsWith("|")) {
+        isInsideTable = true;
+        const cells = line
+          .split("|")
+          .filter((_, i, arr) => i > 0 && i < arr.length - 1)
+          .map((c) => c.trim());
+        currentTableData.push(cells);
+        return;
+      } else if (isInsideTable) {
+        flushTable();
+      }
+
+      // Headers
+      if (trimmed.startsWith("#")) {
+        const level = (trimmed.match(/^#+/) || [""])[0].length;
+        const text = trimmed.replace(/^#+\s*/, "");
+        elements.push(
+          <Title
+            key={index}
+            level={level as any}
+            style={{ marginTop: 20, marginBottom: 12, fontWeight: 700 }}
+          >
+            {parseInline(text)}
+          </Title>,
+        );
+        return;
+      }
+
+      // List
+      if (trimmed.startsWith("* ") || trimmed.startsWith("- ")) {
+        elements.push(
+          <div
+            key={index}
+            style={{ display: "flex", gap: 10, marginBottom: 4, marginLeft: 8 }}
+          >
+            <span style={{ color: token.colorPrimary }}>•</span>
+            <Text>{parseInline(trimmed.substring(2))}</Text>
+          </div>,
+        );
+        return;
+      }
+
+      // Normal text
+      if (trimmed === "") {
+        elements.push(<div key={index} style={{ height: 12 }} />);
+      } else {
+        elements.push(
+          <div key={index} style={{ marginBottom: 8, lineHeight: 1.6 }}>
+            {parseInline(line)}
+          </div>,
+        );
+      }
+    });
+
+    if (isInsideTable) flushTable();
+
+    return elements;
+  };
+
+  // --- Table Configuration ---
+  const columns = [
+    {
+      title: "เวอร์ชัน",
+      dataIndex: "tag",
+      key: "tag",
+      width: 120,
+      sorter: (a: GitHubReleaseItem, b: GitHubReleaseItem) =>
+        a.tag.localeCompare(b.tag),
+      render: (tag: string, record: GitHubReleaseItem) => (
+        <Space direction="vertical" size={2}>
+          <Tag
+            color="blue"
+            bordered={false}
+            style={{ margin: 0, fontWeight: 600 }}
+          >
+            {tag}
+          </Tag>
+          {record.tag === rawData[0]?.tag && (
+            <Tag color="gold" style={{ margin: 0, fontSize: 10 }}>
+              LATEST
+            </Tag>
+          )}
+        </Space>
+      ),
+    },
+    {
+      title: "ระบบ / รายละเอียด",
+      key: "system",
+      sorter: (a: GitHubReleaseItem, b: GitHubReleaseItem) =>
+        a.system.localeCompare(b.system),
+      render: (_: any, record: GitHubReleaseItem) => (
+        <Space direction="vertical" size={4}>
+          <Typography.Text strong style={{ fontSize: 14, fontWeight: 600 }}>
+            {responseGetSystemNameTH(record.system)}
+          </Typography.Text>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {record.title || "ไม่มีคำอธิบายเพิ่มเติม"}
+          </Typography.Text>
+        </Space>
+      ),
+    },
+    {
+      title: "ประเภท",
+      dataIndex: "type",
+      key: "type",
+      width: 110,
+      sorter: (a: GitHubReleaseItem, b: GitHubReleaseItem) =>
+        a.type.localeCompare(b.type),
+      render: (type: string) => (
+        <Tag
+          color={type === "production" ? "green" : "orange"}
+          bordered={false}
+        >
+          {type.toUpperCase()}
+        </Tag>
+      ),
+    },
+    {
+      title: "ผู้ดำเนินงาน",
+      dataIndex: "author",
+      key: "author",
+      width: 140,
+      sorter: (a: GitHubReleaseItem, b: GitHubReleaseItem) =>
+        a.author.localeCompare(b.author),
+      render: (author: string) => (
+        <Space size={8}>
+          <UserOutlined style={{ color: token.colorTextSecondary }} />
+          <Typography.Text style={{ fontSize: 13 }}>{author}</Typography.Text>
+        </Space>
+      ),
+    },
+    {
+      title: "วันที่ปล่อยอัปเดต",
+      dataIndex: "release_date",
+      key: "release_date",
+      width: 180,
+      sorter: (a: GitHubReleaseItem, b: GitHubReleaseItem) =>
+        new Date(a.release_date).getTime() - new Date(b.release_date).getTime(),
+      defaultSortOrder: "descend" as const,
+      render: (date: string) => (
+        <Space size={8}>
+          <ClockCircleOutlined style={{ color: token.colorTextTertiary }} />
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+            {dayjs(date).format("D MMM BBBB • HH:mm")}
+          </Typography.Text>
+        </Space>
+      ),
+    },
+    {
+      title: "ดำเนินการ",
+      key: "action",
+      width: 280,
+      fixed: "right" as const,
+      render: (_: any, record: GitHubReleaseItem) => (
+        <Space>
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
+            size="small"
+            onClick={() => requestOpenDetailModal(record)}
+            style={{ borderRadius: 6 }}
+          >
+            ดูรายละเอียด
+          </Button>
+          <Button
+            icon={<CopyOutlined />}
+            size="small"
+            onClick={() => {
+              const url = new URL(window.location.href);
+              url.searchParams.set("system", record.system);
+              url.searchParams.set("tag", record.tag);
+              navigator.clipboard.writeText(url.toString());
+              toast.success("คัดลอกลิงก์ไปยัง Release Content เรียบร้อยแล้ว");
+            }}
+            style={{ borderRadius: 6 }}
+          >
+            คัดลอกลิงก์
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <DashboardLayout>
+      <div style={{ margin: "0 auto", paddingBottom: 40 }}>
+        {/* ส่วนที่ 1: ส่วนหัวหน้าจอ */}
+        <HeaderBar
+          icon={<RocketOutlined />}
+          title="Release Notes"
+          subTitle="บันทึกรายการเปลี่ยนแปลงและประวัติการพัฒนาซอฟต์แวร์"
+          showBackButton={true}
+        />
+
+        <Space direction="vertical" size={32} style={{ width: "100%" }}>
+          {/* ส่วนที่ 2: สรุปข้อมูลภาพรวม (Summary Cards) */}
+          <Row gutter={[24, 24]}>
+            {metrics.map((m, idx) => (
+              <Col xs={24} sm={12} md={6} key={idx}>
+                <SummaryCard
+                  {...m}
+                  isLoading={loading}
+                  tooltip={`ดูรายละเอียด ${m.title}`}
+                />
+              </Col>
+            ))}
+          </Row>
+
+          {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล */}
+          <Card
+            styles={{ body: { padding: 24 } }}
+            style={{
+              borderRadius: 16,
+              border: `1px solid ${token.colorBorderSecondary}`,
+              boxShadow: token.boxShadowTertiary,
+            }}
+          >
+            <Flex vertical gap={20}>
+              <Space size={8}>
+                <FilterOutlined
+                  style={{ color: token.colorPrimary, fontSize: 18 }}
+                />
+                <Typography.Text
+                  strong
+                  style={{ fontSize: 16, fontWeight: 600 }}
+                >
+                  ตัวกรอง
                 </Typography.Text>
-              </div>
-              <Space>
+              </Space>
+
+              <Row gutter={[24, 24]}>
+                <Col xs={24} md={12}>
+                  <Flex vertical gap={8}>
+                    <Typography.Text
+                      type="secondary"
+                      style={{ fontSize: 13, fontWeight: 500 }}
+                    >
+                      ค้นหาคำสำคัญ (Tag, Notes, Author)
+                    </Typography.Text>
+                    <Input
+                      placeholder="เช่น v1.0.0, แก้ไขบั๊ก, jabjai..."
+                      prefix={
+                        <SearchOutlined
+                          style={{ color: token.colorTextDescription }}
+                        />
+                      }
+                      size="large"
+                      allowClear
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                      style={{ borderRadius: 8 }}
+                    />
+                  </Flex>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Flex vertical gap={8}>
+                    <Typography.Text
+                      type="secondary"
+                      style={{ fontSize: 13, fontWeight: 500 }}
+                    >
+                      เลือกระบบ / โมดูล
+                    </Typography.Text>
+                    <Select
+                      placeholder="ทุกระบบ"
+                      size="large"
+                      allowClear
+                      style={{ width: "100%", borderRadius: 8 }}
+                      options={[...new Set(rawData.map((d) => d.system))].map(
+                        (s) => ({
+                          label: responseGetSystemNameTH(s),
+                          value: s,
+                        }),
+                      )}
+                      value={selectedSystem}
+                      onChange={setSelectedSystem}
+                    />
+                  </Flex>
+                </Col>
+                <Col xs={24}>
+                  <Flex vertical gap={8}>
+                    <Typography.Text
+                      type="secondary"
+                      style={{ fontSize: 13, fontWeight: 500 }}
+                    >
+                      ช่วงวันที่ปล่อยอัปเดต
+                    </Typography.Text>
+                    <DatePicker.RangePicker
+                      size="large"
+                      style={{ width: "100%", borderRadius: 8 }}
+                      value={dateRange}
+                      onChange={(val) => setDateRange(val as any)}
+                      format="DD/MM/BBBB"
+                    />
+                  </Flex>
+                </Col>
+              </Row>
+
+              <Flex justify="flex-end" gap={12}>
                 <Button
                   icon={<ClearOutlined />}
-                  size="middle"
-                  onClick={handleClearFilters}
-                  disabled={
-                    !selectedSystem &&
-                    !selectedType &&
-                    !selectedAuthor &&
-                    !dateRange
-                  }
+                  size="large"
+                  onClick={responseHandleClearFilters}
+                  style={{ borderRadius: 8, minWidth: 140 }}
                 >
-                  ล้างค่า
+                  ล้างการค้นหา
                 </Button>
                 <Button
                   type="primary"
-                  icon={<SyncOutlined spin={loading} />}
-                  size="middle"
-                  onClick={fetchReleaseNotes}
+                  icon={<CheckCircleOutlined />}
+                  size="large"
+                  onClick={requestFetchReleaseNotes}
+                  loading={loading}
+                  style={{ borderRadius: 8, minWidth: 140 }}
                 >
-                  รีเฟรช
+                  ค้นหาข้อมูล
                 </Button>
-              </Space>
-            </div>
-
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12}>
-                <Select
-                  placeholder={
-                    <Space>
-                      <AppstoreOutlined
-                        style={{ color: token.colorTextTertiary }}
-                      />{" "}
-                      <span>เลือกระบบ (System)</span>
-                    </Space>
-                  }
-                  size="large"
-                  style={{ width: "100%" }}
-                  allowClear
-                  options={systemOptions}
-                  value={selectedSystem}
-                  onChange={setSelectedSystem}
-                  showSearch
-                  optionFilterProp="label"
-                />
-              </Col>
-              <Col xs={24} sm={12}>
-                <Select
-                  placeholder={
-                    <Space>
-                      <TagOutlined style={{ color: token.colorTextTertiary }} />{" "}
-                      <span>ประเภท (Type)</span>
-                    </Space>
-                  }
-                  size="large"
-                  style={{ width: "100%" }}
-                  allowClear
-                  options={typeOptions}
-                  value={selectedType}
-                  onChange={setSelectedType}
-                />
-              </Col>
-              <Col xs={24} sm={12}>
-                <Select
-                  placeholder={
-                    <Space>
-                      <UserOutlined
-                        style={{ color: token.colorTextTertiary }}
-                      />{" "}
-                      <span>ผู้แก้ไข (Author)</span>
-                    </Space>
-                  }
-                  size="large"
-                  style={{ width: "100%" }}
-                  allowClear
-                  options={authorOptions}
-                  value={selectedAuthor}
-                  onChange={setSelectedAuthor}
-                  showSearch
-                  optionFilterProp="label"
-                />
-              </Col>
-              <Col xs={24} sm={12}>
-                <DatePicker.RangePicker
-                  placeholder={["วันที่เริ่ม", "วันที่สิ้นสุด"]}
-                  size="large"
-                  style={{ width: "100%" }}
-                  value={dateRange}
-                  onChange={setDateRange}
-                  format="DD/MM/BBBB"
-                  separator={
-                    <span style={{ color: token.colorTextTertiary }}>→</span>
-                  }
-                  suffixIcon={
-                    <CalendarOutlined
-                      style={{ color: token.colorTextTertiary }}
-                    />
-                  }
-                />
-              </Col>
-            </Row>
+              </Flex>
+            </Flex>
           </Card>
 
-          {/* Content */}
-          {loading && (
-            <>
-              <Card style={{ borderRadius: 16, marginBottom: 16 }}>
-                <Skeleton active avatar paragraph={{ rows: 4 }} />
-              </Card>
-              <Card style={{ borderRadius: 16 }}>
-                <Skeleton active avatar paragraph={{ rows: 4 }} />
-              </Card>
-            </>
-          )}
-
-          {!loading &&
-            filteredData.map((release, index) => (
-              <ReleaseCard
-                key={`${release.tag}-${index}`}
-                item={release}
-                isLatest={release.tag === data[0].tag}
-              />
-            ))}
-
-          {!loading && filteredData.length === 0 && (
-            <div
+          {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
+          <Card
+            styles={{ body: { padding: 16 } }}
+            style={{
+              borderRadius: 16,
+              overflow: "hidden",
+              border: `1px solid ${token.colorBorderSecondary}`,
+            }}
+          >
+            {/* Table Header with Actions */}
+            <Flex
+              justify="space-between"
+              align="center"
               style={{
-                textAlign: "center",
-                padding: "60px 0",
-                color: token.colorTextSecondary,
+                padding: "16px 24px",
+                borderBottom: `1px solid ${token.colorBorderSecondary}`,
               }}
             >
-              <FilterFilled
-                style={{ fontSize: 48, marginBottom: 16, opacity: 0.2 }}
-              />
-              <br />
-              <Typography.Text style={{ fontSize: 16 }}>
-                ไม่พบข้อมูลตามเงื่อนไขที่กำหนด
+              <Typography.Text strong style={{ fontSize: 15, fontWeight: 600 }}>
+                รายการการเปลี่ยนแปลง ({filteredData.length})
               </Typography.Text>
-              <br />
-              <Button
-                type="link"
-                onClick={handleClearFilters}
-                style={{ marginTop: 8 }}
-              >
-                ล้างตัวกรองทั้งหมด
-              </Button>
-            </div>
-          )}
+              <Space>
+                <Button
+                  icon={<TagOutlined />}
+                  type="link"
+                  onClick={() => window.open(GITHUB_RAW_URL, "_blank")}
+                >
+                  JSON Source
+                </Button>
+              </Space>
+            </Flex>
 
-          {!loading && filteredData.length > 0 && (
-            <Divider style={{ marginTop: 32 }}>
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                แสดงผล {filteredData.length} จากทั้งหมด {data.length} รายการ
-              </Typography.Text>
-            </Divider>
-          )}
+            {/* Main Table */}
+            <Table
+              dataSource={filteredData}
+              columns={columns}
+              loading={loading}
+              rowKey={(r, i) => `${r.tag}-${i}`}
+              scroll={{ x: 1000 }}
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                position: ["bottomCenter"],
+              }}
+              locale={{ emptyText: "ไม่พบข้อมูลการอัปเดต" }}
+            />
+          </Card>
         </Space>
       </div>
+
+      {/* Detail Modal */}
+      <Modal
+        title={null}
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={null}
+        width={1000}
+        style={{ top: 40 }}
+        bodyStyle={{ padding: 0 }}
+      >
+        {selectedRelease && (
+          <div>
+            {/* Modal Header Overlay */}
+            <div
+              style={{
+                padding: "24px 32px",
+                background: token.colorFillAlter,
+                borderBottom: `1px solid ${token.colorBorderSecondary}`,
+              }}
+            >
+              <Flex justify="space-between" align="start">
+                <Space direction="vertical" size={4}>
+                  <Tag color="blue" bordered={false} style={{ margin: 0 }}>
+                    Version {selectedRelease.tag}
+                  </Tag>
+                  <Title level={3} style={{ margin: 0, fontWeight: 700 }}>
+                    {selectedRelease.title ||
+                      `Release Note ${selectedRelease.tag}`}
+                  </Title>
+                  <Space split={<Divider type="vertical" />}>
+                    <Text type="secondary">
+                      <AppstoreOutlined />{" "}
+                      {responseGetSystemNameTH(selectedRelease.system)}
+                    </Text>
+                    <Text type="secondary">
+                      <UserOutlined /> {selectedRelease.author}
+                    </Text>
+                    <Text type="secondary">
+                      <ClockCircleOutlined />{" "}
+                      {dayjs(selectedRelease.release_date).format(
+                        "D MMMM BBBB",
+                      )}
+                    </Text>
+                  </Space>
+                </Space>
+                <Tag
+                  color={
+                    selectedRelease.type === "production" ? "green" : "orange"
+                  }
+                >
+                  {selectedRelease.type.toUpperCase()}
+                </Tag>
+              </Flex>
+            </div>
+
+            {/* Markdown Content Section */}
+            <div
+              style={{ padding: "32px", maxHeight: "70vh", overflowY: "auto" }}
+            >
+              <Card
+                styles={{ body: { padding: "24px 32px" } }}
+                style={{
+                  borderRadius: 12,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  background: token.colorBgContainer,
+                }}
+              >
+                {renderMarkdown(selectedRelease.notes)}
+              </Card>
+            </div>
+
+            {/* Footer Action */}
+            <div
+              style={{
+                padding: "16px 32px",
+                borderTop: `1px solid ${token.colorBorderSecondary}`,
+                textAlign: "right",
+              }}
+            >
+              <Button
+                onClick={() => setIsModalVisible(false)}
+                size="large"
+                style={{ borderRadius: 8 }}
+              >
+                ปิดหน้าต่าง
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </DashboardLayout>
   );
-};
-
-export default GitHubReleaseNotes;
+}

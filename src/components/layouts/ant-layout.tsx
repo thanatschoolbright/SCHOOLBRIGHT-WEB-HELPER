@@ -245,7 +245,13 @@ export default function AntThemeProvider({
         body {
           background-color: ${currentColors.bgLayout} !important;
           color: ${currentColors.textMain};
-          font-family: "Kanit", -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+          font-family:
+            "Kanit",
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            "Inter",
+            sans-serif;
           font-size: 14px;
           line-height: 1.6;
           letter-spacing: 0.3px;
@@ -254,7 +260,12 @@ export default function AntThemeProvider({
           transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
           letter-spacing: 0.2px;
           line-height: 1.3;
           margin-bottom: 0.5em;
@@ -315,7 +326,9 @@ export default function AntThemeProvider({
 
         /* Card Hover Effect */
         .hover-card {
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
         }
         .hover-card:hover {
           transform: translateY(-2px);
