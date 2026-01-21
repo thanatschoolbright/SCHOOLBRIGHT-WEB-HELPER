@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
   DEPLOY_PATH: "/var/www/sb-web-helper"
   ARTIFACT_NAME: "production-build"
 
