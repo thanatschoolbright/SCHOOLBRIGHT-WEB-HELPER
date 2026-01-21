@@ -81,10 +81,10 @@ export default function ServerStatusPage() {
 
   // --- State Management ---
   const [serverHealthData, setServerHealthData] = useState<ServerStatusData[]>(
-    []
+    [],
   );
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<Date | null>(
-    null
+    null,
   );
 
   const [isFetchingServerStatus, setIsFetchingServerStatus] = useState(false);
@@ -106,7 +106,7 @@ export default function ServerStatusPage() {
 
   const groupOptions = useMemo(() => {
     const groups = Array.from(
-      new Set(serverHealthData.map((item) => item.group || "other"))
+      new Set(serverHealthData.map((item) => item.group || "other")),
     );
     return [
       { label: "ทุกกลุ่ม", value: "ALL" },
@@ -171,7 +171,7 @@ export default function ServerStatusPage() {
         const apiResponse = await axios.post<ServerStatusApiResponse>(
           "/api/v1/health-check/server/system",
           { mode: executionMode },
-          { headers: { "Content-Type": "application/json" } }
+          { headers: { "Content-Type": "application/json" } },
         );
 
         if (apiResponse.data && Array.isArray(apiResponse.data.data)) {
@@ -200,7 +200,7 @@ export default function ServerStatusPage() {
         }
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -215,9 +215,8 @@ export default function ServerStatusPage() {
 
     setIsGeneratingExcelReport(true);
     try {
-      const fileBuffer = await ExportServerStatusService.generateReport(
-        serverHealthData
-      );
+      const fileBuffer =
+        await ExportServerStatusService.generateReport(serverHealthData);
       const fileBlob = new Blob([fileBuffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
@@ -237,8 +236,8 @@ export default function ServerStatusPage() {
   // --- Computed Statistics ---
   const serverHealthStatistics = useMemo(() => {
     const totalCount = serverHealthData.length;
-    const onlineCount = serverHealthData.filter(
-      (item) => item.status === "200"
+    const onlineCount = serverHealthData.filter((item) =>
+      ["200", "404"].includes(item.status),
     ).length;
     const offlineCount = totalCount - onlineCount;
     const healthScorePercentage =
@@ -257,8 +256,9 @@ export default function ServerStatusPage() {
 
       const matchesStatus =
         statusFilterType === "ALL" ||
-        (statusFilterType === "ONLINE" && item.status === "200") ||
-        (statusFilterType === "ERROR" && item.status !== "200");
+        (statusFilterType === "ONLINE" &&
+          ["200", "404"].includes(item.status)) ||
+        (statusFilterType === "ERROR" && !["200", "404"].includes(item.status));
 
       const matchesGroup =
         groupFilterType === "ALL" || item.group === groupFilterType;
@@ -334,14 +334,14 @@ export default function ServerStatusPage() {
             shape="square"
             size="large"
             style={{
-              backgroundColor:
-                record.status === "200"
-                  ? token.colorSuccessBg
-                  : token.colorErrorBg,
-              color:
-                record.status === "200" ? token.colorSuccess : token.colorError,
+              backgroundColor: ["200", "404"].includes(record.status)
+                ? token.colorSuccessBg
+                : token.colorErrorBg,
+              color: ["200", "404"].includes(record.status)
+                ? token.colorSuccess
+                : token.colorError,
               border: `1px solid ${
-                record.status === "200"
+                ["200", "404"].includes(record.status)
                   ? token.colorSuccessBorder
                   : token.colorErrorBorder
               }`,
@@ -391,17 +391,22 @@ export default function ServerStatusPage() {
       title: "สถานะ",
       dataIndex: "status",
       width: 120,
-      render: (statusCode) => (
-        <Tag
-          color={statusCode === "200" ? "success" : "error"}
-          className="w-full text-center rounded-xl py-1 font-semibold"
-          icon={
-            statusCode === "200" ? <CheckCircleFilled /> : <CloseCircleFilled />
-          }
-        >
-          {statusCode === "200" ? "ปกติ" : `รหัส ${statusCode}`}
-        </Tag>
-      ),
+      render: (statusCode) => {
+        const isSuccess = ["200", "404"].includes(statusCode);
+        return (
+          <Tag
+            color={isSuccess ? "success" : "error"}
+            className="w-full text-center rounded-xl py-1 font-semibold"
+            icon={isSuccess ? <CheckCircleFilled /> : <CloseCircleFilled />}
+          >
+            {statusCode === "200"
+              ? "ปกติ"
+              : statusCode === "404"
+                ? "ไม่พบข้อมูล (404)"
+                : `รหัส ${statusCode}`}
+          </Tag>
+        );
+      },
     },
     {
       title: "การกระทำ",
@@ -752,7 +757,7 @@ export default function ServerStatusPage() {
             icon={<CopyOutlined />}
             onClick={() =>
               handleCopyToClipboard(
-                JSON.stringify(selectedServerStatusItem, null, 2)
+                JSON.stringify(selectedServerStatusItem, null, 2),
               )
             }
             style={{ borderRadius: 12, minWidth: 150 }}

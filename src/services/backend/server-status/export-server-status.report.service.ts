@@ -41,7 +41,9 @@ export const ExportServerStatusService = {
 
     // 1. คำนวณสถิติเบื้องต้น (Summary Stats)
     const total = data.length;
-    const online = data.filter((item) => item.status === "200").length;
+    const online = data.filter((item) =>
+      ["200", "404"].includes(item.status),
+    ).length;
     const offline = total - online;
     const healthPercent = total === 0 ? 0 : (online / total) * 100;
 
@@ -72,7 +74,7 @@ export const ExportServerStatusService = {
     worksheet.mergeCells("A2:G2");
     const subTitle = worksheet.getCell("A2");
     subTitle.value = `ออกรายงานเมื่อ: ${formatDateToThaiStyle(
-      new Date()
+      new Date(),
     )} | ผู้จัดทำ: SchoolBright System Monitor`;
     subTitle.font = { name: "Angsana New", size: 16, italic: true };
     subTitle.alignment = { vertical: "middle", horizontal: "center" };
@@ -163,12 +165,15 @@ export const ExportServerStatusService = {
 
     // --- SECTION: DATA ROWS ---
     data.forEach((item, index) => {
-      const isOnline = item.status === "200";
+      const isOnline = ["200", "404"].includes(item.status);
 
       // แปลงข้อมูลเป็นภาษาคน
-      const statusText = isOnline
-        ? "ใช้งานได้ปกติ (Normal)"
-        : `พบปัญหา (Error: ${item.status})`;
+      const statusText =
+        item.status === "200"
+          ? "ใช้งานได้ปกติ (Normal)"
+          : item.status === "404"
+            ? "ไม่พบข้อมูล (Normal 404)"
+            : `พบปัญหา (Error: ${item.status})`;
       const methodUrl = `[${item.request.method}] ${item.request.url}`;
 
       const row = worksheet.addRow({

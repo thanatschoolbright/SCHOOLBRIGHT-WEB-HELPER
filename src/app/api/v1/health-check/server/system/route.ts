@@ -72,8 +72,8 @@ const getProgressBar = (percentage: number) => {
 
 const analyzeResults = (results: HealthCheckResult[]) => {
   const total = results.length;
-  const passed = results.filter((r) => r.status === "200");
-  const failed = results.filter((r) => r.status !== "200");
+  const passed = results.filter((r) => ["200", "404"].includes(r.status));
+  const failed = results.filter((r) => !["200", "404"].includes(r.status));
   const healthScore =
     total === 0 ? 0 : Math.round((passed.length / total) * 100);
 
@@ -89,7 +89,7 @@ const analyzeResults = (results: HealthCheckResult[]) => {
       groupedResults[groupKey] = { passed: 0, failed: 0, items: [] };
     }
     groupedResults[groupKey].items.push(r);
-    if (r.status === "200") {
+    if (["200", "404"].includes(r.status)) {
       groupedResults[groupKey].passed++;
     } else {
       groupedResults[groupKey].failed++;
@@ -106,7 +106,7 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
   const mainEmbed = {
     title: `${theme.icon} ${theme.title}`,
     description: `> **รายงานสถานะระบบประจำวัน**\n> 📅 วันที่: \`${dayjs().format(
-      "D MMMM YYYY"
+      "D MMMM YYYY",
     )}\`\n> 🕒 เวลา: \`${dayjs().format("HH:mm น.")}\`\n\n${
       stats.healthScore === 100
         ? "🎉 **ยอดเยี่ยม!** ระบบทั้งหมดทำงานได้ตามปกติ"
@@ -127,7 +127,9 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
         // Build list of items in Thai
         const itemList = data.items
           .map((item) => {
-            const statusIcon = item.status === "200" ? "✅" : "❌";
+            const statusIcon = ["200", "404"].includes(item.status)
+              ? "✅"
+              : "❌";
             return `${statusIcon} ${item.name_th}`;
           })
           .join("\n");
@@ -153,7 +155,9 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
     Object.entries(stats.groupedResults).forEach(([groupKey, data]) => {
       if (data.failed > 0) {
         const groupName = GROUP_LABELS[groupKey] || GROUP_LABELS.other;
-        const failedItems = data.items.filter((item) => item.status !== "200");
+        const failedItems = data.items.filter(
+          (item) => !["200", "404"].includes(item.status),
+        );
 
         const fieldDetails = failedItems.map((item) => ({
           name: `❌ ${item.name_th} (${item.module})`,
@@ -213,7 +217,7 @@ async function executeHealthChecks(): Promise<HealthCheckResult[]> {
     freshToken = loginResult.response.token;
   } else {
     console.warn(
-      "⚠️ Login Service Failed or Token missing. Using fallback/env token if available."
+      "⚠️ Login Service Failed or Token missing. Using fallback/env token if available.",
     );
   }
 
@@ -264,7 +268,7 @@ export async function POST(request: NextRequest) {
         status: 500,
         error: null,
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
