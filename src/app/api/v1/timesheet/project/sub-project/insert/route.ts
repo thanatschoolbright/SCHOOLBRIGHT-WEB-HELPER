@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       name,
       name_en,
       backlogDescription,
-      assetCaptureTypeVal,
+      assetCaptureType: assetCaptureTypeVal,
       startDate,
       endDate,
       status,
