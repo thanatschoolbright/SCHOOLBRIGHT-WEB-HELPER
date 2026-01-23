@@ -213,6 +213,105 @@ const EditableSignature = ({
   );
 };
 
+// --- Component: Evidence Upload (Drag & Drop Image Upload) ---
+const EvidenceUpload = ({ label }: { label: string }) => {
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (file: File) => {
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          setImageSrc(ev.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageUpload(file);
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleImageUpload(file);
+  };
+
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImageSrc(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="evidence-item">
+      <div className="evidence-label">{label}</div>
+      <div
+        className={`evidence-dropzone ${imageSrc ? "has-image" : ""} ${
+          isDragging ? "dragging" : ""
+        }`}
+        onClick={handleClick}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileInputChange}
+          accept="image/*"
+          style={{ display: "none" }}
+        />
+
+        {imageSrc ? (
+          <>
+            <img src={imageSrc} alt={label} className="evidence-image" />
+            <button
+              className="evidence-remove no-print"
+              onClick={handleRemove}
+              title="ลบรูปภาพ"
+            >
+              ×
+            </button>
+          </>
+        ) : (
+          <div className="evidence-placeholder">
+            <div>📁</div>
+            <div style={{ marginTop: "8px" }}>
+              <strong>คลิกเพื่ออัปโหลด</strong>
+            </div>
+            <div style={{ fontSize: "11px", marginTop: "4px" }}>
+              หรือลากไฟล์มาวางที่นี่
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // --- CSS Styles ---
 const PRINT_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
@@ -367,6 +466,115 @@ const PRINT_STYLES = `
     -webkit-print-color-adjust: exact;
   }
 
+  /* Evidence Pages */
+  .evidence-page {
+    page-break-before: always;
+    height: 297mm;
+    max-height: 297mm;
+    padding: 16px 32px;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .evidence-title {
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 12px;
+    padding: 8px;
+    background: var(--header-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .evidence-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    row-gap: 10px;
+    flex: 1;
+    max-height: calc(297mm - 80px);
+    overflow: hidden;
+  }
+  .evidence-item {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    background: #fafafa;
+    height: 100%;
+    max-height: calc((297mm - 120px) / 2);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    page-break-inside: avoid;
+    overflow: hidden;
+  }
+  .evidence-label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: #444;
+    text-align: center;
+  }
+  .evidence-dropzone {
+    flex: 1;
+    border: 2px dashed #999;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+    transition: all 0.3s ease;
+  }
+  .evidence-dropzone:hover {
+    border-color: #666;
+    background: #f0f8ff;
+  }
+  .evidence-dropzone.has-image {
+    border-style: solid;
+    border-color: #4CAF50;
+  }
+  .evidence-dropzone.dragging {
+    border-color: #2196F3;
+    background: #E3F2FD;
+  }
+  .evidence-placeholder {
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    padding: 20px;
+  }
+  .evidence-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .evidence-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 16px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .evidence-dropzone:hover .evidence-remove {
+    display: flex;
+  }
+
   @media print {
     @page { size: A4; margin: 10mm; }
     body { margin: 0; }
@@ -396,6 +604,13 @@ const PRINT_STYLES = `
 
     .no-print { display: none !important; }
     span[title="คลิกเพื่อแก้ไขข้อความ"] { background-color: transparent !important; border-bottom: none !important; }
+    
+    /* Evidence pages print styles */
+    .evidence-page { padding: 10px 15px; }
+    .evidence-title { margin-bottom: 12px; padding: 8px; font-size: 16px; }
+    .evidence-grid { gap: 15px; height: calc(100% - 60px); }
+    .evidence-item { padding: 12px; }
+    .evidence-remove { display: none !important; }
   }
 `;
 
@@ -1204,6 +1419,17 @@ export default function OTPreviewPage() {
                       />
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* --- EVIDENCE PAGE (SINGLE PAGE ONLY) --- */}
+              <div className="evidence-page">
+                <div className="evidence-title">หลักฐานการทำงาน</div>
+                <div className="evidence-grid">
+                  <EvidenceUpload label="หลักฐาน #1" />
+                  <EvidenceUpload label="หลักฐาน #2" />
+                  <EvidenceUpload label="หลักฐาน #3" />
+                  <EvidenceUpload label="หลักฐาน #4" />
                 </div>
               </div>
             </div>
