@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@components/layouts/backend-layout";
 import axios from "axios";
+import dayjs from "dayjs";
 import { toast } from "sonner";
 import {
   Button,
@@ -31,6 +32,8 @@ import {
   Divider,
   Descriptions,
   Select,
+  Steps,
+  Result,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -56,8 +59,17 @@ import {
   IdcardOutlined,
   CodeOutlined,
   ConsoleSqlOutlined,
+  DatabaseOutlined,
+  SolutionOutlined,
+  CloudDownloadOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import "dayjs/locale/th";
+
+dayjs.extend(buddhistEra);
+dayjs.locale("th");
 import {
   ExportServerStatusService,
   ServerStatusData,
@@ -65,6 +77,178 @@ import {
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
+
+// --- Export Download Tracking Modal Component ---
+interface ExportModalProps {
+  visible: boolean;
+  setVisible: (visible: boolean) => void;
+  onExport: () => void;
+  loading: boolean;
+  exportStep: number;
+  isExportSuccess: boolean;
+  setIsExportSuccess: (success: boolean) => void;
+}
+
+const ExportModal: React.FC<ExportModalProps> = ({
+  visible,
+  setVisible,
+  onExport,
+  loading,
+  exportStep,
+  isExportSuccess,
+  setIsExportSuccess,
+}) => {
+  useEffect(() => {
+    if (!visible) {
+      setTimeout(() => {
+        setIsExportSuccess(false);
+      }, 300);
+    }
+  }, [visible, setIsExportSuccess]);
+
+  const renderContent = () => {
+    if (isExportSuccess) {
+      return (
+        <Result
+          status="success"
+          title={
+            <Text strong style={{ fontSize: "22px" }}>
+              คุณดาวน์โหลดไฟล์สำเร็จ
+            </Text>
+          }
+          subTitle="ระบบได้ทำการประมวลผลและส่งไฟล์รายงานสถานะเซิร์ฟเวอร์ให้คุณเรียบร้อยแล้ว"
+          extra={[
+            <Button
+              type="primary"
+              key="close"
+              onClick={() => setVisible(false)}
+              style={{
+                borderRadius: "8px",
+                height: "40px",
+                padding: "0 30px",
+              }}
+            >
+              ตกลง
+            </Button>,
+          ]}
+        />
+      );
+    }
+
+    if (loading || exportStep > 0) {
+      return (
+        <div style={{ padding: "20px 0" }}>
+          <Steps
+            direction="vertical"
+            current={exportStep - 1}
+            items={[
+              {
+                title: "รวบรวมข้อมูลสถานะ",
+                description: "กำลังเตรียมข้อมูลจากแดชบอร์ดล่าสุด...",
+                icon:
+                  exportStep === 1 ? <LoadingOutlined /> : <DatabaseOutlined />,
+              },
+              {
+                title: "ประมวลผลรายงาน Enterprise",
+                description: "กำลังจัดรูปแบบไฟล์ Excel เพื่อความสวยงาม...",
+                icon:
+                  exportStep === 2 ? (
+                    <LoadingOutlined />
+                  ) : (
+                    <FileExcelOutlined />
+                  ),
+              },
+              {
+                title: "ดาวน์โหลดไฟล์",
+                description: "กำลังส่งไฟล์ไปยังอุปกรณ์ของคุณ...",
+                icon:
+                  exportStep === 3 ? (
+                    <LoadingOutlined />
+                  ) : (
+                    <CloudDownloadOutlined />
+                  ),
+              },
+              {
+                title: "เสร็จสมบูรณ์",
+                description: "พร้อมสำหรับการตรวจสอบ",
+                icon: <CheckCircleOutlined />,
+              },
+            ]}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ padding: "10px 0" }}>
+        <Alert
+          message="การส่งออกรายงานสถานะ API ในเครือข่าย SchoolBright"
+          description="ไฟล์จะรวมข้อมูลสถานะล่าสุด, Endpoint, และโมดูลที่เกี่ยวข้องทั้งหมด"
+          type="info"
+          showIcon
+          style={{ marginBottom: "20px", borderRadius: "12px" }}
+        />
+
+        <div style={{ textAlign: "center", padding: "20px 0" }}>
+          <FileExcelOutlined
+            style={{ fontSize: "48px", color: "#1677ff", marginBottom: "16px" }}
+          />
+          <br />
+          <Text type="secondary">
+            ต้องการเริ่มกระบวนการส่งออกรายงานแบบ Enterprise ใช่หรือไม่?
+          </Text>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <Modal
+      title={
+        !isExportSuccess && (
+          <Space>
+            <div
+              style={{
+                padding: "8px",
+                background: "#1677ff",
+                borderRadius: "8px",
+                display: "flex",
+              }}
+            >
+              <FileExcelOutlined style={{ color: "white" }} />
+            </div>
+            <Text strong style={{ fontSize: "18px" }}>
+              ส่งออกรายงานสถานะเซิร์ฟเวอร์
+            </Text>
+          </Space>
+        )
+      }
+      open={visible}
+      onOk={onExport}
+      onCancel={() => !loading && setVisible(false)}
+      confirmLoading={loading}
+      okText="เริ่มการส่งออก"
+      cancelText="ยกเลิก"
+      okButtonProps={{
+        style: {
+          display: loading || isExportSuccess ? "none" : "inline-block",
+          borderRadius: "8px",
+        },
+      }}
+      cancelButtonProps={{
+        style: {
+          display: loading || isExportSuccess ? "none" : "inline-block",
+          borderRadius: "8px",
+        },
+      }}
+      footer={loading || isExportSuccess ? null : undefined}
+      width={480}
+      centered
+    >
+      {renderContent()}
+    </Modal>
+  );
+};
 
 // --- Interfaces ---
 interface ServerStatusApiResponse {
@@ -103,6 +287,10 @@ export default function ServerStatusPage() {
   >("ALL");
   const [groupFilterType, setGroupFilterType] = useState<string>("ALL");
   const [methodFilterType, setMethodFilterType] = useState<string>("ALL");
+
+  const [isExportModalVisible, setIsExportModalVisible] = useState(false);
+  const [exportStep, setExportStep] = useState(0);
+  const [isExportSuccess, setIsExportSuccess] = useState(false);
 
   const groupOptions = useMemo(() => {
     const groups = Array.from(
@@ -214,20 +402,40 @@ export default function ServerStatusPage() {
     }
 
     setIsGeneratingExcelReport(true);
+    setExportStep(1); // ขั้นตอนที่ 1: รวบรวมข้อมูล
+    setIsExportSuccess(false);
+
     try {
-      const fileBuffer =
-        await ExportServerStatusService.generateReport(serverHealthData);
-      const fileBlob = new Blob([fileBuffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      const fileUrl = window.URL.createObjectURL(fileBlob);
-      const downloadLink = document.createElement("a");
-      downloadLink.href = fileUrl;
-      downloadLink.download = `Server_Health_Report_${Date.now()}.xlsx`;
-      downloadLink.click();
+      // จำลองสถานะเพื่อให้เห็น UI Tracking
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      setExportStep(2); // ขั้นตอนที่ 2: ประมวลผลบนเซิร์ฟเวอร์
+
+      const response = await axios.post(
+        "/api/v1/health-check/server/system/export",
+        { data: filteredServerHealthData },
+        { responseType: "blob" },
+      );
+
+      setExportStep(3); // ขั้นตอนที่ 3: กำลังดาวน์โหลด
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      const fileName = `Server_Health_Report_${dayjs().format("DD_MM_BBBB")}.xlsx`;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setExportStep(4); // สำเร็จ
+      setIsExportSuccess(true);
       toast.success("ดาวน์โหลดรายงานสำเร็จ");
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์");
+      setExportStep(0);
     } finally {
       setIsGeneratingExcelReport(false);
     }
@@ -678,6 +886,24 @@ export default function ServerStatusPage() {
             boxShadow: token.boxShadowTertiary,
             background: token.colorBgContainer,
           }}
+          title={
+            <Space>
+              <DatabaseOutlined style={{ color: token.colorPrimary }} />
+              <Text strong style={{ fontSize: 18 }}>
+                รายการ API Monitoring ทั้งหมด
+              </Text>
+            </Space>
+          }
+          extra={
+            <Button
+              type="primary"
+              icon={<FileExcelOutlined />}
+              onClick={() => setIsExportModalVisible(true)}
+              disabled={serverHealthData.length === 0}
+            >
+              ส่งออกรายการ (Excel)
+            </Button>
+          }
           bodyStyle={{ padding: screens.md ? "24px" : "12px" }}
         >
           {filteredServerHealthData.length > 0 ? (
@@ -904,6 +1130,15 @@ export default function ServerStatusPage() {
           </Row>
         )}
       </Modal>
+      <ExportModal
+        visible={isExportModalVisible}
+        setVisible={setIsExportModalVisible}
+        onExport={handleGenerateExcelReport}
+        loading={isGeneratingExcelReport}
+        exportStep={exportStep}
+        isExportSuccess={isExportSuccess}
+        setIsExportSuccess={setIsExportSuccess}
+      />
     </DashboardLayout>
   );
 }
