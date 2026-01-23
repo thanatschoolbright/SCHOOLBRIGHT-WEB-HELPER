@@ -526,7 +526,7 @@ export default function ServerStatusPage() {
       title: "กลุ่มระบบ",
       dataIndex: "group",
       width: 150,
-      sorter: (a, b) => a.group.localeCompare(b.group),
+      sorter: (a, b) => (a.group || "").localeCompare(b.group || ""),
       render: (group) => (
         <Tag color="cyan" style={{ borderRadius: 6, fontWeight: 600 }}>
           {group?.toUpperCase() || "OTHER"}
@@ -536,7 +536,7 @@ export default function ServerStatusPage() {
     {
       title: "ชื่อระบบ (System Module)",
       key: "name",
-      sorter: (a, b) => a.name_th.localeCompare(b.name_th),
+      sorter: (a, b) => (a.name_th || "").localeCompare(b.name_th || ""),
       render: (_, record) => {
         const isOnline = ["200", "404"].includes(record.status);
         return (
@@ -569,7 +569,7 @@ export default function ServerStatusPage() {
       title: "จุดเชื่อมต่อ (Endpoint)",
       dataIndex: "service",
       responsive: ["md"],
-      sorter: (a, b) => a.service.localeCompare(b.service),
+      sorter: (a, b) => (a.service || "").localeCompare(b.service || ""),
       render: (serviceName, record) => {
         const method = record.request?.method || "GET";
         const methodColor = method === "POST" ? "red" : "green";
@@ -600,7 +600,7 @@ export default function ServerStatusPage() {
       title: "สถานะ",
       dataIndex: "status",
       width: 140,
-      sorter: (a, b) => a.status.localeCompare(b.status),
+      sorter: (a, b) => (a.status || "").localeCompare(b.status || ""),
       render: (statusCode) => {
         const isSuccess = ["200", "404"].includes(statusCode);
         return (
