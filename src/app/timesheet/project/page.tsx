@@ -67,6 +67,8 @@ import {
   LaptopOutlined,
   ExperimentOutlined,
   HighlightOutlined,
+  FilterOutlined,
+  DatabaseOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -87,7 +89,8 @@ import { AnalyticsDashboard } from "./components/analytics-dashboard.component";
 import { ProjectStatusModal } from "./components/project-status-modal.component";
 import { useProjectData } from "./hooks/use-project-data";
 import { exportProjectsToExcel } from "./utils/export-excel";
-import SummaryCards from "@/components/card/summary-card/summary-card.component";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
+import SummaryCard from "@/components/card/summary-card";
 import type {
   ModalState,
   FormValues,
@@ -383,482 +386,192 @@ const KanbanBoard = ({
 };
 
 // ==========================================
-// 1. HEADER SECTION
+// 2. HELPER FUNCTIONS & STATISTICS COMPONENTS
 // ==========================================
 
-const HeaderSection = ({
-  title,
-  subtitle,
-  onRefresh,
-  onCreate,
-  onViewTimeline,
-  onManageStatus,
-  token,
-}: {
-  title: string;
-  subtitle: string;
-  onRefresh: () => void;
-  onCreate: () => void;
-  onViewTimeline: () => void;
-  onManageStatus: () => void;
-  token: any;
-}) => (
-  <Flex
-    justify="space-between"
-    align="center"
-    wrap="wrap"
-    gap={16}
-    className="p-6 rounded-2xl border mb-6 transition-all duration-300"
-    style={{
-      background: token.colorBgContainer,
-      borderColor: token.colorBorderSecondary,
-    }}
-  >
-    <Space size={20}>
-      <div
-        className="flex items-center justify-center w-16 h-16 rounded-2xl"
-        style={{
-          background: `linear-gradient(135deg, ${token.colorPrimaryBg}, ${token.colorFillSecondary})`,
-          border: `1px solid ${token.colorBorder}`,
-        }}
-      >
-        <ProjectOutlined style={{ fontSize: 28, color: token.colorPrimary }} />
-      </div>
-      <Flex vertical>
-        <Title
-          level={3}
-          style={{
-            margin: 0,
-            fontWeight: 800,
-            background: `linear-gradient(45deg, ${token.colorPrimary}, ${token.colorLink})`,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          {title}
-        </Title>
-        <Text type="secondary" style={{ fontSize: 14 }}>
-          {subtitle}
-        </Text>
-      </Flex>
-    </Space>
+const getSdlcStyle = (priority: number, nameTh: string, token: any) => {
+  const name = nameTh.toLowerCase();
+  if (
+    name.includes("requirement") ||
+    name.includes("ความต้องการ") ||
+    priority === 1
+  ) {
+    return {
+      color: token.colorInfo,
+      bg: token.colorInfoBg,
+      icon: <CompassOutlined />,
+    };
+  }
+  if (name.includes("design") || name.includes("ออกแบบ") || priority === 2) {
+    return {
+      color: "#722ed1",
+      bg: "#f9f0ff",
+      icon: <FormatPainterOutlined />,
+    };
+  }
+  if (
+    name.includes("develop") ||
+    name.includes("coding") ||
+    name.includes("พัฒนา") ||
+    priority === 3
+  ) {
+    return {
+      color: "#13c2c2",
+      bg: "#e6fffb",
+      icon: <CodeOutlined />,
+    };
+  }
+  if (
+    name.includes("test") ||
+    name.includes("qa") ||
+    name.includes("ทดสอบ") ||
+    priority === 4
+  ) {
+    return {
+      color: token.colorWarning,
+      bg: token.colorWarningBg,
+      icon: <BugOutlined />,
+    };
+  }
+  if (name.includes("uat") || priority === 5) {
+    return {
+      color: token.colorSuccess,
+      bg: token.colorSuccessBg,
+      icon: <SafetyCertificateOutlined />,
+    };
+  }
+  if (
+    name.includes("deploy") ||
+    name.includes("release") ||
+    name.includes("ส่งมอบ") ||
+    priority >= 6
+  ) {
+    return {
+      color: token.colorError,
+      bg: token.colorErrorBg,
+      icon: <CloudUploadOutlined />,
+    };
+  }
+  return {
+    color: token.colorPrimary,
+    bg: token.colorPrimaryBg,
+    icon: <RocketOutlined />,
+  };
+};
 
-    <Space size={12} wrap>
-      <Tooltip title="จัดการขั้นตอนการทำงานและสถานะ (SDLC Step)">
-        <Button
-          icon={<CheckCircleOutlined />}
-          onClick={onManageStatus}
-          size="large"
-          className="rounded-xl border-dashed"
-          style={{ color: token.colorPrimary, borderColor: token.colorPrimary }}
-        >
-          เพิ่มสถานะโครงการ/โครงการย่อย
-        </Button>
-      </Tooltip>
-      <Button
-        icon={<ClockCircleOutlined />}
-        onClick={onViewTimeline}
-        size="large"
-        className="rounded-xl"
-      >
-        ไทม์ไลน์
-      </Button>
-      <Button
-        icon={<ReloadOutlined />}
-        onClick={onRefresh}
-        size="large"
-        className="rounded-xl"
-      >
-        รีเฟรช
-      </Button>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={onCreate}
-        size="large"
-        className="rounded-xl transition-all"
-        style={{ fontWeight: 600 }}
-      >
-        เพิ่มโครงการ
-      </Button>
-    </Space>
-  </Flex>
-);
+const getCategoryStyle = (id: string, token: any) => {
+  switch (id) {
+    case "INTERNAL":
+      return {
+        color: token.colorPrimary,
+        bg: token.colorPrimaryBg,
+        icon: <ApartmentOutlined />,
+      };
+    case "EXTERNAL":
+      return {
+        color: token.colorSuccess,
+        bg: token.colorSuccessBg,
+        icon: <GlobalOutlined />,
+      };
+    case "MAINTENANCE":
+      return {
+        color: token.colorWarning,
+        bg: token.colorWarningBg,
+        icon: <ToolOutlined />,
+      };
+    case "LEAVE":
+      return { color: "#eb2f96", bg: "#fff0f6", icon: <MedicineBoxOutlined /> };
+    default:
+      return {
+        color: token.colorTextSecondary,
+        bg: token.colorFillTertiary,
+        icon: <AppstoreOutlined />,
+      };
+  }
+};
 
-// ==========================================
-// 2. STATISTICS CARDS
-// ==========================================
-
-// SummaryCards component has been moved to @components/card/summary-card/summary-card-component.tsx
-
-const SdlcSummaryCards = ({
+const SdlcStatsSection = ({
   stats,
+  statuses,
   token,
-  allStatuses = [],
 }: {
   stats: any;
+  statuses: any[];
   token: any;
-  allStatuses?: ProjectStatus[];
 }) => {
-  const cardStyle = {
-    background: token.colorBgContainer,
-    borderRadius: 12,
-    border: `1px solid ${token.colorBorderSecondary}`,
-    height: "100%",
-  };
+  if (!stats?.trackings) return null;
 
-  const getSdlcStyle = (priority: number, name: string) => {
-    // Standard SDLC Mapping based on priority or keywords
-    if (
-      name.includes("Requirement") ||
-      name.includes("ความต้องการ") ||
-      priority === 1
-    ) {
-      return {
-        color: "#1890ff",
-        bg: "rgba(24, 144, 255, 0.1)",
-        gradient: "linear-gradient(135deg, #1890ff 0%, #36cfc9 100%)",
-        icon: <CompassOutlined />,
-      };
-    }
-    if (name.includes("Design") || name.includes("ออกแบบ") || priority === 2) {
-      return {
-        color: "#722ed1",
-        bg: "rgba(114, 46, 209, 0.1)",
-        gradient: "linear-gradient(135deg, #722ed1 0%, #b37feb 100%)",
-        icon: <FormatPainterOutlined />,
-      };
-    }
-    if (
-      name.includes("Develop") ||
-      name.includes("Coding") ||
-      name.includes("พัฒนา") ||
-      priority === 3
-    ) {
-      return {
-        color: "#13c2c2",
-        bg: "rgba(19, 194, 194, 0.1)",
-        gradient: "linear-gradient(135deg, #13c2c2 0%, #5cdbd3 100%)",
-        icon: <CodeOutlined />,
-      };
-    }
-    if (
-      name.includes("Test") ||
-      name.includes("QA") ||
-      name.includes("ทดสอบ") ||
-      priority === 4
-    ) {
-      return {
-        color: "#faad14",
-        bg: "rgba(250, 173, 20, 0.1)",
-        gradient: "linear-gradient(135deg, #faad14 0%, #ffec3d 100%)",
-        icon: <BugOutlined />,
-      };
-    }
-    if (name.includes("UAT") || priority === 5) {
-      return {
-        color: "#52c41a",
-        bg: "rgba(82, 196, 26, 0.1)",
-        gradient: "linear-gradient(135deg, #52c41a 0%, #95de64 100%)",
-        icon: <SafetyCertificateOutlined />,
-      };
-    }
-    if (
-      name.includes("Deploy") ||
-      name.includes("Release") ||
-      name.includes("ส่งมอบ") ||
-      priority >= 6
-    ) {
-      return {
-        color: "#f5222d",
-        bg: "rgba(245, 34, 45, 0.1)",
-        gradient: "linear-gradient(135deg, #f5222d 0%, #ff7875 100%)",
-        icon: <CloudUploadOutlined />,
-      };
-    }
-    return {
-      color: token.colorPrimary,
-      bg: token.colorPrimaryBg,
-      gradient: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
-      icon: <RocketOutlined />,
-    };
-  };
+  const sortedActive = [...statuses]
+    .filter((s) => s.priority < 99)
+    .sort((a, b) => (a.priority || 0) - (b.priority || 0));
 
-  const statusItems = useMemo(() => {
-    if (!stats?.trackings) return [];
-
-    const sortedActive = [...allStatuses]
-      .filter((s) => s.priority < 99)
-      .sort((a, b) => a.priority - b.priority);
-
-    return sortedActive.map((s) => {
-      const count = (s.nameEn ? stats.trackings[s.nameEn] : 0) || 0;
-      const total = stats.health?.total || 1;
-      const percent = (count / total) * 100;
-      const style = getSdlcStyle(s.priority, s.nameTh);
-
-      return {
-        label: s.nameTh,
-        value: `${count}/${total}`,
-        percent,
-        style,
-      };
-    });
-  }, [allStatuses, stats, token, getSdlcStyle]);
-
-  if (!stats?.trackings) {
-    return (
-      <div className="mb-6">
-        <Space className="mb-4">
-          <RocketOutlined />
-          <Text strong>สถานะการดำเนินการ (Trackings)</Text>
-        </Space>
-        <Row gutter={[12, 12]}>
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Col xs={12} sm={8} md={6} xl={4} key={i}>
-              <Skeleton active />
-            </Col>
-          ))}
-        </Row>
-      </div>
-    );
-  }
-
-  if (statusItems.length === 0) return null;
+  const total = stats.health?.total || 1;
 
   return (
-    <div className="mb-6">
-      <Space className="mb-4">
-        <RocketOutlined />
-        <Text strong>สถานะการดำเนินการ (Trackings)</Text>
-      </Space>
-      <Row gutter={[12, 12]}>
-        {statusItems.map((item, idx) => (
-          <Col xs={12} sm={8} md={6} xl={4} key={idx}>
-            <Card size="small" style={cardStyle} className="transition-all">
-              <Flex justify="space-between" align="start" className="mb-2">
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 18,
-                    color: "#fff",
-                    background: item.style.gradient,
-                    boxShadow: "none",
-                  }}
-                >
-                  {item.style.icon}
-                </div>
-                <Tag
-                  color={item.percent > 0 ? "blue" : "default"}
-                  bordered={false}
-                  style={{
-                    margin: 0,
-                    borderRadius: 6,
-                    background: item.percent > 0 ? item.style.bg : undefined,
-                  }}
-                >
-                  <Text
-                    strong
-                    style={{
-                      color:
-                        item.percent > 0
-                          ? item.style.color
-                          : token.colorTextDisabled,
-                      fontSize: 12,
-                    }}
-                  >
-                    {item.value}
-                  </Text>
-                </Tag>
-              </Flex>
-              <Text
-                type="secondary"
-                style={{
-                  fontSize: 13,
-                  fontWeight: item.percent > 0 ? 600 : 400,
-                  color: item.percent > 0 ? token.colorTextHeading : undefined,
-                }}
-                ellipsis
-              >
-                {item.label}
-              </Text>
-              <div className="mt-2">
-                <Progress
-                  percent={item.percent}
-                  showInfo={false}
-                  strokeColor={item.style.gradient}
-                  trailColor={token.colorFillSecondary}
-                  size={4}
-                />
-              </div>
-            </Card>
-          </Col>
-        ))}
+    <div className="mb-8">
+      <Flex align="center" gap={8} className="mb-4">
+        <RocketOutlined style={{ color: token.colorPrimary }} />
+        <Text strong style={{ fontSize: 16 }}>
+          สถานะการดำเนินการ (Trackings)
+        </Text>
+      </Flex>
+      <Row gutter={[16, 16]}>
+        {sortedActive.map((s) => {
+          const count = (s.nameEn ? stats.trackings[s.nameEn] : 0) || 0;
+          const percent = (count / total) * 100;
+          const style = getSdlcStyle(s.priority, s.nameTh, token);
+
+          return (
+            <Col xs={12} sm={8} md={6} lg={4} key={s.id}>
+              <SummaryCard
+                title={s.nameTh}
+                value={count}
+                suffix={`/ ${total}`}
+                percent={percent}
+                icon={style.icon}
+                color={style.color}
+                iconBg={style.bg}
+                tooltip={`จำนวนโครงการที่อยู่ในสถานะ ${s.nameTh}`}
+              />
+            </Col>
+          );
+        })}
       </Row>
     </div>
   );
 };
 
-// ==========================================
-// 3. CATEGORY CARDS
-// ==========================================
+const CategoryStatsSection = ({ stats, token }: { stats: any; token: any }) => {
+  if (!stats?.by_category) return null;
 
-const CategorySummaryCards = ({ stats, token }: { stats: any; token: any }) => {
-  const getIcon = (id: string) => {
-    switch (id) {
-      case "INTERNAL":
-        return <ApartmentOutlined />;
-      case "EXTERNAL":
-        return <GlobalOutlined />;
-      case "MAINTENANCE":
-        return <ToolOutlined />;
-      case "LEAVE":
-        return <MedicineBoxOutlined />;
-      default:
-        return <AppstoreOutlined />;
-    }
-  };
-
-  const getColor = (id: string) => {
-    switch (id) {
-      case "INTERNAL":
-        return token.colorPrimary;
-      case "EXTERNAL":
-        return token.colorSuccess;
-      case "MAINTENANCE":
-        return token.colorWarning;
-      case "LEAVE":
-        return "#eb2f96"; // Pink
-      default:
-        return token.colorTextSecondary;
-    }
-  };
-
-  const getBg = (id: string) => {
-    switch (id) {
-      case "INTERNAL":
-        return token.colorPrimaryBg;
-      case "EXTERNAL":
-        return token.colorSuccessBg;
-      case "MAINTENANCE":
-        return token.colorWarningBg;
-      case "LEAVE":
-        return "rgba(235, 47, 150, 0.1)";
-      default:
-        return token.colorFillTertiary;
-    }
-  };
-
-  const cardStyle = {
-    background: token.colorBgContainer,
-    borderRadius: 12,
-    border: `1px solid ${token.colorBorderSecondary}`,
-    height: "100%",
-  };
-
-  if (!stats?.by_category) {
-    return (
-      <div className="mb-6">
-        <Row gutter={[12, 12]}>
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Col xs={12} sm={8} md={6} xl={4} key={i}>
-              <Skeleton active />
-            </Col>
-          ))}
-        </Row>
-      </div>
-    );
-  }
-
-  const { total } = stats.health || { total: 0 };
+  const total = stats.health?.total || 1;
 
   return (
-    <div className="mb-6">
-      <Space className="mb-4">
-        <AppstoreOutlined />
-        <Text strong>แยกตามประเภท (By Category)</Text>
-      </Space>
-      <Row gutter={[12, 12]}>
+    <div className="mb-8">
+      <Flex align="center" gap={8} className="mb-4">
+        <AppstoreOutlined style={{ color: token.colorPrimary }} />
+        <Text strong style={{ fontSize: 16 }}>
+          แยกตามประเภท (By Category)
+        </Text>
+      </Flex>
+      <Row gutter={[16, 16]}>
         {categoryType.map((cat) => {
           const count = stats.by_category[cat.id] || 0;
-
-          const categoryTooltip = (
-            <div style={{ padding: "4px" }}>
-              <div
-                style={{
-                  fontWeight: 700,
-                  marginBottom: 8,
-                  borderBottom: `1px solid rgba(255,255,255,0.2)`,
-                  paddingBottom: 4,
-                }}
-              >
-                หมวดหมู่: {cat.name}
-              </div>
-              <div style={{ marginBottom: 4 }}>
-                <Text strong style={{ color: "#fff", fontSize: 11 }}>
-                  ที่มา:
-                </Text>{" "}
-                <span style={{ fontSize: 11 }}>
-                  แยกตามประเภทที่ระบุในโครงการ
-                </span>
-              </div>
-              <div style={{ marginBottom: 4 }}>
-                <Text strong style={{ color: "#fff", fontSize: 11 }}>
-                  การคำนวณ:
-                </Text>{" "}
-                <span style={{ fontSize: 11 }}>
-                  กรองเฉพาะโครงการที่เป็นประเภท {cat.id}
-                </span>
-              </div>
-              <div>
-                <Text strong style={{ color: "#fff", fontSize: 11 }}>
-                  ประโยชน์:
-                </Text>{" "}
-                <span style={{ fontSize: 11 }}>
-                  ใช้สำหรับการทำแผนผังทรัพยากรและการจัดการงบประมาณตามหมวดหมู่
-                </span>
-              </div>
-            </div>
-          );
+          const percent = (count / total) * 100;
+          const style = getCategoryStyle(cat.id, token);
 
           return (
-            <Col xs={12} sm={8} md={6} xl={4} key={cat.id}>
-              <Tooltip title={categoryTooltip} placement="top">
-                <Card
-                  size="small"
-                  style={cardStyle}
-                  className="transition-all cursor-help"
-                >
-                  <Flex justify="space-between" align="start" className="mb-2">
-                    <div
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 8,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 16,
-                        color: getColor(cat.id),
-                        background: getBg(cat.id),
-                      }}
-                    >
-                      {getIcon(cat.id)}
-                    </div>
-                    <Tag color={count > 0 ? getColor(cat.id) : "default"}>
-                      {count}/{total}
-                    </Tag>
-                  </Flex>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    {cat.name}
-                  </Text>
-                </Card>
-              </Tooltip>
+            <Col xs={12} sm={8} md={6} lg={4} key={cat.id}>
+              <SummaryCard
+                title={cat.name}
+                value={count}
+                suffix={`/ ${total}`}
+                percent={percent}
+                icon={style.icon}
+                color={style.color}
+                iconBg={style.bg}
+                tooltip={`จำนวนโครงการประเภท ${cat.name}`}
+              />
             </Col>
           );
         })}
@@ -1065,280 +778,269 @@ export default function ProjectManagementPage() {
   };
 
   return (
-    <PermissionLayout role={["ADMIN"]}>
+    <PermissionLayout role={["ADMIN", "TIMESHEET_VIEW"]}>
       <DashboardLayout>
-        <div className="mx-auto p-6 pb-20">
-          <HeaderSection
-            title="ภาพรวมโครงการ (Project Overview)"
-            subtitle="ระบบบริหารจัดการ Timesheet และติดตามความคืบหน้าโครงการ"
-            onRefresh={fetchProjects}
-            onCreate={() => setModalState({ type: "create" })}
-            onViewTimeline={() => router.push("/timesheet/timeline")}
-            onManageStatus={() => setStatusModalOpen(true)}
-            token={token}
-          />
+        {/* ส่วนที่ 1: ส่วนหัวของหน้าจอ */}
+        <HeaderBar
+          title="โครงการทั้งหมด"
+          subTitle="จัดการและติดตามสถานะความคืบหน้าของโครงการทั้งหมดในระบบ"
+          icon={<ProjectOutlined />}
+          extra={
+            <Space size={12} wrap>
+              <Button
+                icon={<CheckCircleOutlined />}
+                onClick={() => setStatusModalOpen(true)}
+                size="large"
+                className="rounded-xl border-dashed"
+                style={{
+                  color: token.colorPrimary,
+                  borderColor: token.colorPrimary,
+                }}
+              >
+                เพิ่มสถานะ
+              </Button>
+              <Button
+                icon={<ClockCircleOutlined />}
+                onClick={() => router.push("/timesheet/timeline")}
+                size="large"
+                className="rounded-xl"
+              >
+                ไทม์ไลน์
+              </Button>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={fetchProjects}
+                size="large"
+                className="rounded-xl"
+              >
+                รีเฟรช
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setModalState({ type: "create" })}
+                size="large"
+                className="rounded-xl"
+                style={{ fontWeight: 600 }}
+              >
+                เพิ่มโครงการ
+              </Button>
+            </Space>
+          }
+        />
 
-          <SummaryCards stats={backendStats} token={token} />
+        {/* ส่วนที่ 2: ส่วนสรุปข้อมูล (Summary Cards) - ใช้ข้อมูลดั้งเดิมจาก API */}
+        <Row gutter={[16, 16]} className="mb-8">
+          <Col xs={24} sm={12} md={6}>
+            <SummaryCard
+              title="โครงการทั้งหมด"
+              value={backendStats?.health?.total || 0}
+              subtitle="รวมโครงการทุกสถานะ"
+              icon={<ProjectOutlined />}
+              color={token.colorPrimary}
+              percent={100}
+              isLoading={loading && !backendStats}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <SummaryCard
+              title="กำลังดำเนินการ"
+              value={backendStats?.health?.open || 0}
+              subtitle="โครงการที่ยังไม่ปิด"
+              icon={<ReloadOutlined />}
+              color={token.colorInfo}
+              percent={
+                backendStats?.health?.total > 0
+                  ? (backendStats.health.open / backendStats.health.total) * 100
+                  : 0
+              }
+              isLoading={loading && !backendStats}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <SummaryCard
+              title="เสร็จสิ้นแล้ว"
+              value={backendStats?.health?.close || 0}
+              subtitle="โครงการที่ส่งมอบแล้ว"
+              icon={<CheckCircleOutlined />}
+              color={token.colorSuccess}
+              percent={
+                backendStats?.health?.total > 0
+                  ? (backendStats.health.close / backendStats.health.total) *
+                    100
+                  : 0
+              }
+              isLoading={loading && !backendStats}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <SummaryCard
+              title="อัตราความสำเร็จ"
+              value={
+                backendStats?.health?.total > 0
+                  ? `${((Number(backendStats?.health?.close || 0) / backendStats.health.total) * 100).toFixed(1)}%`
+                  : "0%"
+              }
+              subtitle="เปอร์เซ็นต์โครงการที่เสร็จ"
+              icon={<PieChartOutlined />}
+              color={token.colorWarning}
+              percent={
+                backendStats?.health?.total > 0
+                  ? (Number(backendStats?.health?.close || 0) /
+                      backendStats.health.total) *
+                    100
+                  : 0
+              }
+              isLoading={loading && !backendStats}
+            />
+          </Col>
+        </Row>
 
-          <SdlcSummaryCards
-            stats={backendStats}
-            token={token}
-            allStatuses={statuses}
-          />
+        {/* ส่วน Statistics Sections ที่เพิ่มเข้ามาใหม่ (Trackings & Categories) */}
+        <SdlcStatsSection
+          stats={backendStats}
+          statuses={statuses}
+          token={token}
+        />
+        <CategoryStatsSection stats={backendStats} token={token} />
 
-          <CategorySummaryCards stats={backendStats} token={token} />
-
-          {/* Redesigned Filter Section */}
-          <div
-            className="mb-8 p-6 rounded-2xl shadow-sm"
+        <div className="space-y-6">
+          {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล (Filter Bar) - แบ่งสัดส่วน 2 column ใน 1 row */}
+          <Card
+            bordered={false}
+            styles={{ body: { padding: 24 } }}
             style={{
-              backgroundColor: token.colorBgContainer,
+              borderRadius: 16,
               border: `1px solid ${token.colorBorderSecondary}`,
             }}
           >
-            <Flex vertical gap={24}>
-              {/* Top Row: Search and Core Filters */}
-              <Row gutter={[20, 20]} align="middle">
-                <Col xs={24} lg={10}>
-                  <div className="flex flex-col gap-2">
-                    <Text
-                      type="secondary"
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        color: token.colorTextDescription,
-                      }}
-                    >
-                      ค้นหาโครงการ
-                    </Text>
-                    <Input
-                      prefix={
-                        <SearchOutlined style={{ color: token.colorPrimary }} />
-                      }
-                      placeholder="ชื่อโครงการ, รหัสโครงการ หรือรายละเอียด..."
-                      size="large"
-                      className="rounded-xl h-12"
-                      style={{
-                        backgroundColor: token.colorBgLayout,
-                        borderColor: token.colorBorder,
-                        color: token.colorText,
-                      }}
-                      value={filters.searchText}
-                      onChange={(e) =>
-                        setFilters({ ...filters, searchText: e.target.value })
-                      }
-                      allowClear
-                    />
-                  </div>
-                </Col>
-                <Col xs={24} sm={12} lg={4}>
-                  <div className="flex flex-col gap-2">
-                    <Text
-                      type="secondary"
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        color: token.colorTextDescription,
-                      }}
-                    >
-                      ประเภทโครงการ
-                    </Text>
-                    <Select
-                      size="large"
-                      className="w-full custom-select-rounded h-12"
-                      placeholder="ระบุประเภท"
-                      value={filters.categoryFilter}
-                      onChange={(v) =>
-                        setFilters({ ...filters, categoryFilter: v })
-                      }
-                      options={[
-                        { label: "โครงการทั้งหมด", value: "ALL" },
-                        ...categoryType.map((c) => ({
-                          label: c.name,
-                          value: String(c.id),
-                        })),
-                      ]}
-                    />
-                  </div>
-                </Col>
-                <Col xs={24} sm={12} lg={5}>
-                  <div className="flex flex-col gap-2">
-                    <Text
-                      type="secondary"
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        color: token.colorTextDescription,
-                      }}
-                    >
-                      สถานะโครงการ
-                    </Text>
-                    <Select
-                      size="large"
-                      className="w-full custom-select-rounded h-12"
-                      placeholder="ระบุสถานะ"
-                      value={filters.statusFilter}
-                      onChange={(v) =>
-                        setFilters({ ...filters, statusFilter: v })
-                      }
-                      options={[
-                        { label: "ทุกสถานะ", value: "ALL" },
-                        { label: "เปิดโครงการ (Open)", value: "open" },
-                        { label: "ปิดโครงการ (Close)", value: "close" },
-                        ...Array.from(new Set(projects.map((p) => p.status)))
-                          .filter((s) => s && s !== "open" && s !== "close")
-                          .map((s) => ({
-                            label: s,
-                            value: s,
-                          })),
-                      ]}
-                    />
-                  </div>
-                </Col>
-                <Col xs={24} sm={12} lg={5}>
-                  <div className="flex flex-col gap-2">
-                    <Text
-                      type="secondary"
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        color: token.colorTextDescription,
-                      }}
-                    >
-                      สถานะการใช้งาน
-                    </Text>
-                    <Select
-                      size="large"
-                      className="w-full custom-select-rounded h-12"
-                      placeholder="สถานะการลบ"
-                      value={filters.isDeletedFilter}
-                      onChange={(v) =>
-                        setFilters({ ...filters, isDeletedFilter: v })
-                      }
-                      options={[
-                        { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
-                        { label: "รายการที่ลบ (Deleted)", value: "DELETED" },
-                        { label: "แสดงทั้งหมด (All)", value: "ALL" },
-                      ]}
-                    />
-                  </div>
-                </Col>
-              </Row>
-
-              <Divider style={{ margin: 0, opacity: 0.5 }} />
-
-              {/* Bottom Row: View Modes & Actions */}
-              <Row gutter={[20, 20]} align="middle" justify="space-between">
-                <Col xs={24} md={12}>
-                  <Space size={16}>
-                    <div className="flex flex-col gap-1">
-                      <Text
-                        type="secondary"
-                        style={{ fontSize: 11, fontWeight: 600 }}
-                      >
-                        มุมมองรายการ
-                      </Text>
-                      <Segmented
-                        options={[
-                          {
-                            value: "table",
-                            icon: <BarsOutlined />,
-                            label: "ตาราง",
-                          },
-                          {
-                            value: "kanban",
-                            icon: <AppstoreOutlined />,
-                            label: "บอร์ดงาน",
-                          },
-                        ]}
-                        value={viewMode}
-                        onChange={setViewMode as any}
-                        size="large"
-                        className="rounded-xl p-1"
-                      />
-                    </div>
-                  </Space>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Flex justify="end" gap={12} wrap="wrap">
-                    <Tooltip title="ล้างค่าการกรองทั้งหมด">
-                      <Button
-                        onClick={handleResetFilters}
-                        icon={<ReloadOutlined />}
-                        size="large"
-                        className="rounded-xl border-none flex items-center"
-                        style={{
-                          background: token.colorFillQuaternary,
-                          color: token.colorTextSecondary,
-                        }}
-                      >
-                        ล้างค่า
-                      </Button>
-                    </Tooltip>
-
-                    <Button
-                      icon={<PieChartOutlined />}
-                      onClick={() => setShowAnalytics(!showAnalytics)}
-                      type={showAnalytics ? "primary" : "default"}
-                      size="large"
-                      className="rounded-xl flex items-center"
-                      style={{
-                        boxShadow: showAnalytics
-                          ? `0 4px 12px ${token.colorPrimary}40`
-                          : "none",
-                      }}
-                    >
-                      {showAnalytics ? "ซ่อนบทวิเคราะห์" : "บทวิเคราะห์"}
-                    </Button>
-
-                    <Button
-                      icon={<FileExcelOutlined />}
-                      onClick={() =>
-                        exportProjectsToExcel(filteredProjects, getCategoryName)
-                      }
-                      size="large"
-                      className="rounded-xl flex items-center font-semibold"
-                      style={{
-                        color: token.colorSuccess,
-                        borderColor: token.colorSuccess,
-                        background: token.colorSuccessBg,
-                      }}
-                    >
-                      ส่งออก Excel
-                    </Button>
-                  </Flex>
-                </Col>
-              </Row>
+            <Flex align="center" gap={8} className="mb-6">
+              <FilterOutlined style={{ color: token.colorPrimary }} />
+              <Text strong style={{ fontSize: 16 }}>
+                ตัวกรองข้อมูล
+              </Text>
             </Flex>
 
-            <style jsx global>{`
-              .custom-select-rounded .ant-select-selector {
-                border-radius: 12px !important;
-                border-color: ${token.colorBorder} !important;
-                background-color: ${token.colorBgLayout} !important;
-                color: ${token.colorText} !important;
-              }
-              .custom-select-rounded .ant-select-selector:hover {
-                border-color: ${token.colorPrimary} !important;
-              }
-              .custom-select-rounded .ant-select-selection-item {
-                color: ${token.colorText} !important;
-              }
-              .custom-select-rounded .ant-select-selection-placeholder {
-                color: ${token.colorTextPlaceholder} !important;
-              }
-              .custom-select-rounded .ant-select-arrow {
-                color: ${token.colorTextDescription} !important;
-              }
-            `}</style>
-          </div>
+            <Row gutter={[24, 24]}>
+              <Col xs={24} md={12}>
+                <Flex vertical gap={8}>
+                  <Text type="secondary" style={{ fontWeight: 600 }}>
+                    ค้นหาโครงการ
+                  </Text>
+                  <Input
+                    prefix={
+                      <SearchOutlined style={{ color: token.colorPrimary }} />
+                    }
+                    placeholder="ชื่อโครงการ, รหัสโครงการ หรือรายละเอียด..."
+                    size="large"
+                    className="rounded-lg"
+                    value={filters.searchText}
+                    onChange={(e) =>
+                      setFilters({ ...filters, searchText: e.target.value })
+                    }
+                    allowClear
+                  />
+                </Flex>
+              </Col>
+              <Col xs={24} md={12}>
+                <Flex vertical gap={8}>
+                  <Text type="secondary" style={{ fontWeight: 600 }}>
+                    ประเภทโครงการ
+                  </Text>
+                  <Select
+                    size="large"
+                    className="w-full"
+                    placeholder="ระบุประเภท"
+                    value={filters.categoryFilter}
+                    onChange={(v) =>
+                      setFilters({ ...filters, categoryFilter: v })
+                    }
+                    options={[
+                      { label: "โครงการทั้งหมด", value: "ALL" },
+                      ...categoryType.map((c: any) => ({
+                        label: c.name,
+                        value: String(c.id),
+                      })),
+                    ]}
+                  />
+                </Flex>
+              </Col>
+              <Col xs={24} md={12}>
+                <Flex vertical gap={8}>
+                  <Text type="secondary" style={{ fontWeight: 600 }}>
+                    สถานะโครงการ
+                  </Text>
+                  <Select
+                    size="large"
+                    className="w-full"
+                    placeholder="ระบุสถานะ"
+                    value={filters.statusFilter}
+                    onChange={(v) =>
+                      setFilters({ ...filters, statusFilter: v })
+                    }
+                    options={[
+                      { label: "ทุกสถานะ", value: "ALL" },
+                      { label: "เปิดโครงการ (Open)", value: "open" },
+                      { label: "ปิดโครงการ (Close)", value: "close" },
+                      ...Array.from(new Set(projects.map((p: any) => p.status)))
+                        .filter((s) => s && s !== "open" && s !== "close")
+                        .map((s) => ({
+                          label: s,
+                          value: s,
+                        })),
+                    ]}
+                  />
+                </Flex>
+              </Col>
+              <Col xs={24} md={12}>
+                <Flex vertical gap={8}>
+                  <Text type="secondary" style={{ fontWeight: 600 }}>
+                    สถานะการใช้งาน
+                  </Text>
+                  <Select
+                    size="large"
+                    className="w-full"
+                    placeholder="สถานะการลบ"
+                    value={filters.isDeletedFilter}
+                    onChange={(v) =>
+                      setFilters({ ...filters, isDeletedFilter: v })
+                    }
+                    options={[
+                      { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
+                      { label: "รายการที่ลบ (Deleted)", value: "DELETED" },
+                      { label: "แสดงทั้งหมด (All)", value: "ALL" },
+                    ]}
+                  />
+                </Flex>
+              </Col>
+            </Row>
+
+            <Flex justify="flex-end" gap={12} className="mt-8">
+              <Button
+                onClick={handleResetFilters}
+                icon={<ReloadOutlined />}
+                size="large"
+                className="rounded-lg"
+              >
+                ล้างค่าตัวกรอง
+              </Button>
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                size="large"
+                className="rounded-lg"
+                style={{ fontWeight: 600 }}
+                onClick={() => {
+                  toast.success("กรองข้อมูลเรียบร้อยแล้ว");
+                }}
+              >
+                ค้นหาข้อมูล
+              </Button>
+            </Flex>
+          </Card>
 
           {showAnalytics && (
-            <div className="mb-6 animate-pulse-once">
+            <div className="mb-6">
               <AnalyticsDashboard
                 projects={filteredProjects}
                 getCategoryName={getCategoryName}
@@ -1346,31 +1048,61 @@ export default function ProjectManagementPage() {
             </div>
           )}
 
-          {/* Main Content Area */}
-          {viewMode === "table" ? (
-            <Card
-              className="rounded-2xl overflow-hidden"
-              style={{
-                background: token.colorBgContainer,
-                border: `1px solid ${token.colorBorderSecondary}`,
-              }}
-              title={
-                <Space>
-                  <div
-                    style={{
-                      width: 4,
-                      height: 24,
-                      background: token.colorPrimary,
-                      borderRadius: 4,
-                    }}
-                  />
-                  <Text strong style={{ fontSize: 18 }}>
-                    รายชื่อโครงการ ({filteredProjects.length})
-                  </Text>
-                </Space>
-              }
-            >
-              {loading ? (
+          {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
+          <Card
+            bordered={false}
+            styles={{ body: { padding: 16 } }}
+            style={{
+              borderRadius: 16,
+              border: `1px solid ${token.colorBorderSecondary}`,
+              marginBottom: 24,
+            }}
+            title={
+              <Space>
+                <DatabaseOutlined style={{ color: token.colorPrimary }} />
+                <Text strong style={{ fontSize: 18 }}>
+                  รายการผลการค้นหาโครงการ ({filteredProjects.length})
+                </Text>
+              </Space>
+            }
+            extra={
+              <Space>
+                <Button
+                  icon={<FileExcelOutlined />}
+                  onClick={() =>
+                    exportProjectsToExcel(filteredProjects, getCategoryName)
+                  }
+                  size="middle"
+                  className="rounded-lg"
+                  style={{
+                    color: token.colorSuccess,
+                    borderColor: token.colorSuccess,
+                  }}
+                >
+                  ส่งออก Excel
+                </Button>
+                <Segmented
+                  options={[
+                    {
+                      value: "table",
+                      icon: <BarsOutlined />,
+                      label: "ตาราง",
+                    },
+                    {
+                      value: "kanban",
+                      icon: <AppstoreOutlined />,
+                      label: "บอร์ดงาน",
+                    },
+                  ]}
+                  value={viewMode}
+                  onChange={setViewMode as any}
+                  className="rounded-lg"
+                />
+              </Space>
+            }
+          >
+            {viewMode === "table" ? (
+              loading ? (
                 <Skeleton active paragraph={{ rows: 10 }} />
               ) : (
                 <ProjectTable
@@ -1400,1093 +1132,1066 @@ export default function ProjectManagementPage() {
                     setModalState({ type: "tracking", data: record })
                   }
                 />
-              )}
-            </Card>
-          ) : (
-            <KanbanBoard
-              projects={filteredProjects}
-              loading={loading}
-              token={token}
-              allStatuses={statuses || []}
-              onEdit={openEditModal}
-              onDelete={(item: Project) =>
-                setModalState({ type: "delete", data: item })
-              }
-              onViewDetail={(item: Project) =>
-                setModalState({ type: "detail", data: item })
-              }
-              onProjectStatusChange={handleProjectStatusChange}
-            />
-          )}
-
-          {/* Tracking Modal */}
-          <Modal
-            open={modalState.type === "tracking"}
-            onCancel={closeModal}
-            footer={null}
-            centered
-            width={500}
-            title={
-              <Space>
-                <RocketOutlined className="text-blue-500" />
-                <Text strong style={{ fontSize: 18 }}>
-                  ติดตามสถานะความคืบหน้า (Delivery Tracking)
-                </Text>
-              </Space>
-            }
-            styles={{ content: { borderRadius: 20 } }}
-          >
-            {modalState.data && (
-              <div className="py-6 px-4">
-                <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    โครงการ:
-                  </Text>
-                  <br />
-                  <Text strong style={{ fontSize: 16 }}>
-                    {modalState.data.name}
-                  </Text>
-                </div>
-                <StatusTracker
-                  currentStatus={modalState.data.status}
-                  allStatuses={statuses || []}
-                  token={token}
-                  direction="vertical"
-                />
-              </div>
+              )
+            ) : (
+              <KanbanBoard
+                projects={filteredProjects}
+                loading={loading}
+                token={token}
+                allStatuses={statuses || []}
+                onEdit={openEditModal}
+                onDelete={(item: Project) =>
+                  setModalState({ type: "delete", data: item })
+                }
+                onViewDetail={(item: Project) =>
+                  setModalState({ type: "detail", data: item })
+                }
+                onProjectStatusChange={handleProjectStatusChange}
+              />
             )}
-          </Modal>
+          </Card>
+        </div>
+      </DashboardLayout>
 
-          {/* Status Management Modal */}
-          <ProjectStatusModal
-            open={statusModalOpen}
-            onClose={() => setStatusModalOpen(false)}
-          />
+      {/* Tracking Modal */}
+      <Modal
+        open={modalState.type === "tracking"}
+        onCancel={closeModal}
+        footer={null}
+        centered
+        width={500}
+        title={
+          <Space>
+            <RocketOutlined className="text-blue-500" />
+            <Text strong style={{ fontSize: 18 }}>
+              ติดตามสถานะความคืบหน้า (Delivery Tracking)
+            </Text>
+          </Space>
+        }
+        styles={{ content: { borderRadius: 20 } }}
+      >
+        {modalState.data && (
+          <div className="py-6 px-4">
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                โครงการ:
+              </Text>
+              <br />
+              <Text strong style={{ fontSize: 16 }}>
+                {modalState.data.name}
+              </Text>
+            </div>
+            <StatusTracker
+              currentStatus={modalState.data.status}
+              allStatuses={statuses || []}
+              token={token}
+              direction="vertical"
+            />
+          </div>
+        )}
+      </Modal>
 
-          {/* Create/Edit Modal */}
-          <Modal
-            open={modalState.type === "create" || modalState.type === "edit"}
-            title={
-              <Space>
-                {modalState.type === "edit" ? (
-                  <ProjectOutlined className="text-blue-500" />
-                ) : (
-                  <PlusOutlined className="text-green-500" />
-                )}{" "}
-                <Text strong style={{ fontSize: 20 }}>
-                  {modalState.type === "edit"
-                    ? "แก้ไขข้อมูลโครงการ"
-                    : "สร้างโครงการใหม่"}
-                </Text>
-              </Space>
-            }
-            onCancel={closeModal}
-            footer={null}
-            width={800}
-            centered
-            styles={{ content: { borderRadius: 16 } }}
-          >
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleSubmitForm}
-              className="mt-6"
-              size="large"
-            >
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Form.Item
-                    name="name"
-                    label="ชื่อโครงการ (ภาษาไทย)"
-                    rules={[
-                      { required: true, message: "กรุณาระบุชื่อโครงการ" },
-                    ]}
-                  >
-                    <Input
-                      placeholder="เช่น โครงการปรับปรุงระบบ..."
-                      className="rounded-lg"
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="name_en"
-                    label="ชื่อโครงการ (ภาษาอังกฤษ)"
-                    rules={[
-                      { required: true, message: "กรุณาระบุชื่อภาษาอังกฤษ" },
-                    ]}
-                  >
-                    <Input
-                      placeholder="เช่น System Renovation Project"
-                      className="rounded-lg"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Form.Item
-                    name="categoryType"
-                    label="ประเภทโครงการ"
-                    rules={[{ required: true, message: "กรุณาเลือกประเภท" }]}
-                  >
-                    <Select
-                      className="rounded-lg"
-                      placeholder="เลือกประเภท"
-                      options={categoryType.map((c) => ({
-                        label: c.name,
-                        value: String(c.id),
-                      }))}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="status" hidden>
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    name="projectStatusId"
-                    label="สถานะโครงการ (SDLC Step)"
-                    rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
-                  >
-                    <Select
-                      className="rounded-lg"
-                      placeholder="เลือกขั้นตอนหลัก (SDLC)"
-                      allowClear
-                      onChange={(val) => {
-                        const selectedStatus = statuses.find(
-                          (s) => s.id === val,
-                        );
-                        if (selectedStatus) {
-                          form.setFieldsValue({
-                            status: selectedStatus.nameTh,
-                          });
-                        } else {
-                          form.setFieldsValue({ status: "open" });
-                        }
-                      }}
-                      options={[
-                        ...(statuses || [])
-                          .sort((a: any, b: any) => a.priority - b.priority)
-                          .map((s: any) => ({
-                            label: (
-                              <Tag color="blue">
-                                Step {s.priority}: {s.nameTh}
-                              </Tag>
-                            ),
-                            value: s.id,
-                          })),
-                      ]}
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Form.Item name="start_date" label="วันที่เริ่มต้น">
-                    <DatePicker
-                      className="w-full rounded-lg"
-                      format="DD/MM/YYYY"
-                      placeholder="วว/ดด/ปปปป"
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="end_date" label="วันที่สิ้นสุด">
-                    <DatePicker
-                      className="w-full rounded-lg"
-                      format="DD/MM/YYYY"
-                      placeholder="วว/ดด/ปปปป"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Form.Item name="description" label="รายละเอียดเพิ่มเติม">
-                <Input.TextArea
-                  rows={4}
+      {/* Status Management Modal */}
+      <ProjectStatusModal
+        open={statusModalOpen}
+        onClose={() => setStatusModalOpen(false)}
+      />
+
+      {/* Create/Edit Modal */}
+      <Modal
+        open={modalState.type === "create" || modalState.type === "edit"}
+        title={
+          <Space>
+            {modalState.type === "edit" ? (
+              <ProjectOutlined className="text-blue-500" />
+            ) : (
+              <PlusOutlined className="text-green-500" />
+            )}{" "}
+            <Text strong style={{ fontSize: 20 }}>
+              {modalState.type === "edit"
+                ? "แก้ไขข้อมูลโครงการ"
+                : "สร้างโครงการใหม่"}
+            </Text>
+          </Space>
+        }
+        onCancel={closeModal}
+        footer={null}
+        width={800}
+        centered
+        styles={{ content: { borderRadius: 16 } }}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmitForm}
+          className="mt-6"
+          size="large"
+        >
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                name="name"
+                label="ชื่อโครงการ (ภาษาไทย)"
+                rules={[{ required: true, message: "กรุณาระบุชื่อโครงการ" }]}
+              >
+                <Input
+                  placeholder="เช่น โครงการปรับปรุงระบบ..."
                   className="rounded-lg"
-                  placeholder="รายละเอียดหรือหมายเหตุ..."
                 />
               </Form.Item>
-
-              <Divider
-                dashed
-                orientation="left"
-                style={{ borderColor: token.colorBorder }}
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="name_en"
+                label="ชื่อโครงการ (ภาษาอังกฤษ)"
+                rules={[{ required: true, message: "กรุณาระบุชื่อภาษาอังกฤษ" }]}
               >
-                <Space>
-                  <TeamOutlined /> ทีมงานผู้รับผิดชอบ
-                </Space>
-              </Divider>
+                <Input
+                  placeholder="เช่น System Renovation Project"
+                  className="rounded-lg"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                name="categoryType"
+                label="ประเภทโครงการ"
+                rules={[{ required: true, message: "กรุณาเลือกประเภท" }]}
+              >
+                <Select
+                  className="rounded-lg"
+                  placeholder="เลือกประเภท"
+                  options={categoryType.map((c: any) => ({
+                    label: c.name,
+                    value: String(c.id),
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="status" hidden>
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="projectStatusId"
+                label="สถานะโครงการ (SDLC Step)"
+                rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
+              >
+                <Select
+                  className="rounded-lg"
+                  placeholder="เลือกขั้นตอนหลัก (SDLC)"
+                  allowClear
+                  onChange={(val) => {
+                    const selectedStatus = statuses.find((s) => s.id === val);
+                    if (selectedStatus) {
+                      form.setFieldsValue({
+                        status: selectedStatus.nameTh,
+                      });
+                    } else {
+                      form.setFieldsValue({ status: "open" });
+                    }
+                  }}
+                  options={[
+                    ...(statuses || [])
+                      .sort((a: any, b: any) => a.priority - b.priority)
+                      .map((s: any) => ({
+                        label: (
+                          <Tag color="blue">
+                            Step {s.priority}: {s.nameTh}
+                          </Tag>
+                        ),
+                        value: s.id,
+                      })),
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item name="start_date" label="วันที่เริ่มต้น">
+                <DatePicker
+                  className="w-full rounded-lg"
+                  format="DD/MM/YYYY"
+                  placeholder="วว/ดด/ปปปป"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="end_date" label="วันที่สิ้นสุด">
+                <DatePicker
+                  className="w-full rounded-lg"
+                  format="DD/MM/YYYY"
+                  placeholder="วว/ดด/ปปปป"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="description" label="รายละเอียดเพิ่มเติม">
+            <Input.TextArea
+              rows={4}
+              className="rounded-lg"
+              placeholder="รายละเอียดหรือหมายเหตุ..."
+            />
+          </Form.Item>
 
-              <Form.List name="assignees">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Row
-                        key={key}
-                        gutter={12}
-                        align="middle"
-                        className="mb-2"
-                      >
-                        <Col span={10}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "userId"]}
-                            rules={[
-                              { required: true, message: "ระบุผู้รับผิดชอบ" },
-                              ({ getFieldValue }) => ({
-                                validator(_, value) {
-                                  const assignees =
-                                    getFieldValue("assignees") || [];
-                                  const duplicates = assignees.filter(
-                                    (a: any) =>
-                                      a?.userId === value &&
-                                      value !== undefined,
-                                  );
-                                  if (duplicates.length > 1) {
-                                    return Promise.reject(
-                                      new Error("ชื่อผู้ใช้ซ้ำกัน!"),
-                                    );
-                                  }
-                                  return Promise.resolve();
-                                },
-                              }),
-                            ]}
-                            className="mb-0"
-                          >
-                            <Select
-                              placeholder="เลือกผู้รับผิดชอบ (ค้นหาชื่อ/ชื่อเล่น)"
-                              showSearch
-                              disabled={modalState.type === "edit"}
-                              filterOption={(input, option) => {
-                                const label = (
-                                  option?.label ?? ""
-                                ).toLowerCase();
-                                const searchStr = input.toLowerCase();
-                                return label.includes(searchStr);
-                              }}
-                              onChange={(userId) => {
-                                const user = users.find(
-                                  (u) => u.admin_id === userId,
+          <Divider
+            dashed
+            orientation="left"
+            style={{ borderColor: token.colorBorder }}
+          >
+            <Space>
+              <TeamOutlined /> ทีมงานผู้รับผิดชอบ
+            </Space>
+          </Divider>
+
+          <Form.List name="assignees">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map(({ key, name, ...restField }) => (
+                  <Row key={key} gutter={12} align="middle" className="mb-2">
+                    <Col span={10}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "userId"]}
+                        rules={[
+                          { required: true, message: "ระบุผู้รับผิดชอบ" },
+                          ({ getFieldValue }) => ({
+                            validator(_, value) {
+                              const assignees =
+                                getFieldValue("assignees") || [];
+                              const duplicates = assignees.filter(
+                                (a: any) =>
+                                  a?.userId === value && value !== undefined,
+                              );
+                              if (duplicates.length > 1) {
+                                return Promise.reject(
+                                  new Error("ชื่อผู้ใช้ซ้ำกัน!"),
                                 );
-                                if (user?.position) {
-                                  const currentAssignees =
-                                    form.getFieldValue("assignees");
-                                  currentAssignees[name].position =
-                                    user.position;
-                                  form.setFieldsValue({
-                                    assignees: currentAssignees,
-                                  });
-                                }
-                              }}
-                              options={users.map((u) => ({
-                                label: `${u.firstname} ${u.lastname}${
-                                  u.nickname ? ` (${u.nickname})` : ""
-                                }`,
-                                value: u.admin_id,
-                              }))}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "position"]}
-                            className="mb-0"
-                          >
-                            <AutoComplete
-                              options={positionOptions}
-                              disabled={modalState.type === "edit"}
-                              placeholder="ตำแหน่ง / หน้าที่ (Optional)"
-                              filterOption={(inputValue, option) =>
-                                (option?.value ?? "")
-                                  .toUpperCase()
-                                  .indexOf(inputValue.toUpperCase()) !== -1
                               }
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col span={2}>
-                          {modalState.type !== "edit" && (
-                            <MinusCircleOutlined
-                              onClick={() => remove(name)}
-                              style={{ color: "red", fontSize: 18 }}
-                            />
-                          )}
-                        </Col>
-                      </Row>
-                    ))}
-                    <Form.Item>
-                      {modalState.type === "edit" ? (
-                        <div className="text-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            <InfoCircleOutlined className="mr-1" />{" "}
-                            ทีมงานผู้รับผิดชอบไม่สามารถแก้ไขได้ในหน้านี้
-                          </Text>
-                        </div>
-                      ) : (
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          block
-                          icon={<PlusOutlined />}
-                        >
-                          เพิ่มผู้รับผิดชอบ
-                        </Button>
-                      )}
-                    </Form.Item>
-                  </>
-                )}
-              </Form.List>
-
-              <Divider />
-
-              <Flex justify="end" gap={12}>
-                <Button
-                  onClick={closeModal}
-                  size="large"
-                  className="rounded-lg"
-                >
-                  ยกเลิก
-                </Button>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={actionLoading}
-                  icon={<CheckCircleOutlined />}
-                  size="large"
-                  className="rounded-lg"
-                >
-                  บันทึกข้อมูล
-                </Button>
-              </Flex>
-            </Form>
-          </Modal>
-
-          {/* Delete Modal */}
-          <Modal
-            open={modalState.type === "delete"}
-            title={
-              <Space className="text-red-500">
-                <ExclamationCircleOutlined style={{ fontSize: 24 }} />
-                <Text strong style={{ fontSize: 20 }}>
-                  ยืนยันลบโครงการ?
-                </Text>
-              </Space>
-            }
-            onCancel={closeModal}
-            onOk={() =>
-              deleteProject(modalState.data?.id!).then(() => {
-                closeModal();
-                fetchProjects();
-              })
-            }
-            okButtonProps={{
-              danger: true,
-              disabled: confirmDeleteText !== "Delete",
-              size: "large",
-              className: "rounded-lg",
-            }}
-            cancelButtonProps={{ size: "large", className: "rounded-lg" }}
-            okText="ลบข้อมูลทันที"
-            cancelText="ยกเลิก"
-            centered
-            width={500}
-            styles={{ content: { borderRadius: 16 } }}
-          >
-            <Flex vertical gap={12} className="my-6">
-              <div className="p-4 bg-red-50 rounded-lg border border-red-100 dark:bg-red-900/10 dark:border-red-900/30">
-                <Text type="secondary">คุณกำลังจะลบโครงการ:</Text>
-                <br />
-                <Text strong style={{ fontSize: 16 }}>
-                  {modalState.data?.name}
-                </Text>
-              </div>
-              <Text>
-                การกระทำนี้ไม่สามารถกู้คืนได้ หากต้องการยืนยัน โปรดพิมพ์คำว่า{" "}
-                <Text code copyable>
-                  Delete
-                </Text>{" "}
-                ในช่องด้านล่าง
-              </Text>
-              <Input
-                placeholder="พิมพ์ 'Delete' เพื่อยืนยัน"
-                onChange={(e) => setConfirmDeleteText(e.target.value)}
-                size="large"
-                className="rounded-lg"
-              />
-            </Flex>
-          </Modal>
-
-          {/* Detail Modal - Redesigned */}
-          <Modal
-            open={modalState.type === "detail"}
-            onCancel={closeModal}
-            footer={null}
-            centered
-            width={900}
-            styles={{
-              content: { borderRadius: 24, padding: 0, overflow: "hidden" },
-            }}
-            closable={false}
-          >
-            {modalState.data && (
-              <div className="relative bg-gray-50 dark:bg-gray-900">
-                {/* Header Banner */}
-                <div
-                  style={{
-                    background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorLink})`,
-                    padding: "32px 32px 64px 32px",
-                  }}
-                  className="relative"
-                >
-                  <Button
-                    icon={<CloseOutlined style={{ color: "white" }} />}
-                    type="text"
-                    className="absolute top-4 right-4 hover:bg-white/20"
-                    onClick={closeModal}
-                  />
-                  <Flex justify="space-between" align="start" gap={32}>
-                    <Flex gap={12} vertical style={{ flex: 1 }}>
-                      <Space size={12}>
-                        <Tag
-                          color="rgba(255,255,255,0.2)"
-                          className="text-white border-none px-3 py-1 font-semibold backdrop-blur-sm"
-                        >
-                          {getCategoryName(
-                            String(modalState.data.categoryType),
-                          )}
-                        </Tag>
-                        <Tag
-                          color={
-                            modalState.data.status === "open"
-                              ? "#87d068"
-                              : "default"
-                          }
-                          className="border-none px-3 py-1 font-semibold"
-                        >
-                          {modalState.data.status === "open"
-                            ? "เปิดใช้งาน"
-                            : "ปิดโครงการ"}
-                        </Tag>
-                      </Space>
-                      <Title
-                        level={2}
-                        style={{ color: "white", margin: 0, fontWeight: 800 }}
+                              return Promise.resolve();
+                            },
+                          }),
+                        ]}
+                        className="mb-0"
                       >
-                        {modalState.data.name}
-                      </Title>
-                      {modalState.data.name_en && (
-                        <Text className="text-white/80 text-xl italic">
-                          {modalState.data.name_en}
-                        </Text>
-                      )}
-                    </Flex>
-                  </Flex>
-                </div>
-
-                <div className="px-8 pb-8 -mt-10">
-                  {/* Stats Cards - Floating overlapping banner */}
-                  <Row gutter={16} className="mb-6">
-                    <Col span={8}>
-                      <Card
-                        className="h-full rounded-2xl border-l-4 border-l-blue-500"
-                        styles={{ body: { padding: 20 } }}
-                      >
-                        <Statistic
-                          title={
-                            <Space className="text-sm font-medium text-gray-400">
-                              <CalendarOutlined /> ระยะเวลาโครงการ
-                            </Space>
-                          }
-                          value={convertToThaiDateDDMMYYY(
-                            modalState.data.start_date,
-                          )}
-                          valueStyle={{ fontSize: 16, fontWeight: 700 }}
-                          formatter={(val) => (
-                            <div className="flex flex-col gap-1 mt-1">
-                              <span>{val}</span>
-                              <span className="text-xs text-gray-400">
-                                ถึง{" "}
-                                {convertToThaiDateDDMMYYY(
-                                  modalState?.data?.end_date,
-                                )}
-                              </span>
-                            </div>
-                          )}
-                        />
-                      </Card>
-                    </Col>
-                    <Col span={8}>
-                      <Card
-                        className="h-full rounded-2xl border-l-4 border-l-orange-500"
-                        styles={{ body: { padding: 20 } }}
-                      >
-                        <Statistic
-                          title={
-                            <Space className="text-sm font-medium text-gray-400">
-                              <ClockCircleOutlined /> ประมาณการชั่วโมงรวม
-                            </Space>
-                          }
-                          value={modalState.data.estimate_hour || 0}
-                          suffix="Hours"
-                          valueStyle={{
-                            fontSize: 24,
-                            fontWeight: 700,
-                            color: "#fa8c16",
+                        <Select
+                          placeholder="เลือกผู้รับผิดชอบ (ค้นหาชื่อ/ชื่อเล่น)"
+                          showSearch
+                          disabled={modalState.type === "edit"}
+                          filterOption={(input, option) => {
+                            const label = (option?.label ?? "").toLowerCase();
+                            const searchStr = input.toLowerCase();
+                            return label.includes(searchStr);
                           }}
-                        />
-                        <div className="text-[10px] text-gray-400 mt-2">
-                          * คำนวณจาก (จำนวนทีมงาน x 8 ชม. x วันทำการ)
-                        </div>
-                      </Card>
-                    </Col>
-                    <Col span={8}>
-                      <Card
-                        className="h-full rounded-2xl border-l-4 border-l-green-500"
-                        styles={{ body: { padding: 20 } }}
-                      >
-                        <Statistic
-                          title={
-                            <Space className="text-sm font-medium text-gray-400">
-                              <AppstoreOutlined /> ฟีเจอร์ย่อย
-                            </Space>
-                          }
-                          value={
-                            modalState.data.features?.filter(
-                              (f) => !f.is_deleted,
-                            ).length || 0
-                          }
-                          suffix="รายการ"
-                          valueStyle={{
-                            fontSize: 24,
-                            fontWeight: 700,
-                            color: "#52c41a",
-                          }}
-                        />
-                      </Card>
-                    </Col>
-                  </Row>
-
-                  <Row gutter={24}>
-                    {/* Left Main */}
-                    <Col span={16}>
-                      <div className="flex flex-col gap-6">
-                        <Card
-                          className="h-full rounded-2xl border-l-4 border-l-purple-500"
-                          styles={{ body: { padding: 20 } }}
-                        >
-                          <div className="text-sm font-medium text-gray-400 mb-3">
-                            <UserOutlined /> ผู้สร้างโครงการ
-                          </div>
-                          <Space>
-                            <Avatar
-                              size={40}
-                              style={{
-                                backgroundColor: token.colorPrimaryBg,
-                                color: token.colorPrimary,
-                              }}
-                            >
-                              {
-                                getUserById(modalState.data.createdBy)
-                                  ?.firstname?.[0]
-                              }
-                            </Avatar>
-                            <div className="flex flex-col">
-                              <Text strong>
-                                {getUserById(modalState.data.createdBy)
-                                  ?.firstname || "System"}
-                              </Text>
-                              <Text type="secondary" style={{ fontSize: 11 }}>
-                                {convertToThaiDateDDMMYYY(
-                                  modalState.data.createdAt,
-                                )}
-                              </Text>
-                            </div>
-                          </Space>
-                        </Card>
-
-                        <Card
-                          title={
-                            <Space>
-                              <FileTextOutlined /> รายละเอียด
-                            </Space>
-                          }
-                          className="rounded-2xl"
-                        >
-                          <Text className="text-gray-600 dark:text-gray-300 leading-relaxed text-base">
-                            {modalState.data.description ||
-                              "ไม่มีรายละเอียดเพิ่มเติม"}
-                          </Text>
-                        </Card>
-                      </div>
-
-                      <Card
-                        title={
-                          <Space>
-                            <AppstoreOutlined /> รายการฟีเจอร์ (Features)
-                          </Space>
-                        }
-                        className="rounded-2xl mt-5"
-                        styles={{
-                          body: {
-                            padding: "0 24px 24px",
-                          },
-                        }}
-                      >
-                        <List
-                          itemLayout="horizontal"
-                          dataSource={
-                            modalState.data.features?.filter(
-                              (f) => !f.is_deleted,
-                            ) || []
-                          }
-                          renderItem={(item) => (
-                            <List.Item>
-                              <List.Item.Meta
-                                avatar={
-                                  <div
-                                    style={{
-                                      width: 40,
-                                      height: 40,
-                                      borderRadius: 10,
-                                      background:
-                                        item.status === "open"
-                                          ? token.colorPrimaryBg
-                                          : token.colorFillSecondary,
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      color:
-                                        item.status === "open"
-                                          ? token.colorPrimary
-                                          : token.colorTextSecondary,
-                                    }}
-                                  >
-                                    <ProjectOutlined />
-                                  </div>
-                                }
-                                title={
-                                  <Text strong style={{ fontSize: 15 }}>
-                                    {item.name}
-                                  </Text>
-                                }
-                                description={
-                                  <Tag
-                                    bordered={false}
-                                    color={
-                                      item.status === "open"
-                                        ? "processing"
-                                        : "default"
-                                    }
-                                  >
-                                    {item.status === "open"
-                                      ? "Active"
-                                      : "Closed"}
-                                  </Tag>
-                                }
-                              />
-                            </List.Item>
-                          )}
-                        />
-                        {(!modalState.data.features ||
-                          modalState.data.features.filter((f) => !f.is_deleted)
-                            .length === 0) && (
-                          <div className="text-center py-8 text-gray-400">
-                            ไม่มีรายการฟีเจอร์
-                          </div>
-                        )}
-                      </Card>
-                    </Col>
-
-                    {/* Right Side */}
-                    <Col span={8}>
-                      <Card
-                        title={
-                          <Space>
-                            <TeamOutlined /> ทีมงาน (
-                            {modalState.data.projectAssignees?.length || 0})
-                          </Space>
-                        }
-                        className="rounded-2xl h-full"
-                      >
-                        <List
-                          itemLayout="horizontal"
-                          dataSource={modalState.data.projectAssignees || []}
-                          locale={{ emptyText: "ยังไม่มีผู้รับผิดชอบ" }}
-                          renderItem={(item) => {
-                            const u = getUserById(item.userId);
-                            return (
-                              <List.Item
-                                style={{
-                                  padding: "12px 0",
-                                  borderBottom: "1px dashed #f0f0f0",
-                                }}
-                              >
-                                <List.Item.Meta
-                                  avatar={
-                                    <Avatar
-                                      src={u?.profile_image}
-                                      style={{
-                                        backgroundColor: token.colorPrimary,
-                                      }}
-                                    >
-                                      {u?.firstname?.[0]}
-                                    </Avatar>
-                                  }
-                                  title={
-                                    <Text style={{ fontSize: 14 }}>
-                                      {u?.firstname} {u?.lastname}
-                                    </Text>
-                                  }
-                                  description={
-                                    item.position ? (
-                                      <Tag
-                                        color="blue"
-                                        bordered={false}
-                                        className="text-[10px] m-0 mt-1"
-                                      >
-                                        {item.position}
-                                      </Tag>
-                                    ) : (
-                                      <Text
-                                        type="secondary"
-                                        className="text-[11px]"
-                                      >
-                                        ไม่ระบุตำแหน่ง
-                                      </Text>
-                                    )
-                                  }
-                                />
-                              </List.Item>
+                          onChange={(userId) => {
+                            const user = users.find(
+                              (u) => u.admin_id === userId,
                             );
+                            if (user?.position) {
+                              const currentAssignees =
+                                form.getFieldValue("assignees");
+                              currentAssignees[name].position = user.position;
+                              form.setFieldsValue({
+                                assignees: currentAssignees,
+                              });
+                            }
                           }}
+                          options={users.map((u: any) => ({
+                            label: `${u.firstname} ${u.lastname}${
+                              u.nickname ? ` (${u.nickname})` : ""
+                            }`,
+                            value: u.admin_id,
+                          }))}
                         />
-                      </Card>
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "position"]}
+                        className="mb-0"
+                      >
+                        <AutoComplete
+                          options={positionOptions}
+                          disabled={modalState.type === "edit"}
+                          placeholder="ตำแหน่ง / หน้าที่ (Optional)"
+                          filterOption={(inputValue, option) =>
+                            (option?.value ?? "")
+                              .toUpperCase()
+                              .indexOf(inputValue.toUpperCase()) !== -1
+                          }
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={2}>
+                      {modalState.type !== "edit" && (
+                        <MinusCircleOutlined
+                          onClick={() => remove(name)}
+                          style={{ color: "red", fontSize: 18 }}
+                        />
+                      )}
                     </Col>
                   </Row>
-                </div>
-              </div>
-            )}
-          </Modal>
-
-          {/* Assignees List Modal - Refactored for Dark Mode & V5 */}
-          <Modal
-            open={modalState.type === "assignees"}
-            onCancel={closeModal}
-            footer={null}
-            centered
-            width={850}
-            styles={{
-              content: { borderRadius: 24, padding: 0, overflow: "hidden" },
-            }}
-            closable={false}
-          >
-            {modalState.data && (
-              <div style={{ backgroundColor: token.colorBgLayout }}>
-                {/* Header Banner */}
-                <div
-                  style={{
-                    background: `linear-gradient(135deg, ${token.colorInfoActive}, ${token.colorPrimary})`,
-                    padding: "32px 32px 64px 32px",
-                    position: "relative",
-                  }}
-                >
-                  <Button
-                    icon={<CloseOutlined style={{ color: "white" }} />}
-                    type="text"
-                    style={{ position: "absolute", top: 16, right: 16 }}
-                    className="hover:bg-white/20"
-                    onClick={closeModal}
-                  />
-                  <Flex vertical gap={24}>
-                    <Flex justify="space-between" align="center" gap={32}>
-                      <Flex gap={8} vertical style={{ flex: 1 }}>
-                        <Space size={12}>
-                          <TeamOutlined
-                            style={{ color: "white", fontSize: 24 }}
-                          />
-                          <Title
-                            level={4}
-                            style={{
-                              color: "white",
-                              margin: 0,
-                              fontWeight: 700,
-                            }}
-                          >
-                            รายชื่อผู้จัดทำโครงการ
-                          </Title>
-                        </Space>
-                        <Text
-                          style={{
-                            color: "rgba(255,255,255,0.85)",
-                            fontStyle: "italic",
-                          }}
-                        >
-                          {modalState.data.name}
-                        </Text>
-                      </Flex>
-
-                      <Space size={16}>
-                        <Card
-                          size="small"
-                          bordered={false}
-                          style={{
-                            background: "rgba(255,255,255,0.15)",
-                            backdropFilter: "blur(8px)",
-                            borderRadius: 16,
-                            minWidth: 140,
-                          }}
-                        >
-                          <Statistic
-                            title={
-                              <span
-                                style={{
-                                  color: "rgba(255,255,255,0.7)",
-                                  fontSize: 10,
-                                  fontWeight: 700,
-                                  letterSpacing: 1,
-                                }}
-                              >
-                                จำนวนชั่วโมงทั้งหมด
-                              </span>
-                            }
-                            value={modalState.data.estimate_hour || 0}
-                            valueStyle={{
-                              color: "white",
-                              fontWeight: 900,
-                              fontSize: 20,
-                            }}
-                            suffix={
-                              <span style={{ fontSize: 12, color: "white" }}>
-                                ชม.
-                              </span>
-                            }
-                            formatter={(val) => Number(val).toLocaleString()}
-                          />
-                        </Card>
-
-                        {costPerHour > 0 && (
-                          <Card
-                            size="small"
-                            bordered={false}
-                            style={{
-                              background: "rgba(255,255,255,0.25)",
-                              backdropFilter: "blur(8px)",
-                              borderRadius: 16,
-                              minWidth: 180,
-                              border: "1px solid rgba(255,255,255,0.3)",
-                            }}
-                          >
-                            <Statistic
-                              title={
-                                <span
-                                  style={{
-                                    color: "rgba(255,255,255,0.9)",
-                                    fontSize: 10,
-                                    fontWeight: 800,
-                                    letterSpacing: 1,
-                                  }}
-                                >
-                                  ประมาณการต้นทุนรวม
-                                </span>
-                              }
-                              value={
-                                (modalState.data.estimate_hour || 0) *
-                                costPerHour
-                              }
-                              valueStyle={{
-                                color: "#fff",
-                                fontWeight: 900,
-                                fontSize: 24,
-                              }}
-                              prefix="฿"
-                              formatter={(val) => Number(val).toLocaleString()}
-                            />
-                          </Card>
-                        )}
-                      </Space>
-                    </Flex>
-
-                    {/* Cost Input Section */}
-                    <Flex
-                      align="center"
-                      gap={16}
-                      style={{
-                        background: "rgba(0,0,0,0.1)",
-                        padding: "12px 20px",
-                        borderRadius: 16,
-                        width: "fit-content",
-                        backdropFilter: "blur(4px)",
-                      }}
+                ))}
+                <Form.Item>
+                  {modalState.type === "edit" ? (
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        <InfoCircleOutlined className="mr-1" />{" "}
+                        ทีมงานผู้รับผิดชอบไม่สามารถแก้ไขได้ในหน้านี้
+                      </Text>
+                    </div>
+                  ) : (
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
                     >
-                      <Text style={{ color: "white", fontWeight: 600 }}>
-                        กำหนดต้นทุนรายชั่วโมง:
-                      </Text>
-                      <InputNumber
-                        min={0}
-                        placeholder="ระบุบาทต่อชั่วโมง"
-                        value={costPerHour}
-                        onChange={(val) => setCostPerHour(val || 0)}
-                        style={{ width: 180 }}
-                        prefix="฿"
-                        size="large"
-                        className="rounded-lg"
-                      />
-                      <Text style={{ color: "rgba(255,255,255,0.7)" }}>
-                        ต่อ 1 Man-Hour
-                      </Text>
-                    </Flex>
-                  </Flex>
-                </div>
+                      เพิ่มผู้รับผิดชอบ
+                    </Button>
+                  )}
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
 
-                {/* Content Section */}
-                <div style={{ padding: "0 32px 32px", marginTop: -40 }}>
+          <Divider />
+
+          <Flex justify="end" gap={12}>
+            <Button onClick={closeModal} size="large" className="rounded-lg">
+              ยกเลิก
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={actionLoading}
+              icon={<CheckCircleOutlined />}
+              size="large"
+              className="rounded-lg"
+              style={{ fontWeight: 600 }}
+            >
+              บันทึกข้อมูล
+            </Button>
+          </Flex>
+        </Form>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        open={modalState.type === "delete"}
+        title={
+          <Space className="text-red-500">
+            <ExclamationCircleOutlined style={{ fontSize: 24 }} />
+            <Text strong style={{ fontSize: 20 }}>
+              ยืนยันลบโครงการ?
+            </Text>
+          </Space>
+        }
+        onCancel={closeModal}
+        onOk={() =>
+          deleteProject(modalState.data?.id!).then(() => {
+            closeModal();
+            fetchProjects();
+          })
+        }
+        okButtonProps={{
+          danger: true,
+          disabled: confirmDeleteText !== "Delete",
+          size: "large",
+          className: "rounded-lg",
+        }}
+        cancelButtonProps={{ size: "large", className: "rounded-lg" }}
+        okText="ลบข้อมูลทันที"
+        cancelText="ยกเลิก"
+        centered
+        width={500}
+        styles={{ content: { borderRadius: 16 } }}
+      >
+        <Flex vertical gap={12} className="my-6">
+          <div className="p-4 bg-red-50 rounded-lg border border-red-100 dark:bg-red-900/10 dark:border-red-900/30">
+            <Text type="secondary">คุณกำลังจะลบโครงการ:</Text>
+            <br />
+            <Text strong style={{ fontSize: 16 }}>
+              {modalState.data?.name}
+            </Text>
+          </div>
+          <Text>
+            การกระทำนี้ไม่สามารถกู้คืนได้ หากต้องการยืนยัน โปรดพิมพ์คำว่า{" "}
+            <Text code copyable>
+              Delete
+            </Text>{" "}
+            ในช่องด้านล่าง
+          </Text>
+          <Input
+            placeholder="พิมพ์ 'Delete' เพื่อยืนยัน"
+            onChange={(e) => setConfirmDeleteText(e.target.value)}
+            size="large"
+            className="rounded-lg"
+          />
+        </Flex>
+      </Modal>
+
+      {/* Detail Modal - Redesigned */}
+      <Modal
+        open={modalState.type === "detail"}
+        onCancel={closeModal}
+        footer={null}
+        centered
+        width={900}
+        styles={{
+          content: { borderRadius: 24, padding: 0, overflow: "hidden" },
+        }}
+        closable={false}
+      >
+        {modalState.data && (
+          <div className="relative bg-gray-50 dark:bg-gray-900">
+            {/* Header Banner */}
+            <div
+              style={{
+                background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorLink})`,
+                padding: "32px 32px 64px 32px",
+              }}
+              className="relative"
+            >
+              <Button
+                icon={<CloseOutlined style={{ color: "white" }} />}
+                type="text"
+                className="absolute top-4 right-4 hover:bg-white/20"
+                onClick={closeModal}
+              />
+              <Flex justify="space-between" align="start" gap={32}>
+                <Flex gap={12} vertical style={{ flex: 1 }}>
+                  <Space size={12}>
+                    <Tag
+                      color="rgba(255,255,255,0.2)"
+                      className="text-white border-none px-3 py-1 font-semibold backdrop-blur-sm"
+                    >
+                      {getCategoryName(String(modalState.data.categoryType))}
+                    </Tag>
+                    <Tag
+                      color={
+                        modalState.data.status === "open"
+                          ? "#87d068"
+                          : "default"
+                      }
+                      className="border-none px-3 py-1 font-semibold"
+                    >
+                      {modalState.data.status === "open"
+                        ? "เปิดใช้งาน"
+                        : "ปิดโครงการ"}
+                    </Tag>
+                  </Space>
+                  <Title
+                    level={2}
+                    style={{ color: "white", margin: 0, fontWeight: 800 }}
+                  >
+                    {modalState.data.name}
+                  </Title>
+                  {modalState.data.name_en && (
+                    <Text className="text-white/80 text-xl italic">
+                      {modalState.data.name_en}
+                    </Text>
+                  )}
+                </Flex>
+              </Flex>
+            </div>
+
+            <div className="px-8 pb-8 -mt-10">
+              {/* Stats Cards - Floating overlapping banner */}
+              <Row gutter={16} className="mb-6">
+                <Col span={8}>
                   <Card
-                    bordered={false}
-                    style={{
-                      borderRadius: 20,
-                      boxShadow: "none",
-                      background: token.colorBgElevated,
+                    className="h-full rounded-2xl border-l-4 border-l-blue-500"
+                    styles={{ body: { padding: 20 } }}
+                  >
+                    <Statistic
+                      title={
+                        <Space className="text-sm font-medium text-gray-400">
+                          <CalendarOutlined /> ระยะเวลาโครงการ
+                        </Space>
+                      }
+                      value={convertToThaiDateDDMMYYY(
+                        modalState.data.start_date,
+                      )}
+                      valueStyle={{ fontSize: 16, fontWeight: 700 }}
+                      formatter={(val) => (
+                        <div className="flex flex-col gap-1 mt-1">
+                          <span>{val}</span>
+                          <span className="text-xs text-gray-400">
+                            ถึง{" "}
+                            {convertToThaiDateDDMMYYY(
+                              modalState?.data?.end_date,
+                            )}
+                          </span>
+                        </div>
+                      )}
+                    />
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card
+                    className="h-full rounded-2xl border-l-4 border-l-orange-500"
+                    styles={{ body: { padding: 20 } }}
+                  >
+                    <Statistic
+                      title={
+                        <Space className="text-sm font-medium text-gray-400">
+                          <ClockCircleOutlined /> ประมาณการชั่วโมงรวม
+                        </Space>
+                      }
+                      value={modalState.data.estimate_hour || 0}
+                      suffix="Hours"
+                      valueStyle={{
+                        fontSize: 24,
+                        fontWeight: 700,
+                        color: "#fa8c16",
+                      }}
+                    />
+                    <div className="text-[10px] text-gray-400 mt-2">
+                      * คำนวณจาก (จำนวนทีมงาน x 8 ชม. x วันทำการ)
+                    </div>
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card
+                    className="h-full rounded-2xl border-l-4 border-l-green-500"
+                    styles={{ body: { padding: 20 } }}
+                  >
+                    <Statistic
+                      title={
+                        <Space className="text-sm font-medium text-gray-400">
+                          <AppstoreOutlined /> ฟีเจอร์ย่อย
+                        </Space>
+                      }
+                      value={
+                        modalState.data.features?.filter((f) => !f.is_deleted)
+                          .length || 0
+                      }
+                      suffix="รายการ"
+                      valueStyle={{
+                        fontSize: 24,
+                        fontWeight: 700,
+                        color: "#52c41a",
+                      }}
+                    />
+                  </Card>
+                </Col>
+              </Row>
+
+              <Row gutter={24}>
+                {/* Left Main */}
+                <Col span={16}>
+                  <div className="flex flex-col gap-6">
+                    <Card
+                      className="h-full rounded-2xl border-l-4 border-l-purple-500"
+                      styles={{ body: { padding: 20 } }}
+                    >
+                      <div className="text-sm font-medium text-gray-400 mb-3">
+                        <UserOutlined /> ผู้สร้างโครงการ
+                      </div>
+                      <Space>
+                        <Avatar
+                          size={40}
+                          style={{
+                            backgroundColor: token.colorPrimaryBg,
+                            color: token.colorPrimary,
+                          }}
+                        >
+                          {
+                            getUserById(modalState.data.createdBy)
+                              ?.firstname?.[0]
+                          }
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <Text strong>
+                            {getUserById(modalState.data.createdBy)
+                              ?.firstname || "System"}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: 11 }}>
+                            {convertToThaiDateDDMMYYY(
+                              modalState.data.createdAt,
+                            )}
+                          </Text>
+                        </div>
+                      </Space>
+                    </Card>
+
+                    <Card
+                      title={
+                        <Space>
+                          <FileTextOutlined /> รายละเอียด
+                        </Space>
+                      }
+                      className="rounded-2xl"
+                    >
+                      <Text className="text-gray-600 dark:text-gray-300 leading-relaxed text-base">
+                        {modalState.data.description ||
+                          "ไม่มีรายละเอียดเพิ่มเติม"}
+                      </Text>
+                    </Card>
+                  </div>
+
+                  <Card
+                    title={
+                      <Space>
+                        <AppstoreOutlined /> รายการฟีเจอร์ (Features)
+                      </Space>
+                    }
+                    className="rounded-2xl mt-5"
+                    styles={{
+                      body: {
+                        padding: "0 24px 24px",
+                      },
                     }}
-                    styles={{ body: { padding: 0 } }}
                   >
                     <List
-                      dataSource={modalState.data.projectAssignees || []}
-                      renderItem={(item) => {
-                        const user = getUserById(item.userId);
-                        const individualHours =
-                          (modalState.data?.estimate_hour || 0) /
-                          (modalState.data?.projectAssignees?.length || 1);
-                        const individualCost = individualHours * costPerHour;
+                      itemLayout="horizontal"
+                      dataSource={
+                        modalState.data.features?.filter(
+                          (f) => !f.is_deleted,
+                        ) || []
+                      }
+                      renderItem={(item) => (
+                        <List.Item>
+                          <List.Item.Meta
+                            avatar={
+                              <div
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  borderRadius: 10,
+                                  background:
+                                    item.status === "open"
+                                      ? token.colorPrimaryBg
+                                      : token.colorFillSecondary,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color:
+                                    item.status === "open"
+                                      ? token.colorPrimary
+                                      : token.colorTextSecondary,
+                                }}
+                              >
+                                <ProjectOutlined />
+                              </div>
+                            }
+                            title={
+                              <Text strong style={{ fontSize: 15 }}>
+                                {item.name}
+                              </Text>
+                            }
+                            description={
+                              <Tag
+                                bordered={false}
+                                color={
+                                  item.status === "open"
+                                    ? "processing"
+                                    : "default"
+                                }
+                              >
+                                {item.status === "open" ? "Active" : "Closed"}
+                              </Tag>
+                            }
+                          />
+                        </List.Item>
+                      )}
+                    />
+                    {(!modalState.data.features ||
+                      modalState.data.features.filter((f) => !f.is_deleted)
+                        .length === 0) && (
+                      <div className="text-center py-8 text-gray-400">
+                        ไม่มีรายการฟีเจอร์
+                      </div>
+                    )}
+                  </Card>
+                </Col>
 
+                {/* Right Side */}
+                <Col span={8}>
+                  <Card
+                    title={
+                      <Space>
+                        <TeamOutlined /> ทีมงาน (
+                        {modalState.data.projectAssignees?.length || 0})
+                      </Space>
+                    }
+                    className="rounded-2xl h-full"
+                  >
+                    <List
+                      itemLayout="horizontal"
+                      dataSource={modalState.data.projectAssignees || []}
+                      locale={{ emptyText: "ยังไม่มีผู้รับผิดชอบ" }}
+                      renderItem={(item) => {
+                        const u = getUserById(item.userId);
                         return (
                           <List.Item
                             style={{
-                              padding: "16px 24px",
-                              borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                              padding: "12px 0",
+                              borderBottom: "1px dashed #f0f0f0",
                             }}
                           >
                             <List.Item.Meta
                               avatar={
                                 <Avatar
-                                  size={54}
-                                  src={user?.profile_image}
+                                  src={u?.profile_image}
                                   style={{
-                                    backgroundColor: token.colorPrimaryBg,
-                                    color: token.colorPrimary,
-                                    border: `2px solid ${token.colorBgContainer}`,
+                                    backgroundColor: token.colorPrimary,
                                   }}
                                 >
-                                  {user?.firstname?.[0]}
+                                  {u?.firstname?.[0]}
                                 </Avatar>
                               }
                               title={
-                                <Flex justify="space-between" align="start">
-                                  <Flex vertical style={{ flex: 1 }}>
-                                    <Text
-                                      strong
-                                      style={{
-                                        fontSize: 16,
-                                        color: token.colorText,
-                                      }}
-                                    >
-                                      {user?.firstname} {user?.lastname}
-                                    </Text>
-                                    <Tag
-                                      color="processing"
-                                      bordered={false}
-                                      style={{
-                                        width: "fit-content",
-                                        marginTop: 4,
-                                      }}
-                                    >
-                                      {item.position || "ไม่ระบุตำแหน่ง"}
-                                    </Tag>
-                                  </Flex>
-
-                                  <Flex gap={12} align="center">
-                                    <Tooltip title="สัดส่วนเวลารับผิดชอบรายบุคคล">
-                                      <Tag
-                                        color="blue"
-                                        icon={<ClockCircleOutlined />}
-                                        style={{
-                                          padding: "4px 12px",
-                                          borderRadius: 8,
-                                          fontWeight: 600,
-                                          marginRight: 0,
-                                        }}
-                                      >
-                                        {individualHours.toLocaleString(
-                                          undefined,
-                                          { maximumFractionDigits: 1 },
-                                        )}{" "}
-                                        ชม.
-                                      </Tag>
-                                    </Tooltip>
-
-                                    {costPerHour > 0 && (
-                                      <Tooltip title="ประมาณการณ์ต้นทุนของสมาชิกท่านนี้">
-                                        <Tag
-                                          color="success"
-                                          style={{
-                                            padding: "4px 12px",
-                                            borderRadius: 8,
-                                            fontWeight: 700,
-                                            fontSize: 14,
-                                            marginRight: 0,
-                                          }}
-                                        >
-                                          ฿{" "}
-                                          {individualCost.toLocaleString(
-                                            undefined,
-                                            { maximumFractionDigits: 0 },
-                                          )}
-                                        </Tag>
-                                      </Tooltip>
-                                    )}
-                                  </Flex>
-                                </Flex>
+                                <Text style={{ fontSize: 14 }}>
+                                  {u?.firstname} {u?.lastname}
+                                </Text>
+                              }
+                              description={
+                                item.position ? (
+                                  <Tag
+                                    color="blue"
+                                    bordered={false}
+                                    className="text-[10px] m-0 mt-1"
+                                  >
+                                    {item.position}
+                                  </Tag>
+                                ) : (
+                                  <Text
+                                    type="secondary"
+                                    className="text-[11px]"
+                                  >
+                                    ไม่ระบุตำแหน่ง
+                                  </Text>
+                                )
                               }
                             />
                           </List.Item>
                         );
                       }}
-                      locale={{
-                        emptyText: (
-                          <Empty
-                            image={Empty.PRESENTED_IMAGE_SIMPLE}
-                            description="ยังไม่มีข้อมูลทีมงาน"
-                            style={{ padding: "40px 0" }}
-                          />
-                        ),
-                      }}
                     />
                   </Card>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        )}
+      </Modal>
 
-                  <Flex justify="center" style={{ marginTop: 24 }}>
-                    <Button
-                      type="primary"
-                      size="large"
-                      onClick={closeModal}
+      {/* Assignees List Modal - Refactored for Dark Mode & V5 */}
+      <Modal
+        open={modalState.type === "assignees"}
+        onCancel={closeModal}
+        footer={null}
+        centered
+        width={850}
+        styles={{
+          content: { borderRadius: 24, padding: 0, overflow: "hidden" },
+        }}
+        closable={false}
+      >
+        {modalState.data && (
+          <div style={{ backgroundColor: token.colorBgLayout }}>
+            {/* Header Banner */}
+            <div
+              style={{
+                background: `linear-gradient(135deg, ${token.colorInfoActive}, ${token.colorPrimary})`,
+                padding: "32px 32px 64px 32px",
+                position: "relative",
+              }}
+            >
+              <Button
+                icon={<CloseOutlined style={{ color: "white" }} />}
+                type="text"
+                style={{ position: "absolute", top: 16, right: 16 }}
+                className="hover:bg-white/20"
+                onClick={closeModal}
+              />
+              <Flex vertical gap={24}>
+                <Flex justify="space-between" align="center" gap={32}>
+                  <Flex gap={8} vertical style={{ flex: 1 }}>
+                    <Space size={12}>
+                      <TeamOutlined style={{ color: "white", fontSize: 24 }} />
+                      <Title
+                        level={4}
+                        style={{
+                          color: "white",
+                          margin: 0,
+                          fontWeight: 700,
+                        }}
+                      >
+                        รายชื่อผู้จัดทำโครงการ
+                      </Title>
+                    </Space>
+                    <Text
                       style={{
-                        borderRadius: 12,
-                        padding: "0 48px",
-                        height: 48,
-                        fontWeight: 600,
-                        boxShadow: "none",
+                        color: "rgba(255,255,255,0.85)",
+                        fontStyle: "italic",
                       }}
                     >
-                      ตกลง
-                    </Button>
+                      {modalState.data.name}
+                    </Text>
                   </Flex>
-                </div>
-              </div>
-            )}
-          </Modal>
-        </div>
-      </DashboardLayout>
+
+                  <Space size={16}>
+                    <Card
+                      size="small"
+                      bordered={false}
+                      style={{
+                        background: "rgba(255,255,255,0.15)",
+                        backdropFilter: "blur(8px)",
+                        borderRadius: 16,
+                        minWidth: 140,
+                      }}
+                    >
+                      <Statistic
+                        title={
+                          <span
+                            style={{
+                              color: "rgba(255,255,255,0.7)",
+                              fontSize: 10,
+                              fontWeight: 700,
+                              letterSpacing: 1,
+                            }}
+                          >
+                            จำนวนชั่วโมงทั้งหมด
+                          </span>
+                        }
+                        value={modalState.data.estimate_hour || 0}
+                        valueStyle={{
+                          color: "white",
+                          fontWeight: 900,
+                          fontSize: 20,
+                        }}
+                        suffix={
+                          <span style={{ fontSize: 12, color: "white" }}>
+                            ชม.
+                          </span>
+                        }
+                        formatter={(val) => Number(val).toLocaleString()}
+                      />
+                    </Card>
+
+                    {costPerHour > 0 && (
+                      <Card
+                        size="small"
+                        bordered={false}
+                        style={{
+                          background: "rgba(255,255,255,0.25)",
+                          backdropFilter: "blur(8px)",
+                          borderRadius: 16,
+                          minWidth: 180,
+                          border: "1px solid rgba(255,255,255,0.3)",
+                        }}
+                      >
+                        <Statistic
+                          title={
+                            <span
+                              style={{
+                                color: "rgba(255,255,255,0.9)",
+                                fontSize: 10,
+                                fontWeight: 800,
+                                letterSpacing: 1,
+                              }}
+                            >
+                              ประมาณการต้นทุนรวม
+                            </span>
+                          }
+                          value={
+                            (modalState.data.estimate_hour || 0) * costPerHour
+                          }
+                          valueStyle={{
+                            color: "#fff",
+                            fontWeight: 900,
+                            fontSize: 24,
+                          }}
+                          prefix="฿"
+                          formatter={(val) => Number(val).toLocaleString()}
+                        />
+                      </Card>
+                    )}
+                  </Space>
+                </Flex>
+
+                {/* Cost Input Section */}
+                <Flex
+                  align="center"
+                  gap={16}
+                  style={{
+                    background: "rgba(0,0,0,0.1)",
+                    padding: "12px 20px",
+                    borderRadius: 16,
+                    width: "fit-content",
+                    backdropFilter: "blur(4px)",
+                  }}
+                >
+                  <Text style={{ color: "white", fontWeight: 600 }}>
+                    กำหนดต้นทุนรายชั่วโมง:
+                  </Text>
+                  <InputNumber
+                    min={0}
+                    placeholder="ระบุบาทต่อชั่วโมง"
+                    value={costPerHour}
+                    onChange={(val) => setCostPerHour(val || 0)}
+                    style={{ width: 180 }}
+                    prefix="฿"
+                    size="large"
+                    className="rounded-lg"
+                  />
+                  <Text style={{ color: "rgba(255,255,255,0.7)" }}>
+                    ต่อ 1 Man-Hour
+                  </Text>
+                </Flex>
+              </Flex>
+            </div>
+
+            {/* Content Section */}
+            <div style={{ padding: "0 32px 32px", marginTop: -40 }}>
+              <Card
+                bordered={false}
+                style={{
+                  borderRadius: 20,
+                  boxShadow: "none",
+                  background: token.colorBgElevated,
+                }}
+                styles={{ body: { padding: 0 } }}
+              >
+                <List
+                  dataSource={modalState.data.projectAssignees || []}
+                  renderItem={(item) => {
+                    const user = getUserById(item.userId);
+                    const individualHours =
+                      (modalState.data?.estimate_hour || 0) /
+                      (modalState.data?.projectAssignees?.length || 1);
+                    const individualCost = individualHours * costPerHour;
+
+                    return (
+                      <List.Item
+                        style={{
+                          padding: "16px 24px",
+                          borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                        }}
+                      >
+                        <List.Item.Meta
+                          avatar={
+                            <Avatar
+                              size={54}
+                              src={user?.profile_image}
+                              style={{
+                                backgroundColor: token.colorPrimaryBg,
+                                color: token.colorPrimary,
+                                border: `2px solid ${token.colorBgContainer}`,
+                              }}
+                            >
+                              {user?.firstname?.[0]}
+                            </Avatar>
+                          }
+                          title={
+                            <Flex justify="space-between" align="start">
+                              <Flex vertical style={{ flex: 1 }}>
+                                <Text
+                                  strong
+                                  style={{
+                                    fontSize: 16,
+                                    color: token.colorText,
+                                  }}
+                                >
+                                  {user?.firstname} {user?.lastname}
+                                </Text>
+                                <Tag
+                                  color="processing"
+                                  bordered={false}
+                                  style={{
+                                    width: "fit-content",
+                                    marginTop: 4,
+                                  }}
+                                >
+                                  {item.position || "ไม่ระบุตำแหน่ง"}
+                                </Tag>
+                              </Flex>
+
+                              <Flex gap={12} align="center">
+                                <Tooltip title="สัดส่วนเวลารับผิดชอบรายบุคคล">
+                                  <Tag
+                                    color="blue"
+                                    icon={<ClockCircleOutlined />}
+                                    style={{
+                                      padding: "4px 12px",
+                                      borderRadius: 8,
+                                      fontWeight: 600,
+                                      marginRight: 0,
+                                    }}
+                                  >
+                                    {individualHours.toLocaleString(undefined, {
+                                      maximumFractionDigits: 1,
+                                    })}{" "}
+                                    ชม.
+                                  </Tag>
+                                </Tooltip>
+
+                                {costPerHour > 0 && (
+                                  <Tooltip title="ประมาณการณ์ต้นทุนของสมาชิกท่านนี้">
+                                    <Tag
+                                      color="success"
+                                      style={{
+                                        padding: "4px 12px",
+                                        borderRadius: 8,
+                                        fontWeight: 700,
+                                        fontSize: 14,
+                                        marginRight: 0,
+                                      }}
+                                    >
+                                      ฿{" "}
+                                      {individualCost.toLocaleString(
+                                        undefined,
+                                        { maximumFractionDigits: 0 },
+                                      )}
+                                    </Tag>
+                                  </Tooltip>
+                                )}
+                              </Flex>
+                            </Flex>
+                          }
+                        />
+                      </List.Item>
+                    );
+                  }}
+                  locale={{
+                    emptyText: (
+                      <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description="ยังไม่มีข้อมูลทีมงาน"
+                        style={{ padding: "40px 0" }}
+                      />
+                    ),
+                  }}
+                />
+              </Card>
+
+              <Flex justify="center" style={{ marginTop: 24 }}>
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={closeModal}
+                  style={{
+                    borderRadius: 12,
+                    padding: "0 48px",
+                    height: 48,
+                    fontWeight: 600,
+                    boxShadow: "none",
+                  }}
+                >
+                  ตกลง
+                </Button>
+              </Flex>
+            </div>
+          </div>
+        )}
+      </Modal>
     </PermissionLayout>
   );
 }
