@@ -15,6 +15,7 @@ import {
   ConfigProvider,
   Avatar,
   theme,
+  Button,
 } from "antd";
 import {
   ClockCircleOutlined,
@@ -25,6 +26,7 @@ import {
   InfoCircleOutlined,
   ArrowRightOutlined,
   SolutionOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import type { OvertimeRecord, PaginationState } from "../types/overtime.types";
 import { useOvertimeTableColumns } from "../hooks/overtime-table-columns.hook";
@@ -53,6 +55,7 @@ interface OvertimeTableProps {
   fetchOvertimeRequestDetail: (overtimeRecordId: string | number) => void;
   setIsDetailModalVisible: (visible: boolean) => void;
   navigationRouter: any;
+  onExport: () => void;
 }
 
 export const OvertimeTable: React.FC<OvertimeTableProps> = ({
@@ -70,6 +73,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
   sendEmailToHRDepartment,
   fetchOvertimeRequestDetail,
   navigationRouter,
+  onExport,
 }) => {
   // เรียกใช้ Hook สำหรับ Columns
   const columns = useOvertimeTableColumns({
@@ -293,6 +297,22 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
   return (
     <ConfigProvider theme={{ token: { borderRadius: 12 } }}>
       <Card
+        title={
+          <Space>
+            <FileTextOutlined style={{ color: token.colorPrimary }} />
+            <Text strong>รายการคำขอทำงานล่วงเวลา</Text>
+          </Space>
+        }
+        extra={
+          <Button
+            type="primary"
+            icon={<ExportOutlined />}
+            onClick={onExport}
+            style={{ borderRadius: "8px" }}
+          >
+            ส่งออกรายการ
+          </Button>
+        }
         className="shadow-sm overflow-hidden"
         styles={{ body: { padding: 0 } }}
       >

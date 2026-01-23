@@ -22,6 +22,7 @@ import { DetailModal } from "./components/detail-modal.component";
 import { BatchStatusModal } from "./components/batch-status-modal.component";
 import { AnalyticsModal } from "./components/analytics-modal.component";
 import { RulesModal } from "./components/rules-modal.component";
+import { ExportModal } from "./components/export-modal.component";
 
 export default function OvertimeManagementPage() {
   const navigationRouter = useRouter();
@@ -61,6 +62,12 @@ export default function OvertimeManagementPage() {
     batchApproveOvertime: batchApproveOvertimeRecords,
     batchSendEmail: batchSendOvertimeEmail,
     fetchOvertimeDetail: fetchOvertimeRequestDetail,
+    exportOvertime: exportOvertimeData,
+    exportVisible: isExportModalVisible,
+    setExportVisible: setIsExportModalVisible,
+    exportStep,
+    isExportSuccess,
+    setIsExportSuccess,
     form: overtimeForm,
   } = useOvertimeData();
 
@@ -295,6 +302,7 @@ export default function OvertimeManagementPage() {
                 fetchOvertimeRequestDetail={fetchOvertimeRequestDetail}
                 setIsDetailModalVisible={setIsDetailModalVisible}
                 navigationRouter={navigationRouter}
+                onExport={() => setIsExportModalVisible(true)}
               />
             </Col>
           </Row>
@@ -335,10 +343,20 @@ export default function OvertimeManagementPage() {
             dataSource={overtimeDataSource}
           />
 
-          {/* ส่วนที่ 10: มอดัลสำหรับแสดงระเบียบการ (Rules Modal) */}
           <RulesModal
             visible={isRulesModalVisible}
             onClose={() => setIsRulesModalVisible(false)}
+          />
+
+          {/* ส่วนที่ 11: มอดัลสำหรับเลือกเดือนสส่งออก (Export Modal) */}
+          <ExportModal
+            visible={isExportModalVisible}
+            setVisible={setIsExportModalVisible}
+            onExport={exportOvertimeData}
+            loading={isLoadingOvertimeData}
+            exportStep={exportStep}
+            isExportSuccess={isExportSuccess}
+            setIsExportSuccess={setIsExportSuccess}
           />
         </div>
       </ConfigProvider>

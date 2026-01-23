@@ -2,7 +2,14 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Form, Modal } from "antd";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 import { toast } from "sonner";
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+dayjs.extend(buddhistEra);
 import { useAppSelector } from "@/stores/store";
 import { getUserData } from "@helpers/local_storage/user.storage";
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
@@ -45,6 +52,9 @@ export const useOvertimeData = () => {
     useState(false);
   const [selectedBatchStatus, setSelectedBatchStatus] =
     useState<string>("approved");
+  const [isExportModalVisible, setIsExportModalVisible] = useState(false);
+  const [exportStep, setExportStep] = useState(0); // 0: Idle, 1: Preparing, 2: Processing, 3: Success
+  const [isExportSuccess, setIsExportSuccess] = useState(false);
   const [filterSearchText, setFilterSearchText] = useState("");
   const [filterSelectedMonth, setFilterSelectedMonth] =
     useState<dayjs.Dayjs | null>(null);
@@ -443,6 +453,58 @@ export const useOvertimeData = () => {
     setProcessedRecordItems(new Set());
   };
 
+  const exportOvertime = async (selectedDate?: dayjs.Dayjs) => {
+    try {
+      setIsLoading(true);
+      setExportStep(1); // ขั้นตอนที่ 1: เตรียมข้อมูล
+      setIsExportSuccess(false);
+
+      const currentUserId = await getCurrentUserId(authenticationState);
+      const isBypassUser = currentUserId === BYPASS_ADMIN_ID;
+
+      const payload: any = {
+        requester_id: isBypassUser ? undefined : currentUserId,
+      };
+
+      const dateToUse = selectedDate ?? filterSelectedMonth ?? dayjs();
+      payload.from = dateToUse.startOf("month").format("YYYY-MM-DD");
+      payload.to = dateToUse.endOf("month").format("YYYY-MM-DD");
+
+      // จำลองสถานะเพื่อให้เห็น UI Tracking
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setExportStep(2); // ขั้นตอนที่ 2: ร้องขอไปยังเซิร์ฟเวอร์
+
+      const response = await callApiService.post(
+        "/api/v1/timesheet/overtime/export",
+        payload,
+        { responseType: "blob" },
+      );
+
+      setExportStep(3); // ขั้นตอนที่ 3: กำลังประมวลผลไฟล์
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      const fileName = `รายงานการทำงานล่วงเวลา ประจำเดือน ${dateToUse.locale("th").format("MMMM")} ปี ${dateToUse.locale("th").format("BBBB")}.xlsx`;
+
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setExportStep(4); // เสร็จสิ้น
+      setIsExportSuccess(true);
+      toast.success("ส่งออกข้อมูลสำเร็จ");
+    } catch (error) {
+      handleError(error, "เกิดข้อผิดพลาดในการส่งออกข้อมูล");
+      setExportStep(0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleFormSubmit = async (formValues: any) => {
     const formattedValues = {
       ...formValues,
@@ -510,6 +572,11 @@ export const useOvertimeData = () => {
     setVisible: setIsCreateModalVisible,
     detailVisible: isDetailModalVisible,
     setDetailVisible: setIsDetailModalVisible,
+    exportVisible: isExportModalVisible,
+    setExportVisible: setIsExportModalVisible,
+    exportStep,
+    isExportSuccess,
+    setIsExportSuccess,
     selectedDetail: selectedOvertimeDetail,
     fetchOvertimeList,
     createOvertime,
@@ -518,6 +585,7 @@ export const useOvertimeData = () => {
     sendEmailToHR,
     batchApproveOvertime,
     batchSendEmail,
+    exportOvertime,
     handleFormSubmit,
     handleTableChange,
     fetchOvertimeDetail,
