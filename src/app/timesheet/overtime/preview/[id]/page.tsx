@@ -657,58 +657,78 @@ const extractIdFromPathname = (pathname: string | null): string => {
   return parts[parts.length - 1] || "";
 };
 
-const handlePrintDocument = () => {
+const handlePrintDocument = (
+  date?: string | null,
+  empCode?: string,
+  fullName?: string,
+) => {
   const printArea = document.getElementById("print-area");
-  if (!printArea) {
-    window.print();
-    return;
+  if (!printArea) return;
+
+  // 1. จัดการชื่อไฟล์: เปลี่ยน / เป็น - เพื่อป้องกันปัญหาชื่อไฟล์ในระบบปฏิบัติการ
+  let documentTitle = "แบบคำขอทำงานล่วงเวลา";
+  if (date && empCode && fullName) {
+    const formattedDate = dayjs(date).format("DD-MM-YYYY"); // เปลี่ยน / เป็น -
+    documentTitle = `OT_${formattedDate}_${empCode}_${fullName}`;
   }
+
+  // 2. เก็บชื่อ Title เดิมไว้ก่อน
+  const originalTitle = document.title;
+  // ตั้ง Title ของหน้าเว็บหลักใหม่ (Browser มักจะใช้ชื่อนี้เป็นชื่อไฟล์ PDF)
+  document.title = documentTitle;
+
   const html = `
     <!doctype html>
     <html>
       <head>
         <meta charset="utf-8">
-        <title>แบบคำขอทำงานล่วงเวลา</title>
-        <style>
-          ${PRINT_STYLES}
-        </style>
+        <title>${documentTitle}</title>
+        <style>${PRINT_STYLES}</style>
       </head>
       <body>
         <div class="ot-print">${printArea.innerHTML}</div>
       </body>
     </html>
   `;
+
   try {
     const existing = document.getElementById("print-iframe");
     if (existing) document.body.removeChild(existing);
+
     const iframe = document.createElement("iframe");
     iframe.id = "print-iframe";
+    // ซ่อน iframe ไว้
     Object.assign(iframe.style, {
       position: "fixed",
-      left: "0",
-      top: "0",
+      right: "0",
+      bottom: "0",
       width: "0",
       height: "0",
       border: "none",
     });
     document.body.appendChild(iframe);
+
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (doc) {
       doc.open();
       doc.write(html);
       doc.close();
+
       setTimeout(() => {
         if (iframe.contentWindow) {
           iframe.contentWindow.focus();
           iframe.contentWindow.print();
+
+          // 3. คืนค่าชื่อ Title เดิมหลังจากสั่ง Print (ใส่ delay นิดหน่อย)
+          setTimeout(() => {
+            document.title = originalTitle;
+          }, 1000);
         }
       }, 500);
-    } else {
-      window.print();
     }
   } catch (error) {
     console.error("Print failed:", error);
-    window.print();
+    document.title = originalTitle; // คืนค่าหาก error
   }
 };
 
@@ -829,7 +849,12 @@ export default function OTPreviewPage() {
         </h2>
         <div style={{ display: "flex", gap: "8px" }}>
           <Button onClick={() => router.back()}>กลับ</Button>
-          <Button type="primary" onClick={handlePrintDocument}>
+          <Button
+            type="primary"
+            onClick={() =>
+              handlePrintDocument(headerDate, employeeCode, requesterName)
+            }
+          >
             พิมพ์ / ดาวน์โหลด PDF
           </Button>
         </div>
