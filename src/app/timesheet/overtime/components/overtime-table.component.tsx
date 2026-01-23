@@ -313,8 +313,8 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
             ส่งออกรายการ
           </Button>
         }
-        className="shadow-sm overflow-hidden"
-        styles={{ body: { padding: 0 } }}
+        className="border-none shadow-sm overflow-hidden"
+        styles={{ body: { padding: 16 } }}
       >
         <Table
           columns={columns}

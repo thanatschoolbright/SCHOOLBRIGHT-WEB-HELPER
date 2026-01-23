@@ -55,233 +55,141 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
   return (
     <Card
+      bordered={false}
       style={{
         borderRadius: 16,
-        border: `2px solid ${token.colorBorderSecondary}`,
+        marginBottom: 24,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
       }}
-      styles={{
-        body: { padding: "24px 28px" },
-      }}
+      styles={{ body: { padding: 24 } }}
     >
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            className="p-2 rounded-xl"
-            style={{
-              background: token.colorPrimaryBg,
-            }}
-          >
-            <FilterOutlined
-              style={{ color: token.colorPrimary, fontSize: 20 }}
+      <Space style={{ marginBottom: 20 }}>
+        <FilterOutlined style={{ color: token.colorPrimary, fontSize: 18 }} />
+        <Text strong style={{ fontSize: 16, fontWeight: 600 }}>
+          ตัวกรองและค้นหาข้อมูล
+        </Text>
+      </Space>
+
+      <Row gutter={[24, 16]}>
+        <Col xs={24} md={12}>
+          <div className="flex flex-col gap-2">
+            <Text type="secondary">
+              ค้นหาจากคำสำคัญ (ชื่อ, เลขที่, รายละเอียด)
+            </Text>
+            <Input
+              placeholder="พิมพ์คำค้นหา..."
+              prefix={
+                <SearchOutlined style={{ color: token.colorTextDescription }} />
+              }
+              value={filterSearchText}
+              onChange={(e) => setFilterSearchText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  fetchOvertimeRequestList({ page: 1 });
+                }
+              }}
+              style={{ height: 40, borderRadius: 8 }}
+              allowClear
+              size="large"
             />
           </div>
-          <div>
-            <Text strong style={{ fontSize: 18, color: token.colorPrimary }}>
-              🔍 ค้นหาและกรองข้อมูล
-            </Text>
-            <div>
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                ใช้ตัวกรองด้านล่างเพื่อค้นหาคำขอ OT ที่ต้องการ
-              </Text>
-            </div>
+        </Col>
+
+        <Col xs={24} md={12}>
+          <div className="flex flex-col gap-2">
+            <Text type="secondary">เลือกเดือนที่ยื่นคำขอ</Text>
+            <DatePicker
+              picker="month"
+              placeholder="เลือกเดือน..."
+              value={filterSelectedMonth}
+              onChange={(date) => {
+                setFilterSelectedMonth(date);
+              }}
+              style={{ width: "100%", height: 40, borderRadius: 8 }}
+              allowClear
+              format="MMMM YYYY"
+              size="large"
+              suffixIcon={
+                <CalendarOutlined style={{ color: token.colorInfo }} />
+              }
+            />
           </div>
-        </div>
+        </Col>
 
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={8}>
-            <Tooltip
-              title={
-                <div className="text-center">
-                  <div className="font-semibold mb-1">🔎 ค้นหาอย่างรวดเร็ว</div>
-                  <div className="text-xs">
-                    พิมพ์ชื่อ, เลขที่คำขอ, หรือรายละเอียดงานเพื่อค้นหา
+        <Col xs={24} md={12}>
+          <div className="flex flex-col gap-2">
+            <Text type="secondary">สถานะการอนุมัติ</Text>
+            <Select
+              placeholder="เลือกสถานะ..."
+              style={{ width: "100%", height: 40 }}
+              allowClear
+              size="large"
+              options={OT_STATUS.map((s) => ({
+                label: (
+                  <div className="flex items-center gap-2">
+                    <span>
+                      {s.value === "pending"
+                        ? "⏳"
+                        : s.value === "approved"
+                          ? "✅"
+                          : "❌"}
+                    </span>
+                    <span>{s.text}</span>
                   </div>
-                </div>
+                ),
+                value: s.value,
+              }))}
+              onChange={(val) =>
+                onTableChange(
+                  { current: 1, pageSize: paginationState.pageSize },
+                  { status: val ? [val] : [] },
+                )
               }
-              placement="topLeft"
-            >
-              <div>
-                <div className="mb-2 flex items-center gap-1">
-                  <SearchOutlined
-                    style={{ color: token.colorPrimary, fontSize: 14 }}
-                  />
-                  <Text
-                    strong
-                    style={{ fontSize: 13, color: token.colorPrimary }}
-                  >
-                    ค้นหาจากคำสำคัญ
-                  </Text>
-                </div>
-                <Input
-                  placeholder="พิมพ์ชื่อ, เลขที่, หรือรายละเอียด..."
-                  prefix={
-                    <SearchOutlined
-                      style={{ color: token.colorTextDescription }}
-                    />
-                  }
-                  value={filterSearchText}
-                  onChange={(e) => setFilterSearchText(e.target.value)}
-                  style={{
-                    width: "100%",
-                  }}
-                  allowClear
-                  size="large"
-                />
-              </div>
-            </Tooltip>
-          </Col>
+            />
+          </div>
+        </Col>
 
-          <Col xs={24} sm={12} md={6}>
-            <Tooltip
-              title={
-                <div className="text-center">
-                  <div className="font-semibold mb-1">✅ กรองตามสถานะ</div>
-                  <div className="text-xs">
-                    เลือกสถานะเพื่อแสดงเฉพาะรายการที่ต้องการ เช่น รออนุมัติ,
-                    อนุมัติแล้ว
-                  </div>
-                </div>
-              }
-              placement="top"
-            >
-              <div>
-                <div className="mb-2 flex items-center gap-1">
-                  <CheckOutlined
-                    style={{ color: token.colorSuccess, fontSize: 14 }}
-                  />
-                  <Text
-                    strong
-                    style={{ fontSize: 13, color: token.colorSuccess }}
-                  >
-                    สถานะการอนุมัติ
-                  </Text>
-                </div>
-                <Select
-                  placeholder="เลือกสถานะ..."
-                  style={{ width: "100%" }}
-                  allowClear
-                  size="large"
-                  options={OT_STATUS.map((s) => ({
-                    label: (
-                      <div className="flex items-center gap-2">
-                        <span>
-                          {s.value === "pending"
-                            ? "⏳"
-                            : s.value === "approved"
-                              ? "✅"
-                              : "❌"}
-                        </span>
-                        <span>{s.text}</span>
-                      </div>
-                    ),
-                    value: s.value,
-                  }))}
-                  onChange={(val) =>
-                    onTableChange(
-                      { current: 1, pageSize: paginationState.pageSize },
-                      { status: val ? [val] : [] },
-                    )
-                  }
-                />
-              </div>
-            </Tooltip>
-          </Col>
+        <Col xs={24} md={12}>
+          {/* เว้นว่างเพื่อให้ปุ่มอยู่ขวาใน row ถัดไป หรือใช้ Space */}
+        </Col>
 
-          <Col xs={24} sm={12} md={6}>
-            <Tooltip
-              title={
-                <div className="text-center">
-                  <div className="font-semibold mb-1">📅 กรองตามเดือน</div>
-                  <div className="text-xs">
-                    เลือกเดือนเพื่อแสดงเฉพาะคำขอ OT ที่ยื่นในเดือนนั้น
-                    (ดูจากวันที่ยื่นคำขอ)
-                  </div>
-                </div>
-              }
-              placement="top"
+        <Col xs={24}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 12,
+              marginTop: 8,
+            }}
+          >
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={() => {
+                setFilterSelectedMonth(null);
+                setFilterSearchText("");
+                fetchOvertimeRequestList({ page: 1 });
+              }}
+              style={{ borderRadius: 8, height: 40, fontWeight: 600 }}
             >
-              <div>
-                <Space size={4} className="mb-2">
-                  <CalendarOutlined
-                    style={{ color: token.colorInfo, fontSize: 14 }}
-                  />
-                  <Text strong style={{ fontSize: 13, color: token.colorInfo }}>
-                    เดือนที่ยื่นคำขอ
-                  </Text>
-                  <Tooltip title="กรองจากวันที่ยื่นคำขอ OT">
-                    <InfoCircleOutlined
-                      style={{
-                        fontSize: 12,
-                        color: token.colorTextDescription,
-                      }}
-                    />
-                  </Tooltip>
-                </Space>
-                <DatePicker
-                  picker="month"
-                  placeholder="เลือกเดือน..."
-                  value={filterSelectedMonth}
-                  onChange={(date) => {
-                    setFilterSelectedMonth(date);
-                    onTableChange(
-                      { current: 1, pageSize: paginationState.pageSize },
-                      {},
-                    );
-                  }}
-                  style={{ width: "100%" }}
-                  allowClear
-                  format="MMMM YYYY"
-                  size="large"
-                  suffixIcon={
-                    <CalendarOutlined style={{ color: token.colorInfo }} />
-                  }
-                />
-              </div>
-            </Tooltip>
-          </Col>
-
-          <Col xs={24} sm={12} md={4}>
-            <Tooltip
-              title={
-                <div className="text-center">
-                  <div className="font-semibold mb-1">🔄 เริ่มต้นใหม่</div>
-                  <div className="text-xs">
-                    ล้างการค้นหาและตัวกรองทั้งหมด แล้วโหลดข้อมูลใหม่
-                  </div>
-                </div>
-              }
-              placement="top"
+              ล้างตัวกรอง
+            </Button>
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={() => fetchOvertimeRequestList({ page: 1 })}
+              loading={isLoading}
+              style={{
+                borderRadius: 8,
+                height: 40,
+                fontWeight: 600,
+                paddingInline: 32,
+              }}
             >
-              <div>
-                <div className="mb-2">
-                  <Text
-                    strong
-                    style={{ fontSize: 13, color: token.colorError }}
-                  >
-                    รีเซ็ตการค้นหา
-                  </Text>
-                </div>
-                <Button
-                  icon={<ReloadOutlined spin={isLoading} />}
-                  onClick={() => {
-                    setFilterSelectedMonth(null);
-                    setFilterSearchText("");
-                    fetchOvertimeRequestList({ page: 1 });
-                  }}
-                  loading={isLoading}
-                  size="large"
-                  danger
-                  style={{
-                    width: "100%",
-                  }}
-                >
-                  รีเซ็ต
-                </Button>
-              </div>
-            </Tooltip>
-          </Col>
-        </Row>
-      </Space>
+              ค้นหาข้อมูล
+            </Button>
+          </div>
+        </Col>
+      </Row>
     </Card>
   );
 };

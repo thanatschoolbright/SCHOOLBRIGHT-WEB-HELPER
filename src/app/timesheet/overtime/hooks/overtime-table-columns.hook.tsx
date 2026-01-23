@@ -233,6 +233,8 @@ export const useOvertimeTableColumns = ({
         title: t("overtime_page.requester"),
         dataIndex: "requester_id",
         width: 200,
+        sorter: (a: any, b: any) =>
+          (a.requester_id || "").localeCompare(b.requester_id || ""),
         render: (value: string) => {
           const user = getUserById(value);
           return (
@@ -249,6 +251,8 @@ export const useOvertimeTableColumns = ({
         title: t("overtime_page.status"),
         dataIndex: "status",
         width: 140,
+        sorter: (a: any, b: any) =>
+          (a.status || "").localeCompare(b.status || ""),
         filters: OT_STATUS.map((s) => ({ text: s.text, value: s.value })),
         render: (status: string) => {
           const s = OT_STATUS.find((o) => o.value === status) || OT_STATUS[0];
@@ -272,6 +276,8 @@ export const useOvertimeTableColumns = ({
         title: t("overtime_page.created_at"),
         dataIndex: "created_at",
         width: 160,
+        sorter: (a: any, b: any) =>
+          dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
         render: (value: string) =>
           value ? dayjs(value).format("DD/MM/YYYY HH:mm") : "-",
       },
