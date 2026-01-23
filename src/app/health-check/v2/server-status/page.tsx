@@ -877,27 +877,42 @@ export default function ServerStatusPage() {
         {/* --- ส่วนของ Modal รายละเอียดทางเทคนิค --- */}
         <Modal
           title={
-            <Space align="center" style={{ paddingBottom: 16 }}>
+            <Flex
+              align="center"
+              gap={16}
+              style={{ paddingBottom: 16, maxWidth: "100%" }}
+            >
               <div
                 style={{
                   background: token.colorFillSecondary,
                   padding: 8,
                   borderRadius: 12,
+                  flexShrink: 0,
                 }}
               >
                 <BugOutlined
                   style={{ color: token.colorPrimary, fontSize: 20 }}
                 />
               </div>
-              <Flex vertical gap={0}>
-                <Text strong style={{ fontSize: 18, fontWeight: 600 }}>
+              <Flex vertical gap={0} style={{ minWidth: 0 }}>
+                <Text
+                  strong
+                  style={{ fontSize: 18, fontWeight: 600 }}
+                  ellipsis={{ tooltip: "Developer Debug Console" }}
+                >
                   Developer Debug Console
                 </Text>
-                <Text type="secondary" style={{ fontSize: 12 }}>
+                <Text
+                  type="secondary"
+                  style={{ fontSize: 12 }}
+                  ellipsis={{
+                    tooltip: "ตรวจสอบรายละเอียดการทำงานของ API อย่างละเอียด",
+                  }}
+                >
                   ตรวจสอบรายละเอียดการทำงานของ API อย่างละเอียด
                 </Text>
               </Flex>
-            </Space>
+            </Flex>
           }
           open={isDetailModalVisible}
           onCancel={() => setIsDetailModalVisible(false)}
@@ -1001,7 +1016,22 @@ export default function ServerStatusPage() {
                       </Descriptions>
 
                       <Flex vertical gap={8}>
-                        <Text strong>cURL Command:</Text>
+                        <Flex justify="space-between" align="center">
+                          <Text strong>cURL Command:</Text>
+                          <Button
+                            size="small"
+                            type="text"
+                            icon={<CopyOutlined />}
+                            onClick={() => {
+                              navigator.clipboard.writeText(
+                                selectedServerStatusItem.curl || "",
+                              );
+                              toast.success("คัดลอก cURL เรียบร้อย");
+                            }}
+                          >
+                            Copy
+                          </Button>
+                        </Flex>
                         <pre
                           style={{
                             background: token.colorFillQuaternary,
@@ -1055,7 +1085,26 @@ export default function ServerStatusPage() {
 
                       {selectedServerStatusItem.request.headers && (
                         <Flex vertical gap={8}>
-                          <Text strong>Headers:</Text>
+                          <Flex justify="space-between" align="center">
+                            <Text strong>Headers:</Text>
+                            <Button
+                              size="small"
+                              type="text"
+                              icon={<CopyOutlined />}
+                              onClick={() => {
+                                navigator.clipboard.writeText(
+                                  JSON.stringify(
+                                    selectedServerStatusItem.request.headers,
+                                    null,
+                                    2,
+                                  ),
+                                );
+                                toast.success("คัดลอก Headers เรียบร้อย");
+                              }}
+                            >
+                              Copy
+                            </Button>
+                          </Flex>
                           <pre
                             style={{
                               background: token.colorFillQuaternary,
@@ -1063,6 +1112,8 @@ export default function ServerStatusPage() {
                               borderRadius: 8,
                               fontSize: 12,
                               border: `1px solid ${token.colorBorder}`,
+                              whiteSpace: "pre-wrap",
+                              wordBreak: "break-all",
                             }}
                           >
                             {JSON.stringify(
@@ -1078,7 +1129,28 @@ export default function ServerStatusPage() {
                         selectedServerStatusItem.request.body ||
                         selectedServerStatusItem.request.data) && (
                         <Flex vertical gap={8}>
-                          <Text strong>Payload (Params / Body):</Text>
+                          <Flex justify="space-between" align="center">
+                            <Text strong>Payload (Params / Body):</Text>
+                            <Button
+                              size="small"
+                              type="text"
+                              icon={<CopyOutlined />}
+                              onClick={() => {
+                                navigator.clipboard.writeText(
+                                  JSON.stringify(
+                                    selectedServerStatusItem.request.params ||
+                                      selectedServerStatusItem.request.body ||
+                                      selectedServerStatusItem.request.data,
+                                    null,
+                                    2,
+                                  ),
+                                );
+                                toast.success("คัดลอก Payload เรียบร้อย");
+                              }}
+                            >
+                              Copy
+                            </Button>
+                          </Flex>
                           <pre
                             style={{
                               background: token.colorFillQuaternary,
@@ -1086,6 +1158,8 @@ export default function ServerStatusPage() {
                               borderRadius: 8,
                               fontSize: 12,
                               border: `1px solid ${token.colorBorder}`,
+                              whiteSpace: "pre-wrap",
+                              wordBreak: "break-all",
                             }}
                           >
                             {JSON.stringify(
@@ -1111,15 +1185,41 @@ export default function ServerStatusPage() {
                   ),
                   children: (
                     <div style={{ paddingTop: 16 }}>
+                      <Flex
+                        justify="space-between"
+                        align="center"
+                        style={{ marginBottom: 8 }}
+                      >
+                        <Text strong>Response JSON:</Text>
+                        <Button
+                          size="small"
+                          type="text"
+                          icon={<CopyOutlined />}
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              JSON.stringify(
+                                selectedServerStatusItem.response,
+                                null,
+                                2,
+                              ),
+                            );
+                            toast.success("คัดลอก Response เรียบร้อย");
+                          }}
+                        >
+                          Copy
+                        </Button>
+                      </Flex>
                       <pre
                         style={{
                           background: token.colorFillQuaternary,
                           padding: 16,
                           borderRadius: 12,
                           maxHeight: 500,
-                          overflow: "auto",
+                          overflowY: "auto",
                           border: `1px solid ${token.colorBorder}`,
                           fontSize: 12,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-all",
                         }}
                       >
                         {JSON.stringify(
