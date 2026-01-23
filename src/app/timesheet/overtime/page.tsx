@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConfigProvider, Row, Col, theme } from "antd";
+import { ConfigProvider, Row, Col, theme, Space, Button } from "antd";
 import {
   TeamOutlined,
   FileTextOutlined,
@@ -12,7 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
-import SummaryCards from "@/components/card/summary-card/summary-card.component";
+import SummaryCard from "@/components/card/summary-card";
 import { useOvertimeData } from "./hooks/overtime.data";
 import { FilterBar } from "./components/filter-bar.component";
 import { ActionBar } from "./components/action-bar.component";
@@ -91,133 +91,82 @@ export default function OvertimeManagementPage() {
         }}
       >
         <div className="w-full space-y-6 pb-10">
-          {/* ส่วนที่ 1: ส่วนหัวของหน้าจอ พร้อมเอฟเฟกต์ Gradient และพื้นหลังเคลื่อนไหว */}
-          <div
-            className="relative overflow-hidden rounded-3xl p-8 shadow-2xl animate-fade-in"
-            style={{
-              background:
-                "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FBBF24 100%)",
-            }}
-          >
-            {/* วงกลมพื้นหลังเพื่อความสวยงาม */}
-            <div
-              className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl animate-pulse"
-              style={{ transform: "translate(30%, -30%)" }}
-            />
-            <div
-              className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl animate-pulse"
-              style={{
-                transform: "translate(-30%, 30%)",
-                animationDelay: "1s",
-              }}
-            />
-
-            <div className="relative z-10 flex items-center gap-4">
-              <div className="p-4 rounded-2xl shadow-lg bg-white/20 backdrop-blur-sm">
-                <TeamOutlined style={{ fontSize: 40, color: "#fff" }} />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
-                  ระบบจัดการการทำงานล่วงเวลา (OT)
-                </h1>
-                <p className="text-white/90 text-lg">
-                  บันทึก ติดตาม และอนุมัติการทำงานนอกเวลาอย่างมีประสิทธิภาพ
-                </p>
-                <div className="mt-3 flex items-center gap-3 flex-wrap">
-                  <div className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium">
-                    อนุมัติรวดเร็ว
-                  </div>
-                  <div className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium">
-                    รายงานครบถ้วน
-                  </div>
-                  <div className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium">
-                    แจ้งเตือนอัตโนมัติ
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* ส่วนที่ 1: หัวข้อหน้าจอระดับ Enterprise */}
+          <HeaderBar
+            icon={<TeamOutlined />}
+            title="ระบบจัดการการทำงานล่วงเวลา (OT)"
+            subTitle="บันทึก ติดตาม และอนุมัติการทำงานนอกเวลาอย่างมีประสิทธิภาพ"
+            showBackButton={true}
+            extra={
+              <Space>
+                <Button
+                  icon={<FileTextOutlined />}
+                  onClick={() => setIsRulesModalVisible(true)}
+                  style={{ borderRadius: 8, fontWeight: 600 }}
+                >
+                  ระเบียบการขอ OT
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<ClockCircleOutlined />}
+                  onClick={() => setIsCreateModalVisible(true)}
+                  style={{ borderRadius: 8, fontWeight: 600 }}
+                >
+                  สร้างคำขอ OT
+                </Button>
+              </Space>
+            }
+          />
 
           {/* ส่วนที่ 2: การ์ดสรุปข้อมูลสถิติ (Statistics Cards) */}
-          <SummaryCards
-            stats={{
-              health: {
-                total: overtimeStatistics.total,
-                active: overtimeStatistics.pending,
-                closed: overtimeStatistics.approved,
-                success_rate:
-                  overtimeStatistics.total > 0
-                    ? (overtimeStatistics.approved / overtimeStatistics.total) *
-                      100
-                    : 0,
-              },
-            }}
-            token={themeToken}
-            title="ภาพรวมการทำงานล่วงเวลา (OT Overview)"
-            icon={<TeamOutlined />}
-            items={[
-              {
-                label: "คำขอทั้งหมด",
-                value: overtimeStatistics.total,
-                percent: 100,
-                color: themeToken.colorPrimary,
-                bg: themeToken.colorPrimaryBg,
-                icon: <FileTextOutlined />,
-                suffix: "รายการ",
-                tooltip: (
-                  <div style={{ padding: "4px" }}>
-                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
-                      คำขอทั้งหมด
-                    </div>
-                    <div>ยอดรวมคำขอทำงานล่วงเวลาทั้งหมดที่บันทึกในระบบ</div>
-                  </div>
-                ),
-              },
-              {
-                label: "รอการพิจารณา",
-                value: overtimeStatistics.pending,
-                percent:
+          <Row gutter={[24, 24]}>
+            <Col xs={24} sm={12} lg={6}>
+              <SummaryCard
+                title="คำขอทั้งหมด"
+                value={overtimeStatistics.total}
+                subtitle="ยอดรวมคำขอทั้งหมดในระบบ"
+                icon={<FileTextOutlined />}
+                suffix="รายการ"
+                color={themeToken.colorPrimary}
+                percent={100}
+              />
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <SummaryCard
+                title="รอการพิจารณา"
+                value={overtimeStatistics.pending}
+                subtitle="รอหัวหน้างานตรวจสอบ"
+                icon={<ClockCircleOutlined />}
+                color={themeToken.colorWarning}
+                iconBg={themeToken.colorWarningBg}
+                percent={
                   overtimeStatistics.total > 0
                     ? (overtimeStatistics.pending / overtimeStatistics.total) *
                       100
-                    : 0,
-                color: themeToken.colorWarning,
-                bg: themeToken.colorWarningBg,
-                icon: <ClockCircleOutlined />,
-                suffix: "รายการ",
-                tooltip: (
-                  <div style={{ padding: "4px" }}>
-                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
-                      รอการพิจารณา
-                    </div>
-                    <div>คำขอที่กำลังรอหัวหน้างานตรวจสอบและอนุมัติ</div>
-                  </div>
-                ),
-              },
-              {
-                label: "อนุมัติแล้ว",
-                value: overtimeStatistics.approved,
-                percent:
+                    : 0
+                }
+              />
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <SummaryCard
+                title="อนุมัติแล้ว"
+                value={overtimeStatistics.approved}
+                subtitle="ผ่านการพิจารณาแล้ว"
+                icon={<CheckCircleOutlined />}
+                color={themeToken.colorSuccess}
+                iconBg={themeToken.colorSuccessBg}
+                percent={
                   overtimeStatistics.total > 0
                     ? (overtimeStatistics.approved / overtimeStatistics.total) *
                       100
-                    : 0,
-                color: themeToken.colorSuccess,
-                bg: themeToken.colorSuccessBg,
-                icon: <CheckCircleOutlined />,
-                suffix: "รายการ",
-                tooltip: (
-                  <div style={{ padding: "4px" }}>
-                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
-                      อนุมัติแล้ว
-                    </div>
-                    <div>คำขอที่ผ่านการอนุมัติเรียบร้อยแล้ว</div>
-                  </div>
-                ),
-              },
-              {
-                label: "อัตราการอนุมัติ",
-                value:
+                    : 0
+                }
+              />
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <SummaryCard
+                title="อัตราการอนุมัติ"
+                value={
                   overtimeStatistics.total > 0
                     ? Number(
                         (
@@ -226,86 +175,69 @@ export default function OvertimeManagementPage() {
                           100
                         ).toFixed(1),
                       )
-                    : 0,
-                percent:
+                    : 0
+                }
+                subtitle="เปอร์เซ็นต์การอนุมัติ"
+                icon={<CheckCircleOutlined />}
+                suffix="%"
+                color={themeToken.colorInfo}
+                percent={
                   overtimeStatistics.total > 0
                     ? (overtimeStatistics.approved / overtimeStatistics.total) *
                       100
-                    : 0,
-                color: themeToken.colorInfo,
-                bg: themeToken.colorInfoBg,
-                icon: <CheckCircleOutlined />,
-                suffix: "%",
-                tooltip: (
-                  <div style={{ padding: "4px" }}>
-                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
-                      อัตราการอนุมัติ
-                    </div>
-                    <div>เปอร์เซ็นต์ของคำขอที่ได้รับการอนุมัติ</div>
-                  </div>
-                ),
-              },
-            ]}
-            loading={isLoadingOvertimeData && !overtimeDataSource.length}
+                    : 0
+                }
+              />
+            </Col>
+          </Row>
+
+          {/* ส่วนที่ 3: แถบตัวกรองและจัดการข้อมูล (Filter & Action Bar) */}
+          <FilterBar
+            filterSearchText={filterSearchText}
+            setFilterSearchText={setFilterSearchText}
+            filterSelectedMonth={filterSelectedMonth}
+            setFilterSelectedMonth={setFilterSelectedMonth}
+            isLoading={isLoadingOvertimeData}
+            paginationState={paginationState}
+            onTableChange={onTableChange}
+            fetchOvertimeRequestList={fetchOvertimeRequestList}
           />
 
-          {/* ส่วนที่ 3: แถบเครื่องมือจัดการหลัก (Action Bar) */}
-          <Row gutter={[16, 16]}>
-            <Col xs={24}>
-              <ActionBar
-                selectedRowKeys={selectedRowKeys}
-                setSelectedRowKeys={setSelectedRowKeys}
-                setProcessedRecordItems={setProcessedRecordItems}
-                isBatchProcessing={isBatchProcessing}
-                setIsCreateModalVisible={setIsCreateModalVisible}
-                setIsBatchStatusModalVisible={setIsBatchStatusModalVisible}
-                batchSendOvertimeEmail={batchSendOvertimeEmail}
-                navigationRouter={navigationRouter}
-                setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
-                setIsRulesModalVisible={setIsRulesModalVisible}
-              />
-            </Col>
-          </Row>
-
-          {/* ส่วนที่ 4: แถบตัวกรองข้อมูล (Filter Bar) */}
-          <Row gutter={[16, 16]}>
-            <Col xs={24}>
-              <FilterBar
-                filterSearchText={filterSearchText}
-                setFilterSearchText={setFilterSearchText}
-                filterSelectedMonth={filterSelectedMonth}
-                setFilterSelectedMonth={setFilterSelectedMonth}
-                isLoading={isLoadingOvertimeData}
-                paginationState={paginationState}
-                onTableChange={onTableChange}
-                fetchOvertimeRequestList={fetchOvertimeRequestList}
-              />
-            </Col>
-          </Row>
+          {/* ส่วนที่ 4: แถบเครื่องมือจัดการหลักสำหรับการเลือกหลายรายการ (Action Bar) */}
+          {selectedRowKeys.length > 0 && (
+            <ActionBar
+              selectedRowKeys={selectedRowKeys}
+              setSelectedRowKeys={setSelectedRowKeys}
+              setProcessedRecordItems={setProcessedRecordItems}
+              isBatchProcessing={isBatchProcessing}
+              setIsCreateModalVisible={setIsCreateModalVisible}
+              setIsBatchStatusModalVisible={setIsBatchStatusModalVisible}
+              batchSendOvertimeEmail={batchSendOvertimeEmail}
+              navigationRouter={navigationRouter}
+              setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
+              setIsRulesModalVisible={setIsRulesModalVisible}
+            />
+          )}
 
           {/* ส่วนที่ 5: ตารางแสดงรายการข้อมูลหลัก (Main Data Table) */}
-          <Row gutter={[16, 16]}>
-            <Col xs={24}>
-              <OvertimeTable
-                dataSource={overtimeDataSource}
-                isLoading={isLoadingOvertimeData}
-                paginationState={paginationState}
-                selectedRowKeys={selectedRowKeys}
-                setSelectedRowKeys={setSelectedRowKeys}
-                setProcessedRecordItems={setProcessedRecordItems}
-                isBatchProcessing={isBatchProcessing}
-                processedRecordItems={processedRecordItems}
-                onTableChange={onTableChange}
-                deleteOvertimeRecord={deleteOvertimeRecord}
-                approveOvertimeRecord={approveOvertimeRecord}
-                sendEmailToHRDepartment={sendEmailToHRDepartment}
-                fetchOvertimeRequestDetail={fetchOvertimeRequestDetail}
-                setIsDetailModalVisible={setIsDetailModalVisible}
-                navigationRouter={navigationRouter}
-                onExport={() => setIsExportModalVisible(true)}
-              />
-            </Col>
-          </Row>
+          <OvertimeTable
+            dataSource={overtimeDataSource}
+            isLoading={isLoadingOvertimeData}
+            paginationState={paginationState}
+            selectedRowKeys={selectedRowKeys}
+            setSelectedRowKeys={setSelectedRowKeys}
+            setProcessedRecordItems={setProcessedRecordItems}
+            isBatchProcessing={isBatchProcessing}
+            processedRecordItems={processedRecordItems}
+            onTableChange={onTableChange}
+            deleteOvertimeRecord={deleteOvertimeRecord}
+            approveOvertimeRecord={approveOvertimeRecord}
+            sendEmailToHRDepartment={sendEmailToHRDepartment}
+            fetchOvertimeRequestDetail={fetchOvertimeRequestDetail}
+            setIsDetailModalVisible={setIsDetailModalVisible}
+            navigationRouter={navigationRouter}
+            onExport={() => setIsExportModalVisible(true)}
+          />
 
           {/* ส่วนที่ 6: มอดัลสำหรับสร้างรายการใหม่ (Create Modal) */}
           <CreateModal

@@ -16,6 +16,7 @@ interface TimesheetUser {
   admin_id: number | string;
   firstname?: string;
   lastname?: string;
+  employee_code?: string;
 }
 
 /**
@@ -35,7 +36,9 @@ export const OvertimeService = {
   /**
    * ดึงข้อมูลผู้ใช้ทั้งหมดจาก API
    */
-  async fetchUsers(): Promise<Map<string, string>> {
+  async fetchUsers(): Promise<
+    Map<string, { fullName: string; employeeCode: string }>
+  > {
     try {
       const baseUrl =
         API_URL?.SB_HELPER_URL ?? process.env.NEXT_PUBLIC_SB_HELPER_URL;
@@ -46,14 +49,20 @@ export const OvertimeService = {
       );
       const users = response?.data?.data?.data;
 
-      const userMap = new Map<string, string>();
+      const userMap = new Map<
+        string,
+        { fullName: string; employeeCode: string }
+      >();
       if (Array.isArray(users)) {
         users.forEach((u) => {
           const fullName = [u.firstname, u.lastname]
             .filter(Boolean)
             .join(" ")
             .trim();
-          userMap.set(String(u.admin_id), fullName || String(u.admin_id));
+          userMap.set(String(u.admin_id), {
+            fullName: fullName || String(u.admin_id),
+            employeeCode: u.employee_code || "-",
+          });
         });
       }
       return userMap;
@@ -110,7 +119,7 @@ export const OvertimeService = {
       ? dayjs(params.from).locale("th").format("BBBB")
       : dayjs().locale("th").format("BBBB");
 
-    worksheet.mergeCells("A1:I1");
+    worksheet.mergeCells("A1:J1");
     const titleCell = worksheet.getCell("A1");
     titleCell.value = `รายการขอล่วงเวลาฝ่ายแผนก IT ประจำเดือน ${reportMonth} ปี ${reportYear}`;
     titleCell.font = {
@@ -131,6 +140,7 @@ export const OvertimeService = {
     worksheet.getRow(3).values = [
       "ลำดับ",
       "รหัสคำขอ",
+      "รหัสพนักงาน",
       "ชื่อผู้ขอ",
       "วันที่ขอ",
       "สถานะ",
@@ -143,6 +153,7 @@ export const OvertimeService = {
     worksheet.columns = [
       { key: "no", width: 8 },
       { key: "id", width: 15 },
+      { key: "employee_code", width: 15 },
       { key: "requester", width: 25 },
       { key: "request_date", width: 15 },
       { key: "status", width: 15 },
@@ -189,15 +200,17 @@ export const OvertimeService = {
       const statusTh = translateStatus(item.status);
       const requestDateTh = dayjs(item.requestDate).format("DD/MM/BBBB");
 
-      // ดึงชื่อเต็มจาก Map
-      const fullName =
-        userMap.get(String(item.requesterId)) || item.requesterId;
+      // ดึงข้อมูลผู้ใช้จาก Map
+      const userData = userMap.get(String(item.requesterId));
+      const fullName = userData?.fullName || item.requesterId;
+      const employeeCode = userData?.employeeCode || "-";
 
       if (item.descriptions && item.descriptions.length > 0) {
         item.descriptions.forEach((desc: any) => {
           const row = worksheet.addRow({
             no: index + 1,
             id: requestId,
+            employee_code: employeeCode,
             requester: fullName,
             request_date: requestDateTh,
             status: statusTh,
@@ -213,6 +226,7 @@ export const OvertimeService = {
         const row = worksheet.addRow({
           no: index + 1,
           id: requestId,
+          employee_code: employeeCode,
           requester: fullName,
           request_date: requestDateTh,
           status: statusTh,
@@ -231,6 +245,7 @@ export const OvertimeService = {
       if (rowNumber > 3) {
         row.getCell("no").alignment = { horizontal: "center" };
         row.getCell("id").alignment = { horizontal: "center" };
+        row.getCell("employee_code").alignment = { horizontal: "center" };
         row.getCell("request_date").alignment = { horizontal: "center" };
         row.getCell("status").alignment = { horizontal: "center" };
         row.getCell("ot_date").alignment = { horizontal: "center" };
