@@ -959,7 +959,12 @@ export default function ServerStatusPage() {
                         bordered
                         column={2}
                         size="small"
-                        labelStyle={{ fontWeight: 600, width: 150 }}
+                        styles={{
+                          label: {
+                            fontWeight: 600,
+                            width: 150,
+                          },
+                        }}
                       >
                         <Descriptions.Item label="ชื่อระบบ (TH)" span={2}>
                           {selectedServerStatusItem.name_th}
