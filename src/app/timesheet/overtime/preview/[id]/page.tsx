@@ -516,12 +516,20 @@ export default function OTPreviewPage() {
   const totalHours = useMemo(() => {
     if (!data?.descriptions) return 0;
     const sum = data.descriptions.reduce((acc, item) => {
-      const raw = item?.duration ?? 0;
-      const parsed = Number(String(raw));
-      return Number.isNaN(parsed) ? acc : acc + parsed;
+      if (!item?.start_date || !item?.end_date) {
+        const raw = item?.duration ?? 0;
+        const parsed = Number(String(raw));
+        return Number.isNaN(parsed) ? acc : acc + parsed;
+      }
+
+      // Budget calculation: Floor(start) and Floor(end + 1 hour)
+      const budgetStart = dayjs(item.start_date).startOf("hour");
+      const budgetEnd = dayjs(item.end_date).add(1, "hour").startOf("hour");
+      const duration = budgetEnd.diff(budgetStart, "hour");
+
+      return acc + (duration > 0 ? duration : 0);
     }, 0);
-    const normalized = Math.round(sum * 10) / 10;
-    return Number.isInteger(normalized) ? normalized : normalized;
+    return sum;
   }, [data]);
 
   const userData = getUserById(data?.requester_id ?? "");
@@ -530,7 +538,7 @@ export default function OTPreviewPage() {
   const requesterName =
     userData && (userData.firstname || userData.lastname)
       ? `${userData.firstname ?? ""} ${userData.lastname ?? ""}`.trim()
-      : data?.requester_id ?? "-";
+      : (data?.requester_id ?? "-");
   const employeeCode = userData?.employee_code ?? data?.created_by ?? "-";
   const position = userData?.position ?? getPositionFromLocalStorage() ?? "-";
   const department = data?.department ?? "IT";
@@ -546,7 +554,7 @@ export default function OTPreviewPage() {
       try {
         const response = await callApiService.post(
           "/api/v1/timesheet/overtime/read",
-          { id: String(idParam), request_id: String(requesterId) }
+          { id: String(idParam), request_id: String(requesterId) },
         );
         const body = response?.data;
         if (!body || body.status !== 200) {
@@ -781,11 +789,17 @@ export default function OTPreviewPage() {
                     {approvalRows.map((row, idx) => {
                       const hasTimeRange = row?.start_date && row?.end_date;
                       const startTimeStr = hasTimeRange
-                        ? dayjs(row.start_date).format("HH:mm")
+                        ? dayjs(row.start_date).format("HH:00")
                         : "";
                       const endTimeStr = hasTimeRange
-                        ? dayjs(row.end_date).format("HH:mm")
+                        ? dayjs(row.end_date).add(1, "hour").format("HH:00")
                         : "";
+                      const rowBudgetDuration = hasTimeRange
+                        ? dayjs(row.end_date)
+                            .add(1, "hour")
+                            .startOf("hour")
+                            .diff(dayjs(row.start_date).startOf("hour"), "hour")
+                        : 0;
 
                       return (
                         <tr key={`app-${idx}`}>
@@ -814,6 +828,9 @@ export default function OTPreviewPage() {
                             className="center"
                             style={{ border: "1px solid #000", color: "#000" }}
                           >
+                            <span style={{ display: "none" }}>
+                              {startTimeStr}
+                            </span>
                             <EditableField
                               initialValue={startTimeStr}
                               placeholder="xx:xx"
@@ -829,6 +846,9 @@ export default function OTPreviewPage() {
                             className="center"
                             style={{ border: "1px solid #000", color: "#000" }}
                           >
+                            <span style={{ display: "none" }}>
+                              {endTimeStr}
+                            </span>
                             <EditableField
                               initialValue={endTimeStr}
                               placeholder="xx:xx"
@@ -845,7 +865,7 @@ export default function OTPreviewPage() {
                             style={{ border: "1px solid #000", color: "#000" }}
                           >
                             <EditableField
-                              initialValue={String(row?.duration || "")}
+                              initialValue={String(rowBudgetDuration || "")}
                               placeholder="-"
                               inputStyle={{
                                 minWidth: "40px",
@@ -1112,7 +1132,11 @@ export default function OTPreviewPage() {
                             style={{ border: "1px solid #000", color: "#000" }}
                           >
                             <EditableField
-                              initialValue={String(row?.duration || "")}
+                              initialValue={
+                                row?.duration
+                                  ? Number(row.duration).toFixed(2)
+                                  : ""
+                              }
                               placeholder="-"
                               inputStyle={{
                                 minWidth: "40px",
