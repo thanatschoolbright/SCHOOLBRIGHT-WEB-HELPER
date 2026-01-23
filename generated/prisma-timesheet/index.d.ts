@@ -341,8 +341,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.19.0
-   * Query Engine version: 2ba551f319ab1df4bc874a89965d8b3641056773
+   * Prisma Client JS version: 6.19.2
+   * Query Engine version: c2990dca591cba766e3b7ef5d9e8a84796e47ab7
    */
   export type PrismaVersion = {
     client: string
@@ -4040,6 +4040,7 @@ export namespace Prisma {
     end_date: Date | null
     completeDate: Date | null
     estimateWorkhours: Decimal | null
+    assetCaptureType: $Enums.ProjectAssetCaptureType | null
     group_id: number | null
     projectStatusId: number | null
     is_deleted: boolean | null
@@ -4062,6 +4063,7 @@ export namespace Prisma {
     end_date: Date | null
     completeDate: Date | null
     estimateWorkhours: Decimal | null
+    assetCaptureType: $Enums.ProjectAssetCaptureType | null
     group_id: number | null
     projectStatusId: number | null
     is_deleted: boolean | null
@@ -4084,6 +4086,7 @@ export namespace Prisma {
     end_date: number
     completeDate: number
     estimateWorkhours: number
+    assetCaptureType: number
     group_id: number
     projectStatusId: number
     is_deleted: number
@@ -4126,6 +4129,7 @@ export namespace Prisma {
     end_date?: true
     completeDate?: true
     estimateWorkhours?: true
+    assetCaptureType?: true
     group_id?: true
     projectStatusId?: true
     is_deleted?: true
@@ -4148,6 +4152,7 @@ export namespace Prisma {
     end_date?: true
     completeDate?: true
     estimateWorkhours?: true
+    assetCaptureType?: true
     group_id?: true
     projectStatusId?: true
     is_deleted?: true
@@ -4170,6 +4175,7 @@ export namespace Prisma {
     end_date?: true
     completeDate?: true
     estimateWorkhours?: true
+    assetCaptureType?: true
     group_id?: true
     projectStatusId?: true
     is_deleted?: true
@@ -4279,6 +4285,7 @@ export namespace Prisma {
     end_date: Date | null
     completeDate: Date | null
     estimateWorkhours: Decimal | null
+    assetCaptureType: $Enums.ProjectAssetCaptureType
     group_id: number | null
     projectStatusId: number | null
     is_deleted: boolean
@@ -4320,6 +4327,7 @@ export namespace Prisma {
     end_date?: boolean
     completeDate?: boolean
     estimateWorkhours?: boolean
+    assetCaptureType?: boolean
     group_id?: boolean
     projectStatusId?: boolean
     is_deleted?: boolean
@@ -4348,6 +4356,7 @@ export namespace Prisma {
     end_date?: boolean
     completeDate?: boolean
     estimateWorkhours?: boolean
+    assetCaptureType?: boolean
     group_id?: boolean
     projectStatusId?: boolean
     is_deleted?: boolean
@@ -4372,6 +4381,7 @@ export namespace Prisma {
     end_date?: boolean
     completeDate?: boolean
     estimateWorkhours?: boolean
+    assetCaptureType?: boolean
     group_id?: boolean
     projectStatusId?: boolean
     is_deleted?: boolean
@@ -4396,6 +4406,7 @@ export namespace Prisma {
     end_date?: boolean
     completeDate?: boolean
     estimateWorkhours?: boolean
+    assetCaptureType?: boolean
     group_id?: boolean
     projectStatusId?: boolean
     is_deleted?: boolean
@@ -4405,7 +4416,7 @@ export namespace Prisma {
     updatedBy?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "name_en" | "description" | "categoryType" | "approval" | "approval_status" | "status" | "start_date" | "end_date" | "completeDate" | "estimateWorkhours" | "group_id" | "projectStatusId" | "is_deleted" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "name_en" | "description" | "categoryType" | "approval" | "approval_status" | "status" | "start_date" | "end_date" | "completeDate" | "estimateWorkhours" | "assetCaptureType" | "group_id" | "projectStatusId" | "is_deleted" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     group?: boolean | Project$groupArgs<ExtArgs>
     projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
@@ -4445,6 +4456,7 @@ export namespace Prisma {
       end_date: Date | null
       completeDate: Date | null
       estimateWorkhours: Prisma.Decimal | null
+      assetCaptureType: $Enums.ProjectAssetCaptureType
       group_id: number | null
       projectStatusId: number | null
       is_deleted: boolean
@@ -4892,6 +4904,7 @@ export namespace Prisma {
     readonly end_date: FieldRef<"Project", 'DateTime'>
     readonly completeDate: FieldRef<"Project", 'DateTime'>
     readonly estimateWorkhours: FieldRef<"Project", 'Decimal'>
+    readonly assetCaptureType: FieldRef<"Project", 'ProjectAssetCaptureType'>
     readonly group_id: FieldRef<"Project", 'Int'>
     readonly projectStatusId: FieldRef<"Project", 'Int'>
     readonly is_deleted: FieldRef<"Project", 'Boolean'>
@@ -12675,6 +12688,7 @@ export namespace Prisma {
     end_date: 'end_date',
     completeDate: 'completeDate',
     estimateWorkhours: 'estimateWorkhours',
+    assetCaptureType: 'assetCaptureType',
     group_id: 'group_id',
     projectStatusId: 'projectStatusId',
     is_deleted: 'is_deleted',
@@ -12897,13 +12911,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
    * Reference to a field of type 'ProjectAssetCaptureType'
    */
   export type EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectAssetCaptureType'>
@@ -12914,6 +12921,13 @@ export namespace Prisma {
    * Reference to a field of type 'ProjectAssetCaptureType[]'
    */
   export type ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectAssetCaptureType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -13080,6 +13094,7 @@ export namespace Prisma {
     end_date?: DateTimeNullableFilter<"Project"> | Date | string | null
     completeDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Project"> | $Enums.ProjectAssetCaptureType
     group_id?: IntNullableFilter<"Project"> | number | null
     projectStatusId?: IntNullableFilter<"Project"> | number | null
     is_deleted?: BoolFilter<"Project"> | boolean
@@ -13107,6 +13122,7 @@ export namespace Prisma {
     end_date?: SortOrderInput | SortOrder
     completeDate?: SortOrderInput | SortOrder
     estimateWorkhours?: SortOrderInput | SortOrder
+    assetCaptureType?: SortOrder
     group_id?: SortOrderInput | SortOrder
     projectStatusId?: SortOrderInput | SortOrder
     is_deleted?: SortOrder
@@ -13137,6 +13153,7 @@ export namespace Prisma {
     end_date?: DateTimeNullableFilter<"Project"> | Date | string | null
     completeDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Project"> | $Enums.ProjectAssetCaptureType
     group_id?: IntNullableFilter<"Project"> | number | null
     projectStatusId?: IntNullableFilter<"Project"> | number | null
     is_deleted?: BoolFilter<"Project"> | boolean
@@ -13164,6 +13181,7 @@ export namespace Prisma {
     end_date?: SortOrderInput | SortOrder
     completeDate?: SortOrderInput | SortOrder
     estimateWorkhours?: SortOrderInput | SortOrder
+    assetCaptureType?: SortOrder
     group_id?: SortOrderInput | SortOrder
     projectStatusId?: SortOrderInput | SortOrder
     is_deleted?: SortOrder
@@ -13194,6 +13212,7 @@ export namespace Prisma {
     end_date?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
     completeDate?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeWithAggregatesFilter<"Project"> | $Enums.ProjectAssetCaptureType
     group_id?: IntNullableWithAggregatesFilter<"Project"> | number | null
     projectStatusId?: IntNullableWithAggregatesFilter<"Project"> | number | null
     is_deleted?: BoolWithAggregatesFilter<"Project"> | boolean
@@ -13871,6 +13890,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     is_deleted?: boolean
     createdAt?: Date | string
     createdBy?: number | null
@@ -13896,6 +13916,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     group_id?: number | null
     projectStatusId?: number | null
     is_deleted?: boolean
@@ -13920,6 +13941,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -13945,6 +13967,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -13970,6 +13993,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     group_id?: number | null
     projectStatusId?: number | null
     is_deleted?: boolean
@@ -13991,6 +14015,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -14011,6 +14036,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -14830,6 +14856,13 @@ export namespace Prisma {
     not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
+  export type EnumProjectAssetCaptureTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel> | $Enums.ProjectAssetCaptureType
+  }
+
   export type IntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -14900,6 +14933,7 @@ export namespace Prisma {
     end_date?: SortOrder
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
+    assetCaptureType?: SortOrder
     group_id?: SortOrder
     projectStatusId?: SortOrder
     is_deleted?: SortOrder
@@ -14931,6 +14965,7 @@ export namespace Prisma {
     end_date?: SortOrder
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
+    assetCaptureType?: SortOrder
     group_id?: SortOrder
     projectStatusId?: SortOrder
     is_deleted?: SortOrder
@@ -14953,6 +14988,7 @@ export namespace Prisma {
     end_date?: SortOrder
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
+    assetCaptureType?: SortOrder
     group_id?: SortOrder
     projectStatusId?: SortOrder
     is_deleted?: SortOrder
@@ -15001,6 +15037,16 @@ export namespace Prisma {
     _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
+  export type EnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel> | $Enums.ProjectAssetCaptureType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel>
+    _max?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel>
+  }
+
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -15037,13 +15083,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
-  export type EnumProjectAssetCaptureTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel> | $Enums.ProjectAssetCaptureType
   }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -15148,16 +15187,6 @@ export namespace Prisma {
     projectStatusId?: SortOrder
     createdBy?: SortOrder
     updatedBy?: SortOrder
-  }
-
-  export type EnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel> | $Enums.ProjectAssetCaptureType
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel>
-    _max?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel>
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -15738,6 +15767,10 @@ export namespace Prisma {
     divide?: Decimal | DecimalJsLike | number | string
   }
 
+  export type EnumProjectAssetCaptureTypeFieldUpdateOperationsInput = {
+    set?: $Enums.ProjectAssetCaptureType
+  }
+
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
   }
@@ -15896,10 +15929,6 @@ export namespace Prisma {
     connectOrCreate?: TimesheetEntryCreateOrConnectWithoutFeatureInput | TimesheetEntryCreateOrConnectWithoutFeatureInput[]
     createMany?: TimesheetEntryCreateManyFeatureInputEnvelope
     connect?: TimesheetEntryWhereUniqueInput | TimesheetEntryWhereUniqueInput[]
-  }
-
-  export type EnumProjectAssetCaptureTypeFieldUpdateOperationsInput = {
-    set?: $Enums.ProjectAssetCaptureType
   }
 
   export type ProjectUpdateOneRequiredWithoutFeaturesNestedInput = {
@@ -16239,6 +16268,13 @@ export namespace Prisma {
     not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
+  export type NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel> | $Enums.ProjectAssetCaptureType
+  }
+
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -16283,6 +16319,16 @@ export namespace Prisma {
     _sum?: NestedDecimalNullableFilter<$PrismaModel>
     _min?: NestedDecimalNullableFilter<$PrismaModel>
     _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel> | $Enums.ProjectAssetCaptureType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel>
+    _max?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -16332,23 +16378,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
-  export type NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel> | $Enums.ProjectAssetCaptureType
-  }
-
-  export type NestedEnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProjectAssetCaptureType | EnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ProjectAssetCaptureType[] | ListEnumProjectAssetCaptureTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumProjectAssetCaptureTypeWithAggregatesFilter<$PrismaModel> | $Enums.ProjectAssetCaptureType
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel>
-    _max?: NestedEnumProjectAssetCaptureTypeFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -16440,6 +16469,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     is_deleted?: boolean
     createdAt?: Date | string
     createdBy?: number | null
@@ -16464,6 +16494,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     projectStatusId?: number | null
     is_deleted?: boolean
     createdAt?: Date | string
@@ -16517,6 +16548,7 @@ export namespace Prisma {
     end_date?: DateTimeNullableFilter<"Project"> | Date | string | null
     completeDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Project"> | $Enums.ProjectAssetCaptureType
     group_id?: IntNullableFilter<"Project"> | number | null
     projectStatusId?: IntNullableFilter<"Project"> | number | null
     is_deleted?: BoolFilter<"Project"> | boolean
@@ -16538,6 +16570,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     is_deleted?: boolean
     createdAt?: Date | string
     createdBy?: number | null
@@ -16562,6 +16595,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     group_id?: number | null
     is_deleted?: boolean
     createdAt?: Date | string
@@ -16973,6 +17007,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     is_deleted?: boolean
     createdAt?: Date | string
     createdBy?: number | null
@@ -16997,6 +17032,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     group_id?: number | null
     projectStatusId?: number | null
     is_deleted?: boolean
@@ -17116,6 +17152,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -17140,6 +17177,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -17221,6 +17259,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     is_deleted?: boolean
     createdAt?: Date | string
     createdBy?: number | null
@@ -17245,6 +17284,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     group_id?: number | null
     projectStatusId?: number | null
     is_deleted?: boolean
@@ -17330,6 +17370,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -17354,6 +17395,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -17475,6 +17517,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     is_deleted?: boolean
     createdAt?: Date | string
     createdBy?: number | null
@@ -17499,6 +17542,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     group_id?: number | null
     projectStatusId?: number | null
     is_deleted?: boolean
@@ -17590,6 +17634,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -17614,6 +17659,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -17759,6 +17805,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     projectStatusId?: number | null
     is_deleted?: boolean
     createdAt?: Date | string
@@ -17779,6 +17826,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -17803,6 +17851,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17827,6 +17876,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     projectStatusId?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17848,6 +17898,7 @@ export namespace Prisma {
     end_date?: Date | string | null
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: $Enums.ProjectAssetCaptureType
     group_id?: number | null
     is_deleted?: boolean
     createdAt?: Date | string
@@ -17887,6 +17938,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
@@ -17911,6 +17963,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17935,6 +17988,7 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     group_id?: NullableIntFieldUpdateOperationsInput | number | null
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

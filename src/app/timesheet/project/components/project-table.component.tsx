@@ -284,6 +284,17 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
                 >
                   {getCategoryName(record.categoryType || "")}
                 </Tag>
+                <Tag
+                  bordered={false}
+                  color={
+                    record.assetCaptureType === "CAPTUREABLE" ? "green" : "red"
+                  }
+                  style={{ fontSize: 11, margin: 0, borderRadius: 4 }}
+                >
+                  {record.assetCaptureType === "CAPTUREABLE"
+                    ? "บันทึกทรัพย์สินได้"
+                    : "ไม่บันทึกทรัพย์สิน"}
+                </Tag>
               </Flex>
             </Flex>
           </Flex>
@@ -372,12 +383,8 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
         const count = getSubProjectCount(record.features);
         return (
           <Flex vertical gap={8}>
-            {record.start_date && record.end_date ? (
-              <Tooltip
-                title={`ระยะเวลา: ${convertToThaiDateDDMMYYY(
-                  record.start_date
-                )} - ${convertToThaiDateDDMMYYY(record.end_date)}`}
-              >
+            {record.start_date || record.end_date || record.completeDate ? (
+              <Flex vertical gap={4}>
                 <div
                   style={{
                     display: "flex",
@@ -390,18 +397,45 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
                     style={{ color: token.colorTextSecondary }}
                   />
                   <Text style={{ fontSize: 11 }}>
-                    {dayjs(record.start_date).format("DD/MM/YY")} -{" "}
-                    {dayjs(record.end_date).format("DD/MM/YY")}
+                    {record.start_date
+                      ? dayjs(record.start_date).format("DD/MM/YY")
+                      : "?"}{" "}
+                    -{" "}
+                    {record.end_date
+                      ? dayjs(record.end_date).format("DD/MM/YY")
+                      : "?"}
                   </Text>
                 </div>
-              </Tooltip>
+                {record.completeDate && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      fontSize: 11,
+                      color: token.colorSuccess,
+                    }}
+                  >
+                    <CheckCircleFilled />
+                    <Text
+                      style={{
+                        fontSize: 11,
+                        color: token.colorSuccess,
+                        fontWeight: 600,
+                      }}
+                    >
+                      เสร็จสิ้น: {dayjs(record.completeDate).format("DD/MM/YY")}
+                    </Text>
+                  </div>
+                )}
+              </Flex>
             ) : (
               <Text type="secondary" style={{ fontSize: 12 }}>
                 ไม่มีกำหนดวันที่
               </Text>
             )}
 
-            <Flex gap={8} align="center">
+            <Flex gap={8} align="center" wrap="wrap">
               <Tooltip title="ฟีเจอร์ย่อย">
                 <Badge
                   count={count}
@@ -413,15 +447,32 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
                   }}
                 />
               </Tooltip>
-              <Tooltip title="ประมาณการชั่วโมงการทำงาน">
+              <Tooltip title="ประมาณการชั่วโมงการทำงาน (Auto)">
                 <Tag
                   icon={<ClockCircleOutlined />}
                   color="orange"
-                  style={{ margin: 0, borderRadius: 6, fontWeight: 600 }}
+                  style={{ margin: 0, borderRadius: 6, fontSize: 11 }}
                 >
                   {(record.estimate_hour || 0).toLocaleString()} ชม.
                 </Tag>
               </Tooltip>
+              {record.estimateWorkhours !== null &&
+                record.estimateWorkhours !== undefined && (
+                  <Tooltip title="ประมาณการชั่วโมง (Manual)">
+                    <Tag
+                      icon={<HistoryOutlined />}
+                      color="cyan"
+                      style={{
+                        margin: 0,
+                        borderRadius: 6,
+                        fontWeight: 600,
+                        fontSize: 11,
+                      }}
+                    >
+                      {Number(record.estimateWorkhours).toLocaleString()} ชม.
+                    </Tag>
+                  </Tooltip>
+                )}
             </Flex>
           </Flex>
         );

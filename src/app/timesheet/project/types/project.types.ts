@@ -25,6 +25,9 @@ export interface Project {
   projectAssignees?: ProjectAssignee[];
   start_date?: string;
   end_date?: string;
+  completeDate?: string | null;
+  estimateWorkhours?: number | null;
+  assetCaptureType: "CAPTUREABLE" | "UN_CAPTUREABLE";
   estimate_hour?: number;
   is_deleted?: boolean;
   projectStatusId?: number | null;
@@ -51,6 +54,9 @@ export interface FormValues {
   projectStatusId_display?: number | null;
   start_date?: any;
   end_date?: any;
+  completeDate?: any;
+  estimateWorkhours?: number;
+  assetCaptureType?: "CAPTUREABLE" | "UN_CAPTUREABLE";
   assignees?: { userId: number; position?: string }[];
 }
 

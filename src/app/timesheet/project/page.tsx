@@ -31,6 +31,7 @@ import {
   AutoComplete,
   Empty,
   InputNumber,
+  Badge,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -69,6 +70,7 @@ import {
   HighlightOutlined,
   FilterOutlined,
   DatabaseOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -580,6 +582,77 @@ const CategoryStatsSection = ({ stats, token }: { stats: any; token: any }) => {
   );
 };
 
+const getAssetCaptureStyle = (id: string, token: any) => {
+  switch (id) {
+    case "CAPTUREABLE":
+      return {
+        color: token.colorSuccess,
+        bg: token.colorSuccessBg,
+        icon: <SafetyCertificateOutlined />,
+      };
+    case "UN_CAPTUREABLE":
+      return {
+        color: token.colorError,
+        bg: token.colorErrorBg,
+        icon: <CloseOutlined />,
+      };
+    default:
+      return {
+        color: token.colorTextSecondary,
+        bg: token.colorFillTertiary,
+        icon: <InfoCircleOutlined />,
+      };
+  }
+};
+
+const AssetCaptureStatsSection = ({
+  stats,
+  token,
+}: {
+  stats: any;
+  token: any;
+}) => {
+  if (!stats?.by_asset_capture) return null;
+
+  const total = stats.health?.total || 1;
+
+  return (
+    <div className="mb-8">
+      <Flex align="center" gap={8} className="mb-4">
+        <DatabaseOutlined style={{ color: token.colorPrimary }} />
+        <Text strong style={{ fontSize: 16 }}>
+          แยกตามการบันทึกทรัพย์สิน (By Asset Capture)
+        </Text>
+      </Flex>
+      <Row gutter={[16, 16]}>
+        {[
+          { id: "CAPTUREABLE", name: "บันทึกทรัพย์สิน" },
+          { id: "UN_CAPTUREABLE", name: "ไม่บันทึกทรัพย์สิน" },
+        ].map((type) => {
+          const count = stats.by_asset_capture[type.id] || 0;
+          const percent = (count / total) * 100;
+          const style = getAssetCaptureStyle(type.id, token);
+
+          return (
+            <Col xs={12} sm={8} md={6} lg={4} key={type.id}>
+              <SummaryCard
+                title={type.name}
+                value={count}
+                suffix={`/ ${total}`}
+                percent={percent}
+                icon={style.icon}
+                color={style.color}
+                iconBg={style.bg}
+                tooltip={`จำนวนโครงการที่มีสิทธิ์ ${type.name}`}
+              />
+            </Col>
+          );
+        })}
+      </Row>
+    </div>
+  );
+};
+
 // ==========================================
 // MAIN PAGE COMPONENT
 // ==========================================
@@ -642,13 +715,21 @@ export default function ProjectManagementPage() {
         end_date: modalState.data.end_date
           ? dayjs(modalState.data.end_date)
           : undefined,
+        completeDate: modalState.data.completeDate
+          ? dayjs(modalState.data.completeDate)
+          : undefined,
+        estimateWorkhours: modalState.data.estimateWorkhours ?? undefined,
+        assetCaptureType: modalState.data.assetCaptureType,
         assignees: modalState.data.projectAssignees?.map((a) => ({
           userId: a.userId,
           position: a.position,
         })),
       });
     } else if (modalState.type === "create") {
-      form.resetFields();
+      form.setFieldsValue({
+        assetCaptureType: "CAPTUREABLE",
+        status: "open",
+      });
     }
   }, [modalState.type, modalState.data, form]);
 
@@ -903,6 +984,7 @@ export default function ProjectManagementPage() {
           token={token}
         />
         <CategoryStatsSection stats={backendStats} token={token} />
+        <AssetCaptureStatsSection stats={backendStats} token={token} />
 
         <div className="space-y-6">
           {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล (Filter Bar) - แบ่งสัดส่วน 2 column ใน 1 row */}
@@ -1201,68 +1283,138 @@ export default function ProjectManagementPage() {
       <Modal
         open={modalState.type === "create" || modalState.type === "edit"}
         title={
-          <Space>
-            {modalState.type === "edit" ? (
-              <ProjectOutlined className="text-blue-500" />
-            ) : (
-              <PlusOutlined className="text-green-500" />
-            )}{" "}
-            <Text strong style={{ fontSize: 20 }}>
-              {modalState.type === "edit"
-                ? "แก้ไขข้อมูลโครงการ"
-                : "สร้างโครงการใหม่"}
-            </Text>
-          </Space>
+          <div
+            style={{
+              padding: "16px 24px",
+              borderBottom: `1px solid ${token.colorBorderSecondary}`,
+              margin: "-16px -24px 24px -24px",
+              background: `linear-gradient(135deg, ${
+                modalState.type === "edit"
+                  ? token.colorInfoBg
+                  : token.colorSuccessBg
+              } 0%, ${token.colorBgContainer} 100%)`,
+              borderRadius: "16px 16px 0 0",
+            }}
+          >
+            <Space size={12}>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background:
+                    modalState.type === "edit"
+                      ? token.colorInfo
+                      : token.colorSuccess,
+                  color: "white",
+                  fontSize: 20,
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                }}
+              >
+                {modalState.type === "edit" ? (
+                  <ProjectOutlined />
+                ) : (
+                  <PlusOutlined />
+                )}
+              </div>
+              <div>
+                <Text
+                  style={{ fontSize: 18, display: "block", fontWeight: 500 }}
+                >
+                  {modalState.type === "edit"
+                    ? "แก้ไขรายละเอียดโครงการ"
+                    : "สร้างโครงการใหม่"}
+                </Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {modalState.type === "edit"
+                    ? `โครงการ ID: ${modalState.data?.id}`
+                    : "กรุณากรอกข้อมูลเพื่อเริ่มต้นโครงการใหม่ในระบบ"}
+                </Text>
+              </div>
+            </Space>
+          </div>
         }
         onCancel={closeModal}
         footer={null}
-        width={800}
+        width={950}
         centered
-        styles={{ content: { borderRadius: 16 } }}
+        styles={{
+          content: { borderRadius: 16, padding: "24px" },
+          body: { paddingTop: 0 },
+        }}
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmitForm}
-          className="mt-6"
           size="large"
+          autoComplete="off"
         >
+          {/* Section: Basic Information */}
+          <Divider orientation="left" plain style={{ marginTop: 0 }}>
+            <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>
+              ข้อมูลพื้นฐานโครงการ
+            </Text>
+          </Divider>
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="ชื่อโครงการ (ภาษาไทย)"
+                label={
+                  <Space size={4}>
+                    <Text style={{ fontWeight: 500 }}>ชื่อโครงการ (TH)</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      Thai Title
+                    </Text>
+                  </Space>
+                }
                 rules={[{ required: true, message: "กรุณาระบุชื่อโครงการ" }]}
               >
                 <Input
-                  placeholder="เช่น โครงการปรับปรุงระบบ..."
-                  className="rounded-lg"
+                  placeholder="เช่น ระบบบริหารจัดการไทม์ชีทโครงการ"
+                  className="rounded-lg shadow-sm"
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="name_en"
-                label="ชื่อโครงการ (ภาษาอังกฤษ)"
+                label={
+                  <Space size={4}>
+                    <Text style={{ fontWeight: 500 }}>ภาษาอังกฤษ (EN)</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      English Title
+                    </Text>
+                  </Space>
+                }
                 rules={[{ required: true, message: "กรุณาระบุชื่อภาษาอังกฤษ" }]}
               >
                 <Input
-                  placeholder="เช่น System Renovation Project"
-                  className="rounded-lg"
+                  placeholder="e.g. Timesheet Management System"
+                  className="rounded-lg shadow-sm"
                 />
               </Form.Item>
             </Col>
           </Row>
+
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item
                 name="categoryType"
-                label="ประเภทโครงการ"
+                label={
+                  <Space size={4}>
+                    <ProjectOutlined />{" "}
+                    <Text style={{ fontWeight: 500 }}>ประเภทโครงการ</Text>
+                  </Space>
+                }
                 rules={[{ required: true, message: "กรุณาเลือกประเภท" }]}
               >
                 <Select
-                  className="rounded-lg"
-                  placeholder="เลือกประเภท"
+                  className="rounded-lg shadow-sm w-full"
+                  placeholder="เลือกประเภทโครงการ"
                   options={categoryType.map((c: any) => ({
                     label: c.name,
                     value: String(c.id),
@@ -1270,17 +1422,19 @@ export default function ProjectManagementPage() {
                 />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item name="status" hidden>
-                <Input />
-              </Form.Item>
+            <Col span={8}>
               <Form.Item
                 name="projectStatusId"
-                label="สถานะโครงการ (SDLC Step)"
+                label={
+                  <Space size={4}>
+                    <ClockCircleOutlined />{" "}
+                    <Text style={{ fontWeight: 500 }}>ขั้นตอนการดำเนินการ</Text>
+                  </Space>
+                }
                 rules={[{ required: true, message: "กรุณาเลือกสถานะ" }]}
               >
                 <Select
-                  className="rounded-lg"
+                  className="rounded-lg shadow-sm w-full"
                   placeholder="เลือกขั้นตอนหลัก (SDLC)"
                   allowClear
                   onChange={(val) => {
@@ -1298,44 +1452,143 @@ export default function ProjectManagementPage() {
                       .sort((a: any, b: any) => a.priority - b.priority)
                       .map((s: any) => ({
                         label: (
-                          <Tag color="blue">
-                            Step {s.priority}: {s.nameTh}
-                          </Tag>
+                          <Space>
+                            <Badge status="processing" />
+                            <Text style={{ fontSize: 13 }}>{s.nameTh}</Text>
+                          </Space>
                         ),
                         value: s.id,
                       })),
                   ]}
                 />
               </Form.Item>
+              <Form.Item name="status" hidden>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="assetCaptureType"
+                label={
+                  <Space size={4}>
+                    <InfoCircleOutlined />{" "}
+                    <Text style={{ fontWeight: 500 }}>บันทึกทรัพย์สินได้?</Text>
+                  </Space>
+                }
+                rules={[{ required: true }]}
+              >
+                <Select
+                  className="rounded-lg shadow-sm w-full"
+                  options={[
+                    { label: "สามารถบันทึกทรัพย์สินได้", value: "CAPTUREABLE" },
+                    {
+                      label: "ไม่สามารถบันทึกทรัพย์สินได้",
+                      value: "UN_CAPTUREABLE",
+                    },
+                  ]}
+                />
+              </Form.Item>
             </Col>
           </Row>
+
+          {/* Section: Timeline & Metrics */}
+          <Divider orientation="left" plain style={{ marginTop: 8 }}>
+            <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>
+              ระยะเวลาและประมาณการงาน
+            </Text>
+          </Divider>
           <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item name="start_date" label="วันที่เริ่มต้น">
+            <Col span={6}>
+              <Form.Item
+                name="start_date"
+                label={
+                  <Space size={4}>
+                    <CalendarOutlined />{" "}
+                    <Text style={{ fontWeight: 500 }}>เริ่มโครงการ</Text>
+                  </Space>
+                }
+              >
                 <DatePicker
-                  className="w-full rounded-lg"
+                  className="w-full rounded-lg shadow-sm"
                   format="DD/MM/YYYY"
                   placeholder="วว/ดด/ปปปป"
                 />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item name="end_date" label="วันที่สิ้นสุด">
+            <Col span={6}>
+              <Form.Item
+                name="end_date"
+                label={
+                  <Space size={4}>
+                    <CalendarOutlined />{" "}
+                    <Text style={{ fontWeight: 500 }}>กำหนดส่งงาน</Text>
+                  </Space>
+                }
+              >
                 <DatePicker
-                  className="w-full rounded-lg"
+                  className="w-full rounded-lg shadow-sm"
                   format="DD/MM/YYYY"
                   placeholder="วว/ดด/ปปปป"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="completeDate"
+                label={
+                  <Space size={4}>
+                    <CheckCircleOutlined />{" "}
+                    <Text style={{ fontWeight: 500 }}>วันที่งานเสร็จจริง</Text>
+                  </Space>
+                }
+              >
+                <DatePicker
+                  className="w-full rounded-lg shadow-sm"
+                  format="DD/MM/YYYY"
+                  placeholder="วว/ดด/ปปปป"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="estimateWorkhours"
+                label={
+                  <Space size={4}>
+                    <ClockCircleOutlined />{" "}
+                    <Text style={{ fontWeight: 500 }}>งบประมาณ (ชม.)</Text>
+                  </Space>
+                }
+              >
+                <InputNumber
+                  className="w-full rounded-lg shadow-sm"
+                  placeholder="เช่น 160"
+                  min={0}
                 />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="description" label="รายละเอียดเพิ่มเติม">
-            <Input.TextArea
-              rows={4}
-              className="rounded-lg"
-              placeholder="รายละเอียดหรือหมายเหตุ..."
-            />
-          </Form.Item>
+
+          <Row gutter={24}>
+            <Col span={24}>
+              <Form.Item
+                name="description"
+                label={
+                  <Space size={4}>
+                    <EditOutlined />{" "}
+                    <Text style={{ fontWeight: 500 }}>
+                      รายละเอียดโครงการเพิ่มเติม
+                    </Text>
+                  </Space>
+                }
+              >
+                <Input.TextArea
+                  rows={3}
+                  className="rounded-lg shadow-sm"
+                  placeholder="รายละเอียดหรืองานอื่นๆ ที่เกี่ยวข้องกับโครงการนี้..."
+                />
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Divider
             dashed
@@ -1437,23 +1690,32 @@ export default function ProjectManagementPage() {
                   </Row>
                 ))}
                 <Form.Item>
-                  {modalState.type === "edit" ? (
-                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        <InfoCircleOutlined className="mr-1" />{" "}
-                        ทีมงานผู้รับผิดชอบไม่สามารถแก้ไขได้ในหน้านี้
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "16px",
+                      background: token.colorFillAlter,
+                      borderRadius: 12,
+                      border: `1px dashed ${token.colorBorder}`,
+                    }}
+                  >
+                    <Space direction="vertical" size={4}>
+                      <Badge
+                        status="default"
+                        text={
+                          <Text type="secondary" style={{ fontSize: 13 }}>
+                            ปิดการแก้ไข/เพิ่มรายชื่อทีมงานในหน้านี้
+                          </Text>
+                        }
+                      />
+                      <Text
+                        style={{ fontSize: 11, color: token.colorTextDisabled }}
+                      >
+                        กรุณาจัดการผู้รับผิดชอบผ่านเมนู "จัดการผู้รับผิดชอบ"
+                        ในตารางโครงการ
                       </Text>
-                    </div>
-                  ) : (
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      block
-                      icon={<PlusOutlined />}
-                    >
-                      เพิ่มผู้รับผิดชอบ
-                    </Button>
-                  )}
+                    </Space>
+                  </div>
                 </Form.Item>
               </>
             )}

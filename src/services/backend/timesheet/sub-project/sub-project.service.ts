@@ -28,6 +28,15 @@ const calculateEstimateManHours = (
   return estimatedHours > 0 ? estimatedHours : 0;
 };
 
+export const transformFeature = (item: any) => ({
+  ...item,
+  estimate_sub_feature_workhours: calculateEstimateManHours(
+    item.startDate,
+    item.endDate,
+    item.projectAssignees?.length || 1,
+  ),
+});
+
 interface PaginationOptions {
   limit?: number;
   skip?: number;
@@ -44,6 +53,8 @@ interface CreateFeatureDto {
   assetCaptureType?: SubProjectAssetCaptureType;
   status?: string;
   projectStatusId?: number | null;
+  completeDate?: Date | string | null;
+  estimateWorkhours?: number | null;
   assignees?: { userId: number; position?: string | null }[];
 }
 
@@ -57,6 +68,8 @@ interface UpdateFeatureDto {
   assetCaptureType?: SubProjectAssetCaptureType;
   status?: string;
   projectStatusId?: number | null;
+  completeDate?: Date | string | null;
+  estimateWorkhours?: number | null;
   projectId?: number;
   assignees?: { userId: number; position?: string | null }[];
 }
@@ -113,16 +126,7 @@ export const Service = {
       return { items: [], total: 0 };
     }
 
-    const featureWithEstimate = {
-      ...feature,
-      estimate_sub_feature_workhours: calculateEstimateManHours(
-        feature.startDate,
-        feature.endDate,
-        feature.projectAssignees?.length || 1,
-      ),
-    };
-
-    return { items: [featureWithEstimate], total: 1 };
+    return { items: [transformFeature(feature)], total: 1 };
   },
 
   async findByProjectId(

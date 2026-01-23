@@ -1,8 +1,9 @@
 import { PrismaTimesheet } from "@helpers/prisma-timesheet";
+import { transformFeature } from "./sub-project/sub-project.service";
 
 const calculateWorkingDays = (
   startDate: Date | null,
-  endDate: Date | null
+  endDate: Date | null,
 ): number => {
   if (!startDate || !endDate) return 0;
 
@@ -40,7 +41,7 @@ const withEstimateHours = (project: any) => {
   const assigneesCount = uniqueAssignees.length;
   const workingDays = calculateWorkingDays(
     project.start_date,
-    project.end_date
+    project.end_date,
   );
   const estimate_hour = assigneesCount * 8 * workingDays;
 
@@ -48,13 +49,19 @@ const withEstimateHours = (project: any) => {
     ...project,
     projectAssignees: uniqueAssignees,
     estimate_hour,
+    completeDate: project.completeDate,
+    estimateWorkhours: project.estimateWorkhours,
+    assetCaptureType: project.assetCaptureType,
+    features: project.features
+      ? project.features.map(transformFeature)
+      : project.features,
   };
 };
 
 export const Service = {
   // * ดึงข้อมูล Project ทั้งหมด พร้อม pagination
   async findAll(
-    opts: { limit?: number; skip?: number } = { limit: 50, skip: 0 }
+    opts: { limit?: number; skip?: number } = { limit: 50, skip: 0 },
   ) {
     const [items, total] = await Promise.all([
       PrismaTimesheet.project.findMany({
@@ -95,6 +102,9 @@ export const Service = {
     createdBy?: number;
     status?: string;
     projectStatusId?: number | null;
+    completeDate?: string | null;
+    estimateWorkhours?: number | null;
+    assetCaptureType?: any;
     assignees?: { userId: number; position?: string }[];
   }) {
     return await PrismaTimesheet.project.create({
@@ -116,6 +126,9 @@ export const Service = {
               })),
             }
           : undefined,
+        completeDate: data.completeDate,
+        estimateWorkhours: data.estimateWorkhours,
+        assetCaptureType: data.assetCaptureType,
       },
     });
   },
@@ -134,14 +147,27 @@ export const Service = {
       end_date?: string;
       name_en?: string;
       projectStatusId?: number | null;
+      completeDate?: string | null;
+      estimateWorkhours?: number | null;
+      assetCaptureType?: string;
       assignees?: { userId: number; position?: string }[];
-    }
+    },
   ) {
     const { assignees, ...projectData } = data;
     return await PrismaTimesheet.project.update({
       where: { id },
       data: {
-        ...projectData,
+        name: data.name,
+        description: data.description,
+        categoryType: data.categoryType,
+        status: data.status,
+        name_en: data.name_en,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        projectStatusId: data.projectStatusId,
+        completeDate: data.completeDate,
+        estimateWorkhours: data.estimateWorkhours,
+        assetCaptureType: data.assetCaptureType as any,
         updatedBy: data.updatedBy ?? 0,
         projectAssignees: assignees
           ? {
@@ -199,12 +225,21 @@ export const Service = {
     return {
       health: {
         total,
-        active,
-        closed,
+        open: active,
+        close: closed,
         success_rate: successRate,
       },
       trackings,
       by_category: byCategory,
+      by_asset_capture: {
+        CAPTUREABLE: validProjects.filter(
+          (p: any) =>
+            p.assetCaptureType === "CAPTUREABLE" || p.assetCaptureType === null,
+        ).length,
+        UN_CAPTUREABLE: validProjects.filter(
+          (p: any) => p.assetCaptureType === "UN_CAPTUREABLE",
+        ).length,
+      },
     };
   },
 };
