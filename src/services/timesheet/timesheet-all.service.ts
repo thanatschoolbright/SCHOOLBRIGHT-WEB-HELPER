@@ -43,7 +43,7 @@ export const GET_TIMESHEET_ENTRIES = async (params: {
       {
         limit: params.limit,
         page: params.page,
-      }
+      },
     );
 
     const entries = response.data?.data ?? [];
@@ -86,7 +86,7 @@ export const GET_PROJECTS = async (params: {
       },
       {
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
 
     const projects = response.data?.data ?? [];
@@ -104,7 +104,7 @@ export const GET_PROJECTS = async (params: {
 
 //** Service สำหรับจัดการข้อมูลโปรเจ็กต์ย่อย */
 export const GET_SUB_PROJECTS_BY_PROJECT = async (
-  projectId: number
+  projectId: number,
 ): Promise<SubProject[]> => {
   const toastId = toast.loading("กำลังโหลดโครงการย่อย...");
 
@@ -115,7 +115,7 @@ export const GET_SUB_PROJECTS_BY_PROJECT = async (
         limit: 200,
         page: 1,
         project_id: Number(projectId),
-      }
+      },
     );
 
     const subProjects = response.data?.data?.items ?? [];
@@ -133,7 +133,7 @@ export const GET_SUB_PROJECTS_BY_PROJECT = async (
 
 //** Service สำหรับส่งออกไฟล์ Template Excel */
 export const POST_EXPORT_TEMPLATE = async (
-  exportData: TimesheetExportData
+  exportData: TimesheetExportData,
 ): Promise<void> => {
   const pollIntervalMs = 1500;
   const maxAttempts = 120; // roughly 3 minutes
@@ -180,7 +180,7 @@ export const POST_EXPORT_TEMPLATE = async (
           throw new Error(
             statusError?.message_th ||
               statusError?.message_en ||
-              "ส่งออกไฟล์ไม่สำเร็จ"
+              "ส่งออกไฟล์ไม่สำเร็จ",
           );
         }
 
@@ -213,7 +213,7 @@ export const POST_EXPORT_TEMPLATE = async (
             throw new Error(
               downloadError?.message_th ||
                 downloadError?.message_en ||
-                "ไม่สามารถดาวน์โหลดไฟล์ได้"
+                "ไม่สามารถดาวน์โหลดไฟล์ได้",
             );
           }
 
@@ -224,7 +224,7 @@ export const POST_EXPORT_TEMPLATE = async (
           link.href = url;
           link.download = `timesheet-export_${exportData.start_date.replace(
             /-/g,
-            ""
+            "",
           )}_${exportData.end_date.replace(/-/g, "")}.xlsx`;
           document.body.appendChild(link);
           link.click();
@@ -253,7 +253,7 @@ export const POST_EXPORT_TEMPLATE = async (
     link.href = url;
     link.download = `timesheet-export_${exportData.start_date.replace(
       /-/g,
-      ""
+      "",
     )}_${exportData.end_date.replace(/-/g, "")}.xlsx`;
     document.body.appendChild(link);
     link.click();
@@ -284,7 +284,7 @@ export const POST_EXPORT_ALL_ENTRIES = async (): Promise<{
       {
         limit: 10000,
         page: 1,
-      }
+      },
     );
 
     const entries = response.data?.data ?? [];
@@ -311,7 +311,7 @@ export interface ProjectExportData {
 
 //** Service สำหรับส่งออกไฟล์ Template Excel แยกตามโปรเจ็ค */
 export const POST_EXPORT_PROJECT_TEMPLATE = async (
-  exportData: ProjectExportData
+  exportData: ProjectExportData,
 ): Promise<void> => {
   let toastId: string | number | undefined;
 
@@ -333,7 +333,7 @@ export const POST_EXPORT_PROJECT_TEMPLATE = async (
       throw new Error(
         errorData?.message_th ||
           errorData?.message_en ||
-          "ไม่สามารถสร้างรายงานได้"
+          "ไม่สามารถสร้างรายงานได้",
       );
     }
 
@@ -347,7 +347,7 @@ export const POST_EXPORT_PROJECT_TEMPLATE = async (
       exportData.export_type === "project" ? "project" : "subproject";
     link.download = `timesheet-${typeLabel}-summary_${exportData.start_date.replace(
       /-/g,
-      ""
+      "",
     )}_${exportData.end_date.replace(/-/g, "")}.xlsx`;
     document.body.appendChild(link);
     link.click();
@@ -390,7 +390,7 @@ export const POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK = async (params: {
       throw new Error(
         errorData?.message_th ||
           errorData?.message_en ||
-          "ไม่สามารถสร้างรายงานได้"
+          "ไม่สามารถสร้างรายงานได้",
       );
     }
 
@@ -402,7 +402,7 @@ export const POST_EXPORT_SUB_PROJECT_WEEK_BY_WEEK = async (params: {
     link.href = url;
     link.download = `timesheet-subproject-weekly_${params.start_date.replace(
       /-/g,
-      ""
+      "",
     )}_${params.end_date.replace(/-/g, "")}.xlsx`;
     document.body.appendChild(link);
     link.click();
@@ -445,7 +445,7 @@ export const POST_EXPORT_AUDIT_REPORT = async (params: {
       throw new Error(
         errorData?.message_th ||
           errorData?.message_en ||
-          "ไม่สามารถสร้างรายงานได้"
+          "ไม่สามารถสร้างรายงานได้",
       );
     }
 
@@ -454,11 +454,18 @@ export const POST_EXPORT_AUDIT_REPORT = async (params: {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
 
+    // Helper to format date as DD/MM/YYYY (Buddhist Era)
+    const formatDateThai = (dateStr: string) => {
+      // Input expected: YYYY-MM-DD
+      const [year, month, day] = dateStr.split("-");
+      const thYear = parseInt(year, 10) + 543;
+      return `${day}/${month}/${thYear}`;
+    };
+
     link.href = url;
-    link.download = `timesheet-audit-report_${params.start_date.replace(
-      /-/g,
-      ""
-    )}_${params.end_date.replace(/-/g, "")}.xlsx`;
+    link.download = `รายงานการทำงานของพนักงาน วันที่ ${formatDateThai(
+      params.start_date,
+    )} ถึง ${formatDateThai(params.end_date)}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

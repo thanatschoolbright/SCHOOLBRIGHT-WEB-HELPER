@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
           message_th: "กรุณาระบุช่วงวันที่",
           message_en: "Date range is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -27,17 +27,25 @@ export async function POST(request: NextRequest) {
       end_date,
     });
 
-    const fileName = `timesheet-audit-report_${start_date.replace(
-      /-/g,
-      ""
-    )}_${end_date.replace(/-/g, "")}.xlsx`;
+    // Helper to format date as DD/MM/YYYY (Buddhist Era)
+    const formatDateThai = (dateStr: string) => {
+      // Input expected: YYYY-MM-DD
+      const [year, month, day] = dateStr.split("-");
+      const thYear = parseInt(year, 10) + 543;
+      return `${day}/${month}/${thYear}`;
+    };
+
+    const formattedStart = formatDateThai(start_date);
+    const formattedEnd = formatDateThai(end_date);
+    const fileName = `รายงานการทำงานของพนักงาน วันที่ ${formattedStart} ถึง ${formattedEnd}.xlsx`;
+    const encodedFileName = encodeURIComponent(fileName);
 
     return new NextResponse(excelBuffer as any, {
       status: 200,
       headers: {
         "Content-Type":
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="${fileName}"`,
+        "Content-Disposition": `attachment; filename*=UTF-8''${encodedFileName}`,
         "Cache-Control": "no-cache, no-store, must-revalidate",
         Pragma: "no-cache",
         Expires: "0",
@@ -51,7 +59,7 @@ export async function POST(request: NextRequest) {
         message_th: error.message || "เกิดข้อผิดพลาดในการสร้างรายงาน",
         message_en: error.message || "Error generating report",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

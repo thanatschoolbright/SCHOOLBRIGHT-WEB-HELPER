@@ -1,10 +1,18 @@
 "use client";
-import React, { useMemo, useState } from "react";
-import { Modal, Select, Space, Button, Typography } from "antd";
+import React, { useState } from "react";
+import {
+  Modal,
+  Space,
+  Button,
+  Typography,
+  DatePicker,
+  Row,
+  Col,
+  Card,
+  theme,
+} from "antd";
 import dayjs from "dayjs";
-import isoWeek from "dayjs/plugin/isoWeek";
-
-dayjs.extend(isoWeek);
+import { CalendarOutlined, FileTextOutlined } from "@ant-design/icons";
 
 type Props = {
   visible: boolean;
@@ -13,126 +21,121 @@ type Props = {
   onExport: (payload: { from: string; to: string }) => Promise<void> | void;
 };
 
-interface WeekOption {
-  label: string;
-  value: string;
-  startDate: string;
-  endDate: string;
-}
-
-const formatWeekOption = (weekStart: dayjs.Dayjs): WeekOption => {
-  const weekEnd = weekStart.endOf("isoWeek");
-  const label = `สัปดาห์ ${weekStart.format("DD/MM/YYYY")} - ${weekEnd.format(
-    "DD/MM/YYYY"
-  )}`;
-  return {
-    label,
-    value: weekStart.format("YYYY-MM-DD"),
-    startDate: weekStart.format("YYYY-MM-DD"),
-    endDate: weekEnd.format("YYYY-MM-DD"),
-  };
-};
-
 export default function ExportModalTemplate4({
   visible,
   loading,
   onClose,
   onExport,
 }: Props) {
-  const weeks = useMemo(() => {
-    const list: WeekOption[] = [];
-    const now = dayjs();
-    for (let i = 0; i < 52; i++) {
-      const weekStart = now.subtract(i, "week").startOf("isoWeek");
-      list.push(formatWeekOption(weekStart));
-    }
-    return list;
-  }, []);
-
-  const [selectedFromWeek, setSelectedFromWeek] = useState<string | undefined>(
-    weeks[weeks.length - 1]?.value
+  const { token } = theme.useToken();
+  const [startDate, setStartDate] = useState<dayjs.Dayjs | null>(
+    dayjs().startOf("month"),
   );
-  const [selectedToWeek, setSelectedToWeek] = useState<string | undefined>(
-    weeks[0]?.value
+  const [endDate, setEndDate] = useState<dayjs.Dayjs | null>(
+    dayjs().endOf("month"),
   );
 
   const handleExport = async () => {
-    if (!selectedFromWeek || !selectedToWeek) return;
-
-    const fromWeek = weeks.find((w) => w.value === selectedFromWeek);
-    const toWeek = weeks.find((w) => w.value === selectedToWeek);
-
-    if (!fromWeek || !toWeek) return;
+    if (!startDate || !endDate) return;
 
     await onExport({
-      from: fromWeek.startDate,
-      to: toWeek.endDate,
+      from: startDate.format("YYYY-MM-DD"),
+      to: endDate.format("YYYY-MM-DD"),
     });
     onClose();
   };
 
   return (
     <Modal
-      title="Export Template 4 - รายงานสำหรับ Audit"
+      title={
+        <Space>
+          <FileTextOutlined />
+          <span>Export Template 4 - รายงานสำหรับ Audit</span>
+        </Space>
+      }
       open={visible}
       onCancel={onClose}
       footer={null}
       destroyOnHidden
+      width={600}
+      centered
     >
-      <Space direction="vertical" style={{ width: "100%" }} size="middle">
-        <div>
-          <Typography.Title level={5}>
-            รายงานสำหรับการตรวจสอบ (Audit)
-          </Typography.Title>
-          <Typography.Text type="secondary">
+      <Space direction="vertical" style={{ width: "100%" }} size="large">
+        <div style={{ padding: "12px 0" }}>
+          <Typography.Text type="secondary" style={{ fontSize: "14px" }}>
             รายงานนี้จะแสดงข้อมูลภาพรวมและหลักฐานการลงเวลาแยกตามโครงการย่อย
             พร้อมรหัสโครงการ ประเภทสินทรัพย์ และสัดส่วนการใช้เวลา
-            (เลือกเป็นรายสัปดาห์)
+            โดยสามารถกำหนดช่วงเวลาได้ตามต้องการ
           </Typography.Text>
         </div>
-        <div>
-          <Typography.Text strong>
-            เลือกช่วงสัปดาห์ (เริ่มต้น - สิ้นสุด)
-          </Typography.Text>
-        </div>
-        <Space style={{ width: "100%" }} direction="vertical">
-          <div>
-            <Typography.Text type="secondary">สัปดาห์เริ่มต้น:</Typography.Text>
-            <Select
-              style={{ width: "100%", marginTop: 8 }}
-              value={selectedFromWeek}
-              onChange={(v) => setSelectedFromWeek(v)}
-              options={weeks.map((w) => ({ label: w.label, value: w.value }))}
-              placeholder="เลือกสัปดาห์เริ่มต้น"
-              showSearch
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            />
-          </div>
-          <div>
-            <Typography.Text type="secondary">สัปดาห์สิ้นสุด:</Typography.Text>
-            <Select
-              style={{ width: "100%", marginTop: 8 }}
-              value={selectedToWeek}
-              onChange={(v) => setSelectedToWeek(v)}
-              options={weeks.map((w) => ({ label: w.label, value: w.value }))}
-              placeholder="เลือกสัปดาห์สิ้นสุด"
-              showSearch
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            />
-          </div>
-        </Space>
-        <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-          <Button onClick={onClose}>ยกเลิก</Button>
-          <Button type="primary" loading={loading} onClick={handleExport}>
-            Export
+
+        <Card
+          size="small"
+          bordered={false}
+          style={{
+            background: token.colorBgLayout,
+            borderRadius: token.borderRadiusLG,
+          }}
+        >
+          <Space direction="vertical" style={{ width: "100%" }} size="middle">
+            <Typography.Text strong>
+              <CalendarOutlined style={{ marginRight: 8 }} />
+              ระบุช่วงเวลาที่ต้องการข้อมูล
+            </Typography.Text>
+
+            <Row gutter={[16, 16]}>
+              <Col span={12}>
+                <Typography.Text
+                  type="secondary"
+                  style={{ display: "block", marginBottom: 4 }}
+                >
+                  วันที่เริ่มต้น (Start Date)
+                </Typography.Text>
+                <DatePicker
+                  style={{ width: "100%" }}
+                  value={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  format="DD/MM/YYYY"
+                  placeholder="เลือกวันที่เริ่มต้น"
+                  size="large"
+                />
+              </Col>
+              <Col span={12}>
+                <Typography.Text
+                  type="secondary"
+                  style={{ display: "block", marginBottom: 4 }}
+                >
+                  วันที่สิ้นสุด (End Date)
+                </Typography.Text>
+                <DatePicker
+                  style={{ width: "100%" }}
+                  value={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  format="DD/MM/YYYY"
+                  placeholder="เลือกวันที่สิ้นสุด"
+                  size="large"
+                  minDate={startDate || undefined}
+                />
+              </Col>
+            </Row>
+          </Space>
+        </Card>
+
+        <Space
+          style={{ width: "100%", justifyContent: "flex-end", paddingTop: 8 }}
+        >
+          <Button onClick={onClose} size="large">
+            ยกเลิก
+          </Button>
+          <Button
+            type="primary"
+            loading={loading}
+            onClick={handleExport}
+            disabled={!startDate || !endDate}
+            size="large"
+            icon={<FileTextOutlined />}
+          >
+            Export รายงาน
           </Button>
         </Space>
       </Space>
