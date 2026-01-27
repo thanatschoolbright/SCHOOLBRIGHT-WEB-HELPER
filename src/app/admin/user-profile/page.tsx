@@ -1,17 +1,12 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-  Card,
-  Skeleton,
   Space,
   Button,
-  Typography,
-  Flex,
   theme,
   Avatar,
-  Statistic,
-  DatePicker,
   Input,
   Select,
   Modal,
@@ -20,20 +15,20 @@ import {
   Tooltip,
   Badge,
   Table,
-  Collapse,
   Row,
   Col,
   Divider,
+  Card,
+  Drawer,
+  Typography,
 } from "antd";
 import {
   ReloadOutlined,
   UserOutlined,
   TeamOutlined,
-  FilterOutlined,
   SearchOutlined,
   CheckCircleOutlined,
   EditOutlined,
-  InfoCircleOutlined,
   LockOutlined,
   ExclamationCircleOutlined,
   CopyOutlined,
@@ -42,12 +37,13 @@ import {
   PhoneOutlined,
   IdcardOutlined,
   SmileOutlined,
-  PushpinOutlined,
-  QuestionCircleOutlined,
-  SafetyCertificateOutlined,
   GlobalOutlined,
-  ContactsOutlined,
   SolutionOutlined,
+  CloudSyncOutlined,
+  PlusOutlined,
+  SafetyCertificateOutlined,
+  ClearOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
@@ -56,346 +52,141 @@ import dayjs from "dayjs";
 
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
+import SummaryCard from "@/components/card/summary-card";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { useAppSelector } from "@stores/store";
-import {
-  UpdateUserInput as BaseUpdateUserInput,
-  UserProfile as BaseUserProfile,
-  UserProfileForm as BaseUserProfileForm,
-} from "@stores/type";
+import { UserProfile } from "@stores/type";
+import { SyncModal } from "./components/sync-modal";
 
 // ==========================================
-// TYPES & CONSTANTS
+// 1. SERVICES & API CALLS (Logic)
 // ==========================================
-export type UserProfile = BaseUserProfile;
-export type UserProfileForm = BaseUserProfileForm;
-export type UpdateUserInput = BaseUpdateUserInput;
 
-interface UserSummaryMetric {
-  key: string;
-  label: string;
-  value: number;
-  color: string;
-  icon: React.ReactNode;
-  desc: string;
+// TODO: Move to src/services/backend/user-management/user-profile.service.ts
+const UserProfileService = {
+  fetchUsers: async () => {
+    return await axios.get("/api/v2/admin/user-management/read");
+  },
+  fetchConstants: async () => {
+    // New Position API
+    return await axios.get("/api/v2/admin/position-management/read?limit=1000"); // Limit 1000 to get all for dropdown
+  },
+  createUser: async (data: any) => {
+    return await axios.post("/api/v2/admin/user-management/create", data);
+  },
+  updateUser: async (data: any) => {
+    return await axios.post("/api/v2/admin/user-management/update", data);
+  },
+  deleteUser: async (data: any) => {
+    return await axios.post("/api/v2/admin/user-management/delete", data);
+  },
+};
+
+// ==========================================
+// 2. TYPES
+// ==========================================
+
+interface FilterState {
+  search: string;
+  position?: number; // Changed from string to number (ID)
+  status?: string;
 }
 
-const POSITION_COLORS: Record<string, string> = {
-  ADMIN: "red",
-  Manager: "blue",
-  Developer: "green",
-  QA: "purple",
-  Support: "orange",
-};
-
 // ==========================================
-// HELPERS
+// 3. COMPONENTS
 // ==========================================
 
-// Helper for Copy
-const handleCopy = async (text: string, label: string) => {
-  if (!text) return;
-  try {
-    await navigator.clipboard.writeText(text);
-    toast.success(`คัดลอก${label}เรียบร้อยแล้ว`);
-  } catch {
-    toast.error("เกิดข้อผิดพลาดในการคัดลอก");
-  }
-};
+import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
+import { Upload, message } from "antd";
+import type { UploadProps } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 
-const formatUserCopyText = (u: UserProfile): string =>
-  [
-    `[ข้อมูลผู้ใช้งาน]`,
-    `----------------------------------------`,
-    `ชื่อ-สกุล: ${u.firstname ?? "-"} ${u.lastname ?? "-"}`,
-    `ID: ${u.admin_id ?? "-"}`,
-    `Email: ${u.email ?? "-"}`,
-    `เบอร์โทร: ${u.tel ?? "-"}`,
-    `ตำแหน่ง: ${u.position ?? "-"}`,
-    `รหัสพนักงาน: ${u.employee_code ?? "-"}`,
-    `----------------------------------------`,
-    `Ref: https://adminsystem.schoolbright.co`,
-  ].join("\n");
+// ... (keep intervening code if any, or adjust imports)
 
-const getAvatarColor = (name: string) => {
-  const colors = [
-    "#f5222d",
-    "#fa541c",
-    "#fa8c16",
-    "#faad14",
-    "#fadb14",
-    "#a0d911",
-    "#52c41a",
-    "#13c2c2",
-    "#1890ff",
-    "#2f54eb",
-    "#722ed1",
-    "#eb2f96",
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash) % colors.length];
-};
+const UserFormFields = ({
+  isEdit = false,
+  positions = [],
+  onCancel,
+  form,
+}: {
+  isEdit?: boolean;
+  positions?: any[]; // Changed to any[] or specific Position type
+  onCancel: () => void;
+  form: any;
+}) => {
+  // Watch phone for auto password generation
+  const phone = Form.useWatch("tel", form);
+  const employeeCode = Form.useWatch("employee_code", form); // Watch employee code for naming
+  const currentImage = Form.useWatch("profile_image_path", form); // Watch current image
 
-const addAlpha = (color: string, alpha: number) => {
-  if (!color) return "rgba(0,0,0,0)";
-  if (color.startsWith("#")) {
-    let hex = color.slice(1);
-    if (hex.length === 3)
-      hex = hex
-        .split("")
-        .map((c) => c + c)
-        .join("");
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-  return color;
-};
+  const [uploading, setUploading] = useState(false);
 
-const buildSummaryMetrics = (users: UserProfile[]): UserSummaryMetric[] => [
-  {
-    key: "total",
-    label: "ผู้ใช้งานทั้งหมด",
-    value: users.length,
-    color: "#3b82f6",
-    icon: <TeamOutlined />,
-    desc: "จำนวนสมาชิกในระบบ",
-  },
-  {
-    key: "contactable",
-    label: "ติดต่อได้",
-    value: users.filter((u) => u.email).length,
-    color: "#22c55e",
-    icon: <MailOutlined />,
-    desc: "สมาชิกที่มีอีเมล",
-  },
-  {
-    key: "unique_positions",
-    label: "ตำแหน่งงาน",
-    value: new Set(users.map((u) => u.position).filter(Boolean)).size,
-    color: "#8b5cf6",
-    icon: <SolutionOutlined />,
-    desc: "ประเภทตำแหน่ง",
-  },
-];
+  useEffect(() => {
+    if (!isEdit && phone) {
+      // Auto set password if creating new user
+      form.setFieldValue("password", phone);
+    }
+  }, [phone, isEdit, form]);
 
-// ==========================================
-// COMPONENTS
-// ==========================================
+  // Handle Image Upload
+  const handleUploadChange: UploadProps["onChange"] = async (info) => {
+    if (info.file.status === "uploading") {
+      setUploading(true);
+      return;
+    }
 
-// --- Summary Cards ---
-const SummaryCards = ({ metrics }: { metrics: UserSummaryMetric[] }) => {
-  const { token } = theme.useToken();
-  const isDark = token.colorBgBase !== "#ffffff";
+    // We handle the upload manually via customRequest or directly here
+    // But since Antd Upload handles file list, let's use customRequest or beforeUpload
+  };
+
+  const customUploadRequest = async ({ file, onSuccess, onError }: any) => {
+    setUploading(true);
+    try {
+      if (!employeeCode) {
+        message.error("กรุณาระบุรหัสพนักงานก่อนอัปโหลดรูปภาพ");
+        setUploading(false);
+        onError(new Error("Missing employee code"));
+        return;
+      }
+
+      // Call Huawei Service
+      const result =
+        await HuaweiBucketStorageService.requestUploadUserProfileImage(
+          file,
+          employeeCode,
+          currentImage, // Pass old image path for cleanup
+        );
+
+      if (result && result.url) {
+        form.setFieldValue("profile_image_path", result.url);
+        message.success("อัปโหลดรูปภาพสำเร็จ");
+        onSuccess(result.url);
+      } else {
+        throw new Error("Upload failed, no URL returned");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ");
+      onError(error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const uploadButton = (
+    <button style={{ border: 0, background: "none" }} type="button">
+      {uploading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </button>
+  );
 
   return (
-    <Row gutter={[20, 20]} className="mb-8">
-      {metrics.map((m) => (
-        <Col xs={24} sm={12} md={8} key={m.key}>
-          <div
-            className="p-6 rounded-2xl border border-solid h-full transition-all group overflow-hidden relative"
-            style={{
-              background: token.colorBgContainer,
-              borderColor: addAlpha(m.color, 0.2),
-            }}
-          >
-            <div
-              className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity"
-              style={{ fontSize: "100px", color: m.color }}
-            >
-              {m.icon}
-            </div>
-
-            <Flex vertical gap={12} className="relative z-10">
-              <div
-                className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl"
-                style={{
-                  backgroundColor: addAlpha(m.color, isDark ? 0.2 : 0.1),
-                  color: m.color,
-                }}
-              >
-                {m.icon}
-              </div>
-
-              <div>
-                <Typography.Text
-                  type="secondary"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    color: addAlpha(token.colorTextSecondary, 0.8),
-                  }}
-                >
-                  {m.label}
-                </Typography.Text>
-                <div className="flex items-baseline gap-2 mt-1">
-                  <Typography.Title
-                    level={2}
-                    style={{ margin: 0, fontWeight: 900, fontSize: 32 }}
-                  >
-                    {m.value.toLocaleString()}
-                  </Typography.Title>
-                </div>
-                <Typography.Text
-                  type="secondary"
-                  style={{ fontSize: 12, opacity: 0.7 }}
-                >
-                  {m.desc}
-                </Typography.Text>
-              </div>
-            </Flex>
-          </div>
-        </Col>
-      ))}
-    </Row>
-  );
-};
-
-// --- Header ---
-const HeaderSection = ({ title, subtitle, refreshLabel, onRefresh }: any) => {
-  const { token } = theme.useToken();
-  const isDark = token.colorBgBase !== "#ffffff";
-
-  return (
-    <div
-      className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-8 rounded-3xl border border-solid"
-      style={{
-        background: isDark
-          ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
-              token.colorPrimary,
-              0.05
-            )} 100%)`
-          : `linear-gradient(135deg, #fff 0%, ${addAlpha(
-              token.colorPrimary,
-              0.03
-            )} 100%)`,
-        borderColor: addAlpha(token.colorBorder, 0.6),
-      }}
-    >
-      <Space size={20}>
-        <div
-          className="flex items-center justify-center w-16 h-16 rounded-2xl"
-          style={{
-            background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
-          }}
-        >
-          <ContactsOutlined style={{ fontSize: 28, color: "#fff" }} />
-        </div>
-        <div>
-          <Typography.Title
-            level={2}
-            style={{
-              margin: 0,
-              fontWeight: 800,
-              letterSpacing: "-1px",
-              color: token.colorTextHeading,
-            }}
-          >
-            {title}
-          </Typography.Title>
-          <Typography.Text
-            type="secondary"
-            style={{ fontSize: 14, fontWeight: 500 }}
-          >
-            {subtitle}
-          </Typography.Text>
-        </div>
-      </Space>
-      <Button
-        icon={<ReloadOutlined />}
-        onClick={onRefresh}
-        size="large"
-        shape="round"
-        style={{
-          height: 48,
-          padding: "0 24px",
-          fontWeight: 600,
-          border: `1px solid ${token.colorBorder}`,
-          background: token.colorBgContainer,
-        }}
-      >
-        {refreshLabel}
-      </Button>
-    </div>
-  );
-};
-
-// --- Filters ---
-const Filters = ({
-  filters,
-  positions,
-  onSearchChange,
-  onPositionChange,
-  onDateRangeChange,
-  onReset,
-}: any) => {
-  const { token } = theme.useToken();
-  return (
-    <div
-      className="p-6 rounded-3xl border border-solid mb-8"
-      style={{
-        background: token.colorBgContainer,
-        borderColor: token.colorBorderSecondary,
-      }}
-    >
-      <Row gutter={[16, 16]} align="middle">
-        <Col xs={24} md={10} lg={12}>
-          <Input
-            prefix={
-              <SearchOutlined style={{ color: token.colorTextQuaternary }} />
-            }
-            placeholder="ค้นหาตาม ชื่อ, อีเมล, หรือพนักงาน..."
-            allowClear
-            size="large"
-            onChange={(e) => onSearchChange(e.target.value)}
-            style={{ borderRadius: 12 }}
-          />
-        </Col>
-        <Col xs={24} sm={12} md={7} lg={6}>
-          <Select
-            className="w-full"
-            placeholder="ตำแหน่งทั้งหมด"
-            allowClear
-            size="large"
-            value={filters.position}
-            onChange={onPositionChange}
-            options={positions.map((p: string) => ({ label: p, value: p }))}
-            suffixIcon={<FilterOutlined />}
-            style={{ borderRadius: 12 }}
-          />
-        </Col>
-        <Col xs={24} sm={12} md={7} lg={6}>
-          <Button
-            block
-            size="large"
-            onClick={onReset}
-            icon={<ReloadOutlined />}
-            style={{
-              borderRadius: 12,
-              fontWeight: 600,
-              background: token.colorBgContainer,
-              color: token.colorTextSecondary,
-            }}
-          >
-            รีเซ็ตตัวกรอง
-          </Button>
-        </Col>
-      </Row>
-    </div>
-  );
-};
-
-// --- Modals ---
-const UserFormFields = ({ isEdit = false, positions = [], onCancel }: any) => (
-  <>
-    {!isEdit && (
+    <>
+      {/* Account Info */}
+      <Divider orientation="left">ข้อมูลบัญชีผู้ใช้</Divider>
       <div className="grid grid-cols-2 gap-4">
+        {/* ... (Account Info Fields) ... */}
         <Form.Item
           name="username"
           label="Username"
@@ -406,385 +197,460 @@ const UserFormFields = ({ isEdit = false, positions = [], onCancel }: any) => (
         <Form.Item
           name="password"
           label="Password"
+          extra={
+            !isEdit && (
+              <span className="text-xs text-gray-400">
+                *ตั้งค่าเริ่มต้นอัตโนมัติจากเบอร์โทรศัพท์
+              </span>
+            )
+          }
           rules={[
-            { required: true, message: "กรุณาระบุ Password" },
+            isEdit
+              ? { required: false }
+              : { required: true, message: "กรุณาระบุ Password" }, // Password optional on edit? Usually yes.
             { min: 6, message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร" },
           ]}
         >
           <Input.Password prefix={<LockOutlined />} placeholder="******" />
         </Form.Item>
       </div>
-    )}
-    <div className="grid grid-cols-2 gap-4">
-      <Form.Item
-        name="name"
-        label="ชื่อจริง"
-        rules={[{ required: true, message: "กรุณาระบุชื่อจริง" }]}
-      >
-        <Input prefix={<EditOutlined />} />
-      </Form.Item>
-      <Form.Item
-        name="lastname"
-        label="นามสกุล"
-        rules={[{ required: true, message: "กรุณาระบุนามสกุล" }]}
-      >
-        <Input prefix={<EditOutlined />} />
-      </Form.Item>
-    </div>
-    {isEdit && (
+
+      {/* Personal Info */}
+      <Divider orientation="left">ข้อมูลส่วนตัว</Divider>
+
+      {/* Avatar Upload Section */}
+      <div className="flex justify-center mb-6">
+        <Form.Item name="profile_image_path" noStyle>
+          <Input type="hidden" />
+        </Form.Item>
+        <Upload
+          name="avatar"
+          listType="picture-circle"
+          className="avatar-uploader"
+          showUploadList={false}
+          customRequest={customUploadRequest}
+          beforeUpload={(file) => {
+            const isJpgOrPng =
+              file.type === "image/jpeg" || file.type === "image/png";
+            if (!isJpgOrPng) {
+              message.error("You can only upload JPG/PNG file!");
+            }
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isLt2M) {
+              message.error("Image must smaller than 2MB!");
+            }
+            return isJpgOrPng && isLt2M;
+          }}
+        >
+          {currentImage ? (
+            <img
+              src={currentImage}
+              alt="avatar"
+              style={{
+                width: "100%",
+                borderRadius: "50%",
+                objectFit: "cover",
+                height: "100%",
+              }}
+            />
+          ) : (
+            uploadButton
+          )}
+        </Upload>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
+        <Form.Item
+          name="name"
+          label="ชื่อจริง (TH)"
+          rules={[{ required: true, message: "กรุณาระบุชื่อจริง" }]}
+        >
+          <Input prefix={<EditOutlined />} />
+        </Form.Item>
+        {/* ... (Rest of Personal Info) */}
+        <Form.Item
+          name="lastname"
+          label="นามสกุล (TH)"
+          rules={[{ required: true, message: "กรุณาระบุนามสกุล" }]}
+        >
+          <Input prefix={<EditOutlined />} />
+        </Form.Item>
         <Form.Item name="nickname" label="ชื่อเล่น">
           <Input prefix={<SmileOutlined />} />
         </Form.Item>
-        <Form.Item name="employee_code" label="รหัสพนักงาน">
-          <Input prefix={<IdcardOutlined />} />
-        </Form.Item>
-      </div>
-    )}
-    {isEdit && (
-      <div className="grid grid-cols-2 gap-4">
-        <Form.Item name="position" label="ตำแหน่ง">
-          <Select
-            options={positions.map((p: string) => ({ label: p, value: p }))}
+        <Form.Item
+          name="employee_code"
+          label="รหัสพนักงาน"
+          rules={[{ required: true, message: "กรุณาระบุรหัสพนักงาน" }]} // Required for upload path
+        >
+          <Input
+            prefix={<IdcardOutlined />}
+            onChange={(e) =>
+              form.setFieldValue("employee_code", e.target.value)
+            }
           />
         </Form.Item>
-        <Form.Item name="tel" label="เบอร์โทรศัพท์">
-          <Input prefix={<PhoneOutlined />} />
+      </div>
+
+      {/* Work Info */}
+      <Divider orientation="left">ข้อมูลการทำงาน</Divider>
+      <div className="grid grid-cols-2 gap-4">
+        {/* Updated Position Select */}
+        <Form.Item name="position_id" label="ตำแหน่ง">
+          <Select
+            placeholder="เลือกตำแหน่ง"
+            options={positions.map((p: any) => ({
+              label: p.name_th,
+              value: p.id,
+            }))}
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
+        <Form.Item name="role_id" label="บทบาท (Role)">
+          <Select
+            placeholder="เลือกบทบาท"
+            options={[
+              { label: "Admin", value: 1 },
+              { label: "User", value: 2 },
+            ]}
+          />
         </Form.Item>
       </div>
-    )}
-    {isEdit && (
-      <>
+
+      {/* Contact Info */}
+      <Divider orientation="left">ข้อมูลการติดต่อ</Divider>
+      <div className="grid grid-cols-2 gap-4">
+        {/* ... (Keep Contact Info) ... */}
+        <Form.Item name="tel" label="เบอร์โทรศัพท์">
+          <Input prefix={<PhoneOutlined />} placeholder="08xxxxxxxx" />
+        </Form.Item>
         <Form.Item name="email" label="อีเมล" rules={[{ type: "email" }]}>
           <Input prefix={<MailOutlined />} />
         </Form.Item>
-        <Form.Item name="backlog_email" label="อีเมลสำหรับ Backlog">
+        <Form.Item name="backlog_email" label="Backlog Email">
           <Input prefix={<GlobalOutlined />} />
         </Form.Item>
-      </>
-    )}
-    <Divider />
-    <Flex justify="end" gap={8}>
-      <Button onClick={onCancel}>ยกเลิก</Button>
-      <Button type="primary" htmlType="submit" icon={<CheckCircleOutlined />}>
-        บันทึกข้อมูล
-      </Button>
-    </Flex>
-  </>
-);
+        {/* Redundant input for manual URL entry if needed, or remove since we have Upload */}
+        <Form.Item
+          name="profile_image_path_manual"
+          label="Profile Image URL (Manual)"
+          initialValue={currentImage}
+        >
+          <Input
+            prefix={<GlobalOutlined />}
+            placeholder="https://..."
+            onChange={(e) =>
+              form.setFieldValue("profile_image_path", e.target.value)
+            }
+          />
+        </Form.Item>
+      </div>
+
+      {/* IPO Security Audit (Read Only) */}
+      {isEdit && (
+        <>
+          <Divider orientation="left">
+            <Space>
+              <SafetyCertificateOutlined /> ความปลอดภัย (IPO Audit)
+            </Space>
+          </Divider>
+          <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+            <Form.Item name="last_login" label="เข้าสู่ระบบล่าสุด">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item
+              name="failed_login_attempts"
+              label="login ล้มเหลว (ครั้ง)"
+            >
+              <Input disabled />
+            </Form.Item>
+          </div>
+        </>
+      )}
+
+      <Divider />
+      <div className="flex justify-end gap-2">
+        <Button onClick={onCancel}>ยกเลิก</Button>
+        <Button
+          type="primary"
+          htmlType="submit"
+          icon={<CheckCircleOutlined />}
+          loading={uploading}
+        >
+          บันทึกข้อมูล
+        </Button>
+      </div>
+    </>
+  );
+};
 
 // ==========================================
-// MAIN PAGE
+// 4. MAIN PAGE
 // ==========================================
 
-export default function Page() {
-  const { t } = useTranslation("translate");
-  const authState = useAppSelector((state) => state.callAdminLogin);
-  const adminId = authState?.response?.data?.user_data?.admin_id;
+export default function UserManagementPage() {
   const { token } = theme.useToken();
   const isDark = token.colorBgBase !== "#ffffff";
+  const [form] = Form.useForm();
+  const router = useRouter();
 
-  // --- State ---
-  const [state, setState] = useState({
-    loading: true,
-    users: [] as UserProfile[],
-    positions: [] as string[],
-    selectedUser: null as UserProfile | null,
-    modalType: "" as any,
-    deleteId: null as number | null,
-    confirmDeleteText: "",
-    pageSize: 10,
-  });
+  // Auth State
+  const authState = useAppSelector((state) => state.callAdminLogin);
+  const adminId = authState?.response?.data?.user_data?.admin_id;
 
-  const [filters, setFilters] = useState<any>({
-    searchTerm: "",
-    position: undefined,
-    dateRange: null,
-  });
+  // Local State
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [positions, setPositions] = useState<any[]>([]); // Changed type to any[]
+  const [filters, setFilters] = useState<FilterState>({ search: "" });
 
-  // --- API ---
+  // Modals State
+  const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [syncModalOpen, setSyncModalOpen] = useState(false);
+  const [roleDrawerOpen, setRoleDrawerOpen] = useState(false); // For Role Management
+
+  // --- Logic: Fetch Data ---
   const fetchData = useCallback(async () => {
-    setState((s) => ({ ...s, loading: true }));
+    setLoading(true);
     try {
-      const [uRes, pRes] = await Promise.all([
-        axios.get("/api/v1/admin/user/"),
-        axios.get("/api/v1/admin/user/constants/position"),
+      const [userRes, posRes] = await Promise.all([
+        UserProfileService.fetchUsers(),
+        UserProfileService.fetchConstants(),
       ]);
-      setState((s) => ({
-        ...s,
-        loading: false,
-        users: uRes?.data?.data?.data ?? [],
-        positions: pRes?.data?.data?.response?.data ?? [],
-      }));
-    } catch {
-      setState((s) => ({ ...s, loading: false }));
-      toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้งาน");
+      setUsers(userRes?.data?.data?.items || []);
+      // Ensure we access the correct data structure from new API
+      setPositions(posRes?.data?.data?.items || []);
+    } catch (error) {
+      toast.error("ไม่สามารถดึงข้อมูลผู้ใช้งานได้");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    void fetchData();
+    fetchData();
   }, [fetchData]);
 
-  // --- Handlers ---
-  const handleSubmit = async (values: any, isEdit: boolean) => {
+  // --- Logic: Submit ---
+  const handleSubmit = async (values: any) => {
     try {
-      const url = isEdit
-        ? "/api/v1/admin/user/update"
-        : "/api/v1/admin/user/create";
-      const payload = isEdit
-        ? Object.entries(values).reduce((fd, [k, v]) => {
-            fd.append(k, String(v || ""));
-            return fd;
-          }, new FormData())
-        : values;
+      const payload = {
+        ...values,
+        firstname_th: values.name, // Map UI 'name' to DB 'firstname_th'
+        lastname_th: values.lastname,
+        phone: values.tel,
+        profile_image: values.profile_image_path,
+        position_id: values.position_id, // Ensure this is sent
+        // Audit
+        created_by: modalMode === "create" ? adminId : undefined,
+        updated_by: modalMode === "edit" ? adminId : undefined,
+        id: modalMode === "edit" ? selectedUser?.id : undefined,
+      };
 
-      await axios.post(url, payload, {
-        headers: isEdit ? { "Content-Type": "multipart/form-data" } : {},
-      });
+      if (modalMode === "create") {
+        // Auto password fallback logic (already handled in form effect, but double check)
+        if (!payload.password && payload.phone) {
+          payload.password = payload.phone;
+        }
+        await UserProfileService.createUser(payload);
+      } else {
+        await UserProfileService.updateUser(payload);
+      }
+
       toast.success(
-        isEdit
-          ? "บันทึกการแก้ไขเรียบร้อยแล้ว"
-          : "สร้างผู้ใช้งานใหม่เรียบร้อยแล้ว"
+        modalMode === "create" ? "เพิ่มพนักงานสำเร็จ" : "แก้ไขข้อมูลสำเร็จ",
       );
-      setState((s) => ({ ...s, modalType: "" }));
+      setModalMode(null);
       fetchData();
-    } catch {
-      toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message_th || "เกิดข้อผิดพลาด");
     }
   };
 
+  // --- Logic: Delete ---
   const handleDelete = async () => {
-    if (!state.deleteId || !adminId) return;
+    if (!selectedUser) return;
     try {
-      await axios.post("/api/v1/timesheet/project/delete/", {
-        id: state.deleteId,
-        by: adminId,
+      await UserProfileService.deleteUser({
+        id: selectedUser.id,
+        deleted_by: adminId,
       });
-      toast.success("ลบผู้ใช้งานเรียบร้อยแล้ว");
-      setState((s) => ({
-        ...s,
-        modalType: "",
-        deleteId: null,
-        confirmDeleteText: "",
-      }));
+      toast.success("ลบพนักงานสำเร็จ");
+      setDeleteModalOpen(false);
       fetchData();
-    } catch {
-      toast.error("เกิดข้อผิดพลาดในการลบผู้ใช้งาน");
+    } catch (err) {
+      toast.error("เกิดข้อผิดพลาดในการลบ");
     }
   };
 
-  // --- Filtered Data ---
+  // --- Filter Logic ---
   const filteredUsers = useMemo(() => {
-    const q = filters.searchTerm.toLowerCase();
-    return state.users.filter((u) => {
-      const matchSearch =
-        !q ||
-        [u.email, u.firstname, u.lastname, u.nickname, u.employee_code].some(
-          (s) => s?.toLowerCase().includes(q)
-        );
-      const matchPos = !filters.position || u.position === filters.position;
-      return matchSearch && matchPos;
+    return users.filter((u) => {
+      const searchLower = filters.search.toLowerCase();
+      const matchesSearch =
+        u.firstname?.toLowerCase().includes(searchLower) ||
+        u.lastname?.toLowerCase().includes(searchLower) ||
+        u.employee_code?.toLowerCase().includes(searchLower) ||
+        u.email?.toLowerCase().includes(searchLower);
+
+      // Assuming user object now has position_id or position object if loaded
+      // If user.position is still just a string from old data, this might fail unless we assume mixed.
+      // But typically we filter by ID if selected in filter.
+      // Let's assume u.position_id or u.position_ref?.id
+      // For now, let's try to match position_id if filter is number, else string match if filter is string (legacy)
+
+      let matchesPosition = true;
+      if (filters.position) {
+        // Check if u has position_id (new) or just position string (old)
+        // If u.position_id exists, match against filter ID
+        if ((u as any).position_id) {
+          matchesPosition = (u as any).position_id === filters.position;
+        } else if (u.position) {
+          // Fallback: see if we can find name in positions list corresponding to filter ID
+          const posName = positions.find(
+            (p) => p.id === filters.position,
+          )?.name_th;
+          matchesPosition = u.position === posName;
+        }
+      }
+
+      const matchesStatus = filters.status ? u.status === filters.status : true;
+
+      return matchesSearch && matchesPosition && matchesStatus;
     });
-  }, [state.users, filters]);
+  }, [users, filters, positions]);
+
+  // --- Summary Card Logic (Raw Data) ---
+  const summaryMetrics = useMemo(() => {
+    const total = users.length;
+    const active = users.filter((u) => u.status === "ACTIVE").length;
+    const inactive = users.filter((u) => u.status !== "ACTIVE").length;
+    const admins = users.filter((u) => u.role?.id === 1).length; // Check Role ID = 1
+
+    return [
+      {
+        title: "พนักงานทั้งหมด",
+        value: total,
+        icon: <TeamOutlined />,
+        color: "#1890ff",
+      },
+      {
+        title: "สถานะ Active",
+        value: active,
+        icon: <CheckCircleOutlined />,
+        color: "#52c41a",
+      },
+      {
+        title: "สถานะ Inactive",
+        value: inactive,
+        icon: <ExclamationCircleOutlined />,
+        color: "#faad14",
+      },
+      {
+        title: "จำนวน Admin",
+        value: admins,
+        icon: <SafetyCertificateOutlined />,
+        color: "#722ed1",
+      },
+    ];
+  }, [users]);
 
   // --- Columns ---
   const columns: ColumnsType<UserProfile> = [
     {
-      title: "#",
-      key: "rank",
-      width: 60,
-      align: "center",
-      render: (_, __, i) => (
-        <Typography.Text
-          strong
-          style={{
-            color: token.colorTextDescription,
-            opacity: 0.6,
-            fontSize: 13,
-          }}
-        >
-          {(i + 1).toString().padStart(2, "0")}
-        </Typography.Text>
-      ),
+      title: "รหัสพนักงาน",
+      dataIndex: "employee_code",
+      sorter: (a, b) =>
+        (a.employee_code || "").localeCompare(b.employee_code || ""),
+      render: (text) => <Tag>{text || "-"}</Tag>,
     },
     {
-      title: "ผู้ใช้งาน",
+      title: "ชื่อ-นามสกุล",
+      key: "fullname",
+      sorter: (a, b) => (a.firstname || "").localeCompare(b.firstname || ""),
       render: (_, r) => (
-        <Flex align="center" gap={16}>
-          <div style={{ position: "relative" }}>
-            <Badge
-              dot
-              status={r.status === "ACTIVE" ? "success" : "default"}
-              offset={[-4, 38]}
-            >
-              <Avatar
-                src={r.image_profile}
-                size={52}
-                style={{
-                  border: `2px solid ${token.colorBorderSecondary}`,
-                  background: r.image_profile
-                    ? token.colorBgContainer
-                    : getAvatarColor(r.firstname || ""),
-                  color: "#fff",
-                  fontSize: 22,
-                  fontWeight: 800,
-                }}
-              >
-                {!r.image_profile && r.firstname?.charAt(0)}
-              </Avatar>
-            </Badge>
+        <Space>
+          {/* ... Avatar & Info ... */}
+          <Avatar
+            src={r.image_profile || r.profile_image}
+            icon={<UserOutlined />}
+          />
+          <div className="flex flex-col">
+            <span className="font-semibold text-gray-700">
+              {r.firstname} {r.lastname}
+            </span>
+            <span className="text-xs text-gray-400">
+              {r.nickname ? `(${r.nickname})` : ""} {r.email}
+            </span>
           </div>
-          <Flex vertical gap={0}>
-            <Flex gap={8} align="center">
-              <Typography.Text
-                strong
-                style={{
-                  fontSize: 18,
-                  lineHeight: 1.3,
-                  color: token.colorTextHeading,
-                }}
-              >
-                {r.firstname} {r.lastname}
-              </Typography.Text>
-              <Tooltip title="คัดลอกชื่อ">
-                <Button
-                  type="text"
-                  size="small"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  icon={
-                    <CopyOutlined
-                      style={{ fontSize: 12, color: token.colorPrimary }}
-                    />
-                  }
-                  onClick={() =>
-                    handleCopy(`${r.firstname} ${r.lastname}`, "ชื่อ-นามสกุล")
-                  }
-                />
-              </Tooltip>
-            </Flex>
-            <Typography.Text
-              type="secondary"
-              style={{ fontSize: 13, fontWeight: 500 }}
-            >
-              {r.nickname || "-"} • {r.employee_code || "JD-XXXX"}
-            </Typography.Text>
-          </Flex>
-        </Flex>
-      ),
-    },
-    {
-      title: "ข้อมูลการติดต่อ",
-      render: (_, r) => (
-        <Flex vertical gap={4}>
-          <div className="flex items-center gap-2 group">
-            <div
-              style={{
-                padding: 4,
-                borderRadius: 6,
-                background: addAlpha(token.colorPrimary, 0.1),
-                color: token.colorPrimary,
-                display: "flex",
-              }}
-            >
-              <MailOutlined style={{ fontSize: 12 }} />
-            </div>
-            <Typography.Text style={{ fontSize: 13 }}>
-              {r.email || "-"}
-            </Typography.Text>
-            {r.email && (
-              <Button
-                type="text"
-                size="small"
-                className="opacity-0 group-hover:opacity-100 p-0 h-auto"
-                icon={
-                  <CopyOutlined
-                    style={{ fontSize: 10, color: token.colorPrimary }}
-                  />
-                }
-                onClick={() => handleCopy(r.email || "", "อีเมล")}
-              />
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <div
-              style={{
-                padding: 4,
-                borderRadius: 6,
-                background: addAlpha(token.colorSuccess, 0.1),
-                color: token.colorSuccess,
-                display: "flex",
-              }}
-            >
-              <PhoneOutlined style={{ fontSize: 12 }} />
-            </div>
-            <Typography.Text style={{ fontSize: 13 }}>
-              {r.tel || "-"}
-            </Typography.Text>
-          </div>
-        </Flex>
+          {/* UI Alert: Missing Phone implies check password manually if implemented logic requires phone */}
+          {!r.tel && (
+            <Tooltip title="ผู้ใช้งานยังไม่ตั้งพาสเวิร์ด (กรุณาระบุเบอร์โทรศัพท์)">
+              <WarningOutlined className="text-orange-500 animate-pulse" />
+            </Tooltip>
+          )}
+        </Space>
       ),
     },
     {
       title: "ตำแหน่ง",
-      dataIndex: "position",
-      render: (v) => (
-        <Tag
-          color={POSITION_COLORS[v] || "default"}
-          bordered={false}
-          style={{
-            borderRadius: 6,
-            fontSize: 11,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-            padding: "2px 10px",
-          }}
-        >
-          {v || "ไม่ระบุ"}
-        </Tag>
+      key: "position",
+      render: (_, r: any) => {
+        // Try to show relation name, fallback to string field
+        return r.position_ref?.name_th || r.position || "-";
+      },
+      sorter: (a: any, b: any) => {
+        const nameA = a.position_ref?.name_th || a.position || "";
+        const nameB = b.position_ref?.name_th || b.position || "";
+        return nameA.localeCompare(nameB);
+      },
+    },
+    {
+      title: "บทบาท",
+      dataIndex: ["role", "role_name"], // Nested dataIndex
+      render: (text) =>
+        text ? <Tag color="blue">{text}</Tag> : <Tag>User</Tag>,
+    },
+    {
+      title: "สถานะ",
+      dataIndex: "status",
+      align: "center",
+      render: (status) => (
+        <Badge
+          status={status === "ACTIVE" ? "success" : "default"}
+          text={status || "Inactive"}
+        />
       ),
     },
     {
       title: "จัดการ",
-      fixed: "right",
-      width: 150,
+      key: "action",
       align: "center",
       render: (_, r) => (
-        <Space size={8}>
-          <Tooltip title="คัดลอกข้อมูลทั้งหมด">
-            <Button
-              type="text"
-              shape="circle"
-              icon={<CopyOutlined style={{ color: token.colorPrimary }} />}
-              onClick={async () => {
-                await navigator.clipboard.writeText(formatUserCopyText(r));
-                toast.success("คัดลอกข้อมูลทั้งหมดเรียบร้อยแล้ว");
-              }}
-              style={{ background: addAlpha(token.colorPrimary, 0.05) }}
-            />
-          </Tooltip>
+        <Space>
           <Tooltip title="แก้ไข">
             <Button
               type="text"
-              shape="circle"
-              icon={<EditOutlined style={{ color: token.colorWarning }} />}
+              icon={<EditOutlined className="text-yellow-500" />}
               onClick={() => {
-                setState((s) => ({ ...s, selectedUser: r, modalType: "edit" }));
+                router.push(`/admin/user-profile/${r.id}`);
               }}
-              style={{ background: addAlpha(token.colorWarning, 0.05) }}
             />
           </Tooltip>
           <Tooltip title="ลบ">
             <Button
               type="text"
-              shape="circle"
               danger
               icon={<DeleteOutlined />}
-              onClick={() =>
-                setState((s) => ({ ...s, deleteId: r.id, modalType: "delete" }))
-              }
-              style={{ background: addAlpha(token.colorError, 0.05) }}
+              onClick={() => {
+                setSelectedUser(r);
+                setDeleteModalOpen(true);
+              }}
             />
           </Tooltip>
         </Space>
@@ -792,217 +658,231 @@ export default function Page() {
     },
   ];
 
-  const deleteKeyword = "ยืนยันการลบ";
-
   return (
     <PermissionLayout role={["ADMIN"]}>
       <DashboardLayout>
-        <div className="space-y-6  mx-auto">
-          <HeaderSection
-            title="จัดการข้อมูลผู้ใช้งาน"
-            subtitle="Admin System - User Profile"
-            refreshLabel="รีเฟรชข้อมูล"
-            onRefresh={fetchData}
-          />
+        {/* Sync Modal Component */}
+        <SyncModal
+          open={syncModalOpen}
+          onCancel={() => setSyncModalOpen(false)}
+          onSuccess={fetchData}
+        />
 
-          <SummaryCards metrics={buildSummaryMetrics(state.users)} />
+        {/* 1. Header Bar */}
+        <HeaderBar
+          icon={<TeamOutlined />}
+          title="จัดการผู้ใช้งาน (User Management)"
+          subTitle="ระบบจัดการพนักงานและสิทธิ์การเข้าใช้งาน (RBAC)"
+          extra={
+            <Space>
+              <Button onClick={fetchData} icon={<ReloadOutlined />}>
+                รีเฟรช
+              </Button>
+              <Button
+                type="primary"
+                ghost
+                icon={<CloudSyncOutlined />}
+                onClick={() => setSyncModalOpen(true)}
+              >
+                Sync Legacy Data
+              </Button>
+              <Button
+                icon={<SolutionOutlined />}
+                onClick={() => setRoleDrawerOpen(true)}
+              >
+                จัดการบทบาท (Role)
+              </Button>
+            </Space>
+          }
+        />
 
-          <Filters
-            filters={filters}
-            positions={state.positions}
-            onSearchChange={(v: string) =>
-              setFilters((prev: any) => ({ ...prev, searchTerm: v }))
-            }
-            onPositionChange={(v: string) =>
-              setFilters((prev: any) => ({ ...prev, position: v }))
-            }
-            onDateRangeChange={(v: any) =>
-              setFilters((prev: any) => ({ ...prev, dateRange: v }))
-            }
-            onReset={() =>
-              setFilters({
-                searchTerm: "",
-                position: undefined,
-                dateRange: null,
-              })
-            }
-          />
+        {/* 2. Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {summaryMetrics.map((m, i) => (
+            <div key={i} className="h-full">
+              <SummaryCard {...m} isLoading={loading} />
+            </div>
+          ))}
+        </div>
 
-          <div
-            className="rounded-3xl border border-solid overflow-hidden"
-            style={{
-              background: token.colorBgContainer,
-              borderColor: token.colorBorderSecondary,
-            }}
-          >
-            <div
-              className="p-6 border-b border-solid"
-              style={{ borderColor: token.colorBorderSecondary }}
-            >
-              <Flex justify="space-between" align="center">
-                <Space size={12}>
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 12,
-                      background: addAlpha(token.colorInfo, 0.1),
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: token.colorInfo,
-                    }}
-                  >
-                    <SolutionOutlined />
-                  </div>
-                  <Typography.Title
-                    level={4}
-                    style={{ margin: 0, fontWeight: 700 }}
-                  >
-                    รายชื่อสมาชิก
-                  </Typography.Title>
-                  {!state.loading && (
-                    <Badge
-                      count={filteredUsers.length}
-                      overflowCount={999}
-                      showZero
-                      style={{
-                        backgroundColor: token.colorSuccess,
-                        fontWeight: 700,
-                        border: "none",
-                      }}
+        {/* 3. Filters & Content */}
+        <Card
+          styles={{ body: { padding: 16 } }}
+          style={{
+            borderRadius: 16,
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          {/* Filter Section - 2 Cols */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-xl">
+            <Row gutter={[16, 16]} align="bottom">
+              <Col xs={24} md={12} lg={16}>
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} md={12}>
+                    <span className="text-gray-500 text-xs mb-1 block">
+                      ค้นหาข้อมูล
+                    </span>
+                    <Input
+                      prefix={<SearchOutlined className="text-gray-400" />}
+                      placeholder="ค้นหาชื่อ, รหัสพนักงาน..."
+                      allowClear
+                      value={filters.search}
+                      onChange={(e) =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          search: e.target.value,
+                        }))
+                      }
                     />
-                  )}
-                </Space>
-                <Button
-                  type="primary"
-                  onClick={() =>
-                    setState((s) => ({
-                      ...s,
-                      selectedUser: null,
-                      modalType: "create",
-                    }))
-                  }
-                  icon={<UserOutlined />}
-                  shape="round"
-                  size="large"
-                  style={{
-                    padding: "0 24px",
-                    fontWeight: 600,
-                    background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
-                    border: "none",
-                  }}
-                >
-                  เพิ่มสมาชิกใหม่
-                </Button>
-              </Flex>
-            </div>
-
-            <div className="p-0">
-              {state.loading ? (
-                <div className="p-10">
-                  <Skeleton active />
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <span className="text-gray-500 text-xs mb-1 block">
+                      กรองตามตำแหน่ง
+                    </span>
+                    <Select
+                      placeholder="ตำแหน่งทั้งหมด"
+                      className="w-full"
+                      allowClear
+                      showSearch
+                      optionFilterProp="label"
+                      value={filters.position}
+                      onChange={(v) =>
+                        setFilters((prev) => ({ ...prev, position: v }))
+                      }
+                      options={positions.map((p) => ({
+                        label: p.name_th,
+                        value: p.id,
+                      }))}
+                    />
+                  </Col>
+                </Row>
+              </Col>
+              <Col xs={24} md={12} lg={8}>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    icon={<ClearOutlined />}
+                    onClick={() => setFilters({ search: "" })}
+                  >
+                    ล้างค่า
+                  </Button>
+                  <Button type="primary" icon={<SearchOutlined />}>
+                    ค้นหา
+                  </Button>
                 </div>
-              ) : (
-                <Table
-                  dataSource={filteredUsers}
-                  columns={columns}
-                  rowKey="id"
-                  className="group"
-                  scroll={{ x: 800 }}
-                  pagination={{
-                    pageSize: state.pageSize,
-                    onChange: (_, size) =>
-                      setState((s) => ({ ...s, pageSize: size })),
-                    showSizeChanger: true,
-                    className: "px-6 py-4",
-                  }}
-                />
-              )}
-            </div>
+              </Col>
+            </Row>
           </div>
 
-          {/* Create Modal */}
-          <Modal
-            open={state.modalType === "create"}
-            title={
-              <Space>
-                <UserOutlined /> สร้างผู้ใช้งานใหม่
-              </Space>
-            }
-            footer={null}
-            onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
-          >
-            <Form layout="vertical" onFinish={(v) => handleSubmit(v, false)}>
-              <UserFormFields
-                onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
-              />
-            </Form>
-          </Modal>
-
-          {/* Edit Modal */}
-          <Modal
-            open={state.modalType === "edit"}
-            title={
-              <Space>
-                <EditOutlined /> แก้ไขข้อมูลผู้ใช้งาน
-              </Space>
-            }
-            footer={null}
-            onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
-            destroyOnHidden
-          >
-            <Form
-              layout="vertical"
-              initialValues={{
-                ...state.selectedUser,
-                name: state.selectedUser?.firstname, // Mapping for shared field
+          {/* Table Header Action */}
+          <div className="flex justify-between items-center mb-4">
+            <Typography.Text strong className="text-lg">
+              รายชื่อพนักงานทั้งหมด ({filteredUsers.length})
+            </Typography.Text>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setModalMode("create");
+                form.resetFields();
               }}
-              onFinish={(v) =>
-                handleSubmit(
-                  { ...v, admin_id: state.selectedUser?.admin_id },
-                  true
-                )
-              }
             >
-              <UserFormFields
-                isEdit
-                positions={state.positions}
-                form={null}
-                onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
-              />
-            </Form>
-          </Modal>
+              เพิ่มพนักงาน
+            </Button>
+          </div>
 
-          {/* Delete Modal */}
-          <Modal
-            open={state.modalType === "delete"}
-            title={
-              <Space className="text-red-500">
-                <ExclamationCircleOutlined /> ยืนยันการลบข้อมูล
-              </Space>
+          {/* Table */}
+          <Table
+            columns={columns}
+            dataSource={filteredUsers}
+            rowKey="id"
+            loading={loading}
+            pagination={{ pageSize: 10, showSizeChanger: true }}
+            scroll={{ x: 1000 }}
+          />
+        </Card>
+
+        {/* 4. User Modal (Create/Edit) */}
+        <Modal
+          open={!!modalMode}
+          title={
+            modalMode === "create" ? "เพิ่มพนักงานใหม่" : "แก้ไขข้อมูลพนักงาน"
+          }
+          onCancel={() => setModalMode(null)}
+          width={800}
+          footer={null}
+          centered
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            initialValues={
+              modalMode === "edit" && selectedUser
+                ? {
+                    ...selectedUser,
+                    name: selectedUser.firstname, // Map back
+                    tel: selectedUser.tel, // Map phone
+                    profile_image_path:
+                      selectedUser.profile_image || selectedUser.image_profile,
+                    role_id: selectedUser.role?.id,
+                    last_login: selectedUser.last_login
+                      ? dayjs(selectedUser.last_login).format(
+                          "DD/MM/YYYY HH:mm",
+                        )
+                      : "-",
+                    failed_login_attempts:
+                      selectedUser.failed_login_attempts ?? 0,
+                  }
+                : {}
             }
-            onCancel={() => setState((s) => ({ ...s, modalType: "" }))}
-            onOk={handleDelete}
-            okButtonProps={{
-              danger: true,
-              disabled: state.confirmDeleteText !== deleteKeyword,
-            }}
           >
-            <Typography.Paragraph>
-              หากคุณแน่ใจที่จะลบผู้ใช้งานนี้ กรุณาพิมพ์คำว่า{" "}
-              <Typography.Text code copyable>
-                {deleteKeyword}
-              </Typography.Text>
-            </Typography.Paragraph>
-            <Input
-              placeholder={`พิมพ์ "${deleteKeyword}" เพื่อยืนยัน`}
-              onChange={(e) =>
-                setState((s) => ({ ...s, confirmDeleteText: e.target.value }))
-              }
+            <UserFormFields
+              isEdit={modalMode === "edit"}
+              positions={positions}
+              onCancel={() => setModalMode(null)}
+              form={form}
             />
-          </Modal>
-        </div>
+          </Form>
+        </Modal>
+
+        {/* 5. Role Drawer (Stub for now) */}
+        <Drawer
+          title="จัดการบทบาทและสิทธิ์ (Role & Permission)"
+          open={roleDrawerOpen}
+          onClose={() => setRoleDrawerOpen(false)}
+          width={600}
+        >
+          <div className="text-center p-10 text-gray-500">
+            <SafetyCertificateOutlined className="text-4xl mb-4" />
+            <p>ระบบจัดการ Role & Permission อยู่ระหว่างการพัฒนา</p>
+            <p className="text-xs">
+              สามารถจัดการได้ผ่าน Database Table: Role, RolePermission
+            </p>
+          </div>
+        </Drawer>
+
+        {/* 6. Delete Confirmation Modal */}
+        <Modal
+          title={
+            <Space className="text-red-500">
+              <ExclamationCircleOutlined /> ยืนยันการลบ
+            </Space>
+          }
+          open={deleteModalOpen}
+          onCancel={() => setDeleteModalOpen(false)}
+          onOk={handleDelete}
+          okButtonProps={{ danger: true }}
+        >
+          <p>
+            คุณแน่ใจหรือไม่ที่จะลบพนักงาน:{" "}
+            <strong>
+              {selectedUser?.firstname} {selectedUser?.lastname}
+            </strong>
+          </p>
+          <p className="text-red-500 text-xs">
+            *การลบนี้จะเป็นการ Soft Delete ข้อมูลยังคงอยู่ในระบบแต่จะไม่แสดงผล
+          </p>
+        </Modal>
       </DashboardLayout>
     </PermissionLayout>
   );

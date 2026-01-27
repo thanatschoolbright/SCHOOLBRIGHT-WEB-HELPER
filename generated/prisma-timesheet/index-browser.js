@@ -121,6 +121,72 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.PositionScalarFieldEnum = {
+  id: 'id',
+  name_th: 'name_th',
+  name_en: 'name_en',
+  description: 'description',
+  is_active: 'is_active',
+  is_deleted: 'is_deleted',
+  created_at: 'created_at',
+  deleted_at: 'deleted_at'
+};
+
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  username: 'username',
+  password: 'password',
+  admin_id: 'admin_id',
+  employee_code: 'employee_code',
+  firstname_th: 'firstname_th',
+  lastname_th: 'lastname_th',
+  firstname_en: 'firstname_en',
+  lastname_en: 'lastname_en',
+  nickname: 'nickname',
+  position_id: 'position_id',
+  department: 'department',
+  status: 'status',
+  email: 'email',
+  phone: 'phone',
+  profile_image_path: 'profile_image_path',
+  last_login: 'last_login',
+  failed_login_attempts: 'failed_login_attempts',
+  refresh_token: 'refresh_token',
+  role_id: 'role_id',
+  is_deleted: 'is_deleted',
+  created_at: 'created_at',
+  created_by: 'created_by',
+  updated_at: 'updated_at',
+  updated_by: 'updated_by',
+  deleted_at: 'deleted_at'
+};
+
+exports.Prisma.RoleScalarFieldEnum = {
+  id: 'id',
+  role_name: 'role_name',
+  description: 'description',
+  is_active: 'is_active',
+  is_deleted: 'is_deleted',
+  created_at: 'created_at',
+  deleted_at: 'deleted_at'
+};
+
+exports.Prisma.PermissionScalarFieldEnum = {
+  id: 'id',
+  p_code: 'p_code',
+  name_th: 'name_th',
+  description: 'description',
+  is_deleted: 'is_deleted',
+  created_at: 'created_at'
+};
+
+exports.Prisma.RolePermissionScalarFieldEnum = {
+  role_id: 'role_id',
+  permission_id: 'permission_id',
+  assigned_at: 'assigned_at',
+  assigned_by: 'assigned_by'
+};
+
 exports.Prisma.GroupScalarFieldEnum = {
   id: 'id',
   name_th: 'name_th',
@@ -277,6 +343,11 @@ exports.ProjectAssetCaptureType = exports.$Enums.ProjectAssetCaptureType = {
 };
 
 exports.Prisma.ModelName = {
+  Position: 'Position',
+  User: 'User',
+  Role: 'Role',
+  Permission: 'Permission',
+  RolePermission: 'RolePermission',
   Group: 'Group',
   ProjectStatus: 'ProjectStatus',
   Project: 'Project',

@@ -286,8 +286,7 @@ export interface ResponseLoginAdmin {
   };
 }
 
-export interface RequestNotificationReadMessage
-  extends DefaultRedux<ResponseNotificationReadMessage> {
+export interface RequestNotificationReadMessage extends DefaultRedux<ResponseNotificationReadMessage> {
   draftValues: {
     user_id: string;
     message_id: string;
@@ -347,8 +346,7 @@ export interface RequestStatistic extends DefaultRedux<ResponseLeaveLetter> {
   };
 }
 
-export interface RequestFixStatusLeaveLetter
-  extends DefaultRedux<ResponseLeaveLetter> {
+export interface RequestFixStatusLeaveLetter extends DefaultRedux<ResponseLeaveLetter> {
   draftValues: {
     school_id: string;
     letter_id: string;
@@ -378,8 +376,7 @@ export interface ResponseLeaveLetter {
   curl: string;
 }
 
-export interface RequestSchoolListWithMoreDetail
-  extends DefaultRedux<ResponseSchoolListWithMoreDetail> {
+export interface RequestSchoolListWithMoreDetail extends DefaultRedux<ResponseSchoolListWithMoreDetail> {
   draftValues: {};
 }
 
@@ -412,8 +409,7 @@ export interface RequestBypassToken extends DefaultRedux<ResponseLeaveLetter> {
   };
 }
 
-export interface RequestApplicationList
-  extends DefaultRedux<ResponseApplicationList> {
+export interface RequestApplicationList extends DefaultRedux<ResponseApplicationList> {
   draftValues: {};
 }
 
@@ -428,8 +424,7 @@ export interface ResponseApplicationList {
   };
 }
 
-export interface RequestApplicationVersionList
-  extends DefaultRedux<ResponseApplicationVersionList> {
+export interface RequestApplicationVersionList extends DefaultRedux<ResponseApplicationVersionList> {
   draftValues: {
     app_id: string;
   };
@@ -460,8 +455,7 @@ export interface ResponseCreateApplicationVersion {
   };
 }
 
-export interface RequestCreateApplicationVersion
-  extends DefaultRedux<ResponseCreateApplicationVersion> {
+export interface RequestCreateApplicationVersion extends DefaultRedux<ResponseCreateApplicationVersion> {
   draftValues: {
     versionID?: string | null;
     schoolID: string | string[];
@@ -494,8 +488,7 @@ export interface ResponseVersionControl {
   };
 }
 
-export interface RequestVersionControl
-  extends DefaultRedux<ResponseVersionControl> {
+export interface RequestVersionControl extends DefaultRedux<ResponseVersionControl> {
   draftValues: {};
 }
 
@@ -516,8 +509,7 @@ export interface ResponseQRCodeGenerator {
   };
 }
 
-export interface RequestQRCodeGenerator
-  extends DefaultRedux<ResponseQRCodeGenerator> {
+export interface RequestQRCodeGenerator extends DefaultRedux<ResponseQRCodeGenerator> {
   draftValues: {
     amount: number;
     school_id: number;
@@ -573,6 +565,13 @@ export interface UserProfile {
   createdBy: number;
   updatedBy: number;
   employee_code: string;
+  last_login?: string | Date;
+  failed_login_attempts?: number;
+  role?: {
+    id: number;
+    role_name: string;
+    description?: string;
+  };
 }
 
 export type UpdateUserInput = {

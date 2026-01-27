@@ -82,6 +82,11 @@ export const useSidebarMenu = (): SidebarItem[] => {
             href: "/admin/user-profile",
             icon: <IdcardOutlined />,
           },
+          {
+            label: t("admin_system.children.position_management"),
+            href: "/admin/position-management",
+            icon: <CrownOutlined />,
+          },
         ],
       },
       {

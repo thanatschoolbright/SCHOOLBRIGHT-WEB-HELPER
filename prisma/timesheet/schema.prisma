@@ -19,6 +19,127 @@ enum ProjectAssetCaptureType {
 }
 
 // =========================================================
+// ORGANIZATION MASTER DATA
+// =========================================================
+
+model Position {
+  id          Int     @id @default(autoincrement()) @map("id")
+  name_th     String  @map("name_th") @timesheet.VarChar(100)
+  name_en     String? @map("name_en") @timesheet.VarChar(100)
+  description String? @map("description")
+  is_active   Boolean @default(true) @map("is_active")
+
+  // --- Meta ---
+  is_deleted Boolean   @default(false) @map("is_deleted")
+  created_at DateTime  @default(now()) @map("created_at")
+  deleted_at DateTime? @map("deleted_at")
+
+  // --- Relations ---
+  users User[]
+
+  @@map("positions")
+}
+
+// =========================================================
+// USER & RBAC MODULE (IPO READY - FINAL)
+// =========================================================
+
+model User {
+  id       Int    @id @default(autoincrement()) @map("id")
+  username String @unique @map("username")
+  password String @map("password")
+
+  // --- Link with External System ---
+  admin_id Int @unique @map("admin_id")
+
+  // --- Info ---
+  employee_code String? @unique @map("employee_code")
+  firstname_th  String? @map("firstname_th")
+  lastname_th   String? @map("lastname_th")
+  firstname_en  String? @map("firstname_en")
+  lastname_en   String? @map("lastname_en")
+  nickname      String? @map("nickname")
+
+  position_id  Int?      @map("position_id")
+  position_ref Position? @relation(fields: [position_id], references: [id])
+  department   String?   @map("department")
+  status       String    @default("ACTIVE") @map("status")
+
+  // --- Contact ---
+  email              String? @map("email")
+  phone              String? @map("phone")
+  profile_image_path String? @map("profile_image")
+
+  // --- Security & Auth ---
+  last_login            DateTime? @map("last_login")
+  failed_login_attempts Int       @default(0) @map("failed_login_attempts") // เพิ่มเพื่อ IPO Security
+  refresh_token         String?   @map("refresh_token") @timesheet.Text
+
+  // --- Relations (RBAC) ---
+  role_id Int?  @map("role_id")
+  role    Role? @relation(fields: [role_id], references: [id])
+
+  // --- Meta & Audit ---
+  is_deleted Boolean   @default(false) @map("is_deleted")
+  created_at DateTime  @default(now()) @map("created_at")
+  created_by Int?      @map("created_by")
+  updated_at DateTime  @updatedAt @map("updated_at")
+  updated_by Int?      @map("updated_by")
+  deleted_at DateTime? @map("deleted_at") // เพิ่มเพื่อประวัติการลบ
+
+  @@map("user")
+}
+
+model Role {
+  id          Int     @id @default(autoincrement()) @map("id")
+  role_name   String  @unique @map("role_name") @timesheet.VarChar(50)
+  description String? @map("description")
+  is_active   Boolean @default(true) @map("is_active")
+
+  // --- Meta ---
+  is_deleted Boolean   @default(false) @map("is_deleted")
+  created_at DateTime  @default(now()) @map("created_at")
+  deleted_at DateTime? @map("deleted_at")
+
+  // Relations
+  users       User[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int     @id @default(autoincrement()) @map("id")
+  p_code      String  @unique @map("p_code") @timesheet.VarChar(50)
+  name_th     String  @map("name_th")
+  description String? @map("description")
+
+  // --- Meta ---
+  is_deleted Boolean  @default(false) @map("is_deleted")
+  created_at DateTime @default(now()) @map("created_at")
+
+  // Relations
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  role_id       Int @map("role_id")
+  permission_id Int @map("permission_id")
+
+  // --- Audit ---
+  assigned_at DateTime @default(now()) @map("assigned_at") // ใครเป็นคนให้สิทธิ์และให้เมื่อไหร่
+  assigned_by Int?     @map("assigned_by")
+
+  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, permission_id])
+  @@map("role_permissions")
+}
+
+// =========================================================
 // 2. ORGANIZATION & MASTER DATA
 // =========================================================
 
