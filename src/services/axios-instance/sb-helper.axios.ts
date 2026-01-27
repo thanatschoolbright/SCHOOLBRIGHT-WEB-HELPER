@@ -105,7 +105,7 @@ async function saveApiLog(
   response: any,
   duration: number,
   calledBy: string,
-  error?: any
+  error?: any,
 ) {
   try {
     // สร้าง URL object อย่างปลอดภัย
@@ -130,9 +130,8 @@ async function saveApiLog(
 
     // Dynamic import เพื่อหลีกเลี่ยง circular dependency
     const { ApiLogUtils } = await import("@/helpers/api-log.utils");
-    const { ApiLogService } = await import(
-      "@/services/backend/api-log/api-log.service"
-    );
+    const { ApiLogService } =
+      await import("@/services/backend/api-log/api-log.service");
 
     // สร้าง mock NextRequest object ที่สมบูรณ์
     const headers = new Headers();
@@ -167,7 +166,7 @@ async function saveApiLog(
       logData,
       response?.status || (error ? 500 : 200),
       response?.data || (error ? { error: error.message } : undefined),
-      error?.message
+      error?.message,
     );
 
     // บันทึกลงฐานข้อมูลผ่าน API endpoint (เพื่อหลีกเลี่ยง Prisma browser issue)
@@ -234,7 +233,7 @@ callApiService.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response Interceptor
@@ -255,7 +254,7 @@ callApiService.interceptors.response.use(
     });
 
     // บันทึกลงฐานข้อมูล
-    await saveApiLog(config, response, duration, calledBy);
+    // await saveApiLog(config, response, duration, calledBy);
 
     return response;
   },
@@ -280,5 +279,5 @@ callApiService.interceptors.response.use(
     await saveApiLog(config, error.response, duration, calledBy, error);
 
     return Promise.reject(error);
-  }
+  },
 );
