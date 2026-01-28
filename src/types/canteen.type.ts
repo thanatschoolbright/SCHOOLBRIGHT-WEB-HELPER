@@ -9,10 +9,11 @@ export interface VersionRecord {
   version_name: string;
   env: string;
   note?: string;
-  is_lastest_version: 0 | 1;
-  force_update: 0 | 1;
+  is_lastest_version: 0 | 1 | boolean;
+  force_update: 0 | 1 | boolean;
   updated_at: string;
   url?: string;
+  school_id?: (string | number)[];
 }
 
 export interface VersionFormValues {

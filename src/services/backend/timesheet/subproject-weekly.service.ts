@@ -1,9 +1,7 @@
-import { PrismaClient as TimesheetPrismaClient } from "@/../generated/prisma-timesheet";
+import { PrismaTimesheet as prisma } from "@/helpers/prisma-timesheet";
 import ExcelJS from "exceljs";
 import dayjs from "dayjs";
 import { logger } from "@/helpers/logger";
-
-const prisma = new TimesheetPrismaClient();
 
 export const TimesheetSubProjectWeeklyService = {
   generateWeeklySubProjectExcel: async (params: {
@@ -98,7 +96,7 @@ export const TimesheetSubProjectWeeklyService = {
         for (const w of weeks) {
           const projectMap = weekMap.get(w.wk)!;
           const projectEntries = Array.from(projectMap.entries()).sort(
-            (a, b) => b[1] - a[1]
+            (a, b) => b[1] - a[1],
           );
           const totalHours = projectEntries.reduce((s, p) => s + p[1], 0);
           weeksList.push({
@@ -186,7 +184,7 @@ export const TimesheetSubProjectWeeklyService = {
 
         // Data rows: find max project rows across weeks
         const maxRows = Math.max(
-          ...weeksList.map((w) => w.projectEntries.length)
+          ...weeksList.map((w) => w.projectEntries.length),
         );
         for (let r = 0; r < maxRows; r++) {
           const rowVals: any[] = [];
@@ -275,7 +273,7 @@ export const TimesheetSubProjectWeeklyService = {
           const sheetName =
             `สัปดาห์ที่ ${weekNumber} เดือน ${monthNumber} ปี ${yyyy}`.slice(
               0,
-              31
+              31,
             );
           const ws = workbook.addWorksheet(sheetName);
 
@@ -355,7 +353,7 @@ export const TimesheetSubProjectWeeklyService = {
 
           // Data rows
           const projectEntries = Array.from(projectMap.entries()).sort(
-            (a, b) => b[1] - a[1]
+            (a, b) => b[1] - a[1],
           );
           const totalHours = projectEntries.reduce((s, p) => s + p[1], 0);
 

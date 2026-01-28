@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/../generated/prisma-timesheet";
+import { PrismaTimesheet as prisma } from "@/helpers/prisma-timesheet";
 import dayjs from "dayjs";
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,16 +22,16 @@ export async function POST(request: NextRequest) {
       let endDate = dayjs(project.createdAt).add(1, "month").toDate(); // Default to 1 month later if no data
 
       const validFeatures = project.features.filter(
-        (f) => f.startDate && f.endDate
+        (f) => f.startDate && f.endDate,
       );
 
       if (validFeatures.length > 0) {
         // Find min start and max end
         const startDates = validFeatures.map((f) =>
-          new Date(f.startDate!).getTime()
+          new Date(f.startDate!).getTime(),
         );
         const endDates = validFeatures.map((f) =>
-          new Date(f.endDate!).getTime()
+          new Date(f.endDate!).getTime(),
         );
 
         startDate = new Date(Math.min(...startDates));
@@ -59,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     // Filter out projects that might have invalid dates or just to be safe
     const validTimelineData = timelineData.filter(
-      (p) => p.startDate && p.endDate
+      (p) => p.startDate && p.endDate,
     );
 
     return NextResponse.json({
@@ -70,7 +68,7 @@ export async function POST(request: NextRequest) {
     console.error("Error fetching timeline data:", error);
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -19,6 +19,7 @@ import {
   Form,
   Input,
   Modal,
+  Popover,
   Result,
   Row,
   Select,
@@ -54,6 +55,7 @@ import {
   PlusOutlined,
   RocketOutlined,
   SearchOutlined,
+  TeamOutlined,
   WindowsOutlined,
   LoadingOutlined,
   DownloadOutlined,
@@ -68,6 +70,7 @@ import {
   ApiOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 import { toast } from "sonner";
 import "dayjs/locale/th";
 
@@ -95,6 +98,8 @@ import type {
   VersionRecord,
 } from "@/types/canteen.type";
 
+// ✅ ใช้งาน Plugin สำหรับปี พ.ศ. (BBBB)
+dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
 // --- ป้องกัน Runtime Error: 'new' is required ---
@@ -118,7 +123,7 @@ const getPlatformIcon = (platformType: string) => {
   if (lowercaseType.includes("android"))
     return <AndroidOutlined style={{ color: "#3DDC84", fontSize: 18 }} />;
   if (lowercaseType.includes("ios") || lowercaseType.includes("apple"))
-    return <AppleOutlined style={{ color: "#000000", fontSize: 18 }} />;
+    return <AppleOutlined style={{ fontSize: 18 }} />; // เอาสีออกเพื่อให้ใช้สีตาม Text ของ Theme
   if (lowercaseType.includes("windows"))
     return <WindowsOutlined style={{ color: "#0078D7", fontSize: 18 }} />;
   if (lowercaseType.includes("web"))
@@ -140,18 +145,19 @@ const SummaryCards = ({
   applications: ApplicationRecord[];
   isLoading: boolean;
 }) => {
+  const { token } = theme.useToken();
   const summaryMetrics = [
     {
       label: "แอปพลิเคชันทั้งหมด",
       value: applications.length,
-      color: "#3b82f6",
+      color: token.colorPrimary,
       icon: <AppstoreOutlined />,
       description: "รายการโปรเจกต์ในระบบ",
     },
     {
       label: "Android Apps",
       value: applications.filter((app) =>
-        app.app_type.toLowerCase().includes("android")
+        app.app_type.toLowerCase().includes("android"),
       ).length,
       color: "#22c55e",
       icon: <AndroidOutlined />,
@@ -162,9 +168,9 @@ const SummaryCards = ({
       value: applications.filter(
         (app) =>
           app.app_type.toLowerCase().includes("ios") ||
-          app.app_type.toLowerCase().includes("apple")
+          app.app_type.toLowerCase().includes("apple"),
       ).length,
-      color: "#000000",
+      color: token.colorText, // เปลี่ยนจาก #000000 เป็นตัวแปรของ Theme
       icon: <AppleOutlined />,
       description: "แพลตฟอร์ม iOS",
     },
@@ -173,7 +179,7 @@ const SummaryCards = ({
       value: applications.filter(
         (app) =>
           !app.app_type.toLowerCase().includes("android") &&
-          !app.app_type.toLowerCase().includes("ios")
+          !app.app_type.toLowerCase().includes("ios"),
       ).length,
       color: "#f59e0b",
       icon: <GlobalOutlined />,
@@ -185,7 +191,10 @@ const SummaryCards = ({
     <Row gutter={[16, 16]} className="mb-6">
       {summaryMetrics.map((metric, index) => (
         <Col xs={24} sm={12} md={6} key={index}>
-          <Card className="shadow-sm border-0 rounded-xl overflow-hidden relative h-full">
+          <Card
+            variant="borderless"
+            className="shadow-sm rounded-xl overflow-hidden relative h-full"
+          >
             <div
               className="absolute right-[-10px] top-[-10px] opacity-10 rotate-12"
               style={{ pointerEvents: "none" }}
@@ -198,7 +207,7 @@ const SummaryCards = ({
               <div
                 className="flex items-center justify-center w-12 h-12 rounded-lg text-2xl"
                 style={{
-                  backgroundColor: `${metric.color}15`,
+                  backgroundColor: token.colorFillSecondary, // ใช้ Token แทน Hex + Alpha
                   color: metric.color,
                 }}
               >
@@ -243,7 +252,7 @@ const usePasswordProtection = () => {
         setModalVisible(true);
       }
     },
-    [isAuthenticated]
+    [isAuthenticated],
   );
 
   const handlePasswordSubmit = useCallback(() => {
@@ -281,12 +290,12 @@ const usePasswordProtection = () => {
 const useColumnSearch = <RecordType,>(
   searchInputRefs: React.MutableRefObject<
     Partial<Record<SearchableColumnKey, InputRef | null>>
-  >
+  >,
 ) =>
   useCallback(
     (
       dataIndex: SearchableColumnKey,
-      columnTitle: string
+      columnTitle: string,
     ): TableColumn<RecordType> => ({
       key: dataIndex,
       filterDropdown: ({
@@ -342,7 +351,7 @@ const useColumnSearch = <RecordType,>(
           .toLowerCase()
           .includes(String(searchValue).toLowerCase()),
     }),
-    [searchInputRefs]
+    [searchInputRefs],
   );
 
 export default function CanteenAppManager() {
@@ -352,7 +361,7 @@ export default function CanteenAppManager() {
 
   // States
   const [applicationList, setApplicationList] = useState<ApplicationRecord[]>(
-    []
+    [],
   );
   const [isApplicationLoading, setIsApplicationLoading] = useState(false);
   const [selectedApplication, setSelectedApplication] =
@@ -371,6 +380,7 @@ export default function CanteenAppManager() {
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [submissionMessage, setSubmissionMessage] = useState("");
+  const [debugData, setDebugData] = useState<any>(null);
   const [deleteTargetRecord, setDeleteTargetRecord] =
     useState<VersionRecord | null>(null);
 
@@ -386,7 +396,7 @@ export default function CanteenAppManager() {
 
   const schoolOptions = useMemo(
     () => buildSchoolOptions(schoolListData?.response?.data ?? []),
-    [schoolListData]
+    [schoolListData],
   );
 
   // Data Fetchers
@@ -409,9 +419,8 @@ export default function CanteenAppManager() {
         loading: true,
       }));
       try {
-        const apiResponse = await GET_APPLICATION_VERSION_BY_APPID(
-          applicationId
-        );
+        const apiResponse =
+          await GET_APPLICATION_VERSION_BY_APPID(applicationId);
         setVersionDataset({
           data: apiResponse?.data?.data ?? [],
           loading: false,
@@ -425,7 +434,7 @@ export default function CanteenAppManager() {
         }));
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -436,30 +445,55 @@ export default function CanteenAppManager() {
   const handleVersionFormSubmit = async () => {
     try {
       const formValues = await versionFormInstance.validateFields();
-      setVersionFormModalVisible(false);
       setSubmissionStatus("loading");
+      setDebugData(null);
 
       const submissionFormData = new FormData();
-      if (formValues.schoolID)
-        submissionFormData.append("school_id", String(formValues.schoolID));
-      submissionFormData.append("app_id", String(formValues.appID));
-      if (formValues.versionID)
-        submissionFormData.append("version_id", String(formValues.versionID));
-      submissionFormData.append("version_name", String(formValues.versionName));
-      submissionFormData.append("env", String(formValues.env));
+
+      /**
+       * ✅ Helper สำหรับการ append ข้อมูลเข้า FormData อย่างปลอดภัย
+       * ป้องกันการส่งค่า null, undefined หรือ string "undefined" ไปยัง Server
+       */
+      const appendSafe = (key: string, value: any) => {
+        if (value === null || value === undefined) return;
+        const strVal = String(value).trim();
+        if (strVal === "" || strVal === "undefined" || strVal === "null")
+          return;
+        submissionFormData.append(key, strVal);
+      };
+
+      // 1. จัดการ App ID และ Version ID
+      const appId = formValues.appID || selectedApplication?.app_id;
+      appendSafe("app_id", appId);
+      appendSafe("version_id", formValues.versionID);
+
+      // 2. ข้อมูลชื่อเวอร์ชันและสภาพแวดล้อม
+      appendSafe("version_name", formValues.versionName);
+      appendSafe("env", formValues.env);
+
+      // 3. ข้อมูลโรงเรียน
+      if (formValues.schoolID) {
+        appendSafe("school_id", formValues.schoolID);
+      }
+
+      // 4. ข้อมูลอื่นๆ
       submissionFormData.append("note", formValues.note || "");
       submissionFormData.append(
         "is_lastest_version",
-        formValues.isLatestVersion ? "1" : "0"
+        formValues.isLatestVersion ? "1" : "0",
       );
       submissionFormData.append(
         "force_update",
-        formValues.forceUpdate ? "1" : "0"
+        formValues.forceUpdate ? "1" : "0",
       );
 
+      // 5. ไฟล์ติดตั้ง
       if (formValues.file?.[0]?.originFileObj) {
         submissionFormData.append("file", formValues.file[0].originFileObj);
       }
+
+      // ปิด modal ฟอร์มก่อนเริ่มส่ง
+      setVersionFormModalVisible(false);
 
       const submissionApi =
         versionFormMode === "add"
@@ -468,11 +502,18 @@ export default function CanteenAppManager() {
 
       const apiResponse = await submissionApi(submissionFormData);
 
-      if (
-        apiResponse?.data?.status === "failed" ||
-        apiResponse?.data?.data?.status === "failed"
-      ) {
-        throw new Error(apiResponse.data.message || "บันทึกข้อมูลไม่สำเร็จ");
+      // ✅ ตรวจสอบสถานะการทำงานภายใน response (บาง API ส่ง 200 แต่ status: failed)
+      const isFailed =
+        apiResponse?.status === "failed" ||
+        apiResponse?.data?.status === "failed";
+
+      if (isFailed) {
+        setDebugData(apiResponse?.data || apiResponse);
+        throw new Error(
+          apiResponse?.message ||
+            apiResponse?.data?.message ||
+            "บันทึกข้อมูลไม่สำเร็จ",
+        );
       }
 
       setSubmissionStatus("success");
@@ -480,9 +521,17 @@ export default function CanteenAppManager() {
         fetchApplicationVersions(selectedApplication.app_id);
     } catch (error: any) {
       setSubmissionStatus("error");
-      setSubmissionMessage(
-        error.message || "เกิดข้อผิดพลาดระหว่างการบันทึกข้อมูล"
-      );
+
+      // ✅ ดึงข้อมูล Error ออกมาแสดงผลเพื่อการ Debug
+      const apiErrorData = error.response?.data;
+      if (apiErrorData) {
+        setDebugData(apiErrorData);
+        setSubmissionMessage(apiErrorData.message || error.message);
+      } else {
+        setSubmissionMessage(
+          error.message || "เกิดข้อผิดพลาดระหว่างการบันทึกข้อมูล",
+        );
+      }
     }
   };
 
@@ -490,7 +539,7 @@ export default function CanteenAppManager() {
     if (!deleteTargetRecord) return;
     try {
       const apiResponse = await DELETE_APPLICATION_VERSION(
-        deleteTargetRecord.version_id
+        deleteTargetRecord.version_id,
       );
       if (apiResponse?.data?.status === "failed")
         throw new Error("ไม่สามารถลบข้อมูลได้");
@@ -559,16 +608,75 @@ export default function CanteenAppManager() {
       title: "ชื่อเวอร์ชัน",
       dataIndex: "version_name",
       fixed: "left",
+      width: 180,
       render: (versionName, record) => (
-        <AntText strong>
-          {versionName}{" "}
-          {record.is_lastest_version === 1 && <Tag color="green">ล่าสุด</Tag>}
-        </AntText>
+        <Flex vertical gap={4}>
+          <AntText strong>{versionName}</AntText>
+          <Space size={4} wrap>
+            {(record.is_lastest_version === 1 ||
+              record.is_lastest_version === true) && (
+              <Tag color="green" bordered={false} style={{ fontSize: 10 }}>
+                ล่าสุด
+              </Tag>
+            )}
+            {(record.force_update === 1 || record.force_update === true) && (
+              <Tag color="red" bordered={false} style={{ fontSize: 10 }}>
+                บังคับอัปเดต
+              </Tag>
+            )}
+          </Space>
+        </Flex>
       ),
+    },
+    {
+      title: "กลุ่มเป้าหมาย",
+      dataIndex: "school_id",
+      width: 150,
+      render: (schoolIds: any[]) => {
+        if (!schoolIds || schoolIds.length === 0) {
+          return <Tag color="default">ทุกโรงเรียน</Tag>;
+        }
+
+        const schoolNames = schoolIds
+          .map((id) => {
+            const school = schoolOptions.find(
+              (opt) => opt.value === String(id),
+            );
+            return school ? school.label : `ID: ${id}`;
+          })
+          .filter(Boolean);
+
+        return (
+          <Popover
+            title="รายชื่อโรงเรียนที่ปล่อยให้อัปเดต"
+            content={
+              <ul
+                style={{
+                  maxHeight: 250,
+                  overflowY: "auto",
+                  paddingLeft: 20,
+                  margin: 0,
+                }}
+              >
+                {schoolNames.map((name, idx) => (
+                  <li key={idx}>
+                    <AntText size="small">{name}</AntText>
+                  </li>
+                ))}
+              </ul>
+            }
+          >
+            <Button size="small" icon={<TeamOutlined />}>
+              {schoolIds.length} โรงเรียน
+            </Button>
+          </Popover>
+        );
+      },
     },
     {
       title: "สภาพแวดล้อม",
       dataIndex: "env",
+      width: 120,
       render: (environment) => (
         <Tag color={getEnvironmentTagColor(environment)}>{environment}</Tag>
       ),
@@ -576,7 +684,9 @@ export default function CanteenAppManager() {
     {
       title: "วันที่อัปเดต",
       dataIndex: "updated_at",
-      render: (updatedDate) => dayjs(updatedDate).format("D MMM BBBB HH:mm"),
+      width: 160,
+      render: (updatedDate) =>
+        updatedDate ? dayjs(updatedDate).format("D MMM BBBB HH:mm") : "-",
     },
     {
       title: "จัดการ",
@@ -598,14 +708,26 @@ export default function CanteenAppManager() {
                 setVersionFormMode("edit");
                 setCurrentFormStep(0);
                 setVersionFormModalVisible(true);
+
+                // ✅ ป้องกันค่า undefined/null หลุดเข้าไปใน Form
+                const appIdStr = selectedApplication?.app_id
+                  ? String(selectedApplication.app_id)
+                  : "";
+                const versionIdStr = record.version_id
+                  ? String(record.version_id)
+                  : "";
+
                 versionFormInstance.setFieldsValue({
-                  appID: String(selectedApplication?.app_id),
-                  versionID: String(record.version_id),
-                  versionName: record.version_name,
-                  env: record.env,
-                  note: record.note,
-                  isLatestVersion: record.is_lastest_version === 1,
-                  forceUpdate: record.force_update === 1,
+                  appID: appIdStr !== "undefined" ? appIdStr : "",
+                  versionID: versionIdStr !== "undefined" ? versionIdStr : "",
+                  versionName: record.version_name || "",
+                  env: record.env || "",
+                  note: record.note || "",
+                  isLatestVersion:
+                    record.is_lastest_version === 1 ||
+                    record.is_lastest_version === true,
+                  forceUpdate:
+                    record.force_update === 1 || record.force_update === true,
                 });
               })
             }
@@ -636,7 +758,11 @@ export default function CanteenAppManager() {
         isLoading={isApplicationLoading}
       />
 
-      <Card bordered={false} className="shadow-sm" style={{ borderRadius: 16 }}>
+      <Card
+        variant="borderless"
+        className="shadow-sm"
+        style={{ borderRadius: 16 }}
+      >
         <Table
           columns={applicationTableColumns}
           dataSource={applicationList}
@@ -717,7 +843,7 @@ export default function CanteenAppManager() {
         }
         open={versionHistoryModalVisible}
         onCancel={() => setVersionHistoryModalVisible(false)}
-        width={1100}
+        width={1200}
         footer={null}
       >
         <div style={{ marginBottom: 16, textAlign: "right" }}>
@@ -729,8 +855,14 @@ export default function CanteenAppManager() {
                 setVersionFormMode("add");
                 setCurrentFormStep(0);
                 versionFormInstance.resetFields();
+
+                // ✅ ป้องกันค่า undefined หลุดเข้าไปใน Form
+                const appIdStr = selectedApplication?.app_id
+                  ? String(selectedApplication.app_id)
+                  : "";
+
                 versionFormInstance.setFieldsValue({
-                  appID: String(selectedApplication?.app_id),
+                  appID: appIdStr !== "undefined" ? appIdStr : "",
                   isLatestVersion: false,
                   forceUpdate: false,
                 });
@@ -759,7 +891,7 @@ export default function CanteenAppManager() {
         }
         open={versionFormModalVisible}
         onCancel={() => setVersionFormModalVisible(false)}
-        width={750}
+        width={900}
         footer={[
           <Button
             key="back"
@@ -804,8 +936,8 @@ export default function CanteenAppManager() {
           size="small"
           style={{ margin: "24px 0" }}
         />
-        <Form form={versionFormInstance} layout="vertical">
-          {currentFormStep === 0 && (
+        <Form form={versionFormInstance} layout="vertical" preserve={true}>
+          <div style={{ display: currentFormStep === 0 ? "block" : "none" }}>
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item name="appID" label="รหัสแอปพลิเคชัน (App ID)">
@@ -839,8 +971,9 @@ export default function CanteenAppManager() {
                 </Form.Item>
               </Col>
             </Row>
-          )}
-          {currentFormStep === 1 && (
+          </div>
+
+          <div style={{ display: currentFormStep === 1 ? "block" : "none" }}>
             <Form.Item
               name="file"
               label="ไฟล์ติดตั้งแอปพลิเคชัน"
@@ -871,8 +1004,9 @@ export default function CanteenAppManager() {
                 <p type="secondary">แนะนำขนาดไฟล์ไม่ควรเกิน 200MB</p>
               </Upload.Dragger>
             </Form.Item>
-          )}
-          {currentFormStep === 2 && (
+          </div>
+
+          <div style={{ display: currentFormStep === 2 ? "block" : "none" }}>
             <Space direction="vertical" style={{ width: "100%" }} size="middle">
               <Card
                 size="small"
@@ -911,7 +1045,7 @@ export default function CanteenAppManager() {
                 </Flex>
               </Card>
             </Space>
-          )}
+          </div>
         </Form>
       </Modal>
 
@@ -922,6 +1056,7 @@ export default function CanteenAppManager() {
         onCancel={() => setSubmissionStatus("idle")}
         centered
         closable={submissionStatus !== "loading"}
+        width={850}
       >
         {submissionStatus === "loading" && (
           <Flex vertical align="center" style={{ padding: "48px 0" }}>
@@ -951,10 +1086,100 @@ export default function CanteenAppManager() {
             status="error"
             title="ไม่สามารถบันทึกข้อมูลได้"
             subTitle={submissionMessage}
-            extra={
-              <Button onClick={() => setSubmissionStatus("idle")}>ปิด</Button>
-            }
-          />
+            extra={[
+              <Button
+                type="primary"
+                key="close"
+                onClick={() => setSubmissionStatus("idle")}
+              >
+                ตกลง
+              </Button>,
+            ]}
+          >
+            {debugData && (
+              <div
+                style={{
+                  marginTop: 24,
+                  padding: 16,
+                  backgroundColor: token.colorFillAlter,
+                  borderRadius: 8,
+                }}
+              >
+                <Typography.Title level={5}>
+                  <Space>
+                    <ApiOutlined /> Debug Information
+                  </Space>
+                </Typography.Title>
+
+                {debugData._curl && (
+                  <div style={{ marginBottom: 12 }}>
+                    <AntText
+                      strong
+                      style={{ display: "block", marginBottom: 4 }}
+                    >
+                      CURL Command:
+                    </AntText>
+                    <Input.TextArea
+                      rows={4}
+                      readOnly
+                      value={debugData._curl}
+                      style={{
+                        fontFamily: "monospace",
+                        fontSize: "12px",
+                        background: token.colorBgContainer,
+                        color: token.colorInfoText,
+                        border: `1px solid ${token.colorBorder}`,
+                        borderRadius: 4,
+                      }}
+                    />
+                  </div>
+                )}
+
+                {debugData.debug && (
+                  <Descriptions
+                    column={1}
+                    bordered
+                    size="small"
+                    layout="horizontal"
+                    style={{ marginBottom: 12 }}
+                  >
+                    <Descriptions.Item label="API URL">
+                      {debugData.debug.url}
+                    </Descriptions.Item>
+                    {debugData.debug.status && (
+                      <Descriptions.Item label="HTTP Status">
+                        {debugData.debug.status}
+                      </Descriptions.Item>
+                    )}
+                    <Descriptions.Item label="Error Type">
+                      {debugData.debug.type}
+                    </Descriptions.Item>
+                  </Descriptions>
+                )}
+
+                {(debugData.raw || debugData.status === "failed") && (
+                  <div>
+                    <AntText strong>Server Response:</AntText>
+                    <pre
+                      style={{
+                        margin: "8px 0 0",
+                        padding: 12,
+                        background: token.colorBgContainer,
+                        border: `1px solid ${token.colorBorder}`,
+                        borderRadius: 4,
+                        maxHeight: 200,
+                        overflow: "auto",
+                        fontSize: 11,
+                        color: token.colorText,
+                      }}
+                    >
+                      {JSON.stringify(debugData.raw || debugData, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            )}
+          </Result>
         )}
       </Modal>
 

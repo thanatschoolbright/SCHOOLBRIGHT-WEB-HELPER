@@ -1,12 +1,10 @@
-import { PrismaClient as TimesheetPrismaClient } from "@/../generated/prisma-timesheet";
+import { PrismaTimesheet as prisma } from "@/helpers/prisma-timesheet";
 import ExcelJS from "exceljs";
 import dayjs from "dayjs";
 import { logger } from "@/helpers/logger";
 import { API_URL } from "@/services/api-url";
 import axios from "axios";
 import { formatFullProjectCode } from "@/helpers/project/convert-code.helper";
-
-const prisma = new TimesheetPrismaClient();
 
 const EXCEL_STYLES = {
   TITLE_FONT: {
@@ -82,13 +80,13 @@ const sanitizeSheetName = (name: string): string => {
 
 const formatDateRange = (startDate: string, endDate: string): string => {
   return `${dayjs(startDate).format("DD/MM/YYYY")} ถึง ${dayjs(endDate).format(
-    "DD/MM/YYYY"
+    "DD/MM/YYYY",
   )}`;
 };
 
 const getUserName = (
   userId: number,
-  usersMap: Map<number, UserData>
+  usersMap: Map<number, UserData>,
 ): string => {
   const user = usersMap.get(userId);
   return user
@@ -99,7 +97,7 @@ const getUserName = (
 const applyCellStyle = (
   cell: ExcelJS.Cell,
   alignment: Partial<ExcelJS.Alignment>,
-  numFmt?: string
+  numFmt?: string,
 ) => {
   cell.font = EXCEL_STYLES.NORMAL_FONT;
   cell.alignment = { vertical: "middle", ...alignment };
@@ -159,7 +157,7 @@ const fetchUsers = async (): Promise<Map<number, UserData>> => {
   try {
     const response = await axios.get(
       `${API_URL.SB_HELPER_URL}/api/v1/admin/user/read/0`,
-      { headers: { "Content-Type": "application/json" } }
+      { headers: { "Content-Type": "application/json" } },
     );
 
     if (response.status === 200 && response.data?.data) {
@@ -180,7 +178,7 @@ const createOverviewSheet = (
   workbook: ExcelJS.Workbook,
   features: FeatureData[],
   totalHours: number,
-  dateRange: string
+  dateRange: string,
 ) => {
   const sheet = workbook.addWorksheet("ภาพรวม");
 
@@ -229,7 +227,7 @@ const createOverviewSheet = (
   features.forEach((feature) => {
     const code = formatFullProjectCode(feature.projectId, feature.featureId);
     const projectNameWithId = `${feature.projectName} (${formatFullProjectCode(
-      feature.projectId
+      feature.projectId,
     )})`;
     const featureNameWithId = `${feature.featureName} (${code})`;
     const assetTypeLabel = getAssetTypeLabel(feature.assetCaptureType);
@@ -287,11 +285,11 @@ const createEvidenceSheet = (
   workbook: ExcelJS.Workbook,
   feature: FeatureData,
   usersMap: Map<number, UserData>,
-  dateRange: string
+  dateRange: string,
 ) => {
   const formattedCode = formatFullProjectCode(
     feature.projectId,
-    feature.featureId
+    feature.featureId,
   );
   const safeCode = formattedCode.replace(/\//g, "-");
   const idPart = ` (${safeCode})`;
@@ -327,7 +325,7 @@ const createEvidenceSheet = (
   const subtitleCell = sheet.getCell("A2");
   const assetTypeLabel = getAssetTypeLabel(feature.assetCaptureType);
   subtitleCell.value = `รหัส: ${formattedCode} | ประเภทสินทรัพย์: ${assetTypeLabel} | รวม: ${feature.hours.toFixed(
-    2
+    2,
   )} ชั่วโมง`;
   subtitleCell.font = EXCEL_STYLES.NORMAL_FONT;
   subtitleCell.alignment = { vertical: "middle", horizontal: "center" };
@@ -356,7 +354,7 @@ const createEvidenceSheet = (
   sheet.getRow(3).height = 24;
 
   const sortedEntries = feature.entries.sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   sortedEntries.forEach((entry) => {
@@ -421,12 +419,12 @@ export const TimesheetAuditReportService = {
       const entries = await fetchTimesheetEntries(start_date, end_date);
       const totalHours = entries.reduce(
         (sum, entry) => sum + Number(entry.hours || 0),
-        0
+        0,
       );
 
       const featureMap = groupEntriesByFeature(entries);
       const sortedFeatures = Array.from(featureMap.values()).sort(
-        (a, b) => b.hours - a.hours
+        (a, b) => b.hours - a.hours,
       );
 
       const usersMap = await fetchUsers();

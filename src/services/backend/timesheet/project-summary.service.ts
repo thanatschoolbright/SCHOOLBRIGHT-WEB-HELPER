@@ -1,6 +1,6 @@
-import { PrismaClient as TimesheetPrismaClient } from "@/../generated/prisma-timesheet";
+import { PrismaTimesheet as prisma } from "@/helpers/prisma-timesheet";
 import * as XLSX from "xlsx";
-import { logger } from '@/helpers/logger';
+import { logger } from "@/helpers/logger";
 
 /**
  * Interface สำหรับข้อมูลสรุปโปรเจ็ค
@@ -34,12 +34,14 @@ export interface ProjectSummaryParams {
  * Service สำหรับจัดการข้อมูลสรุป Timesheet แยกตามโปรเจ็ค
  */
 export class TimesheetProjectSummaryService {
-  private static timesheetPrisma = new TimesheetPrismaClient();
+  private static timesheetPrisma = prisma;
 
   /**
    * ดึงข้อมูลสรุปแยกตามโปรเจ็ค
    */
-  static async getProjectSummary(params: ProjectSummaryParams): Promise<ProjectSummaryData[]> {
+  static async getProjectSummary(
+    params: ProjectSummaryParams,
+  ): Promise<ProjectSummaryData[]> {
     const { start_date, end_date, export_type } = params;
 
     try {
@@ -60,21 +62,24 @@ export class TimesheetProjectSummaryService {
           feature: true,
         },
         orderBy: [
-          { projectId: 'asc' },
-          { featureId: 'asc' },
-          { createdBy: 'asc' },
+          { projectId: "asc" },
+          { featureId: "asc" },
+          { createdBy: "asc" },
         ],
       });
 
       // จัดกลุ่มข้อมูลตามประเภทที่เลือก
-      const groups = new Map<string, {
-        id: number;
-        name: string;
-        description?: string;
-        parent_project_id?: number;
-        parent_project_name?: string;
-        entries: any[];
-      }>();
+      const groups = new Map<
+        string,
+        {
+          id: number;
+          name: string;
+          description?: string;
+          parent_project_id?: number;
+          parent_project_name?: string;
+          entries: any[];
+        }
+      >();
 
       entries.forEach((entry: any) => {
         let groupKey: string;
@@ -88,18 +93,18 @@ export class TimesheetProjectSummaryService {
           // จัดกลุ่มตาม Project
           groupKey = `project-${entry.projectId}`;
           groupId = entry.projectId;
-          groupName = entry.project?.name || 'ไม่ระบุชื่อโปรเจ็ค';
+          groupName = entry.project?.name || "ไม่ระบุชื่อโปรเจ็ค";
           groupDescription = entry.project?.description;
           // ไม่ต้องมี parent เพราะเป็น project หลัก
         } else {
           // จัดกลุ่มตาม Sub Project (Feature)
           groupKey = `feature-${entry.featureId}`;
           groupId = entry.featureId;
-          groupName = entry.feature?.name || 'ไม่ระบุชื่อ Feature';
+          groupName = entry.feature?.name || "ไม่ระบุชื่อ Feature";
           groupDescription = JSON.stringify(entry.feature?.backlogDescription);
           // เพิ่มข้อมูล parent project
           parentProjectId = entry.projectId;
-          parentProjectName = entry.project?.name || 'ไม่ระบุชื่อโปรเจ็ค';
+          parentProjectName = entry.project?.name || "ไม่ระบุชื่อโปรเจ็ค";
         }
 
         if (!groups.has(groupKey)) {
@@ -120,10 +125,13 @@ export class TimesheetProjectSummaryService {
 
       for (const [groupKey, group] of groups) {
         // จัดกลุ่มตาม user
-        const userGroups = new Map<number, {
-          hours: number;
-          user_id: number;
-        }>();
+        const userGroups = new Map<
+          number,
+          {
+            hours: number;
+            user_id: number;
+          }
+        >();
 
         group.entries.forEach((entry: any) => {
           const userId = entry.createdBy || 0;
@@ -140,21 +148,31 @@ export class TimesheetProjectSummaryService {
         });
 
         // ดึงข้อมูล user
-        const userIds = Array.from(userGroups.keys()).filter(id => id > 0);
+        const userIds = Array.from(userGroups.keys()).filter((id) => id > 0);
         const users = await this.getUserDetails(userIds);
 
         // สร้าง user summaries
-        const userSummaries = Array.from(userGroups.values()).map(userGroup => {
-          const user = users.get(userGroup.user_id);
-          return {
-            user_id: userGroup.user_id,
-            user_name: user ? `${user.firstname || ''} ${user.lastname || ''}`.trim() || user.name || user.email || 'ไม่ระบุ' : 'ไม่ระบุ',
-            employee_code: user?.employee_code,
-            hours: userGroup.hours,
-          };
-        });
+        const userSummaries = Array.from(userGroups.values()).map(
+          (userGroup) => {
+            const user = users.get(userGroup.user_id);
+            return {
+              user_id: userGroup.user_id,
+              user_name: user
+                ? `${user.firstname || ""} ${user.lastname || ""}`.trim() ||
+                  user.name ||
+                  user.email ||
+                  "ไม่ระบุ"
+                : "ไม่ระบุ",
+              employee_code: user?.employee_code,
+              hours: userGroup.hours,
+            };
+          },
+        );
 
-        const totalHours = userSummaries.reduce((sum, user) => sum + user.hours, 0);
+        const totalHours = userSummaries.reduce(
+          (sum, user) => sum + user.hours,
+          0,
+        );
 
         projectSummaries.push({
           project_id: group.id,
@@ -168,7 +186,6 @@ export class TimesheetProjectSummaryService {
       }
 
       return projectSummaries.sort((a, b) => b.total_hours - a.total_hours); // เรียงตามชั่วโมงรวมมากไปน้อย
-
     } catch (error: any) {
       logger.error("Error getting project summary:", error);
       throw new Error(`ไม่สามารถดึงข้อมูลสรุปโปรเจ็คได้: ${error.message}`);
@@ -178,26 +195,31 @@ export class TimesheetProjectSummaryService {
   /**
    * ดึงข้อมูลผู้ใช้จาก main database
    */
-  private static async getUserDetails(userIds: number[]): Promise<Map<number, any>> {
+  private static async getUserDetails(
+    userIds: number[],
+  ): Promise<Map<number, any>> {
     if (userIds.length === 0) return new Map();
 
     try {
       // เรียกใช้ API เพื่อดึงข้อมูล user
-      const response = await fetch(`${process.env.BASE_URL || 'http://localhost:3000'}/api/v1/admin/user/read`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${process.env.BASE_URL || "http://localhost:3000"}/api/v1/admin/user/read`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            limit: 1000,
+            page: 1,
+          }),
         },
-        body: JSON.stringify({
-          limit: 1000,
-          page: 1,
-        }),
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
         const users = new Map<number, any>();
-        
+
         if (data.data && Array.isArray(data.data)) {
           data.data.forEach((user: any) => {
             if (userIds.includes(user.admin_id || user.id)) {
@@ -205,7 +227,7 @@ export class TimesheetProjectSummaryService {
             }
           });
         }
-        
+
         return users;
       } else {
         logger.warn("Failed to fetch user details, using mock data");
@@ -216,14 +238,14 @@ export class TimesheetProjectSummaryService {
 
     // Fallback: ใช้ข้อมูลจำลอง
     const users = new Map<number, any>();
-    userIds.forEach(id => {
+    userIds.forEach((id) => {
       users.set(id, {
         id,
         firstname: `User`,
         lastname: `${id}`,
         name: `User ${id}`,
         email: `user${id}@example.com`,
-        employee_code: `EMP${id.toString().padStart(3, '0')}`,
+        employee_code: `EMP${id.toString().padStart(3, "0")}`,
       });
     });
 
@@ -233,37 +255,40 @@ export class TimesheetProjectSummaryService {
   /**
    * สร้างไฟล์ Excel สำหรับรายงานสรุปโปรเจ็ค
    */
-  static async generateProjectSummaryExcel(params: ProjectSummaryParams): Promise<Buffer> {
+  static async generateProjectSummaryExcel(
+    params: ProjectSummaryParams,
+  ): Promise<Buffer> {
     try {
       const projectSummaries = await this.getProjectSummary(params);
 
       // สร้าง workbook
       const workbook = XLSX.utils.book_new();
 
-      // สร้างแผ่นงานสรุปรวม  
-      const currentDate = new Date().toLocaleDateString('th-TH');
-      const reportTypeLabel = params.export_type === "project" ? "โปรเจ็ค" : "Sub Project (Feature)";
-      
+      // สร้างแผ่นงานสรุปรวม
+      const currentDate = new Date().toLocaleDateString("th-TH");
+      const reportTypeLabel =
+        params.export_type === "project" ? "โปรเจ็ค" : "Sub Project (Feature)";
+
       let headerRow: string[];
       if (params.export_type === "sub_project") {
         // สำหรับ sub project เพิ่ม column โปรเจ็คหลัก
         headerRow = [
-          "โปรเจ็คหลัก", 
-          "รหัสโปรเจ็คหลัก", 
-          reportTypeLabel, 
-          `รหัส${reportTypeLabel}`, 
-          "จำนวนชั่วโมงรวม", 
-          "จำนวนผู้ใช้", 
-          "เปอร์เซ็นต์ของรวม"
+          "โปรเจ็คหลัก",
+          "รหัสโปรเจ็คหลัก",
+          reportTypeLabel,
+          `รหัส${reportTypeLabel}`,
+          "จำนวนชั่วโมงรวม",
+          "จำนวนผู้ใช้",
+          "เปอร์เซ็นต์ของรวม",
         ];
       } else {
         // สำหรับ project ใช้ header เดิม
         headerRow = [
-          reportTypeLabel, 
-          `รหัส${reportTypeLabel}`, 
-          "จำนวนชั่วโมงรวม", 
-          "จำนวนผู้ใช้", 
-          "เปอร์เซ็นต์ของรวม"
+          reportTypeLabel,
+          `รหัส${reportTypeLabel}`,
+          "จำนวนชั่วโมงรวม",
+          "จำนวนผู้ใช้",
+          "เปอร์เซ็นต์ของรวม",
         ];
       }
 
@@ -276,19 +301,23 @@ export class TimesheetProjectSummaryService {
       ];
 
       // คำนวณชั่วโมงรวมก่อน
-      const totalHours = projectSummaries.reduce((sum: number, p: ProjectSummaryData) => sum + p.total_hours, 0);
+      const totalHours = projectSummaries.reduce(
+        (sum: number, p: ProjectSummaryData) => sum + p.total_hours,
+        0,
+      );
 
       projectSummaries.forEach((project: ProjectSummaryData) => {
-        const percentage = totalHours > 0 
-          ? ((project.total_hours / totalHours) * 100).toFixed(2)
-          : "0.00";
+        const percentage =
+          totalHours > 0
+            ? ((project.total_hours / totalHours) * 100).toFixed(2)
+            : "0.00";
 
         let dataRow: (string | number)[];
         if (params.export_type === "sub_project") {
           // สำหรับ sub project เพิ่มข้อมูลโปรเจ็คหลัก
           dataRow = [
-            project.parent_project_name || 'ไม่ระบุ',
-            project.parent_project_id?.toString() || 'ไม่ระบุ',
+            project.parent_project_name || "ไม่ระบุ",
+            project.parent_project_id?.toString() || "ไม่ระบุ",
             project.project_name,
             project.project_id.toString(),
             project.total_hours.toFixed(2),
@@ -305,49 +334,68 @@ export class TimesheetProjectSummaryService {
             `${percentage}%`,
           ];
         }
-          
+
         summaryData.push(dataRow as string[]);
       });
 
       // เพิ่มบรรทัดรวม
       const totalUsers = new Set(
-        projectSummaries.flatMap((p: ProjectSummaryData) => p.user_summaries.map((u: any) => u.user_id))
+        projectSummaries.flatMap((p: ProjectSummaryData) =>
+          p.user_summaries.map((u: any) => u.user_id),
+        ),
       ).size;
 
       // เพิ่มบรรทัดรวม
       let totalRow: string[];
       if (params.export_type === "sub_project") {
-        totalRow = ["รวมทั้งหมด", "", "", "", totalHours.toFixed(2), totalUsers.toString(), "100.00%"];
+        totalRow = [
+          "รวมทั้งหมด",
+          "",
+          "",
+          "",
+          totalHours.toFixed(2),
+          totalUsers.toString(),
+          "100.00%",
+        ];
       } else {
-        totalRow = ["รวมทั้งหมด", "", totalHours.toFixed(2), totalUsers.toString(), "100.00%"];
+        totalRow = [
+          "รวมทั้งหมด",
+          "",
+          totalHours.toFixed(2),
+          totalUsers.toString(),
+          "100.00%",
+        ];
       }
 
       summaryData.push(
         [], // บรรทัดว่าง
-        totalRow
+        totalRow,
       );
 
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(workbook, summarySheet, "สรุปรวม");
 
-      // สร้างแผ่นงานรายละเอียดแต่ละ Project/Sub Project  
+      // สร้างแผ่นงานรายละเอียดแต่ละ Project/Sub Project
       projectSummaries.forEach((project, index) => {
         const detailData = [
-          [`${reportTypeLabel}: ${project.project_name} (รหัส: ${project.project_id})`],
-          [`รายละเอียด: ${project.project_description || 'ไม่มีรายละเอียด'}`],
+          [
+            `${reportTypeLabel}: ${project.project_name} (รหัส: ${project.project_id})`,
+          ],
+          [`รายละเอียด: ${project.project_description || "ไม่มีรายละเอียด"}`],
           [`จำนวนชั่วโมงรวม: ${project.total_hours.toFixed(2)} ชั่วโมง`],
           [], // บรรทัดว่าง
           ["ผู้ใช้", "รหัสพนักงาน", "จำนวนชั่วโมง", "เปอร์เซ็นต์"],
         ];
 
         project.user_summaries.forEach((user: any) => {
-          const percentage = project.total_hours > 0 
-            ? ((user.hours / project.total_hours) * 100).toFixed(2)
-            : "0.00";
+          const percentage =
+            project.total_hours > 0
+              ? ((user.hours / project.total_hours) * 100).toFixed(2)
+              : "0.00";
 
           detailData.push([
             user.user_name,
-            user.employee_code || 'ไม่ระบุ',
+            user.employee_code || "ไม่ระบุ",
             user.hours.toFixed(2),
             `${percentage}%`,
           ]);
@@ -361,7 +409,6 @@ export class TimesheetProjectSummaryService {
       // สร้าง buffer
       const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
       return buffer;
-
     } catch (error: any) {
       logger.error("Error generating Excel:", error);
       throw new Error(`ไม่สามารถสร้างไฟล์ Excel ได้: ${error.message}`);

@@ -28,6 +28,7 @@ interface ApiErrorResponse {
   message: string;
   raw: any;
   debug: ErrorDebugInfo;
+  _curl?: string;
 }
 
 // Constants
@@ -56,7 +57,8 @@ function extractForwardHeaders(requestHeaders: Headers): RequestHeaders {
     const lowerCaseKey = headerKey.toLowerCase();
     const isAllowedHeader = ALLOWED_HEADERS.some(
       (allowedHeader) =>
-        lowerCaseKey.startsWith(allowedHeader) || lowerCaseKey === allowedHeader
+        lowerCaseKey.startsWith(allowedHeader) ||
+        lowerCaseKey === allowedHeader,
     );
 
     if (isAllowedHeader) {
@@ -73,7 +75,7 @@ function extractForwardHeaders(requestHeaders: Headers): RequestHeaders {
 //** การทำงาน: จัดการการส่งข้อมูล multipart/form-data ไปยัง external API */
 async function handleMultipartFormData(
   request: NextRequest,
-  targetUrl: string
+  targetUrl: string,
 ): Promise<AxiosResponse> {
   const requestClone = request.clone();
   const requestBody = await requestClone.arrayBuffer();
@@ -100,7 +102,7 @@ async function handleMultipartFormData(
 //** การทำงาน: จัดการการส่งข้อมูล JSON ไปยัง external API */
 async function handleJsonData(
   request: NextRequest,
-  targetUrl: string
+  targetUrl: string,
 ): Promise<AxiosResponse> {
   const jsonData = await request.json();
   const authHeaders = extractAuthHeaders(request.headers);
@@ -123,7 +125,7 @@ async function handleJsonData(
 async function handleTextData(
   request: NextRequest,
   targetUrl: string,
-  contentType: string
+  contentType: string,
 ): Promise<AxiosResponse> {
   const textData = await request.text();
   const authHeaders = extractAuthHeaders(request.headers);
@@ -148,7 +150,7 @@ function extractAuthHeaders(requestHeaders: Headers): RequestHeaders {
     Array.from(requestHeaders.entries()).filter(([headerKey]) => {
       const lowerKey = headerKey.toLowerCase();
       return lowerKey.startsWith("jabjai") || lowerKey === "authorization";
-    })
+    }),
   );
 }
 
@@ -156,7 +158,8 @@ function extractAuthHeaders(requestHeaders: Headers): RequestHeaders {
 function createAxiosErrorResponse(
   error: any,
   targetUrl: string,
-  contentType: string | null
+  contentType: string | null,
+  curlCommand?: string,
 ): NextResponse {
   if (error.response) {
     // มี response แต่ status code ผิดพลาด (4xx, 5xx)
@@ -174,6 +177,7 @@ function createAxiosErrorResponse(
         error: error.message,
         type: error.name || "AxiosError",
       },
+      _curl: curlCommand || error.response.data?._curl,
     };
 
     return NextResponse.json(errorResponse, { status: error.response.status });
@@ -192,6 +196,7 @@ function createAxiosErrorResponse(
         error: "Network error - no response received",
         type: "NetworkError",
       },
+      _curl: curlCommand,
     };
 
     return NextResponse.json(networkErrorResponse, { status: 503 });
@@ -207,6 +212,7 @@ function createAxiosErrorResponse(
       error: error.message,
       type: error.name || "RequestSetupError",
     },
+    _curl: curlCommand,
   };
 
   return NextResponse.json(setupErrorResponse, { status: 500 });
@@ -216,7 +222,8 @@ function createAxiosErrorResponse(
 function createGenericErrorResponse(
   error: Error,
   targetUrl: string,
-  contentType: string | null
+  contentType: string | null,
+  curlCommand?: string,
 ): NextResponse {
   const genericErrorResponse: ApiErrorResponse = {
     message: error.message || "Internal Server Error",
@@ -227,6 +234,7 @@ function createGenericErrorResponse(
       error: error.message,
       type: error.name || "Unknown Error",
     },
+    _curl: curlCommand,
   };
 
   return NextResponse.json(genericErrorResponse, { status: 500 });
@@ -235,7 +243,7 @@ function createGenericErrorResponse(
 //** การทำงาน: สร้าง success response */
 function createSuccessResponse(
   axiosResponse: AxiosResponse,
-  curlCommand: string
+  curlCommand: string,
 ): NextResponse {
   // ส่งคืนข้อมูลจาก external API โดยตรงแทนการ wrap
   const responseData = axiosResponse.data;
@@ -256,17 +264,22 @@ function createSuccessResponse(
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const targetApiUrl = API_URL.PROD_HARDWARE_API_URL;
   const fullTargetUrl = `${targetApiUrl}${API_ENDPOINT}`;
-  const curlCommand = convertToCurl(targetApiUrl, API_ENDPOINT);
 
   console.log("=== API Route Start ===");
   console.log("Target URL:", fullTargetUrl);
   console.log(
     "Request headers:",
-    Object.fromEntries(request.headers.entries())
+    Object.fromEntries(request.headers.entries()),
+  );
+
+  const contentType = request.headers.get("content-type") || "";
+  const curlCommand = convertToCurl(
+    targetApiUrl,
+    API_ENDPOINT,
+    `Content-Type: ${contentType}`,
   );
 
   try {
-    const contentType = request.headers.get("content-type") || "";
     let axiosResponse: AxiosResponse;
 
     //** เลือกวิธีการประมวลผลตามประเภทของข้อมูล */
@@ -304,14 +317,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return createAxiosErrorResponse(
         error as AxiosError,
         fullTargetUrl,
-        request.headers.get("content-type")
+        request.headers.get("content-type"),
+        curlCommand,
       );
     }
 
     return createGenericErrorResponse(
       error as Error,
       fullTargetUrl,
-      request.headers.get("content-type")
+      request.headers.get("content-type"),
+      curlCommand,
     );
   }
 }

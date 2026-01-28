@@ -84,8 +84,15 @@ const RANK_THEME_CONFIG: Record<string, any> = {
 };
 
 const generateAvatarUrl = (userProfile: any) => {
-  const seedString = `${userProfile?.firstname ?? "User"}_${
-    userProfile?.lastname ?? ""
+  // 1. ตรวจสอบว่ามีรูปภาพในฐานข้อมูลหรือไม่ (Real Image)
+  const realImage = userProfile?.profile_image_path || userProfile?.image;
+  if (realImage && realImage !== "null") {
+    return realImage;
+  }
+
+  // 2. กรณีไม่มีรูปภาพ ให้ Generate ผ่าน DiceBear ตามปกติ
+  const seedString = `${userProfile?.firstname_en || userProfile?.firstname || "User"}_${
+    userProfile?.lastname_en || userProfile?.lastname || ""
   }_${userProfile?.admin_id ?? "0"}`;
   return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(
     seedString,

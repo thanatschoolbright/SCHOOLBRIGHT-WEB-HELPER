@@ -24,16 +24,25 @@ export const buildFormData = (values: VersionFormValues): FormData => {
 };
 
 //** ตรวจสอบรหัสผ่านสำหรับเข้าถึงระบบ
-export const validatePassword = (password: string, correctPassword: string): boolean => {
+export const validatePassword = (
+  password: string,
+  correctPassword: string,
+): boolean => {
   return password === correctPassword;
 };
 
 //** แปลงข้อมูลโรงเรียนเป็น options สำหรับ Select component
-export const buildSchoolOptions = (schools: any[]): Array<{ label: string; value: string }> => {
-  const schoolOptions = schools?.map((item: any) => ({
+export const buildSchoolOptions = (
+  schools: any[],
+): Array<{ label: string; value: string }> => {
+  if (!Array.isArray(schools)) {
+    return [{ label: "ทุกโรงเรียน", value: "" }];
+  }
+
+  const schoolOptions = schools.map((item: any) => ({
     label: item.SchoolName,
     value: String(item.SchoolID),
-  })) ?? [];
+  }));
 
   return [{ label: "ทุกโรงเรียน", value: "" }, ...schoolOptions];
 };
