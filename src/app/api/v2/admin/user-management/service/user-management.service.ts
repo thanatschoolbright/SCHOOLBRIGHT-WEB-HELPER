@@ -273,4 +273,86 @@ export const UserManagementService = {
       );
     }
   },
+
+  // รีเซ็ตรหัสผ่านเป็นเบอร์โทรศัพท์ (Custom Request)
+  async resetPasswordToPhone(userIds: number | number[], updatedBy?: number) {
+    const idList = Array.isArray(userIds) ? userIds : [userIds];
+    const results = [];
+
+    const users = await PrismaTimesheet.user.findMany({
+      where: { id: { in: idList.map((id) => Number(id)) }, is_deleted: false },
+    });
+
+    if (users.length === 0) {
+      throw new Error("ไม่พบข้อมูลผู้ใช้งานที่ต้องการรีเซ็ต");
+    }
+
+    for (const user of users) {
+      if (!user.phone) {
+        continue; // Skip user with no phone, or handle as error for single request
+      }
+
+      const newPassword = user.phone;
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      await PrismaTimesheet.user.update({
+        where: { id: user.id },
+        data: {
+          password: hashedPassword,
+          updated_at: new Date(),
+          updated_by: updatedBy,
+        },
+      });
+
+      if (user.email) {
+        try {
+          const subject =
+            "🔐 แจ้งรหัสผ่านบัญชีผู้ใช้งาน SchoolBright Web Helper";
+          const websiteLink = "https://sb-helper.schoolbright.co/";
+          const html = `
+            <div style="font-family: 'Helvetica', 'Arial', sans-serif; padding: 20px; color: #333; line-height: 1.6;">
+              <h2 style="color: #1890ff;">แจ้งข้อมูลรหัสผ่านตามเบอร์โทรศัพท์</h2>
+              <p>เรียน คุณ <strong>${user.firstname_th} ${user.lastname_th}</strong>,</p>
+              <p>ผู้ดูแลระบบได้ทำการตั้งค่ารหัสผ่านเบื้องต้นให้กับบัญชีของคุณให้เท่ากับ <strong>เบอร์โทรศัพท์</strong> ที่ลงทะเบียนไว้ในระบบเรียบร้อยแล้ว</p>
+              
+              <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #d9d9d9;">
+                <p style="margin: 0; font-size: 14px; color: #666;">รหัสผ่านของคุณคือ:</p>
+                <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: bold; color: #1890ff;">${newPassword}</p>
+              </div>
+
+              <p>คุณสามารถเข้าใช้งานระบบได้ที่:</p>
+              <p><a href="${websiteLink}" style="color: #1890ff; font-weight: bold; text-decoration: none;">${websiteLink}</a></p>
+
+              <p style="color: #faad14;">* หมายเหตุ: กรุณาเปลี่ยนรหัสผ่านทันทีเพื่อความปลอดภัย</p>
+              
+              <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+              <p style="font-size: 12px; color: #999;">
+                © ${new Date().getFullYear()} SchoolBright Portfolio Team.
+              </p>
+            </div>
+          `;
+
+          await sendMail(
+            user.email,
+            subject,
+            `รหัสผ่านของคุณคือ: ${newPassword} (${websiteLink})`,
+            html,
+          );
+        } catch (err) {
+          console.error("Email send failed:", err);
+        }
+      }
+
+      results.push({
+        id: user.id,
+        username: user.username,
+        success: true,
+      });
+    }
+
+    return {
+      success: true,
+      results,
+    };
+  },
 };

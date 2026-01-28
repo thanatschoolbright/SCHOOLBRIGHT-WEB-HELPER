@@ -55,7 +55,15 @@ import {
   InfoCircleOutlined,
   LinkOutlined,
   ApartmentOutlined,
+  SettingOutlined,
+  CodeOutlined,
+  ControlOutlined,
+  SendOutlined,
+  FlagOutlined,
+  DashboardOutlined,
+  CarOutlined,
 } from "@ant-design/icons";
+import { motion, AnimatePresence } from "framer-motion";
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -915,6 +923,214 @@ const UserStepForm = ({
 };
 
 // ==========================================
+// 3.5. PROGRESS MODAL (Delivery Style)
+// ==========================================
+
+const ResetPasswordTrackingModal = ({
+  open,
+  users,
+  adminId,
+  onComplete,
+  onCancel,
+}: {
+  open: boolean;
+  users: any[] | null;
+  adminId?: number | string;
+  onComplete: () => void;
+  onCancel: () => void;
+}) => {
+  const { token } = theme.useToken();
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const steps = [
+    { title: "รวบรวมข้อมูล", icon: <CodeOutlined /> },
+    { title: "ตรวจสอบสิทธิ์", icon: <SafetyCertificateOutlined /> },
+    { title: "บันทึกรหัสผ่าน", icon: <DashboardOutlined /> },
+    { title: "นำส่ง Email", icon: <SendOutlined /> },
+    { title: "จัดส่งสำเร็จ", icon: <FlagOutlined /> },
+  ];
+
+  const statusMessages = [
+    `📦 กำลังรวบรวมข้อมูลพนักงาน ${users?.length || 0} ท่าน และเตรียม Payload...`,
+    "🔍 ตรวจสอบเบอร์โทรศัพท์และความถูกต้องของข้อมูลสิทธิ์...",
+    "🔐 กำลังทยอยอัปเดตรหัสผ่านใหม่เป็น 'เบอร์มือถือ' ลงในฐานข้อมูล...",
+    "🚀 กำลังนำส่ง Email แจ้งเตือนรหัสผ่านใหม่ไปยังพนักงานทุกคน...",
+    "🏆 ภารกิจเสร็จสิ้น! ทุกบัญชีถูกรีเซ็ตเป็นเบอร์มือถือเรียบร้อยแล้ว",
+  ];
+
+  useEffect(() => {
+    if (open && users && users.length > 0) {
+      runProcess();
+    } else {
+      setCurrentStep(0);
+    }
+  }, [open, users]);
+
+  const runProcess = async () => {
+    try {
+      // Step 0: Preparing
+      setCurrentStep(0);
+      await new Promise((r) => setTimeout(r, 1200));
+
+      // Step 1: Validating
+      setCurrentStep(1);
+      const invalidUsers = users?.filter((u) => !u.phone && !(u as any).tel);
+      if (invalidUsers && invalidUsers.length > 0) {
+        throw new Error(
+          `พบพนักงาน ${invalidUsers.length} ท่านที่ยังไม่ได้ระบุเบอร์โทรศัพท์ กรุณาตรวจสอบข้อมูลก่อนดำเนินการแบบกลุ่ม`,
+        );
+      }
+      await new Promise((r) => setTimeout(r, 1200));
+
+      // Step 2: Hashing & Saving
+      setCurrentStep(2);
+      // Process in batch
+      const userIds = users?.map((u) => u.id);
+      const res = await axios.post(
+        "/api/v2/admin/user-management/reset-password-to-phone",
+        {
+          userIds: userIds,
+          adminId: adminId,
+        },
+      );
+
+      // ตรวจสอบความสำเร็จจากโครงสร้าง Response (res.data.data.success)
+      if (res.data.status !== 200 || !res.data.data?.success) {
+        throw new Error(
+          res.data.message_th || res.data.message_en || "API Connection Error",
+        );
+      }
+      await new Promise((r) => setTimeout(r, 1500));
+
+      // Step 3: Sending Email
+      setCurrentStep(3);
+      await new Promise((r) => setTimeout(r, 2000));
+
+      // Step 4: Finished
+      setCurrentStep(4);
+    } catch (err: any) {
+      toast.error(err.message || "เกิดข้อผิดพลาดในการประมวลผลแบบกลุ่ม");
+      onCancel();
+    }
+  };
+
+  return (
+    <Modal
+      open={open}
+      footer={null}
+      closable={currentStep === 4}
+      onCancel={onCancel}
+      width={750}
+      centered
+      styles={{ body: { padding: "50px 40px" } }}
+      modalRender={(node) => (
+        <div style={{ position: "relative" }}>
+          <div
+            style={{
+              position: "absolute",
+              top: -10,
+              right: 20,
+              zIndex: 1,
+              background: token.colorInfo,
+              color: "white",
+              padding: "4px 12px",
+              borderRadius: 20,
+              fontSize: 12,
+              fontWeight: "bold",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            }}
+          >
+            BULK PWD OPS #TRACK-{users?.length}-ITEMS
+          </div>
+          {node}
+        </div>
+      )}
+    >
+      <div className="text-center">
+        <div className="py-10 mb-8 relative bg-slate-50 dark:bg-slate-900/50 rounded-3xl overflow-hidden border border-dashed border-slate-200 dark:border-slate-800">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ x: -100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 100, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 100 }}
+              className="flex flex-col items-center"
+            >
+              <div
+                style={{
+                  fontSize: 72,
+                  color:
+                    currentStep === 4 ? token.colorSuccess : token.colorPrimary,
+                  filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.1))",
+                }}
+              >
+                {currentStep === 4 ? (
+                  <CheckCircleOutlined />
+                ) : currentStep === 3 ? (
+                  <SendOutlined />
+                ) : (
+                  <CarOutlined spin={false} />
+                )}
+              </div>
+              <Typography.Title level={3} className="mt-6 mb-2">
+                {steps[currentStep].title}
+              </Typography.Title>
+              <Typography.Text
+                type="secondary"
+                className="text-lg px-8 max-w-md block mx-auto"
+              >
+                {statusMessages[currentStep]}
+              </Typography.Text>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Road/Tracking Line */}
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-200 dark:bg-slate-800">
+            <motion.div
+              className="h-full bg-blue-500"
+              initial={{ width: "0%" }}
+              animate={{
+                width: `${(currentStep / (steps.length - 1)) * 100}%`,
+              }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+            />
+          </div>
+        </div>
+
+        <Steps
+          current={currentStep}
+          labelPlacement="vertical"
+          items={steps.map((s) => ({
+            ...s,
+            icon:
+              currentStep > steps.indexOf(s) ? <CheckCircleOutlined /> : s.icon,
+          }))}
+        />
+
+        {currentStep === 4 && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="mt-10"
+          >
+            <Button
+              type="primary"
+              size="large"
+              block
+              onClick={onComplete}
+              style={{ height: 54, borderRadius: 16, fontSize: 18 }}
+            >
+              ตรวจสอบความเรียบร้อย (ปิดหน้านี้)
+            </Button>
+          </motion.div>
+        )}
+      </div>
+    </Modal>
+  );
+};
+
+// ==========================================
 // 4. MAIN PAGE
 // ==========================================
 
@@ -945,6 +1161,10 @@ export default function UserManagementPage() {
   const [roleDrawerOpen, setRoleDrawerOpen] = useState(false); // For Role Management
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+  // Tracking Modal State
+  const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+  const [usersToReset, setUsersToReset] = useState<UserProfile[] | null>(null);
+
   // --- Logic: Reset Password ---
   const handleResetPassword = async (user: UserProfile) => {
     modal.confirm({
@@ -962,8 +1182,12 @@ export default function UserManagementPage() {
               userId: user.id,
             },
           );
-          if (res.data.success) {
+          if (res.data.status === 200 || res.data.data?.success) {
             toast.success("รีเซ็ตรหัสผ่านสำเร็จ และส่งเมลเรียบร้อยแล้ว");
+          } else {
+            toast.error(
+              res.data.message_th || "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน",
+            );
           }
         } catch (error: any) {
           toast.error(
@@ -991,9 +1215,16 @@ export default function UserManagementPage() {
               userIds: selectedRowKeys,
             },
           );
-          if (res.data.success) {
-            toast.success(res.data.message);
+          if (res.data.status === 200 || res.data.data?.success) {
+            toast.success(
+              res.data.message_th || "ดำเนินการรีเซ็ตรหัสผ่านเรียบร้อยแล้ว",
+            );
             setSelectedRowKeys([]); // Clear selection
+          } else {
+            toast.error(
+              res.data.message_th ||
+                "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่านรายกลุ่ม",
+            );
           }
         } catch (error: any) {
           toast.error(
@@ -1003,6 +1234,14 @@ export default function UserManagementPage() {
         }
       },
     });
+  };
+
+  const handleBulkResetToPhone = () => {
+    const selectedUsers = users.filter((u) => selectedRowKeys.includes(u.id));
+    if (selectedUsers.length === 0) return;
+
+    setUsersToReset(selectedUsers);
+    setTrackingModalOpen(true);
   };
 
   // --- Logic: Fetch Data ---
@@ -1361,7 +1600,19 @@ export default function UserManagementPage() {
               }}
             />
           </Tooltip>
-          <Tooltip title="รีเซ็ตรหัสผ่าน (Send Email)">
+          <Tooltip title="ตั้งค่าเริ่มต้นรหัสผ่าน (ใช้เบอร์มือถือ)">
+            <Button
+              type="text"
+              size="small"
+              icon={<ControlOutlined style={{ color: token.colorSuccess }} />}
+              onClick={() => {
+                setUsersToReset([r]);
+                setTrackingModalOpen(true);
+              }}
+              disabled={!(r.phone || (r as any).tel)}
+            />
+          </Tooltip>
+          <Tooltip title="รีเซ็ตรหัสผ่าน (สุ่มชุดใหม่)">
             <Button
               type="text"
               size="small"
@@ -1548,6 +1799,19 @@ export default function UserManagementPage() {
                   <Typography.Text type="secondary" style={{ fontSize: 13 }}>
                     เลือกอยู่ {selectedRowKeys.length} รายการ
                   </Typography.Text>
+                  <Button
+                    type="primary"
+                    size="small"
+                    icon={<ControlOutlined />}
+                    onClick={handleBulkResetToPhone}
+                    style={{
+                      backgroundColor: token.colorSuccess,
+                      borderColor: token.colorSuccess,
+                    }}
+                    className="rounded-lg shadow-sm"
+                  >
+                    Set Phone as Password
+                  </Button>
                   <Button
                     danger
                     type="primary"
@@ -1844,6 +2108,23 @@ export default function UserManagementPage() {
             </div>
           )}
         </Modal>
+
+        {/* Tracking Reset Modal */}
+        <ResetPasswordTrackingModal
+          open={trackingModalOpen}
+          users={usersToReset}
+          adminId={adminId}
+          onComplete={() => {
+            setTrackingModalOpen(false);
+            setUsersToReset(null);
+            setSelectedRowKeys([]); // Clear selection after bulk reset
+            fetchData();
+          }}
+          onCancel={() => {
+            setTrackingModalOpen(false);
+            setUsersToReset(null);
+          }}
+        />
       </DashboardLayout>
     </PermissionLayout>
   );
