@@ -2,6 +2,7 @@
 "use client"; // This ensures the file is treated as a Client Component
 
 import { StoreProvider } from "@stores/store-provider";
+import { SessionProvider } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { registerServiceWorker } from "@services/progressive-web-app";
 
@@ -11,8 +12,6 @@ export default function ClientProvider({
   children: React.ReactNode;
 }) {
   const [hydrated, setHydrated] = useState(false);
-  const [isDark, setIsDark] = useState(false);
-  const [initialized, setInitialized] = useState(false);
 
   // Register Service Worker for PWA
   useEffect(() => {
@@ -28,5 +27,9 @@ export default function ClientProvider({
     return null;
   }
 
-  return <StoreProvider>{children}</StoreProvider>;
+  return (
+    <SessionProvider>
+      <StoreProvider>{children}</StoreProvider>
+    </SessionProvider>
+  );
 }

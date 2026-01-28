@@ -29,9 +29,9 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
   const getUserRank = async (userId: string) => {
     try {
       console.log(`🔍 [SignIn] Fetching user rank for ID: ${userId}`);
-      
+
       const rankData = await fetchUserRank(userId);
-      
+
       if (rankData) {
         console.log(`🏆 [SignIn] User rank retrieved:`, rankData);
         return {
@@ -39,10 +39,10 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
           admin_id: rankData.admin_id,
           month: rankData.month,
           year: rankData.year,
-          rawData: rankData.rawData
+          rawData: rankData.rawData,
         };
       }
-      
+
       return null;
     } catch (error) {
       console.error("❌ [SignIn] Error fetching user rank:", error);
@@ -85,34 +85,24 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
     try {
       // ดึงข้อมูล rank ของ user
       const rankData = await getUserRank(userData?.user_id?.toString());
-      
+
       if (rankData) {
         toast.success("เข้าสู่ระบบสำเร็จ", {
           duration: 3000,
-          description: `🏆 อันดับของคุณ: ${rankData.rank} (เดือน ${rankData.month}/${rankData.year})`
+          description: `🏆 อันดับของคุณ: ${rankData.rank} (เดือน ${rankData.month}/${rankData.year})`,
         });
-        
-        // บันทึก rank ข้อมูลใน localStorage
-        const existingAuth = JSON.parse(localStorage.getItem("AUTH_USER") || "{}");
-        localStorage.setItem("AUTH_USER", JSON.stringify({
-          ...existingAuth,
-          user_rank: {
-            rank: rankData.rank,
-            admin_id: rankData.admin_id,
-            month: rankData.month,
-            year: rankData.year,
-            updated_at: new Date().toISOString(),
-            discipline_score: rankData.rawData // เก็บข้อมูลเต็มสำหรับวัดวินัย
-          }
-        }));
-        
-        console.log("✅ User rank saved for discipline and benefit tracking:", rankData);
+
+        // หมายเหตุ: ยกเลิกการบันทึกใน localStorage ตามนโยบายความปลอดภัย
+        console.log(
+          "✅ User rank retrieved (Not saved to localStorage):",
+          rankData,
+        );
       } else {
         toast.success("เข้าสู่ระบบสำเร็จ", {
           duration: 3000,
         });
       }
-      
+
       setTimeout(() => {
         router.replace("/main");
       }, 500);
@@ -130,13 +120,8 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
       formData.append("password", password);
       const response = await dispatch(CallAPI(formData)).unwrap();
       if (response?.token !== undefined) {
-        localStorage.setItem(
-          "AUTH_USER",
-          JSON.stringify({
-            token: response.token,
-            user_data: response.user_data,
-          })
-        );
+        // หมายเหตุ: ยกเลิกการใช้ localStorage สำหรับข้อมูล Auth เพื่อความปลอดภัย
+        // ระบบใหม่ควรพึ่งพา NextAuth Session เป็นหลัก
         return await loginSuccess(response.user_data);
       } else {
         return loginFailure("โปรดตรวจสอบรหัสผ่านอีกครั้ง");

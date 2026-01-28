@@ -4,7 +4,7 @@ import { App as AntdApp } from "antd";
 import ClientProvider from "@components/providers/client-providers";
 import LocaleProvider from "@components/providers/i18n-provider";
 import SchoolReduxProvider from "@components/providers/school-list-provider";
-import AuthenticationReduxProvider from "@components/providers/auth-provider";
+import AuthenticationProvider from "@components/providers/auth-provider";
 import AntThemeProvider from "@components/layouts/ant-layout";
 import { StorageProvider } from "@components/providers/storage-provider";
 import ChartProvider from "@/components/providers/chartjs-provider";
@@ -90,13 +90,13 @@ export default function RootLayout({
                     */}
               <ForceLogoutProvider>
                 <LocaleProvider locale="th">
-                  <AuthenticationReduxProvider>
+                  <AuthenticationProvider>
                     <SchoolReduxProvider>
                       <StorageProvider>
                         <ChartProvider>{children}</ChartProvider>
                       </StorageProvider>
                     </SchoolReduxProvider>
-                  </AuthenticationReduxProvider>
+                  </AuthenticationProvider>
                 </LocaleProvider>
               </ForceLogoutProvider>
             </ClientProvider>

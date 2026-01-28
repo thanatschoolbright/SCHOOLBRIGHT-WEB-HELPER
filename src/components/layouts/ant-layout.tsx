@@ -9,46 +9,39 @@ import "dayjs/locale/th";
 
 dayjs.locale("th");
 
-// --- Modern & Balanced Color Palette (Orange Primary) ---
+// --- Modern Flat Color Palette (No Shadows) ---
 const BRAND_TOKENS = {
-  primary: "#F97316", // Vibrant Orange (Tailwind Orange-500)
-  primaryHover: "#FB923C", // Lighter for hover
-  primaryActive: "#EA580C", // Darker for active
-  primaryShadow: "rgba(249, 115, 22, 0.25)",
-  success: "#10B981", // Emerald-500
-  warning: "#F59E0B", // Amber-500
-  error: "#EF4444", // Red-500
-  info: "#3B82F6", // Blue-500
+  primary: "#F97316",
+  primaryHover: "#FB923C",
+  primaryActive: "#EA580C",
+  success: "#10B981",
+  warning: "#F59E0B",
+  error: "#EF4444",
+  info: "#3B82F6",
 };
 
 const SYSTEM_COLORS = {
   light: {
-    bgBase: "#FFFFFF", // Clean White
-    bgLayout: "#F8FAFC", // Slate-50 (Very subtle grey for background)
+    bgBase: "#FFFFFF",
+    bgLayout: "#F1F5F9", // Slate-100 เพื่อให้ตัดกับ Container ที่เป็นสีขาวชัดเจนโดยไม่ต้องใช้เงา
     bgContainer: "#FFFFFF",
     bgElevated: "#FFFFFF",
-    textMain: "#0F172A", // Slate-900 (High contrast)
-    textSub: "#64748B", // Slate-500 (Readable secondary)
+    textMain: "#0F172A",
+    textSub: "#64748B",
     textPlaceholder: "#94A3B8",
-    border: "#E2E8F0", // Slate-200
-    shadowSm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-    shadowMd:
-      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-    shadowLg:
-      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+    border: "#E2E8F0", // Slate-200 (เส้นขอบชัดเจนเพื่อแบ่งสัดส่วน)
+    borderStrong: "#CBD5E1", // Slate-300 สำหรับสถานะ Hover
   },
   dark: {
-    bgBase: "#0B0F19", // Deep Blue-Black
-    bgLayout: "#111827", // Gray-900
-    bgContainer: "#1F2937", // Gray-800
+    bgBase: "#0B0F19",
+    bgLayout: "#020617",
+    bgContainer: "#111827",
     bgElevated: "#1F2937",
-    textMain: "#F1F5F9", // Slate-100
-    textSub: "#94A3B8", // Slate-400
+    textMain: "#F1F5F9",
+    textSub: "#94A3B8",
     textPlaceholder: "#475569",
-    border: "#374151", // Gray-700
-    shadowSm: "0 1px 2px 0 rgba(0, 0, 0, 0.3)",
-    shadowMd: "0 4px 6px -1px rgba(0, 0, 0, 0.4)",
-    shadowLg: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
+    border: "#334155", // Slate-700
+    borderStrong: "#475569", // Slate-600
   },
 };
 
@@ -74,7 +67,6 @@ const createThemeConfig = (isDark: boolean): ThemeConfig => {
   return {
     algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
     token: {
-      // --- Colors ---
       colorPrimary: BRAND_TOKENS.primary,
       colorInfo: BRAND_TOKENS.info,
       colorSuccess: BRAND_TOKENS.success,
@@ -88,137 +80,64 @@ const createThemeConfig = (isDark: boolean): ThemeConfig => {
 
       colorTextBase: colors.textMain,
       colorTextSecondary: colors.textSub,
-      colorTextPlaceholder: colors.textPlaceholder,
 
       colorBorder: colors.border,
-      colorBorderSecondary: isDark ? "#4B5563" : "#F1F5F9",
+      colorBorderSecondary: colors.border,
 
-      // --- Typography (Balanced & Modern) ---
-      fontFamily:
-        '"Kanit", -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, sans-serif',
+      fontFamily: '"Kanit", sans-serif',
       fontSize: 14,
-      lineHeight: 1.6,
-      lineHeightHeading1: 1.3,
-      lineHeightHeading2: 1.35,
-      lineHeightHeading3: 1.4,
-      lineHeightHeading4: 1.45,
-      lineHeightHeading5: 1.5,
-      fontSizeHeading1: 32,
-      fontSizeHeading2: 28,
-      fontSizeHeading3: 24,
-      fontSizeHeading4: 20,
-      fontSizeHeading5: 18,
+      borderRadius: 4, // ลดความโค้งลงเพื่อให้เข้ากับ Flat Design
+      borderRadiusLG: 8,
 
-      // --- Shape & Dimension (Sleek & Compact) ---
-      borderRadius: 8,
-      borderRadiusLG: 12,
-      borderRadiusSM: 4,
+      // --- ลบระบบ Shadow ออกจาก Token หลัก ---
+      boxShadow: "none",
+      boxShadowSecondary: "none",
+      boxShadowTertiary: "none",
+      boxShadowInner: "none",
 
-      // Balanced Heights (More spacious for readability)
       controlHeight: 40,
-      controlHeightLG: 48,
-      controlHeightSM: 32,
-
-      // Spacing (Better breathing room)
-      paddingContentHorizontal: 20,
-      marginXS: 8,
-      marginSM: 16,
-      margin: 20,
-
-      wireframe: false,
+      wireframe: true, // เปิด Wireframe เพื่อเน้นเส้นขอบแทนมิติเงา
     },
     components: {
       Button: {
-        controlHeight: 40,
-        borderRadius: 8,
+        boxShadow: "none",
+        boxShadowSecondary: "none",
+        controlOutline: "none", // ลบวงแหวนเงาเวลาคลิก
+        defaultShadow: "none",
+        primaryShadow: "none",
         fontWeight: 500,
-        contentFontSize: 14,
-        paddingInline: 18,
-        paddingBlock: 8,
-        lineHeight: 1.5,
-        primaryShadow: isDark ? "none" : BRAND_TOKENS.primaryShadow,
-        defaultShadow: isDark ? "none" : colors.shadowSm,
-        defaultBorderColor: colors.border,
       },
       Card: {
-        borderRadiusLG: 16,
-        paddingLG: 28,
-        paddingMD: 24,
-        paddingSM: 20,
-        headerFontSize: 16,
-        headerLineHeight: 1.5,
-        boxShadow: isDark ? "none" : colors.shadowSm,
+        boxShadow: "none",
+        boxShadowTertiary: "none",
+        colorBorderSecondary: colors.border,
       },
       Table: {
-        borderRadiusLG: 10,
-        headerBg: isDark ? "#1F2937" : "#F8FAFC",
-        headerColor: isDark ? colors.textMain : colors.textSub,
-        headerSplitColor: "transparent",
-        cellPaddingBlock: 14,
-        cellPaddingInline: 16,
-        rowHoverBg: isDark ? "rgba(249, 115, 22, 0.08)" : "#FFF7ED",
-        fontSize: 14,
-        lineHeight: 1.6,
+        headerBg: isDark ? "#111827" : "#F8FAFC",
+        headerSplitColor: colors.border,
+        borderColor: colors.border,
       },
       Input: {
-        controlHeight: 40,
-        borderRadius: 8,
-        paddingBlock: 10,
-        paddingInline: 12,
-        colorBgContainer: isDark ? "#111827" : "#FFFFFF",
-        activeBorderColor: BRAND_TOKENS.primary,
-        hoverBorderColor: BRAND_TOKENS.primaryHover,
-        fontSize: 14,
-        lineHeight: 1.5,
+        boxShadow: "none",
+        colorBgContainer: isDark ? "#020617" : "#FFFFFF",
       },
       Select: {
-        controlHeight: 40,
-        borderRadius: 8,
-        paddingBlock: 10,
-        paddingInline: 12,
-        optionSelectedBg: isDark ? "rgba(249, 115, 22, 0.15)" : "#FFF7ED",
-        optionLineHeight: 1.6,
-        fontSize: 14,
-        lineHeight: 1.5,
+        boxShadow: "none",
+        controlOutline: "none",
       },
       Modal: {
-        borderRadiusLG: 16,
+        boxShadow: "none",
+        boxShadowTertiary: "none",
         headerBg: colors.bgElevated,
-        contentBg: colors.bgElevated,
-        titleFontSize: 18,
       },
       Menu: {
-        itemHeight: 44,
-        itemBorderRadius: 8,
-        itemMarginInline: 8,
-        itemPaddingBlock: 10,
-        itemPaddingInline: 12,
         itemSelectedBg: isDark ? "rgba(249, 115, 22, 0.15)" : "#FFF7ED",
-        itemSelectedColor: BRAND_TOKENS.primary,
-        subMenuItemBg: "transparent",
         activeBarBorderWidth: 0,
-        fontSize: 14,
-        lineHeight: 1.5,
-      },
-      Tabs: {
-        itemSelectedColor: BRAND_TOKENS.primary,
-        itemHoverColor: BRAND_TOKENS.primaryHover,
-        inkBarColor: BRAND_TOKENS.primary,
-        titleFontSize: 14,
-      },
-      Tag: {
-        borderRadiusSM: 4,
-        fontSize: 12,
       },
       Layout: {
         bodyBg: colors.bgLayout,
         headerBg: colors.bgContainer,
         siderBg: colors.bgContainer,
-      },
-      Typography: {
-        colorText: colors.textMain,
-        colorTextDescription: colors.textSub,
-        colorTextHeading: colors.textMain,
       },
     },
   };
@@ -241,66 +160,61 @@ export default function AntThemeProvider({
       input={{ autoComplete: "off" }}
     >
       <style jsx global>{`
-        /* Global Reset & Body */
+        /* Global Zero-Shadow Reset */
+        * {
+          box-shadow: none !important;
+          text-shadow: none !important;
+        }
+
         body {
           background-color: ${currentColors.bgLayout} !important;
           color: ${currentColors.textMain};
-          font-family:
-            "Kanit",
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            "Inter",
-            sans-serif;
-          font-size: 14px;
-          line-height: 1.6;
-          letter-spacing: 0.3px;
+          font-family: "Kanit", sans-serif;
           -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-          transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          letter-spacing: 0.2px;
-          line-height: 1.3;
-          margin-bottom: 0.5em;
+        /* Border-Based Dimension */
+        .ant-card {
+          border: 1px solid ${currentColors.border} !important;
         }
 
-        /* Modern Scrollbar */
+        .ant-layout-header {
+          border-bottom: 1px solid ${currentColors.border} !important;
+          background: ${currentColors.bgContainer} !important;
+        }
+
+        .ant-layout-sider {
+          border-right: 1px solid ${currentColors.border} !important;
+        }
+
+        /* Modern Scrollbar (No Shadows) */
         ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
+          width: 6px;
         }
         ::-webkit-scrollbar-track {
-          background: transparent;
+          background: ${currentColors.bgLayout};
         }
         ::-webkit-scrollbar-thumb {
-          background-color: ${isDark ? "#4B5563" : "#CBD5E1"};
-          border-radius: 99px;
-          border: 2px solid transparent;
-          background-clip: content-box;
+          background-color: ${isDark ? "#334155" : "#CBD5E1"};
+          border-radius: 0;
         }
         ::-webkit-scrollbar-thumb:hover {
           background-color: ${BRAND_TOKENS.primary};
         }
 
-        /* Glassmorphism Utilities */
-        .glass {
-          background: ${isDark
-            ? "rgba(31, 41, 55, 0.7)"
-            : "rgba(255, 255, 255, 0.7)"};
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid
-            ${isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.5)"};
+        /* Focus & Hover States using Border instead of Shadow */
+        .ant-input:focus,
+        .ant-input-focused,
+        .ant-select-focused .ant-select-selector {
+          border-color: ${BRAND_TOKENS.primary} !important;
+          outline: none !important;
         }
 
-        /* Gradient Text */
+        .ant-btn:hover {
+          border-color: ${BRAND_TOKENS.primaryHover} !important;
+        }
+
+        /* Typography */
         .text-gradient {
           background: linear-gradient(
             135deg,
@@ -311,57 +225,26 @@ export default function AntThemeProvider({
           -webkit-text-fill-color: transparent;
         }
 
-        /* Smooth Transitions */
+        /* Transition */
         a,
         button,
         input {
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          transition:
+            border-color 0.2s,
+            background-color 0.2s,
+            color 0.2s;
         }
 
         /* Selection */
         ::selection {
-          background: ${BRAND_TOKENS.primaryShadow};
-          color: ${BRAND_TOKENS.primaryActive};
+          background: ${BRAND_TOKENS.primary};
+          color: #ffffff;
         }
 
-        /* Card Hover Effect */
-        .hover-card {
-          transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-        }
+        /* Card Flat Hover */
         .hover-card:hover {
-          transform: translateY(-2px);
-          box-shadow: ${currentColors.shadowLg};
-        }
-
-        /* Ant Design Overrides */
-        .ant-btn-primary {
-          box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3) !important;
-        }
-        .ant-btn-primary:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 8px -1px rgba(249, 115, 22, 0.4) !important;
-        }
-        .ant-menu-item-selected {
-          font-weight: 500;
-        }
-
-        /* Layout Fixes */
-        .ant-layout {
-          background: ${currentColors.bgLayout} !important;
-        }
-        .ant-layout-header {
-          height: 64px;
-          padding-inline: 24px;
-          line-height: 64px;
-          background: ${currentColors.bgContainer} !important;
-          border-bottom: 1px solid ${currentColors.border};
-        }
-
-        .ant-layout-sider {
-          background: ${currentColors.bgContainer} !important;
-          border-right: 1px solid ${currentColors.border};
+          border-color: ${BRAND_TOKENS.primary} !important;
+          background-color: ${isDark ? "#1F2937" : "#F8FAFC"} !important;
         }
       `}</style>
       {children}

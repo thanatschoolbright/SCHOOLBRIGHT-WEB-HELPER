@@ -1,6 +1,6 @@
-import { useAppSelector } from "@stores/store";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   Modal,
   Input,
@@ -26,8 +26,8 @@ interface Props {
 
 export default function PermissionLayout({ role, children }: Props) {
   const router = useRouter();
-  const AUTHENTICATION = useAppSelector((state) => state.callAdminLogin);
-  const AUTH_USER = AUTHENTICATION?.response?.data?.user_data;
+  const { data: session, status } = useSession();
+  const AUTH_USER = session?.user as any;
 
   const [isBypassed, setIsBypassed] = useState(false);
   const [secretCode, setSecretCode] = useState("");
@@ -35,17 +35,18 @@ export default function PermissionLayout({ role, children }: Props) {
 
   // คำนวณสิทธิ์
   const hasPermission =
-    role.includes("ALL") || (AUTH_USER && role.includes(AUTH_USER?.position));
+    role.includes("ALL") ||
+    (AUTH_USER && role.includes(AUTH_USER?.role_name || AUTH_USER?.position));
 
   useEffect(() => {
     // ✅ เช็คว่าโหลดเสร็จแล้วเท่านั้น
-    if (AUTHENTICATION?.loading) return;
+    if (status === "loading") return;
 
     // ✅ ถ้าไม่มี user เลย (ยังไม่ได้ login) → redirect
-    if (!AUTH_USER) {
-      router.replace("/login");
+    if (status === "unauthenticated") {
+      router.replace("/auth/v2/signin");
     }
-  }, [AUTHENTICATION?.loading, AUTH_USER, router]);
+  }, [status, router]);
 
   const handleVerify = () => {
     setLoading(true);

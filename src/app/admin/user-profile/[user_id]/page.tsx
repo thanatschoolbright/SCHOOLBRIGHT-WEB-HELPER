@@ -19,6 +19,7 @@ import {
   Alert,
   Modal,
   theme,
+  DatePicker,
 } from "antd";
 import {
   UserOutlined,
@@ -32,11 +33,23 @@ import {
   TeamOutlined,
   SolutionOutlined,
   HistoryOutlined,
+  ApartmentOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  LinkOutlined,
 } from "@ant-design/icons";
 import { useRouter, useParams } from "next/navigation";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { toast } from "sonner";
 import dayjs from "dayjs";
+import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
+import { Upload, message } from "antd";
+import type { UploadProps } from "antd";
+import {
+  LoadingOutlined,
+  CameraOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 
 import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
@@ -55,6 +68,12 @@ const UserEditPage = () => {
   const [userData, setUserData] = useState<any>(null);
   const [roles, setRoles] = useState<any[]>([]);
   const [positions, setPositions] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  // Watch fields for upload
+  const employeeCode = Form.useWatch("employee_code", form);
+  const currentImage = Form.useWatch("profile_image_path", form);
 
   // Debug Helper: Show Modal for Errors
   const showErrorModal = (error: any, context: string) => {
@@ -64,9 +83,21 @@ const UserEditPage = () => {
       errorData?.message_en ||
       error?.message ||
       "Internal Server Error";
-    const errorDetail = errorData?.error
-      ? JSON.stringify(errorData.error, null, 2)
-      : error?.stack;
+
+    // Extract detailed error information (validation errors or stack trace)
+    let errorDetail = "";
+    if (errorData?.errors && Array.isArray(errorData.errors)) {
+      errorDetail = errorData.errors
+        .map((err: any) => `- ${err.path?.join(".")}: ${err.message}`)
+        .join("\n");
+    } else if (errorData?.error) {
+      errorDetail =
+        typeof errorData.error === "object"
+          ? JSON.stringify(errorData.error, null, 2)
+          : errorData.error;
+    } else {
+      errorDetail = error?.stack || "";
+    }
 
     Modal.error({
       title: (
@@ -110,19 +141,19 @@ const UserEditPage = () => {
                   marginBottom: 4,
                 }}
               >
-                Technical Stack Trace / details:
+                รายละเอียดข้อผิดพลาด (Details):
               </Text>
               <div
                 style={{
-                  backgroundColor: "#1e1e1e",
-                  color: "#d4d4d4",
+                  backgroundColor: "#1f1f1f",
+                  color: "#ffccc7",
                   padding: 16,
                   borderRadius: 8,
                   fontFamily: "monospace",
-                  fontSize: 11,
+                  fontSize: 12,
                   overflowX: "auto",
                   maxHeight: 300,
-                  border: "1px solid #333",
+                  border: `1px solid ${token.colorErrorBorder}`,
                 }}
               >
                 <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
@@ -151,21 +182,29 @@ const UserEditPage = () => {
   const fetchInitialData = async () => {
     try {
       setLoading(true);
-      const [userRes, rolesRes, positionsRes] = await Promise.all([
-        axios.get(`/api/v2/admin/user-management/detail/${userId}`),
-        axios.get("/api/v2/admin/user-management/constants"),
-        axios.get("/api/v2/admin/position-management/read?limit=1000"),
-      ]);
+      const [userRes, rolesRes, positionsRes, departmentsRes] =
+        await Promise.all([
+          axios.get(`/api/v2/admin/user-management/detail/${userId}`),
+          axios.get("/api/v2/admin/user-management/constants"),
+          axios.get("/api/v2/admin/position-management/read?limit=1000"),
+          axios.get("/api/v2/admin/department-management/read?limit=1000"),
+        ]);
 
-      const user = userRes.data.data;
+      const user = userRes?.data?.data;
       setUserData(user);
-      setRoles(rolesRes.data.data.roles);
-      setPositions(positionsRes.data.data.items);
+      setRoles(rolesRes?.data?.data?.roles || []);
+      setPositions(positionsRes?.data?.data?.items || []);
+      setDepartments(departmentsRes?.data?.data?.items || []);
 
       form.setFieldsValue({
         ...user,
         role_id: user.role_id,
         position_id: user.position_id,
+        department_id: user.department_id,
+        profile_image: user.profile_image_path,
+        joined_date: user.joined_date ? dayjs(user.joined_date) : null,
+        resigned_date: user.resigned_date ? dayjs(user.resigned_date) : null,
+        employment_type: user.employment_type || "FULL_TIME",
       });
     } catch (error: any) {
       showErrorModal(error, "ดึงข้อมูลผู้ใช้งาน");
@@ -175,13 +214,66 @@ const UserEditPage = () => {
     }
   };
 
+  // --- Upload Logic ---
+  const customUploadRequest = async ({ file, onSuccess, onError }: any) => {
+    if (!employeeCode) {
+      toast.error("กรุณาระบุรหัสพนักงานก่อนอัปโหลดรูปภาพ");
+      onError(new Error("Missing employee code"));
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const result =
+        await HuaweiBucketStorageService.requestUploadUserProfileImage(
+          file,
+          employeeCode,
+          currentImage,
+        );
+
+      if (result.status === 200 || result.url) {
+        const newImageUrl = result.url || result.data?.url;
+        form.setFieldValue("profile_image", newImageUrl);
+        setUserData((prev: any) => ({
+          ...prev,
+          profile_image_path: newImageUrl,
+        }));
+        toast.success("อัปโหลดรูปภาพสำเร็จ");
+        onSuccess("ok");
+      } else {
+        throw new Error(result.message_en || "Upload failed");
+      }
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      showErrorModal(error, "อัปโหลดรูปภาพ");
+      onError(error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const onFinish = async (values: any) => {
     try {
       setSubmitting(true);
-      await axios.post("/api/v2/admin/user-management/update", {
-        id: Number(user_id),
+
+      // Sanitize payload to avoid validation errors (null vs undefined)
+      const payload = {
         ...values,
-      });
+        id: Number(userId),
+        joined_date: values.joined_date
+          ? dayjs(values.joined_date).format("YYYY-MM-DD")
+          : null,
+        resigned_date: values.resigned_date
+          ? dayjs(values.resigned_date).format("YYYY-MM-DD")
+          : null,
+        // Ensure these are numbers or undefined (not null) if that's what backend expects
+        position_id: values.position_id || undefined,
+        department_id: values.department_id || undefined,
+        profile_image: values.profile_image || undefined,
+      };
+
+      await axios.post("/api/v2/admin/user-management/update", payload);
+
       toast.success("อัปเดตข้อมูลสำเร็จ");
       router.push("/admin/user-profile");
     } catch (error: any) {
@@ -191,14 +283,6 @@ const UserEditPage = () => {
       setSubmitting(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div style={{ padding: 32 }}>
-        <Skeleton active avatar paragraph={{ rows: 10 }} />
-      </div>
-    );
-  }
 
   return (
     <PermissionLayout role={["ADMIN"]}>
@@ -233,7 +317,7 @@ const UserEditPage = () => {
             <Col xs={24} lg={8}>
               <Space direction="vertical" size={24} style={{ width: "100%" }}>
                 <Card
-                  bordered={false}
+                  variant="borderless"
                   styles={{
                     body: { textAlign: "center", padding: "40px 24px" },
                   }}
@@ -246,17 +330,51 @@ const UserEditPage = () => {
                       marginBottom: 24,
                     }}
                   >
-                    <Avatar
-                      size={120}
-                      icon={<UserOutlined />}
-                      src={userData?.profile_image_path}
-                      style={{
-                        backgroundColor: token.colorPrimaryBg,
-                        color: token.colorPrimary,
-                        border: `4px solid white`,
-                        boxShadow: token.boxShadow,
-                      }}
-                    />
+                    <div className="relative group cursor-pointer">
+                      <Upload
+                        name="avatar"
+                        listType="picture-circle"
+                        className="avatar-uploader"
+                        showUploadList={false}
+                        customRequest={customUploadRequest}
+                        disabled={uploading}
+                      >
+                        <div style={{ position: "relative" }}>
+                          <Avatar
+                            size={120}
+                            icon={
+                              uploading ? <LoadingOutlined /> : <UserOutlined />
+                            }
+                            src={userData?.profile_image_path}
+                            style={{
+                              backgroundColor: token.colorPrimaryBg,
+                              color: token.colorPrimary,
+                              border: `4px solid white`,
+                              boxShadow: token.boxShadow,
+                              opacity: uploading ? 0.6 : 1,
+                            }}
+                          />
+                          <div
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              backgroundColor: "rgba(0,0,0,0.4)",
+                              borderRadius: "50%",
+                              opacity: 0,
+                              transition: "opacity 0.3s",
+                            }}
+                            className="group-hover:opacity-100"
+                          >
+                            <CameraOutlined
+                              style={{ color: "white", fontSize: 24 }}
+                            />
+                          </div>
+                        </div>
+                      </Upload>
+                    </div>
                     <div style={{ position: "absolute", bottom: 4, right: 4 }}>
                       <Badge
                         count={
@@ -299,12 +417,15 @@ const UserEditPage = () => {
                     {userData?.email || "ไม่มีอีเมล"}
                   </Text>
 
-                  <Space size={8} wrap justify="center">
+                  <Space size={8} wrap>
                     <Tag color="blue">
                       {userData?.role?.role_name || "ไม่มีสิทธิ์"}
                     </Tag>
                     <Tag color="cyan">
                       {userData?.position_ref?.name_th || "ไม่มีตำแหน่ง"}
+                    </Tag>
+                    <Tag color="purple">
+                      {userData?.department?.name_th || "ไม่มีแผนก"}
                     </Tag>
                   </Space>
 
@@ -316,6 +437,33 @@ const UserEditPage = () => {
                       size={16}
                       style={{ width: "100%" }}
                     >
+                      <Space align="start" size={12}>
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 8,
+                            backgroundColor: token.colorPrimaryBg,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <LinkOutlined style={{ color: token.colorPrimary }} />
+                        </div>
+                        <div>
+                          <Text
+                            type="secondary"
+                            style={{ fontSize: 12, display: "block" }}
+                          >
+                            รหัสเชื่อมต่อ (adminsystem.schoolbright.co)
+                          </Text>
+                          <Text strong style={{ color: token.colorPrimary }}>
+                            {userData?.admin_id || "-"}
+                          </Text>
+                        </div>
+                      </Space>
+
                       <Space align="start" size={12}>
                         <div
                           style={{
@@ -377,6 +525,39 @@ const UserEditPage = () => {
                           </Text>
                         </div>
                       </Space>
+
+                      <Space align="start" size={12}>
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 8,
+                            backgroundColor: token.colorFillAlter,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <CalendarOutlined
+                            style={{ color: token.colorHighlight }}
+                          />
+                        </div>
+                        <div>
+                          <Text
+                            type="secondary"
+                            style={{ fontSize: 12, display: "block" }}
+                          >
+                            วันที่เริ่มงาน (Joined)
+                          </Text>
+                          <Text strong>
+                            {userData?.joined_date
+                              ? dayjs(userData.joined_date).format(
+                                  "DD MMM YYYY",
+                                )
+                              : "ไม่ได้ระบุ"}
+                          </Text>
+                        </div>
+                      </Space>
                     </Space>
                   </div>
                 </Card>
@@ -394,7 +575,7 @@ const UserEditPage = () => {
             {/* Right Column: Edit Form */}
             <Col xs={24} lg={16}>
               <Card
-                bordered={false}
+                variant="borderless"
                 style={{ borderRadius: 16 }}
                 title={
                   <Space>
@@ -545,6 +726,64 @@ const UserEditPage = () => {
                     </Row>
                   </div>
 
+                  {/* Employment Timeline */}
+                  <div style={{ marginBottom: 32 }}>
+                    <Space size={8} style={{ marginBottom: 16 }}>
+                      <div
+                        style={{
+                          width: 4,
+                          height: 20,
+                          backgroundColor: token.colorWarning,
+                          borderRadius: 2,
+                        }}
+                      />
+                      <Title level={5} style={{ margin: 0 }}>
+                        ข้อมูลการจ้างงาน (Employment Timeline)
+                      </Title>
+                    </Space>
+                    <Row gutter={16}>
+                      <Col xs={24} md={8}>
+                        <Form.Item label="วันที่เริ่มงาน" name="joined_date">
+                          <DatePicker
+                            placeholder="เลือกวันที่เริ่มงาน"
+                            style={{ width: "100%" }}
+                            format="DD/MM/YYYY"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item label="วันที่ลาออก" name="resigned_date">
+                          <DatePicker
+                            placeholder="เลือกวันที่ลาออก"
+                            style={{ width: "100%" }}
+                            format="DD/MM/YYYY"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item
+                          label="ประเภทการจ้างงาน"
+                          name="employment_type"
+                        >
+                          <Select placeholder="เลือกประเภทการจ้างงาน">
+                            <Select.Option value="FULL_TIME">
+                              Full-time (พนักงานประจำ)
+                            </Select.Option>
+                            <Select.Option value="PART_TIME">
+                              Part-time (พนักงานชั่วคราว)
+                            </Select.Option>
+                            <Select.Option value="CONTRACT">
+                              Contract (สัญญาจ้าง)
+                            </Select.Option>
+                            <Select.Option value="INTERN">
+                              Intern (ฝึกงาน)
+                            </Select.Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </div>
+
                   {/* Role & Position */}
                   <div>
                     <Space size={8} style={{ marginBottom: 16 }}>
@@ -592,14 +831,18 @@ const UserEditPage = () => {
                         </Form.Item>
                       </Col>
                       <Col xs={24} md={12}>
-                        <Form.Item label="แผนก (Department)" name="department">
-                          <Input
-                            prefix={
-                              <TeamOutlined
-                                style={{ color: token.colorTextDisabled }}
-                              />
-                            }
-                            placeholder="แผนก"
+                        <Form.Item
+                          label="แผนก (Department)"
+                          name="department_id"
+                        >
+                          <Select
+                            placeholder="เลือกแผนก"
+                            showSearch
+                            optionFilterProp="label"
+                            options={departments.map((d) => ({
+                              label: d.name_th,
+                              value: d.id,
+                            }))}
                           />
                         </Form.Item>
                       </Col>
@@ -634,6 +877,9 @@ const UserEditPage = () => {
                         </Form.Item>
                       </Col>
                     </Row>
+                    <Form.Item name="profile_image" hidden>
+                      <Input />
+                    </Form.Item>
                   </div>
 
                   <Divider />

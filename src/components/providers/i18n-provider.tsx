@@ -22,9 +22,6 @@ export default function LocaleProvider({
         if (locale && i18n.language !== locale) {
           await i18n.changeLanguage(locale);
         }
-        if (locale) {
-          localStorage.setItem("appLocale", locale);
-        }
 
         setIsI18nInitialized(true);
       } catch (error) {

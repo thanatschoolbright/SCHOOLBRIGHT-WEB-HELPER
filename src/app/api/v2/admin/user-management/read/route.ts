@@ -26,12 +26,11 @@ export async function GET(request: NextRequest) {
       }),
     );
   } catch (err: any) {
-    return NextResponse.json(
-      errorResponse({
-        message_th: "เกิดข้อผิดพลาดในการดึงข้อมูล",
-        message_en: err.message,
-        error: err,
-      }),
-    );
+    const errorBody = errorResponse({
+      message_th: "เกิดข้อผิดพลาดในการดึงข้อมูล",
+      message_en: err.message,
+      error: err,
+    });
+    return NextResponse.json(errorBody, { status: errorBody.status || 500 });
   }
 }

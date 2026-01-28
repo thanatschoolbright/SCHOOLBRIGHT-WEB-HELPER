@@ -1,93 +1,79 @@
 "use client";
 
 /**
- * 📦 StorageProvider: จัดการข้อมูลใน LocalStorage และโหลดจาก API
- * ใช้ Axios สำหรับ fetch และ Sonner สำหรับ Toast
+ * 📦 StorageProvider: จัดการข้อมูลในหน่วยความจำ (Memory Cache) แทน LocalStorage
+ * ปรับปรุงตามนโยบายความปลอดภัย ห้ามใช้ LocalStorage
  */
 
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
-import {useEffect} from "react";
-import {toast} from "sonner";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import { useEffect, createContext, useContext, useState } from "react";
+import { toast } from "sonner";
 
-/**
- * 🎯 Interface สำหรับข้อมูลที่บันทึกใน LocalStorage
- */
-interface StorageProps {
-    data: unknown;
-    storageName: string;
-}
+const StorageContext = createContext<any>(null);
 
-/**
- * 🏗️ StorageProvider: Component ที่จัดการการโหลดและบันทึกข้อมูล
- * - โหลดข้อมูลผู้ใช้และโปรเจ็กต์จาก API ถ้ายังไม่มีใน LocalStorage
- * - แสดง Toast สำหรับสถานะการโหลด
- */
-export function StorageProvider({children}: React.PropsWithChildren): JSX.Element {
-    /**
-     * 💾 บันทึกข้อมูลลง LocalStorage และแสดง Toast
-     */
-    const saveToLocalStorage = ({data, storageName}: StorageProps): void => {
-        localStorage.setItem(storageName || "error", JSON.stringify(data));
-        toast.success(`บันทึกข้อมูล ${storageName || "error"} ลงบน Local Storage แล้ว`, {
-            duration: 5000,
-        });
-    };
+export const useMemoryStorage = () => useContext(StorageContext);
 
-    /**
-     * 🚀 โหลดข้อมูลผู้ใช้จาก API
-     */
-    const fetchUsers = async (): Promise<void> => {
-        const toastId = toast.loading("กำลังโหลดข้อมูลผู้ใช้งาน...");
-        try {
-            const response = await axios.get("/api/v1/admin/user/");
-            const fetchedUsers = response?.data?.data?.data || [];
-            saveToLocalStorage({data: fetchedUsers, storageName: "users"});
-            toast.success("โหลดข้อมูลสำเร็จ", {id: toastId});
-        } catch (error) {
-            toast.error("โหลดข้อมูลล้มเหลว", {id: toastId});
-        }
-    };
+export function StorageProvider({
+  children,
+}: React.PropsWithChildren): JSX.Element {
+  const [cache, setCache] = useState<Record<string, any>>({});
 
-    /**
-     * 🚀 โหลดข้อมูลโปรเจ็กต์จาก API
-     */
-    const fetchProjects = async (): Promise<void> => {
-        const toastId = toast.loading("กำลังโหลดข้อมูลโปรเจ็ค...");
-        try {
-            const response = await axios.post(
-                "/api/v1/timesheet/project/read/",
-                {limit: 50, page: 1},
-                {headers: {"Content-Type": "application/json"}}
-            );
-            const data = response.data;
-            console.info("data", data);
-            saveToLocalStorage({data: data.data, storageName: "projects"});
-            toast.success("โหลดข้อมูลสำเร็จ", {id: toastId});
-        } catch (error) {
-            toast.error("โหลดข้อมูลล้มเหลว", {id: toastId});
-        }
-    };
+  /**
+   * 💾 บันทึกข้อมูลลง Memory และแสดง Toast
+   */
+  const saveToMemory = (storageName: string, data: any): void => {
+    setCache((prev) => ({ ...prev, [storageName]: data }));
+    toast.info(`โหลดข้อมูล ${storageName} ลงในหน่วยความจำเรียบร้อยละ`, {
+      duration: 3000,
+    });
+  };
 
-    /**
-     * 🔍 ตรวจสอบว่ามีข้อมูลใน LocalStorage หรือไม่
-     */
-    const hasStorageData = (storageName: string): boolean => {
-        const raw = localStorage.getItem(storageName);
-        return !!raw;
-    };
+  /**
+   * 🚀 โหลดข้อมูลผู้ใช้จาก API
+   */
+  const fetchUsers = async (): Promise<void> => {
+    const toastId = toast.loading("กำลังโหลดข้อมูลผู้ใช้งาน...");
+    try {
+      const response = await axios.get("/api/v1/admin/user/");
+      const fetchedUsers = response?.data?.data?.data || [];
+      saveToMemory("users", fetchedUsers);
+      toast.success("โหลดข้อมูลสำเร็จ", { id: toastId });
+    } catch (error) {
+      toast.error("โหลดข้อมูลล้มเหลว", { id: toastId });
+    }
+  };
 
-    /**
-     * ⚙️ โหลดข้อมูลเริ่มต้นเมื่อ Component Mount
-     */
-    useEffect(() => {
-        if (!hasStorageData("users")) {
-            fetchUsers();
-        }
+  /**
+   * 🚀 โหลดข้อมูลโปรเจ็กต์จาก API
+   */
+  const fetchProjects = async (): Promise<void> => {
+    const toastId = toast.loading("กำลังโหลดข้อมูลโปรเจ็ค...");
+    try {
+      const response = await axios.post(
+        "/api/v1/timesheet/project/read/",
+        { limit: 50, page: 1 },
+        { headers: { "Content-Type": "application/json" } },
+      );
+      const data = response.data;
+      saveToMemory("projects", data.data);
+      toast.success("โหลดข้อมูลสำเร็จ", { id: toastId });
+    } catch (error) {
+      toast.error("โหลดข้อมูลล้มเหลว", { id: toastId });
+    }
+  };
 
-        if (!hasStorageData("projects")) {
-            fetchProjects();
-        }
-    }, []);
+  /**
+   * ⚙️ โหลดข้อมูลเริ่มต้นเมื่อ Component Mount
+   */
+  useEffect(() => {
+    // ยกเลิกการตรวจสอบ LocalStorage และใช้การ Fetch ใหม่เสมอเพื่อความปลอดภัย
+    fetchUsers();
+    fetchProjects();
+  }, []);
 
-    return <>{children}</>;
+  return (
+    <StorageContext.Provider value={{ cache, fetchUsers, fetchProjects }}>
+      {children}
+    </StorageContext.Provider>
+  );
 }

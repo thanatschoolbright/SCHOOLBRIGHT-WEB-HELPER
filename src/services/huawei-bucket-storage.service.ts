@@ -29,7 +29,7 @@ export const HuaweiBucketStorageService = {
 
     // เรียก API หลังบ้านเพื่อจัดการ Upload/Delete จริง (เพื่อความปลอดภัยของ Key)
     const response = await axios.post(
-      "/api/v2/upload/user-profile-image",
+      "/api/v2/admin/user-management/upload/image",
       formData,
       {
         headers: {
@@ -38,7 +38,7 @@ export const HuaweiBucketStorageService = {
       },
     );
 
-    return response.data; // Expected { url: "..." }
+    return response.data; // Expected { url: "..." } or { data: { url: "..." } }
   },
 
   /**
@@ -47,7 +47,7 @@ export const HuaweiBucketStorageService = {
   async deleteFile(path: string) {
     if (!path) return;
     try {
-      await axios.post("/api/v2/upload/delete-file", { path });
+      await axios.post("/api/v2/admin/user-management/upload/delete", { path });
     } catch (error) {
       console.warn("Failed to delete old file:", path);
     }

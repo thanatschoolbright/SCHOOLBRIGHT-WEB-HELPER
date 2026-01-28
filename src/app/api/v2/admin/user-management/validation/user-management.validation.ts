@@ -10,13 +10,16 @@ export const CreateUserSchema = z.object({
   firstname_en: z.string().optional(),
   lastname_en: z.string().optional(),
   nickname: z.string().optional(),
-  position: z.string().optional(),
-  department: z.string().optional(),
+  position_id: z.number().int().optional().nullable(),
+  department_id: z.number().int().optional().nullable(),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional(),
   role_id: z.number().int().optional(),
-  profile_image: z.string().optional(),
+  profile_image: z.string().optional().nullable(),
   created_by: z.number().int().optional(),
+  joined_date: z.string().optional().nullable(),
+  resigned_date: z.string().optional().nullable(),
+  employment_type: z.string().optional(),
 });
 
 export const UpdateUserSchema = z.object({
@@ -27,17 +30,21 @@ export const UpdateUserSchema = z.object({
   employee_code: z.string().optional(),
   firstname_th: z.string().optional(),
   lastname_th: z.string().optional(),
-  firstname_en: z.string().optional(),
-  lastname_en: z.string().optional(),
+  firstname_en: z.string().optional().nullable(),
+  lastname_en: z.string().optional().nullable(),
   nickname: z.string().optional(),
-  position: z.string().optional(),
-  department: z.string().optional(),
+  position_id: z.number().int().optional().nullable(),
+  department_id: z.number().int().optional().nullable(),
   status: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional(),
-  role_id: z.number().int().optional(),
-  profile_image: z.string().optional(),
+  role_id: z.number().int().optional().nullable(),
+
+  profile_image: z.string().optional().nullable(),
   updated_by: z.number().int().optional(),
+  joined_date: z.string().optional().nullable(),
+  resigned_date: z.string().optional().nullable(),
+  employment_type: z.string().optional(),
 });
 
 export const DeleteUserSchema = z.object({

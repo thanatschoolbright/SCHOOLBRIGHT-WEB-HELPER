@@ -17,7 +17,14 @@ const initialState: RequestRefreshToken = {
 const Slice = createSlice({
   name: "callRefreshToken",
   initialState,
-  reducers: {},
+  reducers: {
+    setDraftValues(
+      state,
+      action: PayloadAction<RequestRefreshToken["draftValues"]>,
+    ) {
+      state.draftValues = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(CallAPI.pending, (state) => {
@@ -35,4 +42,5 @@ const Slice = createSlice({
   },
 });
 
+export const { setDraftValues } = Slice.actions;
 export default Slice.reducer;

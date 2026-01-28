@@ -530,6 +530,7 @@ export interface ResponseLoginV2 {
     token: string;
     user_data: {
       admin_id: number;
+      user_id: number;
       employee_code: string;
       firstname: string;
       lastname: string;
@@ -544,33 +545,41 @@ export interface ResponseLoginV2 {
 
 export interface UserProfile {
   id: number;
-  name: string;
-  user_id: string;
-  admin_id: string;
-  email: string;
-  tel: string;
   username: string;
-  lastname?: string;
-  image_profile: string;
-  profile_image?: string;
-  backlog_email?: string;
-  status: string;
-  firstname?: string;
-  position: string;
+  admin_id: number;
+  employee_code?: string;
+  firstname_th?: string;
+  lastname_th?: string;
+  firstname_en?: string;
+  lastname_en?: string;
   nickname?: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  by: number;
-  createdBy: number;
-  updatedBy: number;
-  employee_code: string;
+  email?: string;
+  phone?: string;
+  profile_image_path?: string;
+  status: string;
+  position_id?: number;
+  department_id?: number;
+  role_id?: number;
+  joined_date?: string | Date;
+  resigned_date?: string | Date;
+  employment_type?: string;
   last_login?: string | Date;
   failed_login_attempts?: number;
+  created_at?: string | Date;
+  updated_at?: string | Date;
   role?: {
     id: number;
     role_name: string;
-    description?: string;
+  };
+  position_ref?: {
+    id: number;
+    name_th: string;
+    name_en?: string;
+  };
+  department?: {
+    id: number;
+    name_th: string;
+    name_en?: string;
   };
 }
 

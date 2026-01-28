@@ -22,12 +22,15 @@ import {
   ClockCircleFilled,
   FireFilled,
 } from "@ant-design/icons";
-import { useAppSelector } from "@stores/store";
+import { useSession, signOut } from "next-auth/react";
 import { toast } from "sonner";
 import i18n from "@/i18n";
 
 // Services & Helpers
-import { getUserRankFromStorage } from "@/helpers/user-rank.helper";
+import {
+  getUserRankFromStorage,
+  saveUserRankToMemory,
+} from "@/helpers/user-rank.helper";
 import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 
 const { Text, Title } = Typography;
@@ -85,7 +88,7 @@ const generateAvatarUrl = (userProfile: any) => {
     userProfile?.lastname ?? ""
   }_${userProfile?.admin_id ?? "0"}`;
   return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(
-    seedString
+    seedString,
   )}&backgroundColor=e0e7ff,d1d5db,f3f4f6`;
 };
 
@@ -140,7 +143,7 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
 
   const taskCompletionPercentage = Math.min(
     Math.round(userRankDetails?.completion_rate || 0),
-    100
+    100,
   );
   const totalUsageHours = Number(userRankDetails?.total_hours || 0).toFixed(1);
   const disciplineScoreValue =
@@ -271,11 +274,11 @@ const StatisticBoxItem = ({ label, value, icon, highlight, color }: any) => {
 
 export default function UserProfileDropdown(): JSX.Element {
   const { token } = theme.useToken();
-  const authenticationState = useAppSelector((state) => state.callAdminLogin);
-  const userProfileData = authenticationState?.response?.data?.user_data || {};
+  const { data: session } = useSession();
+  const userProfileData = (session?.user as any) || {};
 
   const [currentLanguageCode, setCurrentLanguageCode] = useState<string>(
-    i18n.language
+    i18n.language,
   );
   const [userRankData, setUserRankData] = useState<any>(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -287,6 +290,9 @@ export default function UserProfileDropdown(): JSX.Element {
     const fetchAndSetUserRank = async () => {
       try {
         const rankApiResponse = await fetchUserRank(String(adminId));
+        if (rankApiResponse) {
+          saveUserRankToMemory(rankApiResponse as any);
+        }
         setUserRankData(rankApiResponse || getUserRankFromStorage());
       } catch {
         setUserRankData(getUserRankFromStorage());
@@ -302,11 +308,11 @@ export default function UserProfileDropdown(): JSX.Element {
     toast.success("เปลี่ยนภาษาเรียบร้อยแล้ว");
   };
 
-  const handleLogoutAction = () => {
+  const handleLogoutAction = async () => {
     toast.info("กำลังออกจากระบบ...");
-    localStorage.clear();
-    sessionStorage.clear();
-    setTimeout(() => (window.location.href = "/"), 500);
+    // ล้างข้อมูลเฉพาะที่จำเป็นใน Memory (Redux/Context จะถูกล้างโดยการ Refresh หน้าอยู่แล้ว)
+    // NextAuth signOut จะจัดการเรื่อง Session ฝั่ง Client/Server ให้โดยตรง
+    await signOut({ callbackUrl: "/" });
   };
 
   const currentRankLetter = userRankData?.rankLetter?.toUpperCase() || "F";

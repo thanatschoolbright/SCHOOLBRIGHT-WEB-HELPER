@@ -132,6 +132,16 @@ exports.Prisma.PositionScalarFieldEnum = {
   deleted_at: 'deleted_at'
 };
 
+exports.Prisma.DepartmentScalarFieldEnum = {
+  id: 'id',
+  name_th: 'name_th',
+  name_en: 'name_en',
+  is_active: 'is_active',
+  is_deleted: 'is_deleted',
+  created_at: 'created_at',
+  deleted_at: 'deleted_at'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   username: 'username',
@@ -144,11 +154,14 @@ exports.Prisma.UserScalarFieldEnum = {
   lastname_en: 'lastname_en',
   nickname: 'nickname',
   position_id: 'position_id',
-  department: 'department',
+  department_id: 'department_id',
   status: 'status',
   email: 'email',
   phone: 'phone',
   profile_image_path: 'profile_image_path',
+  joined_date: 'joined_date',
+  resigned_date: 'resigned_date',
+  employment_type: 'employment_type',
   last_login: 'last_login',
   failed_login_attempts: 'failed_login_attempts',
   refresh_token: 'refresh_token',
@@ -344,6 +357,7 @@ exports.ProjectAssetCaptureType = exports.$Enums.ProjectAssetCaptureType = {
 
 exports.Prisma.ModelName = {
   Position: 'Position',
+  Department: 'Department',
   User: 'User',
   Role: 'Role',
   Permission: 'Permission',

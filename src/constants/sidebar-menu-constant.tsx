@@ -87,6 +87,11 @@ export const useSidebarMenu = (): SidebarItem[] => {
             href: "/admin/position-management",
             icon: <CrownOutlined />,
           },
+          {
+            label: t("admin_system.children.department_management"),
+            href: "/admin/department-management",
+            icon: <CrownOutlined />,
+          },
         ],
       },
       {

@@ -44,6 +44,23 @@ model Position {
 // USER & RBAC MODULE (IPO READY - FINAL)
 // =========================================================
 
+model Department {
+  id        Int     @id @default(autoincrement()) @map("id")
+  name_th   String  @map("name_th") @timesheet.VarChar(100)
+  name_en   String? @map("name_en") @timesheet.VarChar(100)
+  is_active Boolean @default(true) @map("is_active")
+
+  // --- Meta ---
+  is_deleted Boolean   @default(false) @map("is_deleted")
+  created_at DateTime  @default(now()) @map("created_at")
+  deleted_at DateTime? @map("deleted_at")
+
+  // --- Relations ---
+  users User[]
+
+  @@map("departments")
+}
+
 model User {
   id       Int    @id @default(autoincrement()) @map("id")
   username String @unique @map("username")
@@ -53,22 +70,27 @@ model User {
   admin_id Int @unique @map("admin_id")
 
   // --- Info ---
-  employee_code String? @unique @map("employee_code")
-  firstname_th  String? @map("firstname_th")
-  lastname_th   String? @map("lastname_th")
-  firstname_en  String? @map("firstname_en")
-  lastname_en   String? @map("lastname_en")
-  nickname      String? @map("nickname")
-
-  position_id  Int?      @map("position_id")
-  position_ref Position? @relation(fields: [position_id], references: [id])
-  department   String?   @map("department")
-  status       String    @default("ACTIVE") @map("status")
+  employee_code String?     @unique @map("employee_code")
+  firstname_th  String?     @map("firstname_th")
+  lastname_th   String?     @map("lastname_th")
+  firstname_en  String?     @map("firstname_en")
+  lastname_en   String?     @map("lastname_en")
+  nickname      String?     @map("nickname")
+  position_id   Int?        @map("position_id")
+  position_ref  Position?   @relation(fields: [position_id], references: [id])
+  department_id Int?        @map("department_id")
+  department    Department? @relation(fields: [department_id], references: [id])
+  status        String      @default("ACTIVE") @map("status")
 
   // --- Contact ---
   email              String? @map("email")
   phone              String? @map("phone")
   profile_image_path String? @map("profile_image")
+
+  // --- Employment Timeline (เพิ่มส่วนนี้) ---
+  joined_date     DateTime? @map("joined_date") // วันที่เริ่มงาน
+  resigned_date   DateTime? @map("resigned_date") // วันที่ลาออก (ถ้ามี)
+  employment_type String?   @default("FULL_TIME") @map("employment_type")
 
   // --- Security & Auth ---
   last_login            DateTime? @map("last_login")

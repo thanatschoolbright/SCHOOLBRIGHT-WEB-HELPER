@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getUserByLocalStorage } from "@helpers/local_storage/user.storage";
 import { logger } from "@/helpers/logger";
 
 /* ============================================================
@@ -41,15 +40,23 @@ function getCalledByFromHeader(): string {
       return "axios-server";
     }
 
-    const userId = localStorage.getItem("AUTH_USER");
-    const extractedUser = userId ? JSON.parse(userId) : null;
-    const id = extractedUser?.user_data?.admin_id;
+    // แก้ไข: ดึง ID จาก Redux Store แทน LocalStorage เพื่อความปลอดภัย
+    // โดยพึ่งพา AuthenticationProvider ที่ซิงค์ข้อมูลจาก Session ลง Redux แล้ว
+    try {
+      const { store } = require("@stores/store");
+      const state = store.getState();
+      const userData = state.callAdminLogin?.response?.data?.user_data;
+      const adminId = userData?.admin_id;
+      const userId = userData?.user_id;
 
-    if (id) {
-      return String(id);
-    } else {
-      return "axios-unknown";
+      // ลำดับความสำคัญ: admin_id (สำหรับระบบเก่า) > user_id (สำหรับระบบใหม่)
+      if (adminId && adminId !== 0) return String(adminId);
+      if (userId && userId !== 0) return String(userId);
+    } catch (e) {
+      // ignore
     }
+
+    return "axios-client";
   } catch (error) {
     return "axios-error";
   }
@@ -204,7 +211,6 @@ export const callApiService = axios.create({
 callApiService.interceptors.request.use(
   async (config) => {
     try {
-      const userId = await getUserByLocalStorage();
       const calledBy = getCalledByFromHeader();
 
       // เพิ่ม metadata สำหรับ logging
@@ -213,11 +219,14 @@ callApiService.interceptors.request.use(
         calledBy: calledBy,
       };
 
-      // ตรวจสอบว่า userId มีค่าและไม่ใช่ null/undefined
-      if (userId && userId !== null && userId !== undefined) {
-        config.headers["x-request-user"] = String(userId);
+      // ดึง User ID จาก Redux (ถ้ามี) แทน LocalStorage ตามนโยบายความปลอดภัย
+      if (
+        calledBy !== "axios-client" &&
+        calledBy !== "axios-server" &&
+        calledBy !== "axios-error"
+      ) {
+        config.headers["x-request-user"] = calledBy;
       } else {
-        // ไม่เพิ่ม header ถ้าไม่มี userId
         delete config.headers["x-request-user"];
       }
     } catch (error) {

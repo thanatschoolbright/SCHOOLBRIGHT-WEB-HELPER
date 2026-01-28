@@ -16,6 +16,7 @@ const initialState: RequestLoginV2 = {
       token: "",
       user_data: {
         admin_id: 0,
+        user_id: 0,
         employee_code: "",
         firstname: "",
         lastname: "",

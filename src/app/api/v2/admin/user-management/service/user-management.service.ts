@@ -1,4 +1,5 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import bcrypt from "bcryptjs";
 
 export interface CreateUserDto {
   username: string;
@@ -11,13 +12,16 @@ export interface CreateUserDto {
   lastname_en?: string;
   nickname?: string;
   position?: string;
-  department?: string;
+  department_id?: number | null;
   email?: string;
   phone?: string;
-  role_id?: number;
-  position_id?: number;
-  profile_image?: string;
-  created_by?: number;
+  role_id?: number | null;
+  position_id?: number | null;
+  profile_image?: string | null;
+  created_by?: number | null;
+  joined_date?: string | Date | null;
+  resigned_date?: string | Date | null;
+  employment_type?: string | null;
 }
 
 export interface UpdateUserDto {
@@ -31,23 +35,27 @@ export interface UpdateUserDto {
   lastname_en?: string;
   nickname?: string;
   position?: string;
-  department?: string;
+  department_id?: number | null;
   status?: string;
   email?: string;
   phone?: string;
-  role_id?: number;
-  position_id?: number;
-  profile_image?: string;
-  updated_by?: number;
+  role_id?: number | null;
+  position_id?: number | null;
+  profile_image?: string | null;
+  updated_by?: number | null;
+  joined_date?: string | Date | null;
+  resigned_date?: string | Date | null;
+  employment_type?: string | null;
 }
 
 export const UserManagementService = {
   // สร้างผู้ใช้งานใหม่
   async create(data: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
     return await PrismaTimesheet.user.create({
       data: {
         username: data.username,
-        password: data.password,
+        password: hashedPassword,
         admin_id: Number(data.admin_id),
         employee_code: data.employee_code,
         firstname_th: data.firstname_th,
@@ -55,39 +63,55 @@ export const UserManagementService = {
         firstname_en: data.firstname_en,
         lastname_en: data.lastname_en,
         nickname: data.nickname,
-        department: data.department,
+        department_id: data.department_id ?? undefined,
         email: data.email,
         phone: data.phone || (data as any).tel,
         status: "ACTIVE",
         role_id: data.role_id ?? undefined,
         position_id: data.position_id ?? undefined,
         profile_image_path: data.profile_image,
+        joined_date: data.joined_date ? new Date(data.joined_date) : undefined,
+        resigned_date: data.resigned_date
+          ? new Date(data.resigned_date)
+          : undefined,
+        employment_type: data.employment_type || "FULL_TIME",
       },
     });
   },
 
   // อัปเดตข้อมูลผู้ใช้งาน
   async update(id: number, data: UpdateUserDto) {
+    const updateData: any = {
+      username: data.username,
+      admin_id: data.admin_id ? Number(data.admin_id) : undefined,
+      employee_code: data.employee_code,
+      firstname_th: data.firstname_th,
+      lastname_th: data.lastname_th,
+      firstname_en: data.firstname_en,
+      lastname_en: data.lastname_en,
+      nickname: data.nickname,
+      department_id: data.department_id ?? undefined,
+      email: data.email,
+      phone: data.phone || (data as any).tel,
+      status: data.status,
+      role_id: data.role_id ?? undefined,
+      position_id: data.position_id ?? undefined,
+      profile_image_path: data.profile_image,
+      joined_date: data.joined_date ? new Date(data.joined_date) : undefined,
+      resigned_date: data.resigned_date
+        ? new Date(data.resigned_date)
+        : undefined,
+      employment_type: data.employment_type,
+      updated_at: new Date(),
+    };
+
+    if (data.password) {
+      updateData.password = await bcrypt.hash(data.password, 10);
+    }
+
     return await PrismaTimesheet.user.update({
       where: { id },
-      data: {
-        username: data.username,
-        admin_id: data.admin_id ? Number(data.admin_id) : undefined,
-        employee_code: data.employee_code,
-        firstname_th: data.firstname_th,
-        lastname_th: data.lastname_th,
-        firstname_en: data.firstname_en,
-        lastname_en: data.lastname_en,
-        nickname: data.nickname,
-        department: data.department,
-        email: data.email,
-        phone: data.phone || (data as any).tel,
-        status: data.status,
-        role_id: data.role_id ?? undefined,
-        position_id: data.position_id ?? undefined,
-        profile_image_path: data.profile_image,
-        updated_at: new Date(),
-      },
+      data: updateData,
     });
   },
 
@@ -111,6 +135,7 @@ export const UserManagementService = {
       include: {
         role: true,
         position_ref: true,
+        department: true,
       },
     });
   },
@@ -152,7 +177,7 @@ export const UserManagementService = {
         take: limit,
         skip,
         orderBy: { created_at: "desc" },
-        include: { role: true },
+        include: { role: true, position_ref: true, department: true },
       }),
       PrismaTimesheet.user.count({ where }),
     ]);
