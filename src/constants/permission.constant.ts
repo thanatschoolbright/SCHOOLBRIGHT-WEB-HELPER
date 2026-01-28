@@ -25,4 +25,4 @@ export const PERMISSIONS = {
   FINANCE_READ: "finance.all.read",
 } as const;
 
-export type PermissionCode = typeof PERMISSIONS[keyof typeof PERMISSIONS];
+export type PermissionCode = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

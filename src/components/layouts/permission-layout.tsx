@@ -20,11 +20,16 @@ import {
 const { Title, Text } = Typography;
 
 interface Props {
-  role: string[];
+  role?: string[]; // รองรับการเช็ค Role (Legacy)
+  permission?: string[]; // รองรับการเช็ค Permission Code (New Standard)
   children: React.ReactNode;
 }
 
-export default function PermissionLayout({ role, children }: Props) {
+export default function PermissionLayout({
+  role = [],
+  permission = [],
+  children,
+}: Props) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const AUTH_USER = session?.user as any;
@@ -34,13 +39,23 @@ export default function PermissionLayout({ role, children }: Props) {
   const [loading, setLoading] = useState(false);
 
   // คำนวณสิทธิ์
-  const hasPermission =
+  const userPermissions = AUTH_USER?.permissions || [];
+
+  const hasRole =
+    role.length === 0 ||
     role.includes("ALL") ||
     (AUTH_USER &&
-      (Number(AUTH_USER?.admin_id) === 117 || // ✅ Super Admin Bypass
-        role.includes(AUTH_USER?.role_name) ||
+      (role.includes(AUTH_USER?.role_name) ||
         role.includes(AUTH_USER?.position_name) ||
         role.includes(AUTH_USER?.position)));
+
+  const hasPerm =
+    permission.length === 0 ||
+    permission.some((p) => userPermissions.includes(p));
+
+  const isSuperAdmin = Number(AUTH_USER?.admin_id) === 117;
+
+  const hasPermission = isSuperAdmin || (hasRole && hasPerm);
 
   useEffect(() => {
     // ✅ เช็คว่าโหลดเสร็จแล้วเท่านั้น

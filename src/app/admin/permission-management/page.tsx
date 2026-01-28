@@ -9,27 +9,28 @@ import {
   Modal,
   Form,
   Tag,
-  Tooltip,
   Table,
   Row,
   Col,
   Card,
   Typography,
   Alert,
-  Progress,
-  Steps,
+  Tabs,
+  Checkbox,
+  Divider,
+  Tooltip,
 } from "antd";
 import {
   ReloadOutlined,
   SearchOutlined,
-  CheckCircleOutlined,
   EditOutlined,
   DeleteOutlined,
-  ApartmentOutlined,
   PlusOutlined,
-  ExclamationCircleOutlined,
-  CloudServerOutlined,
-  LoadingOutlined,
+  SafetyCertificateOutlined,
+  LockOutlined,
+  AuditOutlined,
+  UnlockOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { toast } from "sonner";
@@ -37,64 +38,59 @@ import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import { PERMISSIONS } from "@/constants/permission.constant";
 
-// Department Type
-interface Department {
+const { Text } = Typography;
+
+// --- Interfaces ---
+interface Permission {
   id: number;
+  p_code: string;
   name_th: string;
-  name_en?: string;
+  description?: string;
+}
+
+interface Role {
+  id: number;
+  role_name: string;
+  description?: string;
   is_active: boolean;
+  permissions: {
+    permission_id: number;
+    permission: Permission;
+  }[];
   _count?: {
-    users: number; // For showing how many users are in this department
+    users: number;
   };
 }
 
-const DEFAULT_DEPARTMENTS = [
-  { name_th: "บริหารงานทั่วไป", name_en: "General Administration" },
-  { name_th: "เทคโนโลยีสารสนเทศ", name_en: "Information Technology" },
-  { name_th: "ทรัพยากรบุคคล", name_en: "Human Resources" },
-  { name_th: "บัญชีและการเงิน", name_en: "Accounting and Finance" },
-  { name_th: "การตลาด", name_en: "Marketing" },
-  { name_th: "ฝ่ายขาย", name_en: "Sales" },
-  { name_th: "พัฒนาผลิตภัณฑ์", name_en: "Product Development" },
-  { name_th: "วิศวกรรม", name_en: "Engineering" },
-  { name_th: "ประกันคุณภาพ", name_en: "Quality Assurance" },
-  { name_th: "บริการลูกค้า", name_en: "Customer Service" },
-  { name_th: "วิจัยและพัฒนา", name_en: "Research and Development" },
-  { name_th: "ฝ่ายปฏิบัติการ", name_en: "Operations" },
-];
-
-export default function DepartmentManagementPage() {
+export default function PermissionManagementPage() {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
 
   // State
   const [loading, setLoading] = useState(true);
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
   const [search, setSearch] = useState("");
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
-  const [selectedDept, setSelectedDept] = useState<Department | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  // Auto Gen State
-  const [autoGenModalOpen, setAutoGenModalOpen] = useState(false);
-  const [genStep, setGenStep] = useState<
-    "generating" | "review" | "executing" | "summary"
-  >("generating");
-  const [candidateDepartments, setCandidateDepartments] = useState<any[]>([]);
-  const [executionStatus, setExecutionStatus] = useState<any[]>([]);
-  const [currentExecutionIndex, setCurrentExecutionIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState("1");
 
   // --- Fetch Data ---
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/v2/admin/department-management/read", {
-        params: { search, limit: 100 },
-      });
-      setDepartments(res?.data?.data?.items || []);
+      const [roleRes, permRes] = await Promise.all([
+        axios.get("/api/v2/admin/role-management/read", { params: { search } }),
+        axios.get("/api/v2/admin/permission-management/read"),
+      ]);
+      setRoles(roleRes?.data?.data?.items || []);
+      setPermissions(permRes?.data?.data || []);
     } catch (error) {
-      toast.error("ไม่สามารถดึงข้อมูลแผนกได้");
+      console.error(error);
+      toast.info("โหมดแสดงผล (API ยังไม่พร้อม)");
     } finally {
       setLoading(false);
     }
@@ -105,92 +101,22 @@ export default function DepartmentManagementPage() {
   }, [fetchData]);
 
   // --- Handlers ---
-  const handleOpenAutoGen = async () => {
-    setAutoGenModalOpen(true);
-    setGenStep("generating");
-
-    // Simulate thinking/generating
-    setTimeout(() => {
-      const candidates = DEFAULT_DEPARTMENTS.map((dept) => {
-        const exists = departments.some((d) => d.name_th === dept.name_th);
-        return {
-          ...dept,
-          status: exists ? "DUPLICATE" : "READY",
-        };
-      });
-      setCandidateDepartments(candidates);
-      setGenStep("review");
-    }, 1200);
-  };
-
-  const handleConfirmAutoGen = async () => {
-    setGenStep("executing");
-    setExecutionStatus(
-      candidateDepartments.map((c) => ({ ...c, execStatus: "pending" })),
-    );
-    setCurrentExecutionIndex(0);
-
-    for (let i = 0; i < candidateDepartments.length; i++) {
-      const item = candidateDepartments[i];
-      setCurrentExecutionIndex(i);
-
-      if (item.status === "DUPLICATE") {
-        setExecutionStatus((prev) => {
-          const next = [...prev];
-          next[i] = {
-            ...item,
-            execStatus: "skipped",
-            message: "Already exists",
-          };
-          return next;
-        });
-        await new Promise((r) => setTimeout(r, 150));
-        continue;
-      }
-
-      try {
-        await new Promise((r) => setTimeout(r, 400));
-        await axios.post("/api/v2/admin/department-management/create", {
-          name_th: item.name_th,
-          name_en: item.name_en,
-          is_active: true,
-        });
-
-        setExecutionStatus((prev) => {
-          const next = [...prev];
-          next[i] = { ...item, execStatus: "success" };
-          return next;
-        });
-      } catch (err) {
-        setExecutionStatus((prev) => {
-          const next = [...prev];
-          next[i] = { ...item, execStatus: "error" };
-          return next;
-        });
-      }
-    }
-
-    setGenStep("summary");
-    fetchData();
-  };
-
-  const handleDeleteCandidate = (index: number) => {
-    const newCandidates = [...candidateDepartments];
-    newCandidates.splice(index, 1);
-    setCandidateDepartments(newCandidates);
-  };
-
   const handleSubmit = async (values: any) => {
     try {
+      const payload = {
+        ...values,
+        permission_ids: values.permission_ids || [],
+      };
+
       if (modalMode === "create") {
-        await axios.post("/api/v2/admin/department-management/create", values);
-        toast.success("สร้างแผนกสำเร็จ");
+        await axios.post("/api/v2/admin/role-management/create", payload);
+        toast.success("สร้างบทบาทสำเร็จ");
       } else {
-        await axios.post("/api/v2/admin/department-management/update", {
-          ...values,
-          id: selectedDept?.id,
+        await axios.post("/api/v2/admin/role-management/update", {
+          ...payload,
+          id: selectedRole?.id,
         });
-        toast.success("แก้ไขแผนกสำเร็จ");
+        toast.success("อัปเดตสิทธิ์บทบาทสำเร็จ");
       }
       setModalMode(null);
       fetchData();
@@ -199,55 +125,78 @@ export default function DepartmentManagementPage() {
     }
   };
 
+  const handleCopyPermissions = (roleId: number) => {
+    const targetRole = roles.find((r) => r.id === roleId);
+    if (targetRole) {
+      const pIds = targetRole.permissions.map((p) => p.permission_id);
+      form.setFieldsValue({ permission_ids: pIds });
+      toast.info(`คัดลอกสิทธิ์จาก ${targetRole.role_name} แล้ว`);
+    }
+  };
+
+  const handleSeedPermissions = async () => {
+    Modal.confirm({
+      title: "ติดตั้งสิทธิ์มาตรฐาน (IPO Seeding)",
+      content: "ระบบจะสร้าง Permission พื้นฐานที่จำเป็นตามมาตรฐาน IPO",
+      onOk: async () => {
+        try {
+          const permList = Object.entries(PERMISSIONS).map(([key, value]) => ({
+            p_code: value,
+            name_th: key.replace(/_/g, " ").toLowerCase(),
+          }));
+          await axios.post("/api/v2/admin/permission-management/seed", {
+            permissions: permList,
+          });
+          toast.success("Seed สำเร็จ");
+          fetchData();
+        } catch (err) {
+          toast.error("Seed ล้มเหลว (อาจมีข้อมูลอยู่แล้ว)");
+        }
+      },
+    });
+  };
+
   const handleDelete = async () => {
-    if (!selectedDept) return;
+    if (!selectedRole) return;
     try {
-      await axios.post("/api/v2/admin/department-management/delete", {
-        id: selectedDept.id,
+      await axios.post("/api/v2/admin/role-management/delete", {
+        id: selectedRole.id,
       });
-      toast.success("ลบแผนกเรียบร้อยแล้ว");
+      toast.success("ลบบทบาทเรียบร้อยแล้ว");
       setDeleteModalOpen(false);
       fetchData();
     } catch {
-      toast.error("เกิดข้อผิดพลาดในการลบ");
+      toast.error("ไม่สามารถลบได้เนื่องจากมีผู้ใช้ใช้บทบาทนี้อยู่");
     }
   };
 
   // --- Columns ---
-  const columns: ColumnsType<Department> = [
+  const roleColumns: ColumnsType<Role> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      width: 80,
-      render: (text) => <span className="text-gray-400">#{text}</span>,
+      title: "บทบาท & รายละเอียด",
+      dataIndex: "role_name",
+      render: (text, r) => (
+        <Space direction="vertical" size={0}>
+          <Text strong style={{ fontSize: 16 }}>
+            {text}
+          </Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {r.description || "-"}
+          </Text>
+        </Space>
+      ),
     },
     {
-      title: "ชื่อแผนก (TH)",
-      dataIndex: "name_th",
-      sorter: (a, b) => a.name_th.localeCompare(b.name_th),
-      render: (text) => <span className="font-semibold">{text}</span>,
+      title: "สิทธิ์",
+      dataIndex: "permissions",
+      align: "center",
+      render: (p) => <Tag color="purple">{p?.length || 0} รายการ</Tag>,
     },
     {
-      title: "ชื่อแผนก (EN)",
-      dataIndex: "name_en",
-      render: (text) => text || "-",
-    },
-    {
-      title: "จำนวนพนักงาน",
+      title: "ผู้ใช้งาน",
       dataIndex: ["_count", "users"],
       align: "center",
       render: (count) => <Tag color="blue">{count || 0} คน</Tag>,
-    },
-    {
-      title: "สถานะ",
-      dataIndex: "is_active",
-      align: "center",
-      render: (active) =>
-        active ? (
-          <Tag color="success">Active</Tag>
-        ) : (
-          <Tag color="default">Inactive</Tag>
-        ),
     },
     {
       title: "จัดการ",
@@ -255,22 +204,29 @@ export default function DepartmentManagementPage() {
       align: "center",
       render: (_, r) => (
         <Space>
-          <Button
-            type="text"
-            icon={<EditOutlined className="text-yellow-500" />}
-            onClick={() => {
-              setSelectedDept(r);
-              setModalMode("edit");
-              form.setFieldsValue(r);
-            }}
-          />
+          <Tooltip title="แก้ไขสิทธิ์">
+            <Button
+              type="text"
+              icon={<EditOutlined className="text-orange-500" />}
+              onClick={() => {
+                setSelectedRole(r);
+                setModalMode("edit");
+                form.setFieldsValue({
+                  role_name: r.role_name,
+                  description: r.description,
+                  is_active: r.is_active,
+                  permission_ids: r.permissions.map((p) => p.permission_id),
+                });
+              }}
+            />
+          </Tooltip>
           <Button
             type="text"
             danger
             icon={<DeleteOutlined />}
-            disabled={r._count?.users ? r._count.users > 0 : false}
+            disabled={r._count?.users! > 0 || r.role_name === "ADMIN"}
             onClick={() => {
-              setSelectedDept(r);
+              setSelectedRole(r);
               setDeleteModalOpen(true);
             }}
           />
@@ -283,346 +239,182 @@ export default function DepartmentManagementPage() {
     <PermissionLayout role={["ADMIN"]}>
       <DashboardLayout>
         <HeaderBar
-          icon={<ApartmentOutlined />}
-          title="จัดการแผนก (Department)"
-          subTitle="บริหารจัดการแผนกและโครงสร้างองค์กร"
+          icon={<SafetyCertificateOutlined />}
+          title="จัดการบทบาทและสิทธิ์ (RBAC)"
+          subTitle="กำหนดโครงสร้างการเข้าถึงตามหลัก Separation of Duties (IPO Standard)"
           extra={
             <Space>
+              <Button onClick={handleSeedPermissions} icon={<AuditOutlined />}>
+                Seed IPO
+              </Button>
               <Button onClick={fetchData} icon={<ReloadOutlined />}>
                 รีเฟรช
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setModalMode("create");
+                  form.resetFields();
+                  form.setFieldsValue({ is_active: true });
+                }}
+              >
+                สร้าง Role ใหม่
               </Button>
             </Space>
           }
         />
 
-        <Card
-          styles={{ body: { padding: 16 } }}
-          style={{
-            borderRadius: 16,
-            border: `1px solid ${token.colorBorderSecondary}`,
-          }}
-        >
-          <Row justify="space-between" align="middle" className="mb-4">
-            <Col>
-              <Input
-                prefix={<SearchOutlined />}
-                placeholder="ค้นหาชื่อแผนก..."
-                style={{ width: 300, borderRadius: 8 }}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                allowClear
-              />
-            </Col>
-            <Col>
-              <Space>
-                <Button
-                  onClick={handleOpenAutoGen}
-                  icon={<CloudServerOutlined />}
-                  className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
-                >
-                  เทมเพลตแผนกอัตโนมัติ
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    setModalMode("create");
-                    form.resetFields();
-                    form.setFieldsValue({ is_active: true });
-                  }}
-                >
-                  เพิ่มแผนก
-                </Button>
-              </Space>
-            </Col>
-          </Row>
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={[
+            {
+              key: "1",
+              label: (
+                <span>
+                  <LockOutlined /> จัดการบทบาท (Roles)
+                </span>
+              ),
+              children: (
+                <Card style={{ borderRadius: 16 }}>
+                  <Input
+                    prefix={<SearchOutlined />}
+                    placeholder="ค้นหาบทบาท..."
+                    className="mb-4"
+                    style={{ width: 300 }}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                  <Table
+                    columns={roleColumns}
+                    dataSource={roles}
+                    loading={loading}
+                    rowKey="id"
+                  />
+                </Card>
+              ),
+            },
+            {
+              key: "2",
+              label: (
+                <span>
+                  <UnlockOutlined /> รายสิทธิ์ (Permissions)
+                </span>
+              ),
+              children: (
+                <Card style={{ borderRadius: 16 }}>
+                  <Table
+                    dataSource={permissions}
+                    columns={[
+                      {
+                        title: "Code",
+                        dataIndex: "p_code",
+                        render: (c) => <Tag color="orange">{c}</Tag>,
+                      },
+                      { title: "ชื่อสิทธิ์", dataIndex: "name_th" },
+                      { title: "รายละเอียด", dataIndex: "description" },
+                    ]}
+                    rowKey="id"
+                  />
+                </Card>
+              ),
+            },
+          ]}
+        />
 
-          <Table
-            columns={columns}
-            dataSource={departments}
-            loading={loading}
-            rowKey="id"
-            pagination={{ pageSize: 15 }}
-          />
-        </Card>
-
-        {/* Create/Edit Modal */}
         <Modal
           open={!!modalMode}
-          title={modalMode === "create" ? "เพิ่มแผนกใหม่" : "แก้ไขแผนก"}
+          title={
+            modalMode === "create"
+              ? "เพิ่มบทบาทใหม่"
+              : `แก้ไขบทบาท: ${selectedRole?.role_name}`
+          }
           onCancel={() => setModalMode(null)}
-          footer={null}
+          onOk={() => form.submit()}
+          width={850}
+          okText="บันทึกข้อมูล"
         >
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
-            <Form.Item
-              name="name_th"
-              label="ชื่อแผนก (TH)"
-              rules={[{ required: true, message: "กรุณาระบุชื่อแผนก" }]}
-            >
-              <Input placeholder="เช่น ฝ่ายทรัพยากรบุคคล" />
-            </Form.Item>
-            <Form.Item name="name_en" label="ชื่อแผนก (EN)">
-              <Input placeholder="e.g. Human Resources" />
-            </Form.Item>
-            <Form.Item
-              name="is_active"
-              label="สถานะการใช้งาน"
-              valuePropName="checked"
-            >
-              <Button.Group>
-                <Button
-                  type={form.getFieldValue("is_active") ? "primary" : "default"}
-                  onClick={() => form.setFieldValue("is_active", true)}
+            <Row gutter={16}>
+              <Col span={10}>
+                <Form.Item
+                  name="role_name"
+                  label="ชื่อบทบาท (English)"
+                  rules={[{ required: true }]}
                 >
-                  เปิดใช้งาน
-                </Button>
-                <Button
-                  type={
-                    !form.getFieldValue("is_active") ? "primary" : "default"
-                  }
-                  danger={!form.getFieldValue("is_active")}
-                  onClick={() => form.setFieldValue("is_active", false)}
-                >
-                  ปิดใช้งาน
-                </Button>
-              </Button.Group>
-            </Form.Item>
+                  <Input
+                    placeholder="เช่น MANAGER_HR"
+                    disabled={selectedRole?.role_name === "ADMIN"}
+                  />
+                </Form.Item>
+                <Form.Item name="description" label="คำอธิบาย">
+                  <Input.TextArea rows={2} placeholder="ใช้สำหรับทำอะไร..." />
+                </Form.Item>
+              </Col>
+              <Col span={14}>
+                <Alert
+                  type="info"
+                  showIcon
+                  message="คัดลอกสิทธิ์ (UX Template)"
+                  description="เลือกบทบาทต้นฉบับเพื่อนำสิทธิ์ทั้งหมดมาใส่ในฟอร์มนี้"
+                  className="mb-3"
+                />
+                <Space wrap>
+                  {roles.map((r) => (
+                    <Button
+                      key={r.id}
+                      size="small"
+                      icon={<CopyOutlined />}
+                      onClick={() => handleCopyPermissions(r.id)}
+                    >
+                      Copy {r.role_name}
+                    </Button>
+                  ))}
+                </Space>
+              </Col>
+            </Row>
 
-            <Space className="w-full justify-end mt-4">
-              <Button onClick={() => setModalMode(null)}>ยกเลิก</Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                icon={<CheckCircleOutlined />}
-              >
-                บันทึก
-              </Button>
-            </Space>
+            <Divider orientation="left">Matrix: กำหนดสิทธิ์รายย่อย</Divider>
+
+            <Form.Item name="permission_ids">
+              <Checkbox.Group style={{ width: "100%" }}>
+                <Row gutter={[8, 8]}>
+                  {permissions.map((p) => (
+                    <Col span={8} key={p.id}>
+                      <Card size="small" hoverable style={{ height: "100%" }}>
+                        <Checkbox value={p.id}>
+                          <div
+                            style={{ display: "flex", flexDirection: "column" }}
+                          >
+                            <Text strong style={{ fontSize: 12 }}>
+                              {p.name_th}
+                            </Text>
+                            <Text type="secondary" style={{ fontSize: 10 }}>
+                              {p.p_code}
+                            </Text>
+                          </div>
+                        </Checkbox>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </Checkbox.Group>
+            </Form.Item>
           </Form>
         </Modal>
 
-        {/* Delete Confirmation */}
         <Modal
-          title={
-            <Space className="text-red-500">
-              <ExclamationCircleOutlined /> ยืนยันการลบ
-            </Space>
-          }
+          title="ยืนยันการลบ"
           open={deleteModalOpen}
           onCancel={() => setDeleteModalOpen(false)}
           onOk={handleDelete}
           okButtonProps={{ danger: true }}
         >
-          <p>
-            คุณต้องการลบแผนก <strong>{selectedDept?.name_th}</strong> หรือไม่?
-          </p>
-          <p className="text-xs text-gray-400">
-            *ไม่สามารถลบแผนกที่มีพนักงานสังกัดอยู่ได้
-          </p>
-        </Modal>
-
-        {/* Auto Gen Modal */}
-        <Modal
-          open={autoGenModalOpen}
-          title={
-            <Space>
-              <CloudServerOutlined className="text-purple-500" />
-              ระบบสร้างแผนกอัตโนมัติ (Department Generator)
-            </Space>
-          }
-          width={700}
-          onCancel={() => {
-            if (genStep === "executing") return;
-            setAutoGenModalOpen(false);
-          }}
-          footer={
-            genStep === "review"
-              ? [
-                  <Button
-                    key="cancel"
-                    onClick={() => setAutoGenModalOpen(false)}
-                  >
-                    ยกเลิก
-                  </Button>,
-                  <Button
-                    key="confirm"
-                    type="primary"
-                    onClick={handleConfirmAutoGen}
-                  >
-                    ยืนยันและเริ่มสร้าง (
-                    {
-                      candidateDepartments.filter((c) => c.status === "READY")
-                        .length
-                    }
-                    )
-                  </Button>,
-                ]
-              : genStep === "summary"
-                ? [
-                    <Button
-                      key="close"
-                      type="primary"
-                      onClick={() => setAutoGenModalOpen(false)}
-                    >
-                      ปิดหน้าต่าง
-                    </Button>,
-                  ]
-                : null
-          }
-        >
-          {genStep === "generating" && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="animate-spin text-4xl text-purple-500 mb-4">
-                <CloudServerOutlined />
-              </div>
-              <Typography.Text type="secondary">
-                กำลังวิเคราะห์และสร้างรายการแผนกมาตรฐาน...
-              </Typography.Text>
-            </div>
-          )}
-
-          {genStep === "review" && (
-            <div className="space-y-4">
-              <Alert
-                type="info"
-                showIcon
-                message="ตรวจสอบรายการแผนก"
-                description="ระบบได้สร้างรายการแผนกมาตรฐานให้คุณแล้ว หากแผนกใดมีอยู่แล้วระบบจะข้ามการสร้าง"
-              />
-              <div className="max-h-[400px] overflow-y-auto border rounded-lg">
-                <Table
-                  dataSource={candidateDepartments}
-                  pagination={false}
-                  rowKey="name_th"
-                  size="small"
-                  columns={[
-                    { title: "ชื่อแผนก (TH)", dataIndex: "name_th" },
-                    { title: "ชื่อแผนก (EN)", dataIndex: "name_en" },
-                    {
-                      title: "สถานะ",
-                      dataIndex: "status",
-                      width: 100,
-                      render: (status) =>
-                        status === "DUPLICATE" ? (
-                          <Tag color="warning">มีอยู่แล้ว</Tag>
-                        ) : (
-                          <Tag color="success">พร้อมสร้าง</Tag>
-                        ),
-                    },
-                    {
-                      title: "จัดการ",
-                      key: "action",
-                      width: 60,
-                      render: (_, r, idx) => (
-                        <Button
-                          type="text"
-                          danger
-                          size="small"
-                          icon={<DeleteOutlined />}
-                          onClick={() => handleDeleteCandidate(idx)}
-                        />
-                      ),
-                    },
-                  ]}
-                />
-              </div>
-            </div>
-          )}
-
-          {(genStep === "executing" || genStep === "summary") && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <Typography.Title level={4}>
-                  {genStep === "executing"
-                    ? "กำลังส่งข้อมูล..."
-                    : "ดำเนินการเสร็จสิ้น"}
-                </Typography.Title>
-                <Progress
-                  percent={Math.round(
-                    ((currentExecutionIndex + (genStep === "summary" ? 1 : 0)) /
-                      candidateDepartments.length) *
-                      100,
-                  )}
-                  status={genStep === "summary" ? "success" : "active"}
-                  strokeColor="#722ed1"
-                />
-              </div>
-
-              <div className="h-[300px] overflow-y-auto bg-gray-50 p-4 rounded-lg border">
-                <Steps
-                  direction="vertical"
-                  size="small"
-                  current={currentExecutionIndex}
-                  items={executionStatus.map((item, idx) => ({
-                    title: item.name_th,
-                    description:
-                      item.execStatus === "skipped" ? (
-                        "ข้าม (มีอยู่แล้ว)"
-                      ) : item.execStatus === "error" ? (
-                        <span className="text-red-500">เกิดข้อผิดพลาด</span>
-                      ) : item.execStatus === "success" ? (
-                        <span className="text-green-500">สร้างสำเร็จ</span>
-                      ) : (
-                        "รอการดำเนินการ"
-                      ),
-                    status:
-                      item.execStatus === "pending"
-                        ? "wait"
-                        : item.execStatus === "success"
-                          ? "finish"
-                          : item.execStatus === "error"
-                            ? "error"
-                            : item.execStatus === "skipped"
-                              ? "process"
-                              : "wait",
-                    icon:
-                      item.execStatus === "pending" &&
-                      idx === currentExecutionIndex ? (
-                        <LoadingOutlined />
-                      ) : item.execStatus === "skipped" ? (
-                        <CheckCircleOutlined className="text-gray-400" />
-                      ) : undefined,
-                  }))}
-                />
-              </div>
-
-              {genStep === "summary" && (
-                <Alert
-                  type="success"
-                  showIcon
-                  message="สรุปผล"
-                  description={
-                    <Space size="large">
-                      <span>
-                        สำเร็จ:{" "}
-                        {
-                          executionStatus.filter(
-                            (i) => i.execStatus === "success",
-                          ).length
-                        }
-                      </span>
-                      <span>
-                        ข้าม:{" "}
-                        {
-                          executionStatus.filter(
-                            (i) => i.execStatus === "skipped",
-                          ).length
-                        }
-                      </span>
-                      <span>
-                        ล้มเหลว:{" "}
-                        {
-                          executionStatus.filter(
-                            (i) => i.execStatus === "error",
-                          ).length
-                        }
-                      </span>
-                    </Space>
-                  }
-                />
-              )}
-            </div>
-          )}
+          <Text>
+            คุณต้องการลบบทบาท <strong>{selectedRole?.role_name}</strong>{" "}
+            หรือไม่?
+          </Text>
         </Modal>
       </DashboardLayout>
     </PermissionLayout>
