@@ -13,6 +13,7 @@ import {
 } from "antd";
 import {
   DownOutlined,
+  LockOutlined,
   LogoutOutlined,
   TrophyFilled,
   UserOutlined,
@@ -419,6 +420,27 @@ export default function UserProfileDropdown(): JSX.Element {
         >
           <IdcardOutlined className="group-hover:scale-110 transition-transform" />
           แก้ไขข้อมูลส่วนตัว
+        </button>
+
+        <button
+          onClick={() => {
+            setIsPopoverOpen(false);
+            router.push("/profile/reset-password");
+          }}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-200 font-medium text-sm group"
+          style={{
+            color: token.colorText,
+            backgroundColor: token.colorFillQuaternary,
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = token.colorFillSecondary)
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = token.colorFillQuaternary)
+          }
+        >
+          <LockOutlined className="group-hover:rotate-12 transition-transform" />
+          เปลี่ยนรหัสผ่าน
         </button>
 
         <button

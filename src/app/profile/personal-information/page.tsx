@@ -21,6 +21,7 @@ import {
   theme,
   DatePicker,
   Tooltip,
+  App,
 } from "antd";
 import {
   UserOutlined,
@@ -69,6 +70,7 @@ const UserEditPage = () => {
   const router = useRouter();
   const { data: session, status: sessionStatus, update } = useSession();
   const { token } = theme.useToken();
+  const { modal } = App.useApp();
   const { user_id } = useParams();
 
   // 🛡️ เช็คสิทธิ์และตัวตน
@@ -159,7 +161,7 @@ const UserEditPage = () => {
       errorDetail = error?.stack || "";
     }
 
-    Modal.error({
+    modal.error({
       title: (
         <Space>
           <ExclamationCircleOutlined style={{ color: token.colorError }} />

@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
       );
       return NextResponse.json({
         success: true,
-        message: "รีเซ็ตรหัสผ่านและส่งอีเมลเรียบร้อยแล้ว",
+        message:
+          "รีเซ็ตรหัสผ่านและส่งอีเมลเรียบร้อยแล้ว แนะนำให้ผู้ใช้งานทำการเปลี่ยนรหัสผ่านใหม่ที่เมนู 'เปลี่ยนรหัสผ่าน' เพื่อความปลอดภัย",
         data: result,
       });
     }

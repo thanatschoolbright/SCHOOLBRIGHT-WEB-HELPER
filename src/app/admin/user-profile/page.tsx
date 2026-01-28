@@ -26,6 +26,7 @@ import {
   Result,
   ConfigProvider,
   Descriptions,
+  App,
 } from "antd";
 import {
   ReloadOutlined,
@@ -919,6 +920,7 @@ const UserStepForm = ({
 
 export default function UserManagementPage() {
   const { token } = theme.useToken();
+  const { modal } = App.useApp();
   const isDark = token.colorBgBase !== "#ffffff";
   const [form] = Form.useForm();
   const router = useRouter();
@@ -945,7 +947,7 @@ export default function UserManagementPage() {
 
   // --- Logic: Reset Password ---
   const handleResetPassword = async (user: UserProfile) => {
-    Modal.confirm({
+    modal.confirm({
       title: "ยืนยันการรีเซ็ตรหัสผ่าน",
       icon: <WarningOutlined style={{ color: token.colorWarning }} />,
       content: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับ ${user.firstname_th} ${user.lastname_th}? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่อีเมล ${user.email}`,
@@ -974,7 +976,7 @@ export default function UserManagementPage() {
   };
 
   const handleBulkResetPassword = async () => {
-    Modal.confirm({
+    modal.confirm({
       title: "ยืนยันการรีเซ็ตรหัสผ่านแบบกลุ่ม",
       icon: <WarningOutlined style={{ color: token.colorWarning }} />,
       content: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับพนักงานที่เลือกจำนวน ${selectedRowKeys.length} ท่าน? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่เมลของแต่ละท่านทันที`,
