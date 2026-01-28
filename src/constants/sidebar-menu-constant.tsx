@@ -46,6 +46,7 @@ import {
   SolutionOutlined,
   DeploymentUnitOutlined,
   CheckCircleOutlined,
+  ApartmentOutlined,
 } from "@ant-design/icons";
 
 interface SidebarChild {
@@ -83,14 +84,19 @@ export const useSidebarMenu = (): SidebarItem[] => {
             icon: <IdcardOutlined />,
           },
           {
+            label: t("admin_system.children.role_management"),
+            href: "/admin/permission-management",
+            icon: <SafetyCertificateOutlined />,
+          },
+          {
             label: t("admin_system.children.position_management"),
             href: "/admin/position-management",
-            icon: <CrownOutlined />,
+            icon: <DeploymentUnitOutlined />,
           },
           {
             label: t("admin_system.children.department_management"),
             href: "/admin/department-management",
-            icon: <CrownOutlined />,
+            icon: <ApartmentOutlined />,
           },
         ],
       },

@@ -36,7 +36,11 @@ export default function PermissionLayout({ role, children }: Props) {
   // คำนวณสิทธิ์
   const hasPermission =
     role.includes("ALL") ||
-    (AUTH_USER && role.includes(AUTH_USER?.role_name || AUTH_USER?.position));
+    (AUTH_USER &&
+      (Number(AUTH_USER?.admin_id) === 117 || // ✅ Super Admin Bypass
+        role.includes(AUTH_USER?.role_name) ||
+        role.includes(AUTH_USER?.position_name) ||
+        role.includes(AUTH_USER?.position)));
 
   useEffect(() => {
     // ✅ เช็คว่าโหลดเสร็จแล้วเท่านั้น
@@ -64,7 +68,7 @@ export default function PermissionLayout({ role, children }: Props) {
   };
 
   // ⏳ ยังโหลดอยู่
-  if (AUTHENTICATION?.loading || !AUTH_USER) {
+  if (status === "loading") {
     return (
       <div
         style={{
@@ -78,6 +82,11 @@ export default function PermissionLayout({ role, children }: Props) {
         <p>กำลังตรวจสอบสิทธิ์...</p>
       </div>
     );
+  }
+
+  // ✅ ถ้าไม่มีข้อมูลผู้ใช้
+  if (!AUTH_USER) {
+    return null; // หรือแสดงปุ่มให้กลับไป Login
   }
 
   // ✅ ถ้ามีสิทธิ์ หรือ Bypass แล้ว ให้แสดงเนื้อหา

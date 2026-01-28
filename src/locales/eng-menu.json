@@ -4,7 +4,9 @@
     "children": {
       "user_profile": "User Profile",
       "user_management": "User Management",
-      "role_management": "Role Management",
+      "role_management": "Role & Permission Management",
+      "position_management": "Position Management",
+      "department_management": "Department Management",
       "system_log": "System Logs"
     }
   },

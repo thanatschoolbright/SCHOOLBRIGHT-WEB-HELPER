@@ -4,7 +4,9 @@
     "children": {
       "user_profile": "โปรไฟล์ผู้ใช้",
       "user_management": "จัดการผู้ใช้",
-      "role_management": "จัดการบทบาท",
+      "role_management": "จัดการบทบาทและสิทธิ์",
+      "position_management": "จัดการตำแหน่ง",
+      "department_management": "จัดการแผนก",
       "system_log": "บันทึกระบบ"
     }
   },
