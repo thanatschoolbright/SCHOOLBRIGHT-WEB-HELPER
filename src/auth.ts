@@ -124,55 +124,110 @@ export const {
         return {
           id: user.id.toString(),
           admin_id: user.admin_id,
+          username: user.username,
           employee_code: user.employee_code,
           role_id: user.role_id,
           role_name: user.role?.role_name,
           permissions: permissions,
           firstname: user.firstname_th,
           lastname: user.lastname_th,
+          firstname_th: user.firstname_th,
+          lastname_th: user.lastname_th,
+          firstname_en: user.firstname_en,
+          lastname_en: user.lastname_en,
           nickname: user.nickname,
-          phone: user.phone,
+          position_id: user.position_id,
           position_name: user.position_ref?.name_th,
-          name: `${user.firstname_th} ${user.lastname_th}`,
+          department_id: user.department_id,
+          department_name: user.department?.name_th,
+          status: user.status,
+          phone: user.phone,
           email: user.email,
           image: user.profile_image_path,
+          profile_image_path: user.profile_image_path,
+          joined_date: user.joined_date,
+          resigned_date: user.resigned_date,
+          employment_type: user.employment_type,
+          last_login: user.last_login,
+          failed_login_attempts: user.failed_login_attempts,
+          created_at: user.created_at,
+          updated_at: user.updated_at,
+          name: `${user.firstname_th} ${user.lastname_th}`,
         };
       },
     }),
   ],
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user }) {
       if (user) {
         console.log("🎟️ [AUTH] Creating JWT for user:", user.id);
-        token.id = user.id;
-        token.admin_id = (user as any).admin_id;
-        token.employee_code = (user as any).employee_code;
-        token.role_id = (user as any).role_id;
-        token.role_name = (user as any).role_name;
-        token.permissions = (user as any).permissions;
-        token.firstname = (user as any).firstname;
-        token.lastname = (user as any).lastname;
-        token.nickname = (user as any).nickname;
-        token.phone = (user as any).phone;
-        token.position_name = (user as any).position_name;
+        const u = user as any;
+        token.id = u.id;
+        token.admin_id = u.admin_id;
+        token.username = u.username;
+        token.employee_code = u.employee_code;
+        token.role_id = u.role_id;
+        token.role_name = u.role_name;
+        token.permissions = u.permissions;
+        token.firstname = u.firstname;
+        token.lastname = u.lastname;
+        token.firstname_th = u.firstname_th;
+        token.lastname_th = u.lastname_th;
+        token.firstname_en = u.firstname_en;
+        token.lastname_en = u.lastname_en;
+        token.nickname = u.nickname;
+        token.position_id = u.position_id;
+        token.position_name = u.position_name;
+        token.department_id = u.department_id;
+        token.department_name = u.department_name;
+        token.status = u.status;
+        token.phone = u.phone;
+        token.email = u.email;
+        token.profile_image_path = u.profile_image_path;
+        token.joined_date = u.joined_date;
+        token.resigned_date = u.resigned_date;
+        token.employment_type = u.employment_type;
+        token.last_login = u.last_login;
+        token.failed_login_attempts = u.failed_login_attempts;
+        token.created_at = u.created_at;
+        token.updated_at = u.updated_at;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         console.log("🌙 [AUTH] Creating Session for token ID:", token.id);
-        (session.user as any).id = token.id;
-        (session.user as any).admin_id = token.admin_id;
-        (session.user as any).employee_code = token.employee_code;
-        (session.user as any).role_id = token.role_id;
-        (session.user as any).role_name = token.role_name;
-        (session.user as any).permissions = token.permissions;
-        (session.user as any).firstname = token.firstname;
-        (session.user as any).lastname = token.lastname;
-        (session.user as any).nickname = token.nickname;
-        (session.user as any).phone = token.phone;
-        (session.user as any).position_name = token.position_name;
+        const s = session.user as any;
+        s.id = token.id;
+        s.admin_id = token.admin_id;
+        s.username = token.username;
+        s.employee_code = token.employee_code;
+        s.role_id = token.role_id;
+        s.role_name = token.role_name;
+        s.permissions = token.permissions;
+        s.firstname = token.firstname;
+        s.lastname = token.lastname;
+        s.firstname_th = token.firstname_th;
+        s.lastname_th = token.lastname_th;
+        s.firstname_en = token.firstname_en;
+        s.lastname_en = token.lastname_en;
+        s.nickname = token.nickname;
+        s.position_id = token.position_id;
+        s.position_name = token.position_name;
+        s.department_id = token.department_id;
+        s.department_name = token.department_name;
+        s.status = token.status;
+        s.phone = token.phone;
+        s.email = token.email;
+        s.profile_image_path = token.profile_image_path;
+        s.joined_date = token.joined_date;
+        s.resigned_date = token.resigned_date;
+        s.employment_type = token.employment_type;
+        s.last_login = token.last_login;
+        s.failed_login_attempts = token.failed_login_attempts;
+        s.created_at = token.created_at;
+        s.updated_at = token.updated_at;
       }
       return session;
     },

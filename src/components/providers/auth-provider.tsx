@@ -45,16 +45,42 @@ export default function AuthenticationProvider({
           success: true,
           token: "next-auth-session", // Secure JWT session
           user_data: {
+            // --- Legacy Mapping ---
             admin_id: Number(user.admin_id) || 0,
             user_id: Number(user.id) || 0,
             employee_code: user.employee_code || "",
-            firstname: user.firstname || user.name?.split(" ")[0] || "",
-            lastname: user.lastname || user.name?.split(" ")[1] || "",
+            firstname: user.firstname || user.firstname_th || "",
+            lastname: user.lastname || user.lastname_th || "",
             nickname: user.nickname || "",
             email: user.email || "",
             tel: user.phone || "",
-            position: user.role_name || user.position_name || "",
-            ...user,
+            position: user.position_name || user.role_name || "",
+
+            // --- All DB Fields (Prisma matched) ---
+            username: user.username || "",
+            firstname_th: user.firstname_th || "",
+            lastname_th: user.lastname_th || "",
+            firstname_en: user.firstname_en || "",
+            lastname_en: user.lastname_en || "",
+            position_id: user.position_id || null,
+            position_name: user.position_name || "",
+            department_id: user.department_id || null,
+            department_name: user.department_name || "",
+            status: user.status || "ACTIVE",
+            phone: user.phone || "",
+            profile_image_path: user.profile_image_path || "",
+            joined_date: user.joined_date || null,
+            resigned_date: user.resigned_date || null,
+            employment_type: user.employment_type || "FULL_TIME",
+            last_login: user.last_login || null,
+            failed_login_attempts: user.failed_login_attempts || 0,
+            role_id: user.role_id || null,
+            role_name: user.role_name || "",
+            permissions: user.permissions || [],
+            created_at: user.created_at || null,
+            updated_at: user.updated_at || null,
+
+            ...user, // Fallback spread
           },
         },
       };
