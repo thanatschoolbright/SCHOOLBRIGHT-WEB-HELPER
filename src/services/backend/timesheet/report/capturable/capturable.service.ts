@@ -1,5 +1,13 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
+export interface ProjectStatDetail {
+  feature_id: number | null;
+  feature_name: string;
+  asset_capture_type: string;
+  hours: number;
+  percent: number;
+}
+
 export interface ProjectStatResult {
   project_id: number;
   project_code: string;
@@ -8,6 +16,7 @@ export interface ProjectStatResult {
   uncapturable_percent: number;
   hours: number;
   hours_percent: number;
+  details: ProjectStatDetail[];
 }
 
 export const Service = {
@@ -33,12 +42,6 @@ export const Service = {
     const projects = await PrismaTimesheet.project.findMany({
       where: {
         is_deleted: false,
-        timesheets: {
-          some: {
-            date: { gte: start, lte: end },
-            is_deleted: false,
-          },
-        },
       },
       select: {
         id: true,
@@ -55,6 +58,8 @@ export const Service = {
             hours: true,
             feature: {
               select: {
+                id: true,
+                name: true,
                 assetCaptureType: true,
               },
             },
@@ -63,21 +68,52 @@ export const Service = {
       },
     });
 
-    const results = projects.map((p) => {
+    const results = projects.map((p): ProjectStatResult => {
       let totalHours = 0;
       let capturableHours = 0;
       let uncapturableHours = 0;
+
+      // Group by feature to provide detailed breakdown
+      const featureMap: Record<string, ProjectStatDetail> = {};
 
       p.timesheets.forEach((t) => {
         const h = Number(t.hours);
         totalHours += h;
 
-        if (t.feature.assetCaptureType === "CAPTUREABLE") {
+        const featureId = t.feature?.id || 0;
+        const featureName = t.feature?.name || "ไม่ระบุฟีเจอร์/งานย่อย";
+        const captureType = t.feature?.assetCaptureType || "UNCAPTUREABLE";
+
+        if (captureType === "CAPTUREABLE") {
           capturableHours += h;
         } else {
           uncapturableHours += h;
         }
+
+        const key = `${featureId}-${captureType}`;
+        if (!featureMap[key]) {
+          featureMap[key] = {
+            feature_id: t.feature?.id || null,
+            feature_name: featureName,
+            asset_capture_type: captureType,
+            hours: 0,
+            percent: 0,
+          };
+        }
+        featureMap[key].hours += h;
       });
+
+      const details = Object.values(featureMap).map((d) => ({
+        ...d,
+        hours: Number(d.hours.toFixed(2)),
+        percent:
+          totalHours > 0
+            ? Number(((d.hours / totalHours) * 100).toFixed(2))
+            : 0,
+      }));
+
+      // Sort details by hours descending
+      details.sort((a, b) => b.hours - a.hours);
 
       const capturablePercent =
         totalHours > 0 ? (capturableHours / totalHours) * 100 : 0;
@@ -94,6 +130,7 @@ export const Service = {
         uncapturable_percent: Number(uncapturablePercent.toFixed(2)),
         hours: Number(totalHours.toFixed(2)),
         hours_percent: Number(hoursPercent.toFixed(2)),
+        details,
       };
     });
 

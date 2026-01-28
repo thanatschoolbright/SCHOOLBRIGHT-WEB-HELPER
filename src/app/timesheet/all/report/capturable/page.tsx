@@ -17,6 +17,7 @@ import {
   Card,
   Space,
   Typography,
+  Modal,
 } from "antd";
 import {
   FileExcelOutlined,
@@ -29,6 +30,7 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import type { ColumnsType } from "antd/es/table";
@@ -43,6 +45,14 @@ const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 
 // * Define Data Interface
+interface ProjectStatDetail {
+  feature_id: number | null;
+  feature_name: string;
+  asset_capture_type: string;
+  hours: number;
+  percent: number;
+}
+
 interface CapturableData {
   project_id: number;
   project_code: string;
@@ -51,6 +61,7 @@ interface CapturableData {
   uncapturable_percent: number;
   hours: number;
   hours_percent: number;
+  details: ProjectStatDetail[];
 }
 
 // * Column Constants
@@ -62,6 +73,7 @@ const defaultCheckedList = [
   "uncapturable_percent",
   "hours",
   "hours_percent",
+  "actions",
 ];
 
 const columnOptions = [
@@ -72,6 +84,7 @@ const columnOptions = [
   { label: "งานบำรุงรักษา (%)", value: "uncapturable_percent" },
   { label: "ชั่วโมงรวม", value: "hours" },
   { label: "สัดส่วน (%)", value: "hours_percent" },
+  { label: "จัดการ", value: "actions" },
 ];
 
 /**
@@ -92,6 +105,17 @@ export default function CapturableReportPage() {
   ]);
   const [visibleColumns, setVisibleColumns] =
     useState<any[]>(defaultCheckedList);
+
+  // * Detail Modal States
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<CapturableData | null>(
+    null,
+  );
+
+  const openDetails = (record: CapturableData) => {
+    setSelectedProject(record);
+    setDetailModalOpen(true);
+  };
 
   /**
    * * Fetch Report Data
@@ -300,6 +324,23 @@ export default function CapturableReportPage() {
       sorter: (a, b) => a.hours_percent - b.hours_percent,
       render: (value: number) => (
         <Tag bordered={false}>{value.toFixed(2)}%</Tag>
+      ),
+    },
+    {
+      title: "จัดการ",
+      key: "actions",
+      width: 100,
+      align: "center",
+      render: (_, record) => (
+        <Button
+          size="small"
+          type="primary"
+          ghost
+          icon={<InfoCircleOutlined />}
+          onClick={() => openDetails(record)}
+        >
+          รายละเอียด
+        </Button>
       ),
     },
   ];
@@ -614,7 +655,7 @@ export default function CapturableReportPage() {
                 disabled={data.length === 0}
                 className={
                   data.length > 0
-                    ? "text-emerald-600 border-emerald-200 bg-emerald-50"
+                    ? "text-emerald-600 border-emerald-200 bg-emerald-50 dark:text-emerald-400 dark:border-emerald-900 dark:bg-emerald-950/30"
                     : ""
                 }
                 style={
@@ -696,6 +737,204 @@ export default function CapturableReportPage() {
             />
           </Card>
         </Space>
+
+        {/* 4. Detail Breakdown Modal */}
+        <Modal
+          title={
+            <Space size={12}>
+              <div
+                className="p-2 rounded-xl"
+                style={{
+                  background: token.colorPrimaryBg,
+                  color: token.colorPrimary,
+                }}
+              >
+                <InfoCircleOutlined style={{ fontSize: 20 }} />
+              </div>
+              <div>
+                <Title level={4} style={{ margin: 0 }}>
+                  รายละเอียดการวิเคราะห์รายโครงการ
+                </Title>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  แจกแจงที่มาของตัวเลขโดยแบ่งตาม Sub-project / Feature
+                </Text>
+              </div>
+            </Space>
+          }
+          open={detailModalOpen}
+          onCancel={() => setDetailModalOpen(false)}
+          width={900}
+          footer={[
+            <Button key="close" onClick={() => setDetailModalOpen(false)}>
+              ปิดหน้าต่าง
+            </Button>,
+          ]}
+          className="rounded-2xl"
+        >
+          {selectedProject && (
+            <div className="py-2">
+              <div
+                className="mb-6 p-4 rounded-xl border"
+                style={{
+                  backgroundColor: token.colorFillQuaternary,
+                  borderColor: token.colorBorderSecondary,
+                }}
+              >
+                <Row gutter={24}>
+                  <Col span={12}>
+                    <Text type="secondary" className="text-xs block mb-1">
+                      โครงการ
+                    </Text>
+                    <Title level={5} style={{ margin: 0 }}>
+                      [{selectedProject.project_code}]{" "}
+                      {selectedProject.project_name}
+                    </Title>
+                  </Col>
+                  <Col span={6}>
+                    <Text type="secondary" className="text-xs block mb-1">
+                      ชั่วโมงรวม
+                    </Text>
+                    <Text
+                      strong
+                      style={{ fontSize: 18, color: token.colorInfoText }}
+                    >
+                      {selectedProject.hours} hrs
+                    </Text>
+                  </Col>
+                  <Col span={6}>
+                    <Text type="secondary" className="text-xs block mb-1">
+                      ช่วงเวลา
+                    </Text>
+                    <Text strong>
+                      {dateRange[0].format("DD/MM/BB")} -{" "}
+                      {dateRange[1].format("DD/MM/BB")}
+                    </Text>
+                  </Col>
+                </Row>
+              </div>
+
+              <Table
+                dataSource={selectedProject.details}
+                rowKey={(record) =>
+                  `${record.feature_id}-${record.asset_capture_type}`
+                }
+                pagination={false}
+                size="middle"
+                columns={[
+                  {
+                    title: "Sub-project / Feature",
+                    dataIndex: "feature_name",
+                    key: "feature_name",
+                    render: (text) => <Text strong>{text}</Text>,
+                  },
+                  {
+                    title: "ประเภทสินทรัพย์ (Asset Type)",
+                    dataIndex: "asset_capture_type",
+                    key: "asset_capture_type",
+                    width: 250,
+                    align: "center",
+                    render: (type) => (
+                      <Tag
+                        color={type === "CAPTUREABLE" ? "success" : "default"}
+                        icon={
+                          type === "CAPTUREABLE" ? (
+                            <BuildOutlined />
+                          ) : (
+                            <ToolOutlined />
+                          )
+                        }
+                        style={{ padding: "4px 12px", borderRadius: 6 }}
+                      >
+                        {type === "CAPTUREABLE"
+                          ? "งานสร้างใหม่ (Capitalization)"
+                          : "งานบำรุงรักษา (Expense)"}
+                      </Tag>
+                    ),
+                  },
+                  {
+                    title: "ชั่วโมง",
+                    dataIndex: "hours",
+                    key: "hours",
+                    width: 120,
+                    align: "right",
+                    render: (val) => (
+                      <Text strong style={{ color: token.colorInfoText }}>
+                        {val.toLocaleString()}
+                      </Text>
+                    ),
+                  },
+                  {
+                    title: "สัดส่วนในโครงการ",
+                    dataIndex: "percent",
+                    key: "percent",
+                    width: 150,
+                    render: (val) => (
+                      <div className="w-full">
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: 11 }}
+                          className="block text-right mb-1"
+                        >
+                          {val}%
+                        </Text>
+                        <Progress
+                          percent={val}
+                          showInfo={false}
+                          size="small"
+                          strokeColor={token.colorPrimary}
+                        />
+                      </div>
+                    ),
+                  },
+                ]}
+                summary={(pageData) => {
+                  const total = pageData.reduce(
+                    (acc, curr) => acc + curr.hours,
+                    0,
+                  );
+                  return (
+                    <Table.Summary.Row
+                      style={{ backgroundColor: token.colorFillQuaternary }}
+                    >
+                      <Table.Summary.Cell index={0} colSpan={2} align="right">
+                        <Text strong>รวมทั้งหมด</Text>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell index={1} align="right">
+                        <Text
+                          strong
+                          style={{ fontSize: 16, color: token.colorInfoText }}
+                        >
+                          {total.toLocaleString()}
+                        </Text>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell index={2} align="right">
+                        <Text strong>100%</Text>
+                      </Table.Summary.Cell>
+                    </Table.Summary.Row>
+                  );
+                }}
+              />
+
+              <div
+                className="mt-6 p-4 rounded-lg"
+                style={{ backgroundColor: token.colorInfoBg }}
+              >
+                <Space align="start">
+                  <InfoCircleOutlined
+                    style={{ color: token.colorInfo, marginTop: 4 }}
+                  />
+                  <Text type="secondary" style={{ fontSize: 13 }}>
+                    <strong>หมายเหตุสำหรับการตรวจสอบ (IPO Audit Note):</strong>{" "}
+                    ตัวเลขเปอร์เซ็นต์ "งานสร้างใหม่" และ "งานบำรุงรักษา"
+                    ในหน้าหลัก คำนวณจากการนำชั่วโมงรวมของ Sub-project
+                    แต่ละประเภทมาหารด้วยชั่วโมงรวมทั้งหมดของโครงการนี้
+                    ตามรายละเอียดที่ปรากฏในตารางด้านบน
+                  </Text>
+                </Space>
+              </div>
+            </div>
+          )}
+        </Modal>
       </DashboardLayout>
     </PermissionLayout>
   );

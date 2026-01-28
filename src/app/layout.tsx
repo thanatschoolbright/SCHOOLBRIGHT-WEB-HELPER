@@ -67,13 +67,13 @@ export default function RootLayout({
       <head></head>
       <body className="antialiased">
         <Toaster
-          position="top-right"
+          position="bottom-right"
           expand={true}
           richColors
           closeButton
           visibleToasts={5}
           duration={5000}
-          offset={100}
+          offset={24}
           style={{ fontFamily: "inherit" }}
           toastOptions={{
             style: {
