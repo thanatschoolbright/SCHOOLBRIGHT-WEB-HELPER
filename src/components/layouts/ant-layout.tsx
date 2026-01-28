@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { ConfigProvider, theme } from "antd";
+import { App, ConfigProvider, theme } from "antd";
 import type { ThemeConfig } from "antd";
 import thTH from "antd/locale/th_TH";
 import dayjs from "dayjs";
@@ -247,7 +247,7 @@ export default function AntThemeProvider({
           background-color: ${isDark ? "#1F2937" : "#F8FAFC"} !important;
         }
       `}</style>
-      {children}
+      <App>{children}</App>
     </ConfigProvider>
   );
 }

@@ -19,6 +19,8 @@ import {
   Checkbox,
   Divider,
   Tooltip,
+  Badge,
+  App,
 } from "antd";
 import {
   ReloadOutlined,
@@ -66,6 +68,7 @@ interface Role {
 
 export default function PermissionManagementPage() {
   const { token } = theme.useToken();
+  const { modal } = App.useApp();
   const [form] = Form.useForm();
 
   // State
@@ -135,7 +138,7 @@ export default function PermissionManagementPage() {
   };
 
   const handleSeedPermissions = async () => {
-    Modal.confirm({
+    modal.confirm({
       title: "ติดตั้งสิทธิ์มาตรฐาน (IPO Seeding)",
       content: "ระบบจะสร้าง Permission พื้นฐานที่จำเป็นตามมาตรฐาน IPO",
       onOk: async () => {
@@ -197,6 +200,17 @@ export default function PermissionManagementPage() {
       dataIndex: ["_count", "users"],
       align: "center",
       render: (count) => <Tag color="blue">{count || 0} คน</Tag>,
+    },
+    {
+      title: "สถานะ",
+      dataIndex: "is_active",
+      align: "center",
+      render: (active: boolean) => (
+        <Badge
+          status={active ? "success" : "error"}
+          text={active ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+        />
+      ),
     },
     {
       title: "จัดการ",

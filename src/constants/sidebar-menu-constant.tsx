@@ -2,6 +2,8 @@
 
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useSession } from "next-auth/react";
+import { PERMISSIONS } from "./permission.constant";
 import {
   CrownOutlined,
   IdcardOutlined,
@@ -55,6 +57,7 @@ interface SidebarChild {
   news?: boolean;
   revamp?: boolean;
   icon?: JSX.Element;
+  permission?: string | string[];
 }
 
 interface SidebarItem {
@@ -63,20 +66,32 @@ interface SidebarItem {
   children?: SidebarChild[];
   href?: string;
   tag?: string;
+  permission?: string | string[];
 }
 
 export const useSidebarMenu = (): SidebarItem[] => {
   const { t, i18n } = useTranslation("menu");
+  const { data: session } = useSession();
+
+  const userPermissions = (session?.user as any)?.permissions || [];
+  const isAdminId117 = (session?.user as any)?.admin_id === 117;
+
+  const hasPermission = (required: string | string[] | undefined) => {
+    if (!required || isAdminId117) return true;
+    const requiredArray = Array.isArray(required) ? required : [required];
+    return requiredArray.some((p) => userPermissions.includes(p));
+  };
 
   const menu = useMemo(() => {
     if (!i18n.isInitialized || !i18n.hasResourceBundle(i18n.language, "menu")) {
       return [];
     }
 
-    return [
+    const rawMenu: SidebarItem[] = [
       {
         label: t("admin_system.title"),
         icon: <CrownOutlined />,
+        permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
         children: [
           {
             label: t("admin_system.children.user_profile"),
@@ -87,22 +102,26 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("admin_system.children.role_management"),
             href: "/admin/permission-management",
             icon: <SafetyCertificateOutlined />,
+            permission: PERMISSIONS.ROLE_MANAGE,
           },
           {
             label: t("admin_system.children.position_management"),
             href: "/admin/position-management",
             icon: <DeploymentUnitOutlined />,
+            permission: PERMISSIONS.ROLE_MANAGE, // สมมติว่าใช้กลุ่มสิทธิ์เดียวกัน
           },
           {
             label: t("admin_system.children.department_management"),
             href: "/admin/department-management",
             icon: <ApartmentOutlined />,
+            permission: PERMISSIONS.ROLE_MANAGE,
           },
         ],
       },
       {
         label: t("testing.title"),
         icon: <ExperimentOutlined />,
+        permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
           {
             label: t("testing.children.load_testing"),
@@ -114,6 +133,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
       {
         label: t("support.title"),
         icon: <CustomerServiceOutlined />,
+        permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
           {
             label: t("support.children.bypass_school"),
@@ -137,6 +157,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
       {
         label: t("health_check.title"),
         icon: <MedicineBoxOutlined />,
+        permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
           {
             label: t("health_check.children.server_status"),
@@ -222,18 +243,21 @@ export const useSidebarMenu = (): SidebarItem[] => {
       {
         label: t("timesheet_system.title"),
         icon: <HourglassOutlined />,
+        permission: PERMISSIONS.TIMESHEET_READ,
         children: [
           {
             label: t("timesheet_system.children.project"),
             href: "/timesheet/project",
             icon: <FundProjectionScreenOutlined />,
             news: false,
+            permission: PERMISSIONS.PROJECT_READ,
           },
           {
             label: t("timesheet_system.children.entry"),
             href: "/timesheet/entry",
             icon: <FormOutlined />,
             news: false,
+            permission: PERMISSIONS.TIMESHEET_WRITE,
           },
           {
             label: t("timesheet_system.children.timeline"),
@@ -246,6 +270,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             href: "/timesheet/all",
             icon: <SolutionOutlined />, // ปรับเป็นรูปรายงานรวมพนักงาน
             news: false,
+            permission: PERMISSIONS.REPORT_VIEW,
           },
           {
             label: t("timesheet_system.children.overtime"),
@@ -258,6 +283,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
       {
         label: t("backlogs.title"),
         icon: <CarryOutOutlined />,
+        permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
           {
             label: t("backlogs.children.report"),
@@ -270,6 +296,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
       {
         label: t("logger.title"),
         icon: <CodeOutlined />,
+        permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
           {
             label: t("logger.children.api_logs"),
@@ -300,7 +327,20 @@ export const useSidebarMenu = (): SidebarItem[] => {
         ],
       },
     ];
-  }, [t, i18n.isInitialized, i18n.language]);
+
+    // ✅ กรองเมนูตามสิทธิ์ (Filtered by Permissions)
+    return rawMenu
+      .filter((item) => hasPermission(item.permission))
+      .map((item) => ({
+        ...item,
+        children: item.children?.filter((child) =>
+          hasPermission(child.permission),
+        ),
+      }))
+      .filter(
+        (item) => (item.children && item.children.length > 0) || item.href,
+      );
+  }, [t, i18n.isInitialized, i18n.language, userPermissions, isAdminId117]);
 
   return menu;
 };

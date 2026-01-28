@@ -340,7 +340,7 @@ export default function UserProfileDropdown(): JSX.Element {
             style={{ color: token.colorTextSecondary }}
           >
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            {userProfileData.position || "ผู้ดูแลระบบโรงเรียน"}
+            {userProfileData.position_name || "ผู้ดูแลระบบโรงเรียน"}
           </span>
         </div>
       </div>
