@@ -49,43 +49,43 @@ const { Text, Title } = Typography;
 const RANK_THEME_CONFIG: Record<string, any> = {
   S: {
     color: "#F59E0B",
-    label: "ระดับตำนาน (Legendary)",
+    accent: "#FBBF24",
+    label: "ระดับตำนาน",
     icon: <CrownFilled />,
-    shadowColor: "rgba(251,191,36,0.6)",
-    gradientFrom: "#FFF7E6", // Light Yellow
-    gradientTo: "#FFF1B8",
+    bg: "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)",
+    darkBg: "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)",
   },
   A: {
     color: "#10B981",
-    label: "ระดับยอดเยี่ยม (Elite)",
+    accent: "#34D399",
+    label: "ระดับยอดเยี่ยม",
     icon: <SafetyCertificateFilled />,
-    shadowColor: "rgba(16,185,129,0.4)",
-    gradientFrom: "#F6FFED", // Light Green
-    gradientTo: "#D9F7BE",
+    bg: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)",
+    darkBg: "linear-gradient(135deg, #064E3B 0%, #065F46 100%)",
   },
   B: {
     color: "#3B82F6",
-    label: "ระดับมืออาชีพ (Pro)",
+    accent: "#60A5FA",
+    label: "ระดับมืออาชีพ",
     icon: <ThunderboltFilled />,
-    shadowColor: "rgba(59,130,246,0.4)",
-    gradientFrom: "#E6F7FF", // Light Blue
-    gradientTo: "#BAE7FF",
+    bg: "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)",
+    darkBg: "linear-gradient(135deg, #1E3A8A 0%, #172554 100%)",
   },
   C: {
     color: "#F97316",
-    label: "ระดับกลาง (Intermediate)",
-    icon: <UserOutlined />,
-    shadowColor: "rgba(249,115,22,0.4)",
-    gradientFrom: "#FFFBE6", // Light Orange
-    gradientTo: "#FFE58F",
+    accent: "#FB923C",
+    label: "ระดับกลาง",
+    icon: <FireFilled />,
+    bg: "linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)",
+    darkBg: "linear-gradient(135deg, #7C2D12 0%, #431407 100%)",
   },
   F: {
     color: "#64748B",
-    label: "ระดับเริ่มต้น (Rookie)",
+    accent: "#94A3B8",
+    label: "ระดับเริ่มต้น",
     icon: <UserOutlined />,
-    shadowColor: "rgba(100,116,139,0.4)",
-    gradientFrom: "#F5F5F5", // Light Gray
-    gradientTo: "#E0E0E0",
+    bg: "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)",
+    darkBg: "linear-gradient(135deg, #1E293B 0%, #0F172A 100%)",
   },
 };
 
@@ -163,130 +163,150 @@ const RankAvatarDisplay = ({
 
 const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
   const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#FFFFFF";
   const currentRankLetter = userRankDetails?.rankLetter?.toUpperCase() || "F";
-  const rankThemeConfig =
+  const rankConfig =
     RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
 
-  const taskCompletionPercentage = Math.min(
+  const completionPercent = Math.min(
     Math.round(userRankDetails?.completion_rate || 0),
     100,
   );
-  const totalUsageHours = Number(userRankDetails?.total_hours || 0).toFixed(1);
-  const disciplineScoreValue =
-    typeof userRankDetails?.discipline_score === "object"
-      ? (userRankDetails.discipline_score?.score ?? 0).toFixed(1)
-      : Number(userRankDetails?.discipline_score ?? 0).toFixed(1);
-
-  const cardBackgroundStyle = `linear-gradient(135deg, ${rankThemeConfig.gradientFrom}1A 0%, ${rankThemeConfig.gradientTo}33 100%)`;
+  const totalHours = Number(userRankDetails?.total_hours || 0).toFixed(1);
+  const disciplineScore = Number(
+    userRankDetails?.discipline_score?.score ??
+      userRankDetails?.discipline_score ??
+      0,
+  ).toFixed(1);
 
   return (
     <div
-      className="relative p-5 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md"
+      className="relative p-4 rounded-3xl overflow-hidden transition-all duration-500 group"
       style={{
-        background: cardBackgroundStyle,
-        border: `1px solid ${token.colorBorderSecondary}`,
+        background: isDark ? rankConfig.darkBg : rankConfig.bg,
+        border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"}`,
+        boxShadow: isDark
+          ? "0 8px 32px rgba(0,0,0,0.4)"
+          : `0 8px 24px ${rankConfig.color}22`,
       }}
     >
-      <Flex justify="space-between" align="start" className="mb-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span
-              className="text-2xl font-black italic tracking-tighter"
-              style={{
-                background: `linear-gradient(to right, ${rankThemeConfig.color}, ${rankThemeConfig.color}88)`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
+      {/* Background Decoration Icon */}
+      <div
+        className="absolute -right-4 -bottom-4 text-7xl opacity-10 pointer-events-none rotate-12 group-hover:rotate-0 transition-transform duration-700"
+        style={{ color: rankConfig.color }}
+      >
+        {rankConfig.icon}
+      </div>
+
+      <Flex align="center" justify="space-between" className="mb-4">
+        <Flex align="center" gap={12}>
+          <div
+            className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner"
+            style={{
+              background: isDark ? "rgba(0,0,0,0.3)" : "#fff",
+              color: rankConfig.color,
+              border: `1.5px solid ${rankConfig.accent}44`,
+            }}
+          >
+            {rankConfig.icon}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span
+                className="text-xs font-black tracking-wider"
+                style={{ color: rankConfig.color }}
+              >
+                {rankConfig.label}
+              </span>
+            </div>
+            <Title
+              level={3}
+              className="m-0 leading-none mt-1 font-black italic tracking-tighter"
+              style={{ color: isDark ? "#fff" : token.colorTextHeading }}
             >
               RANK {currentRankLetter}
-            </span>
-            <span
-              className="px-2 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-sm"
-              style={{
-                backgroundColor: token.colorFillQuaternary,
-                color: token.colorTextSecondary,
-                border: `1px solid ${token.colorBorder}`,
-              }}
-            >
-              {rankThemeConfig.label.split(" ")[0]}
-            </span>
+            </Title>
           </div>
-          <Text type="secondary" className="text-xs">
-            อันดับรวม #{userRankDetails?.rank ?? "-"}
-          </Text>
-        </div>
+        </Flex>
 
-        <div className="relative">
-          <Progress
-            type="circle"
-            percent={taskCompletionPercentage}
-            size={50}
-            strokeColor={rankThemeConfig.color}
-            strokeWidth={8}
-            trailColor={token.colorFillSecondary}
-            format={() => null}
-          />
-          <div className="absolute inset-0 flex items-center justify-center flex-col">
-            <span
-              className="text-[10px] font-bold"
-              style={{ color: rankThemeConfig.color }}
-            >
-              {taskCompletionPercentage}%
-            </span>
-          </div>
+        <div className="text-right">
+          <Text
+            className="text-[10px] font-bold opacity-50 block mb-0.5"
+            style={{ color: token.colorTextSecondary }}
+          >
+            อันดับรวม
+          </Text>
+          <Text
+            className="text-lg font-black"
+            style={{ color: rankConfig.color }}
+          >
+            #{userRankDetails?.rank || "-"}
+          </Text>
         </div>
       </Flex>
 
-      <Divider style={{ margin: "12px 0", opacity: 0.6 }} />
-
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2 relative z-10">
         <StatisticBoxItem
-          label="ชั่วโมง"
-          value={totalUsageHours}
+          label="ชั่วโมงรวม"
+          value={totalHours}
           icon={<ClockCircleFilled />}
+          rankColor={rankConfig.color}
         />
         <StatisticBoxItem
-          label="วินัย"
-          value={disciplineScoreValue}
+          label="คะแนนวินัย"
+          value={disciplineScore}
           icon={<TrophyFilled />}
+          rankColor={rankConfig.color}
           highlight
-          color={rankThemeConfig.color}
         />
-        <StatisticBoxItem label="ระดับ" value="12" icon={<FireFilled />} />
+        <StatisticBoxItem
+          label="งานสำเร็จ"
+          value={`${completionPercent}%`}
+          icon={<ThunderboltFilled />}
+          rankColor={rankConfig.color}
+        />
       </div>
     </div>
   );
 };
 
-const StatisticBoxItem = ({ label, value, icon, highlight, color }: any) => {
+const StatisticBoxItem = ({
+  label,
+  value,
+  icon,
+  rankColor,
+  highlight,
+}: any) => {
   const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#FFFFFF";
+
   return (
     <div
-      className="flex flex-col items-center p-2 rounded-xl"
+      className="flex flex-col items-center p-2 rounded-2xl transition-all duration-300"
       style={{
-        backgroundColor: token.colorBgContainer,
-        border: `1px solid ${token.colorBorderSecondary}`,
-        boxShadow: token.boxShadowTertiary,
+        background: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.4)",
+        border: `1px solid ${highlight ? rankColor + "44" : "transparent"}`,
+        backdropFilter: "blur(8px)",
       }}
     >
       <span
         style={{
-          color: highlight ? color : token.colorTextTertiary,
-          fontSize: 12,
-          marginBottom: 4,
+          color: highlight ? rankColor : token.colorTextTertiary,
+          fontSize: 14,
+          marginBottom: 2,
         }}
       >
         {icon}
       </span>
       <span
-        className="text-sm font-bold leading-tight"
-        style={{ color: highlight ? color : token.colorText }}
+        className="text-[13px] font-black"
+        style={{ color: isDark ? "#fff" : token.colorText }}
       >
         {value}
       </span>
       <span
-        className="text-[9px] uppercase font-medium tracking-wide mt-0.5"
-        style={{ color: token.colorTextQuaternary }}
+        className="text-[8px] uppercase font-bold tracking-tighter opacity-60"
+        style={{ color: token.colorTextSecondary }}
       >
         {label}
       </span>

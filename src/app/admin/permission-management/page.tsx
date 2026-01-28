@@ -80,6 +80,7 @@ export default function PermissionManagementPage() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
+  const [selectedPermKeys, setSelectedPermKeys] = useState<React.Key[]>([]);
 
   // --- Fetch Data ---
   const fetchData = useCallback(async () => {
@@ -139,21 +140,146 @@ export default function PermissionManagementPage() {
 
   const handleSeedPermissions = async () => {
     modal.confirm({
-      title: "ติดตั้งสิทธิ์มาตรฐาน (IPO Seeding)",
-      content: "ระบบจะสร้าง Permission พื้นฐานที่จำเป็นตามมาตรฐาน IPO",
+      title: "ติดตั้งสิทธิ์มาตรฐาน (System Menu Seeding)",
+      content:
+        "ระบบจะสร้าง Permission ตามโครงสร้างเมนูและมาตรฐาน IPO ปัจจุบัน (รวมถึงเมนูใหม่ที่คุณเพิ่มเข้ามา)",
       onOk: async () => {
         try {
-          const permList = Object.entries(PERMISSIONS).map(([key, value]) => ({
-            p_code: value,
-            name_th: key.replace(/_/g, " ").toLowerCase(),
-          }));
+          // 1. ดึงสิทธิ์จาก PERMISSIONS constant (IPO Standard)
+          const standardPerms = Object.entries(PERMISSIONS).map(
+            ([key, value]) => ({
+              p_code: value,
+              name_th: key.replace(/_/g, " ").toLowerCase(),
+              description: `สิทธิ์มาตรฐานระบบ: ${key}`,
+            }),
+          );
+
+          // 2. ดึงชื่อเมนูจาก i18next (ถ้าทำได้) หรือ Manual Map เบื้องต้น
+          // ในที่นี้เราจะสร้าง Code ตามโครงสร้างโมดูลที่ปรากฏใน sidebar-menu
+          const menuPerms = [
+            // Admin System
+            {
+              p_code: "menu.admin.user_profile",
+              name_th: "เข้าถึงเมนู: ข้อมูลผู้ใช้งาน",
+            },
+            {
+              p_code: "menu.admin.role_management",
+              name_th: "เข้าถึงเมนู: จัดการสิทธิ์",
+            },
+            {
+              p_code: "menu.admin.position_management",
+              name_th: "เข้าถึงเมนู: จัดการตำแหน่ง",
+            },
+            {
+              p_code: "menu.admin.department_management",
+              name_th: "เข้าถึงเมนู: จัดการแผนก",
+            },
+            // Testing
+            {
+              p_code: "menu.testing.load_testing",
+              name_th: "เข้าถึงเมนู: Load Testing",
+            },
+            // Support
+            {
+              p_code: "menu.support.bypass_school",
+              name_th: "เข้าถึงเมนู: Bypass School",
+            },
+            {
+              p_code: "menu.support.test_nfc_card",
+              name_th: "เข้าถึงเมนู: Test NFC Card",
+            },
+            {
+              p_code: "menu.support.cancel_sales",
+              name_th: "เข้าถึงเมนู: Cancel Sales",
+            },
+            // Health Check
+            {
+              p_code: "menu.health_check.server_status",
+              name_th: "เข้าถึงเมนู: Server Status",
+            },
+            {
+              p_code: "menu.health_check.all_server_status",
+              name_th: "เข้าถึงเมนู: All Server Status",
+            },
+            {
+              p_code: "menu.health_check.online_status",
+              name_th: "เข้าถึงเมนู: Online Status",
+            },
+            {
+              p_code: "menu.health_check.version_control",
+              name_th: "เข้าถึงเมนู: Version Control",
+            },
+            {
+              p_code: "menu.health_check.transaction_log",
+              name_th: "เข้าถึงเมนู: Transaction Log",
+            },
+            {
+              p_code: "menu.health_check.heartbeats",
+              name_th: "เข้าถึงเมนู: Heartbeats",
+            },
+            // Mobile App
+            {
+              p_code: "menu.mobile.notification",
+              name_th: "เข้าถึงเมนู: Mobile Notification",
+            },
+            {
+              p_code: "menu.mobile.leave_letter",
+              name_th: "เข้าถึงเมนู: Mobile Leave Letter",
+            },
+            {
+              p_code: "menu.mobile.statistic",
+              name_th: "เข้าถึงเมนู: Mobile Statistics",
+            },
+            {
+              p_code: "menu.mobile.qrcode_health_check",
+              name_th: "เข้าถึงเมนู: QR Health Check",
+            },
+            {
+              p_code: "menu.mobile.check_attendance",
+              name_th: "เข้าถึงเมนู: Check Attendance",
+            },
+            // Timesheet
+            {
+              p_code: "menu.timesheet.project",
+              name_th: "เข้าถึงเมนู: Timesheet Project",
+            },
+            {
+              p_code: "menu.timesheet.entry",
+              name_th: "เข้าถึงเมนู: Timesheet Entry",
+            },
+            {
+              p_code: "menu.timesheet.timeline",
+              name_th: "เข้าถึงเมนู: Timesheet Timeline",
+            },
+            {
+              p_code: "menu.timesheet.all",
+              name_th: "เข้าถึงเมนู: Timesheet All (Admin)",
+            },
+            {
+              p_code: "menu.timesheet.overtime",
+              name_th: "เข้าถึงเมนู: Timesheet Overtime",
+            },
+            // Backlogs
+            {
+              p_code: "menu.backlogs.report",
+              name_th: "เข้าถึงเมนู: Backlogs Report",
+            },
+            // Logger
+            {
+              p_code: "menu.logger.api_logs",
+              name_th: "เข้าถึงเมนู: API Logs",
+            },
+          ].map((m) => ({ ...m, description: "สิทธิ์การเข้าถึงเมนูฝั่ง UI" }));
+
+          const finalPerms = [...standardPerms, ...menuPerms];
+
           await axios.post("/api/v2/admin/permission-management/seed", {
-            permissions: permList,
+            permissions: finalPerms,
           });
-          toast.success("Seed สำเร็จ");
+          toast.success("Seed รายสิทธิ์ตามเมนูสำเร็จ");
           fetchData();
         } catch (err) {
-          toast.error("Seed ล้มเหลว (อาจมีข้อมูลอยู่แล้ว)");
+          toast.error("Seed ล้มเหลว (อาจมีข้อมูลบางส่วนอยู่แล้ว)");
         }
       },
     });
@@ -171,6 +297,29 @@ export default function PermissionManagementPage() {
     } catch {
       toast.error("ไม่สามารถลบได้เนื่องจากมีผู้ใช้ใช้บทบาทนี้อยู่");
     }
+  };
+
+  const handleBulkDeletePermissions = async () => {
+    if (selectedPermKeys.length === 0) return;
+
+    modal.confirm({
+      title: "ลบสิทธิ์ที่เลือก",
+      content: `คุณต้องการลบสิทธิ์จำนวน ${selectedPermKeys.length} รายการที่เลือกใช่หรือไม่?`,
+      okText: "ลบทั้งหมด",
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          await axios.post("/api/v2/admin/permission-management/delete", {
+            ids: selectedPermKeys,
+          });
+          toast.success("ลบสิทธิ์ที่เลือกสำเร็จ");
+          setSelectedPermKeys([]);
+          fetchData();
+        } catch (err) {
+          toast.error("เกิดข้อผิดพลาดในการลบสิทธิ์แบบกลุ่ม");
+        }
+      },
+    });
   };
 
   // --- Columns ---
@@ -318,8 +467,27 @@ export default function PermissionManagementPage() {
               ),
               children: (
                 <Card style={{ borderRadius: 16 }}>
+                  <div className="flex justify-between items-center mb-4">
+                    <Text type="secondary">
+                      จัดการรายการสิทธิ์เข้าถึงพื้นฐานของระบบ (Permissions)
+                    </Text>
+                    {selectedPermKeys.length > 0 && (
+                      <Button
+                        danger
+                        type="primary"
+                        icon={<DeleteOutlined />}
+                        onClick={handleBulkDeletePermissions}
+                      >
+                        ลบสิทธิ์ที่เลือก ({selectedPermKeys.length})
+                      </Button>
+                    )}
+                  </div>
                   <Table
                     dataSource={permissions}
+                    rowSelection={{
+                      selectedRowKeys: selectedPermKeys,
+                      onChange: setSelectedPermKeys,
+                    }}
                     columns={[
                       {
                         title: "Code",
@@ -328,6 +496,37 @@ export default function PermissionManagementPage() {
                       },
                       { title: "ชื่อสิทธิ์", dataIndex: "name_th" },
                       { title: "รายละเอียด", dataIndex: "description" },
+                      {
+                        title: "จัดการ",
+                        align: "center",
+                        render: (_, r) => (
+                          <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => {
+                              modal.confirm({
+                                title: "ยืนยันการลบสิทธิ์",
+                                content: `คุณต้องการลบสิทธิ์ ${r.name_th} (${r.p_code}) ใช่หรือไม่? การลบนี้จะมีผลกับทุกบทบาทที่ถือสิทธิ์นี้อยู่`,
+                                okText: "ลบ",
+                                okButtonProps: { danger: true },
+                                onOk: async () => {
+                                  try {
+                                    await axios.post(
+                                      "/api/v2/admin/permission-management/delete",
+                                      { id: r.id },
+                                    );
+                                    toast.success("ลบสิทธิ์สำเร็จ");
+                                    fetchData();
+                                  } catch (err) {
+                                    toast.error("ลบสิทธิ์ไม่สำเร็จ");
+                                  }
+                                },
+                              });
+                            }}
+                          />
+                        ),
+                      },
                     ]}
                     rowKey="id"
                   />

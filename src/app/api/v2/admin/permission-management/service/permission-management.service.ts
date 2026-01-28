@@ -34,4 +34,13 @@ export const PermissionManagementService = {
       return results;
     });
   },
+
+  // Delete Permission (Soft Delete)
+  async delete(ids: number | number[]) {
+    const idList = Array.isArray(ids) ? ids : [ids];
+    return await PrismaTimesheet.permission.updateMany({
+      where: { id: { in: idList.map((id) => Number(id)) } },
+      data: { is_deleted: true },
+    });
+  },
 };
