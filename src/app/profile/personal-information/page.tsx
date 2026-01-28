@@ -20,6 +20,7 @@ import {
   Modal,
   theme,
   DatePicker,
+  Tooltip,
 } from "antd";
 import {
   UserOutlined,
@@ -37,12 +38,19 @@ import {
   CalendarOutlined,
   ClockCircleOutlined,
   LinkOutlined,
+  InfoCircleOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import { useRouter, useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { toast } from "sonner";
 import dayjs from "dayjs";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
+
+dayjs.extend(buddhistEra);
+
 import { Upload, message } from "antd";
 import type { UploadProps } from "antd";
 import {
@@ -59,9 +67,37 @@ const { Title, Text } = Typography;
 
 const UserEditPage = () => {
   const router = useRouter();
+  const { data: session, status: sessionStatus, update } = useSession();
   const { token } = theme.useToken();
   const { user_id } = useParams();
-  const userId = Array.isArray(user_id) ? user_id[0] : user_id;
+
+  // 🛡️ เช็คสิทธิ์และตัวตน
+  const sessionUser = session?.user as any;
+  const isAdmin =
+    sessionUser?.role === "ADMIN" ||
+    sessionUser?.role_name === "ADMIN" ||
+    String(sessionUser?.role_id) === "1";
+
+  // หน้า "ข้อมูลส่วนตัว" จะใช้ Session ID เป็นหลัก หากไม่มี Params ส่งมา
+  const userId =
+    (Array.isArray(user_id) ? user_id[0] : user_id) || sessionUser?.id;
+
+  // โหมดพนักงานแก้ไขเอง (ถ้าไม่ใช่ Admin ให้ล็อกฟิลด์สำคัญ)
+  const isRestricted = !isAdmin;
+
+  // 🔒 ป้องกันพนักงานแอบแก้ข้อมูลคนอื่นผ่าน URL
+  useEffect(() => {
+    if (
+      sessionStatus === "authenticated" &&
+      !isAdmin &&
+      user_id &&
+      String(user_id) !== String(sessionUser?.id)
+    ) {
+      toast.error("คุณไม่มีสิทธิ์เข้าถึงข้อมูลของผู้อื่น");
+      router.replace("/profile/personal-information");
+    }
+  }, [user_id, sessionUser?.id, isAdmin, sessionStatus, router]);
+
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -70,6 +106,30 @@ const UserEditPage = () => {
   const [positions, setPositions] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+
+  // --- Helper: Restricted Label ---
+  const RestrictedLabel = ({ label }: { label: string }) => (
+    <Space size={4}>
+      <span>{label}</span>
+      {isRestricted && (
+        <Tooltip title="กรณีต้องการปรับเปลี่ยนข้อมูลให้ติดต่อฝ่ายบุคคล">
+          <Badge
+            count="HR"
+            style={{
+              backgroundColor: token.colorFillAlter,
+              color: token.colorTextQuaternary,
+              fontSize: "10px",
+              height: "16px",
+              lineHeight: "16px",
+              minWidth: "24px",
+              cursor: "help",
+              border: `1px solid ${token.colorBorder}`,
+            }}
+          />
+        </Tooltip>
+      )}
+    </Space>
+  );
 
   // Watch fields for upload
   const employeeCode = Form.useWatch("employee_code", form);
@@ -180,6 +240,7 @@ const UserEditPage = () => {
   }, [userId]);
 
   const fetchInitialData = async () => {
+    if (!userId) return;
     try {
       setLoading(true);
       const [userRes, rolesRes, positionsRes, departmentsRes] =
@@ -238,6 +299,10 @@ const UserEditPage = () => {
           ...prev,
           profile_image_path: newImageUrl,
         }));
+
+        // ⚡ อัปเดต Session ทันทีเพื่อให้ User Dropdown แสดงรูปใหม่แบบ Real-time
+        await update({ ...session?.user, profile_image_path: newImageUrl });
+
         toast.success("อัปโหลดรูปภาพสำเร็จ");
         onSuccess("ok");
       } else {
@@ -274,8 +339,19 @@ const UserEditPage = () => {
 
       await axios.post("/api/v2/admin/user-management/update", payload);
 
+      // ⚡ สั่งให้ NextAuth ทำการ Refresh Session ข้อมูลล่าสุดจาก Database
+      await update();
+
       toast.success("อัปเดตข้อมูลสำเร็จ");
-      router.push("/admin/user-profile");
+
+      // ถ้าเป็น Admin ให้กลับไปหน้าจัดการ แต่ถ้าเป็น User ให้เปลี่ยนสถานะ Loading หรือแจ้งเตือน
+      if (isAdmin) {
+        router.push("/admin/user-profile");
+      } else {
+        // ไม่ต้อง reload แล้วเพราะ update() ของ next-auth จัดการให้แล้ว
+        // แต่ถ้าต้องการให้ชัวร์เรื่องการดึงค่าใหม่ทั้งหมด ก็ใช้ reload ได้ตามเดิม
+        // window.location.reload();
+      }
     } catch (error: any) {
       showErrorModal(error, "อัปเดตข้อมูลผู้ใช้งาน");
       console.error("onFinish error:", error);
@@ -285,17 +361,23 @@ const UserEditPage = () => {
   };
 
   return (
-    <PermissionLayout role={["ADMIN"]}>
+    <PermissionLayout>
       <DashboardLayout>
         <HeaderBar
           icon={<UserOutlined />}
-          title="แก้ไขข้อมูลผู้ใช้งาน"
-          subTitle="ปรับเปลี่ยนรายละเอียดข้อมูลของสมาชิกในระบบ"
+          title={isRestricted ? "ข้อมูลส่วนตัว" : "แก้ไขข้อมูลผู้ใช้งาน"}
+          subTitle={
+            isRestricted
+              ? "ดูและจัดการข้อมูลส่วนตัวของคุณ"
+              : "ปรับเปลี่ยนรายละเอียดข้อมูลของสมาชิกในระบบ"
+          }
           extra={
             <Space>
               <Button
                 icon={<ArrowLeftOutlined />}
-                onClick={() => router.push("/admin/user-profile")}
+                onClick={() =>
+                  isAdmin ? router.push("/admin/user-profile") : router.back()
+                }
               >
                 ย้อนกลับ
               </Button>
@@ -490,7 +572,7 @@ const UserEditPage = () => {
                           <Text strong>
                             {userData?.updated_at
                               ? dayjs(userData.updated_at).format(
-                                  "DD MMM YYYY HH:mm",
+                                  "DD/MM/BBBB HH:mm:ss",
                                 )
                               : "-"}
                           </Text>
@@ -521,7 +603,9 @@ const UserEditPage = () => {
                             วันที่เข้าสู่ระบบ
                           </Text>
                           <Text strong>
-                            {dayjs(userData?.created_at).format("DD MMM YYYY")}
+                            {dayjs(userData?.created_at).format(
+                              "DD/MM/BBBB HH:mm:ss",
+                            )}
                           </Text>
                         </div>
                       </Space>
@@ -551,9 +635,7 @@ const UserEditPage = () => {
                           </Text>
                           <Text strong>
                             {userData?.joined_date
-                              ? dayjs(userData.joined_date).format(
-                                  "DD MMM YYYY",
-                                )
+                              ? dayjs(userData.joined_date).format("DD/MM/BBBB")
                               : "ไม่ได้ระบุ"}
                           </Text>
                         </div>
@@ -662,7 +744,9 @@ const UserEditPage = () => {
                     <Row gutter={16}>
                       <Col xs={24} md={12}>
                         <Form.Item
-                          label="ชื่อผู้ใช้งาน (Username)"
+                          label={
+                            <RestrictedLabel label="ชื่อผู้ใช้งาน (Username)" />
+                          }
                           name="username"
                           rules={[
                             {
@@ -672,18 +756,29 @@ const UserEditPage = () => {
                           ]}
                         >
                           <Input
+                            disabled={isRestricted}
                             prefix={
-                              <UserOutlined
-                                style={{ color: token.colorTextDisabled }}
-                              />
+                              isRestricted ? (
+                                <LockOutlined
+                                  style={{ color: token.colorTextDisabled }}
+                                />
+                              ) : (
+                                <UserOutlined
+                                  style={{ color: token.colorTextDisabled }}
+                                />
+                              )
                             }
                             placeholder="username"
                           />
                         </Form.Item>
                       </Col>
                       <Col xs={24} md={12}>
-                        <Form.Item label="รหัสพนักงาน" name="employee_code">
+                        <Form.Item
+                          label={<RestrictedLabel label="รหัสพนักงาน" />}
+                          name="employee_code"
+                        >
                           <Input
+                            disabled={isRestricted}
                             prefix={
                               <IdcardOutlined
                                 style={{ color: token.colorTextDisabled }}
@@ -743,29 +838,40 @@ const UserEditPage = () => {
                     </Space>
                     <Row gutter={16}>
                       <Col xs={24} md={8}>
-                        <Form.Item label="วันที่เริ่มงาน" name="joined_date">
+                        <Form.Item
+                          label={<RestrictedLabel label="วันที่เริ่มงาน" />}
+                          name="joined_date"
+                        >
                           <DatePicker
+                            disabled={isRestricted}
                             placeholder="เลือกวันที่เริ่มงาน"
                             style={{ width: "100%" }}
-                            format="DD/MM/YYYY"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Form.Item label="วันที่ลาออก" name="resigned_date">
-                          <DatePicker
-                            placeholder="เลือกวันที่ลาออก"
-                            style={{ width: "100%" }}
-                            format="DD/MM/YYYY"
+                            format="DD/MM/BBBB"
                           />
                         </Form.Item>
                       </Col>
                       <Col xs={24} md={8}>
                         <Form.Item
-                          label="ประเภทการจ้างงาน"
+                          label={<RestrictedLabel label="วันที่ลาออก" />}
+                          name="resigned_date"
+                        >
+                          <DatePicker
+                            disabled={isRestricted}
+                            placeholder="เลือกวันที่ลาออก"
+                            style={{ width: "100%" }}
+                            format="DD/MM/BBBB"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item
+                          label={<RestrictedLabel label="ประเภทการจ้างงาน" />}
                           name="employment_type"
                         >
-                          <Select placeholder="เลือกประเภทการจ้างงาน">
+                          <Select
+                            disabled={isRestricted}
+                            placeholder="เลือกประเภทการจ้างงาน"
+                          >
                             <Select.Option value="FULL_TIME">
                               Full-time (พนักงานประจำ)
                             </Select.Option>
@@ -802,10 +908,13 @@ const UserEditPage = () => {
                     <Row gutter={16}>
                       <Col xs={24} md={12}>
                         <Form.Item
-                          label="สิทธิ์การใช้งาน (Role)"
+                          label={
+                            <RestrictedLabel label="สิทธิ์การใช้งาน (Role)" />
+                          }
                           name="role_id"
                         >
                           <Select
+                            disabled={isRestricted}
                             placeholder="เลือกสิทธิ์การใช้งาน"
                             options={roles.map((r) => ({
                               label: r.role_name,
@@ -816,10 +925,11 @@ const UserEditPage = () => {
                       </Col>
                       <Col xs={24} md={12}>
                         <Form.Item
-                          label="ตำแหน่ง (Position)"
+                          label={<RestrictedLabel label="ตำแหน่ง (Position)" />}
                           name="position_id"
                         >
                           <Select
+                            disabled={isRestricted}
                             placeholder="เลือกตำแหน่ง"
                             showSearch
                             optionFilterProp="label"
@@ -832,10 +942,11 @@ const UserEditPage = () => {
                       </Col>
                       <Col xs={24} md={12}>
                         <Form.Item
-                          label="แผนก (Department)"
+                          label={<RestrictedLabel label="แผนก (Department)" />}
                           name="department_id"
                         >
                           <Select
+                            disabled={isRestricted}
                             placeholder="เลือกแผนก"
                             showSearch
                             optionFilterProp="label"
@@ -847,8 +958,11 @@ const UserEditPage = () => {
                         </Form.Item>
                       </Col>
                       <Col xs={24} md={12}>
-                        <Form.Item label="สถานะการใช้งาน" name="status">
-                          <Select>
+                        <Form.Item
+                          label={<RestrictedLabel label="สถานะการใช้งาน" />}
+                          name="status"
+                        >
+                          <Select disabled={isRestricted}>
                             <Select.Option value="ACTIVE">
                               <Tag
                                 color="success"
@@ -888,7 +1002,13 @@ const UserEditPage = () => {
                     style={{ width: "100%", justifyContent: "flex-end" }}
                     size={12}
                   >
-                    <Button onClick={() => router.push("/admin/user-profile")}>
+                    <Button
+                      onClick={() =>
+                        isAdmin
+                          ? router.push("/admin/user-profile")
+                          : router.back()
+                      }
+                    >
                       ยกเลิก
                     </Button>
                     <Button

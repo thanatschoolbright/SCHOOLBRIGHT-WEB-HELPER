@@ -17,7 +17,7 @@ export interface VersionRecord {
 }
 
 export interface VersionFormValues {
-  schoolID?: string;
+  schoolID?: (string | number)[];
   appID: string;
   versionID?: string;
   versionName: string;

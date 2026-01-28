@@ -101,7 +101,7 @@ type IssuesPageParams = {
 
 // ! แปลง Error ให้เป็นข้อความที่อ่านง่าย
 const buildErrorDetails = (
-  error: unknown
+  error: unknown,
 ): { message: string; details: string } => {
   if (!error)
     return { message: "ไม่ทราบสาเหตุ", details: "ไม่มีรายละเอียดเพิ่มเติม" };
@@ -128,13 +128,13 @@ const useIssuesPageData = ({
 }: IssuesPageParams) => {
   const dispatch = useDispatch<AppDispatch>();
   const { page, pageSize, filters, total, loading, issues } = useSelector(
-    (state: RootState) => state.issues
+    (state: RootState) => state.issues,
   );
 
   // * รวมข้อมูล State ที่จำเป็นส่งออกไปใช้งาน
   const state = useMemo(
     () => ({ page, pageSize, filters, total, loading, issues }),
-    [filters, loading, page, pageSize, total, issues]
+    [filters, loading, page, pageSize, total, issues],
   );
 
   // ! ฟังก์ชันแสดง Error Modal
@@ -154,7 +154,7 @@ const useIssuesPageData = ({
       );
       (modalApi ?? Modal).error({ title, content: contentNode });
     },
-    [modalApi]
+    [modalApi],
   );
 
   // * ฟังก์ชันโหลดรายการ Issues
@@ -201,12 +201,13 @@ const useIssuesPageData = ({
       if (aiSummaryFilter === "with_ai") {
         items = items.filter(
           (issue: any) =>
-            issue.summary?.includes("AI") || issue.description?.includes("AI")
+            issue.summary?.includes("AI") || issue.description?.includes("AI"),
         );
       } else if (aiSummaryFilter === "without_ai") {
         items = items.filter(
           (issue: any) =>
-            !issue.summary?.includes("AI") && !issue.description?.includes("AI")
+            !issue.summary?.includes("AI") &&
+            !issue.description?.includes("AI"),
         );
       }
 
@@ -266,7 +267,7 @@ const useIssuesPageData = ({
           priorityOptions,
           issueTypeOptions,
           assigneeOptions,
-        })
+        }),
       );
 
       // ? ตั้งค่า Filter เริ่มต้น (เลือกสถานะที่ไม่ใช่ Closed)
@@ -283,21 +284,21 @@ const useIssuesPageData = ({
           issueTypeIds: issueTypeOptions
             .map((it: any) => Number(it.value))
             .filter((v: number) => !isNaN(v)),
-        })
+        }),
       );
 
       // ? โหลด Metadata เพิ่มเติมถ้ามี ProjectId
       if (projectId) {
         const metadataRes = await axios.get<ProjectMetadataResponse>(
           `/api/v1/backlog/projects/${projectId}/metadata`,
-          { params: { space } }
+          { params: { space } },
         );
         const metadata = metadataRes?.data?.data;
         dispatch(
           setOptions({
             categoryOptions: mapOption(metadata?.categories || []),
             milestoneOptions: mapOption(metadata?.milestones || []),
-          })
+          }),
         );
       }
 
@@ -315,7 +316,7 @@ const useIssuesPageData = ({
       dispatch(setFilters({ keyword: value }));
       dispatch(setPagination({ page: 1, pageSize }));
     },
-    [dispatch, pageSize]
+    [dispatch, pageSize],
   );
 
   return {
@@ -660,7 +661,7 @@ function BulkUpdateModal({
       footer={null}
       width={900}
       centered
-      destroyOnClose={false} // ! Keep mounted
+      destroyOnHidden={false} // ! Keep mounted
       maskClosable={!minimized}
       wrapClassName={minimized ? "hidden" : ""}
       style={{ display: minimized ? "none" : undefined }}
@@ -766,7 +767,7 @@ function IssueSummaryModal({
       const s = stats[assigneeName];
       s.total++;
       const isClosed = ["closed", "done", "completed", "finish"].some((st) =>
-        issue.status?.name?.toLowerCase().includes(st)
+        issue.status?.name?.toLowerCase().includes(st),
       );
       if (isClosed) {
         s.closed++;
@@ -1052,7 +1053,7 @@ function ProjectIssuesPageContent(): JSX.Element {
 
   // คำนวณจำนวน Filter ที่ใช้อยู่เพื่อแสดง Badge
   const activeFilterCount = Object.values(state.filters).filter((v) =>
-    Array.isArray(v) ? v.length > 0 : !!v
+    Array.isArray(v) ? v.length > 0 : !!v,
   ).length;
 
   return (
@@ -1157,17 +1158,20 @@ function ProjectIssuesPageContent(): JSX.Element {
           <style jsx global>{`
             @keyframes ai-glow {
               0% {
-                box-shadow: 0 0 10px rgba(24, 144, 255, 0.5),
+                box-shadow:
+                  0 0 10px rgba(24, 144, 255, 0.5),
                   0 0 20px rgba(139, 92, 246, 0.3);
                 transform: scale(1);
               }
               50% {
-                box-shadow: 0 0 25px rgba(24, 144, 255, 0.8),
+                box-shadow:
+                  0 0 25px rgba(24, 144, 255, 0.8),
                   0 0 40px rgba(139, 92, 246, 0.6);
                 transform: scale(1.02);
               }
               100% {
-                box-shadow: 0 0 10px rgba(24, 144, 255, 0.5),
+                box-shadow:
+                  0 0 10px rgba(24, 144, 255, 0.5),
                   0 0 20px rgba(139, 92, 246, 0.3);
                 transform: scale(1);
               }
@@ -1258,8 +1262,8 @@ function ProjectIssuesPageContent(): JSX.Element {
                     {bulkProgress.status === "completed"
                       ? "ประมวลผลเสร็จสิ้น"
                       : bulkProgress.status === "error"
-                      ? "เกิดข้อผิดพลาด"
-                      : "Gemini AI Processing"}
+                        ? "เกิดข้อผิดพลาด"
+                        : "Gemini AI Processing"}
                   </span>
                   {bulkProgress.status === "processing" && (
                     <Tag
@@ -1274,8 +1278,8 @@ function ProjectIssuesPageContent(): JSX.Element {
                   {bulkProgress.status === "completed"
                     ? "คลิกเพื่อดูผลลัพธ์"
                     : bulkProgress.status === "error"
-                    ? "คลิกเพื่อตรวจสอบ"
-                    : `กำลังวิเคราะห์ข้อมูล ${bulkProgress.success}/${bulkProgress.total}`}
+                      ? "คลิกเพื่อตรวจสอบ"
+                      : `กำลังวิเคราะห์ข้อมูล ${bulkProgress.success}/${bulkProgress.total}`}
                 </span>
               </div>
             </div>

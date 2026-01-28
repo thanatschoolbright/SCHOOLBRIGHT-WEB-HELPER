@@ -660,7 +660,7 @@ export default function CanteenAppManager() {
               >
                 {schoolNames.map((name, idx) => (
                   <li key={idx}>
-                    <AntText size="small">{name}</AntText>
+                    <AntText style={{ fontSize: 12 }}>{name}</AntText>
                   </li>
                 ))}
               </ul>
@@ -709,6 +709,22 @@ export default function CanteenAppManager() {
                 setCurrentFormStep(0);
                 setVersionFormModalVisible(true);
 
+                // ✅ ดึง URL และชื่อไฟล์ที่มีอยู่แล้วมาแสดงผล
+                const url = record.url || "";
+                const fileName = url
+                  ? url.substring(url.lastIndexOf("/") + 1)
+                  : "";
+                const existingFile = url
+                  ? [
+                      {
+                        uid: "-1",
+                        name: fileName,
+                        status: "done",
+                        url: url,
+                      },
+                    ]
+                  : [];
+
                 // ✅ ป้องกันค่า undefined/null หลุดเข้าไปใน Form
                 const appIdStr = selectedApplication?.app_id
                   ? String(selectedApplication.app_id)
@@ -723,11 +739,10 @@ export default function CanteenAppManager() {
                   versionName: record.version_name || "",
                   env: record.env || "",
                   note: record.note || "",
-                  isLatestVersion:
-                    record.is_lastest_version === 1 ||
-                    record.is_lastest_version === true,
-                  forceUpdate:
-                    record.force_update === 1 || record.force_update === true,
+                  schoolID: record.school_id?.map((id) => String(id)),
+                  isLatestVersion: Boolean(record.is_lastest_version),
+                  forceUpdate: Boolean(record.force_update),
+                  file: existingFile,
                 });
               })
             }
@@ -1001,7 +1016,7 @@ export default function CanteenAppManager() {
                 <p style={{ fontSize: 16 }}>
                   คลิกหรือลากไฟล์ .apk หรือ .zip มาวางที่นี่เพื่ออัปโหลด
                 </p>
-                <p type="secondary">แนะนำขนาดไฟล์ไม่ควรเกิน 200MB</p>
+                <p>แนะนำขนาดไฟล์ไม่ควรเกิน 200MB</p>
               </Upload.Dragger>
             </Form.Item>
           </div>
@@ -1028,6 +1043,37 @@ export default function CanteenAppManager() {
                   </Form.Item>
                 </Flex>
               </Card>
+              <Card
+                size="small"
+                title={
+                  <Space>
+                    <TeamOutlined />
+                    <span>กลุ่มโรงเรียนเป้าหมาย</span>
+                  </Space>
+                }
+              >
+                <div style={{ marginBottom: 12 }}>
+                  <AntText type="secondary" style={{ fontSize: 13 }}>
+                    เลือกโรงเรียนที่ต้องการให้ได้รับการเข้าถึงเวอร์ชันนี้
+                    (หากไม่เลือกจะถือว่าปล่อยให้ "ทุกโรงเรียน")
+                  </AntText>
+                </div>
+                <Form.Item name="schoolID" noStyle>
+                  <Select
+                    mode="multiple"
+                    placeholder="ค้นหาหรือเลือกโรงเรียน..."
+                    style={{ width: "100%" }}
+                    options={schoolOptions}
+                    maxTagCount="responsive"
+                    filterOption={(input: string, option: any) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  />
+                </Form.Item>
+              </Card>
+
               <Card
                 size="small"
                 title={

@@ -125,7 +125,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           dateRange: range,
           estimate_time: calculateWorkingHours(
             data.startDate || "",
-            data.endDate || ""
+            data.endDate || "",
           ).text,
           backlogDescription: data.backlogDescription,
           assignees:
@@ -150,7 +150,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
     if (watchedDateRange) {
       const { text } = calculateWorkingHours(
         watchedDateRange[0],
-        watchedDateRange[1]
+        watchedDateRange[1],
       );
       form.setFieldValue("estimate_time", text);
     }
@@ -246,7 +246,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       }
       width={900}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       centered
       styles={{
         content: {
@@ -407,11 +407,12 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                     getFieldValue("assignees") || [];
                                   const duplicates = assignees.filter(
                                     (a: any) =>
-                                      a?.userId === value && value !== undefined
+                                      a?.userId === value &&
+                                      value !== undefined,
                                   );
                                   if (duplicates.length > 1) {
                                     return Promise.reject(
-                                      new Error("ชื่อผู้ใช้ซ้ำกัน!")
+                                      new Error("ชื่อผู้ใช้ซ้ำกัน!"),
                                     );
                                   }
                                   return Promise.resolve();
@@ -432,7 +433,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                               }}
                               onChange={(userId) => {
                                 const user = users.find(
-                                  (u) => u.admin_id === userId
+                                  (u) => u.admin_id === userId,
                                 );
                                 if (user?.position) {
                                   const currentAssignees =
@@ -500,7 +501,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           <Col span={24}>
             {renderSectionHeader(
               t("sub_project_page.form_additional_details"),
-              <InfoCircleOutlined />
+              <InfoCircleOutlined />,
             )}
             <Row gutter={24}>
               <Col span={24}>
@@ -540,7 +541,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                 {
                                   required: true,
                                   message: t(
-                                    "sub_project_page.form_link_title_required"
+                                    "sub_project_page.form_link_title_required",
                                   ),
                                 },
                               ]}
@@ -548,7 +549,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                             >
                               <Input
                                 placeholder={t(
-                                  "sub_project_page.form_link_title_placeholder"
+                                  "sub_project_page.form_link_title_placeholder",
                                 )}
                               />
                             </Form.Item>
@@ -561,7 +562,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                 {
                                   required: true,
                                   message: t(
-                                    "sub_project_page.form_link_url_required"
+                                    "sub_project_page.form_link_url_required",
                                   ),
                                 },
                               ]}
@@ -569,7 +570,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                             >
                               <Input
                                 placeholder={t(
-                                  "sub_project_page.form_link_url_placeholder"
+                                  "sub_project_page.form_link_url_placeholder",
                                 )}
                                 prefix={
                                   <LinkOutlined

@@ -14,6 +14,7 @@ import {
   Row,
   Col,
   Card,
+  theme,
 } from "antd";
 import {
   ReloadOutlined,
@@ -42,6 +43,7 @@ export const SyncModal: React.FC<SyncModalProps> = ({
   onCancel,
   onSuccess,
 }) => {
+  const { token } = theme.useToken();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
@@ -157,35 +159,78 @@ export const SyncModal: React.FC<SyncModalProps> = ({
           const isDifferent = (r || "") !== (l || "");
           if (!isDifferent) return null;
           return (
-            <div className="flex justify-between text-xs mb-1 border-b border-gray-100 pb-1">
-              <span className="font-bold text-gray-400 w-20">{label}:</span>
-              <span className="text-red-400 flex-1 text-right truncate pl-2">
+            <div
+              className="flex justify-between text-xs mb-1 pb-1 border-b"
+              style={{ borderColor: token.colorBorderSecondary }}
+            >
+              <Typography.Text
+                type="secondary"
+                strong
+                style={{ width: 80, fontSize: 11 }}
+              >
+                {label}:
+              </Typography.Text>
+              <Typography.Text
+                type="danger"
+                className="flex-1 text-right truncate pl-2"
+              >
                 {l || "-"}
-              </span>
-              <span className="px-2 text-gray-300">
+              </Typography.Text>
+              <Typography.Text
+                type="secondary"
+                className="px-2"
+                style={{ opacity: 0.5 }}
+              >
                 <ArrowRightOutlined />
-              </span>
-              <span className="text-green-600 flex-1 truncate font-medium">
+              </Typography.Text>
+              <Typography.Text
+                type="success"
+                className="flex-1 truncate font-medium"
+              >
                 {r || "-"}
-              </span>
+              </Typography.Text>
             </div>
           );
         };
 
         if (record.type === "MISSING_IN_LOCAL") {
           return (
-            <div className="bg-blue-50/50 p-2 rounded border border-blue-100">
-              <div className="font-bold text-sm text-blue-800">
+            <div
+              className="p-2 rounded border"
+              style={{
+                backgroundColor: token.colorInfoBg,
+                borderColor: token.colorInfoBorder,
+              }}
+            >
+              <div
+                className="font-bold text-sm"
+                style={{ color: token.colorInfoText }}
+              >
                 {remote.firstname_th} {remote.lastname_th}
               </div>
-              <div className="text-gray-600 text-[10px] mb-1">
-                Username:{" "}
-                <span className="font-mono bg-blue-100 px-1 rounded">
-                  {remote.username}
-                </span>
+              <div className="text-[10px] mb-1">
+                <Typography.Text type="secondary" style={{ fontSize: 10 }}>
+                  Username:{" "}
+                  <code
+                    className="px-1 rounded"
+                    style={{
+                      backgroundColor: token.colorInfoBgHover,
+                      color: token.colorInfoText,
+                    }}
+                  >
+                    {remote.username}
+                  </code>
+                </Typography.Text>
               </div>
-              <div className="text-gray-600 text-xs">{remote.email}</div>
-              <div className="text-blue-500 text-[10px] font-bold uppercase tracking-wider mt-1">
+              <div className="text-xs">
+                <Typography.Text type="secondary">
+                  {remote.email}
+                </Typography.Text>
+              </div>
+              <div
+                className="text-[10px] font-bold uppercase tracking-wider mt-1"
+                style={{ color: token.colorInfo }}
+              >
                 {remote.position || "ไม่ระบุตำแหน่ง"}
               </div>
             </div>
@@ -194,8 +239,10 @@ export const SyncModal: React.FC<SyncModalProps> = ({
 
         return (
           <div className="flex flex-col">
-            <div className="font-bold mb-2 text-sm text-gray-700">
-              {remote.firstname_th} {remote.lastname_th}
+            <div className="font-bold mb-2 text-sm">
+              <Typography.Text strong>
+                {remote.firstname_th} {remote.lastname_th}
+              </Typography.Text>
             </div>
             <DiffText label="Username" r={remote.username} l={local.username} />
             <DiffText
@@ -225,7 +272,7 @@ export const SyncModal: React.FC<SyncModalProps> = ({
       open={open}
       title={
         <Space>
-          <CloudSyncOutlined className="text-blue-500" />
+          <CloudSyncOutlined style={{ color: token.colorPrimary }} />
           <Typography.Text strong style={{ fontSize: 18 }}>
             ระบบซิงค์ข้อมูลผู้ใช้งาน (User Data Sync)
           </Typography.Text>
@@ -262,7 +309,13 @@ export const SyncModal: React.FC<SyncModalProps> = ({
     >
       {syncStep === "selection" && (
         <>
-          <div className="mb-6 bg-white border border-gray-200 p-4 rounded-xl shadow-sm flex justify-between items-center">
+          <div
+            className="mb-6 border p-4 rounded-xl flex justify-between items-center"
+            style={{
+              backgroundColor: token.colorBgContainer,
+              borderColor: token.colorBorderSecondary,
+            }}
+          >
             <Space size={40}>
               <Statistic
                 label="Legacy (ต้นทาง)"
@@ -275,12 +328,12 @@ export const SyncModal: React.FC<SyncModalProps> = ({
               <Statistic
                 label="ข้อมูลตรงกันแล้ว"
                 value={stats?.synced_count || 0}
-                valueStyle={{ color: "#52c41a" }}
+                valueStyle={{ color: token.colorSuccess }}
               />
               <Statistic
                 label="พบความแตกต่าง"
                 value={data.length}
-                valueStyle={{ color: "#f5222d" }}
+                valueStyle={{ color: token.colorError }}
               />
             </Space>
             <Button
@@ -334,8 +387,8 @@ export const SyncModal: React.FC<SyncModalProps> = ({
               )}
               status={syncStep === "result" ? "success" : "active"}
               strokeColor={{
-                "0%": "#108ee9",
-                "100%": "#87d068",
+                "0%": token.colorPrimary,
+                "100%": token.colorSuccess,
               }}
               style={{ maxWidth: 600, margin: "0 auto" }}
             />
@@ -343,7 +396,13 @@ export const SyncModal: React.FC<SyncModalProps> = ({
 
           <Row gutter={24}>
             <Col span={16}>
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 h-[450px] overflow-hidden flex flex-col">
+              <div
+                className="rounded-xl p-4 border h-[450px] overflow-hidden flex flex-col"
+                style={{
+                  backgroundColor: token.colorFillAlter,
+                  borderColor: token.colorBorderSecondary,
+                }}
+              >
                 <Typography.Text strong className="mb-3 block">
                   ประวัติการดำเนินการ (Execution Log)
                 </Typography.Text>
@@ -355,34 +414,51 @@ export const SyncModal: React.FC<SyncModalProps> = ({
                     items={syncResults.map((item, idx) => ({
                       title: (
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">
+                          <Typography.Text className="text-sm font-medium">
                             {item.remote?.firstname_th}{" "}
                             {item.remote?.lastname_th}
-                          </span>
-                          <span className="text-gray-400 text-xs">
+                          </Typography.Text>
+                          <Typography.Text type="secondary" className="text-xs">
                             (ID: {item.key})
-                          </span>
+                          </Typography.Text>
                         </div>
                       ),
                       description: (
                         <div className="text-xs">
                           {item.status === "pending" && idx === currentIdx ? (
-                            <span className="text-blue-500">
+                            <Typography.Text style={{ color: token.colorInfo }}>
                               กำลังประมวลผล...
-                            </span>
+                            </Typography.Text>
                           ) : item.status === "success" ? (
-                            <span className="text-green-500">สำเร็จ</span>
+                            <Typography.Text
+                              style={{ color: token.colorSuccess }}
+                            >
+                              สำเร็จ
+                            </Typography.Text>
                           ) : item.status === "error" ? (
-                            <div className="text-red-500">
-                              <div>{item.errorMessage}</div>
+                            <div>
+                              <Typography.Text
+                                style={{ color: token.colorError }}
+                              >
+                                {item.errorMessage}
+                              </Typography.Text>
                               {item.errorStack && (
-                                <div className="text-[10px] text-red-300 mt-1 bg-red-50 p-1 rounded border border-red-100 font-mono overflow-x-auto">
+                                <div
+                                  className="text-[10px] mt-1 p-1 rounded border font-mono overflow-x-auto"
+                                  style={{
+                                    backgroundColor: token.colorErrorBg,
+                                    color: token.colorErrorText,
+                                    borderColor: token.colorErrorBorder,
+                                  }}
+                                >
                                   {item.errorStack}
                                 </div>
                               )}
                             </div>
                           ) : (
-                            <span className="text-gray-400">รอคิว...</span>
+                            <Typography.Text type="secondary">
+                              รอคิว...
+                            </Typography.Text>
                           )}
                         </div>
                       ),
@@ -396,11 +472,17 @@ export const SyncModal: React.FC<SyncModalProps> = ({
                               : "wait",
                       icon:
                         item.status === "success" ? (
-                          <CheckCircleOutlined className="text-green-500" />
+                          <CheckCircleOutlined
+                            style={{ color: token.colorSuccess }}
+                          />
                         ) : item.status === "error" ? (
-                          <CloseCircleOutlined className="text-red-500" />
+                          <CloseCircleOutlined
+                            style={{ color: token.colorError }}
+                          />
                         ) : idx === currentIdx && syncStep === "syncing" ? (
-                          <LoadingOutlined className="text-blue-500" />
+                          <LoadingOutlined
+                            style={{ color: token.colorPrimary }}
+                          />
                         ) : undefined,
                     }))}
                   />

@@ -3,12 +3,13 @@ import { z } from "zod";
 
 import { API_URL } from "@/services/api-url";
 import { Service as TimesheetService } from "@/services/backend/timesheet/entry.service";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
 //** ค่าคงที่และประเภทข้อมูล **//
 
 const HOURS_PER_WORKDAY = 8;
 const TZ_OFFSET_MINUTES = Number(
-  process.env.TIMESHEET_TZ_OFFSET_MINUTES ?? 420
+  process.env.TIMESHEET_TZ_OFFSET_MINUTES ?? 420,
 );
 
 export type TimesheetEntryRow = {
@@ -61,7 +62,7 @@ const addDays = (date: Date, amount: number): Date =>
  */
 export const toISODateLocal = (
   utc: Date,
-  offsetMinutes = TZ_OFFSET_MINUTES
+  offsetMinutes = TZ_OFFSET_MINUTES,
 ): string => {
   const local = new Date(utc.getTime() + offsetMinutes * 60_000);
   return local.toISOString().slice(0, 10);
@@ -85,7 +86,7 @@ const toThaiMonthYear = (date: Date): string =>
 export const computeWorkingDaysLocal = (
   startUtc: Date,
   endUtc: Date,
-  offsetMinutes = TZ_OFFSET_MINUTES
+  offsetMinutes = TZ_OFFSET_MINUTES,
 ) => {
   let workingDays = 0;
   const offsetMs = offsetMinutes * 60_000;
@@ -113,7 +114,7 @@ export const computeWorkingDaysLocal = (
 export const buildEffectivePeriod = (
   month: string,
   year: string,
-  scope: "elapsed" | "full"
+  scope: "elapsed" | "full",
 ) => {
   const monthIndex = Number(month) - 1;
   const yearNumber = Number(year);
@@ -130,10 +131,10 @@ export const buildEffectivePeriod = (
   const offsetMs = TZ_OFFSET_MINUTES * 60_000;
 
   const startOfMonthUtc = new Date(
-    Date.UTC(yearNumber, monthIndex, 1) - offsetMs
+    Date.UTC(yearNumber, monthIndex, 1) - offsetMs,
   );
   const endOfMonthUtc = new Date(
-    Date.UTC(yearNumber, monthIndex + 1, 1) - offsetMs - 1
+    Date.UTC(yearNumber, monthIndex + 1, 1) - offsetMs - 1,
   );
 
   const nowUtc = new Date();
@@ -149,16 +150,18 @@ export const buildEffectivePeriod = (
       23,
       59,
       59,
-      999
-    ) - offsetMs
+      999,
+    ) - offsetMs,
   );
 
   const effectiveEndUtc =
     scope === "full"
       ? endOfMonthUtc
       : isCurrentMonth
-      ? new Date(Math.min(endOfMonthUtc.getTime(), endOfYesterdayUtc.getTime()))
-      : endOfMonthUtc;
+        ? new Date(
+            Math.min(endOfMonthUtc.getTime(), endOfYesterdayUtc.getTime()),
+          )
+        : endOfMonthUtc;
 
   if (effectiveEndUtc < startOfMonthUtc) {
     throw new Error("ยังไม่ถึงช่วงเวลาที่ร้องขอ");
@@ -178,7 +181,7 @@ export const buildEffectivePeriod = (
  * @returns Map ที่มี key เป็น admin_id และ value เป็น tổng số giờ
  */
 export const aggregateEntries = (
-  entries: TimesheetEntryRow[]
+  entries: TimesheetEntryRow[],
 ): Map<string, number> => {
   const userHoursMap = new Map<string, number>();
   for (const entry of entries) {
@@ -220,20 +223,46 @@ export const determineMonthlyRank = (completionRate: number) => {
 };
 
 /**
- * ดึงข้อมูลผู้ใช้ทั้งหมดจาก SB Helper API
+ * ดึงข้อมูลผู้ใช้จากฐานข้อมูลโดยตรง (แทนการเรียก API แบบวนซ้ำเพื่อความเร็วสูงสุด)
  * @returns Promise<TimesheetUser[]>
  */
 export const fetchTimesheetUsers = async (): Promise<TimesheetUser[]> => {
-  const baseUrl =
-    API_URL?.SB_HELPER_URL ?? process.env.NEXT_PUBLIC_SB_HELPER_URL;
-  if (!baseUrl) {
-    throw new Error("Missing SB Helper API base URL configuration");
+  try {
+    const users = await PrismaTimesheet.user.findMany({
+      where: {
+        is_deleted: false,
+        status: "ACTIVE",
+      },
+      select: {
+        admin_id: true,
+        firstname_th: true,
+        lastname_th: true,
+        nickname: true,
+        email: true,
+        phone: true,
+        employee_code: true,
+        position_ref: {
+          select: {
+            name_th: true,
+          },
+        },
+      },
+    });
+
+    return users.map((u) => ({
+      admin_id: u.admin_id,
+      firstname: u.firstname_th ?? "",
+      lastname: u.lastname_th ?? "",
+      nickname: u.nickname,
+      email: u.email,
+      tel: u.phone,
+      employee_code: u.employee_code,
+      position: u.position_ref?.name_th ?? "-",
+    }));
+  } catch (error) {
+    console.error("[SummaryService] fetchTimesheetUsers Error:", error);
+    return [];
   }
-  const response = await axios.get<{ data: { data: TimesheetUser[] } }>(
-    `${baseUrl}/api/v1/admin/user/`
-  );
-  const users = response?.data?.data?.data;
-  return Array.isArray(users) ? users : [];
 };
 
 /**
@@ -246,7 +275,7 @@ export const fetchTimesheetUsers = async (): Promise<TimesheetUser[]> => {
 export const buildMonthlyRecords = (
   users: TimesheetUser[],
   totalsByUser: Map<string, number>,
-  expectedHours: number
+  expectedHours: number,
 ) => {
   const records = users.map((user) => {
     const key = String(user.admin_id);
@@ -316,7 +345,7 @@ export const SummaryService = {
     // 2. คำนวณวันทำงานและชั่วโมงที่คาดหวัง
     const { workingDays, expectedHours } = computeWorkingDaysLocal(
       startOfMonthUtc,
-      effectiveEndUtc
+      effectiveEndUtc,
     );
 
     // 3. ดึงข้อมูล entries และ users พร้อมกัน
@@ -327,7 +356,7 @@ export const SummaryService = {
 
     // 4. ประมวลผลข้อมูล
     const totalsByUser = aggregateEntries(
-      entries as unknown as TimesheetEntryRow[]
+      entries as unknown as TimesheetEntryRow[],
     );
     const records = buildMonthlyRecords(users, totalsByUser, expectedHours);
 

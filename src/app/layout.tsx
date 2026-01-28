@@ -67,10 +67,22 @@ export default function RootLayout({
       <head></head>
       <body className="antialiased">
         <Toaster
-          expand={false}
+          position="top-right"
+          expand={true}
           richColors
-          position="bottom-center"
           closeButton
+          visibleToasts={5}
+          duration={5000}
+          offset={100}
+          style={{ fontFamily: "inherit" }}
+          toastOptions={{
+            style: {
+              borderRadius: "16px",
+              padding: "16px",
+              fontSize: "14px",
+              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+            },
+          }}
         />
 
         {/* 🎨 Theme Provider (SSR Friendly) */}

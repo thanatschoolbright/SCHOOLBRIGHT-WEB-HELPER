@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 import "dayjs/locale/th";
 
 // Ant Design V5
@@ -52,6 +53,7 @@ import {
 
 // Setup Dayjs
 dayjs.extend(relativeTime);
+dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
 type SystemGroup = {
@@ -76,7 +78,7 @@ export default function VersionControlDashboard() {
 
   // Redux Selectors
   const GET_VERSION_CONTROL_STATE = useAppSelector(
-    (state) => state.callVersionControlReducer
+    (state) => state.callVersionControlReducer,
   );
 
   const isLoading = GET_VERSION_CONTROL_STATE.loading;
@@ -99,7 +101,7 @@ export default function VersionControlDashboard() {
     const response = GET_VERSION_CONTROL_STATE?.response?.data?.data ?? [];
     const sorted = [...response].sort(
       (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
     );
     setRawData(sorted);
   }, [GET_VERSION_CONTROL_STATE]);
@@ -131,12 +133,12 @@ export default function VersionControlDashboard() {
 
     return Object.values(groups)
       .filter((g) =>
-        g.systemName.toLowerCase().includes(searchText.toLowerCase())
+        g.systemName.toLowerCase().includes(searchText.toLowerCase()),
       )
       .sort(
         (a, b) =>
           new Date(b.last_updated).getTime() -
-          new Date(a.last_updated).getTime()
+          new Date(a.last_updated).getTime(),
       );
   }, [rawData, searchText]);
 
@@ -151,7 +153,7 @@ export default function VersionControlDashboard() {
   }, [groupedSystems, rawData]);
 
   const handleOpenDetail = (
-    item?: ResponseVersionControl["data"]["data"][number]
+    item?: ResponseVersionControl["data"]["data"][number],
   ) => {
     if (item) {
       setSelectedItem(item);
@@ -678,7 +680,7 @@ const EnvPill = ({
         className="text-[10px] font-mono leading-tight"
         style={{ color: token.colorTextSecondary }}
       >
-        {dayjs(data.updated_at).format("DD/MM/YYYY HH:mm")}
+        {dayjs(data.updated_at).format("DD/MM/BBBB HH:mm:ss")}
       </span>
 
       {/* Build Number */}
@@ -762,7 +764,7 @@ const DrawerContent = ({ item, token }: { item: any; token: any }) => {
             เวลาที่ติดตั้ง
           </span>
           <span className="font-semibold">
-            {dayjs(item.updated_at).format("DD MMM YYYY, HH:mm")}
+            {dayjs(item.updated_at).format("DD/MM/BBBB HH:mm:ss")}
           </span>
         </div>
         <div

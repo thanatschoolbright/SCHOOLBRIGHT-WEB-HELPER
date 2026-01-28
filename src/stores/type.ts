@@ -533,6 +533,7 @@ export interface ResponseLoginV2 {
       user_id: number;
       employee_code: string;
       firstname: string;
+      position_name: string;
       lastname: string;
       nickname: string;
       email: string;

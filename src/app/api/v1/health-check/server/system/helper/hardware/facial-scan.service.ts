@@ -21,7 +21,7 @@ export async function checkFacialScanService(): Promise<HealthCheckResult> {
   let domain = "localhost";
   try {
     domain = new URL(FACIAL_SCAN_CONFIG.url).hostname;
-  } catch { }
+  } catch {}
 
   const curlCommand = generateCurlCommand(FACIAL_SCAN_CONFIG);
 

@@ -21,12 +21,17 @@ import {
   SafetyCertificateFilled,
   ClockCircleFilled,
   FireFilled,
+  IdcardOutlined,
 } from "@ant-design/icons";
 import { useSession, signOut } from "next-auth/react";
+import { useDispatch } from "react-redux";
+import { AppDispatch, useAppSelector } from "@stores/store";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import i18n from "@/i18n";
 
 // Services & Helpers
+import { HUAWEI_STORAGE } from "@/services/huawei-bucket-storage.service";
 import {
   getUserRankFromStorage,
   saveUserRankToMemory,
@@ -86,7 +91,20 @@ const RANK_THEME_CONFIG: Record<string, any> = {
 const generateAvatarUrl = (userProfile: any) => {
   // 1. ตรวจสอบว่ามีรูปภาพในฐานข้อมูลหรือไม่ (Real Image)
   const realImage = userProfile?.profile_image_path || userProfile?.image;
+
   if (realImage && realImage !== "null") {
+    // 🛡️ ตรวจสอบว่าเป็น Path ของ Huawei OBS (ที่อาจไม่มี Domain ติดมา)
+    if (
+      typeof realImage === "string" &&
+      !realImage.startsWith("http") &&
+      !realImage.startsWith("data:")
+    ) {
+      // ตัด / ข้างหน้าออกถ้ามี เพื่อป้องกัน URL ซ้อนกัน
+      const cleanPath = realImage.startsWith("/")
+        ? realImage.substring(1)
+        : realImage;
+      return `${HUAWEI_STORAGE.OBS_BUCKET_URL}/${cleanPath}`;
+    }
     return realImage;
   }
 
@@ -281,8 +299,11 @@ const StatisticBoxItem = ({ label, value, icon, highlight, color }: any) => {
 
 export default function UserProfileDropdown(): JSX.Element {
   const { token } = theme.useToken();
-  const { data: session } = useSession();
-  const userProfileData = (session?.user as any) || {};
+  const router = useRouter();
+
+  // ✅ เปลี่ยนมาใช้ข้อมูลจาก Redux เพื่อความรวดเร็วและ Real-time (ซิงค์ผ่าน AuthProvider)
+  const AUTH_REDUX = useAppSelector((state) => state.callAdminLogin);
+  const userProfileData = AUTH_REDUX.response.data?.user_data || {};
 
   const [currentLanguageCode, setCurrentLanguageCode] = useState<string>(
     i18n.language,
@@ -378,6 +399,27 @@ export default function UserProfileDropdown(): JSX.Element {
             className="bg-transparent"
           />
         </div>
+
+        <button
+          onClick={() => {
+            setIsPopoverOpen(false);
+            router.push("/profile/personal-information");
+          }}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-200 font-medium text-sm group"
+          style={{
+            color: token.colorText,
+            backgroundColor: token.colorFillQuaternary,
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = token.colorFillSecondary)
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = token.colorFillQuaternary)
+          }
+        >
+          <IdcardOutlined className="group-hover:scale-110 transition-transform" />
+          แก้ไขข้อมูลส่วนตัว
+        </button>
 
         <button
           onClick={handleLogoutAction}

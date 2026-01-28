@@ -38,12 +38,13 @@ export default function AuthenticationProvider({
     if (status === "authenticated" && session) {
       // ✅ ซิงค์ข้อมูลจาก Session เข้าสู่ Redux เพื่อให้ Component เดิมใช้งานได้
       const user = session.user as any;
-      console.log("🔐 [AuthProvider] User authenticated:", user);
+
+      // สร้าง Payload สำหรับ Redux โดยใช้ข้อมูลล่าสุดจาก Session
       const reduxAuthData = {
         status: 200,
         data: {
           success: true,
-          token: "next-auth-session", // Secure JWT session
+          token: "next-auth-session",
           user_data: {
             // --- Legacy Mapping ---
             admin_id: Number(user.admin_id) || 0,
@@ -68,7 +69,7 @@ export default function AuthenticationProvider({
             department_name: user.department_name || "",
             status: user.status || "ACTIVE",
             phone: user.phone || "",
-            profile_image_path: user.profile_image_path || "",
+            profile_image_path: user.profile_image_path || user.image || "",
             joined_date: user.joined_date || null,
             resigned_date: user.resigned_date || null,
             employment_type: user.employment_type || "FULL_TIME",
@@ -80,17 +81,18 @@ export default function AuthenticationProvider({
             created_at: user.created_at || null,
             updated_at: user.updated_at || null,
 
-            ...user, // Fallback spread
+            ...user, // Fallback spread สำหรับฟิลด์อื่นๆ
           },
         },
       };
 
+      // ⚡ Dispatch ลง Redux เสมอเมื่อ Session มีการเปลี่ยนแปลง
       dispatch(setResponse(reduxAuthData as any));
 
-      // ✅ ซิงค์ข้อมูลสำหรับ Legacy Refresh Token (JabjaiKey)
+      // ✅ ซิงค์ข้อมูลสำหรับ Legacy Refresh Token
       dispatch(
         setRefreshDraft({
-          school_id: "0", // จะถูกอัปเดตโดย SchoolReduxProvider หรือใช้จาก Session ถ้ามี
+          school_id: "0",
           user_id: String(user.id || ""),
           token: "next-auth-session",
         }),

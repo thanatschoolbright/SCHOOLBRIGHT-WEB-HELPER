@@ -16,7 +16,7 @@ export type HeartbeatResponse = {
 };
 
 export async function GET(request: NextRequest) {
-  const apiUrl = API_URL.PROD_HARDWARE_API_URL;
+  const apiUrl = API_URL.DEV_HARDWARE_API_URL;
   const headers = sanitizeForwardHeaders(request);
 
   const endpoint = `/api/v2/heartbeats/latest`;
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         data: response.data,
         status: response.status,
       }),
-      { status: response.status }
+      { status: response.status },
     );
   } catch (error: any) {
     const statusCode = error.response?.status || 500;
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         status: statusCode,
         error: error.response?.data || null,
       }),
-      { status: statusCode }
+      { status: statusCode },
     );
   }
 }

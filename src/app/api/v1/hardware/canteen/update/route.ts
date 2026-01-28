@@ -7,7 +7,7 @@ import { convertToCurl } from "@helpers/api/convert-to-curl";
  * ฟังก์ชันนี้เป็น endpoint สำหรับอัปเดตเวอร์ชันแอปพลิเคชันฮาร์ดแวร์โรงอาหาร โดยส่งข้อมูล multipart/form-data ไปยัง DEV_HARDWARE_API_URL
  */
 export async function POST(request: NextRequest) {
-  const apiUrl = API_URL.PROD_HARDWARE_API_URL;
+  const apiUrl = API_URL.DEV_HARDWARE_API_URL;
   const formData = await request.formData();
   const versionId = formData.get("version_id");
   const endpoint = "/api/v2/applications/version/update/";
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         data: apiResponse.data,
         curl: curlCommand,
       },
-      { status: apiResponse.status }
+      { status: apiResponse.status },
     );
   } catch (error: any) {
     const statusCode = error?.response?.status || 500;
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         message: error?.message || "Internal Server Error",
         raw: error?.response?.data || null,
       },
-      { status: statusCode }
+      { status: statusCode },
     );
   }
 }

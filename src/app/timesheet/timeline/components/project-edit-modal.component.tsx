@@ -369,7 +369,7 @@ export const ProjectEditModalComponent: React.FC<ProjectEditModalProps> = ({
       }
       width={900}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       centered
       styles={{
         content: {

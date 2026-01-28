@@ -126,6 +126,7 @@ const UserFormFields = ({
   onCancel: () => void;
   form: any;
 }) => {
+  const { token } = theme.useToken();
   // Watch phone for auto password generation
   const phone = Form.useWatch("tel", form);
   const employeeCode = Form.useWatch("employee_code", form); // Watch employee code for naming
@@ -210,9 +211,9 @@ const UserFormFields = ({
           label="Password"
           extra={
             !isEdit && (
-              <span className="text-xs text-gray-400">
+              <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
                 *ตั้งค่าเริ่มต้นอัตโนมัติจากเบอร์โทรศัพท์
-              </span>
+              </Typography.Text>
             )
           }
           rules={[
@@ -410,7 +411,10 @@ const UserFormFields = ({
               <SafetyCertificateOutlined /> ความปลอดภัย (IPO Audit)
             </Space>
           </Divider>
-          <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+          <div
+            className="grid grid-cols-2 gap-4 p-4 rounded-lg"
+            style={{ backgroundColor: token.colorFillAlter }}
+          >
             <Form.Item name="last_login" label="เข้าสู่ระบบล่าสุด">
               <Input disabled />
             </Form.Item>
@@ -458,6 +462,7 @@ const UserStepForm = ({
   onCancel: () => void;
   adminId: number | string;
 }) => {
+  const { token } = theme.useToken();
   const [currentStep, setCurrentStep] = useState(0);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "success" | "error"
@@ -483,9 +488,9 @@ const UserStepForm = ({
               name="password"
               label="Password"
               extra={
-                <span className="text-xs text-gray-400">
+                <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
                   *ตั้งค่าเริ่มต้นอัตโนมัติจากเบอร์โทรศัพท์
-                </span>
+                </Typography.Text>
               }
               rules={[
                 { required: true, message: "กรุณาระบุ Password" },
@@ -868,9 +873,7 @@ const UserStepForm = ({
       theme={{
         components: {
           Steps: {
-            colorPrimary: "#1890ff",
-            // colorTextDescription: "#6b7280",
-            // colorTextLabel: "#374151",
+            colorPrimary: token.colorPrimary,
           },
         },
       }}
@@ -938,6 +941,67 @@ export default function UserManagementPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [syncModalOpen, setSyncModalOpen] = useState(false);
   const [roleDrawerOpen, setRoleDrawerOpen] = useState(false); // For Role Management
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  // --- Logic: Reset Password ---
+  const handleResetPassword = async (user: UserProfile) => {
+    Modal.confirm({
+      title: "ยืนยันการรีเซ็ตรหัสผ่าน",
+      icon: <WarningOutlined style={{ color: token.colorWarning }} />,
+      content: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับ ${user.firstname_th} ${user.lastname_th}? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่อีเมล ${user.email}`,
+      okText: "ยืนยันรีเซ็ต",
+      cancelText: "ยกเลิก",
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const res = await axios.post(
+            "/api/v2/admin/user-management/reset-password",
+            {
+              userId: user.id,
+            },
+          );
+          if (res.data.success) {
+            toast.success("รีเซ็ตรหัสผ่านสำเร็จ และส่งเมลเรียบร้อยแล้ว");
+          }
+        } catch (error: any) {
+          toast.error(
+            error.response?.data?.message ||
+              "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน",
+          );
+        }
+      },
+    });
+  };
+
+  const handleBulkResetPassword = async () => {
+    Modal.confirm({
+      title: "ยืนยันการรีเซ็ตรหัสผ่านแบบกลุ่ม",
+      icon: <WarningOutlined style={{ color: token.colorWarning }} />,
+      content: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับพนักงานที่เลือกจำนวน ${selectedRowKeys.length} ท่าน? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่เมลของแต่ละท่านทันที`,
+      okText: "ยืนยันรีเซ็ตตามที่เลือก",
+      cancelText: "ยกเลิก",
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const res = await axios.post(
+            "/api/v2/admin/user-management/reset-password",
+            {
+              userIds: selectedRowKeys,
+            },
+          );
+          if (res.data.success) {
+            toast.success(res.data.message);
+            setSelectedRowKeys([]); // Clear selection
+          }
+        } catch (error: any) {
+          toast.error(
+            error.response?.data?.message ||
+              "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่านรายกลุ่ม",
+          );
+        }
+      },
+    });
+  };
 
   // --- Logic: Fetch Data ---
   const fetchData = useCallback(async () => {
@@ -1070,28 +1134,28 @@ export default function UserManagementPage() {
         title: "พนักงานทั้งหมด",
         value: total,
         icon: <TeamOutlined />,
-        color: "#1890ff",
+        color: token.colorPrimary,
       },
       {
         title: "สถานะ Active",
         value: active,
         icon: <CheckCircleOutlined />,
-        color: "#52c41a",
+        color: token.colorSuccess,
       },
       {
         title: "สถานะ Inactive",
         value: inactive,
         icon: <ExclamationCircleOutlined />,
-        color: "#faad14",
+        color: token.colorWarning,
       },
       {
         title: "จำนวน Admin",
         value: admins,
         icon: <SafetyCertificateOutlined />,
-        color: "#722ed1",
+        color: token.colorPurple,
       },
     ];
-  }, [users]);
+  }, [users, token]);
 
   // --- Columns ---
   const columns: ColumnsType<UserProfile> = [
@@ -1123,17 +1187,21 @@ export default function UserManagementPage() {
             src={r.profile_image_path}
             icon={<UserOutlined />}
             size={48}
-            className="border-2 border-white shadow-sm"
+            className="shadow-sm"
+            style={{ border: `2px solid ${token.colorBgContainer}` }}
           />
           <div className="flex flex-col">
             <Space size={4} align="center">
-              <span className="font-bold text-gray-800 text-sm">
+              <span
+                className="font-bold text-sm"
+                style={{ color: token.colorText }}
+              >
                 {r.firstname_th} {r.lastname_th}
               </span>
               {r.nickname && (
                 <Tag
-                  color="orange"
-                  className="text-[10px] m-0 px-1 leading-4 h-4 border-none bg-orange-50 text-orange-600 rounded-full"
+                  color="warning"
+                  className="text-[10px] m-0 px-1 leading-4 h-4 border-none rounded-full"
                 >
                   {r.nickname}
                 </Tag>
@@ -1158,9 +1226,12 @@ export default function UserManagementPage() {
                 <Badge
                   status="warning"
                   text={
-                    <span className="text-[10px] text-orange-400">
+                    <Typography.Text
+                      type="warning"
+                      style={{ fontSize: 10, display: "block" }}
+                    >
                       ยังไม่ตั้งรหัสผ่าน
-                    </span>
+                    </Typography.Text>
                   }
                 />
               </div>
@@ -1195,9 +1266,14 @@ export default function UserManagementPage() {
             <Typography.Text strong className="text-sm">
               {record.position_ref?.name_th || "ไม่มีตำแหน่ง"}
             </Typography.Text>
-            <div className="flex items-center gap-1 text-[11px] text-gray-500">
-              <ApartmentOutlined />
-              {record.department?.name_th || "ไม่มีแผนก"}
+            <div className="flex items-center gap-1 text-[11px]">
+              <Typography.Text
+                type="secondary"
+                style={{ display: "flex", alignItems: "center", gap: 4 }}
+              >
+                <ApartmentOutlined />
+                {record.department?.name_th || "ไม่มีแผนก"}
+              </Typography.Text>
             </div>
             <div className="flex flex-wrap gap-1 mt-1">
               <Tag
@@ -1209,7 +1285,8 @@ export default function UserManagementPage() {
               {record.joined_date && (
                 <Tag
                   icon={<CalendarOutlined />}
-                  className="text-[10px] m-0 border-none bg-gray-100 text-gray-500 rounded-full h-5 leading-5"
+                  className="text-[10px] m-0 border-none rounded-full h-5 leading-5"
+                  style={{ backgroundColor: token.colorFillAlter }}
                 >
                   เริ่ม {dayjs(record.joined_date).format("DD MMM YY")}
                 </Tag>
@@ -1229,13 +1306,19 @@ export default function UserManagementPage() {
             status={r.status === "ACTIVE" ? "success" : "default"}
             text={
               <span
-                className={`text-xs font-medium ${r.status === "ACTIVE" ? "text-green-600" : "text-gray-400"}`}
+                className="text-xs font-medium"
+                style={{
+                  color:
+                    r.status === "ACTIVE"
+                      ? token.colorSuccess
+                      : token.colorTextDescription,
+                }}
               >
                 {r.status === "ACTIVE" ? "ออนไลน์ / ปกติ" : "ระงับการใช้งาน"}
               </span>
             }
           />
-          <div className="text-[10px] text-gray-400 mt-1">
+          <div className="mt-1">
             <Typography.Text type="secondary" className="text-[10px] block">
               สิทธิ์: {r.role?.role_name || "User"}
             </Typography.Text>
@@ -1259,7 +1342,7 @@ export default function UserManagementPage() {
             <Button
               type="text"
               size="small"
-              icon={<EyeOutlined className="text-blue-500" />}
+              icon={<EyeOutlined style={{ color: token.colorPrimary }} />}
               onClick={() => {
                 setSelectedUser(r);
                 setDetailModalOpen(true);
@@ -1270,10 +1353,19 @@ export default function UserManagementPage() {
             <Button
               type="text"
               size="small"
-              icon={<EditOutlined className="text-yellow-500" />}
+              icon={<EditOutlined style={{ color: token.colorWarning }} />}
               onClick={() => {
                 router.push(`/admin/user-profile/${r.id}`);
               }}
+            />
+          </Tooltip>
+          <Tooltip title="รีเซ็ตรหัสผ่าน (Send Email)">
+            <Button
+              type="text"
+              size="small"
+              icon={<LockOutlined style={{ color: token.colorInfo }} />}
+              onClick={() => handleResetPassword(r)}
+              disabled={!r.email}
             />
           </Tooltip>
           <Tooltip title="ลบ">
@@ -1348,16 +1440,26 @@ export default function UserManagementPage() {
           }}
         >
           {/* Filter Section - 2 Cols */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-xl">
+          <div
+            className="mb-6 p-4 rounded-xl"
+            style={{ backgroundColor: token.colorFillAlter }}
+          >
             <Row gutter={[16, 16]} align="bottom">
               <Col xs={24} md={12} lg={18}>
                 <Row gutter={[16, 16]}>
                   <Col xs={24} md={8}>
-                    <Typography.Text className="text-gray-500 text-xs mb-1 block">
+                    <Typography.Text
+                      type="secondary"
+                      className="text-xs mb-1 block"
+                    >
                       ค้นหาข้อมูล
                     </Typography.Text>
                     <Input
-                      prefix={<SearchOutlined className="text-gray-400" />}
+                      prefix={
+                        <SearchOutlined
+                          style={{ color: token.colorTextDescription }}
+                        />
+                      }
                       placeholder="ค้นหาชื่อ, รหัสพนักงาน..."
                       allowClear
                       value={filters.search}
@@ -1370,7 +1472,10 @@ export default function UserManagementPage() {
                     />
                   </Col>
                   <Col xs={24} md={12}>
-                    <Typography.Text className="text-gray-500 text-xs mb-1 block">
+                    <Typography.Text
+                      type="secondary"
+                      className="text-xs mb-1 block"
+                    >
                       กรองตามตำแหน่ง
                     </Typography.Text>
                     <Select
@@ -1390,7 +1495,10 @@ export default function UserManagementPage() {
                     />
                   </Col>
                   <Col xs={24} md={8}>
-                    <Typography.Text className="text-gray-500 text-xs mb-1 block">
+                    <Typography.Text
+                      type="secondary"
+                      className="text-xs mb-1 block"
+                    >
                       กรองตามแผนก
                     </Typography.Text>
                     <Select
@@ -1429,9 +1537,28 @@ export default function UserManagementPage() {
 
           {/* Table Header Action */}
           <div className="flex justify-between items-center mb-4">
-            <Typography.Text strong className="text-lg">
-              รายชื่อพนักงานทั้งหมด ({filteredUsers.length})
-            </Typography.Text>
+            <div className="flex items-center gap-3">
+              <Typography.Text strong className="text-lg">
+                รายชื่อพนักงานทั้งหมด ({filteredUsers.length})
+              </Typography.Text>
+              {selectedRowKeys.length > 0 && (
+                <Space split={<Divider type="vertical" />}>
+                  <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                    เลือกอยู่ {selectedRowKeys.length} รายการ
+                  </Typography.Text>
+                  <Button
+                    danger
+                    type="primary"
+                    size="small"
+                    icon={<LockOutlined />}
+                    onClick={handleBulkResetPassword}
+                    className="rounded-lg shadow-sm"
+                  >
+                    Reset Password
+                  </Button>
+                </Space>
+              )}
+            </div>
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -1452,6 +1579,10 @@ export default function UserManagementPage() {
             loading={loading}
             pagination={{ pageSize: 10, showSizeChanger: true }}
             scroll={{ x: 1000 }}
+            rowSelection={{
+              selectedRowKeys,
+              onChange: (keys) => setSelectedRowKeys(keys),
+            }}
           />
         </Card>
 
@@ -1467,7 +1598,7 @@ export default function UserManagementPage() {
           width={modalMode === "create" ? 800 : 800}
           footer={null}
           centered
-          destroyOnClose
+          destroyOnHidden
         >
           {modalMode === "create" ? (
             <UserStepForm
@@ -1530,19 +1661,24 @@ export default function UserManagementPage() {
           onClose={() => setRoleDrawerOpen(false)}
           width={600}
         >
-          <div className="text-center p-10 text-gray-500">
-            <SafetyCertificateOutlined className="text-4xl mb-4" />
-            <p>ระบบจัดการ Role & Permission อยู่ระหว่างการพัฒนา</p>
-            <p className="text-xs">
-              สามารถจัดการได้ผ่าน Database Table: Role, RolePermission
-            </p>
+          <div className="text-center p-10">
+            <Typography.Text type="secondary">
+              <SafetyCertificateOutlined
+                className="mb-4"
+                style={{ fontSize: 40 }}
+              />
+              <p>ระบบจัดการ Role & Permission อยู่ระหว่างการพัฒนา</p>
+              <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
+                สามารถจัดการได้ผ่าน Database Table: Role, RolePermission
+              </Typography.Text>
+            </Typography.Text>
           </div>
         </Drawer>
 
         {/* 6. Delete Confirmation Modal */}
         <Modal
           title={
-            <Space className="text-red-500">
+            <Space style={{ color: token.colorError }}>
               <ExclamationCircleOutlined /> ยืนยันการลบ
             </Space>
           }
@@ -1557,9 +1693,12 @@ export default function UserManagementPage() {
               {selectedUser?.firstname_th} {selectedUser?.lastname_th}
             </strong>
           </p>
-          <p className="text-red-500 text-xs">
+          <Typography.Text
+            type="danger"
+            style={{ fontSize: "12px", display: "block" }}
+          >
             *การลบนี้จะเป็นการ Soft Delete ข้อมูลยังคงอยู่ในระบบแต่จะไม่แสดงผล
-          </p>
+          </Typography.Text>
         </Modal>
 
         {/* 5. User Detail Modal */}
@@ -1567,7 +1706,7 @@ export default function UserManagementPage() {
           open={detailModalOpen}
           title={
             <Space>
-              <InfoCircleOutlined className="text-blue-500" />
+              <InfoCircleOutlined style={{ color: token.colorPrimary }} />
               <span>รายละเอียดพนักงาน</span>
             </Space>
           }
@@ -1592,12 +1731,19 @@ export default function UserManagementPage() {
         >
           {selectedUser && (
             <div className="py-4">
-              <div className="flex items-center gap-6 mb-8 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+              <div
+                className="flex items-center gap-6 mb-8 p-6 rounded-2xl border"
+                style={{
+                  backgroundColor: token.colorFillAlter,
+                  borderColor: token.colorBorderSecondary,
+                }}
+              >
                 <Avatar
                   size={100}
                   src={selectedUser.profile_image_path}
                   icon={<UserOutlined />}
-                  className="border-4 border-white shadow-md"
+                  className="shadow-md"
+                  style={{ border: `4px solid ${token.colorBgContainer}` }}
                 />
                 <div>
                   <Typography.Title level={3} style={{ margin: 0 }}>

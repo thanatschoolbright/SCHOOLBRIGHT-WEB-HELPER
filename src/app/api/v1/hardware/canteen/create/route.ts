@@ -262,7 +262,7 @@ function createSuccessResponse(
 
 //** การทำงาน: API หลักสำหรับ proxy ข้อมูลไปยัง external hardware API รองรับ file upload และ multipart data */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const targetApiUrl = API_URL.PROD_HARDWARE_API_URL;
+  const targetApiUrl = API_URL.DEV_HARDWARE_API_URL;
   const fullTargetUrl = `${targetApiUrl}${API_ENDPOINT}`;
 
   console.log("=== API Route Start ===");

@@ -118,7 +118,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
       return;
     }
     const success = processingResults.filter(
-      (r) => r.status === "success" || r.status === "error" // Count processed
+      (r) => r.status === "success" || r.status === "error", // Count processed
     ).length;
     const percent = Math.round((success / total) * 100);
     const hasError = processingResults.some((r) => r.status === "error");
@@ -126,8 +126,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     const status = isCompleted
       ? "completed"
       : hasError && isCompleted
-      ? "error"
-      : "processing";
+        ? "error"
+        : "processing";
 
     onProgressUpdate({ percent, success, total, status });
   }, [processingResults, onProgressUpdate]);
@@ -160,7 +160,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
   const processSingle = async (
     payload: any,
-    selectedIssueMap: Map<string, Issue>
+    selectedIssueMap: Map<string, Issue>,
   ) => {
     const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
     try {
@@ -189,8 +189,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 detail: undefined,
                 statusCode: undefined,
               }
-            : r
-        )
+            : r,
+        ),
       );
       return { success: true, payload };
     } catch (err: any) {
@@ -205,8 +205,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 detail,
                 statusCode,
               }
-            : r
-        )
+            : r,
+        ),
       );
       return { success: false, error: message, detail };
     }
@@ -296,7 +296,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           issues.map((issueItem) => {
             const key = issueItem.issueKey || String(issueItem.id);
             return [key, issueItem];
-          })
+          }),
         );
 
         const selectedIssues = selectedRowKeys
@@ -329,11 +329,11 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 id: option.value,
                 name: option.label,
               })),
-            }
+            },
           );
           const suggestions = autoCategoryResponse?.data?.suggestions || [];
           const suggestionMap = new Map(
-            suggestions.map((s: any) => [s.issueKey, s.categoryIds])
+            suggestions.map((s: any) => [s.issueKey, s.categoryIds]),
           );
           perIssuePayloads.forEach((p) => {
             const categoryIds = suggestionMap.get(p.issueKeyOrId);
@@ -353,7 +353,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               title: String(p.issueKeyOrId),
               status: "queue" as const,
               index: i,
-            }))
+            })),
           );
           setResultsModalVisible(true);
 
@@ -369,8 +369,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                       ...r,
                       status: "pending",
                     }
-                  : r
-              )
+                  : r,
+              ),
             );
 
             await processSingle(payload, selectedIssueMap);
@@ -381,25 +381,25 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           }
 
           const successCount = perIssuePayloads.filter(
-            (p) => p.updates && p.updates.description
+            (p) => p.updates && p.updates.description,
           ).length;
           const failureCount = perIssuePayloads.length - successCount;
 
           if (failureCount > 0) {
             toast.warning(
               `ประมวลผลเสร็จสิ้น: สำเร็จ ${successCount} รายการ, ล้มเหลว ${failureCount} รายการ`,
-              { id: toastId, duration: 4000 }
+              { id: toastId, duration: 4000 },
             );
           } else {
             toast.success(
               `ประมวลผลเสร็จสิ้น: สำเร็จครบ ${successCount} รายการ`,
-              { id: toastId, duration: 3000 }
+              { id: toastId, duration: 3000 },
             );
           }
         } else {
           // If manual only but autoCategory was on
           const entries = perIssuePayloads.filter(
-            (p) => Object.keys(p.updates).length > 0
+            (p) => Object.keys(p.updates).length > 0,
           );
           if (entries.length > 0) {
             await axios.post("/api/v1/backlog/issues/bulk-update", {
@@ -571,8 +571,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 onManageMilestone={() => {
                   router.push(
                     `/backlogs/projects/${projectId}/milestones?space=${encodeURIComponent(
-                      space
-                    )}&name=${encodeURIComponent(projectName)}`
+                      space,
+                    )}&name=${encodeURIComponent(projectName)}`,
                   );
                 }}
                 onMilestoneChange={(values) =>
@@ -604,7 +604,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
         styles={{ body: { padding: "40px" } }}
         centered
         maskClosable={false}
-        destroyOnClose={false}
+        destroyOnHidden={false}
       >
         <div style={{ marginBottom: 40 }}>
           <div className="flex justify-between items-center mb-10">
@@ -622,7 +622,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                   ประมวลผลเสร็จสิ้น{" "}
                   {
                     processingResults.filter(
-                      (r) => r.status === "success" || r.status === "error"
+                      (r) => r.status === "success" || r.status === "error",
                     ).length
                   }{" "}
                   / {processingResults.length} รายการ
@@ -641,10 +641,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           <Progress
             percent={Math.round(
               (processingResults.filter(
-                (r) => r.status === "success" || r.status === "error"
+                (r) => r.status === "success" || r.status === "error",
               ).length /
                 processingResults.length) *
-                100
+                100,
             )}
             status="active"
             strokeColor={{
@@ -795,7 +795,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             onClick={async () => {
               // Retry logic
               const failedRows = processingResults.filter(
-                (r) => r.status === "error"
+                (r) => r.status === "error",
               );
               if (!failedRows.length) return;
 
@@ -803,8 +803,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               const targets = failedRows
                 .map((fr) =>
                   payloads.find(
-                    (p) => String(p.issueKeyOrId) === String(fr.issueKeyOrId)
-                  )
+                    (p) => String(p.issueKeyOrId) === String(fr.issueKeyOrId),
+                  ),
                 )
                 .filter(Boolean);
 
@@ -813,17 +813,17 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               setProcessingResults((prev) =>
                 prev.map((r) =>
                   failedRows.some(
-                    (fr) => String(fr.issueKeyOrId) === String(r.issueKeyOrId)
+                    (fr) => String(fr.issueKeyOrId) === String(r.issueKeyOrId),
                   )
                     ? { ...r, status: "pending", message: undefined }
-                    : r
-                )
+                    : r,
+                ),
               );
 
               for (const payload of targets) {
                 await processSingle(
                   payload,
-                  new Map(issues.map((i) => [i.issueKey || String(i.id), i]))
+                  new Map(issues.map((i) => [i.issueKey || String(i.id), i])),
                 );
               }
               toast.success("ลองใหม่สำเร็จ");
@@ -841,7 +841,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               type="primary"
               onClick={async () => {
                 const entries = (perIssuePayloadsRef.current || []).filter(
-                  (p) => p.updates?.description
+                  (p) => p.updates?.description,
                 );
                 if (!entries.length) return;
                 setSaving(true);

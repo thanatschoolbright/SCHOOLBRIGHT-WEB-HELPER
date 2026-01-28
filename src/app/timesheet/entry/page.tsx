@@ -48,6 +48,8 @@ import { TableProps, ColumnType } from "antd/lib/table";
 import { motion, AnimatePresence } from "framer-motion";
 import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import "dayjs/locale/th";
 import "dayjs/locale/th";
 import i18next from "i18next";
 import { useTranslation } from "react-i18next";
@@ -144,6 +146,7 @@ import {
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 
 dayjs.extend(isBetween);
+dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
 // ==========================================
@@ -667,7 +670,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
     const monthLabel =
       metadata?.range?.label_th ?? selectedMonth.format("MMMM YYYY");
     const generatedAt = metadata?.generated_at
-      ? dayjs(metadata.generated_at).format("D MMM BB HH:mm")
+      ? dayjs(metadata.generated_at).format("DD/MM/BBBB HH:mm:ss")
       : null;
 
     const isDark = token.colorBgBase === "#0B0F19";

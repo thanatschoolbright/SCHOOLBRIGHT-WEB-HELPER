@@ -17,7 +17,16 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "50mb" },
     proxyClientMaxBodySize: "200mb",
-    
+
+    // ✅ 3. Optimize Package Imports (ช่วยให้ dev mode compile เฉพาะที่ใช้จริงๆ)
+    optimizePackageImports: [
+      "antd",
+      "@ant-design/icons",
+      "lodash",
+      "dayjs",
+      "lucide-react",
+    ],
+
     // ✅ ถ้า RAM เต็มจริงๆ ให้ Uncomment 2 บรรทัดล่างนี้
     // workerThreads: false,
     // cpus: 1,
@@ -35,7 +44,7 @@ const nextConfig = {
   compiler: {
     removeConsole: isProd ? { exclude: ["error", "warn"] } : false,
   },
-  
+
   productionBrowserSourceMaps: false,
 };
 

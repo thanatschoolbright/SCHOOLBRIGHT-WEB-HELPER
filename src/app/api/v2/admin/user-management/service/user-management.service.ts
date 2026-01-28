@@ -1,5 +1,6 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import bcrypt from "bcryptjs";
+import { sendMail } from "@/server/mailer";
 
 export interface CreateUserDto {
   username: string;
@@ -190,5 +191,86 @@ export const UserManagementService = {
       where: { is_deleted: false, is_active: true },
     });
     return { roles };
+  },
+
+  // รีเซ็ตรหัสผ่านและส่งอีเมล (IPO Standard Random Password)
+  async resetPassword(userId: number, updatedBy?: number) {
+    // 1. ตรวจสอบผู้ใช้งาน
+    const user = await PrismaTimesheet.user.findUnique({
+      where: { id: userId, is_deleted: false },
+    });
+
+    if (!user) {
+      throw new Error("ไม่พบข้อมูลผู้ใช้งาน");
+    }
+
+    if (!user.email) {
+      throw new Error(
+        `ผู้ใช้งาน ${user.username} ไม่ได้ระบุอีเมล ไม่สามารถส่งรหัสผ่านได้`,
+      );
+    }
+
+    // 2. สร้างรหัสผ่านแบบสุ่ม (ความยาว 10 ตัวอักษร ผสมตัวเล็ก ตัวใหญ่ ตัวเลข)
+    const charset = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    let newPassword = "";
+    for (let i = 0; i < 10; i++) {
+      newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+
+    // 3. Hash รหัสผ่านใหม่
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 4. อัปเดตฐานข้อมูล
+    await PrismaTimesheet.user.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword,
+        updated_at: new Date(),
+        updated_by: updatedBy,
+      },
+    });
+
+    // 5. ส่งอีเมล
+    try {
+      const subject = "⚠️ แจ้งการรีเซ็ตรหัสผ่าน - ระบบ SchoolBright Web Helper";
+      const html = `
+        <div style="font-family: 'Helvetica', 'Arial', sans-serif; padding: 20px; color: #333; line-height: 1.6;">
+          <h2 style="color: #1890ff;">แจ้งข้อมูลรหัสผ่านใหม่</h2>
+          <p>เรียน คุณ <strong>${user.firstname_th} ${user.lastname_th}</strong>,</p>
+          <p>รหัสผ่านสำหรับเข้าใช้งานระบบของคุณได้รับการรีเซ็ตเรียบร้อยแล้วตามคำร้องขอจากผู้ดูแลระบบ</p>
+          
+          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #d9d9d9;">
+            <p style="margin: 0; font-size: 14px; color: #666;">รหัสผ่านใหม่ของคุณคือ:</p>
+            <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #f5222d;">${newPassword}</p>
+          </div>
+
+          <p style="color: #faad14;">* หมายเหตุ: กรุณาเปลี่ยนรหัสผ่านทันทีหลังจากการเข้าใช้งานครั้งแรกเพื่อความปลอดภัยสูงสุดตามมาตรฐาน IPO Monitoring</p>
+          
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #999;">
+            ข้อความนี้เป็นระบบตอบรับอัตโนมัติ กรุณาอย่าตอบกลับอีเมลฉบับนี้<br/>
+            © ${new Date().getFullYear()} SchoolBright Portfolio Team. All rights reserved.
+          </p>
+        </div>
+      `;
+
+      await sendMail(
+        user.email,
+        subject,
+        `รหัสผ่านใหม่ของคุณคือ: ${newPassword}`,
+        html,
+      );
+
+      return {
+        success: true,
+        username: user.username,
+        email: user.email,
+      };
+    } catch (emailError: any) {
+      console.error("Email Reset Password Error:", emailError);
+      throw new Error(
+        `อัปเดตรหัสผ่านสำเร็จแต่ไม่สามารถส่งเมลถึง ${user.email} ได้: ${emailError.message}`,
+      );
+    }
   },
 };

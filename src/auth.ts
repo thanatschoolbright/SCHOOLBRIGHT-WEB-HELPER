@@ -65,31 +65,24 @@ export const {
 
         // 3. Verify Password
         console.log(`[AUTH] Verifying password for: ${user.username}`);
-        let isPasswordCorrect = false;
 
-        // ✅ Special Bypass for Admin ID 117 (Super Admin)
-        if (Number(user.admin_id) === 117) {
-          console.log(
-            `🚀 [AUTH] Super Admin detected (admin_id 117). Bypassing password validation.`,
-          );
-          isPasswordCorrect = true;
-        } else {
-          isPasswordCorrect = await bcrypt.compare(password, user.password);
-          console.log(`[AUTH] Bcrypt result: ${isPasswordCorrect}`);
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        console.log(`[AUTH] Bcrypt result: ${isPasswordCorrect}`);
 
-          // Fallback for Plain Text (Development only / Legacy)
-          if (!isPasswordCorrect && !user.password.startsWith("$2")) {
-            console.log(`[AUTH] Attempting plain text fallback...`);
-            if (password === user.password) {
-              console.warn(
-                `⚠️ [AUTH] Login success using PLAIN TEXT password for user: ${user.username}. Please update to hashed password!`,
-              );
-              isPasswordCorrect = true;
-            }
+        let finalPasswordStatus = isPasswordCorrect;
+
+        // Fallback for Plain Text (Development only / Legacy)
+        if (!finalPasswordStatus && !user.password.startsWith("$2")) {
+          console.log(`[AUTH] Attempting plain text fallback...`);
+          if (password === user.password) {
+            console.warn(
+              `⚠️ [AUTH] Login success using PLAIN TEXT password for user: ${user.username}. Please update to hashed password!`,
+            );
+            finalPasswordStatus = true;
           }
         }
 
-        if (!isPasswordCorrect) {
+        if (!finalPasswordStatus) {
           console.warn(
             `❌ [AUTH] Invalid password for user: ${user.username} (DB Password starts with: ${user.password.substring(0, 5)}...)`,
           );
@@ -184,6 +177,7 @@ export const {
         token.status = u.status;
         token.phone = u.phone;
         token.email = u.email;
+        token.image = u.image;
         token.profile_image_path = u.profile_image_path;
         token.joined_date = u.joined_date;
         token.resigned_date = u.resigned_date;
@@ -220,6 +214,7 @@ export const {
         s.status = token.status;
         s.phone = token.phone;
         s.email = token.email;
+        s.image = token.image;
         s.profile_image_path = token.profile_image_path;
         s.joined_date = token.joined_date;
         s.resigned_date = token.resigned_date;
