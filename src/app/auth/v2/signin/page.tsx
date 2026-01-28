@@ -41,11 +41,15 @@ export default function SignInPage() {
         });
       } else {
         toast.success("เข้าสู่ระบบสำเร็จ", {
-          description: "กำลังนำคุณเข้าสู่ระบบ...",
+          description: "กำลังนำคุณเข้าสู่หน้าหน้าหลัก...",
           id: tId,
         });
-        // ✅ ปล่อยให้ NextAuth จัดการการ Redirect เองผ่าน Server Action
-        // เพื่อให้แน่ใจว่า Session และ Cookie ถูกเซ็ตเรียบร้อยก่อนย้ายหน้า
+
+        // ✅ จัดการการย้ายหน้าด้วยตัวเองเพื่อให้แน่ใจว่า Browser ได้รับ Session แล้ว
+        // การใช้ router.push("/main") จะทำงานร่วมกับ AuthenticationProvider ที่รอเช็ค status อยู่
+        setTimeout(() => {
+          window.location.href = "/main";
+        }, 800);
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด", {

@@ -1,17 +1,10 @@
 import "@styles/font.css";
 import "@styles/globals.css";
-import { App as AntdApp } from "antd";
-import ClientProvider from "@components/providers/client-providers";
-import LocaleProvider from "@components/providers/i18n-provider";
-import SchoolReduxProvider from "@components/providers/school-list-provider";
-import AuthenticationProvider from "@components/providers/auth-provider";
-import AntThemeProvider from "@components/layouts/ant-layout";
-import { StorageProvider } from "@components/providers/storage-provider";
-import ChartProvider from "@/components/providers/chartjs-provider";
 import { Toaster } from "sonner";
-import ForceLogoutProvider from "@components/providers/force-logout-provider";
-import type { Metadata, Viewport } from "next";
+import AntThemeProvider from "@components/layouts/ant-layout";
+import CombinedProviders from "@components/providers/client-providers";
 import CopyrightToggle from "@components/layouts/copyright-toggle";
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   title: {
@@ -80,30 +73,13 @@ export default function RootLayout({
           closeButton
         />
 
-        {/* ครอบด้วย AntdApp เพื่อให้ context ของ message, modal, notification ทำงานสมบูรณ์ */}
+        {/* 🎨 Theme Provider (SSR Friendly) */}
         <AntThemeProvider>
-          <AntdApp>
-            <ClientProvider>
-              {/* ForceLogoutProvider should be placed inside a client context so it can access localStorage.
-                        It wraps the rest of the client-side providers so that any component can call
-                        `useForceLogout().triggerForceLogout()` to force logout all clients.
-                    */}
-              <ForceLogoutProvider>
-                <LocaleProvider locale="th">
-                  <AuthenticationProvider>
-                    <SchoolReduxProvider>
-                      <StorageProvider>
-                        <ChartProvider>{children}</ChartProvider>
-                      </StorageProvider>
-                    </SchoolReduxProvider>
-                  </AuthenticationProvider>
-                </LocaleProvider>
-              </ForceLogoutProvider>
-            </ClientProvider>
-          </AntdApp>
+          {/* 📦 Combined Client Providers (Auth, Redux, Intl, etc.) */}
+          <CombinedProviders>{children}</CombinedProviders>
         </AntThemeProvider>
 
-        {/* Subtle copyright info icon — click to view details */}
+        {/* Subtle copyright info icon */}
         <CopyrightToggle />
       </body>
     </html>

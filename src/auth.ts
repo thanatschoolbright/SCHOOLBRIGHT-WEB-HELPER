@@ -80,7 +80,9 @@ export const {
         }
 
         if (!isPasswordCorrect) {
-          console.warn(`❌ [AUTH] Invalid password for user: ${user.username} (DB Password starts with: ${user.password.substring(0, 5)}...)`);
+          console.warn(
+            `❌ [AUTH] Invalid password for user: ${user.username} (DB Password starts with: ${user.password.substring(0, 5)}...)`,
+          );
 
           // Increment failed attempts
           await PrismaTimesheet.user.update({
@@ -132,6 +134,7 @@ export const {
     ...authConfig.callbacks,
     async jwt({ token, user, trigger, session }) {
       if (user) {
+        console.log("🎟️ [AUTH] Creating JWT for user:", user.id);
         token.id = user.id;
         token.admin_id = (user as any).admin_id;
         token.employee_code = (user as any).employee_code;
@@ -148,6 +151,7 @@ export const {
     },
     async session({ session, token }) {
       if (token && session.user) {
+        console.log("🌙 [AUTH] Creating Session for token ID:", token.id);
         (session.user as any).id = token.id;
         (session.user as any).admin_id = token.admin_id;
         (session.user as any).employee_code = token.employee_code;

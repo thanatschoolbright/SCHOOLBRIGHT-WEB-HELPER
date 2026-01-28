@@ -1,35 +1,54 @@
 // components/ClientProvider.tsx
-"use client"; // This ensures the file is treated as a Client Component
+"use client";
 
-import { StoreProvider } from "@stores/store-provider";
-import { SessionProvider } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { SessionProvider } from "next-auth/react";
+import { App as AntdApp } from "antd";
+import { StoreProvider } from "@stores/store-provider";
 import { registerServiceWorker } from "@services/progressive-web-app";
 
-export default function ClientProvider({
+// Import All Client Providers
+import LocaleProvider from "./i18n-provider";
+import SchoolReduxProvider from "./school-list-provider";
+import AuthenticationProvider from "./auth-provider";
+import { StorageProvider } from "./storage-provider";
+import ChartProvider from "./chartjs-provider";
+import ForceLogoutProvider from "./force-logout-provider";
+
+/**
+ * 🛠️ CombinedProviders - ศูนย์รวม Provider ทั้งหมดเพื่อความ Clean Code
+ */
+export default function CombinedProviders({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [hydrated, setHydrated] = useState(false);
 
-  // Register Service Worker for PWA
   useEffect(() => {
     registerServiceWorker();
-  }, []);
-
-  // Hydration to avoid SSR mismatch
-  useEffect(() => {
     setHydrated(true);
   }, []);
 
-  if (!hydrated) {
-    return null;
-  }
+  if (!hydrated) return null;
 
   return (
     <SessionProvider>
-      <StoreProvider>{children}</StoreProvider>
+      <StoreProvider>
+        <AntdApp>
+          <ForceLogoutProvider>
+            <LocaleProvider locale="th">
+              <AuthenticationProvider>
+                <SchoolReduxProvider>
+                  <StorageProvider>
+                    <ChartProvider>{children}</ChartProvider>
+                  </StorageProvider>
+                </SchoolReduxProvider>
+              </AuthenticationProvider>
+            </LocaleProvider>
+          </ForceLogoutProvider>
+        </AntdApp>
+      </StoreProvider>
     </SessionProvider>
   );
 }
