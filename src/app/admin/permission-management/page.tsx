@@ -22,6 +22,7 @@ import {
   Badge,
   App,
 } from "antd";
+import { useRouter } from "next/navigation";
 import {
   ReloadOutlined,
   SearchOutlined,
@@ -67,6 +68,7 @@ interface Role {
 }
 
 export default function PermissionManagementPage() {
+  const router = useRouter();
   const { token } = theme.useToken();
   const { modal } = App.useApp();
   const [form] = Form.useForm();
@@ -372,14 +374,7 @@ export default function PermissionManagementPage() {
               type="text"
               icon={<EditOutlined className="text-orange-500" />}
               onClick={() => {
-                setSelectedRole(r);
-                setModalMode("edit");
-                form.setFieldsValue({
-                  role_name: r.role_name,
-                  description: r.description,
-                  is_active: r.is_active,
-                  permission_ids: r.permissions.map((p) => p.permission_id),
-                });
+                router.push(`/admin/permission-management/edit/${r.id}`);
               }}
             />
           </Tooltip>
@@ -417,9 +412,7 @@ export default function PermissionManagementPage() {
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => {
-                  setModalMode("create");
-                  form.resetFields();
-                  form.setFieldsValue({ is_active: true });
+                  router.push("/admin/permission-management/create");
                 }}
               >
                 สร้าง Role ใหม่
