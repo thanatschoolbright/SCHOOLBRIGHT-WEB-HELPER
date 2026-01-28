@@ -325,6 +325,7 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
 // --- Page Header ---
 interface PageHeaderProps {
   adminName: string;
+  adminId?: number;
   onAddClick: () => void;
   onAddMultiClick: () => void;
   onBulkAllClick: () => void;
@@ -333,6 +334,7 @@ interface PageHeaderProps {
 }
 const PageHeader: React.FC<PageHeaderProps> = ({
   adminName,
+  adminId,
   onAddClick,
   onAddMultiClick,
   onBulkAllClick,
@@ -439,6 +441,35 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 <RocketOutlined />
               </span>
             </Typography.Text>
+            {adminId && (
+              <div
+                style={{
+                  marginTop: 8,
+                  padding: "4px 12px",
+                  background: isDark
+                    ? "rgba(255,255,255,0.05)"
+                    : "rgba(0,0,0,0.02)",
+                  borderRadius: 8,
+                  width: "fit-content",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  border: `1px dashed ${token.colorBorder}`,
+                }}
+              >
+                <SafetyCertificateFilled
+                  style={{ color: token.colorSuccess, fontSize: 14 }}
+                />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  เชื่อมต่อโดยใช้ <strong>admin_id: {adminId}</strong>
+                </Typography.Text>
+                <Divider type="vertical" />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  ข้อมูลหน้านี้ถูกเชื่อมต่อโดยการใช้ข้อมูลจาก admin_id จาก{" "}
+                  <strong>Profile ของคุณ</strong>
+                </Typography.Text>
+              </div>
+            )}
           </Flex>
         </Col>
         <Col>
@@ -3258,6 +3289,7 @@ export default function TimesheetEntryPage() {
           <Space direction="vertical" size={24} style={{ width: "100%" }}>
             <PageHeader
               adminName={adminName}
+              adminId={adminId}
               onAddClick={openCreateForm}
               onAddMultiClick={openMultiEntryForm}
               onBulkAllClick={openBulkAllUsersModal}
