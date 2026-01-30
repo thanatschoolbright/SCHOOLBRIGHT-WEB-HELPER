@@ -186,6 +186,23 @@ export const UserManagementService = {
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
   },
 
+  /**
+   * @description ดึงข้อมูลพนักงานทั้งหมดเพื่อนำไปทำรายงาน (Export)
+   */
+  async findAllForExport() {
+    return await PrismaTimesheet.user.findMany({
+      where: {
+        is_deleted: false,
+      },
+      orderBy: [{ department_id: "asc" }, { employee_code: "asc" }],
+      include: {
+        role: true,
+        position_ref: true,
+        department: true,
+      },
+    });
+  },
+
   async findConstants() {
     const roles = await PrismaTimesheet.role.findMany({
       where: { is_deleted: false, is_active: true },
@@ -473,6 +490,25 @@ export const UserManagementService = {
       },
       data: {
         role_id: roleId,
+        updated_at: new Date(),
+        updated_by: adminId,
+      },
+    });
+  },
+
+  // ปรับปรุงประเภทการจ้างงานแบบกลุ่ม
+  async bulkUpdateEmploymentType(
+    userIds: number[],
+    employmentType: string,
+    adminId?: number,
+  ) {
+    return await PrismaTimesheet.user.updateMany({
+      where: {
+        id: { in: userIds.map((id) => Number(id)) },
+        is_deleted: false,
+      },
+      data: {
+        employment_type: employmentType,
         updated_at: new Date(),
         updated_by: adminId,
       },

@@ -359,9 +359,9 @@ export default function UserProfileDropdown(): JSX.Element {
 
   const handleLogoutAction = async () => {
     toast.info("กำลังออกจากระบบ...");
-    // ล้างข้อมูลเฉพาะที่จำเป็นใน Memory (Redux/Context จะถูกล้างโดยการ Refresh หน้าอยู่แล้ว)
+    // ✅ นำทางไปยัง URL ปัจจุบัน (Origin) แทนการใช้ Hardcoded path เพื่อป้องกันการเด้งไป localhost:3000 ใน Production
     // NextAuth signOut จะจัดการเรื่อง Session ฝั่ง Client/Server ให้โดยตรง
-    await signOut({ callbackUrl: "/" });
+    await signOut({ callbackUrl: window.location.origin });
   };
 
   const currentRankLetter = userRankData?.rankLetter?.toUpperCase() || "F";

@@ -64,6 +64,7 @@ import {
   DashboardOutlined,
   CarOutlined,
   DownOutlined,
+  FileExcelOutlined,
 } from "@ant-design/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ColumnsType } from "antd/es/table";
@@ -1174,10 +1175,11 @@ export default function UserManagementPage() {
 
   // Bulk Edit State
   const [bulkMode, setBulkMode] = useState<
-    "position" | "department" | "role" | null
+    "position" | "department" | "role" | "employment-type" | null
   >(null);
-  const [bulkValue, setBulkValue] = useState<number | null>(null);
+  const [bulkValue, setBulkValue] = useState<number | string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
 
   // Pagination State
   const [pagination, setPagination] = useState({
@@ -1276,16 +1278,20 @@ export default function UserManagementPage() {
         endpoint = "/api/v2/admin/user-management/bulk-update-department";
       } else if (bulkMode === "role") {
         endpoint = "/api/v2/admin/user-management/bulk-update-role";
+      } else if (bulkMode === "employment-type") {
+        endpoint = "/api/v2/admin/user-management/bulk-update-employment-type";
       }
 
       const payload = {
         userIds: selectedRowKeys,
         adminId: adminId,
-        [bulkMode === "position"
-          ? "positionId"
+        ...(bulkMode === "position"
+          ? { positionId: bulkValue }
           : bulkMode === "department"
-            ? "departmentId"
-            : "roleId"]: bulkValue,
+            ? { departmentId: bulkValue }
+            : bulkMode === "role"
+              ? { roleId: bulkValue }
+              : { employmentType: bulkValue }),
       };
 
       const res = await axios.post(endpoint, payload);
@@ -1297,7 +1303,9 @@ export default function UserManagementPage() {
               ? "ตำแหน่ง"
               : bulkMode === "department"
                 ? "แผนก"
-                : "สิทธิ์การใช้งาน"
+                : bulkMode === "role"
+                  ? "สิทธิ์การใช้งาน"
+                  : "ประเภทการจ้างงาน"
           }แบบกลุ่มสำเร็จ`,
         );
         setBulkMode(null);
@@ -1311,6 +1319,44 @@ export default function UserManagementPage() {
       toast.error(error.message || "เกิดข้อผิดพลาดในการปรับปรุงข้อมูลแบบกลุ่ม");
     } finally {
       setBulkLoading(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    setExportLoading(true);
+    const id = toast.loading("กำลังเตรียมข้อมูลรายงาน Excel สำหรับ IPO...");
+    try {
+      const res = await axios.get(
+        "/api/v2/admin/user-management/export-excel",
+        {
+          responseType: "blob",
+        },
+      );
+
+      const blob = new Blob([res.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      const now = dayjs();
+      const thaiYear = now.year() + 543;
+      const formattedDate = `${now.format("DD-MM")}-${thaiYear}`;
+      const filename = `รายงานพนักงานบริษัทจับจ่ายคอร์เปอเรชัน_จำกัด_${formattedDate}.xlsx`;
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("ส่งออกรายงานพนักงานสำเร็จ (Enterprise Grade)", { id });
+    } catch (error) {
+      console.error("Export Error:", error);
+      toast.error("ไม่สามารถส่งออกรายงานได้ กรุณาลองใหม่อีกครั้ง", { id });
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -2081,6 +2127,16 @@ export default function UserManagementPage() {
                           onClick: () => setBulkMode("role"),
                         },
                         {
+                          key: "bulk-employment-type",
+                          label: "จัดการประเภทการจ้างงาน (แบบกลุ่ม)",
+                          icon: (
+                            <IdcardOutlined
+                              style={{ color: token.colorWarning }}
+                            />
+                          ),
+                          onClick: () => setBulkMode("employment-type"),
+                        },
+                        {
                           type: "divider",
                         },
                         {
@@ -2107,16 +2163,31 @@ export default function UserManagementPage() {
                 </Space>
               )}
             </div>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                setModalMode("create");
-                form.resetFields();
-              }}
-            >
-              เพิ่มพนักงาน
-            </Button>
+            <Space>
+              <Button
+                icon={<FileExcelOutlined />}
+                onClick={handleExportExcel}
+                loading={exportLoading}
+                style={{
+                  backgroundColor: "#217346", // Excel Green
+                  color: "#fff",
+                  borderColor: "#217346",
+                }}
+                className="rounded-lg shadow-sm"
+              >
+                ส่งออก Excel
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setModalMode("create");
+                  form.resetFields();
+                }}
+              >
+                เพิ่มพนักงาน
+              </Button>
+            </Space>
           </div>
 
           {/* Table */}
@@ -2417,14 +2488,16 @@ export default function UserManagementPage() {
           }}
         />
 
-        {/* 7. Bulk Update Modal (Position/Department/Role) */}
+        {/* 7. Bulk Update Modal (Position/Department/Role/EmploymentType) */}
         <Modal
           title={`ปรับปรุง${
             bulkMode === "position"
               ? "ตำแหน่ง"
               : bulkMode === "department"
                 ? "แผนก"
-                : "สิทธิ์การใช้งาน"
+                : bulkMode === "role"
+                  ? "สิทธิ์การใช้งาน"
+                  : "ประเภทการจ้างงาน"
           }แบบกลุ่ม`}
           open={!!bulkMode}
           onOk={handleBulkUpdateSubmit}
@@ -2443,7 +2516,9 @@ export default function UserManagementPage() {
                 ? "ตำแหน่ง"
                 : bulkMode === "department"
                   ? "แผนก"
-                  : "สิทธิ์การใช้งาน"}{" "}
+                  : bulkMode === "role"
+                    ? "สิทธิ์การใช้งาน"
+                    : "ประเภทการจ้างงาน"}{" "}
               ของ <strong>{selectedRowKeys.length}</strong> พนักงานที่เลือก
               เป็น:
             </Typography.Text>
@@ -2454,7 +2529,9 @@ export default function UserManagementPage() {
                   ? "ตำแหน่งใหม่"
                   : bulkMode === "department"
                     ? "แผนกใหม่"
-                    : "สิทธิ์การใช้งานใหม่"
+                    : bulkMode === "role"
+                      ? "สิทธิ์การใช้งานใหม่"
+                      : "ประเภทการจ้างงานใหม่"
               }`}
               value={bulkValue}
               onChange={setBulkValue}
@@ -2469,10 +2546,23 @@ export default function UserManagementPage() {
                         label: d.name_th,
                         value: d.id,
                       }))
-                    : roles.map((r: any) => ({
-                        label: r.role_name,
-                        value: r.id,
-                      }))
+                    : bulkMode === "role"
+                      ? roles.map((r: any) => ({
+                          label: r.role_name,
+                          value: r.id,
+                        }))
+                      : [
+                          {
+                            label: "Full-time (พนักงานประจำ)",
+                            value: "FULL_TIME",
+                          },
+                          {
+                            label: "Part-time (พนักงานชั่วคราว)",
+                            value: "PART_TIME",
+                          },
+                          { label: "Contract (สัญญาจ้าง)", value: "CONTRACT" },
+                          { label: "Intern (ฝึกงาน)", value: "INTERN" },
+                        ]
               }
               showSearch
               filterOption={(input, option) =>
