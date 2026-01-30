@@ -1898,22 +1898,36 @@ export default function UserManagementPage() {
             <Row gutter={[20, 20]} align="bottom">
               {/* 1. Search Box */}
               <Col xs={24} sm={12} lg={6}>
-                <Typography.Text strong className="text-xs mb-2 block" style={{ color: token.colorTextSecondary }}>
+                <Typography.Text
+                  strong
+                  className="text-xs mb-2 block"
+                  style={{ color: token.colorTextSecondary }}
+                >
                   <SearchOutlined className="mr-1" /> ค้นหาคำสำคัญ
                 </Typography.Text>
                 <Input
-                  prefix={<SearchOutlined style={{ color: token.colorTextDescription }} />}
+                  prefix={
+                    <SearchOutlined
+                      style={{ color: token.colorTextDescription }}
+                    />
+                  }
                   placeholder="ชื่อ, นามสกุล, รหัสพนักงาน..."
                   allowClear
                   className="rounded-lg h-10 shadow-sm border-none"
                   value={filters.search}
-                  onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, search: e.target.value }))
+                  }
                 />
               </Col>
 
               {/* 2. Position Filter */}
               <Col xs={24} sm={12} lg={5}>
-                <Typography.Text strong className="text-xs mb-2 block" style={{ color: token.colorTextSecondary }}>
+                <Typography.Text
+                  strong
+                  className="text-xs mb-2 block"
+                  style={{ color: token.colorTextSecondary }}
+                >
                   <ApartmentOutlined className="mr-1" /> ตำแหน่งงาน
                 </Typography.Text>
                 <Select
@@ -1923,15 +1937,24 @@ export default function UserManagementPage() {
                   showSearch
                   optionFilterProp="label"
                   value={filters.position}
-                  onChange={(v) => setFilters((prev) => ({ ...prev, position: v }))}
-                  options={positions.map((p) => ({ label: p.name_th, value: p.id }))}
+                  onChange={(v) =>
+                    setFilters((prev) => ({ ...prev, position: v }))
+                  }
+                  options={positions.map((p) => ({
+                    label: p.name_th,
+                    value: p.id,
+                  }))}
                   style={{ borderRadius: 8 }}
                 />
               </Col>
 
               {/* 3. Department Filter */}
               <Col xs={24} sm={12} lg={5}>
-                <Typography.Text strong className="text-xs mb-2 block" style={{ color: token.colorTextSecondary }}>
+                <Typography.Text
+                  strong
+                  className="text-xs mb-2 block"
+                  style={{ color: token.colorTextSecondary }}
+                >
                   <TeamOutlined className="mr-1" /> แผนก/ฝ่าย
                 </Typography.Text>
                 <Select
@@ -1941,14 +1964,23 @@ export default function UserManagementPage() {
                   showSearch
                   optionFilterProp="label"
                   value={filters.department}
-                  onChange={(v) => setFilters((prev) => ({ ...prev, department: v }))}
-                  options={departments.map((d) => ({ label: d.name_th, value: d.id }))}
+                  onChange={(v) =>
+                    setFilters((prev) => ({ ...prev, department: v }))
+                  }
+                  options={departments.map((d) => ({
+                    label: d.name_th,
+                    value: d.id,
+                  }))}
                 />
               </Col>
 
               {/* 4. Status Filter */}
               <Col xs={24} sm={12} lg={4}>
-                <Typography.Text strong className="text-xs mb-2 block" style={{ color: token.colorTextSecondary }}>
+                <Typography.Text
+                  strong
+                  className="text-xs mb-2 block"
+                  style={{ color: token.colorTextSecondary }}
+                >
                   <ControlOutlined className="mr-1" /> สถานะบัญชี
                 </Typography.Text>
                 <Select
@@ -1956,7 +1988,9 @@ export default function UserManagementPage() {
                   className="w-full rounded-lg h-10 shadow-sm"
                   allowClear
                   value={filters.status}
-                  onChange={(v) => setFilters((prev) => ({ ...prev, status: v }))}
+                  onChange={(v) =>
+                    setFilters((prev) => ({ ...prev, status: v }))
+                  }
                   options={[
                     { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
                     { label: "ระงับการใช้งาน (Inactive)", value: "INACTIVE" },
@@ -1971,7 +2005,14 @@ export default function UserManagementPage() {
                     block
                     icon={<ClearOutlined />}
                     className="rounded-lg h-10 flex items-center justify-center font-medium"
-                    onClick={() => setFilters({ search: "", position: undefined, department: undefined, status: undefined })}
+                    onClick={() =>
+                      setFilters({
+                        search: "",
+                        position: undefined,
+                        department: undefined,
+                        status: undefined,
+                      })
+                    }
                   >
                     ล้างค่า
                   </Button>
@@ -2026,11 +2067,7 @@ export default function UserManagementPage() {
                         {
                           key: "bulk-department",
                           label: "ปรับแผนก (แบบกลุ่ม)",
-                          icon: (
-                            <TeamOutlined
-                              style={{ color: "#722ed1" }}
-                            />
-                          ),
+                          icon: <TeamOutlined style={{ color: "#722ed1" }} />,
                           onClick: () => setBulkMode("department"),
                         },
                         {
