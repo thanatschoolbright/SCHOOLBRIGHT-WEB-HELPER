@@ -278,311 +278,318 @@ export const SyncModal: React.FC<SyncModalProps> = ({
 
   return (
     <>
-    <Modal
-      open={open}
-      title={
-        <Space>
-          <CloudSyncOutlined style={{ color: token.colorPrimary }} />
-          <Typography.Text strong style={{ fontSize: 18 }}>
-            ระบบซิงค์ข้อมูลผู้ใช้งาน (User Data Sync)
-          </Typography.Text>
-        </Space>
-      }
-      onCancel={syncStep === "syncing" ? undefined : onCancel}
-      closable={syncStep !== "syncing"}
-      width={1200}
-      footer={
-        syncStep === "selection"
-          ? [
-              <Button key="cancel" onClick={onCancel}>
-                ยกเลิก
-              </Button>,
-              <Button
-                key="sync"
-                type="primary"
-                icon={<CloudSyncOutlined />}
-                loading={loading}
-                onClick={handleSync}
-                disabled={selectedKeys.length === 0}
-              >
-                เริ่มซิงค์ข้อมูล ({selectedKeys.length} รายการ)
-              </Button>,
-            ]
-          : syncStep === "result"
+      <Modal
+        open={open}
+        title={
+          <Space>
+            <CloudSyncOutlined style={{ color: token.colorPrimary }} />
+            <Typography.Text strong style={{ fontSize: 18 }}>
+              ระบบซิงค์ข้อมูลผู้ใช้งาน (User Data Sync)
+            </Typography.Text>
+          </Space>
+        }
+        onCancel={syncStep === "syncing" ? undefined : onCancel}
+        closable={syncStep !== "syncing"}
+        width={1200}
+        footer={
+          syncStep === "selection"
             ? [
-                <Button key="close" type="primary" onClick={onCancel}>
-                  เสร็จสิ้น
+                <Button key="cancel" onClick={onCancel}>
+                  ยกเลิก
+                </Button>,
+                <Button
+                  key="sync"
+                  type="primary"
+                  icon={<CloudSyncOutlined />}
+                  loading={loading}
+                  onClick={handleSync}
+                  disabled={selectedKeys.length === 0}
+                >
+                  เริ่มซิงค์ข้อมูล ({selectedKeys.length} รายการ)
                 </Button>,
               ]
-            : null
-      }
-    >
-      {syncStep === "selection" && (
-        <>
-          <div
-            className="mb-6 border p-4 rounded-xl flex justify-between items-center"
-            style={{
-              backgroundColor: token.colorBgContainer,
-              borderColor: token.colorBorderSecondary,
-            }}
-          >
-            <Space size={40}>
-              <Statistic
-                label="Legacy (ต้นทาง)"
-                value={stats?.total_legacy || 0}
-              />
-              <Statistic
-                label="Local (ปัจจุบัน)"
-                value={stats?.total_local || 0}
-              />
-              <Statistic
-                label="ข้อมูลตรงกันแล้ว"
-                value={stats?.synced_count || 0}
-                valueStyle={{ color: token.colorSuccess }}
-              />
-              <Statistic
-                label="พบความแตกต่าง"
-                value={data.length}
-                valueStyle={{ color: token.colorError }}
-              />
-            </Space>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={fetchData}
-              loading={loading}
-              className="rounded-lg"
-            >
-              ตรวจสอบใหม่
-            </Button>
-          </div>
-
-          <Alert
-            message="กรุณาเลือกรายการที่ต้องการปรับปรุงข้อมูล"
-            description="รายการที่เลือกจะถูกนำเข้าหรืออัปเดตข้อมูลในระบบปัจจุบันให้ตรงกับฐานข้อมูลต้นทาง"
-            type="info"
-            showIcon
-            className="mb-4 rounded-lg"
-          />
-
-          <Table
-            dataSource={data}
-            columns={columns}
-            rowKey="row_key"
-            loading={loading}
-            rowSelection={{
-              type: "checkbox",
-              selectedRowKeys: selectedKeys,
-              onChange: (keys) => setSelectedKeys(keys),
-            }}
-            pagination={false}
-            scroll={{ y: 500 }}
-            className="border rounded-lg overflow-hidden"
-          />
-        </>
-      )}
-
-      {(syncStep === "syncing" || syncStep === "result") && (
-        <div className="py-2">
-          <div className="text-center mb-8">
-            <Typography.Title level={4}>
-              {syncStep === "syncing"
-                ? "กำลังซิงค์ข้อมูล..."
-                : "สรุปผลการดำเนินการ"}
-            </Typography.Title>
-            <Progress
-              percent={Math.round(
-                ((currentIdx + (syncStep === "result" ? 1 : 0)) /
-                  syncResults.length) *
-                  100,
-              )}
-              status={syncStep === "result" ? "success" : "active"}
-              strokeColor={{
-                "0%": token.colorPrimary,
-                "100%": token.colorSuccess,
+            : syncStep === "result"
+              ? [
+                  <Button key="close" type="primary" onClick={onCancel}>
+                    เสร็จสิ้น
+                  </Button>,
+                ]
+              : null
+        }
+      >
+        {syncStep === "selection" && (
+          <>
+            <div
+              className="mb-6 border p-4 rounded-xl flex justify-between items-center"
+              style={{
+                backgroundColor: token.colorBgContainer,
+                borderColor: token.colorBorderSecondary,
               }}
-              style={{ maxWidth: 600, margin: "0 auto" }}
-            />
-          </div>
-
-          <Row gutter={24}>
-            <Col span={16}>
-              <div
-                className="rounded-xl p-4 border h-[450px] overflow-hidden flex flex-col"
-                style={{
-                  backgroundColor: token.colorFillAlter,
-                  borderColor: token.colorBorderSecondary,
-                }}
+            >
+              <Space size={40}>
+                <Statistic
+                  label="Legacy (ต้นทาง)"
+                  value={stats?.total_legacy || 0}
+                />
+                <Statistic
+                  label="Local (ปัจจุบัน)"
+                  value={stats?.total_local || 0}
+                />
+                <Statistic
+                  label="ข้อมูลตรงกันแล้ว"
+                  value={stats?.synced_count || 0}
+                  valueStyle={{ color: token.colorSuccess }}
+                />
+                <Statistic
+                  label="พบความแตกต่าง"
+                  value={data.length}
+                  valueStyle={{ color: token.colorError }}
+                />
+              </Space>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={fetchData}
+                loading={loading}
+                className="rounded-lg"
               >
-                <Typography.Text strong className="mb-3 block">
-                  ประวัติการดำเนินการ (Execution Log)
-                </Typography.Text>
-                <div className="flex-1 overflow-y-auto pr-2">
-                  <Steps
-                    direction="vertical"
-                    size="small"
-                    current={currentIdx}
-                    items={syncResults.map((item, idx) => ({
-                      title: (
-                        <div className="flex items-center gap-2">
-                          <Typography.Text className="text-sm font-medium">
-                            {item.remote?.firstname_th}{" "}
-                            {item.remote?.lastname_th}
-                          </Typography.Text>
-                          <Typography.Text type="secondary" className="text-xs">
-                            (ID: {item.key})
-                          </Typography.Text>
-                        </div>
-                      ),
-                      description: (
-                        <div className="text-xs">
-                          {item.status === "pending" && idx === currentIdx ? (
-                            <Typography.Text style={{ color: token.colorInfo }}>
-                              กำลังประมวลผล...
-                            </Typography.Text>
-                          ) : item.status === "success" ? (
-                            <Typography.Text
-                              style={{ color: token.colorSuccess }}
-                            >
-                              สำเร็จ
-                            </Typography.Text>
-                          ) : item.status === "error" ? (
-                            <div className="flex flex-col gap-1">
-                              <div className="flex items-center justify-between">
-                                <Typography.Text
-                                  style={{ color: token.colorError }}
-                                >
-                                  {item.errorMessage}
-                                </Typography.Text>
-                                <Button
-                                  type="link"
-                                  size="small"
-                                  danger
-                                  icon={<InfoCircleOutlined />}
-                                  onClick={() => setErrorDetail(item.fullError)}
-                                  className="h-auto p-0 text-[10px]"
-                                >
-                                  รายละเอียด
-                                </Button>
-                              </div>
-                              {item.errorStack && (
-                                <div
-                                  className="text-[10px] p-1 rounded border font-mono overflow-x-auto"
-                                  style={{
-                                    backgroundColor: token.colorErrorBg,
-                                    color: token.colorErrorText,
-                                    borderColor: token.colorErrorBorder,
-                                    maxWidth: "100%",
-                                  }}
-                                >
-                                  {item.errorStack}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <Typography.Text type="secondary">
-                              รอคิว...
-                            </Typography.Text>
-                          )}
-                        </div>
-                      ),
-                      status:
-                        item.status === "success"
-                          ? "finish"
-                          : item.status === "error"
-                            ? "error"
-                            : idx === currentIdx && syncStep === "syncing"
-                              ? "process"
-                              : "wait",
-                      icon:
-                        item.status === "success" ? (
-                          <CheckCircleOutlined
-                            style={{ color: token.colorSuccess }}
-                          />
-                        ) : item.status === "error" ? (
-                          <CloseCircleOutlined
-                            style={{ color: token.colorError }}
-                          />
-                        ) : idx === currentIdx && syncStep === "syncing" ? (
-                          <LoadingOutlined
-                            style={{ color: token.colorPrimary }}
-                          />
-                        ) : undefined,
-                    }))}
-                  />
-                </div>
-              </div>
-            </Col>
-            <Col span={8}>
-              {syncStep === "result" && (
-                <div className="space-y-4">
-                  <Card className="rounded-xl border-green-100 bg-green-50/30">
-                    <Statistic
-                      label="สำเร็จทั้งหมด"
-                      value={successCount}
-                      valueStyle={{ color: "#3f8600" }}
-                    />
-                  </Card>
-                  <Card className="rounded-xl border-red-100 bg-red-50/30">
-                    <Statistic
-                      label="ผิดพลาด"
-                      value={errorCount}
-                      valueStyle={{ color: "#cf1322" }}
-                    />
-                  </Card>
+                ตรวจสอบใหม่
+              </Button>
+            </div>
 
-                  {errorCount > 0 && (
+            <Alert
+              message="กรุณาเลือกรายการที่ต้องการปรับปรุงข้อมูล"
+              description="รายการที่เลือกจะถูกนำเข้าหรืออัปเดตข้อมูลในระบบปัจจุบันให้ตรงกับฐานข้อมูลต้นทาง"
+              type="info"
+              showIcon
+              className="mb-4 rounded-lg"
+            />
+
+            <Table
+              dataSource={data}
+              columns={columns}
+              rowKey="row_key"
+              loading={loading}
+              rowSelection={{
+                type: "checkbox",
+                selectedRowKeys: selectedKeys,
+                onChange: (keys) => setSelectedKeys(keys),
+              }}
+              pagination={false}
+              scroll={{ y: 500 }}
+              className="border rounded-lg overflow-hidden"
+            />
+          </>
+        )}
+
+        {(syncStep === "syncing" || syncStep === "result") && (
+          <div className="py-2">
+            <div className="text-center mb-8">
+              <Typography.Title level={4}>
+                {syncStep === "syncing"
+                  ? "กำลังซิงค์ข้อมูล..."
+                  : "สรุปผลการดำเนินการ"}
+              </Typography.Title>
+              <Progress
+                percent={Math.round(
+                  ((currentIdx + (syncStep === "result" ? 1 : 0)) /
+                    syncResults.length) *
+                    100,
+                )}
+                status={syncStep === "result" ? "success" : "active"}
+                strokeColor={{
+                  "0%": token.colorPrimary,
+                  "100%": token.colorSuccess,
+                }}
+                style={{ maxWidth: 600, margin: "0 auto" }}
+              />
+            </div>
+
+            <Row gutter={24}>
+              <Col span={16}>
+                <div
+                  className="rounded-xl p-4 border h-[450px] overflow-hidden flex flex-col"
+                  style={{
+                    backgroundColor: token.colorFillAlter,
+                    borderColor: token.colorBorderSecondary,
+                  }}
+                >
+                  <Typography.Text strong className="mb-3 block">
+                    ประวัติการดำเนินการ (Execution Log)
+                  </Typography.Text>
+                  <div className="flex-1 overflow-y-auto pr-2">
+                    <Steps
+                      direction="vertical"
+                      size="small"
+                      current={currentIdx}
+                      items={syncResults.map((item, idx) => ({
+                        title: (
+                          <div className="flex items-center gap-2">
+                            <Typography.Text className="text-sm font-medium">
+                              {item.remote?.firstname_th}{" "}
+                              {item.remote?.lastname_th}
+                            </Typography.Text>
+                            <Typography.Text
+                              type="secondary"
+                              className="text-xs"
+                            >
+                              (ID: {item.key})
+                            </Typography.Text>
+                          </div>
+                        ),
+                        description: (
+                          <div className="text-xs">
+                            {item.status === "pending" && idx === currentIdx ? (
+                              <Typography.Text
+                                style={{ color: token.colorInfo }}
+                              >
+                                กำลังประมวลผล...
+                              </Typography.Text>
+                            ) : item.status === "success" ? (
+                              <Typography.Text
+                                style={{ color: token.colorSuccess }}
+                              >
+                                สำเร็จ
+                              </Typography.Text>
+                            ) : item.status === "error" ? (
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center justify-between">
+                                  <Typography.Text
+                                    style={{ color: token.colorError }}
+                                  >
+                                    {item.errorMessage}
+                                  </Typography.Text>
+                                  <Button
+                                    type="link"
+                                    size="small"
+                                    danger
+                                    icon={<InfoCircleOutlined />}
+                                    onClick={() =>
+                                      setErrorDetail(item.fullError)
+                                    }
+                                    className="h-auto p-0 text-[10px]"
+                                  >
+                                    รายละเอียด
+                                  </Button>
+                                </div>
+                                {item.errorStack && (
+                                  <div
+                                    className="text-[10px] p-1 rounded border font-mono overflow-x-auto"
+                                    style={{
+                                      backgroundColor: token.colorErrorBg,
+                                      color: token.colorErrorText,
+                                      borderColor: token.colorErrorBorder,
+                                      maxWidth: "100%",
+                                    }}
+                                  >
+                                    {item.errorStack}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <Typography.Text type="secondary">
+                                รอคิว...
+                              </Typography.Text>
+                            )}
+                          </div>
+                        ),
+                        status:
+                          item.status === "success"
+                            ? "finish"
+                            : item.status === "error"
+                              ? "error"
+                              : idx === currentIdx && syncStep === "syncing"
+                                ? "process"
+                                : "wait",
+                        icon:
+                          item.status === "success" ? (
+                            <CheckCircleOutlined
+                              style={{ color: token.colorSuccess }}
+                            />
+                          ) : item.status === "error" ? (
+                            <CloseCircleOutlined
+                              style={{ color: token.colorError }}
+                            />
+                          ) : idx === currentIdx && syncStep === "syncing" ? (
+                            <LoadingOutlined
+                              style={{ color: token.colorPrimary }}
+                            />
+                          ) : undefined,
+                      }))}
+                    />
+                  </div>
+                </div>
+              </Col>
+              <Col span={8}>
+                {syncStep === "result" && (
+                  <div className="space-y-4">
+                    <Card className="rounded-xl border-green-100 bg-green-50/30">
+                      <Statistic
+                        label="สำเร็จทั้งหมด"
+                        value={successCount}
+                        valueStyle={{ color: "#3f8600" }}
+                      />
+                    </Card>
+                    <Card className="rounded-xl border-red-100 bg-red-50/30">
+                      <Statistic
+                        label="ผิดพลาด"
+                        value={errorCount}
+                        valueStyle={{ color: "#cf1322" }}
+                      />
+                    </Card>
+
+                    {errorCount > 0 && (
+                      <Alert
+                        type="warning"
+                        showIcon
+                        message="พบรายการผิดพลาด"
+                        description="บางรายการไม่สามารถดำเนินการได้ เนื่องด้วยข้อจำกัดของข้อมูลหรือปัญหาการเชื่อมต่อ"
+                        className="rounded-lg"
+                      />
+                    )}
+
                     <Alert
-                      type="warning"
+                      type="success"
                       showIcon
-                      message="พบรายการผิดพลาด"
-                      description="บางรายการไม่สามารถดำเนินการได้ เนื่องด้วยข้อจำกัดของข้อมูลหรือปัญหาการเชื่อมต่อ"
+                      message="ดำเนินการเสร็จสิ้น"
+                      description={`ซิงค์ข้อมูลเสร็จเรียบร้อยแล้ว รวมทั้งสิ้น ${syncResults.length} รายการ`}
                       className="rounded-lg"
                     />
-                  )}
+                  </div>
+                )}
+              </Col>
+            </Row>
+          </div>
+        )}
+      </Modal>
 
-                  <Alert
-                    type="success"
-                    showIcon
-                    message="ดำเนินการเสร็จสิ้น"
-                    description={`ซิงค์ข้อมูลเสร็จเรียบร้อยแล้ว รวมทั้งสิ้น ${syncResults.length} รายการ`}
-                    className="rounded-lg"
-                  />
-                </div>
-              )}
-            </Col>
-          </Row>
-        </div>
-      )}
-    </Modal>
-
-    <Modal
-      title={
-        <Space>
-          <ExclamationCircleOutlined style={{ color: token.colorError }} />
-          <span>รายละเอียดข้อผิดพลาด (Error Detail)</span>
-        </Space>
-      }
-      open={!!errorDetail}
-      onCancel={() => setErrorDetail(null)}
-      footer={[
-        <Button key="close" onClick={() => setErrorDetail(null)}>
-          ปิด
-        </Button>,
-      ]}
-      width={700}
-      centered
-    >
-      <div
-        className="p-4 rounded-lg font-mono text-xs overflow-auto max-h-[500px]"
-        style={{
-          backgroundColor: token.colorFillAlter,
-          border: `1px solid ${token.colorBorderSecondary}`,
-        }}
+      <Modal
+        title={
+          <Space>
+            <ExclamationCircleOutlined style={{ color: token.colorError }} />
+            <span>รายละเอียดข้อผิดพลาด (Error Detail)</span>
+          </Space>
+        }
+        open={!!errorDetail}
+        onCancel={() => setErrorDetail(null)}
+        footer={[
+          <Button key="close" onClick={() => setErrorDetail(null)}>
+            ปิด
+          </Button>,
+        ]}
+        width={700}
+        centered
       >
-        <pre>{JSON.stringify(errorDetail, null, 2)}</pre>
-      </div>
-    </Modal>
-  </>
+        <div
+          className="p-4 rounded-lg font-mono text-xs overflow-auto max-h-[500px]"
+          style={{
+            backgroundColor: token.colorFillAlter,
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          <pre>{JSON.stringify(errorDetail, null, 2)}</pre>
+        </div>
+      </Modal>
+    </>
   );
 };
 

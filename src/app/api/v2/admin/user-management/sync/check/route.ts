@@ -15,7 +15,17 @@ export async function GET(request: NextRequest) {
     const legacyUsers = await LegacyUserService.fetchLegacyUsers();
 
     // 3. Map for comparison
-    const localMap = new Map(localUsers.items.map((u: any) => [u.admin_id, u]));
+    const localAdminIdMap = new Map(
+      localUsers.items.map((u: any) => [u.admin_id, u]),
+    );
+    const localUsernameMap = new Map(
+      localUsers.items.map((u: any) => [u.username, u]),
+    );
+    const localEmployeeCodeMap = new Map(
+      localUsers.items
+        .filter((u: any) => u.employee_code)
+        .map((u: any) => [u.employee_code, u]),
+    );
 
     const diffs: any[] = [];
     const synced: any[] = [];
@@ -25,7 +35,8 @@ export async function GET(request: NextRequest) {
       const legacyId = Number(remote.id || remote.admin_id);
       if (isNaN(legacyId) || legacyId === 0) continue;
 
-      const local = localMap.get(legacyId);
+      // Try to find local user by Admin ID (Legacy Link)
+      let local = localAdminIdMap.get(legacyId);
 
       // Helper to clean "null" string from legacy APIs
       const cleanStr = (val: any) => {
@@ -46,6 +57,14 @@ export async function GET(request: NextRequest) {
         employee_code: empCode,
       };
 
+      // If not found by Admin ID, try finding by Username or Employee Code
+      // (This handles users created locally before sync set up)
+      if (!local) {
+        local =
+          localUsernameMap.get(remoteData.username) ||
+          localEmployeeCodeMap.get(remoteData.employee_code);
+      }
+
       if (!legacyId) continue;
 
       if (!local) {
@@ -59,6 +78,7 @@ export async function GET(request: NextRequest) {
       } else {
         // Simple comparison of key fields
         const isDiff =
+          Number(local.admin_id) !== Number(remoteData.admin_id) ||
           (local.username || "") !== (remoteData.username || "") ||
           (local.firstname_th || "") !== (remoteData.firstname_th || "") ||
           (local.lastname_th || "") !== (remoteData.lastname_th || "") ||
