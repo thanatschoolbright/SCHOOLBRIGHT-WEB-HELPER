@@ -5,6 +5,7 @@ import { useAppSelector } from "@stores/store";
 import { Button } from "antd";
 import {
   CheckCircleOutlined,
+  CloseCircleOutlined,
   CloudUploadOutlined,
   DeleteOutlined,
   LoadingOutlined,
@@ -154,15 +155,48 @@ const EditableField = ({
 // --- Component: Editable Signature (Image Upload) ---
 const EditableSignature = ({
   initialImageSrc = null,
+  descriptionId,
+  signatureKey = "signature_1",
+  onStatusChange,
+  onSuccess,
 }: {
   initialImageSrc?: string | null;
+  descriptionId?: number;
+  signatureKey?: string;
+  onStatusChange?: (status: any) => void;
+  onSuccess?: () => void;
 }) => {
   const [imageSrc, setImageSrc] = useState<string | null>(initialImageSrc);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    setImageSrc(initialImageSrc);
+  }, [initialImageSrc]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    // จำกัดขนาดไฟล์ 2MB
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+    if (file.size > MAX_FILE_SIZE) {
+      if (onStatusChange) {
+        onStatusChange({
+          isOpen: true,
+          status: "error",
+          message: "ไฟล์มีขนาดใหญ่เกินไป (จำกัดไม่เกิน 2MB)",
+        });
+        setTimeout(() => {
+          onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+        }, 2000);
+      } else {
+        toast.error("ไฟล์มีขนาดใหญ่เกินไป (จำกัดไม่เกิน 2MB)");
+      }
+      return;
+    }
+
+    if (!descriptionId || !onStatusChange || !onSuccess) {
+      // Fallback to local preview if props are missing (e.g. in some contexts)
       const reader = new FileReader();
       reader.onload = (ev) => {
         if (ev.target?.result) {
@@ -170,6 +204,100 @@ const EditableSignature = ({
         }
       };
       reader.readAsDataURL(file);
+      return;
+    }
+
+    onStatusChange({
+      isOpen: true,
+      status: "uploading",
+      message: "กำลังอัปโหลดลายเซ็น...",
+    });
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("description_id", String(descriptionId));
+      formData.append("image_key", signatureKey);
+      formData.append("action", "upload");
+
+      const response = await callApiService.post(
+        "/api/v1/timesheet/overtime/upload-images",
+        formData,
+      );
+
+      if (response.data.status === 200) {
+        setImageSrc(response.data.data.url);
+        onStatusChange({
+          isOpen: true,
+          status: "success",
+          message: "อัปโหลดลายเซ็นสำเร็จ",
+        });
+        setTimeout(() => {
+          onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+          onSuccess();
+        }, 1500);
+      } else {
+        throw new Error(response.data.message_th || "Upload failed");
+      }
+    } catch (error: any) {
+      onStatusChange({
+        isOpen: true,
+        status: "error",
+        message: error.message || "ไม่สามารถอัปโหลดลายเซ็นได้",
+      });
+      setTimeout(() => {
+        onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+      }, 2000);
+    }
+  };
+
+  const handleRemove = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!descriptionId || !onStatusChange || !onSuccess) {
+      setImageSrc(null);
+      return;
+    }
+
+    onStatusChange({
+      isOpen: true,
+      status: "deleting",
+      message: "กำลังลบลายเซ็น...",
+    });
+
+    try {
+      const formData = new FormData();
+      formData.append("description_id", String(descriptionId));
+      formData.append("image_key", signatureKey);
+      formData.append("action", "delete");
+
+      const response = await callApiService.post(
+        "/api/v1/timesheet/overtime/upload-images",
+        formData,
+      );
+
+      if (response.data.status === 200) {
+        setImageSrc(null);
+        onStatusChange({
+          isOpen: true,
+          status: "success",
+          message: "ลบลายเซ็นสำเร็จ",
+        });
+        setTimeout(() => {
+          onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+          onSuccess();
+        }, 1500);
+      } else {
+        throw new Error(response.data.message_th || "Delete failed");
+      }
+    } catch (error: any) {
+      onStatusChange({
+        isOpen: true,
+        status: "error",
+        message: error.message || "ไม่สามารถลบลายเซ็นได้",
+      });
+      setTimeout(() => {
+        onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+      }, 2000);
     }
   };
 
@@ -180,8 +308,9 @@ const EditableSignature = ({
   return (
     <div
       onClick={handleClick}
-      title="คลิกเพื่ออัปโหลดลายเซ็น"
+      title="คลิกเพื่อจัดการลายเซ็น"
       className="signature-wrapper"
+      style={{ position: "relative" }}
     >
       <input
         type="file"
@@ -192,15 +321,40 @@ const EditableSignature = ({
       />
 
       {imageSrc ? (
-        <img
-          src={imageSrc}
-          alt="signature"
-          style={{
-            height: "100%",
-            width: "auto",
-            objectFit: "contain",
-          }}
-        />
+        <>
+          <img
+            src={imageSrc}
+            alt="signature"
+            style={{
+              height: "100%",
+              width: "auto",
+              objectFit: "contain",
+            }}
+          />
+          <button
+            className="no-print"
+            onClick={handleRemove}
+            style={{
+              position: "absolute",
+              top: "-8px",
+              right: "-8px",
+              background: "#EF4444",
+              color: "white",
+              border: "none",
+              borderRadius: "50%",
+              width: "20px",
+              height: "20px",
+              fontSize: "12px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 5,
+            }}
+          >
+            ×
+          </button>
+        </>
       ) : (
         <div
           className="signature-placeholder"
@@ -314,18 +468,13 @@ const StatusModal = ({
               )}
               {status === "error" && (
                 <motion.div
-                  initial={{ rotate: -45, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", damping: 12 }}
                 >
-                  <div
-                    style={{
-                      fontSize: "64px",
-                      color: "#EF4444",
-                      lineHeight: 1,
-                    }}
-                  >
-                    ✕
-                  </div>
+                  <CloseCircleOutlined
+                    style={{ fontSize: "64px", color: "#EF4444" }}
+                  />
                 </motion.div>
               )}
             </div>
@@ -382,6 +531,20 @@ const EvidenceUpload = ({
   const handleImageUpload = async (file: File) => {
     if (!descriptionId) {
       toast.error("ไม่สามารถระบุรายการ OT ได้");
+      return;
+    }
+
+    // จำกัดขนาดไฟล์ 2MB
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+    if (file.size > MAX_FILE_SIZE) {
+      onStatusChange({
+        isOpen: true,
+        status: "error",
+        message: "ไฟล์มีขนาดใหญ่เกินไป (จำกัดไม่เกิน 2MB)",
+      });
+      setTimeout(() => {
+        onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+      }, 2000);
       return;
     }
 
@@ -1415,7 +1578,15 @@ export default function OTPreviewPage() {
                 <div className="ot-signature-section">
                   <div className="ot-sign-box">
                     <div className="ot-sign-title">ผู้ขออนุมัติ</div>
-                    <EditableSignature />
+                    <EditableSignature
+                      descriptionId={data?.descriptions?.[0]?.id}
+                      signatureKey="signature_1"
+                      initialImageSrc={
+                        data?.descriptions?.[0]?.proof?.signature_1
+                      }
+                      onStatusChange={setModalStatus}
+                      onSuccess={fetchOvertimeData}
+                    />
                     <div className="ot-sign-line"></div>
                     <div className="ot-sign-name">
                       <EditableField
@@ -1655,7 +1826,15 @@ export default function OTPreviewPage() {
                 <div className="ot-signature-section">
                   <div className="ot-sign-box">
                     <div className="ot-sign-title">ผู้ขออนุมัติ</div>
-                    <EditableSignature />
+                    <EditableSignature
+                      descriptionId={data?.descriptions?.[0]?.id}
+                      signatureKey="signature_1"
+                      initialImageSrc={
+                        data?.descriptions?.[0]?.proof?.signature_1
+                      }
+                      onStatusChange={setModalStatus}
+                      onSuccess={fetchOvertimeData}
+                    />
                     <div className="ot-sign-line"></div>
                     <div className="ot-sign-name">
                       <EditableField

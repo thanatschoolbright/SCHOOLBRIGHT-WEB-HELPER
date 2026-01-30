@@ -115,6 +115,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // จำกัดขนาดไฟล์ 2MB
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        errorResponse({
+          message_th: "ไฟล์มีขนาดใหญ่เกินไป (จำกัดไม่เกิน 2MB)",
+          message_en: "File size too large (limit 2MB)",
+          status: 400,
+        }),
+        { status: 400 },
+      );
+    }
+
     // Cleanup รูปเก่าถ้ามี (กรณี Update)
     const oldUrl = proof[imageKey];
     if (oldUrl && oldUrl.includes(domain)) {
