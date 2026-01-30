@@ -464,6 +464,21 @@ export const UserManagementService = {
     });
   },
 
+  // ปรับปรุงสิทธิ์แบบกลุ่ม
+  async bulkUpdateRole(userIds: number[], roleId: number, adminId?: number) {
+    return await PrismaTimesheet.user.updateMany({
+      where: {
+        id: { in: userIds.map((id) => Number(id)) },
+        is_deleted: false,
+      },
+      data: {
+        role_id: roleId,
+        updated_at: new Date(),
+        updated_by: adminId,
+      },
+    });
+  },
+
   // กู้คืนรหัสผ่านผ่านอีเมล (สำหรับหน้า Forgot Password)
   async forgotPasswordByEmail(email: string) {
     // 1. ตรวจสอบผู้ใช้งานจาก Email

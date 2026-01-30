@@ -70,8 +70,80 @@ export default function RoleForm({
     [],
   );
 
+  // Helper สำหรับแปลและอธิบายสิทธิ์
+  const getPermissionRouteDetail = (code: string) => {
+    const parts = code.split(".");
+    const mainModule = parts[0];
+    const subModule = parts[1];
+
+    const moduleThaiNames: Record<string, string> = {
+      menu: "เข้าใช้งานหน้าเมนู",
+      api: "เรียกใช้ข้อมูล API",
+      action: "ดำเนินการคำสั่ง",
+      admin: "ตั้งค่าระบบหลัก",
+      user: "จัดการผู้ใช้งาน",
+      timesheet: "ระบบลงเวลา",
+      support: "สนับสนุนทางเทคนิค",
+      testing: "การทดสอบระบบ",
+    };
+
+    const sectionThaiNames: Record<string, string> = {
+      user_profile: "ประวัติพนักงาน",
+      role_management: "จัดการบทบาทและสิทธิ์",
+      position_management: "จัดการตำแหน่ง",
+      department_management: "จัดการแผนก",
+      load_testing: "ทดสอบการแบกรับโหลด",
+      bypass_school: "ข้ามขั้นตอนโรงเรียน",
+      test_nfc_card: "ทดสอบบัตร NFC",
+      cancel_sales: "ยกเลิกการขาย",
+      logs: "ดูบันทึกเหตุการณ์",
+    };
+
+    const typeLabel = moduleThaiNames[mainModule] || mainModule;
+    const sectionLabel = sectionThaiNames[subModule] || subModule;
+
+    return (
+      <Space direction="vertical" size={0}>
+        <div className="flex items-center gap-2">
+          <Tag
+            color={mainModule === "menu" ? "blue" : "orange"}
+            style={{ borderRadius: 4 }}
+          >
+            {typeLabel}
+          </Tag>
+          <Text strong style={{ fontSize: 13, color: "#334155" }}>
+            {sectionLabel}
+          </Text>
+        </div>
+        <div style={{ paddingLeft: 4, marginTop: 4 }}>
+          {mainModule === "menu" ? (
+            <Text
+              type="secondary"
+              style={{
+                fontSize: 11,
+                background: "#f1f5f9",
+                padding: "2px 6px",
+                borderRadius: 4,
+              }}
+            >
+              📍 เส้นทาง:{" "}
+              <span
+                style={{ color: "#0f172a", fontWeight: 500 }}
+              >{`/admin/${subModule?.replace(/_/g, "-") || ""}`}</span>
+            </Text>
+          ) : (
+            <Text type="secondary" style={{ fontSize: 11 }}>
+              ⚙️ ประเภท: ระบบเบื้องหลัง (System Action)
+            </Text>
+          )}
+        </div>
+      </Space>
+    );
+  };
+
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [roleRes, permRes] = await Promise.all([
           axios.get("/api/v2/admin/role-management/read"),
@@ -79,12 +151,33 @@ export default function RoleForm({
         ]);
         setRoles(roleRes?.data?.data?.items || []);
         setPermissions(permRes?.data?.data || []);
+
+        // If in edit mode and has roleId, fetch existing role data
+        if (mode === "edit" && roleId) {
+          const res = await axios.get(
+            `/api/v2/admin/role-management/read-by-id?id=${roleId}`,
+          );
+          const roleData = res?.data?.data;
+          if (roleData) {
+            form.setFieldsValue({
+              role_name: roleData.role_name,
+              description: roleData.description,
+              is_active: roleData.is_active,
+            });
+
+            // Extract permission IDs from the join table structure
+            const pIds = roleData.permissions.map((p: any) => p.permission_id);
+            setSelectedPermissionIds(pIds);
+          }
+        }
       } catch (error) {
         toast.error("ไม่สามารถโหลดข้อมูลพื้นฐานได้");
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [mode, roleId, form]);
 
   useEffect(() => {
     if (initialValues) {
@@ -137,27 +230,36 @@ export default function RoleForm({
 
   const columns = [
     {
-      title: "ชื่อสิทธิ์การเข้าถึง",
+      title: "ชื่อสิทธิ์และการอธิบาย",
       dataIndex: "name_th",
       key: "name_th",
+      width: "35%",
       render: (text: string, record: Permission) => (
-        <Space direction="vertical" size={0}>
-          <Text strong>{text}</Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {record.p_code}
+        <Space direction="vertical" size={2}>
+          <Text strong style={{ color: "#1e293b", fontSize: 14 }}>
+            {text}
           </Text>
+          <Text type="secondary" style={{ fontSize: 12, lineHeight: "1.4" }}>
+            {record.description || "สิทธิ์การเข้าถึงส่วนงานนี้ตามมาตรฐานระบบ"}
+          </Text>
+          <code
+            style={{
+              fontSize: 10,
+              color: "#94a3b8",
+              display: "block",
+              marginTop: 4,
+            }}
+          >
+            CODE: {record.p_code}
+          </code>
         </Space>
       ),
     },
     {
-      title: "โมดูล",
-      dataIndex: "p_code",
-      key: "module",
-      width: 150,
-      render: (code: string) => {
-        const module = code.split(".")[0] || "other";
-        return <Tag color="blue">{module.toUpperCase()}</Tag>;
-      },
+      title: "ขอบเขตการเข้าถึง (Route Matrix)",
+      key: "routing",
+      render: (_: any, record: Permission) =>
+        getPermissionRouteDetail(record.p_code),
     },
     {
       title: "สถานะ",
@@ -166,7 +268,13 @@ export default function RoleForm({
       align: "center" as const,
       render: (_: any, record: Permission) =>
         selectedPermissionIds.includes(record.id) ? (
-          <CheckCircleOutlined style={{ color: "#52c41a" }} />
+          <Tag
+            icon={<CheckCircleOutlined />}
+            color="success"
+            style={{ borderRadius: 20, padding: "2px 10px" }}
+          >
+            เลือกแล้ว
+          </Tag>
         ) : (
           <Text type="secondary">-</Text>
         ),
@@ -284,7 +392,13 @@ export default function RoleForm({
               dataSource={filteredPermissions}
               columns={columns}
               rowKey="id"
-              pagination={{ pageSize: 12 }}
+              pagination={{
+                pageSize: 12,
+                showSizeChanger: true,
+                pageSizeOptions: ["12", "24", "48", "96", "100"],
+                locale: { items_per_page: "/ หน้า" },
+                showTotal: (total) => `รวมทั้งหมด ${total} สิทธิ์`,
+              }}
               rowSelection={{
                 selectedRowKeys: selectedPermissionIds,
                 onChange: (keys) => setSelectedPermissionIds(keys as number[]),

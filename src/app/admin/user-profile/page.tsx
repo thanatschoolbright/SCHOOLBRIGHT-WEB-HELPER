@@ -1155,6 +1155,7 @@ export default function UserManagementPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [positions, setPositions] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
   const [filters, setFilters] = useState<FilterState>({ search: "" });
 
   // Modals State
@@ -1171,9 +1172,9 @@ export default function UserManagementPage() {
   const [usersToReset, setUsersToReset] = useState<UserProfile[] | null>(null);
 
   // Bulk Edit State
-  const [bulkMode, setBulkMode] = useState<"position" | "department" | null>(
-    null,
-  );
+  const [bulkMode, setBulkMode] = useState<
+    "position" | "department" | "role" | null
+  >(null);
   const [bulkValue, setBulkValue] = useState<number | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
 
@@ -1267,22 +1268,36 @@ export default function UserManagementPage() {
 
     setBulkLoading(true);
     try {
-      const endpoint =
-        bulkMode === "position"
-          ? "/api/v2/admin/user-management/bulk-update-position"
-          : "/api/v2/admin/user-management/bulk-update-department";
+      let endpoint = "";
+      if (bulkMode === "position") {
+        endpoint = "/api/v2/admin/user-management/bulk-update-position";
+      } else if (bulkMode === "department") {
+        endpoint = "/api/v2/admin/user-management/bulk-update-department";
+      } else if (bulkMode === "role") {
+        endpoint = "/api/v2/admin/user-management/bulk-update-role";
+      }
 
       const payload = {
         userIds: selectedRowKeys,
         adminId: adminId,
-        [bulkMode === "position" ? "positionId" : "departmentId"]: bulkValue,
+        [bulkMode === "position"
+          ? "positionId"
+          : bulkMode === "department"
+            ? "departmentId"
+            : "roleId"]: bulkValue,
       };
 
       const res = await axios.post(endpoint, payload);
 
       if (res.data.status === 200) {
         toast.success(
-          `ปรับปรุง${bulkMode === "position" ? "ตำแหน่ง" : "แผนก"}แบบกลุ่มสำเร็จ`,
+          `ปรับปรุง${
+            bulkMode === "position"
+              ? "ตำแหน่ง"
+              : bulkMode === "department"
+                ? "แผนก"
+                : "สิทธิ์การใช้งาน"
+          }แบบกลุ่มสำเร็จ`,
         );
         setBulkMode(null);
         setBulkValue(null);
@@ -1302,14 +1317,16 @@ export default function UserManagementPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [userRes, posRes, deptRes] = await Promise.all([
+      const [userRes, posRes, deptRes, constRes] = await Promise.all([
         UserProfileService.fetchUsers(),
         UserProfileService.fetchConstants(),
         axios.get("/api/v2/admin/department-management/read?limit=1000"),
+        axios.get("/api/v2/admin/user-management/constants"),
       ]);
       setUsers(userRes?.data?.data?.items || []);
       setPositions(posRes?.data?.data?.items || []);
       setDepartments(deptRes?.data?.data?.items || []);
+      setRoles(constRes?.data?.data?.roles || []);
     } catch (error) {
       toast.error("ไม่สามารถดึงข้อมูลผู้ใช้งานได้");
     } finally {
@@ -2006,6 +2023,16 @@ export default function UserManagementPage() {
                           onClick: () => setBulkMode("department"),
                         },
                         {
+                          key: "bulk-role",
+                          label: "ปรับสิทธิ์การใช้งาน (แบบกลุ่ม)",
+                          icon: (
+                            <SafetyCertificateOutlined
+                              style={{ color: token.colorSuccess }}
+                            />
+                          ),
+                          onClick: () => setBulkMode("role"),
+                        },
+                        {
                           type: "divider",
                         },
                         {
@@ -2342,9 +2369,15 @@ export default function UserManagementPage() {
           }}
         />
 
-        {/* 7. Bulk Update Modal (Position/Department) */}
+        {/* 7. Bulk Update Modal (Position/Department/Role) */}
         <Modal
-          title={`ปรับปรุง${bulkMode === "position" ? "ตำแหน่ง" : "แผนก"}แบบกลุ่ม`}
+          title={`ปรับปรุง${
+            bulkMode === "position"
+              ? "ตำแหน่ง"
+              : bulkMode === "department"
+                ? "แผนก"
+                : "สิทธิ์การใช้งาน"
+          }แบบกลุ่ม`}
           open={!!bulkMode}
           onOk={handleBulkUpdateSubmit}
           onCancel={() => {
@@ -2357,13 +2390,24 @@ export default function UserManagementPage() {
         >
           <div className="py-4">
             <Typography.Text className="mb-4 block">
-              คุณต้องการเปลี่ยน{bulkMode === "position" ? "ตำแหน่ง" : "แผนก"}{" "}
+              คุณต้องการเปลี่ยน
+              {bulkMode === "position"
+                ? "ตำแหน่ง"
+                : bulkMode === "department"
+                  ? "แผนก"
+                  : "สิทธิ์การใช้งาน"}{" "}
               ของ <strong>{selectedRowKeys.length}</strong> พนักงานที่เลือก
               เป็น:
             </Typography.Text>
             <Select
               className="w-full"
-              placeholder={`เลือก${bulkMode === "position" ? "ตำแหน่งใหม่" : "แผนกใหม่"}`}
+              placeholder={`เลือก${
+                bulkMode === "position"
+                  ? "ตำแหน่งใหม่"
+                  : bulkMode === "department"
+                    ? "แผนกใหม่"
+                    : "สิทธิ์การใช้งานใหม่"
+              }`}
               value={bulkValue}
               onChange={setBulkValue}
               options={
@@ -2372,10 +2416,15 @@ export default function UserManagementPage() {
                       label: p.name_th,
                       value: p.id,
                     }))
-                  : departments.map((d: any) => ({
-                      label: d.name_th,
-                      value: d.id,
-                    }))
+                  : bulkMode === "department"
+                    ? departments.map((d: any) => ({
+                        label: d.name_th,
+                        value: d.id,
+                      }))
+                    : roles.map((r: any) => ({
+                        label: r.role_name,
+                        value: r.id,
+                      }))
               }
               showSearch
               filterOption={(input, option) =>

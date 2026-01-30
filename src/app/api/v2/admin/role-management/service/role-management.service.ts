@@ -43,6 +43,26 @@ export const RoleManagementService = {
     return { items };
   },
 
+  // Find By Id
+  async findById(id: number) {
+    const role = await PrismaTimesheet.role.findFirst({
+      where: { id, is_deleted: false },
+      include: {
+        permissions: {
+          include: {
+            permission: true,
+          },
+        },
+      },
+    });
+
+    if (!role) {
+      throw new Error("Role not found");
+    }
+
+    return role;
+  },
+
   // Create
   async create(data: CreateRoleDto) {
     const { permission_ids, ...roleData } = data;
