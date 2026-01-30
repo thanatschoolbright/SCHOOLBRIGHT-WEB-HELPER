@@ -87,7 +87,8 @@ import { SyncModal } from "./components/sync-modal";
 // TODO: Move to src/services/backend/user-management/user-profile.service.ts
 const UserProfileService = {
   fetchUsers: async () => {
-    return await axios.get("/api/v2/admin/user-management/read");
+    // เพิ่ม limit=1000 เพื่อให้ดึงพนักงานทั้งหมดมาทำ Client-side Filter ได้ครอบคลุม
+    return await axios.get("/api/v2/admin/user-management/read?limit=1000");
   },
   fetchConstants: async () => {
     // New Position API
@@ -1549,6 +1550,8 @@ export default function UserManagementPage() {
       title: "รหัสพนักงาน",
       key: "codes",
       width: 150,
+      sorter: (a, b) =>
+        (a.employee_code || "").localeCompare(b.employee_code || ""),
       ...getColumnSearchProps(
         ["employee_code"],
         "รหัสพนักงาน/ไอดี",
@@ -1653,6 +1656,10 @@ export default function UserManagementPage() {
       title: "การทำงาน",
       key: "work_info",
       width: 250,
+      sorter: (a, b) =>
+        (a.position_ref?.name_th || "").localeCompare(
+          b.position_ref?.name_th || "",
+        ),
       ...getColumnSearchProps(
         ["position_ref", "name_th"],
         "ตำแหน่ง/แผนก",
@@ -1720,6 +1727,7 @@ export default function UserManagementPage() {
       title: "สถานะบัญชี",
       key: "account_status",
       width: 180,
+      sorter: (a, b) => (a.status || "").localeCompare(b.status || ""),
       ...getColumnSearchProps(
         ["status"],
         "สถานะ/สิทธิ์",
