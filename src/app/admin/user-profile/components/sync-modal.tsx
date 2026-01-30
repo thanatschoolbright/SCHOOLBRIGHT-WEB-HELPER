@@ -266,7 +266,6 @@ export const SyncModal: React.FC<SyncModalProps> = ({
             />
             <DiffText label="อีเมล" r={remote.email} l={local.email} />
             <DiffText label="เบอร์โทร" r={remote.tel} l={local.phone} />
-            <DiffText label="ตำแหน่ง" r={remote.position} l={local.position} />
           </div>
         );
       },

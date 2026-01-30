@@ -76,15 +76,14 @@ export async function GET(request: NextRequest) {
           message: "New user in Legacy System",
         });
       } else {
-        // Simple comparison of key fields
+        // Simple comparison of key fields (Excluding Position as requested)
         const isDiff =
           Number(local.admin_id) !== Number(remoteData.admin_id) ||
           (local.username || "") !== (remoteData.username || "") ||
           (local.firstname_th || "") !== (remoteData.firstname_th || "") ||
           (local.lastname_th || "") !== (remoteData.lastname_th || "") ||
           (local.email || "") !== (remoteData.email || "") ||
-          (local.phone || "") !== (remoteData.tel || "") ||
-          (local.position || "") !== (remoteData.position || "");
+          (local.phone || "") !== (remoteData.tel || "");
 
         if (isDiff) {
           diffs.push({
