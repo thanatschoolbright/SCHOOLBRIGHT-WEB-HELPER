@@ -40,9 +40,9 @@ export default function ForceLogoutProvider({
     try {
       // ใช้ NextAuth signOut เพื่อทำลาย session ทั้งใน client และ server
       // ✅ ใช้ window.location.origin เพื่อป้องกันการเด้งไป localhost:3000
-      await signOut({ 
-        redirect: true, 
-        callbackUrl: `${window.location.origin}/auth/v2/signin` 
+      await signOut({
+        redirect: true,
+        callbackUrl: `${window.location.origin}/auth/v2/signin`,
       });
     } catch (e) {
       // fallback กรณี signOut มีปัญหา
