@@ -229,11 +229,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 ]}
               >
                 <DatePicker
-                  style={{ width: "100%" }}
+                  style={{ width: "100%", height: 48, borderRadius: 10 }}
                   format="DD/MM/YYYY"
                   size="large"
                   placeholder="เลือกวันที่"
-                  className="hover:border-purple-400 transition-all"
+                  className="hover:border-purple-400 transition-all shadow-sm"
                 />
               </Form.Item>
             </Col>
@@ -251,8 +251,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
               >
                 <Select
                   size="large"
+                  style={{ height: 48 }}
                   placeholder="เลือกประเภท"
-                  className="hover:border-purple-400 transition-all"
+                  className="hover:border-purple-400 transition-all shadow-sm"
                   options={[
                     { value: "Normal", label: "Normal OT" },
                     { value: "Holiday", label: "Holiday OT" },
@@ -276,8 +277,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
               >
                 <Select
                   size="large"
+                  style={{ height: 48 }}
                   placeholder="เลือกผู้มอบหมายงาน"
-                  className="hover:border-green-400 transition-all"
+                  className="hover:border-green-400 transition-all shadow-sm"
                   options={userOptions}
                   showSearch
                   filterOption={(input, option) =>
@@ -349,76 +351,80 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     }
                   >
                     <Row gutter={[16, 16]}>
-                      {/* Time Range */}
-                      <Col xs={24} lg={16}>
-                        <Form.Item
-                          key={field.key}
-                          name={[field.name, "timeRange"]}
-                          label={
-                            <Space>
-                              <ClockCircleOutlined
-                                style={{ color: token.colorSuccess }}
-                              />
-                              <Text strong>ช่วงเวลาทำงาน</Text>
-                            </Space>
-                          }
-                          rules={[
-                            {
-                              required: true,
-                              message: "กรุณาเลือกช่วงเวลา",
-                            },
-                          ]}
-                          style={{ marginBottom: 0 }}
-                          tooltip="เลือกวันเวลาเริ่มต้นและสิ้นสุดการทำงานล่วงเวลา"
+                      {/* Time Selection Group */}
+                      <Col span={24}>
+                        <div
+                          className="p-5 rounded-2xl border-2 border-dashed transition-all"
+                          style={{
+                            background: token.colorFillAlter,
+                            borderColor: token.colorBorderSecondary,
+                          }}
                         >
-                          <RangePicker
-                            showTime={{ format: "HH:mm" }}
-                            format="DD/MM/YYYY HH:mm"
-                            style={{ width: "100%" }}
-                            size="large"
-                            placeholder={["เริ่มต้น", "สิ้นสุด"]}
-                            onChange={(dates) =>
-                              handleTimeRangeChange(field.name, dates)
-                            }
-                            className="hover:border-green-400 transition-all"
-                          />
-                        </Form.Item>
-                      </Col>
+                          <Row gutter={[20, 20]} align="bottom">
+                            <Col xs={24} lg={17}>
+                              <Form.Item
+                                name={[field.name, "timeRange"]}
+                                label={
+                                  <Space>
+                                    <ClockCircleOutlined
+                                      style={{ color: token.colorSuccess }}
+                                    />
+                                    <Text strong>ช่วงเวลาทำงาน (Start - End)</Text>
+                                  </Space>
+                                }
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "กรุณาเลือกช่วงเวลา",
+                                  },
+                                ]}
+                                style={{ marginBottom: 0 }}
+                              >
+                                <RangePicker
+                                  showTime={{ format: "HH:mm" }}
+                                  format="DD/MM/YYYY HH:mm"
+                                  style={{
+                                    width: "100%",
+                                    borderRadius: 10,
+                                    height: 48,
+                                  }}
+                                  size="large"
+                                  placeholder={["เริ่มต้นการทำงาน", "สิ้นสุดการทำงาน"]}
+                                  onChange={(dates) =>
+                                    handleTimeRangeChange(field.name, dates)
+                                  }
+                                  className="hover:border-green-400 transition-all shadow-sm"
+                                />
+                              </Form.Item>
+                            </Col>
 
-                      {/* Duration Display */}
-                      <Col xs={24} lg={8}>
-                        <Form.Item
-                          label={
-                            <Space>
-                              <ClockCircleOutlined
-                                style={{ color: token.colorSuccess }}
-                              />
-                              <Text strong>ระยะเวลา</Text>
-                            </Space>
-                          }
-                          style={{ marginBottom: 0 }}
-                        >
-                          <div
-                            className="rounded-lg flex items-center justify-center"
-                            style={{
-                              background: token.colorSuccessBg,
-                              border: `2px solid ${token.colorSuccessBorder}`,
-                              height: "40px",
-                            }}
-                          >
-                            <Badge
-                              count={`${calculatedDuration} ชั่วโมง`}
-                              style={{
-                                background:
-                                  "linear-gradient(135deg, #52c41a 0%, #73d13d 100%)",
-                                fontSize: 14,
-                                padding: "4px 12px",
-                                height: "auto",
-                                fontWeight: 600,
-                              }}
-                            />
-                          </div>
-                        </Form.Item>
+                            <Col xs={24} lg={7}>
+                              <div
+                                className="flex flex-col items-center justify-center rounded-xl p-2 relative overflow-hidden group shadow-sm"
+                                style={{
+                                  background: `linear-gradient(135deg, ${token.colorSuccess} 0%, ${token.colorSuccessActive} 100%)`,
+                                  height: 48,
+                                  border: "none",
+                                }}
+                              >
+                                {/* Decorative background element */}
+                                <div className="absolute -right-2 -bottom-2 opacity-20 rotate-12 transition-transform group-hover:scale-110">
+                                  <ClockCircleOutlined style={{ fontSize: 40, color: '#fff' }} />
+                                </div>
+                                
+                                <Text style={{ color: "rgba(255,255,255,0.8)", fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                  ระยะเวลาปฏิบัติงาน
+                                </Text>
+                                <div className="flex items-baseline gap-1">
+                                  <Text style={{ color: "#fff", fontSize: 20, fontWeight: 800, lineHeight: 1 }}>
+                                    {calculatedDuration}
+                                  </Text>
+                                  <Text style={{ color: "#fff", fontSize: 12, fontWeight: 400 }}>ชม.</Text>
+                                </div>
+                              </div>
+                            </Col>
+                          </Row>
+                        </div>
                       </Col>
 
                       {/* Description */}
@@ -431,7 +437,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                               <FileTextOutlined
                                 style={{ color: token.colorInfo }}
                               />
-                              <Text strong>รายละเอียดงาน</Text>
+                              <Text strong>รายละเอียดงาน (Description)</Text>
                             </Space>
                           }
                           rules={[
@@ -441,10 +447,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                             },
                           ]}
                           style={{ marginBottom: 0 }}
-                          tooltip={{
-                            title: "อธิบายงานที่ทำล่วงเวลา หรือเลือกจากรายการ",
-                            styles: { root: {} },
-                          }}
+                          tooltip="อธิบายงานที่ทำล่วงเวลา หรือเลือกจากรายการที่พบบ่อย"
                         >
                           <AutoComplete
                             options={descriptionOptions}
@@ -454,10 +457,18 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                 .toLowerCase()
                                 .includes(String(inputValue).toLowerCase())
                             }
-                            className="hover:border-blue-400 transition-all"
+                            className="hover:border-blue-400 transition-all shadow-sm"
                             size="large"
                           >
-                            <Input style={{ fontSize: 16 }} />
+                            <Input 
+                              style={{ 
+                                fontSize: 15, 
+                                borderRadius: 10,
+                                height: 48,
+                                paddingLeft: 16
+                              }} 
+                              placeholder="เช่น ตรวจสอบ Error ในระบบ Log"
+                            />
                           </AutoComplete>
                         </Form.Item>
                       </Col>
