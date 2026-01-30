@@ -4,6 +4,7 @@ import { Service } from "@/services/backend/timesheet/entry.service";
 import axios from "axios";
 import { API_URL } from "@services/api-url";
 import { z } from "zod";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
 const TARGET_POSITIONS = new Set([
   "developer",
@@ -13,6 +14,18 @@ const TARGET_POSITIONS = new Set([
   "business analyst",
   "system analyst",
   "ux/ui",
+  "พัฒนาผลิตภัณฑ์",
+  "product development",
+  "tech lead",
+  "technology lead",
+  "head of technology",
+  "software engineer",
+  "qa engineer",
+  "project manager",
+  "product manager",
+  "programmer",
+  "it support",
+  "it engineer",
 ]);
 const WORKING_HOURS_PER_DAY = 8;
 const WEEKDAY_LABEL_TH = [
@@ -110,7 +123,7 @@ const DateStringSchema = z
     }
 
     throw new Error(
-      "รูปแบบวันที่ไม่ถูกต้อง (รองรับ yyyy/mm/dd หรือ dd/mm/yyyy)"
+      "รูปแบบวันที่ไม่ถูกต้อง (รองรับ yyyy/mm/dd หรือ dd/mm/yyyy)",
     );
   })
   .refine((date) => !Number.isNaN(date.getTime()), {
@@ -120,6 +133,7 @@ const DateStringSchema = z
 const RequestBodySchema = z.object({
   start_date: DateStringSchema,
   end_date: DateStringSchema,
+  department_id: z.number().optional().nullable(),
 });
 
 const aggregateEntriesByUser = (entries: TimesheetEntryRow[]) => {
@@ -184,14 +198,27 @@ const makeBreakdownRows = (breakdown?: Map<string, number>) => {
 };
 
 const buildSummaryRecords = (
-  users: TimesheetUser[],
+  users: any[],
   entries: TimesheetEntryRow[],
-  expectedHours: number
+  expectedHours: number,
 ) => {
   const aggregated = aggregateEntriesByUser(entries);
 
   const records = users
-    .filter((user) => TARGET_POSITIONS.has(normalizePosition(user.position)))
+    .filter((user) => {
+      // ตรวจสอบทั้งชื่อตำแหน่งภาษาอังกฤษและภาษาไทย
+      // Check both English and Thai position names
+      const posEn = normalizePosition(user.position_ref?.name_en);
+      const posTh = normalizePosition(user.position_ref?.name_th);
+      const posRaw = normalizePosition(user.position);
+
+      return (
+        TARGET_POSITIONS.has(posEn) ||
+        TARGET_POSITIONS.has(posTh) ||
+        TARGET_POSITIONS.has(posRaw) ||
+        !user.position_ref // ถ้าไม่มีตำแหน่งเลยให้แสดงไว้ก่อนเพื่อความปลอดภัย
+      );
+    })
     .map((user) => {
       const key = String(user.admin_id);
       const aggregatedData = aggregated.get(key);
@@ -203,36 +230,51 @@ const buildSummaryRecords = (
         hoursGap > 0
           ? `ขาด ${formatHoursText(hoursGap)} ชั่วโมง`
           : hoursGap < 0
-          ? `เกิน ${formatHoursText(Math.abs(hoursGap))} ชั่วโมง`
-          : "ครบ";
+            ? `เกิน ${formatHoursText(Math.abs(hoursGap))} ชั่วโมง`
+            : "ครบ";
 
       const completionRate = expectedHours
         ? Number(((roundedHours / expectedHours) * 100).toFixed(2))
         : 0;
 
+      const positionName =
+        user.position_ref?.name_th ||
+        user.position_ref?.name_en ||
+        user.position ||
+        "-";
+
+      const departmentName =
+        user.department?.name_th || user.department?.name_en || "-";
+
       return {
         admin_id: user.admin_id,
         full_name:
-          [user.firstname, user.lastname].filter(Boolean).join(" ").trim() ||
+          [user.firstname_th, user.lastname_th]
+            .filter(Boolean)
+            .join(" ")
+            .trim() ||
+          user.username ||
           "-",
         nickname: user.nickname ?? null,
         employee_code: user.employee_code ?? null,
-        position: user.position ?? "-",
+        position: positionName,
+        department: departmentName,
         email: user.email ?? null,
-        tel: user.tel ?? null,
+        tel: user.phone ?? null,
+        image_profile: user.profile_image_path ?? null,
         total_hours: roundedHours,
         required_hours: expectedHours,
         hours_gap: hoursGap,
         status_label: statusLabel,
         completion_rate: completionRate,
         progress_text: `${formatHoursText(roundedHours)}/${formatHoursText(
-          expectedHours
+          expectedHours,
         )} ชั่วโมง`,
         breakdown: makeBreakdownRows(aggregatedData?.breakdown),
         entries: aggregatedData?.entries
           ? aggregatedData.entries
               .sort((a, b) => b.date.getTime() - a.date.getTime())
-              .map((e) => ({
+              .map((e: any) => ({
                 ...e,
                 date_str: formatThaiDate(e.date),
               }))
@@ -280,8 +322,11 @@ const extractAxiosMessage = (error: unknown) => {
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { start_date: startDate, end_date: endDate } =
-      RequestBodySchema.parse(body);
+    const {
+      start_date: startDate,
+      end_date: endDate,
+      department_id,
+    } = RequestBodySchema.parse(body);
 
     const { start, end } = enforceValidRange(startDate, endDate);
     const { workingDays, expectedHours } = computeExpectedHours(start, end);
@@ -295,31 +340,23 @@ export async function POST(request: Request) {
 
     const entries = await Service.findEntriesBetween(start, end);
 
-    let users: TimesheetUser[] = [];
-
-    try {
-      const usersResponse = await axios.get(`${baseUrl}/api/v1/admin/user/`);
-      const rawUsers = usersResponse?.data?.data?.data;
-      users = Array.isArray(rawUsers) ? (rawUsers as TimesheetUser[]) : [];
-    } catch (userError) {
-      const humanMessage = extractAxiosMessage(userError);
-      console.error("[Timesheet][summary] fetch users failed", humanMessage);
-
-      return NextResponse.json(
-        errorResponse({
-          status: 502,
-          message_en: "Failed to fetch user directory from SB Helper",
-          message_th: "ไม่สามารถโหลดข้อมูลผู้ใช้จาก SB Helper ได้",
-          error: userError,
-        }),
-        { status: 502 }
-      );
-    }
+    // ⚡ เปลี่ยนจากการเรียก API ภายนอกมาเป็น Query จาก DB โดยตรง (Direct DB Query for maximum reliability)
+    const users = (await PrismaTimesheet.user.findMany({
+      where: {
+        is_deleted: false,
+        status: "ACTIVE",
+        ...(department_id ? { department_id } : {}),
+      },
+      include: {
+        position_ref: true,
+        department: true,
+      },
+    })) as any[];
 
     const summaryRecords = buildSummaryRecords(
       users,
       (entries ?? []) as TimesheetEntryRow[],
-      expectedHours
+      expectedHours,
     );
 
     return NextResponse.json(
@@ -341,7 +378,7 @@ export async function POST(request: Request) {
               "รวมชั่วโมงเฉพาะวันทำงาน (จันทร์-ศุกร์) ในช่วงวันที่ที่ร้องขอ",
           },
         },
-      })
+      }),
     );
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
@@ -352,7 +389,7 @@ export async function POST(request: Request) {
           message_en: "Invalid request payload",
           error,
         }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -364,7 +401,7 @@ export async function POST(request: Request) {
         message_en: message,
         message_th: "เกิดข้อผิดพลาด",
         error,
-      })
+      }),
     );
   }
 }

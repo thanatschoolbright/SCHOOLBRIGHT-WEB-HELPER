@@ -261,10 +261,11 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       >
                         {requesterUser
                           ? `${requesterUser.firstname} ${requesterUser.lastname}`
-                          : selectedDetail.requester_id}
+                          : selectedDetail.requester_name ||
+                            selectedDetail.requester_id}
                       </Text>
                     </div>
-                    {requesterUser && (
+                    {(requesterUser || selectedDetail.requester_id) && (
                       <Text type="secondary" style={{ fontSize: 12 }}>
                         รหัส: {selectedDetail.requester_id}
                       </Text>
@@ -302,10 +303,11 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       >
                         {creatorUser
                           ? `${creatorUser.firstname} ${creatorUser.lastname}`
-                          : selectedDetail.created_by}
+                          : selectedDetail.creator_name ||
+                            selectedDetail.created_by}
                       </Text>
                     </div>
-                    {creatorUser && (
+                    {(creatorUser || selectedDetail.created_by) && (
                       <Text type="secondary" style={{ fontSize: 12 }}>
                         รหัส: {selectedDetail.created_by}
                       </Text>
@@ -534,42 +536,43 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                               </Tag>
                             </div>
                           </Col>
-                          {assigneeUser && (
-                            <Col span={12}>
-                              <div
-                                className="p-3 rounded-lg"
+                          <Col span={12}>
+                            <div
+                              className="p-3 rounded-lg"
+                              style={{
+                                background: token.colorPrimaryBg,
+                              }}
+                            >
+                              <Text
+                                type="secondary"
                                 style={{
-                                  background: token.colorPrimaryBg,
+                                  fontSize: 12,
+                                  display: "block",
+                                  marginBottom: 8,
                                 }}
                               >
-                                <Text
-                                  type="secondary"
-                                  style={{
-                                    fontSize: 12,
-                                    display: "block",
-                                    marginBottom: 8,
-                                  }}
-                                >
-                                  ผู้รับมอบหมาย
+                                ผู้รับมอบหมาย
+                              </Text>
+                              <Space>
+                                <Avatar
+                                  size="small"
+                                  src={
+                                    assigneeUser?.profile_image ||
+                                    assigneeUser?.image_profile
+                                  }
+                                  icon={<UserOutlined />}
+                                  style={{ background: token.colorPrimary }}
+                                />
+                                <Text strong style={{ fontSize: 13 }}>
+                                  {assigneeUser
+                                    ? `${assigneeUser.firstname} ${assigneeUser.lastname}`
+                                    : item.assignee_name ||
+                                      item.assignee ||
+                                      "-"}
                                 </Text>
-                                <Space>
-                                  <Avatar
-                                    size="small"
-                                    src={
-                                      assigneeUser?.profile_image ||
-                                      assigneeUser?.image_profile
-                                    }
-                                    icon={<UserOutlined />}
-                                    style={{ background: token.colorPrimary }}
-                                  />
-                                  <Text strong style={{ fontSize: 13 }}>
-                                    {assigneeUser.firstname}{" "}
-                                    {assigneeUser.lastname}
-                                  </Text>
-                                </Space>
-                              </div>
-                            </Col>
-                          )}
+                              </Space>
+                            </div>
+                          </Col>
                         </Row>
                       </Space>
                     </Card>

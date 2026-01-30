@@ -13,7 +13,10 @@ import {
 /**
  * Hook สำหรับจัดการข้อมูลสรุปการบันทึกเวลาทำงานทั้งหมด
  */
-export const useTimesheetData = (dateRange: [Dayjs, Dayjs]) => {
+export const useTimesheetData = (
+  dateRange: [Dayjs, Dayjs],
+  departmentId?: number | null,
+) => {
   const [records, setRecords] = useState<SummaryRecord[]>([]);
   const [metadata, setMetadata] = useState<SummaryMetadata | null>(null);
   const [loading, setLoading] = useState(false);
@@ -31,6 +34,7 @@ export const useTimesheetData = (dateRange: [Dayjs, Dayjs]) => {
         {
           start_date: start.format("YYYY-MM-DD"),
           end_date: end.format("YYYY-MM-DD"),
+          department_id: departmentId,
         },
       );
 
@@ -82,7 +86,7 @@ export const useTimesheetData = (dateRange: [Dayjs, Dayjs]) => {
     } finally {
       setLoading(false);
     }
-  }, [dateRange]);
+  }, [dateRange, departmentId]);
 
   useEffect(() => {
     requestTimesheetSummary();

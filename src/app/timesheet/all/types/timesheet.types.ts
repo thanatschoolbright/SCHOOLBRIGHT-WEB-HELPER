@@ -10,6 +10,7 @@ export type SummaryRecord = {
   nickname: string | null;
   employee_code: string | null;
   position: string;
+  department: string;
   email: string | null;
   tel: string | null;
   total_hours: number;

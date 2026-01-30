@@ -250,29 +250,29 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
                       />
                     </Descriptions.Item>
 
-                    {assigneeUser && (
-                      <Descriptions.Item
-                        label={
-                          <Text type="secondary">
-                            <UserOutlined /> ผู้ได้รับมอบหมาย
-                          </Text>
-                        }
-                      >
-                        <Space>
-                          <Avatar
-                            size="small"
-                            src={
-                              assigneeUser?.profile_image ||
-                              assigneeUser?.image_profile
-                            }
-                            icon={<UserOutlined />}
-                          />
-                          <Text>
-                            {assigneeUser.firstname} {assigneeUser.lastname}
-                          </Text>
-                        </Space>
-                      </Descriptions.Item>
-                    )}
+                    <Descriptions.Item
+                      label={
+                        <Text type="secondary">
+                          <UserOutlined /> ผู้ได้รับมอบหมาย
+                        </Text>
+                      }
+                    >
+                      <Space>
+                        <Avatar
+                          size="small"
+                          src={
+                            assigneeUser?.profile_image ||
+                            assigneeUser?.image_profile
+                          }
+                          icon={<UserOutlined />}
+                        />
+                        <Text>
+                          {assigneeUser
+                            ? `${assigneeUser.firstname} ${assigneeUser.lastname}`
+                            : desc.assignee_name || desc.assignee || "-"}
+                        </Text>
+                      </Space>
+                    </Descriptions.Item>
                   </Descriptions>
                 </Card>
               ),

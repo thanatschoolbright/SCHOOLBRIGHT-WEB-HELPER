@@ -6,57 +6,101 @@ import {
   MonthlySummarySchema,
   SummaryService,
 } from "@/services/timesheet/summary.service";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
-const validator = MonthlySummarySchema.extend({
-  user_id: z.union([z.string(), z.number()]).transform((v) => String(v)),
+const rankingValidator = MonthlySummarySchema.extend({
+  user_id: z
+    .union([z.string(), z.number()])
+    .transform((value) => String(value)),
 });
 
 export async function POST(request: NextRequest) {
-  const { data, error } = await validateRequest(request, validator);
-  if (error) return error;
+  const { data: validationData, error: validationError } =
+    await validateRequest(request, rankingValidator);
+
+  if (validationError) {
+    return validationError;
+  }
 
   try {
-    console.log("[API] find-ranking POST called", { path: request.nextUrl?.pathname, bodyPreview: JSON.stringify(data).slice(0,200) });
-    const { user_id, month, year, scope } = data as unknown as {
-      user_id: string;
-      month: string;
-      year: string;
-      scope?: "elapsed" | "full";
-    };
-
-    const { records, metadata } = await SummaryService.generateMonthlySummary({
-      month,
-      year,
-      scope: scope ?? "elapsed",
+    console.log("[API] find-ranking POST called", {
+      path: request.nextUrl?.pathname,
+      bodyPreview: JSON.stringify(validationData).slice(0, 200),
     });
 
-    const found = (records || []).find(
-      (r: any) => String(r.admin_id) === String(user_id)
+    const { user_id, month, year, scope } = validationData;
+
+    // 1. ค้นหาข้อมูลผู้ใช้งานจากตาราง user ภายในเพื่อดึง admin_id (ใช้เป็นตัวเชื่อมต่อข้อมูล)
+    // 1. Find user from internal user table to get admin_id as the connector
+    const internalUserLookup = await PrismaTimesheet.user.findFirst({
+      where: {
+        OR: [
+          { id: !isNaN(Number(user_id)) ? Number(user_id) : undefined },
+          { admin_id: !isNaN(Number(user_id)) ? Number(user_id) : undefined },
+          { employee_code: String(user_id) },
+        ],
+      },
+      select: {
+        admin_id: true,
+      },
+    });
+
+    if (!internalUserLookup) {
+      return NextResponse.json(
+        errorResponse({
+          message_en: "User not found in internal database",
+          message_th: "ไม่พบข้อมูลผู้ใช้งานในระบบฐานข้อมูลภายใน",
+          status: 404,
+        }),
+        { status: 404 },
+      );
+    }
+
+    const targetAdminId = internalUserLookup.admin_id;
+
+    // 2. ประมวลผล Ranking โดยอาศัย Service ภายใน
+    const { records: rankingRecords, metadata: rankingMetadata } =
+      await SummaryService.generateMonthlySummary({
+        month,
+        year,
+        scope: scope ?? "elapsed",
+      });
+
+    // 3. ค้นหาอันดับของผู้ใช้งานรายนี้โดยใช้ admin_id เป็นตัวเชื่อม
+    const foundRankingRecord = (rankingRecords || []).find(
+      (record: any) => String(record.admin_id) === String(targetAdminId),
     );
 
-    const mappedData = found || null;
+    const finalRankingResult = foundRankingRecord || null;
 
     return NextResponse.json(
       successResponse({
-        data: { record: mappedData, metadata },
+        data: { record: finalRankingResult, metadata: rankingMetadata },
         status: 200,
-      })
+      }),
     );
-  } catch (error: any) {
+  } catch (caughtError: any) {
+    console.error("[API] find-ranking Fatal Error:", caughtError);
     return NextResponse.json(
       errorResponse({
-        message_en: error.message || "Internal Server Error",
-        message_th: "เกิดข้อผิดพลาดภายในระบบ",
-        status: error?.response?.status || 500,
-        error,
+        message_en: caughtError.message || "Internal Server Error",
+        message_th: "เกิดข้อผิดพลาดรุนแรงภายในระบบ",
+        status: caughtError?.response?.status || 500,
+        error: caughtError,
       }),
-      { status: error?.response?.status || 500 }
+      { status: caughtError?.response?.status || 500 },
     );
   }
 }
 
 export async function GET(request: NextRequest) {
   return NextResponse.json(
-    successResponse({ data: { ok: true }, status: 200 })
+    successResponse({
+      data: {
+        status: "online",
+        message: "Ranking API is ready",
+      },
+      status: 200,
+    }),
   );
 }

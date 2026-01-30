@@ -9,6 +9,7 @@ import {
   Steps,
   Result,
   Button,
+  theme,
 } from "antd";
 import {
   FileExcelOutlined,
@@ -47,6 +48,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   setIsExportSuccess,
 }) => {
   const [form] = Form.useForm();
+  const { token } = theme.useToken();
 
   // รีเซ็ตสถานะเมื่อปิด Modal
   useEffect(() => {
@@ -81,8 +83,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               key="close"
               onClick={() => setVisible(false)}
               style={{
-                background: "#F97316",
-                borderColor: "#F97316",
+                background: token.colorPrimary,
+                borderColor: token.colorPrimary,
                 borderRadius: "8px",
                 height: "40px",
                 padding: "0 30px",
@@ -169,9 +171,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           style={{
             marginTop: "10px",
             padding: "12px",
-            background: "#FFF7ED",
+            background: token.colorWarningBg,
             borderRadius: "8px",
-            border: "1px solid #FFEDD5",
+            border: `1px solid ${token.colorWarningBorder}`,
           }}
         >
           <Text type="secondary" style={{ fontSize: "12px" }}>
@@ -191,7 +193,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             <div
               style={{
                 padding: "8px",
-                background: "#F97316",
+                background: token.colorPrimary,
                 borderRadius: "8px",
                 display: "flex",
               }}
@@ -213,8 +215,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       okButtonProps={{
         style: {
           display: loading || isExportSuccess ? "none" : "inline-block",
-          background: "#F97316",
-          borderColor: "#F97316",
+          background: token.colorPrimary,
+          borderColor: token.colorPrimary,
           borderRadius: "8px",
         },
       }}

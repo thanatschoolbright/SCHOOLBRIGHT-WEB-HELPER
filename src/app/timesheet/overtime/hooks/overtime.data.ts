@@ -78,6 +78,10 @@ export const useOvertimeData = () => {
   const fetchUserList = useCallback(async () => {
     try {
       const userList = await getUserData();
+      if (!userList || !Array.isArray(userList)) {
+        setUserSelectionOptions([]);
+        return;
+      }
       const selectionOptions = userList.map((user: UserProfile) => {
         const nickname = user.nickname ? `(${user.nickname})` : "";
         const employeeCode = user.employee_code

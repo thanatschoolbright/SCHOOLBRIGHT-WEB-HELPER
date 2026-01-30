@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Card,
   Input,
@@ -11,15 +11,18 @@ import {
   Col,
   Typography,
   Space,
+  Select,
 } from "antd";
 import {
   SearchOutlined,
   ClearOutlined,
   ReloadOutlined,
   FilterOutlined,
+  ClusterOutlined,
 } from "@ant-design/icons";
 import { Dayjs } from "dayjs";
 import { useTranslation } from "react-i18next";
+import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
@@ -29,6 +32,8 @@ type TimesheetFiltersProps = {
   onKeywordChange: (value: string) => void;
   dateRange: [Dayjs, Dayjs];
   onDateRangeChange: (range: [Dayjs, Dayjs]) => void;
+  departmentId: number | null;
+  onDepartmentChange: (id: number | null) => void;
   onRefresh: () => void;
   onClearFilters: () => void;
   loading: boolean;
@@ -42,6 +47,8 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
   onKeywordChange,
   dateRange,
   onDateRangeChange,
+  departmentId,
+  onDepartmentChange,
   onRefresh,
   onClearFilters,
   loading,
@@ -49,6 +56,31 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
   const { t } = useTranslation("translate");
   const { token } = theme.useToken();
   const [searchValue, setSearchValue] = useState(keyword);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [fetchingDepartments, setFetchingDepartments] = useState(false);
+
+  /**
+   * ดึงข้อมูลแผนกจาก API
+   */
+  const requestDepartments = useCallback(async () => {
+    try {
+      setFetchingDepartments(true);
+      const response = await callApiService.get(
+        "/api/v1/timesheet/department/list",
+      );
+      if (response.data.status === 200) {
+        setDepartments(response.data.data);
+      }
+    } catch (error) {
+      console.error("[Filters][departments]", error);
+    } finally {
+      setFetchingDepartments(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    requestDepartments();
+  }, [requestDepartments]);
 
   /**
    * ส่งค่าการค้นหาไปยังฟังก์ชันหลักเมื่อมีการเปลี่ยนแปลง
@@ -95,9 +127,9 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
           </Text>
         </Space>
 
-        {/* ส่วนอินพุต แบ่งเป็น 2 คอลัมน์ */}
+        {/* ส่วนอินพุต แบ่งเป็น 3 คอลัมน์ */}
         <Row gutter={[24, 24]}>
-          <Col xs={24} md={12}>
+          <Col xs={24} md={8}>
             <Flex vertical gap={8}>
               <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
                 ค้นหาพนักงาน
@@ -125,7 +157,34 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
               />
             </Flex>
           </Col>
-          <Col xs={24} md={12}>
+
+          <Col xs={24} md={8}>
+            <Flex vertical gap={8}>
+              <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
+                แผนก / ฝ่าย
+              </Text>
+              <Select
+                placeholder="เลือกแผนก"
+                allowClear
+                loading={fetchingDepartments}
+                value={departmentId}
+                onChange={onDepartmentChange}
+                size="large"
+                style={{ width: "100%", borderRadius: 8 }}
+                suffixIcon={
+                  <ClusterOutlined
+                    style={{ color: token.colorTextDescription }}
+                  />
+                }
+                options={departments.map((dept) => ({
+                  label: dept.name_th || dept.name_en,
+                  value: dept.id,
+                }))}
+              />
+            </Flex>
+          </Col>
+
+          <Col xs={24} md={8}>
             <Flex vertical gap={8}>
               <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
                 ช่วงวันที่

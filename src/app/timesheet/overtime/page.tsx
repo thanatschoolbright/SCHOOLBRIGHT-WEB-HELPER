@@ -3,6 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConfigProvider, Row, Col, theme, Space, Button } from "antd";
+import thTH from "antd/locale/th_TH";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
+
+dayjs.locale("th");
+
 import {
   TeamOutlined,
   FileTextOutlined,
@@ -83,6 +89,7 @@ export default function OvertimeManagementPage() {
   return (
     <DashboardLayout>
       <ConfigProvider
+        locale={thTH}
         theme={{
           components: {
             Table: { borderRadiusLG: 12 },

@@ -354,18 +354,31 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         render: (position: string) => (
           <Tag
             color={getPositionColor(position)}
-            bordered={false}
+            variant="borderless"
             style={{
-              borderRadius: 6,
-              fontSize: 10,
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
+              borderRadius: 4,
+              fontSize: 11,
+              fontWeight: 500,
               padding: "0 8px",
             }}
           >
             {position}
           </Tag>
+        ),
+      },
+      {
+        title: "แผนก",
+        dataIndex: "department",
+        key: "department",
+        width: 150,
+        filters: Array.from(new Set(records.map((rec) => rec.department))).map(
+          (dept) => ({ text: dept, value: dept }),
+        ),
+        onFilter: (value, record) => record.department === value,
+        render: (dept: string) => (
+          <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
+            {dept || "-"}
+          </Text>
         ),
       },
       {

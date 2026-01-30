@@ -225,7 +225,7 @@ export default function CapturableReportPage() {
       width: 80,
       align: "center",
       render: (code: string) => (
-        <Tag bordered={false} style={{ color: token.colorPrimary }}>
+        <Tag variant="borderless" style={{ color: token.colorPrimary }}>
           {code}
         </Tag>
       ),
@@ -323,7 +323,7 @@ export default function CapturableReportPage() {
       align: "center",
       sorter: (a, b) => a.hours_percent - b.hours_percent,
       render: (value: number) => (
-        <Tag bordered={false}>{value.toFixed(2)}%</Tag>
+        <Tag variant="borderless">{value.toFixed(2)}%</Tag>
       ),
     },
     {
@@ -441,7 +441,7 @@ export default function CapturableReportPage() {
           <Row gutter={[20, 20]}>
             <Col xs={24} sm={12} xl={6}>
               <Card
-                bordered={false}
+                variant="borderless"
                 className="shadow-sm rounded-xl overflow-hidden relative h-full border"
                 style={{ borderColor: token.colorBorderSecondary }}
                 styles={{ body: { zIndex: 10, position: "relative" } }}
@@ -475,7 +475,7 @@ export default function CapturableReportPage() {
 
             <Col xs={24} sm={12} xl={6}>
               <Card
-                bordered={false}
+                variant="borderless"
                 className="shadow-sm rounded-xl overflow-hidden relative h-full border"
                 style={{ borderColor: token.colorBorderSecondary }}
                 styles={{ body: { zIndex: 10, position: "relative" } }}
@@ -516,7 +516,7 @@ export default function CapturableReportPage() {
 
             <Col xs={24} sm={12} xl={6}>
               <Card
-                bordered={false}
+                variant="borderless"
                 className="shadow-sm rounded-xl overflow-hidden relative h-full border"
                 style={{ borderColor: token.colorBorderSecondary }}
                 styles={{ body: { zIndex: 10, position: "relative" } }}
@@ -567,7 +567,7 @@ export default function CapturableReportPage() {
 
             <Col xs={24} sm={12} xl={6}>
               <Card
-                bordered={false}
+                variant="borderless"
                 className="shadow-sm rounded-xl overflow-hidden relative h-full border"
                 style={{ borderColor: token.colorBorderSecondary }}
                 styles={{ body: { zIndex: 10, position: "relative" } }}
@@ -619,7 +619,7 @@ export default function CapturableReportPage() {
 
           {/* 3. Detailed Table Section */}
           <Card
-            bordered={false}
+            variant="borderless"
             className="shadow-sm rounded-xl border"
             style={{
               backgroundColor: token.colorBgContainer,

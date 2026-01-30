@@ -74,7 +74,7 @@ export default function NotEntryReportPage() {
     try {
       const response = await axios.post(
         "/api/v1/timesheet/report/not-entry/today",
-        { mode: "report" }
+        { mode: "report" },
       );
 
       if (response.data.status === 200) {
@@ -106,7 +106,7 @@ export default function NotEntryReportPage() {
         try {
           const response = await axios.post(
             "/api/v1/timesheet/report/not-entry/today",
-            { mode: "discord" }
+            { mode: "discord" },
           );
 
           if (response.data.status === 200) {
@@ -147,7 +147,7 @@ export default function NotEntryReportPage() {
     const partialEntry = data.filter((u) => u.status === "กรอกไม่ครบ").length;
     const totalLoggedHours = data.reduce(
       (acc, curr) => acc + curr.total_hours,
-      0
+      0,
     );
     const avgHours = total > 0 ? totalLoggedHours / total : 0;
 
@@ -340,7 +340,7 @@ export default function NotEntryReportPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
               {/* Total Card */}
               <Card
-                bordered={false}
+                variant="borderless"
                 className="shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
                 style={{
                   borderRadius: 16,
@@ -386,7 +386,7 @@ export default function NotEntryReportPage() {
 
               {/* Critical Card */}
               <Card
-                bordered={false}
+                variant="borderless"
                 className="shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
                 style={{
                   borderRadius: 16,
@@ -441,7 +441,7 @@ export default function NotEntryReportPage() {
 
               {/* Warning Card */}
               <Card
-                bordered={false}
+                variant="borderless"
                 className="shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
                 style={{
                   borderRadius: 16,
@@ -496,7 +496,7 @@ export default function NotEntryReportPage() {
 
               {/* Total Hours Card */}
               <Card
-                bordered={false}
+                variant="borderless"
                 className="shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
                 style={{
                   borderRadius: 16,
@@ -554,7 +554,7 @@ export default function NotEntryReportPage() {
                 borderRadius: 16,
                 backgroundColor: token.colorBgContainer,
               }}
-              bordered={false}
+              variant="borderless"
               className="shadow-sm"
               styles={{ body: { padding: "20px 24px" } }}
             >
@@ -612,7 +612,7 @@ export default function NotEntryReportPage() {
             {/* Table Section */}
             <Card
               style={{ borderRadius: 16, overflow: "hidden" }}
-              bordered={false}
+              variant="borderless"
               className="shadow-sm"
               styles={{ body: { padding: 0 } }}
             >

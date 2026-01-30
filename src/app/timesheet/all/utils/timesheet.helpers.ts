@@ -11,6 +11,17 @@ export const POSITION_COLORS: Record<string, string> = {
   tester: "purple",
   designer: "magenta",
   manager: "gold",
+  "tech lead": "volcano",
+  "technology lead": "volcano",
+  "ux/ui": "cyan",
+  "business analyst": "green",
+  "system analyst": "blue",
+  พัฒนาผลิตภัณฑ์: "orange",
+  "software engineer": "geekblue",
+  programmer: "geekblue",
+  "qa engineer": "purple",
+  "project manager": "gold",
+  "product manager": "gold",
   default: "blue",
 };
 
@@ -98,19 +109,19 @@ export const getPositionColor = (position: string): string => {
 
 export const calculateSummaryMetrics = (
   records: SummaryRecord[],
-  totalExpected: number
+  totalExpected: number,
 ) => {
   const totalMembers = records.length;
   const totalHours = records.reduce(
     (sum, current) => sum + current.total_hours,
-    0
+    0,
   );
   const avgCompletion = totalMembers
     ? Number(
         (
           records.reduce((sum, current) => sum + current.completion_rate, 0) /
           totalMembers
-        ).toFixed(2)
+        ).toFixed(2),
       )
     : 0;
 
@@ -124,13 +135,13 @@ export const calculateSummaryMetrics = (
 
 export const filterRecords = (
   records: SummaryRecord[],
-  keyword: string
+  keyword: string,
 ): SummaryRecord[] => {
   const term = keyword.trim().toLowerCase();
   if (!term) return records;
   return records.filter((record) =>
     [record.full_name, record.nickname, record.position, record.email]
       .filter(Boolean)
-      .some((value) => String(value).toLowerCase().includes(term))
+      .some((value) => String(value).toLowerCase().includes(term)),
   );
 };

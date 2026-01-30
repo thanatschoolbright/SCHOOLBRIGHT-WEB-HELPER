@@ -51,7 +51,7 @@ const ChangeStatusModalContent: React.FC<ChangeStatusModalProps> = ({
   const user = getUserById(record.requester_id);
   const displayName = user
     ? `${user.firstname} ${user.lastname}`
-    : record.requester_id;
+    : record.requester_name || record.requester_id;
 
   return (
     <>
@@ -234,15 +234,23 @@ export const useOvertimeTableColumns = ({
         dataIndex: "requester_id",
         width: 200,
         sorter: (a: any, b: any) =>
-          (a.requester_id || "").localeCompare(b.requester_id || ""),
-        render: (value: string) => {
+          (a.requester_name || "").localeCompare(b.requester_name || ""),
+        render: (value: string, record: any) => {
           const user = getUserById(value);
+          const name = user
+            ? `${user.firstname} ${user.lastname}`
+            : record.requester_name;
+
           return (
             <Space>
-              <Avatar icon={<UserOutlined />} size="small">
-                {user?.firstname?.[0]}
+              <Avatar
+                icon={<UserOutlined />}
+                size="small"
+                src={user?.profile_image || user?.image_profile}
+              >
+                {name?.[0]}
               </Avatar>
-              <Text>{user ? `${user.firstname} ${user.lastname}` : "-"}</Text>
+              <Text>{name || "-"}</Text>
             </Space>
           );
         },
@@ -263,12 +271,21 @@ export const useOvertimeTableColumns = ({
         title: t("overtime_page.created_by"),
         dataIndex: "created_by",
         width: 180,
-        render: (value: string) => {
+        render: (value: string, record: any) => {
           const user = getUserById(value);
+          const name = user
+            ? `${user.firstname} ${user.lastname}`
+            : record.creator_name;
+
           return (
-            <Text type="secondary">
-              {user ? `${user.firstname} ${user.lastname}` : "-"}
-            </Text>
+            <Space>
+              <Avatar
+                size="small"
+                icon={<UserOutlined />}
+                src={user?.profile_image || user?.image_profile}
+              />
+              <Text type="secondary">{name || "-"}</Text>
+            </Space>
           );
         },
       },
