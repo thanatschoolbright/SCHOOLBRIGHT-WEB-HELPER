@@ -2,6 +2,7 @@
 
 import { signIn as nextAuthSignIn } from "@/auth";
 import { AuthError } from "next-auth";
+import { UserManagementService } from "@/app/api/v2/admin/user-management/service/user-management.service";
 
 export async function loginAction(values: any) {
   try {
@@ -51,5 +52,18 @@ export async function loginAction(values: any) {
       }
     }
     throw error;
+  }
+}
+
+export async function forgotPasswordAction(email: string) {
+  try {
+    const result = await UserManagementService.forgotPasswordByEmail(email);
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error("❌ [forgotPasswordAction] Error:", error);
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการกู้คืนรหัสผ่าน",
+    };
   }
 }

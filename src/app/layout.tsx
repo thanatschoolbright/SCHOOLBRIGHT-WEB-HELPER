@@ -21,9 +21,9 @@ export const metadata: Metadata = {
     "การศึกษา",
     "ระบบจัดการ",
   ],
-  authors: [{ name: "SchoolBright Team" }],
-  creator: "SchoolBright",
-  publisher: "SchoolBright",
+  authors: [{ name: "Head of Technology Light" }],
+  creator: "Light",
+  publisher: "The Best SchoolBright Developer Team",
   robots: {
     index: false,
     follow: false,

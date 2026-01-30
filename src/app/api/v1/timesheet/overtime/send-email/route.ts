@@ -99,44 +99,50 @@ const generateEmailStyles = (): string => {
     body {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background-color: #f5f7fa;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
     }
     .email-wrapper {
       max-width: 680px;
-      margin: 0 auto;
+      margin: 40px auto;
       background-color: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
     .email-header {
-      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-      padding: 32px 40px;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      padding: 40px;
       text-align: center;
     }
     .email-logo {
       color: #ffffff;
-      font-size: 24px;
-      font-weight: 700;
+      font-size: 26px;
+      font-weight: 800;
       letter-spacing: -0.5px;
       margin: 0;
+    }
+    .email-logo span {
+      color: #f97316;
     }
     .email-body {
       padding: 40px;
     }
     .alert-box {
-      background-color: #fff7ed;
-      border-left: 4px solid #f97316;
-      padding: 16px 20px;
+      background-color: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 20px;
       margin: 24px 0;
       border-radius: 8px;
     }
     .alert-title {
-      color: #9a3412;
-      font-weight: 600;
-      font-size: 15px;
-      margin: 0 0 8px 0;
+      color: #166534;
+      font-weight: 700;
+      font-size: 16px;
+      margin: 0 0 4px 0;
     }
     .alert-text {
-      color: #7c2d12;
+      color: #14532d;
       font-size: 14px;
       margin: 0;
       line-height: 1.6;
@@ -144,131 +150,140 @@ const generateEmailStyles = (): string => {
     .info-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin: 24px 0;
+      gap: 24px;
+      margin: 32px 0;
       padding: 24px;
-      background-color: #fafbfc;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
+      background-color: #f8fafc;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
     }
     .info-item {
       margin: 0;
     }
     .info-label {
       color: #64748b;
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 6px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
     .info-value {
-      color: #0f172a;
+      color: #1e293b;
       font-size: 15px;
       font-weight: 600;
     }
     .section-title {
       color: #0f172a;
-      font-size: 18px;
-      font-weight: 700;
-      margin: 32px 0 16px 0;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #f97316;
+      font-size: 20px;
+      font-weight: 800;
+      margin: 40px 0 20px 0;
+      display: flex;
+      align-items: center;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: #f1f5f9;
+      margin-left: 15px;
     }
     .ot-table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       margin: 20px 0;
       background-color: #ffffff;
-      border-radius: 8px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
     .ot-table thead {
-      background: linear-gradient(180deg, #fafbfc 0%, #f5f7fa 100%);
+      background-color: #f8fafc;
     }
     .ot-table th {
-      padding: 14px 16px;
+      padding: 16px;
       text-align: left;
-      font-size: 13px;
-      font-weight: 600;
-      color: #475569;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      border-bottom: 2px solid #e5e7eb;
+      border-bottom: 1px solid #e2e8f0;
     }
     .ot-table td {
-      padding: 14px 16px;
+      padding: 16px;
       font-size: 14px;
-      color: #1e293b;
+      color: #334155;
       border-bottom: 1px solid #f1f5f9;
     }
     .ot-table tbody tr:last-child td {
       border-bottom: none;
     }
     .ot-table tbody tr:hover {
-      background-color: #fafbfc;
+      background-color: #f8fafc;
     }
     .summary-box {
-      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-      border: 2px solid #f97316;
-      border-radius: 12px;
-      padding: 24px;
-      margin: 24px 0;
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      border-radius: 16px;
+      padding: 32px;
+      margin: 32px 0;
       text-align: center;
+      color: #ffffff;
+      box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
     }
     .summary-label {
-      color: #9a3412;
+      color: rgba(255, 255, 255, 0.8);
       font-size: 14px;
       font-weight: 600;
       margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
     .summary-value {
-      color: #7c2d12;
-      font-size: 32px;
-      font-weight: 700;
+      color: #ffffff;
+      font-size: 40px;
+      font-weight: 800;
       margin: 0;
     }
     .cta-button {
       display: inline-block;
-      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-      color: #ffffff;
+      background-color: #1e293b;
+      color: #ffffff !important;
       text-decoration: none;
-      padding: 14px 32px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 15px;
+      padding: 18px 40px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 16px;
       margin: 24px 0;
-      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-      transition: all 0.3s ease;
+      box-shadow: 0 10px 15px -3px rgba(30, 41, 59, 0.2);
     }
     .footer {
-      background-color: #fafbfc;
-      padding: 32px 40px;
+      background-color: #f8fafc;
+      padding: 40px;
       text-align: center;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid #f1f5f9;
     }
     .footer-text {
-      color: #64748b;
+      color: #94a3b8;
       font-size: 13px;
       line-height: 1.8;
       margin: 8px 0;
     }
     .footer-brand {
       color: #f97316;
-      font-weight: 600;
+      font-weight: 700;
     }
     .divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent 0%, #e5e7eb 50%, transparent 100%);
-      margin: 32px 0;
+      background: #f1f5f9;
+      margin: 40px 0;
     }
     @media only screen and (max-width: 600px) {
+      .email-wrapper { margin: 0; border-radius: 0; }
       .email-body { padding: 24px; }
       .info-grid { grid-template-columns: 1fr; gap: 16px; }
-      .ot-table th, .ot-table td { padding: 10px 12px; font-size: 13px; }
+      .ot-table th, .ot-table td { padding: 12px; font-size: 13px; }
     }
   `;
 };
@@ -293,22 +308,22 @@ const generateEmailTemplate = (
     <body>
       <div class="email-wrapper">
         <div class="email-header">
-          <h1 class="email-logo">🎓 School Bright</h1>
+          <h1 class="email-logo">SchoolBright <span>Helper</span></h1>
         </div>
 
         <div class="email-body">
-          <h2 style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 8px 0;">
+          <h2 style="color: #0f172a; font-size: 24px; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px;">
             การอนุมัติทำงานล่วงเวลา (OT)
           </h2>
-          <p style="color: #64748b; font-size: 14px; margin: 0 0 24px 0;">
-            เอกสารหมายเลข #${overtime.id}
+          <p style="color: #64748b; font-size: 15px; margin: 0 0 32px 0;">
+            เลขที่เอกสาร <strong>#${overtime.id}</strong>
           </p>
 
           <div class="alert-box">
-            <p class="alert-title">✅ การอนุมัติเสร็จสมบูรณ์</p>
+            <p class="alert-title">✅ สถานะ: อนุมัติแล้ว</p>
             <p class="alert-text">
-              คำขอทำงานล่วงเวลานี้ได้รับการอนุมัติเรียบร้อยแล้ว 
-              กรุณาดำเนินการบันทึกข้อมูลเพื่อคำนวณเงินเดือนในระบบ Payroll
+              คำขอทำงานล่วงเวลานี้ได้รับการยืนยันความถูกต้องเรียบร้อยแล้ว 
+              ฝ่ายบุคคล (HR) สามารถดำเนินการบันทึกเข้าสู่ระบบ Payroll ได้ทันที
             </p>
           </div>
 
@@ -328,7 +343,7 @@ const generateEmailTemplate = (
               <div class="info-value">${overtime.position || "-"}</div>
             </div>
             <div class="info-item">
-              <div class="info-label">แผนก/ฝ่าย</div>
+              <div class="info-label">แผนก</div>
               <div class="info-value">${overtime.department || "-"}</div>
             </div>
             <div class="info-item">
@@ -336,10 +351,11 @@ const generateEmailTemplate = (
               <div class="info-value">${formatDate(overtime.requestDate)}</div>
             </div>
             <div class="info-item">
-              <div class="info-label">ประจำเดือน</div>
+              <div class="info-label">งวดการจ่ายเงิน</div>
               <div class="info-value">${overtime.period || "-"}</div>
             </div>
           </div>
+    ` ,oldString:
 
           ${
             overtime.reason
@@ -457,7 +473,7 @@ const generateEmailTemplate = (
 
         <div class="footer">
           <p class="footer-text">
-            <strong class="footer-brand">School Bright</strong> — ระบบบริหารจัดการองค์กร
+            <strong class="footer-brand">The Best SchoolBright Developer Team By Head of Technology Light</strong>
           </p>
           <p class="footer-text">
             อีเมลนี้ส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับที่อีเมลนี้
@@ -545,7 +561,7 @@ const generatePlainTextEmail = (
   lines.push(previewUrl);
   lines.push("");
   lines.push("═══════════════════════════════════════════");
-  lines.push("School Bright — ระบบบริหารจัดการองค์กร");
+  lines.push("The Best SchoolBright Developer Team By Head of Technology Light");
   lines.push("อีเมลนี้ส่งโดยระบบอัตโนมัติ");
   lines.push("═══════════════════════════════════════════");
 

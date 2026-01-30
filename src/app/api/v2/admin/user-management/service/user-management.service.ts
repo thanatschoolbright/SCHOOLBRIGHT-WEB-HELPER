@@ -233,31 +233,69 @@ export const UserManagementService = {
     // 5. ส่งอีเมล
     try {
       const subject = "⚠️ แจ้งการรีเซ็ตรหัสผ่าน - ระบบ SchoolBright Web Helper";
+      const websiteLink = "https://sb-helper.schoolbright.co/";
+      const logoUrl =
+        "https://sb-helper.schoolbright.co/photo/schoolbright-logo-full-image.png";
       const html = `
-        <div style="font-family: 'Helvetica', 'Arial', sans-serif; padding: 20px; color: #333; line-height: 1.6;">
-          <h2 style="color: #1890ff;">แจ้งข้อมูลรหัสผ่านใหม่</h2>
-          <p>เรียน คุณ <strong>${user.firstname_th} ${user.lastname_th}</strong>,</p>
-          <p>รหัสผ่านสำหรับเข้าใช้งานระบบของคุณได้รับการรีเซ็ตเรียบร้อยแล้วตามคำร้องขอจากผู้ดูแลระบบ</p>
-          
-          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #d9d9d9;">
-            <p style="margin: 0; font-size: 14px; color: #666;">รหัสผ่านใหม่ของคุณคือ:</p>
-            <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #f5222d;">${newPassword}</p>
-          </div>
+        <div style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; width: 100%;">
+          <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 48px 10px;">
+            <tr>
+              <td align="center">
+                <!-- Logo -->
+                <div style="margin-bottom: 32px;">
+                  <img src="${logoUrl}" alt="SchoolBright Logo" style="height: 60px; width: auto; display: block;" />
+                </div>
+                
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 560px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);">
+                  <tr>
+                    <td style="padding: 48px 40px;">
+                      <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; color: #111827; letter-spacing: -0.5px;">Hello!</h1>
+                      <p style="margin: 0 0 24px; font-size: 16px; color: #4b5563; line-height: 1.6;">
+                        คุณได้รับอีเมลนี้เนื่องจากรหัสผ่านของคุณได้รับการรีเซ็ตเรียบร้อยแล้วโดยผู้ดูแลระบบ
+                      </p>
 
-          <p style="color: #faad14;">* หมายเหตุ: กรุณาเปลี่ยนรหัสผ่านทันทีหลังจากการเข้าใช้งานครั้งแรกเพื่อความปลอดภัยสูงสุดตามมาตรฐาน IPO Monitoring</p>
-          
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #999;">
-            ข้อความนี้เป็นระบบตอบรับอัตโนมัติ กรุณาอย่าตอบกลับอีเมลฉบับนี้<br/>
-            © ${new Date().getFullYear()} SchoolBright Portfolio Team. All rights reserved.
-          </p>
+                      <div style="background-color: #fef2f2; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 32px; border: 1px solid #fee2e2;">
+                        <p style="margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #991b1b; text-transform: uppercase; letter-spacing: 0.05em;">รหัสผ่านใหม่ของคุณคือ</p>
+                        <div style="font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace; font-size: 32px; font-weight: 800; color: #ef4444; letter-spacing: 4px;">${newPassword}</div>
+                      </div>
+
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
+                        <tr>
+                          <td align="center">
+                            <a href="${websiteLink}" style="display: inline-block; padding: 16px 40px; background-color: #111827; color: #ffffff; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 12px; transition: all 0.2s ease;">เข้าสู่ระบบ</a>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <p style="margin: 0 0 32px; font-size: 14px; color: #6b7280; line-height: 1.6;">
+                        * เพื่อความปลอดภัยสูงสุด กรุณาเปลี่ยนรหัสผ่านนี้ทันทีที่หน้าเมนู <strong>"โปรไฟล์"</strong> หลังจากเข้าสู่ระบบครั้งแรก
+                      </p>
+
+                      <div style="height: 1px; background-color: #f3f4f6; margin-bottom: 32px;"></div>
+
+                      <p style="margin: 0; font-size: 15px; color: #111827;">Regards,</p>
+                      <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #F97316;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Bottom Subtext -->
+                <div style="margin-top: 32px; text-align: center; max-width: 560px;">
+                  <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
+                    หากคุณมีข้อสงสัยประการใดเกี่ยวกับระบบ SchoolBright Web Helper <br/>
+                    กรุณาติดต่อ IT Support ขององค์กรท่าน
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </table>
         </div>
       `;
 
       await sendMail(
         user.email,
         subject,
-        `รหัสผ่านใหม่ของคุณคือ: ${newPassword}`,
+        `รหัสผ่านใหม่ของคุณคือ: ${newPassword}\nเข้าใช้งานได้ที่: ${websiteLink}`,
         html,
       );
 
@@ -309,26 +347,58 @@ export const UserManagementService = {
           const subject =
             "🔐 แจ้งรหัสผ่านบัญชีผู้ใช้งาน SchoolBright Web Helper";
           const websiteLink = "https://sb-helper.schoolbright.co/";
+          const logoUrl =
+            "https://sb-helper.schoolbright.co/photo/schoolbright-logo-full-image.png";
           const html = `
-            <div style="font-family: 'Helvetica', 'Arial', sans-serif; padding: 20px; color: #333; line-height: 1.6;">
-              <h2 style="color: #1890ff;">แจ้งข้อมูลรหัสผ่านตามเบอร์โทรศัพท์</h2>
-              <p>เรียน คุณ <strong>${user.firstname_th} ${user.lastname_th}</strong>,</p>
-              <p>ผู้ดูแลระบบได้ทำการตั้งค่ารหัสผ่านเบื้องต้นให้กับบัญชีของคุณให้เท่ากับ <strong>เบอร์โทรศัพท์</strong> ที่ลงทะเบียนไว้ในระบบเรียบร้อยแล้ว</p>
-              
-              <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #d9d9d9;">
-                <p style="margin: 0; font-size: 14px; color: #666;">รหัสผ่านของคุณคือ:</p>
-                <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: bold; color: #1890ff;">${newPassword}</p>
-              </div>
+            <div style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; width: 100%;">
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 48px 10px;">
+                <tr>
+                  <td align="center">
+                    <!-- Logo -->
+                    <div style="margin-bottom: 32px;">
+                      <img src="${logoUrl}" alt="SchoolBright Logo" style="height: 60px; width: auto; display: block;" />
+                    </div>
+                    
+                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 560px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);">
+                      <tr>
+                        <td style="padding: 48px 40px;">
+                          <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; color: #111827; letter-spacing: -0.5px;">Hello!</h1>
+                          <p style="margin: 0 0 24px; font-size: 16px; color: #4b5563; line-height: 1.6;">
+                            เรียนคุณ <strong>${user.firstname_th}</strong>,<br/><br/>
+                            บัญชีผู้ใช้งานของคุณถูกตั้งค่ารหัสผ่านเบื้องต้นเรียบร้อยแล้ว โดยใช้ข้อมูลจาก <strong>เบอร์โทรศัพท์</strong> ที่คุณใช้ลงทะเบียน
+                          </p>
 
-              <p>คุณสามารถเข้าใช้งานระบบได้ที่:</p>
-              <p><a href="${websiteLink}" style="color: #1890ff; font-weight: bold; text-decoration: none;">${websiteLink}</a></p>
+                          <div style="background-color: #fffaf5; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 32px; border: 1px solid #ffedd5;">
+                            <p style="margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #c2410c; text-transform: uppercase;">รหัสผ่านของคุณคือ</p>
+                            <div style="font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace; font-size: 32px; font-weight: 800; color: #ea580c; letter-spacing: 2px;">${newPassword}</div>
+                          </div>
 
-              <p style="color: #faad14;">* หมายเหตุ: กรุณาเปลี่ยนรหัสผ่านทันทีเพื่อความปลอดภัย</p>
-              
-              <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-              <p style="font-size: 12px; color: #999;">
-                © ${new Date().getFullYear()} SchoolBright Portfolio Team.
-              </p>
+                          <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
+                            <tr>
+                              <td align="center">
+                                <a href="${websiteLink}" style="display: inline-block; padding: 16px 40px; background-color: #111827; color: #ffffff; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 12px;">Sign in to account</a>
+                              </td>
+                            </tr>
+                          </table>
+
+                          <div style="height: 1px; background-color: #f3f4f6; margin-bottom: 32px;"></div>
+
+                          <p style="margin: 0; font-size: 15px; color: #111827;">Regards,</p>
+                          <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #F97316;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Footer Help -->
+                    <div style="margin-top: 32px; text-align: center; max-width: 560px;">
+                      <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
+                        If you're having trouble clicking the "Sign in to account" button, copy and paste the URL below into your web browser: <br/>
+                        <a href="${websiteLink}" style="color: #F97316;">${websiteLink}</a>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
             </div>
           `;
 
@@ -392,5 +462,113 @@ export const UserManagementService = {
         updated_by: adminId,
       },
     });
+  },
+
+  // กู้คืนรหัสผ่านผ่านอีเมล (สำหรับหน้า Forgot Password)
+  async forgotPasswordByEmail(email: string) {
+    // 1. ตรวจสอบผู้ใช้งานจาก Email
+    const user = await PrismaTimesheet.user.findFirst({
+      where: { email: email, is_deleted: false },
+    });
+
+    if (!user) {
+      throw new Error("ไม่พบข้อมูลผู้ใช้งานที่เชื่อมโยงกับอีเมลนี้");
+    }
+
+    if (!user.email) {
+      throw new Error("ข้อมูลผู้ใช้งานนี้ไม่มีอีเมลผูกไว้ในระบบ");
+    }
+
+    // 2. สร้างรหัสผ่านแบบสุ่ม (ความยาว 10 ตัวอักษร ผสมตัวเล็ก ตัวใหญ่ ตัวเลข)
+    const charset = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    let newPassword = "";
+    for (let i = 0; i < 10; i++) {
+      newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+
+    // 3. Hash รหัสผ่านใหม่
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 4. อัปเดตฐานข้อมูล
+    await PrismaTimesheet.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        updated_at: new Date(),
+      },
+    });
+
+    // 5. ส่งอีเมล
+    try {
+      const subject = "🔑 กู้คืนรหัสผ่าน - ระบบ SchoolBright Web Helper";
+      const websiteLink = "https://sb-helper.schoolbright.co/";
+      const logoUrl =
+        "https://sb-helper.schoolbright.co/photo/schoolbright-logo-full-image.png";
+      const html = `
+        <div style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #ffffff; width: 100%;">
+          <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 48px 10px;">
+            <tr>
+              <td align="center">
+                <!-- Simple Logo -->
+                <div style="margin-bottom: 40px;">
+                  <img src="${logoUrl}" alt="SchoolBright" style="height: 54px; width: auto; display: block;" />
+                </div>
+                
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 500px; background-color: #ffffff;">
+                  <tr>
+                    <td>
+                      <h1 style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #111827; letter-spacing: -0.4px;">Hello!</h1>
+                      <p style="margin: 0 0 24px; font-size: 16px; color: #374151; line-height: 1.7;">
+                        You are receiving this email because we received a password reset request for your account on SchoolBright Web Helper.
+                      </p>
+
+                      <!-- Password Highlight -->
+                      <div style="background-color: #fff7ed; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 32px; border: 1px solid #ffedd5;">
+                        <p style="margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #c2410c; text-transform: uppercase;">รหัสผ่านใหม่ของคุณคือ</p>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 800; color: #ea580c; letter-spacing: 4px;">${newPassword}</div>
+                      </div>
+
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
+                        <tr>
+                          <td align="center">
+                            <a href="${websiteLink}" style="display: inline-block; padding: 14px 32px; background-color: #2d3748; color: #ffffff; font-weight: 600; font-size: 15px; text-decoration: none; border-radius: 5px;">Reset Password</a>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <p style="margin: 0 0 24px; font-size: 15px; color: #374151; line-height: 1.7;">
+                        If you did not request a password reset, no further action is required.
+                      </p>
+
+                      <p style="margin: 0; font-size: 15px; color: #111827;">Regards,</p>
+                      <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #111827;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
+
+                      <div style="height: 1px; background-color: #e5e7eb; margin: 40px 0 24px;"></div>
+                      
+                      <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
+                        If you're having trouble clicking the "Reset Password" button, copy and paste the URL below into your web browser: <br/>
+                        <a href="${websiteLink}" style="color: #4A5568;">${websiteLink}</a>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      `;
+
+      await sendMail(
+        user.email as string,
+        subject,
+        `รหัสผ่านใหม่ของคุณคือ: ${newPassword}\nโดยท่านสามารถล็อกอินได้ที่ลิงก์นี้ : ${websiteLink}`,
+        html,
+      );
+
+      return { success: true, email: user.email };
+    } catch (err: any) {
+      console.error("❌ [ForgotPassword] Mail send failed:", err);
+      throw new Error("ระบบกู้คืนรหัสผ่านล้มเหลวขณะส่งอีเมล: " + err.message);
+    }
   },
 };

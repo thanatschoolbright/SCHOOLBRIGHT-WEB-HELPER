@@ -391,7 +391,11 @@ export default function SignInPage() {
               <div style={{ textAlign: "center", marginTop: 32 }}>
                 <Text type="secondary" style={{ fontSize: "14px" }}>
                   ลืมรหัสผ่านใช่หรือไม่?{" "}
-                  <Button type="link" style={{ padding: 0, fontWeight: 600 }}>
+                  <Button
+                    type="link"
+                    style={{ padding: 0, fontWeight: 600 }}
+                    onClick={() => router.push("/auth/v2/forgot-password")}
+                  >
                     คลิกที่นี่
                   </Button>
                 </Text>
