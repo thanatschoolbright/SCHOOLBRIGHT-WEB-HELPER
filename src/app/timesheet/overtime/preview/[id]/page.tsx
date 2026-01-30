@@ -1004,7 +1004,7 @@ const PRINT_STYLES = `
   }
 
   @media print {
-    @page { size: A4; margin: 10mm; }
+    @page { size: A4; margin: 0; }
     body { margin: 0; }
     .ot-print, .ot-print * { visibility: visible; }
     .ot-print { 
