@@ -14,14 +14,27 @@ export async function POST(request: NextRequest) {
     for (const item of items) {
       console.log("Sync executing item:", JSON.stringify(item, null, 2));
       if (item.type === "MISSING_IN_LOCAL") {
-        // Create new user in local DB
+        // Create new user in local DB - Map fields explicitly to avoid conflicts
         const newUser = await UserManagementService.create({
-          ...item.remote,
-          password: "default_password",
+          admin_id: item.remote.admin_id,
           username:
-            item.remote.employee_code ||
             item.remote.username ||
+            item.remote.employee_code ||
             `user_${item.remote.admin_id}`,
+          password: "default_password",
+          employee_code: item.remote.employee_code,
+          firstname_th: item.remote.firstname_th,
+          lastname_th: item.remote.lastname_th,
+          firstname_en: item.remote.firstname_en,
+          lastname_en: item.remote.lastname_en,
+          nickname: item.remote.nickname,
+          email: item.remote.email,
+          phone: item.remote.tel || item.remote.phone,
+          position: item.remote.position,
+          department_id: item.remote.department_id,
+          position_id: item.remote.position_id,
+          role_id: item.remote.role_id,
+          created_by: 0, // System sync
         });
         results.push({
           status: "created",
@@ -29,12 +42,24 @@ export async function POST(request: NextRequest) {
           admin_id: item.remote.admin_id,
         });
       } else if (item.type === "MISMATCH") {
-        // Update local user to match remote
+        // Update local user to match remote - Map fields explicitly
         if (item.local && item.local.id) {
           const updated = await UserManagementService.update(item.local.id, {
-            ...item.remote,
-            // Ensure any other required fields for update are present or handled
-            updated_by: 0, // System update
+            admin_id: item.remote.admin_id,
+            username: item.remote.username,
+            employee_code: item.remote.employee_code,
+            firstname_th: item.remote.firstname_th,
+            lastname_th: item.remote.lastname_th,
+            firstname_en: item.remote.firstname_en,
+            lastname_en: item.remote.lastname_en,
+            nickname: item.remote.nickname,
+            email: item.remote.email,
+            phone: item.remote.tel || item.remote.phone,
+            position: item.remote.position,
+            department_id: item.remote.department_id,
+            position_id: item.remote.position_id,
+            role_id: item.remote.role_id,
+            updated_by: 0, // System sync
           });
           results.push({
             status: "updated",
