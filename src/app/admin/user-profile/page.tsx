@@ -1413,14 +1413,11 @@ export default function UserManagementPage() {
       const matchesSearch =
         u.firstname_th?.toLowerCase().includes(searchLower) ||
         u.lastname_th?.toLowerCase().includes(searchLower) ||
+        u.firstname_en?.toLowerCase().includes(searchLower) ||
+        u.lastname_en?.toLowerCase().includes(searchLower) ||
         u.employee_code?.toLowerCase().includes(searchLower) ||
-        u.email?.toLowerCase().includes(searchLower);
-
-      // Assuming user object now has position_id or position object if loaded
-      // If user.position is still just a string from old data, this might fail unless we assume mixed.
-      // But typically we filter by ID if selected in filter.
-      // Let's assume u.position_id or u.position_ref?.id
-      // For now, let's try to match position_id if filter is number, else string match if filter is string (legacy)
+        u.email?.toLowerCase().includes(searchLower) ||
+        u.nickname?.toLowerCase().includes(searchLower);
 
       let matchesPosition = true;
       if (filters.position) {
@@ -1431,7 +1428,7 @@ export default function UserManagementPage() {
 
       let matchesDepartment = true;
       if (filters.department) {
-        matchesDepartment = (u as any).department_id === filters.department;
+        matchesDepartment = u.department_id === filters.department;
       }
 
       return (
@@ -1470,7 +1467,7 @@ export default function UserManagementPage() {
         title: "จำนวน Admin",
         value: admins,
         icon: <SafetyCertificateOutlined />,
-        color: token.colorPurple,
+        color: "#722ed1", // Ant Design Purple
       },
     ];
   }, [users, token]);
@@ -1890,96 +1887,102 @@ export default function UserManagementPage() {
             border: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          {/* Filter Section - 2 Cols */}
+          {/* Filter Section - Responsive Grid */}
           <div
-            className="mb-6 p-4 rounded-xl"
-            style={{ backgroundColor: token.colorFillAlter }}
+            className="mb-8 p-6 rounded-2xl"
+            style={{
+              backgroundColor: token.colorFillAlter,
+              border: `1px solid ${token.colorBorderSecondary}`,
+            }}
           >
-            <Row gutter={[16, 16]} align="bottom">
-              <Col xs={24} md={12} lg={18}>
-                <Row gutter={[16, 16]}>
-                  <Col xs={24} md={8}>
-                    <Typography.Text
-                      type="secondary"
-                      className="text-xs mb-1 block"
-                    >
-                      ค้นหาข้อมูล
-                    </Typography.Text>
-                    <Input
-                      prefix={
-                        <SearchOutlined
-                          style={{ color: token.colorTextDescription }}
-                        />
-                      }
-                      placeholder="ค้นหาชื่อ, รหัสพนักงาน..."
-                      allowClear
-                      value={filters.search}
-                      onChange={(e) =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          search: e.target.value,
-                        }))
-                      }
-                    />
-                  </Col>
-                  <Col xs={24} md={12}>
-                    <Typography.Text
-                      type="secondary"
-                      className="text-xs mb-1 block"
-                    >
-                      กรองตามตำแหน่ง
-                    </Typography.Text>
-                    <Select
-                      placeholder="ตำแหน่งทั้งหมด"
-                      className="w-full"
-                      allowClear
-                      showSearch
-                      optionFilterProp="label"
-                      value={filters.position}
-                      onChange={(v) =>
-                        setFilters((prev) => ({ ...prev, position: v }))
-                      }
-                      options={positions.map((p) => ({
-                        label: p.name_th,
-                        value: p.id,
-                      }))}
-                    />
-                  </Col>
-                  <Col xs={24} md={8}>
-                    <Typography.Text
-                      type="secondary"
-                      className="text-xs mb-1 block"
-                    >
-                      กรองตามแผนก
-                    </Typography.Text>
-                    <Select
-                      placeholder="แผนกทั้งหมด"
-                      className="w-full"
-                      allowClear
-                      showSearch
-                      optionFilterProp="label"
-                      value={filters.department}
-                      onChange={(v) =>
-                        setFilters((prev) => ({ ...prev, department: v }))
-                      }
-                      options={departments.map((d) => ({
-                        label: d.name_th,
-                        value: d.id,
-                      }))}
-                    />
-                  </Col>
-                </Row>
+            <Row gutter={[20, 20]} align="bottom">
+              {/* 1. Search Box */}
+              <Col xs={24} sm={12} lg={6}>
+                <Typography.Text strong className="text-xs mb-2 block" style={{ color: token.colorTextSecondary }}>
+                  <SearchOutlined className="mr-1" /> ค้นหาคำสำคัญ
+                </Typography.Text>
+                <Input
+                  prefix={<SearchOutlined style={{ color: token.colorTextDescription }} />}
+                  placeholder="ชื่อ, นามสกุล, รหัสพนักงาน..."
+                  allowClear
+                  className="rounded-lg h-10 shadow-sm border-none"
+                  value={filters.search}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
+                />
               </Col>
-              <Col xs={24} md={12} lg={6}>
-                <div className="flex justify-end gap-2">
+
+              {/* 2. Position Filter */}
+              <Col xs={24} sm={12} lg={5}>
+                <Typography.Text strong className="text-xs mb-2 block" style={{ color: token.colorTextSecondary }}>
+                  <ApartmentOutlined className="mr-1" /> ตำแหน่งงาน
+                </Typography.Text>
+                <Select
+                  placeholder="ตำแหน่งทั้งหมด"
+                  className="w-full rounded-lg h-10 shadow-sm"
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  value={filters.position}
+                  onChange={(v) => setFilters((prev) => ({ ...prev, position: v }))}
+                  options={positions.map((p) => ({ label: p.name_th, value: p.id }))}
+                  style={{ borderRadius: 8 }}
+                />
+              </Col>
+
+              {/* 3. Department Filter */}
+              <Col xs={24} sm={12} lg={5}>
+                <Typography.Text strong className="text-xs mb-2 block" style={{ color: token.colorTextSecondary }}>
+                  <TeamOutlined className="mr-1" /> แผนก/ฝ่าย
+                </Typography.Text>
+                <Select
+                  placeholder="แผนกทั้งหมด"
+                  className="w-full rounded-lg h-10 shadow-sm"
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  value={filters.department}
+                  onChange={(v) => setFilters((prev) => ({ ...prev, department: v }))}
+                  options={departments.map((d) => ({ label: d.name_th, value: d.id }))}
+                />
+              </Col>
+
+              {/* 4. Status Filter */}
+              <Col xs={24} sm={12} lg={4}>
+                <Typography.Text strong className="text-xs mb-2 block" style={{ color: token.colorTextSecondary }}>
+                  <ControlOutlined className="mr-1" /> สถานะบัญชี
+                </Typography.Text>
+                <Select
+                  placeholder="สถานะทั้งหมด"
+                  className="w-full rounded-lg h-10 shadow-sm"
+                  allowClear
+                  value={filters.status}
+                  onChange={(v) => setFilters((prev) => ({ ...prev, status: v }))}
+                  options={[
+                    { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
+                    { label: "ระงับการใช้งาน (Inactive)", value: "INACTIVE" },
+                  ]}
+                />
+              </Col>
+
+              {/* 5. Action Buttons */}
+              <Col xs={24} lg={4}>
+                <div className="flex gap-2">
                   <Button
+                    block
                     icon={<ClearOutlined />}
-                    onClick={() => setFilters({ search: "" })}
+                    className="rounded-lg h-10 flex items-center justify-center font-medium"
+                    onClick={() => setFilters({ search: "", position: undefined, department: undefined, status: undefined })}
                   >
                     ล้างค่า
                   </Button>
-                  <Button type="primary" icon={<SearchOutlined />}>
-                    ค้นหา
+                  <Button
+                    type="primary"
+                    block
+                    icon={<ReloadOutlined />}
+                    className="rounded-lg h-10 flex items-center justify-center font-medium shadow-md shadow-orange-100"
+                    onClick={() => fetchData()}
+                  >
+                    รีเฟรช
                   </Button>
                 </div>
               </Col>
@@ -2025,7 +2028,7 @@ export default function UserManagementPage() {
                           label: "ปรับแผนก (แบบกลุ่ม)",
                           icon: (
                             <TeamOutlined
-                              style={{ color: token.colorPurple }}
+                              style={{ color: "#722ed1" }}
                             />
                           ),
                           onClick: () => setBulkMode("department"),
