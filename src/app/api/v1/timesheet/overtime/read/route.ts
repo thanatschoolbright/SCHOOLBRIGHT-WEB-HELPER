@@ -87,10 +87,15 @@ function transformOvertimeToSnakeCase(overtime: any) {
   return {
     id: overtime.id,
     requester_id: overtime.requesterId,
+    requester_name: overtime.requester_name,
+    requester_employee_code: overtime.requester_employee_code,
+    requester_position: overtime.requester_position,
     request_date: formatDate(overtime.requestDate),
     status: overtime.status,
     created_by: overtime.createdBy,
+    creator_name: overtime.creator_name,
     updated_by: overtime.updatedBy ?? null,
+    updater_name: overtime.updater_name,
     created_at: formatDate(overtime.createdAt),
     updated_at: formatDate(overtime.updatedAt),
     is_deleted: !!overtime.isDeleted,
@@ -114,6 +119,7 @@ function transformDescriptions(descriptions: any[]): any[] {
       typeof desc.duration === "number" ? String(desc.duration) : desc.duration,
     description: desc.description,
     assignee: desc.assignee,
+    assignee_name: desc.assignee_name,
     proof: desc.proof ?? {},
   }));
 }

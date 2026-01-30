@@ -76,6 +76,73 @@ const DEFAULT_SKIP = 0;
 const DEFAULT_STATUS = "pending";
 const DEFAULT_CREATED_BY = "0";
 
+/**
+ * Helper to map user names and details to overtime records using admin_id
+ */
+const mapUsersToOvertime = async (overtimeItems: any[]) => {
+  const adminIds = new Set<number>();
+  overtimeItems.forEach((item) => {
+    if (item.requesterId && !isNaN(Number(item.requesterId)))
+      adminIds.add(Number(item.requesterId));
+    if (item.createdBy && !isNaN(Number(item.createdBy)))
+      adminIds.add(Number(item.createdBy));
+    if (item.updatedBy && !isNaN(Number(item.updatedBy)))
+      adminIds.add(Number(item.updatedBy));
+    if (item.descriptions) {
+      item.descriptions.forEach((desc: any) => {
+        if (desc.assignee && !isNaN(Number(desc.assignee)))
+          adminIds.add(Number(desc.assignee));
+      });
+    }
+  });
+
+  const users = await (PrismaTimesheet as any).user.findMany({
+    where: { admin_id: { in: Array.from(adminIds) } },
+    select: {
+      admin_id: true,
+      firstname_th: true,
+      lastname_th: true,
+      employee_code: true,
+      position_ref: { select: { name_th: true } },
+    },
+  });
+
+  const userMap = new Map();
+  users.forEach((u: any) => userMap.set(u.admin_id, u));
+
+  return overtimeItems.map((item) => {
+    const requester = userMap.get(Number(item.requesterId));
+    const creator = userMap.get(Number(item.createdBy));
+    const updater = userMap.get(Number(item.updatedBy));
+
+    const enrichedDescriptions = item.descriptions?.map((desc: any) => {
+      const assigneeUser = userMap.get(Number(desc.assignee));
+      return {
+        ...desc,
+        assignee_name: assigneeUser
+          ? `${assigneeUser.firstname_th} ${assigneeUser.lastname_th}`.trim()
+          : desc.assignee,
+      };
+    });
+
+    return {
+      ...item,
+      requester_name: requester
+        ? `${requester.firstname_th} ${requester.lastname_th}`.trim()
+        : null,
+      requester_employee_code: requester?.employee_code || null,
+      requester_position: requester?.position_ref?.name_th || null,
+      creator_name: creator
+        ? `${creator.firstname_th} ${creator.lastname_th}`.trim()
+        : null,
+      updater_name: updater
+        ? `${updater.firstname_th} ${updater.lastname_th}`.trim()
+        : null,
+      descriptions: enrichedDescriptions,
+    };
+  });
+};
+
 export const Service = {
   // ตรวจสอบว่า OT ID มีอยู่ในระบบหรือไม่
   async validatorID(id: number): Promise<boolean> {
@@ -101,7 +168,7 @@ export const Service = {
       (PrismaTimesheet as any).overtime.count({ where }),
     ]);
 
-    return { items, total };
+    return { items: await mapUsersToOvertime(items), total };
   },
 
   // ดึงข้อมูล OT ตาม ID
@@ -112,7 +179,8 @@ export const Service = {
     });
 
     if (overtime) {
-      return { items: [overtime], total: 1 };
+      const enrichedItems = await mapUsersToOvertime([overtime]);
+      return { items: enrichedItems, total: 1 };
     }
 
     return { items: [], total: 0 };

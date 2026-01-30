@@ -24,7 +24,11 @@ interface OvertimeData {
   request_date?: string;
   created_at?: string;
   requester_id?: string;
+  requester_name?: string;
+  requester_employee_code?: string;
+  requester_position?: string;
   created_by?: string;
+  creator_name?: string;
   department?: string;
   period?: string;
   reason?: string;
@@ -41,10 +45,26 @@ interface OvertimeDescription {
   duration?: number;
   type?: string;
   assignee?: string;
+  assignee_name?: string;
   start_time?: string;
   end_time?: string;
   proof?: Record<string, string>;
 }
+
+const THAI_MONTHS = [
+  "มกราคม",
+  "กุมภาพันธ์",
+  "มีนาคม",
+  "เมษายน",
+  "พฤษภาคม",
+  "มิถุนายน",
+  "กรกฎาคม",
+  "สิงหาคม",
+  "กันยายน",
+  "ตุลาคม",
+  "พฤศจิกายน",
+  "ธันวาคม",
+];
 
 // --- Component: Editable Text Field ---
 const EditableField = ({
@@ -1180,15 +1200,46 @@ export default function OTPreviewPage() {
     return sum;
   }, [data]);
 
+  // คำนวณเวลาปฏิบัติงานจริง (Actual) ตามหลักสากล
+  const totalActualMinutes = useMemo(() => {
+    if (!data?.descriptions) return 0;
+    return data.descriptions.reduce((acc, item) => {
+      if (!item?.start_date || !item?.end_date) return acc;
+      const diff = dayjs(item.end_date).diff(dayjs(item.start_date), "minute");
+      return acc + (diff > 0 ? diff : 0);
+    }, 0);
+  }, [data]);
+
+  const totalActualDisplay = useMemo(() => {
+    if (totalActualMinutes <= 0) return "-";
+    const h = Math.floor(totalActualMinutes / 60);
+    const m = totalActualMinutes % 60;
+    return `${h}:${m.toString().padStart(2, "0")}`;
+  }, [totalActualMinutes]);
+
   const userData = getUserById(data?.requester_id ?? "");
   const requesterId =
-    userData?.admin_id ?? getAdminIdFromLocalStorage() ?? "system";
+    data?.requester_id ??
+    userData?.admin_id ??
+    getAdminIdFromLocalStorage() ??
+    "system";
+
+  // ใช้ข้อมูลที่ map มาจาก API (Backend) เป็นลำดับแรก
   const requesterName =
-    userData && (userData.firstname || userData.lastname)
+    data?.requester_name ??
+    (userData && (userData.firstname || userData.lastname)
       ? `${userData.firstname ?? ""} ${userData.lastname ?? ""}`.trim()
-      : (data?.requester_id ?? "-");
-  const employeeCode = userData?.employee_code ?? data?.created_by ?? "-";
-  const position = userData?.position ?? getPositionFromLocalStorage() ?? "-";
+      : (data?.requester_id ?? "-"));
+
+  const employeeCode =
+    data?.requester_employee_code ?? userData?.employee_code ?? "-";
+
+  const position =
+    data?.requester_position ??
+    userData?.position ??
+    getPositionFromLocalStorage() ??
+    "-";
+
   const department = data?.department ?? "IT";
   const headerDate = data?.request_date ?? data?.created_at ?? null;
 
@@ -1304,9 +1355,7 @@ export default function OTPreviewPage() {
                     <p style={{ marginRight: "4px" }}>ประจำเดือน:</p>
                     <EditableField
                       initialValue={
-                        headerDate
-                          ? dayjs(headerDate).locale("th").format("MMMM")
-                          : ""
+                        headerDate ? THAI_MONTHS[dayjs(headerDate).month()] : ""
                       }
                       placeholder="......................."
                     />
@@ -1735,6 +1784,22 @@ export default function OTPreviewPage() {
                         ? dayjs(row.end_date).format("HH:mm")
                         : "";
 
+                      // คำนวณระยะเวลาจริง (นาที) สำหรับส่วน Actual
+                      const diffMinutes = hasTimeRange
+                        ? dayjs(row.end_date).diff(
+                            dayjs(row.start_date),
+                            "minute",
+                          )
+                        : 0;
+
+                      // แสดงผลในรูปแบบ H:mm
+                      let durationRowText = "-";
+                      if (diffMinutes > 0) {
+                        const h = Math.floor(diffMinutes / 60);
+                        const m = diffMinutes % 60;
+                        durationRowText = `${h}:${m.toString().padStart(2, "0")}`;
+                      }
+
                       return (
                         <tr key={`app-${idx}`}>
                           <td
@@ -1793,11 +1858,7 @@ export default function OTPreviewPage() {
                             style={{ border: "1px solid #000", color: "#000" }}
                           >
                             <EditableField
-                              initialValue={
-                                row?.duration
-                                  ? Number(row.duration).toFixed(2)
-                                  : ""
-                              }
+                              initialValue={durationRowText}
                               placeholder="-"
                               inputStyle={{
                                 minWidth: "40px",
@@ -1821,6 +1882,23 @@ export default function OTPreviewPage() {
                     })}
                   </tbody>
                 </table>
+                <div
+                  className="ot-summary"
+                  style={{ border: "1px solid #000", backgroundColor: "#fff" }}
+                >
+                  <div style={{ marginLeft: "auto" }}>
+                    รวมเวลาปฏิบัติงานจริง:{" "}
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        color: "#000",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {totalActualDisplay}
+                    </span>
+                  </div>
+                </div>
 
                 {/* --- SIGNATURES (ROW 2) --- */}
                 <div className="ot-signature-section">
