@@ -14,139 +14,166 @@ export const {
   providers: [
     Credentials({
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) return null;
+        try {
+          if (!credentials?.username || !credentials?.password) {
+            console.error("❌ [AUTH_ERROR] Missing credentials");
+            throw new Error("MISSING_CREDENTIALS");
+          }
 
-        const username = credentials.username as string;
-        const password = credentials.password as string;
+          const username = credentials.username as string;
+          const password = credentials.password as string;
 
-        console.log(`[AUTH] Attempting login for: ${username}`);
+          console.log(`[AUTH] Attempting login for: ${username}`);
 
-        // 1. Find User by Email OR Employee Code
-        const user = await PrismaTimesheet.user.findFirst({
-          where: {
-            OR: [
-              { email: username },
-              { employee_code: username },
-              { username: username }, // Also allow username
-            ],
-            is_deleted: false,
-          },
-          include: {
-            role: {
-              include: {
-                permissions: {
-                  include: {
-                    permission: true,
+          // 1. Find User by Email OR Employee Code
+          const databaseUser = await PrismaTimesheet.user.findFirst({
+            where: {
+              OR: [
+                { email: username },
+                { employee_code: username },
+                { username: username }, // Also allow username
+              ],
+              is_deleted: false,
+            },
+            include: {
+              role: {
+                include: {
+                  permissions: {
+                    include: {
+                      permission: true,
+                    },
                   },
                 },
               },
-            },
-            position_ref: true,
-          },
-        });
-
-        if (!user) {
-          console.warn(`❌ [AUTH] User not found: ${username}`);
-          return null;
-        }
-
-        console.log(`✅ [AUTH] User found: ${user.username} (ID: ${user.id})`);
-
-        // 2. Check if locked out (IPO Standard)
-        if (user.status !== "ACTIVE") {
-          console.warn(`🛑 [AUTH] Account is ${user.status}: ${user.username}`);
-          throw new Error("ACCOUNT_LOCKED_OR_INACTIVE");
-        }
-
-        if (user.failed_login_attempts >= 5) {
-          console.warn(`🛑 [AUTH] Max attempts exceeded: ${user.username}`);
-          throw new Error("MAX_ATTEMPTS_EXCEEDED");
-        }
-
-        // 3. Verify Password
-        console.log(`[AUTH] Verifying password for: ${user.username}`);
-
-        const isPasswordCorrect = await bcrypt.compare(password, user.password);
-        console.log(`[AUTH] Bcrypt result: ${isPasswordCorrect}`);
-
-        let finalPasswordStatus = isPasswordCorrect;
-
-        // Fallback for Plain Text (Development only / Legacy)
-        if (!finalPasswordStatus && !user.password.startsWith("$2")) {
-          console.log(`[AUTH] Attempting plain text fallback...`);
-          if (password === user.password) {
-            console.warn(
-              `⚠️ [AUTH] Login success using PLAIN TEXT password for user: ${user.username}. Please update to hashed password!`,
-            );
-            finalPasswordStatus = true;
-          }
-        }
-
-        if (!finalPasswordStatus) {
-          console.warn(
-            `❌ [AUTH] Invalid password for user: ${user.username} (DB Password starts with: ${user.password.substring(0, 5)}...)`,
-          );
-
-          // Increment failed attempts
-          await PrismaTimesheet.user.update({
-            where: { id: user.id },
-            data: {
-              failed_login_attempts: {
-                increment: 1,
-              },
+              position_ref: true,
             },
           });
-          return null;
+
+          if (!databaseUser) {
+            console.warn(
+              `❌ [AUTH_ERROR] User not found in database: ${username}`,
+            );
+            throw new Error(`USER_NOT_FOUND: ${username}`);
+          }
+
+          console.log(
+            `✅ [AUTH] User found: ${databaseUser.username} (ID: ${databaseUser.id})`,
+          );
+
+          // 2. Check if locked out (IPO Standard)
+          if (databaseUser.status !== "ACTIVE") {
+            console.warn(
+              `🛑 [AUTH_ERROR] Account status is ${databaseUser.status}: ${databaseUser.username}`,
+            );
+            throw new Error(`ACCOUNT_STATUS_${databaseUser.status}`);
+          }
+
+          if (databaseUser.failed_login_attempts >= 5) {
+            console.warn(
+              `🛑 [AUTH_ERROR] Max login attempts (5) exceeded for: ${databaseUser.username}`,
+            );
+            throw new Error("MAX_ATTEMPTS_EXCEEDED");
+          }
+
+          // 3. Verify Password
+          console.log(
+            `[AUTH] Verifying password for: ${databaseUser.username}`,
+          );
+
+          const isPasswordCorrect = await bcrypt.compare(
+            password,
+            databaseUser.password,
+          );
+          console.log(`[AUTH] Bcrypt result: ${isPasswordCorrect}`);
+
+          let finalPasswordStatus = isPasswordCorrect;
+
+          // Fallback for Plain Text (Development only / Legacy)
+          if (!finalPasswordStatus && !databaseUser.password.startsWith("$2")) {
+            console.log(`[AUTH] Attempting plain text fallback...`);
+            if (password === databaseUser.password) {
+              console.warn(
+                `⚠️ [AUTH] Login success using PLAIN TEXT password for user: ${databaseUser.username}. Please update to hashed password!`,
+              );
+              finalPasswordStatus = true;
+            }
+          }
+
+          if (!finalPasswordStatus) {
+            console.warn(
+              `❌ [AUTH_ERROR] Invalid password for user: ${databaseUser.username}`,
+            );
+
+            // Increment failed attempts
+            await PrismaTimesheet.user.update({
+              where: { id: databaseUser.id },
+              data: {
+                failed_login_attempts: {
+                  increment: 1,
+                },
+              },
+            });
+            throw new Error("INVALID_PASSWORD");
+          }
+
+          console.log(`🎉 [AUTH] Login successful: ${databaseUser.username}`);
+
+          // 4. Success - Reset failed attempts & Update last_login
+          await PrismaTimesheet.user.update({
+            where: { id: databaseUser.id },
+            data: {
+              failed_login_attempts: 0,
+              last_login: new Date(),
+            },
+          });
+
+          // 5. Build User Object for JWT
+          const permissions =
+            databaseUser.role?.permissions.map(
+              (rolePermission) => rolePermission.permission.p_code,
+            ) || [];
+
+          return {
+            id: databaseUser.id.toString(),
+            admin_id: databaseUser.admin_id,
+            username: databaseUser.username,
+            employee_code: databaseUser.employee_code,
+            role_id: databaseUser.role_id,
+            role_name: databaseUser.role?.role_name,
+            permissions: permissions,
+            firstname: databaseUser.firstname_th,
+            lastname: databaseUser.lastname_th,
+            firstname_th: databaseUser.firstname_th,
+            lastname_th: databaseUser.lastname_th,
+            firstname_en: databaseUser.firstname_en,
+            lastname_en: databaseUser.lastname_en,
+            nickname: databaseUser.nickname,
+            position_id: databaseUser.position_id,
+            position_name: databaseUser.position_ref?.name_th,
+            department_id: databaseUser.department_id,
+            department_name: databaseUser.department?.name_th,
+            status: databaseUser.status,
+            phone: databaseUser.phone,
+            email: databaseUser.email,
+            image: databaseUser.profile_image_path,
+            profile_image_path: databaseUser.profile_image_path,
+            joined_date: databaseUser.joined_date,
+            resigned_date: databaseUser.resigned_date,
+            employment_type: databaseUser.employment_type,
+            last_login: databaseUser.last_login,
+            failed_login_attempts: databaseUser.failed_login_attempts,
+            created_at: databaseUser.created_at,
+            updated_at: databaseUser.updated_at,
+            name: `${databaseUser.firstname_th} ${databaseUser.lastname_th}`,
+          };
+        } catch (error: any) {
+          console.error(
+            "🚨 [AUTH_FATAL_ERROR] Authorization exception:",
+            error.message || error,
+          );
+          // Re-throw to make sure NextAuth handles it or pass a clear message
+          throw error;
         }
-
-        console.log(`🎉 [AUTH] Login successful: ${user.username}`);
-
-        // 4. Success - Reset failed attempts & Update last_login
-        await PrismaTimesheet.user.update({
-          where: { id: user.id },
-          data: {
-            failed_login_attempts: 0,
-            last_login: new Date(),
-          },
-        });
-
-        // 5. Build User Object for JWT
-        const permissions =
-          user.role?.permissions.map((rp) => rp.permission.p_code) || [];
-
-        return {
-          id: user.id.toString(),
-          admin_id: user.admin_id,
-          username: user.username,
-          employee_code: user.employee_code,
-          role_id: user.role_id,
-          role_name: user.role?.role_name,
-          permissions: permissions,
-          firstname: user.firstname_th,
-          lastname: user.lastname_th,
-          firstname_th: user.firstname_th,
-          lastname_th: user.lastname_th,
-          firstname_en: user.firstname_en,
-          lastname_en: user.lastname_en,
-          nickname: user.nickname,
-          position_id: user.position_id,
-          position_name: user.position_ref?.name_th,
-          department_id: user.department_id,
-          department_name: user.department?.name_th,
-          status: user.status,
-          phone: user.phone,
-          email: user.email,
-          image: user.profile_image_path,
-          profile_image_path: user.profile_image_path,
-          joined_date: user.joined_date,
-          resigned_date: user.resigned_date,
-          employment_type: user.employment_type,
-          last_login: user.last_login,
-          failed_login_attempts: user.failed_login_attempts,
-          created_at: user.created_at,
-          updated_at: user.updated_at,
-          name: `${user.firstname_th} ${user.lastname_th}`,
-        };
       },
     }),
   ],
@@ -155,74 +182,74 @@ export const {
     async jwt({ token, user }) {
       if (user) {
         console.log("🎟️ [AUTH] Creating JWT for user:", user.id);
-        const u = user as any;
-        token.id = u.id;
-        token.admin_id = u.admin_id;
-        token.username = u.username;
-        token.employee_code = u.employee_code;
-        token.role_id = u.role_id;
-        token.role_name = u.role_name;
-        token.permissions = u.permissions;
-        token.firstname = u.firstname;
-        token.lastname = u.lastname;
-        token.firstname_th = u.firstname_th;
-        token.lastname_th = u.lastname_th;
-        token.firstname_en = u.firstname_en;
-        token.lastname_en = u.lastname_en;
-        token.nickname = u.nickname;
-        token.position_id = u.position_id;
-        token.position_name = u.position_name;
-        token.department_id = u.department_id;
-        token.department_name = u.department_name;
-        token.status = u.status;
-        token.phone = u.phone;
-        token.email = u.email;
-        token.image = u.image;
-        token.profile_image_path = u.profile_image_path;
-        token.joined_date = u.joined_date;
-        token.resigned_date = u.resigned_date;
-        token.employment_type = u.employment_type;
-        token.last_login = u.last_login;
-        token.failed_login_attempts = u.failed_login_attempts;
-        token.created_at = u.created_at;
-        token.updated_at = u.updated_at;
+        const authenticatedUser = user as any;
+        token.id = authenticatedUser.id;
+        token.admin_id = authenticatedUser.admin_id;
+        token.username = authenticatedUser.username;
+        token.employee_code = authenticatedUser.employee_code;
+        token.role_id = authenticatedUser.role_id;
+        token.role_name = authenticatedUser.role_name;
+        token.permissions = authenticatedUser.permissions;
+        token.firstname = authenticatedUser.firstname;
+        token.lastname = authenticatedUser.lastname;
+        token.firstname_th = authenticatedUser.firstname_th;
+        token.lastname_th = authenticatedUser.lastname_th;
+        token.firstname_en = authenticatedUser.firstname_en;
+        token.lastname_en = authenticatedUser.lastname_en;
+        token.nickname = authenticatedUser.nickname;
+        token.position_id = authenticatedUser.position_id;
+        token.position_name = authenticatedUser.position_name;
+        token.department_id = authenticatedUser.department_id;
+        token.department_name = authenticatedUser.department_name;
+        token.status = authenticatedUser.status;
+        token.phone = authenticatedUser.phone;
+        token.email = authenticatedUser.email;
+        token.image = authenticatedUser.image;
+        token.profile_image_path = authenticatedUser.profile_image_path;
+        token.joined_date = authenticatedUser.joined_date;
+        token.resigned_date = authenticatedUser.resigned_date;
+        token.employment_type = authenticatedUser.employment_type;
+        token.last_login = authenticatedUser.last_login;
+        token.failed_login_attempts = authenticatedUser.failed_login_attempts;
+        token.created_at = authenticatedUser.created_at;
+        token.updated_at = authenticatedUser.updated_at;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         console.log("🌙 [AUTH] Creating Session for token ID:", token.id);
-        const s = session.user as any;
-        s.id = token.id;
-        s.admin_id = token.admin_id;
-        s.username = token.username;
-        s.employee_code = token.employee_code;
-        s.role_id = token.role_id;
-        s.role_name = token.role_name;
-        s.permissions = token.permissions;
-        s.firstname = token.firstname;
-        s.lastname = token.lastname;
-        s.firstname_th = token.firstname_th;
-        s.lastname_th = token.lastname_th;
-        s.firstname_en = token.firstname_en;
-        s.lastname_en = token.lastname_en;
-        s.nickname = token.nickname;
-        s.position_id = token.position_id;
-        s.position_name = token.position_name;
-        s.department_id = token.department_id;
-        s.department_name = token.department_name;
-        s.status = token.status;
-        s.phone = token.phone;
-        s.email = token.email;
-        s.image = token.image;
-        s.profile_image_path = token.profile_image_path;
-        s.joined_date = token.joined_date;
-        s.resigned_date = token.resigned_date;
-        s.employment_type = token.employment_type;
-        s.last_login = token.last_login;
-        s.failed_login_attempts = token.failed_login_attempts;
-        s.created_at = token.created_at;
-        s.updated_at = token.updated_at;
+        const sessionUser = session.user as any;
+        sessionUser.id = token.id;
+        sessionUser.admin_id = token.admin_id;
+        sessionUser.username = token.username;
+        sessionUser.employee_code = token.employee_code;
+        sessionUser.role_id = token.role_id;
+        sessionUser.role_name = token.role_name;
+        sessionUser.permissions = token.permissions;
+        sessionUser.firstname = token.firstname;
+        sessionUser.lastname = token.lastname;
+        sessionUser.firstname_th = token.firstname_th;
+        sessionUser.lastname_th = token.lastname_th;
+        sessionUser.firstname_en = token.firstname_en;
+        sessionUser.lastname_en = token.lastname_en;
+        sessionUser.nickname = token.nickname;
+        sessionUser.position_id = token.position_id;
+        sessionUser.position_name = token.position_name;
+        sessionUser.department_id = token.department_id;
+        sessionUser.department_name = token.department_name;
+        sessionUser.status = token.status;
+        sessionUser.phone = token.phone;
+        sessionUser.email = token.email;
+        sessionUser.image = token.image;
+        sessionUser.profile_image_path = token.profile_image_path;
+        sessionUser.joined_date = token.joined_date;
+        sessionUser.resigned_date = token.resigned_date;
+        sessionUser.employment_type = token.employment_type;
+        sessionUser.last_login = token.last_login;
+        sessionUser.failed_login_attempts = token.failed_login_attempts;
+        sessionUser.created_at = token.created_at;
+        sessionUser.updated_at = token.updated_at;
       }
       return session;
     },

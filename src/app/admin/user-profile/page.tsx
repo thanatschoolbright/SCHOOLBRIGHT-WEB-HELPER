@@ -198,7 +198,7 @@ const UserFormFields = ({
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       {uploading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
+      <div style={{ marginTop: 8 }}>อัปโหลด</div>
     </button>
   );
 
@@ -210,14 +210,14 @@ const UserFormFields = ({
         {/* ... (Account Info Fields) ... */}
         <Form.Item
           name="username"
-          label="Username"
+          label="ชื่อผู้ใช้งาน (Username)"
           rules={[{ required: true, message: "กรุณาระบุ Username" }]}
         >
-          <Input prefix={<UserOutlined />} placeholder="username" />
+          <Input prefix={<UserOutlined />} placeholder="ระบุชื่อผู้ใช้งาน" />
         </Form.Item>
         <Form.Item
           name="password"
-          label="Password"
+          label="รหัสผ่าน (Password)"
           extra={
             !isEdit && (
               <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
@@ -254,11 +254,11 @@ const UserFormFields = ({
             const isJpgOrPng =
               file.type === "image/jpeg" || file.type === "image/png";
             if (!isJpgOrPng) {
-              toast.error("You can only upload JPG/PNG file!");
+              toast.error("คุณสามารถตัวเลือกไฟล์ JPG/PNG เท่านั้น!");
             }
             const isLt2M = file.size / 1024 / 1024 < 2;
             if (!isLt2M) {
-              toast.error("Image must smaller than 2MB!");
+              toast.error("ขนาดรูปภาพต้องน้อยกว่า 2MB!");
             }
             return isJpgOrPng && isLt2M;
           }}
@@ -347,8 +347,8 @@ const UserFormFields = ({
           <Select
             placeholder="เลือกบทบาท"
             options={[
-              { label: "Admin", value: 1 },
-              { label: "User", value: 2 },
+              { label: "ผู้ดูแลระบบ (Admin)", value: 1 },
+              { label: "ผู้ใช้งานทั่วไป (User)", value: 2 },
             ]}
           />
         </Form.Item>
@@ -393,13 +393,13 @@ const UserFormFields = ({
         <Form.Item name="email" label="อีเมล" rules={[{ type: "email" }]}>
           <Input prefix={<MailOutlined />} />
         </Form.Item>
-        <Form.Item name="backlog_email" label="Backlog Email">
+        <Form.Item name="backlog_email" label="อีเมล Backlog">
           <Input prefix={<GlobalOutlined />} />
         </Form.Item>
         {/* Redundant input for manual URL entry if needed, or remove since we have Upload */}
         <Form.Item
           name="profile_image_path_manual"
-          label="Profile Image URL (Manual)"
+          label="URL รูปโปรไฟล์ (กำหนดเอง)"
           initialValue={currentImage}
         >
           <Input
@@ -488,14 +488,17 @@ const UserStepForm = ({
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
               name="username"
-              label="Username"
+              label="ชื่อผู้ใช้งาน (Username)"
               rules={[{ required: true, message: "กรุณาระบุ Username" }]}
             >
-              <Input prefix={<UserOutlined />} placeholder="username" />
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="ระบุชื่อผู้ใช้งาน"
+              />
             </Form.Item>
             <Form.Item
               name="password"
-              label="Password"
+              label="รหัสผ่าน (Password)"
               extra={
                 <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
                   *ตั้งค่าเริ่มต้นอัตโนมัติจากเบอร์โทรศัพท์
@@ -563,11 +566,11 @@ const UserStepForm = ({
                 const isJpgOrPng =
                   file.type === "image/jpeg" || file.type === "image/png";
                 if (!isJpgOrPng) {
-                  toast.error("You can only upload JPG/PNG file!");
+                  toast.error("คุณสามารถตัวเลือกไฟล์ JPG/PNG เท่านั้น!");
                 }
                 const isLt2M = file.size / 1024 / 1024 < 2;
                 if (!isLt2M) {
-                  toast.error("Image must smaller than 2MB!");
+                  toast.error("ขนาดรูปภาพต้องน้อยกว่า 2MB!");
                 }
                 return isJpgOrPng && isLt2M;
               }}
@@ -586,7 +589,7 @@ const UserStepForm = ({
               ) : (
                 <button style={{ border: 0, background: "none" }} type="button">
                   {uploading ? <LoadingOutlined /> : <PlusOutlined />}
-                  <div style={{ marginTop: 8 }}>Upload</div>
+                  <div style={{ marginTop: 8 }}>อัปโหลด</div>
                 </button>
               )}
             </Upload>
@@ -661,8 +664,8 @@ const UserStepForm = ({
               <Select
                 placeholder="เลือกบทบาท"
                 options={[
-                  { label: "Admin", value: 1 },
-                  { label: "User", value: 2 },
+                  { label: "ผู้ดูแลระบบ (Admin)", value: 1 },
+                  { label: "ผู้ใช้งาน (User)", value: 2 },
                 ]}
               />
             </Form.Item>
@@ -722,7 +725,7 @@ const UserStepForm = ({
         <>
           <Divider orientation="left">ตรวจสอบข้อมูล</Divider>
           <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="Username">
+            <Descriptions.Item label="ชื่อผู้ใช้งาน (Username)">
               {form.getFieldValue("username")}
             </Descriptions.Item>
             <Descriptions.Item label="ชื่อ-นามสกุล">
@@ -951,10 +954,10 @@ const ResetPasswordTrackingModal = ({
   ];
 
   const statusMessages = [
-    `📦 กำลังรวบรวมข้อมูลพนักงาน ${users?.length || 0} ท่าน และเตรียม Payload...`,
+    `📦 กำลังรวบรวมข้อมูลพนักงาน ${users?.length || 0} ท่าน และเตรียมข้อมูล...`,
     "🔍 ตรวจสอบเบอร์โทรศัพท์และความถูกต้องของข้อมูลสิทธิ์...",
     "🔐 กำลังทยอยอัปเดตรหัสผ่านใหม่เป็น 'เบอร์มือถือ' ลงในฐานข้อมูล...",
-    "🚀 กำลังนำส่ง Email แจ้งเตือนรหัสผ่านใหม่ไปยังพนักงานทุกคน...",
+    "🚀 กำลังนำส่งอีเมลแจ้งเตือนรหัสผ่านใหม่ไปยังพนักงานทุกคน...",
     "🏆 ภารกิจเสร็จสิ้น! ทุกบัญชีถูกรีเซ็ตเป็นเบอร์มือถือเรียบร้อยแล้ว",
   ];
 
@@ -1040,7 +1043,7 @@ const ResetPasswordTrackingModal = ({
               boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
             }}
           >
-            BULK PWD OPS #TRACK-{users?.length}-ITEMS
+            รีเซ็ตรหัสผ่านกลุ่ม #รายการ-{users?.length}-ท่าน
           </div>
           {node}
         </div>
@@ -1407,11 +1410,11 @@ export default function UserManagementPage() {
       render: (_, r) => (
         <Space direction="vertical" size={2}>
           <Tag color="blue" style={{ borderRadius: 6, margin: 0 }}>
-            EMP: {r.employee_code || "-"}
+            รหัส: {r.employee_code || "-"}
           </Tag>
           <Typography.Text type="secondary" style={{ fontSize: 10 }}>
             <LinkOutlined style={{ marginRight: 4 }} />
-            ID: {r.admin_id || "-"}
+            ไอดีระบบ: {r.admin_id || "-"}
           </Typography.Text>
         </Space>
       ),
@@ -1561,7 +1564,7 @@ export default function UserManagementPage() {
           />
           <div className="mt-1">
             <Typography.Text type="secondary" className="text-[10px] block">
-              สิทธิ์: {r.role?.role_name || "User"}
+              สิทธิ์: {r.role?.role_name || "ผู้ใช้งาน"}
             </Typography.Text>
             {r.last_login && (
               <Typography.Text type="secondary" className="text-[10px]">
@@ -1652,7 +1655,7 @@ export default function UserManagementPage() {
         <HeaderBar
           icon={<TeamOutlined />}
           title="จัดการผู้ใช้งาน (User Management)"
-          subTitle="ระบบจัดการพนักงานและสิทธิ์การเข้าใช้งาน (RBAC)"
+          subTitle="ระบบจัดการพนักงานและสิทธิ์การเข้าใช้งาน"
           extra={
             <Space>
               <Button onClick={fetchData} icon={<ReloadOutlined />}>
@@ -1663,7 +1666,7 @@ export default function UserManagementPage() {
                 icon={<CloudSyncOutlined />}
                 onClick={() => setSyncModalOpen(true)}
               >
-                Sync Legacy Data
+                ซิงค์ข้อมูลชุดเก่า (Sync Legacy Data)
               </Button>
               <Button
                 icon={<SolutionOutlined />}
@@ -1810,7 +1813,7 @@ export default function UserManagementPage() {
                     }}
                     className="rounded-lg shadow-sm"
                   >
-                    Set Phone as Password
+                    ใช้เบอร์มือถือเป็นรหัสผ่าน
                   </Button>
                   <Button
                     danger
@@ -1820,7 +1823,7 @@ export default function UserManagementPage() {
                     onClick={handleBulkResetPassword}
                     className="rounded-lg shadow-sm"
                   >
-                    Reset Password
+                    รีเซ็ตรหัสผ่านใหม่
                   </Button>
                 </Space>
               )}
@@ -1922,7 +1925,7 @@ export default function UserManagementPage() {
 
         {/* 5. Role Drawer (Stub for now) */}
         <Drawer
-          title="จัดการบทบาทและสิทธิ์ (Role & Permission)"
+          title="จัดการบทบาทและสิทธิ์"
           open={roleDrawerOpen}
           onClose={() => setRoleDrawerOpen(false)}
           width={600}
@@ -1933,9 +1936,9 @@ export default function UserManagementPage() {
                 className="mb-4"
                 style={{ fontSize: 40 }}
               />
-              <p>ระบบจัดการ Role & Permission อยู่ระหว่างการพัฒนา</p>
+              <p>ระบบจัดการบทบาทและสิทธิ์การใช้งาน อยู่ระหว่างการพัฒนา</p>
               <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
-                สามารถจัดการได้ผ่าน Database Table: Role, RolePermission
+                สามารถจัดการได้ผ่านตารางฐานข้อมูล: Role, RolePermission
               </Typography.Text>
             </Typography.Text>
           </div>
@@ -2045,11 +2048,11 @@ export default function UserManagementPage() {
                 column={2}
                 className="mb-6"
               >
-                <Descriptions.Item label="Username">
+                <Descriptions.Item label="ชื่อผู้ใช้งาน (Username)">
                   {selectedUser.username}
                 </Descriptions.Item>
                 <Descriptions.Item label="สิทธิ์การใช้งาน">
-                  {selectedUser.role?.role_name || "User"}
+                  {selectedUser.role?.role_name || "ผู้ใช้งาน"}
                 </Descriptions.Item>
                 <Descriptions.Item label="อีเมล" span={2}>
                   {selectedUser.email || "-"}
@@ -2098,7 +2101,7 @@ export default function UserManagementPage() {
                     ? dayjs(selectedUser.last_login).format("DD/MM/YYYY HH:mm")
                     : "-"}
                 </Descriptions.Item>
-                <Descriptions.Item label="Logins ล้มเหลว">
+                <Descriptions.Item label="เข้าสู่ระบบล้มเหลว">
                   {selectedUser.failed_login_attempts || 0} ครั้ง
                 </Descriptions.Item>
                 <Descriptions.Item label="สร้างเมื่อ" span={2}>
