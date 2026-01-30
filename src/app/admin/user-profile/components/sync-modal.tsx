@@ -26,6 +26,8 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   ExclamationCircleOutlined,
+  InfoCircleOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { toast } from "sonner";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
@@ -53,6 +55,7 @@ export const SyncModal: React.FC<SyncModalProps> = ({
   const [syncStep, setSyncStep] = useState<SyncStep>("selection");
   const [currentIdx, setCurrentIdx] = useState(0);
   const [syncResults, setSyncResults] = useState<any[]>([]);
+  const [errorDetail, setErrorDetail] = useState<any>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -120,6 +123,12 @@ export const SyncModal: React.FC<SyncModalProps> = ({
           errorData?.error?.message ||
           errorData?.error?.name ||
           JSON.stringify(errorData?.error);
+
+        // Store full error for "Details" button
+        results[i].fullError = errorData || {
+          message: error.message,
+          error: error.stack,
+        };
 
         setSyncResults([...results]);
       }
@@ -268,6 +277,7 @@ export const SyncModal: React.FC<SyncModalProps> = ({
   const errorCount = syncResults.filter((r) => r.status === "error").length;
 
   return (
+    <>
     <Modal
       open={open}
       title={
@@ -436,19 +446,32 @@ export const SyncModal: React.FC<SyncModalProps> = ({
                               สำเร็จ
                             </Typography.Text>
                           ) : item.status === "error" ? (
-                            <div>
-                              <Typography.Text
-                                style={{ color: token.colorError }}
-                              >
-                                {item.errorMessage}
-                              </Typography.Text>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center justify-between">
+                                <Typography.Text
+                                  style={{ color: token.colorError }}
+                                >
+                                  {item.errorMessage}
+                                </Typography.Text>
+                                <Button
+                                  type="link"
+                                  size="small"
+                                  danger
+                                  icon={<InfoCircleOutlined />}
+                                  onClick={() => setErrorDetail(item.fullError)}
+                                  className="h-auto p-0 text-[10px]"
+                                >
+                                  รายละเอียด
+                                </Button>
+                              </div>
                               {item.errorStack && (
                                 <div
-                                  className="text-[10px] mt-1 p-1 rounded border font-mono overflow-x-auto"
+                                  className="text-[10px] p-1 rounded border font-mono overflow-x-auto"
                                   style={{
                                     backgroundColor: token.colorErrorBg,
                                     color: token.colorErrorText,
                                     borderColor: token.colorErrorBorder,
+                                    maxWidth: "100%",
                                   }}
                                 >
                                   {item.errorStack}
@@ -531,6 +554,35 @@ export const SyncModal: React.FC<SyncModalProps> = ({
         </div>
       )}
     </Modal>
+
+    <Modal
+      title={
+        <Space>
+          <ExclamationCircleOutlined style={{ color: token.colorError }} />
+          <span>รายละเอียดข้อผิดพลาด (Error Detail)</span>
+        </Space>
+      }
+      open={!!errorDetail}
+      onCancel={() => setErrorDetail(null)}
+      footer={[
+        <Button key="close" onClick={() => setErrorDetail(null)}>
+          ปิด
+        </Button>,
+      ]}
+      width={700}
+      centered
+    >
+      <div
+        className="p-4 rounded-lg font-mono text-xs overflow-auto max-h-[500px]"
+        style={{
+          backgroundColor: token.colorFillAlter,
+          border: `1px solid ${token.colorBorderSecondary}`,
+        }}
+      >
+        <pre>{JSON.stringify(errorDetail, null, 2)}</pre>
+      </div>
+    </Modal>
+  </>
   );
 };
 
