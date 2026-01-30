@@ -355,4 +355,42 @@ export const UserManagementService = {
       results,
     };
   },
+
+  // ปรับปรุงตำแหน่งแบบกลุ่ม
+  async bulkUpdatePosition(
+    userIds: number[],
+    positionId: number,
+    adminId?: number,
+  ) {
+    return await PrismaTimesheet.user.updateMany({
+      where: {
+        id: { in: userIds.map((id) => Number(id)) },
+        is_deleted: false,
+      },
+      data: {
+        position_id: positionId,
+        updated_at: new Date(),
+        updated_by: adminId,
+      },
+    });
+  },
+
+  // ปรับปรุงแผนกแบบกลุ่ม
+  async bulkUpdateDepartment(
+    userIds: number[],
+    departmentId: number,
+    adminId?: number,
+  ) {
+    return await PrismaTimesheet.user.updateMany({
+      where: {
+        id: { in: userIds.map((id) => Number(id)) },
+        is_deleted: false,
+      },
+      data: {
+        department_id: departmentId,
+        updated_at: new Date(),
+        updated_by: adminId,
+      },
+    });
+  },
 };

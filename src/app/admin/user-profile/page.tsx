@@ -27,6 +27,7 @@ import {
   ConfigProvider,
   Descriptions,
   App,
+  Dropdown,
 } from "antd";
 import {
   ReloadOutlined,
@@ -62,6 +63,7 @@ import {
   FlagOutlined,
   DashboardOutlined,
   CarOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ColumnsType } from "antd/es/table";
@@ -1168,6 +1170,19 @@ export default function UserManagementPage() {
   const [trackingModalOpen, setTrackingModalOpen] = useState(false);
   const [usersToReset, setUsersToReset] = useState<UserProfile[] | null>(null);
 
+  // Bulk Edit State
+  const [bulkMode, setBulkMode] = useState<"position" | "department" | null>(
+    null,
+  );
+  const [bulkValue, setBulkValue] = useState<number | null>(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  // Pagination State
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
+
   // --- Logic: Reset Password ---
   const handleResetPassword = async (user: UserProfile) => {
     modal.confirm({
@@ -1247,6 +1262,42 @@ export default function UserManagementPage() {
     setTrackingModalOpen(true);
   };
 
+  const handleBulkUpdateSubmit = async () => {
+    if (!bulkMode || !bulkValue || selectedRowKeys.length === 0) return;
+
+    setBulkLoading(true);
+    try {
+      const endpoint =
+        bulkMode === "position"
+          ? "/api/v2/admin/user-management/bulk-update-position"
+          : "/api/v2/admin/user-management/bulk-update-department";
+
+      const payload = {
+        userIds: selectedRowKeys,
+        adminId: adminId,
+        [bulkMode === "position" ? "positionId" : "departmentId"]: bulkValue,
+      };
+
+      const res = await axios.post(endpoint, payload);
+
+      if (res.data.status === 200) {
+        toast.success(
+          `ปรับปรุง${bulkMode === "position" ? "ตำแหน่ง" : "แผนก"}แบบกลุ่มสำเร็จ`,
+        );
+        setBulkMode(null);
+        setBulkValue(null);
+        setSelectedRowKeys([]);
+        fetchData();
+      } else {
+        throw new Error(res.data.message_th || "ดำเนินการไม่สำเร็จ");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "เกิดข้อผิดพลาดในการปรับปรุงข้อมูลแบบกลุ่ม");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
   // --- Logic: Fetch Data ---
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -1269,6 +1320,11 @@ export default function UserManagementPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, current: 1 }));
+  }, [filters]);
 
   // --- Logic: Submit ---
   const handleSubmit = async (values: any) => {
@@ -1401,12 +1457,90 @@ export default function UserManagementPage() {
     ];
   }, [users, token]);
 
+  const getColumnSearchProps = (
+    dataIndex: string | string[],
+    title: string,
+    customOnFilter?: (value: any, record: UserProfile) => boolean,
+  ) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }: any) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          placeholder={`ค้นหา ${title}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => confirm()}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => confirm()}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            ค้นหา
+          </Button>
+          <Button
+            onClick={() => {
+              clearFilters && clearFilters();
+              confirm();
+            }}
+            size="small"
+            style={{ width: 90 }}
+          >
+            ล้าง
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined
+        style={{ color: filtered ? token.colorPrimary : undefined }}
+      />
+    ),
+    onFilter: (value: any, record: UserProfile) => {
+      if (customOnFilter) return customOnFilter(value, record);
+
+      const getNestedValue = (obj: any, path: string | string[]) => {
+        if (Array.isArray(path)) {
+          return path.reduce((acc, key) => acc?.[key], obj);
+        }
+        return obj?.[path];
+      };
+
+      const val = getNestedValue(record, dataIndex);
+      return val
+        ? val
+            .toString()
+            .toLowerCase()
+            .includes((value as string).toLowerCase())
+        : false;
+    },
+  });
+
   // --- Columns ---
   const columns: ColumnsType<UserProfile> = [
     {
       title: "รหัสพนักงาน",
       key: "codes",
       width: 150,
+      ...getColumnSearchProps(
+        ["employee_code"],
+        "รหัสพนักงาน/ไอดี",
+        (value, record) =>
+          (record.employee_code || "")
+            .toLowerCase()
+            .includes(value.toLowerCase()) ||
+          (record.admin_id?.toString() || "").includes(value),
+      ),
       render: (_, r) => (
         <Space direction="vertical" size={2}>
           <Tag color="blue" style={{ borderRadius: 6, margin: 0 }}>
@@ -1423,6 +1557,20 @@ export default function UserManagementPage() {
       title: "ข้อมูลพนักงาน",
       key: "fullname",
       width: 300,
+      ...getColumnSearchProps(
+        ["firstname_th"],
+        "ชื่อ/เมล/เบอร์",
+        (value, record) =>
+          (record.firstname_th || "")
+            .toLowerCase()
+            .includes(value.toLowerCase()) ||
+          (record.lastname_th || "")
+            .toLowerCase()
+            .includes(value.toLowerCase()) ||
+          (record.nickname || "").toLowerCase().includes(value.toLowerCase()) ||
+          (record.email || "").toLowerCase().includes(value.toLowerCase()) ||
+          (record.phone || "").toLowerCase().includes(value.toLowerCase()),
+      ),
       sorter: (a, b) =>
         (a.firstname_th || "").localeCompare(b.firstname_th || ""),
       render: (_, r) => (
@@ -1488,6 +1636,17 @@ export default function UserManagementPage() {
       title: "การทำงาน",
       key: "work_info",
       width: 250,
+      ...getColumnSearchProps(
+        ["position_ref", "name_th"],
+        "ตำแหน่ง/แผนก",
+        (value, record) =>
+          (record.position_ref?.name_th || "")
+            .toLowerCase()
+            .includes(value.toLowerCase()) ||
+          (record.department?.name_th || "")
+            .toLowerCase()
+            .includes(value.toLowerCase()),
+      ),
       render: (_, record) => {
         const getEmpType = (type?: string) => {
           switch (type) {
@@ -1544,6 +1703,17 @@ export default function UserManagementPage() {
       title: "สถานะบัญชี",
       key: "account_status",
       width: 180,
+      ...getColumnSearchProps(
+        ["status"],
+        "สถานะ/สิทธิ์",
+        (value, record) =>
+          (record.status === "ACTIVE" ? "ออนไลน์ / ปกติ" : "ระงับการใช้งาน")
+            .toLowerCase()
+            .includes(value.toLowerCase()) ||
+          (record.role?.role_name || "")
+            .toLowerCase()
+            .includes(value.toLowerCase()),
+      ),
       render: (_, r) => (
         <div className="flex flex-col gap-1">
           <Badge
@@ -1802,29 +1972,63 @@ export default function UserManagementPage() {
                   <Typography.Text type="secondary" style={{ fontSize: 13 }}>
                     เลือกอยู่ {selectedRowKeys.length} รายการ
                   </Typography.Text>
-                  <Button
-                    type="primary"
-                    size="small"
-                    icon={<ControlOutlined />}
-                    onClick={handleBulkResetToPhone}
-                    style={{
-                      backgroundColor: token.colorSuccess,
-                      borderColor: token.colorSuccess,
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: "reset-to-phone",
+                          label: "ใช้เบอร์มือถือเป็นรหัสผ่าน",
+                          icon: (
+                            <ControlOutlined
+                              style={{ color: token.colorSuccess }}
+                            />
+                          ),
+                          onClick: handleBulkResetToPhone,
+                        },
+                        {
+                          key: "bulk-position",
+                          label: "ปรับตำแหน่ง (แบบกลุ่ม)",
+                          icon: (
+                            <ApartmentOutlined
+                              style={{ color: token.colorInfo }}
+                            />
+                          ),
+                          onClick: () => setBulkMode("position"),
+                        },
+                        {
+                          key: "bulk-department",
+                          label: "ปรับแผนก (แบบกลุ่ม)",
+                          icon: (
+                            <TeamOutlined
+                              style={{ color: token.colorPurple }}
+                            />
+                          ),
+                          onClick: () => setBulkMode("department"),
+                        },
+                        {
+                          type: "divider",
+                        },
+                        {
+                          key: "reset-password",
+                          label: "รีเซ็ตรหัสผ่านใหม่",
+                          icon: <LockOutlined />,
+                          danger: true,
+                          onClick: handleBulkResetPassword,
+                        },
+                      ],
                     }}
-                    className="rounded-lg shadow-sm"
+                    trigger={["click"]}
                   >
-                    ใช้เบอร์มือถือเป็นรหัสผ่าน
-                  </Button>
-                  <Button
-                    danger
-                    type="primary"
-                    size="small"
-                    icon={<LockOutlined />}
-                    onClick={handleBulkResetPassword}
-                    className="rounded-lg shadow-sm"
-                  >
-                    รีเซ็ตรหัสผ่านใหม่
-                  </Button>
+                    <Button
+                      type="primary"
+                      size="small"
+                      icon={<SettingOutlined />}
+                      className="rounded-lg shadow-sm"
+                      style={{ backgroundColor: token.colorInfo }}
+                    >
+                      จัดการแบบกลุ่ม <DownOutlined />
+                    </Button>
+                  </Dropdown>
                 </Space>
               )}
             </div>
@@ -1846,7 +2050,16 @@ export default function UserManagementPage() {
             dataSource={filteredUsers}
             rowKey="id"
             loading={loading}
-            pagination={{ pageSize: 10, showSizeChanger: true }}
+            pagination={{
+              ...pagination,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "20", "50", "100"],
+              onChange: (page, pageSize) => {
+                setPagination({ current: page, pageSize });
+              },
+              showTotal: (total, range) =>
+                `แสดง ${range[0]}-${range[1]} จากทั้งหมด ${total} รายการ`,
+            }}
             scroll={{ x: 1000 }}
             rowSelection={{
               selectedRowKeys,
@@ -2128,6 +2341,51 @@ export default function UserManagementPage() {
             setUsersToReset(null);
           }}
         />
+
+        {/* 7. Bulk Update Modal (Position/Department) */}
+        <Modal
+          title={`ปรับปรุง${bulkMode === "position" ? "ตำแหน่ง" : "แผนก"}แบบกลุ่ม`}
+          open={!!bulkMode}
+          onOk={handleBulkUpdateSubmit}
+          onCancel={() => {
+            setBulkMode(null);
+            setBulkValue(null);
+          }}
+          confirmLoading={bulkLoading}
+          okText="ยืนยันการเปลี่ยนข้อมูล"
+          cancelText="ยกเลิก"
+        >
+          <div className="py-4">
+            <Typography.Text className="mb-4 block">
+              คุณต้องการเปลี่ยน{bulkMode === "position" ? "ตำแหน่ง" : "แผนก"}{" "}
+              ของ <strong>{selectedRowKeys.length}</strong> พนักงานที่เลือก
+              เป็น:
+            </Typography.Text>
+            <Select
+              className="w-full"
+              placeholder={`เลือก${bulkMode === "position" ? "ตำแหน่งใหม่" : "แผนกใหม่"}`}
+              value={bulkValue}
+              onChange={setBulkValue}
+              options={
+                bulkMode === "position"
+                  ? positions.map((p: any) => ({
+                      label: p.name_th,
+                      value: p.id,
+                    }))
+                  : departments.map((d: any) => ({
+                      label: d.name_th,
+                      value: d.id,
+                    }))
+              }
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+            />
+          </div>
+        </Modal>
       </DashboardLayout>
     </PermissionLayout>
   );
