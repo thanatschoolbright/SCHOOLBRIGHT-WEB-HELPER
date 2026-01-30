@@ -12,15 +12,15 @@ import { formatDate } from "@helpers/controller/format-date.params";
 const ReadOvertimeSchema = z.object({
   id: z.preprocess(
     (v) => (typeof v === "string" && v.trim() !== "" ? Number(v) : v),
-    z.number().int().positive().optional()
+    z.number().int().positive().optional(),
   ),
   limit: z.preprocess(
     (v) => (v === undefined ? undefined : Number(v)),
-    z.number().int().nonnegative().optional()
+    z.number().int().nonnegative().optional(),
   ),
   offset: z.preprocess(
     (v) => (v === undefined ? undefined : Number(v)),
-    z.number().int().nonnegative().optional()
+    z.number().int().nonnegative().optional(),
   ),
   request_id: z.string().optional(),
   status: z.string().optional(),
@@ -114,6 +114,7 @@ function transformDescriptions(descriptions: any[]): any[] {
       typeof desc.duration === "number" ? String(desc.duration) : desc.duration,
     description: desc.description,
     assignee: desc.assignee,
+    proof: desc.proof ?? {},
   }));
 }
 

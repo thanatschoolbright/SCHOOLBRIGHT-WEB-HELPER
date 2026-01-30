@@ -299,7 +299,8 @@ exports.Prisma.OvertimeDescriptionScalarFieldEnum = {
   duration: 'duration',
   date: 'date',
   startDate: 'startDate',
-  endDate: 'endDate'
+  endDate: 'endDate',
+  proof: 'proof'
 };
 
 exports.Prisma.ApiLogScalarFieldEnum = {

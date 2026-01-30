@@ -18165,6 +18165,7 @@ export namespace Prisma {
     date: number
     startDate: number
     endDate: number
+    proof: number
     _all: number
   }
 
@@ -18212,6 +18213,7 @@ export namespace Prisma {
     date?: true
     startDate?: true
     endDate?: true
+    proof?: true
     _all?: true
   }
 
@@ -18310,6 +18312,7 @@ export namespace Prisma {
     date: Date | null
     startDate: Date | null
     endDate: Date | null
+    proof: JsonValue | null
     _count: OvertimeDescriptionCountAggregateOutputType | null
     _avg: OvertimeDescriptionAvgAggregateOutputType | null
     _sum: OvertimeDescriptionSumAggregateOutputType | null
@@ -18340,6 +18343,7 @@ export namespace Prisma {
     date?: boolean
     startDate?: boolean
     endDate?: boolean
+    proof?: boolean
     overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["overtimeDescription"]>
 
@@ -18352,6 +18356,7 @@ export namespace Prisma {
     date?: boolean
     startDate?: boolean
     endDate?: boolean
+    proof?: boolean
     overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["overtimeDescription"]>
 
@@ -18364,6 +18369,7 @@ export namespace Prisma {
     date?: boolean
     startDate?: boolean
     endDate?: boolean
+    proof?: boolean
     overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["overtimeDescription"]>
 
@@ -18376,9 +18382,10 @@ export namespace Prisma {
     date?: boolean
     startDate?: boolean
     endDate?: boolean
+    proof?: boolean
   }
 
-  export type OvertimeDescriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "overtimeId" | "assignee" | "description" | "duration" | "date" | "startDate" | "endDate", ExtArgs["result"]["overtimeDescription"]>
+  export type OvertimeDescriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "overtimeId" | "assignee" | "description" | "duration" | "date" | "startDate" | "endDate" | "proof", ExtArgs["result"]["overtimeDescription"]>
   export type OvertimeDescriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     overtime?: boolean | OvertimeDefaultArgs<ExtArgs>
   }
@@ -18403,6 +18410,7 @@ export namespace Prisma {
       date: Date | null
       startDate: Date | null
       endDate: Date | null
+      proof: Prisma.JsonValue | null
     }, ExtArgs["result"]["overtimeDescription"]>
     composites: {}
   }
@@ -18835,6 +18843,7 @@ export namespace Prisma {
     readonly date: FieldRef<"OvertimeDescription", 'DateTime'>
     readonly startDate: FieldRef<"OvertimeDescription", 'DateTime'>
     readonly endDate: FieldRef<"OvertimeDescription", 'DateTime'>
+    readonly proof: FieldRef<"OvertimeDescription", 'Json'>
   }
     
 
@@ -20700,7 +20709,8 @@ export namespace Prisma {
     duration: 'duration',
     date: 'date',
     startDate: 'startDate',
-    endDate: 'endDate'
+    endDate: 'endDate',
+    proof: 'proof'
   };
 
   export type OvertimeDescriptionScalarFieldEnum = (typeof OvertimeDescriptionScalarFieldEnum)[keyof typeof OvertimeDescriptionScalarFieldEnum]
@@ -22026,6 +22036,7 @@ export namespace Prisma {
     date?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
     startDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
     endDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
+    proof?: JsonNullableFilter<"OvertimeDescription">
     overtime?: XOR<OvertimeScalarRelationFilter, OvertimeWhereInput>
   }
 
@@ -22038,6 +22049,7 @@ export namespace Prisma {
     date?: SortOrderInput | SortOrder
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
+    proof?: SortOrderInput | SortOrder
     overtime?: OvertimeOrderByWithRelationInput
   }
 
@@ -22053,6 +22065,7 @@ export namespace Prisma {
     date?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
     startDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
     endDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
+    proof?: JsonNullableFilter<"OvertimeDescription">
     overtime?: XOR<OvertimeScalarRelationFilter, OvertimeWhereInput>
   }, "id">
 
@@ -22065,6 +22078,7 @@ export namespace Prisma {
     date?: SortOrderInput | SortOrder
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
+    proof?: SortOrderInput | SortOrder
     _count?: OvertimeDescriptionCountOrderByAggregateInput
     _avg?: OvertimeDescriptionAvgOrderByAggregateInput
     _max?: OvertimeDescriptionMaxOrderByAggregateInput
@@ -22084,6 +22098,7 @@ export namespace Prisma {
     date?: DateTimeNullableWithAggregatesFilter<"OvertimeDescription"> | Date | string | null
     startDate?: DateTimeNullableWithAggregatesFilter<"OvertimeDescription"> | Date | string | null
     endDate?: DateTimeNullableWithAggregatesFilter<"OvertimeDescription"> | Date | string | null
+    proof?: JsonNullableWithAggregatesFilter<"OvertimeDescription">
   }
 
   export type ApiLogWhereInput = {
@@ -23419,6 +23434,7 @@ export namespace Prisma {
     date?: Date | string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
     overtime: OvertimeCreateNestedOneWithoutDescriptionsInput
   }
 
@@ -23431,6 +23447,7 @@ export namespace Prisma {
     date?: Date | string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type OvertimeDescriptionUpdateInput = {
@@ -23440,6 +23457,7 @@ export namespace Prisma {
     date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
     overtime?: OvertimeUpdateOneRequiredWithoutDescriptionsNestedInput
   }
 
@@ -23452,6 +23470,7 @@ export namespace Prisma {
     date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type OvertimeDescriptionCreateManyInput = {
@@ -23463,6 +23482,7 @@ export namespace Prisma {
     date?: Date | string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type OvertimeDescriptionUpdateManyMutationInput = {
@@ -23472,6 +23492,7 @@ export namespace Prisma {
     date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type OvertimeDescriptionUncheckedUpdateManyInput = {
@@ -23483,6 +23504,7 @@ export namespace Prisma {
     date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ApiLogCreateInput = {
@@ -24761,6 +24783,7 @@ export namespace Prisma {
     date?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
+    proof?: SortOrder
   }
 
   export type OvertimeDescriptionAvgOrderByAggregateInput = {
@@ -27964,6 +27987,7 @@ export namespace Prisma {
     date?: Date | string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type OvertimeDescriptionUncheckedCreateWithoutOvertimeInput = {
@@ -27974,6 +27998,7 @@ export namespace Prisma {
     date?: Date | string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type OvertimeDescriptionCreateOrConnectWithoutOvertimeInput = {
@@ -28014,6 +28039,7 @@ export namespace Prisma {
     date?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
     startDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
     endDate?: DateTimeNullableFilter<"OvertimeDescription"> | Date | string | null
+    proof?: JsonNullableFilter<"OvertimeDescription">
   }
 
   export type OvertimeCreateWithoutDescriptionsInput = {
@@ -29011,6 +29037,7 @@ export namespace Prisma {
     date?: Date | string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type OvertimeDescriptionUpdateWithoutOvertimeInput = {
@@ -29020,6 +29047,7 @@ export namespace Prisma {
     date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type OvertimeDescriptionUncheckedUpdateWithoutOvertimeInput = {
@@ -29030,6 +29058,7 @@ export namespace Prisma {
     date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeInput = {
@@ -29040,6 +29069,7 @@ export namespace Prisma {
     date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proof?: NullableJsonNullValueInput | InputJsonValue
   }
 
 

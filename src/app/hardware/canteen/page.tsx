@@ -72,6 +72,7 @@ import {
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import { toast } from "sonner";
+import axios from "axios";
 import "dayjs/locale/th";
 
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -440,6 +441,38 @@ export default function CanteenAppManager() {
   useEffect(() => {
     fetchApplications();
   }, [fetchApplications]);
+
+  const handleExportHistory = async () => {
+    if (!selectedApplication) return;
+
+    const toastId = toast.loading("กำลังเตรียมข้อมูลส่งออก...");
+    try {
+      const appId = selectedApplication.app_id;
+      const appName = selectedApplication.app_name;
+
+      const response = await axios.get(
+        `/api/v1/hardware/canteen/export?appId=${appId}&appName=${encodeURIComponent(appName)}`,
+        { responseType: "blob" },
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `Version_History_${appName.replace(/\s+/g, "_")}_${dayjs().format("YYYYMMDD")}.xlsx`,
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("ส่งออกข้อมูลสำเร็จ", { id: toastId });
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("ไม่สามารถส่งออกข้อมูลได้", { id: toastId });
+    }
+  };
 
   // Event Handlers
   const handleVersionFormSubmit = async () => {
@@ -861,7 +894,23 @@ export default function CanteenAppManager() {
         width={1200}
         footer={null}
       >
-        <div style={{ marginBottom: 16, textAlign: "right" }}>
+        <div
+          style={{
+            marginBottom: 16,
+            display: "flex",
+            justifyContent: "end",
+            gap: 8,
+          }}
+        >
+          <Button
+            icon={<FileTextOutlined />}
+            onClick={handleExportHistory}
+            disabled={
+              versionDataset.loading || versionDataset.data.length === 0
+            }
+          >
+            ส่งออกประวัติ (Excel)
+          </Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}

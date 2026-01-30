@@ -348,6 +348,7 @@ model OvertimeDescription {
   date        DateTime? @map("date")
   startDate   DateTime? @map("start_date")
   endDate     DateTime? @map("end_date")
+  proof       Json?     @map("proof") // e.g., URL or file reference
 
   overtime Overtime @relation("OvertimeDescriptions", fields: [overtimeId], references: [id], onDelete: Cascade)
 

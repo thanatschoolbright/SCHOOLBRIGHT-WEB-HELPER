@@ -3,6 +3,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAppSelector } from "@stores/store";
 import { Button } from "antd";
+import {
+  CheckCircleOutlined,
+  CloudUploadOutlined,
+  DeleteOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
+import { motion, AnimatePresence } from "framer-motion";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { usePathname, useRouter } from "next/navigation";
@@ -25,6 +32,7 @@ interface OvertimeData {
 }
 
 interface OvertimeDescription {
+  id: number;
   date?: string;
   start_date?: string;
   end_date?: string;
@@ -34,6 +42,7 @@ interface OvertimeDescription {
   assignee?: string;
   start_time?: string;
   end_time?: string;
+  proof?: Record<string, string>;
 }
 
 // --- Component: Editable Text Field ---
@@ -213,21 +222,216 @@ const EditableSignature = ({
   );
 };
 
+// --- Component: Status Modal ---
+const StatusModal = ({
+  isOpen,
+  status,
+  message,
+}: {
+  isOpen: boolean;
+  status: "uploading" | "deleting" | "success" | "error";
+  message: string;
+}) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            style={{
+              background: "#fff",
+              padding: "40px",
+              borderRadius: "24px",
+              textAlign: "center",
+              minWidth: "320px",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+            }}
+          >
+            <div style={{ marginBottom: "24px" }}>
+              {status === "uploading" && (
+                <div className="relative flex justify-center">
+                  <LoadingOutlined
+                    style={{ fontSize: "56px", color: "#3B82F6" }}
+                  />
+                  <CloudUploadOutlined
+                    style={{
+                      fontSize: "24px",
+                      color: "#3B82F6",
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  />
+                </div>
+              )}
+              {status === "deleting" && (
+                <div className="relative flex justify-center">
+                  <LoadingOutlined
+                    style={{ fontSize: "56px", color: "#EF4444" }}
+                  />
+                  <DeleteOutlined
+                    style={{
+                      fontSize: "24px",
+                      color: "#EF4444",
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  />
+                </div>
+              )}
+              {status === "success" && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", damping: 12 }}
+                >
+                  <CheckCircleOutlined
+                    style={{ fontSize: "64px", color: "#10B981" }}
+                  />
+                </motion.div>
+              )}
+              {status === "error" && (
+                <motion.div
+                  initial={{ rotate: -45, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                >
+                  <div
+                    style={{
+                      fontSize: "64px",
+                      color: "#EF4444",
+                      lineHeight: 1,
+                    }}
+                  >
+                    ✕
+                  </div>
+                </motion.div>
+              )}
+            </div>
+            <h3
+              style={{
+                fontSize: "20px",
+                fontWeight: "700",
+                color: "#1F2937",
+                margin: "0 0 8px 0",
+              }}
+            >
+              {status === "uploading"
+                ? "กำลังอัปโหลด..."
+                : status === "deleting"
+                  ? "กำลังลบข้อมูล..."
+                  : status === "success"
+                    ? "ดำเนินการสำเร็จ"
+                    : "เกิดข้อผิดพลาด"}
+            </h3>
+            <p style={{ color: "#6B7280", margin: 0, fontSize: "14px" }}>
+              {message}
+            </p>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 // --- Component: Evidence Upload (Drag & Drop Image Upload) ---
-const EvidenceUpload = ({ label }: { label: string }) => {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
+const EvidenceUpload = ({
+  label,
+  descriptionId,
+  imageKey,
+  initialSrc,
+  onStatusChange,
+  onSuccess,
+}: {
+  label: string;
+  descriptionId?: number;
+  imageKey: string;
+  initialSrc?: string | null;
+  onStatusChange: (status: any) => void;
+  onSuccess: () => void;
+}) => {
+  const [imageSrc, setImageSrc] = useState<string | null>(initialSrc || null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (file: File) => {
+  useEffect(() => {
+    setImageSrc(initialSrc || null);
+  }, [initialSrc]);
+
+  const handleImageUpload = async (file: File) => {
+    if (!descriptionId) {
+      toast.error("ไม่สามารถระบุรายการ OT ได้");
+      return;
+    }
+
     if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        if (ev.target?.result) {
-          setImageSrc(ev.target.result as string);
+      onStatusChange({
+        isOpen: true,
+        status: "uploading",
+        message: `กำลังอัปโหลดรูปภาพหลักฐาน ${label}`,
+      });
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("description_id", String(descriptionId));
+        formData.append("image_key", imageKey);
+        formData.append("action", "upload");
+
+        const response = await callApiService.post(
+          "/api/v1/timesheet/overtime/upload-images",
+          formData,
+        );
+
+        if (response.data.status === 200) {
+          const newUrl = response.data.data.url;
+          setImageSrc(newUrl);
+          onStatusChange({
+            isOpen: true,
+            status: "success",
+            message: "อัปโหลดรูปภาพหลักฐานเรียบร้อยแล้ว",
+          });
+          setTimeout(() => {
+            onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+            onSuccess();
+          }, 1500);
+        } else {
+          throw new Error(response.data.message_th || "Upload failed");
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (error: any) {
+        console.error("Upload Error:", error);
+        onStatusChange({
+          isOpen: true,
+          status: "error",
+          message: error.message || "ไม่สามารถอัปโหลดรูปภาพได้",
+        });
+        setTimeout(() => {
+          onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+        }, 2000);
+      }
+    } else {
+      toast.error("กรุณาเลือกไฟล์รูปภาพเท่านั้น");
     }
   };
 
@@ -257,11 +461,52 @@ const EvidenceUpload = ({ label }: { label: string }) => {
     if (file) handleImageUpload(file);
   };
 
-  const handleRemove = (e: React.MouseEvent) => {
+  const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setImageSrc(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    if (!descriptionId) return;
+
+    onStatusChange({
+      isOpen: true,
+      status: "deleting",
+      message: `กำลังลบรูปภาพหลักฐาน ${label}`,
+    });
+
+    try {
+      const formData = new FormData();
+      formData.append("description_id", String(descriptionId));
+      formData.append("image_key", imageKey);
+      formData.append("action", "delete");
+
+      const response = await callApiService.post(
+        "/api/v1/timesheet/overtime/upload-images",
+        formData,
+      );
+
+      if (response.data.status === 200) {
+        setImageSrc(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+
+        onStatusChange({
+          isOpen: true,
+          status: "success",
+          message: "ลบรูปภาพหลักฐานเรียบร้อยแล้ว",
+        });
+        setTimeout(() => {
+          onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+          onSuccess();
+        }, 1500);
+      } else {
+        throw new Error(response.data.message_th || "Delete failed");
+      }
+    } catch (error: any) {
+      onStatusChange({
+        isOpen: true,
+        status: "error",
+        message: error.message || "ไม่สามารถลบรูปภาพได้",
+      });
+      setTimeout(() => {
+        onStatusChange((prev: any) => ({ ...prev, isOpen: false }));
+      }, 2000);
     }
   };
 
@@ -298,7 +543,7 @@ const EvidenceUpload = ({ label }: { label: string }) => {
           </>
         ) : (
           <div className="evidence-placeholder">
-            <div>📁</div>
+            <div style={{ fontSize: "24px" }}>📁</div>
             <div style={{ marginTop: "8px" }}>
               <strong>คลิกเพื่ออัปโหลด</strong>
             </div>
@@ -745,6 +990,11 @@ export default function OTPreviewPage() {
   const [data, setData] = useState<OvertimeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [modalStatus, setModalStatus] = useState<{
+    isOpen: boolean;
+    status: "uploading" | "deleting" | "success" | "error";
+    message: string;
+  }>({ isOpen: false, status: "uploading", message: "" });
 
   const idParam = extractIdFromPathname(pathname);
 
@@ -779,41 +1029,41 @@ export default function OTPreviewPage() {
   const department = data?.department ?? "IT";
   const headerDate = data?.request_date ?? data?.created_at ?? null;
 
-  useEffect(() => {
-    const fetchOvertimeData = async () => {
-      if (!idParam) {
-        setLoading(false);
+  const fetchOvertimeData = async () => {
+    if (!idParam) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const response = await callApiService.post(
+        "/api/v1/timesheet/overtime/read",
+        { id: String(idParam), request_id: String(requesterId) },
+      );
+      const body = response?.data;
+      if (!body || body.status !== 200) {
+        toast.error("ไม่สามารถโหลดข้อมูลได้");
+        setData(null);
+        setNotFound(false);
         return;
       }
-      setLoading(true);
-      try {
-        const response = await callApiService.post(
-          "/api/v1/timesheet/overtime/read",
-          { id: String(idParam), request_id: String(requesterId) },
-        );
-        const body = response?.data;
-        if (!body || body.status !== 200) {
-          toast.error("ไม่สามารถโหลดข้อมูลได้");
-          setData(null);
-          setNotFound(false);
-          return;
-        }
-        const items = Array.isArray(body.data) ? body.data : [];
-        if (items.length === 0) {
-          setData(null);
-          setNotFound(true);
-        } else {
-          setData(items[0] ?? null);
-          setNotFound(false);
-        }
-      } catch (error) {
-        console.error("Failed to fetch overtime data:", error);
-        toast.error("เกิดข้อผิดพลาดขณะโหลดข้อมูล");
+      const items = Array.isArray(body.data) ? body.data : [];
+      if (items.length === 0) {
         setData(null);
-      } finally {
-        setLoading(false);
+        setNotFound(true);
+      } else {
+        setData(items[0] ?? null);
+        setNotFound(false);
       }
-    };
+    } catch (error) {
+      console.error("Failed to fetch overtime data:", error);
+      toast.error("เกิดข้อผิดพลาดขณะโหลดข้อมูล");
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchOvertimeData();
   }, [idParam, requesterId]);
 
@@ -1451,16 +1701,50 @@ export default function OTPreviewPage() {
               <div className="evidence-page">
                 <div className="evidence-title">หลักฐานการทำงาน</div>
                 <div className="evidence-grid">
-                  <EvidenceUpload label="หลักฐาน #1" />
-                  <EvidenceUpload label="หลักฐาน #2" />
-                  <EvidenceUpload label="หลักฐาน #3" />
-                  <EvidenceUpload label="หลักฐาน #4" />
+                  <EvidenceUpload
+                    label="หลักฐาน #1"
+                    descriptionId={data?.descriptions?.[0]?.id}
+                    imageKey="image_1"
+                    initialSrc={data?.descriptions?.[0]?.proof?.image_1}
+                    onStatusChange={setModalStatus}
+                    onSuccess={fetchOvertimeData}
+                  />
+                  <EvidenceUpload
+                    label="หลักฐาน #2"
+                    descriptionId={data?.descriptions?.[0]?.id}
+                    imageKey="image_2"
+                    initialSrc={data?.descriptions?.[0]?.proof?.image_2}
+                    onStatusChange={setModalStatus}
+                    onSuccess={fetchOvertimeData}
+                  />
+                  <EvidenceUpload
+                    label="หลักฐาน #3"
+                    descriptionId={data?.descriptions?.[0]?.id}
+                    imageKey="image_3"
+                    initialSrc={data?.descriptions?.[0]?.proof?.image_3}
+                    onStatusChange={setModalStatus}
+                    onSuccess={fetchOvertimeData}
+                  />
+                  <EvidenceUpload
+                    label="หลักฐาน #4"
+                    descriptionId={data?.descriptions?.[0]?.id}
+                    imageKey="image_4"
+                    initialSrc={data?.descriptions?.[0]?.proof?.image_4}
+                    onStatusChange={setModalStatus}
+                    onSuccess={fetchOvertimeData}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <StatusModal
+        isOpen={modalStatus.isOpen}
+        status={modalStatus.status}
+        message={modalStatus.message}
+      />
     </div>
   );
 }
