@@ -249,7 +249,7 @@ export const UserManagementService = {
                 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 560px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);">
                   <tr>
                     <td style="padding: 48px 40px;">
-                      <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; color: #111827; letter-spacing: -0.5px;">Hello!</h1>
+                      <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; color: #111827; letter-spacing: -0.5px;">สวัสดีครับ/ค่ะ!</h1>
                       <p style="margin: 0 0 24px; font-size: 16px; color: #4b5563; line-height: 1.6;">
                         คุณได้รับอีเมลนี้เนื่องจากรหัสผ่านของคุณได้รับการรีเซ็ตเรียบร้อยแล้วโดยผู้ดูแลระบบ
                       </p>
@@ -273,7 +273,7 @@ export const UserManagementService = {
 
                       <div style="height: 1px; background-color: #f3f4f6; margin-bottom: 32px;"></div>
 
-                      <p style="margin: 0; font-size: 15px; color: #111827;">Regards,</p>
+                      <p style="margin: 0; font-size: 15px; color: #111827;">ด้วยความเคารพ,</p>
                       <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #F97316;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
                     </td>
                   </tr>
@@ -362,7 +362,7 @@ export const UserManagementService = {
                     <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 560px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);">
                       <tr>
                         <td style="padding: 48px 40px;">
-                          <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; color: #111827; letter-spacing: -0.5px;">Hello!</h1>
+                          <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 800; color: #111827; letter-spacing: -0.5px;">สวัสดีครับ/ค่ะ!</h1>
                           <p style="margin: 0 0 24px; font-size: 16px; color: #4b5563; line-height: 1.6;">
                             เรียนคุณ <strong>${user.firstname_th}</strong>,<br/><br/>
                             บัญชีผู้ใช้งานของคุณถูกตั้งค่ารหัสผ่านเบื้องต้นเรียบร้อยแล้ว โดยใช้ข้อมูลจาก <strong>เบอร์โทรศัพท์</strong> ที่คุณใช้ลงทะเบียน
@@ -376,14 +376,14 @@ export const UserManagementService = {
                           <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
                             <tr>
                               <td align="center">
-                                <a href="${websiteLink}" style="display: inline-block; padding: 16px 40px; background-color: #111827; color: #ffffff; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 12px;">Sign in to account</a>
+                                <a href="${websiteLink}" style="display: inline-block; padding: 16px 40px; background-color: #111827; color: #ffffff; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 12px;">เข้าสู่ระบบ</a>
                               </td>
                             </tr>
                           </table>
 
                           <div style="height: 1px; background-color: #f3f4f6; margin-bottom: 32px;"></div>
 
-                          <p style="margin: 0; font-size: 15px; color: #111827;">Regards,</p>
+                          <p style="margin: 0; font-size: 15px; color: #111827;">ด้วยความเคารพ,</p>
                           <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #F97316;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
                         </td>
                       </tr>
@@ -392,7 +392,7 @@ export const UserManagementService = {
                     <!-- Footer Help -->
                     <div style="margin-top: 32px; text-align: center; max-width: 560px;">
                       <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
-                        If you're having trouble clicking the "Sign in to account" button, copy and paste the URL below into your web browser: <br/>
+                        หากท่านมีปัญหาในการคลิกปุ่ม "เข้าสู่ระบบ" สามารถคัดลอกและวางลิงก์ด้านล่างนี้ลงในเบราว์เซอร์ของท่าน: <br/>
                         <a href="${websiteLink}" style="color: #F97316;">${websiteLink}</a>
                       </p>
                     </div>
@@ -517,9 +517,9 @@ export const UserManagementService = {
                 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 500px; background-color: #ffffff;">
                   <tr>
                     <td>
-                      <h1 style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #111827; letter-spacing: -0.4px;">Hello!</h1>
+                      <h1 style="margin: 0 0 24px; font-size: 22px; font-weight: 700; color: #111827; letter-spacing: -0.4px;">สวัสดีครับ/ค่ะ!</h1>
                       <p style="margin: 0 0 24px; font-size: 16px; color: #374151; line-height: 1.7;">
-                        You are receiving this email because we received a password reset request for your account on SchoolBright Web Helper.
+                        คุณได้รับอีเมลนี้เนื่องจากเราได้รับคำร้องขอกู้คืนรหัสผ่านสำหรับบัญชีของคุณในระบบ SchoolBright Web Helper
                       </p>
 
                       <!-- Password Highlight -->
@@ -531,22 +531,22 @@ export const UserManagementService = {
                       <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
                         <tr>
                           <td align="center">
-                            <a href="${websiteLink}" style="display: inline-block; padding: 14px 32px; background-color: #2d3748; color: #ffffff; font-weight: 600; font-size: 15px; text-decoration: none; border-radius: 5px;">Reset Password</a>
+                            <a href="${websiteLink}" style="display: inline-block; padding: 14px 32px; background-color: #2d3748; color: #ffffff; font-weight: 600; font-size: 15px; text-decoration: none; border-radius: 5px;">กู้คืนรหัสผ่าน</a>
                           </td>
                         </tr>
                       </table>
 
                       <p style="margin: 0 0 24px; font-size: 15px; color: #374151; line-height: 1.7;">
-                        If you did not request a password reset, no further action is required.
+                        หากคุณไม่ได้ส่งคำขอกู้คืนรหัสผ่าน คุณไม่จำเป็นต้องดำเนินการใดๆ
                       </p>
 
-                      <p style="margin: 0; font-size: 15px; color: #111827;">Regards,</p>
+                      <p style="margin: 0; font-size: 15px; color: #111827;">ด้วยความเคารพ,</p>
                       <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #111827;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
 
                       <div style="height: 1px; background-color: #e5e7eb; margin: 40px 0 24px;"></div>
                       
                       <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
-                        If you're having trouble clicking the "Reset Password" button, copy and paste the URL below into your web browser: <br/>
+                        หากท่านมีปัญหาในการคลิกปุ่ม "กู้คืนรหัสผ่าน" สามารถคัดลอกและวางลิงก์ด้านล่างนี้ลงในเบราว์เซอร์ของท่าน: <br/>
                         <a href="${websiteLink}" style="color: #4A5568;">${websiteLink}</a>
                       </p>
                     </td>
