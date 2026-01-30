@@ -290,7 +290,7 @@ const generateEmailStyles = (): string => {
 
 const generateEmailTemplate = (
   overtime: OvertimeData,
-  previewUrl: string
+  previewUrl: string,
 ): string => {
   const totalHours = calculateTotalHours(overtime.descriptions);
   const hasDescriptions =
@@ -355,7 +355,6 @@ const generateEmailTemplate = (
               <div class="info-value">${overtime.period || "-"}</div>
             </div>
           </div>
-    ` ,oldString:
 
           ${
             overtime.reason
@@ -417,7 +416,7 @@ const generateEmailTemplate = (
                   </td>
                   <td>${sanitizeHtml(item.assignee || "-")}</td>
                 </tr>
-              `
+              `,
                       )
                       .join("")
                   : `
@@ -444,10 +443,10 @@ const generateEmailTemplate = (
             <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; border: 1px solid #86efac; margin: 24px 0;">
               <p style="color: #166534; font-size: 14px; margin: 0; line-height: 1.6;">
                 <strong>ผู้อนุมัติ:</strong> ${sanitizeHtml(
-                  overtime.approvedBy
+                  overtime.approvedBy,
                 )}<br>
                 <strong>วันที่อนุมัติ:</strong> ${formatDate(
-                  overtime.approvedDate
+                  overtime.approvedDate,
                 )}
               </p>
             </div>
@@ -490,7 +489,7 @@ const generateEmailTemplate = (
 
 const generatePlainTextEmail = (
   overtime: OvertimeData,
-  previewUrl: string
+  previewUrl: string,
 ): string => {
   const totalHours = calculateTotalHours(overtime.descriptions);
   const lines: string[] = [];
@@ -506,7 +505,7 @@ const generatePlainTextEmail = (
   lines.push("ข้อมูลพนักงาน");
   lines.push("───────────────────────────────────────────");
   lines.push(
-    `ชื่อ-สกุล: ${overtime.requesterName || overtime.requesterId || "-"}`
+    `ชื่อ-สกุล: ${overtime.requesterName || overtime.requesterId || "-"}`,
   );
   lines.push(`รหัสพนักงาน: ${overtime.employeeCode || "-"}`);
   lines.push(`ตำแหน่ง: ${overtime.position || "-"}`);
@@ -536,7 +535,7 @@ const generatePlainTextEmail = (
       lines.push(`   • รายละเอียด: ${item.description || "-"}`);
       lines.push(`   • จำนวนชั่วโมง: ${item.duration || 0} ชม.`);
       lines.push(
-        `   • ประเภท: ${item.type === "holiday" ? "วันหยุด" : "วันทำงาน"}`
+        `   • ประเภท: ${item.type === "holiday" ? "วันหยุด" : "วันทำงาน"}`,
       );
       lines.push(`   • ผู้มอบหมาย: ${item.assignee || "-"}`);
       lines.push("");
@@ -561,7 +560,9 @@ const generatePlainTextEmail = (
   lines.push(previewUrl);
   lines.push("");
   lines.push("═══════════════════════════════════════════");
-  lines.push("The Best SchoolBright Developer Team By Head of Technology Light");
+  lines.push(
+    "The Best SchoolBright Developer Team By Head of Technology Light",
+  );
   lines.push("อีเมลนี้ส่งโดยระบบอัตโนมัติ");
   lines.push("═══════════════════════════════════════════");
 
@@ -587,7 +588,7 @@ export async function POST(request: NextRequest) {
           message_th: "ไม่พบรายการ OT",
           message_en: "Overtime request not found",
         }),
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -602,7 +603,7 @@ export async function POST(request: NextRequest) {
           message_th: "การตั้งค่าเมลไม่ครบถ้วน",
           message_en: "Mailer configuration missing",
         }),
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -613,11 +614,11 @@ export async function POST(request: NextRequest) {
 
     const htmlContent = generateEmailTemplate(
       overtime as OvertimeData,
-      previewUrl
+      previewUrl,
     );
     const textContent = generatePlainTextEmail(
       overtime as OvertimeData,
-      previewUrl
+      previewUrl,
     );
 
     try {
@@ -625,7 +626,7 @@ export async function POST(request: NextRequest) {
         payload.to,
         subject,
         textContent,
-        htmlContent
+        htmlContent,
       );
 
       return NextResponse.json(
@@ -638,7 +639,7 @@ export async function POST(request: NextRequest) {
           },
           message_th: "ส่งอีเมลแจ้งเตือน HR เรียบร้อยแล้ว",
         }),
-        { status: 200 }
+        { status: 200 },
       );
     } catch (mailError: unknown) {
       console.error("Error sending email:", mailError);
@@ -649,7 +650,7 @@ export async function POST(request: NextRequest) {
           message_en: "Failed to send email",
           error: mailError,
         }),
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (err: unknown) {
