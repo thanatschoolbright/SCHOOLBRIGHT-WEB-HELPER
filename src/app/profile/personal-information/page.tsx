@@ -434,61 +434,83 @@ const UserEditPage = () => {
                               backgroundColor: token.colorPrimaryBg,
                               color: token.colorPrimary,
                               border: `4px solid white`,
-                              boxShadow: token.boxShadow,
+                              boxShadow: `0 4px 12px rgba(0,0,0,0.1)`,
                               opacity: uploading ? 0.6 : 1,
+                              transition:
+                                "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                             }}
+                            className="hover:scale-105"
                           />
                           <div
                             style={{
                               position: "absolute",
                               inset: 0,
                               display: "flex",
+                              flexDirection: "column",
                               alignItems: "center",
                               justifyContent: "center",
-                              backgroundColor: "rgba(0,0,0,0.4)",
+                              backgroundColor: "rgba(0,0,0,0.5)",
                               borderRadius: "50%",
-                              opacity: 0,
+                              opacity: userData?.profile_image_path ? 0 : 1, // แสดงคำสั่งถ้ายังไม่มีรูป
                               transition: "opacity 0.3s",
                             }}
-                            className="group-hover:opacity-100"
+                            className={
+                              userData?.profile_image_path
+                                ? "group-hover:opacity-100"
+                                : ""
+                            }
                           >
                             <CameraOutlined
-                              style={{ color: "white", fontSize: 24 }}
+                              style={{
+                                color: "white",
+                                fontSize: 24,
+                                marginBottom: 4,
+                              }}
                             />
+                            {!userData?.profile_image_path && (
+                              <Text
+                                style={{
+                                  color: "white",
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                อัปโหลดรูปภาพที่นี่
+                              </Text>
+                            )}
                           </div>
                         </div>
                       </Upload>
                     </div>
-                    <div style={{ position: "absolute", bottom: 4, right: 4 }}>
-                      <Badge
-                        count={
-                          <div
-                            style={{
-                              backgroundColor: "white",
-                              padding: 4,
-                              borderRadius: "50%",
-                              boxShadow: token.boxShadow,
-                            }}
-                          >
-                            {userData?.status === "ACTIVE" ? (
-                              <CheckCircleOutlined
-                                style={{
-                                  color: token.colorSuccess,
-                                  fontSize: 18,
-                                }}
-                              />
-                            ) : (
-                              <ExclamationCircleOutlined
-                                style={{
-                                  color: token.colorTextDisabled,
-                                  fontSize: 18,
-                                }}
-                              />
-                            )}
-                          </div>
-                        }
-                      />
-                    </div>
+                    {/* ✅ แสดงสัญลักษณ์ "ถูก" เมื่ออัปโหลดรูปแล้วเท่านั้น */}
+                    {userData?.profile_image_path && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: 4,
+                          right: 12,
+                        }}
+                      >
+                        <div
+                          style={{
+                            backgroundColor: token.colorSuccess,
+                            width: 24,
+                            height: 24,
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            border: "2px solid white",
+                            boxShadow: token.boxShadow,
+                            zIndex: 2,
+                          }}
+                        >
+                          <CheckCircleOutlined
+                            style={{ color: "white", fontSize: 14 }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <Title level={3} style={{ marginBottom: 4 }}>
@@ -1017,6 +1039,9 @@ const UserEditPage = () => {
                       type="primary"
                       htmlType="submit"
                       loading={submitting}
+                      icon={<SaveOutlined />}
+                      size="large"
+                      style={{ paddingLeft: 32, paddingRight: 32 }}
                     >
                       ยืนยันการบันทึกข้อมูล
                     </Button>

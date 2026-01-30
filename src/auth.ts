@@ -179,6 +179,27 @@ export const {
   ],
   callbacks: {
     ...authConfig.callbacks,
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+
+      try {
+        const urlObj = new URL(url);
+        // Allows callback URLs on the same origin
+        if (urlObj.origin === baseUrl) return url;
+
+        // ✅ [Fix] ป้องกันการเด้งไป localhost:3000 บน Production
+        // หาก url ที่ส่งมาเป็น absolute URL และไม่ใช่ localhost ในขณะที่ baseUrl (ที่ NextAuth เดา) เป็น localhost
+        // ให้ใช้ url นั้นได้เลย (ซึ่งมักจะเป็น Origin จริงของ Production ที่ส่งมาจาก Client)
+        if (!url.includes("localhost") && baseUrl.includes("localhost")) {
+          return url;
+        }
+      } catch (e) {
+        // กรณีไม่ใช่ URL ที่ถูกต้อง ให้กลับไปที่ baseUrl
+      }
+
+      return baseUrl;
+    },
     async jwt({ token, user }) {
       if (user) {
         console.log("🎟️ [AUTH] Creating JWT for user:", user.id);

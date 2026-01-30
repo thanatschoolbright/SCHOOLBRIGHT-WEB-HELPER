@@ -37,6 +37,7 @@ import {
   CheckCircleOutlined,
   EditOutlined,
   LockOutlined,
+  UnlockOutlined,
   ExclamationCircleOutlined,
   CopyOutlined,
   DeleteOutlined,
@@ -103,6 +104,9 @@ const UserProfileService = {
   },
   deleteUser: async (data: any) => {
     return await axios.post("/api/v2/admin/user-management/delete", data);
+  },
+  unlockUser: async (id: number) => {
+    return await axios.post("/api/v2/admin/user-management/unlock", { id });
   },
 };
 
@@ -1436,6 +1440,25 @@ export default function UserManagementPage() {
     }
   };
 
+  const handleUnlockUser = async (user: UserProfile) => {
+    Modal.confirm({
+      title: "ยืนยันการปลดล็อกบัญชี?",
+      icon: <UnlockOutlined style={{ color: token.colorSuccess }} />,
+      content: `เจ้านายครับ... คุณต้องการล้างจำนวนครั้งที่ระบุรหัสผิดของ ${user.firstname_th} และปลดล็อกการระงับใช้งานใช่หรือไม่?`,
+      okText: "ปลดล็อกทันที",
+      cancelText: "ยกเลิก",
+      onOk: async () => {
+        try {
+          await UserProfileService.unlockUser(user.id);
+          toast.success("ปลดล็อกบัญชีเรียบร้อยแล้ว กริ๊ดดดด!");
+          fetchData();
+        } catch (error) {
+          toast.error("เกิดข้อผิดพลาดในการปลดล็อก");
+        }
+      },
+    });
+  };
+
   // --- Logic: Delete ---
   const handleDelete = async () => {
     if (!selectedUser) return;
@@ -1470,7 +1493,14 @@ export default function UserManagementPage() {
         matchesPosition = u.position_id === filters.position;
       }
 
-      const matchesStatus = filters.status ? u.status === filters.status : true;
+      let matchesStatus = true;
+      if (filters.status) {
+        if (filters.status === "BLOCKED") {
+          matchesStatus = (u.failed_login_attempts ?? 0) >= 5;
+        } else {
+          matchesStatus = u.status === filters.status;
+        }
+      }
 
       let matchesDepartment = true;
       if (filters.department) {
@@ -1487,7 +1517,9 @@ export default function UserManagementPage() {
   const summaryMetrics = useMemo(() => {
     const total = users.length;
     const active = users.filter((u) => u.status === "ACTIVE").length;
-    const inactive = users.filter((u) => u.status !== "ACTIVE").length;
+    const blockedCount = users.filter(
+      (u) => (u.failed_login_attempts ?? 0) >= 5,
+    ).length;
     const admins = users.filter((u) => u.role?.id === 1).length; // Check Role ID = 1
 
     return [
@@ -1504,10 +1536,10 @@ export default function UserManagementPage() {
         color: token.colorSuccess,
       },
       {
-        title: "สถานะ Inactive",
-        value: inactive,
-        icon: <ExclamationCircleOutlined />,
-        color: token.colorWarning,
+        title: "โดนระงับ (Locked)",
+        value: blockedCount,
+        icon: <LockOutlined />,
+        color: token.colorError,
       },
       {
         title: "จำนวน Admin",
@@ -1771,47 +1803,75 @@ export default function UserManagementPage() {
       key: "account_status",
       width: 180,
       sorter: (a, b) => (a.status || "").localeCompare(b.status || ""),
-      ...getColumnSearchProps(
-        ["status"],
-        "สถานะ/สิทธิ์",
-        (value, record) =>
-          (record.status === "ACTIVE" ? "ออนไลน์ / ปกติ" : "ระงับการใช้งาน")
-            .toLowerCase()
-            .includes(value.toLowerCase()) ||
+      ...getColumnSearchProps(["status"], "สถานะ/สิทธิ์", (value, record) => {
+        const isBlocked = (record.failed_login_attempts ?? 0) >= 5;
+        const statusStr = isBlocked
+          ? "โดนระงับ (Locked)"
+          : record.status === "ACTIVE"
+            ? "ออนไลน์ / ปกติ"
+            : "ระงับการใช้งาน";
+        return (
+          statusStr.toLowerCase().includes(value.toLowerCase()) ||
           (record.role?.role_name || "")
             .toLowerCase()
-            .includes(value.toLowerCase()),
-      ),
-      render: (_, r) => (
-        <div className="flex flex-col gap-1">
-          <Badge
-            status={r.status === "ACTIVE" ? "success" : "default"}
-            text={
-              <span
-                className="text-xs font-medium"
-                style={{
-                  color:
-                    r.status === "ACTIVE"
-                      ? token.colorSuccess
-                      : token.colorTextDescription,
-                }}
+            .includes(value.toLowerCase())
+        );
+      }),
+      render: (_, r) => {
+        const isBlocked = (r.failed_login_attempts ?? 0) >= 5;
+        const statusText = isBlocked
+          ? "โดนระงับ (Locked)"
+          : r.status === "ACTIVE"
+            ? "ออนไลน์ / ปกติ"
+            : "ระงับการใช้งาน";
+        const statusType = isBlocked
+          ? "error"
+          : r.status === "ACTIVE"
+            ? "success"
+            : "default";
+
+        return (
+          <div className="flex flex-col gap-1">
+            <Badge
+              status={statusType as any}
+              text={
+                <span
+                  className="text-xs font-medium"
+                  style={{
+                    color:
+                      statusType === "success"
+                        ? token.colorSuccess
+                        : statusType === "error"
+                          ? token.colorError
+                          : token.colorTextDescription,
+                  }}
+                >
+                  {statusText}
+                </span>
+              }
+            />
+            {isBlocked && (
+              <Tag
+                color="error"
+                className="m-0 text-[9px] py-0 px-1 border-none rounded"
+                icon={<WarningOutlined className="text-[9px]" />}
               >
-                {r.status === "ACTIVE" ? "ออนไลน์ / ปกติ" : "ระงับการใช้งาน"}
-              </span>
-            }
-          />
-          <div className="mt-1">
-            <Typography.Text type="secondary" className="text-[10px] block">
-              สิทธิ์: {r.role?.role_name || "ผู้ใช้งาน"}
-            </Typography.Text>
-            {r.last_login && (
-              <Typography.Text type="secondary" className="text-[10px]">
-                ล่าสุด: {dayjs(r.last_login).format("DD/MM/YY HH:mm")}
-              </Typography.Text>
+                เข้าผิด {r.failed_login_attempts} ครั้ง
+              </Tag>
             )}
+            <div className="mt-1">
+              <Typography.Text type="secondary" className="text-[10px] block">
+                สิทธิ์: {r.role?.role_name || "ผู้ใช้งาน"}
+              </Typography.Text>
+              {r.last_login && (
+                <Typography.Text type="secondary" className="text-[10px]">
+                  ล่าสุด: {dayjs(r.last_login).format("DD/MM/YY HH:mm")}
+                </Typography.Text>
+              )}
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       title: "จัดการ",
@@ -1831,6 +1891,17 @@ export default function UserManagementPage() {
               }}
             />
           </Tooltip>
+          {/* ✅ ปุ่มปลดล็อก (Show Only if Blocked) */}
+          {((r as any).failed_login_attempts ?? 0) >= 5 && (
+            <Tooltip title="ปลดล็อกบัญชี">
+              <Button
+                type="text"
+                size="small"
+                icon={<UnlockOutlined style={{ color: token.colorSuccess }} />}
+                onClick={() => handleUnlockUser(r)}
+              />
+            </Tooltip>
+          )}
           <Tooltip title="แก้ไข">
             <Button
               type="text"
@@ -2040,6 +2111,10 @@ export default function UserManagementPage() {
                   options={[
                     { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
                     { label: "ระงับการใช้งาน (Inactive)", value: "INACTIVE" },
+                    {
+                      label: "โดนระงับ (Locked/Failed Login)",
+                      value: "BLOCKED",
+                    },
                   ]}
                 />
               </Col>

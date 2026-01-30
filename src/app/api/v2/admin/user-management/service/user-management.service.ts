@@ -104,15 +104,30 @@ export const UserManagementService = {
         : undefined,
       employment_type: data.employment_type,
       updated_at: new Date(),
+      updated_by: data.updated_by,
     };
 
     if (data.password) {
       updateData.password = await bcrypt.hash(data.password, 10);
+      // ✅ เมื่อมีการรีเซ็ตรหัสผ่าน ให้ปลดล็อกจำนวนครั้งที่พยายามล็อกอินผิดพลาดให้อัตโนมัติ (IPO Security Step)
+      updateData.failed_login_attempts = 0;
     }
 
     return await PrismaTimesheet.user.update({
       where: { id },
       data: updateData,
+    });
+  },
+
+  // ✅ ปลดล็อกการระงับใช้งาน (Reset Failed Login Attempts)
+  async unlock(id: number, updatedBy?: number) {
+    return await PrismaTimesheet.user.update({
+      where: { id },
+      data: {
+        failed_login_attempts: 0,
+        status: "ACTIVE", // ปลดล็อกแล้วให้เป็น ACTIVE เสมอ
+        updated_by: updatedBy,
+      },
     });
   },
 

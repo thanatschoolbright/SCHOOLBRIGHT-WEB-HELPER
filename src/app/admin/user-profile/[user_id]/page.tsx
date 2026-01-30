@@ -20,6 +20,7 @@ import {
   Modal,
   theme,
   DatePicker,
+  Steps,
 } from "antd";
 import {
   UserOutlined,
@@ -37,6 +38,8 @@ import {
   CalendarOutlined,
   ClockCircleOutlined,
   LinkOutlined,
+  SafetyCertificateOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { useRouter, useParams } from "next/navigation";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
@@ -350,61 +353,83 @@ const UserEditPage = () => {
                               backgroundColor: token.colorPrimaryBg,
                               color: token.colorPrimary,
                               border: `4px solid white`,
-                              boxShadow: token.boxShadow,
+                              boxShadow: `0 4px 12px rgba(0,0,0,0.1)`,
                               opacity: uploading ? 0.6 : 1,
+                              transition:
+                                "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                             }}
+                            className="hover:scale-105"
                           />
                           <div
                             style={{
                               position: "absolute",
                               inset: 0,
                               display: "flex",
+                              flexDirection: "column",
                               alignItems: "center",
                               justifyContent: "center",
-                              backgroundColor: "rgba(0,0,0,0.4)",
+                              backgroundColor: "rgba(0,0,0,0.5)",
                               borderRadius: "50%",
-                              opacity: 0,
+                              opacity: userData?.profile_image_path ? 0 : 1, // แสดงคำสั่งถ้ายังไม่มีรูป
                               transition: "opacity 0.3s",
                             }}
-                            className="group-hover:opacity-100"
+                            className={
+                              userData?.profile_image_path
+                                ? "group-hover:opacity-100"
+                                : ""
+                            }
                           >
                             <CameraOutlined
-                              style={{ color: "white", fontSize: 24 }}
+                              style={{
+                                color: "white",
+                                fontSize: 24,
+                                marginBottom: 4,
+                              }}
                             />
+                            {!userData?.profile_image_path && (
+                              <Text
+                                style={{
+                                  color: "white",
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                อัปโหลดรูปภาพที่นี่
+                              </Text>
+                            )}
                           </div>
                         </div>
                       </Upload>
                     </div>
-                    <div style={{ position: "absolute", bottom: 4, right: 4 }}>
-                      <Badge
-                        count={
-                          <div
-                            style={{
-                              backgroundColor: "white",
-                              padding: 4,
-                              borderRadius: "50%",
-                              boxShadow: token.boxShadow,
-                            }}
-                          >
-                            {userData?.status === "ACTIVE" ? (
-                              <CheckCircleOutlined
-                                style={{
-                                  color: token.colorSuccess,
-                                  fontSize: 18,
-                                }}
-                              />
-                            ) : (
-                              <ExclamationCircleOutlined
-                                style={{
-                                  color: token.colorTextDisabled,
-                                  fontSize: 18,
-                                }}
-                              />
-                            )}
-                          </div>
-                        }
-                      />
-                    </div>
+                    {/* ✅ แสดงสัญลักษณ์ "ถูก" เมื่ออัปโหลดรูปแล้วเท่านั้น */}
+                    {userData?.profile_image_path && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: 4,
+                          right: 12,
+                        }}
+                      >
+                        <div
+                          style={{
+                            backgroundColor: token.colorSuccess,
+                            width: 24,
+                            height: 24,
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            border: "2px solid white",
+                            boxShadow: token.boxShadow,
+                            zIndex: 2,
+                          }}
+                        >
+                          <CheckCircleOutlined
+                            style={{ color: "white", fontSize: 14 }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <Title level={3} style={{ marginBottom: 4 }}>
@@ -574,6 +599,66 @@ const UserEditPage = () => {
 
             {/* Right Column: Edit Form */}
             <Col xs={24} lg={16}>
+              {/* --- Navigator --- */}
+              <div
+                className="mb-6 p-4 rounded-2xl sticky top-[80px] z-10"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.8)",
+                  backdropFilter: "blur(12px)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.05)",
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                }}
+              >
+                <div className="flex items-center justify-between mb-3 px-2">
+                  <Typography.Text
+                    strong
+                    className="text-[10px] uppercase tracking-widest"
+                    style={{ color: token.colorPrimary }}
+                  >
+                    <SearchOutlined className="mr-2" /> Quick Navigation
+                  </Typography.Text>
+                  <Typography.Text
+                    type="secondary"
+                    className="text-[9px] italic"
+                  >
+                    คลิกเพื่อวาร์ปไปยังส่วนต่างๆ
+                  </Typography.Text>
+                </div>
+                <Steps
+                  size="small"
+                  className="px-2"
+                  current={-1}
+                  items={[
+                    { title: "ข้อมูลส่วนตัว", icon: <UserOutlined /> },
+                    { title: "บัญชี/ติดต่อ", icon: <MailOutlined /> },
+                    { title: "การจ้างงาน", icon: <HistoryOutlined /> },
+                    {
+                      title: "หน้าที่/สิทธิ์",
+                      icon: <SafetyCertificateOutlined />,
+                    },
+                  ]}
+                  onChange={(current) => {
+                    const sections = [
+                      "personal",
+                      "account",
+                      "employment",
+                      "responsibility",
+                    ];
+                    const element = document.getElementById(
+                      `section-${sections[current]}`,
+                    );
+                    if (element) {
+                      const yOffset = -200; // Offset for sticky header
+                      const y =
+                        element.getBoundingClientRect().top +
+                        window.pageYOffset +
+                        yOffset;
+                      window.scrollTo({ top: y, behavior: "smooth" });
+                    }
+                  }}
+                />
+              </div>
+
               <Card
                 variant="borderless"
                 style={{ borderRadius: 16 }}
@@ -591,7 +676,7 @@ const UserEditPage = () => {
                   requiredMark="optional"
                 >
                   {/* Personal Information */}
-                  <div style={{ marginBottom: 32 }}>
+                  <div id="section-personal" style={{ marginBottom: 32 }}>
                     <Space size={8} style={{ marginBottom: 16 }}>
                       <div
                         style={{
@@ -645,7 +730,7 @@ const UserEditPage = () => {
                   </div>
 
                   {/* Account & Contact */}
-                  <div style={{ marginBottom: 32 }}>
+                  <div id="section-account" style={{ marginBottom: 32 }}>
                     <Space size={8} style={{ marginBottom: 16 }}>
                       <div
                         style={{
@@ -727,7 +812,7 @@ const UserEditPage = () => {
                   </div>
 
                   {/* Employment Timeline */}
-                  <div style={{ marginBottom: 32 }}>
+                  <div id="section-employment" style={{ marginBottom: 32 }}>
                     <Space size={8} style={{ marginBottom: 16 }}>
                       <div
                         style={{
@@ -785,7 +870,7 @@ const UserEditPage = () => {
                   </div>
 
                   {/* Role & Position */}
-                  <div>
+                  <div id="section-responsibility">
                     <Space size={8} style={{ marginBottom: 16 }}>
                       <div
                         style={{
