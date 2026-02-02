@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import React from "react";
 import { TimesheetEntry, StatusConfig } from "../types/timesheet-entry.types";
 
-export const DATE_FORMAT = "DD/MM/YYYY";
+export const DATE_FORMAT = "DD/MM/BBBB";
 export const DAILY_TARGET_HOURS = 8;
 
 export const stringToColor = (string: string): string => {
@@ -132,10 +132,10 @@ export const calculateTopUsage = (entries: TimesheetEntry[]) => {
   });
 
   const topProject = Array.from(projectMap.entries()).sort(
-    (a, b) => b[1] - a[1]
+    (a, b) => b[1] - a[1],
   )[0];
   const topFeature = Array.from(featureMap.entries()).sort(
-    (a, b) => b[1] - a[1]
+    (a, b) => b[1] - a[1],
   )[0];
 
   return {

@@ -56,7 +56,7 @@ export const useDailySummary = (entries: TimesheetEntry[]) => {
         const totalHours = Number(payload.totalHours.toFixed(2));
         const percent = Math.min(
           Number(((totalHours / DAILY_TARGET_HOURS) * 100).toFixed(2)),
-          200
+          200,
         );
         return {
           dateKey,
@@ -78,7 +78,7 @@ export const useWeeklySummary = (dailySummary: any[]): DailySummaryItem[] => {
     if (!dailySummary.length) return [];
 
     const summaryLookup = new Map(
-      dailySummary.map((item) => [item.dateKey, item])
+      dailySummary.map((item) => [item.dateKey, item]),
     );
 
     //** คำนวณวันจันทร์ของสัปดาห์ปัจจุบัน */
@@ -104,6 +104,43 @@ export const useWeeklySummary = (dailySummary: any[]): DailySummaryItem[] => {
 };
 
 /**
+ * Hook สำหรับจัดการข้อมูลสรุปรายเดือน
+ */
+export const useMonthlySummary = (dailySummary: any[]): DailySummaryItem[] => {
+  return useMemo(() => {
+    if (!dailySummary.length) return [];
+
+    const summaryLookup = new Map(
+      dailySummary.map((item) => [item.dateKey, item]),
+    );
+
+    //** คำนวณวันแรกของเดือนปัจจุบัน */
+    const startOfMonth = dayjs().startOf("month");
+    const endOfMonth = dayjs().endOf("month");
+    const daysInMonth = endOfMonth.date();
+
+    const monthlyData: DailySummaryItem[] = [];
+
+    for (let i = 0; i < daysInMonth; i++) {
+      const day = startOfMonth.clone().add(i, "day");
+      const key = day.format("YYYY-MM-DD");
+      const summary = summaryLookup.get(key);
+
+      monthlyData.push({
+        label: day.format("DD"),
+        dateKey: key,
+        displayDate: day.format("DD/MM/YYYY"),
+        totalHours: summary?.totalHours ?? 0,
+        percent: summary?.percent ?? 0,
+        isCompleted: summary?.isCompleted ?? false,
+      });
+    }
+
+    return monthlyData;
+  }, [dailySummary]);
+};
+
+/**
  * Hook สำหรับคำนวณการใช้งานสูงสุด
  */
 export const useTopUsage = (entries: TimesheetEntry[]) => {
@@ -121,12 +158,12 @@ export const useTopUsage = (entries: TimesheetEntry[]) => {
 
   const topProjectUsage = useMemo(
     () => aggregateTopUsage(weeklyFocusEntries, "project_name"),
-    [weeklyFocusEntries]
+    [weeklyFocusEntries],
   );
 
   const topFeatureUsage = useMemo(
     () => aggregateTopUsage(weeklyFocusEntries, "feature_name"),
-    [weeklyFocusEntries]
+    [weeklyFocusEntries],
   );
 
   return { topProjectUsage, topFeatureUsage };
@@ -189,7 +226,7 @@ export const useTimesheetEntries = (adminId?: number) => {
         setLoading(false);
       }
     },
-    [adminId, currentPage, pageSize]
+    [adminId, currentPage, pageSize],
   );
 
   useEffect(() => {
@@ -215,7 +252,7 @@ export const useTimesheetEntries = (adminId?: number) => {
  */
 const aggregateTopUsage = (
   entries: TimesheetEntry[],
-  key: "project_name" | "feature_name"
+  key: "project_name" | "feature_name",
 ): TopUsage | null => {
   if (!entries.length) return null;
 
@@ -230,7 +267,7 @@ const aggregateTopUsage = (
   if (!totals.size) return null;
 
   const [name, hours] = Array.from(totals.entries()).sort(
-    (a, b) => b[1] - a[1]
+    (a, b) => b[1] - a[1],
   )[0];
 
   return { name, hours: Number(hours.toFixed(2)) };

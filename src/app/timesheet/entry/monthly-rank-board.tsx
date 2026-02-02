@@ -14,6 +14,12 @@ import {
 } from "antd";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import dayjs, { Dayjs } from "dayjs";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import "dayjs/locale/th";
+
+dayjs.extend(buddhistEra);
+dayjs.locale("th");
+
 import React, {
   forwardRef,
   useCallback,
@@ -38,6 +44,7 @@ import { RankCard } from "@components/timesheet/rank-card";
 import { ApiResponse, SummaryMetadata, SummaryRecord } from "@/types/timesheet";
 
 const API_ENDPOINT = "/api/v1/timesheet/entry/check/summary-month";
+const API_FIND_RANK_ENDPOINT = "/api/v1/timesheet/find-ranking";
 const MAX_ROWS = 8;
 const TOAST_ID = "monthly-rank-toast";
 
@@ -53,7 +60,7 @@ export interface MonthlyRankBoardRef {
   refetch: () => void;
 }
 
-const useMonthlyRankData = () => {
+const useMonthlyRankData = (adminId?: number) => {
   const [records, setRecords] = useState<SummaryRecord[]>([]);
   const [metadata, setMetadata] = useState<SummaryMetadata | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,17 +74,32 @@ const useMonthlyRankData = () => {
       }
 
       try {
-        const payload = {
+        // ✅ ใช้ endpoint ใหม่ที่รับ user_id เพื่อลดขนาด response (Optimization)
+        const endpoint = adminId ? API_FIND_RANK_ENDPOINT : API_ENDPOINT;
+        const payload: any = {
           month: selectedMonth.format("M"),
           year: selectedMonth.format("YYYY"),
         };
 
-        const response = await axios.post<ApiResponse>(API_ENDPOINT, payload, {
+        if (adminId) {
+          payload.user_id = adminId;
+        }
+
+        const response = await axios.post<ApiResponse>(endpoint, payload, {
           headers: { "Content-Type": "application/json" },
         });
 
         const apiData = response.data?.data;
-        setRecords(apiData?.records ?? []);
+
+        if (adminId) {
+          // find-ranking API จะตอบกลับมาเป็น { record, metadata }
+          const record = (apiData as any)?.record;
+          setRecords(record ? [record] : []);
+        } else {
+          // summary-month API จะตอบกลับมาเป็น { records, metadata }
+          setRecords(apiData?.records ?? []);
+        }
+
         setMetadata(apiData?.metadata ?? null);
 
         if (showToast) {
@@ -85,6 +107,7 @@ const useMonthlyRankData = () => {
         }
       } catch (error: any) {
         console.error("fetchMonthlyRank", error);
+        setRecords([]);
         const errorMessage =
           error?.response?.data?.message_th ||
           error?.message ||
@@ -96,7 +119,7 @@ const useMonthlyRankData = () => {
         setLoading(false);
       }
     },
-    [selectedMonth]
+    [selectedMonth, adminId],
   );
 
   useEffect(() => {
@@ -125,7 +148,7 @@ export const MonthlyRankBoard = forwardRef<
     refetch,
     selectedMonth,
     setSelectedMonth,
-  } = useMonthlyRankData();
+  } = useMonthlyRankData(currentAdminId);
 
   // ✅ State สำหรับจัดการโหมดการแสดงผล (User Toggle)
   const [viewMode, setViewMode] = useState<MonthlyRankVariant>(variant);
@@ -144,7 +167,7 @@ export const MonthlyRankBoard = forwardRef<
   const visibleRecords = useMemo(() => {
     if (currentAdminId) {
       const selfRecord = records.find(
-        (record) => record.admin_id === currentAdminId
+        (record) => record.admin_id === currentAdminId,
       );
       return selfRecord ? [selfRecord] : [];
     }
@@ -152,9 +175,9 @@ export const MonthlyRankBoard = forwardRef<
   }, [currentAdminId, records]);
 
   const monthLabel =
-    metadata?.range?.label_th ?? selectedMonth.format("MMMM YYYY");
+    metadata?.range?.label_th ?? selectedMonth.format("MMMM BBBB");
   const generatedAt = metadata?.generated_at
-    ? dayjs(metadata.generated_at).format("D MMM BB HH:mm")
+    ? dayjs(metadata.generated_at).format("D MMM BBBB HH:mm")
     : null;
 
   // ✅ ใช้ viewMode จาก State แทน Prop ตรงๆ
@@ -175,7 +198,6 @@ export const MonthlyRankBoard = forwardRef<
 
   return (
     <Card
-      
       style={{
         borderRadius: 24,
         boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08)",
@@ -293,15 +315,41 @@ export const MonthlyRankBoard = forwardRef<
           loading={loading}
           isCompact={isCompact}
           generatedAt={null}
-          onRefresh={function (): void {
-            throw new Error("Function not implemented.");
-          }}
+          onRefresh={refetch}
         />
       </div>
 
       <Divider style={{ margin: 0, borderColor: token.colorBorderSecondary }} />
 
-      {/* --- Content Section --- */}
+      {/* --- Metadata Stats Section (Extra Redesign) --- */}
+      {metadata && !isCompact && (
+        <div
+          style={{
+            padding: "12px 24px",
+            background: token.colorFillAlter,
+            display: "flex",
+            gap: 20,
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <Typography.Text type="secondary" style={{ fontSize: 10 }}>
+              WORKING DAYS
+            </Typography.Text>
+            <Typography.Text strong>
+              {metadata.working_days} / {metadata.working_days_full_month || 20}{" "}
+              วัน
+            </Typography.Text>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <Typography.Text type="secondary" style={{ fontSize: 10 }}>
+              EXPECTED HOURS
+            </Typography.Text>
+            <Typography.Text strong>
+              {metadata.expected_hours_per_member || 0} ชม.
+            </Typography.Text>
+          </div>
+        </div>
+      )}
       <div
         style={{
           padding: "16px 24px 24px 24px",
@@ -352,7 +400,7 @@ export const MonthlyRankBoard = forwardRef<
                         style={{ width: 40, height: 24, borderRadius: 12 }}
                       />
                     </div>
-                  )
+                  ),
                 )}
               </Space>
             </motion.div>
@@ -419,7 +467,7 @@ export const MonthlyRankBoard = forwardRef<
                       record={record}
                       isCompact={isCompact}
                       isCurrentUser={record.admin_id === currentAdminId}
-                      rank={record.rank}
+                      rank={String(record.order)}
                     />
                   </motion.div>
                 ))}

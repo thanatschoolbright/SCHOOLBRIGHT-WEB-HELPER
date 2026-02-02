@@ -9,7 +9,7 @@ import { DAILY_TARGET_HOURS } from "../utils/timesheet-entry.helpers";
 interface StatsGridProps {
   adminId: number | undefined;
   rankBoardRef: React.RefObject<MonthlyRankBoardRef>;
-  weeklySummary: any[];
+  monthlySummary: any[];
   topProjectUsage: TopUsage | null;
   topFeatureUsage: TopUsage | null;
   loading: boolean;
@@ -18,7 +18,7 @@ interface StatsGridProps {
 export const StatsGrid: React.FC<StatsGridProps> = ({
   adminId,
   rankBoardRef,
-  weeklySummary,
+  monthlySummary,
   topProjectUsage,
   topFeatureUsage,
   loading,
@@ -44,10 +44,10 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
       {/* Right Side Stats */}
       <Col xs={24} xl={rightColSpan} style={{ transition: "all 0.3s ease" }}>
         <Row gutter={[16, 16]}>
-          {/* Weekly Summary */}
+          {/* Monthly Summary */}
           <Col span={24}>
             <WeeklySummary
-              weeklySummary={weeklySummary}
+              monthlySummary={monthlySummary}
               targetHours={DAILY_TARGET_HOURS}
               loading={loading}
             />

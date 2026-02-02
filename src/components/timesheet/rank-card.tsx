@@ -78,12 +78,15 @@ export const RankCard: React.FC<RankCardProps> = ({
   record,
   isCompact,
   isCurrentUser = false,
-  rank,
+  rank, // This is expected to be the order number (1, 2, 3...)
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
   const isDark = token.colorBgBase === "#0B0F19";
-  const rankNum = Number(rank);
+
+  // ใช้ record.order เป็นลำดับที่ถ้าไม่มีการส่ง rank มา
+  const displayRank = rank || String(record.order);
+  const rankNum = Number(displayRank);
 
   // Special backgrounds for Top 3
   const topRankStyles = useMemo(() => {
@@ -123,7 +126,7 @@ export const RankCard: React.FC<RankCardProps> = ({
     return null;
   }, [rankNum, isDark]);
 
-  // Get Configuration based on Rank
+  // Get Configuration based on Rank (Grade: S, A, B...)
   const config = rankConfig[record.rank] || rankConfig.E;
 
   // Calculations
@@ -148,14 +151,14 @@ export const RankCard: React.FC<RankCardProps> = ({
       boxShadow: isCurrentUser
         ? `0 0 0 4px ${token.colorPrimaryBg}`
         : topRankStyles
-        ? topRankStyles.glow
-        : config.shadow || "0 2px 8px rgba(0,0,0,0.02)",
+          ? topRankStyles.glow
+          : config.shadow || "0 2px 8px rgba(0,0,0,0.02)",
       transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
       position: "relative",
       overflow: "hidden",
       cursor: "default",
     }),
-    [config, isCurrentUser, token, topRankStyles]
+    [config, isCurrentUser, token, topRankStyles],
   );
 
   return (
@@ -190,6 +193,43 @@ export const RankCard: React.FC<RankCardProps> = ({
       />
 
       <Flex align="center" gap={16}>
+        {/* --- Rank Number Section --- */}
+        {!isCompact && (
+          <div
+            style={{
+              width: 44,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography.Text
+              type="secondary"
+              style={{
+                fontSize: 10,
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              RANK
+            </Typography.Text>
+            <Typography.Text
+              style={{
+                margin: 0,
+                color: topRankStyles
+                  ? topRankStyles.tagColor
+                  : token.colorTextSecondary,
+                fontWeight: 900,
+                lineHeight: 1,
+                fontSize: displayRank.length > 2 ? 18 : 24,
+              }}
+            >
+              {displayRank}
+            </Typography.Text>
+          </div>
+        )}
+
         {/* --- Avatar Section --- */}
         <div style={{ position: "relative" }}>
           <Avatar
@@ -243,21 +283,21 @@ export const RankCard: React.FC<RankCardProps> = ({
                 {formatName(record)}
               </Typography.Text>
 
-              {!isCompact && (
-                <Tag
-                  bordered={false}
-                  color={config.color}
-                  style={{
-                    margin: 0,
-                    borderRadius: 12,
-                    fontWeight: 600,
-                    backgroundColor: `${config.color}15`, // 15 = roughly 10% opacity hex
-                    color: config.color,
-                  }}
-                >
-                  {record.rank}
-                </Tag>
-              )}
+              <Tag
+                bordered={false}
+                color={config.color}
+                style={{
+                  margin: 0,
+                  borderRadius: 12,
+                  fontWeight: 800,
+                  backgroundColor: `${config.color}${isDark ? "30" : "15"}`,
+                  color: config.color,
+                  fontSize: isCompact ? 10 : 12,
+                  paddingInline: isCompact ? 4 : 8,
+                }}
+              >
+                {record.rank} Grade
+              </Tag>
             </Flex>
 
             <Typography.Text
@@ -279,7 +319,7 @@ export const RankCard: React.FC<RankCardProps> = ({
               {record.rank_description ||
                 t(
                   "timesheet_components.no_additional_info",
-                  "ยังไม่มีข้อมูลเพิ่มเติม"
+                  "ยังไม่มีข้อมูลเพิ่มเติม",
                 )}
             </Typography.Text>
 

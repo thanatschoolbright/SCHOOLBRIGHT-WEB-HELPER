@@ -123,9 +123,9 @@ import {
 
 import {
   useDailySummary,
+  useMonthlySummary,
   useTimesheetEntries,
   useTopUsage,
-  useWeeklySummary,
 } from "@/hooks/use-timesheet-data";
 import {
   useTimesheetActions,
@@ -346,8 +346,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   // Custom greeting logic
   const getGreeting = () => {
     const hour = dayjs().hour();
-    if (hour < 12)
-      return t("timesheet_entry_page.good_morning", "สวัสดีตอนเช้า");
+    if (hour < 12) t("timesheet_entry_page.good_morning", "สวัสดีตอนเช้า");
     if (hour < 17)
       return t("timesheet_entry_page.good_afternoon", "สวัสดีตอนบ่าย");
     return t("timesheet_entry_page.good_evening", "สวัสดีตอนเย็น");
@@ -604,6 +603,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
 // --- Monthly Rank Board ---
 const API_RANK_ENDPOINT = "/api/v1/timesheet/entry/check/summary-month";
+const API_FIND_RANK_ENDPOINT = "/api/v1/timesheet/find-ranking";
 const MAX_RANK_ROWS = 8;
 type MonthlyRankVariant = "compact" | "wide";
 
@@ -616,7 +616,7 @@ interface MonthlyRankBoardProps {
   onVariantChange?: (variant: MonthlyRankVariant) => void;
 }
 
-const useMonthlyRankData = () => {
+const useMonthlyRankData = (adminId?: number) => {
   const [records, setRecords] = useState<SummaryRecord[]>([]);
   const [metadata, setMetadata] = useState<SummaryMetadata | null>(null);
   const [loading, setLoading] = useState(true);
@@ -628,19 +628,36 @@ const useMonthlyRankData = () => {
       if (showToast)
         toast.loading("กำลังอัปเดตข้อมูล...", { id: "monthly-rank-toast" });
       try {
-        const response = await axios.post<ApiResponse>(
-          API_RANK_ENDPOINT,
-          {
-            month: selectedMonth.format("M"),
-            year: selectedMonth.format("YYYY"),
-          },
-          { headers: { "Content-Type": "application/json" } },
-        );
-        setRecords(response.data?.data?.records ?? []);
+        // ✅ ใช้ endpoint ใหม่ที่รับ user_id เพื่อลดขนาด response (Optimization)
+        const endpoint = adminId ? API_FIND_RANK_ENDPOINT : API_RANK_ENDPOINT;
+        const payload: any = {
+          month: selectedMonth.format("M"),
+          year: selectedMonth.format("YYYY"),
+        };
+
+        if (adminId) {
+          payload.user_id = adminId;
+        }
+
+        const response = await axios.post<ApiResponse>(endpoint, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (adminId) {
+          // find-ranking API จะตอบกลับมาเป็น { record, metadata }
+          const record = (response.data?.data as any)?.record;
+          setRecords(record ? [record] : []);
+        } else {
+          // summary-month API จะตอบกลับมาเป็น { records, metadata }
+          setRecords(response.data?.data?.records ?? []);
+        }
+
         setMetadata(response.data?.data?.metadata ?? null);
+
         if (showToast)
           toast.success("อัปเดตข้อมูลล่าสุดแล้ว", { id: "monthly-rank-toast" });
       } catch (error: any) {
+        setRecords([]);
         if (showToast)
           toast.error(
             error?.response?.data?.message_th ||
@@ -651,7 +668,7 @@ const useMonthlyRankData = () => {
         setLoading(false);
       }
     },
-    [selectedMonth],
+    [selectedMonth, adminId],
   );
 
   useEffect(() => {
@@ -678,7 +695,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
       refetch,
       selectedMonth,
       setSelectedMonth,
-    } = useMonthlyRankData();
+    } = useMonthlyRankData(currentAdminId);
     const [viewMode, setViewMode] = useState<MonthlyRankVariant>(variant);
 
     useImperativeHandle(ref, () => ({ refetch }));
@@ -699,7 +716,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
 
     const isCompact = viewMode === "compact";
     const monthLabel =
-      metadata?.range?.label_th ?? selectedMonth.format("MMMM YYYY");
+      metadata?.range?.label_th ?? selectedMonth.format("MMMM BBBB");
     const generatedAt = metadata?.generated_at
       ? dayjs(metadata.generated_at).format("DD/MM/BBBB HH:mm:ss")
       : null;
@@ -942,7 +959,7 @@ MonthlyRankBoard.displayName = "MonthlyRankBoard";
 interface StatsGridProps {
   adminId: number | undefined;
   rankBoardRef: React.RefObject<MonthlyRankBoardRef>;
-  weeklySummary: any[];
+  monthlySummary: any[];
   topProjectUsage: TopUsage | null;
   topFeatureUsage: TopUsage | null;
   loading: boolean;
@@ -950,7 +967,7 @@ interface StatsGridProps {
 const StatsGrid: React.FC<StatsGridProps> = ({
   adminId,
   rankBoardRef,
-  weeklySummary,
+  monthlySummary,
   topProjectUsage,
   topFeatureUsage,
   loading,
@@ -985,7 +1002,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
           {/* Weekly Chart */}
           <div className="flex-1">
             <WeeklySummary
-              weeklySummary={weeklySummary}
+              monthlySummary={monthlySummary}
               targetHours={DAILY_TARGET_HOURS}
               loading={loading}
             />
@@ -1239,7 +1256,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   opacity: 0.7,
                 }}
               >
-                {dayjs(value).format("MMM YYYY")}
+                {dayjs(value).format("MMM BBBB")}
               </Typography.Text>
             </div>
           );
@@ -1859,6 +1876,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
       width={900}
       centered
       footer={null}
+      forceRender
     >
       <Form form={form} layout="vertical" onFinish={onSubmit}>
         <Card
@@ -2056,7 +2074,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                 name="date"
                 rules={[{ required: true }]}
               >
-                <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+                <DatePicker format="DD/MM/BBBB" style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col xs={12} sm={8}>
@@ -2238,6 +2256,7 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
       onCancel={onCancel}
       width={1000}
       footer={null}
+      forceRender
     >
       <Form form={form} layout="vertical">
         <Alert
@@ -2610,12 +2629,11 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
   const progressPercent =
     users.length > 0 ? Math.round((completedCount / users.length) * 100) : 0;
 
-  // Password Gate UI
-  if (!isUnlocked) {
-    return (
-      <Modal
-        open={open}
-        title={
+  return (
+    <Modal
+      open={open}
+      title={
+        !isUnlocked ? (
           <Space>
             <div
               className="p-2 rounded-xl"
@@ -2635,12 +2653,44 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
               </Typography.Text>
             </div>
           </Space>
-        }
-        onCancel={onCancel}
-        width={500}
-        centered
-        footer={null}
-      >
+        ) : (
+          <Space>
+            <div
+              className="p-2 rounded-xl"
+              style={{
+                background: `${token.colorSuccess}20`,
+                color: token.colorSuccess,
+              }}
+            >
+              <TeamOutlined style={{ fontSize: 20 }} />
+            </div>
+            <div>
+              <Typography.Title
+                level={4}
+                className="m-0"
+                style={{
+                  color: token.colorSuccess,
+                }}
+              >
+                ลงเวลาทำงานให้ทุกคน
+              </Typography.Title>
+              <Typography.Text type="secondary" className="text-[12px]">
+                พร้อมส่งข้อมูลให้เพื่อนร่วมงานทั้ง {users.length} คน
+              </Typography.Text>
+            </div>
+          </Space>
+        )
+      }
+      onCancel={onCancel}
+      width={isUnlocked ? 900 : 500}
+      centered
+      footer={null}
+      maskClosable={!isProcessing}
+      closable={!isProcessing}
+      forceRender
+    >
+      {/* 1. Unlock View */}
+      <div style={{ display: !isUnlocked ? "block" : "none" }}>
         <div className="py-8 px-6 text-center">
           <div
             className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
@@ -2686,336 +2736,298 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
             </Button>
           </Form>
         </div>
-      </Modal>
-    );
-  }
+      </div>
 
-  // Main Form UI (after unlocked)
-  return (
-    <Modal
-      open={open}
-      title={
-        <Space>
-          <div
-            className="p-2 rounded-xl"
-            style={{
-              background: `${token.colorSuccess}20`,
-              color: token.colorSuccess,
-            }}
-          >
-            <TeamOutlined style={{ fontSize: 20 }} />
-          </div>
-          <div>
-            <Typography.Title
-              level={4}
-              className="m-0"
+      {/* 2. Main View (Unlocked) */}
+      <div style={{ display: isUnlocked ? "block" : "none" }}>
+        {/* Processing Progress View */}
+        {isProcessing && (
+          <div className="mb-6">
+            <Card
+              className="rounded-2xl"
               style={{
-                color: token.colorSuccess,
+                background: token.colorPrimaryBg,
               }}
             >
-              ลงเวลาทำงานให้ทุกคน
-            </Typography.Title>
-            <Typography.Text type="secondary" className="text-[12px]">
-              พร้อมส่งข้อมูลให้เพื่อนร่วมงานทั้ง {users.length} คน
-            </Typography.Text>
-          </div>
-        </Space>
-      }
-      onCancel={onCancel}
-      width={900}
-      centered
-      footer={null}
-      maskClosable={!isProcessing}
-      closable={!isProcessing}
-    >
-      {/* Processing Progress View */}
-      {isProcessing && (
-        <div className="mb-6">
-          <Card
-            className="rounded-2xl"
-            style={{
-              background: token.colorPrimaryBg,
-            }}
-          >
-            <Flex vertical align="center" gap={16}>
-              <Progress
-                type="circle"
-                percent={progressPercent}
-                strokeColor={{
-                  "0%": token.colorPrimary,
-                  "100%": token.colorSuccess,
-                }}
-                format={() => (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">
-                      {completedCount}/{users.length}
-                    </div>
-                    <div className="text-xs text-secondary-text">คน</div>
-                  </div>
-                )}
-              />
-              <Typography.Text strong>กำลังดำเนินการ...</Typography.Text>
-            </Flex>
-          </Card>
-
-          {/* Progress List */}
-          <div className="max-h-[300px] overflow-y-auto mt-4 px-2">
-            <Space direction="vertical" style={{ width: "100%" }} size={8}>
-              {progressList.map((item) => (
-                <div
-                  key={item.admin_id}
-                  className="px-4 py-3 rounded-xl transition-all duration-300 border border-solid"
-                  style={{
-                    background:
-                      item.status === "processing"
-                        ? `${token.colorPrimaryBg}`
-                        : item.status === "success"
-                          ? `${token.colorSuccessBg}`
-                          : item.status === "error"
-                            ? `${token.colorErrorBg}`
-                            : token.colorFillQuaternary,
-                    borderColor:
-                      item.status === "processing"
-                        ? token.colorPrimary
-                        : item.status === "success"
-                          ? token.colorSuccess
-                          : item.status === "error"
-                            ? token.colorError
-                            : token.colorBorder,
+              <Flex vertical align="center" gap={16}>
+                <Progress
+                  type="circle"
+                  percent={progressPercent}
+                  strokeColor={{
+                    "0%": token.colorPrimary,
+                    "100%": token.colorSuccess,
                   }}
-                >
-                  <Flex justify="space-between" align="center">
-                    <Space>
-                      {item.status === "pending" && (
-                        <ClockCircleOutlined
-                          style={{ color: token.colorTextSecondary }}
-                        />
-                      )}
-                      {item.status === "processing" && (
-                        <SyncOutlined
-                          spin
-                          style={{ color: token.colorPrimary }}
-                        />
-                      )}
-                      {item.status === "success" && (
-                        <CheckCircleFilled
-                          style={{ color: token.colorSuccess }}
-                        />
-                      )}
-                      {item.status === "error" && (
-                        <CloseCircleFilled
-                          style={{ color: token.colorError }}
-                        />
-                      )}
-                      <div>
-                        <Typography.Text strong>{item.name}</Typography.Text>
-                        {item.employee_code && (
-                          <Typography.Text
-                            type="secondary"
-                            style={{ fontSize: 12, marginLeft: 8 }}
-                          >
-                            ({item.employee_code})
-                          </Typography.Text>
-                        )}
+                  format={() => (
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">
+                        {completedCount}/{users.length}
                       </div>
-                    </Space>
-                    <Typography.Text
-                      style={{
-                        color:
-                          item.status === "processing"
-                            ? token.colorPrimary
-                            : item.status === "success"
-                              ? token.colorSuccess
-                              : item.status === "error"
-                                ? token.colorError
-                                : token.colorTextSecondary,
-                        fontSize: 12,
-                      }}
-                    >
-                      {item.status === "pending" && "รอดำเนินการ"}
-                      {item.status === "processing" &&
-                        `กำลังส่งข้อมูลของ ${item.name}${
-                          item.employee_code ? ` (${item.employee_code})` : ""
-                        }`}
-                      {item.status === "success" &&
-                        `ส่งข้อมูลของ ${item.name}${
-                          item.employee_code ? ` (${item.employee_code})` : ""
-                        } สำเร็จ`}
-                      {item.status === "error" && item.message}
-                    </Typography.Text>
-                  </Flex>
-                </div>
-              ))}
-            </Space>
-          </div>
-        </div>
-      )}
+                      <div className="text-xs text-secondary-text">คน</div>
+                    </div>
+                  )}
+                />
+                <Typography.Text strong>กำลังดำเนินการ...</Typography.Text>
+              </Flex>
+            </Card>
 
-      {/* Form View (when not processing) */}
-      {!isProcessing && (
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{ status: "IN_PROGRESS", date: dayjs() }}
-        >
-          <Alert
-            message={
-              <Space>
-                <InfoCircleOutlined />
-                <span>
-                  ระบบจะลง Timesheet ให้พนักงานทุกคน ({users.length} คน)
-                  ด้วยข้อมูลเดียวกัน
-                </span>
+            <div className="max-h-[300px] overflow-y-auto mt-4 px-2">
+              <Space direction="vertical" style={{ width: "100%" }} size={8}>
+                {progressList.map((item) => (
+                  <div
+                    key={item.admin_id}
+                    className="px-4 py-3 rounded-xl transition-all duration-300 border border-solid"
+                    style={{
+                      background:
+                        item.status === "processing"
+                          ? `${token.colorPrimaryBg}`
+                          : item.status === "success"
+                            ? `${token.colorSuccessBg}`
+                            : item.status === "error"
+                              ? `${token.colorErrorBg}`
+                              : token.colorFillQuaternary,
+                      borderColor:
+                        item.status === "processing"
+                          ? token.colorPrimary
+                          : item.status === "success"
+                            ? token.colorSuccess
+                            : item.status === "error"
+                              ? token.colorError
+                              : token.colorBorder,
+                    }}
+                  >
+                    <Flex justify="space-between" align="center">
+                      <Space>
+                        {item.status === "pending" && (
+                          <ClockCircleOutlined
+                            style={{ color: token.colorTextSecondary }}
+                          />
+                        )}
+                        {item.status === "processing" && (
+                          <SyncOutlined
+                            spin
+                            style={{ color: token.colorPrimary }}
+                          />
+                        )}
+                        {item.status === "success" && (
+                          <CheckCircleFilled
+                            style={{ color: token.colorSuccess }}
+                          />
+                        )}
+                        {item.status === "error" && (
+                          <CloseCircleFilled
+                            style={{ color: token.colorError }}
+                          />
+                        )}
+                        <div>
+                          <Typography.Text strong>{item.name}</Typography.Text>
+                          {item.employee_code && (
+                            <Typography.Text
+                              type="secondary"
+                              style={{ fontSize: 12, marginLeft: 8 }}
+                            >
+                              ({item.employee_code})
+                            </Typography.Text>
+                          )}
+                        </div>
+                      </Space>
+                      <Typography.Text
+                        style={{
+                          color:
+                            item.status === "processing"
+                              ? token.colorPrimary
+                              : item.status === "success"
+                                ? token.colorSuccess
+                                : item.status === "error"
+                                  ? token.colorError
+                                  : token.colorTextSecondary,
+                          fontSize: 12,
+                        }}
+                      >
+                        {item.status === "pending" && "รอดำเนินการ"}
+                        {item.status === "processing" &&
+                          `กำลังส่งข้อมูลของ ${item.name}${
+                            item.employee_code ? ` (${item.employee_code})` : ""
+                          }`}
+                        {item.status === "success" &&
+                          `ส่งข้อมูลของ ${item.name}${
+                            item.employee_code ? ` (${item.employee_code})` : ""
+                          } สำเร็จ`}
+                        {item.status === "error" && item.message}
+                      </Typography.Text>
+                    </Flex>
+                  </div>
+                ))}
               </Space>
-            }
-            type="warning"
-            showIcon={false}
-            style={{ marginBottom: 24, borderRadius: 12 }}
-          />
+            </div>
+          </div>
+        )}
 
-          <Card
-            style={{
-              background: `linear-gradient(135deg, ${token.colorFillAlter} 0%, ${token.colorBgContainer} 100%)`,
-              marginBottom: 24,
-              borderRadius: token.borderRadiusLG,
-            }}
+        {/* Form View (hidden when processing to keep connected) */}
+        <div style={{ display: !isProcessing ? "block" : "none" }}>
+          <Form
+            form={form}
+            layout="vertical"
+            initialValues={{ status: "IN_PROGRESS", date: dayjs() }}
           >
-            <Row gutter={16}>
-              <Col span={24}>
-                <Typography.Text
-                  strong
+            <Alert
+              message={
+                <Space>
+                  <InfoCircleOutlined />
+                  <span>
+                    ระบบจะลง Timesheet ให้พนักงานทุกคน ({users.length} คน)
+                    ด้วยข้อมูลเดียวกัน
+                  </span>
+                </Space>
+              }
+              type="warning"
+              showIcon={false}
+              style={{ marginBottom: 24, borderRadius: 12 }}
+            />
+
+            <Card
+              style={{
+                background: `linear-gradient(135deg, ${token.colorFillAlter} 0%, ${token.colorBgContainer} 100%)`,
+                marginBottom: 24,
+                borderRadius: token.borderRadiusLG,
+              }}
+            >
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Typography.Text
+                    strong
+                    style={{
+                      color: token.colorPrimary,
+                      marginBottom: 16,
+                      display: "block",
+                    }}
+                  >
+                    <ProjectOutlined className="mr-2" /> โครงการที่รับผิดชอบ
+                  </Typography.Text>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="โครงการหลัก"
+                    name="project_id"
+                    rules={[{ required: true, message: "กรุณาเลือกโครงการ" }]}
+                  >
+                    <Select
+                      placeholder="เลือกโครงการ..."
+                      options={projectOptions}
+                      onChange={(v) => {
+                        form.setFieldsValue({ sub_project_id: undefined });
+                        if (v) fetchSubProjects(String(v));
+                      }}
+                      showSearch
+                      filterOption={(input, option) =>
+                        (option?.labelString ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="งานย่อย / ฟีเจอร์"
+                    name="sub_project_id"
+                    rules={[{ required: true, message: "กรุณาเลือกงานย่อย" }]}
+                    dependencies={["project_id"]}
+                  >
+                    <Select
+                      placeholder="เลือกงานย่อย..."
+                      options={subProjectOptions}
+                      disabled={!form.getFieldValue("project_id")}
+                      showSearch
+                      filterOption={(input, option) =>
+                        (option?.labelString ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+
+            <div
+              style={{
+                background: `${token.colorFillAlter}30`,
+                padding: 24,
+                borderRadius: token.borderRadiusLG,
+              }}
+            >
+              <Row gutter={20}>
+                <Col xs={12} sm={8}>
+                  <Form.Item
+                    label="วันที่"
+                    name="date"
+                    rules={[{ required: true, message: "กรุณาเลือกวันที่" }]}
+                  >
+                    <DatePicker format="DD/MM/BBBB" style={{ width: "100%" }} />
+                  </Form.Item>
+                </Col>
+                <Col xs={12} sm={8}>
+                  <Form.Item
+                    label="ระยะเวลา (ชม.)"
+                    name="work_hour"
+                    rules={[
+                      { required: true, message: "กรุณาระบุจำนวนชั่วโมง" },
+                      {
+                        type: "number",
+                        min: 0.1,
+                        max: 24,
+                        message: "ระบุ 0.1-24 ชั่วโมง",
+                      },
+                    ]}
+                  >
+                    <InputNumber style={{ width: "100%" }} min={0} step={0.5} />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={8}>
+                  <Form.Item label="สถานะ" name="status">
+                    <Select options={statusOptions} />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Divider />
+              <Form.Item label="รายละเอียดการทำงาน" name="description">
+                <Input.TextArea
+                  rows={4}
+                  showCount
+                  maxLength={500}
+                  placeholder="ระบุรายละเอียดงานที่ทำ (จะใช้กับทุกคน)..."
+                />
+              </Form.Item>
+            </div>
+
+            <Flex
+              justify="space-between"
+              align="center"
+              style={{ marginTop: 24 }}
+            >
+              <Typography.Text type="secondary">
+                <TeamOutlined /> จะส่งให้ทั้งหมด {users.length} คน
+              </Typography.Text>
+              <Space>
+                <Button onClick={onCancel}>ยกเลิก</Button>
+                <Button
+                  type="primary"
+                  icon={<TeamOutlined />}
+                  onClick={handleSubmit}
+                  loading={isProcessing}
                   style={{
-                    color: token.colorPrimary,
-                    marginBottom: 16,
-                    display: "block",
+                    background: `linear-gradient(135deg, ${token.colorWarning} 0%, ${token.colorSuccess} 100%)`,
+                    border: "none",
+                    fontWeight: 600,
                   }}
                 >
-                  <ProjectOutlined className="mr-2" /> โครงการที่รับผิดชอบ
-                </Typography.Text>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="โครงการหลัก"
-                  name="project_id"
-                  rules={[{ required: true, message: "กรุณาเลือกโครงการ" }]}
-                >
-                  <Select
-                    placeholder="เลือกโครงการ..."
-                    options={projectOptions}
-                    onChange={(v) => {
-                      form.setFieldsValue({ sub_project_id: undefined });
-                      if (v) fetchSubProjects(String(v));
-                    }}
-                    showSearch
-                    filterOption={(input, option) =>
-                      (option?.labelString ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="งานย่อย / ฟีเจอร์"
-                  name="sub_project_id"
-                  rules={[{ required: true, message: "กรุณาเลือกงานย่อย" }]}
-                  dependencies={["project_id"]}
-                >
-                  <Select
-                    placeholder="เลือกงานย่อย..."
-                    options={subProjectOptions}
-                    disabled={!form.getFieldValue("project_id")}
-                    showSearch
-                    filterOption={(input, option) =>
-                      (option?.labelString ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Card>
-
-          <div
-            style={{
-              background: `${token.colorFillAlter}30`,
-              padding: 24,
-              borderRadius: token.borderRadiusLG,
-            }}
-          >
-            <Row gutter={20}>
-              <Col xs={12} sm={8}>
-                <Form.Item
-                  label="วันที่"
-                  name="date"
-                  rules={[{ required: true, message: "กรุณาเลือกวันที่" }]}
-                >
-                  <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
-                </Form.Item>
-              </Col>
-              <Col xs={12} sm={8}>
-                <Form.Item
-                  label="ระยะเวลา (ชม.)"
-                  name="work_hour"
-                  rules={[
-                    { required: true, message: "กรุณาระบุจำนวนชั่วโมง" },
-                    {
-                      type: "number",
-                      min: 0.1,
-                      max: 24,
-                      message: "ระบุ 0.1-24 ชั่วโมง",
-                    },
-                  ]}
-                >
-                  <InputNumber style={{ width: "100%" }} min={0} step={0.5} />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={8}>
-                <Form.Item label="สถานะ" name="status">
-                  <Select options={statusOptions} />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Divider />
-            <Form.Item label="รายละเอียดการทำงาน" name="description">
-              <Input.TextArea
-                rows={4}
-                showCount
-                maxLength={500}
-                placeholder="ระบุรายละเอียดงานที่ทำ (จะใช้กับทุกคน)..."
-              />
-            </Form.Item>
-          </div>
-
-          <Flex
-            justify="space-between"
-            align="center"
-            style={{ marginTop: 24 }}
-          >
-            <Typography.Text type="secondary">
-              <TeamOutlined /> จะส่งให้ทั้งหมด {users.length} คน
-            </Typography.Text>
-            <Space>
-              <Button onClick={onCancel}>ยกเลิก</Button>
-              <Button
-                type="primary"
-                icon={<TeamOutlined />}
-                onClick={handleSubmit}
-                loading={isProcessing}
-                style={{
-                  background: `linear-gradient(135deg, ${token.colorWarning} 0%, ${token.colorSuccess} 100%)`,
-                  border: "none",
-                  fontWeight: 600,
-                }}
-              >
-                ลงเวลาให้ทุกคน ({users.length} คน)
-              </Button>
-            </Space>
-          </Flex>
-        </Form>
-      )}
+                  ลงเวลาให้ทุกคน ({users.length} คน)
+                </Button>
+              </Space>
+            </Flex>
+          </Form>
+        </div>
+      </div>
 
       {/* Show close button after processing is done */}
       {!isProcessing && completedCount > 0 && (
@@ -3069,7 +3081,7 @@ export default function TimesheetEntryPage() {
     refetch: refetchEntries,
   } = useTimesheetEntries(adminId);
   const dailySummary = useDailySummary(entries);
-  const weeklySummary = useWeeklySummary(dailySummary);
+  const monthlySummary = useMonthlySummary(dailySummary);
   const { topProjectUsage, topFeatureUsage } = useTopUsage(entries);
   const { actionLoading, submitTimesheet, deleteTimesheet } =
     useTimesheetActions(adminId, isMountedRef, refetchEntries, () =>
@@ -3299,7 +3311,7 @@ export default function TimesheetEntryPage() {
             <StatsGrid
               adminId={adminId}
               rankBoardRef={rankBoardRef}
-              weeklySummary={weeklySummary as any}
+              monthlySummary={monthlySummary as any}
               topProjectUsage={topProjectUsage}
               topFeatureUsage={topFeatureUsage}
               loading={tableLoading}

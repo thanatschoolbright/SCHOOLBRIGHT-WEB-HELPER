@@ -6,7 +6,9 @@ import type { ThemeConfig } from "antd";
 import thTH from "antd/locale/th_TH";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 
+dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
 // --- Modern Flat Color Palette (No Shadows) ---
