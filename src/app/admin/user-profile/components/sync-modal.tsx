@@ -46,6 +46,7 @@ export const SyncModal: React.FC<SyncModalProps> = ({
   onSuccess,
 }) => {
   const { token } = theme.useToken();
+  const isDark = token.colorBgBase !== "#ffffff";
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
@@ -319,9 +320,11 @@ export const SyncModal: React.FC<SyncModalProps> = ({
         {syncStep === "selection" && (
           <>
             <div
-              className="mb-6 border p-4 rounded-xl flex justify-between items-center"
+              className="mb-6 p-4 rounded-xl flex justify-between items-center border"
               style={{
-                backgroundColor: token.colorBgContainer,
+                backgroundColor: isDark
+                  ? token.colorFillAlter
+                  : token.colorBgContainer,
                 borderColor: token.colorBorderSecondary,
               }}
             >
@@ -349,18 +352,30 @@ export const SyncModal: React.FC<SyncModalProps> = ({
                 icon={<ReloadOutlined />}
                 onClick={fetchData}
                 loading={loading}
-                className="rounded-lg"
+                className="rounded-lg shadow-sm"
               >
                 ตรวจสอบใหม่
               </Button>
             </div>
 
             <Alert
-              message="กรุณาเลือกรายการที่ต้องการปรับปรุงข้อมูล"
-              description="รายการที่เลือกจะถูกนำเข้าหรืออัปเดตข้อมูลในระบบปัจจุบันให้ตรงกับฐานข้อมูลต้นทาง"
+              message={
+                <Typography.Text strong>
+                  กรุณาเลือกรายการที่ต้องการปรับปรุงข้อมูล
+                </Typography.Text>
+              }
+              description={
+                <Typography.Text type="secondary">
+                  รายการที่เลือกจะถูกนำเข้าหรืออัปเดตข้อมูลในระบบปัจจุบันให้ตรงกับฐานข้อมูลต้นทาง
+                </Typography.Text>
+              }
               type="info"
               showIcon
               className="mb-4 rounded-lg"
+              style={{
+                backgroundColor: isDark ? "rgba(22, 119, 255, 0.1)" : undefined,
+                borderColor: isDark ? "rgba(22, 119, 255, 0.2)" : undefined,
+              }}
             />
 
             <Table
@@ -375,7 +390,10 @@ export const SyncModal: React.FC<SyncModalProps> = ({
               }}
               pagination={false}
               scroll={{ y: 500 }}
-              className="border rounded-lg overflow-hidden"
+              className="rounded-lg overflow-hidden"
+              style={{
+                border: `1px solid ${token.colorBorderSecondary}`,
+              }}
             />
           </>
         )}
@@ -521,18 +539,34 @@ export const SyncModal: React.FC<SyncModalProps> = ({
               <Col span={8}>
                 {syncStep === "result" && (
                   <div className="space-y-4">
-                    <Card className="rounded-xl border-green-100 bg-green-50/30">
+                    <Card
+                      className="rounded-xl border-none"
+                      style={{
+                        backgroundColor: isDark
+                          ? "rgba(82, 196, 26, 0.15)"
+                          : token.colorSuccessBg,
+                        border: `1px solid ${isDark ? "rgba(82, 196, 26, 0.3)" : token.colorSuccessBorder}`,
+                      }}
+                    >
                       <Statistic
                         label="สำเร็จทั้งหมด"
                         value={successCount}
-                        valueStyle={{ color: "#3f8600" }}
+                        valueStyle={{ color: token.colorSuccess }}
                       />
                     </Card>
-                    <Card className="rounded-xl border-red-100 bg-red-50/30">
+                    <Card
+                      className="rounded-xl border-none"
+                      style={{
+                        backgroundColor: isDark
+                          ? "rgba(255, 77, 79, 0.15)"
+                          : token.colorErrorBg,
+                        border: `1px solid ${isDark ? "rgba(255, 77, 79, 0.3)" : token.colorErrorBorder}`,
+                      }}
+                    >
                       <Statistic
                         label="ผิดพลาด"
                         value={errorCount}
-                        valueStyle={{ color: "#cf1322" }}
+                        valueStyle={{ color: token.colorError }}
                       />
                     </Card>
 
@@ -592,16 +626,25 @@ export const SyncModal: React.FC<SyncModalProps> = ({
   );
 };
 
-const Statistic = ({ label, value, valueStyle }: any) => (
-  <div className="flex flex-col">
-    <Typography.Text
-      type="secondary"
-      style={{ fontSize: "12px", marginBottom: "4px" }}
-    >
-      {label}
-    </Typography.Text>
-    <span className="text-2xl font-bold font-mono" style={valueStyle}>
-      {value}
-    </span>
-  </div>
-);
+const Statistic = ({ label, value, valueStyle }: any) => {
+  const { token } = theme.useToken();
+  return (
+    <div className="flex flex-col">
+      <Typography.Text
+        type="secondary"
+        style={{ fontSize: "12px", marginBottom: "4px" }}
+      >
+        {label}
+      </Typography.Text>
+      <span
+        className="text-2xl font-bold font-mono"
+        style={{
+          color: token.colorText,
+          ...valueStyle,
+        }}
+      >
+        {value}
+      </span>
+    </div>
+  );
+};

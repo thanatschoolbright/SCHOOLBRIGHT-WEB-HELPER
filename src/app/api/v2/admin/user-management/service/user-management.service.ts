@@ -47,6 +47,7 @@ export interface UpdateUserDto {
   joined_date?: string | Date | null;
   resigned_date?: string | Date | null;
   employment_type?: string | null;
+  is_deleted?: boolean;
 }
 
 export const UserManagementService = {
@@ -105,6 +106,7 @@ export const UserManagementService = {
       employment_type: data.employment_type,
       updated_at: new Date(),
       updated_by: data.updated_by,
+      is_deleted: data.is_deleted,
     };
 
     if (data.password) {
@@ -223,6 +225,44 @@ export const UserManagementService = {
     return await PrismaTimesheet.user.findUnique({
       where: { admin_id: Number(adminId) },
     });
+  },
+
+  // ค้นหาด้วยฟิลด์ Unique อื่นๆ (ใช้สำหรับตรวจสอบก่อนสร้างเพื่อป้องกัน P2002)
+  async findByUniqueFields({
+    username,
+    employee_code,
+  }: {
+    username?: string;
+    employee_code?: string;
+  }) {
+    if (!username && !employee_code) return null;
+
+    return await PrismaTimesheet.user.findFirst({
+      where: {
+        OR: [
+          username ? { username } : {},
+          employee_code ? { employee_code } : {},
+        ].filter((cond) => Object.keys(cond).length > 0) as any,
+      },
+      orderBy: { is_deleted: "asc" }, // เอาคนที่ไม่โดนลบขึ้นมาก่อน
+    });
+  },
+
+  // ดึงข้อมูลผู้ใช้งานสำรองกรณีไม่มีรหัส (สุ่มรหัส)
+  async getNextUnknownCode() {
+    const lastUnknown = await PrismaTimesheet.user.findFirst({
+      where: { employee_code: { startsWith: "JJ_UNKNOWN_CODE_" } },
+      orderBy: { employee_code: "desc" },
+    });
+
+    if (!lastUnknown || !lastUnknown.employee_code)
+      return "JJ_UNKNOWN_CODE_001";
+
+    const lastNum = parseInt(
+      lastUnknown.employee_code.replace("JJ_UNKNOWN_CODE_", ""),
+    );
+    const nextNum = isNaN(lastNum) ? 1 : lastNum + 1;
+    return `JJ_UNKNOWN_CODE_${String(nextNum).padStart(3, "0")}`;
   },
 
   async findConstants() {
