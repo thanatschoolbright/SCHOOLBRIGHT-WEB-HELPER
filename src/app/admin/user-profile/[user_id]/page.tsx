@@ -63,7 +63,6 @@ const { Title, Text } = Typography;
 
 const UserEditPage = () => {
   const router = useRouter();
-  const { t } = useTranslation();
   const { token } = theme.useToken();
   const { user_id } = useParams();
   const userId = Array.isArray(user_id) ? user_id[0] : user_id;
