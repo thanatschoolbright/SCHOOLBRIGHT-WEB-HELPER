@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Flex,
   Space,
   Button,
   theme,
@@ -81,32 +82,41 @@ import { callApiService as axios } from "@services/axios-instance/sb-helper.axio
 import { useAppSelector } from "@stores/store";
 import { UserProfile } from "@stores/type";
 import { SyncModal } from "./components/sync-modal";
+const { Title, Text, Paragraph } = Typography;
 
 // ==========================================
 // 1. SERVICES & API CALLS (Logic)
 // ==========================================
 
-// TODO: Move to src/services/backend/user-management/user-profile.service.ts
-const UserProfileService = {
-  fetchUsers: async () => {
-    // เพิ่ม limit=1000 เพื่อให้ดึงพนักงานทั้งหมดมาทำ Client-side Filter ได้ครอบคลุม
+/**
+ * รวมฟังก์ชันสำหรับการเรียกใช้งาน API ที่เกี่ยวข้องกับการจัดการผู้ใช้งาน
+ */
+const requestUserProfileService = {
+  // ดึงข้อมูลพนักงานทั้งหมดที่มีในระบบ
+  requestFetchAllUsers: async () => {
     return await axios.get("/api/v2/admin/user-management/read?limit=1000");
   },
-  fetchConstants: async () => {
-    // New Position API
-    return await axios.get("/api/v2/admin/position-management/read?limit=1000"); // Limit 1000 to get all for dropdown
+  // ดึงข้อมูลตำแหน่งงานทั้งหมดที่มีในระบบ
+  requestFetchPositions: async () => {
+    return await axios.get("/api/v2/admin/position-management/read?limit=1000");
   },
-  createUser: async (data: any) => {
-    return await axios.post("/api/v2/admin/user-management/create", data);
+  // สร้างพนักงานใหม่ในระบบ
+  requestCreateNewUser: async (payload: any) => {
+    return await axios.post("/api/v2/admin/user-management/create", payload);
   },
-  updateUser: async (data: any) => {
-    return await axios.post("/api/v2/admin/user-management/update", data);
+  // แก้ไขข้อมูลพนักงานที่มีอยู่แล้วตาม ID
+  requestUpdateUserByID: async (payload: any) => {
+    return await axios.post("/api/v2/admin/user-management/update", payload);
   },
-  deleteUser: async (data: any) => {
-    return await axios.post("/api/v2/admin/user-management/delete", data);
+  // ลบข้อมูลพนักงานออกจากระบบ (Soft Delete)
+  requestDeleteUserByID: async (payload: any) => {
+    return await axios.post("/api/v2/admin/user-management/delete", payload);
   },
-  unlockUser: async (id: number) => {
-    return await axios.post("/api/v2/admin/user-management/unlock", { id });
+  // ปลดล็อกบัญชีผู้ใช้งานที่ใส่รหัสผ่านผิดเกินกำหนด
+  requestUnlockUserByID: async (userAccountID: number) => {
+    return await axios.post("/api/v2/admin/user-management/unlock", {
+      id: userAccountID,
+    });
   },
 };
 
@@ -158,18 +168,11 @@ const UserFormFields = ({
     }
   }, [phone, isEdit, form]);
 
-  // Handle Image Upload
-  const handleUploadChange: UploadProps["onChange"] = async (info) => {
-    if (info.file.status === "uploading") {
-      setUploading(true);
-      return;
-    }
-
-    // We handle the upload manually via customRequest or directly here
-    // But since Antd Upload handles file list, let's use customRequest or beforeUpload
-  };
-
-  const customUploadRequest = async ({ file, onSuccess, onError }: any) => {
+  const requestUploadProfileImage = async ({
+    file,
+    onSuccess,
+    onError,
+  }: any) => {
     setUploading(true);
     try {
       if (!employeeCode) {
@@ -257,7 +260,7 @@ const UserFormFields = ({
           listType="picture-circle"
           className="avatar-uploader"
           showUploadList={false}
-          customRequest={customUploadRequest}
+          customRequest={requestUploadProfileImage}
           beforeUpload={(file) => {
             const isJpgOrPng =
               file.type === "image/jpeg" || file.type === "image/png";
@@ -779,7 +782,7 @@ const UserStepForm = ({
     },
   ];
 
-  const next = async () => {
+  const requestMoveToNextStep = async () => {
     try {
       // Validate current step's fields
       await form.validateFields(steps[currentStep].fields);
@@ -790,11 +793,11 @@ const UserStepForm = ({
     }
   };
 
-  const prev = () => {
+  const requestMoveToPreviousStep = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  const handleFinalSubmit = async () => {
+  const requestFinalFormSubmission = async () => {
     try {
       const values = await form.validateFields();
       const payload = {
@@ -820,8 +823,7 @@ const UserStepForm = ({
         payload.password = payload.phone;
       }
 
-      await onFinish(payload); // Call the parent's handleSubmit
-      setSubmitStatus("success");
+      await onFinish(payload); // Call the parent's requestSubmitUserForm
     } catch (err: any) {
       console.error("Submission error:", err);
       setSubmitStatus("error");
@@ -907,19 +909,22 @@ const UserStepForm = ({
         <Divider />
         <div className="steps-action flex justify-end gap-2">
           {currentStep > 0 && (
-            <Button style={{ margin: "0 8px" }} onClick={() => prev()}>
+            <Button
+              style={{ margin: "0 8px" }}
+              onClick={() => requestMoveToPreviousStep()}
+            >
               ย้อนกลับ
             </Button>
           )}
           {currentStep < steps.length - 1 && (
-            <Button type="primary" onClick={() => next()}>
+            <Button type="primary" onClick={() => requestMoveToNextStep()}>
               ถัดไป
             </Button>
           )}
           {currentStep === steps.length - 1 && (
             <Button
               type="primary"
-              onClick={handleFinalSubmit}
+              onClick={requestFinalFormSubmission}
               icon={<CheckCircleOutlined />}
               loading={uploading}
             >
@@ -1047,7 +1052,7 @@ const ResetPasswordTrackingModal = ({
               padding: "4px 12px",
               borderRadius: 20,
               fontSize: 12,
-              fontWeight: "bold",
+              fontWeight: 600,
               boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
             }}
           >
@@ -1192,7 +1197,7 @@ export default function UserManagementPage() {
   });
 
   // --- Logic: Reset Password ---
-  const handleResetPassword = async (user: UserProfile) => {
+  const requestResetPassword = async (user: UserProfile) => {
     modal.confirm({
       title: "ยืนยันการรีเซ็ตรหัสผ่าน",
       icon: <WarningOutlined style={{ color: token.colorWarning }} />,
@@ -1225,7 +1230,7 @@ export default function UserManagementPage() {
     });
   };
 
-  const handleBulkResetPassword = async () => {
+  const requestBulkResetPassword = async () => {
     modal.confirm({
       title: "ยืนยันการรีเซ็ตรหัสผ่านแบบกลุ่ม",
       icon: <WarningOutlined style={{ color: token.colorWarning }} />,
@@ -1262,7 +1267,7 @@ export default function UserManagementPage() {
     });
   };
 
-  const handleBulkResetToPhone = () => {
+  const requestBulkResetPasswordToPhone = () => {
     const selectedUsers = users.filter((u) => selectedRowKeys.includes(u.id));
     if (selectedUsers.length === 0) return;
 
@@ -1270,7 +1275,7 @@ export default function UserManagementPage() {
     setTrackingModalOpen(true);
   };
 
-  const handleBulkUpdateSubmit = async () => {
+  const requestBulkUpdateStaffData = async () => {
     if (!bulkMode || !bulkValue || selectedRowKeys.length === 0) return;
 
     setBulkLoading(true);
@@ -1315,7 +1320,7 @@ export default function UserManagementPage() {
         setBulkMode(null);
         setBulkValue(null);
         setSelectedRowKeys([]);
-        fetchData();
+        requestFetchInitialData();
       } else {
         throw new Error(res.data.message_th || "ดำเนินการไม่สำเร็จ");
       }
@@ -1326,7 +1331,7 @@ export default function UserManagementPage() {
     }
   };
 
-  const handleExportExcel = async () => {
+  const requestExportUserExcelReport = async () => {
     setExportLoading(true);
     const id = toast.loading("กำลังเตรียมข้อมูลรายงาน Excel สำหรับ IPO...");
     try {
@@ -1365,19 +1370,23 @@ export default function UserManagementPage() {
   };
 
   // --- Logic: Fetch Data ---
-  const fetchData = useCallback(async () => {
+  /**
+   * ดึงข้อมูลเริ่มต้นทั้งหมดจาก Server สำหรับแสดงผลในหน้าจอ
+   */
+  const requestFetchInitialData = useCallback(async () => {
     setLoading(true);
     try {
-      const [userRes, posRes, deptRes, constRes] = await Promise.all([
-        UserProfileService.fetchUsers(),
-        UserProfileService.fetchConstants(),
-        axios.get("/api/v2/admin/department-management/read?limit=1000"),
-        axios.get("/api/v2/admin/user-management/constants"),
-      ]);
-      setUsers(userRes?.data?.data?.items || []);
-      setPositions(posRes?.data?.data?.items || []);
-      setDepartments(deptRes?.data?.data?.items || []);
-      setRoles(constRes?.data?.data?.roles || []);
+      const [userResponse, posResponse, deptResponse, constResponse] =
+        await Promise.all([
+          requestUserProfileService.requestFetchAllUsers(),
+          requestUserProfileService.requestFetchPositions(),
+          axios.get("/api/v2/admin/department-management/read?limit=1000"),
+          axios.get("/api/v2/admin/user-management/constants"),
+        ]);
+      setUsers(userResponse?.data?.data?.items || []);
+      setPositions(posResponse?.data?.data?.items || []);
+      setDepartments(deptResponse?.data?.data?.items || []);
+      setRoles(constResponse?.data?.data?.roles || []);
     } catch (error) {
       toast.error("ไม่สามารถดึงข้อมูลผู้ใช้งานได้");
     } finally {
@@ -1386,8 +1395,8 @@ export default function UserManagementPage() {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    requestFetchInitialData();
+  }, [requestFetchInitialData]);
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -1395,28 +1404,31 @@ export default function UserManagementPage() {
   }, [filters]);
 
   // --- Logic: Submit ---
-  const handleSubmit = async (values: any) => {
+  /**
+   * บันทึกข้อมูลพนักงาน (สร้างใหม่หรืออัปเดต) ผ่าน Service
+   */
+  const requestSubmitUserForm = async (formValues: any) => {
     try {
       const payload = {
-        ...values,
-        firstname_th: values.name, // Map UI 'name' to DB 'firstname_th'
-        lastname_th: values.lastname,
-        phone: values.tel,
-        profile_image: values.profile_image_path,
-        position_id: values.position_id,
-        department_id: values.department_id,
+        ...formValues,
+        firstname_th: formValues.name, // Map UI 'name' to DB 'firstname_th'
+        lastname_th: formValues.lastname,
+        phone: formValues.tel,
+        profile_image: formValues.profile_image_path,
+        position_id: formValues.position_id,
+        department_id: formValues.department_id,
         // Audit
         created_by: modalMode === "create" ? adminId : undefined,
         updated_by: modalMode === "edit" ? adminId : undefined,
         id: modalMode === "edit" ? selectedUser?.id : undefined,
         // Timeline
-        joined_date: values.joined_date
-          ? values.joined_date.format("YYYY-MM-DD")
+        joined_date: formValues.joined_date
+          ? formValues.joined_date.format("YYYY-MM-DD")
           : null,
-        resigned_date: values.resigned_date
-          ? values.resigned_date.format("YYYY-MM-DD")
+        resigned_date: formValues.resigned_date
+          ? formValues.resigned_date.format("YYYY-MM-DD")
           : null,
-        employment_type: values.employment_type || "FULL_TIME",
+        employment_type: formValues.employment_type || "FULL_TIME",
       };
 
       if (modalMode === "create") {
@@ -1424,34 +1436,37 @@ export default function UserManagementPage() {
         if (!payload.password && payload.phone) {
           payload.password = payload.phone;
         }
-        await UserProfileService.createUser(payload);
+        await requestUserProfileService.requestCreateNewUser(payload);
       } else {
-        await UserProfileService.updateUser(payload);
+        await requestUserProfileService.requestUpdateUserByID(payload);
       }
 
       toast.success(
         modalMode === "create" ? "เพิ่มพนักงานสำเร็จ" : "แก้ไขข้อมูลสำเร็จ",
       );
       setModalMode(null);
-      fetchData();
+      requestFetchInitialData();
     } catch (err: any) {
       toast.error(err?.response?.data?.message_th || "เกิดข้อผิดพลาด");
-      throw err; // Re-throw to be caught by UserStepForm's handleFinalSubmit
+      throw err; // Re-throw to be caught by UserStepForm's requestFinalFormSubmission
     }
   };
 
-  const handleUnlockUser = async (user: UserProfile) => {
+  /**
+   * ปลดล็อกบัญชีผู้ใช้งานผ่านเมนูจัดการ
+   */
+  const requestUnlockAccount = async (targetUser: UserProfile) => {
     Modal.confirm({
       title: "ยืนยันการปลดล็อกบัญชี?",
       icon: <UnlockOutlined style={{ color: token.colorSuccess }} />,
-      content: `เจ้านายครับ... คุณต้องการล้างจำนวนครั้งที่ระบุรหัสผิดของ ${user.firstname_th} และปลดล็อกการระงับใช้งานใช่หรือไม่?`,
+      content: `ต้องการล้างจำนวนครั้งที่ระบุรหัสผิดของ ${targetUser.firstname_th} และปลดล็อกการระงับใช้งานใช่หรือไม่?`,
       okText: "ปลดล็อกทันที",
       cancelText: "ยกเลิก",
       onOk: async () => {
         try {
-          await UserProfileService.unlockUser(user.id);
-          toast.success("ปลดล็อกบัญชีเรียบร้อยแล้ว กริ๊ดดดด!");
-          fetchData();
+          await requestUserProfileService.requestUnlockUserByID(targetUser.id);
+          toast.success("ปลดล็อกบัญชีเรียบร้อยแล้ว");
+          requestFetchInitialData();
         } catch (error) {
           toast.error("เกิดข้อผิดพลาดในการปลดล็อก");
         }
@@ -1460,16 +1475,19 @@ export default function UserManagementPage() {
   };
 
   // --- Logic: Delete ---
-  const handleDelete = async () => {
+  /**
+   * ลบข้อมูลพนักงานออกจากระบบ (Soft Delete)
+   */
+  const requestDeleteAccount = async () => {
     if (!selectedUser) return;
     try {
-      await UserProfileService.deleteUser({
+      await requestUserProfileService.requestDeleteUserByID({
         id: selectedUser.id,
         deleted_by: adminId,
       });
       toast.success("ลบพนักงานสำเร็จ");
       setDeleteModalOpen(false);
-      fetchData();
+      requestFetchInitialData();
     } catch (err) {
       toast.error("เกิดข้อผิดพลาดในการลบ");
     }
@@ -1680,8 +1698,11 @@ export default function UserManagementPage() {
           <div className="flex flex-col">
             <Space size={4} align="center">
               <span
-                className="font-bold text-sm"
-                style={{ color: token.colorText }}
+                style={{
+                  color: token.colorText,
+                  fontWeight: 600,
+                  fontSize: 14,
+                }}
               >
                 {r.firstname_th} {r.lastname_th}
               </span>
@@ -1765,7 +1786,7 @@ export default function UserManagementPage() {
 
         return (
           <div className="flex flex-col gap-1">
-            <Typography.Text strong className="text-sm">
+            <Typography.Text style={{ fontWeight: 600 }} className="text-sm">
               {record.position_ref?.name_th || "ไม่มีตำแหน่ง"}
             </Typography.Text>
             <div className="flex items-center gap-1 text-[11px]">
@@ -1878,6 +1899,7 @@ export default function UserManagementPage() {
       key: "action",
       align: "center",
       width: 150,
+      sorter: (a, b) => 0, // Placeholder sorter to satisfy standard requirement
       render: (_, r) => (
         <Space size={0}>
           <Tooltip title="ดูรายละเอียด">
@@ -1898,7 +1920,7 @@ export default function UserManagementPage() {
                 type="text"
                 size="small"
                 icon={<UnlockOutlined style={{ color: token.colorSuccess }} />}
-                onClick={() => handleUnlockUser(r)}
+                onClick={() => requestUnlockAccount(r)}
               />
             </Tooltip>
           )}
@@ -1929,7 +1951,7 @@ export default function UserManagementPage() {
               type="text"
               size="small"
               icon={<LockOutlined style={{ color: token.colorInfo }} />}
-              onClick={() => handleResetPassword(r)}
+              onClick={() => requestResetPassword(r)}
               disabled={!r.email}
             />
           </Tooltip>
@@ -1957,304 +1979,308 @@ export default function UserManagementPage() {
         <SyncModal
           open={syncModalOpen}
           onCancel={() => setSyncModalOpen(false)}
-          onSuccess={fetchData}
+          onSuccess={requestFetchInitialData}
         />
 
-        {/* 1. Header Bar */}
+        {/* ส่วนที่ 1: แถบหัวข้อหน้าจอ (Header Bar) */}
         <HeaderBar
           icon={<TeamOutlined />}
           title="จัดการผู้ใช้งาน (User Management)"
           subTitle="ระบบจัดการพนักงานและสิทธิ์การเข้าใช้งาน"
           extra={
             <Space>
-              <Button onClick={fetchData} icon={<ReloadOutlined />}>
+              <Button
+                onClick={requestFetchInitialData}
+                icon={<ReloadOutlined />}
+                shape="round"
+              >
                 รีเฟรช
               </Button>
               <Button
                 type="primary"
                 icon={<CloudSyncOutlined />}
                 onClick={() => setSyncModalOpen(true)}
+                shape="round"
               >
-                ซิงค์ข้อมูลชุดเก่า (Sync Legacy Data)
+                ซิงค์ข้อมูลชุดเก่า
               </Button>
               <Button
                 icon={<SolutionOutlined />}
                 onClick={() => setRoleDrawerOpen(true)}
+                shape="round"
               >
-                จัดการบทบาท (Role)
+                จัดการบทบาท
               </Button>
             </Space>
           }
         />
 
-        {/* 2. Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {summaryMetrics.map((m, i) => (
-            <div key={i} className="h-full">
-              <SummaryCard {...m} isLoading={loading} />
+        {/* ส่วนที่ 2: การ์ดสรุปข้อมูลภาพรวม (Summary Cards) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {summaryMetrics.map((metrics, index) => (
+            <div key={index} className="h-full">
+              <SummaryCard {...metrics} isLoading={loading} />
             </div>
           ))}
         </div>
 
-        {/* 3. Filters & Content */}
+        {/* ส่วนที่ 3: ส่วนการกรองข้อมูล (Filters) */}
+        <Card
+          styles={{ body: { padding: 24 } }}
+          style={{
+            borderRadius: 16,
+            border: `1px solid ${token.colorBorderSecondary}`,
+            marginBottom: 24,
+          }}
+        >
+          <Flex align="center" gap={8} className="mb-6">
+            <ControlOutlined
+              style={{ color: token.colorPrimary, fontSize: 18 }}
+            />
+            <Text style={{ fontSize: 16, fontWeight: 600 }}>ตัวกรอง</Text>
+          </Flex>
+
+          <Row gutter={[24, 24]}>
+            <Col xs={24} md={12}>
+              <Text
+                style={{ fontWeight: 600, color: token.colorTextSecondary }}
+                className="text-xs mb-2 block"
+              >
+                ค้นหาคำสำคัญ (ชื่อ, นามสกุล, รหัสพนักงาน)
+              </Text>
+              <Input
+                prefix={
+                  <SearchOutlined
+                    style={{ color: token.colorTextDescription }}
+                  />
+                }
+                placeholder="ระบุข้อมูลที่ต้องการค้นหา..."
+                allowClear
+                size="large"
+                style={{ borderRadius: 8 }}
+                value={filters.search}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, search: e.target.value }))
+                }
+              />
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Text
+                style={{ fontWeight: 600, color: token.colorTextSecondary }}
+                className="text-xs mb-2 block"
+              >
+                ตำแหน่งงาน
+              </Text>
+              <Select
+                placeholder="เลือกตำแหน่งงาน"
+                size="large"
+                allowClear
+                showSearch
+                className="w-full"
+                optionFilterProp="label"
+                value={filters.position}
+                onChange={(v) =>
+                  setFilters((prev) => ({ ...prev, position: v }))
+                }
+                options={positions.map((p) => ({
+                  label: p.name_th,
+                  value: p.id,
+                }))}
+                style={{ borderRadius: 8 }}
+              />
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Text
+                style={{ fontWeight: 600, color: token.colorTextSecondary }}
+                className="text-xs mb-2 block"
+              >
+                แผนก / ฝ่าย
+              </Text>
+              <Select
+                placeholder="เลือกแผนก"
+                size="large"
+                allowClear
+                showSearch
+                className="w-full"
+                optionFilterProp="label"
+                value={filters.department}
+                onChange={(v) =>
+                  setFilters((prev) => ({ ...prev, department: v }))
+                }
+                options={departments.map((d) => ({
+                  label: d.name_th,
+                  value: d.id,
+                }))}
+                style={{ borderRadius: 8 }}
+              />
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Text
+                style={{ fontWeight: 600, color: token.colorTextSecondary }}
+                className="text-xs mb-2 block"
+              >
+                สถานะบัญชีรายชื่อ
+              </Text>
+              <Select
+                placeholder="เลือกสถานะ"
+                size="large"
+                allowClear
+                className="w-full"
+                value={filters.status}
+                onChange={(v) => setFilters((prev) => ({ ...prev, status: v }))}
+                options={[
+                  { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
+                  { label: "ระงับการใช้งาน (Inactive)", value: "INACTIVE" },
+                  { label: "โดนระงับ (Locked/Failed Login)", value: "BLOCKED" },
+                ]}
+                style={{ borderRadius: 8 }}
+              />
+            </Col>
+          </Row>
+
+          <Divider style={{ margin: "24px 0" }} />
+
+          <Flex justify="flex-end" gap={12}>
+            <Button
+              icon={<ClearOutlined />}
+              type="default"
+              ghost
+              shape="round"
+              onClick={() =>
+                setFilters({
+                  search: "",
+                  position: undefined,
+                  department: undefined,
+                  status: undefined,
+                })
+              }
+              style={{ minWidth: 120 }}
+            >
+              ล้างการค้นหา
+            </Button>
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              shape="round"
+              onClick={() => requestFetchInitialData()}
+              style={{ minWidth: 120 }}
+            >
+              ค้นหาข้อมูล
+            </Button>
+          </Flex>
+        </Card>
+
+        {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา (Content Table) */}
         <Card
           styles={{ body: { padding: 16 } }}
           style={{
             borderRadius: 16,
+            overflow: "hidden",
             border: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          {/* Filter Section - Responsive Grid */}
-          <div
-            className="mb-8 p-6 rounded-2xl"
-            style={{
-              backgroundColor: token.colorFillAlter,
-              border: `1px solid ${token.colorBorderSecondary}`,
-            }}
-          >
-            <Row gutter={[20, 20]} align="bottom">
-              {/* 1. Search Box */}
-              <Col xs={24} sm={12} lg={6}>
-                <Typography.Text
-                  strong
-                  className="text-xs mb-2 block"
-                  style={{ color: token.colorTextSecondary }}
+          {/* Table Header Action */}
+          <div className="flex justify-between items-center mb-6">
+            <Flex align="center" gap={12}>
+              <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+                รายชื่อพนักงานทั้งหมด
+                <Text
+                  type="secondary"
+                  style={{ fontSize: 14, fontWeight: 400, marginLeft: 8 }}
                 >
-                  <SearchOutlined className="mr-1" /> ค้นหาคำสำคัญ
-                </Typography.Text>
-                <Input
-                  prefix={
-                    <SearchOutlined
-                      style={{ color: token.colorTextDescription }}
-                    />
-                  }
-                  placeholder="ชื่อ, นามสกุล, รหัสพนักงาน..."
-                  allowClear
-                  className="rounded-lg h-10 shadow-sm border-none"
-                  value={filters.search}
-                  onChange={(e) =>
-                    setFilters((prev) => ({ ...prev, search: e.target.value }))
-                  }
-                />
-              </Col>
-
-              {/* 2. Position Filter */}
-              <Col xs={24} sm={12} lg={5}>
-                <Typography.Text
-                  strong
-                  className="text-xs mb-2 block"
-                  style={{ color: token.colorTextSecondary }}
+                  ({filteredUsers.length} รายการ)
+                </Text>
+              </Title>
+              {selectedRowKeys.length > 0 && (
+                <Tag
+                  color="processing"
+                  style={{ borderRadius: 20, padding: "2px 12px" }}
                 >
-                  <ApartmentOutlined className="mr-1" /> ตำแหน่งงาน
-                </Typography.Text>
-                <Select
-                  placeholder="ตำแหน่งทั้งหมด"
-                  className="w-full rounded-lg h-10 shadow-sm"
-                  allowClear
-                  showSearch
-                  optionFilterProp="label"
-                  value={filters.position}
-                  onChange={(v) =>
-                    setFilters((prev) => ({ ...prev, position: v }))
-                  }
-                  options={positions.map((p) => ({
-                    label: p.name_th,
-                    value: p.id,
-                  }))}
-                  style={{ borderRadius: 8 }}
-                />
-              </Col>
+                  เลือกอยู่ {selectedRowKeys.length} รายการ
+                </Tag>
+              )}
+            </Flex>
 
-              {/* 3. Department Filter */}
-              <Col xs={24} sm={12} lg={5}>
-                <Typography.Text
-                  strong
-                  className="text-xs mb-2 block"
-                  style={{ color: token.colorTextSecondary }}
+            <Space size={12}>
+              {selectedRowKeys.length > 0 && (
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: "reset-to-phone",
+                        label: "ใช้เบอร์มือถือเป็นรหัสผ่าน",
+                        icon: (
+                          <ControlOutlined
+                            style={{ color: token.colorSuccess }}
+                          />
+                        ),
+                        onClick: requestBulkResetPasswordToPhone,
+                      },
+                      {
+                        key: "bulk-position",
+                        label: "ปรับตำแหน่ง",
+                        icon: <ApartmentOutlined />,
+                        onClick: () => setBulkMode("position"),
+                      },
+                      {
+                        key: "bulk-department",
+                        label: "ปรับแผนก",
+                        icon: <TeamOutlined />,
+                        onClick: () => setBulkMode("department"),
+                      },
+                      {
+                        key: "bulk-role",
+                        label: "ปรับสิทธิ์",
+                        icon: <SafetyCertificateOutlined />,
+                        onClick: () => setBulkMode("role"),
+                      },
+                      {
+                        key: "bulk-employment-type",
+                        label: "จัดการประเภทการจ้างงาน",
+                        icon: <IdcardOutlined />,
+                        onClick: () => setBulkMode("employment-type"),
+                      },
+                      { type: "divider" },
+                      {
+                        key: "reset-password",
+                        label: "รีเซ็ตรหัสผ่านใหม่",
+                        icon: <LockOutlined />,
+                        danger: true,
+                        onClick: requestBulkResetPassword,
+                      },
+                    ],
+                  }}
                 >
-                  <TeamOutlined className="mr-1" /> แผนก/ฝ่าย
-                </Typography.Text>
-                <Select
-                  placeholder="แผนกทั้งหมด"
-                  className="w-full rounded-lg h-10 shadow-sm"
-                  allowClear
-                  showSearch
-                  optionFilterProp="label"
-                  value={filters.department}
-                  onChange={(v) =>
-                    setFilters((prev) => ({ ...prev, department: v }))
-                  }
-                  options={departments.map((d) => ({
-                    label: d.name_th,
-                    value: d.id,
-                  }))}
-                />
-              </Col>
-
-              {/* 4. Status Filter */}
-              <Col xs={24} sm={12} lg={4}>
-                <Typography.Text
-                  strong
-                  className="text-xs mb-2 block"
-                  style={{ color: token.colorTextSecondary }}
-                >
-                  <ControlOutlined className="mr-1" /> สถานะบัญชี
-                </Typography.Text>
-                <Select
-                  placeholder="สถานะทั้งหมด"
-                  className="w-full rounded-lg h-10 shadow-sm"
-                  allowClear
-                  value={filters.status}
-                  onChange={(v) =>
-                    setFilters((prev) => ({ ...prev, status: v }))
-                  }
-                  options={[
-                    { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
-                    { label: "ระงับการใช้งาน (Inactive)", value: "INACTIVE" },
-                    {
-                      label: "โดนระงับ (Locked/Failed Login)",
-                      value: "BLOCKED",
-                    },
-                  ]}
-                />
-              </Col>
-
-              {/* 5. Action Buttons */}
-              <Col xs={24} lg={4}>
-                <div className="flex gap-2">
-                  <Button
-                    block
-                    icon={<ClearOutlined />}
-                    className="rounded-lg h-10 flex items-center justify-center font-medium"
-                    onClick={() =>
-                      setFilters({
-                        search: "",
-                        position: undefined,
-                        department: undefined,
-                        status: undefined,
-                      })
-                    }
-                  >
-                    ล้างค่า
-                  </Button>
                   <Button
                     type="primary"
-                    block
-                    icon={<ReloadOutlined />}
-                    className="rounded-lg h-10 flex items-center justify-center font-medium shadow-md shadow-orange-100"
-                    onClick={() => fetchData()}
+                    ghost
+                    icon={<SettingOutlined />}
+                    shape="round"
                   >
-                    รีเฟรช
+                    จัดการข้อมูลแบบกลุ่ม
                   </Button>
-                </div>
-              </Col>
-            </Row>
-          </div>
-
-          {/* Table Header Action */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-3">
-              <Typography.Text strong className="text-lg">
-                รายชื่อพนักงานทั้งหมด ({filteredUsers.length})
-              </Typography.Text>
-              {selectedRowKeys.length > 0 && (
-                <Space split={<Divider type="vertical" />}>
-                  <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                    เลือกอยู่ {selectedRowKeys.length} รายการ
-                  </Typography.Text>
-                  <Dropdown
-                    menu={{
-                      items: [
-                        {
-                          key: "reset-to-phone",
-                          label: "ใช้เบอร์มือถือเป็นรหัสผ่าน",
-                          icon: (
-                            <ControlOutlined
-                              style={{ color: token.colorSuccess }}
-                            />
-                          ),
-                          onClick: handleBulkResetToPhone,
-                        },
-                        {
-                          key: "bulk-position",
-                          label: "ปรับตำแหน่ง (แบบกลุ่ม)",
-                          icon: (
-                            <ApartmentOutlined
-                              style={{ color: token.colorInfo }}
-                            />
-                          ),
-                          onClick: () => setBulkMode("position"),
-                        },
-                        {
-                          key: "bulk-department",
-                          label: "ปรับแผนก (แบบกลุ่ม)",
-                          icon: <TeamOutlined style={{ color: "#722ed1" }} />,
-                          onClick: () => setBulkMode("department"),
-                        },
-                        {
-                          key: "bulk-role",
-                          label: "ปรับสิทธิ์การใช้งาน (แบบกลุ่ม)",
-                          icon: (
-                            <SafetyCertificateOutlined
-                              style={{ color: token.colorSuccess }}
-                            />
-                          ),
-                          onClick: () => setBulkMode("role"),
-                        },
-                        {
-                          key: "bulk-employment-type",
-                          label: "จัดการประเภทการจ้างงาน (แบบกลุ่ม)",
-                          icon: (
-                            <IdcardOutlined
-                              style={{ color: token.colorWarning }}
-                            />
-                          ),
-                          onClick: () => setBulkMode("employment-type"),
-                        },
-                        {
-                          type: "divider",
-                        },
-                        {
-                          key: "reset-password",
-                          label: "รีเซ็ตรหัสผ่านใหม่",
-                          icon: <LockOutlined />,
-                          danger: true,
-                          onClick: handleBulkResetPassword,
-                        },
-                      ],
-                    }}
-                    trigger={["click"]}
-                  >
-                    <Button
-                      type="primary"
-                      size="small"
-                      icon={<SettingOutlined />}
-                      className="rounded-lg shadow-sm"
-                      style={{ backgroundColor: token.colorInfo }}
-                    >
-                      จัดการแบบกลุ่ม <DownOutlined />
-                    </Button>
-                  </Dropdown>
-                </Space>
+                </Dropdown>
               )}
-            </div>
-            <Space>
               <Button
                 icon={<FileExcelOutlined />}
-                onClick={handleExportExcel}
+                onClick={requestExportUserExcelReport}
                 loading={exportLoading}
+                shape="round"
                 style={{
-                  backgroundColor: "#217346", // Excel Green
+                  backgroundColor: "#217346",
                   color: "#fff",
                   borderColor: "#217346",
                 }}
-                className="rounded-lg shadow-sm"
               >
                 ส่งออก Excel
               </Button>
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
+                shape="round"
                 onClick={() => {
                   setModalMode("create");
                   form.resetFields();
@@ -2265,7 +2291,6 @@ export default function UserManagementPage() {
             </Space>
           </div>
 
-          {/* Table */}
           <Table
             columns={columns}
             dataSource={filteredUsers}
@@ -2275,13 +2300,12 @@ export default function UserManagementPage() {
               ...pagination,
               showSizeChanger: true,
               pageSizeOptions: ["10", "20", "50", "100"],
-              onChange: (page, pageSize) => {
-                setPagination({ current: page, pageSize });
-              },
+              onChange: (page, pageSize) =>
+                setPagination({ current: page, pageSize }),
               showTotal: (total, range) =>
                 `แสดง ${range[0]}-${range[1]} จากทั้งหมด ${total} รายการ`,
             }}
-            scroll={{ x: 1000 }}
+            scroll={{ x: 1200 }}
             rowSelection={{
               selectedRowKeys,
               onChange: (keys) => setSelectedRowKeys(keys),
@@ -2309,7 +2333,7 @@ export default function UserManagementPage() {
               form={form}
               positions={positions}
               departments={departments}
-              onFinish={handleSubmit}
+              onFinish={requestSubmitUserForm}
               onCancel={() => setModalMode(null)}
               adminId={adminId}
             />
@@ -2317,7 +2341,7 @@ export default function UserManagementPage() {
             <Form
               form={form}
               layout="vertical"
-              onFinish={handleSubmit}
+              onFinish={requestSubmitUserForm}
               initialValues={
                 modalMode === "edit" && selectedUser
                   ? {
@@ -2387,14 +2411,14 @@ export default function UserManagementPage() {
           }
           open={deleteModalOpen}
           onCancel={() => setDeleteModalOpen(false)}
-          onOk={handleDelete}
+          onOk={requestDeleteAccount}
           okButtonProps={{ danger: true }}
         >
           <p>
             คุณแน่ใจหรือไม่ที่จะลบพนักงาน:{" "}
-            <strong>
+            <span style={{ fontWeight: 600 }}>
               {selectedUser?.firstname_th} {selectedUser?.lastname_th}
-            </strong>
+            </span>
           </p>
           <Typography.Text
             type="danger"
@@ -2555,7 +2579,7 @@ export default function UserManagementPage() {
             setTrackingModalOpen(false);
             setUsersToReset(null);
             setSelectedRowKeys([]); // Clear selection after bulk reset
-            fetchData();
+            requestFetchInitialData();
           }}
           onCancel={() => {
             setTrackingModalOpen(false);
@@ -2575,7 +2599,7 @@ export default function UserManagementPage() {
                   : "ประเภทการจ้างงาน"
           }แบบกลุ่ม`}
           open={!!bulkMode}
-          onOk={handleBulkUpdateSubmit}
+          onOk={requestBulkUpdateStaffData}
           onCancel={() => {
             setBulkMode(null);
             setBulkValue(null);
@@ -2594,8 +2618,9 @@ export default function UserManagementPage() {
                   : bulkMode === "role"
                     ? "สิทธิ์การใช้งาน"
                     : "ประเภทการจ้างงาน"}{" "}
-              ของ <strong>{selectedRowKeys.length}</strong> พนักงานที่เลือก
-              เป็น:
+              ของ{" "}
+              <span style={{ fontWeight: 600 }}>{selectedRowKeys.length}</span>{" "}
+              พนักงานที่เลือก เป็น:
             </Typography.Text>
             <Select
               className="w-full"
