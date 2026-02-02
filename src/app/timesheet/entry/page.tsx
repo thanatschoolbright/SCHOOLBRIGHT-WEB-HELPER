@@ -1004,12 +1004,18 @@ const StatsGrid: React.FC<StatsGridProps> = ({
         <Flex vertical gap={24} style={{ height: "100%" }}>
           {/* Weekly Chart */}
           <div className="flex-1">
-            <WeeklySummary
-              monthlySummary={monthlySummary}
-              targetHours={DAILY_TARGET_HOURS}
-              loading={monthlySummaryLoading}
-              stats={monthlyStats}
-            />
+            <Badge.Ribbon
+              text="ปรับปรุงใหม่"
+              color={token.colorInfo}
+              style={{ padding: "0 12px", height: 24, lineHeight: "24px" }}
+            >
+              <WeeklySummary
+                monthlySummary={monthlySummary}
+                targetHours={DAILY_TARGET_HOURS}
+                loading={monthlySummaryLoading}
+                stats={monthlyStats}
+              />
+            </Badge.Ribbon>
           </div>
 
           {/* Small Stat Cards Row */}
