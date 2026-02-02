@@ -937,7 +937,9 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                             ][dayjs(item.label.split(" ")[0]).day()]
                           }
                           ที่{" "}
-                          {dayjs(item.label.split(" ")[0]).format("DD/MM/YYYY")}
+                          {dayjs(item.label.split(" ")[0]).format("DD/MM/YYYY")}{" "}
+                          จำนวน {item.label.match(/\((\d+)\sชม\.\)/)?.[1] || 8}{" "}
+                          ชั่วโมง
                         </Text>
                         {item.status === "process" && (
                           <Badge
@@ -1071,7 +1073,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         open={summaryModalOpen}
         onOk={() => setSummaryModalOpen(false)}
         onCancel={() => setSummaryModalOpen(false)}
-        width={720}
+        width={1000}
         centered
         footer={[
           <Button
@@ -1080,58 +1082,106 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             onClick={() => setSummaryModalOpen(false)}
             shape="round"
             size="large"
-            style={{ minWidth: 120 }}
+            style={{ minWidth: 150 }}
           >
-            ตกลง
+            เสร็จสิ้น
           </Button>,
         ]}
       >
         <div style={{ marginTop: 24 }}>
           <div
             style={{
-              padding: "16px 24px",
+              padding: "20px 24px",
               background: isDark
                 ? "rgba(82, 196, 26, 0.1)"
                 : "rgba(82, 196, 26, 0.05)",
-              borderRadius: 12,
+              borderRadius: 16,
               border: `1px solid ${addAlpha(token.colorSuccess, 0.2)}`,
               marginBottom: 24,
             }}
           >
             <Flex justify="space-between" align="center">
-              <Space>
-                <Badge status="success" />
-                <Text strong>
-                  ดำเนินการสำเร็จทั้งหมด {summaryResults.length} รายการ (รวม{" "}
-                  {summaryResults.reduce(
-                    (sum, item) => sum + (item.hour || 0),
-                    0,
-                  )}{" "}
-                  ชม.)
-                </Text>
+              <Space size={16}>
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: "50%",
+                    background: token.colorSuccess,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    fontSize: 24,
+                    boxShadow: `0 4px 12px ${addAlpha(token.colorSuccess, 0.4)}`,
+                  }}
+                >
+                  <CheckCircleOutlined />
+                </div>
+                <div>
+                  <Text strong style={{ fontSize: 16, display: "block" }}>
+                    ดำเนินการบันทึกข้อมูลสำเร็จเรียบร้อยแล้ว
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: 14 }}>
+                    พบรายการที่บันทึกทั้งหมด {summaryResults.length} รายการ (รวม{" "}
+                    {summaryResults.reduce(
+                      (sum, item) => sum + (item.hour || 0),
+                      0,
+                    )}{" "}
+                    ชั่วโมง)
+                  </Text>
+                </div>
               </Space>
-              <Text type="secondary" style={{ fontSize: 12 }}>
+              <Tag
+                color="success"
+                bordered={false}
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
                 Engine:{" "}
                 {selectedEngine === "chatgpt" ? "GPT-4o mini" : "Gemini Pro"}
-              </Text>
+              </Tag>
             </Flex>
           </div>
 
-          <div style={{ maxHeight: 400, overflowY: "auto" }}>
+          <div
+            className="summary-table-container"
+            style={{
+              maxHeight: 500,
+              overflowY: "auto",
+              borderRadius: 12,
+              border: `1px solid ${token.colorBorderSecondary}`,
+            }}
+          >
             <Table
               dataSource={summaryResults}
               rowKey="id"
               pagination={false}
-              size="small"
+              size="middle"
               columns={[
                 {
-                  title: "วันที่",
+                  title: "#",
+                  key: "index",
+                  width: 60,
+                  align: "center",
+                  render: (_text, _record, index) => (
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                      {index + 1}
+                    </Text>
+                  ),
+                },
+                {
+                  title: "วัน/เวลาที่บันทึก",
                   dataIndex: "date",
                   key: "date",
-                  width: 180,
+                  width: 280,
                   render: (date, record) => (
-                    <Flex vertical>
-                      <Text strong style={{ fontSize: 13 }}>
+                    <div style={{ padding: "4px 0" }}>
+                      <Text strong style={{ fontSize: 14, display: "block" }}>
                         รายการวัน
                         {
                           [
@@ -1146,35 +1196,71 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                         }
                         ที่ {dayjs(date).format("DD/MM/YYYY")}
                       </Text>
-                      <Text type="secondary" style={{ fontSize: 11 }}>
+                      <Tag
+                        color="blue"
+                        style={{
+                          margin: "4px 0 0 0",
+                          borderRadius: 4,
+                          fontSize: 11,
+                        }}
+                      >
                         จำนวน {record.hour || 8} ชั่วโมง
-                      </Text>
-                    </Flex>
+                      </Tag>
+                    </div>
                   ),
                 },
                 {
-                  title: "รายละเอียดงาน",
-                  key: "info",
+                  title: "โครงการ / ฟีเจอร์",
+                  key: "project",
+                  width: 250,
                   render: (_, record) => (
-                    <div style={{ padding: "4px 0" }}>
-                      <Text
-                        strong
-                        style={{
-                          fontSize: 13,
-                          display: "block",
-                          marginBottom: 4,
-                        }}
-                      >
+                    <Space direction="vertical" size={4}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          style={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: "50%",
+                            background: token.colorPrimary,
+                          }}
+                        />
+                        <Text strong style={{ fontSize: 12 }}>
+                          {record.project}
+                        </Text>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div
+                          style={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: "50%",
+                            background: token.colorInfo,
+                          }}
+                        />
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {record.feature}
+                        </Text>
+                      </div>
+                    </Space>
+                  ),
+                },
+                {
+                  title: "รายละเอียดสิ่งที่ลงบันทึก",
+                  key: "description",
+                  render: (_, record) => (
+                    <div
+                      style={{
+                        padding: "8px 12px",
+                        background: isDark
+                          ? "rgba(255,255,255,0.02)"
+                          : "rgba(0,0,0,0.01)",
+                        borderRadius: 8,
+                        border: `1px dashed ${token.colorBorder}`,
+                      }}
+                    >
+                      <Text style={{ fontSize: 13, lineHeight: "1.6" }}>
                         {record.description}
                       </Text>
-                      <Space split={<Divider type="vertical" />} wrap>
-                        <Tag color="blue" style={{ margin: 0, fontSize: 10 }}>
-                          {record.project}
-                        </Tag>
-                        <Tag color="cyan" style={{ margin: 0, fontSize: 10 }}>
-                          {record.feature}
-                        </Tag>
-                      </Space>
                     </div>
                   ),
                 },
