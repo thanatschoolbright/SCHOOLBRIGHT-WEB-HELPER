@@ -13,14 +13,46 @@ export async function POST(request: NextRequest) {
 
     for (const item of items) {
       console.log("Sync executing item:", JSON.stringify(item, null, 2));
+
+      const adminId = Number(item.remote.admin_id);
+
       if (item.type === "MISSING_IN_LOCAL") {
+        // Double check if it really is missing (Safety first)
+        const existing = await UserManagementService.findByAdminId(adminId);
+
+        if (existing) {
+          // If already exists, switch to update to avoid P2002
+          const updated = await UserManagementService.update(existing.id, {
+            admin_id: adminId,
+            username:
+              item.remote.username ||
+              item.remote.employee_code ||
+              existing.username,
+            employee_code: item.remote.employee_code,
+            firstname_th: item.remote.firstname_th,
+            lastname_th: item.remote.lastname_th,
+            firstname_en: item.remote.firstname_en,
+            lastname_en: item.remote.lastname_en,
+            nickname: item.remote.nickname,
+            email: item.remote.email,
+            phone: item.remote.tel || item.remote.phone,
+            updated_by: 0,
+          });
+          results.push({
+            status: "updated_instead_of_created",
+            id: existing.id,
+            admin_id: adminId,
+          });
+          continue;
+        }
+
         // Create new user in local DB - Map fields explicitly to avoid conflicts
         const newUser = await UserManagementService.create({
-          admin_id: item.remote.admin_id,
+          admin_id: adminId,
           username:
             item.remote.username ||
             item.remote.employee_code ||
-            `user_${item.remote.admin_id}`,
+            `user_${adminId}`,
           password: "default_password",
           employee_code: item.remote.employee_code,
           firstname_th: item.remote.firstname_th,
@@ -39,7 +71,7 @@ export async function POST(request: NextRequest) {
         results.push({
           status: "created",
           id: newUser.id,
-          admin_id: item.remote.admin_id,
+          admin_id: adminId,
         });
       } else if (item.type === "MISMATCH") {
         // Update local user to match remote - Map fields explicitly

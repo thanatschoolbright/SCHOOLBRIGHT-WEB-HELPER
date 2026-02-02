@@ -369,7 +369,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                     <ClockCircleOutlined
                                       style={{ color: token.colorSuccess }}
                                     />
-                                    <Text strong>ช่วงเวลาทำงาน (Start - End)</Text>
+                                    <Text strong>
+                                      ช่วงเวลาทำงาน (Start - End)
+                                    </Text>
                                   </Space>
                                 }
                                 rules={[
@@ -389,7 +391,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                     height: 48,
                                   }}
                                   size="large"
-                                  placeholder={["เริ่มต้นการทำงาน", "สิ้นสุดการทำงาน"]}
+                                  placeholder={[
+                                    "เริ่มต้นการทำงาน",
+                                    "สิ้นสุดการทำงาน",
+                                  ]}
                                   onChange={(dates) =>
                                     handleTimeRangeChange(field.name, dates)
                                   }
@@ -409,17 +414,42 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                               >
                                 {/* Decorative background element */}
                                 <div className="absolute -right-2 -bottom-2 opacity-20 rotate-12 transition-transform group-hover:scale-110">
-                                  <ClockCircleOutlined style={{ fontSize: 40, color: '#fff' }} />
+                                  <ClockCircleOutlined
+                                    style={{ fontSize: 40, color: "#fff" }}
+                                  />
                                 </div>
-                                
-                                <Text style={{ color: "rgba(255,255,255,0.8)", fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
+
+                                <Text
+                                  style={{
+                                    color: "rgba(255,255,255,0.8)",
+                                    fontSize: 10,
+                                    fontWeight: 600,
+                                    textTransform: "uppercase",
+                                    letterSpacing: 1,
+                                  }}
+                                >
                                   ระยะเวลาปฏิบัติงาน
                                 </Text>
                                 <div className="flex items-baseline gap-1">
-                                  <Text style={{ color: "#fff", fontSize: 20, fontWeight: 800, lineHeight: 1 }}>
+                                  <Text
+                                    style={{
+                                      color: "#fff",
+                                      fontSize: 20,
+                                      fontWeight: 800,
+                                      lineHeight: 1,
+                                    }}
+                                  >
                                     {calculatedDuration}
                                   </Text>
-                                  <Text style={{ color: "#fff", fontSize: 12, fontWeight: 400 }}>ชม.</Text>
+                                  <Text
+                                    style={{
+                                      color: "#fff",
+                                      fontSize: 12,
+                                      fontWeight: 400,
+                                    }}
+                                  >
+                                    ชม.
+                                  </Text>
                                 </div>
                               </div>
                             </Col>
@@ -460,13 +490,13 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                             className="hover:border-blue-400 transition-all shadow-sm"
                             size="large"
                           >
-                            <Input 
-                              style={{ 
-                                fontSize: 15, 
+                            <Input
+                              style={{
+                                fontSize: 15,
                                 borderRadius: 10,
                                 height: 48,
-                                paddingLeft: 16
-                              }} 
+                                paddingLeft: 16,
+                              }}
                               placeholder="เช่น ตรวจสอบ Error ในระบบ Log"
                             />
                           </AutoComplete>

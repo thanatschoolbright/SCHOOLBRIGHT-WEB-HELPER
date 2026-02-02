@@ -218,6 +218,13 @@ export const UserManagementService = {
     });
   },
 
+  // ค้นหาด้วย admin_id
+  async findByAdminId(adminId: number) {
+    return await PrismaTimesheet.user.findUnique({
+      where: { admin_id: Number(adminId) },
+    });
+  },
+
   async findConstants() {
     const roles = await PrismaTimesheet.role.findMany({
       where: { is_deleted: false, is_active: true },
