@@ -32,8 +32,8 @@ type TimesheetFiltersProps = {
   onKeywordChange: (value: string) => void;
   dateRange: [Dayjs, Dayjs];
   onDateRangeChange: (range: [Dayjs, Dayjs]) => void;
-  departmentId: number | null;
-  onDepartmentChange: (id: number | null) => void;
+  departmentIds: number[];
+  onDepartmentsChange: (ids: number[]) => void;
   onRefresh: () => void;
   onClearFilters: () => void;
   loading: boolean;
@@ -47,8 +47,8 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
   onKeywordChange,
   dateRange,
   onDateRangeChange,
-  departmentId,
-  onDepartmentChange,
+  departmentIds,
+  onDepartmentsChange,
   onRefresh,
   onClearFilters,
   loading,
@@ -164,13 +164,15 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
                 แผนก / ฝ่าย
               </Text>
               <Select
-                placeholder="เลือกแผนก"
+                mode="multiple"
+                placeholder="เลือกแผนก (เลือกได้หลายแผนก)"
                 allowClear
                 loading={fetchingDepartments}
-                value={departmentId}
-                onChange={onDepartmentChange}
+                value={departmentIds}
+                onChange={onDepartmentsChange}
                 size="large"
                 style={{ width: "100%", borderRadius: 8 }}
+                maxTagCount="responsive"
                 suffixIcon={
                   <ClusterOutlined
                     style={{ color: token.colorTextDescription }}

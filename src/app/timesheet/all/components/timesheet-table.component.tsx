@@ -437,7 +437,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
               </Flex>
               <Progress
                 percent={Number(percent.toFixed(1))}
-                size="small"
+                size={{ height: 8 }}
                 strokeColor={{
                   "0%": isDone ? token.colorSuccess : token.colorPrimary,
                   "100%": isDone
@@ -446,7 +446,6 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 }}
                 showInfo={false}
                 trailColor={token.colorFillTertiary}
-                strokeWidth={8}
                 strokeLinecap="round"
               />
             </Flex>

@@ -15,7 +15,7 @@ import {
  */
 export const useTimesheetData = (
   dateRange: [Dayjs, Dayjs],
-  departmentId?: number | null,
+  departmentIds: number[] = [],
 ) => {
   const [records, setRecords] = useState<SummaryRecord[]>([]);
   const [metadata, setMetadata] = useState<SummaryMetadata | null>(null);
@@ -34,7 +34,7 @@ export const useTimesheetData = (
         {
           start_date: start.format("YYYY-MM-DD"),
           end_date: end.format("YYYY-MM-DD"),
-          department_id: departmentId,
+          department_ids: departmentIds,
         },
       );
 
@@ -86,7 +86,7 @@ export const useTimesheetData = (
     } finally {
       setLoading(false);
     }
-  }, [dateRange, departmentId]);
+  }, [dateRange, departmentIds]);
 
   useEffect(() => {
     requestTimesheetSummary();

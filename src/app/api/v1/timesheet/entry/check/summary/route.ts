@@ -134,6 +134,7 @@ const RequestBodySchema = z.object({
   start_date: DateStringSchema,
   end_date: DateStringSchema,
   department_id: z.number().optional().nullable(),
+  department_ids: z.array(z.number()).optional().nullable(),
 });
 
 const aggregateEntriesByUser = (entries: TimesheetEntryRow[]) => {
@@ -326,6 +327,7 @@ export async function POST(request: Request) {
       start_date: startDate,
       end_date: endDate,
       department_id,
+      department_ids,
     } = RequestBodySchema.parse(body);
 
     const { start, end } = enforceValidRange(startDate, endDate);
@@ -345,7 +347,11 @@ export async function POST(request: Request) {
       where: {
         is_deleted: false,
         status: "ACTIVE",
-        ...(department_id ? { department_id } : {}),
+        ...(department_ids && department_ids.length > 0
+          ? { department_id: { in: department_ids } }
+          : department_id
+            ? { department_id }
+            : {}),
       },
       include: {
         position_ref: true,

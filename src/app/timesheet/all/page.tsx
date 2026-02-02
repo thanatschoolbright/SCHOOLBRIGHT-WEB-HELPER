@@ -65,7 +65,7 @@ export default function TimesheetAllPage() {
   // --- States ---
   const [keyword, setKeyword] = useState("");
   const [dateRange, setDateRange] = useState(buildDefaultRange());
-  const [departmentId, setDepartmentId] = useState<number | null>(null);
+  const [departmentIds, setDepartmentIds] = useState<number[]>([]);
   const [modalStates, setModalStates] = useState({
     exportModal: false,
     exportModal2: false,
@@ -77,7 +77,7 @@ export default function TimesheetAllPage() {
   // --- Data & Handlers ---
   const { records, metadata, loading, refetch } = useTimesheetData(
     dateRange,
-    departmentId,
+    departmentIds,
   );
   const { users, exportLoading } = useAppSelector(
     (state) => state.timesheetAll,
@@ -318,13 +318,13 @@ export default function TimesheetAllPage() {
             onKeywordChange={setKeyword}
             dateRange={dateRange}
             onDateRangeChange={setDateRange}
-            departmentId={departmentId}
-            onDepartmentChange={setDepartmentId}
+            departmentIds={departmentIds}
+            onDepartmentsChange={setDepartmentIds}
             onRefresh={refetch}
             onClearFilters={() => {
               setKeyword("");
               setDateRange(buildDefaultRange());
-              setDepartmentId(null);
+              setDepartmentIds([]);
             }}
             loading={loading}
           />
