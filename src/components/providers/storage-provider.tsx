@@ -23,7 +23,7 @@ export function StorageProvider({
    */
   const saveToMemory = (storageName: string, data: any): void => {
     setCache((prev) => ({ ...prev, [storageName]: data }));
-    toast.info(`โหลดข้อมูล ${storageName} ลงในหน่วยความจำเรียบร้อยละ`, {
+    toast.info(`โหลดข้อมูล ${storageName} ลงในหน่วยความจำ (local storage)`, {
       duration: 3000,
     });
   };

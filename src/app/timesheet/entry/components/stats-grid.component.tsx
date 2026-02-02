@@ -13,6 +13,7 @@ interface StatsGridProps {
   topProjectUsage: TopUsage | null;
   topFeatureUsage: TopUsage | null;
   loading: boolean;
+  monthlyStats?: any;
 }
 
 export const StatsGrid: React.FC<StatsGridProps> = ({
@@ -22,6 +23,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
   topProjectUsage,
   topFeatureUsage,
   loading,
+  monthlyStats = null,
 }) => {
   const { token } = theme.useToken();
   const [variant, setVariant] = React.useState<"compact" | "wide">("compact");
@@ -50,6 +52,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
               monthlySummary={monthlySummary}
               targetHours={DAILY_TARGET_HOURS}
               loading={loading}
+              stats={monthlyStats}
             />
           </Col>
 

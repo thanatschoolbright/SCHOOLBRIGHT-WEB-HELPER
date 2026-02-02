@@ -31,6 +31,13 @@ interface MonthlySummaryProps {
   monthlySummary: DailySummaryItem[];
   targetHours?: number;
   loading?: boolean;
+  stats?: {
+    totalHours: number;
+    completedDays: number;
+    workingDays: number;
+    targetTotal: number;
+    progress: number;
+  } | null;
 }
 
 const addAlpha = (color: string, alpha: number) => {
@@ -183,12 +190,14 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
   monthlySummary,
   targetHours = 8,
   loading = false,
+  stats: externalStats = null,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
   const isDark = token.colorBgBase !== "#ffffff";
 
   const stats = useMemo(() => {
+    if (externalStats) return externalStats;
     if (!monthlySummary?.length) return null;
     const totalHours = monthlySummary.reduce(
       (acc, curr) => acc + curr.totalHours,
@@ -352,7 +361,7 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
                   "0%": token.colorPrimary,
                   "100%": token.colorSuccess,
                 }}
-                strokeWidth={10}
+                size={{ strokeWidth: 10 }}
               />
             </div>
           )}

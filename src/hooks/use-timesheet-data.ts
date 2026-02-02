@@ -170,6 +170,53 @@ export const useTopUsage = (entries: TimesheetEntry[]) => {
 };
 
 /**
+ * Hook สำหรับจัดการข้อมูลสรุปรายเดือน ผ่าน API (Server-side calculation)
+ * @param userId - ID พนักงาน
+ * @param month - เดือนปัจจุบัน
+ * @param year - ปีปัจจุบัน
+ */
+export const useMonthlySummaryAPI = (
+  userId?: number,
+  month?: number,
+  year?: number,
+) => {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchSummary = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "/api/v1/timesheet/calculate-summary-month",
+        {
+          user_id: userId,
+          month: month || dayjs().month() + 1,
+          year: year || dayjs().year(),
+        },
+      );
+      setData(response.data?.data);
+    } catch (error) {
+      console.error("fetchMonthlySummary error:", error);
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, month, year]);
+
+  useEffect(() => {
+    fetchSummary();
+  }, [fetchSummary]);
+
+  return {
+    monthlySummary: (data?.monthlySummary as DailySummaryItem[]) || [],
+    stats: data?.stats || null,
+    loading,
+    refetch: fetchSummary,
+  };
+};
+
+/**
  * Hook สำหรับจัดการข้อมูล Timesheet Entry
  */
 export const useTimesheetEntries = (adminId?: number) => {

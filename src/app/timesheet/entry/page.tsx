@@ -122,8 +122,7 @@ import {
 } from "@stores/reducers/timesheet/timesheet-reducer";
 
 import {
-  useDailySummary,
-  useMonthlySummary,
+  useMonthlySummaryAPI,
   useTimesheetEntries,
   useTopUsage,
 } from "@/hooks/use-timesheet-data";
@@ -963,6 +962,8 @@ interface StatsGridProps {
   topProjectUsage: TopUsage | null;
   topFeatureUsage: TopUsage | null;
   loading: boolean;
+  monthlySummaryLoading?: boolean;
+  monthlyStats?: any;
 }
 const StatsGrid: React.FC<StatsGridProps> = ({
   adminId,
@@ -971,6 +972,8 @@ const StatsGrid: React.FC<StatsGridProps> = ({
   topProjectUsage,
   topFeatureUsage,
   loading,
+  monthlySummaryLoading = false,
+  monthlyStats = null,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
@@ -1004,7 +1007,8 @@ const StatsGrid: React.FC<StatsGridProps> = ({
             <WeeklySummary
               monthlySummary={monthlySummary}
               targetHours={DAILY_TARGET_HOURS}
-              loading={loading}
+              loading={monthlySummaryLoading}
+              stats={monthlyStats}
             />
           </div>
 
@@ -1736,6 +1740,7 @@ interface CreateModalProps {
   i18n: any;
   disabled: boolean;
   formMode?: "create" | "edit" | "copy";
+  afterClose?: () => void;
 }
 
 const CreateModalForm: React.FC<CreateModalProps> = ({
@@ -1749,6 +1754,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
   i18n,
   disabled,
   formMode = "create",
+  afterClose,
 }) => {
   const { t } = useTranslation("timesheet");
   const { token } = theme.useToken();
@@ -1877,6 +1883,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
       centered
       footer={null}
       forceRender
+      afterClose={afterClose}
     >
       <Form form={form} layout="vertical" onFinish={onSubmit}>
         <Card
@@ -2456,10 +2463,14 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
       setProgressList([]);
       setCompletedCount(0);
       setUsers([]);
-      form.resetFields();
-      passwordForm.resetFields();
     }
-  }, [open, form, passwordForm]);
+  }, [open]);
+
+  // Handle resets after modal is completely closed to avoid useForm disconnect warning
+  const handleAfterClose = () => {
+    form.resetFields();
+    passwordForm.resetFields();
+  };
 
   // Fetch users from localStorage when modal opens
   useEffect(() => {
@@ -2688,6 +2699,7 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
       maskClosable={!isProcessing}
       closable={!isProcessing}
       forceRender
+      afterClose={handleAfterClose}
     >
       {/* 1. Unlock View */}
       <div style={{ display: !isUnlocked ? "block" : "none" }}>
@@ -3080,12 +3092,24 @@ export default function TimesheetEntryPage() {
     totalItems,
     refetch: refetchEntries,
   } = useTimesheetEntries(adminId);
-  const dailySummary = useDailySummary(entries);
-  const monthlySummary = useMonthlySummary(dailySummary);
+
+  const {
+    monthlySummary,
+    stats: monthlyStats,
+    loading: monthlySummaryLoading,
+    refetch: refetchMonthlySummary,
+  } = useMonthlySummaryAPI(adminId);
+
   const { topProjectUsage, topFeatureUsage } = useTopUsage(entries);
   const { actionLoading, submitTimesheet, deleteTimesheet } =
-    useTimesheetActions(adminId, isMountedRef, refetchEntries, () =>
-      rankBoardRef.current?.refetch(),
+    useTimesheetActions(
+      adminId,
+      isMountedRef,
+      () => {
+        refetchEntries();
+        refetchMonthlySummary();
+      },
+      () => rankBoardRef.current?.refetch(),
     );
   const { fetchProjects, fetchSubProjects } = useProjectData(
     isMountedRef,
@@ -3109,23 +3133,19 @@ export default function TimesheetEntryPage() {
     dispatch(setModalType(null));
     dispatch(setActiveRecord(null));
     dispatch(setFormMode("create"));
+  }, [dispatch]);
+
+  const handleAfterClose = useCallback(() => {
     form.resetFields();
-  }, [dispatch, form]);
+  }, [form]);
 
   const openCreateForm = useCallback(() => {
     dispatch(setFormMode("create"));
     dispatch(setActiveRecord(null));
     dispatch(setSubProjects([]));
-    form.setFieldsValue({
-      project_id: undefined,
-      sub_project_id: undefined,
-      description: "",
-      work_hour: undefined,
-      status: "IN_PROGRESS",
-      date: dayjs(),
-    });
+    // form.setFieldsValue removed - handled by CreateModalForm useEffect
     dispatch(setModalType("form"));
-  }, [dispatch, form]);
+  }, [dispatch]);
 
   const openEditForm = useCallback(
     async (record: TimesheetEntry) => {
@@ -3133,16 +3153,21 @@ export default function TimesheetEntryPage() {
       dispatch(setActiveRecord(record));
       await fetchSubProjects(Number(record.project_id));
       if (!isMountedRef.current) return;
-      form.setFieldsValue({
-        project_id: Number(record.project_id),
-        sub_project_id: record.feature_id
-          ? Number(record.feature_id)
-          : undefined,
-        description: record.description ?? "",
-        work_hour: Number(record.hours) || undefined,
-        status: record.status,
-        date: dayjs(record.date),
-      });
+
+      // Wrap in setTimeout to ensure Form is connected when setFieldsValue is called
+      setTimeout(() => {
+        form.setFieldsValue({
+          project_id: Number(record.project_id),
+          sub_project_id: record.feature_id
+            ? Number(record.feature_id)
+            : undefined,
+          description: record.description ?? "",
+          work_hour: Number(record.hours) || undefined,
+          status: record.status,
+          date: dayjs(record.date),
+        });
+      }, 0);
+
       dispatch(setModalType("form"));
     },
     [dispatch, fetchSubProjects, form],
@@ -3154,16 +3179,21 @@ export default function TimesheetEntryPage() {
       dispatch(setActiveRecord(null));
       await fetchSubProjects(Number(record.project_id));
       if (!isMountedRef.current) return;
-      form.setFieldsValue({
-        project_id: Number(record.project_id),
-        sub_project_id: record.feature_id
-          ? Number(record.feature_id)
-          : undefined,
-        description: record.description ?? "",
-        work_hour: Number(record.hours) || undefined,
-        status: record.status,
-        date: dayjs(),
-      });
+
+      // Wrap in setTimeout to ensure Form is connected when setFieldsValue is called
+      setTimeout(() => {
+        form.setFieldsValue({
+          project_id: Number(record.project_id),
+          sub_project_id: record.feature_id
+            ? Number(record.feature_id)
+            : undefined,
+          description: record.description ?? "",
+          work_hour: Number(record.hours) || undefined,
+          status: record.status,
+          date: dayjs(),
+        });
+      }, 0);
+
       dispatch(setModalType("form"));
     },
     [dispatch, fetchSubProjects, form],
@@ -3315,6 +3345,8 @@ export default function TimesheetEntryPage() {
               topProjectUsage={topProjectUsage}
               topFeatureUsage={topFeatureUsage}
               loading={tableLoading}
+              monthlySummaryLoading={monthlySummaryLoading}
+              monthlyStats={monthlyStats}
             />
 
             <motion.div
@@ -3353,6 +3385,7 @@ export default function TimesheetEntryPage() {
             i18n={i18n}
             disabled={actionLoading}
             formMode={timesheetState.formMode}
+            afterClose={handleAfterClose}
           />
           <DetailModal
             open={
