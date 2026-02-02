@@ -125,35 +125,52 @@ export default function BypassSelectionModal({
             >
               <BankOutlined />
             </div>
-            <Title level={3} style={{ margin: 0, fontWeight: 800 }}>
+            <Title
+              level={3}
+              style={{ margin: 0, fontWeight: 800, fontSize: 26 }}
+            >
               เลือกเข้าสู่ระบบ
             </Title>
             <Text
               type="secondary"
-              style={{ fontSize: 13, display: "block", marginTop: 4 }}
+              style={{
+                fontSize: 14,
+                display: "block",
+                marginTop: 4,
+                lineHeight: 1.6,
+              }}
             >
               ระบุระบบที่ต้องการ Bypass ไปยังโรงเรียน:
             </Text>
-            <Text strong style={{ color: token.colorPrimary, fontSize: 16 }}>
+            <Text
+              strong
+              style={{
+                color: token.colorPrimary,
+                fontSize: 18,
+                marginTop: 4,
+                display: "block",
+              }}
+            >
               {school.company_name}
             </Text>
 
             <Divider />
 
-            <Space direction="vertical" size={16} className="w-full">
+            <Space direction="vertical" size={20} className="w-full">
               <div className="flex flex-col">
                 <Text
                   type="secondary"
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     textTransform: "uppercase",
                     letterSpacing: "1px",
                     fontWeight: 700,
+                    marginBottom: 4,
                   }}
                 >
                   School ID
                 </Text>
-                <Text strong style={{ fontSize: 18 }}>
+                <Text strong style={{ fontSize: 20 }}>
                   {school.school_id || "-"}
                 </Text>
               </div>
@@ -161,15 +178,16 @@ export default function BypassSelectionModal({
                 <Text
                   type="secondary"
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     textTransform: "uppercase",
                     letterSpacing: "1px",
                     fontWeight: 700,
+                    marginBottom: 4,
                   }}
                 >
                   จังหวัด
                 </Text>
-                <Text strong style={{ fontSize: 18 }}>
+                <Text strong style={{ fontSize: 20 }}>
                   {school.province || "-"}
                 </Text>
               </div>
@@ -177,15 +195,16 @@ export default function BypassSelectionModal({
                 <Text
                   type="secondary"
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     textTransform: "uppercase",
                     letterSpacing: "1px",
                     fontWeight: 700,
+                    marginBottom: 4,
                   }}
                 >
                   กลุ่มโรงเรียน
                 </Text>
-                <Text strong style={{ fontSize: 18 }}>
+                <Text strong style={{ fontSize: 20 }}>
                   {school.school_group || "ทั่วไป"}
                 </Text>
               </div>
@@ -211,29 +230,36 @@ export default function BypassSelectionModal({
         <div className="w-full md:w-2/3 p-8 max-h-[85vh] overflow-y-auto">
           {/* CS Guide Section */}
           <Alert
-            message="คู่มือแนะนำสำหรับ CS/Staff"
+            message={
+              <Text strong style={{ fontSize: 16 }}>
+                คู่มือแนะนำสำหรับ CS/Staff
+              </Text>
+            }
             description={
-              <Space direction="vertical" size={2}>
-                <Text style={{ fontSize: 13 }}>
+              <Space direction="vertical" size={4} style={{ marginTop: 8 }}>
+                <Text style={{ fontSize: 14, lineHeight: 1.6 }}>
                   1. เลือกระบบที่คุณต้องการตรวจสอบข้อมูล (เช่น วิชาการ หรือ
                   บัญชี)
                 </Text>
-                <Text style={{ fontSize: 13 }}>
+                <Text style={{ fontSize: 14, lineHeight: 1.6 }}>
                   2. เลือก{" "}
-                  <Tag color="success" style={{ margin: 0, fontSize: 10 }}>
+                  <Tag
+                    color="success"
+                    style={{ margin: 0, fontSize: 12, fontWeight: 700 }}
+                  >
                     Production
                   </Tag>{" "}
                   เพื่อดูข้อมูลจริงที่โรงเรียนกำลังส่งเข้ามา
                 </Text>
-                <Text style={{ fontSize: 13 }}>
+                <Text style={{ fontSize: 14, lineHeight: 1.6 }}>
                   3. ระบบจะทำการ Bypass และ Login ให้คุณอัตโนมัติใน Tab ใหม่
                 </Text>
               </Space>
             }
             type="info"
             showIcon
-            icon={<InfoCircleOutlined />}
-            style={{ borderRadius: 16, marginBottom: 24 }}
+            icon={<InfoCircleOutlined style={{ fontSize: 20 }} />}
+            style={{ borderRadius: 20, marginBottom: 24, padding: 16 }}
           />
           <Row gutter={[16, 16]}>
             {Object.entries(BYPASS_TARGETS).map(([targetKey, target]) => {
@@ -306,7 +332,10 @@ export default function BypassSelectionModal({
                           <Text
                             type="secondary"
                             style={{
-                              fontSize: 12,
+                              fontSize: 13, // ปรับให้ใหญ่ขึ้นตามคอนเซปต์ใหม่
+                              lineHeight: 1.6, // เพิ่มระยะห่างระหว่างบรรทัดไม่ให้อึดอัด
+                              display: "block",
+                              marginTop: 4,
                               color: isExamDisabled
                                 ? token.colorTextDisabled
                                 : undefined,

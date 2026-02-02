@@ -485,7 +485,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   size="large"
                   shape="circle"
                   icon={<UserOutlined />}
-                  onClick={on_add_click}
+                  onClick={on_my_work_click}
                   className="hover:scale-105 transition-transform"
                   style={{
                     height: 48,

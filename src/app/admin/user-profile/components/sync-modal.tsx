@@ -594,7 +594,12 @@ export const SyncModal: React.FC<SyncModalProps> = ({
 
 const Statistic = ({ label, value, valueStyle }: any) => (
   <div className="flex flex-col">
-    <span className="text-xs text-gray-500 mb-1">{label}</span>
+    <Typography.Text
+      type="secondary"
+      style={{ fontSize: "12px", marginBottom: "4px" }}
+    >
+      {label}
+    </Typography.Text>
     <span className="text-2xl font-bold font-mono" style={valueStyle}>
       {value}
     </span>
