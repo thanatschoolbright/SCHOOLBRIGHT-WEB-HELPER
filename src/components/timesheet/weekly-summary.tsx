@@ -12,6 +12,7 @@ import {
   Progress,
   Divider,
   Space,
+  DatePicker,
 } from "antd";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,11 +25,16 @@ import {
   DashboardOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import "dayjs/locale/th";
+
+dayjs.extend(buddhistEra);
+dayjs.locale("th");
 
 import { DailySummaryItem } from "@components/card/daily-card";
 
 interface MonthlySummaryProps {
-  monthlySummary: DailySummaryItem[];
+  monthly_summary: DailySummaryItem[];
   targetHours?: number;
   loading?: boolean;
   stats?: {
@@ -38,6 +44,8 @@ interface MonthlySummaryProps {
     targetTotal: number;
     progress: number;
   } | null;
+  selected_date?: dayjs.Dayjs;
+  on_date_change?: (date: dayjs.Dayjs) => void;
 }
 
 const addAlpha = (color: string, alpha: number) => {
@@ -187,10 +195,12 @@ const CompactDay: React.FC<{
 };
 
 export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
-  monthlySummary,
+  monthly_summary,
   targetHours = 8,
   loading = false,
   stats: externalStats = null,
+  selected_date = dayjs(),
+  on_date_change,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
@@ -198,15 +208,15 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
 
   const stats = useMemo(() => {
     if (externalStats) return externalStats;
-    if (!monthlySummary?.length) return null;
-    const totalHours = monthlySummary.reduce(
+    if (!monthly_summary?.length) return null;
+    const totalHours = monthly_summary.reduce(
       (acc, curr) => acc + curr.totalHours,
       0,
     );
-    const completedDays = monthlySummary.filter(
+    const completedDays = monthly_summary.filter(
       (d) => d.totalHours >= targetHours,
     ).length;
-    const workingDays = monthlySummary.filter((d) => {
+    const workingDays = monthly_summary.filter((d) => {
       const day = dayjs(d.dateKey).day();
       return day !== 0 && day !== 6;
     }).length;
@@ -217,7 +227,7 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
     );
 
     return { totalHours, completedDays, workingDays, targetTotal, progress };
-  }, [monthlySummary, targetHours]);
+  }, [monthly_summary, targetHours]);
 
   if (loading) {
     return (
@@ -256,7 +266,7 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
     );
   }
 
-  if (!monthlySummary?.length) return null;
+  if (!monthly_summary?.length) return null;
 
   const items = [
     {
@@ -286,9 +296,35 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
               >
                 สรุปเวลาทำงานรายเดือน
               </Typography.Text>
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                {dayjs().format("MMMM BBBB")} • เป้าหมาย {targetHours} ชม./วัน
-              </Typography.Text>
+              <Space
+                split={
+                  <Divider
+                    type="vertical"
+                    style={{ margin: "0 4px", height: 12 }}
+                  />
+                }
+                align="center"
+              >
+                <DatePicker
+                  picker="month"
+                  value={selected_date}
+                  onChange={(date) => date && on_date_change?.(date)}
+                  format="MMMM BBBB"
+                  allowClear={false}
+                  variant="borderless"
+                  size="small"
+                  style={{
+                    padding: 0,
+                    margin: 0,
+                    height: "auto",
+                    lineHeight: 1,
+                  }}
+                  className="month-picker-summary"
+                />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  เป้าหมาย {targetHours} ชม./วัน
+                </Typography.Text>
+              </Space>
             </div>
           </Space>
 
@@ -398,12 +434,12 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
           >
             {/* Offset start of month */}
             {Array.from({
-              length: (dayjs().startOf("month").day() + 6) % 7,
+              length: (selected_date.startOf("month").day() + 6) % 7,
             }).map((_, i) => (
               <div key={`empty-${i}`} />
             ))}
 
-            {monthlySummary.map((item) => (
+            {monthly_summary.map((item) => (
               <CompactDay
                 key={item.dateKey}
                 item={item}

@@ -49,7 +49,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
           {/* Monthly Summary */}
           <Col span={24}>
             <WeeklySummary
-              monthlySummary={monthlySummary}
+              monthly_summary={monthlySummary}
               targetHours={DAILY_TARGET_HOURS}
               loading={loading}
               stats={monthlyStats}

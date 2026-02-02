@@ -323,21 +323,21 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
 
 // --- Page Header ---
 interface PageHeaderProps {
-  adminName: string;
-  adminId?: number;
-  onAddClick: () => void;
-  onAddMultiClick: () => void;
-  onBulkAllClick: () => void;
-  onMyWorkClick: () => void;
+  admin_name: string;
+  admin_id?: number;
+  on_add_click: () => void;
+  on_add_multi_click: () => void;
+  on_bulk_all_click: () => void;
+  on_my_work_click: () => void;
   token: any;
 }
 const PageHeader: React.FC<PageHeaderProps> = ({
-  adminName,
-  adminId,
-  onAddClick,
-  onAddMultiClick,
-  onBulkAllClick,
-  onMyWorkClick,
+  admin_name,
+  admin_id,
+  on_add_click,
+  on_add_multi_click,
+  on_bulk_all_click,
+  on_my_work_click,
   token,
 }) => {
   const { t } = useTranslation();
@@ -422,7 +422,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   color: token.colorTextHeading,
                 }}
               >
-                {greeting}, คุณ{adminName}
+                {greeting}, คุณ{admin_name}
               </Typography.Title>
             </Space>
             <Typography.Text type="secondary" style={{ fontSize: 16 }}>
@@ -439,7 +439,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 <RocketOutlined />
               </span>
             </Typography.Text>
-            {adminId && (
+            {admin_id && (
               <div
                 style={{
                   marginTop: 8,
@@ -459,7 +459,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   style={{ color: token.colorSuccess, fontSize: 14 }}
                 />
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  เชื่อมต่อโดยใช้ <strong>admin_id: {adminId}</strong>
+                  เชื่อมต่อโดยใช้ <strong>admin_id: {admin_id}</strong>
                 </Typography.Text>
                 <Divider type="vertical" />
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -485,7 +485,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   size="large"
                   shape="circle"
                   icon={<UserOutlined />}
-                  onClick={onMyWorkClick}
+                  onClick={on_add_click}
                   className="hover:scale-105 transition-transform"
                   style={{
                     height: 48,
@@ -506,7 +506,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               type="primary"
               size="large"
               icon={<PlusOutlined />}
-              onClick={onAddClick}
+              onClick={on_add_click}
               style={{
                 height: 48,
                 paddingLeft: 24,
@@ -549,7 +549,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                       </Space>
                     ),
                     icon: <TeamOutlined />,
-                    onClick: onBulkAllClick,
+                    onClick: on_bulk_all_click,
                   },
                   {
                     key: "multi",
@@ -567,7 +567,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                       </Space>
                     ),
                     icon: <AppstoreAddOutlined />,
-                    onClick: onAddMultiClick,
+                    onClick: on_add_multi_click,
                     disabled: true,
                   },
                   { type: "divider" },
@@ -956,27 +956,32 @@ MonthlyRankBoard.displayName = "MonthlyRankBoard";
 
 // --- Stats Grid ---
 interface StatsGridProps {
-  adminId: number | undefined;
-  rankBoardRef: React.RefObject<MonthlyRankBoardRef>;
-  monthlySummary: any[];
-  topProjectUsage: TopUsage | null;
-  topFeatureUsage: TopUsage | null;
+  admin_id: number | undefined;
+  rank_board_ref: React.RefObject<MonthlyRankBoardRef>;
+  monthly_summary: any[];
+  top_project_usage: TopUsage | null;
+  top_feature_usage: TopUsage | null;
   loading: boolean;
-  monthlySummaryLoading?: boolean;
-  monthlyStats?: any;
+  monthly_summary_loading?: boolean;
+  monthly_stats?: any;
+  selected_date?: dayjs.Dayjs;
+  on_date_change?: (date: dayjs.Dayjs) => void;
 }
 const StatsGrid: React.FC<StatsGridProps> = ({
-  adminId,
-  rankBoardRef,
-  monthlySummary,
-  topProjectUsage,
-  topFeatureUsage,
+  admin_id,
+  rank_board_ref,
+  monthly_summary,
+  top_project_usage,
+  top_feature_usage,
   loading,
-  monthlySummaryLoading = false,
-  monthlyStats = null,
+  monthly_summary_loading = false,
+  monthly_stats = null,
+  selected_date,
+  on_date_change,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
+  const isDark = token.colorBgBase === "#0B0F19";
   const [variant, setVariant] = useState<"compact" | "wide">("compact");
   // Adjusted spans for better balance
   const leftColSpan = 8;
@@ -992,8 +997,8 @@ const StatsGrid: React.FC<StatsGridProps> = ({
         style={{ display: "flex", flexDirection: "column" }}
       >
         <MonthlyRankBoard
-          ref={rankBoardRef}
-          currentAdminId={adminId}
+          ref={rank_board_ref}
+          currentAdminId={admin_id}
           variant="compact"
           onVariantChange={setVariant}
         />
@@ -1015,12 +1020,27 @@ const StatsGrid: React.FC<StatsGridProps> = ({
                 right: -10,
               }}
             >
-              <WeeklySummary
-                monthlySummary={monthlySummary}
-                targetHours={DAILY_TARGET_HOURS}
-                loading={monthlySummaryLoading}
-                stats={monthlyStats}
-              />
+              <Card
+                style={{
+                  height: "100%",
+                  borderRadius: 24,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  background: isDark
+                    ? `linear-gradient(165deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`
+                    : `linear-gradient(165deg, #ffffff 0%, ${token.colorFillAlter} 100%)`,
+                  overflow: "hidden",
+                }}
+                styles={{ body: { padding: 0 } }}
+              >
+                <WeeklySummary
+                  monthly_summary={monthly_summary}
+                  targetHours={DAILY_TARGET_HOURS}
+                  loading={monthly_summary_loading}
+                  stats={monthly_stats}
+                  selected_date={selected_date}
+                  on_date_change={on_date_change}
+                />
+              </Card>
             </Badge.Ribbon>
           </div>
 
@@ -1037,12 +1057,12 @@ const StatsGrid: React.FC<StatsGridProps> = ({
                     <RocketOutlined />
                   </Space>
                 }
-                value={topProjectUsage ? topProjectUsage.hours : 0}
+                value={top_project_usage ? top_project_usage.hours : 0}
                 color={token.colorPrimary}
                 loading={loading}
                 description={
-                  topProjectUsage
-                    ? topProjectUsage.name
+                  top_project_usage
+                    ? top_project_usage.name
                     : t("timesheet_entry_page.no_data", "ยังไม่มีข้อมูล")
                 }
               />
@@ -1055,12 +1075,12 @@ const StatsGrid: React.FC<StatsGridProps> = ({
                     <FireOutlined />
                   </Space>
                 }
-                value={topFeatureUsage ? topFeatureUsage.hours : 0}
+                value={top_feature_usage ? top_feature_usage.hours : 0}
                 color={token.colorError}
                 loading={loading}
                 description={
-                  topFeatureUsage
-                    ? topFeatureUsage.name
+                  top_feature_usage
+                    ? top_feature_usage.name
                     : t("timesheet_entry_page.no_data", "ยังไม่มีข้อมูล")
                 }
               />
@@ -3088,38 +3108,48 @@ export default function TimesheetEntryPage() {
     Record<string, any[]>
   >({});
 
-  const adminId = useMemo(
+  const admin_id = useMemo(
     () => Number(authState?.response?.data?.user_data?.admin_id) || undefined,
     [authState?.response?.data?.user_data?.admin_id],
   );
-  const adminName = authState?.response?.data?.user_data?.firstname || "User";
+  const admin_name = authState?.response?.data?.user_data?.firstname || "User";
 
   const {
     entries,
-    loading: tableLoading,
+    loading: table_loading,
     currentPage,
     setCurrentPage,
     pageSize,
     setPageSize,
     totalItems,
-    refetch: refetchEntries,
-  } = useTimesheetEntries(adminId);
+    refetch: refetch_entries,
+  } = useTimesheetEntries(admin_id);
+
+  const [selected_summary_date, set_selected_summary_date] =
+    useState<dayjs.Dayjs>(dayjs());
 
   const {
-    monthlySummary,
-    stats: monthlyStats,
-    loading: monthlySummaryLoading,
-    refetch: refetchMonthlySummary,
-  } = useMonthlySummaryAPI(adminId);
+    monthlySummary: monthly_summary,
+    stats: monthly_stats,
+    loading: monthly_summary_loading,
+    refetch: refetch_monthly_summary,
+  } = useMonthlySummaryAPI(
+    admin_id,
+    selected_summary_date.month() + 1,
+    selected_summary_date.year(),
+  );
 
-  const { topProjectUsage, topFeatureUsage } = useTopUsage(entries);
+  const {
+    topProjectUsage: top_project_usage,
+    topFeatureUsage: top_feature_usage,
+  } = useTopUsage(entries);
   const { actionLoading, submitTimesheet, deleteTimesheet } =
     useTimesheetActions(
-      adminId,
+      admin_id,
       isMountedRef,
       () => {
-        refetchEntries();
-        refetchMonthlySummary();
+        refetch_entries();
+        refetch_monthly_summary();
       },
       () => rankBoardRef.current?.refetch(),
     );
@@ -3284,7 +3314,7 @@ export default function TimesheetEntryPage() {
 
   const handleSubmitMultipleTimesheets = useCallback(
     async (entries: any[]) => {
-      if (!adminId) return;
+      if (!admin_id) return;
       toast.loading("กำลังบันทึก Timesheet ทั้งหมด...");
       try {
         const promises = entries.map((entry) =>
@@ -3317,7 +3347,7 @@ export default function TimesheetEntryPage() {
         toast.error("เกิดข้อผิดพลาดในการบันทึก");
       }
     },
-    [adminId, submitTimesheet, closeMultiEntryModal],
+    [admin_id, submitTimesheet, closeMultiEntryModal],
   );
 
   return (
@@ -3342,23 +3372,25 @@ export default function TimesheetEntryPage() {
         >
           <Space direction="vertical" size={24} style={{ width: "100%" }}>
             <PageHeader
-              adminName={adminName}
-              adminId={adminId}
-              onAddClick={openCreateForm}
-              onAddMultiClick={openMultiEntryForm}
-              onBulkAllClick={openBulkAllUsersModal}
-              onMyWorkClick={() => setMyWorkModalOpen(true)}
+              admin_name={admin_name}
+              admin_id={admin_id}
+              on_add_click={openCreateForm}
+              on_add_multi_click={openMultiEntryForm}
+              on_bulk_all_click={openBulkAllUsersModal}
+              on_my_work_click={() => setMyWorkModalOpen(true)}
               token={token}
             />
             <StatsGrid
-              adminId={adminId}
-              rankBoardRef={rankBoardRef}
-              monthlySummary={monthlySummary as any}
-              topProjectUsage={topProjectUsage}
-              topFeatureUsage={topFeatureUsage}
-              loading={tableLoading}
-              monthlySummaryLoading={monthlySummaryLoading}
-              monthlyStats={monthlyStats}
+              admin_id={admin_id}
+              rank_board_ref={rankBoardRef}
+              monthly_summary={monthly_summary as any}
+              top_project_usage={top_project_usage}
+              top_feature_usage={top_feature_usage}
+              loading={table_loading}
+              monthly_summary_loading={monthly_summary_loading}
+              monthly_stats={monthly_stats}
+              selected_date={selected_summary_date}
+              on_date_change={set_selected_summary_date}
             />
 
             <motion.div
@@ -3368,7 +3400,7 @@ export default function TimesheetEntryPage() {
             >
               <TimesheetTable
                 entries={entries}
-                loading={tableLoading}
+                loading={table_loading}
                 currentPage={currentPage}
                 pageSize={pageSize}
                 totalItems={totalItems}
@@ -3379,7 +3411,7 @@ export default function TimesheetEntryPage() {
                 onRowClick={openDetailModal}
                 onEdit={openEditForm}
                 onCopy={openCopyForm}
-                onRefresh={refetchEntries}
+                onRefresh={refetch_entries}
                 onAdd={openCreateForm}
                 onDelete={openDeleteModal}
               />
@@ -3429,13 +3461,13 @@ export default function TimesheetEntryPage() {
             projects={timesheetState.projects}
             subProject={timesheetState.subProjects}
             fetchSubProjects={(id) => fetchSubProjects(Number(id))}
-            refetchEntries={refetchEntries}
+            refetchEntries={refetch_entries}
             rankBoardRefetch={() => rankBoardRef.current?.refetch()}
           />
           <MyWorkModal
             open={myWorkModalOpen}
             onCancel={() => setMyWorkModalOpen(false)}
-            userId={adminId}
+            userId={admin_id}
           />
         </motion.div>
       </DashboardLayout>
