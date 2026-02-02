@@ -1007,7 +1007,13 @@ const StatsGrid: React.FC<StatsGridProps> = ({
             <Badge.Ribbon
               text="ปรับปรุงใหม่"
               color={token.colorInfo}
-              style={{ padding: "0 12px", height: 24, lineHeight: "24px" }}
+              style={{
+                padding: "0 12px",
+                height: 24,
+                lineHeight: "24px",
+                top: -10,
+                right: -10,
+              }}
             >
               <WeeklySummary
                 monthlySummary={monthlySummary}
