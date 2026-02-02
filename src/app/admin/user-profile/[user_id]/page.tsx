@@ -43,7 +43,6 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { useRouter, useParams } from "next/navigation";
-import { useTranslation } from "react-i18next";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { toast } from "sonner";
 import dayjs from "dayjs";
@@ -624,7 +623,7 @@ const UserEditPage = () => {
                     type="secondary"
                     className="text-[10px] opacity-70"
                   >
-                    {t("navigate_to_sections")}
+                    คลิกเพื่อวาร์ปไปยังส่วนต่างๆ
                   </Typography.Text>
                 </div>
                 <Steps
