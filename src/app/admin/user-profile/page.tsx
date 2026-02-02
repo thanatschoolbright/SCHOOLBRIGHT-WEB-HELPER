@@ -1058,7 +1058,7 @@ const ResetPasswordTrackingModal = ({
       )}
     >
       <div className="text-center">
-        <div className="py-10 mb-8 relative bg-slate-50 dark:bg-slate-900/50 rounded-3xl overflow-hidden border border-dashed border-slate-200 dark:border-slate-800">
+        <div className="py-10 mb-8 relative  rounded-3xl overflow-hidden border border-dashed border-slate-200 dark:border-slate-800">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
