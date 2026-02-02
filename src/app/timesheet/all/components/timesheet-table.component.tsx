@@ -20,6 +20,8 @@ import {
   Timeline,
   Collapse,
   theme,
+  Badge,
+  Divider,
 } from "antd";
 import { toast } from "sonner";
 import type { ColumnsType, TableProps } from "antd/es/table";
@@ -95,6 +97,11 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const [rankingMap, setRankingMap] = useState<Record<string, any>>({});
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [currentRecord, setCurrentRecord] = useState<any>(null);
+  const [selectedEngine, setSelectedEngine] = useState<"gemini" | "chatgpt">(
+    "gemini",
+  );
+  const [summaryModalOpen, setSummaryModalOpen] = useState(false);
+  const [summaryResults, setSummaryResults] = useState<any[]>([]);
 
   // --- Memos ---
   const userOptions = useMemo(
@@ -224,8 +231,11 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         tasks.map((t) => ({
           label: `${t.date} (${t.hours} ชม.)`,
           status: "wait",
+          details: null,
         })),
       );
+
+      const results: any[] = [];
 
       for (let i = 0; i < tasks.length; i++) {
         setAutoFillProgress((prev) =>
@@ -233,19 +243,42 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             idx === i ? { ...item, status: "process" } : item,
           ),
         );
-        await axios.post("/api/v1/timesheet/entry/automate-fill", {
-          user_id: selectedUser,
-          hours: tasks[i].hours,
-          date: [tasks[i].date],
-        });
+
+        // Step 1: Reviewing history
+        await new Promise((resolve) => setTimeout(resolve, 800)); // Simulating review time
+
+        const response = await axios.post(
+          "/api/v1/timesheet/entry/automate-fill",
+          {
+            user_id: selectedUser,
+            hours: tasks[i].hours,
+            date: [tasks[i].date],
+            engine: selectedEngine,
+          },
+        );
+
+        const createdData = response.data?.data?.items?.[0];
+        if (createdData) {
+          results.push(createdData);
+        }
+
         setAutoFillProgress((prev) =>
           prev.map((item, idx) =>
-            idx === i ? { ...item, status: "finish" } : item,
+            idx === i
+              ? {
+                  ...item,
+                  status: "finish",
+                  details: createdData
+                    ? `กรอก: ${createdData.description} (Project: ${createdData.project}, Feature: ${createdData.feature})`
+                    : "บันทึกสำเร็จ",
+                }
+              : item,
           ),
         );
       }
 
-      toast.success("อัปเดตข้อมูลสำเร็จ");
+      setSummaryResults(results);
+      setSummaryModalOpen(true);
       onRefetch?.();
       onAutoFillClose?.();
     } catch (error: any) {
@@ -729,6 +762,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 <RangePicker
                   className="w-full"
                   size="large"
+                  format="DD/MM/YYYY"
                   value={selectedRange}
                   onChange={(r) => setSelectedRange(r ?? [null, null])}
                   style={{ borderRadius: 12 }}
@@ -771,6 +805,58 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   />
                 </section>
               )}
+
+              <section>
+                <Flex align="center" gap={8} className="mb-3">
+                  <div
+                    style={{
+                      padding: 6,
+                      borderRadius: 8,
+                      background: addAlpha(token.colorPrimary, 0.1),
+                      color: token.colorPrimary,
+                    }}
+                  >
+                    <ThunderboltOutlined />
+                  </div>
+                  <Text
+                    strong
+                    style={{
+                      fontSize: 13,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    4. เลือกเครื่องยนต์ AI (Engine)
+                  </Text>
+                </Flex>
+                <Select
+                  className="w-full"
+                  value={selectedEngine}
+                  onChange={setSelectedEngine}
+                  size="large"
+                  style={{ borderRadius: 12 }}
+                  options={[
+                    {
+                      label: (
+                        <Space>
+                          <Badge status="processing" color="#10a37f" />
+                          <Text>ChatGPT (GPT-4o mini)</Text>
+                        </Space>
+                      ),
+                      value: "chatgpt",
+                    },
+                    {
+                      label: (
+                        <Space>
+                          <Badge status="processing" color="#4285f4" />
+                          <span>Gemini (Google)</span>
+                        </Space>
+                      ),
+                      value: "gemini",
+                    },
+                  ]}
+                />
+              </section>
             </div>
           ) : (
             <div className="py-2">
@@ -817,7 +903,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
               </div>
 
               <div
-                style={{ maxHeight: 300, overflowY: "auto", paddingRight: 8 }}
+                style={{ maxHeight: 400, overflowY: "auto", paddingRight: 8 }}
               >
                 <Steps
                   direction="vertical"
@@ -825,46 +911,123 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   className="tracking-steps"
                   items={autoFillProgress.map((item, idx) => ({
                     title: (
-                      <Text
-                        strong
-                        style={{
-                          fontSize: 14,
-                          color:
-                            item.status === "process"
-                              ? token.colorPrimary
-                              : "inherit",
-                        }}
-                      >
+                      <Flex align="center" gap={8}>
+                        <Text
+                          strong
+                          style={{
+                            fontSize: 14,
+                            color:
+                              item.status === "process"
+                                ? token.colorPrimary
+                                : item.status === "finish"
+                                  ? token.colorSuccess
+                                  : "inherit",
+                          }}
+                        >
+                          รายการวัน
+                          {
+                            [
+                              "อาทิตย์",
+                              "จันทร์",
+                              "อังคาร",
+                              "พุธ",
+                              "พฤหัสบดี",
+                              "ศุกร์",
+                              "เสาร์",
+                            ][dayjs(item.label.split(" ")[0]).day()]
+                          }
+                          ที่{" "}
+                          {dayjs(item.label.split(" ")[0]).format("DD/MM/YYYY")}
+                        </Text>
                         {item.status === "process" && (
-                          <RightOutlined
-                            style={{ marginRight: 8, fontSize: 12 }}
+                          <Badge
+                            status="processing"
+                            text="กำลังดำเนินการ"
+                            style={{ fontSize: 10 }}
                           />
                         )}
-                        จัดส่งรอบที่ {idx + 1}: {item.label}
-                      </Text>
+                      </Flex>
                     ),
                     description: (
-                      <Text type="secondary" style={{ fontSize: 11 }}>
-                        {item.status === "finish"
-                          ? "ข้อมูลเข้าสู่ระบบเรียบร้อย"
-                          : item.status === "process"
-                            ? "กำลังพยายามเชื่อมต่อ..."
-                            : "รอคิวการจัดส่ง"}
-                      </Text>
+                      <div className="flex flex-col gap-1 py-1">
+                        <Flex align="center" gap={6}>
+                          <Text
+                            type="secondary"
+                            style={{ fontSize: 11, display: "block" }}
+                          >
+                            {item.status === "wait" && "⏳ รอคิวจัดทำข้อมูล..."}
+                            {item.status === "process" &&
+                              "🔍 ระบบกำลังดูประวัติการกรอกข้อมูลของผู้ใช้งาน..."}
+                          </Text>
+                        </Flex>
+                        {item.details && (
+                          <div
+                            style={{
+                              padding: "10px 14px",
+                              background: isDark
+                                ? "rgba(255,255,255,0.03)"
+                                : "rgba(0,0,0,0.015)",
+                              borderRadius: 12,
+                              marginTop: 6,
+                              borderLeft: `3px solid ${token.colorSuccess}`,
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                            }}
+                          >
+                            <Space direction="vertical" size={2}>
+                              <Text
+                                strong
+                                style={{
+                                  fontSize: 10,
+                                  color: token.colorSuccess,
+                                  textTransform: "uppercase",
+                                  letterSpacing: 0.5,
+                                }}
+                              >
+                                สำเร็จ: รายละเอียดข้อมูลที่ลงบันทึก
+                              </Text>
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  lineHeight: "1.6",
+                                  display: "block",
+                                }}
+                              >
+                                {item.details}
+                              </Text>
+                            </Space>
+                          </div>
+                        )}
+                        {item.status === "finish" && !item.details && (
+                          <Text type="success" style={{ fontSize: 11 }}>
+                            ✅ ข้อมูลเข้าสู่ระบบเรียบร้อย
+                          </Text>
+                        )}
+                      </div>
                     ),
                     status: item.status as any,
                     icon:
                       item.status === "finish" ? (
                         <CheckCircleOutlined
-                          style={{ color: token.colorSuccess }}
+                          style={{
+                            color: token.colorSuccess,
+                            fontSize: 18,
+                          }}
                         />
                       ) : item.status === "process" ? (
-                        <LoadingOutlined
-                          style={{ color: token.colorPrimary }}
-                        />
+                        <div className="animate-pulse">
+                          <RocketOutlined
+                            style={{
+                              color: token.colorPrimary,
+                              fontSize: 18,
+                            }}
+                          />
+                        </div>
                       ) : (
-                        <HistoryOutlined
-                          style={{ color: token.colorTextQuaternary }}
+                        <ClockCircleOutlined
+                          style={{
+                            color: token.colorTextQuaternary,
+                            fontSize: 16,
+                          }}
                         />
                       ),
                   }))}
@@ -873,6 +1036,152 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             </div>
           )}
         </Space>
+      </Modal>
+
+      {/* Summary Success Modal */}
+      <Modal
+        title={
+          <Flex align="center" gap={12}>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                background: token.colorSuccessBg,
+                color: token.colorSuccess,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 20,
+              }}
+            >
+              <CheckCircleOutlined />
+            </div>
+            <div>
+              <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+                ส่งข้อมูลไทม์ชีทสำเร็จแล้ว
+              </Title>
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                สรุปรายการที่คุณบันทึกผ่าน AI (
+                {selectedEngine === "chatgpt" ? "ChatGPT" : "Gemini"})
+              </Text>
+            </div>
+          </Flex>
+        }
+        open={summaryModalOpen}
+        onOk={() => setSummaryModalOpen(false)}
+        onCancel={() => setSummaryModalOpen(false)}
+        width={720}
+        centered
+        footer={[
+          <Button
+            key="ok"
+            type="primary"
+            onClick={() => setSummaryModalOpen(false)}
+            shape="round"
+            size="large"
+            style={{ minWidth: 120 }}
+          >
+            ตกลง
+          </Button>,
+        ]}
+      >
+        <div style={{ marginTop: 24 }}>
+          <div
+            style={{
+              padding: "16px 24px",
+              background: isDark
+                ? "rgba(82, 196, 26, 0.1)"
+                : "rgba(82, 196, 26, 0.05)",
+              borderRadius: 12,
+              border: `1px solid ${addAlpha(token.colorSuccess, 0.2)}`,
+              marginBottom: 24,
+            }}
+          >
+            <Flex justify="space-between" align="center">
+              <Space>
+                <Badge status="success" />
+                <Text strong>
+                  ดำเนินการสำเร็จทั้งหมด {summaryResults.length} รายการ (รวม{" "}
+                  {summaryResults.reduce(
+                    (sum, item) => sum + (item.hour || 0),
+                    0,
+                  )}{" "}
+                  ชม.)
+                </Text>
+              </Space>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                Engine:{" "}
+                {selectedEngine === "chatgpt" ? "GPT-4o mini" : "Gemini Pro"}
+              </Text>
+            </Flex>
+          </div>
+
+          <div style={{ maxHeight: 400, overflowY: "auto" }}>
+            <Table
+              dataSource={summaryResults}
+              rowKey="id"
+              pagination={false}
+              size="small"
+              columns={[
+                {
+                  title: "วันที่",
+                  dataIndex: "date",
+                  key: "date",
+                  width: 180,
+                  render: (date, record) => (
+                    <Flex vertical>
+                      <Text strong style={{ fontSize: 13 }}>
+                        รายการวัน
+                        {
+                          [
+                            "อาทิตย์",
+                            "จันทร์",
+                            "อังคาร",
+                            "พุธ",
+                            "พฤหัสบดี",
+                            "ศุกร์",
+                            "เสาร์",
+                          ][dayjs(date).day()]
+                        }
+                        ที่ {dayjs(date).format("DD/MM/YYYY")}
+                      </Text>
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        จำนวน {record.hour || 8} ชั่วโมง
+                      </Text>
+                    </Flex>
+                  ),
+                },
+                {
+                  title: "รายละเอียดงาน",
+                  key: "info",
+                  render: (_, record) => (
+                    <div style={{ padding: "4px 0" }}>
+                      <Text
+                        strong
+                        style={{
+                          fontSize: 13,
+                          display: "block",
+                          marginBottom: 4,
+                        }}
+                      >
+                        {record.description}
+                      </Text>
+                      <Space split={<Divider type="vertical" />} wrap>
+                        <Tag color="blue" style={{ margin: 0, fontSize: 10 }}>
+                          {record.project}
+                        </Tag>
+                        <Tag color="cyan" style={{ margin: 0, fontSize: 10 }}>
+                          {record.feature}
+                        </Tag>
+                      </Space>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        </div>
       </Modal>
 
       {/* Details Modal */}

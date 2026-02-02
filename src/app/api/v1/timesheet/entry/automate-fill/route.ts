@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { Service as EntryTimesheetService } from "@/services/backend/timesheet/entry.service";
 import { generateDescriptionWithGemini } from "./gemini";
+import { generateDescriptionWithChatGPT } from "./chatgpt";
 import { STATUS_OPTIONS } from "@/constants/timesheet.constants";
 import { logger } from "@/helpers/logger";
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { user_id, hours, date } = body;
+  const { user_id, hours, date, engine = "gemini" } = body;
   const dates: (string | Date)[] = Array.isArray(date)
     ? date
     : [date].filter(Boolean);
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
         message_en: "user_id, hours and date are required",
         message_th: "กรุณาระบุ user_id, ชั่วโมง และวันที่",
       }),
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
           message_en: "No timesheet history for this user",
           message_th: "ไม่พบประวัติการกรอก Timesheet ของผู้ใช้นี้",
         }),
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -78,17 +79,23 @@ export async function POST(request: Request) {
             message_en: "Cannot determine project/sub-project from history",
             message_th: "ไม่สามารถระบุโปรเจกต์หรือซับโปรเจกต์จากประวัติได้",
           }),
-          { status: 422 }
+          { status: 422 },
         );
       }
 
-      const description = useGemini
-        ? await generateDescriptionWithGemini({
-            history,
-            fallback: randomEntry?.description,
-          })
-        : randomEntry?.description ||
-          `Auto fill timesheet ${new Date().toLocaleDateString()}`;
+      let description = randomEntry?.description || "";
+
+      if (engine === "chatgpt") {
+        description = await generateDescriptionWithChatGPT({
+          history,
+          fallback: randomEntry?.description,
+        });
+      } else {
+        description = await generateDescriptionWithGemini({
+          history,
+          fallback: randomEntry?.description,
+        });
+      }
 
       const created = await EntryTimesheetService.create({
         description,
@@ -100,7 +107,15 @@ export async function POST(request: Request) {
         status,
       });
 
-      createdEntries.push(created);
+      createdEntries.push({
+        id: created.id,
+        date: rawDate,
+        hour: Number(hours),
+        description: created.description,
+        project: randomEntry.project?.name,
+        feature: randomEntry.feature?.name,
+      });
+
       logger.info("[automate-fill] created entry", {
         date: rawDate,
         projectId: randomEntry.projectId,
@@ -114,15 +129,22 @@ export async function POST(request: Request) {
       user_id,
     });
 
-    return NextResponse.json(successResponse({ data: createdEntries }));
+    return NextResponse.json(
+      successResponse({
+        data: {
+          items: createdEntries,
+          engine,
+          total: createdEntries.length,
+        },
+      }),
+    );
   } catch (error: unknown) {
     logger.error("[automate-fill] failed", error);
     return NextResponse.json(
       errorResponse({
         message_en: error instanceof Error ? error.message : "Unknown error",
-        message_th: "เกิดข้อผิดพลาด",
-        error,
-      })
+        message_th: "เกิดข้อผิดพลาดในการบันทึกข้อมูลอัตโนมัติ",
+      }),
     );
   }
 }
