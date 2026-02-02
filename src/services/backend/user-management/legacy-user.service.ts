@@ -1,18 +1,28 @@
 import axios from "axios";
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import { serverLogger as logger } from "@/helpers/logger.server";
 
 // Hardcoded for now, can be env
-const LEGACY_API_BASE_URL = "http://localhost:3000/api/v1/admin/user";
+const LEGACY_API_BASE_URL = "https://adminsystem.schoolbright.co/v1/api";
 
 export const LegacyUserService = {
   // Fetch users from (Old) API
   async fetchLegacyUsers() {
     try {
       // Direct call to API
-      const response = await axios.get(LEGACY_API_BASE_URL);
-      return response.data?.data?.data || [];
-    } catch (error) {
-      console.error("Failed to fetch legacy users", error);
+      const targetUrl = `${LEGACY_API_BASE_URL}/get-profile/0`;
+      logger.info("Fetching legacy users from: %s", targetUrl);
+      const response = await axios.get(targetUrl, { timeout: 15000 });
+
+      // Handle response format { success: true, data: [...] }
+      const users = Array.isArray(response.data?.data)
+        ? response.data.data
+        : [];
+
+      logger.info("Final extracted users count: %d", users.length);
+      return users;
+    } catch (error: any) {
+      logger.error("Failed to fetch legacy users: %s", error.message);
       return [];
     }
   },
