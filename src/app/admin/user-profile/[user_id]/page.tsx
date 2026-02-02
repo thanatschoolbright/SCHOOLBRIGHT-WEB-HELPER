@@ -8,6 +8,7 @@ import {
   Card,
   Row,
   Col,
+  Flex,
   Select,
   Typography,
   Divider,
@@ -601,27 +602,27 @@ const UserEditPage = () => {
             <Col xs={24} lg={16}>
               {/* --- Navigator --- */}
               <div
-                className="mb-6 p-4 rounded-2xl sticky top-[80px] z-10"
+                className="mb-8 p-4 rounded-2xl sticky top-[80px] z-10 transition-all"
                 style={{
-                  backgroundColor: "rgba(255,255,255,0.8)",
-                  backdropFilter: "blur(12px)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.05)",
+                  backgroundColor: token.colorBgElevated,
                   border: `1px solid ${token.colorBorderSecondary}`,
+                  boxShadow: token.boxShadowTertiary,
+                  backdropFilter: "blur(20px)",
                 }}
               >
-                <div className="flex items-center justify-between mb-3 px-2">
+                <div className="flex items-center justify-between mb-4 px-2">
                   <Typography.Text
                     strong
-                    className="text-[10px] uppercase tracking-widest"
+                    className="text-[11px] uppercase tracking-[0.15em]"
                     style={{ color: token.colorPrimary }}
                   >
                     <SearchOutlined className="mr-2" /> Quick Navigation
                   </Typography.Text>
                   <Typography.Text
                     type="secondary"
-                    className="text-[9px] italic"
+                    className="text-[10px] opacity-70"
                   >
-                    คลิกเพื่อวาร์ปไปยังส่วนต่างๆ
+                    {t("navigate_to_sections")}
                   </Typography.Text>
                 </div>
                 <Steps
