@@ -108,9 +108,9 @@ export default function SaleRankingModal({
     if (passcode === SECRET_CODE) {
       setIsIncomeVisible(true);
       setShowPasscodeInput(false);
-      toast.success("ปลดล็อคข้อมูลรายได้เรียบร้อยแล้ว");
+      toast.success(TRANSLATION("bypass_page.ranking.toast_unlock_success"));
     } else {
-      toast.error("รหัสผ่านไม่ถูกต้อง");
+      toast.error(TRANSLATION("bypass_page.ranking.toast_unlock_error"));
     }
   };
 
@@ -189,14 +189,14 @@ export default function SaleRankingModal({
     labels: top5Sales.map((sale) => sale.saleName),
     datasets: [
       {
-        label: "จ่ายเงิน (Customer/Contract)",
+        label: `${TRANSLATION("bypass_page.ranking.customers")}/${TRANSLATION("bypass_page.ranking.contracts")}`,
         data: top5Sales.map((sale) => sale.customerCount + sale.contractCount),
         backgroundColor: "#3b82f6",
         borderRadius: 4,
         barPercentage: 0.6,
       },
       {
-        label: "ฟรี/Test (Trial/Free)",
+        label: `${TRANSLATION("bypass_page.ranking.trial_test")}/${TRANSLATION("bypass_page.ranking.free_tier")}`,
         data: top5Sales.map((sale) => sale.testCount + sale.freeCount),
         backgroundColor: "#f59e0b",
         borderRadius: 4,
@@ -207,7 +207,11 @@ export default function SaleRankingModal({
 
   // * Doughnut Chart: Overall Grade Distribution managed by Sales
   const doughnutChartData = {
-    labels: ["เกรด A (ดีเยี่ยม)", "เกรด B (ดี)", "เกรด C (พอใช้)"],
+    labels: [
+      TRANSLATION("bypass_page.ranking.grade_a"),
+      TRANSLATION("bypass_page.ranking.grade_b"),
+      TRANSLATION("bypass_page.ranking.grade_c"),
+    ],
     datasets: [
       {
         data: [statistics.gradeA, statistics.gradeB, statistics.gradeC],
@@ -226,11 +230,11 @@ export default function SaleRankingModal({
   // * Doughnut Chart: School Type Distribution
   const typeDoughnutData = {
     labels: [
-      "ลูกค้า (Paying)",
-      "ทำสัญญา (Paying)",
-      "Test",
-      "ลูกค้าฟรี",
-      "หลักสูตรอิสลาม",
+      TRANSLATION("bypass_page.ranking.customers"),
+      TRANSLATION("bypass_page.ranking.contracts"),
+      TRANSLATION("bypass_page.ranking.trial_test"),
+      TRANSLATION("bypass_page.ranking.free_tier"),
+      TRANSLATION("bypass_page.ranking.islamic_cur"),
     ],
     datasets: [
       {
@@ -290,7 +294,7 @@ export default function SaleRankingModal({
   const columns = useMemo<ColumnsType<SaleStatistics>>(
     () => [
       {
-        title: "Rank",
+        title: TRANSLATION("bypass_page.ranking.col_rank"),
         key: "rank",
         width: 80,
         align: "center",
@@ -335,7 +339,7 @@ export default function SaleRankingModal({
         },
       },
       {
-        title: "Sales Representative",
+        title: TRANSLATION("bypass_page.ranking.col_sales_rep"),
         dataIndex: "saleName",
         key: "saleName",
         width: 180,
@@ -357,9 +361,18 @@ export default function SaleRankingModal({
             value={viewMode}
             onChange={(value) => setViewMode(value as any)}
             options={[
-              { label: "All", value: "all" },
-              { label: "Sales", value: "customer" },
-              { label: "Contract", value: "contract" },
+              {
+                label: TRANSLATION("bypass_page.ranking.view_all"),
+                value: "all",
+              },
+              {
+                label: TRANSLATION("bypass_page.ranking.view_sales"),
+                value: "customer",
+              },
+              {
+                label: TRANSLATION("bypass_page.ranking.view_contract"),
+                value: "contract",
+              },
             ]}
           />
         ),
@@ -380,17 +393,20 @@ export default function SaleRankingModal({
           return (
             <Flex vertical gap={0}>
               <Text strong>
-                {currentSchools} Schools ({viewMode.toUpperCase()})
+                {currentSchools}{" "}
+                {TRANSLATION("bypass_page.ranking.schools_unit")} (
+                {viewMode.toUpperCase()})
               </Text>
               <Text type="secondary" style={{ fontSize: 11 }}>
-                Students: {currentStudents.toLocaleString()}
+                {TRANSLATION("bypass_page.ranking.students")}:{" "}
+                {currentStudents.toLocaleString()}
               </Text>
             </Flex>
           );
         },
       },
       {
-        title: "KPI (Target)",
+        title: TRANSLATION("bypass_page.ranking.col_kpi"),
         key: "kpi",
         width: 180,
         align: "center",
@@ -411,7 +427,8 @@ export default function SaleRankingModal({
                 style={{ marginBottom: 4 }}
               >
                 <Text type="secondary" style={{ fontSize: 10 }}>
-                  Target: {record.targetStudents.toLocaleString()}
+                  {TRANSLATION("bypass_page.ranking.col_target")}:{" "}
+                  {record.targetStudents.toLocaleString()}
                 </Text>
                 <Text strong style={{ fontSize: 10, color }}>
                   {percent.toFixed(1)}%
@@ -428,7 +445,7 @@ export default function SaleRankingModal({
         },
       },
       {
-        title: "Total Managed",
+        title: TRANSLATION("bypass_page.ranking.col_total_managed"),
         dataIndex: "totalSchools",
         key: "totalSchools",
         width: 120,
@@ -438,7 +455,7 @@ export default function SaleRankingModal({
         render: (value) => <Text>{value.toLocaleString()}</Text>,
       },
       {
-        title: "Revenue Sources",
+        title: TRANSLATION("bypass_page.ranking.col_revenue_sources"),
         key: "payingSchools",
         width: 150,
         align: "right",
@@ -451,12 +468,16 @@ export default function SaleRankingModal({
             title={
               <Flex vertical gap={4}>
                 <Text style={{ color: "white", fontSize: 12 }}>
-                  Customers: {record.customerCount} (
-                  {record.customerStudents.toLocaleString()} Students)
+                  {TRANSLATION("bypass_page.ranking.customers")}:{" "}
+                  {record.customerCount} (
+                  {record.customerStudents.toLocaleString()}{" "}
+                  {TRANSLATION("bypass_page.ranking.students")})
                 </Text>
                 <Text style={{ color: "white", fontSize: 12 }}>
-                  Contracts: {record.contractCount} (
-                  {record.contractStudents.toLocaleString()} Students)
+                  {TRANSLATION("bypass_page.ranking.contracts")}:{" "}
+                  {record.contractCount} (
+                  {record.contractStudents.toLocaleString()}{" "}
+                  {TRANSLATION("bypass_page.ranking.students")})
                 </Text>
               </Flex>
             }
@@ -464,20 +485,20 @@ export default function SaleRankingModal({
             <Flex vertical align="end" gap={0}>
               <Text strong style={{ color: token.colorInfo }}>
                 {(record.customerCount + record.contractCount).toLocaleString()}{" "}
-                Schools
+                {TRANSLATION("bypass_page.ranking.schools_unit")}
               </Text>
               <Text type="secondary" style={{ fontSize: 10 }}>
                 {(
                   record.customerStudents + record.contractStudents
                 ).toLocaleString()}{" "}
-                Students
+                {TRANSLATION("bypass_page.ranking.students")}
               </Text>
             </Flex>
           </Tooltip>
         ),
       },
       {
-        title: "Trial/Free",
+        title: TRANSLATION("bypass_page.ranking.col_trial_free"),
         key: "nonPayingSchools",
         width: 150,
         align: "right",
@@ -490,30 +511,33 @@ export default function SaleRankingModal({
             title={
               <Flex vertical gap={4}>
                 <Text style={{ color: "white", fontSize: 12 }}>
-                  Test: {record.testCount} (
-                  {record.testStudents.toLocaleString()} Students)
+                  {TRANSLATION("bypass_page.ranking.trial_test")}:{" "}
+                  {record.testCount} ({record.testStudents.toLocaleString()}{" "}
+                  {TRANSLATION("bypass_page.ranking.students")})
                 </Text>
                 <Text style={{ color: "white", fontSize: 12 }}>
-                  Free: {record.freeCount} (
-                  {record.freeStudents.toLocaleString()} Students)
+                  {TRANSLATION("bypass_page.ranking.free_tier")}:{" "}
+                  {record.freeCount} ({record.freeStudents.toLocaleString()}{" "}
+                  {TRANSLATION("bypass_page.ranking.students")})
                 </Text>
               </Flex>
             }
           >
             <Flex vertical align="end" gap={0}>
               <Text strong style={{ color: token.colorWarning }}>
-                {(record.testCount + record.freeCount).toLocaleString()} Schools
+                {(record.testCount + record.freeCount).toLocaleString()}{" "}
+                {TRANSLATION("bypass_page.ranking.schools_unit")}
               </Text>
               <Text type="secondary" style={{ fontSize: 10 }}>
                 {(record.testStudents + record.freeStudents).toLocaleString()}{" "}
-                Students
+                {TRANSLATION("bypass_page.ranking.students")}
               </Text>
             </Flex>
           </Tooltip>
         ),
       },
       {
-        title: "Est. Income",
+        title: TRANSLATION("bypass_page.ranking.col_est_income"),
         key: "estimatedIncome",
         width: 160,
         align: "right",
@@ -536,7 +560,7 @@ export default function SaleRankingModal({
           ),
       },
       {
-        title: "Active",
+        title: TRANSLATION("bypass_page.ranking.col_active"),
         dataIndex: "activeSchools",
         key: "activeSchools",
         width: 100,
@@ -550,14 +574,16 @@ export default function SaleRankingModal({
         ),
       },
       {
-        title: "Rate",
+        title: TRANSLATION("bypass_page.ranking.col_rate"),
         dataIndex: "activationRate",
         key: "activationRate",
         width: 150,
         sorter: (firstSale, secondSale) =>
           firstSale.activationRate - secondSale.activationRate,
         render: (value) => (
-          <Tooltip title={`${value.toFixed(2)}% Activation Rate`}>
+          <Tooltip
+            title={`${value.toFixed(2)}% ${TRANSLATION("bypass_page.ranking.col_rate_desc")}`}
+          >
             <Progress
               percent={value}
               size="small"
@@ -573,7 +599,7 @@ export default function SaleRankingModal({
         ),
       },
       {
-        title: "Students",
+        title: TRANSLATION("bypass_page.ranking.col_students"),
         dataIndex: "totalStudents",
         key: "totalStudents",
         width: 120,
@@ -587,7 +613,7 @@ export default function SaleRankingModal({
         ),
       },
       {
-        title: "Grade A",
+        title: TRANSLATION("bypass_page.ranking.col_grade_a"),
         dataIndex: "gradeACount",
         key: "gradeACount",
         width: 100,
@@ -596,12 +622,12 @@ export default function SaleRankingModal({
           firstSale.gradeACount - secondSale.gradeACount,
         render: (value) => (
           <Tag color="gold" bordered={false} style={{ fontWeight: 600 }}>
-            {value} Schools
+            {value} {TRANSLATION("bypass_page.ranking.schools_unit")}
           </Tag>
         ),
       },
       {
-        title: "Avg/School",
+        title: TRANSLATION("bypass_page.ranking.col_avg_per_school"),
         dataIndex: "averageStudentsPerSchool",
         key: "averageStudentsPerSchool",
         width: 120,
@@ -613,7 +639,7 @@ export default function SaleRankingModal({
         ),
       },
     ],
-    [token, isIncomeVisible],
+    [token, isIncomeVisible, TRANSLATION, viewMode],
   );
 
   return (
@@ -640,11 +666,10 @@ export default function SaleRankingModal({
             </Flex>
             <Flex vertical>
               <Text strong style={{ fontSize: 20 }}>
-                Sales Performance Ranking
+                {TRANSLATION("bypass_page.ranking.sale_modal_title")}
               </Text>
               <Text type="secondary" style={{ fontSize: 13 }}>
-                Performance analysis, representative breakdown, and growth
-                trends
+                {TRANSLATION("bypass_page.ranking.sale_modal_subtitle")}
               </Text>
             </Flex>
           </Flex>
@@ -653,17 +678,19 @@ export default function SaleRankingModal({
             {showPasscodeInput ? (
               <Space.Compact>
                 <Input.Password
-                  placeholder="Passcode"
+                  placeholder={TRANSLATION(
+                    "bypass_page.ranking.placeholder_passcode",
+                  )}
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
                   onPressEnter={handleUnlockIncome}
                   style={{ width: 140 }}
                 />
                 <Button type="primary" onClick={handleUnlockIncome}>
-                  Unlock
+                  {TRANSLATION("bypass_page.ranking.btn_unlock")}
                 </Button>
                 <Button onClick={() => setShowPasscodeInput(false)}>
-                  Cancel
+                  {TRANSLATION("bypass_page.ranking.btn_cancel")}
                 </Button>
               </Space.Compact>
             ) : (
@@ -681,7 +708,9 @@ export default function SaleRankingModal({
                   borderColor: isIncomeVisible ? token.colorSuccess : undefined,
                 }}
               >
-                {isIncomeVisible ? "Income Visible" : "Reveal Income"}
+                {isIncomeVisible
+                  ? TRANSLATION("bypass_page.ranking.btn_income_visible")
+                  : TRANSLATION("bypass_page.ranking.btn_reveal_income")}
               </Button>
             )}
           </Flex>
@@ -718,36 +747,42 @@ export default function SaleRankingModal({
         <Row gutter={[20, 20]}>
           {[
             {
-              title: "Total Sales Team",
+              title: TRANSLATION("bypass_page.ranking.stat_total_sales_team"),
               value: data.length,
               icon: <UserOutlined />,
               color: token.colorPrimary,
               bgColor: token.colorPrimaryBg,
-              subtitle: "Active Representatives",
+              subtitle: TRANSLATION("bypass_page.ranking.stat_active_reps"),
             },
             {
-              title: "Total Active Schools",
+              title: TRANSLATION(
+                "bypass_page.ranking.stat_total_active_schools",
+              ),
               value: statistics.activeSchools,
               icon: <TeamOutlined />,
               color: token.colorSuccess,
               bgColor: token.colorSuccessBg,
-              subtitle: `Across ${statistics.totalSchools} managed`,
+              subtitle: `${TRANSLATION("bypass_page.ranking.stat_across")} ${statistics.totalSchools} ${TRANSLATION("bypass_page.ranking.stat_managed")}`,
             },
             {
-              title: "Student Reach",
+              title: TRANSLATION("bypass_page.ranking.stat_student_reach"),
               value: statistics.totalStudents,
               icon: <RocketOutlined />,
               color: "#8b5cf6",
               bgColor: "#f5f3ff",
-              subtitle: "Total Students Impacted",
+              subtitle: TRANSLATION(
+                "bypass_page.ranking.stat_total_students_impacted",
+              ),
             },
             {
-              title: "Est. Revenue",
+              title: TRANSLATION("bypass_page.ranking.stat_est_revenue"),
               value: isIncomeVisible ? statistics.totalIncome : "••••••",
               icon: <DollarOutlined />,
               color: token.colorWarning,
               bgColor: token.colorWarningBg,
-              subtitle: "Projected Term Income",
+              subtitle: TRANSLATION(
+                "bypass_page.ranking.stat_projected_income",
+              ),
               isMoney: isIncomeVisible,
             },
           ].map((card) => (
@@ -814,7 +849,7 @@ export default function SaleRankingModal({
               title={
                 <Flex gap="small" align="center">
                   <LineChartOutlined style={{ color: token.colorPrimary }} />
-                  <span>Representative Workload</span>
+                  <span>{TRANSLATION("bypass_page.ranking.rep_workload")}</span>
                 </Flex>
               }
               style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
@@ -830,7 +865,9 @@ export default function SaleRankingModal({
               title={
                 <Flex gap="small" align="center">
                   <PieChartOutlined style={{ color: token.colorInfo }} />
-                  <span>Enrollment Distribution</span>
+                  <span>
+                    {TRANSLATION("bypass_page.ranking.enrollment_distribution")}
+                  </span>
                 </Flex>
               }
               style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
@@ -864,7 +901,9 @@ export default function SaleRankingModal({
               title={
                 <Flex gap="small" align="center">
                   <PieChartOutlined style={{ color: token.colorSuccess }} />
-                  <span>Quality Scoring</span>
+                  <span>
+                    {TRANSLATION("bypass_page.ranking.quality_scoring")}
+                  </span>
                 </Flex>
               }
               style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
@@ -888,7 +927,9 @@ export default function SaleRankingModal({
           title={
             <Flex gap="small" align="center">
               <TrophyOutlined style={{ color: token.colorWarning }} />
-              <span>Comprehensive Performance Table</span>
+              <span>
+                {TRANSLATION("bypass_page.ranking.comprehensive_table")}
+              </span>
             </Flex>
           }
           style={{

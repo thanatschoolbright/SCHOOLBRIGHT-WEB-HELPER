@@ -119,7 +119,7 @@ export default function BypassPage(): JSX.Element {
   const columns: ColumnsType<SchoolDetail> = useMemo(
     () => [
       {
-        title: "SCHOOL ID",
+        title: TRANSLATION("bypass_page.col_school_id"),
         dataIndex: "school_id",
         key: "school_id",
         width: 120,
@@ -143,7 +143,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "INSTITUTION",
+        title: TRANSLATION("bypass_page.col_institution"),
         key: "school",
         width: 300,
         sorter: (firstSchool, secondSchool) =>
@@ -173,7 +173,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "PROVINCE",
+        title: TRANSLATION("bypass_page.col_province"),
         dataIndex: "province",
         key: "province",
         width: 140,
@@ -183,7 +183,7 @@ export default function BypassPage(): JSX.Element {
           ),
       },
       {
-        title: "TYPE & LEVEL",
+        title: TRANSLATION("bypass_page.col_type_level"),
         key: "type_class",
         width: 180,
         sorter: (firstSchool, secondSchool) =>
@@ -197,16 +197,16 @@ export default function BypassPage(): JSX.Element {
               bordered={false}
               style={{ fontSize: 11, width: "fit-content", margin: 0 }}
             >
-              {record.school_type || "-"}
+              {record.school_type || TRANSLATION("bypass_page.not_specified")}
             </Tag>
             <Text type="secondary" style={{ fontSize: 11 }}>
-              {record.school_class || "Not specified"}
+              {record.school_class || TRANSLATION("bypass_page.not_specified")}
             </Text>
           </Flex>
         ),
       },
       {
-        title: "MANAGEMENT TEAM",
+        title: TRANSLATION("bypass_page.col_team"),
         key: "team",
         width: 220,
         sorter: (firstSchool, secondSchool) =>
@@ -229,7 +229,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "CONTRACT TYPE",
+        title: TRANSLATION("bypass_page.col_contract"),
         dataIndex: "school_data_type",
         key: "school_data_type",
         width: 130,
@@ -244,7 +244,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "LAUNCH DATE",
+        title: TRANSLATION("bypass_page.col_launch"),
         dataIndex: "active_date",
         key: "active_date",
         width: 120,
@@ -255,7 +255,7 @@ export default function BypassPage(): JSX.Element {
           ),
       },
       {
-        title: "GRADE",
+        title: TRANSLATION("bypass_page.col_grade"),
         dataIndex: "school_grade",
         key: "school_grade",
         width: 80,
@@ -278,7 +278,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "STUDENT COUNT",
+        title: TRANSLATION("bypass_page.col_student_count"),
         dataIndex: "student_count",
         key: "student_count",
         width: 120,
@@ -293,7 +293,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "STATUS",
+        title: TRANSLATION("bypass_page.col_status"),
         dataIndex: "isActive",
         key: "isActive",
         width: 120,
@@ -314,7 +314,9 @@ export default function BypassPage(): JSX.Element {
                     fontSize: 12,
                   }}
                 >
-                  {isInactive ? "INACTIVE" : "ACTIVE"}
+                  {isInactive
+                    ? TRANSLATION("bypass_page.status_inactive").toUpperCase()
+                    : TRANSLATION("bypass_page.status_active").toUpperCase()}
                 </Text>
               }
             />
@@ -322,7 +324,7 @@ export default function BypassPage(): JSX.Element {
         },
       },
       {
-        title: "ACTIONS",
+        title: TRANSLATION("bypass_page.col_actions"),
         key: "action",
         width: 140,
         fixed: "right",
@@ -334,7 +336,7 @@ export default function BypassPage(): JSX.Element {
             onClick={() => setBypassModal({ open: true, school: record })}
             style={{ borderRadius: 8, fontWeight: 600 }}
           >
-            LOGIN
+            {TRANSLATION("bypass_page.btn_login")}
           </Button>
         ),
       },
@@ -348,44 +350,44 @@ export default function BypassPage(): JSX.Element {
         {/* Section 1: Page Header */}
         <HeaderBar
           icon={<LoginOutlined />}
-          title="School Bypass System"
-          subTitle="Fast-access tool for support teams to log in to various school systems."
+          title={TRANSLATION("bypass_page.title")}
+          subTitle={TRANSLATION("bypass_page.subtitle")}
         />
 
         {/* Section 2: Summary Metrics */}
         <Row gutter={[20, 20]}>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="TOTAL SCHOOLS"
+              title={TRANSLATION("bypass_page.stats_total")}
               value={overallStatistics.total.toLocaleString()}
-              subtitle="Registered schools"
+              subtitle={TRANSLATION("bypass_page.stats_total_desc")}
               icon={<BankOutlined />}
               color={token.colorPrimary}
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="ACTIVE SCHOOLS"
+              title={TRANSLATION("bypass_page.stats_active")}
               value={overallStatistics.active.toLocaleString()}
-              subtitle="Online & Operating"
+              subtitle={TRANSLATION("bypass_page.stats_active_desc")}
               icon={<ThunderboltOutlined />}
               color={token.colorSuccess}
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="INACTIVE SCHOOLS"
+              title={TRANSLATION("bypass_page.stats_inactive")}
               value={overallStatistics.inactive.toLocaleString()}
-              subtitle="System check required"
+              subtitle={TRANSLATION("bypass_page.stats_inactive_desc")}
               icon={<CloseCircleOutlined />}
               color={token.colorError}
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="GRADE A SCHOOLS"
+              title={TRANSLATION("bypass_page.stats_grade_a")}
               value={overallStatistics.gradeA.toLocaleString()}
-              subtitle="High-performance records"
+              subtitle={TRANSLATION("bypass_page.stats_grade_a_desc")}
               icon={<TrophyOutlined />}
               color={token.colorWarning}
             />
@@ -400,7 +402,7 @@ export default function BypassPage(): JSX.Element {
                 style={{ color: token.colorPrimary, fontSize: 18 }}
               />
               <Title level={5} style={{ margin: 0 }}>
-                FILTER CRITERIA
+                {TRANSLATION("bypass_page.filter_title")}
               </Title>
             </Flex>
 
@@ -409,30 +411,38 @@ export default function BypassPage(): JSX.Element {
                 <Flex vertical gap={16}>
                   <Flex vertical gap={8}>
                     <Text strong style={{ fontSize: 13 }}>
-                      SEARCH INSTITUTION
+                      {TRANSLATION("bypass_page.label_search")}
                     </Text>
                     <Input
                       size="large"
-                      placeholder="Search by name, school code..."
+                      placeholder={TRANSLATION(
+                        "bypass_page.placeholder_search",
+                      )}
                       prefix={<SearchOutlined style={{ opacity: 0.5 }} />}
                       value={state.filters.search}
                       onChange={(event) =>
-                        handlers.handleFilterChange("search", event.target.value)
+                        handlers.handleFilterChange(
+                          "search",
+                          event.target.value,
+                        )
                       }
                     />
                   </Flex>
                   <Flex vertical gap={8}>
                     <Text strong style={{ fontSize: 13 }}>
-                      SCHOOL GROUP / PROJECT
+                      {TRANSLATION("bypass_page.label_group")}
                     </Text>
                     <Select
                       style={{ width: "100%" }}
                       size="large"
-                      placeholder="Select school group"
+                      placeholder={TRANSLATION("bypass_page.placeholder_group")}
                       options={state.filterOptions.schoolGroups}
                       value={state.filters.schoolGroup}
                       onChange={(selectedValue) =>
-                        handlers.handleFilterChange("schoolGroup", selectedValue)
+                        handlers.handleFilterChange(
+                          "schoolGroup",
+                          selectedValue,
+                        )
                       }
                       allowClear
                     />
@@ -446,17 +456,22 @@ export default function BypassPage(): JSX.Element {
                     <Col span={12}>
                       <Flex vertical gap={8}>
                         <Text strong style={{ fontSize: 13 }}>
-                          PROVINCE
+                          {TRANSLATION("bypass_page.label_province")}
                         </Text>
                         <Select
                           style={{ width: "100%" }}
                           size="large"
-                          placeholder="All Provinces"
+                          placeholder={TRANSLATION(
+                            "bypass_page.placeholder_province",
+                          )}
                           showSearch
                           options={state.filterOptions.provinces}
                           value={state.filters.province}
                           onChange={(selectedValue) =>
-                            handlers.handleFilterChange("province", selectedValue)
+                            handlers.handleFilterChange(
+                              "province",
+                              selectedValue,
+                            )
                           }
                           allowClear
                         />
@@ -465,12 +480,14 @@ export default function BypassPage(): JSX.Element {
                     <Col span={12}>
                       <Flex vertical gap={8}>
                         <Text strong style={{ fontSize: 13 }}>
-                          GRADE
+                          {TRANSLATION("bypass_page.label_grade")}
                         </Text>
                         <Select
                           style={{ width: "100%" }}
                           size="large"
-                          placeholder="Select grade"
+                          placeholder={TRANSLATION(
+                            "bypass_page.placeholder_grade",
+                          )}
                           options={state.filterOptions.grades}
                           value={state.filters.grade}
                           onChange={(selectedValue) =>
@@ -483,20 +500,28 @@ export default function BypassPage(): JSX.Element {
                   </Row>
                   <Flex vertical gap={8}>
                     <Text strong style={{ fontSize: 13 }}>
-                      STATUS
+                      {TRANSLATION("bypass_page.label_status")}
                     </Text>
                     <Select
                       style={{ width: "100%" }}
                       size="large"
-                      placeholder="Select status"
+                      placeholder={TRANSLATION(
+                        "bypass_page.placeholder_status",
+                      )}
                       value={state.filters.status}
                       onChange={(selectedValue) =>
                         handlers.handleFilterChange("status", selectedValue)
                       }
                       allowClear
                       options={[
-                        { label: "Active", value: "active" },
-                        { label: "Inactive", value: "inactive" },
+                        {
+                          label: TRANSLATION("bypass_page.status_active"),
+                          value: "active",
+                        },
+                        {
+                          label: TRANSLATION("bypass_page.status_inactive"),
+                          value: "inactive",
+                        },
                       ]}
                     />
                   </Flex>
@@ -512,7 +537,7 @@ export default function BypassPage(): JSX.Element {
                 icon={<ClearOutlined />}
                 onClick={handlers.handleClearFilters}
               >
-                CLEAR FILTERS
+                {TRANSLATION("bypass_page.btn_clear")}
               </Button>
               <Button
                 type="primary"
@@ -520,7 +545,7 @@ export default function BypassPage(): JSX.Element {
                 icon={<SearchOutlined />}
                 style={{ padding: "0 32px" }}
               >
-                SEARCH
+                {TRANSLATION("bypass_page.btn_search")}
               </Button>
             </Flex>
           </Flex>
@@ -539,7 +564,7 @@ export default function BypassPage(): JSX.Element {
                   style={{ color: token.colorPrimary, fontSize: 18 }}
                 />
                 <Title level={5} style={{ margin: 0 }}>
-                  INSTITUTION DIRECTORY
+                  {TRANSLATION("bypass_page.table_title")}
                 </Title>
                 <Badge
                   count={state.filteredSchools.length}
@@ -556,7 +581,7 @@ export default function BypassPage(): JSX.Element {
                   type="text"
                   style={{ color: "#8b5cf6", fontWeight: 600 }}
                 >
-                  PROVINCIAL RANKING
+                  {TRANSLATION("bypass_page.btn_province_ranking")}
                 </Button>
                 <Button
                   onClick={() => setShowSaleRanking(true)}
@@ -564,7 +589,7 @@ export default function BypassPage(): JSX.Element {
                   type="text"
                   style={{ color: "#f59e0b", fontWeight: 600 }}
                 >
-                  SALES RANKING
+                  {TRANSLATION("bypass_page.btn_sale_ranking")}
                 </Button>
               </Flex>
             </Flex>
@@ -577,7 +602,10 @@ export default function BypassPage(): JSX.Element {
               pagination={{
                 pageSize: state.pageSize,
                 showSizeChanger: true,
-                showTotal: (totalCount) => `Total ${totalCount} records`,
+                showTotal: (totalCount) =>
+                  TRANSLATION("bypass_page.total_records", {
+                    total: totalCount,
+                  }),
               }}
               scroll={{ x: 2000 }}
               onChange={handlers.handleTableChange}

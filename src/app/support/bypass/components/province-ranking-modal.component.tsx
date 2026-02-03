@@ -123,14 +123,14 @@ export default function ProvinceRankingModal({
     labels: top10Data.map((record) => record.province),
     datasets: [
       {
-        label: "Active Schools",
+        label: TRANSLATION("bypass_page.ranking.active_schools"),
         data: top10Data.map((record) => record.activeSchools),
         backgroundColor: token.colorSuccess,
         borderRadius: 4,
         barPercentage: 0.6,
       },
       {
-        label: "Inactive Schools",
+        label: TRANSLATION("bypass_page.ranking.inactive_schools"),
         data: top10Data.map((record) => record.inactiveSchools),
         backgroundColor: token.colorError,
         borderRadius: 4,
@@ -140,7 +140,11 @@ export default function ProvinceRankingModal({
   };
 
   const doughnutChartData = {
-    labels: ["Grade A (Excellent)", "Grade B (Good)", "Grade C (Fair)"],
+    labels: [
+      TRANSLATION("bypass_page.ranking.grade_a"),
+      TRANSLATION("bypass_page.ranking.grade_b"),
+      TRANSLATION("bypass_page.ranking.grade_c"),
+    ],
     datasets: [
       {
         data: [statistics.gradeA, statistics.gradeB, statistics.gradeC],
@@ -157,7 +161,13 @@ export default function ProvinceRankingModal({
   };
 
   const schoolDataTypeChartData = {
-    labels: ["Customers", "Contract", "Test", "Free", "Islamic"],
+    labels: [
+      TRANSLATION("bypass_page.ranking.customers"),
+      TRANSLATION("bypass_page.ranking.contracts"),
+      TRANSLATION("bypass_page.ranking.trial_test"),
+      TRANSLATION("bypass_page.ranking.free_tier"),
+      TRANSLATION("bypass_page.ranking.islamic_cur"),
+    ],
     datasets: [
       {
         data: [
@@ -216,7 +226,7 @@ export default function ProvinceRankingModal({
   const columns = useMemo<ColumnsType<ProvinceStatistics>>(
     () => [
       {
-        title: "RANK",
+        title: TRANSLATION("bypass_page.ranking.col_rank"),
         key: "rank",
         width: 80,
         align: "center",
@@ -261,7 +271,7 @@ export default function ProvinceRankingModal({
         },
       },
       {
-        title: "PROVINCE",
+        title: TRANSLATION("bypass_page.ranking.col_province"),
         dataIndex: "province",
         key: "province",
         width: 150,
@@ -271,8 +281,8 @@ export default function ProvinceRankingModal({
       {
         title: (
           <Space>
-            <span>TOTAL</span>
-            <Tooltip title="Total institutions in this province">
+            <span>{TRANSLATION("bypass_page.ranking.col_total")}</span>
+            <Tooltip title={TRANSLATION("bypass_page.ranking.col_total_desc")}>
               <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
             </Tooltip>
           </Space>
@@ -288,8 +298,8 @@ export default function ProvinceRankingModal({
       {
         title: (
           <Space>
-            <span>ACTIVE</span>
-            <Tooltip title="Schools with active systems">
+            <span>{TRANSLATION("bypass_page.ranking.col_active")}</span>
+            <Tooltip title={TRANSLATION("bypass_page.ranking.col_active_desc")}>
               <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
             </Tooltip>
           </Space>
@@ -309,8 +319,8 @@ export default function ProvinceRankingModal({
       {
         title: (
           <Space>
-            <span>RATE</span>
-            <Tooltip title="System activation percentage">
+            <span>{TRANSLATION("bypass_page.ranking.col_rate")}</span>
+            <Tooltip title={TRANSLATION("bypass_page.ranking.col_rate_desc")}>
               <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
             </Tooltip>
           </Space>
@@ -321,7 +331,9 @@ export default function ProvinceRankingModal({
         sorter: (firstRecord, secondRecord) =>
           firstRecord.activationRate - secondRecord.activationRate,
         render: (value) => (
-          <Tooltip title={`${value.toFixed(2)}% Active Rate`}>
+          <Tooltip
+            title={`${value.toFixed(2)}% ${TRANSLATION("bypass_page.ranking.col_rate")}`}
+          >
             <Progress
               percent={value}
               size="small"
@@ -337,7 +349,7 @@ export default function ProvinceRankingModal({
         ),
       },
       {
-        title: "CLIENTS",
+        title: TRANSLATION("bypass_page.ranking.col_clients"),
         dataIndex: "customerCount",
         key: "customerCount",
         width: 100,
@@ -347,7 +359,7 @@ export default function ProvinceRankingModal({
         render: (value) => <Text style={{ color: "#3b82f6" }}>{value}</Text>,
       },
       {
-        title: "CONTRACTS",
+        title: TRANSLATION("bypass_page.ranking.col_contracts"),
         dataIndex: "contractCount",
         key: "contractCount",
         width: 110,
@@ -357,7 +369,7 @@ export default function ProvinceRankingModal({
         render: (value) => <Text style={{ color: "#10b981" }}>{value}</Text>,
       },
       {
-        title: "TEST",
+        title: TRANSLATION("bypass_page.ranking.col_test"),
         dataIndex: "testCount",
         key: "testCount",
         width: 100,
@@ -367,7 +379,7 @@ export default function ProvinceRankingModal({
         render: (value) => <Text style={{ color: "#f59e0b" }}>{value}</Text>,
       },
       {
-        title: "FREE",
+        title: TRANSLATION("bypass_page.ranking.col_free"),
         dataIndex: "freeCount",
         key: "freeCount",
         width: 100,
@@ -380,7 +392,7 @@ export default function ProvinceRankingModal({
         title: (
           <Space>
             <CrownOutlined style={{ color: token.colorWarning }} />
-            <span>GRADE A</span>
+            <span>{TRANSLATION("bypass_page.ranking.col_grade_a")}</span>
           </Space>
         ),
         dataIndex: "gradeACount",
@@ -391,15 +403,17 @@ export default function ProvinceRankingModal({
           firstRecord.gradeACount - secondRecord.gradeACount,
         render: (value) => (
           <Tag color="gold" bordered={false} style={{ fontWeight: 600 }}>
-            {value} Schools
+            {value} {TRANSLATION("bypass_page.ranking.schools_unit")}
           </Tag>
         ),
       },
       {
         title: (
           <Space>
-            <span>AVG GRADE</span>
-            <Tooltip title="Average quality score across the province">
+            <span>{TRANSLATION("bypass_page.ranking.col_avg_grade")}</span>
+            <Tooltip
+              title={TRANSLATION("bypass_page.ranking.col_avg_grade_desc")}
+            >
               <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
             </Tooltip>
           </Space>
@@ -419,7 +433,7 @@ export default function ProvinceRankingModal({
         },
       },
     ],
-    [token],
+    [token, TRANSLATION],
   );
 
   return (
@@ -441,10 +455,10 @@ export default function ProvinceRankingModal({
           </Flex>
           <Flex vertical>
             <Text strong style={{ fontSize: 18 }}>
-              Province Rankings
+              {TRANSLATION("bypass_page.ranking.modal_title")}
             </Text>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              Top 10 provinces by school volume and quality analysis
+              {TRANSLATION("bypass_page.ranking.modal_subtitle")}
             </Text>
           </Flex>
         </Flex>
@@ -506,8 +520,14 @@ export default function ProvinceRankingModal({
               <Statistic
                 title={
                   <Space>
-                    <span>Total Schools</span>
-                    <Tooltip title="All schools in database">
+                    <span>
+                      {TRANSLATION("bypass_page.ranking.stat_total_schools")}
+                    </span>
+                    <Tooltip
+                      title={TRANSLATION(
+                        "bypass_page.ranking.stat_total_schools_desc",
+                      )}
+                    >
                       <InfoCircleOutlined
                         style={{
                           fontSize: 12,
@@ -526,12 +546,12 @@ export default function ProvinceRankingModal({
                 }}
                 suffix={
                   <Text type="secondary" style={{ fontSize: 14 }}>
-                    Schools
+                    {TRANSLATION("bypass_page.ranking.schools_unit")}
                   </Text>
                 }
               />
               <Tag color="blue" bordered={false} style={{ marginTop: 8 }}>
-                Core Systems
+                {TRANSLATION("bypass_page.ranking.tag_core_systems")}
               </Tag>
             </Card>
           </Col>
@@ -564,8 +584,14 @@ export default function ProvinceRankingModal({
               <Statistic
                 title={
                   <Space>
-                    <span>Active Usage</span>
-                    <Tooltip title="Schools with recent activity">
+                    <span>
+                      {TRANSLATION("bypass_page.ranking.stat_active_usage")}
+                    </span>
+                    <Tooltip
+                      title={TRANSLATION(
+                        "bypass_page.ranking.stat_active_usage_desc",
+                      )}
+                    >
                       <InfoCircleOutlined
                         style={{
                           fontSize: 12,
@@ -596,7 +622,7 @@ export default function ProvinceRankingModal({
                 }
               />
               <Tag color="green" bordered={false} style={{ marginTop: 8 }}>
-                Online Now
+                {TRANSLATION("bypass_page.ranking.tag_online")}
               </Tag>
             </Card>
           </Col>
@@ -629,8 +655,14 @@ export default function ProvinceRankingModal({
               <Statistic
                 title={
                   <Space>
-                    <span>Grade A Quality</span>
-                    <Tooltip title="Schools meeting excellence criteria">
+                    <span>
+                      {TRANSLATION("bypass_page.ranking.stat_grade_a")}
+                    </span>
+                    <Tooltip
+                      title={TRANSLATION(
+                        "bypass_page.ranking.stat_grade_a_desc",
+                      )}
+                    >
                       <InfoCircleOutlined
                         style={{
                           fontSize: 12,
@@ -649,12 +681,12 @@ export default function ProvinceRankingModal({
                 }}
                 suffix={
                   <Text type="secondary" style={{ fontSize: 14 }}>
-                    Excellence
+                    {TRANSLATION("bypass_page.ranking.stat_excellence")}
                   </Text>
                 }
               />
               <Tag color="warning" bordered={false} style={{ marginTop: 8 }}>
-                Top Performers
+                {TRANSLATION("bypass_page.ranking.tag_top_performers")}
               </Tag>
             </Card>
           </Col>
@@ -665,37 +697,39 @@ export default function ProvinceRankingModal({
           <AntTitle level={5} style={{ margin: 0 }}>
             <Flex gap="small" align="center">
               <InfoCircleOutlined style={{ color: token.colorPrimary }} />
-              <span>School Category Statistics</span>
+              <span>
+                {TRANSLATION("bypass_page.ranking.school_category_stats")}
+              </span>
             </Flex>
           </AntTitle>
           <Row gutter={[16, 16]}>
             {[
               {
-                title: "Customers",
+                title: TRANSLATION("bypass_page.ranking.customers"),
                 value: statistics.customerCount,
                 icon: <TeamOutlined />,
                 color: "#3b82f6",
               },
               {
-                title: "Contracts",
+                title: TRANSLATION("bypass_page.ranking.contracts"),
                 value: statistics.contractCount,
                 icon: <FileDoneOutlined />,
                 color: "#10b981",
               },
               {
-                title: "Trial/Test",
+                title: TRANSLATION("bypass_page.ranking.trial_test"),
                 value: statistics.testCount,
                 icon: <ExperimentOutlined />,
                 color: "#f59e0b",
               },
               {
-                title: "Free Tier",
+                title: TRANSLATION("bypass_page.ranking.free_tier"),
                 value: statistics.freeCount,
                 icon: <GiftOutlined />,
                 color: "#8b5cf6",
               },
               {
-                title: "Islamic Cur.",
+                title: TRANSLATION("bypass_page.ranking.islamic_cur"),
                 value: statistics.otherCount,
                 icon: <GlobalOutlined />,
                 color: "#6366f1",
@@ -749,7 +783,7 @@ export default function ProvinceRankingModal({
                     }}
                     suffix={
                       <Text type="secondary" style={{ fontSize: 12 }}>
-                        Units
+                        {TRANSLATION("bypass_page.ranking.units")}
                       </Text>
                     }
                   />
@@ -767,7 +801,9 @@ export default function ProvinceRankingModal({
               title={
                 <Flex gap="small" align="center">
                   <BarChartOutlined style={{ color: token.colorPrimary }} />
-                  <span>Top 10 Comparison</span>
+                  <span>
+                    {TRANSLATION("bypass_page.ranking.top_10_comparison")}
+                  </span>
                 </Flex>
               }
               style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
@@ -782,7 +818,9 @@ export default function ProvinceRankingModal({
               title={
                 <Flex gap="small" align="center">
                   <PieChartOutlined style={{ color: token.colorSuccess }} />
-                  <span>Quality Ratio</span>
+                  <span>
+                    {TRANSLATION("bypass_page.ranking.quality_ratio")}
+                  </span>
                 </Flex>
               }
               style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
@@ -819,7 +857,9 @@ export default function ProvinceRankingModal({
               title={
                 <Flex gap="small" align="center">
                   <PieChartOutlined style={{ color: token.colorInfo }} />
-                  <span>Category Ratio</span>
+                  <span>
+                    {TRANSLATION("bypass_page.ranking.category_ratio")}
+                  </span>
                 </Flex>
               }
               style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
@@ -858,7 +898,7 @@ export default function ProvinceRankingModal({
           title={
             <Flex gap="small" align="center">
               <TrophyOutlined style={{ color: token.colorWarning }} />
-              <span>Province Rankings Table</span>
+              <span>{TRANSLATION("bypass_page.ranking.table_title")}</span>
             </Flex>
           }
           style={{

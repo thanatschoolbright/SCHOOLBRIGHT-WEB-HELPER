@@ -1,14 +1,13 @@
 "use client";
 
-import React from "react";
-import { Row, Col, Tooltip, Progress, Typography, Space, Badge } from "antd";
 import {
-  FileTextOutlined,
-  ClockCircleOutlined,
   CheckCircleOutlined,
+  ClockCircleOutlined,
+  FileTextOutlined,
   InfoCircleOutlined,
-  ArrowRightOutlined,
 } from "@ant-design/icons";
+import { Badge, Col, Progress, Row, Space, Tooltip, Typography } from "antd";
+import React from "react";
 import type { OvertimeStats } from "../types/overtime.types";
 import { SummaryCard } from "./summary-card.component";
 

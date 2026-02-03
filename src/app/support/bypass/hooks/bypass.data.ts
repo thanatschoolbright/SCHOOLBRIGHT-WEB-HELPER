@@ -143,7 +143,8 @@ export const useBypassPageData = () => {
       } catch (bypassLinkError: any) {
         toast.error(TRANSLATION("bypass_page.bypass_failed"), {
           description:
-            bypassLinkError?.message ?? TRANSLATION("bypass_page.error_occurred"),
+            bypassLinkError?.message ??
+            TRANSLATION("bypass_page.error_occurred"),
         });
       }
     },
