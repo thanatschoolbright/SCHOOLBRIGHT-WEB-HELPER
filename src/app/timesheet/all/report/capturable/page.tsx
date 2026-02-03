@@ -770,7 +770,7 @@ export default function CapturableReportPage() {
           }
           open={detailModalOpen}
           onCancel={() => setDetailModalOpen(false)}
-          width={1100}
+          width={1400}
           footer={[
             <Button
               key="close"
@@ -845,7 +845,7 @@ export default function CapturableReportPage() {
                   pagination={false}
                   size="middle"
                   bordered
-                  scroll={{ x: "max-content" }}
+                  scroll={{ x: 1200 }}
                   className="overflow-hidden rounded-xl"
                   expandable={{
                     expandedRowRender: (record) => {
@@ -859,9 +859,18 @@ export default function CapturableReportPage() {
                         <Card
                           size="small"
                           variant="borderless"
-                          styles={{ body: { padding: 4 } }}
-                          style={{ backgroundColor: token.colorFillAlter }}
+                          styles={{ body: { padding: "16px 24px" } }}
+                          style={{
+                            backgroundColor: token.colorFillAlter,
+                            margin: "8px",
+                            borderRadius: "12px",
+                          }}
                         >
+                          <div className="mb-3">
+                            <Text strong style={{ color: token.colorPrimary }}>
+                              ประวัติการลงเวลารายบุคคลสำหรับงานนี้
+                            </Text>
+                          </div>
                           <Table
                             dataSource={featureTracking}
                             rowKey="entry_id"
@@ -872,12 +881,12 @@ export default function CapturableReportPage() {
                             }
                             size="small"
                             bordered
-                            scroll={{ x: "max-content", y: 240 }}
+                            scroll={{ x: 1000, y: 350 }}
                             columns={[
                               {
                                 title: "ผู้ลงเวลา",
                                 key: "user",
-                                width: 200,
+                                width: 240,
                                 render: (_, t) => (
                                   <Space>
                                     <Avatar
@@ -887,14 +896,14 @@ export default function CapturableReportPage() {
                                         backgroundColor: token.colorPrimary,
                                       }}
                                     />
-                                    <Text strong style={{ fontSize: 12 }}>
+                                    <Text strong style={{ fontSize: 13 }}>
                                       {t.user_name}
                                     </Text>
                                     {t.user_nickname && (
                                       <Tag
                                         color="blue"
                                         bordered={false}
-                                        style={{ fontSize: 10 }}
+                                        style={{ fontSize: 11 }}
                                       >
                                         {t.user_nickname}
                                       </Tag>
@@ -906,26 +915,29 @@ export default function CapturableReportPage() {
                                 title: "วันที่",
                                 dataIndex: "date",
                                 key: "date",
-                                width: 100,
-                                render: (d) => dayjs(d).format("DD/MM/YY"),
+                                width: 130,
+                                align: "center",
+                                render: (d) => dayjs(d).format("DD/MM/YYYY"),
                               },
                               {
                                 title: "รายละเอียดงาน",
                                 dataIndex: "description",
                                 key: "description",
-                                width: 250,
+                                width: 600, // เพิ่มความกว้างให้มากที่สุดเพื่อไม่ให้บีบ
                                 render: (desc: string) => {
                                   if (!desc)
                                     return <Text type="secondary">-</Text>;
-                                  const isLong = desc.length > 30;
+                                  const isLong = desc.length > 100; // ปรับให้แสดงยาวขึ้นก่อนกดดูเพิ่มเติม
                                   return (
-                                    <Flex vertical align="start" gap={2}>
+                                    <Flex vertical align="start" gap={4}>
                                       <Text
-                                        type="secondary"
-                                        style={{ fontSize: 12 }}
+                                        style={{
+                                          fontSize: 13,
+                                          lineHeight: "1.5",
+                                        }}
                                       >
                                         {isLong
-                                          ? `${desc.slice(0, 30)}...`
+                                          ? `${desc.slice(0, 100)}...`
                                           : desc}
                                       </Text>
                                       {isLong && (
@@ -935,29 +947,32 @@ export default function CapturableReportPage() {
                                           style={{
                                             padding: 0,
                                             height: "auto",
-                                            fontSize: 11,
+                                            fontSize: 12,
                                           }}
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             modal.info({
-                                              title: "รายละเอียดงาน",
+                                              title: "รายละเอียดงานฉบับเต็ม",
                                               content: (
                                                 <div
                                                   className="pt-4"
                                                   style={{
                                                     whiteSpace: "pre-wrap",
+                                                    fontSize: 14,
+                                                    lineHeight: "1.6",
                                                   }}
                                                 >
                                                   {desc}
                                                 </div>
                                               ),
                                               centered: true,
+                                              width: 600,
                                               maskClosable: true,
                                               okText: "ปิด",
                                             });
                                           }}
                                         >
-                                          ดูเพิ่มเติม
+                                          ดูรายละเอียดเพิ่มเติม
                                         </Button>
                                       )}
                                     </Flex>
@@ -965,15 +980,18 @@ export default function CapturableReportPage() {
                                 },
                               },
                               {
-                                title: "ชม.",
+                                title: "ชั่วโมง",
                                 dataIndex: "hours",
                                 key: "hours",
-                                width: 70,
+                                width: 100,
                                 align: "right",
                                 render: (h) => (
                                   <Text
                                     strong
-                                    style={{ color: token.colorInfoText }}
+                                    style={{
+                                      color: token.colorInfoText,
+                                      fontSize: 14,
+                                    }}
                                   >
                                     {h.toFixed(2)}
                                   </Text>
@@ -1008,19 +1026,28 @@ export default function CapturableReportPage() {
                       title: "โครงการย่อย / ฟีเจอร์",
                       dataIndex: "feature_name",
                       key: "feature_name",
-                      render: (text) => <Text strong>{text}</Text>,
+                      width: 500, // เพิ่มความกว้างให้มากที่สุด
+                      render: (text) => (
+                        <Text strong style={{ fontSize: 14 }}>
+                          {text}
+                        </Text>
+                      ),
                     },
                     {
-                      title: "ประเภท",
+                      title: "ประเภทรายจ่าย",
                       dataIndex: "asset_capture_type",
                       key: "asset_capture_type",
-                      width: 180,
+                      width: 240,
                       align: "center",
                       render: (type) => (
                         <Tag
                           color={type === "CAPTUREABLE" ? "success" : "default"}
                           bordered={false}
-                          style={{ fontWeight: 600 }}
+                          style={{
+                            fontWeight: 600,
+                            padding: "4px 12px",
+                            borderRadius: "6px",
+                          }}
                         >
                           {type === "CAPTUREABLE"
                             ? "Capitalization ทรัพย์สิน"
@@ -1032,27 +1059,39 @@ export default function CapturableReportPage() {
                       title: "ชั่วโมงรวม",
                       dataIndex: "hours",
                       key: "hours",
-                      width: 120,
+                      width: 180,
                       align: "right",
                       render: (val) => (
-                        <Text strong style={{ color: token.colorInfoText }}>
-                          {val.toLocaleString()}
+                        <Text
+                          strong
+                          style={{ color: token.colorInfoText, fontSize: 15 }}
+                        >
+                          {val.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
                         </Text>
                       ),
                     },
                     {
-                      title: "สัดส่วน",
+                      title: "สัดส่วนงาน (%)",
                       dataIndex: "percent",
                       key: "percent",
-                      width: 140,
+                      width: 250,
                       render: (val) => (
                         <Tooltip title={`${val}% ของโครงการนี้`}>
-                          <Progress
-                            percent={val}
-                            size={[100, 8]}
-                            strokeColor={token.colorPrimary}
-                            trailColor={token.colorFillQuaternary}
-                          />
+                          <Flex align="center" gap={12}>
+                            <Progress
+                              percent={val}
+                              size={[120, 10]}
+                              strokeColor={token.colorPrimary}
+                              trailColor={token.colorFillQuaternary}
+                              showInfo={false}
+                            />
+                            <Text strong style={{ minWidth: 45 }}>
+                              {val}%
+                            </Text>
+                          </Flex>
                         </Tooltip>
                       ),
                     },
