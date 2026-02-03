@@ -5,28 +5,32 @@ import type {
   Statistics,
 } from "../types/bypass.types";
 
-const COLLATOR = new Intl.Collator("th", {
+const THAI_COLLATOR = new Intl.Collator("th", {
   sensitivity: "base",
   numeric: true,
 });
 
-export const compareValues = (a: unknown, b: unknown): number => {
-  const normalize = (v: unknown): string => {
-    if (v == null) return "";
-    const t = typeof v;
-    if (t === "string") return v as string;
-    if (t === "number") return (v as number).toString();
-    if (t === "boolean") return (v as boolean).toString();
-    if (t === "object") {
+export const compareValues = (
+  firstValue: unknown,
+  secondValue: unknown,
+): number => {
+  const normalize = (valueToNormalize: unknown): string => {
+    if (valueToNormalize == null) return "";
+    const valueType = typeof valueToNormalize;
+    if (valueType === "string") return valueToNormalize as string;
+    if (valueType === "number") return (valueToNormalize as number).toString();
+    if (valueType === "boolean")
+      return (valueToNormalize as boolean).toString();
+    if (valueType === "object") {
       try {
-        return JSON.stringify(v as Record<string, unknown>);
+        return JSON.stringify(valueToNormalize as Record<string, unknown>);
       } catch {
-        return Object.prototype.toString.call(v);
+        return Object.prototype.toString.call(valueToNormalize);
       }
     }
-    return Object.prototype.toString.call(v);
+    return Object.prototype.toString.call(valueToNormalize);
   };
-  return COLLATOR.compare(normalize(a), normalize(b));
+  return THAI_COLLATOR.compare(normalize(firstValue), normalize(secondValue));
 };
 
 export const sanitizeTargetName = (label: string): string => {
@@ -39,15 +43,14 @@ export const extractTokenFromUrl = (fullUrl: string): string => {
     const urlObj = new URL(fullUrl);
     const params = urlObj.searchParams;
     for (const key of ["token", "q"]) {
-      const v = params.get(key);
-      if (v) return v;
+      const tokenValue = params.get(key);
+      if (tokenValue) return tokenValue;
     }
-    const href = fullUrl;
-    const idx = href.lastIndexOf("=");
-    return idx >= 0 ? href.slice(idx + 1) : "";
+    const equalsSignIndex = fullUrl.lastIndexOf("=");
+    return equalsSignIndex >= 0 ? fullUrl.slice(equalsSignIndex + 1) : "";
   } catch {
-    const idx = fullUrl.lastIndexOf("=");
-    return idx >= 0 ? fullUrl.slice(idx + 1) : "";
+    const equalsSignIndex = fullUrl.lastIndexOf("=");
+    return equalsSignIndex >= 0 ? fullUrl.slice(equalsSignIndex + 1) : "";
   }
 };
 
@@ -72,19 +75,19 @@ export const extractFilterOptions = (
   return {
     provinces: Array.from(provinces)
       .sort()
-      .map((p) => ({ label: p, value: p })),
+      .map((province) => ({ label: province, value: province })),
     schoolTypes: Array.from(schoolTypes)
       .sort()
-      .map((t) => ({
-        label: t === "Software" ? "ซอฟต์แวร์" : t,
-        value: t,
+      .map((schoolType) => ({
+        label: schoolType,
+        value: schoolType,
       })),
     grades: Array.from(grades)
       .sort()
-      .map((g) => ({ label: g, value: g })),
+      .map((grade) => ({ label: grade, value: grade })),
     schoolGroups: Array.from(schoolGroups)
       .sort()
-      .map((g) => ({ label: g, value: g })),
+      .map((group) => ({ label: group, value: group })),
   };
 };
 
@@ -124,10 +127,12 @@ export const filterSchools = (
 
 export const calculateStatistics = (schools: SchoolDetail[]): Statistics => {
   const total = schools.length;
-  const active = schools.filter((s) => s.isActive !== "inactive").length;
+  const active = schools.filter(
+    (school) => school.isActive !== "inactive",
+  ).length;
   const inactive = total - active;
   const gradeA = schools.filter(
-    (s) => s.school_grade?.trim().toUpperCase() === "A",
+    (school) => school.school_grade?.trim().toUpperCase() === "A",
   ).length;
 
   const normalizeStudentCount = (school: SchoolDetail): number => {
@@ -140,14 +145,14 @@ export const calculateStatistics = (schools: SchoolDetail[]): Statistics => {
   };
 
   const totalStudents = schools.reduce(
-    (sum, school) => sum + normalizeStudentCount(school),
+    (runningTotal, school) => runningTotal + normalizeStudentCount(school),
     0,
   );
-  const activeStudents = schools.reduce((sum, school) => {
+  const activeStudents = schools.reduce((runningTotal, school) => {
     if (school.isActive !== "inactive") {
-      return sum + normalizeStudentCount(school);
+      return runningTotal + normalizeStudentCount(school);
     }
-    return sum;
+    return runningTotal;
   }, 0);
 
   const averageStudentsPerSchool =

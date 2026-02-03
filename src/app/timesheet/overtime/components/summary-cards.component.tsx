@@ -74,8 +74,8 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
               value={stats.pending}
               subValue={
                 <div style={{ width: "100%" }}>
-                  <Text type="secondary" size="small">
-                    คิดเป็น {pendingRate.toFixed(1)}% ของคำขอทั้งหมด
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Represents {pendingRate.toFixed(1)}% of all requests
                   </Text>
                   <Progress
                     percent={pendingRate}
@@ -112,8 +112,8 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
               value={stats.approved}
               subValue={
                 <div style={{ width: "100%" }}>
-                  <Text type="secondary" size="small">
-                    ดำเนินการสำเร็จ {stats.approved} รายการ
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Successfully processed {stats.approved} requests
                   </Text>
                   <Progress
                     percent={approvedRate}

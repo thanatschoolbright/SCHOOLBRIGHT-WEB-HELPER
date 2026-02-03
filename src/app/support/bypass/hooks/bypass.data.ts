@@ -25,9 +25,9 @@ import {
 export const useBypassPageData = () => {
   const { t: TRANSLATION } = useTranslation("translate");
   const dispatch = useDispatch<AppDispatch>();
-  const userState = useAppSelector((state) => state.callAdminLogin);
+  const userState = useAppSelector((rootState) => rootState.callAdminLogin);
   const schoolListState = useAppSelector(
-    (state) => state.callGetSchoolListDetail,
+    (rootState) => rootState.callGetSchoolListDetail,
   );
 
   /*
@@ -79,19 +79,19 @@ export const useBypassPageData = () => {
         const userEmail =
           userState?.response?.data?.user_data?.email ??
           "support@schoolbright.co";
-        const response = await dispatch(
+        const bypassResponse = await dispatch(
           GET_BYPASS_TOKEN({ school_id: schoolId, user_email: userEmail }),
         ).unwrap();
-        return response?.data?.bypass as string;
-      } catch (error) {
-        throw error;
+        return bypassResponse?.data?.bypass as string;
+      } catch (bypassError) {
+        throw bypassError;
       }
     },
     [dispatch, userState?.response?.data?.user_data?.email],
   );
 
   const openBypassLink = useCallback(
-    async (params: BypassLinkParams): Promise<void> => {
+    async (linkParams: BypassLinkParams): Promise<void> => {
       const {
         schoolId,
         schoolName,
@@ -99,19 +99,19 @@ export const useBypassPageData = () => {
         environmentLabel,
         url,
         extendPath,
-      } = params;
+      } = linkParams;
 
       try {
-        const token = await getBypassToken(schoolId);
-        const finalUrl = `${url}${token}${extendPath ?? ""}`;
+        const generatedToken = await getBypassToken(schoolId);
+        const finalUrl = `${url}${generatedToken}${extendPath ?? ""}`;
         const plainTargetName = sanitizeTargetName(targetLabel);
         const schoolDisplay = schoolName
           ? `${schoolName} (${schoolId})`
           : `${TRANSLATION("bypass_page.school_id_label")} ${schoolId}`;
 
-        const copyToClipboard = async (text: string): Promise<void> => {
+        const copyToClipboard = async (textToCopy: string): Promise<void> => {
           try {
-            await navigator.clipboard.writeText(text);
+            await navigator.clipboard.writeText(textToCopy);
             toast.success(TRANSLATION("bypass_page.copied_success"));
           } catch (copyError) {
             toast.error(
@@ -140,10 +140,10 @@ export const useBypassPageData = () => {
         );
 
         window.open(finalUrl, "_blank", "noopener,noreferrer");
-      } catch (error: any) {
+      } catch (bypassLinkError: any) {
         toast.error(TRANSLATION("bypass_page.bypass_failed"), {
           description:
-            error?.message ?? TRANSLATION("bypass_page.error_occurred"),
+            bypassLinkError?.message ?? TRANSLATION("bypass_page.error_occurred"),
         });
       }
     },
@@ -151,23 +151,23 @@ export const useBypassPageData = () => {
   );
 
   const handleBypassClick = useCallback(
-    async (compositeKey: string, record: SchoolDetail): Promise<void> => {
+    async (compositeKey: string, schoolRecord: SchoolDetail): Promise<void> => {
       const [targetKey, environmentKey] = compositeKey.split("|");
-      const target = BYPASS_TARGETS[targetKey];
-      const environment = target?.environments?.[environmentKey];
+      const targetConfig = BYPASS_TARGETS[targetKey];
+      const environmentConfig = targetConfig?.environments?.[environmentKey];
 
-      if (!target || !environment) {
+      if (!targetConfig || !environmentConfig) {
         toast.error(TRANSLATION("bypass_page.server_config_not_found"));
         return;
       }
 
       await openBypassLink({
-        schoolId: String(record?.school_id ?? ""),
-        schoolName: record?.company_name,
-        targetLabel: target.label,
-        environmentLabel: environment.label,
-        url: environment.url,
-        extendPath: environment.extendPath,
+        schoolId: String(schoolRecord?.school_id ?? ""),
+        schoolName: schoolRecord?.company_name,
+        targetLabel: targetConfig.label,
+        environmentLabel: environmentConfig.label,
+        url: environmentConfig.url,
+        extendPath: environmentConfig.extendPath,
       });
 
       setOpenDropdownFor(null);
@@ -176,8 +176,11 @@ export const useBypassPageData = () => {
   );
 
   const handleFilterChange = useCallback(
-    (key: keyof FilterState, value: any): void => {
-      setFilters((prev) => ({ ...prev, [key]: value }));
+    (filterKey: keyof FilterState, filterValue: any): void => {
+      setFilters((previousFilters) => ({
+        ...previousFilters,
+        [filterKey]: filterValue,
+      }));
     },
     [],
   );

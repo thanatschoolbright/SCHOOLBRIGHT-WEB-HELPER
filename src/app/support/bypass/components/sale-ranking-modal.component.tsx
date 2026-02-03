@@ -450,11 +450,11 @@ export default function SaleRankingModal({
           <Tooltip
             title={
               <Flex vertical gap={4}>
-                <Text size="small" style={{ color: "white" }}>
+                <Text style={{ color: "white", fontSize: 12 }}>
                   Customers: {record.customerCount} (
                   {record.customerStudents.toLocaleString()} Students)
                 </Text>
-                <Text size="small" style={{ color: "white" }}>
+                <Text style={{ color: "white", fontSize: 12 }}>
                   Contracts: {record.contractCount} (
                   {record.contractStudents.toLocaleString()} Students)
                 </Text>
@@ -489,11 +489,11 @@ export default function SaleRankingModal({
           <Tooltip
             title={
               <Flex vertical gap={4}>
-                <Text size="small" style={{ color: "white" }}>
+                <Text style={{ color: "white", fontSize: 12 }}>
                   Test: {record.testCount} (
                   {record.testStudents.toLocaleString()} Students)
                 </Text>
-                <Text size="small" style={{ color: "white" }}>
+                <Text style={{ color: "white", fontSize: 12 }}>
                   Free: {record.freeCount} (
                   {record.freeStudents.toLocaleString()} Students)
                 </Text>

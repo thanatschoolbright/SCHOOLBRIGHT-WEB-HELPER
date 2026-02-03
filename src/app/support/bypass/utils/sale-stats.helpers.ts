@@ -30,42 +30,52 @@ export const calculateSaleStatistics = (
   saleMap.forEach((schoolsInSale, saleName) => {
     const totalSchools = schoolsInSale.length;
     const activeSchools = schoolsInSale.filter(
-      (s) => s.isActive !== "inactive",
+      (school) => school.isActive !== "inactive",
     ).length;
     const inactiveSchools = totalSchools - activeSchools;
 
     const gradeACount = schoolsInSale.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "A",
+      (school) => school.school_grade?.trim().toUpperCase() === "A",
     ).length;
     const gradeBCount = schoolsInSale.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "B",
+      (school) => school.school_grade?.trim().toUpperCase() === "B",
     ).length;
     const gradeCCount = schoolsInSale.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "C",
+      (school) => school.school_grade?.trim().toUpperCase() === "C",
     ).length;
 
     const softwareTypeCount = schoolsInSale.filter(
-      (s) => s.school_type === "Software",
+      (school) => school.school_type === "Software",
     ).length;
     const singleAuthenCount = schoolsInSale.filter(
-      (s) => s.school_type === "Single Authen",
+      (school) => school.school_type === "Single Authen",
     ).length;
 
     // * Counts by school_data_type
     const customerSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "ลูกค้า",
+      (school) =>
+        school.school_data_type === "ลูกค้า" ||
+        school.school_data_type === "Customer",
     );
     const contractSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "ทำสัญญา",
+      (school) =>
+        school.school_data_type === "ทำสัญญา" ||
+        school.school_data_type === "Contract",
     );
     const testSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "Test",
+      (school) =>
+        school.school_data_type === "Test" ||
+        school.school_data_type === "Trial",
     );
     const freeSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "ลูกค้าฟรี",
+      (school) =>
+        school.school_data_type === "ลูกค้าฟรี" ||
+        school.school_data_type === "Free",
     );
     const otherSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "หลักสูตรอิสลาม",
+      (school) =>
+        school.school_data_type === "หลักสูตรอิสลาม" ||
+        school.school_data_type === "Islamic",
     );
 
     const customerCount = customerSchools.length;
@@ -75,27 +85,27 @@ export const calculateSaleStatistics = (
     const otherCount = otherSchools.length;
 
     const customerStudents = customerSchools.reduce(
-      (sum, s) => sum + normalizeStudentCount(s),
+      (runningTotal, school) => runningTotal + normalizeStudentCount(school),
       0,
     );
     const contractStudents = contractSchools.reduce(
-      (sum, s) => sum + normalizeStudentCount(s),
+      (runningTotal, school) => runningTotal + normalizeStudentCount(school),
       0,
     );
     const testStudents = testSchools.reduce(
-      (sum, s) => sum + normalizeStudentCount(s),
+      (runningTotal, school) => runningTotal + normalizeStudentCount(school),
       0,
     );
     const freeStudents = freeSchools.reduce(
-      (sum, s) => sum + normalizeStudentCount(s),
+      (runningTotal, school) => runningTotal + normalizeStudentCount(school),
       0,
     );
     const otherStudents = otherSchools.reduce(
-      (sum, s) => sum + normalizeStudentCount(s),
+      (runningTotal, school) => runningTotal + normalizeStudentCount(school),
       0,
     );
 
-    const gradePoints = schoolsInSale.reduce((sum, school) => {
+    const gradePoints = schoolsInSale.reduce((runningTotal, school) => {
       const grade = school.school_grade?.trim().toUpperCase();
       const points: Record<string, number> = {
         A: 4.0,
@@ -105,7 +115,7 @@ export const calculateSaleStatistics = (
         E: 0.5,
         F: 0.0,
       };
-      return sum + (points[grade || ""] || 0);
+      return runningTotal + (points[grade || ""] || 0);
     }, 0);
 
     const averageGrade =
@@ -114,14 +124,14 @@ export const calculateSaleStatistics = (
       totalSchools > 0 ? (activeSchools / totalSchools) * 100 : 0;
 
     const totalStudents = schoolsInSale.reduce(
-      (sum, school) => sum + normalizeStudentCount(school),
+      (runningTotal, school) => runningTotal + normalizeStudentCount(school),
       0,
     );
-    const activeStudents = schoolsInSale.reduce((sum, school) => {
+    const activeStudents = schoolsInSale.reduce((runningTotal, school) => {
       if (school.isActive === "active") {
-        return sum + normalizeStudentCount(school);
+        return runningTotal + normalizeStudentCount(school);
       }
-      return sum;
+      return runningTotal;
     }, 0);
     const averageStudentsPerSchool =
       totalSchools > 0 ? totalStudents / totalSchools : 0;
@@ -162,13 +172,15 @@ export const calculateSaleStatistics = (
     });
   });
 
-  return statistics.sort((a, b) => {
+  return statistics.sort((firstSale, secondSale) => {
     // * Default sort by Paying Students (Customer + Contract)
-    const bPaying = b.customerStudents + b.contractStudents;
-    const aPaying = a.customerStudents + a.contractStudents;
-    if (bPaying !== aPaying) {
-      return bPaying - aPaying;
+    const secondSalePaying =
+      secondSale.customerStudents + secondSale.contractStudents;
+    const firstSalePaying =
+      firstSale.customerStudents + firstSale.contractStudents;
+    if (secondSalePaying !== firstSalePaying) {
+      return secondSalePaying - firstSalePaying;
     }
-    return b.totalSchools - a.totalSchools;
+    return secondSale.totalSchools - firstSale.totalSchools;
   });
 };

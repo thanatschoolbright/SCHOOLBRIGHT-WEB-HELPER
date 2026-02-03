@@ -737,7 +737,7 @@ export default function ProvinceRankingModal({
                   </div>
                   <Statistic
                     title={
-                      <Text type="secondary" size="small">
+                      <Text type="secondary" style={{ fontSize: 12 }}>
                         {item.title}
                       </Text>
                     }

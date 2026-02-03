@@ -49,10 +49,10 @@ import { calculateSaleStatistics } from "./utils/sale-stats.helpers";
 const { Title, Text } = Typography;
 
 /**
- * ฟังก์ชันเลือกสี Avatar ตามชื่อ
- * @param name ชื่อที่ต้องการสร้างสี
+ * Generates a color for the Avatar based on the provided name.
+ * @param institutionName The name of the school or company.
  */
-const getAvatarColor = (name: string) => {
+const getAvatarColor = (institutionName: string) => {
   const colors = [
     "#f5222d",
     "#fa541c",
@@ -67,11 +67,17 @@ const getAvatarColor = (name: string) => {
     "#722ed1",
     "#eb2f96",
   ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  let calculatedHash = 0;
+  for (
+    let characterIndex = 0;
+    characterIndex < institutionName.length;
+    characterIndex++
+  ) {
+    calculatedHash =
+      institutionName.charCodeAt(characterIndex) +
+      ((calculatedHash << 5) - calculatedHash);
   }
-  return colors[Math.abs(hash) % colors.length];
+  return colors[Math.abs(calculatedHash) % colors.length];
 };
 
 export default function BypassPage(): JSX.Element {
@@ -91,7 +97,7 @@ export default function BypassPage(): JSX.Element {
   });
 
   // * Calculate Statistics from original data as per requirement (Instruction 2.b)
-  // * สรุปภาพรวมจากข้อมูลทั้งหมด (ไม่สน Filter)
+  // * Summary statistics from the dataset (Bypasses active filters)
   const overallStatistics = useMemo(
     () => calculateStatistics(state.schoolDetails ?? []),
     [state.schoolDetails],
@@ -113,13 +119,14 @@ export default function BypassPage(): JSX.Element {
   const columns: ColumnsType<SchoolDetail> = useMemo(
     () => [
       {
-        title: "School ID",
+        title: "SCHOOL ID",
         dataIndex: "school_id",
         key: "school_id",
         width: 120,
         fixed: "left",
         align: "center",
-        sorter: (a, b) => Number(a.school_id) - Number(b.school_id),
+        sorter: (firstSchool, secondSchool) =>
+          Number(firstSchool.school_id) - Number(secondSchool.school_id),
         render: (id) => (
           <Tag
             color="geekblue"
@@ -136,11 +143,13 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "โรงเรียน",
+        title: "INSTITUTION",
         key: "school",
         width: 300,
-        sorter: (a, b) =>
-          (a.company_name ?? "").localeCompare(b.company_name ?? ""),
+        sorter: (firstSchool, secondSchool) =>
+          (firstSchool.company_name ?? "").localeCompare(
+            secondSchool.company_name ?? "",
+          ),
         render: (_, record) => (
           <Flex align="center" gap={12}>
             <Avatar
@@ -163,18 +172,24 @@ export default function BypassPage(): JSX.Element {
           </Flex>
         ),
       },
-
       {
-        title: "จังหวัด",
+        title: "PROVINCE",
         dataIndex: "province",
         key: "province",
         width: 140,
-        sorter: (a, b) => (a.province ?? "").localeCompare(b.province ?? ""),
+        sorter: (firstSchool, secondSchool) =>
+          (firstSchool.province ?? "").localeCompare(
+            secondSchool.province ?? "",
+          ),
       },
       {
-        title: "ประเภท & ชั้น",
+        title: "TYPE & LEVEL",
         key: "type_class",
         width: 180,
+        sorter: (firstSchool, secondSchool) =>
+          (firstSchool.school_type ?? "").localeCompare(
+            secondSchool.school_type ?? "",
+          ),
         render: (_, record) => (
           <Flex vertical gap={4}>
             <Tag
@@ -185,15 +200,19 @@ export default function BypassPage(): JSX.Element {
               {record.school_type || "-"}
             </Tag>
             <Text type="secondary" style={{ fontSize: 11 }}>
-              {record.school_class || "ไม่ระบุชั้น"}
+              {record.school_class || "Not specified"}
             </Text>
           </Flex>
         ),
       },
       {
-        title: "ทีมดูแล (Sale & Support)",
+        title: "MANAGEMENT TEAM",
         key: "team",
         width: 220,
+        sorter: (firstSchool, secondSchool) =>
+          (firstSchool.sale_name ?? "").localeCompare(
+            secondSchool.sale_name ?? "",
+          ),
         render: (_, record) => (
           <Flex vertical gap={4}>
             <Flex align="center" gap={8}>
@@ -210,10 +229,14 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "ข้อมูลสัญญญา",
+        title: "CONTRACT TYPE",
         dataIndex: "school_data_type",
         key: "school_data_type",
         width: 130,
+        sorter: (firstSchool, secondSchool) =>
+          (firstSchool.school_data_type ?? "").localeCompare(
+            secondSchool.school_data_type ?? "",
+          ),
         render: (type) => (
           <Tag bordered={false} style={{ margin: 0 }}>
             {type || "-"}
@@ -221,18 +244,26 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "วันที่เปิด",
+        title: "LAUNCH DATE",
         dataIndex: "active_date",
         key: "active_date",
         width: 120,
         align: "center",
+        sorter: (firstSchool, secondSchool) =>
+          (firstSchool.active_date ?? "").localeCompare(
+            secondSchool.active_date ?? "",
+          ),
       },
       {
-        title: "เกรด",
+        title: "GRADE",
         dataIndex: "school_grade",
         key: "school_grade",
         width: 80,
         align: "center",
+        sorter: (firstSchool, secondSchool) =>
+          (firstSchool.school_grade ?? "").localeCompare(
+            secondSchool.school_grade ?? "",
+          ),
         render: (grade) => (
           <Flex justify="center">
             <Tag
@@ -247,11 +278,14 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "นักเรียน",
+        title: "STUDENT COUNT",
         dataIndex: "student_count",
         key: "student_count",
-        width: 100,
+        width: 120,
         align: "right",
+        sorter: (firstSchool, secondSchool) =>
+          Number(firstSchool.student_count || 0) -
+          Number(secondSchool.student_count || 0),
         render: (count) => (
           <Text style={{ fontFamily: "monospace" }}>
             {Number(count || 0).toLocaleString()}
@@ -259,12 +293,14 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: "สถานะ",
+        title: "STATUS",
         dataIndex: "isActive",
         key: "isActive",
         width: 120,
-        sorter: (a, b) =>
-          (a.isActive ?? "active").localeCompare(b.isActive ?? "active"),
+        sorter: (firstSchool, secondSchool) =>
+          (firstSchool.isActive ?? "active").localeCompare(
+            secondSchool.isActive ?? "active",
+          ),
         render: (status) => {
           const isInactive = status === "inactive";
           return (
@@ -278,7 +314,7 @@ export default function BypassPage(): JSX.Element {
                     fontSize: 12,
                   }}
                 >
-                  {isInactive ? "ปิดใช้งาน" : "เปิดใช้งาน"}
+                  {isInactive ? "INACTIVE" : "ACTIVE"}
                 </Text>
               }
             />
@@ -286,7 +322,7 @@ export default function BypassPage(): JSX.Element {
         },
       },
       {
-        title: "จัดการ",
+        title: "ACTIONS",
         key: "action",
         width: 140,
         fixed: "right",
@@ -298,7 +334,7 @@ export default function BypassPage(): JSX.Element {
             onClick={() => setBypassModal({ open: true, school: record })}
             style={{ borderRadius: 8, fontWeight: 600 }}
           >
-            เข้าสู่ระบบ
+            LOGIN
           </Button>
         ),
       },
@@ -309,54 +345,54 @@ export default function BypassPage(): JSX.Element {
   return (
     <DashboardLayout>
       <Flex vertical gap={32}>
-        {/* ส่วนที่ 1: หัวข้อหน้าเว็ป */}
+        {/* Section 1: Page Header */}
         <HeaderBar
           icon={<LoginOutlined />}
-          title="ระบบเข้าใช้โรงเรียน (School Bypass)"
-          subTitle="เครื่องมือสำหรับทีมซัพพอร์ตในการเข้าสู่ระบบโรงเรียนต่าง ๆ ได้อย่างรวดเร็ว"
+          title="School Bypass System"
+          subTitle="Fast-access tool for support teams to log in to various school systems."
         />
 
-        {/* ส่วนที่ 2: บัตรสรุปข้อมูล (Summary Cards) */}
+        {/* Section 2: Summary Metrics */}
         <Row gutter={[20, 20]}>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="โรงเรียนทั้งหมด"
+              title="TOTAL SCHOOLS"
               value={overallStatistics.total.toLocaleString()}
-              subtitle="จำนวนโรงเรียนในระบบ"
+              subtitle="Registered schools"
               icon={<BankOutlined />}
               color={token.colorPrimary}
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="เปิดการใช้งาน"
+              title="ACTIVE SCHOOLS"
               value={overallStatistics.active.toLocaleString()}
-              subtitle="ออนไลน์ปกติ"
+              subtitle="Online & Operating"
               icon={<ThunderboltOutlined />}
               color={token.colorSuccess}
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="ยังไม่เปิดการใช้งาน"
+              title="INACTIVE SCHOOLS"
               value={overallStatistics.inactive.toLocaleString()}
-              subtitle="ควรตรวจสอบระบบ"
+              subtitle="System check required"
               icon={<CloseCircleOutlined />}
               color={token.colorError}
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="เกรด A (ดีเยี่ยม)"
+              title="GRADE A SCHOOLS"
               value={overallStatistics.gradeA.toLocaleString()}
-              subtitle="ประสิทธิภาพสูง"
+              subtitle="High-performance records"
               icon={<TrophyOutlined />}
               color={token.colorWarning}
             />
           </Col>
         </Row>
 
-        {/* ส่วนที่ 3: ฟิลเตอร์และปุ่มค้นหา */}
+        {/* Section 3: Filter Interface */}
         <Card variant="borderless" styles={{ body: { padding: 24 } }}>
           <Flex vertical gap={24}>
             <Flex align="center" gap={8}>
@@ -364,7 +400,7 @@ export default function BypassPage(): JSX.Element {
                 style={{ color: token.colorPrimary, fontSize: 18 }}
               />
               <Title level={5} style={{ margin: 0 }}>
-                ตัวกรอง
+                FILTER CRITERIA
               </Title>
             </Flex>
 
@@ -373,30 +409,30 @@ export default function BypassPage(): JSX.Element {
                 <Flex vertical gap={16}>
                   <Flex vertical gap={8}>
                     <Text strong style={{ fontSize: 13 }}>
-                      ค้นหาโรงเรียน
+                      SEARCH INSTITUTION
                     </Text>
                     <Input
                       size="large"
-                      placeholder="ค้นหาด้วยชื่อ, รหัสโรงเรียน..."
+                      placeholder="Search by name, school code..."
                       prefix={<SearchOutlined style={{ opacity: 0.5 }} />}
                       value={state.filters.search}
-                      onChange={(e) =>
-                        handlers.handleFilterChange("search", e.target.value)
+                      onChange={(event) =>
+                        handlers.handleFilterChange("search", event.target.value)
                       }
                     />
                   </Flex>
                   <Flex vertical gap={8}>
                     <Text strong style={{ fontSize: 13 }}>
-                      โครงการ/กลุ่มโรงเรียน
+                      SCHOOL GROUP / PROJECT
                     </Text>
                     <Select
                       style={{ width: "100%" }}
                       size="large"
-                      placeholder="เลือกกลุ่มโรงเรียน"
+                      placeholder="Select school group"
                       options={state.filterOptions.schoolGroups}
                       value={state.filters.schoolGroup}
-                      onChange={(v) =>
-                        handlers.handleFilterChange("schoolGroup", v)
+                      onChange={(selectedValue) =>
+                        handlers.handleFilterChange("schoolGroup", selectedValue)
                       }
                       allowClear
                     />
@@ -410,17 +446,17 @@ export default function BypassPage(): JSX.Element {
                     <Col span={12}>
                       <Flex vertical gap={8}>
                         <Text strong style={{ fontSize: 13 }}>
-                          จังหวัด
+                          PROVINCE
                         </Text>
                         <Select
                           style={{ width: "100%" }}
                           size="large"
-                          placeholder="ทุกจังหวัด"
+                          placeholder="All Provinces"
                           showSearch
                           options={state.filterOptions.provinces}
                           value={state.filters.province}
-                          onChange={(v) =>
-                            handlers.handleFilterChange("province", v)
+                          onChange={(selectedValue) =>
+                            handlers.handleFilterChange("province", selectedValue)
                           }
                           allowClear
                         />
@@ -429,16 +465,16 @@ export default function BypassPage(): JSX.Element {
                     <Col span={12}>
                       <Flex vertical gap={8}>
                         <Text strong style={{ fontSize: 13 }}>
-                          เกรด
+                          GRADE
                         </Text>
                         <Select
                           style={{ width: "100%" }}
                           size="large"
-                          placeholder="เลือกเกรด"
+                          placeholder="Select grade"
                           options={state.filterOptions.grades}
                           value={state.filters.grade}
-                          onChange={(v) =>
-                            handlers.handleFilterChange("grade", v)
+                          onChange={(selectedValue) =>
+                            handlers.handleFilterChange("grade", selectedValue)
                           }
                           allowClear
                         />
@@ -447,18 +483,20 @@ export default function BypassPage(): JSX.Element {
                   </Row>
                   <Flex vertical gap={8}>
                     <Text strong style={{ fontSize: 13 }}>
-                      สถานะ
+                      STATUS
                     </Text>
                     <Select
                       style={{ width: "100%" }}
                       size="large"
-                      placeholder="เลือกสถานะ"
+                      placeholder="Select status"
                       value={state.filters.status}
-                      onChange={(v) => handlers.handleFilterChange("status", v)}
+                      onChange={(selectedValue) =>
+                        handlers.handleFilterChange("status", selectedValue)
+                      }
                       allowClear
                       options={[
-                        { label: "เปิดใช้งาน", value: "active" },
-                        { label: "ปิดใช้งาน", value: "inactive" },
+                        { label: "Active", value: "active" },
+                        { label: "Inactive", value: "inactive" },
                       ]}
                     />
                   </Flex>
@@ -474,7 +512,7 @@ export default function BypassPage(): JSX.Element {
                 icon={<ClearOutlined />}
                 onClick={handlers.handleClearFilters}
               >
-                ล้างการค้นหา
+                CLEAR FILTERS
               </Button>
               <Button
                 type="primary"
@@ -482,13 +520,13 @@ export default function BypassPage(): JSX.Element {
                 icon={<SearchOutlined />}
                 style={{ padding: "0 32px" }}
               >
-                ค้นหาข้อมูล
+                SEARCH
               </Button>
             </Flex>
           </Flex>
         </Card>
 
-        {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
+        {/* Section 4: Main Data Table */}
         <Card
           variant="borderless"
           styles={{ body: { padding: 16 } }}
@@ -501,7 +539,7 @@ export default function BypassPage(): JSX.Element {
                   style={{ color: token.colorPrimary, fontSize: 18 }}
                 />
                 <Title level={5} style={{ margin: 0 }}>
-                  รายชื่อโรงเรียนในระบบ
+                  INSTITUTION DIRECTORY
                 </Title>
                 <Badge
                   count={state.filteredSchools.length}
@@ -518,7 +556,7 @@ export default function BypassPage(): JSX.Element {
                   type="text"
                   style={{ color: "#8b5cf6", fontWeight: 600 }}
                 >
-                  อันดับตามจังหวัด
+                  PROVINCIAL RANKING
                 </Button>
                 <Button
                   onClick={() => setShowSaleRanking(true)}
@@ -526,7 +564,7 @@ export default function BypassPage(): JSX.Element {
                   type="text"
                   style={{ color: "#f59e0b", fontWeight: 600 }}
                 >
-                  อันดับคนขาย
+                  SALES RANKING
                 </Button>
               </Flex>
             </Flex>
@@ -535,11 +573,11 @@ export default function BypassPage(): JSX.Element {
               columns={columns}
               dataSource={state.filteredSchools}
               loading={state.loading}
-              rowKey={(record) => String(record.school_id)}
+              rowKey={(schoolRecord) => String(schoolRecord.school_id)}
               pagination={{
                 pageSize: state.pageSize,
                 showSizeChanger: true,
-                showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+                showTotal: (totalCount) => `Total ${totalCount} records`,
               }}
               scroll={{ x: 2000 }}
               onChange={handlers.handleTableChange}

@@ -79,7 +79,7 @@ export const Service = {
       },
     });
 
-    const results = projects.map((p): ProjectStatResult => {
+    const results = projects.map((project): ProjectStatResult => {
       let totalHours = 0;
       let capturableHours = 0;
       let uncapturableHours = 0;
@@ -87,44 +87,46 @@ export const Service = {
       // Group by feature to provide detailed breakdown
       const featureMap: Record<string, ProjectStatDetail> = {};
 
-      p.timesheets.forEach((t) => {
-        const h = Number(t.hours);
-        totalHours += h;
+      project.timesheets.forEach((entry) => {
+        const hoursValue = Number(entry.hours);
+        totalHours += hoursValue;
 
-        const featureId = t.feature?.id || 0;
-        const featureName = t.feature?.name || "ไม่ระบุฟีเจอร์/งานย่อย";
-        const captureType = t.feature?.assetCaptureType || "UNCAPTUREABLE";
+        const featureId = entry.feature?.id || 0;
+        const featureName = entry.feature?.name || "No Feature/Sub-task";
+        const captureType = entry.feature?.assetCaptureType || "UNCAPTUREABLE";
 
         if (captureType === "CAPTUREABLE") {
-          capturableHours += h;
+          capturableHours += hoursValue;
         } else {
-          uncapturableHours += h;
+          uncapturableHours += hoursValue;
         }
 
-        const key = `${featureId}-${captureType}`;
-        if (!featureMap[key]) {
-          featureMap[key] = {
-            feature_id: t.feature?.id || null,
+        const compositeKey = `${featureId}-${captureType}`;
+        if (!featureMap[compositeKey]) {
+          featureMap[compositeKey] = {
+            feature_id: entry.feature?.id || null,
             feature_name: featureName,
             asset_capture_type: captureType,
             hours: 0,
             percent: 0,
           };
         }
-        featureMap[key].hours += h;
+        featureMap[compositeKey].hours += hoursValue;
       });
 
-      const details = Object.values(featureMap).map((d) => ({
-        ...d,
-        hours: Number(d.hours.toFixed(2)),
+      const details = Object.values(featureMap).map((detail) => ({
+        ...detail,
+        hours: Number(detail.hours.toFixed(2)),
         percent:
           totalHours > 0
-            ? Number(((d.hours / totalHours) * 100).toFixed(2))
+            ? Number(((detail.hours / totalHours) * 100).toFixed(2))
             : 0,
       }));
 
       // Sort details by hours descending
-      details.sort((a, b) => b.hours - a.hours);
+      details.sort(
+        (firstDetail, secondDetail) => secondDetail.hours - firstDetail.hours,
+      );
 
       const capturablePercent =
         totalHours > 0 ? (capturableHours / totalHours) * 100 : 0;
@@ -134,9 +136,9 @@ export const Service = {
         globalTotalHours > 0 ? (totalHours / globalTotalHours) * 100 : 0;
 
       return {
-        project_id: p.id,
-        project_code: p.id.toString().padStart(4, "0"),
-        project_name: p.name,
+        project_id: project.id,
+        project_code: project.id.toString().padStart(4, "0"),
+        project_name: project.name,
         capturable_percent: Number(capturablePercent.toFixed(2)),
         uncapturable_percent: Number(uncapturablePercent.toFixed(2)),
         capturable_hours: Number(capturableHours.toFixed(2)),
@@ -147,7 +149,9 @@ export const Service = {
       };
     });
 
-    results.sort((a, b) => b.hours - a.hours);
+    results.sort(
+      (firstResult, secondResult) => secondResult.hours - firstResult.hours,
+    );
 
     return results;
   },
@@ -185,11 +189,11 @@ export const Service = {
     let totalHours = 0;
     let capturableHours = 0;
 
-    entries.forEach((e) => {
-      const h = Number(e.hours);
-      totalHours += h;
-      if (e.feature?.assetCaptureType === "CAPTUREABLE") {
-        capturableHours += h;
+    entries.forEach((entry) => {
+      const hoursValue = Number(entry.hours);
+      totalHours += hoursValue;
+      if (entry.feature?.assetCaptureType === "CAPTUREABLE") {
+        capturableHours += hoursValue;
       }
     });
 

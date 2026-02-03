@@ -7,7 +7,7 @@ export const calculateProvinceStatistics = (
   const provinceMap = new Map<string, SchoolDetail[]>();
 
   schools.forEach((school) => {
-    const province = school.province || "ไม่ระบุจังหวัด";
+    const province = school.province || "Not specified";
     if (!provinceMap.has(province)) {
       provinceMap.set(province, []);
     }
@@ -19,45 +19,55 @@ export const calculateProvinceStatistics = (
   provinceMap.forEach((schoolsInProvince, province) => {
     const totalSchools = schoolsInProvince.length;
     const activeSchools = schoolsInProvince.filter(
-      (s) => s.isActive !== "inactive",
+      (school) => school.isActive !== "inactive",
     ).length;
     const inactiveSchools = totalSchools - activeSchools;
 
     const gradeACount = schoolsInProvince.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "A",
+      (school) => school.school_grade?.trim().toUpperCase() === "A",
     ).length;
     const gradeBCount = schoolsInProvince.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "B",
+      (school) => school.school_grade?.trim().toUpperCase() === "B",
     ).length;
     const gradeCCount = schoolsInProvince.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "C",
+      (school) => school.school_grade?.trim().toUpperCase() === "C",
     ).length;
 
     const softwareTypeCount = schoolsInProvince.filter(
-      (s) => s.school_type === "Software",
+      (school) => school.school_type === "Software",
     ).length;
     const singleAuthenCount = schoolsInProvince.filter(
-      (s) => s.school_type === "Single Authen",
+      (school) => school.school_type === "Single Authen",
     ).length;
 
     // * Counts by school_data_type
     const customerCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "ลูกค้า",
+      (school) =>
+        school.school_data_type === "ลูกค้า" ||
+        school.school_data_type === "Customer",
     ).length;
     const contractCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "ทำสัญญา",
+      (school) =>
+        school.school_data_type === "ทำสัญญา" ||
+        school.school_data_type === "Contract",
     ).length;
     const testCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "Test",
+      (school) =>
+        school.school_data_type === "Test" ||
+        school.school_data_type === "Trial",
     ).length;
     const freeCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "ลูกค้าฟรี",
+      (school) =>
+        school.school_data_type === "ลูกค้าฟรี" ||
+        school.school_data_type === "Free",
     ).length;
     const otherCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "หลักสูตรอิสลาม",
+      (school) =>
+        school.school_data_type === "หลักสูตรอิสลาม" ||
+        school.school_data_type === "Islamic",
     ).length;
 
-    const gradePoints = schoolsInProvince.reduce((sum, school) => {
+    const gradePoints = schoolsInProvince.reduce((runningTotal, school) => {
       const grade = school.school_grade?.trim().toUpperCase();
       const points: Record<string, number> = {
         A: 4.0,
@@ -67,7 +77,7 @@ export const calculateProvinceStatistics = (
         E: 0.5,
         F: 0.0,
       };
-      return sum + (points[grade || ""] || 0);
+      return runningTotal + (points[grade || ""] || 0);
     }, 0);
 
     const averageGrade =
@@ -95,5 +105,8 @@ export const calculateProvinceStatistics = (
     });
   });
 
-  return statistics.sort((a, b) => b.totalSchools - a.totalSchools);
+  return statistics.sort(
+    (firstProvince, secondProvince) =>
+      secondProvince.totalSchools - firstProvince.totalSchools,
+  );
 };

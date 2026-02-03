@@ -16,6 +16,8 @@ import React from "react";
 import type { SchoolDetail } from "../types/bypass.types";
 import { compareValues } from "./bypass.helpers";
 
+const { Text } = Typography;
+
 const getAvatarColor = (name: string) => {
   const colors = [
     "#f5222d",
@@ -31,28 +33,32 @@ const getAvatarColor = (name: string) => {
     "#722ed1",
     "#eb2f96",
   ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  let calculatedHash = 0;
+  for (
+    let characterIndex = 0;
+    characterIndex < name.length;
+    characterIndex++
+  ) {
+    calculatedHash = name.charCodeAt(characterIndex) + ((calculatedHash << 5) - calculatedHash);
   }
-  return colors[Math.abs(hash) % colors.length];
+  return colors[Math.abs(calculatedHash) % colors.length];
 };
 
-const addAlpha = (color: string, alpha: number) => {
-  if (!color) return "rgba(0,0,0,0)";
-  if (color.startsWith("#")) {
-    let hex = color.slice(1);
+const addAlphaToHex = (hexColor: string, alphaValue: number) => {
+  if (!hexColor) return "rgba(0,0,0,0)";
+  if (hexColor.startsWith("#")) {
+    let hex = hexColor.slice(1);
     if (hex.length === 3)
       hex = hex
         .split("")
-        .map((c) => c + c)
+        .map((char) => char + char)
         .join("");
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    const red = parseInt(hex.substring(0, 2), 16);
+    const green = parseInt(hex.substring(2, 4), 16);
+    const blue = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${red}, ${green}, ${blue}, ${alphaValue})`;
   }
-  return color;
+  return hexColor;
 };
 
 const GRADE_CONFIG: Record<string, { color: string; icon: React.ReactNode }> = {
@@ -85,7 +91,8 @@ export const buildTableColumns = (
     dataIndex: "school_id",
     key: "school_id",
     width: 100,
-    sorter: (a, b) => compareValues(a.school_id, b.school_id),
+    sorter: (firstSchool, secondSchool) =>
+      compareValues(firstSchool.school_id, secondSchool.school_id),
     render: (value) => (
       <Text
         code
@@ -105,8 +112,8 @@ export const buildTableColumns = (
     key: "company_name",
     width: 400,
     fixed: "left",
-    sorter: (firstRecord, secondRecord) =>
-      compareValues(firstRecord.company_name, secondRecord.company_name),
+    sorter: (firstSchool, secondSchool) =>
+      compareValues(firstSchool.company_name, secondSchool.company_name),
     render: (_value, record) => (
       <Flex align="center" gap={12}>
         <Avatar
@@ -138,8 +145,8 @@ export const buildTableColumns = (
     dataIndex: "province",
     key: "province",
     width: 140,
-    sorter: (firstRecord, secondRecord) =>
-      compareValues(firstRecord.province, secondRecord.province),
+    sorter: (firstSchool, secondSchool) =>
+      compareValues(firstSchool.province, secondSchool.province),
     render: (value) => <Text style={{ fontSize: 13 }}>{value || "-"}</Text>,
   },
   {
@@ -147,8 +154,8 @@ export const buildTableColumns = (
     dataIndex: "school_type",
     key: "school_type",
     width: 130,
-    sorter: (firstRecord, secondRecord) =>
-      compareValues(firstRecord.school_type, secondRecord.school_type),
+    sorter: (firstSchool, secondSchool) =>
+      compareValues(firstSchool.school_type, secondSchool.school_type),
     render: (value) => {
       if (!value) return "-";
       const isSoftware = value === "Software";
@@ -170,25 +177,28 @@ export const buildTableColumns = (
     key: "student_count",
     width: 120,
     align: "right",
-    sorter: (a, b) => {
-      const parse = (v: unknown): number => {
-        const num =
-          typeof v === "string"
-            ? Number(v.replace(/[^0-9.-]/g, ""))
-            : Number(v);
-        return Number.isFinite(num) ? num : 0;
+    sorter: (firstSchool, secondSchool) => {
+      const parseValue = (valueToParse: unknown): number => {
+        const numericValue =
+          typeof valueToParse === "string"
+            ? Number(valueToParse.replace(/[^0-9.-]/g, ""))
+            : Number(valueToParse);
+        return Number.isFinite(numericValue) ? numericValue : 0;
       };
-      return parse(a.student_count) - parse(b.student_count);
+      return (
+        parseValue(firstSchool.student_count) -
+        parseValue(secondSchool.student_count)
+      );
     },
     render: (value) => {
-      const num =
+      const numericValue =
         typeof value === "string"
           ? Number(value.replace(/[^0-9.-]/g, ""))
           : Number(value);
-      const safeValue = Number.isFinite(num) ? num : 0;
+      const safeNumericValue = Number.isFinite(numericValue) ? numericValue : 0;
       return (
         <Text strong style={{ fontSize: 13 }}>
-          {safeValue.toLocaleString()}
+          {safeNumericValue.toLocaleString()}
         </Text>
       );
     },
@@ -199,25 +209,27 @@ export const buildTableColumns = (
     key: "school_grade",
     width: 140,
     align: "center",
-    sorter: (a, b) => compareValues(a.school_grade, b.school_grade),
+    sorter: (firstSchool, secondSchool) =>
+      compareValues(firstSchool.school_grade, secondSchool.school_grade),
     render: (value) => {
-      const normalized = (value ?? "-").trim().toUpperCase();
-      const config = GRADE_CONFIG[normalized] ?? GRADE_CONFIG["-"];
+      const normalizedValue = (value ?? "-").trim().toUpperCase();
+      const gradeConfiguration =
+        GRADE_CONFIG[normalizedValue] ?? GRADE_CONFIG["-"];
       return (
         <Tag
           bordered={false}
-          icon={config.icon}
+          icon={gradeConfiguration.icon}
           style={{
             borderRadius: 8,
             fontWeight: 800,
             fontSize: 12,
-            background: addAlpha(config.color, 0.12),
-            color: config.color,
+            background: addAlphaToHex(gradeConfiguration.color, 0.12),
+            color: gradeConfiguration.color,
             padding: "4px 12px",
             minWidth: 60,
           }}
         >
-          {normalized}
+          {normalizedValue}
         </Tag>
       );
     },
@@ -228,32 +240,38 @@ export const buildTableColumns = (
     key: "isActive",
     width: 120,
     align: "center",
-    sorter: (a, b) => compareValues(a.isActive, b.isActive),
+    sorter: (firstSchool, secondSchool) =>
+      compareValues(firstSchool.isActive, secondSchool.isActive),
     render: (value) => {
       if (!value) return <Tag>-</Tag>;
-      const lower = value.toLowerCase();
-      const isActive = lower === "active";
-      const color = isActive ? "#52c41a" : "#ff4d4f";
-      const icon = isActive ? <CheckCircleOutlined /> : <CloseCircleOutlined />;
-      const label = isActive ? "ACTIVE" : "INACTIVE";
+      const lowerValue = value.toLowerCase();
+      const isActiveStatus = lowerValue === "active";
+      const statusColor = isActiveStatus ? "#52c41a" : "#ff4d4f";
+      const statusIcon = isActiveStatus ? (
+        <CheckCircleOutlined />
+      ) : (
+        <CloseCircleOutlined />
+      );
+      const statusLabel = isActiveStatus ? "ACTIVE" : "INACTIVE";
       return (
         <Tag
           bordered={false}
-          icon={icon}
+          icon={statusIcon}
           style={{
             borderRadius: 6,
             fontWeight: 700,
             fontSize: 10,
-            background: addAlpha(color, 0.1),
-            color: color,
+            background: addAlphaToHex(statusColor, 0.1),
+            color: statusColor,
             padding: "2px 8px",
           }}
         >
-          {label}
+          {statusLabel}
         </Tag>
       );
     },
   },
+];
   {
     title: "ACTIONS",
     key: "actions",

@@ -46,22 +46,22 @@ const TARGET_ICON_MAP: Record<string, React.ReactNode> = {
 };
 
 const TARGET_DESC_MAP: Record<string, string> = {
-  system: "จัดการข้อมูลพื้นฐาน, โครงสร้างโรงเรียน และการตั้งค่าหลัก",
-  academic: "จัดการเกรด, เช็คชื่อ, แผนการสอน และข้อมูลการเรียน",
-  accounting: "จัดการค่าธรรมเนียมการเรียน, ใบเสร็จ และการเงิน",
-  library: "จัดการยืม-คืนหนังสือ และทรัพยากรห้องสมุด",
-  canteen: "จัดการร้านค้า, เมนูอาหาร และการใช้จ่ายในโรงอาหาร",
-  kindergarten: "จัดการพัฒนาการเด็กเล็ก และกิจกรรมช่วงวัยอนุบาล",
-  activity: "บันทึกคะแนนกิจกรรมพัฒนาผู้เรียน และชุมนุม",
-  exam: "คลังข้อสอบ, จัดสอบออนไลน์ และวิเคราะห์ผลสอบ",
+  system: "Core administrative tools, school hierarchy, and primary configurations.",
+  academic: "Manage grades, attendance, lesson plans, and student performance data.",
+  accounting: "Tuition fees, invoicing, and financial management tools.",
+  library: "Manage book borrowing, returns, and digital library resources.",
+  canteen: "Vendor management, food menus, and cashless canteen operations.",
+  kindergarten: "Early childhood development tracking and nursery activities.",
+  activity: "Record learner development scores and student clubs records.",
+  exam: "Test banks, online examinations, and performance analytics.",
 };
 
 const ENV_DESC_MAP: Record<string, string> = {
-  production: "เข้าสู่ระบบที่โรงเรียนใช้งานอยู่จริงในปัจจุบัน",
-  staging: "เข้าสู่ระบบทดสอบสำหรับดูฟีเจอร์ใหม่ที่กำลังจะออนไลน์",
-  development: "สำหรับทีมพัฒนาเท่านั้น (ข้อมูลอาจไม่เป็นปัจจุบัน)",
-  ui: "สำหรับตรวจสอบหน้าตาระบบใหม่ (ทีมดีไซน์)",
-  legacy: "ระบบเวอร์ชั่นเดิมที่ยังเปิดให้ใช้งานอยู่",
+  production: "Access the live system currently used by the institution.",
+  staging: "Test environment for previewing upcoming features and updates.",
+  development: "Developer-only access (data may not be up-to-date).",
+  ui: "UI/UX verification environment for the design team.",
+  legacy: "Legacy version for backward compatibility and archival access.",
 };
 
 const ENV_NAME_MAP: Record<string, string> = {
@@ -86,7 +86,7 @@ export default function BypassSelectionModal({
   onSelect,
 }: BypassSelectionModalProps) {
   const { token } = theme.useToken();
-  const isDark = token.colorBgBase !== "#ffffff";
+  const isDarkMode = token.colorBgBase !== "#ffffff";
 
   if (!school) return null;
 
@@ -119,7 +119,7 @@ export default function BypassSelectionModal({
           md={8}
           style={{
             padding: 40,
-            background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+            background: isDarkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
             borderRight: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
@@ -148,10 +148,10 @@ export default function BypassSelectionModal({
 
               <Flex vertical gap={8}>
                 <Title level={3} style={{ margin: 0, fontWeight: 800 }}>
-                  เข้าสู่ระบบโรงเรียน
+                  Institutional Access
                 </Title>
                 <Text type="secondary" style={{ fontSize: 14 }}>
-                  ระบุระบบที่ต้องการ Bypass ไปยังโรงเรียน:
+                  Select the subsystem to bypass for this institution:
                 </Text>
                 <Text
                   strong
@@ -197,7 +197,7 @@ export default function BypassSelectionModal({
                       fontWeight: 700,
                     }}
                   >
-                    จังหวัด
+                    PROVINCE
                   </Text>
                   <Text strong style={{ fontSize: 20 }}>
                     {school.province || "-"}
@@ -213,7 +213,7 @@ export default function BypassSelectionModal({
                       fontWeight: 700,
                     }}
                   >
-                    กลุ่มโรงเรียน
+                    SCHOOL GROUP
                   </Text>
                   <Tag
                     color="blue"
@@ -224,7 +224,7 @@ export default function BypassSelectionModal({
                       padding: "4px 12px",
                     }}
                   >
-                    {school.school_group || "ทั่วไป"}
+                    {school.school_group || "Standard"}
                   </Tag>
                 </Flex>
               </Flex>
@@ -241,7 +241,7 @@ export default function BypassSelectionModal({
                 fontSize: 16,
               }}
             >
-              ยกเลิกและปิดหน้าต่าง
+              CANCEL & CLOSE
             </Button>
           </Flex>
         </Col>
@@ -261,24 +261,19 @@ export default function BypassSelectionModal({
             <Alert
               message={
                 <Text strong style={{ fontSize: 16 }}>
-                  คำแนะนำสำหรับการใช้งาน (Staff Guide)
+                  OPERATIONAL GUIDE (STAFF ONLY)
                 </Text>
               }
               description={
                 <Flex vertical gap={6} style={{ marginTop: 8 }}>
                   <Text>
-                    1. เลือกระบบย่อยที่ต้องการตรวจสอบข้อมูล (เช่น วิชาการ,
-                    บัญชี)
+                    1. Choose the specific subsystem (e.g., Academic, Accounting).
                   </Text>
                   <Text>
-                    2. เลือกเซิร์ฟเวอร์{" "}
-                    <Text strong style={{ color: token.colorSuccess }}>
-                      PRODUCTION
-                    </Text>{" "}
-                    สำหรับข้อมูลที่โรงเรียนเวทงานปัจจุบัน
+                    2. Select PRODUCTION for real-time institutional data.
                   </Text>
                   <Text>
-                    3. ระบบจะทำการยืนยันสิทธิ์และเข้าสู่โรงเรียนโดยอัตโนมัติ
+                    3. The system will automatically authenticate and grant access.
                   </Text>
                 </Flex>
               }
@@ -289,7 +284,7 @@ export default function BypassSelectionModal({
             />
 
             <Flex vertical gap={20}>
-              {Object.entries(BYPASS_TARGETS).map(([targetKey, target]) => {
+              {Object.entries(BYPASS_TARGETS).map(([targetKey, targetConfig]) => {
                 const isExamDisabled = targetKey === "exam";
 
                 return (
@@ -330,17 +325,17 @@ export default function BypassSelectionModal({
                                 level={4}
                                 style={{ margin: 0, fontWeight: 700 }}
                               >
-                                {target.label}
+                                {targetConfig.label}
                               </Title>
                               {isExamDisabled && (
                                 <Tag color="warning" bordered={false}>
-                                  ปิดปรับปรุง
+                                  UNDER MAINTENANCE
                                 </Tag>
                               )}
                             </Flex>
                             <Text type="secondary" style={{ fontSize: 13 }}>
                               {isExamDisabled
-                                ? "ระบบกำลังปรับปรุงระบบชุดใหม่ จะกลับมาให้บริการเร็วๆ นี้"
+                                ? "System environment is being upgraded. Services will resume shortly."
                                 : TARGET_DESC_MAP[targetKey]}
                             </Text>
                           </Flex>
@@ -353,19 +348,19 @@ export default function BypassSelectionModal({
                       </Flex>
 
                       <Row gutter={[12, 12]}>
-                        {Object.entries(target.environments).map(
-                          ([envKey, env]) => {
-                            const isProd = envKey === "production";
+                        {Object.entries(targetConfig.environments).map(
+                          ([environmentKey, environmentConfig]) => {
+                            const isProduction = environmentKey === "production";
                             return (
-                              <Col xs={12} sm={8} key={envKey}>
-                                <Tooltip title={ENV_DESC_MAP[envKey]}>
+                              <Col xs={12} sm={8} key={environmentKey}>
+                                <Tooltip title={ENV_DESC_MAP[environmentKey]}>
                                   <Button
                                     block
                                     size="large"
-                                    type={isProd ? "primary" : "default"}
+                                    type={isProduction ? "primary" : "default"}
                                     icon={<ArrowRightOutlined />}
                                     iconPosition="end"
-                                    onClick={() => onSelect(targetKey, envKey)}
+                                    onClick={() => onSelect(targetKey, environmentKey)}
                                     disabled={isExamDisabled}
                                     style={{
                                       height: 50,
@@ -378,12 +373,12 @@ export default function BypassSelectionModal({
                                       letterSpacing: "0.5px",
                                       fontFamily:
                                         "'Segoe UI', Roboto, sans-serif",
-                                      boxShadow: isProd
+                                      boxShadow: isProduction
                                         ? `0 4px 12px ${token.colorPrimary}40`
                                         : "none",
                                     }}
                                   >
-                                    {ENV_NAME_MAP[envKey] || env.label}
+                                    {ENV_NAME_MAP[environmentKey] || environmentConfig.label}
                                   </Button>
                                 </Tooltip>
                               </Col>
