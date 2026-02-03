@@ -165,7 +165,6 @@ export const Service = {
 
     let totalHours = 0;
     let capturableHours = 0;
-    const projectIds = new Set<number>();
 
     entries.forEach((e) => {
       const h = Number(e.hours);
@@ -173,10 +172,16 @@ export const Service = {
       if (e.feature?.assetCaptureType === "CAPTUREABLE") {
         capturableHours += h;
       }
-      if (e.projectId) projectIds.add(e.projectId);
     });
 
-    // 2. Calculate percentages to sum exactly to 100%
+    // 2. Count all active projects (even those with 0 hours)
+    const totalProjectsCount = await PrismaTimesheet.project.count({
+      where: {
+        is_deleted: false,
+      },
+    });
+
+    // 3. Calculate percentages to sum exactly to 100%
     let avgCapturable = 0;
     let avgUncapturable = 0;
 
@@ -188,7 +193,7 @@ export const Service = {
     }
 
     return {
-      totalProjects: projectIds.size,
+      totalProjects: totalProjectsCount,
       totalHours: Number(totalHours.toFixed(2)),
       avgCapturable,
       avgUncapturable,
