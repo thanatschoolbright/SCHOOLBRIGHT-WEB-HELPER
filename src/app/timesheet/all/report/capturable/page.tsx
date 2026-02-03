@@ -1077,6 +1077,7 @@ export default function CapturableReportPage() {
             </div>
           )}
         </Modal>
+        {contextHolder}
       </DashboardLayout>
     </PermissionLayout>
   );
