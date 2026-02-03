@@ -6,27 +6,6 @@ import { API_URL } from "@services/api-url";
 import { z } from "zod";
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
-const TARGET_POSITIONS = new Set([
-  "developer",
-  "tester",
-  "business development",
-  "admin",
-  "business analyst",
-  "system analyst",
-  "ux/ui",
-  "พัฒนาผลิตภัณฑ์",
-  "product development",
-  "tech lead",
-  "technology lead",
-  "head of technology",
-  "software engineer",
-  "qa engineer",
-  "project manager",
-  "product manager",
-  "programmer",
-  "it support",
-  "it engineer",
-]);
 const WORKING_HOURS_PER_DAY = 8;
 const WEEKDAY_LABEL_TH = [
   "อาทิตย์",
@@ -64,9 +43,6 @@ interface TimesheetEntryRow {
     name_en: string | null;
   };
 }
-
-const normalizePosition = (position?: string) =>
-  position ? position.trim().toLowerCase() : "";
 
 const getThaiWeekday = (isoDate: string) => {
   const date = new Date(`${isoDate}T00:00:00`);
@@ -205,83 +181,68 @@ const buildSummaryRecords = (
 ) => {
   const aggregated = aggregateEntriesByUser(entries);
 
-  const records = users
-    .filter((user) => {
-      // ตรวจสอบทั้งชื่อตำแหน่งภาษาอังกฤษและภาษาไทย
-      // Check both English and Thai position names
-      const posEn = normalizePosition(user.position_ref?.name_en);
-      const posTh = normalizePosition(user.position_ref?.name_th);
-      const posRaw = normalizePosition(user.position);
+  const records = users.map((user) => {
+    const key = String(user.admin_id);
+    const aggregatedData = aggregated.get(key);
+    const totalHours = aggregatedData?.total ?? 0;
+    const roundedHours = Number(totalHours.toFixed(2));
+    const hoursGap = Number((expectedHours - roundedHours).toFixed(2));
 
-      return (
-        TARGET_POSITIONS.has(posEn) ||
-        TARGET_POSITIONS.has(posTh) ||
-        TARGET_POSITIONS.has(posRaw) ||
-        !user.position_ref // ถ้าไม่มีตำแหน่งเลยให้แสดงไว้ก่อนเพื่อความปลอดภัย
-      );
-    })
-    .map((user) => {
-      const key = String(user.admin_id);
-      const aggregatedData = aggregated.get(key);
-      const totalHours = aggregatedData?.total ?? 0;
-      const roundedHours = Number(totalHours.toFixed(2));
-      const hoursGap = Number((expectedHours - roundedHours).toFixed(2));
+    const statusLabel =
+      hoursGap > 0
+        ? `ขาด ${formatHoursText(hoursGap)} ชั่วโมง`
+        : hoursGap < 0
+          ? `เกิน ${formatHoursText(Math.abs(hoursGap))} ชั่วโมง`
+          : "ครบ";
 
-      const statusLabel =
-        hoursGap > 0
-          ? `ขาด ${formatHoursText(hoursGap)} ชั่วโมง`
-          : hoursGap < 0
-            ? `เกิน ${formatHoursText(Math.abs(hoursGap))} ชั่วโมง`
-            : "ครบ";
+    const completionRate = expectedHours
+      ? Number(((roundedHours / expectedHours) * 100).toFixed(2))
+      : 0;
 
-      const completionRate = expectedHours
-        ? Number(((roundedHours / expectedHours) * 100).toFixed(2))
-        : 0;
+    const positionName =
+      user.position_ref?.name_th ||
+      user.position_ref?.name_en ||
+      user.position ||
+      "-";
 
-      const positionName =
-        user.position_ref?.name_th ||
-        user.position_ref?.name_en ||
-        user.position ||
-        "-";
+    const departmentName =
+      user.department?.name_th || user.department?.name_en || "-";
 
-      const departmentName =
-        user.department?.name_th || user.department?.name_en || "-";
-
-      return {
-        admin_id: user.admin_id,
-        full_name:
-          [user.firstname_th, user.lastname_th]
-            .filter(Boolean)
-            .join(" ")
-            .trim() ||
-          user.username ||
-          "-",
-        nickname: user.nickname ?? null,
-        employee_code: user.employee_code ?? null,
-        position: positionName,
-        department: departmentName,
-        email: user.email ?? null,
-        tel: user.phone ?? null,
-        image_profile: user.profile_image_path ?? null,
-        total_hours: roundedHours,
-        required_hours: expectedHours,
-        hours_gap: hoursGap,
-        status_label: statusLabel,
-        completion_rate: completionRate,
-        progress_text: `${formatHoursText(roundedHours)}/${formatHoursText(
-          expectedHours,
-        )} ชั่วโมง`,
-        breakdown: makeBreakdownRows(aggregatedData?.breakdown),
-        entries: aggregatedData?.entries
-          ? aggregatedData.entries
-              .sort((a, b) => b.date.getTime() - a.date.getTime())
-              .map((e: any) => ({
-                ...e,
-                date_str: formatThaiDate(e.date),
-              }))
-          : [],
-      };
-    });
+    return {
+      admin_id: user.admin_id,
+      full_name:
+        [user.firstname_th, user.lastname_th]
+          .filter(Boolean)
+          .join(" ")
+          .trim() ||
+        user.username ||
+        "-",
+      nickname: user.nickname ?? null,
+      employee_code: user.employee_code ?? null,
+      position: positionName,
+      department: departmentName,
+      email: user.email ?? null,
+      tel: user.phone ?? null,
+      image_profile: user.profile_image_path ?? null,
+      total_hours: roundedHours,
+      required_hours: expectedHours,
+      hours_gap: hoursGap,
+      status_label: statusLabel,
+      completion_rate: completionRate,
+      progress_text: `${formatHoursText(roundedHours)}/${formatHoursText(
+        expectedHours,
+      )} ชั่วโมง`,
+      breakdown: makeBreakdownRows(aggregatedData?.breakdown),
+      entries: aggregatedData?.entries
+        ? aggregatedData.entries
+            .sort((a, b) => b.date.getTime() - a.date.getTime())
+            .map((e: any) => ({
+              ...e,
+              date_str: formatThaiDate(e.date),
+            }))
+        : [],
+    };
+  });
 
   return records
     .sort((a, b) => b.total_hours - a.total_hours)

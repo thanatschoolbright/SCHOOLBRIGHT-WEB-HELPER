@@ -1,83 +1,75 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
-  Flex,
-  Space,
-  Button,
-  theme,
-  Avatar,
-  Input,
-  Select,
-  Modal,
-  Form,
-  Tag,
-  Tooltip,
-  Badge,
-  Table,
-  Row,
-  Col,
-  Divider,
-  Card,
-  Drawer,
-  Typography,
-  DatePicker,
-  Steps,
-  Result,
-  ConfigProvider,
-  Descriptions,
-  App,
-  Dropdown,
-} from "antd";
-import {
-  ReloadOutlined,
-  UserOutlined,
-  TeamOutlined,
-  SearchOutlined,
-  CheckCircleOutlined,
-  EditOutlined,
-  LockOutlined,
-  UnlockOutlined,
-  ExclamationCircleOutlined,
-  CopyOutlined,
-  DeleteOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  IdcardOutlined,
-  SmileOutlined,
-  GlobalOutlined,
-  SolutionOutlined,
-  CloudSyncOutlined,
-  PlusOutlined,
-  SafetyCertificateOutlined,
-  ClearOutlined,
-  WarningOutlined,
-  CalendarOutlined,
-  EyeOutlined,
-  InfoCircleOutlined,
-  LinkOutlined,
   ApartmentOutlined,
-  SettingOutlined,
+  CalendarOutlined,
+  CarOutlined,
+  CheckCircleOutlined,
+  ClearOutlined,
+  CloudSyncOutlined,
   CodeOutlined,
   ControlOutlined,
-  SendOutlined,
-  FlagOutlined,
   DashboardOutlined,
-  CarOutlined,
-  DownOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined,
+  EyeOutlined,
   FileExcelOutlined,
+  FlagOutlined,
+  IdcardOutlined,
+  InfoCircleOutlined,
+  LinkOutlined,
+  LockOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  SafetyCertificateOutlined,
+  SearchOutlined,
+  SendOutlined,
+  SettingOutlined,
+  SolutionOutlined,
+  TeamOutlined,
+  UnlockOutlined,
+  UserOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  App,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Divider,
+  Drawer,
+  Dropdown,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Steps,
+  Table,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 import dayjs from "dayjs";
+import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
-import DashboardLayout from "@components/layouts/backend-layout";
+import SummaryCard from "@/components/card/summary-card";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
-import SummaryCard from "@/components/card/summary-card";
+import DashboardLayout from "@components/layouts/backend-layout";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { useAppSelector } from "@stores/store";
 import { UserProfile } from "@stores/type";
@@ -133,813 +125,6 @@ interface FilterState {
 
 // ==========================================
 // 3. COMPONENTS
-// ==========================================
-
-import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
-import { Upload } from "antd";
-import type { UploadProps } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
-
-const UserFormFields = ({
-  isEdit = false,
-  positions = [],
-  departments = [],
-  onCancel,
-  form,
-}: {
-  isEdit?: boolean;
-  positions?: any[];
-  departments?: any[];
-  onCancel: () => void;
-  form: any;
-}) => {
-  const { token } = theme.useToken();
-  // Watch phone for auto password generation
-  const phone = Form.useWatch("tel", form);
-  const employeeCode = Form.useWatch("employee_code", form); // Watch employee code for naming
-  const currentImage = Form.useWatch("profile_image_path", form); // Watch current image
-
-  const [uploading, setUploading] = useState(false);
-
-  useEffect(() => {
-    if (!isEdit && phone) {
-      // Auto set password if creating new user
-      form.setFieldValue("password", phone);
-    }
-  }, [phone, isEdit, form]);
-
-  const requestUploadProfileImage = async ({
-    file,
-    onSuccess,
-    onError,
-  }: any) => {
-    setUploading(true);
-    try {
-      if (!employeeCode) {
-        toast.error("กรุณาระบุรหัสพนักงานก่อนอัปโหลดรูปภาพ");
-        setUploading(false);
-        onError(new Error("Missing employee code"));
-        return;
-      }
-
-      // Call Huawei Service
-      const result =
-        await HuaweiBucketStorageService.requestUploadUserProfileImage(
-          file,
-          employeeCode,
-          currentImage, // Pass old image path for cleanup
-        );
-
-      if (result && result.url) {
-        form.setFieldValue("profile_image_path", result.url);
-        toast.success("อัปโหลดรูปภาพสำเร็จ");
-        onSuccess(result.url);
-      } else {
-        throw new Error("Upload failed, no URL returned");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ");
-      onError(error);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const uploadButton = (
-    <button style={{ border: 0, background: "none" }} type="button">
-      {uploading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>อัปโหลด</div>
-    </button>
-  );
-
-  return (
-    <>
-      {/* Account Info */}
-      <Divider orientation="left">ข้อมูลบัญชีผู้ใช้</Divider>
-      <div className="grid grid-cols-2 gap-4">
-        {/* ... (Account Info Fields) ... */}
-        <Form.Item
-          name="username"
-          label="ชื่อผู้ใช้งาน (Username)"
-          rules={[{ required: true, message: "กรุณาระบุ Username" }]}
-        >
-          <Input prefix={<UserOutlined />} placeholder="ระบุชื่อผู้ใช้งาน" />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          label="รหัสผ่าน (Password)"
-          extra={
-            !isEdit && (
-              <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
-                *ตั้งค่าเริ่มต้นอัตโนมัติจากเบอร์โทรศัพท์
-              </Typography.Text>
-            )
-          }
-          rules={[
-            isEdit
-              ? { required: false }
-              : { required: true, message: "กรุณาระบุ Password" }, // Password optional on edit? Usually yes.
-            { min: 6, message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร" },
-          ]}
-        >
-          <Input.Password prefix={<LockOutlined />} placeholder="******" />
-        </Form.Item>
-      </div>
-
-      {/* Personal Info */}
-      <Divider orientation="left">ข้อมูลส่วนตัว</Divider>
-
-      {/* Avatar Upload Section */}
-      <div className="flex justify-center mb-6">
-        <Form.Item name="profile_image_path" noStyle>
-          <Input type="hidden" />
-        </Form.Item>
-        <Upload
-          name="avatar"
-          listType="picture-circle"
-          className="avatar-uploader"
-          showUploadList={false}
-          customRequest={requestUploadProfileImage}
-          beforeUpload={(file) => {
-            const isJpgOrPng =
-              file.type === "image/jpeg" || file.type === "image/png";
-            if (!isJpgOrPng) {
-              toast.error("คุณสามารถตัวเลือกไฟล์ JPG/PNG เท่านั้น!");
-            }
-            const isLt2M = file.size / 1024 / 1024 < 2;
-            if (!isLt2M) {
-              toast.error("ขนาดรูปภาพต้องน้อยกว่า 2MB!");
-            }
-            return isJpgOrPng && isLt2M;
-          }}
-        >
-          {currentImage ? (
-            <img
-              src={currentImage}
-              alt="avatar"
-              style={{
-                width: "100%",
-                borderRadius: "50%",
-                objectFit: "cover",
-                height: "100%",
-              }}
-            />
-          ) : (
-            uploadButton
-          )}
-        </Upload>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <Form.Item
-          name="name"
-          label="ชื่อจริง (TH)"
-          rules={[{ required: true, message: "กรุณาระบุชื่อจริง" }]}
-        >
-          <Input prefix={<EditOutlined />} />
-        </Form.Item>
-        {/* ... (Rest of Personal Info) */}
-        <Form.Item
-          name="lastname"
-          label="นามสกุล (TH)"
-          rules={[{ required: true, message: "กรุณาระบุนามสกุล" }]}
-        >
-          <Input prefix={<EditOutlined />} />
-        </Form.Item>
-        <Form.Item name="nickname" label="ชื่อเล่น">
-          <Input prefix={<SmileOutlined />} />
-        </Form.Item>
-        <Form.Item
-          name="employee_code"
-          label="รหัสพนักงาน"
-          rules={[{ required: true, message: "กรุณาระบุรหัสพนักงาน" }]} // Required for upload path
-        >
-          <Input
-            prefix={<IdcardOutlined />}
-            onChange={(e) =>
-              form.setFieldValue("employee_code", e.target.value)
-            }
-          />
-        </Form.Item>
-      </div>
-
-      {/* Work Info */}
-      <Divider orientation="left">ข้อมูลการทำงาน</Divider>
-      <div className="grid grid-cols-2 gap-4">
-        {/* Updated Position Select */}
-        <Form.Item name="position_id" label="ตำแหน่ง">
-          <Select
-            placeholder="เลือกตำแหน่ง"
-            options={positions.map((p: any) => ({
-              label: p.name_th,
-              value: p.id,
-            }))}
-            showSearch
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
-          />
-        </Form.Item>
-        <Form.Item name="department_id" label="แผนก">
-          <Select
-            placeholder="เลือกแผนก"
-            options={departments.map((d: any) => ({
-              label: d.name_th,
-              value: d.id,
-            }))}
-            showSearch
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
-          />
-        </Form.Item>
-        <Form.Item name="role_id" label="บทบาท (Role)">
-          <Select
-            placeholder="เลือกบทบาท"
-            options={[
-              { label: "ผู้ดูแลระบบ (Admin)", value: 1 },
-              { label: "ผู้ใช้งานทั่วไป (User)", value: 2 },
-            ]}
-          />
-        </Form.Item>
-      </div>
-
-      <Divider orientation="left">ไทม์ไลน์การจ้างงาน</Divider>
-      <div className="grid grid-cols-2 gap-4">
-        <Form.Item name="joined_date" label="วันที่เริ่มงาน">
-          <DatePicker
-            className="w-full"
-            format="DD/MM/YYYY"
-            placeholder="เลือกวันที่เริ่มงาน"
-          />
-        </Form.Item>
-        <Form.Item name="resigned_date" label="วันที่ลาออก">
-          <DatePicker
-            className="w-full"
-            format="DD/MM/YYYY"
-            placeholder="เลือกวันที่ลาออก"
-          />
-        </Form.Item>
-        <Form.Item name="employment_type" label="ประเภทการจ้างงาน">
-          <Select placeholder="เลือกประเภทการจ้างงาน">
-            <Select.Option value="FULL_TIME">
-              Full-time (พนักงานประจำ)
-            </Select.Option>
-            <Select.Option value="PART_TIME">
-              Part-time (พนักงานชั่วคราว)
-            </Select.Option>
-            <Select.Option value="CONTRACT">Contract (สัญญาจ้าง)</Select.Option>
-            <Select.Option value="INTERN">Intern (ฝึกงาน)</Select.Option>
-          </Select>
-        </Form.Item>
-      </div>
-
-      {/* Contact Info */}
-      <Divider orientation="left">ข้อมูลการติดต่อ</Divider>
-      <div className="grid grid-cols-2 gap-4">
-        <Form.Item name="tel" label="เบอร์โทรศัพท์">
-          <Input prefix={<PhoneOutlined />} placeholder="08xxxxxxxx" />
-        </Form.Item>
-        <Form.Item name="email" label="อีเมล" rules={[{ type: "email" }]}>
-          <Input prefix={<MailOutlined />} />
-        </Form.Item>
-        <Form.Item name="backlog_email" label="อีเมล Backlog">
-          <Input prefix={<GlobalOutlined />} />
-        </Form.Item>
-        {/* Redundant input for manual URL entry if needed, or remove since we have Upload */}
-        <Form.Item
-          name="profile_image_path_manual"
-          label="URL รูปโปรไฟล์ (กำหนดเอง)"
-          initialValue={currentImage}
-        >
-          <Input
-            prefix={<GlobalOutlined />}
-            placeholder="https://..."
-            onChange={(e) =>
-              form.setFieldValue("profile_image_path", e.target.value)
-            }
-          />
-        </Form.Item>
-      </div>
-
-      {/* IPO Security Audit (Read Only) */}
-      {isEdit && (
-        <>
-          <Divider orientation="left">
-            <Space>
-              <SafetyCertificateOutlined /> ความปลอดภัย (IPO Audit)
-            </Space>
-          </Divider>
-          <div
-            className="grid grid-cols-2 gap-4 p-4 rounded-lg"
-            style={{ backgroundColor: token.colorFillAlter }}
-          >
-            <Form.Item name="last_login" label="เข้าสู่ระบบล่าสุด">
-              <Input disabled />
-            </Form.Item>
-            <Form.Item
-              name="failed_login_attempts"
-              label="login ล้มเหลว (ครั้ง)"
-            >
-              <Input disabled />
-            </Form.Item>
-          </div>
-        </>
-      )}
-
-      <Divider />
-      <div className="flex justify-end gap-2">
-        <Button onClick={onCancel}>ยกเลิก</Button>
-        <Button
-          type="primary"
-          htmlType="submit"
-          icon={<CheckCircleOutlined />}
-          loading={uploading}
-        >
-          บันทึกข้อมูล
-        </Button>
-      </div>
-    </>
-  );
-};
-
-// New component for step-by-step form
-const UserStepForm = ({
-  modalMode,
-  form,
-  positions,
-  departments,
-  onFinish,
-  onCancel,
-  adminId,
-}: {
-  modalMode: "create" | "edit" | null;
-  form: any;
-  positions: any[];
-  departments: any[];
-  onFinish: (values: any) => Promise<void>;
-  onCancel: () => void;
-  adminId: number | string;
-}) => {
-  const { token } = theme.useToken();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [submitStatus, setSubmitStatus] = useState<
-    "idle" | "success" | "error"
-  >("idle");
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false); // For image upload in steps
-
-  const steps = [
-    {
-      title: "ข้อมูลบัญชี",
-      content: (
-        <>
-          <Divider orientation="left">ข้อมูลบัญชีผู้ใช้</Divider>
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Item
-              name="username"
-              label="ชื่อผู้ใช้งาน (Username)"
-              rules={[{ required: true, message: "กรุณาระบุ Username" }]}
-            >
-              <Input
-                prefix={<UserOutlined />}
-                placeholder="ระบุชื่อผู้ใช้งาน"
-              />
-            </Form.Item>
-            <Form.Item
-              name="password"
-              label="รหัสผ่าน (Password)"
-              extra={
-                <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
-                  *ตั้งค่าเริ่มต้นอัตโนมัติจากเบอร์โทรศัพท์
-                </Typography.Text>
-              }
-              rules={[
-                { required: true, message: "กรุณาระบุ Password" },
-                { min: 6, message: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร" },
-              ]}
-            >
-              <Input.Password prefix={<LockOutlined />} placeholder="******" />
-            </Form.Item>
-          </div>
-        </>
-      ),
-      fields: ["username", "password"],
-    },
-    {
-      title: "ข้อมูลส่วนตัว",
-      content: (
-        <>
-          <Divider orientation="left">ข้อมูลส่วนตัว</Divider>
-          <div className="flex justify-center mb-6">
-            <Form.Item name="profile_image_path" noStyle>
-              <Input type="hidden" />
-            </Form.Item>
-            <Upload
-              name="avatar"
-              listType="picture-circle"
-              className="avatar-uploader"
-              showUploadList={false}
-              customRequest={async ({ file, onSuccess, onError }: any) => {
-                setUploading(true);
-                try {
-                  const employeeCode = form.getFieldValue("employee_code");
-                  if (!employeeCode) {
-                    toast.error("กรุณาระบุรหัสพนักงานก่อนอัปโหลดรูปภาพ");
-                    setUploading(false);
-                    onError(new Error("Missing employee code"));
-                    return;
-                  }
-                  const currentImage = form.getFieldValue("profile_image_path");
-                  const result =
-                    await HuaweiBucketStorageService.requestUploadUserProfileImage(
-                      file,
-                      employeeCode,
-                      currentImage,
-                    );
-                  if (result && result.url) {
-                    form.setFieldValue("profile_image_path", result.url);
-                    toast.success("อัปโหลดรูปภาพสำเร็จ");
-                    onSuccess(result.url);
-                  } else {
-                    throw new Error("Upload failed, no URL returned");
-                  }
-                } catch (error) {
-                  console.error(error);
-                  toast.error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ");
-                  onError(error);
-                } finally {
-                  setUploading(false);
-                }
-              }}
-              beforeUpload={(file) => {
-                const isJpgOrPng =
-                  file.type === "image/jpeg" || file.type === "image/png";
-                if (!isJpgOrPng) {
-                  toast.error("คุณสามารถตัวเลือกไฟล์ JPG/PNG เท่านั้น!");
-                }
-                const isLt2M = file.size / 1024 / 1024 < 2;
-                if (!isLt2M) {
-                  toast.error("ขนาดรูปภาพต้องน้อยกว่า 2MB!");
-                }
-                return isJpgOrPng && isLt2M;
-              }}
-            >
-              {form.getFieldValue("profile_image_path") ? (
-                <img
-                  src={form.getFieldValue("profile_image_path")}
-                  alt="avatar"
-                  style={{
-                    width: "100%",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    height: "100%",
-                  }}
-                />
-              ) : (
-                <button style={{ border: 0, background: "none" }} type="button">
-                  {uploading ? <LoadingOutlined /> : <PlusOutlined />}
-                  <div style={{ marginTop: 8 }}>อัปโหลด</div>
-                </button>
-              )}
-            </Upload>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Item
-              name="name"
-              label="ชื่อจริง (TH)"
-              rules={[{ required: true, message: "กรุณาระบุชื่อจริง" }]}
-            >
-              <Input prefix={<EditOutlined />} />
-            </Form.Item>
-            <Form.Item
-              name="lastname"
-              label="นามสกุล (TH)"
-              rules={[{ required: true, message: "กรุณาระบุนามสกุล" }]}
-            >
-              <Input prefix={<EditOutlined />} />
-            </Form.Item>
-            <Form.Item name="nickname" label="ชื่อเล่น">
-              <Input prefix={<SmileOutlined />} />
-            </Form.Item>
-            <Form.Item
-              name="employee_code"
-              label="รหัสพนักงาน"
-              rules={[{ required: true, message: "กรุณาระบุรหัสพนักงาน" }]}
-            >
-              <Input prefix={<IdcardOutlined />} />
-            </Form.Item>
-          </div>
-        </>
-      ),
-      fields: ["name", "lastname", "employee_code"],
-    },
-    {
-      title: "ข้อมูลการทำงานและติดต่อ",
-      content: (
-        <>
-          <Divider orientation="left">ข้อมูลการทำงาน</Divider>
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Item name="position_id" label="ตำแหน่ง">
-              <Select
-                placeholder="เลือกตำแหน่ง"
-                options={positions.map((p: any) => ({
-                  label: p.name_th,
-                  value: p.id,
-                }))}
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-              />
-            </Form.Item>
-            <Form.Item name="department_id" label="แผนก">
-              <Select
-                placeholder="เลือกแผนก"
-                options={departments.map((d: any) => ({
-                  label: d.name_th,
-                  value: d.id,
-                }))}
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-              />
-            </Form.Item>
-            <Form.Item name="role_id" label="บทบาท (Role)">
-              <Select
-                placeholder="เลือกบทบาท"
-                options={[
-                  { label: "ผู้ดูแลระบบ (Admin)", value: 1 },
-                  { label: "ผู้ใช้งาน (User)", value: 2 },
-                ]}
-              />
-            </Form.Item>
-          </div>
-
-          <Divider orientation="left">ไทม์ไลน์การจ้างงาน</Divider>
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Item name="joined_date" label="วันที่เริ่มงาน">
-              <DatePicker
-                className="w-full"
-                format="DD/MM/YYYY"
-                placeholder="เลือกวันที่เริ่มงาน"
-              />
-            </Form.Item>
-            <Form.Item name="resigned_date" label="วันที่ลาออก">
-              <DatePicker
-                className="w-full"
-                format="DD/MM/YYYY"
-                placeholder="เลือกวันที่ลาออก"
-              />
-            </Form.Item>
-            <Form.Item name="employment_type" label="ประเภทการจ้างงาน">
-              <Select placeholder="เลือกประเภทการจ้างงาน">
-                <Select.Option value="FULL_TIME">
-                  Full-time (พนักงานประจำ)
-                </Select.Option>
-                <Select.Option value="PART_TIME">
-                  Part-time (พนักงานชั่วคราว)
-                </Select.Option>
-                <Select.Option value="CONTRACT">
-                  Contract (สัญญาจ้าง)
-                </Select.Option>
-                <Select.Option value="INTERN">Intern (ฝึกงาน)</Select.Option>
-              </Select>
-            </Form.Item>
-          </div>
-
-          <Divider orientation="left">ข้อมูลการติดต่อ</Divider>
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Item name="tel" label="เบอร์โทรศัพท์">
-              <Input prefix={<PhoneOutlined />} placeholder="08xxxxxxxx" />
-            </Form.Item>
-            <Form.Item name="email" label="อีเมล" rules={[{ type: "email" }]}>
-              <Input prefix={<MailOutlined />} />
-            </Form.Item>
-            <Form.Item name="backlog_email" label="Backlog Email">
-              <Input prefix={<GlobalOutlined />} />
-            </Form.Item>
-          </div>
-        </>
-      ),
-      fields: ["position_id", "department_id", "role_id", "tel", "email"],
-    },
-    {
-      title: "ตรวจสอบข้อมูล",
-      content: (
-        <>
-          <Divider orientation="left">ตรวจสอบข้อมูล</Divider>
-          <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="ชื่อผู้ใช้งาน (Username)">
-              {form.getFieldValue("username")}
-            </Descriptions.Item>
-            <Descriptions.Item label="ชื่อ-นามสกุล">
-              {form.getFieldValue("name")} {form.getFieldValue("lastname")}
-            </Descriptions.Item>
-            <Descriptions.Item label="รหัสพนักงาน">
-              {form.getFieldValue("employee_code")}
-            </Descriptions.Item>
-            <Descriptions.Item label="ตำแหน่ง">
-              {
-                positions.find(
-                  (p) => p.id === form.getFieldValue("position_id"),
-                )?.name_th
-              }
-            </Descriptions.Item>
-            <Descriptions.Item label="แผนก">
-              {
-                departments.find(
-                  (d) => d.id === form.getFieldValue("department_id"),
-                )?.name_th
-              }
-            </Descriptions.Item>
-            <Descriptions.Item label="เบอร์โทรศัพท์">
-              {form.getFieldValue("tel")}
-            </Descriptions.Item>
-            <Descriptions.Item label="อีเมล">
-              {form.getFieldValue("email")}
-            </Descriptions.Item>
-            <Descriptions.Item label="รูปโปรไฟล์">
-              {form.getFieldValue("profile_image_path") ? (
-                <Avatar
-                  src={form.getFieldValue("profile_image_path")}
-                  size="large"
-                />
-              ) : (
-                "ไม่มีรูป"
-              )}
-            </Descriptions.Item>
-          </Descriptions>
-        </>
-      ),
-      fields: [], // No specific fields to validate for review
-    },
-  ];
-
-  const requestMoveToNextStep = async () => {
-    try {
-      // Validate current step's fields
-      await form.validateFields(steps[currentStep].fields);
-      setCurrentStep(currentStep + 1);
-    } catch (errorInfo) {
-      console.log("Failed:", errorInfo);
-      toast.error("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง");
-    }
-  };
-
-  const requestMoveToPreviousStep = () => {
-    setCurrentStep(currentStep - 1);
-  };
-
-  const requestFinalFormSubmission = async () => {
-    try {
-      const values = await form.validateFields();
-      const payload = {
-        ...values,
-        firstname_th: values.name,
-        lastname_th: values.lastname,
-        phone: values.tel,
-        profile_image: values.profile_image_path,
-        position_id: values.position_id,
-        department_id: values.department_id,
-        created_by: adminId,
-        joined_date: values.joined_date
-          ? values.joined_date.format("YYYY-MM-DD")
-          : null,
-        resigned_date: values.resigned_date
-          ? values.resigned_date.format("YYYY-MM-DD")
-          : null,
-        employment_type: values.employment_type || "FULL_TIME",
-      };
-
-      // Auto password fallback logic
-      if (!payload.password && payload.phone) {
-        payload.password = payload.phone;
-      }
-
-      await onFinish(payload); // Call the parent's requestSubmitUserForm
-    } catch (err: any) {
-      console.error("Submission error:", err);
-      setSubmitStatus("error");
-      setSubmitError(
-        err?.response?.data?.message_th || "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
-      );
-    }
-  };
-
-  // Watch phone for auto password generation in create mode
-  const phone = Form.useWatch("tel", form);
-  useEffect(() => {
-    if (modalMode === "create" && phone) {
-      form.setFieldValue("password", phone);
-    }
-  }, [phone, modalMode, form]);
-
-  if (submitStatus === "success") {
-    return (
-      <Result
-        status="success"
-        title="เพิ่มพนักงานใหม่สำเร็จ!"
-        subTitle="ข้อมูลพนักงานถูกบันทึกเข้าสู่ระบบเรียบร้อยแล้ว"
-        extra={[
-          <Button type="primary" key="console" onClick={onCancel}>
-            ปิด
-          </Button>,
-          <Button
-            key="buy"
-            onClick={() => {
-              form.resetFields();
-              setCurrentStep(0);
-              setSubmitStatus("idle");
-            }}
-          >
-            เพิ่มพนักงานอีกคน
-          </Button>,
-        ]}
-      />
-    );
-  }
-
-  if (submitStatus === "error") {
-    return (
-      <Result
-        status="error"
-        title="เกิดข้อผิดพลาดในการเพิ่มพนักงาน"
-        subTitle={
-          submitError || "ไม่สามารถบันทึกข้อมูลพนักงานได้ กรุณาลองใหม่อีกครั้ง"
-        }
-        extra={[
-          <Button
-            type="primary"
-            key="console"
-            onClick={() => setSubmitStatus("idle")}
-          >
-            ลองอีกครั้ง
-          </Button>,
-          <Button key="buy" onClick={onCancel}>
-            ปิด
-          </Button>,
-        ]}
-      />
-    );
-  }
-
-  return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Steps: {
-            colorPrimary: token.colorPrimary,
-          },
-        },
-      }}
-    >
-      <Steps
-        current={currentStep}
-        items={steps.map((item) => ({ title: item.title }))}
-      />
-      <Form form={form} layout="vertical" className="mt-6">
-        <div className="steps-content">{steps[currentStep].content}</div>
-        <Divider />
-        <div className="steps-action flex justify-end gap-2">
-          {currentStep > 0 && (
-            <Button
-              style={{ margin: "0 8px" }}
-              onClick={() => requestMoveToPreviousStep()}
-            >
-              ย้อนกลับ
-            </Button>
-          )}
-          {currentStep < steps.length - 1 && (
-            <Button type="primary" onClick={() => requestMoveToNextStep()}>
-              ถัดไป
-            </Button>
-          )}
-          {currentStep === steps.length - 1 && (
-            <Button
-              type="primary"
-              onClick={requestFinalFormSubmission}
-              icon={<CheckCircleOutlined />}
-              loading={uploading}
-            >
-              บันทึกข้อมูล
-            </Button>
-          )}
-          <Button onClick={onCancel}>ยกเลิก</Button>
-        </div>
-      </Form>
-    </ConfigProvider>
-  );
-};
-
-// ==========================================
-// 3.5. PROGRESS MODAL (Delivery Style)
 // ==========================================
 
 const ResetPasswordTrackingModal = ({
@@ -1170,7 +355,6 @@ export default function UserManagementPage() {
   const [filters, setFilters] = useState<FilterState>({ search: "" });
 
   // Modals State
-  const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -1402,55 +586,6 @@ export default function UserManagementPage() {
   useEffect(() => {
     setPagination((prev) => ({ ...prev, current: 1 }));
   }, [filters]);
-
-  // --- Logic: Submit ---
-  /**
-   * บันทึกข้อมูลพนักงาน (สร้างใหม่หรืออัปเดต) ผ่าน Service
-   */
-  const requestSubmitUserForm = async (formValues: any) => {
-    try {
-      const payload = {
-        ...formValues,
-        firstname_th: formValues.name, // Map UI 'name' to DB 'firstname_th'
-        lastname_th: formValues.lastname,
-        phone: formValues.tel,
-        profile_image: formValues.profile_image_path,
-        position_id: formValues.position_id,
-        department_id: formValues.department_id,
-        // Audit
-        created_by: modalMode === "create" ? adminId : undefined,
-        updated_by: modalMode === "edit" ? adminId : undefined,
-        id: modalMode === "edit" ? selectedUser?.id : undefined,
-        // Timeline
-        joined_date: formValues.joined_date
-          ? formValues.joined_date.format("YYYY-MM-DD")
-          : null,
-        resigned_date: formValues.resigned_date
-          ? formValues.resigned_date.format("YYYY-MM-DD")
-          : null,
-        employment_type: formValues.employment_type || "FULL_TIME",
-      };
-
-      if (modalMode === "create") {
-        // Auto password fallback logic (already handled in form effect, but double check)
-        if (!payload.password && payload.phone) {
-          payload.password = payload.phone;
-        }
-        await requestUserProfileService.requestCreateNewUser(payload);
-      } else {
-        await requestUserProfileService.requestUpdateUserByID(payload);
-      }
-
-      toast.success(
-        modalMode === "create" ? "เพิ่มพนักงานสำเร็จ" : "แก้ไขข้อมูลสำเร็จ",
-      );
-      setModalMode(null);
-      requestFetchInitialData();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message_th || "เกิดข้อผิดพลาด");
-      throw err; // Re-throw to be caught by UserStepForm's requestFinalFormSubmission
-    }
-  };
 
   /**
    * ปลดล็อกบัญชีผู้ใช้งานผ่านเมนูจัดการ
@@ -2282,8 +1417,7 @@ export default function UserManagementPage() {
                 icon={<PlusOutlined />}
                 shape="round"
                 onClick={() => {
-                  setModalMode("create");
-                  form.resetFields();
+                  router.push("/admin/user-profile/create");
                 }}
               >
                 เพิ่มพนักงาน
@@ -2312,74 +1446,6 @@ export default function UserManagementPage() {
             }}
           />
         </Card>
-
-        {/* 4. User Modal (Create/Edit) */}
-        <Modal
-          open={!!modalMode}
-          title={
-            modalMode === "create"
-              ? "เพิ่มพนักงานใหม่ (Step-by-Step)"
-              : "แก้ไขข้อมูลพนักงาน"
-          }
-          onCancel={() => setModalMode(null)}
-          width={modalMode === "create" ? 800 : 800}
-          footer={null}
-          centered
-          destroyOnHidden
-        >
-          {modalMode === "create" ? (
-            <UserStepForm
-              modalMode={modalMode}
-              form={form}
-              positions={positions}
-              departments={departments}
-              onFinish={requestSubmitUserForm}
-              onCancel={() => setModalMode(null)}
-              adminId={adminId}
-            />
-          ) : (
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={requestSubmitUserForm}
-              initialValues={
-                modalMode === "edit" && selectedUser
-                  ? {
-                      ...selectedUser,
-                      name: selectedUser.firstname_th,
-                      lastname: selectedUser.lastname_th,
-                      tel: selectedUser.phone,
-                      profile_image_path: selectedUser.profile_image_path,
-                      role_id: selectedUser.role?.id,
-                      last_login: selectedUser.last_login
-                        ? dayjs(selectedUser.last_login).format(
-                            "DD/MM/YYYY HH:mm",
-                          )
-                        : "-",
-                      failed_login_attempts:
-                        selectedUser.failed_login_attempts ?? 0,
-                      joined_date: selectedUser.joined_date
-                        ? dayjs(selectedUser.joined_date)
-                        : null,
-                      resigned_date: selectedUser.resigned_date
-                        ? dayjs(selectedUser.resigned_date)
-                        : null,
-                      employment_type:
-                        selectedUser.employment_type || "FULL_TIME",
-                    }
-                  : {}
-              }
-            >
-              <UserFormFields
-                isEdit={modalMode === "edit"}
-                positions={positions}
-                departments={departments}
-                onCancel={() => setModalMode(null)}
-                form={form}
-              />
-            </Form>
-          )}
-        </Modal>
 
         {/* 5. Role Drawer (Stub for now) */}
         <Drawer
