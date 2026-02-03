@@ -106,6 +106,7 @@ const columnOptions = [
 export default function CapturableReportPage() {
   const router = useRouter();
   const { token } = theme.useToken();
+  const [modal, contextHolder] = Modal.useModal();
   const { Title, Text } = Typography;
 
   // * State Management
@@ -892,17 +893,56 @@ export default function CapturableReportPage() {
                                 title: "รายละเอียดงาน",
                                 dataIndex: "description",
                                 key: "description",
-                                ellipsis: true,
-                                render: (desc) => (
-                                  <Tooltip title={desc}>
-                                    <Text
-                                      type="secondary"
-                                      style={{ fontSize: 12 }}
-                                    >
-                                      {desc || "-"}
-                                    </Text>
-                                  </Tooltip>
-                                ),
+                                width: 250,
+                                render: (desc: string) => {
+                                  if (!desc)
+                                    return <Text type="secondary">-</Text>;
+                                  const isLong = desc.length > 30;
+                                  return (
+                                    <Flex vertical align="start" gap={2}>
+                                      <Text
+                                        type="secondary"
+                                        style={{ fontSize: 12 }}
+                                      >
+                                        {isLong
+                                          ? `${desc.slice(0, 30)}...`
+                                          : desc}
+                                      </Text>
+                                      {isLong && (
+                                        <Button
+                                          type="link"
+                                          size="small"
+                                          style={{
+                                            padding: 0,
+                                            height: "auto",
+                                            fontSize: 11,
+                                          }}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            modal.info({
+                                              title: "รายละเอียดงาน",
+                                              content: (
+                                                <div
+                                                  className="pt-4"
+                                                  style={{
+                                                    whiteSpace: "pre-wrap",
+                                                  }}
+                                                >
+                                                  {desc}
+                                                </div>
+                                              ),
+                                              centered: true,
+                                              maskClosable: true,
+                                              okText: "ปิด",
+                                            });
+                                          }}
+                                        >
+                                          ดูเพิ่มเติม
+                                        </Button>
+                                      )}
+                                    </Flex>
+                                  );
+                                },
                               },
                               {
                                 title: "ชม.",
