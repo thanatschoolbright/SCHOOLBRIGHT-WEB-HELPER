@@ -26,6 +26,7 @@ import {
   CheckCircleOutlined,
   TeamOutlined,
   FieldTimeOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
@@ -111,7 +112,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
       footer={null}
       width={900}
       centered
-      closeIcon={<span style={{ color: "#fff", fontSize: "20px" }}>✕</span>}
+      closeIcon={<CloseOutlined style={{ color: "#fff", fontSize: "20px" }} />}
     >
       {selectedDetail ? (
         <div className="pt-4 space-y-6">

@@ -185,7 +185,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       width={950}
       centered
       maskClosable={false}
-      closeIcon={<span style={{ color: "#fff", fontSize: "20px" }}>✕</span>}
+      closeIcon={<CloseOutlined style={{ color: "#fff", fontSize: "20px" }} />}
     >
       <Form form={form} layout="vertical" onFinish={onFinish} className="pt-6">
         {/* Basic Information Card */}

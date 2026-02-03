@@ -21,6 +21,9 @@ import {
   CalendarOutlined,
   FilterOutlined,
   InfoCircleOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { PaginationState } from "../types/overtime.types";
@@ -128,11 +131,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 label: (
                   <div className="flex items-center gap-2">
                     <span>
-                      {s.value === "pending"
-                        ? "⏳"
-                        : s.value === "approved"
-                          ? "✅"
-                          : "❌"}
+                      {s.value === "pending" ? (
+                        <ClockCircleOutlined />
+                      ) : s.value === "approved" ? (
+                        <CheckCircleOutlined
+                          style={{ color: token.colorSuccess }}
+                        />
+                      ) : (
+                        <CloseCircleOutlined
+                          style={{ color: token.colorError }}
+                        />
+                      )}
                     </span>
                     <span>{s.text}</span>
                   </div>

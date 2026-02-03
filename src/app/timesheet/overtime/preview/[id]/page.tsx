@@ -9,6 +9,8 @@ import {
   CloudUploadOutlined,
   DeleteOutlined,
   LoadingOutlined,
+  FolderOpenOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import dayjs from "dayjs";
@@ -721,12 +723,14 @@ const EvidenceUpload = ({
               onClick={handleRemove}
               title="ลบรูปภาพ"
             >
-              ×
+              <CloseOutlined />
             </button>
           </>
         ) : (
           <div className="evidence-placeholder">
-            <div style={{ fontSize: "24px" }}>📁</div>
+            <div style={{ fontSize: "24px" }}>
+              <FolderOpenOutlined style={{ color: "#bfbfbf" }} />
+            </div>
             <div style={{ marginTop: "8px" }}>
               <strong>คลิกเพื่ออัปโหลด</strong>
             </div>

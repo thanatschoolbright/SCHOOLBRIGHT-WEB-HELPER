@@ -6,6 +6,12 @@ import {
   InfoCircleOutlined,
   FileTextOutlined,
   RocketOutlined,
+  CloseOutlined,
+  BookOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  DollarOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 
 const { Title, Paragraph } = Typography;
@@ -32,7 +38,8 @@ export const RulesModal: React.FC<RulesModalProps> = ({ visible, onClose }) => {
           </div>
           <div>
             <span style={{ fontSize: "20px", fontWeight: 700, color: "#fff" }}>
-              📋 ระเบียบการขอทำงานล่วงเวลา (OT)
+              <FileTextOutlined style={{ marginRight: 8 }} />{" "}
+              ระเบียบการขอทำงานล่วงเวลา (OT)
             </span>
             <div
               style={{
@@ -52,7 +59,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ visible, onClose }) => {
       footer={null}
       width={650}
       centered
-      closeIcon={<span style={{ color: "#fff", fontSize: "20px" }}>✕</span>}
+      closeIcon={<CloseOutlined style={{ color: "#fff", fontSize: "20px" }} />}
     >
       <Divider style={{ margin: "0 0 24px 0" }} />
 
@@ -77,7 +84,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ visible, onClose }) => {
 
         <div className="relative z-10">
           <div className="mb-4 inline-flex items-center justify-center p-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full shadow-lg">
-            <span style={{ fontSize: "40px" }}>📖</span>
+            <BookOutlined style={{ fontSize: "40px", color: "#fff" }} />
           </div>
 
           <Title level={3} style={{ marginBottom: 16, color: "#667eea" }}>
@@ -100,7 +107,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ visible, onClose }) => {
           <Button
             type="primary"
             size="large"
-            icon={<RocketOutlined />}
+            icon={<BookOutlined />}
             onClick={() =>
               window.open(
                 "https://docs.google.com/document/d/12eEuCzFtCxE3C_CfhkGZ9J8yo3jiKVD2uANYBMXXnUE/edit?usp=sharing",
@@ -119,7 +126,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ visible, onClose }) => {
             }}
             className="hover:scale-105 hover:shadow-2xl transition-all duration-300"
           >
-            📚 คลิกที่นี่เพื่ออ่านระเบียบฉบับเต็ม
+            คลิกที่นี่เพื่ออ่านระเบียบฉบับเต็ม
           </Button>
 
           <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500">
@@ -132,28 +139,28 @@ export const RulesModal: React.FC<RulesModalProps> = ({ visible, onClose }) => {
       {/* Features list */}
       <div className="grid grid-cols-2 gap-4 px-4">
         <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl">
-          <span style={{ fontSize: "24px" }}>⏰</span>
+          <ClockCircleOutlined style={{ fontSize: "24px", color: "#1890ff" }} />
           <div>
             <div className="font-semibold text-blue-900 mb-1">ระยะเวลา</div>
             <div className="text-xs text-blue-700">ทำงานตามกำหนด</div>
           </div>
         </div>
         <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl">
-          <span style={{ fontSize: "24px" }}>✅</span>
+          <CheckCircleOutlined style={{ fontSize: "24px", color: "#52c41a" }} />
           <div>
             <div className="font-semibold text-green-900 mb-1">การอนุมัติ</div>
             <div className="text-xs text-green-700">ผ่านหัวหน้างาน</div>
           </div>
         </div>
         <div className="flex items-start gap-3 p-4 bg-purple-50 rounded-xl">
-          <span style={{ fontSize: "24px" }}>💰</span>
+          <DollarOutlined style={{ fontSize: "24px", color: "#722ed1" }} />
           <div>
             <div className="font-semibold text-purple-900 mb-1">ค่าตอบแทน</div>
             <div className="text-xs text-purple-700">คำนวณตามสูตร</div>
           </div>
         </div>
         <div className="flex items-start gap-3 p-4 bg-orange-50 rounded-xl">
-          <span style={{ fontSize: "24px" }}>📝</span>
+          <EditOutlined style={{ fontSize: "24px", color: "#fa8c16" }} />
           <div>
             <div className="font-semibold text-orange-900 mb-1">บันทึก</div>
             <div className="text-xs text-orange-700">ระบุรายละเอียด</div>

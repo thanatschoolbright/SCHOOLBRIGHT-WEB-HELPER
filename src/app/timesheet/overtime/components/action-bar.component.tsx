@@ -25,6 +25,9 @@ import {
   InfoCircleOutlined,
   ThunderboltOutlined,
   StarOutlined,
+  CheckCircleOutlined,
+  BulbOutlined,
+  BarChartOutlined,
 } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -115,7 +118,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                     title={
                       <div className="text-center">
                         <div className="font-semibold mb-1">
-                          📄 ดูเอกสาร PDF แบบกลุ่ม
+                          <FilePdfOutlined /> ดูเอกสาร PDF แบบกลุ่ม
                         </div>
                         <div className="text-xs">
                           รวมรายการที่เลือกทั้งหมดในเอกสารเดียว
@@ -145,7 +148,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                     title={
                       <div className="text-center">
                         <div className="font-semibold mb-1">
-                          ✅ จัดการสถานะพร้อมกัน
+                          <CheckCircleOutlined /> จัดการสถานะพร้อมกัน
                         </div>
                         <div className="text-xs">
                           เปลี่ยนสถานะหลายรายการในคราวเดียว เช่น อนุมัติ,
@@ -176,7 +179,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                     title={
                       <div className="text-center">
                         <div className="font-semibold mb-1">
-                          📧 ส่งอีเมลแจ้งเตือน
+                          <MailOutlined /> ส่งอีเมลแจ้งเตือน
                         </div>
                         <div className="text-xs">
                           ส่งอีเมลแจ้งเตือนไปยัง HR
@@ -238,11 +241,13 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                       strong
                       style={{
                         color: token.colorPrimary,
-                        display: "block",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
                         fontSize: "14px",
                       }}
                     >
-                      💡 เคล็ดลับการใช้งาน
+                      <BulbOutlined /> เคล็ดลับการใช้งาน
                     </Text>
                     <Text type="secondary" style={{ fontSize: "12px" }}>
                       คลิกเลือกรายการในตารางด้านล่างเพื่อใช้งานฟีเจอร์จัดการแบบกลุ่ม
@@ -264,7 +269,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                 title={
                   <div className="text-center">
                     <div className="font-semibold mb-1">
-                      📋 ระเบียบการทำงาน OT
+                      <FileTextOutlined /> ระเบียบการทำงาน OT
                     </div>
                     <div className="text-xs">
                       อ่านระเบียบและเงื่อนไขการขอทำงานล่วงเวลาให้ครบถ้วนก่อนยื่นคำขอ
@@ -291,7 +296,9 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               <Tooltip
                 title={
                   <div className="text-center">
-                    <div className="font-semibold mb-1">📊 วิเคราะห์ข้อมูล</div>
+                    <div className="font-semibold mb-1">
+                      <BarChartOutlined /> วิเคราะห์ข้อมูล
+                    </div>
                     <div className="text-xs">
                       ดูภาพรวมสถิติการทำงานล่วงเวลา กราฟ และรายงานต่างๆ
                       สำหรับผู้บริหารและ HR
@@ -322,7 +329,9 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               <Tooltip
                 title={
                   <div className="text-center">
-                    <div className="font-semibold mb-1">✨ สร้างคำขอใหม่</div>
+                    <div className="font-semibold mb-1">
+                      <PlusOutlined /> สร้างคำขอใหม่
+                    </div>
                     <div className="text-xs">
                       กรอกฟอร์มขอทำงานล่วงเวลาใหม่ พร้อมระบุวันที่ เวลา
                       และรายละเอียดงาน
