@@ -328,7 +328,7 @@ export default function CapturableReportPage() {
       title: (
         <Space size={4}>
           งานสร้างใหม่ (%)
-          <Tooltip title="สัดส่วนงบลงทุน (Capital Expenditure - CapEx)">
+          <Tooltip title="สัดส่วนงบลงทุน (Capitalization ทรัพย์สิน)">
             <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
           </Tooltip>
         </Space>
@@ -341,7 +341,7 @@ export default function CapturableReportPage() {
         <div className="w-full">
           <Flex justify="space-between" align="center" className="mb-1">
             <Text type="secondary" style={{ fontSize: 12 }}>
-              Asset
+              Capitalization ทรัพย์สิน
             </Text>
             <Text strong style={{ color: token.colorSuccess, fontSize: 12 }}>
               {value.toFixed(0)}%
@@ -360,7 +360,7 @@ export default function CapturableReportPage() {
       title: (
         <Space size={4}>
           งานดูแล (%)
-          <Tooltip title="สัดส่วนค่าใช้จ่าย (Operating Expenditure - OpEx)">
+          <Tooltip title="สัดส่วนค่าใช้จ่าย (Expense รายจ่าย)">
             <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
           </Tooltip>
         </Space>
@@ -373,7 +373,7 @@ export default function CapturableReportPage() {
         <div className="w-full">
           <Flex justify="space-between" align="center" className="mb-1">
             <Text type="secondary" style={{ fontSize: 12 }}>
-              Expense
+              Expense รายจ่าย
             </Text>
             <Text strong style={{ color: token.colorError, fontSize: 12 }}>
               {value.toFixed(0)}%
@@ -507,7 +507,7 @@ export default function CapturableReportPage() {
               <SummaryCard
                 title="เฉลี่ยงานสร้างใหม่"
                 value={`${summaryData.avgCapturable.toFixed(1)}%`}
-                subtitle="สัดส่วนสินทรัพย์ (Asset)"
+                subtitle="สัดส่วน Capitalization ทรัพย์สิน"
                 icon={<CheckCircleOutlined />}
                 color={token.colorSuccess}
                 percent={summaryData.avgCapturable}
@@ -517,7 +517,7 @@ export default function CapturableReportPage() {
               <SummaryCard
                 title="เฉลี่ยงานดูแล"
                 value={`${summaryData.avgUncapturable.toFixed(1)}%`}
-                subtitle="สัดส่วนค่าใช้จ่าย (Expense)"
+                subtitle="สัดส่วน Expense รายจ่าย"
                 icon={<CloseCircleOutlined />}
                 color={token.colorError}
                 percent={summaryData.avgUncapturable}
@@ -958,11 +958,13 @@ export default function CapturableReportPage() {
                       align: "center",
                       render: (type) => (
                         <Tag
-                          color={type === "CAPTUREABLE" ? "green" : "default"}
+                          color={type === "CAPTUREABLE" ? "success" : "default"}
                           bordered={false}
                           style={{ fontWeight: 600 }}
                         >
-                          {type === "CAPTUREABLE" ? "CapEx" : "OpEx"}
+                          {type === "CAPTUREABLE"
+                            ? "Capitalization ทรัพย์สิน"
+                            : "Expense รายจ่าย"}
                         </Tag>
                       ),
                     },
@@ -1027,7 +1029,7 @@ export default function CapturableReportPage() {
               <Alert
                 className="mt-6"
                 message="มาตรฐานการตรวจสอบระบบ (IPO Traceability Protocol)"
-                description="ข้อมูลการลงเวลาถูกแยกประเภทตาม Asset Capitalization Rules โดยระบบรองรับการ Audit รายบุคคล (User-level Drill down) เพื่อใช้เป็นหลักฐานประกอบการลงบัญชีสินทรัพย์และค่าใช้จ่ายของบริษัท"
+                description="ข้อมูลการลงเวลาถูกแยกประเภทตาม Capitalization Rules โดยระบบรองรับการ Audit รายบุคคล (User-level Drill down) เพื่อใช้เป็นหลักฐานประกอบการลงบัญชี Capitalization ทรัพย์สิน และ Expense รายจ่ายของบริษัท"
                 type="info"
                 showIcon
                 icon={<InfoCircleOutlined />}

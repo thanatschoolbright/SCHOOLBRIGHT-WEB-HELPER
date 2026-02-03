@@ -1,9 +1,13 @@
 export const ASSET_OPTIONS = [
-  { value: "CAPTUREABLE", label: "สามารถแคปทรัพย์สินได้", color: "cyan" },
+  {
+    value: "CAPTUREABLE",
+    label: "Capitalization ทรัพย์สิน",
+    color: "success",
+  },
   {
     value: "UN_CAPTUREABLE",
-    label: "ไม่สามารถแคปทรัพย์สินได้",
-    color: "orange",
+    label: "Expense รายจ่าย",
+    color: "default",
   },
 ];
 
