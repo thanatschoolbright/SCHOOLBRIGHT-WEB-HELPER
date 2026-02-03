@@ -12,15 +12,9 @@ import {
 } from "@ant-design/icons";
 import { Avatar, Button, Flex, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import type { TFunction } from "i18next";
 import React from "react";
 import type { SchoolDetail } from "../types/bypass.types";
 import { compareValues } from "./bypass.helpers";
-
-const STATUS_COLOR_MAP: Record<string, string> = {
-  active: "success",
-  inactive: "error",
-};
 
 const getAvatarColor = (name: string) => {
   const colors = [
@@ -72,100 +66,106 @@ const GRADE_CONFIG: Record<string, { color: string; icon: React.ReactNode }> = {
 };
 
 export const buildTableColumns = (
-  TRANSLATION: TFunction,
   onOpenBypassModal: (record: SchoolDetail) => void,
 ): ColumnsType<SchoolDetail> => [
   {
     title: "#",
     key: "index",
-    width: 70,
+    width: 60,
     align: "center",
     fixed: "left",
     render: (_value, _record, index) => (
-      <Typography.Text strong style={{ opacity: 0.4, fontSize: 13 }}>
+      <Typography.Text strong style={{ opacity: 0.3, fontSize: 12 }}>
         {(index + 1).toString().padStart(2, "0")}
       </Typography.Text>
     ),
   },
   {
-    title: "รหัส",
+    title: "CODE",
     dataIndex: "school_id",
     key: "school_id",
-    width: 120,
+    width: 100,
     sorter: (a, b) => compareValues(a.school_id, b.school_id),
     render: (value) => (
-      <Tag
-        bordered={false}
+      <Text
+        code
         style={{
-          borderRadius: 6,
-          fontWeight: 700,
+          borderRadius: 4,
+          fontWeight: 600,
           fontSize: 11,
-          background: "rgba(0,0,0,0.05)",
+          opacity: 0.8,
         }}
       >
         {value ?? "-"}
-      </Tag>
+      </Text>
     ),
   },
   {
-    title: "ชื่อโรงเรียน",
+    title: "INSTITUTION NAME",
     key: "company_name",
-    width: 350,
+    width: 400,
     fixed: "left",
     sorter: (a, b) => compareValues(a.company_name, b.company_name),
     render: (_value, r) => (
-      <Flex align="center" gap={16}>
+      <Flex align="center" gap={12}>
         <Avatar
-          size={48}
+          size={40}
           style={{
             background: getAvatarColor(r.company_name || ""),
             color: "#fff",
-            fontSize: 20,
-            fontWeight: 800,
-            borderRadius: 14,
-            border: "2px solid rgba(255,255,255,0.1)",
+            fontSize: 16,
+            fontWeight: 700,
+            borderRadius: 12,
+            flexShrink: 0,
           }}
         >
           {r.company_name?.charAt(0)}
         </Avatar>
         <Flex vertical gap={0}>
-          <Typography.Text strong style={{ fontSize: 16, lineHeight: 1.3 }}>
+          <Typography.Text strong style={{ fontSize: 15, lineHeight: 1.2 }}>
             {r.company_name || "-"}
           </Typography.Text>
-          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-            {r.province || "-"} • {r.school_group || "ทั่วไป"}
+          <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+            {r.school_group || "General"}
           </Typography.Text>
         </Flex>
       </Flex>
     ),
   },
   {
-    title: "จังหวัด",
+    title: "PROVINCE",
     dataIndex: "province",
     key: "province",
-    width: 150,
+    width: 140,
     sorter: (a, b) => compareValues(a.province, b.province),
-    render: (value) => value || "-",
+    render: (value) => <Text style={{ fontSize: 13 }}>{value || "-"}</Text>,
   },
   {
-    title: "ประเภท",
+    title: "TYPE",
     dataIndex: "school_type",
     key: "school_type",
-    width: 150,
+    width: 130,
     sorter: (a, b) => compareValues(a.school_type, b.school_type),
     render: (value) => {
       if (!value) return "-";
       const isSoftware = value === "Software";
-      const color = isSoftware ? "green" : "blue";
-      const label = isSoftware ? "ซอฟต์แวร์" : value;
-      return <Tag color={color}>{label}</Tag>;
+      const color = isSoftware ? "success" : "processing";
+      return (
+        <Tag
+          bordered={false}
+          color={color}
+          style={{ borderRadius: 6, fontWeight: 600 }}
+        >
+          {value}
+        </Tag>
+      );
     },
   },
   {
-    title: "จำนวนนักเรียน",
+    title: "STUDENTS",
     dataIndex: "student_count",
     key: "student_count",
-    width: 150,
+    width: 120,
     align: "right",
     sorter: (a, b) => {
       const parse = (v: unknown): number => {
@@ -183,22 +183,18 @@ export const buildTableColumns = (
           ? Number(value.replace(/[^0-9.-]/g, ""))
           : Number(value);
       const safeValue = Number.isFinite(num) ? num : 0;
-      return safeValue.toLocaleString("th-TH");
+      return (
+        <Text strong style={{ fontSize: 13 }}>
+          {safeValue.toLocaleString()}
+        </Text>
+      );
     },
   },
   {
-    title: "สังกัด/กลุ่มพื้นฐาน",
-    dataIndex: "school_group",
-    key: "school_group",
-    width: 180,
-    sorter: (a, b) => compareValues(a.school_group, b.school_group),
-    render: (value) => value || "-",
-  },
-  {
-    title: "เกรด",
+    title: "RANK / GRADE",
     dataIndex: "school_grade",
     key: "school_grade",
-    width: 100,
+    width: 140,
     align: "center",
     sorter: (a, b) => compareValues(a.school_grade, b.school_grade),
     render: (value) => {
@@ -209,12 +205,13 @@ export const buildTableColumns = (
           bordered={false}
           icon={config.icon}
           style={{
-            borderRadius: 6,
-            fontWeight: 700,
+            borderRadius: 8,
+            fontWeight: 800,
             fontSize: 12,
-            background: addAlpha(config.color, 0.1),
+            background: addAlpha(config.color, 0.12),
             color: config.color,
-            padding: "2px 10px",
+            padding: "4px 12px",
+            minWidth: 60,
           }}
         >
           {normalized}
@@ -223,19 +220,19 @@ export const buildTableColumns = (
     },
   },
   {
-    title: "สถานะ",
+    title: "STATUS",
     dataIndex: "isActive",
     key: "isActive",
-    width: 130,
+    width: 120,
     align: "center",
     sorter: (a, b) => compareValues(a.isActive, b.isActive),
     render: (value) => {
       if (!value) return <Tag>-</Tag>;
       const lower = value.toLowerCase();
       const isActive = lower === "active";
-      const color = isActive ? "#52c41a" : "#f5222d";
+      const color = isActive ? "#52c41a" : "#ff4d4f";
       const icon = isActive ? <CheckCircleOutlined /> : <CloseCircleOutlined />;
-      const label = isActive ? "เปิดใช้งาน" : "ปิดใช้งาน";
+      const label = isActive ? "ACTIVE" : "INACTIVE";
       return (
         <Tag
           bordered={false}
@@ -243,10 +240,10 @@ export const buildTableColumns = (
           style={{
             borderRadius: 6,
             fontWeight: 700,
-            fontSize: 11,
+            fontSize: 10,
             background: addAlpha(color, 0.1),
             color: color,
-            padding: "2px 10px",
+            padding: "2px 8px",
           }}
         >
           {label}
@@ -255,10 +252,10 @@ export const buildTableColumns = (
     },
   },
   {
-    title: "ดำเนินการ",
+    title: "ACTIONS",
     key: "actions",
     fixed: "right",
-    width: 160,
+    width: 180,
     align: "center",
     render: (_value, record) => (
       <Button
@@ -268,13 +265,14 @@ export const buildTableColumns = (
         shape="round"
         onClick={() => onOpenBypassModal(record)}
         style={{
-          fontWeight: 600,
-          background: "linear-gradient(135deg, #1890ff 0%, #1d39c4 100%)",
+          fontWeight: 700,
+          background: "linear-gradient(135deg, #1677ff 0%, #003eb3 100%)",
           border: "none",
-          height: 36,
+          height: 38,
+          boxShadow: "0 4px 12px rgba(22, 119, 255, 0.25)",
         }}
       >
-        เลือกเข้าระบบ
+        ACCESS SYSTEM
       </Button>
     ),
   },

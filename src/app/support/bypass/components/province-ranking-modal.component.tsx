@@ -1,48 +1,49 @@
 "use client";
 
-import React, { useMemo } from "react";
 import {
-  Modal,
-  Table,
-  Tag,
-  Progress,
-  Space,
-  Row,
-  Col,
-  Card,
-  theme,
-  Typography,
-  Tooltip,
-  Statistic,
-} from "antd";
-import {
-  TrophyOutlined,
+  BankOutlined,
+  BarChartOutlined,
   CheckCircleOutlined,
   CrownOutlined,
-  BankOutlined,
-  InfoCircleOutlined,
-  PieChartOutlined,
-  BarChartOutlined,
-  StarFilled,
-  TeamOutlined,
-  FileDoneOutlined,
   ExperimentOutlined,
+  FileDoneOutlined,
   GiftOutlined,
   GlobalOutlined,
+  InfoCircleOutlined,
+  PieChartOutlined,
+  StarFilled,
+  TeamOutlined,
+  TrophyOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
+import {
+  Card,
+  Col,
+  Flex,
+  Modal,
+  Progress,
+  Row,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
+  ArcElement,
   BarElement,
-  Title,
+  CategoryScale,
+  Chart as ChartJS,
   Tooltip as ChartTooltip,
   Legend,
-  ArcElement,
+  LinearScale,
+  Title,
 } from "chart.js";
+import { useMemo } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
+import { useTranslation } from "react-i18next";
 import type { ProvinceStatistics } from "../types/province-stats.types";
 
 // * Register ChartJS Components
@@ -53,7 +54,7 @@ ChartJS.register(
   Title,
   ChartTooltip,
   Legend,
-  ArcElement
+  ArcElement,
 );
 
 const { Text, Title: AntTitle } = Typography;
@@ -110,7 +111,7 @@ export default function ProvinceRankingModal({
         testCount: 0,
         freeCount: 0,
         otherCount: 0,
-      }
+      },
     );
   }, [data]);
 
@@ -217,7 +218,7 @@ export default function ProvinceRankingModal({
       {
         title: "อันดับ",
         key: "rank",
-        width: 70,
+        width: 80,
         align: "center",
         fixed: "left",
         render: (_value, _record, index) => {
@@ -241,9 +242,21 @@ export default function ProvinceRankingModal({
               <TrophyOutlined style={{ color: "#CD7F32", fontSize: 18 }} />
             );
           return (
-            <span className="font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-full w-6 h-6 inline-flex items-center justify-center text-xs">
+            <Flex
+              justify="center"
+              align="center"
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: "50%",
+                backgroundColor: token.colorFillSecondary,
+                color: token.colorTextSecondary,
+                fontSize: 12,
+                fontWeight: "bold",
+              }}
+            >
               {rank}
-            </span>
+            </Flex>
           );
         },
       },
@@ -397,23 +410,35 @@ export default function ProvinceRankingModal({
         },
       },
     ],
-    [token]
+    [token],
   );
 
   return (
     <Modal
       title={
-        <Space>
-          <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+        <Flex gap="middle" align="center">
+          <Flex
+            justify="center"
+            align="center"
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 8,
+              backgroundColor: token.colorHighlight,
+              color: token.colorPrimary,
+            }}
+          >
             <TrophyOutlined style={{ fontSize: 20 }} />
-          </div>
-          <div className="flex flex-col">
-            <span style={{ fontSize: 18, fontWeight: 700 }}>อันดับจังหวัด</span>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              วิเคราะห์ข้อมูล 10 อันดับจังหวัดที่มีจำนวนโรงเรียนมากที่สุด
+          </Flex>
+          <Flex vertical>
+            <Text strong style={{ fontSize: 18 }}>
+              Province Rankings
             </Text>
-          </div>
-        </Space>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Top 10 provinces by school volume and quality analysis
+            </Text>
+          </Flex>
+        </Flex>
       }
       open={open}
       onCancel={onClose}
@@ -427,11 +452,10 @@ export default function ProvinceRankingModal({
           borderRadius: 24,
           overflow: "hidden",
           padding: 0,
-          border: `1px solid ${token.colorBorderSecondary}`,
-          background: token.colorBgContainer,
         },
         header: {
           padding: "24px 32px",
+          margin: 0,
           borderBottom: `1px solid ${token.colorBorderSecondary}`,
         },
         body: {
@@ -442,22 +466,39 @@ export default function ProvinceRankingModal({
         },
       }}
     >
-      <div className="space-y-6">
+      <Flex vertical gap={24}>
         {/* 1. Enhanced Summary Cards */}
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={8}>
             <Card
-              className="shadow-sm rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300"
-              style={{ background: token.colorBgContainer }}
+              variant="borderless"
+              styles={{
+                body: {
+                  borderRadius: 16,
+                  position: "relative",
+                  overflow: "hidden",
+                },
+              }}
+              style={{
+                boxShadow: token.boxShadowTertiary,
+              }}
             >
-              <div className="absolute right-[-20px] bottom-[-20px] opacity-10 text-[100px] text-indigo-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
-                <BankOutlined />
-              </div>
+              <BankOutlined
+                style={{
+                  position: "absolute",
+                  right: -20,
+                  bottom: -20,
+                  opacity: 0.05,
+                  fontSize: 100,
+                  color: token.colorInfo,
+                  rotate: "12deg",
+                }}
+              />
               <Statistic
                 title={
                   <Space>
-                    <span>โรงเรียนทั้งหมด</span>
-                    <Tooltip title="นับรวมทุกโรงเรียนที่มีในฐานข้อมูล">
+                    <span>Total Schools</span>
+                    <Tooltip title="All schools in database">
                       <InfoCircleOutlined
                         style={{
                           fontSize: 12,
@@ -468,37 +509,54 @@ export default function ProvinceRankingModal({
                   </Space>
                 }
                 value={stats.totalSchools}
-                prefix={<BankOutlined className="text-indigo-500" />}
+                prefix={<BankOutlined style={{ color: token.colorInfo }} />}
                 valueStyle={{
                   fontWeight: 800,
                   color: token.colorText,
                   fontSize: 32,
                 }}
                 suffix={
-                  <span className="text-sm text-slate-400 font-normal">
-                    แห่ง
-                  </span>
+                  <Text type="secondary" style={{ fontSize: 14 }}>
+                    Schools
+                  </Text>
                 }
               />
-              <div className="mt-2 text-xs text-indigo-500 bg-indigo-50 inline-block px-2 py-1 rounded">
-                โรงเรียนทั้งหมด
-              </div>
+              <Tag color="blue" bordered={false} style={{ marginTop: 8 }}>
+                Core Systems
+              </Tag>
             </Card>
           </Col>
 
           <Col xs={24} sm={8}>
             <Card
-              className="shadow-sm rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300"
-              style={{ background: token.colorBgContainer }}
+              variant="borderless"
+              styles={{
+                body: {
+                  borderRadius: 16,
+                  position: "relative",
+                  overflow: "hidden",
+                },
+              }}
+              style={{
+                boxShadow: token.boxShadowTertiary,
+              }}
             >
-              <div className="absolute right-[-20px] bottom-[-20px] opacity-10 text-[100px] text-emerald-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
-                <CheckCircleOutlined />
-              </div>
+              <CheckCircleOutlined
+                style={{
+                  position: "absolute",
+                  right: -20,
+                  bottom: -20,
+                  opacity: 0.05,
+                  fontSize: 100,
+                  color: token.colorSuccess,
+                  rotate: "12deg",
+                }}
+              />
               <Statistic
                 title={
                   <Space>
-                    <span>ใช้งานอยู่</span>
-                    <Tooltip title="โรงเรียนที่มีการล็อกอินหรือใช้งานในช่วงเวลาที่กำหนด">
+                    <span>Active Usage</span>
+                    <Tooltip title="Schools with recent activity">
                       <InfoCircleOutlined
                         style={{
                           fontSize: 12,
@@ -509,41 +567,60 @@ export default function ProvinceRankingModal({
                   </Space>
                 }
                 value={stats.activeSchools}
-                prefix={<CheckCircleOutlined className="text-emerald-500" />}
+                prefix={
+                  <CheckCircleOutlined style={{ color: token.colorSuccess }} />
+                }
                 valueStyle={{
                   fontWeight: 800,
                   color: token.colorSuccess,
                   fontSize: 32,
                 }}
                 suffix={
-                  <span className="text-sm font-normal text-emerald-600/80 ml-1">
+                  <Text type="secondary" style={{ fontSize: 14 }}>
                     (
                     {((stats.activeSchools / stats.totalSchools) * 100).toFixed(
-                      1
+                      1,
                     )}
                     %)
-                  </span>
+                  </Text>
                 }
               />
-              <div className="mt-2 text-xs text-emerald-600 bg-emerald-50 inline-block px-2 py-1 rounded">
-                ออนไลน์ขณะนี้
-              </div>
+              <Tag color="green" bordered={false} style={{ marginTop: 8 }}>
+                Online Now
+              </Tag>
             </Card>
           </Col>
 
           <Col xs={24} sm={8}>
             <Card
-              className="shadow-sm rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300"
-              style={{ background: token.colorBgContainer }}
+              variant="borderless"
+              styles={{
+                body: {
+                  borderRadius: 16,
+                  position: "relative",
+                  overflow: "hidden",
+                },
+              }}
+              style={{
+                boxShadow: token.boxShadowTertiary,
+              }}
             >
-              <div className="absolute right-[-20px] bottom-[-20px] opacity-10 text-[100px] text-amber-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
-                <StarFilled />
-              </div>
+              <StarFilled
+                style={{
+                  position: "absolute",
+                  right: -20,
+                  bottom: -20,
+                  opacity: 0.05,
+                  fontSize: 100,
+                  color: token.colorWarning,
+                  rotate: "12deg",
+                }}
+              />
               <Statistic
                 title={
                   <Space>
-                    <span>คุณภาพระดับ A</span>
-                    <Tooltip title="โรงเรียนที่ได้รับการประเมินคุณภาพระดับดีเยี่ยม (Grade A)">
+                    <span>Grade A Quality</span>
+                    <Tooltip title="Schools meeting excellence criteria">
                       <InfoCircleOutlined
                         style={{
                           fontSize: 12,
@@ -554,291 +631,230 @@ export default function ProvinceRankingModal({
                   </Space>
                 }
                 value={stats.gradeA}
-                prefix={<CrownOutlined className="text-amber-500" />}
+                prefix={<CrownOutlined style={{ color: token.colorWarning }} />}
                 valueStyle={{
                   fontWeight: 800,
                   color: token.colorWarning,
                   fontSize: 32,
                 }}
                 suffix={
-                  <span className="text-sm text-slate-400 font-normal">
-                    แห่ง
-                  </span>
+                  <Text type="secondary" style={{ fontSize: 14 }}>
+                    Excellence
+                  </Text>
                 }
               />
-              <div className="mt-2 text-xs text-amber-600 bg-amber-50 inline-block px-2 py-1 rounded">
-                ประสิทธิภาพสูงสุด
-              </div>
+              <Tag color="warning" bordered={false} style={{ marginTop: 8 }}>
+                Top Performers
+              </Tag>
             </Card>
           </Col>
         </Row>
 
         {/* 2. School Data Type Summary Cards */}
-        <div style={{ marginBottom: 16 }}>
-          <AntTitle
-            level={5}
-            style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-              marginBottom: 16,
-            }}
-          >
-            <InfoCircleOutlined style={{ color: token.colorPrimary }} />
-            <span>สรุปประเภทข้อมูลโรงเรียน</span>
+        <Flex vertical gap="middle">
+          <AntTitle level={5} style={{ margin: 0 }}>
+            <Flex gap="small" align="center">
+              <InfoCircleOutlined style={{ color: token.colorPrimary }} />
+              <span>School Category Statistics</span>
+            </Flex>
           </AntTitle>
           <Row gutter={[16, 16]}>
-            <Col
-              xs={24}
-              sm={12}
-              lg={4.8}
-              style={{ flex: "0 0 20%", maxWidth: "20%" }}
-            >
-              <Card
-                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
-                style={{ background: token.colorBgContainer }}
+            {[
+              {
+                title: "Customers",
+                value: stats.customerCount,
+                icon: <TeamOutlined />,
+                color: "#3b82f6",
+              },
+              {
+                title: "Contracts",
+                value: stats.contractCount,
+                icon: <FileDoneOutlined />,
+                color: "#10b981",
+              },
+              {
+                title: "Trial/Test",
+                value: stats.testCount,
+                icon: <ExperimentOutlined />,
+                color: "#f59e0b",
+              },
+              {
+                title: "Free Tier",
+                value: stats.freeCount,
+                icon: <GiftOutlined />,
+                color: "#8b5cf6",
+              },
+              {
+                title: "Islamic Cur.",
+                value: stats.otherCount,
+                icon: <GlobalOutlined />,
+                color: "#6366f1",
+              },
+            ].map((item, idx) => (
+              <Col
+                xs={24}
+                sm={12}
+                lg={idx === 4 ? 4.8 : 4.8}
+                style={{ flex: "1 0 18%" }}
+                key={item.title}
               >
-                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-blue-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
-                  <TeamOutlined />
-                </div>
-                <Statistic
-                  title="ลูกค้า"
-                  value={stats.customerCount}
-                  valueStyle={{
-                    fontWeight: 800,
-                    color: "#3b82f6",
-                    fontSize: 28,
+                <Card
+                  variant="borderless"
+                  styles={{
+                    body: {
+                      borderRadius: 16,
+                      position: "relative",
+                      overflow: "hidden",
+                    },
                   }}
-                  suffix={
-                    <span className="text-xs text-slate-400 font-normal">
-                      แห่ง
-                    </span>
-                  }
-                />
-              </Card>
-            </Col>
-            <Col
-              xs={24}
-              sm={12}
-              lg={4.8}
-              style={{ flex: "0 0 20%", maxWidth: "20%" }}
-            >
-              <Card
-                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
-                style={{ background: token.colorBgContainer }}
-              >
-                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-emerald-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
-                  <FileDoneOutlined />
-                </div>
-                <Statistic
-                  title="ทำสัญญา"
-                  value={stats.contractCount}
-                  valueStyle={{
-                    fontWeight: 800,
-                    color: "#10b981",
-                    fontSize: 28,
+                  style={{
+                    boxShadow: token.boxShadowTertiary,
+                    height: "100%",
                   }}
-                  suffix={
-                    <span className="text-xs text-slate-400 font-normal">
-                      แห่ง
-                    </span>
-                  }
-                />
-              </Card>
-            </Col>
-            <Col
-              xs={24}
-              sm={12}
-              lg={4.8}
-              style={{ flex: "0 0 20%", maxWidth: "20%" }}
-            >
-              <Card
-                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
-                style={{ background: token.colorBgContainer }}
-              >
-                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-amber-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
-                  <ExperimentOutlined />
-                </div>
-                <Statistic
-                  title="Test"
-                  value={stats.testCount}
-                  valueStyle={{
-                    fontWeight: 800,
-                    color: "#f59e0b",
-                    fontSize: 28,
-                  }}
-                  suffix={
-                    <span className="text-xs text-slate-400 font-normal">
-                      แห่ง
-                    </span>
-                  }
-                />
-              </Card>
-            </Col>
-            <Col
-              xs={24}
-              sm={12}
-              lg={4.8}
-              style={{ flex: "0 0 20%", maxWidth: "20%" }}
-            >
-              <Card
-                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
-                style={{ background: token.colorBgContainer }}
-              >
-                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-violet-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
-                  <GiftOutlined />
-                </div>
-                <Statistic
-                  title="ลูกค้าฟรี"
-                  value={stats.freeCount}
-                  valueStyle={{
-                    fontWeight: 800,
-                    color: "#8b5cf6",
-                    fontSize: 28,
-                  }}
-                  suffix={
-                    <span className="text-xs text-slate-400 font-normal">
-                      แห่ง
-                    </span>
-                  }
-                />
-              </Card>
-            </Col>
-            <Col
-              xs={24}
-              sm={12}
-              lg={4.8}
-              style={{ flex: "0 0 20%", maxWidth: "20%" }}
-            >
-              <Card
-                className="shadow-sm rounded-xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 h-full"
-                style={{ background: token.colorBgContainer }}
-              >
-                <div className="absolute right-[-10px] bottom-[-10px] opacity-10 text-[60px] text-indigo-500 rotate-12 group-hover:rotate-0 transition-all duration-500">
-                  <GlobalOutlined />
-                </div>
-                <Statistic
-                  title="หลักสูตรอิสลาม"
-                  value={stats.otherCount}
-                  valueStyle={{
-                    fontWeight: 800,
-                    color: "#6366f1",
-                    fontSize: 28,
-                  }}
-                  suffix={
-                    <span className="text-xs text-slate-400 font-normal">
-                      แห่ง
-                    </span>
-                  }
-                />
-              </Card>
-            </Col>
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: -10,
+                      bottom: -10,
+                      opacity: 0.05,
+                      fontSize: 60,
+                      color: item.color,
+                      rotate: "12deg",
+                    }}
+                  >
+                    {item.icon}
+                  </div>
+                  <Statistic
+                    title={
+                      <Text type="secondary" size="small">
+                        {item.title}
+                      </Text>
+                    }
+                    value={item.value}
+                    valueStyle={{
+                      fontWeight: 800,
+                      color: item.color,
+                      fontSize: 28,
+                    }}
+                    suffix={
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        Units
+                      </Text>
+                    }
+                  />
+                </Card>
+              </Col>
+            ))}
           </Row>
-        </div>
+        </Flex>
 
         {/* 3. Charts Analysis Section */}
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
             <Card
+              variant="borderless"
               title={
-                <Space>
+                <Flex gap="small" align="center">
                   <BarChartOutlined style={{ color: token.colorPrimary }} />
-                  <span>เปรียบเทียบการใช้งาน 10 อันดับแรก</span>
-                </Space>
+                  <span>Top 10 Comparison</span>
+                </Flex>
               }
-              className="shadow-sm rounded-2xl h-full"
+              style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
+              styles={{ body: { height: 450 } }}
             >
-              <div style={{ height: 450 }}>
-                <Bar options={chartOptions} data={barChartData} />
-              </div>
+              <Bar options={chartOptions} data={barChartData} />
             </Card>
           </Col>
           <Col xs={24} lg={6}>
             <Card
+              variant="borderless"
               title={
-                <Space>
+                <Flex gap="small" align="center">
                   <PieChartOutlined style={{ color: token.colorSuccess }} />
-                  <span>สัดส่วนคุณภาพ</span>
-                </Space>
+                  <span>Quality Ratio</span>
+                </Flex>
               }
-              className="shadow-sm rounded-2xl h-full"
-            >
-              <div
-                style={{
-                  height: 400,
+              style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
+              styles={{
+                body: {
+                  height: 450,
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                }}
-              >
-                <Doughnut
-                  data={doughnutChartData}
-                  options={{
-                    ...chartOptions,
-                    plugins: {
-                      legend: {
-                        position: "bottom",
-                        labels: {
-                          color: token.colorText,
-                          padding: 10,
-                          font: { size: 10 },
-                        },
+                },
+              }}
+            >
+              <Doughnut
+                data={doughnutChartData}
+                options={{
+                  ...chartOptions,
+                  plugins: {
+                    legend: {
+                      position: "bottom",
+                      labels: {
+                        color: token.colorText,
+                        padding: 10,
+                        font: { size: 10 },
                       },
                     },
-                  }}
-                />
-              </div>
+                  },
+                }}
+              />
             </Card>
           </Col>
           <Col xs={24} lg={6}>
             <Card
+              variant="borderless"
               title={
-                <Space>
+                <Flex gap="small" align="center">
                   <PieChartOutlined style={{ color: token.colorInfo }} />
-                  <span>สัดส่วนประเภทข้อมูล</span>
-                </Space>
+                  <span>Category Ratio</span>
+                </Flex>
               }
-              className="shadow-sm rounded-2xl h-full"
-            >
-              <div
-                style={{
-                  height: 400,
+              style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
+              styles={{
+                body: {
+                  height: 450,
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                }}
-              >
-                <Doughnut
-                  data={schoolDataTypeChartData}
-                  options={{
-                    ...chartOptions,
-                    plugins: {
-                      legend: {
-                        position: "bottom",
-                        labels: {
-                          color: token.colorText,
-                          padding: 10,
-                          font: { size: 10 },
-                        },
+                },
+              }}
+            >
+              <Doughnut
+                data={schoolDataTypeChartData}
+                options={{
+                  ...chartOptions,
+                  plugins: {
+                    legend: {
+                      position: "bottom",
+                      labels: {
+                        color: token.colorText,
+                        padding: 10,
+                        font: { size: 10 },
                       },
                     },
-                  }}
-                />
-              </div>
+                  },
+                }}
+              />
             </Card>
           </Col>
         </Row>
 
-        {/* 3. Detailed Table */}
+        {/* 4. Detailed Table */}
         <Card
+          variant="borderless"
           title={
-            <Space>
+            <Flex gap="small" align="center">
               <TrophyOutlined style={{ color: token.colorWarning }} />
-              <span>ตารางอันดับรายจังหวัด</span>
-            </Space>
+              <span>Province Rankings Table</span>
+            </Flex>
           }
-          className="shadow-sm rounded-2xl border"
-          style={{ borderColor: token.colorBorderSecondary }}
+          style={{
+            boxShadow: token.boxShadowTertiary,
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
           styles={{
             body: { padding: 0 },
             header: { borderBottom: `1px solid ${token.colorBorderSecondary}` },
@@ -853,7 +869,7 @@ export default function ProvinceRankingModal({
             size="middle"
           />
         </Card>
-      </div>
+      </Flex>
     </Modal>
   );
 }
