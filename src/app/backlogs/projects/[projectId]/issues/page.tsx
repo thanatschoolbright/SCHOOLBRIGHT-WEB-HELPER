@@ -1,77 +1,69 @@
 "use client";
 
-import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { useDispatch, useSelector } from "react-redux";
 import {
-  Layout,
-  Space,
-  Spin,
-  Card,
-  Typography,
-  Modal,
-  Button,
-  Row,
-  Col,
-  theme,
-  Statistic,
-  Progress,
-  Table,
-  Tag,
-  Tooltip,
+  AppstoreAddOutlined,
+  AppstoreOutlined,
+  ArrowLeftOutlined,
+  BarChartOutlined,
+  BugOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  FileTextOutlined,
+  FilterOutlined,
+  InfoCircleOutlined,
+  ProjectOutlined,
+  RobotOutlined,
+  RocketOutlined,
+  TrophyOutlined,
+  UserOutlined,
+  WarningOutlined,
+} from "@ant-design/icons";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import {
   Avatar,
   Badge,
-  FloatButton,
+  Button,
+  Card,
+  Col,
+  Layout,
+  Modal,
+  Progress,
+  Row,
+  Space,
+  Spin,
+  Statistic,
+  Table,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
 } from "antd";
 import type { HookAPI } from "antd/es/modal/useModal";
-import {
-  PieChartOutlined,
-  ArrowLeftOutlined,
-  WarningOutlined,
-  ClockCircleOutlined,
-  CheckCircleOutlined,
-  UserOutlined,
-  TrophyOutlined,
-  BugOutlined,
-  FileTextOutlined,
-  ProjectOutlined,
-  RocketOutlined,
-  BarChartOutlined,
-  AppstoreOutlined,
-  FilterOutlined,
-  AppstoreAddOutlined,
-  InfoCircleOutlined,
-  RobotOutlined,
-} from "@ant-design/icons";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
 import dayjs from "dayjs";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 
 // * Redux Actions & State
 import {
-  setLoading,
+  resetFilters,
+  setFilters,
   setIssues,
-  setSelectedRowKeys,
+  setLoading,
   setOptions,
   setOptionsLoading,
-  setFilters,
-  resetFilters,
   setPagination,
+  setSelectedRowKeys,
 } from "@stores/reducers/issues-slice";
 import { AppDispatch, RootState } from "@stores/store";
 
 // * Internal Components
-import DashboardLayout from "@/components/layouts/backend-layout";
-import IssueFilter from "@/components/backlog/issue-filter";
 import SharedBulkUpdateSection from "@/components/backlog/bulk-update-section";
-import IssuesTable from "@/components/backlog/issues-table";
 import type { Issue } from "@/components/backlog/issue-drawer/types";
+import IssueFilter from "@/components/backlog/issue-filter";
+import IssuesTable from "@/components/backlog/issues-table";
+import DashboardLayout from "@/components/layouts/backend-layout";
 
 const { Content } = Layout;
 
@@ -845,7 +837,7 @@ function IssueSummaryModal({
     >
       <Space direction="vertical" size="large" className="w-full mt-6">
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <Card bordered={false} className="shadow-sm bg-blue-50/50">
+          <Card variant="borderless" className="shadow-sm bg-blue-50/50">
             <Statistic
               title={
                 <span className="font-semibold text-blue-800">งานทั้งหมด</span>
@@ -858,7 +850,7 @@ function IssueSummaryModal({
               valueStyle={{ color: "#1890ff", fontWeight: 700 }}
             />
           </Card>
-          <Card bordered={false} className="shadow-sm bg-green-50/50">
+          <Card variant="borderless" className="shadow-sm bg-green-50/50">
             <Statistic
               title={
                 <span className="font-semibold text-green-800">สำเร็จ</span>
@@ -878,7 +870,7 @@ function IssueSummaryModal({
               className="mt-2"
             />
           </Card>
-          <Card bordered={false} className="shadow-sm bg-red-50/50">
+          <Card variant="borderless" className="shadow-sm bg-red-50/50">
             <Statistic
               title={<span className="font-semibold text-red-800">ล่าช้า</span>}
               value={overallStats.totalOverdue}
@@ -888,7 +880,7 @@ function IssueSummaryModal({
               valueStyle={{ color: "#ff4d4f", fontWeight: 700 }}
             />
           </Card>
-          <Card bordered={false} className="shadow-sm bg-amber-50/50">
+          <Card variant="borderless" className="shadow-sm bg-amber-50/50">
             <Statistic
               title={
                 <span className="font-semibold text-amber-800">

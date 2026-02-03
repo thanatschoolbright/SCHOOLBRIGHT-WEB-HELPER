@@ -2,7 +2,7 @@ import type { SchoolDetail } from "../types/bypass.types";
 import type { ProvinceStatistics } from "../types/province-stats.types";
 
 export const calculateProvinceStatistics = (
-  schools: SchoolDetail[]
+  schools: SchoolDetail[],
 ): ProvinceStatistics[] => {
   const provinceMap = new Map<string, SchoolDetail[]>();
 
@@ -19,42 +19,42 @@ export const calculateProvinceStatistics = (
   provinceMap.forEach((schoolsInProvince, province) => {
     const totalSchools = schoolsInProvince.length;
     const activeSchools = schoolsInProvince.filter(
-      (s) => s.isActive === "active"
+      (s) => s.isActive !== "inactive",
     ).length;
     const inactiveSchools = totalSchools - activeSchools;
 
     const gradeACount = schoolsInProvince.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "A"
+      (s) => s.school_grade?.trim().toUpperCase() === "A",
     ).length;
     const gradeBCount = schoolsInProvince.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "B"
+      (s) => s.school_grade?.trim().toUpperCase() === "B",
     ).length;
     const gradeCCount = schoolsInProvince.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "C"
+      (s) => s.school_grade?.trim().toUpperCase() === "C",
     ).length;
 
     const softwareTypeCount = schoolsInProvince.filter(
-      (s) => s.school_type === "Software"
+      (s) => s.school_type === "Software",
     ).length;
     const singleAuthenCount = schoolsInProvince.filter(
-      (s) => s.school_type === "Single Authen"
+      (s) => s.school_type === "Single Authen",
     ).length;
 
     // * Counts by school_data_type
     const customerCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "ลูกค้า"
+      (s) => s.school_data_type === "ลูกค้า",
     ).length;
     const contractCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "ทำสัญญา"
+      (s) => s.school_data_type === "ทำสัญญา",
     ).length;
     const testCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "Test"
+      (s) => s.school_data_type === "Test",
     ).length;
     const freeCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "ลูกค้าฟรี"
+      (s) => s.school_data_type === "ลูกค้าฟรี",
     ).length;
     const otherCount = schoolsInProvince.filter(
-      (s) => s.school_data_type === "หลักสูตรอิสลาม"
+      (s) => s.school_data_type === "หลักสูตรอิสลาม",
     ).length;
 
     const gradePoints = schoolsInProvince.reduce((sum, school) => {

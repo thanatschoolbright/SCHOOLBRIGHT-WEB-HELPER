@@ -4,44 +4,44 @@
  * Styled with Tailwind CSS & Ant Design Theme
  */
 
-import React, { useEffect, useState, useMemo } from "react";
 import {
-  Space,
-  Row,
-  Col,
+  Badge,
+  Button,
   Card,
+  Col,
+  Divider,
+  Empty,
+  Flex,
+  Input,
+  message,
+  Row,
+  Select,
+  Space,
+  Statistic,
   Tag,
   Tooltip,
-  Button,
-  Empty,
-  Input,
-  Select,
-  Statistic,
-  Divider,
-  Badge,
   Typography,
-  Flex,
-  message,
 } from "antd";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import DashboardLayout from "@components/layouts/backend-layout";
-import { HeaderBar } from "@components/typhography/header-bar-component";
 import {
+  CheckCircleOutlined,
+  CopyOutlined,
+  ExportOutlined,
   FileTextOutlined,
-  ProjectOutlined,
-  SearchOutlined,
   FilterOutlined,
   FolderOpenOutlined,
   InboxOutlined,
-  CopyOutlined,
-  ExportOutlined,
+  ProjectOutlined,
   ReloadOutlined,
-  CheckCircleOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import type { BacklogProject } from "@components/backlog/types";
+import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 
 const { Text, Title } = Typography;
 
@@ -70,7 +70,7 @@ export default function Page(): JSX.Element {
     try {
       const { data } = await axios.get<{ data: BacklogProject[] }>(
         "/api/v1/backlog/projects",
-        { params: { space } }
+        { params: { space } },
       );
 
       const projectList = data?.data ?? [];
@@ -84,7 +84,7 @@ export default function Page(): JSX.Element {
         error.response?.data?.message ?? "ไม่สามารถดึงข้อมูลได้ กรุณาลองใหม่",
         {
           id: toastId,
-        }
+        },
       );
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export default function Page(): JSX.Element {
       result = result.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
-          p.projectKey.toLowerCase().includes(query)
+          p.projectKey.toLowerCase().includes(query),
       );
     }
 
@@ -139,8 +139,8 @@ export default function Page(): JSX.Element {
   const handleProjectClick = (project: BacklogProject) => {
     router.push(
       `/backlogs/projects/${project.id}/issues?space=${encodeURIComponent(
-        space
-      )}&name=${encodeURIComponent(project.name)}`
+        space,
+      )}&name=${encodeURIComponent(project.name)}`,
     );
   };
 
@@ -159,7 +159,7 @@ export default function Page(): JSX.Element {
   const handleOpenExternal = (projectKey: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const url = `https://${encodeURIComponent(
-      space
+      space,
     )}.backlog.com/projects/${projectKey}`;
     window.open(url, "_blank");
   };
@@ -176,7 +176,7 @@ export default function Page(): JSX.Element {
 
       <div className="mt-6 flex w-full flex-col gap-6">
         {/* 🎛️ Control Panel: Space Input & Actions */}
-        <Card className="hidden shadow-sm" bordered={false}>
+        <Card className="hidden shadow-sm" variant="borderless">
           <Row gutter={[16, 16]} align="middle">
             <Col xs={24} md={12}>
               <div className="flex w-full flex-col gap-1">
@@ -215,7 +215,7 @@ export default function Page(): JSX.Element {
           <Row gutter={[16, 16]}>
             {/* Total Projects */}
             <Col xs={24} sm={8}>
-              <Card bordered={false} className="shadow-sm">
+              <Card variant="borderless" className="shadow-sm">
                 <Statistic
                   title={<Text type="secondary">โปรเจ็กต์ทั้งหมด</Text>}
                   value={stats.total}
@@ -228,7 +228,7 @@ export default function Page(): JSX.Element {
 
             {/* Active Projects */}
             <Col xs={24} sm={8}>
-              <Card bordered={false} className="shadow-sm">
+              <Card variant="borderless" className="shadow-sm">
                 <Statistic
                   title={<Text type="secondary">กำลังใช้งาน (Active)</Text>}
                   value={stats.active}
@@ -241,7 +241,7 @@ export default function Page(): JSX.Element {
 
             {/* Archived Projects */}
             <Col xs={24} sm={8}>
-              <Card bordered={false} className="shadow-sm">
+              <Card variant="borderless" className="shadow-sm">
                 <Statistic
                   title={<Text type="secondary">จัดเก็บแล้ว (Archived)</Text>}
                   value={stats.archived}
@@ -255,7 +255,7 @@ export default function Page(): JSX.Element {
         )}
 
         {/* 🔍 Filter & Search Section */}
-        <Card bordered={false} className="shadow-sm">
+        <Card variant="borderless" className="shadow-sm">
           <Row gutter={[16, 16]}>
             {/* Search Input */}
             <Col xs={24} md={16}>
@@ -309,7 +309,7 @@ export default function Page(): JSX.Element {
 
         {/* 🗂️ Projects Grid */}
         <Card
-          bordered={false}
+          variant="borderless"
           className="shadow-sm"
           title={
             <Flex justify="space-between" align="center">
@@ -328,7 +328,7 @@ export default function Page(): JSX.Element {
             <Row gutter={[16, 16]}>
               {[...Array(8)].map((_, i) => (
                 <Col key={i} xs={24} sm={12} lg={8} xl={6}>
-                  <Card loading bordered={false} />
+                  <Card loading variant="borderless" />
                 </Col>
               ))}
             </Row>

@@ -2,7 +2,7 @@ import type { SchoolDetail } from "../types/bypass.types";
 import type { SaleStatistics } from "../types/sale-stats.types";
 
 export const calculateSaleStatistics = (
-  schools: SchoolDetail[]
+  schools: SchoolDetail[],
 ): SaleStatistics[] => {
   const saleMap = new Map<string, SchoolDetail[]>();
 
@@ -30,42 +30,42 @@ export const calculateSaleStatistics = (
   saleMap.forEach((schoolsInSale, saleName) => {
     const totalSchools = schoolsInSale.length;
     const activeSchools = schoolsInSale.filter(
-      (s) => s.isActive === "active"
+      (s) => s.isActive !== "inactive",
     ).length;
     const inactiveSchools = totalSchools - activeSchools;
 
     const gradeACount = schoolsInSale.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "A"
+      (s) => s.school_grade?.trim().toUpperCase() === "A",
     ).length;
     const gradeBCount = schoolsInSale.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "B"
+      (s) => s.school_grade?.trim().toUpperCase() === "B",
     ).length;
     const gradeCCount = schoolsInSale.filter(
-      (s) => s.school_grade?.trim().toUpperCase() === "C"
+      (s) => s.school_grade?.trim().toUpperCase() === "C",
     ).length;
 
     const softwareTypeCount = schoolsInSale.filter(
-      (s) => s.school_type === "Software"
+      (s) => s.school_type === "Software",
     ).length;
     const singleAuthenCount = schoolsInSale.filter(
-      (s) => s.school_type === "Single Authen"
+      (s) => s.school_type === "Single Authen",
     ).length;
 
     // * Counts by school_data_type
     const customerSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "ลูกค้า"
+      (s) => s.school_data_type === "ลูกค้า",
     );
     const contractSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "ทำสัญญา"
+      (s) => s.school_data_type === "ทำสัญญา",
     );
     const testSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "Test"
+      (s) => s.school_data_type === "Test",
     );
     const freeSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "ลูกค้าฟรี"
+      (s) => s.school_data_type === "ลูกค้าฟรี",
     );
     const otherSchools = schoolsInSale.filter(
-      (s) => s.school_data_type === "หลักสูตรอิสลาม"
+      (s) => s.school_data_type === "หลักสูตรอิสลาม",
     );
 
     const customerCount = customerSchools.length;
@@ -76,23 +76,23 @@ export const calculateSaleStatistics = (
 
     const customerStudents = customerSchools.reduce(
       (sum, s) => sum + normalizeStudentCount(s),
-      0
+      0,
     );
     const contractStudents = contractSchools.reduce(
       (sum, s) => sum + normalizeStudentCount(s),
-      0
+      0,
     );
     const testStudents = testSchools.reduce(
       (sum, s) => sum + normalizeStudentCount(s),
-      0
+      0,
     );
     const freeStudents = freeSchools.reduce(
       (sum, s) => sum + normalizeStudentCount(s),
-      0
+      0,
     );
     const otherStudents = otherSchools.reduce(
       (sum, s) => sum + normalizeStudentCount(s),
-      0
+      0,
     );
 
     const gradePoints = schoolsInSale.reduce((sum, school) => {
@@ -115,7 +115,7 @@ export const calculateSaleStatistics = (
 
     const totalStudents = schoolsInSale.reduce(
       (sum, school) => sum + normalizeStudentCount(school),
-      0
+      0,
     );
     const activeStudents = schoolsInSale.reduce((sum, school) => {
       if (school.isActive === "active") {
@@ -157,7 +157,7 @@ export const calculateSaleStatistics = (
       // * Set a default target for KPI (e.g., 20,000 students or more if they already exceed it)
       targetStudents: Math.max(
         20000,
-        Math.ceil((customerStudents + contractStudents) / 5000) * 5000 + 5000
+        Math.ceil((customerStudents + contractStudents) / 5000) * 5000 + 5000,
       ),
     });
   });

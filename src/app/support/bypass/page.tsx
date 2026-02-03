@@ -205,23 +205,23 @@ export default function BypassPage(): JSX.Element {
         dataIndex: "isActive",
         key: "isActive",
         width: 120,
-        sorter: (a, b) => (a.isActive ?? "").localeCompare(b.isActive ?? ""),
-        render: (status) => (
-          <Tag
-            icon={
-              status === "active" ? (
-                <CheckCircleOutlined />
-              ) : (
-                <CloseCircleOutlined />
-              )
-            }
-            color={status === "active" ? "success" : "error"}
-            bordered={false}
-            style={{ fontWeight: 600 }}
-          >
-            {status === "active" ? "เปิดใช้งาน" : "ปิดใช้งาน"}
-          </Tag>
-        ),
+        sorter: (a, b) =>
+          (a.isActive ?? "active").localeCompare(b.isActive ?? "active"),
+        render: (status) => {
+          const isInactive = status === "inactive";
+          return (
+            <Tag
+              icon={
+                isInactive ? <CloseCircleOutlined /> : <CheckCircleOutlined />
+              }
+              color={isInactive ? "error" : "success"}
+              bordered={false}
+              style={{ fontWeight: 600 }}
+            >
+              {isInactive ? "ปิดใช้งาน" : "เปิดใช้งาน"}
+            </Tag>
+          );
+        },
       },
       {
         title: "จัดการ",
@@ -296,7 +296,7 @@ export default function BypassPage(): JSX.Element {
 
         {/* ส่วนที่ 3: ฟิลเตอร์และปุ่มค้นหา */}
         <Card
-          bordered={false}
+          variant="borderless"
           style={{ borderRadius: 16 }}
           styles={{ body: { padding: 24 } }}
         >

@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Statistic, Tag, Spin, Empty } from "antd";
 import {
-  ProjectOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   FolderOpenOutlined,
-  TagsOutlined,
   PieChartOutlined,
+  ProjectOutlined,
+  TagsOutlined,
 } from "@ant-design/icons";
+import { Card, Col, Empty, Row, Spin, Statistic, Tag } from "antd";
+import React, { useEffect, useState } from "react";
 
 interface ProjectStats {
   health: {
@@ -126,7 +126,7 @@ export const ProjectDashboardComponent: React.FC<ProjectDashboardProps> = ({
       >
         <Row gutter={16}>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} style={{ background: "#f0f5ff" }}>
+            <Card variant="borderless" style={{ background: "#f0f5ff" }}>
               <Statistic
                 title="โครงการทั้งหมด"
                 value={health.total || 0}
@@ -137,7 +137,7 @@ export const ProjectDashboardComponent: React.FC<ProjectDashboardProps> = ({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} style={{ background: "#fffbe6" }}>
+            <Card variant="borderless" style={{ background: "#fffbe6" }}>
               <Statistic
                 title="กำลังดำเนินการ"
                 value={health.active || 0}
@@ -148,7 +148,7 @@ export const ProjectDashboardComponent: React.FC<ProjectDashboardProps> = ({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} style={{ background: "#f6ffed" }}>
+            <Card variant="borderless" style={{ background: "#f6ffed" }}>
               <Statistic
                 title="ปิดโครงการแล้ว"
                 value={health.closed || 0}
@@ -159,7 +159,7 @@ export const ProjectDashboardComponent: React.FC<ProjectDashboardProps> = ({
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card bordered={false} style={{ background: "#e6f7ff" }}>
+            <Card variant="borderless" style={{ background: "#e6f7ff" }}>
               <Statistic
                 title="อัตราความสำเร็จ"
                 value={health.success_rate || 0}

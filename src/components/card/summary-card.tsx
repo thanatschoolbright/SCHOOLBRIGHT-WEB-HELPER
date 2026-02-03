@@ -1,15 +1,15 @@
-import React from "react";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import {
   Card,
   Flex,
-  Statistic,
   Progress,
-  Typography,
-  Tooltip,
   Skeleton,
+  Statistic,
   theme,
+  Tooltip,
+  Typography,
 } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import React from "react";
 
 const { Text } = Typography;
 
@@ -74,7 +74,11 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
 
   if (isLoading) {
     return (
-      <Card style={cardStyle} styles={{ body: { padding: 24 } }}>
+      <Card
+        variant="borderless"
+        style={cardStyle}
+        styles={{ body: { padding: 24 } }}
+      >
         <Skeleton active paragraph={{ rows: 2 }} title={{ width: "60%" }} />
       </Card>
     );
@@ -82,6 +86,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
 
   return (
     <Card
+      variant="borderless"
       styles={{ body: { padding: 24 } }}
       style={cardStyle}
       onMouseEnter={(e) => {

@@ -1,55 +1,55 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
-import DashboardLayout from "@components/layouts/backend-layout";
-import { HeaderBar } from "@components/typhography/header-bar-component";
-import { useDispatch } from "react-redux";
-import { AppDispatch, useAppSelector } from "@stores/store";
-import { ResponseGetServerStatusV2 } from "@/stores/type";
 import { CallAPI as GET_SERVER_STATUS_V2 } from "@/stores/actions/server/call-get-server-status.v2";
-import { useRouter } from "next/navigation";
+import { ResponseGetServerStatusV2 } from "@/stores/type";
 import {
-  Row,
-  Col,
-  Card,
-  Button,
-  Modal,
-  Skeleton,
-  Tag,
-  Avatar,
-  Badge,
-  Typography,
-  Space,
-  Descriptions,
-  Divider,
-  Input,
-  Statistic,
-  Grid,
-  Flex,
-  Tooltip,
-  Alert,
-  Empty,
-  theme,
-} from "antd";
-import {
-  GlobalOutlined,
-  LinkOutlined,
-  EyeOutlined,
-  ReloadOutlined,
-  CopyOutlined,
-  EditOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  ClockCircleOutlined,
-  ArrowRightOutlined,
-  SafetyCertificateOutlined,
-  DashboardOutlined,
-  InfoCircleOutlined,
-  DatabaseOutlined,
-  EnvironmentOutlined,
   ApiOutlined,
+  ArrowRightOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  CopyOutlined,
+  DashboardOutlined,
+  DatabaseOutlined,
+  EditOutlined,
+  EnvironmentOutlined,
+  EyeOutlined,
+  GlobalOutlined,
+  InfoCircleOutlined,
+  LinkOutlined,
+  ReloadOutlined,
+  SafetyCertificateOutlined,
   ThunderboltFilled,
 } from "@ant-design/icons";
+import DashboardLayout from "@components/layouts/backend-layout";
+import { HeaderBar } from "@components/typhography/header-bar-component";
+import { AppDispatch, useAppSelector } from "@stores/store";
+import {
+  Alert,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Divider,
+  Empty,
+  Flex,
+  Grid,
+  Input,
+  Modal,
+  Row,
+  Skeleton,
+  Space,
+  Statistic,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
 const { Title, Text, Paragraph } = Typography;
@@ -89,7 +89,7 @@ const calculateStats = (servers: ServerStatus[]) => {
 const getLatestTimestamp = (servers: ServerStatus[]): string => {
   if (!servers.length) return "-";
   const sorted = [...servers].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
   return sorted[0]?.timestamp || "-";
 };
@@ -116,7 +116,7 @@ const useResponsive = () => {
 const useServerStatus = () => {
   const dispatch = useDispatch<AppDispatch>();
   const serverStatusState = useAppSelector(
-    (state) => state.callGetServerStatusV2
+    (state) => state.callGetServerStatusV2,
   );
   const [servers, setServers] = useState<ServerStatus[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -291,11 +291,7 @@ const ServerCard: React.FC<{
               <Title level={5} ellipsis style={{ margin: 0 }}>
                 {server.server_name_th || server.server_name}
               </Title>
-              <Text
-                type="secondary"
-                ellipsis
-                style={{ fontSize: "13px" }}
-              >
+              <Text type="secondary" ellipsis style={{ fontSize: "13px" }}>
                 {server.description || "รอการระบุรายละเอียด..."}
               </Text>
             </Space>
@@ -399,7 +395,7 @@ const ServerDetailsModal: React.FC<{
   const handleCopy = async () => {
     const success = await copyToClipboard(JSON.stringify(server, null, 2));
     toast[success ? "success" : "error"](
-      success ? "คัดลอกข้อมูลเรียบร้อย" : "คัดลอกข้อมูลล้มเหลว"
+      success ? "คัดลอกข้อมูลเรียบร้อย" : "คัดลอกข้อมูลล้มเหลว",
     );
   };
 
@@ -418,7 +414,7 @@ const ServerDetailsModal: React.FC<{
       destroyOnHidden
       centered
     >
-      <Card bordered={false} className="shadow-none">
+      <Card variant="borderless" className="shadow-none">
         <Flex
           justify="space-between"
           align="center"
@@ -595,7 +591,7 @@ const ServerStatusPage: React.FC = () => {
   const { token } = theme.useToken();
   const { servers, isLoading, refresh, setServers } = useServerStatus();
   const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(
-    null
+    null,
   );
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -622,14 +618,14 @@ const ServerStatusPage: React.FC = () => {
           s.server_name_th === selectedServer.server_name_th &&
           s.timestamp === selectedServer.timestamp
             ? { ...s, description }
-            : s
-        )
+            : s,
+        ),
       );
 
       setSelectedServer((prev) => (prev ? { ...prev, description } : prev));
       toast.success("บันทึกข้อมูลเรียบร้อย (อัปเดตในหน้าจอแล้ว)");
     },
-    [selectedServer, setServers]
+    [selectedServer, setServers],
   );
 
   return (
@@ -687,19 +683,19 @@ const ServerStatusPage: React.FC = () => {
               }}
             ></span>
           </span>
-          
+
           {/* New Label Tag */}
-          <Tag 
-            color="red" 
-            style={{ 
-                position: 'absolute', 
-                top: -12, 
-                left: -20, 
-                zIndex: 20, 
-                transform: 'rotate(-10deg)', 
-                fontSize: 10,
-                border: 'none',
-                fontWeight: 'bold'
+          <Tag
+            color="red"
+            style={{
+              position: "absolute",
+              top: -12,
+              left: -20,
+              zIndex: 20,
+              transform: "rotate(-10deg)",
+              fontSize: 10,
+              border: "none",
+              fontWeight: "bold",
             }}
           >
             ใหม่
@@ -745,8 +741,8 @@ const ServerStatusPage: React.FC = () => {
                   <Card
                     bordered={false}
                     style={{
-                        borderRadius: 16, 
-                        border: `1px solid ${token.colorBorderSecondary}`
+                      borderRadius: 16,
+                      border: `1px solid ${token.colorBorderSecondary}`,
                     }}
                   >
                     <Skeleton active avatar paragraph={{ rows: 3 }} />

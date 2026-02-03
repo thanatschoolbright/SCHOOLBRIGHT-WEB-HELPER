@@ -111,7 +111,10 @@ export const filterSchools = (
       if (schoolGrade !== filters.grade) return false;
     }
 
-    if (filters.status && school.isActive !== filters.status) return false;
+    if (filters.status) {
+      const effectiveStatus = school.isActive || "active";
+      if (effectiveStatus !== filters.status) return false;
+    }
     if (filters.schoolGroup && school.school_group !== filters.schoolGroup)
       return false;
 
@@ -121,7 +124,7 @@ export const filterSchools = (
 
 export const calculateStatistics = (schools: SchoolDetail[]): Statistics => {
   const total = schools.length;
-  const active = schools.filter((s) => s.isActive === "active").length;
+  const active = schools.filter((s) => s.isActive !== "inactive").length;
   const inactive = total - active;
   const gradeA = schools.filter(
     (s) => s.school_grade?.trim().toUpperCase() === "A",
@@ -141,7 +144,7 @@ export const calculateStatistics = (schools: SchoolDetail[]): Statistics => {
     0,
   );
   const activeStudents = schools.reduce((sum, school) => {
-    if (school.isActive === "active") {
+    if (school.isActive !== "inactive") {
       return sum + normalizeStudentCount(school);
     }
     return sum;

@@ -1,43 +1,40 @@
-import React, { useMemo } from "react";
 import {
-  Card,
-  Table,
-  Typography,
-  Button,
-  Tooltip,
+  ArrowRightOutlined,
+  CalendarOutlined,
+  CheckCircleFilled,
+  ClockCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  HistoryOutlined,
+  InfoCircleOutlined,
+  MoreOutlined,
+  ProjectOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { getUserById } from "@helpers/local_storage/user.storage";
+import type { MenuProps } from "antd";
+import {
+  Avatar,
   Badge,
-  Tag,
+  Button,
+  Card,
   Dropdown,
+  Flex,
   Skeleton,
   Space,
-  Avatar,
-  theme,
-  Progress,
-  Flex,
   Steps,
+  Table,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import type { MenuProps } from "antd";
-import Link from "next/link";
 import dayjs from "dayjs";
-import {
-  ProjectOutlined,
-  CalendarOutlined,
-  ArrowRightOutlined,
-  EditOutlined,
-  MoreOutlined,
-  InfoCircleOutlined,
-  DeleteOutlined,
-  TeamOutlined,
-  ClockCircleOutlined,
-  UserOutlined,
-  CheckCircleFilled,
-  HistoryOutlined,
-  SendOutlined,
-} from "@ant-design/icons";
+import Link from "next/link";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
-import { getUserById } from "@helpers/local_storage/user.storage";
 
 import type { Project, ProjectStatus } from "../types/project.types";
 
@@ -563,7 +560,7 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
 
   if (loading) {
     return (
-      <Card bordered={false}>
+      <Card variant="borderless">
         <Skeleton active paragraph={{ rows: 10 }} />
       </Card>
     );
