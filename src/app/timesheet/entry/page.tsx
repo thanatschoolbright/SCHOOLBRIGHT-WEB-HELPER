@@ -1251,46 +1251,31 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
           </Space>
         ),
         dataIndex: "date",
-        width: 110,
+        width: 70,
         align: "center",
         responsive: ["md"],
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           dayjs(a.date).valueOf() - dayjs(b.date).valueOf(),
         render: (value: string) => {
-          const day = dayjs(value).day();
-          const dayColors = [
-            { bg: "#FFF1F0", text: "#F5222D", border: "#FFA39E" }, // Sun
-            { bg: "#FCFFE6", text: "#A0D911", border: "#EAFF8F" }, // Mon
-            { bg: "#FFF0F6", text: "#EB2F96", border: "#FFADD2" }, // Tue
-            { bg: "#F6FFED", text: "#52C41A", border: "#B7EB8F" }, // Wed
-            { bg: "#FFF7E6", text: "#FA8C16", border: "#FFD591" }, // Thu
-            { bg: "#E6F7FF", text: "#1890FF", border: "#91D5FF" }, // Fri
-            { bg: "#F9F0FF", text: "#722ED1", border: "#D3ADF7" }, // Sat
-          ];
-          const color = dayColors[day];
-          const isDark = token.colorBgBase === "#0B0F19";
-
+          // สีดำพื้นขาว ตัวอักษรขาว
           return (
             <div
               className="flex flex-col items-center justify-center w-[64px] h-[64px] rounded-2xl mx-auto border border-solid transition-all hover:shadow-md hover:-translate-y-0.5"
               style={{
-                background: isDark ? `${color.text}20` : color.bg,
-                borderColor: isDark ? `${color.border}40` : color.border,
+                background: "#111",
+                borderColor: "#111",
               }}
             >
               <Typography.Text
                 strong
                 className="text-2xl leading-none"
-                style={{ color: isDark ? color.border : color.text }}
+                style={{ color: "#fff" }}
               >
                 {dayjs(value).format("DD")}
               </Typography.Text>
               <Typography.Text
                 className="text-[10px] uppercase font-bold tracking-tight mt-1"
-                style={{
-                  color: isDark ? color.border : color.text,
-                  opacity: 0.7,
-                }}
+                style={{ color: "#fff", opacity: 0.7 }}
               >
                 {dayjs(value).format("MMM BBBB")}
               </Typography.Text>
@@ -1320,54 +1305,39 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
           t("timesheet_entry_page.table_project", "โครงการ"),
         ),
         render: (value: string, record: TimesheetEntry) => {
-          const avatarColor = stringToColor(value);
-          const isDark = token.colorBgBase === "#0B0F19";
+          // ลบ Avatar ไอค่อนออก
           return (
-            <div className="flex items-center gap-4 py-1">
-              <Avatar
-                shape="square"
-                size={48}
-                src={`https://api.dicebear.com/9.x/identicon/svg?seed=${
-                  record.project_id
-                }&backgroundColor=${avatarColor.replace("#", "")}`}
-                className="border-2 border-solid rounded-xl p-1 shrink-0"
-                style={{
-                  backgroundColor: isDark ? "#1f1f1f" : "#ffffff",
-                  borderColor: `${avatarColor}30`,
-                }}
-              />
-              <div className="flex flex-col justify-center min-w-0 overflow-hidden">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <Typography.Text
-                    strong
-                    className="text-[15px] truncate max-w-[180px]"
-                  >
-                    {value}
-                  </Typography.Text>
-                  {record.category_type && (
-                    <Tag
-                      bordered={false}
-                      color={
-                        record.category_type === "EXTERNAL"
-                          ? "success"
-                          : "processing"
-                      }
-                      className="text-[10px] m-0 px-1.5 leading-tight rounded-md"
-                    >
-                      {record.category_type}
-                    </Tag>
-                  )}
-                </div>
+            <div className="flex flex-col justify-center min-w-0 overflow-hidden py-1">
+              <div className="flex items-center gap-2 mb-0.5">
                 <Typography.Text
-                  type="secondary"
-                  className="text-[12px] flex items-center gap-1.5"
+                  strong
+                  className="text-[15px] truncate max-w-[180px]"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                  <span className="truncate">
-                    {record.feature_name || "General Task"}
-                  </span>
+                  {value}
                 </Typography.Text>
+                {record.category_type && (
+                  <Tag
+                    bordered={false}
+                    color={
+                      record.category_type === "EXTERNAL"
+                        ? "success"
+                        : "processing"
+                    }
+                    className="text-[10px] m-0 px-1.5 leading-tight rounded-md"
+                  >
+                    {record.category_type}
+                  </Tag>
+                )}
               </div>
+              <Typography.Text
+                type="secondary"
+                className="text-[12px] flex items-center gap-1.5"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                <span className="truncate">
+                  {record.feature_name || "General Task"}
+                </span>
+              </Typography.Text>
             </div>
           );
         },
