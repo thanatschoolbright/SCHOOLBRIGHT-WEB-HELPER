@@ -138,4 +138,60 @@ export const Service = {
 
     return results;
   },
+
+  async getSummary(startDate: string, endDate: string) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // 1. Get total hours aggregated by capture type
+    const entries = await PrismaTimesheet.timesheetEntry.findMany({
+      where: {
+        is_deleted: false,
+        date: {
+          gte: start,
+          lte: end,
+        },
+      },
+      select: {
+        hours: true,
+        feature: {
+          select: {
+            assetCaptureType: true,
+          },
+        },
+        projectId: true,
+      },
+    });
+
+    let totalHours = 0;
+    let capturableHours = 0;
+    const projectIds = new Set<number>();
+
+    entries.forEach((e) => {
+      const h = Number(e.hours);
+      totalHours += h;
+      if (e.feature?.assetCaptureType === "CAPTUREABLE") {
+        capturableHours += h;
+      }
+      if (e.projectId) projectIds.add(e.projectId);
+    });
+
+    // 2. Calculate percentages to sum exactly to 100%
+    let avgCapturable = 0;
+    let avgUncapturable = 0;
+
+    if (totalHours > 0) {
+      // Round the first one to 2 decimal places
+      avgCapturable = Number(((capturableHours / totalHours) * 100).toFixed(2));
+      // Subtract from 100 to get the second one, ensuring they sum to exactly 100.00
+      avgUncapturable = Number((100 - avgCapturable).toFixed(2));
+    }
+
+    return {
+      totalProjects: projectIds.size,
+      totalHours: Number(totalHours.toFixed(2)),
+      avgCapturable,
+      avgUncapturable,
+    };
+  },
 };

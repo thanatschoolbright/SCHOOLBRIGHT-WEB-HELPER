@@ -1,6 +1,6 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
-import bcrypt from "bcryptjs";
 import { sendMail } from "@/server/mailer";
+import bcrypt from "bcryptjs";
 
 export interface CreateUserDto {
   username: string;
@@ -19,6 +19,7 @@ export interface CreateUserDto {
   role_id?: number | null;
   position_id?: number | null;
   profile_image?: string | null;
+  profile_image_path?: string | null;
   created_by?: number | null;
   joined_date?: string | Date | null;
   resigned_date?: string | Date | null;
@@ -43,6 +44,7 @@ export interface UpdateUserDto {
   role_id?: number | null;
   position_id?: number | null;
   profile_image?: string | null;
+  profile_image_path?: string | null;
   updated_by?: number | null;
   joined_date?: string | Date | null;
   resigned_date?: string | Date | null;
@@ -71,7 +73,7 @@ export const UserManagementService = {
         status: "ACTIVE",
         role_id: data.role_id ?? undefined,
         position_id: data.position_id ?? undefined,
-        profile_image_path: data.profile_image,
+        profile_image_path: data.profile_image_path || data.profile_image,
         joined_date: data.joined_date ? new Date(data.joined_date) : undefined,
         resigned_date: data.resigned_date
           ? new Date(data.resigned_date)
@@ -98,7 +100,7 @@ export const UserManagementService = {
       status: data.status,
       role_id: data.role_id ?? undefined,
       position_id: data.position_id ?? undefined,
-      profile_image_path: data.profile_image,
+      profile_image_path: data.profile_image_path || data.profile_image,
       joined_date: data.joined_date ? new Date(data.joined_date) : undefined,
       resigned_date: data.resigned_date
         ? new Date(data.resigned_date)
@@ -324,7 +326,7 @@ export const UserManagementService = {
                 <div style="margin-bottom: 32px;">
                   <img src="${logoUrl}" alt="SchoolBright Logo" style="height: 60px; width: auto; display: block;" />
                 </div>
-                
+
                 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 560px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);">
                   <tr>
                     <td style="padding: 48px 40px;">
@@ -437,7 +439,7 @@ export const UserManagementService = {
                     <div style="margin-bottom: 32px;">
                       <img src="${logoUrl}" alt="SchoolBright Logo" style="height: 60px; width: auto; display: block;" />
                     </div>
-                    
+
                     <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 560px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);">
                       <tr>
                         <td style="padding: 48px 40px;">
@@ -626,7 +628,7 @@ export const UserManagementService = {
                 <div style="margin-bottom: 40px;">
                   <img src="${logoUrl}" alt="SchoolBright" style="height: 54px; width: auto; display: block;" />
                 </div>
-                
+
                 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 500px; background-color: #ffffff;">
                   <tr>
                     <td>
@@ -657,7 +659,7 @@ export const UserManagementService = {
                       <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #111827;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
 
                       <div style="height: 1px; background-color: #e5e7eb; margin: 40px 0 24px;"></div>
-                      
+
                       <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
                         หากท่านมีปัญหาในการคลิกปุ่ม "กู้คืนรหัสผ่าน" สามารถคัดลอกและวางลิงก์ด้านล่างนี้ลงในเบราว์เซอร์ของท่าน: <br/>
                         <a href="${websiteLink}" style="color: #4A5568;">${websiteLink}</a>

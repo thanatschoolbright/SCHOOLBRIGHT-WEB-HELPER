@@ -130,6 +130,14 @@ export default function CapturableReportPage() {
     null,
   );
 
+  // * Summary Statistics State
+  const [summaryData, setSummaryData] = useState({
+    totalProjects: 0,
+    totalHours: 0,
+    avgCapturable: 0,
+    avgUncapturable: 0,
+  });
+
   /**
    * * Fetch Tracking Details for a specific project
    */
@@ -173,6 +181,20 @@ export default function CapturableReportPage() {
     setLoading(true);
     const toastId = toast.loading("กำลังดึงข้อมูลรายงาน...");
     try {
+      // 1. Fetch Summary Data
+      const summaryResponse = await axios.post(
+        "/api/v1/timesheet/report/capturable-report/summary",
+        {
+          start_date: startDate,
+          end_date: endDate,
+        },
+      );
+
+      if (summaryResponse.data.status === 200) {
+        setSummaryData(summaryResponse.data.data);
+      }
+
+      // 2. Fetch Detailed Data
       const response = await axios.post(
         "/api/v1/timesheet/report/capturable-report",
         {
@@ -245,29 +267,13 @@ export default function CapturableReportPage() {
   const handleClearFilters = () => {
     setSearchText("");
     setDateRange([dayjs().startOf("month"), dayjs().endOf("month")]);
+    setSummaryData({
+      totalProjects: 0,
+      totalHours: 0,
+      avgCapturable: 0,
+      avgUncapturable: 0,
+    });
   };
-
-  // * Overall Statistics calculated from raw API response (Instruction 2.b)
-  const overallStats = useMemo(() => {
-    const totalHoursRaw = data.reduce((sum, item) => sum + item.hours, 0);
-    const avgCapturableRaw =
-      data.length > 0
-        ? data.reduce((sum, item) => sum + item.capturable_percent, 0) /
-          data.length
-        : 0;
-    const avgUncapturableRaw =
-      data.length > 0
-        ? data.reduce((sum, item) => sum + item.uncapturable_percent, 0) /
-          data.length
-        : 0;
-
-    return {
-      totalProjects: data.length,
-      totalHours: totalHoursRaw,
-      avgCapturable: avgCapturableRaw,
-      avgUncapturable: avgUncapturableRaw,
-    };
-  }, [data]);
 
   // * Local Filtering for Table only
   const filteredTableData = useMemo(() => {
@@ -480,7 +486,7 @@ export default function CapturableReportPage() {
             <Col xs={24} sm={12} lg={6}>
               <SummaryCard
                 title="โครงการทั้งหมด"
-                value={overallStats.totalProjects}
+                value={summaryData.totalProjects}
                 subtitle="จำนวนโครงการที่วิเคราะห์"
                 icon={<ProjectOutlined />}
                 color={token.colorPrimary}
@@ -489,7 +495,7 @@ export default function CapturableReportPage() {
             <Col xs={24} sm={12} lg={6}>
               <SummaryCard
                 title="ชั่วโมงรวม"
-                value={overallStats.totalHours.toLocaleString(undefined, {
+                value={summaryData.totalHours.toLocaleString(undefined, {
                   maximumFractionDigits: 0,
                 })}
                 subtitle="บันทึกในช่วงเวลานี้"
@@ -500,21 +506,21 @@ export default function CapturableReportPage() {
             <Col xs={24} sm={12} lg={6}>
               <SummaryCard
                 title="เฉลี่ยงานสร้างใหม่"
-                value={`${overallStats.avgCapturable.toFixed(1)}%`}
+                value={`${summaryData.avgCapturable.toFixed(1)}%`}
                 subtitle="สัดส่วนสินทรัพย์ (Asset)"
                 icon={<CheckCircleOutlined />}
                 color={token.colorSuccess}
-                percent={overallStats.avgCapturable}
+                percent={summaryData.avgCapturable}
               />
             </Col>
             <Col xs={24} sm={12} lg={6}>
               <SummaryCard
                 title="เฉลี่ยงานดูแล"
-                value={`${overallStats.avgUncapturable.toFixed(1)}%`}
+                value={`${summaryData.avgUncapturable.toFixed(1)}%`}
                 subtitle="สัดส่วนค่าใช้จ่าย (Expense)"
                 icon={<CloseCircleOutlined />}
                 color={token.colorError}
-                percent={overallStats.avgUncapturable}
+                percent={summaryData.avgUncapturable}
               />
             </Col>
           </Row>

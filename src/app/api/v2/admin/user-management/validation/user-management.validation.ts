@@ -16,6 +16,7 @@ export const CreateUserSchema = z.object({
   phone: z.string().optional(),
   role_id: z.number().int().optional(),
   profile_image: z.string().optional().nullable(),
+  profile_image_path: z.string().optional().nullable(),
   created_by: z.number().int().optional(),
   joined_date: z.string().optional().nullable(),
   resigned_date: z.string().optional().nullable(),
@@ -41,6 +42,7 @@ export const UpdateUserSchema = z.object({
   role_id: z.number().int().optional().nullable(),
 
   profile_image: z.string().optional().nullable(),
+  profile_image_path: z.string().optional().nullable(),
   updated_by: z.number().int().optional(),
   joined_date: z.string().optional().nullable(),
   resigned_date: z.string().optional().nullable(),

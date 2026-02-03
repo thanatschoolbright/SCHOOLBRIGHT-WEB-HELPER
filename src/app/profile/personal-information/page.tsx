@@ -37,7 +37,6 @@ import {
   Upload,
 } from "antd";
 import { useEffect, useState } from "react";
-("use client");
 
 import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
 import { CameraOutlined, LoadingOutlined } from "@ant-design/icons";
@@ -100,6 +99,23 @@ const UserEditPage = () => {
   const [positions, setPositions] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (userData && !loading) {
+      form.setFieldsValue({
+        ...userData,
+        role_id: userData.role_id,
+        position_id: userData.position_id,
+        department_id: userData.department_id,
+        profile_image: userData.profile_image_path,
+        joined_date: userData.joined_date ? dayjs(userData.joined_date) : null,
+        resigned_date: userData.resigned_date
+          ? dayjs(userData.resigned_date)
+          : null,
+        employment_type: userData.employment_type || "FULL_TIME",
+      });
+    }
+  }, [userData, loading, form]);
 
   // --- Helper: Restricted Label ---
   const RestrictedLabel = ({ label }: { label: string }) => (
@@ -238,17 +254,6 @@ const UserEditPage = () => {
       setRoles(rolesRes?.data?.data?.roles || []);
       setPositions(positionsRes?.data?.data?.items || []);
       setDepartments(departmentsRes?.data?.data?.items || []);
-
-      form.setFieldsValue({
-        ...user,
-        role_id: user.role_id,
-        position_id: user.position_id,
-        department_id: user.department_id,
-        profile_image: user.profile_image_path,
-        joined_date: user.joined_date ? dayjs(user.joined_date) : null,
-        resigned_date: user.resigned_date ? dayjs(user.resigned_date) : null,
-        employment_type: user.employment_type || "FULL_TIME",
-      });
     } catch (error: any) {
       showErrorModal(error, "ดึงข้อมูลผู้ใช้งาน");
     } finally {
@@ -259,7 +264,7 @@ const UserEditPage = () => {
   const handleUpload: UploadProps["customRequest"] = async (options) => {
     const { file, onSuccess, onError } = options;
     const empCode = form.getFieldValue("employee_code");
-    const currentImg = form.getFieldValue("profile_image");
+    const currentImg = form.getFieldValue("profile_image_path");
 
     if (!empCode) {
       toast.error("กรุณาระบุรหัสพนักงานก่อนอัปโหลดรูปภาพ");
@@ -278,10 +283,17 @@ const UserEditPage = () => {
 
       const newUrl = result.url || result.data?.url;
       if (newUrl) {
-        form.setFieldValue("profile_image", newUrl);
+        form.setFieldValue("profile_image_path", newUrl);
         setUserData((prev: any) => ({ ...prev, profile_image_path: newUrl }));
+
+        // ✅ Persistence: Save immediately to database
+        await axios.post("/api/v2/admin/user-management/update", {
+          id: Number(userId),
+          profile_image_path: newUrl,
+        });
+
         await update({ ...session?.user, profile_image_path: newUrl });
-        toast.success("อัปโหลดรูปภาพสำเร็จ");
+        toast.success("อัปโหลดและบันทึกรูปภาพสำเร็จ");
         onSuccess?.(result);
       } else {
         throw new Error("Upload response invalid");
@@ -308,7 +320,7 @@ const UserEditPage = () => {
           : null,
         position_id: values.position_id || undefined,
         department_id: values.department_id || undefined,
-        profile_image: values.profile_image || undefined,
+        profile_image_path: values.profile_image_path || undefined,
       };
 
       await axios.post("/api/v2/admin/user-management/update", payload);
@@ -439,11 +451,13 @@ const UserEditPage = () => {
                 <Descriptions
                   column={1}
                   size="small"
-                  labelStyle={{ color: token.colorTextDescription }}
-                  contentStyle={{
-                    fontWeight: 600,
-                    justifyContent: "flex-end",
-                    textAlign: "right",
+                  styles={{
+                    label: { color: token.colorTextDescription },
+                    content: {
+                      fontWeight: 600,
+                      justifyContent: "flex-end",
+                      textAlign: "right",
+                    },
                   }}
                   items={[
                     {
@@ -690,7 +704,7 @@ const UserEditPage = () => {
                     </Col>
                   </Row>
 
-                  <Form.Item name="profile_image" hidden>
+                  <Form.Item name="profile_image_path" hidden>
                     <Input />
                   </Form.Item>
 
