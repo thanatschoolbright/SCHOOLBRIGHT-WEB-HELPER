@@ -3,119 +3,119 @@ import type { BypassTarget } from "../types/bypass.types";
 
 export const BYPASS_TARGETS: Record<string, BypassTarget> = {
   system: {
-    label: "ระบบบริหารจัดการโรงเรียน",
+    label: "School Management System",
     environments: {
       production: {
-        label: "ใช้งานจริง",
+        label: "Production",
         url: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
       staging: {
-        label: "ทดสอบเบต้า",
+        label: "Beta / Staging",
         url: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
       development: {
-        label: "เซิร์ฟเวอร์นักพัฒนา",
+        label: "Development",
         url: "https://dev.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
     },
   },
   academic: {
-    label: "ระบบวิชาการและผลการเรียน",
+    label: "Academic & Grading",
     environments: {
       production: {
-        label: "ใช้งานจริง",
+        label: "Production",
         url: "https://academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
       development: {
-        label: "เซิร์ฟเวอร์นักพัฒนา",
+        label: "Development",
         url: "https://dev-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
       ui: {
-        label: "ทดสอบการออกแบบ (UI)",
+        label: "UI/UX Staging",
         url: "https://dev-ui-academic.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
     },
   },
   accounting: {
-    label: "ระบบบัญชีและการเงิน",
+    label: "Accounting & Finance",
     environments: {
       production: {
-        label: "ใช้งานจริง",
+        label: "Production",
         url: "https://accounting.schoolbright.co/Home/ByPass?token=",
       },
       development: {
-        label: "เซิร์ฟเวอร์นักพัฒนา",
+        label: "Development",
         url: "https://dev-accounting.schoolbright.co/Home/ByPass?token=",
       },
     },
   },
   library: {
-    label: "ระบบห้องสมุดดิจิทัล",
+    label: "Digital Library",
     environments: {
       production: {
-        label: "ใช้งานจริง",
+        label: "Production",
         url: "https://library.schoolbright.co/Home/ByPass?token=",
       },
       development: {
-        label: "เซิร์ฟเวอร์นักพัฒนา",
+        label: "Development",
         url: "https://library-dev.schoolbright.co/Home/ByPass?token=",
       },
     },
   },
   canteen: {
-    label: "ระบบโรงอาหารและร้านค้า",
+    label: "Canteen & POS",
     environments: {
       production: {
-        label: "ใช้งานจริง",
+        label: "Production",
         url: "https://canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
       development: {
-        label: "เซิร์ฟเวอร์นักพัฒนา",
+        label: "Development",
         url: "https://dev-canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
     },
   },
   kindergarten: {
-    label: "ระบบอนุบาลและพัฒนาการ",
+    label: "Kindergarten & Kids",
     environments: {
       production: {
-        label: "ใช้งานจริง",
+        label: "Production",
         url: "https://kindergarten.schoolbright.co/Home/ByPass?token=",
       },
       legacy: {
-        label: "เวอร์ชั่นเดิม",
+        label: "Legacy Version",
         url: "https://kindergarten-dev.schoolbright.co/Home/ByPass?token=",
       },
       development: {
-        label: "เซิร์ฟเวอร์นักพัฒนาใหม่",
+        label: "New Development",
         url: "https://kindergarten-log.schoolbright.co/Home/ByPass?token=",
       },
     },
   },
   activity: {
-    label: "ระบบกิจกรรมและชุมนุม",
+    label: "Student Activities",
     environments: {
       production: {
-        label: "ใช้งานจริง",
+        label: "Production",
         url: "https://markactivity.schoolbright.co/Home/ByPass?token=",
         extendPath: "&page=ActivityManagement",
       },
       development: {
-        label: "เซิร์ฟเวอร์นักพัฒนา",
+        label: "Development",
         url: "https://dev-markactivity.schoolbright.co/Home/ByPass?token=",
         extendPath: "&page=ActivityManagement",
       },
     },
   },
   exam: {
-    label: "ระบบสอบออนไลน์และคลังข้อสอบ",
+    label: "Online Examination",
     environments: {
       production: {
-        label: "ใช้งานจริง",
+        label: "Production",
         url: "https://exam.schoolbright.co/home/getToken?token=",
       },
       development: {
-        label: "เซิร์ฟเวอร์นักพัฒนา",
+        label: "Development",
         url: "https://dev-exam.schoolbright.co/home/getToken?token=",
       },
     },

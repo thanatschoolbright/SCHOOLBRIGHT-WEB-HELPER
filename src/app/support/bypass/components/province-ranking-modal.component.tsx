@@ -86,19 +86,19 @@ export default function ProvinceRankingModal({
 
   const top10Data = useMemo(() => data.slice(0, 10), [data]);
 
-  const stats = useMemo(() => {
+  const statistics = useMemo(() => {
     return data.reduce(
-      (acc, item) => ({
-        totalSchools: acc.totalSchools + item.totalSchools,
-        activeSchools: acc.activeSchools + item.activeSchools,
-        gradeA: acc.gradeA + item.gradeACount,
-        gradeB: acc.gradeB + item.gradeBCount,
-        gradeC: acc.gradeC + item.gradeCCount,
-        customerCount: acc.customerCount + (item.customerCount || 0),
-        contractCount: acc.contractCount + (item.contractCount || 0),
-        testCount: acc.testCount + (item.testCount || 0),
-        freeCount: acc.freeCount + (item.freeCount || 0),
-        otherCount: acc.otherCount + (item.otherCount || 0),
+      (accumulator, item) => ({
+        totalSchools: accumulator.totalSchools + item.totalSchools,
+        activeSchools: accumulator.activeSchools + item.activeSchools,
+        gradeA: accumulator.gradeA + item.gradeACount,
+        gradeB: accumulator.gradeB + item.gradeBCount,
+        gradeC: accumulator.gradeC + item.gradeCCount,
+        customerCount: accumulator.customerCount + (item.customerCount || 0),
+        contractCount: accumulator.contractCount + (item.contractCount || 0),
+        testCount: accumulator.testCount + (item.testCount || 0),
+        freeCount: accumulator.freeCount + (item.freeCount || 0),
+        otherCount: accumulator.otherCount + (item.otherCount || 0),
       }),
       {
         totalSchools: 0,
@@ -120,18 +120,18 @@ export default function ProvinceRankingModal({
   // * ==========================================================================
 
   const barChartData = {
-    labels: top10Data.map((d) => d.province),
+    labels: top10Data.map((record) => record.province),
     datasets: [
       {
-        label: "ใช้งานอยู่",
-        data: top10Data.map((d) => d.activeSchools),
+        label: "Active Schools",
+        data: top10Data.map((record) => record.activeSchools),
         backgroundColor: token.colorSuccess,
         borderRadius: 4,
         barPercentage: 0.6,
       },
       {
-        label: "ไม่ได้ใช้งาน",
-        data: top10Data.map((d) => d.inactiveSchools),
+        label: "Inactive Schools",
+        data: top10Data.map((record) => record.inactiveSchools),
         backgroundColor: token.colorError,
         borderRadius: 4,
         barPercentage: 0.6,
@@ -140,10 +140,10 @@ export default function ProvinceRankingModal({
   };
 
   const doughnutChartData = {
-    labels: ["เกรด A (ดีเยี่ยม)", "เกรด B (ดี)", "เกรด C (พอใช้)"],
+    labels: ["Grade A (Excellent)", "Grade B (Good)", "Grade C (Fair)"],
     datasets: [
       {
-        data: [stats.gradeA, stats.gradeB, stats.gradeC],
+        data: [statistics.gradeA, statistics.gradeB, statistics.gradeC],
         backgroundColor: [
           token.colorWarning,
           token.colorSuccess,
@@ -157,15 +157,15 @@ export default function ProvinceRankingModal({
   };
 
   const schoolDataTypeChartData = {
-    labels: ["ลูกค้า", "ทำสัญญา", "Test", "ลูกค้าฟรี", "หลักสูตรอิสลาม"],
+    labels: ["Customers", "Contract", "Test", "Free", "Islamic"],
     datasets: [
       {
         data: [
-          stats.customerCount,
-          stats.contractCount,
-          stats.testCount,
-          stats.freeCount,
-          stats.otherCount,
+          statistics.customerCount,
+          statistics.contractCount,
+          statistics.testCount,
+          statistics.freeCount,
+          statistics.otherCount,
         ],
         backgroundColor: [
           "#3b82f6", // Blue
@@ -216,7 +216,7 @@ export default function ProvinceRankingModal({
   const columns = useMemo<ColumnsType<ProvinceStatistics>>(
     () => [
       {
-        title: "อันดับ",
+        title: "RANK",
         key: "rank",
         width: 80,
         align: "center",
@@ -261,7 +261,7 @@ export default function ProvinceRankingModal({
         },
       },
       {
-        title: "จังหวัด",
+        title: "PROVINCE",
         dataIndex: "province",
         key: "province",
         width: 150,
@@ -271,8 +271,8 @@ export default function ProvinceRankingModal({
       {
         title: (
           <Space>
-            <span>ทั้งหมด</span>
-            <Tooltip title="จำนวนโรงเรียนทั้งหมดในจังหวัดนี้ที่มีในระบบ">
+            <span>TOTAL</span>
+            <Tooltip title="Total institutions in this province">
               <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
             </Tooltip>
           </Space>
@@ -281,14 +281,15 @@ export default function ProvinceRankingModal({
         key: "totalSchools",
         width: 100,
         align: "right",
-        sorter: (a, b) => a.totalSchools - b.totalSchools,
-        render: (val) => <Text>{val.toLocaleString()}</Text>,
+        sorter: (firstRecord, secondRecord) =>
+          firstRecord.totalSchools - secondRecord.totalSchools,
+        render: (value) => <Text>{value.toLocaleString()}</Text>,
       },
       {
         title: (
           <Space>
-            <span>ใช้งาน</span>
-            <Tooltip title="จำนวนโรงเรียนที่มีสถานะ Active (กำลังใช้งาน)">
+            <span>ACTIVE</span>
+            <Tooltip title="Schools with active systems">
               <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
             </Tooltip>
           </Space>
@@ -297,18 +298,19 @@ export default function ProvinceRankingModal({
         key: "activeSchools",
         width: 100,
         align: "right",
-        sorter: (a, b) => a.activeSchools - b.activeSchools,
-        render: (val) => (
+        sorter: (firstRecord, secondRecord) =>
+          firstRecord.activeSchools - secondRecord.activeSchools,
+        render: (value) => (
           <Text type="success" strong>
-            {val.toLocaleString()}
+            {value.toLocaleString()}
           </Text>
         ),
       },
       {
         title: (
           <Space>
-            <span>อัตราส่วน</span>
-            <Tooltip title="สัดส่วนโรงเรียนที่ใช้งานจริงเทียบกับทั้งหมด (%)">
+            <span>RATE</span>
+            <Tooltip title="System activation percentage">
               <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
             </Tooltip>
           </Space>
@@ -316,11 +318,12 @@ export default function ProvinceRankingModal({
         dataIndex: "activationRate",
         key: "activationRate",
         width: 150,
-        sorter: (a, b) => a.activationRate - b.activationRate,
-        render: (val) => (
-          <Tooltip title={`${val.toFixed(2)}% Active Rate`}>
+        sorter: (firstRecord, secondRecord) =>
+          firstRecord.activationRate - secondRecord.activationRate,
+        render: (value) => (
+          <Tooltip title={`${value.toFixed(2)}% Active Rate`}>
             <Progress
-              percent={val}
+              percent={value}
               size="small"
               strokeColor={{
                 "0%": token.colorPrimary,
@@ -334,64 +337,69 @@ export default function ProvinceRankingModal({
         ),
       },
       {
-        title: "ลูกค้า",
+        title: "CLIENTS",
         dataIndex: "customerCount",
         key: "customerCount",
         width: 100,
         align: "right",
-        sorter: (a, b) => a.customerCount - b.customerCount,
-        render: (val) => <Text style={{ color: "#3b82f6" }}>{val}</Text>,
+        sorter: (firstRecord, secondRecord) =>
+          firstRecord.customerCount - secondRecord.customerCount,
+        render: (value) => <Text style={{ color: "#3b82f6" }}>{value}</Text>,
       },
       {
-        title: "ทำสัญญา",
+        title: "CONTRACTS",
         dataIndex: "contractCount",
         key: "contractCount",
         width: 110,
         align: "right",
-        sorter: (a, b) => a.contractCount - b.contractCount,
-        render: (val) => <Text style={{ color: "#10b981" }}>{val}</Text>,
+        sorter: (firstRecord, secondRecord) =>
+          firstRecord.contractCount - secondRecord.contractCount,
+        render: (value) => <Text style={{ color: "#10b981" }}>{value}</Text>,
       },
       {
-        title: "Test",
+        title: "TEST",
         dataIndex: "testCount",
         key: "testCount",
         width: 100,
         align: "right",
-        sorter: (a, b) => a.testCount - b.testCount,
-        render: (val) => <Text style={{ color: "#f59e0b" }}>{val}</Text>,
+        sorter: (firstRecord, secondRecord) =>
+          firstRecord.testCount - secondRecord.testCount,
+        render: (value) => <Text style={{ color: "#f59e0b" }}>{value}</Text>,
       },
       {
-        title: "ฟรี",
+        title: "FREE",
         dataIndex: "freeCount",
         key: "freeCount",
         width: 100,
         align: "right",
-        sorter: (a, b) => a.freeCount - b.freeCount,
-        render: (val) => <Text style={{ color: "#8b5cf6" }}>{val}</Text>,
+        sorter: (firstRecord, secondRecord) =>
+          firstRecord.freeCount - secondRecord.freeCount,
+        render: (value) => <Text style={{ color: "#8b5cf6" }}>{value}</Text>,
       },
       {
         title: (
           <Space>
             <CrownOutlined style={{ color: token.colorWarning }} />
-            <span>เกรด A</span>
+            <span>GRADE A</span>
           </Space>
         ),
         dataIndex: "gradeACount",
         key: "gradeACount",
         width: 100,
         align: "center",
-        sorter: (a, b) => a.gradeACount - b.gradeACount,
-        render: (val) => (
+        sorter: (firstRecord, secondRecord) =>
+          firstRecord.gradeACount - secondRecord.gradeACount,
+        render: (value) => (
           <Tag color="gold" bordered={false} style={{ fontWeight: 600 }}>
-            {val} แห่ง
+            {value} Schools
           </Tag>
         ),
       },
       {
         title: (
           <Space>
-            <span>เกรดเฉลี่ย</span>
-            <Tooltip title="เกรดเฉลี่ยภาพรวมคุณภาพโรงเรียนในจังหวัด">
+            <span>AVG GRADE</span>
+            <Tooltip title="Average quality score across the province">
               <InfoCircleOutlined style={{ color: token.colorTextSecondary }} />
             </Tooltip>
           </Space>
@@ -400,13 +408,14 @@ export default function ProvinceRankingModal({
         key: "averageGrade",
         width: 120,
         align: "center",
-        sorter: (a, b) =>
-          parseFloat(a.averageGrade) - parseFloat(b.averageGrade),
-        render: (val) => {
-          const num = parseFloat(val);
+        sorter: (firstRecord, secondRecord) =>
+          parseFloat(firstRecord.averageGrade) -
+          parseFloat(secondRecord.averageGrade),
+        render: (value) => {
+          const num = parseFloat(value);
           const color =
             num >= 3.5 ? "success" : num >= 2.5 ? "processing" : "error";
-          return <Tag color={color}>{val}</Tag>;
+          return <Tag color={color}>{value}</Tag>;
         },
       },
     ],
@@ -508,7 +517,7 @@ export default function ProvinceRankingModal({
                     </Tooltip>
                   </Space>
                 }
-                value={stats.totalSchools}
+                value={statistics.totalSchools}
                 prefix={<BankOutlined style={{ color: token.colorInfo }} />}
                 valueStyle={{
                   fontWeight: 800,
@@ -566,7 +575,7 @@ export default function ProvinceRankingModal({
                     </Tooltip>
                   </Space>
                 }
-                value={stats.activeSchools}
+                value={statistics.activeSchools}
                 prefix={
                   <CheckCircleOutlined style={{ color: token.colorSuccess }} />
                 }
@@ -578,9 +587,10 @@ export default function ProvinceRankingModal({
                 suffix={
                   <Text type="secondary" style={{ fontSize: 14 }}>
                     (
-                    {((stats.activeSchools / stats.totalSchools) * 100).toFixed(
-                      1,
-                    )}
+                    {(
+                      (statistics.activeSchools / statistics.totalSchools) *
+                      100
+                    ).toFixed(1)}
                     %)
                   </Text>
                 }
@@ -630,7 +640,7 @@ export default function ProvinceRankingModal({
                     </Tooltip>
                   </Space>
                 }
-                value={stats.gradeA}
+                value={statistics.gradeA}
                 prefix={<CrownOutlined style={{ color: token.colorWarning }} />}
                 valueStyle={{
                   fontWeight: 800,
@@ -662,39 +672,39 @@ export default function ProvinceRankingModal({
             {[
               {
                 title: "Customers",
-                value: stats.customerCount,
+                value: statistics.customerCount,
                 icon: <TeamOutlined />,
                 color: "#3b82f6",
               },
               {
                 title: "Contracts",
-                value: stats.contractCount,
+                value: statistics.contractCount,
                 icon: <FileDoneOutlined />,
                 color: "#10b981",
               },
               {
                 title: "Trial/Test",
-                value: stats.testCount,
+                value: statistics.testCount,
                 icon: <ExperimentOutlined />,
                 color: "#f59e0b",
               },
               {
                 title: "Free Tier",
-                value: stats.freeCount,
+                value: statistics.freeCount,
                 icon: <GiftOutlined />,
                 color: "#8b5cf6",
               },
               {
                 title: "Islamic Cur.",
-                value: stats.otherCount,
+                value: statistics.otherCount,
                 icon: <GlobalOutlined />,
                 color: "#6366f1",
               },
-            ].map((item, idx) => (
+            ].map((item, index) => (
               <Col
                 xs={24}
                 sm={12}
-                lg={idx === 4 ? 4.8 : 4.8}
+                lg={index === 4 ? 4.8 : 4.8}
                 style={{ flex: "1 0 18%" }}
                 key={item.title}
               >

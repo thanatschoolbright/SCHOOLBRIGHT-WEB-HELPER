@@ -105,13 +105,14 @@ export const buildTableColumns = (
     key: "company_name",
     width: 400,
     fixed: "left",
-    sorter: (a, b) => compareValues(a.company_name, b.company_name),
-    render: (_value, r) => (
+    sorter: (firstRecord, secondRecord) =>
+      compareValues(firstRecord.company_name, secondRecord.company_name),
+    render: (_value, record) => (
       <Flex align="center" gap={12}>
         <Avatar
           size={40}
           style={{
-            background: getAvatarColor(r.company_name || ""),
+            background: getAvatarColor(record.company_name || ""),
             color: "#fff",
             fontSize: 16,
             fontWeight: 700,
@@ -119,14 +120,14 @@ export const buildTableColumns = (
             flexShrink: 0,
           }}
         >
-          {r.company_name?.charAt(0)}
+          {record.company_name?.charAt(0)}
         </Avatar>
         <Flex vertical gap={0}>
           <Typography.Text strong style={{ fontSize: 15, lineHeight: 1.2 }}>
-            {r.company_name || "-"}
+            {record.company_name || "-"}
           </Typography.Text>
           <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-            {r.school_group || "General"}
+            {record.school_group || "General"}
           </Typography.Text>
         </Flex>
       </Flex>
@@ -137,7 +138,8 @@ export const buildTableColumns = (
     dataIndex: "province",
     key: "province",
     width: 140,
-    sorter: (a, b) => compareValues(a.province, b.province),
+    sorter: (firstRecord, secondRecord) =>
+      compareValues(firstRecord.province, secondRecord.province),
     render: (value) => <Text style={{ fontSize: 13 }}>{value || "-"}</Text>,
   },
   {
@@ -145,7 +147,8 @@ export const buildTableColumns = (
     dataIndex: "school_type",
     key: "school_type",
     width: 130,
-    sorter: (a, b) => compareValues(a.school_type, b.school_type),
+    sorter: (firstRecord, secondRecord) =>
+      compareValues(firstRecord.school_type, secondRecord.school_type),
     render: (value) => {
       if (!value) return "-";
       const isSoftware = value === "Software";

@@ -77,8 +77,14 @@ export default function StatisticsSection({
 
   return (
     <Row gutter={[16, 16]}>
-      {statsConfigs.map((cfg) => (
-        <Col xs={24} sm={12} md={6} xl={cfg.isNumber ? 6 : 4} key={cfg.title}>
+      {statsConfigs.map((config) => (
+        <Col
+          xs={24}
+          sm={12}
+          md={6}
+          xl={config.isNumber ? 6 : 4}
+          key={config.title}
+        >
           <Card
             variant="borderless"
             styles={{
@@ -89,26 +95,26 @@ export default function StatisticsSection({
               },
             }}
             style={{
-              background: cfg.bgColor,
+              background: config.bgColor,
               boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
             }}
           >
             <Statistic
               title={
-                <Text strong style={{ color: cfg.color, fontSize: 13 }}>
-                  {cfg.title}
+                <Text strong style={{ color: config.color, fontSize: 13 }}>
+                  {config.title}
                 </Text>
               }
-              value={cfg.value}
-              precision={cfg.precision}
-              prefix={cfg.icon}
+              value={config.value}
+              precision={config.precision}
+              prefix={config.icon}
               valueStyle={{
                 color: token.colorText,
                 fontWeight: 700,
                 fontSize: 24,
               }}
-              formatter={(val) =>
-                typeof val === "number" ? val.toLocaleString() : val
+              formatter={(value) =>
+                typeof value === "number" ? value.toLocaleString() : value
               }
             />
           </Card>

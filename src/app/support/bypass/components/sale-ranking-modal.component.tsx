@@ -355,7 +355,7 @@ export default function SaleRankingModal({
           <Segmented
             size="small"
             value={viewMode}
-            onChange={(v) => setViewMode(v as any)}
+            onChange={(value) => setViewMode(value as any)}
             options={[
               { label: "All", value: "all" },
               { label: "Sales", value: "customer" },
@@ -433,18 +433,19 @@ export default function SaleRankingModal({
         key: "totalSchools",
         width: 120,
         align: "right",
-        sorter: (a, b) => a.totalSchools - b.totalSchools,
-        render: (val) => <Text>{val.toLocaleString()}</Text>,
+        sorter: (firstSale, secondSale) =>
+          firstSale.totalSchools - secondSale.totalSchools,
+        render: (value) => <Text>{value.toLocaleString()}</Text>,
       },
       {
         title: "Revenue Sources",
         key: "payingSchools",
         width: 150,
         align: "right",
-        sorter: (a, b) =>
-          a.customerCount +
-          a.contractCount -
-          (b.customerCount + b.contractCount),
+        sorter: (firstSale, secondSale) =>
+          firstSale.customerCount +
+          firstSale.contractCount -
+          (secondSale.customerCount + secondSale.contractCount),
         render: (_, record) => (
           <Tooltip
             title={
@@ -480,8 +481,10 @@ export default function SaleRankingModal({
         key: "nonPayingSchools",
         width: 150,
         align: "right",
-        sorter: (a, b) =>
-          a.testCount + a.freeCount - (b.testCount + b.freeCount),
+        sorter: (firstSale, secondSale) =>
+          firstSale.testCount +
+          firstSale.freeCount -
+          (secondSale.testCount + secondSale.freeCount),
         render: (_, record) => (
           <Tooltip
             title={
@@ -538,10 +541,11 @@ export default function SaleRankingModal({
         key: "activeSchools",
         width: 100,
         align: "right",
-        sorter: (a, b) => a.activeSchools - b.activeSchools,
-        render: (val) => (
+        sorter: (firstSale, secondSale) =>
+          firstSale.activeSchools - secondSale.activeSchools,
+        render: (value) => (
           <Text type="success" strong>
-            {val.toLocaleString()}
+            {value.toLocaleString()}
           </Text>
         ),
       },
@@ -550,11 +554,12 @@ export default function SaleRankingModal({
         dataIndex: "activationRate",
         key: "activationRate",
         width: 150,
-        sorter: (a, b) => a.activationRate - b.activationRate,
-        render: (val) => (
-          <Tooltip title={`${val.toFixed(2)}% Activation Rate`}>
+        sorter: (firstSale, secondSale) =>
+          firstSale.activationRate - secondSale.activationRate,
+        render: (value) => (
+          <Tooltip title={`${value.toFixed(2)}% Activation Rate`}>
             <Progress
-              percent={val}
+              percent={value}
               size="small"
               strokeColor={{
                 "0%": token.colorPrimary,
@@ -573,10 +578,11 @@ export default function SaleRankingModal({
         key: "totalStudents",
         width: 120,
         align: "right",
-        sorter: (a, b) => a.totalStudents - b.totalStudents,
-        render: (val) => (
+        sorter: (firstSale, secondSale) =>
+          firstSale.totalStudents - secondSale.totalStudents,
+        render: (value) => (
           <Tag color="purple" bordered={false}>
-            {val.toLocaleString()}
+            {value.toLocaleString()}
           </Tag>
         ),
       },
@@ -586,10 +592,11 @@ export default function SaleRankingModal({
         key: "gradeACount",
         width: 100,
         align: "center",
-        sorter: (a, b) => a.gradeACount - b.gradeACount,
-        render: (val) => (
+        sorter: (firstSale, secondSale) =>
+          firstSale.gradeACount - secondSale.gradeACount,
+        render: (value) => (
           <Tag color="gold" bordered={false} style={{ fontWeight: 600 }}>
-            {val} Schools
+            {value} Schools
           </Tag>
         ),
       },
@@ -780,10 +787,10 @@ export default function SaleRankingModal({
                     </Text>
                   }
                   value={card.value}
-                  formatter={(val) =>
-                    typeof val === "number"
-                      ? val.toLocaleString() + (card.isMoney ? " ฿" : "")
-                      : val
+                  formatter={(value) =>
+                    typeof value === "number"
+                      ? value.toLocaleString() + (card.isMoney ? " ฿" : "")
+                      : value
                   }
                   valueStyle={{
                     fontWeight: 800,

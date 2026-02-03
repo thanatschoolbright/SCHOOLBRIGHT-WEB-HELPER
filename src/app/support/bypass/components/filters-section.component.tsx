@@ -39,7 +39,7 @@ export default function FiltersSection({
             <SearchOutlined style={{ color: token.colorTextQuaternary }} />
           }
           value={filters.search}
-          onChange={(e) => onFilterChange("search", e.target.value)}
+          onChange={(event) => onFilterChange("search", event.target.value)}
           allowClear
           style={{ flex: 1, minWidth: 280, borderRadius: 12 }}
         />
