@@ -1,7 +1,7 @@
 import type {
-  SchoolDetail,
-  FilterState,
   FilterOptions,
+  FilterState,
+  SchoolDetail,
   Statistics,
 } from "../types/bypass.types";
 
@@ -29,16 +29,6 @@ export const compareValues = (a: unknown, b: unknown): number => {
   return COLLATOR.compare(normalize(a), normalize(b));
 };
 
-export const parseLocalStorage = <T>(key: string, defaultValue: T): T => {
-  try {
-    const item = localStorage?.getItem(key);
-    if (!item) return defaultValue;
-    return JSON.parse(item);
-  } catch (error) {
-    return defaultValue;
-  }
-};
-
 export const sanitizeTargetName = (label: string): string => {
   const trimmed = (label ?? "").trim();
   return trimmed.replace(/^[^A-Za-z0-9\u0E00-\u0E7F]+/, "").trim() || trimmed;
@@ -62,7 +52,7 @@ export const extractTokenFromUrl = (fullUrl: string): string => {
 };
 
 export const extractFilterOptions = (
-  schools: SchoolDetail[]
+  schools: SchoolDetail[],
 ): FilterOptions => {
   const provinces = new Set<string>();
   const schoolTypes = new Set<string>();
@@ -97,7 +87,7 @@ export const extractFilterOptions = (
 
 export const filterSchools = (
   schools: SchoolDetail[],
-  filters: FilterState
+  filters: FilterState,
 ): SchoolDetail[] => {
   return schools.filter((school) => {
     if (filters.search) {
@@ -131,7 +121,7 @@ export const calculateStatistics = (schools: SchoolDetail[]): Statistics => {
   const active = schools.filter((s) => s.isActive === "active").length;
   const inactive = total - active;
   const gradeA = schools.filter(
-    (s) => s.school_grade?.trim().toUpperCase() === "A"
+    (s) => s.school_grade?.trim().toUpperCase() === "A",
   ).length;
 
   const normalizeStudentCount = (school: SchoolDetail): number => {
@@ -145,7 +135,7 @@ export const calculateStatistics = (schools: SchoolDetail[]): Statistics => {
 
   const totalStudents = schools.reduce(
     (sum, school) => sum + normalizeStudentCount(school),
-    0
+    0,
   );
   const activeStudents = schools.reduce((sum, school) => {
     if (school.isActive === "active") {

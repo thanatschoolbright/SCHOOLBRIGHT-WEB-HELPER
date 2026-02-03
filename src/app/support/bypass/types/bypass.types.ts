@@ -70,6 +70,7 @@ export type Statistics = {
 export type BypassPageState = {
   filters: FilterState;
   filterOptions: FilterOptions;
+  schoolDetails: SchoolDetail[];
   filteredSchools: SchoolDetail[];
   statistics: Statistics;
   pageSize: number;

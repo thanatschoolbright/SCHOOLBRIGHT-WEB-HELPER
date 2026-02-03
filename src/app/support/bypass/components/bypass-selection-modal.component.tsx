@@ -1,39 +1,36 @@
 "use client";
 
-import React from "react";
-import {
-  Modal,
-  Row,
-  Col,
-  Card,
-  Typography,
-  Space,
-  theme,
-  Button,
-  Divider,
-  Tag,
-  Flex,
-  Tooltip,
-  Alert,
-} from "antd";
 import {
   AppstoreOutlined,
-  ReadOutlined,
-  WalletOutlined,
+  ArrowRightOutlined,
+  BankOutlined,
   BookOutlined,
+  FileProtectOutlined,
+  FireOutlined,
+  GlobalOutlined,
+  InfoCircleOutlined,
+  ReadOutlined,
   RestOutlined,
   SmileOutlined,
-  FireOutlined,
-  FileProtectOutlined,
-  ArrowRightOutlined,
-  GlobalOutlined,
-  ThunderboltOutlined,
-  SafetyCertificateOutlined,
-  BankOutlined,
-  InfoCircleOutlined,
+  WalletOutlined,
 } from "@ant-design/icons";
-import { BYPASS_TARGETS } from "../utils/bypass-targets";
+import {
+  Alert,
+  Button,
+  Col,
+  Divider,
+  Flex,
+  Modal,
+  Row,
+  Space,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
+import React from "react";
 import type { SchoolDetail } from "../types/bypass.types";
+import { BYPASS_TARGETS } from "../utils/bypass-targets";
 
 const { Text, Title } = Typography;
 
@@ -247,7 +244,7 @@ export default function BypassSelectionModal({
                     color="success"
                     style={{ margin: 0, fontSize: 12, fontWeight: 700 }}
                   >
-                    Production
+                    ใช้งานจริง (Production)
                   </Tag>{" "}
                   เพื่อดูข้อมูลจริงที่โรงเรียนกำลังส่งเข้ามา
                 </Text>

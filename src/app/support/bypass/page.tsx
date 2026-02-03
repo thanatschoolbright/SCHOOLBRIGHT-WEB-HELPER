@@ -1,55 +1,56 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import SummaryCard from "@/components/card/summary-card";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 import {
-  Space,
-  Button,
-  Typography,
-  Collapse,
-  Card,
+  BankOutlined,
+  CheckCircleOutlined,
+  ClearOutlined,
+  CloseCircleOutlined,
+  FilterOutlined,
+  LoginOutlined,
+  SearchOutlined,
+  TableOutlined,
+  TeamOutlined,
+  ThunderboltOutlined,
+  TrophyOutlined,
+} from "@ant-design/icons";
+import DashboardLayout from "@components/layouts/backend-layout";
+import {
+  Avatar,
   Badge,
-  Tooltip,
-  Statistic,
-  Row,
+  Button,
+  Card,
   Col,
-  theme,
-  Alert,
   Divider,
   Flex,
+  Input,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tag,
+  theme,
+  Typography,
 } from "antd";
-import {
-  LoginOutlined,
-  TrophyOutlined,
-  BarChartOutlined,
-  FilterOutlined,
-  TableOutlined,
-  RiseOutlined,
-  TeamOutlined,
-  InfoCircleOutlined,
-  ThunderboltOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  WarningOutlined,
-  BankOutlined,
-} from "@ant-design/icons";
-import { motion } from "framer-motion";
-import DashboardLayout from "@components/layouts/backend-layout";
+import type { ColumnsType } from "antd/es/table";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useBypassPageData } from "./hooks/bypass.data";
-import StatisticsSection from "./components/statistics-section.component";
-import FiltersSection from "./components/filters-section.component";
-import SchoolTableSection from "./components/school-table-section.component";
-import ProvinceRankingModal from "./components/province-ranking-modal.component";
-import { calculateProvinceStatistics } from "./utils/province-stats.helpers";
-import SaleRankingModal from "./components/sale-ranking-modal.component";
-import { calculateSaleStatistics } from "./utils/sale-stats.helpers";
-import type { SaleStatistics } from "./types/sale-stats.types";
-import type { ProvinceStatistics } from "./types/province-stats.types";
-import type { SchoolDetail } from "./types/bypass.types";
 import BypassSelectionModal from "./components/bypass-selection-modal.component";
+import ProvinceRankingModal from "./components/province-ranking-modal.component";
+import SaleRankingModal from "./components/sale-ranking-modal.component";
+import { useBypassPageData } from "./hooks/bypass.data";
+import type { SchoolDetail } from "./types/bypass.types";
+import { calculateStatistics } from "./utils/bypass.helpers";
+import { calculateProvinceStatistics } from "./utils/province-stats.helpers";
+import { calculateSaleStatistics } from "./utils/sale-stats.helpers";
 
 const { Title, Text } = Typography;
 
+/**
+ * ฟังก์ชันเลือกสี Avatar ตามชื่อ
+ * @param name ชื่อที่ต้องการสร้างสี
+ */
 const getAvatarColor = (name: string) => {
   const colors = [
     "#f5222d",
@@ -72,114 +73,12 @@ const getAvatarColor = (name: string) => {
   return colors[Math.abs(hash) % colors.length];
 };
 
-const addAlpha = (color: string, alpha: number) => {
-  if (!color) return "rgba(0,0,0,0)";
-  if (color.startsWith("#")) {
-    let hex = color.slice(1);
-    if (hex.length === 3)
-      hex = hex
-        .split("")
-        .map((c) => c + c)
-        .join("");
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-  return color;
-};
-
-const HeaderSection = ({
-  TRANSLATION,
-  onProvinceRanking,
-  onSaleRanking,
-}: any) => {
-  const { token } = theme.useToken();
-  const isDark = token.colorBgBase !== "#ffffff";
-
-  return (
-    <div
-      className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-8 rounded-3xl border border-solid"
-      style={{
-        background: isDark
-          ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
-              token.colorPrimary,
-              0.05
-            )} 100%)`
-          : `linear-gradient(135deg, #fff 0%, ${addAlpha(
-              token.colorPrimary,
-              0.03
-            )} 100%)`,
-        borderColor: addAlpha(token.colorBorder, 0.6),
-      }}
-    >
-      <Space size={20}>
-        <div
-          className="flex items-center justify-center w-16 h-16 rounded-2xl"
-          style={{
-            background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
-          }}
-        >
-          <LoginOutlined style={{ fontSize: 28, color: "#fff" }} />
-        </div>
-        <div>
-          <Title
-            level={2}
-            style={{
-              margin: 0,
-              fontWeight: 800,
-              letterSpacing: "-1px",
-              color: token.colorTextHeading,
-            }}
-          >
-            {TRANSLATION("bypass_page.title")}
-          </Title>
-          <Text type="secondary" style={{ fontSize: 14, fontWeight: 500 }}>
-            {TRANSLATION("bypass_page.subtitle")}
-          </Text>
-        </div>
-      </Space>
-      <Space size="middle" wrap>
-        <Button
-          onClick={onProvinceRanking}
-          size="large"
-          shape="round"
-          icon={<TrophyOutlined />}
-          style={{
-            height: 48,
-            padding: "0 24px",
-            fontWeight: 600,
-            border: `1px solid ${addAlpha("#8b5cf6", 0.3)}`,
-            background: addAlpha("#8b5cf6", 0.05),
-            color: "#8b5cf6",
-          }}
-        >
-          {TRANSLATION("bypass_page.view_province_ranking")}
-        </Button>
-        <Button
-          onClick={onSaleRanking}
-          size="large"
-          shape="round"
-          icon={<TeamOutlined />}
-          style={{
-            height: 48,
-            padding: "0 24px",
-            fontWeight: 600,
-            border: `1px solid ${addAlpha("#f59e0b", 0.3)}`,
-            background: addAlpha("#f59e0b", 0.05),
-            color: "#f59e0b",
-          }}
-        >
-          {TRANSLATION("bypass_page.view_sale_ranking")}
-        </Button>
-      </Space>
-    </div>
-  );
-};
 export default function BypassPage(): JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
   const { token } = theme.useToken();
   const { state, handlers } = useBypassPageData();
+
+  // * Local UI State
   const [showProvinceRanking, setShowProvinceRanking] = useState(false);
   const [showSaleRanking, setShowSaleRanking] = useState(false);
   const [bypassModal, setBypassModal] = useState<{
@@ -190,221 +89,431 @@ export default function BypassPage(): JSX.Element {
     school: null,
   });
 
-  // * Calculate Province Ranking Data Memoized
-  const provinceStatistics = useMemo<ProvinceStatistics[]>(
-    () => calculateProvinceStatistics(state.filteredSchools),
-    [state.filteredSchools]
+  // * Calculate Statistics from original data as per requirement (Instruction 2.b)
+  // * สรุปภาพรวมจากข้อมูลทั้งหมด (ไม่สน Filter)
+  const overallStatistics = useMemo(
+    () => calculateStatistics(state.schoolDetails ?? []),
+    [state.schoolDetails],
   );
 
-  // * Calculate Sale Ranking Data Memoized
-  const saleStatistics = useMemo<SaleStatistics[]>(
-    () => calculateSaleStatistics(state.filteredSchools),
-    [state.filteredSchools]
+  // * Calculate Province Ranking Data (Standalone from table filters)
+  const provinceStatistics = useMemo(
+    () => calculateProvinceStatistics(state.schoolDetails),
+    [state.schoolDetails],
+  );
+
+  // * Calculate Sale Ranking Data (Standalone from table filters)
+  const saleStatistics = useMemo(
+    () => calculateSaleStatistics(state.schoolDetails),
+    [state.schoolDetails],
+  );
+
+  // * Define Table Columns with sorting enabled
+  const columns: ColumnsType<SchoolDetail> = useMemo(
+    () => [
+      {
+        title: "#",
+        key: "index",
+        width: 70,
+        align: "center",
+        render: (_v, _r, index) => (
+          <Text strong style={{ opacity: 0.4, fontSize: 13 }}>
+            {(index + 1).toString().padStart(2, "0")}
+          </Text>
+        ),
+      },
+      {
+        title: "โรงเรียน",
+        key: "school",
+        width: 350,
+        sorter: (a, b) =>
+          (a.company_name ?? "").localeCompare(b.company_name ?? ""),
+        render: (_, record) => (
+          <Space size={12}>
+            <Avatar
+              style={{
+                backgroundColor: getAvatarColor(record.company_name ?? ""),
+              }}
+              shape="square"
+              size={40}
+            >
+              {record.company_name?.charAt(0)}
+            </Avatar>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <Text strong style={{ fontSize: 14, fontWeight: 600 }}>
+                {record.company_name}
+              </Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                ไอดี: {record.school_id} | รหัส: {record.school_code}
+              </Text>
+            </div>
+          </Space>
+        ),
+      },
+      {
+        title: "จังหวัด",
+        dataIndex: "province",
+        key: "province",
+        width: 150,
+        sorter: (a, b) => (a.province ?? "").localeCompare(b.province ?? ""),
+      },
+      {
+        title: "ประเภท",
+        dataIndex: "school_type",
+        key: "school_type",
+        width: 150,
+        sorter: (a, b) =>
+          (a.school_type ?? "").localeCompare(b.school_type ?? ""),
+        render: (type) => <Tag bordered={false}>{type || "-"}</Tag>,
+      },
+      {
+        title: "เกรด",
+        dataIndex: "school_grade",
+        key: "school_grade",
+        width: 100,
+        align: "center",
+        sorter: (a, b) =>
+          (a.school_grade ?? "").localeCompare(b.school_grade ?? ""),
+        render: (grade) => (
+          <Badge
+            count={grade || "-"}
+            style={{
+              backgroundColor:
+                grade === "A" ? token.colorWarning : token.colorInfo,
+              fontWeight: 600,
+            }}
+          />
+        ),
+      },
+      {
+        title: "นักเรียน",
+        dataIndex: "student_count",
+        key: "student_count",
+        width: 120,
+        align: "right",
+        sorter: (a, b) =>
+          Number(a.student_count || 0) - Number(b.student_count || 0),
+        render: (count) => (
+          <Text strong>{Number(count || 0).toLocaleString()}</Text>
+        ),
+      },
+      {
+        title: "สถานะ",
+        dataIndex: "isActive",
+        key: "isActive",
+        width: 120,
+        sorter: (a, b) => (a.isActive ?? "").localeCompare(b.isActive ?? ""),
+        render: (status) => (
+          <Tag
+            icon={
+              status === "active" ? (
+                <CheckCircleOutlined />
+              ) : (
+                <CloseCircleOutlined />
+              )
+            }
+            color={status === "active" ? "success" : "error"}
+            bordered={false}
+            style={{ fontWeight: 600 }}
+          >
+            {status === "active" ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+          </Tag>
+        ),
+      },
+      {
+        title: "จัดการ",
+        key: "action",
+        width: 150,
+        fixed: "right",
+        align: "center",
+        render: (_, record) => (
+          <Button
+            type="primary"
+            icon={<LoginOutlined />}
+            onClick={() => setBypassModal({ open: true, school: record })}
+            style={{ borderRadius: 8, fontWeight: 600 }}
+          >
+            เข้าใช้ระบบ
+          </Button>
+        ),
+      },
+    ],
+    [token, TRANSLATION],
   );
 
   return (
     <DashboardLayout>
-      <div className="w-full space-y-6">
-        {/* 1. Header Section */}
-        <HeaderSection
-          TRANSLATION={TRANSLATION}
-          onProvinceRanking={() => setShowProvinceRanking(true)}
-          onSaleRanking={() => setShowSaleRanking(true)}
+      <div className="w-full space-y-8">
+        {/* ส่วนที่ 1: หัวข้อหน้าเว็ป */}
+        <HeaderBar
+          icon={<LoginOutlined />}
+          title={TRANSLATION("bypass_page.title")}
+          subTitle={TRANSLATION("bypass_page.subtitle")}
         />
 
-        {/* 2. Summary Statistics Cards */}
-        <Row gutter={[20, 20]} className="mb-8">
-          {[
-            {
-              label: "โรงเรียนทั้งหมด",
-              value: state.statistics.total,
-              color: token.colorPrimary,
-              icon: <BankOutlined />,
-              desc: "จำนวนโรงเรียน",
-            },
-            {
-              label: "ใช้งานอยู่",
-              value: state.statistics.active,
-              color: token.colorSuccess,
-              icon: <ThunderboltOutlined />,
-              desc: "ออนไลน์ปกติ",
-            },
-            {
-              label: "ไม่ได้ใช้งาน",
-              value: state.statistics.inactive,
-              color: token.colorError,
-              icon: <CloseCircleOutlined />,
-              desc: "ควรตรวจสอบ",
-            },
-            {
-              label: "เกรด A (ดีเยี่ยม)",
-              value: state.statistics.gradeA,
-              color: token.colorWarning,
-              icon: <TrophyOutlined />,
-              desc: "ประสิทธิภาพสูง",
-            },
-          ].map((m, idx) => (
-            <Col xs={24} sm={12} lg={6} key={idx}>
-              <div
-                className="p-6 rounded-2xl border border-solid h-full transition-all group overflow-hidden relative"
-                style={{
-                  background: token.colorBgContainer,
-                  borderColor: addAlpha(m.color, 0.2),
-                }}
-              >
-                <div
-                  className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity"
-                  style={{ fontSize: "100px", color: m.color }}
-                >
-                  {m.icon}
-                </div>
-
-                <Flex vertical gap={12} className="relative z-10">
-                  <div
-                    className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl"
-                    style={{
-                      backgroundColor: addAlpha(
-                        m.color,
-                        token.colorBgBase !== "#ffffff" ? 0.2 : 0.1
-                      ),
-                      color: m.color,
-                    }}
-                  >
-                    {m.icon}
-                  </div>
-
-                  <div>
-                    <Text
-                      type="secondary"
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                        color: addAlpha(token.colorTextSecondary, 0.8),
-                      }}
-                    >
-                      {m.label}
-                    </Text>
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <Title
-                        level={2}
-                        style={{ margin: 0, fontWeight: 900, fontSize: 32 }}
-                      >
-                        {m.value.toLocaleString()}
-                      </Title>
-                    </div>
-                    <Typography.Text
-                      type="secondary"
-                      style={{ fontSize: 12, opacity: 0.7 }}
-                    >
-                      {m.desc}
-                    </Typography.Text>
-                  </div>
-                </Flex>
-              </div>
-            </Col>
-          ))}
+        {/* ส่วนที่ 2: บัตรสรุปข้อมูล (Summary Cards) - สรุปจากข้อมูลเดิมเสมอ */}
+        <Row gutter={[20, 20]}>
+          <Col xs={24} sm={12} lg={6}>
+            <SummaryCard
+              title="โรงเรียนทั้งหมด"
+              value={overallStatistics.total.toLocaleString()}
+              subtitle="จำนวนโรงเรียนในระบบ"
+              icon={<BankOutlined />}
+              color={token.colorPrimary}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <SummaryCard
+              title="กำลังใช้งาน (Active)"
+              value={overallStatistics.active.toLocaleString()}
+              subtitle="ออนไลน์ปกติ"
+              icon={<ThunderboltOutlined />}
+              color={token.colorSuccess}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <SummaryCard
+              title="ไม่ได้ใช้งาน (Inactive)"
+              value={overallStatistics.inactive.toLocaleString()}
+              subtitle="ควรตรวจสอบระบบ"
+              icon={<CloseCircleOutlined />}
+              color={token.colorError}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <SummaryCard
+              title="เกรด A (ดีเยี่ยม)"
+              value={overallStatistics.gradeA.toLocaleString()}
+              subtitle="ประสิทธิภาพสูง"
+              icon={<TrophyOutlined />}
+              color={token.colorWarning}
+            />
+          </Col>
         </Row>
 
-        {/* 3. Filters Section */}
-        <div
-          className="p-8 rounded-[32px] border border-solid mb-8"
-          style={{
-            background: token.colorBgContainer,
-            borderColor: token.colorBorderSecondary,
-          }}
+        {/* ส่วนที่ 3: ฟิลเตอร์และปุ่มค้นหา */}
+        <Card
+          bordered={false}
+          style={{ borderRadius: 16 }}
+          styles={{ body: { padding: 24 } }}
         >
-          <Flex align="center" gap={12} className="mb-6">
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 10,
-                background: addAlpha(token.colorPrimary, 0.1),
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: token.colorPrimary,
-              }}
-            >
-              <FilterOutlined style={{ fontSize: 16 }} />
-            </div>
-            <Typography.Title level={4} style={{ margin: 0, fontWeight: 700 }}>
-              ค้นหาและกรองข้อมูล
-            </Typography.Title>
+          <Flex align="center" gap={8} className="mb-6">
+            <FilterOutlined
+              style={{ color: token.colorPrimary, fontSize: 18 }}
+            />
+            <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
+              ตัวกรอง
+            </Title>
           </Flex>
 
-          <FiltersSection
-            filters={state.filters}
-            filterOptions={state.filterOptions}
-            onFilterChange={handlers.handleFilterChange}
-            onClearFilters={handlers.handleClearFilters}
-          />
-        </div>
+          <Row gutter={[24, 16]}>
+            {/* Column 1 */}
+            <Col xs={24} lg={12}>
+              <Space direction="vertical" className="w-full" size={16}>
+                <div>
+                  <Text
+                    strong
+                    style={{ fontSize: 13, display: "block", marginBottom: 8 }}
+                  >
+                    ค้นหาโรงเรียน
+                  </Text>
+                  <Input
+                    size="large"
+                    placeholder="ค้นหาด้วยชื่อ, รหัสโรงเรียน..."
+                    prefix={<SearchOutlined style={{ opacity: 0.5 }} />}
+                    value={state.filters.search}
+                    onChange={(e) =>
+                      handlers.handleFilterChange("search", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <Text
+                    strong
+                    style={{ fontSize: 13, display: "block", marginBottom: 8 }}
+                  >
+                    โครงการ/กลุ่มโรงเรียน
+                  </Text>
+                  <Select
+                    className="w-full"
+                    size="large"
+                    placeholder="เลือกกลุ่มโรงเรียน"
+                    options={state.filterOptions.schoolGroups}
+                    value={state.filters.schoolGroup}
+                    onChange={(v) =>
+                      handlers.handleFilterChange("schoolGroup", v)
+                    }
+                    allowClear
+                  />
+                </div>
+              </Space>
+            </Col>
 
-        {/* 4. Main Table Section */}
-        <div
-          className="rounded-[32px] border border-solid overflow-hidden"
+            {/* Column 2 */}
+            <Col xs={24} lg={12}>
+              <Space direction="vertical" className="w-full" size={16}>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 13,
+                        display: "block",
+                        marginBottom: 8,
+                      }}
+                    >
+                      จังหวัด
+                    </Text>
+                    <Select
+                      className="w-full"
+                      size="large"
+                      placeholder="ทุกจังหวัด"
+                      showSearch
+                      options={state.filterOptions.provinces}
+                      value={state.filters.province}
+                      onChange={(v) =>
+                        handlers.handleFilterChange("province", v)
+                      }
+                      allowClear
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 13,
+                        display: "block",
+                        marginBottom: 8,
+                      }}
+                    >
+                      เกรด
+                    </Text>
+                    <Select
+                      className="w-full"
+                      size="large"
+                      placeholder="เลือกเกรด"
+                      options={state.filterOptions.grades}
+                      value={state.filters.grade}
+                      onChange={(v) => handlers.handleFilterChange("grade", v)}
+                      allowClear
+                    />
+                  </Col>
+                </Row>
+                <div>
+                  <Text
+                    strong
+                    style={{ fontSize: 13, display: "block", marginBottom: 8 }}
+                  >
+                    สถานะ
+                  </Text>
+                  <Select
+                    className="w-full"
+                    size="large"
+                    placeholder="เลือกสถานะ"
+                    value={state.filters.status}
+                    onChange={(v) => handlers.handleFilterChange("status", v)}
+                    allowClear
+                    options={[
+                      { label: "เปิดใช้งาน", value: "active" },
+                      { label: "ปิดใช้งาน", value: "inactive" },
+                    ]}
+                  />
+                </div>
+              </Space>
+            </Col>
+          </Row>
+
+          <Divider style={{ margin: "24px 0" }} />
+
+          <Flex justify="end" gap={12}>
+            <Button
+              size="large"
+              icon={<ClearOutlined />}
+              onClick={handlers.handleClearFilters}
+              style={{ fontWeight: 600 }}
+            >
+              ล้างการค้นหา
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              icon={<SearchOutlined />}
+              style={{ fontWeight: 600, padding: "0 32px" }}
+            >
+              ค้นหาข้อมูล
+            </Button>
+          </Flex>
+        </Card>
+
+        {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
+        <Card
+          styles={{ body: { padding: 16 } }}
           style={{
-            borderColor: token.colorBorderSecondary,
-            background: token.colorBgContainer,
+            borderRadius: 16,
+            overflow: "hidden",
+            border: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          <div
-            className="px-8 py-6 border-b border-solid flex items-center justify-between"
-            style={{ borderColor: token.colorBorderSecondary }}
-          >
+          <Flex justify="space-between" align="center" className="mb-4">
             <Space size={12}>
-              <div
+              <TableOutlined
+                style={{ color: token.colorPrimary, fontSize: 18 }}
+              />
+              <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
+                รายชื่อโรงเรียนในระบบ
+              </Title>
+              <Badge
+                count={state.filteredSchools.length}
+                overflowCount={9999}
+                showZero
+                style={{ backgroundColor: token.colorSuccess, fontWeight: 600 }}
+              />
+            </Space>
+
+            <Space>
+              <Button
+                onClick={() => setShowProvinceRanking(true)}
+                icon={<TrophyOutlined />}
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 12,
-                  background: addAlpha(token.colorInfo, 0.1),
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: token.colorInfo,
+                  border: "none",
+                  background: "transparent",
+                  color: "#8b5cf6",
+                  fontWeight: 600,
                 }}
               >
-                <TableOutlined style={{ fontSize: 18 }} />
-              </div>
-              <Typography.Title
-                level={4}
-                style={{ margin: 0, fontWeight: 700 }}
+                อันดับตามจังหวัด
+              </Button>
+              <Button
+                onClick={() => setShowSaleRanking(true)}
+                icon={<TeamOutlined />}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  color: "#f59e0b",
+                  fontWeight: 600,
+                }}
               >
-                รายชื่อโรงเรียนในระบบ
-              </Typography.Title>
-              {!state.loading && (
-                <Badge
-                  count={state.filteredSchools.length}
-                  overflowCount={9999}
-                  showZero
-                  style={{
-                    backgroundColor: token.colorSuccess,
-                    fontWeight: 700,
-                    border: "none",
-                  }}
-                />
-              )}
+                อันดับคนขาย
+              </Button>
             </Space>
-          </div>
+          </Flex>
 
-          <div className="p-0">
-            <SchoolTableSection
-              dataSource={state.filteredSchools}
-              loading={state.loading}
-              pageSize={state.pageSize}
-              onTableChange={handlers.handleTableChange}
-              onOpenBypassModal={(school) =>
-                setBypassModal({ open: true, school })
-              }
-            />
-          </div>
-        </div>
+          <Table<SchoolDetail>
+            columns={columns}
+            dataSource={state.filteredSchools}
+            loading={state.loading}
+            rowKey={(record) => String(record.school_id)}
+            pagination={{
+              pageSize: state.pageSize,
+              showSizeChanger: true,
+              showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+            }}
+            scroll={{ x: 1200 }}
+            onChange={handlers.handleTableChange}
+          />
+        </Card>
 
-        {/* Hidden Rankings Modals */}
+        {/* Modals Section */}
         <ProvinceRankingModal
           open={showProvinceRanking}
           onClose={() => setShowProvinceRanking(false)}
@@ -424,7 +533,7 @@ export default function BypassPage(): JSX.Element {
             if (bypassModal.school) {
               void handlers.handleBypassClick(
                 `${targetKey}|${envKey}`,
-                bypassModal.school
+                bypassModal.school,
               );
               setBypassModal({ open: false, school: null });
             }

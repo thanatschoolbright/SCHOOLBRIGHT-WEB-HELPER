@@ -1,31 +1,41 @@
-import { useCallback, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
-import type { TableProps } from "antd";
-import { AppDispatch, useAppSelector } from "@stores/store";
 import { CallAPI as GET_BYPASS_TOKEN } from "@stores/actions/support/call-get-bypass-token";
-import type {
-  SchoolDetail,
-  FilterState,
-  BypassPageState,
-  BypassLinkParams,
-} from "../types/bypass.types";
-import {
-  parseLocalStorage,
-  extractFilterOptions,
-  filterSchools,
-  calculateStatistics,
-  sanitizeTargetName,
-  extractTokenFromUrl,
-} from "../utils/bypass.helpers";
-import { BYPASS_TARGETS } from "../utils/bypass-targets";
+import { CallAPI as GET_SCHOOL_LIST } from "@stores/actions/support/call-get-school-list-detail";
+import { AppDispatch, useAppSelector } from "@stores/store";
+import type { TableProps } from "antd";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 import { BypassToastActions } from "../components/bypass-toast-actions.component";
+import type {
+  BypassLinkParams,
+  BypassPageState,
+  FilterState,
+  SchoolDetail,
+} from "../types/bypass.types";
+import { BYPASS_TARGETS } from "../utils/bypass-targets";
+import {
+  calculateStatistics,
+  extractFilterOptions,
+  extractTokenFromUrl,
+  filterSchools,
+  sanitizeTargetName,
+} from "../utils/bypass.helpers";
 
 export const useBypassPageData = () => {
   const { t: TRANSLATION } = useTranslation("translate");
   const dispatch = useDispatch<AppDispatch>();
   const userState = useAppSelector((state) => state.callAdminLogin);
+  const schoolListState = useAppSelector(
+    (state) => state.callGetSchoolListDetail,
+  );
+
+  /*
+   * * Initialize Data from API
+   */
+  useEffect(() => {
+    void dispatch(GET_SCHOOL_LIST());
+  }, [dispatch]);
 
   /*
    * * Initialize Filters
@@ -45,30 +55,22 @@ export const useBypassPageData = () => {
   const [openDropdownFor, setOpenDropdownFor] = useState<string | null>(null);
 
   const schoolDetails = useMemo<SchoolDetail[]>(() => {
-    const schools = parseLocalStorage<any>("school_details", null);
-    if (Array.isArray(schools)) return schools;
-    if (
-      schools &&
-      typeof schools === "object" &&
-      Array.isArray(schools?.data?.data)
-    )
-      return schools.data.data;
-    return [];
-  }, []);
+    return schoolListState.response?.data?.data ?? [];
+  }, [schoolListState.response?.data?.data]);
 
   const filterOptions = useMemo(
     () => extractFilterOptions(schoolDetails),
-    [schoolDetails]
+    [schoolDetails],
   );
 
   const filteredSchools = useMemo(
     () => filterSchools(schoolDetails, filters),
-    [schoolDetails, filters]
+    [schoolDetails, filters],
   );
 
   const statistics = useMemo(
     () => calculateStatistics(filteredSchools),
-    [filteredSchools]
+    [filteredSchools],
   );
 
   const getBypassToken = useCallback(
@@ -78,14 +80,14 @@ export const useBypassPageData = () => {
           userState?.response?.data?.user_data?.email ??
           "support@schoolbright.co";
         const response = await dispatch(
-          GET_BYPASS_TOKEN({ school_id: schoolId, user_email: userEmail })
+          GET_BYPASS_TOKEN({ school_id: schoolId, user_email: userEmail }),
         ).unwrap();
         return response?.data?.bypass as string;
       } catch (error) {
         throw error;
       }
     },
-    [dispatch, userState?.response?.data?.user_data?.email]
+    [dispatch, userState?.response?.data?.user_data?.email],
   );
 
   const openBypassLink = useCallback(
@@ -113,14 +115,14 @@ export const useBypassPageData = () => {
             toast.success(TRANSLATION("bypass_page.copied_success"));
           } catch (copyError) {
             toast.error(
-              `${TRANSLATION("bypass_page.copy_failed")}: ${copyError}`
+              `${TRANSLATION("bypass_page.copy_failed")}: ${copyError}`,
             );
           }
         };
 
         toast.success(
           `${TRANSLATION(
-            "bypass_page.open_link_success"
+            "bypass_page.open_link_success",
           )} ${plainTargetName} · ${environmentLabel}`,
           {
             description: schoolDisplay,
@@ -134,7 +136,7 @@ export const useBypassPageData = () => {
               },
               TRANSLATION,
             }),
-          }
+          },
         );
 
         window.open(finalUrl, "_blank", "noopener,noreferrer");
@@ -145,7 +147,7 @@ export const useBypassPageData = () => {
         });
       }
     },
-    [getBypassToken, TRANSLATION]
+    [getBypassToken, TRANSLATION],
   );
 
   const handleBypassClick = useCallback(
@@ -170,14 +172,14 @@ export const useBypassPageData = () => {
 
       setOpenDropdownFor(null);
     },
-    [openBypassLink, TRANSLATION]
+    [openBypassLink, TRANSLATION],
   );
 
   const handleFilterChange = useCallback(
     (key: keyof FilterState, value: any): void => {
       setFilters((prev) => ({ ...prev, [key]: value }));
     },
-    []
+    [],
   );
 
   const handleClearFilters = useCallback((): void => {
@@ -197,24 +199,25 @@ export const useBypassPageData = () => {
         setPageSize(pagination.pageSize);
       }
     },
-    []
+    [],
   );
 
   const handleDropdownOpenChange = useCallback(
     (open: boolean, schoolId: string): void => {
       setOpenDropdownFor(open ? schoolId : null);
     },
-    []
+    [],
   );
 
   const state: BypassPageState = {
     filters,
     filterOptions,
+    schoolDetails,
     filteredSchools,
     statistics,
     pageSize,
     openDropdownFor,
-    loading: false,
+    loading: schoolListState.loading,
   };
 
   const handlers = {
