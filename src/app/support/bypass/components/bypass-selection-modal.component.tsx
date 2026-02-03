@@ -22,7 +22,6 @@ import {
   Flex,
   Modal,
   Row,
-  Space,
   Tag,
   theme,
   Tooltip,
@@ -64,6 +63,14 @@ const ENV_DESC_MAP: Record<string, string> = {
   legacy: "ระบบเวอร์ชั่นเดิมที่ยังเปิดให้ใช้งานอยู่",
 };
 
+const ENV_NAME_MAP: Record<string, string> = {
+  production: "PRODUCTION",
+  staging: "STAGING (BETA)",
+  development: "DEVELOPMENT",
+  ui: "UI / DESIGN",
+  legacy: "LEGACY SYSTEM",
+};
+
 type BypassSelectionModalProps = {
   open: boolean;
   onClose: () => void;
@@ -87,11 +94,11 @@ export default function BypassSelectionModal({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={1100}
+      width={1300}
       centered
       styles={{
         content: {
-          borderRadius: 24,
+          borderRadius: 32,
           padding: 0,
           overflow: "hidden",
           background: token.colorBgContainer,
@@ -104,331 +111,293 @@ export default function BypassSelectionModal({
       title={null}
       closable={false}
     >
-      <div className="flex flex-col md:flex-row min-h-[500px]">
+      <Row gutter={0} style={{ minHeight: 600 }}>
         {/* Left Side: School Info */}
-        <div
-          className="w-full md:w-1/3 p-8 flex flex-col justify-between"
+        <Col
+          xs={24}
+          md={8}
           style={{
+            padding: 40,
             background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
             borderRight: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          <div>
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-3xl mb-6 shadow-lg"
-              style={{
-                background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
-              }}
-            >
-              <BankOutlined />
-            </div>
-            <Title
-              level={3}
-              style={{ margin: 0, fontWeight: 800, fontSize: 26 }}
-            >
-              เลือกเข้าสู่ระบบ
-            </Title>
-            <Text
-              type="secondary"
-              style={{
-                fontSize: 14,
-                display: "block",
-                marginTop: 4,
-                lineHeight: 1.6,
-              }}
-            >
-              ระบุระบบที่ต้องการ Bypass ไปยังโรงเรียน:
-            </Text>
-            <Text
-              strong
-              style={{
-                color: token.colorPrimary,
-                fontSize: 18,
-                marginTop: 4,
-                display: "block",
-              }}
-            >
-              {school.company_name}
-            </Text>
-
-            <Divider />
-
-            <Space direction="vertical" size={20} className="w-full">
-              <div className="flex flex-col">
-                <Text
-                  type="secondary"
-                  style={{
-                    fontSize: 13,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    fontWeight: 700,
-                    marginBottom: 4,
-                  }}
-                >
-                  School ID
-                </Text>
-                <Text strong style={{ fontSize: 20 }}>
-                  {school.school_id || "-"}
-                </Text>
-              </div>
-              <div className="flex flex-col">
-                <Text
-                  type="secondary"
-                  style={{
-                    fontSize: 13,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    fontWeight: 700,
-                    marginBottom: 4,
-                  }}
-                >
-                  จังหวัด
-                </Text>
-                <Text strong style={{ fontSize: 20 }}>
-                  {school.province || "-"}
-                </Text>
-              </div>
-              <div className="flex flex-col">
-                <Text
-                  type="secondary"
-                  style={{
-                    fontSize: 13,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    fontWeight: 700,
-                    marginBottom: 4,
-                  }}
-                >
-                  กลุ่มโรงเรียน
-                </Text>
-                <Text strong style={{ fontSize: 20 }}>
-                  {school.school_group || "ทั่วไป"}
-                </Text>
-              </div>
-            </Space>
-          </div>
-
-          <Button
-            block
-            size="large"
-            onClick={onClose}
-            style={{
-              marginTop: 32,
-              borderRadius: 12,
-              height: 48,
-              fontWeight: 600,
-            }}
+          <Flex
+            vertical
+            gap={40}
+            justify="space-between"
+            style={{ height: "100%" }}
           >
-            ปิดหน้าต่างนี้
-          </Button>
-        </div>
+            <Flex vertical gap={24}>
+              <Flex
+                justify="center"
+                align="center"
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 20,
+                  fontSize: 32,
+                  color: "#fff",
+                  boxShadow: `0 8px 16px ${token.colorPrimary}40`,
+                  background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
+                }}
+              >
+                <BankOutlined />
+              </Flex>
 
-        {/* Right Side: Selection Grid */}
-        <div className="w-full md:w-2/3 p-8 max-h-[85vh] overflow-y-auto">
-          {/* CS Guide Section */}
-          <Alert
-            message={
-              <Text strong style={{ fontSize: 16 }}>
-                คู่มือแนะนำสำหรับ CS/Staff
-              </Text>
-            }
-            description={
-              <Space direction="vertical" size={4} style={{ marginTop: 8 }}>
-                <Text style={{ fontSize: 14, lineHeight: 1.6 }}>
-                  1. เลือกระบบที่คุณต้องการตรวจสอบข้อมูล (เช่น วิชาการ หรือ
-                  บัญชี)
+              <Flex vertical gap={8}>
+                <Title level={3} style={{ margin: 0, fontWeight: 800 }}>
+                  เข้าสู่ระบบโรงเรียน
+                </Title>
+                <Text type="secondary" style={{ fontSize: 14 }}>
+                  ระบุระบบที่ต้องการ Bypass ไปยังโรงเรียน:
                 </Text>
-                <Text style={{ fontSize: 14, lineHeight: 1.6 }}>
-                  2. เลือก{" "}
-                  <Tag
-                    color="success"
-                    style={{ margin: 0, fontSize: 12, fontWeight: 700 }}
-                  >
-                    ใช้งานจริง (Production)
-                  </Tag>{" "}
-                  เพื่อดูข้อมูลจริงที่โรงเรียนกำลังส่งเข้ามา
+                <Text
+                  strong
+                  style={{
+                    color: token.colorPrimary,
+                    fontSize: 22,
+                    marginTop: 8,
+                  }}
+                >
+                  {school.company_name}
                 </Text>
-                <Text style={{ fontSize: 14, lineHeight: 1.6 }}>
-                  3. ระบบจะทำการ Bypass และ Login ให้คุณอัตโนมัติใน Tab ใหม่
-                </Text>
-              </Space>
-            }
-            type="info"
-            showIcon
-            icon={<InfoCircleOutlined style={{ fontSize: 20 }} />}
-            style={{ borderRadius: 20, marginBottom: 24, padding: 16 }}
-          />
-          <Row gutter={[16, 16]}>
-            {Object.entries(BYPASS_TARGETS).map(([targetKey, target]) => {
-              const isExamDisabled = targetKey === "exam";
+              </Flex>
 
-              return (
-                <Col xs={24} key={targetKey}>
-                  <div
-                    className="p-6 rounded-2xl border border-solid transition-all"
+              <Divider style={{ margin: "8px 0" }} />
+
+              <Flex vertical gap={24}>
+                <Flex vertical gap={4}>
+                  <Text
+                    type="secondary"
                     style={{
-                      background: isExamDisabled
-                        ? isDark
-                          ? "rgba(0,0,0,0.2)"
-                          : "rgba(0,0,0,0.02)"
-                        : token.colorBgContainer,
-                      borderColor: isExamDisabled
-                        ? token.colorBorder
-                        : token.colorBorderSecondary,
-                      opacity: isExamDisabled ? 0.6 : 1,
-                      position: "relative",
+                      fontSize: 12,
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      fontWeight: 700,
                     }}
                   >
-                    <Flex
-                      justify="space-between"
-                      align="center"
-                      className="mb-4"
-                    >
-                      <Space size={12}>
-                        <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                          style={{
-                            background: isDark
-                              ? "rgba(255,255,255,0.05)"
-                              : "rgba(0,0,0,0.05)",
-                            color: isExamDisabled
-                              ? token.colorTextDisabled
-                              : token.colorPrimary,
-                          }}
-                        >
-                          {TARGET_ICON_MAP[targetKey] || <GlobalOutlined />}
-                        </div>
-                        <div>
-                          <Space align="center" size={8}>
-                            <Title
-                              level={4}
-                              style={{
-                                margin: 0,
-                                fontWeight: 700,
-                                color: isExamDisabled
-                                  ? token.colorTextDisabled
-                                  : undefined,
-                              }}
-                            >
-                              {target.label}
-                            </Title>
-                            {isExamDisabled && (
-                              <Tag
-                                color="warning"
-                                style={{
-                                  margin: 0,
-                                  fontWeight: 600,
-                                  fontSize: 11,
-                                  padding: "2px 8px",
-                                }}
-                              >
-                                ปิดปรับปรุง
-                              </Tag>
-                            )}
-                          </Space>
-                          <Text
-                            type="secondary"
+                    School ID
+                  </Text>
+                  <Text
+                    strong
+                    style={{ fontSize: 24, fontFamily: "monospace" }}
+                  >
+                    {school.school_id || "-"}
+                  </Text>
+                </Flex>
+                <Flex vertical gap={4}>
+                  <Text
+                    type="secondary"
+                    style={{
+                      fontSize: 12,
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    จังหวัด
+                  </Text>
+                  <Text strong style={{ fontSize: 20 }}>
+                    {school.province || "-"}
+                  </Text>
+                </Flex>
+                <Flex vertical gap={4}>
+                  <Text
+                    type="secondary"
+                    style={{
+                      fontSize: 12,
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    กลุ่มโรงเรียน
+                  </Text>
+                  <Tag
+                    color="blue"
+                    bordered={false}
+                    style={{
+                      fontSize: 16,
+                      width: "fit-content",
+                      padding: "4px 12px",
+                    }}
+                  >
+                    {school.school_group || "ทั่วไป"}
+                  </Tag>
+                </Flex>
+              </Flex>
+            </Flex>
+
+            <Button
+              block
+              size="large"
+              onClick={onClose}
+              style={{
+                borderRadius: 16,
+                height: 54,
+                fontWeight: 700,
+                fontSize: 16,
+              }}
+            >
+              ยกเลิกและปิดหน้าต่าง
+            </Button>
+          </Flex>
+        </Col>
+
+        {/* Right Side: Selection Grid */}
+        <Col
+          xs={24}
+          md={16}
+          style={{
+            padding: 40,
+            maxHeight: "90vh",
+            overflowY: "auto",
+          }}
+        >
+          <Flex vertical gap={32}>
+            {/* CS Guide Section */}
+            <Alert
+              message={
+                <Text strong style={{ fontSize: 16 }}>
+                  คำแนะนำสำหรับการใช้งาน (Staff Guide)
+                </Text>
+              }
+              description={
+                <Flex vertical gap={6} style={{ marginTop: 8 }}>
+                  <Text>
+                    1. เลือกระบบย่อยที่ต้องการตรวจสอบข้อมูล (เช่น วิชาการ,
+                    บัญชี)
+                  </Text>
+                  <Text>
+                    2. เลือกเซิร์ฟเวอร์{" "}
+                    <Text strong style={{ color: token.colorSuccess }}>
+                      PRODUCTION
+                    </Text>{" "}
+                    สำหรับข้อมูลที่โรงเรียนเวทงานปัจจุบัน
+                  </Text>
+                  <Text>
+                    3. ระบบจะทำการยืนยันสิทธิ์และเข้าสู่โรงเรียนโดยอัตโนมัติ
+                  </Text>
+                </Flex>
+              }
+              type="info"
+              showIcon
+              icon={<InfoCircleOutlined style={{ fontSize: 24 }} />}
+              style={{ borderRadius: 20, padding: 20 }}
+            />
+
+            <Flex vertical gap={20}>
+              {Object.entries(BYPASS_TARGETS).map(([targetKey, target]) => {
+                const isExamDisabled = targetKey === "exam";
+
+                return (
+                  <Card
+                    key={targetKey}
+                    variant="borderless"
+                    style={{
+                      background: isExamDisabled
+                        ? token.colorFillTertiary
+                        : token.colorFillAlter,
+                      borderRadius: 24,
+                      opacity: isExamDisabled ? 0.6 : 1,
+                    }}
+                    styles={{ body: { padding: 24 } }}
+                  >
+                    <Flex vertical gap={20}>
+                      <Flex justify="space-between" align="start">
+                        <Flex gap={16}>
+                          <Flex
+                            justify="center"
+                            align="center"
                             style={{
-                              fontSize: 13, // ปรับให้ใหญ่ขึ้นตามคอนเซปต์ใหม่
-                              lineHeight: 1.6, // เพิ่มระยะห่างระหว่างบรรทัดไม่ให้อึดอัด
-                              display: "block",
-                              marginTop: 4,
+                              width: 48,
+                              height: 48,
+                              borderRadius: 12,
+                              fontSize: 24,
+                              background: token.colorBgContainer,
                               color: isExamDisabled
                                 ? token.colorTextDisabled
-                                : undefined,
+                                : token.colorPrimary,
                             }}
                           >
-                            {isExamDisabled
-                              ? "ระบบกำลังปรับปรุงใหม่ จะกลับมาให้บริการเร็วๆ นี้"
-                              : TARGET_DESC_MAP[targetKey] ||
-                                "เข้าสู่ระบบเพื่อจัดการข้อมูลส่วนงานนี้"}
-                          </Text>
-                        </div>
-                      </Space>
-                      <Tooltip
-                        title={
-                          isExamDisabled
-                            ? "ระบบปิดปรับปรุงชั่วคราว"
-                            : TARGET_DESC_MAP[targetKey]
-                        }
-                      >
-                        <InfoCircleOutlined
-                          style={{
-                            color: isExamDisabled
-                              ? token.colorTextDisabled
-                              : token.colorTextQuaternary,
-                            cursor: "help",
-                          }}
-                        />
-                      </Tooltip>
-                    </Flex>
-
-                    <Row gutter={[12, 12]}>
-                      {Object.entries(target.environments).map(
-                        ([envKey, env]) => (
-                          <Col xs={12} sm={8} key={envKey}>
-                            <Tooltip
-                              title={
-                                isExamDisabled
-                                  ? "ระบบปิดปรับปรุงชั่วคราว ไม่สามารถใช้งานได้"
-                                  : ENV_DESC_MAP[envKey] ||
-                                    "คลิกเพื่อไปที่หน้านี้"
-                              }
-                            >
-                              <Button
-                                block
-                                size="large"
-                                icon={<ArrowRightOutlined />}
-                                iconPosition="end"
-                                onClick={() => onSelect(targetKey, envKey)}
-                                disabled={isExamDisabled}
-                                style={{
-                                  height: 44,
-                                  borderRadius: 10,
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                  textAlign: "left",
-                                  background:
-                                    envKey === "production"
-                                      ? isDark
-                                        ? "rgba(82, 196, 26, 0.1)"
-                                        : "#f6ffed"
-                                      : undefined,
-                                  border:
-                                    envKey === "production"
-                                      ? `1px solid ${
-                                          isDark
-                                            ? "rgba(82, 196, 26, 0.3)"
-                                            : "#b7eb8f"
-                                        }`
-                                      : undefined,
-                                  color:
-                                    envKey === "production" && !isExamDisabled
-                                      ? isDark
-                                        ? "#52c41a"
-                                        : "#389e0d"
-                                      : undefined,
-                                  fontWeight: 700,
-                                  cursor: isExamDisabled
-                                    ? "not-allowed"
-                                    : "pointer",
-                                }}
+                            {TARGET_ICON_MAP[targetKey] || <GlobalOutlined />}
+                          </Flex>
+                          <Flex vertical gap={4}>
+                            <Flex align="center" gap={8}>
+                              <Title
+                                level={4}
+                                style={{ margin: 0, fontWeight: 700 }}
                               >
-                                {env.label}
-                              </Button>
-                            </Tooltip>
-                          </Col>
-                        ),
-                      )}
-                    </Row>
-                  </div>
-                </Col>
-              );
-            })}
-          </Row>
-        </div>
-      </div>
+                                {target.label}
+                              </Title>
+                              {isExamDisabled && (
+                                <Tag color="warning" bordered={false}>
+                                  ปิดปรับปรุง
+                                </Tag>
+                              )}
+                            </Flex>
+                            <Text type="secondary" style={{ fontSize: 13 }}>
+                              {isExamDisabled
+                                ? "ระบบกำลังปรับปรุงระบบชุดใหม่ จะกลับมาให้บริการเร็วๆ นี้"
+                                : TARGET_DESC_MAP[targetKey]}
+                            </Text>
+                          </Flex>
+                        </Flex>
+                        <Tooltip title={TARGET_DESC_MAP[targetKey]}>
+                          <InfoCircleOutlined
+                            style={{ color: token.colorTextQuaternary }}
+                          />
+                        </Tooltip>
+                      </Flex>
+
+                      <Row gutter={[12, 12]}>
+                        {Object.entries(target.environments).map(
+                          ([envKey, env]) => {
+                            const isProd = envKey === "production";
+                            return (
+                              <Col xs={12} sm={8} key={envKey}>
+                                <Tooltip title={ENV_DESC_MAP[envKey]}>
+                                  <Button
+                                    block
+                                    size="large"
+                                    type={isProd ? "primary" : "default"}
+                                    icon={<ArrowRightOutlined />}
+                                    iconPosition="end"
+                                    onClick={() => onSelect(targetKey, envKey)}
+                                    disabled={isExamDisabled}
+                                    style={{
+                                      height: 50,
+                                      borderRadius: 14,
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      fontWeight: 800,
+                                      fontSize: 13,
+                                      letterSpacing: "0.5px",
+                                      fontFamily:
+                                        "'Segoe UI', Roboto, sans-serif",
+                                      boxShadow: isProd
+                                        ? `0 4px 12px ${token.colorPrimary}40`
+                                        : "none",
+                                    }}
+                                  >
+                                    {ENV_NAME_MAP[envKey] || env.label}
+                                  </Button>
+                                </Tooltip>
+                              </Col>
+                            );
+                          },
+                        )}
+                      </Row>
+                    </Flex>
+                  </Card>
+                );
+              })}
+            </Flex>
+          </Flex>
+        </Col>
+      </Row>
     </Modal>
   );
 }
