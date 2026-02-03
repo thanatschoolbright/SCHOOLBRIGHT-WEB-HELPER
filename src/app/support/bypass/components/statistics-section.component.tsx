@@ -1,13 +1,12 @@
-import React from "react";
-import { Row, Col, Card, Statistic } from "antd";
 import {
   BankOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   CrownOutlined,
-  TeamOutlined,
   DashboardOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
+import { Card, Col, Row, Statistic } from "antd";
 import { useTranslation } from "react-i18next";
 import type { Statistics } from "../types/bypass.types";
 
@@ -24,9 +23,9 @@ export default function StatisticsSection({
     <Row gutter={[16, 16]}>
       {/* Total Schools */}
       <Col xs={24} sm={12} md={6}>
-        <Card  className="shadow-sm">
+        <Card className="shadow-sm">
           <Statistic
-            title={TRANSLATION("bypass_page.stat_total_schools")}
+            title="โรงเรียนทั้งหมด"
             value={statistics.total}
             prefix={<BankOutlined />}
             valueStyle={{ color: "#1890ff" }}
@@ -36,9 +35,9 @@ export default function StatisticsSection({
 
       {/* Active Schools */}
       <Col xs={24} sm={12} md={6}>
-        <Card  className="shadow-sm">
+        <Card className="shadow-sm">
           <Statistic
-            title={TRANSLATION("bypass_page.stat_active")}
+            title="เปิดการใช้งาน"
             value={statistics.active}
             prefix={<CheckCircleOutlined />}
             valueStyle={{ color: "#52c41a" }}
@@ -48,9 +47,9 @@ export default function StatisticsSection({
 
       {/* Inactive Schools */}
       <Col xs={24} sm={12} md={6}>
-        <Card  className="shadow-sm">
+        <Card className="shadow-sm">
           <Statistic
-            title={TRANSLATION("bypass_page.stat_inactive")}
+            title="ยังไม่เปิดการใช้งาน"
             value={statistics.inactive}
             prefix={<CloseCircleOutlined />}
             valueStyle={{ color: "#ff4d4f" }}
@@ -60,9 +59,9 @@ export default function StatisticsSection({
 
       {/* Grade A Schools */}
       <Col xs={24} sm={12} md={6}>
-        <Card  className="shadow-sm">
+        <Card className="shadow-sm">
           <Statistic
-            title={TRANSLATION("bypass_page.stat_grade_a")}
+            title="โรงเรียนเกรด A"
             value={statistics.gradeA}
             prefix={<CrownOutlined />}
             valueStyle={{ color: "#faad14" }}
@@ -72,9 +71,9 @@ export default function StatisticsSection({
 
       {/* Total Students */}
       <Col xs={24} sm={12} md={6}>
-        <Card  className="shadow-sm">
+        <Card className="shadow-sm">
           <Statistic
-            title={TRANSLATION("bypass_page.stat_total_students")}
+            title="นักเรียนทั้งหมด"
             value={statistics.totalStudents}
             prefix={<TeamOutlined />}
             valueStyle={{ color: "#722ed1" }}
@@ -87,9 +86,9 @@ export default function StatisticsSection({
 
       {/* Average Students per School */}
       <Col xs={24} sm={12} md={6}>
-        <Card  className="shadow-sm">
+        <Card className="shadow-sm">
           <Statistic
-            title={TRANSLATION("bypass_page.stat_average_students")}
+            title="นร. เฉลี่ยต่อรร."
             value={statistics.averageStudentsPerSchool}
             prefix={<DashboardOutlined />}
             precision={2}
@@ -100,7 +99,7 @@ export default function StatisticsSection({
 
       {/* Active Students */}
       <Col xs={24} sm={12} md={6}>
-        <Card  className="shadow-sm">
+        <Card className="shadow-sm">
           <Statistic
             title={TRANSLATION("bypass_page.stat_active_students")}
             value={statistics.activeStudents}

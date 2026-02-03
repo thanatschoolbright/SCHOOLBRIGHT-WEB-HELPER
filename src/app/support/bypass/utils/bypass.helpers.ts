@@ -75,7 +75,10 @@ export const extractFilterOptions = (
       .map((p) => ({ label: p, value: p })),
     schoolTypes: Array.from(schoolTypes)
       .sort()
-      .map((t) => ({ label: t, value: t })),
+      .map((t) => ({
+        label: t === "Software" ? "ซอฟต์แวร์" : t,
+        value: t,
+      })),
     grades: Array.from(grades)
       .sort()
       .map((g) => ({ label: g, value: g })),

@@ -164,7 +164,10 @@ export default function BypassPage(): JSX.Element {
         width: 150,
         sorter: (a, b) =>
           (a.school_type ?? "").localeCompare(b.school_type ?? ""),
-        render: (type) => <Tag bordered={false}>{type || "-"}</Tag>,
+        render: (type) => {
+          const label = type === "Software" ? "ซอฟต์แวร์" : type || "-";
+          return <Tag bordered={false}>{label}</Tag>;
+        },
       },
       {
         title: "เกรด",
@@ -247,8 +250,8 @@ export default function BypassPage(): JSX.Element {
         {/* ส่วนที่ 1: หัวข้อหน้าเว็ป */}
         <HeaderBar
           icon={<LoginOutlined />}
-          title={TRANSLATION("bypass_page.title")}
-          subTitle={TRANSLATION("bypass_page.subtitle")}
+          title="ระบบเข้าใช้โรงเรียน (School Bypass)"
+          subTitle="เครื่องมือสำหรับทีมซัพพอร์ตในการเข้าสู่ระบบโรงเรียนต่าง ๆ ได้อย่างรวดเร็ว"
         />
 
         {/* ส่วนที่ 2: บัตรสรุปข้อมูล (Summary Cards) - สรุปจากข้อมูลเดิมเสมอ */}
@@ -264,7 +267,7 @@ export default function BypassPage(): JSX.Element {
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="กำลังใช้งาน (Active)"
+              title="เปิดการใช้งาน"
               value={overallStatistics.active.toLocaleString()}
               subtitle="ออนไลน์ปกติ"
               icon={<ThunderboltOutlined />}
@@ -273,7 +276,7 @@ export default function BypassPage(): JSX.Element {
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title="ไม่ได้ใช้งาน (Inactive)"
+              title="ยังไม่เปิดการใช้งาน"
               value={overallStatistics.inactive.toLocaleString()}
               subtitle="ควรตรวจสอบระบบ"
               icon={<CloseCircleOutlined />}

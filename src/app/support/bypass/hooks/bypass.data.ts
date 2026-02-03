@@ -69,8 +69,8 @@ export const useBypassPageData = () => {
   );
 
   const statistics = useMemo(
-    () => calculateStatistics(filteredSchools),
-    [filteredSchools],
+    () => calculateStatistics(schoolDetails),
+    [schoolDetails],
   );
 
   const getBypassToken = useCallback(

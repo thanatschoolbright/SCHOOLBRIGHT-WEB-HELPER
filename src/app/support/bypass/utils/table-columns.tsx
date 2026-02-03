@@ -1,32 +1,19 @@
-import React from "react";
 import {
-  Badge,
-  Tag,
-  Button,
-  Dropdown,
-  Avatar,
-  Typography,
-  Space,
-  theme,
-  Flex,
-} from "antd";
-import {
-  LoginOutlined,
+  AlertOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   CrownOutlined,
-  StarOutlined,
+  LoginOutlined,
   RocketOutlined,
-  ToolOutlined,
-  AlertOutlined,
-  ThunderboltOutlined,
   SafetyCertificateOutlined,
-  UserOutlined,
-  CopyOutlined,
-  InfoCircleOutlined,
+  StarOutlined,
+  ThunderboltOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
+import { Avatar, Button, Flex, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { TFunction } from "i18next";
+import React from "react";
 import type { SchoolDetail } from "../types/bypass.types";
 import { compareValues } from "./bypass.helpers";
 
@@ -86,7 +73,7 @@ const GRADE_CONFIG: Record<string, { color: string; icon: React.ReactNode }> = {
 
 export const buildTableColumns = (
   TRANSLATION: TFunction,
-  onOpenBypassModal: (record: SchoolDetail) => void
+  onOpenBypassModal: (record: SchoolDetail) => void,
 ): ColumnsType<SchoolDetail> => [
   {
     title: "#",
@@ -101,7 +88,7 @@ export const buildTableColumns = (
     ),
   },
   {
-    title: TRANSLATION("bypass_page.col_school_id"),
+    title: "รหัส",
     dataIndex: "school_id",
     key: "school_id",
     width: 120,
@@ -121,7 +108,7 @@ export const buildTableColumns = (
     ),
   },
   {
-    title: TRANSLATION("bypass_page.col_school_name"),
+    title: "ชื่อโรงเรียน",
     key: "company_name",
     width: 350,
     fixed: "left",
@@ -146,14 +133,14 @@ export const buildTableColumns = (
             {r.company_name || "-"}
           </Typography.Text>
           <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-            {r.province || "-"} • {r.school_group || "N/A"}
+            {r.province || "-"} • {r.school_group || "ทั่วไป"}
           </Typography.Text>
         </Flex>
       </Flex>
     ),
   },
   {
-    title: TRANSLATION("bypass_page.col_province"),
+    title: "จังหวัด",
     dataIndex: "province",
     key: "province",
     width: 150,
@@ -161,19 +148,21 @@ export const buildTableColumns = (
     render: (value) => value || "-",
   },
   {
-    title: TRANSLATION("bypass_page.col_school_type"),
+    title: "ประเภท",
     dataIndex: "school_type",
     key: "school_type",
     width: 150,
     sorter: (a, b) => compareValues(a.school_type, b.school_type),
     render: (value) => {
       if (!value) return "-";
-      const color = value === "Software" ? "green" : "blue";
-      return <Tag color={color}>{value}</Tag>;
+      const isSoftware = value === "Software";
+      const color = isSoftware ? "green" : "blue";
+      const label = isSoftware ? "ซอฟต์แวร์" : value;
+      return <Tag color={color}>{label}</Tag>;
     },
   },
   {
-    title: TRANSLATION("bypass_page.col_student_count"),
+    title: "จำนวนนักเรียน",
     dataIndex: "student_count",
     key: "student_count",
     width: 150,
@@ -198,7 +187,7 @@ export const buildTableColumns = (
     },
   },
   {
-    title: TRANSLATION("bypass_page.col_school_group"),
+    title: "สังกัด/กลุ่มพื้นฐาน",
     dataIndex: "school_group",
     key: "school_group",
     width: 180,
@@ -206,7 +195,7 @@ export const buildTableColumns = (
     render: (value) => value || "-",
   },
   {
-    title: TRANSLATION("bypass_page.col_grade"),
+    title: "เกรด",
     dataIndex: "school_grade",
     key: "school_grade",
     width: 100,
@@ -234,18 +223,19 @@ export const buildTableColumns = (
     },
   },
   {
-    title: TRANSLATION("bypass_page.col_status"),
+    title: "สถานะ",
     dataIndex: "isActive",
     key: "isActive",
-    width: 120,
+    width: 130,
     align: "center",
     sorter: (a, b) => compareValues(a.isActive, b.isActive),
     render: (value) => {
       if (!value) return <Tag>-</Tag>;
       const lower = value.toLowerCase();
-      const color = lower === "active" ? "#52c41a" : "#f5222d";
-      const icon =
-        lower === "active" ? <CheckCircleOutlined /> : <CloseCircleOutlined />;
+      const isActive = lower === "active";
+      const color = isActive ? "#52c41a" : "#f5222d";
+      const icon = isActive ? <CheckCircleOutlined /> : <CloseCircleOutlined />;
+      const label = isActive ? "เปิดใช้งาน" : "ปิดใช้งาน";
       return (
         <Tag
           bordered={false}
@@ -259,13 +249,13 @@ export const buildTableColumns = (
             padding: "2px 10px",
           }}
         >
-          {value.toUpperCase()}
+          {label}
         </Tag>
       );
     },
   },
   {
-    title: TRANSLATION("bypass_page.col_actions"),
+    title: "ดำเนินการ",
     key: "actions",
     fixed: "right",
     width: 160,
@@ -284,7 +274,7 @@ export const buildTableColumns = (
           height: 36,
         }}
       >
-        {TRANSLATION("bypass_page.select_system")}
+        เลือกเข้าระบบ
       </Button>
     ),
   },

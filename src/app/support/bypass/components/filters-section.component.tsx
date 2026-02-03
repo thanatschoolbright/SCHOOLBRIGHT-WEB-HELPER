@@ -1,23 +1,7 @@
-import React from "react";
-import {
-  Card,
-  Space,
-  Button,
-  Input,
-  Row,
-  Col,
-  Select,
-  theme,
-  Typography,
-  Flex,
-} from "antd";
-import {
-  FilterOutlined,
-  ClearOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { ClearOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Col, Flex, Input, Row, Select, theme, Typography } from "antd";
 import { useTranslation } from "react-i18next";
-import type { FilterState, FilterOptions } from "../types/bypass.types";
+import type { FilterOptions, FilterState } from "../types/bypass.types";
 
 type FiltersSectionProps = {
   filters: FilterState;
@@ -40,11 +24,11 @@ export default function FiltersSection({
    */
   const hasActiveFilters = Boolean(
     filters.search ||
-      filters.province ||
-      filters.schoolType ||
-      filters.grade ||
-      filters.status ||
-      filters.schoolGroup
+    filters.province ||
+    filters.schoolType ||
+    filters.grade ||
+    filters.status ||
+    filters.schoolGroup,
   );
 
   const { token } = theme.useToken();
@@ -172,8 +156,8 @@ export default function FiltersSection({
               className="flex-1"
               placeholder="สถานะ"
               options={[
-                { label: "Active", value: "active" },
-                { label: "Inactive", value: "inactive" },
+                { label: "เปิดใช้งาน", value: "active" },
+                { label: "ปิดใช้งาน", value: "inactive" },
               ]}
               value={filters.status}
               onChange={(value) => onFilterChange("status", value)}
