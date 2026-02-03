@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import {
-  Modal,
-  Input,
-  Button,
-  Typography,
-  Space,
-  message,
-  ConfigProvider,
-  theme,
-} from "antd";
-import {
+  ArrowRightOutlined,
   LockOutlined,
   SafetyCertificateOutlined,
-  ArrowRightOutlined,
 } from "@ant-design/icons";
+import {
+  Button,
+  ConfigProvider,
+  Input,
+  Modal,
+  Space,
+  Typography,
+  message,
+  theme,
+} from "antd";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const { Title, Text } = Typography;
 
@@ -37,6 +37,14 @@ export default function PermissionLayout({
   const [isBypassed, setIsBypassed] = useState(false);
   const [secretCode, setSecretCode] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ✅ เช็คจาก LocalStorage ว่าเคยกรอกรหัสไปแล้วหรือยัง
+  useEffect(() => {
+    const savedBypass = localStorage.getItem("sb_permission_bypassed");
+    if (savedBypass === "true") {
+      setIsBypassed(true);
+    }
+  }, []);
 
   // คำนวณสิทธิ์
   const userPermissions = AUTH_USER?.permissions || [];
@@ -74,6 +82,8 @@ export default function PermissionLayout({
       if (secretCode === "LIGHTGOD") {
         message.success("ACCESS GRANTED: Welcome, Administrator.");
         setIsBypassed(true);
+        // ✅ จำไว้ในเครื่องว่าเคยกรอกแล้ว
+        localStorage.setItem("sb_permission_bypassed", "true");
       } else {
         message.error("ACCESS DENIED: Incorrect Secret Code.");
         router.replace("/login");
