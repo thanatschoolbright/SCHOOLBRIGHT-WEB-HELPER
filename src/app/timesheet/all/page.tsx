@@ -1,55 +1,55 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
-  Space,
-  Typography,
-  Row,
-  Col,
-  Button,
-  Flex,
-  Badge,
-  Dropdown,
-  MenuProps,
-  theme,
-  Tooltip,
-} from "antd";
-import {
-  ClockCircleOutlined,
-  FileExcelOutlined,
+  AppstoreOutlined,
   CalendarOutlined,
-  TeamOutlined,
+  ClockCircleOutlined,
+  CopyOutlined,
+  DownOutlined,
+  FileExcelOutlined,
+  FileTextOutlined,
+  InfoCircleOutlined,
   ProjectOutlined,
   SolutionOutlined,
-  DownOutlined,
-  FileTextOutlined,
-  CopyOutlined,
-  InfoCircleOutlined,
-  AppstoreOutlined,
+  SwapOutlined,
+  TeamOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
+import {
+  Badge,
+  Button,
+  Col,
+  Dropdown,
+  Flex,
+  MenuProps,
+  Row,
+  Space,
+  theme,
+  Typography,
+} from "antd";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import PermissionLayout from "@/components/layouts/permission-layout";
 import DashboardLayout from "@components/layouts/backend-layout";
+import { getUserData } from "@helpers/local_storage/user.storage";
+import { setUsers } from "@stores/reducers/timesheet.reducer";
+import { useAppSelector } from "@stores/store";
+import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
 import { TimesheetFilters } from "./components/timesheet-filters.component";
 import { TimesheetTable } from "./components/timesheet-table.component";
-import { useTimesheetData } from "./hooks/use-timesheet.data";
 import { useExportHandlers } from "./hooks/use-export-handlers.data";
+import { useTimesheetData } from "./hooks/use-timesheet.data";
 import { buildDefaultRange, filterRecords } from "./utils/timesheet.helpers";
-import { useTranslation } from "react-i18next";
-import { useAppSelector } from "@stores/store";
-import { getUserData } from "@helpers/local_storage/user.storage";
-import { useDispatch } from "react-redux";
-import { setUsers } from "@stores/reducers/timesheet.reducer";
 
+import SummaryCard from "@/components/card/summary-card";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 import ExportModal from "@components/modal/timesheet-export-modal";
 import ExportModalByProject from "@components/modal/timesheet-export-modal-by-project";
 import ExportModalTemplate3 from "@components/modal/timesheet-export-modal-template3";
 import ExportModalTemplate4 from "@components/modal/timesheet-export-modal-template4";
 import { toast } from "sonner";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
-import SummaryCard from "@/components/card/summary-card";
 
 const { Text } = Typography;
 
@@ -190,6 +190,12 @@ export default function TimesheetAllPage() {
       label: "รายงานผู้ไม่กรอกไทม์ชีทวันนี้",
       icon: <TeamOutlined />,
       onClick: () => router.push("/timesheet/all/report/not-entry/today"),
+    },
+    {
+      key: "migrate-project",
+      label: "รายงานการโอนย้ายเวลา",
+      icon: <SwapOutlined />,
+      onClick: () => router.push("/timesheet/all/report/migrate-project"),
     },
   ];
 

@@ -112,20 +112,33 @@ export default function BypassPage(): JSX.Element {
   const columns: ColumnsType<SchoolDetail> = useMemo(
     () => [
       {
-        title: "#",
-        key: "index",
-        width: 70,
+        title: "School ID",
+        dataIndex: "school_id",
+        key: "school_id",
+        width: 120,
+        fixed: "left",
         align: "center",
-        render: (_v, _r, index) => (
-          <Text strong style={{ opacity: 0.4, fontSize: 13 }}>
-            {(index + 1).toString().padStart(2, "0")}
-          </Text>
+        sorter: (a, b) => Number(a.school_id) - Number(b.school_id),
+        render: (id) => (
+          <Tag
+            color="geekblue"
+            style={{
+              fontSize: 14,
+              fontWeight: 800,
+              padding: "4px 12px",
+              borderRadius: 6,
+              border: "none",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+            }}
+          >
+            {id}
+          </Tag>
         ),
       },
       {
         title: "โรงเรียน",
         key: "school",
-        width: 350,
+        width: 300,
         sorter: (a, b) =>
           (a.company_name ?? "").localeCompare(b.company_name ?? ""),
         render: (_, record) => (
@@ -140,65 +153,99 @@ export default function BypassPage(): JSX.Element {
               {record.company_name?.charAt(0)}
             </Avatar>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <Text strong style={{ fontSize: 14, fontWeight: 600 }}>
+              <Text strong style={{ fontSize: 13, fontWeight: 600 }}>
                 {record.company_name}
               </Text>
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                ไอดี: {record.school_id} | รหัส: {record.school_code}
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                Code: {record.school_code || "-"}
               </Text>
             </div>
           </Space>
         ),
       },
       {
+        title: "รหัสผ่าน",
+        dataIndex: "school_pass",
+        key: "school_pass",
+        width: 150,
+        render: (pass) => <Text copyable={{ text: pass }}>{pass || "-"}</Text>,
+      },
+      {
         title: "จังหวัด",
         dataIndex: "province",
         key: "province",
-        width: 150,
+        width: 140,
         sorter: (a, b) => (a.province ?? "").localeCompare(b.province ?? ""),
       },
       {
-        title: "ประเภท",
-        dataIndex: "school_type",
-        key: "school_type",
-        width: 150,
-        sorter: (a, b) =>
-          (a.school_type ?? "").localeCompare(b.school_type ?? ""),
-        render: (type) => {
-          const label = type === "Software" ? "ซอฟต์แวร์" : type || "-";
-          return <Tag bordered={false}>{label}</Tag>;
-        },
+        title: "ประเภท & ชั้น",
+        key: "type_class",
+        width: 200,
+        render: (_, record) => (
+          <Space direction="vertical" size={2}>
+            <Tag color="cyan" bordered={false} style={{ fontSize: 11 }}>
+              {record.school_type || "-"}
+            </Tag>
+            <Text type="secondary" style={{ fontSize: 11 }}>
+              {record.school_class || "ไม่ระบุชั้น"}
+            </Text>
+          </Space>
+        ),
+      },
+      {
+        title: "ทีมดูแล",
+        key: "team",
+        width: 180,
+        render: (_, record) => (
+          <Space direction="vertical" size={2}>
+            <Space size={4}>
+              <Badge status="processing" size="small" />
+              <Text style={{ fontSize: 12 }}>
+                ขาย: {record.sale_name || "-"}
+              </Text>
+            </Space>
+            <Space size={4}>
+              <Badge status="default" size="small" />
+              <Text style={{ fontSize: 12 }}>
+                ซัพพอร์ต: {record.support_name || "-"}
+              </Text>
+            </Space>
+          </Space>
+        ),
+      },
+      {
+        title: "ข้อมูลสัญญญา",
+        dataIndex: "school_data_type",
+        key: "school_data_type",
+        width: 140,
+        render: (type) => <Tag bordered={false}>{type || "-"}</Tag>,
+      },
+      {
+        title: "วันที่เปิด",
+        dataIndex: "active_date",
+        key: "active_date",
+        width: 130,
+        align: "center",
       },
       {
         title: "เกรด",
         dataIndex: "school_grade",
         key: "school_grade",
-        width: 100,
+        width: 80,
         align: "center",
-        sorter: (a, b) =>
-          (a.school_grade ?? "").localeCompare(b.school_grade ?? ""),
         render: (grade) => (
-          <Badge
-            count={grade || "-"}
-            style={{
-              backgroundColor:
-                grade === "A" ? token.colorWarning : token.colorInfo,
-              fontWeight: 600,
-            }}
-          />
+          <Text strong style={{ color: token.colorWarning }}>
+            {grade || "-"}
+          </Text>
         ),
       },
       {
         title: "นักเรียน",
         dataIndex: "student_count",
         key: "student_count",
-        width: 120,
+        width: 100,
         align: "right",
-        sorter: (a, b) =>
-          Number(a.student_count || 0) - Number(b.student_count || 0),
-        render: (count) => (
-          <Text strong>{Number(count || 0).toLocaleString()}</Text>
-        ),
+        render: (count) => Number(count || 0).toLocaleString(),
       },
       {
         title: "สถานะ",
@@ -226,7 +273,7 @@ export default function BypassPage(): JSX.Element {
       {
         title: "จัดการ",
         key: "action",
-        width: 150,
+        width: 140,
         fixed: "right",
         align: "center",
         render: (_, record) => (
@@ -236,7 +283,7 @@ export default function BypassPage(): JSX.Element {
             onClick={() => setBypassModal({ open: true, school: record })}
             style={{ borderRadius: 8, fontWeight: 600 }}
           >
-            เข้าใช้ระบบ
+            Bypass
           </Button>
         ),
       },
@@ -511,7 +558,7 @@ export default function BypassPage(): JSX.Element {
               showSizeChanger: true,
               showTotal: (total) => `ทั้งหมด ${total} รายการ`,
             }}
-            scroll={{ x: 1200 }}
+            scroll={{ x: 2000 }}
             onChange={handlers.handleTableChange}
           />
         </Card>

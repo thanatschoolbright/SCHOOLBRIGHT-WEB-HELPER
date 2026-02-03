@@ -1,104 +1,97 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import {
-  Form,
-  Modal,
-  Input,
-  Select,
-  DatePicker,
-  Row,
-  Col,
-  Button,
-  Typography,
-  Descriptions,
-  Space,
-  Card,
-  Flex,
-  Statistic,
-  Divider,
-  Tag,
-  theme,
-  Segmented,
-  Skeleton,
-  Progress,
-  Avatar,
-  Tooltip,
-  Dropdown,
-  List,
-  AutoComplete,
-  Empty,
-  InputNumber,
-  Badge,
-} from "antd";
-import {
-  CheckCircleOutlined,
-  FileExcelOutlined,
-  ProjectOutlined,
-  ReloadOutlined,
-  SearchOutlined,
-  ExclamationCircleOutlined,
-  PlusOutlined,
-  InfoCircleOutlined,
-  AppstoreOutlined,
-  PieChartOutlined,
-  RocketOutlined,
-  ClockCircleOutlined,
-  BarsOutlined,
-  CalendarOutlined,
-  UserOutlined,
-  MinusCircleOutlined,
-  TeamOutlined,
   ApartmentOutlined,
-  GlobalOutlined,
-  ToolOutlined,
-  MedicineBoxOutlined,
-  AuditOutlined,
-  CloseOutlined,
-  FileTextOutlined,
-  SendOutlined,
-  CompassOutlined,
-  FormatPainterOutlined,
-  CodeOutlined,
+  AppstoreOutlined,
+  BarsOutlined,
   BugOutlined,
-  SafetyCertificateOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseOutlined,
   CloudUploadOutlined,
-  LaptopOutlined,
-  ExperimentOutlined,
-  HighlightOutlined,
-  FilterOutlined,
+  CodeOutlined,
+  CompassOutlined,
   DatabaseOutlined,
   EditOutlined,
+  ExclamationCircleOutlined,
+  FileExcelOutlined,
+  FileTextOutlined,
+  FilterOutlined,
+  FormatPainterOutlined,
+  GlobalOutlined,
+  InfoCircleOutlined,
+  MedicineBoxOutlined,
+  MinusCircleOutlined,
+  PieChartOutlined,
+  PlusOutlined,
+  ProjectOutlined,
+  ReloadOutlined,
+  RocketOutlined,
+  SafetyCertificateOutlined,
+  SearchOutlined,
+  TeamOutlined,
+  ToolOutlined,
+  UserOutlined
 } from "@ant-design/icons";
+import {
+  AutoComplete,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Divider,
+  Dropdown,
+  Empty,
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  List,
+  Modal,
+  Row,
+  Segmented,
+  Select,
+  Skeleton,
+  Space,
+  Statistic,
+  Tag,
+  theme,
+  Tooltip,
+  Typography
+} from "antd";
 import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 // Layout & Store
-import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
-import { useAppSelector } from "@stores/store";
-import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
+import DashboardLayout from "@components/layouts/backend-layout";
 import { categoryType } from "@data/timesheet.category.type";
+import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
+import { useAppSelector } from "@stores/store";
 
 // Sub Components & Hooks
+import SummaryCard from "@/components/card/summary-card";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
+import { AnalyticsDashboard } from "./components/analytics-dashboard.component";
+import { ProjectStatusModal } from "./components/project-status-modal.component";
 import {
   ProjectTable,
   StatusTracker,
 } from "./components/project-table.component";
-import { AnalyticsDashboard } from "./components/analytics-dashboard.component";
-import { ProjectStatusModal } from "./components/project-status-modal.component";
 import { useProjectData } from "./hooks/use-project-data";
-import { exportProjectsToExcel } from "./utils/export-excel";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
-import SummaryCard from "@/components/card/summary-card";
 import type {
-  ModalState,
   FormValues,
+  ModalState,
   Project,
   ProjectStatus,
 } from "./types/project.types";
+import { exportProjectsToExcel } from "./utils/export-excel";
 
 const { Title, Text } = Typography;
 
@@ -989,7 +982,7 @@ export default function ProjectManagementPage() {
         <div className="space-y-6">
           {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล (Filter Bar) - แบ่งสัดส่วน 2 column ใน 1 row */}
           <Card
-            bordered={false}
+            variant="borderless"
             styles={{ body: { padding: 24 } }}
             style={{
               borderRadius: 16,
@@ -1132,7 +1125,7 @@ export default function ProjectManagementPage() {
 
           {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
           <Card
-            bordered={false}
+            variant="borderless"
             styles={{ body: { padding: 16 } }}
             style={{
               borderRadius: 16,
@@ -2202,7 +2195,7 @@ export default function ProjectManagementPage() {
                   <Space size={16}>
                     <Card
                       size="small"
-                      bordered={false}
+                      variant="borderless"
                       style={{
                         background: "rgba(255,255,255,0.15)",
                         backdropFilter: "blur(8px)",
@@ -2241,7 +2234,7 @@ export default function ProjectManagementPage() {
                     {costPerHour > 0 && (
                       <Card
                         size="small"
-                        bordered={false}
+                        variant="borderless"
                         style={{
                           background: "rgba(255,255,255,0.25)",
                           backdropFilter: "blur(8px)",
@@ -2314,7 +2307,7 @@ export default function ProjectManagementPage() {
             {/* Content Section */}
             <div style={{ padding: "0 32px 32px", marginTop: -40 }}>
               <Card
-                bordered={false}
+                variant="borderless"
                 style={{
                   borderRadius: 20,
                   boxShadow: "none",
