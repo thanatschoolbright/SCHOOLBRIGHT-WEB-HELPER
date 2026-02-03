@@ -4,16 +4,18 @@ import SummaryCard from "@/components/card/summary-card";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import {
   BankOutlined,
-  CheckCircleOutlined,
   ClearOutlined,
   CloseCircleOutlined,
+  CustomerServiceOutlined,
   FilterOutlined,
   LoginOutlined,
   SearchOutlined,
+  StarFilled,
   TableOutlined,
   TeamOutlined,
   ThunderboltOutlined,
   TrophyOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import {
@@ -27,7 +29,6 @@ import {
   Input,
   Row,
   Select,
-  Space,
   Table,
   Tag,
   theme,
@@ -122,13 +123,12 @@ export default function BypassPage(): JSX.Element {
         render: (id) => (
           <Tag
             color="geekblue"
+            bordered={false}
             style={{
+              margin: 0,
+              fontWeight: "bold",
               fontSize: 14,
-              fontWeight: 800,
               padding: "4px 12px",
-              borderRadius: 6,
-              border: "none",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
             }}
           >
             {id}
@@ -142,7 +142,7 @@ export default function BypassPage(): JSX.Element {
         sorter: (a, b) =>
           (a.company_name ?? "").localeCompare(b.company_name ?? ""),
         render: (_, record) => (
-          <Space size={12}>
+          <Flex align="center" gap={12}>
             <Avatar
               style={{
                 backgroundColor: getAvatarColor(record.company_name ?? ""),
@@ -152,24 +152,18 @@ export default function BypassPage(): JSX.Element {
             >
               {record.company_name?.charAt(0)}
             </Avatar>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <Text strong style={{ fontSize: 13, fontWeight: 600 }}>
+            <Flex vertical>
+              <Text strong style={{ fontSize: 13 }}>
                 {record.company_name}
               </Text>
               <Text type="secondary" style={{ fontSize: 11 }}>
                 Code: {record.school_code || "-"}
               </Text>
-            </div>
-          </Space>
+            </Flex>
+          </Flex>
         ),
       },
-      {
-        title: "รหัสผ่าน",
-        dataIndex: "school_pass",
-        key: "school_pass",
-        width: 150,
-        render: (pass) => <Text copyable={{ text: pass }}>{pass || "-"}</Text>,
-      },
+
       {
         title: "จังหวัด",
         dataIndex: "province",
@@ -180,51 +174,57 @@ export default function BypassPage(): JSX.Element {
       {
         title: "ประเภท & ชั้น",
         key: "type_class",
-        width: 200,
+        width: 180,
         render: (_, record) => (
-          <Space direction="vertical" size={2}>
-            <Tag color="cyan" bordered={false} style={{ fontSize: 11 }}>
+          <Flex vertical gap={4}>
+            <Tag
+              color="cyan"
+              bordered={false}
+              style={{ fontSize: 11, width: "fit-content", margin: 0 }}
+            >
               {record.school_type || "-"}
             </Tag>
             <Text type="secondary" style={{ fontSize: 11 }}>
               {record.school_class || "ไม่ระบุชั้น"}
             </Text>
-          </Space>
+          </Flex>
         ),
       },
       {
-        title: "ทีมดูแล",
+        title: "ทีมดูแล (Sale & Support)",
         key: "team",
-        width: 180,
+        width: 220,
         render: (_, record) => (
-          <Space direction="vertical" size={2}>
-            <Space size={4}>
-              <Badge status="processing" size="small" />
-              <Text style={{ fontSize: 12 }}>
-                ขาย: {record.sale_name || "-"}
-              </Text>
-            </Space>
-            <Space size={4}>
-              <Badge status="default" size="small" />
-              <Text style={{ fontSize: 12 }}>
-                ซัพพอร์ต: {record.support_name || "-"}
-              </Text>
-            </Space>
-          </Space>
+          <Flex vertical gap={4}>
+            <Flex align="center" gap={8}>
+              <UserOutlined style={{ color: "#f59e0b", fontSize: 12 }} />
+              <Text style={{ fontSize: 12 }}>{record.sale_name || "-"}</Text>
+            </Flex>
+            <Flex align="center" gap={8}>
+              <CustomerServiceOutlined
+                style={{ color: "#10b981", fontSize: 12 }}
+              />
+              <Text style={{ fontSize: 12 }}>{record.support_name || "-"}</Text>
+            </Flex>
+          </Flex>
         ),
       },
       {
         title: "ข้อมูลสัญญญา",
         dataIndex: "school_data_type",
         key: "school_data_type",
-        width: 140,
-        render: (type) => <Tag bordered={false}>{type || "-"}</Tag>,
+        width: 130,
+        render: (type) => (
+          <Tag bordered={false} style={{ margin: 0 }}>
+            {type || "-"}
+          </Tag>
+        ),
       },
       {
         title: "วันที่เปิด",
         dataIndex: "active_date",
         key: "active_date",
-        width: 130,
+        width: 120,
         align: "center",
       },
       {
@@ -234,9 +234,16 @@ export default function BypassPage(): JSX.Element {
         width: 80,
         align: "center",
         render: (grade) => (
-          <Text strong style={{ color: token.colorWarning }}>
-            {grade || "-"}
-          </Text>
+          <Flex justify="center">
+            <Tag
+              color={token.colorWarning}
+              bordered={false}
+              icon={<StarFilled />}
+              style={{ margin: 0 }}
+            >
+              {grade || "-"}
+            </Tag>
+          </Flex>
         ),
       },
       {
@@ -245,7 +252,11 @@ export default function BypassPage(): JSX.Element {
         key: "student_count",
         width: 100,
         align: "right",
-        render: (count) => Number(count || 0).toLocaleString(),
+        render: (count) => (
+          <Text style={{ fontFamily: "monospace" }}>
+            {Number(count || 0).toLocaleString()}
+          </Text>
+        ),
       },
       {
         title: "สถานะ",
@@ -257,16 +268,20 @@ export default function BypassPage(): JSX.Element {
         render: (status) => {
           const isInactive = status === "inactive";
           return (
-            <Tag
-              icon={
-                isInactive ? <CloseCircleOutlined /> : <CheckCircleOutlined />
+            <Badge
+              status={isInactive ? "error" : "success"}
+              text={
+                <Text
+                  strong
+                  style={{
+                    color: isInactive ? token.colorError : token.colorSuccess,
+                    fontSize: 12,
+                  }}
+                >
+                  {isInactive ? "ปิดใช้งาน" : "เปิดใช้งาน"}
+                </Text>
               }
-              color={isInactive ? "error" : "success"}
-              bordered={false}
-              style={{ fontWeight: 600 }}
-            >
-              {isInactive ? "ปิดใช้งาน" : "เปิดใช้งาน"}
-            </Tag>
+            />
           );
         },
       },
@@ -283,7 +298,7 @@ export default function BypassPage(): JSX.Element {
             onClick={() => setBypassModal({ open: true, school: record })}
             style={{ borderRadius: 8, fontWeight: 600 }}
           >
-            Bypass
+            เข้าสู่ระบบ
           </Button>
         ),
       },
@@ -293,7 +308,7 @@ export default function BypassPage(): JSX.Element {
 
   return (
     <DashboardLayout>
-      <div className="w-full space-y-8">
+      <Flex vertical gap={32}>
         {/* ส่วนที่ 1: หัวข้อหน้าเว็ป */}
         <HeaderBar
           icon={<LoginOutlined />}
@@ -301,7 +316,7 @@ export default function BypassPage(): JSX.Element {
           subTitle="เครื่องมือสำหรับทีมซัพพอร์ตในการเข้าสู่ระบบโรงเรียนต่าง ๆ ได้อย่างรวดเร็ว"
         />
 
-        {/* ส่วนที่ 2: บัตรสรุปข้อมูล (Summary Cards) - สรุปจากข้อมูลเดิมเสมอ */}
+        {/* ส่วนที่ 2: บัตรสรุปข้อมูล (Summary Cards) */}
         <Row gutter={[20, 20]}>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
@@ -342,225 +357,194 @@ export default function BypassPage(): JSX.Element {
         </Row>
 
         {/* ส่วนที่ 3: ฟิลเตอร์และปุ่มค้นหา */}
-        <Card
-          variant="borderless"
-          style={{ borderRadius: 16 }}
-          styles={{ body: { padding: 24 } }}
-        >
-          <Flex align="center" gap={8} className="mb-6">
-            <FilterOutlined
-              style={{ color: token.colorPrimary, fontSize: 18 }}
-            />
-            <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
-              ตัวกรอง
-            </Title>
-          </Flex>
+        <Card variant="borderless" styles={{ body: { padding: 24 } }}>
+          <Flex vertical gap={24}>
+            <Flex align="center" gap={8}>
+              <FilterOutlined
+                style={{ color: token.colorPrimary, fontSize: 18 }}
+              />
+              <Title level={5} style={{ margin: 0 }}>
+                ตัวกรอง
+              </Title>
+            </Flex>
 
-          <Row gutter={[24, 16]}>
-            {/* Column 1 */}
-            <Col xs={24} lg={12}>
-              <Space direction="vertical" className="w-full" size={16}>
-                <div>
-                  <Text
-                    strong
-                    style={{ fontSize: 13, display: "block", marginBottom: 8 }}
-                  >
-                    ค้นหาโรงเรียน
-                  </Text>
-                  <Input
-                    size="large"
-                    placeholder="ค้นหาด้วยชื่อ, รหัสโรงเรียน..."
-                    prefix={<SearchOutlined style={{ opacity: 0.5 }} />}
-                    value={state.filters.search}
-                    onChange={(e) =>
-                      handlers.handleFilterChange("search", e.target.value)
-                    }
-                  />
-                </div>
-                <div>
-                  <Text
-                    strong
-                    style={{ fontSize: 13, display: "block", marginBottom: 8 }}
-                  >
-                    โครงการ/กลุ่มโรงเรียน
-                  </Text>
-                  <Select
-                    className="w-full"
-                    size="large"
-                    placeholder="เลือกกลุ่มโรงเรียน"
-                    options={state.filterOptions.schoolGroups}
-                    value={state.filters.schoolGroup}
-                    onChange={(v) =>
-                      handlers.handleFilterChange("schoolGroup", v)
-                    }
-                    allowClear
-                  />
-                </div>
-              </Space>
-            </Col>
-
-            {/* Column 2 */}
-            <Col xs={24} lg={12}>
-              <Space direction="vertical" className="w-full" size={16}>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Text
-                      strong
-                      style={{
-                        fontSize: 13,
-                        display: "block",
-                        marginBottom: 8,
-                      }}
-                    >
-                      จังหวัด
+            <Row gutter={[24, 16]}>
+              <Col xs={24} lg={12}>
+                <Flex vertical gap={16}>
+                  <Flex vertical gap={8}>
+                    <Text strong style={{ fontSize: 13 }}>
+                      ค้นหาโรงเรียน
+                    </Text>
+                    <Input
+                      size="large"
+                      placeholder="ค้นหาด้วยชื่อ, รหัสโรงเรียน..."
+                      prefix={<SearchOutlined style={{ opacity: 0.5 }} />}
+                      value={state.filters.search}
+                      onChange={(e) =>
+                        handlers.handleFilterChange("search", e.target.value)
+                      }
+                    />
+                  </Flex>
+                  <Flex vertical gap={8}>
+                    <Text strong style={{ fontSize: 13 }}>
+                      โครงการ/กลุ่มโรงเรียน
                     </Text>
                     <Select
-                      className="w-full"
+                      style={{ width: "100%" }}
                       size="large"
-                      placeholder="ทุกจังหวัด"
-                      showSearch
-                      options={state.filterOptions.provinces}
-                      value={state.filters.province}
+                      placeholder="เลือกกลุ่มโรงเรียน"
+                      options={state.filterOptions.schoolGroups}
+                      value={state.filters.schoolGroup}
                       onChange={(v) =>
-                        handlers.handleFilterChange("province", v)
+                        handlers.handleFilterChange("schoolGroup", v)
                       }
                       allowClear
                     />
-                  </Col>
-                  <Col span={12}>
-                    <Text
-                      strong
-                      style={{
-                        fontSize: 13,
-                        display: "block",
-                        marginBottom: 8,
-                      }}
-                    >
-                      เกรด
+                  </Flex>
+                </Flex>
+              </Col>
+
+              <Col xs={24} lg={12}>
+                <Flex vertical gap={16}>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Flex vertical gap={8}>
+                        <Text strong style={{ fontSize: 13 }}>
+                          จังหวัด
+                        </Text>
+                        <Select
+                          style={{ width: "100%" }}
+                          size="large"
+                          placeholder="ทุกจังหวัด"
+                          showSearch
+                          options={state.filterOptions.provinces}
+                          value={state.filters.province}
+                          onChange={(v) =>
+                            handlers.handleFilterChange("province", v)
+                          }
+                          allowClear
+                        />
+                      </Flex>
+                    </Col>
+                    <Col span={12}>
+                      <Flex vertical gap={8}>
+                        <Text strong style={{ fontSize: 13 }}>
+                          เกรด
+                        </Text>
+                        <Select
+                          style={{ width: "100%" }}
+                          size="large"
+                          placeholder="เลือกเกรด"
+                          options={state.filterOptions.grades}
+                          value={state.filters.grade}
+                          onChange={(v) =>
+                            handlers.handleFilterChange("grade", v)
+                          }
+                          allowClear
+                        />
+                      </Flex>
+                    </Col>
+                  </Row>
+                  <Flex vertical gap={8}>
+                    <Text strong style={{ fontSize: 13 }}>
+                      สถานะ
                     </Text>
                     <Select
-                      className="w-full"
+                      style={{ width: "100%" }}
                       size="large"
-                      placeholder="เลือกเกรด"
-                      options={state.filterOptions.grades}
-                      value={state.filters.grade}
-                      onChange={(v) => handlers.handleFilterChange("grade", v)}
+                      placeholder="เลือกสถานะ"
+                      value={state.filters.status}
+                      onChange={(v) => handlers.handleFilterChange("status", v)}
                       allowClear
+                      options={[
+                        { label: "เปิดใช้งาน", value: "active" },
+                        { label: "ปิดใช้งาน", value: "inactive" },
+                      ]}
                     />
-                  </Col>
-                </Row>
-                <div>
-                  <Text
-                    strong
-                    style={{ fontSize: 13, display: "block", marginBottom: 8 }}
-                  >
-                    สถานะ
-                  </Text>
-                  <Select
-                    className="w-full"
-                    size="large"
-                    placeholder="เลือกสถานะ"
-                    value={state.filters.status}
-                    onChange={(v) => handlers.handleFilterChange("status", v)}
-                    allowClear
-                    options={[
-                      { label: "เปิดใช้งาน", value: "active" },
-                      { label: "ปิดใช้งาน", value: "inactive" },
-                    ]}
-                  />
-                </div>
-              </Space>
-            </Col>
-          </Row>
+                  </Flex>
+                </Flex>
+              </Col>
+            </Row>
 
-          <Divider style={{ margin: "24px 0" }} />
+            <Divider style={{ margin: 0 }} />
 
-          <Flex justify="end" gap={12}>
-            <Button
-              size="large"
-              icon={<ClearOutlined />}
-              onClick={handlers.handleClearFilters}
-              style={{ fontWeight: 600 }}
-            >
-              ล้างการค้นหา
-            </Button>
-            <Button
-              type="primary"
-              size="large"
-              icon={<SearchOutlined />}
-              style={{ fontWeight: 600, padding: "0 32px" }}
-            >
-              ค้นหาข้อมูล
-            </Button>
+            <Flex justify="end" gap={12}>
+              <Button
+                size="large"
+                icon={<ClearOutlined />}
+                onClick={handlers.handleClearFilters}
+              >
+                ล้างการค้นหา
+              </Button>
+              <Button
+                type="primary"
+                size="large"
+                icon={<SearchOutlined />}
+                style={{ padding: "0 32px" }}
+              >
+                ค้นหาข้อมูล
+              </Button>
+            </Flex>
           </Flex>
         </Card>
 
         {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
         <Card
+          variant="borderless"
           styles={{ body: { padding: 16 } }}
-          style={{
-            borderRadius: 16,
-            overflow: "hidden",
-            border: `1px solid ${token.colorBorderSecondary}`,
-          }}
+          style={{ border: `1px solid ${token.colorBorderSecondary}` }}
         >
-          <Flex justify="space-between" align="center" className="mb-4">
-            <Space size={12}>
-              <TableOutlined
-                style={{ color: token.colorPrimary, fontSize: 18 }}
-              />
-              <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
-                รายชื่อโรงเรียนในระบบ
-              </Title>
-              <Badge
-                count={state.filteredSchools.length}
-                overflowCount={9999}
-                showZero
-                style={{ backgroundColor: token.colorSuccess, fontWeight: 600 }}
-              />
-            </Space>
+          <Flex vertical gap={16}>
+            <Flex justify="space-between" align="center">
+              <Flex align="center" gap={12}>
+                <TableOutlined
+                  style={{ color: token.colorPrimary, fontSize: 18 }}
+                />
+                <Title level={5} style={{ margin: 0 }}>
+                  รายชื่อโรงเรียนในระบบ
+                </Title>
+                <Badge
+                  count={state.filteredSchools.length}
+                  overflowCount={9999}
+                  showZero
+                  color={token.colorSuccess}
+                />
+              </Flex>
 
-            <Space>
-              <Button
-                onClick={() => setShowProvinceRanking(true)}
-                icon={<TrophyOutlined />}
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  color: "#8b5cf6",
-                  fontWeight: 600,
-                }}
-              >
-                อันดับตามจังหวัด
-              </Button>
-              <Button
-                onClick={() => setShowSaleRanking(true)}
-                icon={<TeamOutlined />}
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  color: "#f59e0b",
-                  fontWeight: 600,
-                }}
-              >
-                อันดับคนขาย
-              </Button>
-            </Space>
+              <Flex gap={8}>
+                <Button
+                  onClick={() => setShowProvinceRanking(true)}
+                  icon={<TrophyOutlined />}
+                  type="text"
+                  style={{ color: "#8b5cf6", fontWeight: 600 }}
+                >
+                  อันดับตามจังหวัด
+                </Button>
+                <Button
+                  onClick={() => setShowSaleRanking(true)}
+                  icon={<TeamOutlined />}
+                  type="text"
+                  style={{ color: "#f59e0b", fontWeight: 600 }}
+                >
+                  อันดับคนขาย
+                </Button>
+              </Flex>
+            </Flex>
+
+            <Table<SchoolDetail>
+              columns={columns}
+              dataSource={state.filteredSchools}
+              loading={state.loading}
+              rowKey={(record) => String(record.school_id)}
+              pagination={{
+                pageSize: state.pageSize,
+                showSizeChanger: true,
+                showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+              }}
+              scroll={{ x: 2000 }}
+              onChange={handlers.handleTableChange}
+            />
           </Flex>
-
-          <Table<SchoolDetail>
-            columns={columns}
-            dataSource={state.filteredSchools}
-            loading={state.loading}
-            rowKey={(record) => String(record.school_id)}
-            pagination={{
-              pageSize: state.pageSize,
-              showSizeChanger: true,
-              showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-            }}
-            scroll={{ x: 2000 }}
-            onChange={handlers.handleTableChange}
-          />
         </Card>
 
         {/* Modals Section */}
@@ -589,7 +573,7 @@ export default function BypassPage(): JSX.Element {
             }
           }}
         />
-      </div>
+      </Flex>
     </DashboardLayout>
   );
 }

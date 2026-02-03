@@ -1,56 +1,55 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
-  Modal,
-  Table,
-  Tag,
-  Progress,
-  Space,
-  Row,
-  Col,
-  Card,
-  theme,
-  Typography,
-  Tooltip,
-  Statistic,
-  Input,
-  Button,
-  Segmented,
-} from "antd";
-import {
-  TrophyOutlined,
-  CheckCircleOutlined,
   CrownOutlined,
-  UserOutlined,
+  DollarOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
   InfoCircleOutlined,
-  TeamOutlined,
   LineChartOutlined,
+  LockOutlined,
   PieChartOutlined,
   RocketOutlined,
-  DollarOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  LockOutlined,
+  TeamOutlined,
+  TrophyOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
-import { toast } from "sonner"; // Import sonner toast
+import {
+  Button,
+  Card,
+  Col,
+  Input,
+  Modal,
+  Progress,
+  Row,
+  Segmented,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip as ChartTooltip,
-  Legend,
   ArcElement,
-  PointElement,
-  LineElement,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Tooltip as ChartTooltip,
   Filler,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner"; // Import sonner toast
 import type { SaleStatistics } from "../types/sale-stats.types";
 
 // * Register ChartJS Components
@@ -64,7 +63,7 @@ ChartJS.register(
   ChartTooltip,
   Legend,
   ArcElement,
-  Filler
+  Filler,
 );
 
 const { Text } = Typography;
@@ -101,7 +100,7 @@ export default function SaleRankingModal({
   const [passcode, setPasscode] = useState("");
   const [showPasscodeInput, setShowPasscodeInput] = useState(false);
   const [viewMode, setViewMode] = useState<"all" | "customer" | "contract">(
-    "all"
+    "all",
   );
 
   // * ==========================================================================
@@ -173,7 +172,7 @@ export default function SaleRankingModal({
         gradeB: 0,
         gradeC: 0,
         totalTargetStudents: 0,
-      }
+      },
     );
     return calculated;
   }, [data]);
@@ -354,14 +353,14 @@ export default function SaleRankingModal({
             viewMode === "all"
               ? record.customerStudents + record.contractStudents
               : viewMode === "customer"
-              ? record.customerStudents
-              : record.contractStudents;
+                ? record.customerStudents
+                : record.contractStudents;
           const currentSchools =
             viewMode === "all"
               ? record.customerCount + record.contractCount
               : viewMode === "customer"
-              ? record.customerCount
-              : record.contractCount;
+                ? record.customerCount
+                : record.contractCount;
 
           return (
             <Space direction="vertical" size={0}>
@@ -370,8 +369,8 @@ export default function SaleRankingModal({
                 {viewMode === "all"
                   ? "รวม"
                   : viewMode === "customer"
-                  ? "ลูกค้า"
-                  : "สัญญา"}
+                    ? "ลูกค้า"
+                    : "สัญญา"}
                 )
               </Text>
               <Text type="secondary" style={{ fontSize: 11 }}>
@@ -400,8 +399,8 @@ export default function SaleRankingModal({
             percent >= 100
               ? token.colorSuccess
               : percent >= 80
-              ? token.colorWarning
-              : token.colorError;
+                ? token.colorWarning
+                : token.colorError;
           return (
             <div style={{ width: "100%", padding: "0 8px" }}>
               <div className="flex justify-between items-center mb-1">
@@ -660,7 +659,7 @@ export default function SaleRankingModal({
         ),
       },
     ],
-    [token, isIncomeVisible]
+    [token, isIncomeVisible],
   );
 
   return (
@@ -778,7 +777,8 @@ export default function SaleRankingModal({
         <Row gutter={[20, 20]}>
           <Col xs={24} sm={12} lg={6}>
             <Card
-              className="h-full shadow-md rounded-3xl border-0 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
+              variant="borderless"
+              className="h-full shadow-md rounded-3xl border border-slate-100 relative overflow-hidden group hover:shadow-xl transition-all duration-300"
               style={{
                 background: "linear-gradient(135deg, #eff6ff 0%, #ffffff 100%)",
               }}
@@ -870,7 +870,7 @@ export default function SaleRankingModal({
                 <Text type="secondary" style={{ fontSize: 10 }}>
                   (
                   {((stats.payingStudents / stats.totalStudents) * 100).toFixed(
-                    1
+                    1,
                   )}
                   %)
                 </Text>
@@ -1016,7 +1016,7 @@ export default function SaleRankingModal({
                   </span>
                 </div>
               }
-              bordered={false}
+              variant="borderless"
               className="shadow-md rounded-3xl h-full border border-slate-100"
             >
               <div className="h-[350px] w-full p-2">
@@ -1044,7 +1044,7 @@ export default function SaleRankingModal({
                   </span>
                 </div>
               }
-              bordered={false}
+              variant="borderless"
               className="shadow-md rounded-3xl h-full border border-slate-100"
             >
               <div className="h-[350px] flex items-center justify-center p-2">
@@ -1081,7 +1081,7 @@ export default function SaleRankingModal({
                   </span>
                 </div>
               }
-              bordered={false}
+              variant="borderless"
               className="shadow-md rounded-3xl h-full border border-slate-100"
             >
               <div className="h-[350px] flex items-center justify-center p-2">
@@ -1109,7 +1109,7 @@ export default function SaleRankingModal({
               </span>
             </div>
           }
-          bordered={false}
+          variant="borderless"
           className="shadow-md rounded-3xl overflow-hidden border border-slate-100"
           styles={{
             header: {

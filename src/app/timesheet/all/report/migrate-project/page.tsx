@@ -266,17 +266,20 @@ export default function MigrateProjectPage() {
                     style={{ width: "100%" }}
                     size={16}
                   >
-                    <Flex align="center" gap={8}>
-                      <div
+                    <Flex align="center" gap={12}>
+                      <Flex
+                        justify="center"
+                        align="center"
                         style={{
-                          padding: 8,
+                          width: 38,
+                          height: 38,
                           background: token.colorErrorBg,
                           borderRadius: 8,
                           color: token.colorError,
                         }}
                       >
                         <ExclamationCircleOutlined />
-                      </div>
+                      </Flex>
                       <Title level={5} style={{ margin: 0 }}>
                         ต้นทาง (Source Project)
                       </Title>
@@ -337,10 +340,16 @@ export default function MigrateProjectPage() {
                   </Space>
                 </Col>
 
-                <Col xs={24} md={4} style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 32, color: token.colorTextDisabled }}>
-                    <ArrowRightOutlined />
-                  </div>
+                <Col xs={24} md={4}>
+                  <Flex
+                    justify="center"
+                    align="center"
+                    style={{ height: "100%" }}
+                  >
+                    <ArrowRightOutlined
+                      style={{ fontSize: 32, color: token.colorTextDisabled }}
+                    />
+                  </Flex>
                 </Col>
 
                 {/* Target Column */}
@@ -350,17 +359,20 @@ export default function MigrateProjectPage() {
                     style={{ width: "100%" }}
                     size={16}
                   >
-                    <Flex align="center" gap={8}>
-                      <div
+                    <Flex align="center" gap={12}>
+                      <Flex
+                        justify="center"
+                        align="center"
                         style={{
-                          padding: 8,
+                          width: 38,
+                          height: 38,
                           background: token.colorSuccessBg,
                           borderRadius: 8,
                           color: token.colorSuccess,
                         }}
                       >
                         <CheckCircleOutlined />
-                      </div>
+                      </Flex>
                       <Title level={5} style={{ margin: 0 }}>
                         ปลายทาง (Target Project)
                       </Title>
@@ -435,38 +447,55 @@ export default function MigrateProjectPage() {
                 <Flex vertical gap={24}>
                   <Row gutter={16}>
                     <Col span={12}>
-                      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-dashed border-gray-200">
+                      <Flex
+                        vertical
+                        gap={8}
+                        style={{
+                          backgroundColor: token.colorFillAlter,
+                          padding: 16,
+                          borderRadius: 12,
+                          border: `1px dashed ${token.colorBorderSecondary}`,
+                        }}
+                      >
                         <Text type="secondary" style={{ fontSize: 12 }}>
                           สรุปรายการที่รอการย้าย
                         </Text>
-                        <div style={{ marginTop: 8 }}>
-                          <Space direction="vertical">
-                            <Text>
-                              จาก: <Tag>{sourceProjectData?.name}</Tag> /{" "}
-                              <Tag
-                                color={
-                                  sourceFeatureData?.is_deleted
-                                    ? "error"
-                                    : "success"
-                                }
-                              >
-                                {sourceFeatureData?.name}
-                              </Tag>
-                            </Text>
-                            <Text>
-                              ไปที่:{" "}
-                              <Tag color="blue">{targetProjectData?.name}</Tag>{" "}
-                              /{" "}
-                              <Tag color="cyan">
-                                {targetFeatureData?.name || "ยังไม่ได้เลือก"}
-                              </Tag>
-                            </Text>
-                          </Space>
-                        </div>
-                      </div>
+                        <Flex vertical gap={4}>
+                          <Text>
+                            จาก: <Tag>{sourceProjectData?.name}</Tag> /{" "}
+                            <Tag
+                              color={
+                                sourceFeatureData?.is_deleted
+                                  ? "error"
+                                  : "success"
+                              }
+                            >
+                              {sourceFeatureData?.name}
+                            </Tag>
+                          </Text>
+                          <Text>
+                            ไปที่:{" "}
+                            <Tag color="blue">{targetProjectData?.name}</Tag> /{" "}
+                            <Tag color="cyan">
+                              {targetFeatureData?.name || "ยังไม่ได้เลือก"}
+                            </Tag>
+                          </Text>
+                        </Flex>
+                      </Flex>
                     </Col>
                     <Col span={12}>
-                      <div className="text-center bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30 h-full flex flex-col justify-center">
+                      <Flex
+                        vertical
+                        justify="center"
+                        align="center"
+                        style={{
+                          backgroundColor: token.colorPrimaryBg,
+                          padding: 16,
+                          borderRadius: 12,
+                          border: `1px solid ${token.colorPrimaryBorder}`,
+                          height: "100%",
+                        }}
+                      >
                         <Title
                           level={3}
                           style={{ margin: 0, color: token.colorPrimary }}
@@ -474,17 +503,13 @@ export default function MigrateProjectPage() {
                           {entries.length}
                         </Title>
                         <Text type="secondary">จำนวนบันทึกเวลาทั้งหมด</Text>
-                      </div>
+                      </Flex>
                     </Col>
                   </Row>
 
                   {(isMigrating || progress > 0) && (
-                    <div>
-                      <Flex
-                        justify="space-between"
-                        align="center"
-                        style={{ marginBottom: 8 }}
-                      >
+                    <Flex vertical gap={8}>
+                      <Flex justify="space-between" align="center">
                         <Text strong>ความคืบหน้าการทำงาน</Text>
                         <Text>{progress}%</Text>
                       </Flex>
@@ -496,7 +521,7 @@ export default function MigrateProjectPage() {
                           "100%": token.colorSuccess,
                         }}
                       />
-                    </div>
+                    </Flex>
                   )}
 
                   <Table

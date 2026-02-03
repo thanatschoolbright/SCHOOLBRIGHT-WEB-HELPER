@@ -48,7 +48,7 @@ export const useBypassPageData = () => {
     province: undefined,
     schoolType: undefined,
     grade: undefined,
-    status: undefined,
+    status: "active",
     schoolGroup: undefined,
   });
   const [pageSize, setPageSize] = useState<number>(50);
