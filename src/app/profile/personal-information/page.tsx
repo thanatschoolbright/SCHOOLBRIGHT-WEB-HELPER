@@ -1,68 +1,60 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import {
-  Form,
-  Input,
-  Button,
-  Card,
-  Row,
-  Col,
-  Select,
-  Typography,
-  Divider,
-  Avatar,
-  Space,
-  Badge,
-  Skeleton,
-  Tag,
-  Alert,
-  Modal,
-  theme,
-  DatePicker,
-  Tooltip,
-  App,
-} from "antd";
-import {
-  UserOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  IdcardOutlined,
   ArrowLeftOutlined,
-  SaveOutlined,
+  CalendarOutlined,
   CheckCircleOutlined,
   ExclamationCircleOutlined,
-  TeamOutlined,
-  SolutionOutlined,
   HistoryOutlined,
-  ApartmentOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
+  IdcardOutlined,
   LinkOutlined,
-  InfoCircleOutlined,
   LockOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  SaveOutlined,
+  SolutionOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import { useRouter, useParams } from "next/navigation";
-import { useSession } from "next-auth/react";
+import {
+  Alert,
+  App,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+  Upload,
+} from "antd";
+import { useEffect, useState } from "react";
+("use client");
+
+import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
+import { CameraOutlined, LoadingOutlined } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-import { toast } from "sonner";
+import type { UploadProps } from "antd";
+import { Descriptions } from "antd";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 dayjs.extend(buddhistEra);
 
-import { Upload, message } from "antd";
-import type { UploadProps } from "antd";
-import {
-  LoadingOutlined,
-  CameraOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
-
-import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import DashboardLayout from "@components/layouts/backend-layout";
 
 const { Title, Text } = Typography;
 
@@ -133,10 +125,6 @@ const UserEditPage = () => {
     </Space>
   );
 
-  // Watch fields for upload
-  const employeeCode = Form.useWatch("employee_code", form);
-  const currentImage = Form.useWatch("profile_image_path", form);
-
   // Debug Helper: Show Modal for Errors
   const showErrorModal = (error: any, context: string) => {
     const errorData = error?.response?.data;
@@ -146,7 +134,6 @@ const UserEditPage = () => {
       error?.message ||
       "Internal Server Error";
 
-    // Extract detailed error information (validation errors or stack trace)
     let errorDetail = "";
     if (errorData?.errors && Array.isArray(errorData.errors)) {
       errorDetail = errorData.errors
@@ -224,16 +211,9 @@ const UserEditPage = () => {
               </div>
             </div>
           )}
-          <Divider style={{ margin: "8px 0" }} />
-          <div style={{ textAlign: "center" }}>
-            <Text type="secondary" style={{ fontSize: 11 }}>
-              *กรุณาตรวจสอบ Console (F12) หรือแจ้งทีมพัฒนา พร้อมรูปถ่ายหน้าจอนี้
-            </Text>
-          </div>
         </div>
       ),
       okText: "เข้าใจแล้ว",
-      className: "rounded-2xl",
     });
   };
 
@@ -271,17 +251,19 @@ const UserEditPage = () => {
       });
     } catch (error: any) {
       showErrorModal(error, "ดึงข้อมูลผู้ใช้งาน");
-      console.error("fetchInitialData error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // --- Upload Logic ---
-  const customUploadRequest = async ({ file, onSuccess, onError }: any) => {
-    if (!employeeCode) {
+  const handleUpload: UploadProps["customRequest"] = async (options) => {
+    const { file, onSuccess, onError } = options;
+    const empCode = form.getFieldValue("employee_code");
+    const currentImg = form.getFieldValue("profile_image");
+
+    if (!empCode) {
       toast.error("กรุณาระบุรหัสพนักงานก่อนอัปโหลดรูปภาพ");
-      onError(new Error("Missing employee code"));
+      onError?.(new Error("Missing employee code"));
       return;
     }
 
@@ -289,31 +271,24 @@ const UserEditPage = () => {
     try {
       const result =
         await HuaweiBucketStorageService.requestUploadUserProfileImage(
-          file,
-          employeeCode,
-          currentImage,
+          file as File,
+          empCode,
+          currentImg,
         );
 
-      if (result.status === 200 || result.url) {
-        const newImageUrl = result.url || result.data?.url;
-        form.setFieldValue("profile_image", newImageUrl);
-        setUserData((prev: any) => ({
-          ...prev,
-          profile_image_path: newImageUrl,
-        }));
-
-        // ⚡ อัปเดต Session ทันทีเพื่อให้ User Dropdown แสดงรูปใหม่แบบ Real-time
-        await update({ ...session?.user, profile_image_path: newImageUrl });
-
+      const newUrl = result.url || result.data?.url;
+      if (newUrl) {
+        form.setFieldValue("profile_image", newUrl);
+        setUserData((prev: any) => ({ ...prev, profile_image_path: newUrl }));
+        await update({ ...session?.user, profile_image_path: newUrl });
         toast.success("อัปโหลดรูปภาพสำเร็จ");
-        onSuccess("ok");
+        onSuccess?.(result);
       } else {
-        throw new Error(result.message_en || "Upload failed");
+        throw new Error("Upload response invalid");
       }
     } catch (error: any) {
-      console.error("Upload error:", error);
       showErrorModal(error, "อัปโหลดรูปภาพ");
-      onError(error);
+      onError?.(error);
     } finally {
       setUploading(false);
     }
@@ -322,8 +297,6 @@ const UserEditPage = () => {
   const onFinish = async (values: any) => {
     try {
       setSubmitting(true);
-
-      // Sanitize payload to avoid validation errors (null vs undefined)
       const payload = {
         ...values,
         id: Number(userId),
@@ -333,30 +306,17 @@ const UserEditPage = () => {
         resigned_date: values.resigned_date
           ? dayjs(values.resigned_date).format("YYYY-MM-DD")
           : null,
-        // Ensure these are numbers or undefined (not null) if that's what backend expects
         position_id: values.position_id || undefined,
         department_id: values.department_id || undefined,
         profile_image: values.profile_image || undefined,
       };
 
       await axios.post("/api/v2/admin/user-management/update", payload);
-
-      // ⚡ สั่งให้ NextAuth ทำการ Refresh Session ข้อมูลล่าสุดจาก Database
       await update();
-
       toast.success("อัปเดตข้อมูลสำเร็จ");
-
-      // ถ้าเป็น Admin ให้กลับไปหน้าจัดการ แต่ถ้าเป็น User ให้เปลี่ยนสถานะ Loading หรือแจ้งเตือน
-      if (isAdmin) {
-        router.push("/admin/user-profile");
-      } else {
-        // ไม่ต้อง reload แล้วเพราะ update() ของ next-auth จัดการให้แล้ว
-        // แต่ถ้าต้องการให้ชัวร์เรื่องการดึงค่าใหม่ทั้งหมด ก็ใช้ reload ได้ตามเดิม
-        // window.location.reload();
-      }
+      if (isAdmin) router.push("/admin/user-profile");
     } catch (error: any) {
       showErrorModal(error, "อัปเดตข้อมูลผู้ใช้งาน");
-      console.error("onFinish error:", error);
     } finally {
       setSubmitting(false);
     }
@@ -397,296 +357,151 @@ const UserEditPage = () => {
 
         <div style={{ padding: "24px", maxWidth: 1400, margin: "0 auto" }}>
           <Row gutter={[24, 24]}>
-            {/* Left Column: User Card */}
             <Col xs={24} lg={8}>
-              <Space direction="vertical" size={24} style={{ width: "100%" }}>
-                <Card
-                  variant="borderless"
-                  styles={{
-                    body: { textAlign: "center", padding: "40px 24px" },
+              <Card
+                variant="borderless"
+                styles={{ body: { textAlign: "center", padding: "40px 24px" } }}
+                style={{ borderRadius: 16 }}
+                loading={loading}
+              >
+                <div
+                  style={{
+                    marginBottom: 24,
+                    display: "inline-block",
+                    position: "relative",
                   }}
-                  style={{ borderRadius: 16 }}
                 >
-                  <div
-                    style={{
-                      position: "relative",
-                      display: "inline-block",
-                      marginBottom: 24,
-                    }}
+                  <Upload
+                    name="avatar"
+                    listType="picture-circle"
+                    showUploadList={false}
+                    customRequest={handleUpload}
+                    disabled={uploading}
                   >
-                    <div className="relative group cursor-pointer">
-                      <Upload
-                        name="avatar"
-                        listType="picture-circle"
-                        className="avatar-uploader"
-                        showUploadList={false}
-                        customRequest={customUploadRequest}
-                        disabled={uploading}
-                      >
-                        <div style={{ position: "relative" }}>
-                          <Avatar
-                            size={120}
-                            icon={
-                              uploading ? <LoadingOutlined /> : <UserOutlined />
-                            }
-                            src={userData?.profile_image_path}
-                            style={{
-                              backgroundColor: token.colorPrimaryBg,
-                              color: token.colorPrimary,
-                              border: `4px solid white`,
-                              boxShadow: `0 4px 12px rgba(0,0,0,0.1)`,
-                              opacity: uploading ? 0.6 : 1,
-                              transition:
-                                "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                            }}
-                            className="hover:scale-105"
-                          />
-                          <div
-                            style={{
-                              position: "absolute",
-                              inset: 0,
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              backgroundColor: "rgba(0,0,0,0.5)",
-                              borderRadius: "50%",
-                              opacity: userData?.profile_image_path ? 0 : 1, // แสดงคำสั่งถ้ายังไม่มีรูป
-                              transition: "opacity 0.3s",
-                            }}
-                            className={
-                              userData?.profile_image_path
-                                ? "group-hover:opacity-100"
-                                : ""
-                            }
-                          >
-                            <CameraOutlined
-                              style={{
-                                color: "white",
-                                fontSize: 24,
-                                marginBottom: 4,
-                              }}
-                            />
-                            {!userData?.profile_image_path && (
-                              <Text
-                                style={{
-                                  color: "white",
-                                  fontSize: 10,
-                                  fontWeight: 700,
-                                }}
-                              >
-                                อัปโหลดรูปภาพที่นี่
-                              </Text>
-                            )}
-                          </div>
-                        </div>
-                      </Upload>
-                    </div>
-                    {/* ✅ แสดงสัญลักษณ์ "ถูก" เมื่ออัปโหลดรูปแล้วเท่านั้น */}
-                    {userData?.profile_image_path && (
-                      <div
+                    <div className="relative group w-[104px] h-[104px] overflow-hidden rounded-full cursor-pointer">
+                      <Avatar
+                        size={104}
+                        src={userData?.profile_image_path}
+                        icon={
+                          uploading ? <LoadingOutlined /> : <UserOutlined />
+                        }
+                        className="transition-transform group-hover:scale-110"
                         style={{
-                          position: "absolute",
-                          bottom: 4,
-                          right: 12,
+                          border: `2px solid ${token.colorBorderSecondary}`,
                         }}
-                      >
-                        <div
-                          style={{
-                            backgroundColor: token.colorSuccess,
-                            width: 24,
-                            height: 24,
-                            borderRadius: "50%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            border: "2px solid white",
-                            boxShadow: token.boxShadow,
-                            zIndex: 2,
-                          }}
-                        >
-                          <CheckCircleOutlined
-                            style={{ color: "white", fontSize: 14 }}
-                          />
-                        </div>
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <CameraOutlined
+                          style={{ color: "white", fontSize: 24 }}
+                        />
+                        <Text style={{ color: "white", fontSize: 10 }}>
+                          แก้ไข
+                        </Text>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  </Upload>
+                  {userData?.profile_image_path && (
+                    <Badge
+                      count={
+                        <CheckCircleOutlined
+                          style={{ color: token.colorSuccess }}
+                        />
+                      }
+                      offset={[-10, 90]}
+                      style={{
+                        backgroundColor: "white",
+                        borderRadius: "50%",
+                        padding: 2,
+                      }}
+                    />
+                  )}
+                </div>
 
-                  <Title level={3} style={{ marginBottom: 4 }}>
-                    {userData?.firstname_th} {userData?.lastname_th}
-                  </Title>
-                  <Text
-                    type="secondary"
-                    style={{ display: "block", marginBottom: 16 }}
-                  >
-                    {userData?.email || "ไม่มีอีเมล"}
-                  </Text>
+                <Title level={3} style={{ marginBottom: 4 }}>
+                  {userData?.firstname_th || "-"} {userData?.lastname_th || ""}
+                </Title>
+                <Text
+                  type="secondary"
+                  style={{ display: "block", marginBottom: 16 }}
+                >
+                  {userData?.email || "ไม่มีอีเมล"}
+                </Text>
 
-                  <Space size={8} wrap>
-                    <Tag color="blue">
-                      {userData?.role?.role_name || "ไม่มีสิทธิ์"}
-                    </Tag>
-                    <Tag color="cyan">
-                      {userData?.position_ref?.name_th || "ไม่มีตำแหน่ง"}
-                    </Tag>
-                    <Tag color="purple">
-                      {userData?.department?.name_th || "ไม่มีแผนก"}
-                    </Tag>
-                  </Space>
+                <Space size={4} wrap style={{ justifyContent: "center" }}>
+                  <Tag color="blue">{userData?.role?.role_name || "Guest"}</Tag>
+                  <Tag color="cyan">
+                    {userData?.position_ref?.name_th || "No Position"}
+                  </Tag>
+                </Space>
 
-                  <Divider />
+                <Divider />
 
-                  <div style={{ textAlign: "left" }}>
-                    <Space
-                      direction="vertical"
-                      size={16}
-                      style={{ width: "100%" }}
-                    >
-                      <Space align="start" size={12}>
-                        <div
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 8,
-                            backgroundColor: token.colorPrimaryBg,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <LinkOutlined style={{ color: token.colorPrimary }} />
-                        </div>
-                        <div>
-                          <Text
-                            type="secondary"
-                            style={{ fontSize: 12, display: "block" }}
-                          >
-                            รหัสเชื่อมต่อ (adminsystem.schoolbright.co)
-                          </Text>
-                          <Text strong style={{ color: token.colorPrimary }}>
-                            {userData?.admin_id || "-"}
-                          </Text>
-                        </div>
-                      </Space>
-
-                      <Space align="start" size={12}>
-                        <div
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 8,
-                            backgroundColor: token.colorFillAlter,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <HistoryOutlined
-                            style={{ color: token.colorTextSecondary }}
-                          />
-                        </div>
-                        <div>
-                          <Text
-                            type="secondary"
-                            style={{ fontSize: 12, display: "block" }}
-                          >
-                            ข้อมูลล่าสุดเมื่อ
-                          </Text>
-                          <Text strong>
-                            {userData?.updated_at
-                              ? dayjs(userData.updated_at).format(
-                                  "DD/MM/BBBB HH:mm:ss",
-                                )
-                              : "-"}
-                          </Text>
-                        </div>
-                      </Space>
-
-                      <Space align="start" size={12}>
-                        <div
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 8,
-                            backgroundColor: token.colorFillAlter,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <IdcardOutlined
-                            style={{ color: token.colorTextSecondary }}
-                          />
-                        </div>
-                        <div>
-                          <Text
-                            type="secondary"
-                            style={{ fontSize: 12, display: "block" }}
-                          >
-                            วันที่เข้าสู่ระบบ
-                          </Text>
-                          <Text strong>
-                            {dayjs(userData?.created_at).format(
-                              "DD/MM/BBBB HH:mm:ss",
-                            )}
-                          </Text>
-                        </div>
-                      </Space>
-
-                      <Space align="start" size={12}>
-                        <div
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 8,
-                            backgroundColor: token.colorFillAlter,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <CalendarOutlined
-                            style={{ color: token.colorHighlight }}
-                          />
-                        </div>
-                        <div>
-                          <Text
-                            type="secondary"
-                            style={{ fontSize: 12, display: "block" }}
-                          >
-                            วันที่เริ่มงาน (Joined)
-                          </Text>
-                          <Text strong>
-                            {userData?.joined_date
-                              ? dayjs(userData.joined_date).format("DD/MM/BBBB")
-                              : "ไม่ได้ระบุ"}
-                          </Text>
-                        </div>
-                      </Space>
-                    </Space>
-                  </div>
-                </Card>
-
-                <Alert
-                  message="คำแนะนำ"
-                  description="การแก้ไขข้อมูลระดับสิทธิ์ของพนักงาน จะมีผลเมื่อพนักงานทำการเข้าสู่ระบบใหม่ในครั้งถัดไป"
-                  type="info"
-                  showIcon
-                  style={{ borderRadius: 12 }}
+                <Descriptions
+                  column={1}
+                  size="small"
+                  labelStyle={{ color: token.colorTextDescription }}
+                  contentStyle={{
+                    fontWeight: 600,
+                    justifyContent: "flex-end",
+                    textAlign: "right",
+                  }}
+                  items={[
+                    {
+                      label: (
+                        <Space>
+                          <LinkOutlined /> รหัสเชื่อมต่อ
+                        </Space>
+                      ),
+                      children: (
+                        <Text copyable={{ text: userData?.admin_id }}>
+                          {userData?.admin_id || "-"}
+                        </Text>
+                      ),
+                    },
+                    {
+                      label: (
+                        <Space>
+                          <HistoryOutlined /> แก้ไขล่าสุด
+                        </Space>
+                      ),
+                      children: userData?.updated_at
+                        ? dayjs(userData.updated_at).format("DD/MM/BBBB HH:mm")
+                        : "-",
+                    },
+                    {
+                      label: (
+                        <Space>
+                          <IdcardOutlined /> วันที่สร้างบัญชี
+                        </Space>
+                      ),
+                      children: dayjs(userData?.created_at).format(
+                        "DD/MM/BBBB",
+                      ),
+                    },
+                    {
+                      label: (
+                        <Space>
+                          <CalendarOutlined /> วันที่เริ่มงาน
+                        </Space>
+                      ),
+                      children: userData?.joined_date
+                        ? dayjs(userData.joined_date).format("DD/MM/BBBB")
+                        : "ไม่ได้ระบุ",
+                    },
+                  ]}
                 />
-              </Space>
+              </Card>
             </Col>
 
-            {/* Right Column: Edit Form */}
             <Col xs={24} lg={16}>
               <Card
                 variant="borderless"
                 style={{ borderRadius: 16 }}
+                loading={loading}
                 title={
                   <Space>
                     <SolutionOutlined style={{ color: token.colorPrimary }} />
-                    <span>ข้อมูลผู้ใช้งานโดยละเอียด</span>
+                    <span>ข้อมูลโดยละเอียด</span>
                   </Space>
                 }
               >
@@ -696,356 +511,212 @@ const UserEditPage = () => {
                   onFinish={onFinish}
                   requiredMark="optional"
                 >
-                  {/* Personal Information */}
-                  <div style={{ marginBottom: 32 }}>
-                    <Space size={8} style={{ marginBottom: 16 }}>
-                      <div
-                        style={{
-                          width: 4,
-                          height: 20,
-                          backgroundColor: token.colorPrimary,
-                          borderRadius: 2,
-                        }}
-                      />
-                      <Title level={5} style={{ margin: 0 }}>
-                        ข้อมูลส่วนตัว
-                      </Title>
-                    </Space>
-                    <Row gutter={16}>
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label="ชื่อ (ไทย)"
-                          name="firstname_th"
-                          rules={[{ required: true, message: "กรุณาระบุชื่อ" }]}
-                        >
-                          <Input placeholder="ชื่อ" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label="นามสกุล (ไทย)"
-                          name="lastname_th"
-                          rules={[
-                            { required: true, message: "กรุณาระบุนามสกุล" },
-                          ]}
-                        >
-                          <Input placeholder="นามสกุล" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item label="ชื่อ (อังกฤษ)" name="firstname_en">
-                          <Input placeholder="First Name" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item label="นามสกุล (อังกฤษ)" name="lastname_en">
-                          <Input placeholder="Last Name" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item label="ชื่อเล่น" name="nickname">
-                          <Input placeholder="ชื่อเล่น" />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </div>
+                  <Row gutter={16}>
+                    <Col xs={24}>
+                      <Divider orientation="left" style={{ marginTop: 0 }}>
+                        <Text strong>
+                          <UserOutlined /> ข้อมูลส่วนตัว
+                        </Text>
+                      </Divider>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label="ชื่อ (ไทย)"
+                        name="firstname_th"
+                        rules={[{ required: true }]}
+                      >
+                        <Input placeholder="ชื่อ" />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label="นามสกุล (ไทย)"
+                        name="lastname_th"
+                        rules={[{ required: true }]}
+                      >
+                        <Input placeholder="นามสกุล" />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item label="First Name (EN)" name="firstname_en">
+                        <Input placeholder="First Name" />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item label="Last Name (EN)" name="lastname_en">
+                        <Input placeholder="Last Name" />
+                      </Form.Item>
+                    </Col>
 
-                  {/* Account & Contact */}
-                  <div style={{ marginBottom: 32 }}>
-                    <Space size={8} style={{ marginBottom: 16 }}>
-                      <div
-                        style={{
-                          width: 4,
-                          height: 20,
-                          backgroundColor: token.colorPrimary,
-                          borderRadius: 2,
-                        }}
-                      />
-                      <Title level={5} style={{ margin: 0 }}>
-                        ข้อมูลบัญชีผู้ใช้และติดต่อ
-                      </Title>
-                    </Space>
-                    <Row gutter={16}>
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label={
-                            <RestrictedLabel label="ชื่อผู้ใช้งาน (Username)" />
-                          }
-                          name="username"
-                          rules={[
-                            {
-                              required: true,
-                              message: "กรุณาระบุชื่อผู้ใช้งาน",
-                            },
-                          ]}
-                        >
-                          <Input
-                            disabled={isRestricted}
-                            prefix={
-                              isRestricted ? (
-                                <LockOutlined
-                                  style={{ color: token.colorTextDisabled }}
-                                />
-                              ) : (
-                                <UserOutlined
-                                  style={{ color: token.colorTextDisabled }}
-                                />
-                              )
-                            }
-                            placeholder="username"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label={<RestrictedLabel label="รหัสพนักงาน" />}
-                          name="employee_code"
-                        >
-                          <Input
-                            disabled={isRestricted}
-                            prefix={
-                              <IdcardOutlined
-                                style={{ color: token.colorTextDisabled }}
-                              />
-                            }
-                            placeholder="รหัสพนักงาน"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label="อีเมล"
-                          name="email"
-                          rules={[
-                            { type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง" },
-                          ]}
-                        >
-                          <Input
-                            prefix={
-                              <MailOutlined
-                                style={{ color: token.colorTextDisabled }}
-                              />
-                            }
-                            placeholder="email@example.com"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item label="เบอร์โทรศัพท์" name="phone">
-                          <Input
-                            prefix={
-                              <PhoneOutlined
-                                style={{ color: token.colorTextDisabled }}
-                              />
-                            }
-                            placeholder="08X-XXX-XXXX"
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </div>
+                    <Col xs={24}>
+                      <Divider orientation="left">
+                        <Text strong>
+                          <MailOutlined /> การติดต่อและบัญชี
+                        </Text>
+                      </Divider>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<RestrictedLabel label="ชื่อผู้ใช้งาน" />}
+                        name="username"
+                        rules={[{ required: true }]}
+                      >
+                        <Input
+                          disabled={isRestricted}
+                          prefix={<LockOutlined />}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<RestrictedLabel label="รหัสพนักงาน" />}
+                        name="employee_code"
+                      >
+                        <Input
+                          disabled={isRestricted}
+                          prefix={<IdcardOutlined />}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label="อีเมล"
+                        name="email"
+                        rules={[{ type: "email" }]}
+                      >
+                        <Input prefix={<MailOutlined />} />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item label="เบอร์โทรศัพท์" name="phone">
+                        <Input prefix={<PhoneOutlined />} />
+                      </Form.Item>
+                    </Col>
 
-                  {/* Employment Timeline */}
-                  <div style={{ marginBottom: 32 }}>
-                    <Space size={8} style={{ marginBottom: 16 }}>
-                      <div
-                        style={{
-                          width: 4,
-                          height: 20,
-                          backgroundColor: token.colorWarning,
-                          borderRadius: 2,
-                        }}
-                      />
-                      <Title level={5} style={{ margin: 0 }}>
-                        ข้อมูลการจ้างงาน (Employment Timeline)
-                      </Title>
-                    </Space>
-                    <Row gutter={16}>
-                      <Col xs={24} md={8}>
-                        <Form.Item
-                          label={<RestrictedLabel label="วันที่เริ่มงาน" />}
-                          name="joined_date"
-                        >
-                          <DatePicker
-                            disabled={isRestricted}
-                            placeholder="เลือกวันที่เริ่มงาน"
-                            style={{ width: "100%" }}
-                            format="DD/MM/BBBB"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Form.Item
-                          label={<RestrictedLabel label="วันที่ลาออก" />}
-                          name="resigned_date"
-                        >
-                          <DatePicker
-                            disabled={isRestricted}
-                            placeholder="เลือกวันที่ลาออก"
-                            style={{ width: "100%" }}
-                            format="DD/MM/BBBB"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Form.Item
-                          label={<RestrictedLabel label="ประเภทการจ้างงาน" />}
-                          name="employment_type"
-                        >
-                          <Select
-                            disabled={isRestricted}
-                            placeholder="เลือกประเภทการจ้างงาน"
-                          >
-                            <Select.Option value="FULL_TIME">
-                              Full-time (พนักงานประจำ)
-                            </Select.Option>
-                            <Select.Option value="PART_TIME">
-                              Part-time (พนักงานชั่วคราว)
-                            </Select.Option>
-                            <Select.Option value="CONTRACT">
-                              Contract (สัญญาจ้าง)
-                            </Select.Option>
-                            <Select.Option value="INTERN">
-                              Intern (ฝึกงาน)
-                            </Select.Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </div>
+                    <Col xs={24}>
+                      <Divider orientation="left">
+                        <Text strong>
+                          <CalendarOutlined /> ข้อมูลการทำงาน
+                        </Text>
+                      </Divider>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<RestrictedLabel label="แผนก" />}
+                        name="department_id"
+                      >
+                        <Select
+                          disabled={isRestricted}
+                          options={departments.map((d) => ({
+                            label: d.name_th,
+                            value: d.id,
+                          }))}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<RestrictedLabel label="ตำแหน่ง" />}
+                        name="position_id"
+                      >
+                        <Select
+                          disabled={isRestricted}
+                          options={positions.map((p) => ({
+                            label: p.name_th,
+                            value: p.id,
+                          }))}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<RestrictedLabel label="สิทธิ์การใช้งาน" />}
+                        name="role_id"
+                      >
+                        <Select
+                          disabled={isRestricted}
+                          options={roles.map((r) => ({
+                            label: r.role_name,
+                            value: r.id,
+                          }))}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<RestrictedLabel label="สถานะพนักงาน" />}
+                        name="status"
+                      >
+                        <Select disabled={isRestricted}>
+                          <Select.Option value="ACTIVE">
+                            พนักงานปกติ
+                          </Select.Option>
+                          <Select.Option value="INACTIVE">
+                            ปิดการใช้งาน
+                          </Select.Option>
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<RestrictedLabel label="วันที่เริ่มงาน" />}
+                        name="joined_date"
+                      >
+                        <DatePicker
+                          disabled={isRestricted}
+                          style={{ width: "100%" }}
+                          format="DD/MM/BBBB"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<RestrictedLabel label="ประเภทพนักงาน" />}
+                        name="employment_type"
+                      >
+                        <Select disabled={isRestricted}>
+                          <Select.Option value="FULL_TIME">
+                            Full-time
+                          </Select.Option>
+                          <Select.Option value="PART_TIME">
+                            Part-time
+                          </Select.Option>
+                          <Select.Option value="CONTRACT">
+                            Contract
+                          </Select.Option>
+                          <Select.Option value="INTERN">Intern</Select.Option>
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                  </Row>
 
-                  {/* Role & Position */}
-                  <div>
-                    <Space size={8} style={{ marginBottom: 16 }}>
-                      <div
-                        style={{
-                          width: 4,
-                          height: 20,
-                          backgroundColor: token.colorPrimary,
-                          borderRadius: 2,
-                        }}
-                      />
-                      <Title level={5} style={{ margin: 0 }}>
-                        หน้าที่และความรับผิดชอบ
-                      </Title>
-                    </Space>
-                    <Row gutter={16}>
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label={
-                            <RestrictedLabel label="สิทธิ์การใช้งาน (Role)" />
-                          }
-                          name="role_id"
-                        >
-                          <Select
-                            disabled={isRestricted}
-                            placeholder="เลือกสิทธิ์การใช้งาน"
-                            options={roles.map((r) => ({
-                              label: r.role_name,
-                              value: r.id,
-                            }))}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label={<RestrictedLabel label="ตำแหน่ง (Position)" />}
-                          name="position_id"
-                        >
-                          <Select
-                            disabled={isRestricted}
-                            placeholder="เลือกตำแหน่ง"
-                            showSearch
-                            optionFilterProp="label"
-                            options={positions.map((p) => ({
-                              label: p.name_th,
-                              value: p.id,
-                            }))}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label={<RestrictedLabel label="แผนก (Department)" />}
-                          name="department_id"
-                        >
-                          <Select
-                            disabled={isRestricted}
-                            placeholder="เลือกแผนก"
-                            showSearch
-                            optionFilterProp="label"
-                            options={departments.map((d) => ({
-                              label: d.name_th,
-                              value: d.id,
-                            }))}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label={<RestrictedLabel label="สถานะการใช้งาน" />}
-                          name="status"
-                        >
-                          <Select disabled={isRestricted}>
-                            <Select.Option value="ACTIVE">
-                              <Tag
-                                color="success"
-                                style={{
-                                  border: "none",
-                                  background: "transparent",
-                                  margin: 0,
-                                }}
-                              >
-                                ใช้งานปกติ
-                              </Tag>
-                            </Select.Option>
-                            <Select.Option value="INACTIVE">
-                              <Tag
-                                color="default"
-                                style={{
-                                  border: "none",
-                                  background: "transparent",
-                                  margin: 0,
-                                }}
-                              >
-                                ปิดการใช้งาน
-                              </Tag>
-                            </Select.Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    <Form.Item name="profile_image" hidden>
-                      <Input />
-                    </Form.Item>
-                  </div>
+                  <Form.Item name="profile_image" hidden>
+                    <Input />
+                  </Form.Item>
 
                   <Divider />
-
-                  <Space
-                    style={{ width: "100%", justifyContent: "flex-end" }}
-                    size={12}
-                  >
-                    <Button
-                      onClick={() =>
-                        isAdmin
-                          ? router.push("/admin/user-profile")
-                          : router.back()
-                      }
-                    >
-                      ยกเลิก
-                    </Button>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      loading={submitting}
-                      icon={<SaveOutlined />}
-                      size="large"
-                      style={{ paddingLeft: 32, paddingRight: 32 }}
-                    >
-                      ยืนยันการบันทึกข้อมูล
-                    </Button>
-                  </Space>
+                  <div style={{ textAlign: "right" }}>
+                    <Space>
+                      <Button
+                        onClick={() =>
+                          isAdmin
+                            ? router.push("/admin/user-profile")
+                            : router.back()
+                        }
+                      >
+                        ยกเลิก
+                      </Button>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={submitting}
+                        icon={<SaveOutlined />}
+                        size="large"
+                      >
+                        บันทึกการเปลี่ยนแปลง
+                      </Button>
+                    </Space>
+                  </div>
                 </Form>
               </Card>
             </Col>

@@ -1,27 +1,32 @@
 "use client";
 
 import {
-  BuildOutlined,
   CheckCircleOutlined,
   ClearOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
   FileExcelOutlined,
   FilterOutlined,
+  HistoryOutlined,
   InfoCircleOutlined,
   ProjectOutlined,
   SearchOutlined,
   SettingOutlined,
   TableOutlined,
-  ToolOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import {
+  Alert,
+  Avatar,
+  Badge,
   Button,
   Card,
   Checkbox,
   Col,
   DatePicker,
+  Descriptions,
   Divider,
+  Empty,
   Flex,
   Input,
   Modal,
@@ -29,9 +34,11 @@ import {
   Progress,
   Row,
   Space,
+  Statistic,
   Table,
   Tag,
   theme,
+  Tooltip,
   Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -99,6 +106,7 @@ const columnOptions = [
 export default function CapturableReportPage() {
   const router = useRouter();
   const { token } = theme.useToken();
+  const { Title, Text } = Typography;
 
   // * State Management
   const [loading, setLoading] = useState(false);
@@ -112,15 +120,45 @@ export default function CapturableReportPage() {
   const [visibleColumns, setVisibleColumns] =
     useState<any[]>(defaultCheckedList);
 
+  // * Tracking Details State
+  const [trackingData, setTrackingData] = useState<any[]>([]);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+
   // * Detail Modal States
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<CapturableData | null>(
     null,
   );
 
+  /**
+   * * Fetch Tracking Details for a specific project
+   */
+  const requestTrackingDetails = async (projectId: number) => {
+    setTrackingLoading(true);
+    try {
+      const response = await axios.post(
+        "/api/v1/timesheet/report/capturable-details/read",
+        {
+          project_id: projectId,
+          start_date: dateRange[0].format("YYYY-MM-DD"),
+          end_date: dateRange[1].format("YYYY-MM-DD"),
+        },
+      );
+
+      if (response.data.status === 200) {
+        setTrackingData(response.data.data);
+      }
+    } catch (error) {
+      toast.error("ไม่สามารถดึงข้อมูลรายละเอียดการติดตามได้");
+    } finally {
+      setTrackingLoading(false);
+    }
+  };
+
   const openDetails = (record: CapturableData) => {
     setSelectedProject(record);
     setDetailModalOpen(true);
+    requestTrackingDetails(record.project_id);
   };
 
   /**
@@ -263,7 +301,7 @@ export default function CapturableReportPage() {
       align: "center",
       sorter: (a, b) => a.project_code.localeCompare(b.project_code),
       render: (code: string) => (
-        <Tag variant="borderless" color="blue" style={{ fontWeight: 600 }}>
+        <Tag bordered={false} color="blue" style={{ fontWeight: 600 }}>
           {code}
         </Tag>
       ),
@@ -281,7 +319,14 @@ export default function CapturableReportPage() {
       ),
     },
     {
-      title: "งานสร้างใหม่ (%)",
+      title: (
+        <Space size={4}>
+          งานสร้างใหม่ (%)
+          <Tooltip title="สัดส่วนงบลงทุน (Capital Expenditure - CapEx)">
+            <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
+          </Tooltip>
+        </Space>
+      ),
       dataIndex: "capturable_percent",
       key: "capturable_percent",
       width: 160,
@@ -306,7 +351,14 @@ export default function CapturableReportPage() {
       ),
     },
     {
-      title: "งานดูแล (%)",
+      title: (
+        <Space size={4}>
+          งานดูแล (%)
+          <Tooltip title="สัดส่วนค่าใช้จ่าย (Operating Expenditure - OpEx)">
+            <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
+          </Tooltip>
+        </Space>
+      ),
       dataIndex: "uncapturable_percent",
       key: "uncapturable_percent",
       width: 160,
@@ -347,14 +399,21 @@ export default function CapturableReportPage() {
       ),
     },
     {
-      title: "สัดส่วน",
+      title: (
+        <Space size={4}>
+          สัดส่วน
+          <Tooltip title="สัดส่วนชั่วโมงของโครงการนี้เทียบกับชั่วโมงรวมทั้งหมดที่วิเคราะห์ในหน้านี้">
+            <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
+          </Tooltip>
+        </Space>
+      ),
       dataIndex: "hours_percent",
       key: "hours_percent",
       width: 100,
       align: "center",
       sorter: (a, b) => a.hours_percent - b.hours_percent,
       render: (value: number) => (
-        <Tag variant="borderless" color="cyan" style={{ fontWeight: 600 }}>
+        <Tag bordered={false} color="cyan" style={{ fontWeight: 600 }}>
           {value.toFixed(2)}%
         </Tag>
       ),
@@ -653,37 +712,45 @@ export default function CapturableReportPage() {
           </Card>
         </div>
 
-        {/* 5. Detail Breakdown Modal */}
+        {/* 5. Detail Breakdown & Tracking Modal */}
         <Modal
           title={
             <Space size={12}>
-              <div
-                className="p-2 rounded-xl"
-                style={{
-                  background: token.colorPrimaryBg,
-                  color: token.colorPrimary,
-                }}
+              <Badge
+                count={<SearchOutlined style={{ color: "white" }} />}
+                style={{ backgroundColor: token.colorPrimary }}
               >
-                <InfoCircleOutlined style={{ fontSize: 20 }} />
-              </div>
+                <Avatar
+                  shape="square"
+                  size="large"
+                  style={{
+                    backgroundColor: token.colorPrimaryBg,
+                    color: token.colorPrimary,
+                    borderRadius: 8,
+                  }}
+                  icon={<ProjectOutlined />}
+                />
+              </Badge>
               <div>
-                <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+                <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
                   รายละเอียดการวิเคราะห์รายโครงการ
                 </Title>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  แจกแจงที่มาของตัวเลขโดยแบ่งตาม Sub-project / Feature
+                <Text type="secondary" style={{ fontSize: 13 }}>
+                  ตรวจสอบที่มาของชั่วโมงทำงานและผู้รับผิดชอบระดับรายกิจกรรม
                 </Text>
               </div>
             </Space>
           }
           open={detailModalOpen}
           onCancel={() => setDetailModalOpen(false)}
-          width={900}
+          width={1100}
           footer={[
             <Button
               key="close"
+              type="primary"
               onClick={() => setDetailModalOpen(false)}
               style={{ fontWeight: 600 }}
+              size="large"
             >
               ปิดหน้าต่าง
             </Button>,
@@ -692,160 +759,242 @@ export default function CapturableReportPage() {
         >
           {selectedProject && (
             <div className="py-2">
-              <div
-                className="mb-6 p-4 rounded-xl border"
-                style={{
-                  backgroundColor: token.colorFillQuaternary,
-                  borderColor: token.colorBorderSecondary,
-                }}
-              >
-                <Row gutter={24}>
-                  <Col span={12}>
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: 12 }}
-                      className="block mb-1"
-                    >
-                      โครงการ
-                    </Text>
-                    <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
-                      [{selectedProject.project_code}]{" "}
-                      {selectedProject.project_name}
-                    </Title>
-                  </Col>
-                  <Col span={6}>
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: 12 }}
-                      className="block mb-1"
-                    >
-                      ชั่วโมงรวม
-                    </Text>
-                    <Text
-                      strong
-                      style={{
-                        fontSize: 18,
-                        color: token.colorInfoText,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {selectedProject.hours} hrs
-                    </Text>
-                  </Col>
-                  <Col span={6}>
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: 12 }}
-                      className="block mb-1"
-                    >
-                      ช่วงเวลา
-                    </Text>
-                    <Text strong style={{ fontWeight: 600 }}>
-                      {dateRange[0].format("DD/MM/YYYY")} -{" "}
-                      {dateRange[1].format("DD/MM/YYYY")}
-                    </Text>
-                  </Col>
-                </Row>
-              </div>
-
-              <Table
-                dataSource={selectedProject.details}
-                rowKey={(record) =>
-                  `${record.feature_id}-${record.asset_capture_type}`
-                }
-                pagination={false}
-                size="middle"
-                columns={[
+              <Descriptions
+                bordered
+                size="small"
+                className="mb-6 overflow-hidden rounded-xl border-none"
+                column={{ xs: 1, sm: 2, md: 3 }}
+                items={[
                   {
-                    title: "Sub-project / Feature",
-                    dataIndex: "feature_name",
-                    key: "feature_name",
-                    render: (text) => (
-                      <Text strong style={{ fontWeight: 600 }}>
-                        {text}
-                      </Text>
+                    label: "โครงการที่ตรวจสอบ",
+                    children: (
+                      <Space>
+                        <Tag color="blue" bordered={false}>
+                          {selectedProject.project_code}
+                        </Tag>
+                        <Text strong>{selectedProject.project_name}</Text>
+                      </Space>
                     ),
+                    span: 2,
                   },
                   {
-                    title: "ประเภทสินทรัพย์",
-                    dataIndex: "asset_capture_type",
-                    key: "asset_capture_type",
-                    width: 250,
-                    align: "center",
-                    render: (type) => (
-                      <Tag
-                        color={type === "CAPTUREABLE" ? "success" : "default"}
-                        icon={
-                          type === "CAPTUREABLE" ? (
-                            <BuildOutlined />
-                          ) : (
-                            <ToolOutlined />
-                          )
-                        }
-                        style={{
-                          padding: "4px 12px",
-                          borderRadius: 6,
-                          fontWeight: 600,
+                    label: "ชั่วโมงรวมทั้งหมด",
+                    children: (
+                      <Statistic
+                        value={selectedProject.hours}
+                        suffix="ชม."
+                        valueStyle={{
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: token.colorInfoText,
                         }}
-                      >
-                        {type === "CAPTUREABLE"
-                          ? "สร้างใหม่ (CapEx)"
-                          : "ดูแล (OpEx)"}
-                      </Tag>
+                      />
                     ),
                   },
                   {
-                    title: "ชั่วโมง",
-                    dataIndex: "hours",
-                    key: "hours",
-                    width: 120,
-                    align: "right",
-                    render: (val) => (
-                      <Text
-                        strong
-                        style={{ color: token.colorInfoText, fontWeight: 600 }}
-                      >
-                        {val.toLocaleString()}
-                      </Text>
-                    ),
-                  },
-                  {
-                    title: "สัดส่วน",
-                    dataIndex: "percent",
-                    key: "percent",
-                    width: 150,
-                    render: (val) => (
-                      <div className="w-full">
-                        <Text
-                          type="secondary"
-                          style={{ fontSize: 11 }}
-                          className="block text-right mb-1"
-                        >
-                          {val}%
-                        </Text>
-                        <Progress
-                          percent={val}
-                          showInfo={false}
-                          size="small"
-                          strokeColor={token.colorPrimary}
+                    label: "ช่วงเวลาที่วิเคราะห์",
+                    children: (
+                      <Space>
+                        <HistoryOutlined
+                          style={{ color: token.colorTextSecondary }}
                         />
-                      </div>
+                        <Text strong>
+                          {dateRange[0].format("DD MMM YYYY")} -{" "}
+                          {dateRange[1].format("DD MMM YYYY")}
+                        </Text>
+                      </Space>
                     ),
+                    span: 3,
                   },
                 ]}
-                summary={(pageData) => {
-                  const total = pageData.reduce(
-                    (acc, curr) => acc + curr.hours,
-                    0,
-                  );
-                  return (
+              />
+
+              <div className="animate-in fade-in duration-300">
+                <Table
+                  dataSource={selectedProject.details}
+                  rowKey={(record) =>
+                    `${record.feature_id}-${record.asset_capture_type}`
+                  }
+                  pagination={false}
+                  size="middle"
+                  bordered
+                  scroll={{ x: "max-content" }}
+                  className="overflow-hidden rounded-xl"
+                  expandable={{
+                    expandedRowRender: (record) => {
+                      const featureTracking = trackingData.filter(
+                        (t) =>
+                          t.feature_id === record.feature_id &&
+                          t.asset_capture_type === record.asset_capture_type,
+                      );
+
+                      return (
+                        <Card
+                          size="small"
+                          variant="borderless"
+                          styles={{ body: { padding: 4 } }}
+                          style={{ backgroundColor: token.colorFillAlter }}
+                        >
+                          <Table
+                            dataSource={featureTracking}
+                            rowKey="entry_id"
+                            pagination={
+                              featureTracking.length > 5
+                                ? { pageSize: 5, size: "small" }
+                                : false
+                            }
+                            size="small"
+                            bordered
+                            scroll={{ x: "max-content", y: 240 }}
+                            columns={[
+                              {
+                                title: "ผู้ลงเวลา",
+                                key: "user",
+                                width: 200,
+                                render: (_, t) => (
+                                  <Space>
+                                    <Avatar
+                                      size="small"
+                                      icon={<UserOutlined />}
+                                      style={{
+                                        backgroundColor: token.colorPrimary,
+                                      }}
+                                    />
+                                    <Text strong style={{ fontSize: 12 }}>
+                                      {t.user_name}
+                                    </Text>
+                                    {t.user_nickname && (
+                                      <Tag
+                                        color="blue"
+                                        bordered={false}
+                                        style={{ fontSize: 10 }}
+                                      >
+                                        {t.user_nickname}
+                                      </Tag>
+                                    )}
+                                  </Space>
+                                ),
+                              },
+                              {
+                                title: "วันที่",
+                                dataIndex: "date",
+                                key: "date",
+                                width: 100,
+                                render: (d) => dayjs(d).format("DD/MM/YY"),
+                              },
+                              {
+                                title: "รายละเอียดงาน",
+                                dataIndex: "description",
+                                key: "description",
+                                ellipsis: true,
+                                render: (desc) => (
+                                  <Tooltip title={desc}>
+                                    <Text
+                                      type="secondary"
+                                      style={{ fontSize: 12 }}
+                                    >
+                                      {desc || "-"}
+                                    </Text>
+                                  </Tooltip>
+                                ),
+                              },
+                              {
+                                title: "ชม.",
+                                dataIndex: "hours",
+                                key: "hours",
+                                width: 70,
+                                align: "right",
+                                render: (h) => (
+                                  <Text
+                                    strong
+                                    style={{ color: token.colorInfoText }}
+                                  >
+                                    {h.toFixed(2)}
+                                  </Text>
+                                ),
+                              },
+                            ]}
+                            locale={{
+                              emptyText: trackingLoading ? (
+                                <Table.Summary.Cell index={0} align="center">
+                                  <div className="py-4">กำลังโหลดข้อมูล...</div>
+                                </Table.Summary.Cell>
+                              ) : (
+                                <Empty
+                                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                  description="ไม่พบประวัติการลงเวลา"
+                                />
+                              ),
+                            }}
+                          />
+                        </Card>
+                      );
+                    },
+                    columnTitle: (
+                      <Tooltip title="คลิกเพื่อดูรายละเอียดรายบุคคล">
+                        <HistoryOutlined />
+                      </Tooltip>
+                    ),
+                    expandRowByClick: true,
+                  }}
+                  columns={[
+                    {
+                      title: "โครงการย่อย / ฟีเจอร์",
+                      dataIndex: "feature_name",
+                      key: "feature_name",
+                      render: (text) => <Text strong>{text}</Text>,
+                    },
+                    {
+                      title: "ประเภท",
+                      dataIndex: "asset_capture_type",
+                      key: "asset_capture_type",
+                      width: 180,
+                      align: "center",
+                      render: (type) => (
+                        <Tag
+                          color={type === "CAPTUREABLE" ? "green" : "default"}
+                          bordered={false}
+                          style={{ fontWeight: 600 }}
+                        >
+                          {type === "CAPTUREABLE" ? "CapEx" : "OpEx"}
+                        </Tag>
+                      ),
+                    },
+                    {
+                      title: "ชั่วโมงรวม",
+                      dataIndex: "hours",
+                      key: "hours",
+                      width: 120,
+                      align: "right",
+                      render: (val) => (
+                        <Text strong style={{ color: token.colorInfoText }}>
+                          {val.toLocaleString()}
+                        </Text>
+                      ),
+                    },
+                    {
+                      title: "สัดส่วน",
+                      dataIndex: "percent",
+                      key: "percent",
+                      width: 140,
+                      render: (val) => (
+                        <Tooltip title={`${val}% ของโครงการนี้`}>
+                          <Progress
+                            percent={val}
+                            size={[100, 8]}
+                            strokeColor={token.colorPrimary}
+                            trailColor={token.colorFillQuaternary}
+                          />
+                        </Tooltip>
+                      ),
+                    },
+                  ]}
+                  summary={(pageData) => (
                     <Table.Summary.Row
                       style={{ backgroundColor: token.colorFillQuaternary }}
                     >
-                      <Table.Summary.Cell index={0} colSpan={2} align="right">
-                        <Text strong style={{ fontWeight: 600 }}>
-                          รวมทั้งหมด
-                        </Text>
+                      <Table.Summary.Cell index={0} colSpan={3} align="right">
+                        <Text strong>รวมสุทธิในโครงการนี้</Text>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell index={1} align="right">
                         <Text
@@ -853,37 +1002,30 @@ export default function CapturableReportPage() {
                           style={{
                             fontSize: 16,
                             color: token.colorInfoText,
-                            fontWeight: 600,
                           }}
                         >
-                          {total.toLocaleString()}
+                          {pageData
+                            .reduce((acc, curr) => acc + curr.hours, 0)
+                            .toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
                         </Text>
                       </Table.Summary.Cell>
-                      <Table.Summary.Cell index={2} align="right">
-                        <Text strong style={{ fontWeight: 600 }}>
-                          100%
-                        </Text>
-                      </Table.Summary.Cell>
+                      <Table.Summary.Cell index={2} />
                     </Table.Summary.Row>
-                  );
-                }}
-              />
-
-              <div
-                className="mt-6 p-4 rounded-lg"
-                style={{ backgroundColor: token.colorInfoBg }}
-              >
-                <Space align="start">
-                  <InfoCircleOutlined
-                    style={{ color: token.colorInfo, marginTop: 4 }}
-                  />
-                  <Text type="secondary" style={{ fontSize: 13 }}>
-                    <strong>หมายเหตุสำหรับการตรวจสอบ (IPO Audit Note):</strong>{" "}
-                    ตัวเลขเปอร์เซ็นต์คำนวณจากการนำชั่วโมงรวมของ Sub-project
-                    แต่ละประเภทมาหารด้วยชั่วโมงรวมทั้งหมดของโครงการนี้
-                  </Text>
-                </Space>
+                  )}
+                />
               </div>
+
+              <Alert
+                className="mt-6"
+                message="มาตรฐานการตรวจสอบระบบ (IPO Traceability Protocol)"
+                description="ข้อมูลการลงเวลาถูกแยกประเภทตาม Asset Capitalization Rules โดยระบบรองรับการ Audit รายบุคคล (User-level Drill down) เพื่อใช้เป็นหลักฐานประกอบการลงบัญชีสินทรัพย์และค่าใช้จ่ายของบริษัท"
+                type="info"
+                showIcon
+                icon={<InfoCircleOutlined />}
+              />
             </div>
           )}
         </Modal>
