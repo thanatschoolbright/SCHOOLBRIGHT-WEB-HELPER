@@ -139,6 +139,8 @@ export const Service = {
         project_name: p.name,
         capturable_percent: Number(capturablePercent.toFixed(2)),
         uncapturable_percent: Number(uncapturablePercent.toFixed(2)),
+        capturable_hours: Number(capturableHours.toFixed(2)),
+        uncapturable_hours: Number(uncapturableHours.toFixed(2)),
         hours: Number(totalHours.toFixed(2)),
         hours_percent: Number(hoursPercent.toFixed(2)),
         details,

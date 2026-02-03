@@ -71,6 +71,8 @@ interface CapturableData {
   project_name: string;
   capturable_percent: number;
   uncapturable_percent: number;
+  capturable_hours: number;
+  uncapturable_hours: number;
   hours: number;
   hours_percent: number;
   details: ProjectStatDetail[];
@@ -336,23 +338,32 @@ export default function CapturableReportPage() {
       ),
       dataIndex: "capturable_percent",
       key: "capturable_percent",
-      width: 160,
+      width: 170,
       sorter: (a, b) => a.capturable_percent - b.capturable_percent,
-      render: (value: number) => (
+      render: (value: number, record: CapturableData) => (
         <div className="w-full">
-          <Flex justify="space-between" align="center" className="mb-1">
-            <Text type="secondary" style={{ fontSize: 12 }}>
+          <Flex justify="space-between" align="center" className="mb-0">
+            <Text type="secondary" style={{ fontSize: 11 }}>
               Capitalization ทรัพย์สิน
             </Text>
             <Text strong style={{ color: token.colorSuccess, fontSize: 12 }}>
-              {value.toFixed(0)}%
+              {value.toFixed(1)}%
             </Text>
           </Flex>
+          <div className="mb-1">
+            <Text strong style={{ fontSize: 13 }}>
+              {record.capturable_hours.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}{" "}
+              ชม.
+            </Text>
+          </div>
           <Progress
             percent={value}
             showInfo={false}
             strokeColor={token.colorSuccess}
             size="small"
+            style={{ margin: 0 }}
           />
         </div>
       ),
@@ -368,23 +379,32 @@ export default function CapturableReportPage() {
       ),
       dataIndex: "uncapturable_percent",
       key: "uncapturable_percent",
-      width: 160,
+      width: 170,
       sorter: (a, b) => a.uncapturable_percent - b.uncapturable_percent,
-      render: (value: number) => (
+      render: (value: number, record: CapturableData) => (
         <div className="w-full">
-          <Flex justify="space-between" align="center" className="mb-1">
-            <Text type="secondary" style={{ fontSize: 12 }}>
+          <Flex justify="space-between" align="center" className="mb-0">
+            <Text type="secondary" style={{ fontSize: 11 }}>
               Expense รายจ่าย
             </Text>
             <Text strong style={{ color: token.colorError, fontSize: 12 }}>
-              {value.toFixed(0)}%
+              {value.toFixed(1)}%
             </Text>
           </Flex>
+          <div className="mb-1">
+            <Text strong style={{ fontSize: 13 }}>
+              {record.uncapturable_hours.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}{" "}
+              ชม.
+            </Text>
+          </div>
           <Progress
             percent={value}
             showInfo={false}
             strokeColor={token.colorError}
             size="small"
+            style={{ margin: 0 }}
           />
         </div>
       ),
