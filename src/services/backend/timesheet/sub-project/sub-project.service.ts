@@ -76,17 +76,17 @@ interface UpdateFeatureDto {
 
 export const Service = {
   async validateProjectId(projectId: number) {
-    const project = await PrismaTimesheet.project.findUnique({
+    return await PrismaTimesheet.project.findUnique({
       where: { id: projectId },
+      select: { id: true, is_deleted: true },
     });
-    return !!project;
   },
 
   async validateSubProjectId(subProjectId: number) {
-    const feature = await PrismaTimesheet.feature.findUnique({
+    return await PrismaTimesheet.feature.findUnique({
       where: { id: subProjectId },
+      select: { id: true, is_deleted: true },
     });
-    return !!feature;
   },
 
   async findAll({ limit = 50, skip = 0 }: PaginationOptions = {}) {

@@ -1,33 +1,57 @@
-import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
+import { errorResponse } from "@/helpers/api/response";
 import { Service as EntryService } from "@services/backend/timesheet/entry.service";
-import { successResponse, errorResponse } from "@/helpers/api/response";
-import { NextRequest, NextResponse } from "next/server";
+import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
+import { NextResponse } from "next/server";
 
 export const projectIdValidation = async (projectId: number) => {
-  const isValidProject = await Service.validateProjectId(projectId);
-  if (!isValidProject) {
+  const project = await Service.validateProjectId(projectId);
+  if (!project) {
     return NextResponse.json(
       errorResponse({
         message_en: "The project_id does not exist",
-        message_th: "project_id นี้ไม่มีอยู่ในระบบ",
+        message_th: "ไม่พบรหัสโครงการนี้ในระบบ",
       }),
-      { status: 200 }
+      { status: 400 },
     );
   }
+
+  if (project.is_deleted) {
+    return NextResponse.json(
+      errorResponse({
+        message_en:
+          "This project has been deleted and cannot accept new entries",
+        message_th: "โครงการนี้ถูกลบไปแล้ว ไม่สามารถเพิ่มข้อมูลใหม่ได้",
+      }),
+      { status: 400 },
+    );
+  }
+
   return true;
 };
 
 export const subProjectIdValidation = async (subProjectId: number) => {
-  const isValidProject = await Service.validateSubProjectId(subProjectId);
-  if (!isValidProject) {
+  const feature = await Service.validateSubProjectId(subProjectId);
+  if (!feature) {
     return NextResponse.json(
       errorResponse({
         message_en: "The sub_project_id does not exist",
-        message_th: "sub_project_id นี้ไม่มีอยู่ในระบบ",
+        message_th: "ไม่พบรหัสโครงการย่อยนี้ในระบบ",
       }),
-      { status: 200 }
+      { status: 400 },
     );
   }
+
+  if (feature.is_deleted) {
+    return NextResponse.json(
+      errorResponse({
+        message_en:
+          "This sub-project has been deleted and cannot accept new entries",
+        message_th: "โครงการย่อยนี้ถูกลบไปแล้ว ไม่สามารถเพิ่มข้อมูลใหม่ได้",
+      }),
+      { status: 400 },
+    );
+  }
+
   return true;
 };
 
@@ -39,7 +63,7 @@ export const updateTimesheetEntryIdValidation = async (id: number) => {
         message_en: "The timesheet entry id does not exist",
         message_th: "timesheet entry id นี้ไม่มีอยู่ในระบบ",
       }),
-      { status: 200 }
+      { status: 400 },
     );
   }
   return true;

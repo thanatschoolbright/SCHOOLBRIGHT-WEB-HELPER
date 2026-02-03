@@ -1,116 +1,106 @@
 "use client";
 
+import {
+  ApartmentOutlined,
+  AppstoreAddOutlined,
+  BookOutlined,
+  CalendarOutlined,
+  CheckCircleFilled,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleFilled,
+  CloudOutlined,
+  CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined,
+  FileTextOutlined,
+  FireOutlined,
+  InfoCircleOutlined,
+  LockOutlined,
+  MoonOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  ProjectOutlined,
+  ReloadOutlined,
+  RocketOutlined,
+  SafetyCertificateFilled,
+  SaveOutlined,
+  SearchOutlined,
+  SettingOutlined,
+  SunOutlined,
+  SyncOutlined,
+  TagOutlined,
+  TeamOutlined,
+  ThunderboltOutlined,
+  TrophyFilled,
+  UnlockOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  DatePicker,
+  Divider,
+  Dropdown,
+  Empty,
+  Flex,
+  Form,
+  FormInstance,
+  Input,
+  InputNumber,
+  InputRef,
+  Modal,
+  Popover,
+  Progress,
+  Radio,
+  Row,
+  Select,
+  Skeleton,
+  Space,
+  Table,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
+import { ColumnType } from "antd/lib/table";
+import dayjs, { Dayjs } from "dayjs";
+import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import isBetween from "dayjs/plugin/isBetween";
+import { AnimatePresence, motion } from "framer-motion";
+import i18next from "i18next";
 import React, {
+  forwardRef,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
-  forwardRef,
-  useImperativeHandle,
 } from "react";
-import {
-  Form,
-  Space,
-  Divider,
-  theme,
-  Typography,
-  Button,
-  Badge,
-  Card,
-  Row,
-  Col,
-  Statistic,
-  Skeleton,
-  Empty,
-  Segmented,
-  Tooltip,
-  Modal,
-  Input,
-  Select,
-  DatePicker,
-  InputNumber,
-  Tag,
-  Avatar,
-  Progress,
-  Table,
-  InputRef,
-  Alert,
-  FormInstance,
-  Flex,
-  Checkbox,
-  Radio,
-  Popover,
-  Dropdown,
-} from "antd";
-import type { MenuProps } from "antd";
-import { TableProps, ColumnType } from "antd/lib/table";
-import { motion, AnimatePresence } from "framer-motion";
-import dayjs, { Dayjs } from "dayjs";
-import isBetween from "dayjs/plugin/isBetween";
-import buddhistEra from "dayjs/plugin/buddhistEra";
-import "dayjs/locale/th";
-import "dayjs/locale/th";
-import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
-import {
-  PlusOutlined,
-  BookOutlined,
-  AppstoreAddOutlined,
-  TrophyFilled,
-  ReloadOutlined,
-  ExpandAltOutlined,
-  CompressOutlined,
-  ProjectOutlined,
-  ApartmentOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
-  TagOutlined,
-  EditOutlined,
-  SaveOutlined,
-  DeleteOutlined,
-  SearchOutlined,
-  InfoCircleOutlined,
-  UserOutlined,
-  CopyOutlined,
-  FireOutlined,
-  RocketOutlined,
-  ThunderboltOutlined,
-  CheckCircleOutlined,
-  SyncOutlined,
-  CheckCircleFilled,
-  CloseCircleFilled,
-  ExclamationCircleFilled,
-  StopOutlined,
-  TeamOutlined,
-  LockOutlined,
-  UnlockOutlined,
-  SunOutlined,
-  CloudOutlined,
-  MoonOutlined,
-  FileTextOutlined,
-  SafetyCertificateFilled,
-  SettingOutlined,
-  MoreOutlined,
-  DownOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
 
-import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
-import { DetailModal } from "@components/timesheet/detail-modal";
+import { TimesheetActions } from "@components/button/timesheet-actions";
+import { TimesheetStatCard } from "@components/card/timesheet-stat-card";
+import { TableSearch } from "@components/input-field/table-search";
+import DashboardLayout from "@components/layouts/backend-layout";
 import { DeleteConfirmationModal } from "@components/modal/delete-confirmation-modal";
+import StatusModal from "@components/modal/status-modal";
+import { DetailModal } from "@components/timesheet/detail-modal";
 import { RankBoardHeader } from "@components/timesheet/rank-board-header";
 import { RankCard } from "@components/timesheet/rank-card";
 import { WeeklySummary } from "@components/timesheet/weekly-summary";
-import { TimesheetStatCard } from "@components/card/timesheet-stat-card";
-import { TimesheetActions } from "@components/button/timesheet-actions";
-import { TableSearch } from "@components/input-field/table-search";
 
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-import { useAppSelector } from "@stores/store";
 import {
   setActiveRecord,
   setFormMode,
@@ -120,29 +110,29 @@ import {
   setSelectedRowKeys,
   setSubProjects,
 } from "@stores/reducers/timesheet/timesheet-reducer";
+import { useAppSelector } from "@stores/store";
 
 import {
   useMonthlySummaryAPI,
   useTimesheetEntries,
   useTopUsage,
 } from "@/hooks/use-timesheet-data";
-import {
-  useTimesheetActions,
-  useProjectData,
-} from "./hooks/use-timesheet-actions.data";
 import { ApiResponse, SummaryMetadata, SummaryRecord } from "@/types/timesheet";
+import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 import {
+  useProjectData,
+  useTimesheetActions,
+} from "./hooks/use-timesheet-actions.data";
+import {
+  SearchableColumnKey,
   TimesheetEntry,
   TopUsage,
-  SearchableColumnKey,
 } from "./types/timesheet-entry.types";
 import {
   DAILY_TARGET_HOURS,
   DATE_FORMAT,
-  stringToColor,
   getStatusConfig,
 } from "./utils/timesheet-entry.helpers";
-import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 
 dayjs.extend(isBetween);
 dayjs.extend(buddhistEra);
@@ -2603,13 +2593,17 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
           );
         } catch (error: any) {
           // Update status to error
+          const errorMsg =
+            error?.response?.data?.message_th ||
+            error?.message ||
+            "เกิดข้อผิดพลาด";
           setProgressList((prev) =>
             prev.map((item) =>
               item.admin_id === user.admin_id
                 ? {
                     ...item,
                     status: "error",
-                    message: error?.message || "เกิดข้อผิดพลาด",
+                    message: errorMsg,
                   }
                 : item,
             ),
@@ -3078,6 +3072,18 @@ export default function TimesheetEntryPage() {
     Record<string, any[]>
   >({});
 
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: "success" | "error";
+    title: string;
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
+
   const admin_id = useMemo(
     () => Number(authState?.response?.data?.user_data?.admin_id) || undefined,
     [authState?.response?.data?.user_data?.admin_id],
@@ -3122,6 +3128,7 @@ export default function TimesheetEntryPage() {
         refetch_monthly_summary();
       },
       () => rankBoardRef.current?.refetch(),
+      setStatusModal,
     );
   const { fetchProjects, fetchSubProjects } = useProjectData(
     isMountedRef,
@@ -3299,6 +3306,7 @@ export default function TimesheetEntryPage() {
             },
             "create",
             undefined,
+            { showModal: false },
           ),
         );
         const results = await Promise.all(promises);
@@ -3331,10 +3339,10 @@ export default function TimesheetEntryPage() {
             padding: "32px",
             minHeight: "100vh",
             background: isDark
-              ? `radial-gradient(at 0% 0%, ${token.colorPrimary}10 0px, transparent 50%), 
+              ? `radial-gradient(at 0% 0%, ${token.colorPrimary}10 0px, transparent 50%),
                  radial-gradient(at 100% 0%, ${token.colorInfo}10 0px, transparent 50%),
                  ${token.colorBgLayout}`
-              : `radial-gradient(at 0% 0%, ${token.colorPrimary}05 0px, transparent 50%), 
+              : `radial-gradient(at 0% 0%, ${token.colorPrimary}05 0px, transparent 50%),
                  radial-gradient(at 100% 0%, ${token.colorInfo}05 0px, transparent 50%),
                  ${token.colorBgLayout}`,
             transition: "background 0.5s ease",
@@ -3438,6 +3446,14 @@ export default function TimesheetEntryPage() {
             open={myWorkModalOpen}
             onCancel={() => setMyWorkModalOpen(false)}
             userId={admin_id}
+          />
+
+          <StatusModal
+            open={statusModal.open}
+            type={statusModal.type}
+            title={statusModal.title}
+            message={statusModal.message}
+            onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
           />
         </motion.div>
       </DashboardLayout>

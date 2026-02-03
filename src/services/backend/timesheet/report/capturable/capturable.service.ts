@@ -14,6 +14,8 @@ export interface ProjectStatResult {
   project_name: string;
   capturable_percent: number;
   uncapturable_percent: number;
+  capturable_hours: number;
+  uncapturable_hours: number;
   hours: number;
   hours_percent: number;
   details: ProjectStatDetail[];
@@ -30,6 +32,12 @@ export const Service = {
       },
       where: {
         is_deleted: false,
+        project: {
+          is_deleted: false,
+        },
+        feature: {
+          is_deleted: false,
+        },
         date: {
           gte: start,
           lte: end,
@@ -49,6 +57,9 @@ export const Service = {
         timesheets: {
           where: {
             is_deleted: false,
+            feature: {
+              is_deleted: false,
+            },
             date: {
               gte: start,
               lte: end,
@@ -147,6 +158,12 @@ export const Service = {
     const entries = await PrismaTimesheet.timesheetEntry.findMany({
       where: {
         is_deleted: false,
+        project: {
+          is_deleted: false,
+        },
+        feature: {
+          is_deleted: false,
+        },
         date: {
           gte: start,
           lte: end,
