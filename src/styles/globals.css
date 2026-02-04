@@ -1,5 +1,3 @@
-@import url("font.css");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -27,7 +25,7 @@
 }
 
 * {
-  font-family: "Kanit", sans-serif;
+  font-family: var(--font-google-sans), "Google Sans", sans-serif;
   letter-spacing: 0.3px;
 }
 
@@ -38,6 +36,7 @@ html {
 body {
   color: var(--foreground);
   background: var(--background);
+  font-family: var(--font-google-sans), "Google Sans", sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -45,7 +44,7 @@ body {
 
 /* ปรับ Toast ให้ใช้ font-family ตามระบบ */
 [data-sonner-toaster] {
-  font-family: "Kanit", sans-serif !important;
+  font-family: var(--font-google-sans), "Google Sans", sans-serif !important;
 }
 
 /* Headings Optimization */

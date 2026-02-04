@@ -7,6 +7,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-google-sans)", "Google Sans", "sans-serif"],
+      },
       animation: {
         "pulse-slow": "pulse 10s infinite",
       },

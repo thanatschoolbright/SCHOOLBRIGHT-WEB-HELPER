@@ -1,11 +1,46 @@
-import "@styles/font.css";
-import "@styles/globals.css";
-import { Toaster } from "sonner";
 import AntThemeProvider from "@components/layouts/ant-layout";
-import CombinedProviders from "@components/providers/client-providers";
 import CopyrightToggle from "@components/layouts/copyright-toggle";
+import CombinedProviders from "@components/providers/client-providers";
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
+import { Toaster } from "sonner";
 
+// Styles
+import "@styles/globals.css";
+
+/**
+ * 🖋️ ลงทะเบียน Google Sans Font (Next.js Best Practice)
+ */
+const googleSansFont = localFont({
+  src: [
+    {
+      path: "../../public/fonts/google_sans/GoogleSans-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/google_sans/GoogleSans-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/google_sans/GoogleSans-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/google_sans/GoogleSans-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-google-sans",
+  display: "swap",
+});
+
+/**
+ * 📑 Next.js Metadata (Best Practice)
+ */
 export const metadata: Metadata = {
   title: {
     default: "SchoolBright Web Helper",
@@ -13,17 +48,17 @@ export const metadata: Metadata = {
   },
   description: "ระบบช่วยเหลือการจัดการโรงเรียน - SchoolBright Web Helper",
   applicationName: "SchoolBright Web Helper",
-  generator: "Next.js",
   keywords: [
     "SchoolBright",
     "Web Helper",
-    "โรงเรียน",
-    "การศึกษา",
-    "ระบบจัดการ",
+    "ระบบจัดการโรงเรียน",
+    "Educational System",
   ],
-  authors: [{ name: "Head of Technology Light" }],
+  authors: [
+    { name: "Head of Technology Light", url: "https://schoolbright.co" },
+  ],
   creator: "Light",
-  publisher: "The Best SchoolBright Developer Team",
+  publisher: "SchoolBright Development Team",
   robots: {
     index: false,
     follow: false,
@@ -48,8 +83,11 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * 📱 Viewport Configurations
+ */
 export const viewport: Viewport = {
-  themeColor: "#4A90E2",
+  themeColor: "#F97316", // ปรับให้ตรงกับ Branding (Orange-500)
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -57,6 +95,9 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+/**
+ * 🏗️ RootLayout - โครงสร้างพื้นฐานของระบบ (Next.js App Router)
+ */
 export default function RootLayout({
   children,
 }: {
@@ -64,34 +105,25 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" suppressHydrationWarning>
-      <head></head>
-      <body className="antialiased">
+      <body
+        className={`${googleSansFont.variable} font-sans antialiased text-slate-900 dark:text-slate-50`}
+      >
+        {/* Sonner Toaster - ระบบแจ้งเตือน */}
         <Toaster
           position="bottom-right"
-          expand={true}
           richColors
           closeButton
           visibleToasts={5}
           duration={5000}
           offset={24}
-          style={{ fontFamily: "inherit" }}
-          toastOptions={{
-            style: {
-              borderRadius: "16px",
-              padding: "16px",
-              fontSize: "14px",
-              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-            },
-          }}
         />
 
-        {/* 🎨 Theme Provider (SSR Friendly) */}
+        {/* 🎨 Theme & Multi-Provider Wrapper */}
         <AntThemeProvider>
-          {/* 📦 Combined Client Providers (Auth, Redux, Intl, etc.) */}
           <CombinedProviders>{children}</CombinedProviders>
         </AntThemeProvider>
 
-        {/* Subtle copyright info icon */}
+        {/* แถบข้อมูล Copyright โปร่งแสง */}
         <CopyrightToggle />
       </body>
     </html>

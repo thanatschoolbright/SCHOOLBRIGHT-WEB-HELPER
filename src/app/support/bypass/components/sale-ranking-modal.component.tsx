@@ -265,23 +265,23 @@ export default function SaleRankingModal({
     plugins: {
       legend: {
         position: "bottom" as const,
-        labels: { color: token.colorText, font: { family: "Kanit" } },
+        labels: { color: token.colorText, font: { family: "Google Sans" } },
       },
       tooltip: {
         backgroundColor: "rgba(0,0,0,0.8)",
-        titleFont: { family: "Kanit", size: 14 },
-        bodyFont: { family: "Kanit", size: 13 },
+        titleFont: { family: "Google Sans", size: 14 },
+        bodyFont: { family: "Google Sans", size: 13 },
         padding: 10,
         cornerRadius: 8,
       },
     },
     scales: {
       x: {
-        ticks: { color: token.colorTextSecondary, font: { family: "Kanit" } },
+        ticks: { color: token.colorTextSecondary, font: { family: "Google Sans" } },
         grid: { display: false },
       },
       y: {
-        ticks: { color: token.colorTextSecondary, font: { family: "Kanit" } },
+        ticks: { color: token.colorTextSecondary, font: { family: "Google Sans" } },
         grid: { color: token.colorBorderSecondary, borderDash: [4, 4] },
       },
     },

@@ -23,7 +23,7 @@ const BRAND_SEED = {
   error: "#EF4444", // Red-500
   info: "#3B82F6", // Blue-500
   radius: 12,
-  fontFamily: '"Kanit", sans-serif',
+  fontFamily: 'var(--font-google-sans), "Google Sans", sans-serif',
 };
 
 /**
