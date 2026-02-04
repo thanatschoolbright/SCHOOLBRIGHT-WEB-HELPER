@@ -1,4 +1,31 @@
 {
+  "navbar": {
+    "home": "Home",
+    "applications": "Applications",
+    "notifications": "Notifications",
+    "backend_system": "Internal Management"
+  },
+  "user_dropdown": {
+    "personal_info": "Personal Information",
+    "change_password": "Change Password",
+    "logout": "Logout",
+    "rank_title": "Global Rank",
+    "total_hours": "Total Hours",
+    "discipline_score": "Discipline",
+    "success_rate": "Success Rate",
+    "lang_th_label": "ไทย",
+    "lang_en_label": "English",
+    "lang_success": "Language changed successfully",
+    "logging_out": "Logging out...",
+    "default_position": "Position not specified",
+    "ranking": {
+      "legendary": "Legendary",
+      "excellent": "Excellent",
+      "professional": "Professional",
+      "intermediate": "Intermediate",
+      "beginner": "Beginner"
+    }
+  },
   "welcome": "Welcome",
   "notSignedIn": "You are not signed in",
   "signIn": "Sign in with Google",

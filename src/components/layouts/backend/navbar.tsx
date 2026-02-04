@@ -1,29 +1,31 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import {
-  Badge,
-  Button,
-  Tooltip,
-  theme,
-  Typography,
-  Flex,
-  Space,
-  Grid,
-  Divider,
-} from "antd";
-import {
+  AppstoreOutlined,
   BellOutlined,
   CompassFilled,
   HomeOutlined,
-  AppstoreOutlined,
 } from "@ant-design/icons";
 import UserDropdown from "@components/layouts/backend/user-dropdown";
+import {
+  Badge,
+  Button,
+  Divider,
+  Flex,
+  Grid,
+  Space,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
 
 export default function MainHeader(): JSX.Element {
+  const { t: TRANSLATION } = useTranslation("translate");
   const router = useRouter();
   const { token } = theme.useToken();
   const screens = useBreakpoint();
@@ -112,7 +114,7 @@ export default function MainHeader(): JSX.Element {
                   fontWeight: 500,
                 }}
               >
-                Backend System
+                {TRANSLATION("navbar.backend_system")}
               </Text>
             )}
           </Flex>
@@ -132,12 +134,12 @@ export default function MainHeader(): JSX.Element {
               }}
               className="hover:bg-black/5 dark:hover:bg-white/10"
             >
-              หน้าหลัก
+              {TRANSLATION("navbar.home")}
             </Button>
           )}
 
           {screens.sm && (
-            <Tooltip title="แอปพลิเคชัน">
+            <Tooltip title={TRANSLATION("navbar.applications")}>
               <Button
                 type="text"
                 shape="circle"
@@ -151,7 +153,7 @@ export default function MainHeader(): JSX.Element {
             </Tooltip>
           )}
 
-          <Tooltip title="แจ้งเตือน">
+          <Tooltip title={TRANSLATION("navbar.notifications")}>
             <Button
               type="text"
               shape="circle"

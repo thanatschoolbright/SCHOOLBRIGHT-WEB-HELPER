@@ -1,42 +1,33 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import i18n from "@/i18n";
 import {
-  Avatar,
-  Divider,
-  Flex,
-  Popover,
-  Progress,
-  Segmented,
-  theme,
-  Typography,
-} from "antd";
-import {
-  DownOutlined,
-  LockOutlined,
-  LogoutOutlined,
-  TrophyFilled,
-  UserOutlined,
-  CrownFilled,
-  ThunderboltFilled,
-  SafetyCertificateFilled,
   ClockCircleFilled,
+  CrownFilled,
+  DownOutlined,
   FireFilled,
   IdcardOutlined,
+  LockOutlined,
+  LogoutOutlined,
+  SafetyCertificateFilled,
+  ThunderboltFilled,
+  TrophyFilled,
+  UserOutlined,
 } from "@ant-design/icons";
-import { useSession, signOut } from "next-auth/react";
-import { useDispatch } from "react-redux";
-import { AppDispatch, useAppSelector } from "@stores/store";
+import { useAppSelector } from "@stores/store";
+import { Avatar, Flex, Popover, Segmented, theme, Typography } from "antd";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import i18n from "@/i18n";
 
 // Services & Helpers
-import { HUAWEI_STORAGE } from "@/services/huawei-bucket-storage.service";
 import {
   getUserRankFromStorage,
   saveUserRankToMemory,
 } from "@/helpers/user-rank.helper";
+import { HUAWEI_STORAGE } from "@/services/huawei-bucket-storage.service";
 import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 
 const { Text, Title } = Typography;
@@ -50,7 +41,7 @@ const RANK_THEME_CONFIG: Record<string, any> = {
   S: {
     color: "#F59E0B",
     accent: "#FBBF24",
-    label: "ระดับตำนาน",
+    labelKey: "user_dropdown.ranking.legendary",
     icon: <CrownFilled />,
     bg: "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)",
     darkBg: "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)",
@@ -58,7 +49,7 @@ const RANK_THEME_CONFIG: Record<string, any> = {
   A: {
     color: "#10B981",
     accent: "#34D399",
-    label: "ระดับยอดเยี่ยม",
+    labelKey: "user_dropdown.ranking.excellent",
     icon: <SafetyCertificateFilled />,
     bg: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)",
     darkBg: "linear-gradient(135deg, #064E3B 0%, #065F46 100%)",
@@ -66,7 +57,7 @@ const RANK_THEME_CONFIG: Record<string, any> = {
   B: {
     color: "#3B82F6",
     accent: "#60A5FA",
-    label: "ระดับมืออาชีพ",
+    labelKey: "user_dropdown.ranking.professional",
     icon: <ThunderboltFilled />,
     bg: "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)",
     darkBg: "linear-gradient(135deg, #1E3A8A 0%, #172554 100%)",
@@ -74,7 +65,7 @@ const RANK_THEME_CONFIG: Record<string, any> = {
   C: {
     color: "#F97316",
     accent: "#FB923C",
-    label: "ระดับกลาง",
+    labelKey: "user_dropdown.ranking.intermediate",
     icon: <FireFilled />,
     bg: "linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)",
     darkBg: "linear-gradient(135deg, #7C2D12 0%, #431407 100%)",
@@ -82,7 +73,7 @@ const RANK_THEME_CONFIG: Record<string, any> = {
   F: {
     color: "#64748B",
     accent: "#94A3B8",
-    label: "ระดับเริ่มต้น",
+    labelKey: "user_dropdown.ranking.beginner",
     icon: <UserOutlined />,
     bg: "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)",
     darkBg: "linear-gradient(135deg, #1E293B 0%, #0F172A 100%)",
@@ -162,6 +153,7 @@ const RankAvatarDisplay = ({
 };
 
 const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
+  const { t: TRANSLATION } = useTranslation("translate");
   const { token } = theme.useToken();
   const isDark = token.colorBgBase !== "#FFFFFF";
   const currentRankLetter = userRankDetails?.rankLetter?.toUpperCase() || "F";
@@ -216,7 +208,7 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
                 className="text-xs font-black tracking-wider"
                 style={{ color: rankConfig.color }}
               >
-                {rankConfig.label}
+                {TRANSLATION(rankConfig.labelKey)}
               </span>
             </div>
             <Title
@@ -231,10 +223,10 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
 
         <div className="text-right">
           <Text
-            className="text-[10px] font-bold opacity-50 block mb-0.5"
+            className="text-[10px] font-bold opacity-50 block mb-0.5 whitespace-nowrap"
             style={{ color: token.colorTextSecondary }}
           >
-            อันดับรวม
+            {TRANSLATION("user_dropdown.rank_title")}
           </Text>
           <Text
             className="text-lg font-black"
@@ -247,20 +239,20 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
 
       <div className="grid grid-cols-3 gap-2 relative z-10">
         <StatisticBoxItem
-          label="ชั่วโมงรวม"
+          label={TRANSLATION("user_dropdown.total_hours")}
           value={totalHours}
           icon={<ClockCircleFilled />}
           rankColor={rankConfig.color}
         />
         <StatisticBoxItem
-          label="คะแนนวินัย"
+          label={TRANSLATION("user_dropdown.discipline_score")}
           value={disciplineScore}
           icon={<TrophyFilled />}
           rankColor={rankConfig.color}
           highlight
         />
         <StatisticBoxItem
-          label="งานสำเร็จ"
+          label={TRANSLATION("user_dropdown.success_rate")}
           value={`${completionPercent}%`}
           icon={<ThunderboltFilled />}
           rankColor={rankConfig.color}
@@ -319,6 +311,7 @@ const StatisticBoxItem = ({
 // ==========================================
 
 export default function UserProfileDropdown(): JSX.Element {
+  const { t: TRANSLATION } = useTranslation("translate");
   const { token } = theme.useToken();
   const router = useRouter();
 
@@ -354,11 +347,11 @@ export default function UserProfileDropdown(): JSX.Element {
     if (languageCode === currentLanguageCode) return;
     await i18n.changeLanguage(languageCode);
     setCurrentLanguageCode(languageCode);
-    toast.success("เปลี่ยนภาษาเรียบร้อยแล้ว");
+    toast.success(TRANSLATION("user_dropdown.lang_success"));
   };
 
   const handleLogoutAction = async () => {
-    toast.info("กำลังออกจากระบบ...");
+    toast.info(TRANSLATION("user_dropdown.logging_out"));
     // ✅ นำทางไปยัง URL ปัจจุบัน (Origin) แทนการใช้ Hardcoded path เพื่อป้องกันการเด้งไป localhost:3000 ใน Production
     // NextAuth signOut จะจัดการเรื่อง Session ฝั่ง Client/Server ให้โดยตรง
     await signOut({ callbackUrl: window.location.origin });
@@ -389,7 +382,8 @@ export default function UserProfileDropdown(): JSX.Element {
             style={{ color: token.colorTextSecondary }}
           >
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            {userProfileData.position_name || "ผู้ดูแลระบบโรงเรียน"}
+            {userProfileData.position_name ||
+              TRANSLATION("user_dropdown.default_position")}
           </span>
         </div>
       </div>
@@ -405,12 +399,12 @@ export default function UserProfileDropdown(): JSX.Element {
             block
             options={[
               {
-                label: "ภาษาไทย",
+                label: TRANSLATION("user_dropdown.lang_th_label"),
                 value: "th",
                 icon: <span className="mr-1 text-base">🇹🇭</span>,
               },
               {
-                label: "English",
+                label: TRANSLATION("user_dropdown.lang_en_label"),
                 value: "en",
                 icon: <span className="mr-1 text-base">🇬🇧</span>,
               },
@@ -439,7 +433,7 @@ export default function UserProfileDropdown(): JSX.Element {
           }
         >
           <IdcardOutlined className="group-hover:scale-110 transition-transform" />
-          แก้ไขข้อมูลส่วนตัว
+          {TRANSLATION("user_dropdown.personal_info")}
         </button>
 
         <button
@@ -460,7 +454,7 @@ export default function UserProfileDropdown(): JSX.Element {
           }
         >
           <LockOutlined className="group-hover:rotate-12 transition-transform" />
-          เปลี่ยนรหัสผ่าน
+          {TRANSLATION("user_dropdown.change_password")}
         </button>
 
         <button
@@ -477,7 +471,7 @@ export default function UserProfileDropdown(): JSX.Element {
           }
         >
           <LogoutOutlined className="group-hover:-translate-x-1 transition-transform" />
-          ออกจากระบบ
+          {TRANSLATION("user_dropdown.logout")}
         </button>
       </div>
     </div>
@@ -490,12 +484,14 @@ export default function UserProfileDropdown(): JSX.Element {
       placement="bottomRight"
       arrow={false}
       onOpenChange={setIsPopoverOpen}
+      align={{ offset: [0, 14] }}
       styles={{
         body: {
           padding: "24px",
           borderRadius: "24px",
-          boxShadow: token.boxShadowSecondary,
+          boxShadow: "0 10px 32px rgba(0,0,0,0.12)",
           backgroundColor: token.colorBgElevated,
+          border: `1px solid ${token.colorBorderSecondary}`,
         },
       }}
     >
@@ -527,7 +523,7 @@ export default function UserProfileDropdown(): JSX.Element {
               lineHeight: 1, // บังคับ line-height ให้พอดีกับตัวอักษร
             }}
           >
-            {currentRankThemeConfig.label.split(" ")[0]}
+            {TRANSLATION(currentRankThemeConfig.labelKey).split(" ")[0]}
           </span>
         </div>
 

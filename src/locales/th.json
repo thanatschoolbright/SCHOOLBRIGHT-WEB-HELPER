@@ -1,4 +1,31 @@
 {
+  "navbar": {
+    "home": "หน้าแรก",
+    "applications": "แอปพลิเคชัน",
+    "notifications": "การแจ้งเตือน",
+    "backend_system": "ระบบจัดการหลังบ้าน"
+  },
+  "user_dropdown": {
+    "personal_info": "ข้อมูลส่วนตัว",
+    "change_password": "เปลี่ยนรหัสผ่าน",
+    "logout": "ออกจากระบบ",
+    "rank_title": "อันดับรวม",
+    "total_hours": "ชั่วโมงรวม",
+    "discipline_score": "คะแนนวินัย",
+    "success_rate": "งานสำเร็จ",
+    "lang_th_label": "ไทย",
+    "lang_en_label": "English",
+    "lang_success": "เปลี่ยนภาษาสำเร็จ",
+    "logging_out": "กำลังออกจากระบบ...",
+    "default_position": "ยังไม่ได้ระบุตำแหน่ง",
+    "ranking": {
+      "legendary": "ระดับตำนาน",
+      "excellent": "ระดับยอดเยี่ยม",
+      "professional": "ระดับมืออาชีพ",
+      "intermediate": "ระดับกลาง",
+      "beginner": "ระดับเริ่มต้น"
+    }
+  },
   "welcome": "ยินดีต้อนรับ",
   "notSignedIn": "คุณยังไม่ได้เข้าสู่ระบบ",
   "signIn": "เข้าสู่ระบบด้วย Google",
