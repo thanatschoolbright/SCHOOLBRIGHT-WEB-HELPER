@@ -23,14 +23,9 @@ export default function CombinedProviders({
 }: {
   children: React.ReactNode;
 }) {
-  const [hydrated, setHydrated] = useState(false);
-
   useEffect(() => {
     registerServiceWorker();
-    setHydrated(true);
   }, []);
-
-  if (!hydrated) return null;
 
   return (
     <SessionProvider>

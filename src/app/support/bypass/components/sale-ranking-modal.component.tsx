@@ -277,11 +277,17 @@ export default function SaleRankingModal({
     },
     scales: {
       x: {
-        ticks: { color: token.colorTextSecondary, font: { family: "Google Sans" } },
+        ticks: {
+          color: token.colorTextSecondary,
+          font: { family: "Google Sans" },
+        },
         grid: { display: false },
       },
       y: {
-        ticks: { color: token.colorTextSecondary, font: { family: "Google Sans" } },
+        ticks: {
+          color: token.colorTextSecondary,
+          font: { family: "Google Sans" },
+        },
         grid: { color: token.colorBorderSecondary, borderDash: [4, 4] },
       },
     },

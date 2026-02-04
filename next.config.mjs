@@ -4,35 +4,34 @@
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: true, // เปิดไว้เพื่อ Best Practice และความเร็วในระยะยาว
+  poweredByHeader: false,
+  compress: true, // เปิดการบีบอัดไฟล์ (Gzip/Brotli)
 
-  // ✅ 1. ส่วน TypeScript ยังเก็บไว้ได้ (เพื่อข้าม error ตอน build)
+  // ✅ 1. ส่วน TypeScript ยังเก็บไว้ได้
   typescript: {
     ignoreBuildErrors: true,
   },
-
-  // ❌ 2. ลบส่วน ESLint ออก เพราะ Next.js 16 ไม่รองรับในไฟล์นี้แล้ว
-  // ถ้าไม่ลบ Build จะพังทันที
 
   experimental: {
     serverActions: { bodySizeLimit: "50mb" },
     proxyClientMaxBodySize: "200mb",
 
-    // ✅ 3. Optimize Package Imports (ช่วยให้ dev mode compile เฉพาะที่ใช้จริงๆ)
+    // ✅ Optimize Package Imports
     optimizePackageImports: [
       "antd",
       "@ant-design/icons",
       "lodash",
       "dayjs",
       "lucide-react",
+      "framer-motion",
+      "axios",
+      "react-icons",
     ],
-
-    // ✅ ถ้า RAM เต็มจริงๆ ให้ Uncomment 2 บรรทัดล่างนี้
-    // workerThreads: false,
-    // cpus: 1,
   },
 
   images: {
+    minimumCacheTTL: 60, // Cache รูปภาพไว้อย่างน้อย 1 นาที
     remotePatterns: [
       {
         protocol: "https",

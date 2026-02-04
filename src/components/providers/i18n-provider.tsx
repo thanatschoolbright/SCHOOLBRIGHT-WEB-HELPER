@@ -33,23 +33,5 @@ export default function LocaleProvider({
     initI18n();
   }, [locale]);
 
-  // แสดง loading หรือ fallback ระหว่างรอ i18n initialize
-  if (!isI18nInitialized) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          fontSize: "16px",
-          color: "#666",
-        }}
-      >
-        Loading...
-      </div>
-    );
-  }
-
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
 }

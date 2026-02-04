@@ -1,9 +1,11 @@
 import AntThemeProvider from "@components/layouts/ant-layout";
 import CopyrightToggle from "@components/layouts/copyright-toggle";
 import CombinedProviders from "@components/providers/client-providers";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
+import React from "react";
 
 // Styles
 import "@styles/globals.css";
@@ -59,6 +61,11 @@ export const metadata: Metadata = {
   ],
   creator: "Light",
   publisher: "SchoolBright Development Team",
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+  },
   robots: {
     index: false,
     follow: false,
@@ -76,18 +83,13 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "SchoolBright Web Helper",
-  },
 };
 
 /**
  * 📱 Viewport Configurations
  */
 export const viewport: Viewport = {
-  themeColor: "#F97316", // ปรับให้ตรงกับ Branding (Orange-500)
+  themeColor: "#F97316",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -105,26 +107,52 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" suppressHydrationWarning>
+      <head>
+        {/* Anti-FOUC Theme Script (Inline for Speed) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme') || 'light';
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+        {/* Resource Hints */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+      </head>
       <body
         className={`${googleSansFont.variable} font-sans antialiased text-slate-900 dark:text-slate-50`}
       >
-        {/* Sonner Toaster - ระบบแจ้งเตือน */}
-        <Toaster
-          position="bottom-right"
-          richColors
-          closeButton
-          visibleToasts={5}
-          duration={5000}
-          offset={24}
-        />
+        <AntdRegistry>
+          {/* Sonner Toaster - ระบบแจ้งเตือน */}
+          <Toaster
+            position="bottom-right"
+            richColors
+            closeButton
+            visibleToasts={5}
+            duration={5000}
+            offset={24}
+          />
 
-        {/* 🎨 Theme & Multi-Provider Wrapper */}
-        <AntThemeProvider>
-          <CombinedProviders>{children}</CombinedProviders>
-        </AntThemeProvider>
+          {/* 🎨 Theme & Multi-Provider Wrapper */}
+          <AntThemeProvider>
+            <CombinedProviders>{children}</CombinedProviders>
+          </AntThemeProvider>
 
-        {/* แถบข้อมูล Copyright โปร่งแสง */}
-        <CopyrightToggle />
+          {/* แถบข้อมูล Copyright โปร่งแสง */}
+          <CopyrightToggle />
+        </AntdRegistry>
       </body>
     </html>
   );

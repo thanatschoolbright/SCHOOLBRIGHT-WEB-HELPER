@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: 'class',
+  darkMode: "class",
   content: [
     "./src/**/*.{js,ts,jsx,tsx}", // ตรวจสอบว่าพาธนี้ยังคงถูกต้อง
   ],
@@ -14,7 +14,7 @@ const config: Config = {
         "pulse-slow": "pulse 10s infinite",
       },
       transitionProperty: {
-        'colors': 'background-color, border-color, color, fill, stroke',
+        colors: "background-color, border-color, color, fill, stroke",
       },
     },
   },
