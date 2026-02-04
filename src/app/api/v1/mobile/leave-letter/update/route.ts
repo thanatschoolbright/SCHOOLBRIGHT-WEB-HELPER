@@ -2,20 +2,20 @@ import { errorResponse, successResponse } from "@/helpers/api/response";
 import { sanitizeForwardHeaders } from "@/services/api-header";
 import { NextRequest, NextResponse } from "next/server";
 import { LeaveLetterService } from "../service/leave-letter.service";
-import { ReadLeaveLetterSchema } from "../validation/leave-letter.validation";
+import { UpdateLeaveStatusSchema } from "../validation/leave-letter.validation";
 
-/* ✨ API สำหรับดึงข้อมูลจดหมายลาหยุดของผู้ใช้งาน (Read) */
+/* ✨ API สำหรับอัปเดต/แก้ไขสถานะจดหมายลาหยุด (Update/Fix) */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const headers = sanitizeForwardHeaders(request);
 
   // 🛡️ Validate ข้อมูลโครงสร้าง Request Body ก่อนส่งไป Service
   const queryParams = {
-    user_id: searchParams.get("user_id"),
-    page: searchParams.get("page") || "1",
+    letter_id: searchParams.get("letter_id"),
+    school_id: searchParams.get("school_id"),
   };
 
-  const validation = ReadLeaveLetterSchema.safeParse(queryParams);
+  const validation = UpdateLeaveStatusSchema.safeParse(queryParams);
 
   if (!validation.success) {
     const errorData = errorResponse({
@@ -31,20 +31,21 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const { user_id, page } = validation.data;
+  const { letter_id, school_id } = validation.data;
 
   try {
-    /* ✨ เรียกใช้ Service เพื่อดึงข้อมูล */
-    const result = await LeaveLetterService.getLeaveLetters(
-      user_id,
-      page,
+    /* ✨ เรียกใช้ Service เพื่ออัปเดตสถานะ */
+    const result = await LeaveLetterService.updateLeaveStatus(
+      letter_id,
+      school_id,
       headers,
     );
 
     const successData = successResponse({
       data: result.data,
-      message_th: "ดึงข้อมูลจดหมายลาหยุดสำเร็จ",
-      message_en: "Leave letters fetched successfully",
+      message_th: "อัปเดตสถานะจดหมายลาหยุดสำเร็จ",
+      message_en: "Leave letter status updated successfully",
+      status: result.status,
     });
 
     return NextResponse.json(
@@ -53,8 +54,8 @@ export async function GET(request: NextRequest) {
     );
   } catch (error: any) {
     const errorData = errorResponse({
-      message_th: "ไม่สามารถดึงข้อมูลจดหมายลาหยุดได้",
-      message_en: error.message || "Failed to fetch leave letters",
+      message_th: "ไม่สามารถอัปเดตสถานะจดหมายลาหยุดได้",
+      message_en: error.message || "Failed to update leave status",
       status: error.status || 500,
       error: error.data,
     });
