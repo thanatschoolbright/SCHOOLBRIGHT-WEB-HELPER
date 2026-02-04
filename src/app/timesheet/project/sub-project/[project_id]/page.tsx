@@ -150,7 +150,39 @@ export default function SubProjectPage() {
         setAllProjects(allProjectsRes.data.data);
       }
 
-      const fetchedSubProjects = subProjectRes.data?.data || [];
+      let fetchedSubProjects = subProjectRes.data?.data || [];
+
+      // 🔍 Fetch user details for each assignee
+      const allAssigneeIds = Array.from(
+        new Set(
+          fetchedSubProjects.flatMap(
+            (sp: any) => sp.projectAssignees?.map((a: any) => a.userId) || [],
+          ),
+        ),
+      ).filter(Boolean);
+
+      if (allAssigneeIds.length > 0) {
+        try {
+          const userRes = await axios.get(
+            `/api/v1/timesheet/project/sub-project/assignee-search?ids=${allAssigneeIds.join(",")}`,
+          );
+          if (userRes.data?.status === 200) {
+            const userMap = new Map();
+            userRes.data.data.forEach((u: any) => userMap.set(u.admin_id, u));
+
+            fetchedSubProjects = fetchedSubProjects.map((sp: any) => ({
+              ...sp,
+              projectAssignees: sp.projectAssignees?.map((a: any) => ({
+                ...a,
+                userProfile: userMap.get(a.userId),
+              })),
+            }));
+          }
+        } catch (error) {
+          console.error("Failed to fetch assignee details:", error);
+        }
+      }
+
       setAllSubProjects(fetchedSubProjects);
     } catch (error) {
       toast.error("ไม่สามารถโหลดข้อมูลได้");
@@ -424,22 +456,49 @@ export default function SubProjectPage() {
       width: 180,
       render: (_, record) => (
         <Avatar.Group
-          maxCount={3}
           size="small"
-          maxStyle={{
-            color: "#f56a00",
-            backgroundColor: "#fde3cf",
-            cursor: "pointer",
+          max={{
+            count: 3,
+            style: {
+              color: "#f56a00",
+              backgroundColor: "#fde3cf",
+              cursor: "pointer",
+            },
           }}
         >
-          {record.projectAssignees?.map((a) => (
-            <Tooltip title={`User ID: ${a.userId}`} key={a.id}>
-              <Avatar
-                icon={<UserOutlined />}
-                style={{ backgroundColor: token.colorPrimary }}
-              />
-            </Tooltip>
-          ))}
+          {record.projectAssignees?.map((a) => {
+            const profile = (a as any).userProfile;
+            const displayName = profile
+              ? `${profile.firstname} ${profile.lastname}${profile.nickname ? ` (${profile.nickname})` : ""}`
+              : `User ID: ${a.userId}`;
+            const displayPosition = profile?.position || a.position || "";
+
+            return (
+              <Tooltip
+                title={
+                  <div style={{ textAlign: "center" }}>
+                    <Text strong style={{ color: "white" }}>
+                      {displayName}
+                    </Text>
+                    {displayPosition && (
+                      <div
+                        style={{ color: "rgba(255,255,255,0.8)", fontSize: 11 }}
+                      >
+                        {displayPosition}
+                      </div>
+                    )}
+                  </div>
+                }
+                key={a.id}
+              >
+                <Avatar
+                  icon={<UserOutlined />}
+                  style={{ backgroundColor: token.colorPrimary }}
+                  src={profile?.profile_image_path}
+                />
+              </Tooltip>
+            );
+          })}
         </Avatar.Group>
       ),
     },

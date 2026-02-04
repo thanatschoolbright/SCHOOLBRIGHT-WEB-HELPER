@@ -1,52 +1,50 @@
-import React, { useEffect, useState } from "react";
+import { axios } from "@/helpers/api/api.log";
 import {
-  Modal,
-  Form,
-  Input,
-  Select,
-  DatePicker,
-  Row,
-  Col,
-  Divider,
-  Button,
-  Space,
-  Typography,
-  Card,
-  Tag,
-  AutoComplete,
-  Flex,
-  theme,
-  Alert,
-} from "antd";
-import {
-  PlusOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseOutlined,
+  DeleteOutlined,
   EditOutlined,
   FileTextOutlined,
-  ClockCircleOutlined,
+  InfoCircleOutlined,
   LinkOutlined,
-  DeleteOutlined,
-  CheckCircleOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+  SwapOutlined,
   TeamOutlined,
   UserOutlined,
-  MinusCircleOutlined,
-  SwapOutlined,
-  InteractionOutlined,
-  RocketOutlined,
-  CloseOutlined,
   WarningOutlined,
-  CalendarOutlined,
-  InfoCircleOutlined,
 } from "@ant-design/icons";
+import {
+  Alert,
+  AutoComplete,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Tag,
+  theme,
+  Typography,
+} from "antd";
 import dayjs from "dayjs";
-import { toast } from "sonner";
+import { debounce } from "lodash";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import type {
   SubProject,
   SubProjectFormValues,
 } from "../types/sub-project.types";
-import { calculateWorkingHours } from "../utils/date-helpers";
 import { ASSET_OPTIONS } from "../utils/constants";
-import { getUserData } from "@helpers/local_storage/user.storage";
+import { calculateWorkingHours } from "../utils/date-helpers";
 
 const { RangePicker } = DatePicker;
 const { Text, Title, Paragraph } = Typography;
@@ -64,6 +62,10 @@ interface SubProjectFormModalProps {
 
 const POSITION_OPTIONS = [
   { value: "Project Manager" },
+  { value: "Developer" },
+  { value: "Tech Lead" },
+  { value: "Customer Support" },
+  { value: "พนักงาน" },
   { value: "Full-stack Developer" },
   { value: "Frontend Developer" },
   { value: "Backend Developer" },
@@ -74,7 +76,6 @@ const POSITION_OPTIONS = [
   { value: "Chief Technology Officer" },
   { value: "DevOps Engineer" },
   { value: "Mobile Developer" },
-  { value: "Data Engineer" },
 ];
 
 export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
@@ -92,6 +93,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   const { t } = useTranslation();
   const watchedDateRange = Form.useWatch("dateRange", form);
   const [users, setUsers] = useState<any[]>([]);
+  const [isFetchingUsers, setIsFetchingUsers] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const [moveConfirmText, setMoveConfirmText] = useState("");
   const [targetProjectId, setTargetProjectId] = useState<number | null>(null);
@@ -100,42 +102,126 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
     .sort((a, b) => a.priority - b.priority)
     .map((s) => ({ label: s.nameTh, value: s.id }));
 
+  /**
+   * 🔍 ค้นหารายชื่อพนักงานจาก Server (Debounced)
+   */
+  const handleUserSearch = useMemo(
+    () =>
+      debounce(async (query: string) => {
+        setIsFetchingUsers(true);
+        try {
+          const res = await axios.get(
+            `/api/v1/timesheet/project/sub-project/assignee-search?q=${encodeURIComponent(query)}`,
+          );
+          if (res.data?.status === 200) {
+            const results = res.data.data;
+
+            setUsers((prev) => {
+              const currentAssignees = form.getFieldValue("assignees") || [];
+              const selectedUsers = prev.filter((u) =>
+                currentAssignees.some((ca: any) => ca.userId === u.admin_id),
+              );
+
+              const newMap = new Map();
+              // ใส่ผลลัพธ์ใหม่ก่อน
+              results.forEach((u: any) => newMap.set(u.admin_id, u));
+              // ใส่คนที่ถูกเลือกไว้แล้ว (เพื่อไม้ให้ Label หาย)
+              selectedUsers.forEach((u) => {
+                if (!newMap.has(u.admin_id)) newMap.set(u.admin_id, u);
+              });
+
+              return Array.from(newMap.values());
+            });
+          }
+        } catch (error) {
+          console.error("Search users error:", error);
+        } finally {
+          setIsFetchingUsers(false);
+        }
+      }, 500),
+    [form],
+  );
+
   useEffect(() => {
-    if (open) {
-      const userData = getUserData();
-      if (userData) setUsers(userData);
+    const initData = async () => {
+      if (open) {
+        // 1. โหลดรายชื่อเริ่มต้น (50 คนแรก)
+        handleUserSearch("");
 
-      if (mode === "create") {
-        form.resetFields();
-        form.setFieldsValue({
-          asset_capture_type: "CAPTUREABLE",
-          projectStatusId: statusOptions[0]?.value,
-        });
-      } else if (mode === "edit" && data) {
-        const range =
-          data.startDate && data.endDate
-            ? [dayjs(data.startDate), dayjs(data.endDate)]
-            : [];
+        if (mode === "create") {
+          form.resetFields();
+          form.setFieldsValue({
+            asset_capture_type: "CAPTUREABLE",
+            projectStatusId: statusOptions[0]?.value,
+          });
+        } else if (mode === "edit" && data) {
+          // 2. ถ้าเป็นโหมดแก้ไช และมีคนได้รับผิดชอบอยู่แล้ว
+          // ให้โหลดข้อมูลชื่อของคนเหล่านั้นด้วย (เพื่อป้องกัน Select แสดงแต่ ID)
+          const assigneeIds =
+            data.projectAssignees
+              ?.map((a) => a.userId)
+              .filter(Boolean)
+              .join(",") || "";
 
-        form.setFieldsValue({
-          name: data.name,
-          name_en: data.name_en,
-          asset_capture_type: data.assetCaptureType,
-          projectStatusId: data.projectStatusId,
-          dateRange: range,
-          estimate_time: calculateWorkingHours(
-            data.startDate || "",
-            data.endDate || "",
-          ).text,
-          backlogDescription: data.backlogDescription,
-          assignees:
-            data.projectAssignees?.map((a) => ({
-              userId: a.userId,
-              position: a.position,
-            })) || [],
-        });
+          if (assigneeIds) {
+            try {
+              const res = await axios.get(
+                `/api/v1/timesheet/project/sub-project/assignee-search?ids=${assigneeIds}`,
+              );
+              if (res.data?.status === 200) {
+                const fetchedUsers = res.data.data;
+                setUsers((prev) => {
+                  const newMap = new Map();
+                  prev.forEach((u) => newMap.set(u.admin_id, u));
+                  fetchedUsers.forEach((u: any) => newMap.set(u.admin_id, u));
+                  return Array.from(newMap.values());
+                });
+
+                // 🔄 อัปเดตตำแหน่ง (Position) ให้ตรงกับฐานข้อมูลล่าสุด หากในฟอร์มยังว่างอยู่
+                const currentAssignees = form.getFieldValue("assignees") || [];
+                const updated = currentAssignees.map((a: any) => {
+                  const userProfile = fetchedUsers.find(
+                    (u: any) => u.admin_id === a.userId,
+                  );
+                  return {
+                    ...a,
+                    position: a.position || userProfile?.position || "พนักงาน",
+                  };
+                });
+                form.setFieldsValue({ assignees: updated });
+              }
+            } catch (err) {
+              console.error("Failed to fetch initial assignees:", err);
+            }
+          }
+
+          const range =
+            data.startDate && data.endDate
+              ? [dayjs(data.startDate), dayjs(data.endDate)]
+              : [];
+
+          form.setFieldsValue({
+            name: data.name,
+            name_en: data.name_en,
+            asset_capture_type: data.assetCaptureType,
+            projectStatusId: data.projectStatusId,
+            dateRange: range,
+            estimate_time: calculateWorkingHours(
+              data.startDate || "",
+              data.endDate || "",
+            ).text,
+            backlogDescription: data.backlogDescription,
+            assignees:
+              data.projectAssignees?.map((a) => ({
+                userId: a.userId,
+                position: a.position,
+              })) || [],
+          });
+        }
       }
-    }
+    };
+
+    initData();
   }, [open, mode, data, form, statusOptions.length]);
 
   useEffect(() => {
@@ -378,7 +464,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           <Col span={24}>
             {renderSectionHeader("ทีมงานผู้รับผิดชอบ", <TeamOutlined />)}
             <Card
-              bordered={false}
+              variant="borderless"
               style={{
                 background: token.colorFillQuaternary,
                 borderRadius: 12,
@@ -424,32 +510,48 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                             <Select
                               placeholder="เลือกผู้รับผิดชอบ"
                               showSearch
-                              filterOption={(input, option) => {
-                                const label = (
-                                  option?.label ?? ""
-                                ).toLowerCase();
-                                const searchStr = input.toLowerCase();
-                                return label.includes(searchStr);
-                              }}
+                              onSearch={handleUserSearch}
+                              filterOption={false}
+                              loading={isFetchingUsers}
+                              notFoundContent={
+                                isFetchingUsers
+                                  ? "กำลังค้นหา..."
+                                  : "ไม่พบข้อมูล"
+                              }
                               onChange={(userId) => {
-                                const user = users.find(
+                                const selectedUser = users.find(
                                   (u) => u.admin_id === userId,
                                 );
-                                if (user?.position) {
-                                  const currentAssignees =
-                                    form.getFieldValue("assignees");
-                                  currentAssignees[name].position =
-                                    user.position;
-                                  form.setFieldsValue({
-                                    assignees: currentAssignees,
-                                  });
+                                if (selectedUser) {
+                                  // อัปเดตตำแหน่งอัตโนมัติเมื่อเลือกผู้ใช้งาน (ใช้ setTimeout เพื่อเลี่ยงปัญหา Circular Reference ตอนอัปเดต State)
+                                  setTimeout(() => {
+                                    form.setFieldValue(
+                                      ["assignees", name, "position"],
+                                      selectedUser.position || "พนักงาน",
+                                    );
+                                  }, 0);
                                 }
                               }}
                               options={users.map((u) => ({
-                                label: `${u.firstname} ${u.lastname}${
-                                  u.nickname ? ` (${u.nickname})` : ""
-                                }`,
+                                label: (
+                                  <Flex justify="space-between" align="center">
+                                    <Space>
+                                      <Typography.Text strong>
+                                        {u.firstname} {u.lastname}
+                                      </Typography.Text>
+                                      {u.nickname && (
+                                        <Typography.Text type="secondary">
+                                          ({u.nickname})
+                                        </Typography.Text>
+                                      )}
+                                    </Space>
+                                    <Tag color="blue" bordered={false}>
+                                      {u.position}
+                                    </Tag>
+                                  </Flex>
+                                ),
                                 value: u.admin_id,
+                                filterText: `${u.firstname} ${u.lastname} ${u.nickname} ${u.position}`,
                               }))}
                               prefix={<UserOutlined />}
                             />

@@ -178,13 +178,42 @@ export const UserManagementService = {
     };
 
     if (search) {
-      where.OR = [
-        { username: { contains: search, mode: "insensitive" } },
-        { firstname_th: { contains: search, mode: "insensitive" } },
-        { lastname_th: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { employee_code: { contains: search, mode: "insensitive" } },
-      ];
+      const searchTerms = search.trim().split(/\s+/);
+
+      if (searchTerms.length > 1) {
+        // กรณีค้นหาหลายคำ (เช่น ชื่อ นามสกุล)
+        where.AND = searchTerms.map((term) => ({
+          OR: [
+            { firstname_th: { contains: term, mode: "insensitive" } },
+            { lastname_th: { contains: term, mode: "insensitive" } },
+            { firstname_en: { contains: term, mode: "insensitive" } },
+            { lastname_en: { contains: term, mode: "insensitive" } },
+            { nickname: { contains: term, mode: "insensitive" } },
+            { username: { contains: term, mode: "insensitive" } },
+            {
+              position_ref: {
+                name_th: { contains: term, mode: "insensitive" },
+              },
+            },
+          ],
+        }));
+      } else {
+        where.OR = [
+          { username: { contains: search, mode: "insensitive" } },
+          { firstname_th: { contains: search, mode: "insensitive" } },
+          { lastname_th: { contains: search, mode: "insensitive" } },
+          { firstname_en: { contains: search, mode: "insensitive" } },
+          { lastname_en: { contains: search, mode: "insensitive" } },
+          { nickname: { contains: search, mode: "insensitive" } },
+          { email: { contains: search, mode: "insensitive" } },
+          { employee_code: { contains: search, mode: "insensitive" } },
+          {
+            position_ref: {
+              name_th: { contains: search, mode: "insensitive" },
+            },
+          },
+        ];
+      }
     }
 
     if (status) {
