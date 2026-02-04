@@ -9,8 +9,8 @@ const agent = new https.Agent({ rejectUnauthorized: false });
 export class LeaveLetterService {
   /* ✨ ดึงข้อมูลจดหมายลาหยุดจากระบบหลัก */
   static async getLeaveLetters(user_id: string, page: string, headers: any) {
-    const apiUrl = `${API_URL.PROD_SB_API_URL}`;
-    const endpoint = `/api/LeaveCalendar/historyv2?userId=${user_id}&page=${page}`;
+    const apiUrl = `${API_URL.DEV_SB_API_URL}`;
+    const endpoint = `/api/v2/internal/leave-letter?userId=${user_id}&page=${page}`;
     const callAPI = apiUrl + endpoint;
     const curlCommand = convertToCurl(apiUrl, endpoint);
 
