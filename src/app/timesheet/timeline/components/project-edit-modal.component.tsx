@@ -1,47 +1,46 @@
-import React, { useEffect, useState } from "react";
+import { categoryType } from "@/data/timesheet.category.type";
 import {
-  Modal,
-  Form,
-  Input,
-  Select,
-  DatePicker,
-  Button,
-  Space,
-  message,
-  Row,
-  Col,
-  Card,
-  Typography,
-  AutoComplete,
-  Alert,
-  Flex,
-  theme,
-} from "antd";
-import {
-  ProjectOutlined,
-  FileTextOutlined,
-  CheckCircleOutlined,
-  PlusOutlined,
-  EditOutlined,
-  MinusCircleOutlined,
-  LinkOutlined,
-  DeleteOutlined,
-  ClockCircleOutlined,
-  SwapOutlined,
   CalendarOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  FileTextOutlined,
   InfoCircleOutlined,
+  LinkOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+  SwapOutlined,
   TeamOutlined,
   UserOutlined,
   WarningOutlined,
-  CloseOutlined,
 } from "@ant-design/icons";
-import dayjs from "dayjs";
-import { useTranslation } from "react-i18next";
-import { categoryType } from "@/data/timesheet.category.type";
-import { ASSET_OPTIONS } from "../utils/timeline.helpers";
-import { ModalState } from "../types/timeline.types";
 import { getUserData } from "@helpers/local_storage/user.storage";
+import {
+  Alert,
+  AutoComplete,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Flex,
+  Form,
+  Input,
+  message,
+  Modal,
+  Row,
+  Select,
+  Space,
+  theme,
+  Typography,
+} from "antd";
+import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { ModalState } from "../types/timeline.types";
+import { ASSET_OPTIONS } from "../utils/timeline.helpers";
 
 const { RangePicker } = DatePicker;
 const { Text, Title } = Typography;
