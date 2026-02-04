@@ -1,15 +1,33 @@
 "use client";
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import type { ResponseNotification, ResponseUserList } from "@/stores/type";
+import {
+  BankOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  CodeOutlined,
+  CopyOutlined,
+  EyeOutlined,
+  FileTextOutlined,
+  InfoCircleOutlined,
+  LeftOutlined,
+  MessageOutlined,
+  RightOutlined,
+  SearchOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { useDispatch } from "react-redux";
+import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
+import {
+  getNotificationRead,
+  getNotificationType,
+} from "@helpers/get-notification-type";
+import { CallAPI as GET_NOTIFICATION_TODAY_LIST } from "@stores/actions/mobile/call-get-notification-today-list";
+import { CallAPI as GET_NOTIFICATION_WEEK_LIST } from "@stores/actions/mobile/call-get-notification-week-list";
+import { CallAPI as GET_NOTIFICATION_MESSAGE } from "@stores/actions/mobile/call-get-read-notification";
+import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get-user";
 import { AppDispatch, useAppSelector } from "@stores/store";
+import type { InputRef, TabsProps } from "antd";
 import {
   Button,
   Card,
@@ -30,35 +48,10 @@ import {
   Typography,
 } from "antd";
 import type { ColumnsType, ColumnType } from "antd/es/table";
-import type { InputRef } from "antd";
-import type { TabsProps } from "antd";
-import {
-  BankOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  CodeOutlined,
-  CopyOutlined,
-  EyeOutlined,
-  FileTextOutlined,
-  InfoCircleOutlined,
-  LeftOutlined,
-  MessageOutlined,
-  RightOutlined,
-  SearchOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
 import dayjs from "dayjs";
 import Image from "next/image";
-import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
-import {
-  getNotificationRead,
-  getNotificationType,
-} from "@helpers/get-notification-type";
-import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get-user";
-import { CallAPI as GET_NOTIFICATION_TODAY_LIST } from "@stores/actions/mobile/call-get-notification-today-list";
-import { CallAPI as GET_NOTIFICATION_WEEK_LIST } from "@stores/actions/mobile/call-get-notification-week-list";
-import { CallAPI as GET_NOTIFICATION_MESSAGE } from "@stores/actions/mobile/call-get-read-notification";
-import type { ResponseNotification, ResponseUserList } from "@/stores/type";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
 const SEVEN_DAYS = "week";
@@ -111,8 +104,11 @@ export default function Page() {
   >({});
 
   const schoolOptions = useMemo(() => {
+    const rawData = schoolState?.response?.data;
+    const list = Array.isArray(rawData) ? rawData : rawData?.data;
+
     return (
-      schoolState?.response?.data?.map((item: any) => ({
+      (Array.isArray(list) ? list : []).map((item: any) => ({
         label: `${item.SchoolName} (${item.SchoolID})`,
         value: String(item.SchoolID),
       })) ?? []
@@ -120,8 +116,11 @@ export default function Page() {
   }, [schoolState]);
 
   const userOptions = useMemo(() => {
+    const rawData = userState?.response?.data;
+    const list = Array.isArray(rawData) ? rawData : rawData?.data;
+
     return (
-      userState?.response?.data?.data?.map(
+      (Array.isArray(list) ? list : []).map(
         (item: ResponseUserList["draftValues"]) => ({
           label: `${item?.Name ?? ""} ${item?.LastName ?? ""} (ID: ${
             item?.UserID
