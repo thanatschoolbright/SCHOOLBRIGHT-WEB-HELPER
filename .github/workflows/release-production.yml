@@ -56,7 +56,7 @@ jobs:
           echo "ref=${REF}" >> $GITHUB_OUTPUT
           echo "sha=${SHA}" >> $GITHUB_OUTPUT
 
-      - name: Validate Directory
+      - name: Validate Directorys
         run: mkdir -p "${{ env.DEPLOY_PATH }}"
 
   # ============================================
