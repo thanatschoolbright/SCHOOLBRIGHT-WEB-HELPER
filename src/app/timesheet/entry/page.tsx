@@ -221,7 +221,14 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
       render: (text: string, record: MyWorkItem) =>
         text ? (
           <Space direction="vertical" size={0}>
-            <Typography.Text>{text}</Typography.Text>
+            <Space size={4}>
+              {record.feature?.ticket_number && (
+                <Tag color="blue" bordered={false} style={{ margin: 0 }}>
+                  {record.feature.ticket_number}
+                </Tag>
+              )}
+              <Typography.Text>{text}</Typography.Text>
+            </Space>
             {record.feature?.name_en && (
               <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                 {record.feature.name_en}
@@ -1802,6 +1809,11 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
         label: (
           <Space>
             <ApartmentOutlined style={{ color: token.colorWarning }} />
+            {s.ticket_number && (
+              <Tag color="blue" bordered={false}>
+                {s.ticket_number}
+              </Tag>
+            )}
             {s.name}
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               (ID: {s.id})
@@ -2485,6 +2497,11 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
         label: (
           <Space>
             <ApartmentOutlined style={{ color: token.colorWarning }} />
+            {s.ticket_number && (
+              <Tag color="blue" bordered={false}>
+                {s.ticket_number}
+              </Tag>
+            )}
             {s.name}
           </Space>
         ),

@@ -14,9 +14,10 @@ export const ProjectService = {
       const subProjectName = item.name;
       const mainProjectId = item.projectId;
       const subProjectId = item.id;
+      const ticketNumber = item.ticket_number;
 
-      // Display format: ชื่อโครงการย่อย (ชื่อโครงการหลัก) (รหัส ID โครงการย่อย-รหัส ID โครงการหลัก)
-      const displayLabel = `${subProjectName} (${mainProjectName}) (${subProjectId}-${mainProjectId})`;
+      // Display format: [TICKET] ชื่อโครงการย่อย (ชื่อโครงการหลัก) (รหัส ID โครงการย่อย-รหัส ID โครงการหลัก)
+      const displayLabel = `${ticketNumber ? `[${ticketNumber}] ` : ""}${subProjectName} (${mainProjectName}) (${subProjectId}-${mainProjectId})`;
 
       return {
         id: subProjectId,
