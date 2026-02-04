@@ -141,16 +141,12 @@ jobs:
     steps:
       - name: Prepare Deployment Directory
         run: |
-          echo "🔧 Cleaning: ${{ env.DEPLOY_PATH }}"
           sudo mkdir -p "${{ env.DEPLOY_PATH }}"
-
-          # เปลี่ยนเจ้าของชั่วคราวให้ Runner เขียนไฟล์ได้
-          echo "🔐 Granting write access to runner..."
           sudo chown -R $USER:$USER "${{ env.DEPLOY_PATH }}"
 
-          # ล้างไฟล์เก่าทิ้ง
+          # ลบไฟล์เก่าแต่เก็บ .env ไว้ (ถ้ามี)
           cd "${{ env.DEPLOY_PATH }}"
-          rm -rf *
+          find . -maxdepth 1 ! -name '.env' ! -name '.' -exec rm -rf {} +
 
       # ✅ แยก Step ออกมาถูกต้องแล้ว
       - name: Download Build Artifacts
@@ -198,18 +194,17 @@ jobs:
 
       - name: Restart Service (PM2)
         run: |
+          # โหลด NVM ให้ Runner รู้จัก node/pm2 (ปรับ path ตามจริงของ user githubrunner)
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
           cd "${{ env.DEPLOY_PATH }}"
 
-          # ตรวจสอบว่ามี process อยู่แล้วหรือไม่ ถ้ามีให้ reload ถ้าไม่มีให้เริ่มใหม่
           if pm2 show sb-web-helper > /dev/null 2>&1; then
-            echo "🔄 Reloading application..."
             pm2 reload sb-web-helper --update-env
           else
-            echo "🚀 Starting application..."
             pm2 start npm --name "sb-web-helper" -- start
           fi
-
-          # บันทึกเพื่อให้ PM2 ทำงานต่อเมื่อ Restart Server
           pm2 save
 
       - name: Check PM2 Status
