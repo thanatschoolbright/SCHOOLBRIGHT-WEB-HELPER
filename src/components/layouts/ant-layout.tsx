@@ -85,6 +85,7 @@ const getThemeConfig = (isDark: boolean): ThemeConfig => {
       colorError: BRAND_SEED.error,
       colorInfo: BRAND_SEED.info,
 
+      colorBgBase: isDark ? "#0B0F19" : "#FFFFFF",
       colorBgLayout: colors.bgLayout,
       colorBgContainer: colors.bgContainer,
       colorTextBase: colors.textMain,
