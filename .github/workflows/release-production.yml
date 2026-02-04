@@ -88,7 +88,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [pre_flight_checks, quality-gates]
     if: |
-      always() && 
+      always() &&
       (needs.quality-gates.result == 'success' || needs.quality-gates.result == 'skipped') &&
       needs.pre_flight_checks.result == 'success'
 
@@ -191,22 +191,29 @@ jobs:
           if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
           if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
-          echo "🔐 Setting Permissions for Service..."
-          # ✅ ตั้ง Owner เป็น root ให้ตรงกับ Service File ของคุณ
-          sudo chown -R root:root "${{ env.DEPLOY_PATH }}"
+          echo "🔐 Setting Permissions for PM2..."
+          # ✅ ตั้ง Owner ให้ Runner เพื่อให้ PM2 จัดการได้
+          sudo chown -R $USER:$USER "${{ env.DEPLOY_PATH }}"
           sudo chmod -R 755 "${{ env.DEPLOY_PATH }}"
 
-      - name: Restart Service
+      - name: Restart Service (PM2)
         run: |
-          sudo systemctl restart sb-web-helper.service
-          sleep 5
-          if sudo systemctl is-active --quiet sb-web-helper.service; then
-            echo "✅ Service Active"
+          cd "${{ env.DEPLOY_PATH }}"
+
+          # ตรวจสอบว่ามี process อยู่แล้วหรือไม่ ถ้ามีให้ reload ถ้าไม่มีให้เริ่มใหม่
+          if pm2 show sb-web-helper > /dev/null 2>&1; then
+            echo "🔄 Reloading application..."
+            pm2 reload sb-web-helper --update-env
           else
-            echo "❌ Service Failed"
-            sudo journalctl -u sb-web-helper.service -n 20 --no-pager
-            exit 1
+            echo "🚀 Starting application..."
+            pm2 start npm --name "sb-web-helper" -- start
           fi
+
+          # บันทึกเพื่อให้ PM2 ทำงานต่อเมื่อ Restart Server
+          pm2 save
+
+      - name: Check PM2 Status
+        run: pm2 status sb-web-helper
 
   # ============================================
   # 5. Verification
@@ -250,14 +257,14 @@ jobs:
           VERIFY=$(get_status_emoji "${{ needs.verify.result }}")
 
           # เขียน Markdown ลงใน $GITHUB_STEP_SUMMARY
-          echo "## 🚀 Production Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Production Deployment Report (PM2)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Job Name | Status | Details |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
           echo "| 🔍 Pre-flight Checks | $PRE_FLIGHT | Ref: \`${{ needs.pre_flight_checks.outputs.deployment_ref }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| 🛡️ Quality Gates | $QUALITY | Lint & Unit Tests |" >> $GITHUB_STEP_SUMMARY
           echo "| 🔨 Build Artifact | $BUILD | Node v${{ env.NODE_VERSION }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🚀 Production Deploy | $DEPLOY | Path: \`${{ env.DEPLOY_PATH }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🚀 Production Deploy | $DEPLOY | Managed by: \`PM2\` |" >> $GITHUB_STEP_SUMMARY
           echo "| ✅ Health Check | $VERIFY | URL: [schoolbright.co](https://sb-helper.schoolbright.co) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
