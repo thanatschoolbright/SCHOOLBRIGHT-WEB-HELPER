@@ -121,7 +121,7 @@ jobs:
 
           echo "⚙️ Generating Prisma Clients..."
           if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
-          if [ -f "prisma/timesheet/schema.prisma" ]; (npx prisma generate --schema=prisma/timesheet/schema.prisma); fi
+          if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
           echo "🔨 Building Next.js..."
           npm run build
