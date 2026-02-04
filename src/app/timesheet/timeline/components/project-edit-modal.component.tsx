@@ -729,12 +729,12 @@ export const ProjectEditModalComponent: React.FC<ProjectEditModalProps> = ({
                           border: `1px dashed ${token.colorBorder}`,
                         }}
                       >
-                        {fields.map((field) => (
-                          <Row key={field.key} gutter={8} className="mb-2">
+                        {fields.map(({ key, name, ...restField }) => (
+                          <Row key={key} gutter={8} className="mb-2">
                             <Col span={10}>
                               <Form.Item
-                                {...field}
-                                name={[field.name, "title"]}
+                                {...restField}
+                                name={[name, "title"]}
                                 rules={[
                                   {
                                     required: true,
@@ -748,8 +748,8 @@ export const ProjectEditModalComponent: React.FC<ProjectEditModalProps> = ({
                             </Col>
                             <Col span={12}>
                               <Form.Item
-                                {...field}
-                                name={[field.name, "link"]}
+                                {...restField}
+                                name={[name, "link"]}
                                 rules={[
                                   {
                                     required: true,
@@ -775,7 +775,7 @@ export const ProjectEditModalComponent: React.FC<ProjectEditModalProps> = ({
                                 type="text"
                                 danger
                                 icon={<DeleteOutlined />}
-                                onClick={() => remove(field.name)}
+                                onClick={() => remove(name)}
                               />
                             </Col>
                           </Row>

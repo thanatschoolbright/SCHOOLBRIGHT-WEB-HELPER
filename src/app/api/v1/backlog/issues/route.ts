@@ -1,6 +1,6 @@
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import { errorResponse, successResponse } from "@/helpers/api/response";
 
 // Backlog API domain
 const BACKLOG_DOMAIN = "backlog.com";
@@ -8,7 +8,7 @@ const BACKLOG_DOMAIN = "backlog.com";
 async function callBacklogAPI<T>(
   space: string,
   path: string,
-  params: Record<string, any>
+  params: Record<string, any>,
 ) {
   const baseUrl = `https://${space}.${BACKLOG_DOMAIN}${path}`;
 
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
           message_en: "BACKLOG_API_KEY is not configured",
           message_th: "ยังไม่ได้ตั้งค่า BACKLOG_API_KEY",
         }),
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -51,22 +51,22 @@ export async function GET(req: NextRequest) {
     const projectId = searchParams.get("projectId");
     const requestedCount = Math.max(
       1,
-      Math.min(Number(searchParams.get("count") || 20), 500)
+      Math.min(Number(searchParams.get("count") || 20), 500),
     );
     const page = Number(searchParams.get("page") || 1);
     const offset = Math.max(
       0,
-      Number(searchParams.get("offset") || (page - 1) * requestedCount)
+      Number(searchParams.get("offset") || (page - 1) * requestedCount),
     );
 
-    if (!space || !projectId) {
+    if (!space) {
       return NextResponse.json(
         errorResponse({
           status: 400,
-          message_en: "Missing space or projectId",
-          message_th: "กรุณาระบุ space และ projectId",
+          message_en: "Missing space",
+          message_th: "กรุณาระบุ space",
         }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -143,7 +143,7 @@ export async function GET(req: NextRequest) {
       const batchItems = await callBacklogAPI<any[]>(
         space,
         "/api/v2/issues",
-        batchParams
+        batchParams,
       );
       issues = issues.concat(batchItems);
       fetched += batchCount;
@@ -154,7 +154,7 @@ export async function GET(req: NextRequest) {
     const countObj = await callBacklogAPI<{ count: number }>(
       space,
       "/api/v2/issues/count",
-      { ...filterParams }
+      { ...filterParams },
     );
 
     return NextResponse.json(
@@ -162,7 +162,7 @@ export async function GET(req: NextRequest) {
         data: { items: issues, total: countObj?.count ?? 0 },
         message_en: "Fetch Backlog issues successfully",
         message_th: "ดึงข้อมูล Issue สำเร็จ",
-      })
+      }),
     );
   } catch (error: any) {
     const status = error?.response?.status || 500;
@@ -175,7 +175,7 @@ export async function GET(req: NextRequest) {
         message_th: "ดึงข้อมูล Issue ไม่สำเร็จ",
         error,
       }),
-      { status }
+      { status },
     );
   }
 }

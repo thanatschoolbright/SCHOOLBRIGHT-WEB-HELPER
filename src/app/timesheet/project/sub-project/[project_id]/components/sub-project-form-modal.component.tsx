@@ -12,6 +12,7 @@ import {
   MinusCircleOutlined,
   PlusOutlined,
   SwapOutlined,
+  SyncOutlined,
   TeamOutlined,
   UserOutlined,
   WarningOutlined,
@@ -94,13 +95,19 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   const watchedDateRange = Form.useWatch("dateRange", form);
   const [users, setUsers] = useState<any[]>([]);
   const [isFetchingUsers, setIsFetchingUsers] = useState(false);
+  const [backlogIssues, setBacklogIssues] = useState<any[]>([]);
+  const [isFetchingBacklog, setIsFetchingBacklog] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const [moveConfirmText, setMoveConfirmText] = useState("");
   const [targetProjectId, setTargetProjectId] = useState<number | null>(null);
 
-  const statusOptions = statuses
-    .sort((a, b) => a.priority - b.priority)
-    .map((s) => ({ label: s.nameTh, value: s.id }));
+  const statusOptions = useMemo(
+    () =>
+      statuses
+        .sort((a, b) => a.priority - b.priority)
+        .map((s) => ({ label: s.nameTh, value: s.id })),
+    [statuses],
+  );
 
   /**
    * 🔍 ค้นหารายชื่อพนักงานจาก Server (Debounced)
@@ -140,6 +147,57 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         }
       }, 500),
     [form],
+  );
+
+  /**
+   * 🔍 ค้นหา Backlog Issues จากระบบ (Debounced)
+   */
+  const handleBacklogSearch = useMemo(
+    () =>
+      debounce(async (query: string) => {
+        if (!query || query.length < 2) {
+          setBacklogIssues([]);
+          return;
+        }
+
+        setIsFetchingBacklog(true);
+        try {
+          // ใช้ space jabjai เป็นค่าเริ่มต้น (หรือค่าที่ตั้งไว้ใน Cookie)
+          const res = await axios.get("/api/v1/backlog/issues", {
+            params: {
+              q: query,
+              space: "jabjai", // สามารถปรับเป็นดึงจาก config หรือ context อื่นได้
+              count: 20,
+            },
+          });
+
+          if (res.data?.status === 200) {
+            const issues = res.data.data?.items || [];
+            setBacklogIssues(
+              issues.map((issue: any) => ({
+                value: issue.issueKey,
+                label: (
+                  <Flex vertical gap={0}>
+                    <Text strong style={{ fontSize: 13 }}>
+                      {issue.issueKey}
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: 12 }} ellipsis>
+                      {issue.summary}
+                    </Text>
+                  </Flex>
+                ),
+                key: issue.id,
+                summary: issue.summary,
+              })),
+            );
+          }
+        } catch (error) {
+          console.error("Search backlog error:", error);
+        } finally {
+          setIsFetchingBacklog(false);
+        }
+      }, 500),
+    [],
   );
 
   useEffect(() => {
@@ -223,7 +281,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
     };
 
     initData();
-  }, [open, mode, data, form, statusOptions.length]);
+  }, [open, mode, data, form, statusOptions]);
 
   useEffect(() => {
     if (!open) {
@@ -234,12 +292,21 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   }, [open]);
 
   useEffect(() => {
-    if (watchedDateRange) {
+    if (watchedDateRange && watchedDateRange[0] && watchedDateRange[1]) {
       const { text } = calculateWorkingHours(
         watchedDateRange[0],
         watchedDateRange[1],
       );
-      form.setFieldValue("estimate_time", text);
+
+      // 🔍 ตรวจสอบค่าปัจจุบันก่อนอัปเดตเพื่อลดการ Re-render และป้องกัน Circular Reference
+      const currentVal = form.getFieldValue("estimate_time");
+      if (currentVal !== text) {
+        // 🔥 ใช้ setTimeout เพื่อขยับการอัปเดตไปที่ Queue ถัดไป ป้องกันการเตือนเรื่องโครงสร้างข้อมูลพัวพันกัน (Circular references)
+        const timer = setTimeout(() => {
+          form.setFieldValue("estimate_time", text);
+        }, 0);
+        return () => clearTimeout(timer);
+      }
     }
   }, [watchedDateRange, form]);
 
@@ -402,14 +469,23 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                   name="ticket_number"
                   label="เชื่อมต่อ backlog (เช่น SB-1234)"
                 >
-                  <Input
-                    placeholder="ระบุรหัส Ticket เช่น SB-1234 หรือ JIRA-567"
-                    prefix={
-                      <LinkOutlined
-                        style={{ color: token.colorTextDescription }}
-                      />
-                    }
-                  />
+                  <AutoComplete
+                    placeholder="ระบุรหัส Ticket เช่น SB-1234 หรือค้นหาด้วยชื่อ Task"
+                    onSearch={handleBacklogSearch}
+                    options={backlogIssues}
+                  >
+                    <Input
+                      prefix={
+                        isFetchingBacklog ? (
+                          <SyncOutlined spin />
+                        ) : (
+                          <LinkOutlined
+                            style={{ color: token.colorTextDescription }}
+                          />
+                        )
+                      }
+                    />
+                  </AutoComplete>
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -650,12 +726,12 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                         border: `1px dashed ${token.colorBorder}`,
                       }}
                     >
-                      {fields.map((field) => (
-                        <Row key={field.key} gutter={8} className="mb-2">
+                      {fields.map(({ key, name, ...restField }) => (
+                        <Row key={key} gutter={8} className="mb-2">
                           <Col span={10}>
                             <Form.Item
-                              {...field}
-                              name={[field.name, "title"]}
+                              {...restField}
+                              name={[name, "title"]}
                               rules={[
                                 {
                                   required: true,
@@ -675,8 +751,8 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                           </Col>
                           <Col span={12}>
                             <Form.Item
-                              {...field}
-                              name={[field.name, "link"]}
+                              {...restField}
+                              name={[name, "link"]}
                               rules={[
                                 {
                                   required: true,
@@ -706,7 +782,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                               type="text"
                               danger
                               icon={<DeleteOutlined />}
-                              onClick={() => remove(field.name)}
+                              onClick={() => remove(name)}
                             />
                           </Col>
                         </Row>

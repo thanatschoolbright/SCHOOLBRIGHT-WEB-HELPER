@@ -17,6 +17,7 @@ import {
   Space,
   Tag,
   theme,
+  Tooltip,
   Typography,
 } from "antd";
 import dayjs from "dayjs";
@@ -89,9 +90,13 @@ export const SubProjectDetailModal: React.FC<SubProjectDetailModalProps> = ({
               </Tag>
               <Tag color={option?.color}>{option?.label}</Tag>
               {data.ticket_number && (
-                <Tag color="cyan" icon={<LinkOutlined />}>
-                  {data.ticket_number}
-                </Tag>
+                <Tooltip title={(data as any).backlogSummary}>
+                  <Tag color="cyan" icon={<LinkOutlined />}>
+                    {data.ticket_number}
+                    {(data as any).backlogSummary &&
+                      ` : ${(data as any).backlogSummary}`}
+                  </Tag>
+                </Tooltip>
               )}
             </div>
             <Text type="secondary" style={{ fontSize: 11 }}>

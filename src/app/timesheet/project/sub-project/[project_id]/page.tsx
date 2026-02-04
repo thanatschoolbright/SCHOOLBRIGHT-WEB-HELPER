@@ -162,26 +162,86 @@ export default function SubProjectPage() {
         ),
       ).filter(Boolean);
 
-      if (allAssigneeIds.length > 0) {
-        try {
-          const userRes = await axios.get(
-            `/api/v1/timesheet/project/sub-project/assignee-search?ids=${allAssigneeIds.join(",")}`,
-          );
-          if (userRes.data?.status === 200) {
-            const userMap = new Map();
-            userRes.data.data.forEach((u: any) => userMap.set(u.admin_id, u));
+      // 🔍 Fetch Backlog issue details for ticket numbers
+      const allTicketNumbers = Array.from(
+        new Set(
+          fetchedSubProjects.map((sp: any) => sp.ticket_number).filter(Boolean),
+        ),
+      );
 
-            fetchedSubProjects = fetchedSubProjects.map((sp: any) => ({
-              ...sp,
-              projectAssignees: sp.projectAssignees?.map((a: any) => ({
-                ...a,
-                userProfile: userMap.get(a.userId),
-              })),
-            }));
-          }
-        } catch (error) {
-          console.error("Failed to fetch assignee details:", error);
-        }
+      const hydrationPromises = [];
+
+      if (allAssigneeIds.length > 0) {
+        hydrationPromises.push(
+          axios
+            .get(
+              `/api/v1/timesheet/project/sub-project/assignee-search?ids=${allAssigneeIds.join(",")}`,
+            )
+            .then((userRes) => {
+              if (userRes.data?.status === 200) {
+                const userMap = new Map();
+                userRes.data.data.forEach((u: any) =>
+                  userMap.set(u.admin_id, u),
+                );
+                return { type: "users", data: userMap };
+              }
+              return null;
+            })
+            .catch((err) => {
+              console.error("Failed to fetch assignee details:", err);
+              return null;
+            }),
+        );
+      }
+
+      if (allTicketNumbers.length > 0) {
+        // ในที่นี้เราจะดึงข้อมูลทีละ Ticket หรือจะใช้ keyword search แต่ API ปัจจุบันรองรับ q (keyword)
+        // เพื่อประสิทธิภาพ เราจะดึงข้อมูล Issue details
+        // หมายเหตุ: API /api/v1/backlog/issues สามารถใช้ q เพื่อค้นหาได้
+        // แต่การดึง many issues by keys อาจไม่มี API ตรงๆ ที่รับ array of keys
+        // ดังนั้นเราจะวนลูบคีย์ที่สำคัญ หรือใช้การค้นหาแบบรวม
+        hydrationPromises.push(
+          Promise.all(
+            allTicketNumbers.map((ticket) =>
+              axios
+                .get("/api/v1/backlog/issues", {
+                  params: { q: ticket, space: "jabjai", count: 1 },
+                })
+                .then((res) => {
+                  const issue = res.data?.data?.items?.[0];
+                  return issue ? { key: ticket, summary: issue.summary } : null;
+                })
+                .catch(() => null),
+            ),
+          ).then((results) => {
+            const ticketMap = new Map();
+            results.forEach((item) => {
+              if (item) ticketMap.set(item.key, item.summary);
+            });
+            return { type: "tickets", data: ticketMap };
+          }),
+        );
+      }
+
+      if (hydrationPromises.length > 0) {
+        const results = await Promise.all(hydrationPromises);
+        let userMap = new Map();
+        let ticketMap = new Map();
+
+        results.forEach((res) => {
+          if (!res) return;
+          if (res.type === "users") userMap = res.data;
+          if (res.type === "tickets") ticketMap = res.data;
+        });
+
+        fetchedSubProjects = fetchedSubProjects.map((sp: any) => ({
+          ...sp,
+          projectAssignees: sp.projectAssignees?.map((a: any) => ({
+            ...a,
+            userProfile: userMap.get(a.userId),
+          })),
+          backlogSummary: ticketMap.get(sp.ticket_number),
+        }));
       }
 
       setAllSubProjects(fetchedSubProjects);
@@ -434,12 +494,31 @@ export default function SubProjectPage() {
     {
       title: "เชื่อมต่อ Backlog",
       key: "ticket_number",
-      width: 150,
+      width: 250,
       render: (_, record) =>
         record.ticket_number ? (
-          <Tag icon={<LinkOutlined />} color="cyan" style={{ borderRadius: 4 }}>
-            {record.ticket_number}
-          </Tag>
+          <Tooltip
+            title={(record as any).backlogSummary || "กำลังโหลดรายละเอียด..."}
+          >
+            <Space direction="vertical" size={0}>
+              <Tag
+                icon={<LinkOutlined />}
+                color="cyan"
+                style={{ borderRadius: 4, cursor: "pointer" }}
+              >
+                {record.ticket_number}
+              </Tag>
+              {(record as any).backlogSummary && (
+                <Text
+                  type="secondary"
+                  style={{ fontSize: 11, display: "block" }}
+                  ellipsis
+                >
+                  {(record as any).backlogSummary}
+                </Text>
+              )}
+            </Space>
+          </Tooltip>
         ) : (
           <Text type="secondary">-</Text>
         ),
