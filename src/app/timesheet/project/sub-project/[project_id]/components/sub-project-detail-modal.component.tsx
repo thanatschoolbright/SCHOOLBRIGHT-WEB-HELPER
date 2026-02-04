@@ -1,29 +1,29 @@
-import React from "react";
 import {
-  Modal,
-  Button,
-  Space,
-  Typography,
-  Card,
-  Row,
-  Col,
-  Tag,
-  List,
-  Avatar,
-  theme,
-} from "antd";
-import {
-  InfoCircleOutlined,
   CalendarOutlined,
+  InfoCircleOutlined,
   LinkOutlined,
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import { getUserById } from "@helpers/local_storage/user.storage";
+import {
+  Avatar,
+  Button,
+  Card,
+  Col,
+  List,
+  Modal,
+  Row,
+  Space,
+  Tag,
+  theme,
+  Typography,
+} from "antd";
 import dayjs from "dayjs";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import type { SubProject } from "../types/sub-project.types";
 import { ASSET_OPTIONS } from "../utils/constants";
-import { getUserById } from "@helpers/local_storage/user.storage";
 
 const { Text, Title } = Typography;
 
@@ -82,12 +82,17 @@ export const SubProjectDetailModal: React.FC<SubProjectDetailModalProps> = ({
             <div className="mt-1 flex gap-2">
               <Tag
                 color={getStatusColor(
-                  data.projectStatus?.nameTh || data.status
+                  data.projectStatus?.nameTh || data.status,
                 )}
               >
                 {data.projectStatus?.nameTh || data.status || "ยังไม่เริ่มต้น"}
               </Tag>
               <Tag color={option?.color}>{option?.label}</Tag>
+              {data.ticket_number && (
+                <Tag color="cyan" icon={<LinkOutlined />}>
+                  {data.ticket_number}
+                </Tag>
+              )}
             </div>
             <Text type="secondary" style={{ fontSize: 11 }}>
               {t("sub_project_page.detail_id")}: {data.id}

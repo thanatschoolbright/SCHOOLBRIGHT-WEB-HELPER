@@ -203,6 +203,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           form.setFieldsValue({
             name: data.name,
             name_en: data.name_en,
+            ticket_number: data.ticket_number,
             asset_capture_type: data.assetCaptureType,
             projectStatusId: data.projectStatusId,
             dateRange: range,
@@ -247,6 +248,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       id: data?.id,
       name: values.name,
       name_en: values.name_en,
+      ticket_number: values.ticket_number,
       assetCaptureType: values.asset_capture_type,
       startDate: values.dateRange?.[0]?.toISOString(),
       endDate: values.dateRange?.[1]?.toISOString(),
@@ -392,6 +394,21 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                 >
                   <Input
                     placeholder={t("sub_project_page.form_name_en_placeholder")}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  name="ticket_number"
+                  label="เชื่อมต่อ backlog (เช่น SB-1234)"
+                >
+                  <Input
+                    placeholder="ระบุรหัส Ticket เช่น SB-1234 หรือ JIRA-567"
+                    prefix={
+                      <LinkOutlined
+                        style={{ color: token.colorTextDescription }}
+                      />
+                    }
                   />
                 </Form.Item>
               </Col>

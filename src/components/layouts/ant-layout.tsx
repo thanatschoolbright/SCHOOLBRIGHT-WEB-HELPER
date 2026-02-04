@@ -195,8 +195,8 @@ export default function AntThemeProvider({
             border: 1px solid ${isDark ? "#1E293B" : "#E2E8F0"} !important;
           }
 
+          /* ลบส่วนนี้ออกทั้งหมด */
           .ant-card:hover {
-            transform: translateY(-4px);
             box-shadow: ${isDark
               ? "0 12px 30px -10px rgba(0, 0, 0, 0.6)"
               : "0 12px 30px -10px rgba(15, 23, 42, 0.1)"} !important;

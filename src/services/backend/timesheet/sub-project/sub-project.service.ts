@@ -46,6 +46,7 @@ interface CreateFeatureDto {
   projectId: number;
   name: string;
   name_en?: string | null;
+  ticket_number?: string | null;
   createdBy?: number;
   backlogDescription?: any;
   startDate: Date | string;
@@ -61,6 +62,7 @@ interface CreateFeatureDto {
 interface UpdateFeatureDto {
   name?: string;
   name_en?: string | null;
+  ticket_number?: string | null;
   updatedBy?: number;
   backlogDescription?: any;
   startDate?: Date | string;
@@ -75,6 +77,7 @@ interface UpdateFeatureDto {
 }
 
 export const Service = {
+  /* ✨ ตรวจสอบความถูกต้องของ Project ID */
   async validateProjectId(projectId: number) {
     return await PrismaTimesheet.project.findUnique({
       where: { id: projectId },
@@ -82,6 +85,7 @@ export const Service = {
     });
   },
 
+  /* ✨ ตรวจสอบความถูกต้องของ Sub-Project (Feature) ID */
   async validateSubProjectId(subProjectId: number) {
     return await PrismaTimesheet.feature.findUnique({
       where: { id: subProjectId },
@@ -89,6 +93,7 @@ export const Service = {
     });
   },
 
+  /* ✨ ค้นหาโครงการย่อยทั้งหมด พร้อมคำนวณ Man Hour */
   async findAll({ limit = 50, skip = 0 }: PaginationOptions = {}) {
     const where = { is_deleted: false };
 
@@ -159,6 +164,7 @@ export const Service = {
     return { items: itemsWithEstimate, total };
   },
 
+  /* ✨ สร้างโครงการย่อยใหม่พร้อมกำหนดผู้รับผิดชอบ */
   async create(data: CreateFeatureDto) {
     const { assignees, ...rest } = data;
     return await PrismaTimesheet.feature.create({
@@ -178,6 +184,7 @@ export const Service = {
     });
   },
 
+  /* ✨ อัปเดตข้อมูลโครงการย่อยและจัดการข้อมูลผู้รับผิดชอบใหม่ */
   async update(id: number, data: UpdateFeatureDto) {
     const { assignees, ...rest } = data;
 

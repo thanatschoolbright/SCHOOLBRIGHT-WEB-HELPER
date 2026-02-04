@@ -10,6 +10,7 @@ import {
   FileTextOutlined,
   FilterOutlined,
   InfoCircleOutlined,
+  LinkOutlined,
   PlusOutlined,
   ProjectOutlined,
   ReloadOutlined,
@@ -429,6 +430,21 @@ export default function SubProjectPage() {
         </Space>
       ),
       sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: "เชื่อมต่อ Backlog",
+      key: "ticket_number",
+      width: 150,
+      render: (_, record) =>
+        record.ticket_number ? (
+          <Tag icon={<LinkOutlined />} color="cyan" style={{ borderRadius: 4 }}>
+            {record.ticket_number}
+          </Tag>
+        ) : (
+          <Text type="secondary">-</Text>
+        ),
+      sorter: (a, b) =>
+        (a.ticket_number || "").localeCompare(b.ticket_number || ""),
     },
     {
       title: "ประเภทสินทรัพย์",

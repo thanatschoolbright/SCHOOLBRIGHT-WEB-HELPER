@@ -109,11 +109,11 @@ model User {
   updated_by Int?      @map("updated_by")
   deleted_at DateTime? @map("deleted_at") // เพิ่มเพื่อประวัติการลบ
 
-  @@map("user")
   @@index([admin_id])
   @@index([status])
   @@index([is_deleted])
   @@index([employee_code])
+  @@map("user")
 }
 
 model Role {
@@ -239,6 +239,7 @@ model Feature {
   // --- Info ---
   name               String                  @map("name")
   name_en            String?                 @map("name_en")
+  ticket_number      String?                 @map("ticket_number")
   status             String                  @default("open") @map("status")
   assetCaptureType   ProjectAssetCaptureType @default(CAPTUREABLE) @map("asset_capture_type")
   backlogDescription Json?                   @map("backlog_description")
@@ -306,11 +307,11 @@ model TimesheetEntry {
   feature Feature @relation(fields: [featureId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   project Project @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@map("timesheet_entry")
   @@index([date])
   @@index([createdBy])
   @@index([is_deleted])
   @@index([projectId])
+  @@map("timesheet_entry")
 }
 
 // =========================================================
@@ -348,7 +349,7 @@ model OvertimeDescription {
   date        DateTime? @map("date")
   startDate   DateTime? @map("start_date")
   endDate     DateTime? @map("end_date")
-  proof Json?     @map("proof") // e.g., URL or file reference
+  proof       Json?     @map("proof") // e.g., URL or file reference
 
   overtime Overtime @relation("OvertimeDescriptions", fields: [overtimeId], references: [id], onDelete: Cascade)
 

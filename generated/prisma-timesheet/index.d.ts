@@ -13298,6 +13298,7 @@ export namespace Prisma {
     projectId: number | null
     name: string | null
     name_en: string | null
+    ticket_number: string | null
     status: string | null
     assetCaptureType: $Enums.ProjectAssetCaptureType | null
     startDate: Date | null
@@ -13317,6 +13318,7 @@ export namespace Prisma {
     projectId: number | null
     name: string | null
     name_en: string | null
+    ticket_number: string | null
     status: string | null
     assetCaptureType: $Enums.ProjectAssetCaptureType | null
     startDate: Date | null
@@ -13336,6 +13338,7 @@ export namespace Prisma {
     projectId: number
     name: number
     name_en: number
+    ticket_number: number
     status: number
     assetCaptureType: number
     backlogDescription: number
@@ -13376,6 +13379,7 @@ export namespace Prisma {
     projectId?: true
     name?: true
     name_en?: true
+    ticket_number?: true
     status?: true
     assetCaptureType?: true
     startDate?: true
@@ -13395,6 +13399,7 @@ export namespace Prisma {
     projectId?: true
     name?: true
     name_en?: true
+    ticket_number?: true
     status?: true
     assetCaptureType?: true
     startDate?: true
@@ -13414,6 +13419,7 @@ export namespace Prisma {
     projectId?: true
     name?: true
     name_en?: true
+    ticket_number?: true
     status?: true
     assetCaptureType?: true
     backlogDescription?: true
@@ -13521,6 +13527,7 @@ export namespace Prisma {
     projectId: number
     name: string
     name_en: string | null
+    ticket_number: string | null
     status: string
     assetCaptureType: $Enums.ProjectAssetCaptureType
     backlogDescription: JsonValue | null
@@ -13560,6 +13567,7 @@ export namespace Prisma {
     projectId?: boolean
     name?: boolean
     name_en?: boolean
+    ticket_number?: boolean
     status?: boolean
     assetCaptureType?: boolean
     backlogDescription?: boolean
@@ -13585,6 +13593,7 @@ export namespace Prisma {
     projectId?: boolean
     name?: boolean
     name_en?: boolean
+    ticket_number?: boolean
     status?: boolean
     assetCaptureType?: boolean
     backlogDescription?: boolean
@@ -13607,6 +13616,7 @@ export namespace Prisma {
     projectId?: boolean
     name?: boolean
     name_en?: boolean
+    ticket_number?: boolean
     status?: boolean
     assetCaptureType?: boolean
     backlogDescription?: boolean
@@ -13629,6 +13639,7 @@ export namespace Prisma {
     projectId?: boolean
     name?: boolean
     name_en?: boolean
+    ticket_number?: boolean
     status?: boolean
     assetCaptureType?: boolean
     backlogDescription?: boolean
@@ -13644,7 +13655,7 @@ export namespace Prisma {
     updatedBy?: boolean
   }
 
-  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "name_en" | "status" | "assetCaptureType" | "backlogDescription" | "startDate" | "endDate" | "completeDate" | "estimateWorkhours" | "projectStatusId" | "is_deleted" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy", ExtArgs["result"]["feature"]>
+  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "name_en" | "ticket_number" | "status" | "assetCaptureType" | "backlogDescription" | "startDate" | "endDate" | "completeDate" | "estimateWorkhours" | "projectStatusId" | "is_deleted" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy", ExtArgs["result"]["feature"]>
   export type FeatureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
@@ -13674,6 +13685,7 @@ export namespace Prisma {
       projectId: number
       name: string
       name_en: string | null
+      ticket_number: string | null
       status: string
       assetCaptureType: $Enums.ProjectAssetCaptureType
       backlogDescription: Prisma.JsonValue | null
@@ -14118,6 +14130,7 @@ export namespace Prisma {
     readonly projectId: FieldRef<"Feature", 'Int'>
     readonly name: FieldRef<"Feature", 'String'>
     readonly name_en: FieldRef<"Feature", 'String'>
+    readonly ticket_number: FieldRef<"Feature", 'String'>
     readonly status: FieldRef<"Feature", 'String'>
     readonly assetCaptureType: FieldRef<"Feature", 'ProjectAssetCaptureType'>
     readonly backlogDescription: FieldRef<"Feature", 'Json'>
@@ -20639,6 +20652,7 @@ export namespace Prisma {
     projectId: 'projectId',
     name: 'name',
     name_en: 'name_en',
+    ticket_number: 'ticket_number',
     status: 'status',
     assetCaptureType: 'assetCaptureType',
     backlogDescription: 'backlogDescription',
@@ -21674,6 +21688,7 @@ export namespace Prisma {
     projectId?: IntFilter<"Feature"> | number
     name?: StringFilter<"Feature"> | string
     name_en?: StringNullableFilter<"Feature"> | string | null
+    ticket_number?: StringNullableFilter<"Feature"> | string | null
     status?: StringFilter<"Feature"> | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Feature"> | $Enums.ProjectAssetCaptureType
     backlogDescription?: JsonNullableFilter<"Feature">
@@ -21698,6 +21713,7 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     name_en?: SortOrderInput | SortOrder
+    ticket_number?: SortOrderInput | SortOrder
     status?: SortOrder
     assetCaptureType?: SortOrder
     backlogDescription?: SortOrderInput | SortOrder
@@ -21725,6 +21741,7 @@ export namespace Prisma {
     projectId?: IntFilter<"Feature"> | number
     name?: StringFilter<"Feature"> | string
     name_en?: StringNullableFilter<"Feature"> | string | null
+    ticket_number?: StringNullableFilter<"Feature"> | string | null
     status?: StringFilter<"Feature"> | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Feature"> | $Enums.ProjectAssetCaptureType
     backlogDescription?: JsonNullableFilter<"Feature">
@@ -21749,6 +21766,7 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     name_en?: SortOrderInput | SortOrder
+    ticket_number?: SortOrderInput | SortOrder
     status?: SortOrder
     assetCaptureType?: SortOrder
     backlogDescription?: SortOrderInput | SortOrder
@@ -21777,6 +21795,7 @@ export namespace Prisma {
     projectId?: IntWithAggregatesFilter<"Feature"> | number
     name?: StringWithAggregatesFilter<"Feature"> | string
     name_en?: StringNullableWithAggregatesFilter<"Feature"> | string | null
+    ticket_number?: StringNullableWithAggregatesFilter<"Feature"> | string | null
     status?: StringWithAggregatesFilter<"Feature"> | string
     assetCaptureType?: EnumProjectAssetCaptureTypeWithAggregatesFilter<"Feature"> | $Enums.ProjectAssetCaptureType
     backlogDescription?: JsonNullableWithAggregatesFilter<"Feature">
@@ -23051,6 +23070,7 @@ export namespace Prisma {
   export type FeatureCreateInput = {
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -23074,6 +23094,7 @@ export namespace Prisma {
     projectId: number
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -23094,6 +23115,7 @@ export namespace Prisma {
   export type FeatureUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -23117,6 +23139,7 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -23139,6 +23162,7 @@ export namespace Prisma {
     projectId: number
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -23157,6 +23181,7 @@ export namespace Prisma {
   export type FeatureUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -23176,6 +23201,7 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -24480,6 +24506,7 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     name_en?: SortOrder
+    ticket_number?: SortOrder
     status?: SortOrder
     assetCaptureType?: SortOrder
     backlogDescription?: SortOrder
@@ -24509,6 +24536,7 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     name_en?: SortOrder
+    ticket_number?: SortOrder
     status?: SortOrder
     assetCaptureType?: SortOrder
     startDate?: SortOrder
@@ -24528,6 +24556,7 @@ export namespace Prisma {
     projectId?: SortOrder
     name?: SortOrder
     name_en?: SortOrder
+    ticket_number?: SortOrder
     status?: SortOrder
     assetCaptureType?: SortOrder
     startDate?: SortOrder
@@ -26929,6 +26958,7 @@ export namespace Prisma {
   export type FeatureCreateWithoutProjectStatusInput = {
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -26951,6 +26981,7 @@ export namespace Prisma {
     projectId: number
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27017,6 +27048,7 @@ export namespace Prisma {
     projectId?: IntFilter<"Feature"> | number
     name?: StringFilter<"Feature"> | string
     name_en?: StringNullableFilter<"Feature"> | string | null
+    ticket_number?: StringNullableFilter<"Feature"> | string | null
     status?: StringFilter<"Feature"> | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Feature"> | $Enums.ProjectAssetCaptureType
     backlogDescription?: JsonNullableFilter<"Feature">
@@ -27071,6 +27103,7 @@ export namespace Prisma {
   export type FeatureCreateWithoutProjectInput = {
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27092,6 +27125,7 @@ export namespace Prisma {
     id?: number
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27613,6 +27647,7 @@ export namespace Prisma {
   export type FeatureCreateWithoutProjectAssigneesInput = {
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27635,6 +27670,7 @@ export namespace Prisma {
     projectId: number
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27730,6 +27766,7 @@ export namespace Prisma {
   export type FeatureUpdateWithoutProjectAssigneesInput = {
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27752,6 +27789,7 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27771,6 +27809,7 @@ export namespace Prisma {
   export type FeatureCreateWithoutTimesheetsInput = {
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27793,6 +27832,7 @@ export namespace Prisma {
     projectId: number
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27882,6 +27922,7 @@ export namespace Prisma {
   export type FeatureUpdateWithoutTimesheetsInput = {
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -27904,6 +27945,7 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -28641,6 +28683,7 @@ export namespace Prisma {
     projectId: number
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -28729,6 +28772,7 @@ export namespace Prisma {
   export type FeatureUpdateWithoutProjectStatusInput = {
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -28751,6 +28795,7 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -28772,6 +28817,7 @@ export namespace Prisma {
     projectId?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -28790,6 +28836,7 @@ export namespace Prisma {
     id?: number
     name: string
     name_en?: string | null
+    ticket_number?: string | null
     status?: string
     assetCaptureType?: $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -28829,6 +28876,7 @@ export namespace Prisma {
   export type FeatureUpdateWithoutProjectInput = {
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -28850,6 +28898,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue
@@ -28871,6 +28920,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     name_en?: NullableStringFieldUpdateOperationsInput | string | null
+    ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
     backlogDescription?: NullableJsonNullValueInput | InputJsonValue

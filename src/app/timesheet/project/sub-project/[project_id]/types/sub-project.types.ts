@@ -10,6 +10,7 @@ export interface SubProject {
   id: number;
   name: string;
   name_en?: string;
+  ticket_number?: string;
   project_id: number;
   startDate?: string | Date;
   endDate?: string | Date;
@@ -43,6 +44,7 @@ export interface SubProjectFormValues {
   id?: number;
   name: string;
   name_en?: string;
+  ticket_number?: string;
   asset_capture_type: "CAPTUREABLE" | "UN_CAPTUREABLE";
   dateRange: [any, any];
   estimate_time?: string;

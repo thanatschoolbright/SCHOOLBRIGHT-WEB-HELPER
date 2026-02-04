@@ -241,6 +241,7 @@ exports.Prisma.FeatureScalarFieldEnum = {
   projectId: 'projectId',
   name: 'name',
   name_en: 'name_en',
+  ticket_number: 'ticket_number',
   status: 'status',
   assetCaptureType: 'assetCaptureType',
   backlogDescription: 'backlogDescription',

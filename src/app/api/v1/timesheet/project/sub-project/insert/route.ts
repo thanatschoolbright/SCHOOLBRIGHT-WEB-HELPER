@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
-import { successResponse, errorResponse } from "@/helpers/api/response";
-import { validateRequest } from "@helpers/api/validate.request";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { projectIdValidation } from "@api/v1/timesheet/helper/timesheet.validation";
+import { validateRequest } from "@helpers/api/validate.request";
+import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
+import { NextRequest, NextResponse } from "next/server";
 import { Schema } from "./route.validator";
 
+/* ✨ บันทึกหรืออัปเดตข้อมูลโครงการย่อย (Feature) พร้อมรายชื่อผู้รับผิดชอบ */
 export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(request, Schema);
   if (error) return error;
@@ -15,6 +16,7 @@ export async function POST(request: NextRequest) {
     by,
     name,
     name_en,
+    ticket_number,
     backlogDescription,
     startDate,
     endDate,
@@ -35,6 +37,7 @@ export async function POST(request: NextRequest) {
     const commonPayload = {
       name,
       name_en,
+      ticket_number,
       backlogDescription,
       assetCaptureType: assetCaptureTypeVal,
       startDate,
