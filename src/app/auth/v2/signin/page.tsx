@@ -1,39 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Typography,
-  Space,
-  theme,
-  Row,
-  Col,
-  Divider,
-  Badge,
-  Modal,
-  Steps,
-  Result,
-  Alert,
-  Tag,
-} from "antd";
-import {
-  LockOutlined,
-  UserOutlined,
-  GoogleOutlined,
-  LoadingOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  InfoCircleOutlined,
-  ArrowRightOutlined,
-  BugOutlined,
-  ThunderboltOutlined,
-  SmileOutlined,
-} from "@ant-design/icons";
 import { loginAction } from "@/actions/auth";
 import LogoHeader from "@/components/auth/logo-header";
+import {
+  BugOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  GoogleOutlined,
+  LoadingOutlined,
+  LockOutlined,
+  SmileOutlined,
+  ThunderboltOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import {
+  Alert,
+  Badge,
+  Button,
+  Col,
+  Divider,
+  Form,
+  Input,
+  Modal,
+  Result,
+  Row,
+  Space,
+  Steps,
+  Tag,
+  theme,
+  Typography,
+} from "antd";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const { Title, Text, Paragraph } = Typography;
 
