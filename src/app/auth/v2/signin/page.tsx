@@ -88,11 +88,32 @@ export default function SignInPage() {
         }, 1000);
       }
     } catch (error: any) {
-      setLoginStatus("error");
-      setErrorMessage("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+      const isActionError =
+        error.message?.includes("Server Action") ||
+        error.message?.includes("not found") ||
+        error.digest?.includes("ACTION_NOT_FOUND");
+
+      if (isActionError) {
+        setLoginStatus("error");
+        setErrorMessage(
+          "ตรวจพบการอัปเดตระบบ (Version Mismatch) กำลังรีเฟรชหน้าจออัตโนมัติ...",
+        );
+        setTimeout(() => {
+          window.location.reload();
+        }, 2500);
+      } else {
+        setLoginStatus("error");
+        setErrorMessage(
+          error.message?.includes("fetch") || error.message?.includes("network")
+            ? "ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ โปรดตรวจสอบการเชื่อมต่อ"
+            : "เกิดข้อผิดพลาดที่ไม่คาดคิดในการเข้าสู่ระบบ",
+        );
+      }
+
       setDebugData({
         timestamp: new Date().toISOString(),
         error: error.message,
+        digest: error.digest,
         stack: error.stack,
       });
     } finally {
