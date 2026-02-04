@@ -1,9 +1,9 @@
 // components/providers/locale-provider.tsx
 "use client";
 
-import { useEffect, useState, ReactNode } from "react";
-import { I18nextProvider } from "react-i18next";
 import i18n from "@/i18n";
+import { ReactNode, useEffect, useState } from "react";
+import { I18nextProvider } from "react-i18next";
 
 interface LocaleProviderProps {
   locale: string;

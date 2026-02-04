@@ -1,11 +1,11 @@
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import AntThemeProvider from "@components/layouts/ant-layout";
 import CopyrightToggle from "@components/layouts/copyright-toggle";
 import CombinedProviders from "@components/providers/client-providers";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { Toaster } from "sonner";
 import React from "react";
+import { Toaster } from "sonner";
 
 // Styles
 import "@styles/globals.css";
@@ -127,7 +127,11 @@ export default function RootLayout({
         />
         {/* Resource Hints */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
       </head>

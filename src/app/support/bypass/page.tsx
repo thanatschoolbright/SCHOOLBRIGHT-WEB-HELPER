@@ -34,19 +34,25 @@ import {
   theme,
   Typography,
 } from "antd";
-import dynamic from "next/dynamic";
 import type { ColumnsType } from "antd/es/table";
+import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BypassSelectionModal from "./components/bypass-selection-modal.component";
 
 // 🚀 Dynamic Imports (Optimize Bundle Size)
-const ProvinceRankingModal = dynamic(() => import("./components/province-ranking-modal.component"), {
-  ssr: false,
-});
-const SaleRankingModal = dynamic(() => import("./components/sale-ranking-modal.component"), {
-  ssr: false,
-});
+const ProvinceRankingModal = dynamic(
+  () => import("./components/province-ranking-modal.component"),
+  {
+    ssr: false,
+  },
+);
+const SaleRankingModal = dynamic(
+  () => import("./components/sale-ranking-modal.component"),
+  {
+    ssr: false,
+  },
+);
 
 import { useBypassPageData } from "./hooks/bypass.data";
 import type { SchoolDetail } from "./types/bypass.types";
