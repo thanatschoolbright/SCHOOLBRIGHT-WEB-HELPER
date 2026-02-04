@@ -268,7 +268,7 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
       open={open}
       title={
         <Space size={12}>
-          <div className="p-2 rounded-xl bg-blue-50 text-blue-500">
+          <div className="p-2 rounded-xl  text-blue-500">
             <UserOutlined style={{ fontSize: 20 }} />
           </div>
           <div>
@@ -360,17 +360,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       "noopener,noreferrer",
     );
   };
-  const isDark = token.colorBgBase === "#0B0F19";
   return (
     <Card
       style={{
-        background: isDark
-          ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorPrimary}25 100%)`
-          : `linear-gradient(135deg, ${token.colorBgContainer} 40%, ${token.colorPrimary}08 100%)`,
         borderRadius: 24,
-        boxShadow: isDark
-          ? "0 8px 32px rgba(0,0,0,0.4)"
-          : "0 8px 30px rgba(0,0,0,0.04)",
         overflow: "hidden",
         position: "relative",
         border: `1px solid ${token.colorBorderSecondary}`,
@@ -434,9 +427,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 style={{
                   marginTop: 8,
                   padding: "4px 12px",
-                  background: isDark
-                    ? "rgba(255,255,255,0.05)"
-                    : "rgba(0,0,0,0.02)",
                   borderRadius: 8,
                   width: "fit-content",
                   display: "flex",
@@ -482,7 +472,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     width: 48,
                     borderRadius: 24,
                     border: `1px solid ${token.colorBorder}`,
-                    background: isDark ? token.colorBgElevated : "#fff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -579,7 +568,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   width: 48,
                   borderRadius: 24,
                   border: `1px solid ${token.colorBorder}`,
-                  background: isDark ? token.colorBgElevated : "#fff",
                 }}
               />
             </Dropdown>
@@ -710,7 +698,6 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
       ? dayjs(metadata.generated_at).format("DD/MM/BBBB HH:mm:ss")
       : null;
 
-    const isDark = token.colorBgBase === "#0B0F19";
     return (
       <Card
         hoverable
@@ -718,12 +705,6 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
           height: "100%",
           borderRadius: 24,
           border: `1px solid ${token.colorBorderSecondary}`,
-          boxShadow: isDark
-            ? "0 10px 40px -10px rgba(0,0,0,0.4)"
-            : "0 10px 40px -10px rgba(0,0,0,0.08)",
-          background: isDark
-            ? `linear-gradient(165deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`
-            : `linear-gradient(165deg, #ffffff 0%, ${token.colorFillAlter} 100%)`,
           overflow: "hidden",
           transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
@@ -971,7 +952,6 @@ const StatsGrid: React.FC<StatsGridProps> = ({
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
-  const isDark = token.colorBgBase === "#0B0F19";
   const [variant, setVariant] = useState<"compact" | "wide">("compact");
   // Adjusted spans for better balance
   const leftColSpan = 8;
@@ -1015,9 +995,6 @@ const StatsGrid: React.FC<StatsGridProps> = ({
                   height: "100%",
                   borderRadius: 24,
                   border: `1px solid ${token.colorBorderSecondary}`,
-                  background: isDark
-                    ? `linear-gradient(165deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`
-                    : `linear-gradient(165deg, #ffffff 0%, ${token.colorFillAlter} 100%)`,
                   overflow: "hidden",
                 }}
                 styles={{ body: { padding: 0 } }}
@@ -1252,20 +1229,19 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             <div
               className="flex flex-col items-center justify-center w-[64px] h-[64px] rounded-2xl mx-auto border border-solid transition-all hover:shadow-md hover:-translate-y-0.5"
               style={{
-                background: "#111",
-                borderColor: "#111",
+                borderColor: token.colorBorder,
               }}
             >
               <Typography.Text
                 strong
                 className="text-2xl leading-none"
-                style={{ color: "#fff" }}
+                style={{ color: token.colorText }}
               >
                 {dayjs(value).format("DD")}
               </Typography.Text>
               <Typography.Text
                 className="text-[10px] uppercase font-bold tracking-tight mt-1"
-                style={{ color: "#fff", opacity: 0.7 }}
+                style={{ color: token.colorTextSecondary }}
               >
                 {dayjs(value).format("MMM BBBB")}
               </Typography.Text>
@@ -1323,7 +1299,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 type="secondary"
                 className="text-[12px] flex items-center gap-1.5"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                <span className="w-1.5 h-1.5 rounded-full" />
                 <span className="truncate">
                   {record.feature_name || "General Task"}
                 </span>
@@ -1355,7 +1331,6 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             config.text;
 
           // Dynamic colors and icons based on status
-          const isDark = token.colorBgBase === "#0B0F19";
           const statusMap: any = {
             IN_PROGRESS: {
               icon: <SyncOutlined spin />,
@@ -1395,7 +1370,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-bold border border-solid"
               style={{
                 color: current.color,
-                backgroundColor: isDark ? `${current.color}10` : current.bg,
+                backgroundColor: current.bg,
                 borderColor: `${current.color}30`,
               }}
             >
@@ -1499,7 +1474,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   e.stopPropagation();
                   onEdit(r);
                 }}
-                className="hover:bg-orange-50"
+                className=""
               />
             </Tooltip>
             <Tooltip title="คัดลอก">
@@ -1512,7 +1487,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   e.stopPropagation();
                   onCopy(r);
                 }}
-                className="hover:bg-green-50"
+                className=""
               />
             </Tooltip>
           </Space>
@@ -1532,7 +1507,6 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
     [columns, visibleColumns],
   );
 
-  const isDark = token.colorBgBase === "#0B0F19";
   return (
     <Card
       title={
@@ -1600,7 +1574,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                       <Checkbox
                         key={col.key}
                         value={col.key}
-                        className="hover:bg-slate-50 p-1 rounded-md transition-colors w-full"
+                        className="p-1 rounded-md transition-colors w-full"
                       >
                         <span style={{ fontSize: 13 }}>{col.label}</span>
                       </Checkbox>
@@ -1642,9 +1616,6 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       style={{
         margin: "24px 0",
         borderRadius: 24,
-        boxShadow: isDark
-          ? "0 8px 32px rgba(0,0,0,0.4)"
-          : "0 8px 30px rgba(0,0,0,0.04)",
         overflow: "hidden",
         border: `1px solid ${token.colorBorderSecondary}`,
       }}
@@ -1652,9 +1623,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
     >
       <style jsx global>{`
         .ant-table-wrapper .ant-table-thead > tr > th {
-          background: ${isDark
-            ? token.colorFillQuaternary
-            : token.colorFillAlter} !important;
+          background: ${token.colorFillAlter} !important;
           border-bottom: 2px solid ${token.colorPrimary}20 !important;
           padding-top: 24px !important;
           padding-bottom: 24px !important;
@@ -3060,7 +3029,6 @@ export default function TimesheetEntryPage() {
   const isMountedRef = useRef(true);
   const rankBoardRef = useRef<MonthlyRankBoardRef>(null);
   const { token } = theme.useToken();
-  const isDark = token.colorBgBase === "#0B0F19";
   const authState = useAppSelector((state) => state.callAdminLogin);
   const timesheetState = useAppSelector((state) => state.timesheet);
 
@@ -3335,18 +3303,6 @@ export default function TimesheetEntryPage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{
-            padding: "32px",
-            minHeight: "100vh",
-            background: isDark
-              ? `radial-gradient(at 0% 0%, ${token.colorPrimary}10 0px, transparent 50%),
-                 radial-gradient(at 100% 0%, ${token.colorInfo}10 0px, transparent 50%),
-                 ${token.colorBgLayout}`
-              : `radial-gradient(at 0% 0%, ${token.colorPrimary}05 0px, transparent 50%),
-                 radial-gradient(at 100% 0%, ${token.colorInfo}05 0px, transparent 50%),
-                 ${token.colorBgLayout}`,
-            transition: "background 0.5s ease",
-          }}
         >
           <Space direction="vertical" size={24} style={{ width: "100%" }}>
             <PageHeader

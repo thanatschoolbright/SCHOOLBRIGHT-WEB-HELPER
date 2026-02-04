@@ -81,16 +81,19 @@ jobs:
       - run: npm audit --audit-level=high || echo "⚠️ Audit warning"
 
   # ============================================
-  # 3. Build on GitHub Cloud
+  # 3. Build & Deploy on Server (Optimized)
   # ============================================
-  build:
-    name: 🔨 Build on GitHub
-    runs-on: ubuntu-latest
+  deploy:
+    name: 🚀 Build & Deploy on Server
+    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     needs: [pre_flight_checks, quality-gates]
     if: |
       always() &&
       (needs.quality-gates.result == 'success' || needs.quality-gates.result == 'skipped') &&
       needs.pre_flight_checks.result == 'success'
+    environment:
+      name: production
+      url: https://sb-helper.schoolbright.co
 
     steps:
       - name: Checkout Code
@@ -98,103 +101,36 @@ jobs:
         with:
           ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install Dependencies
-        run: npm ci --prefer-offline --no-audit
-
-      - name: Generate Prisma Client (Build Time)
-        run: |
-          if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
-          if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
-
-      - name: Build Application
-        run: npm run build
-
-      # ✅ Pack ไฟล์เป็นก้อนเดียว (Tarball)
-      - name: 📦 Pack Artifacts
-        run: |
-          tar -czf artifact.tar.gz .next public package.json package-lock.json next.config.mjs prisma
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          retention-days: 1
-          path: artifact.tar.gz
-
-  # ============================================
-  # 4. Deploy to Production (Self-hosted)
-  # ============================================
-  deploy:
-    name: 🚀 Deploy to Production
-    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
-    needs: [pre_flight_checks, build]
-    environment:
-      name: production
-      url: https://sb-helper.schoolbright.co
-
-    steps:
-      - name: Prepare Deployment Directory
+      - name: Sync to Deploy Path
         run: |
           sudo mkdir -p "${{ env.DEPLOY_PATH }}"
           sudo chown -R $USER:$USER "${{ env.DEPLOY_PATH }}"
+          # Sync code while preserving .env and excluding old build/modules
+          rsync -avz --exclude '.git' --exclude '.next' --exclude 'node_modules' ./ "${{ env.DEPLOY_PATH }}/"
 
-          # ลบไฟล์เก่าแต่เก็บ .env ไว้ (ถ้ามี)
-          cd "${{ env.DEPLOY_PATH }}"
-          find . -maxdepth 1 ! -name '.env' ! -name '.' -exec rm -rf {} +
-
-      # ✅ แยก Step ออกมาถูกต้องแล้ว
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.DEPLOY_PATH }}
-
-      # ✅ แตกไฟล์ Tarball
-      - name: 📦 Extract Artifacts
+      - name: Build Application on Server
         run: |
-          cd "${{ env.DEPLOY_PATH }}"
-          echo "📂 Extracting artifact..."
-          tar -xzf artifact.tar.gz
-          rm artifact.tar.gz
+          # Load NVM/Node environment
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-          # ตรวจสอบทันทีว่า .next มาจริงไหม
-          if [ -d ".next" ]; then
-             echo "✅ .next folder found!"
-          else
-             echo "❌ Error: .next folder is missing!"
-             exit 1
-          fi
-
-      - name: Install Deps & Regenerate Prisma
-        run: |
           cd "${{ env.DEPLOY_PATH }}"
 
-          echo "📦 Installing Prod Dependencies..."
-          # ✅ ใช้ --legacy-peer-deps แก้ปัญหา ESLint Conflict
-          npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
+          echo "📦 Installing All Dependencies..."
+          npm ci --legacy-peer-deps --prefer-offline --no-audit
 
-          echo "🔧 Installing Prisma CLI..."
-          # ✅ ลง Prisma แยกเพื่อให้ npx หา version เจอ
-          npm install --no-save --legacy-peer-deps prisma
-
-          echo "⚙️ Regenerating Prisma (Server OS)..."
+          echo "⚙️ Generating Prisma Clients..."
           if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
-          if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
+          if [ -f "prisma/timesheet/schema.prisma" ]; (npx prisma generate --schema=prisma/timesheet/schema.prisma); fi
 
-          echo "🔐 Setting Permissions for PM2..."
-          # ✅ ตั้ง Owner ให้ Runner เพื่อให้ PM2 จัดการได้
-          sudo chown -R $USER:$USER "${{ env.DEPLOY_PATH }}"
-          sudo chmod -R 755 "${{ env.DEPLOY_PATH }}"
+          echo "🔨 Building Next.js..."
+          npm run build
+
+          echo "🗑️ Cleaning devDependencies..."
+          npm prune --production
 
       - name: Restart Service (PM2)
         run: |
-          # โหลด NVM ให้ Runner รู้จัก node/pm2 (ปรับ path ตามจริงของ user githubrunner)
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
@@ -208,10 +144,13 @@ jobs:
           pm2 save
 
       - name: Check PM2 Status
-        run: pm2 status sb-web-helper
+        run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          pm2 status sb-web-helper
 
   # ============================================
-  # 5. Verification
+  # 4. Verification
   # ============================================
   verify:
     name: ✅ Verify
@@ -224,12 +163,12 @@ jobs:
           if [ "$HTTP_STATUS" == "200" ]; then echo "✅ OK"; else echo "⚠️ Status: $HTTP_STATUS"; fi
 
   # ============================================
-  # 6. Deployment Summary
+  # 5. Deployment Summary
   # ============================================
   summary:
     name: 📝 Deployment Summary
     runs-on: ubuntu-latest
-    needs: [pre_flight_checks, quality-gates, build, deploy, verify]
+    needs: [pre_flight_checks, quality-gates, deploy, verify]
     if: always()
     steps:
       - name: Generate Summary Table
@@ -247,19 +186,17 @@ jobs:
 
           PRE_FLIGHT=$(get_status_emoji "${{ needs.pre_flight_checks.result }}")
           QUALITY=$(get_status_emoji "${{ needs.quality-gates.result }}")
-          BUILD=$(get_status_emoji "${{ needs.build.result }}")
           DEPLOY=$(get_status_emoji "${{ needs.deploy.result }}")
           VERIFY=$(get_status_emoji "${{ needs.verify.result }}")
 
           # เขียน Markdown ลงใน $GITHUB_STEP_SUMMARY
-          echo "## 🚀 Production Deployment Report (PM2)" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Production Deployment Report (Optimized Build)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Job Name | Status | Details |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
           echo "| 🔍 Pre-flight Checks | $PRE_FLIGHT | Ref: \`${{ needs.pre_flight_checks.outputs.deployment_ref }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| 🛡️ Quality Gates | $QUALITY | Lint & Unit Tests |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔨 Build Artifact | $BUILD | Node v${{ env.NODE_VERSION }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🚀 Production Deploy | $DEPLOY | Managed by: \`PM2\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🚀 Build & Deploy | $DEPLOY | Managed by: \`PM2\` (Server Build) |" >> $GITHUB_STEP_SUMMARY
           echo "| ✅ Health Check | $VERIFY | URL: [schoolbright.co](https://sb-helper.schoolbright.co) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
