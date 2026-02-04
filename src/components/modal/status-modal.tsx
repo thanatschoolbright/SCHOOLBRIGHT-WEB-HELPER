@@ -1,5 +1,5 @@
+import { Button, Modal, Result, Typography } from "antd";
 import React from "react";
-import { Modal, Result, Typography, Button } from "antd";
 
 const { Paragraph, Text } = Typography;
 
@@ -30,7 +30,7 @@ const StatusModal: React.FC<StatusModalProps> = ({
       onCancel={onClose}
       footer={null}
       centered
-      destroyOnClose
+      destroyOnHidden
       width={isSuccess ? 480 : 640}
       loading={loading}
     >

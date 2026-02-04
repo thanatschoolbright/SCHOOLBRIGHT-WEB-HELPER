@@ -1,41 +1,63 @@
 "use client";
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import DashboardLayout from "@components/layouts/backend-layout";
-import { useDispatch } from "react-redux";
-import { AppDispatch, useAppSelector } from "@stores/store";
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  CopyOutlined,
+  FileTextOutlined,
+  FilterOutlined,
+  RestOutlined,
+  SearchOutlined,
+  TableOutlined,
+} from "@ant-design/icons";
+import type { InputRef } from "antd";
 import {
   Button,
   Card,
+  Col,
+  Flex,
   Form,
+  Grid,
   Input,
-  Modal,
+  Row,
   Select,
   Space,
   Table,
   Tag,
+  theme,
   Typography,
 } from "antd";
 import type { ColumnsType, ColumnType } from "antd/es/table";
-import type { InputRef } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
 import { toast } from "sonner";
-import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
-import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get-user";
-import { CallAPI as GET_LEAVE_LETTER_LIST } from "@stores/actions/mobile/call-get-leave-letter";
-import { CallAPI as FIX_LEAVE_LETTER_DETAIL } from "@stores/actions/mobile/call-get-fix-leave-letter-status";
-import type { ResponseLeaveLetter, ResponseUserList } from "@/stores/type";
+
+// Components
+import SummaryCard from "@/components/card/summary-card";
+import StatusModal from "@/components/modal/status-modal";
+import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 
+// Store & Types
+import type { ResponseLeaveLetter, ResponseUserList } from "@/stores/type";
+import { CallAPI as FIX_LEAVE_LETTER_DETAIL } from "@stores/actions/mobile/call-get-fix-leave-letter-status";
+import { CallAPI as GET_LEAVE_LETTER_LIST } from "@stores/actions/mobile/call-get-leave-letter";
+import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get-user";
+import { AppDispatch, useAppSelector } from "@stores/store";
+
+// Helpers
+import { convertTimeZoneToThai } from "@helpers/convert-time-zone-to-thai";
+
+const { Text } = Typography;
+const { useBreakpoint } = Grid;
 const PAGE_SIZE = 10;
 
+/**
+ * กำหนดประเภทข้อมูลสำหรับคอลัมน์ที่ค้นหาได้
+ */
 type SearchableColumnKey =
   | "letterId"
   | "letterSubmitDate"
@@ -44,10 +66,16 @@ type SearchableColumnKey =
   | "userType"
   | "status";
 
+/**
+ * ขยายประเภท ColumnType ของ Ant Design เพื่อรองรับ key ที่ระบุ
+ */
 type TableColumn = ColumnType<any> & {
   key: keyof ResponseLeaveLetter | string;
 };
 
+/**
+ * สถานะของชุดข้อมูลที่ดึงมาจาก API
+ */
 type DatasetState = {
   data: ResponseLeaveLetter[];
   loading: boolean;
@@ -55,30 +83,45 @@ type DatasetState = {
   page: number;
 };
 
+/**
+ * แมปปิ้งป้ายกำกับประเภทผู้ใช้งาน
+ */
 const USER_TYPE_LABEL: Record<string, string> = {
   "0": "นักเรียน",
   "1": "คุณครู",
 };
 
+/**
+ * แมปปิ้งสีสำหรับสถานะต่างๆ
+ */
 const STATUS_COLOR_MAP: Record<string, string> = {
   อนุมัติ: "green",
   รออนุมัติ: "orange",
   ปฏิเสธ: "red",
 };
 
-const getStatusColor = (status?: string) => {
-  if (!status) {
-    return "default";
-  }
+/**
+ * ฟังก์ชันช่วยเหลือในการดึงสีตามสถานะ
+ * @param status ข้อความสถานะ
+ * @returns ชื่อสีที่สอดคล้อง
+ */
+const getStatusColorByText = (status?: string): string => {
+  if (!status) return "default";
   return STATUS_COLOR_MAP[status] ?? "default";
 };
 
-export default function Page() {
+export default function LeaveLetterManagementPage() {
+  const { t: TRANSLATION } = useTranslation("translate");
+  const { token } = theme.useToken();
+  const screens = useBreakpoint();
   const dispatch = useDispatch<AppDispatch>();
   const [form] = Form.useForm<{ schoolID: string; userID: string }>();
 
+  // ✅ ดึงข้อมูลจาก Redux Store
   const schoolState = useAppSelector((state) => state.callSchoolList);
   const userState = useAppSelector((state) => state.callGetuserBySchoolId);
+
+  // ✅ สถานะภายใน Component
   const [dataset, setDataset] = useState<DatasetState>({
     data: [],
     loading: false,
@@ -86,79 +129,151 @@ export default function Page() {
     page: 1,
   });
 
+  const [statusModalConfig, setStatusModalConfig] = useState<{
+    open: boolean;
+    type: "success" | "error";
+    title: string;
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
+
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
 
+  // ✅ ข้อมูลสำหรับตัวเลือกโรงเรียน
   const schoolOptions = useMemo(() => {
-    return (
-      schoolState?.response?.data?.map((item: any) => ({
-        label: `${item.SchoolName} (${item.SchoolID})`,
-        value: String(item.SchoolID),
-      })) ?? []
-    );
+    const rawData = schoolState?.response?.data;
+    const arrayData = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray(rawData?.data)
+        ? rawData.data
+        : [];
+
+    return arrayData.map((item: any) => ({
+      label: `${item.SchoolName} (${item.SchoolID})`,
+      value: String(item.SchoolID),
+    }));
   }, [schoolState?.response?.data]);
 
+  // ✅ ข้อมูลสำหรับตัวเลือกผู้ใช้งาน
   const userOptions = useMemo(() => {
-    return (
-      userState?.response?.data?.data?.map(
-        (item: ResponseUserList["draftValues"]) => ({
-          label: `${item?.Name ?? ""} ${item?.LastName ?? ""} (ID: ${
-            item?.UserID
-          })`,
-          value: String(item?.UserID),
-        })
-      ) ?? []
+    const rawData = userState?.response?.data;
+    const arrayData = Array.isArray(rawData?.data)
+      ? rawData.data
+      : Array.isArray(rawData)
+        ? rawData
+        : [];
+
+    return arrayData.map((item: ResponseUserList["draftValues"]) => ({
+      label: `${item?.Name ?? ""} ${item?.LastName ?? ""} (ID: ${
+        item?.UserID
+      })`,
+      value: String(item?.UserID),
+    }));
+  }, [userState?.response?.data]);
+
+  // ✅ การคำนวณข้อมูลสรุป (Summary Card) - ใช้จาก API Response โดยตรง
+  const summaryCounters = useMemo(() => {
+    const rawData = dataset.data || [];
+    return rawData.reduce(
+      (accumulator, currentItem) => {
+        // ✅ กรองออกหากรายการระบุว่าถูกลบ (is_deleted : true จะต้องไม่นำมาคำนวณ)
+        const isDeleted =
+          currentItem?.is_deleted === true ||
+          currentItem?.is_deleted === 1 ||
+          currentItem?.is_deleted === "1";
+
+        if (isDeleted) {
+          return accumulator;
+        }
+
+        const statusTH = currentItem.ApprovedStatus?.TextTH;
+        const statusEN = currentItem.ApprovedStatus?.TextEN;
+
+        if (statusTH === "อนุมัติ" || statusEN === "Approved") {
+          accumulator.approved++;
+        } else if (statusTH === "รออนุมัติ" || statusEN === "Pending") {
+          accumulator.pending++;
+        } else if (statusTH === "ปฏิเสธ" || statusEN === "Rejected") {
+          accumulator.rejected++;
+        }
+
+        accumulator.total++;
+        return accumulator;
+      },
+      { total: 0, approved: 0, pending: 0, rejected: 0 },
     );
-  }, [userState?.response?.data?.data]);
+  }, [dataset.data]);
 
   const overallLoading = Boolean(
-    schoolState.loading || userState.loading || dataset.loading
+    schoolState.loading || userState.loading || dataset.loading,
   );
 
-  const fetchUsersBySchool = useCallback(
+  /**
+   * ฟังก์ชันสำหรับดึงรายชื่อผู้ใช้ตามรหัสโรงเรียน
+   * @param schoolID รหัสโรงเรียน
+   */
+  const requestUsersBySchoolID = useCallback(
     async (schoolID?: string) => {
-      if (!schoolID) {
-        return;
-      }
+      if (!schoolID) return;
 
-      const toastId = toast.loading("กำลังโหลดรายชื่อผู้ใช้...");
+      const toastId = toast.loading(
+        TRANSLATION("common.loading_users") || "กำลังโหลดรายชื่อผู้ใช้...",
+      );
       try {
         await dispatch(GET_USER_BY_SCHOOLID({ schoolId: schoolID })).unwrap();
-        toast.success("โหลดรายชื่อผู้ใช้สำเร็จ", { id: toastId });
+        toast.success(
+          TRANSLATION("common.load_users_success") || "โหลดรายชื่อผู้ใช้สำเร็จ",
+          { id: toastId },
+        );
       } catch (error: any) {
         toast.error(error?.message ?? "ไม่สามารถโหลดรายชื่อผู้ใช้", {
           id: toastId,
         });
       }
     },
-    [dispatch]
+    [dispatch, TRANSLATION],
   );
 
-  const fetchLeaveLetters = useCallback(
+  /**
+   * ฟังก์ชันสำหรับดึงรายการจดหมายลาหยุดของผู้ใช้
+   * @param userID รหัสผู้ใช้
+   * @param requestedPage ลำดับหน้า
+   */
+  const requestLeaveLettersByUserID = useCallback(
     async (userID: string, requestedPage = 1) => {
       if (!userID) {
-        toast.info("กรุณาเลือกผู้ใช้ก่อน");
+        toast.info(
+          TRANSLATION("leave_letter_page.select_user_first") ||
+            "กรุณาเลือกผู้ใช้ก่อน",
+        );
         return;
       }
 
       setDataset((prev) => ({ ...prev, loading: true }));
-      const toastId = toast.loading("กำลังโหลดจดหมายลาหยุด...");
+      const toastId = toast.loading(
+        TRANSLATION("common.loading_data") || "กำลังโหลดข้อมูล...",
+      );
 
       try {
         const response = await dispatch(
           GET_LEAVE_LETTER_LIST({
             user_id: userID,
             page: String(requestedPage),
-          })
+          }),
         ).unwrap();
 
         const responseData = response?.data;
         const normalizedData = Array.isArray(responseData)
           ? responseData
           : responseData
-          ? [responseData]
-          : [];
+            ? [responseData]
+            : [];
 
         setDataset({
           data: normalizedData,
@@ -167,84 +282,147 @@ export default function Page() {
           page: requestedPage,
         });
 
-        toast.success("โหลดข้อมูลสำเร็จ", { id: toastId });
+        toast.success(
+          TRANSLATION("common.load_success") || "โหลดข้อมูลสำเร็จ",
+          { id: toastId },
+        );
       } catch (error: any) {
         setDataset((prev) => ({ ...prev, loading: false }));
-        toast.error(error?.message ?? "ไม่สามารถโหลดข้อมูลจดหมาย", {
-          id: toastId,
-        });
+        toast.error(
+          (error?.message ?? TRANSLATION("common.load_error")) ||
+            "ไม่สามารถโหลดข้อมูลได้",
+          {
+            id: toastId,
+          },
+        );
       }
     },
-    [dispatch]
+    [dispatch, TRANSLATION],
   );
 
-  const handleSubmit = useCallback(async () => {
-    const values = await form.validateFields();
-    await fetchLeaveLetters(values.userID, 1);
-  }, [fetchLeaveLetters, form]);
+  /**
+   * จัดการการส่งฟอร์มเพื่อค้นหาข้อมูล
+   */
+  const handleFormSearchSubmit = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      await requestLeaveLettersByUserID(values.userID, 1);
+    } catch (error) {
+      // Validation error
+    }
+  }, [requestLeaveLettersByUserID, form]);
 
-  const handlePageChange = useCallback(
+  /**
+   * จัดการการเปลี่ยนหน้าในตาราง
+   * @param nextPage หน้าเป้าหมาย
+   */
+  const handleTablePageChange = useCallback(
     async (nextPage: number) => {
       const { userID } = form.getFieldsValue();
       if (!userID) {
-        toast.info("กรุณาเลือกผู้ใช้ก่อน");
+        toast.info(
+          TRANSLATION("leave_letter_page.select_user_first") ||
+            "กรุณาเลือกผู้ใช้ก่อน",
+        );
         return;
       }
 
-      if (nextPage < 1) {
-        return;
-      }
+      if (nextPage < 1) return;
 
-      await fetchLeaveLetters(userID, nextPage);
+      await requestLeaveLettersByUserID(userID, nextPage);
     },
-    [fetchLeaveLetters, form]
+    [requestLeaveLettersByUserID, form, TRANSLATION],
   );
 
-  const handleFixStatus = useCallback(
-    async (letterId: string) => {
+  /**
+   * ล้างข้อมูลการค้นหาทั้งหมด
+   */
+  const handleResetSearchFilters = useCallback(() => {
+    form.resetFields();
+    setDataset({
+      data: [],
+      loading: false,
+      curl: "",
+      page: 1,
+    });
+    toast.info(TRANSLATION("common.filters_cleared") || "ล้างตัวกรองแล้ว");
+  }, [form, TRANSLATION]);
+
+  /**
+   * แก้ไขสถานะจดหมายลาหยุด
+   * @param letterID รหัสจดหมาย
+   */
+  const requestFixLetterStatusByID = useCallback(
+    async (letterID: string) => {
       const { schoolID } = form.getFieldsValue();
       if (!schoolID) {
-        toast.info("กรุณาเลือกโรงเรียนก่อน");
+        toast.info(
+          TRANSLATION("leave_letter_page.select_school_first") ||
+            "กรุณาเลือกโรงเรียนก่อน",
+        );
         return;
       }
 
-      const toastId = toast.loading("กำลังแก้ไขสถานะ...");
+      const toastId = toast.loading(
+        TRANSLATION("common.updating_status") || "กำลังแก้ไขสถานะ...",
+      );
 
       try {
         await dispatch(
           FIX_LEAVE_LETTER_DETAIL({
             school_id: schoolID,
-            letter_id: letterId,
-          })
+            letter_id: letterID,
+          }),
         ).unwrap();
 
-        toast.success(`แก้ไขสถานะจดหมาย ${letterId} สำเร็จ`, {
-          id: toastId,
+        toast.success(
+          TRANSLATION("leave_letter_page.status_updated") ||
+            `แก้ไขสถานะจดหมาย ${letterID} สำเร็จ`,
+          {
+            id: toastId,
+          },
+        );
+
+        setStatusModalConfig({
+          open: true,
+          type: "success",
+          title: "ดำเนินการสำเร็จ",
+          message: `ระบบได้แก้ไขสถานะของจดหมายหมายเลข ${letterID} เรียบร้อยแล้ว`,
         });
 
         const { userID } = form.getFieldsValue();
         if (userID) {
-          await fetchLeaveLetters(userID, dataset.page);
+          await requestLeaveLettersByUserID(userID, dataset.page);
         }
       } catch (error: any) {
         toast.error(error?.message ?? "ไม่สามารถแก้ไขสถานะได้", {
           id: toastId,
         });
+        setStatusModalConfig({
+          open: true,
+          type: "error",
+          title: "เกิดข้อผิดพลาด",
+          message: error?.message ?? "ไม่สามารถแก้ไขสถานะได้ในขณะนี้",
+        });
       }
     },
-    [dataset.page, dispatch, fetchLeaveLetters, form]
+    [dataset.page, dispatch, requestLeaveLettersByUserID, form, TRANSLATION],
   );
 
   const selectedSchoolId = Form.useWatch("schoolID", form);
 
+  // ✅ อัปเดตรายชื่อผู้ใช้เมื่อเปลี่ยนโรงเรียน
   useEffect(() => {
     form.setFieldsValue({ userID: undefined });
     if (selectedSchoolId) {
-      fetchUsersBySchool(selectedSchoolId);
+      requestUsersBySchoolID(selectedSchoolId);
     }
-  }, [fetchUsersBySchool, form, selectedSchoolId]);
+  }, [requestUsersBySchoolID, form, selectedSchoolId]);
 
-  const getColumnSearchProps = useCallback(
+  /**
+   * ฟังก์ชันสร้าง Props สำหรับการค้นหาในคอลัมน์ของตาราง
+   */
+  const getSearchColumnProps = useCallback(
     (dataIndex: SearchableColumnKey, title: string): TableColumn => ({
       key: dataIndex,
       filterDropdown: ({
@@ -273,15 +451,7 @@ export default function Page() {
               onPressEnter={() => confirm()}
               style={{ marginBottom: 8, display: "block" }}
             />
-            <Space>
-              <Button
-                type="primary"
-                icon={<SearchOutlined />}
-                size="small"
-                onClick={() => confirm()}
-              >
-                ค้นหา
-              </Button>
+            <Space className="flex justify-end">
               <Button
                 size="small"
                 onClick={() => {
@@ -291,18 +461,26 @@ export default function Page() {
               >
                 รีเซ็ต
               </Button>
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                size="small"
+                onClick={() => confirm()}
+              >
+                ค้นหา
+              </Button>
             </Space>
           </div>
         );
       },
       filterIcon: (filtered) => (
-        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+        <SearchOutlined
+          style={{ color: filtered ? token.colorPrimary : undefined }}
+        />
       ),
       onFilter: (value, record) => {
         const raw = record[dataIndex];
-        if (!raw) {
-          return false;
-        }
+        if (!raw) return false;
         return String(raw).toLowerCase().includes(String(value).toLowerCase());
       },
       filterDropdownProps: {
@@ -313,24 +491,26 @@ export default function Page() {
         },
       },
     }),
-    []
+    [token.colorPrimary],
   );
 
-  const columns = useMemo<ColumnsType<any>>(
+  // ✅ กำหนดคอลัมน์ของตาราง
+  const leaveLetterTableColumns = useMemo<ColumnsType<any>>(
     () => [
       {
         title: "ลำดับ",
         key: "index",
         render: (_value, _record, index) =>
           index + 1 + (dataset.page - 1) * PAGE_SIZE,
-        width: 80,
+        width: 70,
         align: "center",
       },
       {
         title: "รหัสจดหมาย",
         dataIndex: "letterId",
         sorter: (a, b) => Number(a.letterId) - Number(b.letterId),
-        ...getColumnSearchProps("letterId", "รหัสจดหมาย"),
+        ...getSearchColumnProps("letterId", "รหัสจดหมาย"),
+        width: 120,
       },
       {
         title: "วันที่ส่งคำร้อง",
@@ -339,22 +519,28 @@ export default function Page() {
           dayjs(a.letterSubmitDate as unknown as string).valueOf() -
           dayjs(b.letterSubmitDate as unknown as string).valueOf(),
         render: (value: string) => convertTimeZoneToThai(new Date(value)),
-        ...getColumnSearchProps("letterSubmitDate", "วันที่ส่ง"),
+        ...getSearchColumnProps("letterSubmitDate", "วันที่ส่ง"),
+        width: 180,
       },
       {
         title: "ประเภทการลา",
         dataIndex: "letterType",
         sorter: (a, b) =>
           String(a.letterType).localeCompare(String(b.letterType)),
-        render: (value: string) => <Tag color="blue">{value}</Tag>,
-        ...getColumnSearchProps("letterType", "ประเภทการลา"),
+        render: (value: string) => (
+          <Tag color="blue" className="rounded-md">
+            {value}
+          </Tag>
+        ),
+        ...getSearchColumnProps("letterType", "ประเภทการลา"),
+        width: 150,
       },
       {
         title: "ชื่อผู้ส่งคำร้อง",
         dataIndex: "senderName",
         sorter: (a, b) =>
           String(a.senderName).localeCompare(String(b.senderName)),
-        ...getColumnSearchProps("senderName", "ชื่อผู้ส่ง"),
+        ...getSearchColumnProps("senderName", "ชื่อผู้ส่ง"),
       },
       {
         title: "ประเภทผู้ใช้งาน",
@@ -365,40 +551,62 @@ export default function Page() {
           { text: USER_TYPE_LABEL["1"], value: "1" },
         ],
         onFilter: (value, record) => String(record.userType) === String(value),
-        render: (value: string) => USER_TYPE_LABEL[value] ?? value,
-        ...getColumnSearchProps("userType", "ประเภทผู้ใช้"),
+        render: (value: string) => (
+          <Text style={{ fontWeight: 500 }}>
+            {USER_TYPE_LABEL[value] ?? value}
+          </Text>
+        ),
+        ...getSearchColumnProps("userType", "ประเภทผู้ใช้"),
+        width: 140,
       },
       {
         title: "สถานะ",
         dataIndex: "status",
-        sorter: (a, b) => String(a.status).localeCompare(String(b.status)),
+        sorter: (a, b) => {
+          const statusA = a.ApprovedStatus?.TextTH || "";
+          const statusB = b.ApprovedStatus?.TextTH || "";
+          return statusA.localeCompare(statusB);
+        },
         render: (_value: string, record) => (
-          <Tag color={getStatusColor(record.ApprovedStatus?.TextTH)}>
+          <Tag
+            color={getStatusColorByText(record.ApprovedStatus?.TextTH)}
+            className="rounded-md px-3"
+          >
             {record.ApprovedStatus?.TextTH ?? "-"}
           </Tag>
         ),
-        ...getColumnSearchProps("status", "สถานะ"),
+        ...getSearchColumnProps("status", "สถานะ"),
+        width: 120,
+        align: "center",
       },
       {
-        title: "การกระทำ",
+        title: "จัดการ",
         key: "actions",
+        width: 240,
+        align: "center",
+        fixed: "right",
         render: (_value, record) => (
           <Space>
             <Button
+              icon={<CopyOutlined />}
               onClick={() => {
                 if (!dataset.curl) {
                   toast.info("ไม่พบคำสั่ง CURL");
                   return;
                 }
                 navigator.clipboard.writeText(dataset.curl);
-                toast.success("คัดลอกคำสั่ง CURL แล้ว");
+                toast.success("คัดลอกคำสั่ง CURL เรียบร้อย");
               }}
             >
-              คัดลอก CURL
+              CURL
             </Button>
             <Button
               type="primary"
-              onClick={() => handleFixStatus(String(record.leaveLetterId))}
+              variant="filled"
+              color="primary"
+              onClick={() =>
+                requestFixLetterStatusByID(String(record.leaveLetterId))
+              }
             >
               แก้ไขสถานะ
             </Button>
@@ -406,76 +614,183 @@ export default function Page() {
         ),
       },
     ],
-    [dataset.curl, dataset.page, getColumnSearchProps, handleFixStatus]
+    [
+      dataset.curl,
+      dataset.page,
+      getSearchColumnProps,
+      requestFixLetterStatusByID,
+      token.colorPrimary,
+    ],
   );
 
   return (
     <DashboardLayout>
-      <HeaderBar title="Leave Letters" subTitle="ค้นหาและจัดการคำขอลาหยุด" icon={<></>} color="none" />
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        <Card title="ค้นหาจดหมายลาหยุด" variant="borderless">
+      {/* ส่วนที่ 1: หัวข้อหน้าจอ */}
+      <HeaderBar
+        title="Leave Letters Management"
+        subTitle="ค้นหาและจัดการความถูกต้องของสถานะคำขอลาหยุดผ่านระบบหลังบ้าน"
+        icon={<FileTextOutlined style={{ fontSize: 24 }} />}
+      />
+
+      <Space direction="vertical" size={24} style={{ width: "100%" }}>
+        {/* ส่วนที่ 2: สรุปข้อมูลภาพรวม */}
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} lg={6}>
+            <SummaryCard
+              title="รายการทั้งหมด"
+              value={summaryCounters.total}
+              icon={<FileTextOutlined />}
+              color={token.colorPrimary}
+              isLoading={dataset.loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <SummaryCard
+              title="อนุมัติแล้ว"
+              value={summaryCounters.approved}
+              icon={<CheckCircleOutlined />}
+              color="#52c41a"
+              isLoading={dataset.loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <SummaryCard
+              title="รอการตรวจสอบ"
+              value={summaryCounters.pending}
+              icon={<ClockCircleOutlined />}
+              color="#faad14"
+              isLoading={dataset.loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <SummaryCard
+              title="ถูกปฏิเสธ"
+              value={summaryCounters.rejected}
+              icon={<CloseCircleOutlined />}
+              color="#ff4d4f"
+              isLoading={dataset.loading}
+            />
+          </Col>
+        </Row>
+
+        {/* ส่วนที่ 3: ตัวกรองค้นหาข้อมูล */}
+        <Card
+          styles={{ body: { padding: 16 } }}
+          style={{
+            borderRadius: 16,
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          <Flex align="center" gap={8} style={{ marginBottom: 16 }}>
+            <FilterOutlined style={{ color: token.colorPrimary }} />
+            <Text strong style={{ fontSize: 16 }}>
+              ตัวกรอง
+            </Text>
+          </Flex>
+
           <Form
             layout="vertical"
             form={form}
-            onFinish={handleSubmit}
+            onFinish={handleFormSearchSubmit}
             initialValues={{ schoolID: "", userID: "" }}
           >
-            <Form.Item
-              label="เลือกโรงเรียน"
-              name="schoolID"
-              rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
-            >
-              <Select
-                showSearch
-                placeholder="เลือกโรงเรียน"
-                options={schoolOptions}
-                loading={schoolState.loading}
-                filterOption={(input, option) =>
-                  String(option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-              />
-            </Form.Item>
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="สถาบัน/โรงเรียน"
+                  name="schoolID"
+                  rules={[{ required: true, message: "กรุณาระบุโรงเรียน" }]}
+                >
+                  <Select
+                    showSearch
+                    placeholder="ค้นหาหรือเลือกโรงเรียน"
+                    options={schoolOptions}
+                    loading={schoolState.loading}
+                    filterOption={(input, option) =>
+                      String(option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    size="large"
+                    className="w-full"
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="ผู้ใช้งาน"
+                  name="userID"
+                  rules={[{ required: true, message: "กรุณาระบุผู้ใช้งาน" }]}
+                >
+                  <Select
+                    showSearch
+                    placeholder="ค้นหาชื่อผู้ใช้งาน"
+                    options={userOptions}
+                    loading={userState.loading}
+                    disabled={!selectedSchoolId}
+                    filterOption={(input, option) =>
+                      String(option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    size="large"
+                    className="w-full"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
 
-            <Form.Item
-              label="เลือกผู้ใช้"
-              name="userID"
-              rules={[{ required: true, message: "กรุณาเลือกผู้ใช้" }]}
-            >
-              <Select
-                showSearch
-                placeholder="เลือกผู้ใช้"
-                options={userOptions}
-                loading={userState.loading}
-                filterOption={(input, option) =>
-                  String(option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-              />
-            </Form.Item>
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit" loading={overallLoading}>
-                ค้นหา
+            <Flex justify="end" gap={12} style={{ marginTop: 8 }}>
+              <Button
+                icon={<RestOutlined />}
+                onClick={handleResetSearchFilters}
+                size="large"
+                style={{ borderRadius: 8 }}
+              >
+                ล้างการค้นหา
               </Button>
-            </Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={overallLoading}
+                icon={<SearchOutlined />}
+                size="large"
+                style={{ borderRadius: 8, paddingLeft: 24, paddingRight: 24 }}
+              >
+                ค้นหาข้อมูล
+              </Button>
+            </Flex>
           </Form>
         </Card>
 
+        {/* ส่วนที่ 4: ตารางแสดงเนื้อหาข้อมูล */}
         <Card
-          title={`ตารางจดหมายลาหยุด (หน้า ${dataset.page})`}
-          variant="outlined"
+          styles={{ body: { padding: 16 } }}
+          style={{
+            borderRadius: 16,
+            overflow: "hidden",
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
+          title={
+            <Space align="center">
+              <TableOutlined style={{ color: token.colorPrimary }} />
+              <Text strong>ผลการพิจารณาเปรียบเทียบ (หน้า {dataset.page})</Text>
+            </Space>
+          }
           extra={
             <Space>
               <Button
-                onClick={() => handlePageChange(dataset.page - 1)}
+                onClick={() => handleTablePageChange(dataset.page - 1)}
                 disabled={dataset.page <= 1}
+                style={{ borderRadius: 6 }}
               >
                 หน้าก่อนหน้า
               </Button>
-              <Button onClick={() => handlePageChange(dataset.page + 1)}>
+              <Button
+                onClick={() => handleTablePageChange(dataset.page + 1)}
+                style={{ borderRadius: 6 }}
+                disabled={dataset.data.length < PAGE_SIZE}
+              >
                 หน้าถัดไป
               </Button>
             </Space>
@@ -484,16 +799,30 @@ export default function Page() {
           <Table
             dataSource={dataset.data}
             loading={dataset.loading}
-            columns={columns}
+            columns={leaveLetterTableColumns}
             rowKey={(record) => String(record.leaveLetterId)}
             pagination={false}
             locale={{
-              emptyText: overallLoading ? "กำลังโหลด..." : "ไม่พบข้อมูล",
+              emptyText: overallLoading
+                ? "กำลังวิเคราะห์ข้อมูล..."
+                : "ยังไม่มีข้อมูลการลาหยุดในขณะนี้",
             }}
-            scroll={{ x: 1200 }}
+            scroll={{ x: 1300 }}
+            className="custom-ant-table"
           />
         </Card>
       </Space>
+
+      {/* มอดัลแสดงสถานะผลการทำงาน */}
+      <StatusModal
+        open={statusModalConfig.open}
+        onClose={() =>
+          setStatusModalConfig({ ...statusModalConfig, open: false })
+        }
+        type={statusModalConfig.type}
+        title={statusModalConfig.title}
+        message={statusModalConfig.message}
+      />
     </DashboardLayout>
   );
 }
