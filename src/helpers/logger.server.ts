@@ -60,6 +60,9 @@ export const logger = {
   },
 };
 
+// Alias for compatibility
+export const serverLogger = logger;
+
 export const createLogger = (defaultMeta: Record<string, any>) => {
   return logger.child(defaultMeta);
 };
