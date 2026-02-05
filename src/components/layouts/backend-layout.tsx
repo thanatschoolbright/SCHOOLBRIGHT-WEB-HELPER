@@ -1,15 +1,15 @@
 "use client";
 
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
-import React, { Suspense, useMemo, useState, useEffect } from "react";
-import { Layout, Skeleton, theme, Drawer, Grid, Button, Flex } from "antd";
-import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
+import { Button, Drawer, Flex, Grid, Layout, Skeleton, theme } from "antd";
+import React, { Suspense, useMemo, useState } from "react";
 
 // Components
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
-import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
 import MainHeader from "@components/layouts/backend/navbar";
 import SidebarContent from "@components/layouts/backend/sidebar-component";
+import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
 
 // Types
 type DashboardLayoutProps = {
@@ -149,19 +149,28 @@ export default function DashboardLayout({
             height: "100vh",
             position: "sticky",
             top: 0,
+            overflow: "hidden",
+            transition: "all 0.2s",
           }}
         >
-          <Flex vertical style={{ height: "100%" }}>
-            <Flex align="center" justify="center" style={{ height: 64 }}>
+          <Flex vertical style={{ height: "100%", width: "100%" }}>
+            <Flex
+              align="center"
+              justify="center"
+              style={{ height: 64, width: "100%" }}
+            >
               {/* Optional: Add Sidebar Logo placeholder */}
             </Flex>
 
-            <div className="flex-1 overflow-y-auto sidebar-menu-container">
+            <div
+              className="flex-1 overflow-y-auto sidebar-menu-container"
+              style={{ width: "100%" }}
+            >
               <MemoSidebarContent collapsed={collapsed} />
             </div>
 
             {!collapsed && (
-              <div style={{ padding: 16 }}>
+              <div style={{ padding: 16, width: "100%" }}>
                 <DarkModeToggle />
               </div>
             )}
@@ -171,6 +180,7 @@ export default function DashboardLayout({
               justify="center"
               style={{
                 height: 48,
+                width: "100%",
                 cursor: "pointer",
                 borderTop: `1px solid ${token.colorBorderSecondary}`,
                 fontSize: 18,
