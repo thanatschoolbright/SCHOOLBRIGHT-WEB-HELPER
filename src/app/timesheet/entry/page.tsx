@@ -379,7 +379,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 "จัดการเวลาทำงานของคุณได้ที่นี่",
               )}{" "}
               •{" "}
-              <Text success>
+              <Text type="success">
                 {t(
                   "timesheet_entry_page.ready_to_work",
                   "พร้อมลุยงานวันนี้หรือยัง?",
@@ -1445,7 +1445,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   <Flex vertical gap={10}>
                     {ALL_TIMESHEET_COLUMNS.map((col) => (
                       <Checkbox key={col.key} value={col.key}>
-                        <Typography.Text style={{ fontSize: 13 }}>{col.label}</Typography.Text>
+                        <Typography.Text style={{ fontSize: 13 }}>
+                          {col.label}
+                        </Typography.Text>
                       </Checkbox>
                     ))}
                   </Flex>
