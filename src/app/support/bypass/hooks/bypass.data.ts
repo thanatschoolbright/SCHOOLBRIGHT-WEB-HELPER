@@ -34,8 +34,15 @@ export const useBypassPageData = () => {
    * * Initialize Data from API
    */
   useEffect(() => {
-    void dispatch(GET_SCHOOL_LIST());
-  }, [dispatch]);
+    // โหลดเฉพาะถ้ายังไม่มีข้อมูลใน Redux
+    if (
+      !schoolListState.response.data ||
+      !Array.isArray(schoolListState.response.data.data) ||
+      schoolListState.response.data.data.length === 0
+    ) {
+      void dispatch(GET_SCHOOL_LIST());
+    }
+  }, [dispatch, schoolListState.response.data]);
 
   /*
    * * Initialize Filters

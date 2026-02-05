@@ -1,13 +1,13 @@
 "use client";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@stores/store";
-import { CallAPI as GET_SCHOOL_LIST } from "@stores/actions/call-school-list";
-import { CallAPI as GET_SCHOOL_LIST_DETAIL } from "@stores/actions/support/call-get-school-list-detail";
 import {
   setDraftValues,
   setResponse,
 } from "@/stores/reducers/call-school-list";
+import { CallAPI as GET_SCHOOL_LIST } from "@stores/actions/call-school-list";
+import { CallAPI as GET_SCHOOL_LIST_DETAIL } from "@stores/actions/support/call-get-school-list-detail";
+import { AppDispatch, useAppSelector } from "@stores/store";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 /**
  * 🏫 SchoolReduxProvider - เวอร์ชั่นรักษาความปลอดภัย (No LocalStorage)
@@ -18,9 +18,21 @@ export default function SchoolReduxProvider({
 }: Readonly<React.PropsWithChildren<{}>>) {
   const dispatch = useDispatch<AppDispatch>();
 
+  // ดึงข้อมูลจาก Redux เพื่อตรวจสอบว่าโหลดไปแล้วหรือยัง
+  const schoolList = useAppSelector(
+    (root) => root.callSchoolList.response.data,
+  );
+  const schoolDetail = useAppSelector(
+    (root) => root.callGetSchoolListDetail.response.data,
+  );
+
   useEffect(() => {
     //** โหลดรายการโรงเรียนจาก API โดยไม่ใช้ localStorage ตามนโยบายความปลอดภัย **/
     const callSchoolList = async () => {
+      // โหลดเฉพาะถ้ายังไม่มีข้อมูล
+      if (schoolList && Array.isArray(schoolList) && schoolList.length > 0)
+        return;
+
       try {
         const response = await dispatch(GET_SCHOOL_LIST()).unwrap();
         dispatch(setDraftValues(response));
@@ -33,6 +45,14 @@ export default function SchoolReduxProvider({
 
     //** โหลดรายละเอียดโรงเรียนจาก API **/
     const callSchoolListDetail = async () => {
+      // โหลดเฉพาะถ้ายังไม่มีข้อมูล
+      if (
+        schoolDetail &&
+        Array.isArray(schoolDetail.data) &&
+        schoolDetail.data.length > 0
+      )
+        return;
+
       try {
         await dispatch(GET_SCHOOL_LIST_DETAIL()).unwrap();
         console.info("[SAFE] School details loaded to Redux");
@@ -43,7 +63,7 @@ export default function SchoolReduxProvider({
 
     callSchoolList();
     callSchoolListDetail();
-  }, [dispatch]);
+  }, [dispatch, schoolList, schoolDetail]);
 
   return <>{children}</>;
 }

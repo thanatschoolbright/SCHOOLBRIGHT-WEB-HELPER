@@ -1,5 +1,5 @@
-import { NextRequest } from "next/server";
 import { CreateApiLogRequest } from "@/types/api-log.types";
+import { NextRequest } from "next/server";
 
 /**
  * Utility functions สำหรับจัดการ API Logging
@@ -108,7 +108,7 @@ export class ApiLogUtils {
    * @returns Promise<Record<string, any> | undefined> request body หรือ undefined
    */
   static async extractRequestBody(
-    request: NextRequest
+    request: NextRequest,
   ): Promise<Record<string, any> | undefined> {
     try {
       const contentType = request.headers.get("content-type") || "";
@@ -176,7 +176,7 @@ export class ApiLogUtils {
    */
   static async createLogData(
     request: NextRequest,
-    additionalData?: Partial<CreateApiLogRequest>
+    additionalData?: Partial<CreateApiLogRequest>,
   ): Promise<CreateApiLogRequest> {
     const url = request.url;
     const endpoint = this.extractEndpoint(url);
@@ -214,7 +214,7 @@ export class ApiLogUtils {
     logData: CreateApiLogRequest,
     statusCode: number,
     responseBody?: Record<string, any>,
-    errorMessage?: string
+    errorMessage?: string,
   ): CreateApiLogRequest {
     const responseTime = new Date();
     const durationMs = responseTime.getTime() - logData.requestTime.getTime();
@@ -327,7 +327,7 @@ export class ApiLogUtils {
       body?: any;
       errorMessage?: string;
     },
-    startTime: Date
+    startTime: Date,
   ): Promise<void> {
     try {
       const endTime = new Date();
@@ -362,13 +362,12 @@ export class ApiLogUtils {
           logData,
           responseData.status,
           this.sanitizeResponseBody(responseData.body),
-          responseData.errorMessage
+          responseData.errorMessage,
         );
 
         // Import และบันทึกลงฐานข้อมูล (async - ไม่บล็อค)
-        const { ApiLogService } = await import(
-          "@/services/backend/api-log/api-log.service"
-        );
+        const { ApiLogService } =
+          await import("@/services/backend/api-log/api-log.service");
         ApiLogService.createApiLog(finalLogData).catch((error) => {
           // console.error("❌ API Log creation failed:", error);
         });
@@ -438,6 +437,6 @@ export class ApiLogUtils {
       calledBy: calledBy,
     };
 
-    console.log(JSON.stringify(logObject, null, 2));
+    // console.log(JSON.stringify(logObject, null, 2));
   }
 }
