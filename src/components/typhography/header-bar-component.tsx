@@ -1,7 +1,16 @@
 "use client";
 
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, Flex, Grid, Typography, theme } from "antd";
+import {
+  Avatar,
+  Button,
+  ConfigProvider,
+  Divider,
+  Flex,
+  Grid,
+  Typography,
+  theme,
+} from "antd";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -16,6 +25,10 @@ export type HeaderBarProps = {
   showBackButton?: boolean;
 };
 
+/**
+ * Component สำหรับส่วนหัวของหน้าจอ (Header Bar)
+ * ปรับปรุงโดยใช้ Ant Design Components 100% และกำจัด CSS Inline
+ */
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   icon,
   title,
@@ -27,122 +40,97 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   const router = useRouter();
   const screens = useBreakpoint();
 
+  // ตรวจสอบสถานะ Mobile (หน้าจอเล็กกว่า md)
   const isMobile = !screens.md;
 
   return (
-    <Flex
-      vertical
-      style={{
-        marginBottom: token.marginLG,
-        paddingBottom: isMobile ? 12 : 20,
-        borderBottom: `1px solid ${token.colorBorderSecondary}`,
+    <ConfigProvider
+      theme={{
+        components: {
+          Button: {
+            // คุมขนาดปุ่มย้อนกลับผ่าน Token แทนการระบุ CSS
+            controlHeight: isMobile ? 40 : 48,
+            borderRadius: 12,
+          },
+          Typography: {
+            // กำหนด Margin ของ Title เป็น 0 ทั่วทั้ง Component นี้
+            titleMarginBottom: 0,
+            titleMarginTop: 0,
+          },
+        },
       }}
     >
-      <Flex
-        justify="space-between"
-        align={isMobile ? "flex-start" : "center"}
-        gap={16}
-        wrap="wrap"
-      >
+      <Flex vertical style={{ marginBottom: token.marginLG }}>
         <Flex
-          gap={isMobile ? 12 : 20}
-          align="start"
-          style={{ flex: 1, minWidth: 0 }}
+          justify="space-between"
+          align={isMobile ? "flex-start" : "center"}
+          gap="middle"
+          wrap="wrap"
         >
-          {/* Back Button */}
-          {showBackButton && (
-            <Button
-              type="text"
-              icon={<ArrowLeftOutlined />}
-              onClick={() => router.back()}
-              style={{
-                height: isMobile ? 40 : 48,
-                width: isMobile ? 40 : 48,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: isMobile ? 18 : 20,
-                borderRadius: 12,
-                background: token.colorFillTertiary,
-                border: `1px solid ${token.colorBorderSecondary}`,
-                flexShrink: 0,
-              }}
-            />
-          )}
+          {/* ส่วนซ้าย: ปุ่มย้อนกลับ + ไอคอน + ข้อความ */}
+          <Flex gap={isMobile ? "small" : "middle"} align="start" flex={1}>
+            {/* 1. ปุ่มย้อนกลับ (Back Button) */}
+            {showBackButton && (
+              <Button
+                icon={<ArrowLeftOutlined />}
+                onClick={() => router.back()}
+                style={{
+                  backgroundColor: token.colorFillTertiary,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                }}
+              />
+            )}
 
-          <Flex gap={16} align="start" style={{ minWidth: 0 }}>
-            {/* Minimal Clean Icon Container */}
+            <Flex gap="middle" align="start">
+              {/* 2. ไอคอนหลัก (Primary Icon) */}
+              <Avatar
+                shape="square"
+                size={isMobile ? 40 : 48}
+                icon={icon}
+                style={{
+                  backgroundColor: token.colorPrimary,
+                  borderRadius: 12,
+                }}
+              />
+
+              {/* 3. ส่วนข้อความ (Typography) */}
+              <Flex vertical gap={isMobile ? 0 : 4}>
+                <Title
+                  level={isMobile ? 4 : 2}
+                  ellipsis
+                  style={{ fontWeight: 700, lineHeight: 1.2 }}
+                >
+                  {title}
+                </Title>
+                {subTitle && (
+                  <Text type="secondary" size="small" ellipsis>
+                    {subTitle}
+                  </Text>
+                )}
+              </Flex>
+            </Flex>
+          </Flex>
+
+          {/* ส่วนขวา: Extra Actions */}
+          {extra && (
             <Flex
               align="center"
-              justify="center"
+              justify={isMobile ? "flex-start" : "flex-end"}
               style={{
-                width: isMobile ? 40 : 48,
-                height: isMobile ? 40 : 48,
-                borderRadius: 12,
-                background: token.colorPrimary,
-                color: "#fff",
-                fontSize: isMobile ? 20 : 24,
-                flexShrink: 0,
-                marginTop: isMobile ? 0 : 2,
+                width: isMobile ? "100%" : "auto",
+                // ขยับให้ตรงกับข้อความเมื่ออยู่ใน Mobile Mode
+                paddingLeft: isMobile && (showBackButton || icon) ? 56 : 0,
               }}
             >
-              {icon}
+              {extra}
             </Flex>
-
-            {/* Typography Section */}
-            <Flex vertical gap={2} style={{ minWidth: 0 }}>
-              <Title
-                level={2}
-                ellipsis
-                style={{
-                  margin: 0,
-                  fontWeight: 700,
-                  fontSize: isMobile ? 20 : 24,
-                  letterSpacing: "0.01em",
-                  color: token.colorTextHeading,
-                  lineHeight: 1.2,
-                }}
-              >
-                {title}
-              </Title>
-              {subTitle && (
-                <Text
-                  type="secondary"
-                  ellipsis
-                  style={{
-                    fontSize: isMobile ? 12 : 14,
-                    fontWeight: 400,
-                    color: token.colorTextDescription,
-                  }}
-                >
-                  {subTitle}
-                </Text>
-              )}
-            </Flex>
-          </Flex>
+          )}
         </Flex>
 
-        {/* Extra Actions - Responsive layout */}
-        {extra && (
-          <Flex
-            align="center"
-            justify={isMobile ? "flex-start" : "flex-end"}
-            style={{
-              width: isMobile ? "100%" : "auto",
-              marginTop: isMobile ? 8 : 0,
-              paddingLeft:
-                isMobile && (showBackButton || icon)
-                  ? showBackButton
-                    ? 52
-                    : 56
-                  : 0,
-            }}
-          >
-            {extra}
-          </Flex>
-        )}
+        {/* เส้นคั่นด้านล่าง (Border Bottom) */}
+        <Divider style={{ marginBlock: isMobile ? 12 : 20 }} />
       </Flex>
-    </Flex>
+    </ConfigProvider>
   );
 };
 
