@@ -1,12 +1,12 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Spin } from "antd";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@stores/store";
 import { setResponse } from "@stores/reducers/authentication/call-get-login-admin";
 import { setDraftValues as setRefreshDraft } from "@stores/reducers/authentication/call-refresh-token";
-import { useRouter, usePathname } from "next/navigation";
+import { AppDispatch } from "@stores/store";
+import { Spin } from "antd";
 import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 /**
  * @notice AuthenticationProvider - จัดการการนำทางและซิงค์ข้อมูลกับ Redux สำหรับ Legacy Code
@@ -125,6 +125,7 @@ export default function AuthenticationProvider({
   if (status === "loading" || isInitializing) {
     return (
       <div
+        suppressHydrationWarning
         style={{
           display: "flex",
           justifyContent: "center",
@@ -134,7 +135,10 @@ export default function AuthenticationProvider({
         }}
       >
         <Spin size="large">
-          <div style={{ marginTop: 16, color: "#94A3B8" }}>
+          <div
+            suppressHydrationWarning
+            style={{ marginTop: 16, color: "#94A3B8" }}
+          >
             กำลังตรวจสอบสิทธิ์...
           </div>
         </Spin>

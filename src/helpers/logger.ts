@@ -1,46 +1,65 @@
-// Logger helper ที่รองรับทั้ง Winston และ console fallback
-import { format } from "util";
+/**
+ * High-Performance Universal Logger
+ * เน้น Zero-dependency, Tree-shaking friendly และประมวลผลเร็วที่สุด
+ */
 
-type LogMethod = (...args: any[]) => void;
+const LOG_LIMIT = 100;
+const isDev = process.env.NODE_ENV !== "production";
 
-// Interface สำหรับ logger ที่ใช้ทั้งแอป
-export type Logger = {
-  info: LogMethod;
-  warn: LogMethod;
-  error: LogMethod;
-  debug: LogMethod;
-  child?: (meta: Record<string, any>) => Logger;
+/**
+ * Optimized Truncate: ตรวจสอบประเภทและขนาดยกเลิกการประมวลผลทันทีถ้าไม่จำเป็น
+ */
+const truncate = (msg: any): any => {
+  if (typeof msg !== "string" || msg.length <= LOG_LIMIT) return msg;
+  return msg.slice(0, LOG_LIMIT) + "...";
 };
 
-// Client-safe console fallback logger. This module must not import any Node-only
-// modules (like 'fs'), so keep it lightweight and browser-friendly.
-function createConsoleFallback(): Logger {
-  const wrap = (fn: (...args: any[]) => void): LogMethod => {
-    return (...args: any[]) => fn(format(...args));
-  };
+/**
+ * ตัวแปรเก็บฟังก์ชันเปล่าสำหรับ No-op เพื่อลดการสร้าง function object ใหม่
+ */
+const noop = () => {};
 
-  const createChild = (meta: Record<string, any>): Logger => ({
-    info: (...args: any[]) => console.log("[INFO]", format(...args), meta),
-    warn: (...args: any[]) => console.warn("[WARN]", format(...args), meta),
-    error: (...args: any[]) => console.error("[ERROR]", format(...args), meta),
-    debug: (...args: any[]) => (console.debug || console.log)("[DEBUG]", format(...args), meta),
-    child: (childMeta: Record<string, any>) => createChild({ ...meta, ...childMeta }),
-  });
+export const logger = {
+  info: (msg: any, ...args: any[]) => {
+    console.log(`[INFO] ${truncate(msg)}`, ...args);
+  },
 
-  return {
-    info: wrap((msg) => console.log(`[INFO] ${msg}`)),
-    warn: wrap((msg) => console.warn(`[WARN] ${msg}`)),
-    error: wrap((msg) => console.error(`[ERROR] ${msg}`)),
-    debug: wrap((msg) => (console.debug || console.log)(`[DEBUG] ${msg}`)),
-    child: createChild,
-  };
-}
+  warn: (msg: any, ...args: any[]) => {
+    console.warn(`[WARN] ${truncate(msg)}`, ...args);
+  },
 
-// Default export: client-friendly logger instance. Server code can import
-// `src/helpers/logger.server.ts` for a Winston-backed implementation and keep
-// Node-only modules out of the browser bundle.
-export const logger: Logger = createConsoleFallback();
+  error: (msg: any, ...args: any[]) => {
+    console.error(`[ERROR] ${truncate(msg)}`, ...args);
+  },
 
-export const createLogger = (defaultMeta: Record<string, any>): Logger => {
-  return logger.child ? logger.child(defaultMeta) : logger;
+  // ใช้ cached function แทนการสร้าง anonymous function ทุกครั้ง
+  debug: isDev
+    ? (msg: any, ...args: any[]) =>
+        console.debug(`[DEBUG] ${truncate(msg)}`, ...args)
+    : noop,
+
+  /**
+   * Child Logger: ทำการ JSON.stringify metadata เพียงครั้งเดียวตอนสร้าง
+   * เพื่อไม่ให้เป็นภาระตอนสั่ง log จริง
+   */
+  child: (meta: Record<string, any>) => {
+    const metaStr = `[${JSON.stringify(meta)}] `; // เพิ่ม space ท้ายไว้เลย
+
+    return {
+      info: (msg: any, ...args: any[]) =>
+        console.log(`[INFO] ${metaStr}${truncate(msg)}`, ...args),
+      warn: (msg: any, ...args: any[]) =>
+        console.warn(`[WARN] ${metaStr}${truncate(msg)}`, ...args),
+      error: (msg: any, ...args: any[]) =>
+        console.error(`[ERROR] ${metaStr}${truncate(msg)}`, ...args),
+      debug: isDev
+        ? (msg: any, ...args: any[]) =>
+            console.debug(`[DEBUG] ${metaStr}${truncate(msg)}`, ...args)
+        : noop,
+    };
+  },
+};
+
+export const createLogger = (defaultMeta: Record<string, any>) => {
+  return logger.child(defaultMeta);
 };

@@ -1,143 +1,65 @@
-// Server-only logger using Winston. Import this file only from server code.
-import { format } from "util";
+/**
+ * High-Performance Universal Logger
+ * เน้น Zero-dependency, Tree-shaking friendly และประมวลผลเร็วที่สุด
+ */
 
-type LogMethod = (...args: any[]) => void;
+const LOG_LIMIT = 100;
+const isDev = process.env.NODE_ENV !== "production";
 
-export type Logger = {
-  info: LogMethod;
-  warn: LogMethod;
-  error: LogMethod;
-  debug: LogMethod;
-  child?: (meta: Record<string, any>) => Logger;
+/**
+ * Optimized Truncate: ตรวจสอบประเภทและขนาดยกเลิกการประมวลผลทันทีถ้าไม่จำเป็น
+ */
+const truncate = (msg: any): any => {
+  if (typeof msg !== "string" || msg.length <= LOG_LIMIT) return msg;
+  return msg.slice(0, LOG_LIMIT) + "...";
 };
 
-// Create a lightweight console fallback for server use if Winston is not available
-function createConsoleFallback(): Logger {
-  const wrap = (fn: (...args: any[]) => void): LogMethod => {
-    return (...args: any[]) => fn(format(...args));
-  };
+/**
+ * ตัวแปรเก็บฟังก์ชันเปล่าสำหรับ No-op เพื่อลดการสร้าง function object ใหม่
+ */
+const noop = () => {};
 
-  const createChild = (meta: Record<string, any>): Logger => ({
-    info: (...args: any[]) => console.log("[INFO]", format(...args), meta),
-    warn: (...args: any[]) => console.warn("[WARN]", format(...args), meta),
-    error: (...args: any[]) => console.error("[ERROR]", format(...args), meta),
-    debug: (...args: any[]) => (console.debug || console.log)("[DEBUG]", format(...args), meta),
-    child: (childMeta: Record<string, any>) => createChild({ ...meta, ...childMeta }),
-  });
+export const logger = {
+  info: (msg: any, ...args: any[]) => {
+    console.log(`[INFO] ${truncate(msg)}`, ...args);
+  },
 
-  return {
-    info: wrap((msg) => console.log(`[INFO] ${msg}`)),
-    warn: wrap((msg) => console.warn(`[WARN] ${msg}`)),
-    error: wrap((msg) => console.error(`[ERROR] ${msg}`)),
-    debug: wrap((msg) => (console.debug || console.log)(`[DEBUG] ${msg}`)),
-    child: createChild,
-  };
-}
+  warn: (msg: any, ...args: any[]) => {
+    console.warn(`[WARN] ${truncate(msg)}`, ...args);
+  },
 
-// Winston-based implementation. This function will only be executed on the server
-// because this file should never be imported from client-side code.
-export function createWinstonLogger(): Logger | null {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const winston = require("winston");
+  error: (msg: any, ...args: any[]) => {
+    console.error(`[ERROR] ${truncate(msg)}`, ...args);
+  },
 
-    const customColors = {
-      error: "bold red",
-      warn: "bold yellow",
-      info: "bold cyan",
-      debug: "bold magenta",
-    };
+  // ใช้ cached function แทนการสร้าง anonymous function ทุกครั้ง
+  debug: isDev
+    ? (msg: any, ...args: any[]) =>
+        console.debug(`[DEBUG] ${truncate(msg)}`, ...args)
+    : noop,
 
-    winston.addColors(customColors);
-
-    const consoleFormat = winston.format.combine(
-      winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-      winston.format.colorize({ all: false, level: true }),
-      winston.format.printf(({ level, message, timestamp: ts, ...meta }: any) => {
-        const filteredMeta = Object.keys(meta)
-          .filter((key) => !["level", "message", "timestamp", "splat"].includes(key))
-          .reduce((obj, key) => ({ ...obj, [key]: meta[key] }), {});
-
-        const metaStr = Object.keys(filteredMeta).length > 0
-          ? `\n  ${JSON.stringify(filteredMeta, null, 2).split("\n").join("\n  ")}`
-          : "";
-
-        return `[${ts}] ${level}: ${message}${metaStr}`;
-      })
-    );
-
-    const fileFormat = winston.format.combine(
-      winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-      winston.format.json()
-    );
-
-    const transports: any[] = [
-      new winston.transports.Console({
-        format: consoleFormat,
-        stderrLevels: ["error"],
-      }),
-    ];
-
-    if (process.env.NODE_ENV === "production") {
-      transports.push(
-        new winston.transports.File({
-          filename: "logs/error.log",
-          level: "error",
-          format: fileFormat,
-          maxsize: 5242880,
-          maxFiles: 5,
-        }),
-        new winston.transports.File({
-          filename: "logs/combined.log",
-          format: fileFormat,
-          maxsize: 5242880,
-          maxFiles: 5,
-        })
-      );
-    }
-
-    const winstonLogger = winston.createLogger({
-      level: process.env.LOG_LEVEL || "info",
-      transports,
-      exitOnError: false,
-    });
-
-    const createLogMethod = (level: string): LogMethod => {
-      return (...args: any[]) => {
-        const message = format(...args);
-        winstonLogger.log(level, message);
-      };
-    };
-
-    const createChild = (meta: Record<string, any>): Logger => {
-      const childLogger = winstonLogger.child(meta);
-
-      return {
-        info: (...args: any[]) => childLogger.info(format(...args)),
-        warn: (...args: any[]) => childLogger.warn(format(...args)),
-        error: (...args: any[]) => childLogger.error(format(...args)),
-        debug: (...args: any[]) => childLogger.debug(format(...args)),
-        child: (childMeta: Record<string, any>) => createChild({ ...meta, ...childMeta }),
-      };
-    };
+  /**
+   * Child Logger: ทำการ JSON.stringify metadata เพียงครั้งเดียวตอนสร้าง
+   * เพื่อไม่ให้เป็นภาระตอนสั่ง log จริง
+   */
+  child: (meta: Record<string, any>) => {
+    const metaStr = `[${JSON.stringify(meta)}] `; // เพิ่ม space ท้ายไว้เลย
 
     return {
-      info: createLogMethod("info"),
-      warn: createLogMethod("warn"),
-      error: createLogMethod("error"),
-      debug: createLogMethod("debug"),
-      child: createChild,
+      info: (msg: any, ...args: any[]) =>
+        console.log(`[INFO] ${metaStr}${truncate(msg)}`, ...args),
+      warn: (msg: any, ...args: any[]) =>
+        console.warn(`[WARN] ${metaStr}${truncate(msg)}`, ...args),
+      error: (msg: any, ...args: any[]) =>
+        console.error(`[ERROR] ${metaStr}${truncate(msg)}`, ...args),
+      debug: isDev
+        ? (msg: any, ...args: any[]) =>
+            console.debug(`[DEBUG] ${metaStr}${truncate(msg)}`, ...args)
+        : noop,
     };
-  } catch (error) {
-    // If winston isn't available, fallback to console implementation
-    console.warn("Winston is not available on the server, falling back to console logging");
-    return createConsoleFallback();
-  }
-}
+  },
+};
 
-// Export a server logger instance (server-only import)
-export const serverLogger: Logger = createWinstonLogger() || createConsoleFallback();
-
-export const createServerLogger = (defaultMeta: Record<string, any>): Logger => {
-  return serverLogger.child ? serverLogger.child(defaultMeta) : serverLogger;
+export const createLogger = (defaultMeta: Record<string, any>) => {
+  return logger.child(defaultMeta);
 };

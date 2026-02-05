@@ -1,24 +1,34 @@
 "use client";
 
-import React, { useState } from "react";
-import { Popover } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import CopyrightNotice from "@components/layouts/copyright-notice";
+import { Popover } from "antd";
+import { useState } from "react";
 
 export default function CopyrightToggle() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div style={{ position: "fixed", right: 12, bottom: 12, zIndex: 1200 }}>
+    <div
+      suppressHydrationWarning
+      style={{ position: "fixed", right: 12, bottom: 12, zIndex: 1200 }}
+    >
       <Popover
-        content={<div style={{ maxWidth: 360 }}><CopyrightNotice /></div>}
+        content={
+          <div style={{ maxWidth: 360 }}>
+            <CopyrightNotice />
+          </div>
+        }
         trigger="click"
         placement="topRight"
         open={open}
         onOpenChange={(visible) => setOpen(visible)}
-        getPopupContainer={() => (typeof window !== "undefined" ? document.body : (null as any)) as any}
+        getPopupContainer={() =>
+          (typeof window !== "undefined" ? document.body : (null as any)) as any
+        }
       >
         <div
+          suppressHydrationWarning
           role="button"
           tabIndex={0}
           style={{

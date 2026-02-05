@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
   const { id, ...updateData } = data;
 
   try {
-    console.log("request data", data);
     const updatedUser = await UserManagementService.update(id, updateData);
 
     return NextResponse.json(
