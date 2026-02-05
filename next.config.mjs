@@ -14,8 +14,8 @@ const nextConfig = {
   },
 
   experimental: {
-    serverActions: { bodySizeLimit: "50mb" },
-    proxyClientMaxBodySize: "200mb",
+    serverActions: { bodySizeLimit: "500mb" },
+    proxyClientMaxBodySize: "500mb",
 
     // ✅ Optimize Package Imports
     optimizePackageImports: [
