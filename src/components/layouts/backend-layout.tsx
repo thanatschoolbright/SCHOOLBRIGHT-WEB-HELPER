@@ -3,13 +3,15 @@
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import { Button, Drawer, Flex, Grid, Layout, Skeleton, theme } from "antd";
-import React, { Suspense, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 
 // Components
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
 import MainHeader from "@components/layouts/backend/navbar";
 import SidebarContent from "@components/layouts/backend/sidebar-component";
 import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
+
+const SIDEBAR_COLLAPSED_KEY = "sb_sidebar_collapsed";
 
 // Types
 type DashboardLayoutProps = {
@@ -31,6 +33,19 @@ export default function DashboardLayout({
   // 📱 States
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
+
+  // Load persistence state
+  useEffect(() => {
+    const savedState = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+    if (savedState !== null) {
+      setCollapsed(savedState === "true");
+    }
+  }, []);
+
+  const handleToggleCollapse = (value: boolean) => {
+    setCollapsed(value);
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(value));
+  };
 
   // Constants
   const isDesktop = !!screens.lg;
@@ -138,7 +153,7 @@ export default function DashboardLayout({
         <Sider
           collapsible
           collapsed={collapsed}
-          onCollapse={setCollapsed}
+          onCollapse={handleToggleCollapse}
           trigger={null}
           width={sidebarWidth}
           collapsedWidth={collapsedWidth}
@@ -186,7 +201,7 @@ export default function DashboardLayout({
                 fontSize: 18,
                 color: token.colorTextSecondary,
               }}
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={() => handleToggleCollapse(!collapsed)}
             >
               {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             </Flex>
