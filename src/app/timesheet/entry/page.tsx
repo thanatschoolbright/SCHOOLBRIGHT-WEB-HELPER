@@ -160,6 +160,7 @@ interface MyWorkItem {
     name: string;
     name_en: string | null;
     status: string;
+    ticket_number?: string | null;
   } | null;
 }
 
@@ -378,18 +379,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       styles={{ body: { padding: "32px 40px" } }}
     >
       {/* Decorative Orbs */}
-      <div
-        className="absolute -top-10 -right-10 w-60 h-60 rounded-full filter blur-2xl"
-        style={{
-          background: `radial-gradient(circle, ${token.colorPrimary}30 0%, transparent 70%)`,
-        }}
-      />
-      <div
-        className="absolute -bottom-[60px] -left-5 w-[180px] h-[180px] rounded-full filter blur-2xl"
-        style={{
-          background: `radial-gradient(circle, ${token.colorInfo}20 0%, transparent 70%)`,
-        }}
-      />
+      <div className="absolute -top-10 -right-10 w-60 h-60 rounded-full filter blur-2xl" />
+      <div className="absolute -bottom-[60px] -left-5 w-[180px] h-[180px] rounded-full filter blur-2xl" />
 
       <Row justify="space-between" align="middle" gutter={[24, 24]}>
         <Col flex="auto">
@@ -724,13 +715,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
           },
         }}
       >
-        <div
-          className="absolute -top-10 -right-10 w-[150px] h-[150px] rounded-full pointer-events-none filter blur-[40px]"
-          style={{
-            background: token.colorPrimary,
-            opacity: 0.08,
-          }}
-        />
+        <div className="absolute -top-10 -right-10 w-[150px] h-[150px] rounded-full pointer-events-none filter blur-[40px]" />
         <div className="p-6 pb-4">
           <div className="flex justify-between items-start mb-4 flex-wrap gap-4">
             <div>
@@ -744,13 +729,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                   fontWeight: 700,
                 }}
               >
-                <div
-                  className="p-2 rounded-xl"
-                  style={{
-                    background: `${token.colorWarning}20`,
-                    color: token.colorWarning,
-                  }}
-                >
+                <div className="p-2 rounded-xl">
                   <TrophyFilled />
                 </div>
                 <span style={{ color: token.colorTextHeading }}>
@@ -804,7 +783,6 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
                           alignItems: "center",
                           gap: 16,
                           padding: "12px",
-                          background: token.colorBgContainer,
                           borderRadius: 16,
                         }}
                       >
@@ -1377,7 +1355,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-bold border border-solid"
               style={{
                 color: current.color,
-                backgroundColor: current.bg,
+
                 borderColor: `${current.color}30`,
               }}
             >
@@ -1521,21 +1499,13 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
           <div
             className="w-11 h-11 rounded-xl flex items-center justify-center m"
             style={{
-              background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
               boxShadow: `0 4px 12px ${token.colorPrimary}60`,
             }}
           >
-            <ThunderboltOutlined style={{ fontSize: 24, color: "white" }} />
+            <ThunderboltOutlined style={{ fontSize: 24 }} />
           </div>
           <div>
-            <Typography.Title
-              level={4}
-              style={{
-                margin: 0,
-                fontWeight: 700,
-                color: token.colorTextHeading,
-              }}
-            >
+            <Typography.Title level={4}>
               {t("timesheet_entry_page.timesheet_log")}
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -1628,24 +1598,6 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       }}
       styles={{ body: { padding: 0 } }}
     >
-      <style jsx global>{`
-        .ant-table-wrapper .ant-table-thead > tr > th {
-          background: ${token.colorFillAlter} !important;
-          border-bottom: 2px solid ${token.colorPrimary}20 !important;
-          padding-top: 24px !important;
-          padding-bottom: 24px !important;
-        }
-        .ant-table-row {
-          transition: all 0.3s ease !important;
-        }
-        .ant-table-row:hover > td {
-          background: ${token.colorPrimary}05 !important;
-        }
-        .ant-table-row:hover .actions-group {
-          opacity: 1 !important;
-          transform: scale(1.05);
-        }
-      `}</style>
       <Table<TimesheetEntry>
         rowKey={(r) => String(r.id)}
         columns={filteredColumns}
@@ -1696,6 +1648,7 @@ interface ProjectData {
 interface SubProjectData {
   id: number | string;
   name: string;
+  ticket_number?: any;
 }
 interface CreateModalProps {
   open: boolean;
@@ -1708,6 +1661,7 @@ interface CreateModalProps {
   i18n: any;
   disabled: boolean;
   formMode?: "create" | "edit" | "copy";
+  record?: TimesheetEntry | null;
   afterClose?: () => void;
 }
 
@@ -1722,6 +1676,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
   i18n,
   disabled,
   formMode = "create",
+  record,
   afterClose,
 }) => {
   const { t } = useTranslation("timesheet");
@@ -1767,24 +1722,37 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
   };
 
   useEffect(() => {
-    if (open && formMode === "create") {
-      form.resetFields();
-      form.resetFields();
-      form.setFieldsValue({
-        status: "IN_PROGRESS",
-        date: dayjs(),
-        work_hour: 8,
-      });
+    if (open) {
+      if (formMode === "create") {
+        form.resetFields();
+        form.setFieldsValue({
+          status: "IN_PROGRESS",
+          date: dayjs(),
+          work_hour: 8,
+        });
+      } else if ((formMode === "edit" || formMode === "copy") && record) {
+        form.setFieldsValue({
+          project_id: Number(record.project_id),
+          sub_project_id: record.feature_id
+            ? Number(record.feature_id)
+            : undefined,
+          description: record.description ?? "",
+          work_hour: Number(record.hours) || undefined,
+          status: record.status,
+          date: formMode === "copy" ? dayjs() : dayjs(record.date),
+        });
+      }
     }
-  }, [open, formMode, form]);
+  }, [open, formMode, form, record]);
 
   useEffect(() => {
+    if (!open) return;
     if (searchMode === "hierarchy") {
       form.setFieldsValue({ sub_project_search: undefined });
     } else {
       form.setFieldsValue({ project_id: undefined, sub_project_id: undefined });
     }
-  }, [searchMode, form]);
+  }, [searchMode, form, open]);
 
   const projectOptions = useMemo(
     () =>
@@ -1861,7 +1829,6 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
       <Form form={form} layout="vertical" onFinish={onSubmit}>
         <Card
           style={{
-            background: `linear-gradient(135deg, ${token.colorFillAlter} 0%, ${token.colorBgContainer} 100%)`,
             marginBottom: 24,
             borderRadius: token.borderRadiusLG,
           }}
@@ -2042,7 +2009,6 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
         </Card>
         <div
           style={{
-            background: `${token.colorFillAlter}30`,
             padding: 24,
             borderRadius: token.borderRadiusLG,
           }}
@@ -2436,13 +2402,16 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
       setProgressList([]);
       setCompletedCount(0);
       setUsers([]);
+    } else {
+      // Reset forms when modal opens to ensure clean state
+      form.resetFields();
+      passwordForm.resetFields();
     }
-  }, [open]);
+  }, [open, form, passwordForm]);
 
-  // Handle resets after modal is completely closed to avoid useForm disconnect warning
+  // Handle state after modal is completely closed
   const handleAfterClose = () => {
-    form.resetFields();
-    passwordForm.resetFields();
+    // Final cleanup after close animation
   };
 
   // Fetch users from localStorage when modal opens
@@ -2651,7 +2620,6 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
             <div
               className="p-2 rounded-xl"
               style={{
-                background: `${token.colorSuccess}20`,
                 color: token.colorSuccess,
               }}
             >
@@ -2737,12 +2705,7 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
         {/* Processing Progress View */}
         {isProcessing && (
           <div className="mb-6">
-            <Card
-              className="rounded-2xl"
-              style={{
-                background: token.colorPrimaryBg,
-              }}
-            >
+            <Card className="rounded-2xl">
               <Flex vertical align="center" gap={16}>
                 <Progress
                   type="circle"
@@ -2880,7 +2843,6 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
 
             <Card
               style={{
-                background: `linear-gradient(135deg, ${token.colorFillAlter} 0%, ${token.colorBgContainer} 100%)`,
                 marginBottom: 24,
                 borderRadius: token.borderRadiusLG,
               }}
@@ -2945,7 +2907,6 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
 
             <div
               style={{
-                background: `${token.colorFillAlter}30`,
                 padding: 24,
                 borderRadius: token.borderRadiusLG,
               }}
@@ -3010,7 +2971,6 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
                   onClick={handleSubmit}
                   loading={isProcessing}
                   style={{
-                    background: `linear-gradient(135deg, ${token.colorWarning} 0%, ${token.colorSuccess} 100%)`,
                     border: "none",
                     fontWeight: 600,
                   }}
@@ -3140,8 +3100,8 @@ export default function TimesheetEntryPage() {
   }, [dispatch]);
 
   const handleAfterClose = useCallback(() => {
-    form.resetFields();
-  }, [form]);
+    // No-op: form reset is handled by useEffect in CreateModalForm
+  }, []);
 
   const openCreateForm = useCallback(() => {
     dispatch(setFormMode("create"));
@@ -3158,49 +3118,21 @@ export default function TimesheetEntryPage() {
       await fetchSubProjects(Number(record.project_id));
       if (!isMountedRef.current) return;
 
-      // Wrap in setTimeout to ensure Form is connected when setFieldsValue is called
-      setTimeout(() => {
-        form.setFieldsValue({
-          project_id: Number(record.project_id),
-          sub_project_id: record.feature_id
-            ? Number(record.feature_id)
-            : undefined,
-          description: record.description ?? "",
-          work_hour: Number(record.hours) || undefined,
-          status: record.status,
-          date: dayjs(record.date),
-        });
-      }, 0);
-
       dispatch(setModalType("form"));
     },
-    [dispatch, fetchSubProjects, form],
+    [dispatch, fetchSubProjects],
   );
 
   const openCopyForm = useCallback(
     async (record: TimesheetEntry) => {
       dispatch(setFormMode("copy"));
-      dispatch(setActiveRecord(null));
+      dispatch(setActiveRecord(record));
       await fetchSubProjects(Number(record.project_id));
       if (!isMountedRef.current) return;
 
-      // Wrap in setTimeout to ensure Form is connected when setFieldsValue is called
-      setTimeout(() => {
-        form.setFieldsValue({
-          project_id: Number(record.project_id),
-          sub_project_id: record.feature_id
-            ? Number(record.feature_id)
-            : undefined,
-          description: record.description ?? "",
-          work_hour: Number(record.hours) || undefined,
-          status: record.status,
-          date: dayjs(),
-        });
-      }, 0);
-
       dispatch(setModalType("form"));
     },
-    [dispatch, fetchSubProjects, form],
+    [dispatch, fetchSubProjects],
   );
 
   const openDetailModal = useCallback(
@@ -3380,6 +3312,7 @@ export default function TimesheetEntryPage() {
             i18n={i18n}
             disabled={actionLoading}
             formMode={timesheetState.formMode}
+            record={timesheetState.activeRecord}
             afterClose={handleAfterClose}
           />
           <DetailModal
