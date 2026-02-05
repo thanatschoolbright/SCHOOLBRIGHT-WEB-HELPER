@@ -1,19 +1,25 @@
-import React from "react";
-import { Card, Skeleton, Statistic, Typography, theme } from "antd";
+"use client";
+
 import { ClockCircleOutlined } from "@ant-design/icons";
+import {
+  Avatar,
+  Card,
+  ConfigProvider,
+  Flex,
+  Statistic,
+  Typography,
+  theme,
+} from "antd";
+import React from "react";
+
+const { Text } = Typography;
 
 interface TimesheetStatCardProps {
-  //** หัวข้อของการ์ด */
   title: React.ReactNode;
-  //** ค่าที่แสดง */
   value: number;
-  //** หน่วย */
   suffix?: string;
-  //** สี accent */
   color?: string;
-  //** สถานะการโหลด */
   loading?: boolean;
-  //** ข้อมูลเพิ่มเติม */
   description?: string;
   icon?: React.ReactNode;
 }
@@ -28,100 +34,91 @@ export const TimesheetStatCard: React.FC<TimesheetStatCardProps> = ({
   icon,
 }) => {
   const { token } = theme.useToken();
-  const isDark = token.colorBgBase === "#0B0F19";
 
   return (
-    <Card
-      loading={loading}
-      style={{
-        minWidth: 200,
-        borderRadius: 24,
-        border: `1px solid ${
-          isDark ? token.colorBorderSecondary : `${color}15`
-        }`,
-        background: isDark
-          ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${color}10 100%)`
-          : `linear-gradient(135deg, #ffffff 0%, ${color}08 100%)`,
-        boxShadow: isDark ? "none" : `0 10px 20px -5px ${color}15`,
-        position: "relative",
-        overflow: "hidden",
-      }}
-      styles={{
-        body: { padding: "24px" },
+    <ConfigProvider
+      theme={{
+        components: {
+          Card: {
+            // ใช้ Token ในการกำหนด Border และ Background แทน Inline Style
+            colorBorderSecondary: `${color}20`,
+            containerBg: token.colorBgContainer,
+          },
+        },
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: -20,
-          right: -20,
-          width: 80,
-          height: 80,
-          borderRadius: "50%",
-          background: `${color}10`,
-          filter: "blur(20px)",
+      <Card
+        loading={loading}
+        // ใช้ styles props (v5) แทน style เพื่อความสะอาด
+        styles={{
+          body: {
+            padding: token.paddingLG,
+            // สร้าง Gradient ผ่าน background ของ body แทน
+            background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${color}08 100%)`,
+            position: "relative",
+            overflow: "hidden",
+            borderRadius: 24,
+          },
         }}
-      />
-      {loading ? (
-        <Skeleton active paragraph={{ rows: 2 }} />
-      ) : (
-        <>
-          {/* ไอคอนและหัวข้อ */}
-          <div style={{ marginBottom: 12 }}>
-            <Typography.Text
+      >
+        {/* ใช้ Flex แทนการจัดตำแหน่งด้วย div */}
+        <Flex vertical gap="middle">
+          {/* ส่วนหัว: ไอคอนและชื่อ */}
+          <Flex align="center" gap="small">
+            <Avatar
+              shape="square"
+              size="small"
+              icon={icon || <ClockCircleOutlined />}
               style={{
-                fontSize: 14,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                color: isDark
-                  ? token.colorTextSecondary
-                  : token.colorTextHeading,
-                fontWeight: 500,
+                backgroundColor: `${color}15`,
+                color: color,
+                borderRadius: 10,
               }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  padding: 6,
-                  borderRadius: 10,
-                  background: `${color}15`,
-                  color: color,
-                }}
-              >
-                {icon || <ClockCircleOutlined />}
-              </div>
+            />
+            <Text strong style={{ color: token.colorTextHeading }}>
               {title}
-            </Typography.Text>
-          </div>
+            </Text>
+          </Flex>
 
-          {/* ค่าสถิติ */}
-          <Statistic
-            value={value}
-            suffix={suffix}
-            valueStyle={{
-              color,
-              fontSize: 24,
-              fontWeight: 600,
-              lineHeight: 1.2,
-            }}
-          />
-
-          {/* คำอธิบาย */}
-          {description && (
-            <Typography.Text
-              type="secondary"
-              style={{
-                fontSize: 12,
-                marginTop: 4,
-                display: "block",
+          {/* ส่วนค่าสถิติ */}
+          <Flex vertical gap={4}>
+            <Statistic
+              value={value}
+              suffix={
+                <Text style={{ fontSize: token.fontSize, color: color }}>
+                  {suffix}
+                </Text>
+              }
+              valueStyle={{
+                color: color,
+                fontSize: 28,
+                fontWeight: 700,
               }}
-            >
-              {description}
-            </Typography.Text>
-          )}
-        </>
-      )}
-    </Card>
+            />
+
+            {/* คำอธิบาย */}
+            {description && (
+              <Text type="secondary" size="small">
+                {description}
+              </Text>
+            )}
+          </Flex>
+        </Flex>
+
+        {/* ตกแต่งพื้นหลัง (Decorative element)
+            ใช้ Avatar ขนาดใหญ่ที่มี blur แทนการวาด div */}
+        <Avatar
+          style={{
+            position: "absolute",
+            top: -20,
+            right: -20,
+            filter: "blur(30px)",
+            backgroundColor: color,
+            opacity: 0.1,
+          }}
+          size={100}
+        />
+      </Card>
+    </ConfigProvider>
   );
 };
