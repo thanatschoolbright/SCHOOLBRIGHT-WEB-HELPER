@@ -1,41 +1,38 @@
 "use client";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined, // Added for tooltips
+  CodeOutlined,
+  CopyOutlined,
+  CreditCardOutlined,
+  FileTextOutlined,
+  HomeOutlined, // Added for tooltips
+  InfoCircleOutlined,
+  ReloadOutlined,
+  RocketOutlined,
+  TeamOutlined,
+  ThunderboltOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import type { SelectProps } from "antd";
 import {
+  Alert,
+  Badge,
   Button,
   Card,
+  Divider,
+  Flex,
   Form,
   Input,
+  Progress,
   Select,
   Skeleton,
   Space,
   Typography,
   theme,
-  Alert,
-  Steps,
-  Badge,
-  Divider,
-  Tooltip,
-  Progress,
-  Flex,
 } from "antd";
-import {
-  HomeOutlined,
-  UserOutlined,
-  TeamOutlined,
-  CreditCardOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  CopyOutlined,
-  ReloadOutlined,
-  RocketOutlined,
-  SafetyOutlined,
-  ThunderboltOutlined,
-  FileTextOutlined,
-  QuestionCircleOutlined, // Added for tooltips
-  InfoCircleOutlined, // Added for tooltips
-  CodeOutlined,
-} from "@ant-design/icons";
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   useCallback,
@@ -45,17 +42,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 
+import { CallAPI } from "@/stores/actions/call-cancel-sales";
+import { CallAPI as GET_SCHOOL_LIST } from "@/stores/actions/call-school-list";
 import AiChatWidget, {
   type CancellationExtraction,
 } from "@components/ai-chat-widget";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { CallAPI } from "@/stores/actions/call-cancel-sales";
-import { CallAPI as GET_SCHOOL_LIST } from "@/stores/actions/call-school-list";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import {
   CancelSalesState,
@@ -81,24 +76,23 @@ interface CancellationLog {
   timestamp: number;
 }
 
-interface ExtractedCancellationInfo
-  extends Partial<
-    Pick<
-      CancellationExtraction,
-      | "schoolId"
-      | "schoolName"
-      | "schoolNameEN"
-      | "buyerName"
-      | "buyerLastName"
-      | "buyerUserId"
-      | "buyerIdentifier"
-      | "sellerName"
-      | "sellerLastName"
-      | "sellerUserId"
-      | "sellerIdentifier"
-      | "sSellId"
-    >
-  > {}
+interface ExtractedCancellationInfo extends Partial<
+  Pick<
+    CancellationExtraction,
+    | "schoolId"
+    | "schoolName"
+    | "schoolNameEN"
+    | "buyerName"
+    | "buyerLastName"
+    | "buyerUserId"
+    | "buyerIdentifier"
+    | "sellerName"
+    | "sellerLastName"
+    | "sellerUserId"
+    | "sellerIdentifier"
+    | "sSellId"
+  >
+> {}
 interface DropdownOption {
   label: string;
   value: string;
@@ -126,14 +120,14 @@ export default function Page() {
   const [lastCancellationLog, setLastCancellationLog] =
     useState<CancellationLog | null>(null);
   const [extractedInfo, setExtractedInfo] = useState<ExtractedCancellationInfo>(
-    {}
+    {},
   );
   const [isFetchingUsers, setIsFetchingUsers] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const skipUserFetchRef = useRef(false);
   const cachedUsersRef = useRef<ResponseUserList["draftValues"][]>([]);
   const schoolListCacheRef = useRef<ResponseSchoolList["draftValues"] | null>(
-    null
+    null,
   );
   const matchedContextRef = useRef<CancellationLog["context"] | null>(null);
 
@@ -143,8 +137,14 @@ export default function Page() {
   const isSubmitting = cancelSalesState.loading;
 
   useEffect(() => {
-    dispatch(GET_SCHOOL_LIST());
-  }, [dispatch]);
+    // โหลดเฉพาะถ้ายังไม่มีข้อมูลใน Redux และไม่ได้กำลังโหลดอยู่
+    const draft = schoolListState?.response?.data?.data;
+    const hasData = Array.isArray(draft) && draft.length > 0;
+
+    if (!hasData && !schoolListState.loading) {
+      dispatch(GET_SCHOOL_LIST());
+    }
+  }, [dispatch]); // ใช้อาร์เรย์ว่างหรือแค่ dispatch เพื่อให้รันแค่ครั้งเดียวเมื่อ mount
 
   const normalizeText = (value?: string | number | null) =>
     String(value ?? "")
@@ -161,8 +161,8 @@ export default function Page() {
     const list: ResponseSchoolList["draftValues"] = Array.isArray(draft?.data)
       ? (draft?.data as ResponseSchoolList["draftValues"])
       : Array.isArray(draft)
-      ? (draft as ResponseSchoolList["draftValues"])
-      : [];
+        ? (draft as ResponseSchoolList["draftValues"])
+        : [];
 
     return {
       schoolRecords: list,
@@ -170,7 +170,7 @@ export default function Page() {
         (item: ResponseSchoolList["draftValues"][number]) => ({
           label: `${item.SchoolName} (${item.SchoolID})`,
           value: item.SchoolID,
-        })
+        }),
       ),
     };
   }, [schoolListState?.draftValues]);
@@ -208,7 +208,7 @@ export default function Page() {
 
       try {
         const response = await axios.get(
-          `/api/v1/school/get-user?school_id=${schoolId}`
+          `/api/v1/school/get-user?school_id=${schoolId}`,
         );
         const rawUsers: ResponseUserList["draftValues"][] =
           response.data?.data ?? [];
@@ -217,7 +217,7 @@ export default function Page() {
           rawUsers.map((item) => ({
             label: `${item.Name} ${item.LastName} (ID: ${item.UserID} Username: ${item.username})`,
             value: item.UserID.toString(),
-          }))
+          })),
         );
         if (showToast && toastId !== undefined) {
           toast.success("โหลดรายชื่อผู้ใช้สำเร็จ", { id: toastId });
@@ -234,14 +234,14 @@ export default function Page() {
         setIsFetchingUsers(false);
       }
     },
-    []
+    [],
   );
 
   const submitCancellationRequest = async (
-    values: CancelSalesState["draftValues"]
+    values: CancelSalesState["draftValues"],
   ) => {
     const toastId = toast.loading(
-      "ขั้นตอนที่ 3/3: กำลังส่งคำขอยกเลิกรายการ..."
+      "ขั้นตอนที่ 3/3: กำลังส่งคำขอยกเลิกรายการ...",
     );
 
     try {
@@ -252,7 +252,7 @@ export default function Page() {
           error: "",
           success: "",
           response: undefined,
-        })
+        }),
       ).unwrap();
 
       setLastCancellationLog({
@@ -272,7 +272,7 @@ export default function Page() {
       ) {
         toast.warning(
           "ไม่พบข้อมูลรายการ หรือรายการเกินกำหนดเวลา (ตรวจสอบรายละเอียดด้านล่าง)",
-          { id: toastId }
+          { id: toastId },
         );
       } else {
         toast.success("ขั้นตอนที่ 3/3: ยกเลิกรายการสำเร็จ", { id: toastId });
@@ -329,14 +329,14 @@ export default function Page() {
       const schoolMatch = (() => {
         if (info.schoolId) {
           return records.find(
-            (item) => String(item.SchoolID) === String(info.schoolId)
+            (item) => String(item.SchoolID) === String(info.schoolId),
           );
         }
 
         if (info.schoolName) {
           const normalizedTarget = normalizeText(info.schoolName);
           const direct = records.find(
-            (item) => normalizeText(item.SchoolName) === normalizedTarget
+            (item) => normalizeText(item.SchoolName) === normalizedTarget,
           );
           if (direct) return direct;
         }
@@ -344,7 +344,7 @@ export default function Page() {
         if (info.schoolNameEN) {
           const normalizedTarget = normalizeText(info.schoolNameEN);
           const direct = records.find(
-            (item) => normalizeText(item.SchoolNameEN) === normalizedTarget
+            (item) => normalizeText(item.SchoolNameEN) === normalizedTarget,
           );
           if (direct) return direct;
         }
@@ -352,7 +352,7 @@ export default function Page() {
         if (info.schoolName) {
           const normalizedTarget = normalizeText(info.schoolName);
           return records.find((item) =>
-            normalizeText(item.SchoolName).includes(normalizedTarget)
+            normalizeText(item.SchoolName).includes(normalizedTarget),
           );
         }
 
@@ -376,15 +376,15 @@ export default function Page() {
 
       toast.success(
         `ขั้นตอนที่ 1/3: พบโรงเรียน ${cleanSchoolLabel(
-          schoolMatch.SchoolName
+          schoolMatch.SchoolName,
         )}`,
-        { id: stepToast }
+        { id: stepToast },
       );
     } else {
       toast.message("ขั้นตอนที่ 1/3: ใช้ข้อมูลโรงเรียนจากแบบฟอร์ม");
       if (!matchedContextRef.current?.school && updatedValues.SchoolID) {
         const formSchoolLabel = schoolOptions.find(
-          (option) => String(option.value) === String(updatedValues.SchoolID)
+          (option) => String(option.value) === String(updatedValues.SchoolID),
         )?.label;
         matchedContextRef.current = {
           ...(matchedContextRef.current ?? {}),
@@ -402,7 +402,7 @@ export default function Page() {
       String(users[0]?.SchoolID) !== String(updatedValues.SchoolID)
     ) {
       const step2Toast = toast.loading(
-        "ขั้นตอนที่ 2/3: กำลังค้นหารายชื่อผู้ใช้..."
+        "ขั้นตอนที่ 2/3: กำลังค้นหารายชื่อผู้ใช้...",
       );
       try {
         users = await fetchUsersForSchool(updatedValues.SchoolID, false);
@@ -428,11 +428,11 @@ export default function Page() {
       userId?: string,
       firstName?: string,
       lastName?: string,
-      identifier?: string
+      identifier?: string,
     ) => {
       if (userId) {
         const direct = users.find(
-          (user) => String(user.UserID) === String(userId)
+          (user) => String(user.UserID) === String(userId),
         );
         if (direct) return direct;
       }
@@ -443,26 +443,26 @@ export default function Page() {
         const direct = users.find(
           (user) =>
             normalizeText(user.Name) === normalizedFirstName &&
-            normalizeText(user.LastName) === normalizedLastName
+            normalizeText(user.LastName) === normalizedLastName,
         );
         if (direct) return direct;
 
         return users.find((user) =>
           normalizeText(`${user.Name}${user.LastName}`).includes(
-            normalizedFirstName + normalizedLastName
-          )
+            normalizedFirstName + normalizedLastName,
+          ),
         );
       }
 
       if (identifier) {
         const normalizedIdentifier = normalizeText(identifier);
         const directBarcode = users.find(
-          (user) => normalizeText(user.BarCode) === normalizedIdentifier
+          (user) => normalizeText(user.BarCode) === normalizedIdentifier,
         );
         if (directBarcode) return directBarcode;
 
         return users.find(
-          (user) => normalizeText(user.username) === normalizedIdentifier
+          (user) => normalizeText(user.username) === normalizedIdentifier,
         );
       }
 
@@ -474,14 +474,14 @@ export default function Page() {
         info.buyerUserId,
         info.buyerName,
         info.buyerLastName,
-        info.buyerIdentifier
+        info.buyerIdentifier,
       );
 
       if (buyerCandidate) {
         updatedValues.sID = String(buyerCandidate.UserID);
         form.setFieldsValue({ ...updatedValues });
         toast.message(
-          `ระบุผู้ซื้อ: ${buyerCandidate.Name} ${buyerCandidate.LastName}`
+          `ระบุผู้ซื้อ: ${buyerCandidate.Name} ${buyerCandidate.LastName}`,
         );
         matchedContextRef.current = {
           ...(matchedContextRef.current ?? {}),
@@ -490,7 +490,7 @@ export default function Page() {
       }
     } else if (!matchedContextRef.current?.buyer && updatedValues.sID) {
       const existingBuyer = users.find(
-        (user) => String(user.UserID) === String(updatedValues.sID)
+        (user) => String(user.UserID) === String(updatedValues.sID),
       );
       matchedContextRef.current = {
         ...(matchedContextRef.current ?? {}),
@@ -505,14 +505,14 @@ export default function Page() {
         info.sellerUserId,
         info.sellerName,
         info.sellerLastName,
-        info.sellerIdentifier
+        info.sellerIdentifier,
       );
 
       if (sellerCandidate) {
         updatedValues.sID2 = String(sellerCandidate.UserID);
         form.setFieldsValue({ ...updatedValues });
         toast.message(
-          `ระบุผู้ขาย: ${sellerCandidate.Name} ${sellerCandidate.LastName}`
+          `ระบุผู้ขาย: ${sellerCandidate.Name} ${sellerCandidate.LastName}`,
         );
         matchedContextRef.current = {
           ...(matchedContextRef.current ?? {}),
@@ -521,7 +521,7 @@ export default function Page() {
       }
     } else if (!matchedContextRef.current?.seller && updatedValues.sID2) {
       const existingSeller = users.find(
-        (user) => String(user.UserID) === String(updatedValues.sID2)
+        (user) => String(user.UserID) === String(updatedValues.sID2),
       );
       matchedContextRef.current = {
         ...(matchedContextRef.current ?? {}),
@@ -533,7 +533,7 @@ export default function Page() {
 
     if (!updatedValues.sID || !updatedValues.sID2) {
       throw new Error(
-        "ไม่พบข้อมูลผู้ซื้อหรือผู้ขายจากการสนทนา กรุณาเลือกจากแบบฟอร์ม"
+        "ไม่พบข้อมูลผู้ซื้อหรือผู้ขายจากการสนทนา กรุณาเลือกจากแบบฟอร์ม",
       );
     }
 
@@ -620,7 +620,7 @@ export default function Page() {
           matchedContextRef.current?.sSellId || info.sSellId || undefined,
       };
     },
-    [form]
+    [form],
   );
 
   useEffect(() => {
@@ -1054,7 +1054,7 @@ export default function Page() {
                             onClick={() =>
                               handleCopyResponse(
                                 JSON.stringify(responsePayload.data, null, 2),
-                                "คัดลอก JSON แล้ว"
+                                "คัดลอก JSON แล้ว",
                               )
                             }
                             style={{ borderRadius: 12 }}
@@ -1068,7 +1068,7 @@ export default function Page() {
                               responsePayload.curl &&
                               handleCopyResponse(
                                 responsePayload.curl.toString(),
-                                "คัดลอก cURL แล้ว"
+                                "คัดลอก cURL แล้ว",
                               )
                             }
                             style={{ borderRadius: 12 }}

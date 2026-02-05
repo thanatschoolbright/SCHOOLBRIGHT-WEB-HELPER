@@ -34,15 +34,15 @@ export const useBypassPageData = () => {
    * * Initialize Data from API
    */
   useEffect(() => {
-    // โหลดเฉพาะถ้ายังไม่มีข้อมูลใน Redux
-    if (
-      !schoolListState.response.data ||
-      !Array.isArray(schoolListState.response.data.data) ||
-      schoolListState.response.data.data.length === 0
-    ) {
+    // โหลดเฉพาะถ้ายังไม่มีข้อมูลใน Redux หรือกำลังโหลดอยู่
+    const hasData =
+      Array.isArray(schoolListState.response?.data) &&
+      schoolListState.response.data.length > 0;
+
+    if (!hasData && !schoolListState.loading) {
       void dispatch(GET_SCHOOL_LIST());
     }
-  }, [dispatch, schoolListState.response.data]);
+  }, [dispatch]); // รันเฉพาะตอน Mount เท่านั้น เพื่อป้องกันปัญหา Loop API
 
   /*
    * * Initialize Filters

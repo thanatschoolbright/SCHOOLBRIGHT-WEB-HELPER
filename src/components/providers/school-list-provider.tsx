@@ -1,11 +1,7 @@
 "use client";
-import {
-  setDraftValues,
-  setResponse,
-} from "@/stores/reducers/call-school-list";
 import { CallAPI as GET_SCHOOL_LIST } from "@stores/actions/call-school-list";
 import { CallAPI as GET_SCHOOL_LIST_DETAIL } from "@stores/actions/support/call-get-school-list-detail";
-import { AppDispatch, useAppSelector } from "@stores/store";
+import { AppDispatch, store, useAppSelector } from "@stores/store";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
@@ -18,52 +14,40 @@ export default function SchoolReduxProvider({
 }: Readonly<React.PropsWithChildren<{}>>) {
   const dispatch = useDispatch<AppDispatch>();
 
-  // ดึงข้อมูลจาก Redux เพื่อตรวจสอบว่าโหลดไปแล้วหรือยัง
-  const schoolList = useAppSelector(
-    (root) => root.callSchoolList.response.data,
-  );
-  const schoolDetail = useAppSelector(
-    (root) => root.callGetSchoolListDetail.response.data,
+  // ดึงสถานะปัจจุบันจาก Redux
+  const schoolListState = useAppSelector((state) => state.callSchoolList);
+  const schoolDetailState = useAppSelector(
+    (state) => state.callGetSchoolListDetail,
   );
 
   useEffect(() => {
-    //** โหลดรายการโรงเรียนจาก API โดยไม่ใช้ localStorage ตามนโยบายความปลอดภัย **/
-    const callSchoolList = async () => {
-      // โหลดเฉพาะถ้ายังไม่มีข้อมูล
-      if (schoolList && Array.isArray(schoolList) && schoolList.length > 0)
-        return;
+    const loadInitialData = async () => {
+      // ดึงสถานะปัจจุบัน ณ เวลาที่รัน (เพื่อแก้ปัญหา Closure)
+      const state = store.getState() as any;
+      const listReducer = state.callSchoolList;
+      const detailReducer = state.callGetSchoolListDetail;
 
-      try {
-        const response = await dispatch(GET_SCHOOL_LIST()).unwrap();
-        dispatch(setDraftValues(response));
-        dispatch(setResponse(response));
-        console.info("[SAFE] School list loaded to Redux (No LocalStorage)");
-      } catch (error) {
-        console.error("Error calling school list API:", error);
+      // 1. ตรวจสอบและโหลดรายการโรงเรียน
+      const hasList =
+        Array.isArray(listReducer.response?.data?.data) &&
+        listReducer.response.data.data.length > 0;
+      if (!hasList && !listReducer.loading) {
+        console.info("📡 [INIT] Fetching school list...");
+        dispatch(GET_SCHOOL_LIST());
+      }
+
+      // 2. ตรวจสอบและโหลดรายละเอียดโรงเรียน
+      const hasDetail =
+        Array.isArray(detailReducer.response?.data) &&
+        detailReducer.response.data.length > 0;
+      if (!hasDetail && !detailReducer.loading) {
+        console.info("📡 [INIT] Fetching school details...");
+        dispatch(GET_SCHOOL_LIST_DETAIL());
       }
     };
 
-    //** โหลดรายละเอียดโรงเรียนจาก API **/
-    const callSchoolListDetail = async () => {
-      // โหลดเฉพาะถ้ายังไม่มีข้อมูล
-      if (
-        schoolDetail &&
-        Array.isArray(schoolDetail.data) &&
-        schoolDetail.data.length > 0
-      )
-        return;
-
-      try {
-        await dispatch(GET_SCHOOL_LIST_DETAIL()).unwrap();
-        console.info("[SAFE] School details loaded to Redux");
-      } catch (error) {
-        console.error("Error calling school detail API:", error);
-      }
-    };
-
-    callSchoolList();
-    callSchoolListDetail();
-  }, [dispatch, schoolList, schoolDetail]);
+    loadInitialData();
+  }, [dispatch]); // รันครั้งเดียวเมื่อ Mount เท่านั้น เพื่อป้องกัน Loop ถาวร
 
   return <>{children}</>;
 }

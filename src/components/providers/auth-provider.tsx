@@ -1,7 +1,7 @@
 "use client";
 import { setResponse } from "@stores/reducers/authentication/call-get-login-admin";
 import { setDraftValues as setRefreshDraft } from "@stores/reducers/authentication/call-refresh-token";
-import { AppDispatch } from "@stores/store";
+import { AppDispatch, useAppSelector } from "@stores/store";
 import { Spin } from "antd";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
@@ -21,25 +21,26 @@ export default function AuthenticationProvider({
   const { data: session, status } = useSession();
   const [isInitializing, setIsInitializing] = useState(true);
 
+  const authState = useAppSelector((state) => state.callAdminLogin);
+
   useEffect(() => {
     // 1. ถ้ายังโหลด Session ไม่เสร็จ ให้รอก่อน
     if (status === "loading") {
-      console.log("⏳ [AuthProvider] Status: loading...");
       return;
     }
 
-    console.log(`🛡️ [AuthProvider] Status: ${status}, Path: ${pathname}`);
-
-    // 2. ตรวจสอบเส้นทางที่เกี่ยวข้องกับ Authentication
-    const authPages = ["/auth/v2/signin"];
-    const isAuthPage = authPages.includes(pathname);
-
-    // 3. ถ้าเข้าสู่ระบบแล้ว (Authenticated)
+    // 2. ถ้าเข้าสู่ระบบแล้ว (Authenticated)
     if (status === "authenticated" && session) {
-      // ✅ ซิงค์ข้อมูลจาก Session เข้าสู่ Redux เพื่อให้ Component เดิมใช้งานได้
       const user = session.user as any;
 
-      // สร้าง Payload สำหรับ Redux โดยใช้ข้อมูลล่าสุดจาก Session
+      // ✅ ตรวจสอบก่อนว่าข้อมูลใน Redux ต่างจากใน Session หรือไม่ (เพื่อลด Redundant Dispatches)
+      const currentAdminId = authState.response?.data?.user_data?.admin_id;
+      if (currentAdminId === Number(user.admin_id)) {
+        setIsInitializing(false);
+        return;
+      }
+
+      // สร้าง Payload สำหรับ Redux
       const reduxAuthData = {
         status: 200,
         data: {
