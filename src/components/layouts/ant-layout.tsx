@@ -38,11 +38,11 @@ const SYSTEM_COLORS = {
     border: "#E2E8F0",
   },
   dark: {
-    bgLayout: "#020617",
-    bgContainer: "#111827",
+    bgLayout: "#000000",
+    bgContainer: "#141414",
     textMain: "#FFFFFF",
     textSub: "#CBD5E1",
-    border: "#334155",
+    border: "#262626",
   },
 };
 
@@ -85,9 +85,10 @@ const getThemeConfig = (isDark: boolean): ThemeConfig => {
       colorError: BRAND_SEED.error,
       colorInfo: BRAND_SEED.info,
 
-      colorBgBase: isDark ? "#0B0F19" : "#FFFFFF",
+      colorBgBase: isDark ? "#000000" : "#FFFFFF",
       colorBgLayout: colors.bgLayout,
       colorBgContainer: colors.bgContainer,
+      colorBgElevated: isDark ? "#1C1C1C" : "#FFFFFF",
       colorTextBase: colors.textMain,
       colorTextSecondary: colors.textSub,
       colorBorder: colors.border,
@@ -115,26 +116,26 @@ const getThemeConfig = (isDark: boolean): ThemeConfig => {
         borderRadiusLG: 20,
       },
       Table: {
-        headerBg: isDark ? "#1F2937" : "#F8FAFC",
+        headerBg: isDark ? "#1C1C1C" : "#F8FAFC",
         headerSplitColor: "transparent",
         headerBorderRadius: 12,
       },
       Input: {
         borderRadius: 12,
-        colorBgContainer: isDark ? "#0B0F19" : "#FFFFFF",
+        colorBgContainer: isDark ? "#141414" : "#FFFFFF",
       },
       Select: {
         borderRadius: 12,
       },
       Modal: {
         borderRadiusLG: 28,
-        headerBg: isDark ? "#1F2937" : "#FFFFFF",
+        headerBg: isDark ? "#1C1C1C" : "#FFFFFF",
+        contentBg: isDark ? "#1C1C1C" : "#FFFFFF",
+        footerBg: isDark ? "#1C1C1C" : "#FFFFFF",
       },
       Layout: {
         bodyBg: colors.bgLayout,
-        headerBg: isDark
-          ? "rgba(11, 15, 25, 0.85)"
-          : "rgba(255, 255, 255, 0.85)",
+        headerBg: isDark ? "rgba(0, 0, 0, 0.85)" : "rgba(255, 255, 255, 0.85)",
         headerPadding: "0 24px",
       },
       Menu: {

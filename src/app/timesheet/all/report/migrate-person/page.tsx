@@ -28,6 +28,7 @@ import {
   Modal,
   Row,
   Select,
+  Skeleton,
   Space,
   Steps,
   Table,
@@ -83,6 +84,7 @@ export default function MigratePersonPage() {
 
   // UI States
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [migrationLoading, setMigrationLoading] = useState(false);
   const [userSearchText, setUserSearchText] = useState("");
 
@@ -91,6 +93,7 @@ export default function MigratePersonPage() {
   const [automateStep, setAutomateStep] = useState(0);
   const [generatedResults, setGeneratedResults] = useState<any[]>([]);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [selectedAiRowKeys, setSelectedAiRowKeys] = useState<React.Key[]>([]);
   const [savingAutomate, setSavingAutomate] = useState(false);
 
   // Modal State
@@ -114,6 +117,7 @@ export default function MigratePersonPage() {
    * ดึงข้อมูลพนักงานและโปรเจกต์เริ่มต้นสำหรับใช้งานในฟอร์ม
    */
   const requestInitialData = async () => {
+    setInitialLoading(true);
     try {
       const [userResponse, projectResponse] = await Promise.all([
         axios.get("/api/v1/timesheet/migration/read?action=users"),
@@ -123,6 +127,8 @@ export default function MigratePersonPage() {
       setProjects(projectResponse.data?.data || []);
     } catch (error) {
       toast.error("ไม่สามารถโหลดข้อมูลเบื้องต้นได้");
+    } finally {
+      setInitialLoading(false);
     }
   };
 
@@ -237,7 +243,9 @@ export default function MigratePersonPage() {
         },
       );
 
-      setGeneratedResults(response.data?.data || []);
+      const data = response.data?.data || [];
+      setGeneratedResults(data);
+      setSelectedAiRowKeys(data.map((item: any) => item.id));
       setAutomateStep(2);
       setReviewModalVisible(true);
     } catch (error: any) {
@@ -253,12 +261,21 @@ export default function MigratePersonPage() {
    * บันทึกรายละเอียดงานที่ AI แนะนำ
    */
   const requestUpdateDescriptionsByAi = async () => {
+    if (selectedAiRowKeys.length === 0) {
+      toast.warning("กรุณาเลือกอย่างน้อย 1 รายการเพื่อบันทึก");
+      return;
+    }
+
     setSavingAutomate(true);
     try {
+      const selectedUpdates = generatedResults.filter((item) =>
+        selectedAiRowKeys.includes(item.id),
+      );
+
       const response = await axios.patch(
         "/api/v1/timesheet/migration/automate-fill",
         {
-          updates: generatedResults.map((item) => ({
+          updates: selectedUpdates.map((item) => ({
             id: item.id,
             description: item.suggested_description,
           })),
@@ -380,115 +397,123 @@ export default function MigratePersonPage() {
               border: `1px solid ${token.colorBorderSecondary}`,
             }}
           >
-            <Row gutter={[24, 16]}>
-              {/* แถวที่ 1: เลือกพนักงาน และ เลือกโปรเจกต์ปลายทาง */}
-              <Col xs={24} lg={12}>
-                <Space direction="vertical" style={{ width: "100%" }}>
-                  <Text type="secondary" style={{ fontWeight: 600 }}>
-                    เลือกพนักงาน
-                  </Text>
-                  <Select
-                    showSearch
-                    placeholder="ค้นหาชื่อพนักงาน หรือรหัส"
-                    style={{ width: "100%" }}
-                    value={selectedUser}
-                    onChange={setSelectedUser}
-                    onSearch={setUserSearchText}
-                    filterOption={false}
-                    notFoundContent={loading ? "กำลังโหลด..." : "ไม่พบข้อมูล"}
-                  >
-                    {filteredUsers.map((user) => (
-                      <Select.Option key={user.admin_id} value={user.admin_id}>
-                        <Space>
-                          <Avatar
-                            size="small"
-                            style={{ backgroundColor: token.colorPrimary }}
-                          >
-                            {user.nickname?.[0] || user.firstname_th?.[0]}
-                          </Avatar>
-                          {user.firstname_th} {user.lastname_th} (
-                          {user.nickname})
-                        </Space>
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Space>
-              </Col>
+            <Skeleton loading={initialLoading} active paragraph={{ rows: 3 }}>
+              <Row gutter={[24, 16]}>
+                {/* แถวที่ 1: เลือกพนักงาน และ เลือกโปรเจกต์ปลายทาง */}
+                <Col xs={24} lg={12}>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Text type="secondary" style={{ fontWeight: 600 }}>
+                      เลือกพนักงาน
+                    </Text>
+                    <Select
+                      showSearch
+                      placeholder="ค้นหาชื่อพนักงาน หรือรหัส"
+                      style={{ width: "100%" }}
+                      value={selectedUser}
+                      onChange={setSelectedUser}
+                      onSearch={setUserSearchText}
+                      filterOption={false}
+                      notFoundContent={loading ? "กำลังโหลด..." : "ไม่พบข้อมูล"}
+                    >
+                      {filteredUsers.map((user) => (
+                        <Select.Option
+                          key={user.admin_id}
+                          value={user.admin_id}
+                        >
+                          <Space>
+                            <Avatar
+                              size="small"
+                              style={{ backgroundColor: token.colorPrimary }}
+                            >
+                              {user.nickname?.[0] || user.firstname_th?.[0]}
+                            </Avatar>
+                            {user.firstname_th} {user.lastname_th} (
+                            {user.nickname})
+                          </Space>
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Space>
+                </Col>
 
-              <Col xs={24} lg={12}>
-                <Space direction="vertical" style={{ width: "100%" }}>
-                  <Text type="secondary" style={{ fontWeight: 600 }}>
-                    โปรเจกต์เป้าหมาย
-                  </Text>
-                  <Select
-                    placeholder="เลือกโปรเจกต์เป้าหมายที่จะย้ายไป"
-                    style={{ width: "100%" }}
-                    value={targetProjectId}
-                    onChange={handleTargetProjectChange}
-                    options={projects.map((p) => ({
-                      label: p.name,
-                      value: p.id,
-                    }))}
-                  />
-                </Space>
-              </Col>
+                <Col xs={24} lg={12}>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Text type="secondary" style={{ fontWeight: 600 }}>
+                      โปรเจกต์เป้าหมาย
+                    </Text>
+                    <Select
+                      placeholder="เลือกโปรเจกต์เป้าหมายที่จะย้ายไป"
+                      style={{ width: "100%" }}
+                      value={targetProjectId}
+                      onChange={handleTargetProjectChange}
+                      options={projects.map((p) => ({
+                        label: p.name,
+                        value: p.id,
+                      }))}
+                    />
+                  </Space>
+                </Col>
 
-              {/* แถวที่ 2: ตั้งค่าฟิลเตอร์อื่น ๆ และ Feature เป้ามหาย */}
-              <Col xs={24} lg={12}>
-                <Space direction="vertical" style={{ width: "100%" }}>
-                  <Text type="secondary" style={{ fontWeight: 600 }}>
-                    เงื่อนไขเพิ่มเติม
-                  </Text>
-                  <Checkbox
-                    checked={showOnlyIssues}
-                    onChange={(e) => setShowOnlyIssues(e.target.checked)}
-                  >
-                    แสดงเฉพาะรายการที่มีปัญหา (ไม่มีคำอธิบาย)
-                  </Checkbox>
-                </Space>
-              </Col>
+                {/* แถวที่ 2: ตั้งค่าฟิลเตอร์อื่น ๆ และ Feature เป้ามหาย */}
+                <Col xs={24} lg={12}>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Text type="secondary" style={{ fontWeight: 600 }}>
+                      เงื่อนไขเพิ่มเติม
+                    </Text>
+                    <Checkbox
+                      checked={showOnlyIssues}
+                      onChange={(e) => setShowOnlyIssues(e.target.checked)}
+                    >
+                      แสดงเฉพาะรายการที่มีปัญหา (ไม่มีคำอธิบาย)
+                    </Checkbox>
+                  </Space>
+                </Col>
 
-              <Col xs={24} lg={12}>
-                <Space direction="vertical" style={{ width: "100%" }}>
-                  <Text type="secondary" style={{ fontWeight: 600 }}>
-                    Feature เป้าหมาย
-                  </Text>
-                  <Select
-                    placeholder="เลือก Feature ในโปรเจกต์เป้าหมาย"
-                    style={{ width: "100%" }}
-                    value={targetFeatureId}
-                    onChange={setTargetFeatureId}
-                    disabled={!targetProjectId}
-                    options={features.map((f) => ({
-                      label: f.ticket_number
-                        ? `[${f.ticket_number}] ${f.name}`
-                        : f.name,
-                      value: f.id,
-                    }))}
-                  />
-                </Space>
-              </Col>
+                <Col xs={24} lg={12}>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Text type="secondary" style={{ fontWeight: 600 }}>
+                      Feature เป้าหมาย
+                    </Text>
+                    <Select
+                      placeholder="เลือก Feature ในโปรเจกต์เป้าหมาย"
+                      style={{ width: "100%" }}
+                      value={targetFeatureId}
+                      onChange={setTargetFeatureId}
+                      disabled={!targetProjectId}
+                      options={features.map((f) => ({
+                        label: f.ticket_number
+                          ? `[${f.ticket_number}] ${f.name}`
+                          : f.name,
+                        value: f.id,
+                      }))}
+                    />
+                  </Space>
+                </Col>
 
-              {/* ปุ่มควบคุม (ปุ่มค้นหาและล้างการค้นหา) */}
-              <Col span={24}>
-                <Flex justify="end" gap={12} style={{ marginTop: 8 }}>
-                  <Button icon={<ClearOutlined />} onClick={handleClearFilters}>
-                    ล้างการค้นหา
-                  </Button>
-                  <Button
-                    type="primary"
-                    icon={<SearchOutlined />}
-                    loading={loading}
-                    onClick={() =>
-                      selectedUser &&
-                      requestTimesheetEntries(selectedUser, showOnlyIssues)
-                    }
-                  >
-                    ค้นหาข้อมูล
-                  </Button>
-                </Flex>
-              </Col>
-            </Row>
+                {/* ปุ่มควบคุม (ปุ่มค้นหาและล้างการค้นหา) */}
+                <Col span={24}>
+                  <Flex justify="end" gap={12} style={{ marginTop: 8 }}>
+                    <Button
+                      icon={<ClearOutlined />}
+                      onClick={handleClearFilters}
+                    >
+                      ล้างการค้นหา
+                    </Button>
+                    <Button
+                      type="primary"
+                      icon={<SearchOutlined />}
+                      loading={loading}
+                      onClick={() =>
+                        selectedUser &&
+                        requestTimesheetEntries(selectedUser, showOnlyIssues)
+                      }
+                    >
+                      ค้นหาข้อมูล
+                    </Button>
+                  </Flex>
+                </Col>
+              </Row>
+            </Skeleton>
           </Card>
 
           {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
@@ -537,7 +562,9 @@ export default function MigratePersonPage() {
               </Space>
             }
           >
-            {selectedUser ? (
+            {loading && entries.length === 0 ? (
+              <Skeleton active paragraph={{ rows: 10 }} />
+            ) : selectedUser ? (
               <Table
                 rowSelection={{
                   selectedRowKeys,
@@ -598,7 +625,6 @@ export default function MigratePersonPage() {
               type="primary"
               loading={savingAutomate}
               onClick={requestUpdateDescriptionsByAi}
-              style={{ backgroundColor: token.colorSuccess }}
             >
               บันทึกข้อมูล
             </Button>,
@@ -623,6 +649,10 @@ export default function MigratePersonPage() {
             size="small"
             pagination={false}
             scroll={{ y: 400 }}
+            rowSelection={{
+              selectedRowKeys: selectedAiRowKeys,
+              onChange: setSelectedAiRowKeys,
+            }}
             columns={[
               {
                 title: "วันที่",
