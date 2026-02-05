@@ -18,6 +18,7 @@ import {
   Checkbox,
   Col,
   ConfigProvider,
+  Divider,
   Empty,
   Flex,
   Modal,
@@ -29,6 +30,7 @@ import {
   Table,
   Tag,
   theme,
+  Tooltip,
   Typography,
 } from "antd";
 import axios from "axios";
@@ -67,6 +69,7 @@ export default function MigratePersonPage() {
   const [automateStep, setAutomateStep] = useState(0);
   const [generatedResults, setGeneratedResults] = useState<any[]>([]);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [migrateModalVisible, setMigrateModalVisible] = useState(false);
   const [selectedAiRowKeys, setSelectedAiRowKeys] = useState<React.Key[]>([]);
   const [savingAutomate, setSavingAutomate] = useState(false);
   const [statusModal, setStatusModal] = useState<any>({
@@ -109,7 +112,7 @@ export default function MigratePersonPage() {
   const fetchFeatures = async (projectId: number) => {
     try {
       const res = await axios.get(
-        `/api/v1/timesheet/migration?action=features&projectId=${projectId}`,
+        `/api/v1/timesheet/migration/read?action=features&project_id=${projectId}`,
       );
       setFeatures(res.data?.data || []);
     } catch {
@@ -145,8 +148,8 @@ export default function MigratePersonPage() {
       const res = await axios.post(
         "/api/v1/timesheet/migration/automate-fill",
         {
-          admin_id: selectedUser,
-          entry_ids: selectedRowKeys,
+          admin_id: Number(selectedUser),
+          entry_ids: selectedRowKeys.map((k) => Number(k)),
         },
       );
 
@@ -191,6 +194,10 @@ export default function MigratePersonPage() {
   };
 
   const handleMigrate = async () => {
+    setMigrateModalVisible(true);
+  };
+
+  const handleConfirmMigrate = async () => {
     if (
       selectedRowKeys.length === 0 ||
       !targetProjectId ||
@@ -203,16 +210,21 @@ export default function MigratePersonPage() {
 
     setMigrationLoading(true);
     try {
-      await axios.post("/api/v1/timesheet/migration", {
-        entryIds: selectedRowKeys,
-        targetProjectId,
-        targetFeatureId,
+      await axios.post("/api/v1/timesheet/migration/create", {
+        entry_ids: selectedRowKeys.map((k) => Number(k)),
+        target_project_id: Number(targetProjectId),
+        target_feature_id: Number(targetFeatureId),
       });
 
       toast.success(`ย้ายข้อมูลสำเร็จ ${selectedRowKeys.length} รายการ`);
+      setMigrateModalVisible(false);
       fetchEntries(selectedUser, showOnlyIssues);
     } catch (error: any) {
-      toast.error(error?.response?.data?.error || "ย้ายข้อมูลล้มเหลว");
+      toast.error(
+        error?.response?.data?.message_th ||
+          error?.response?.data?.error ||
+          "ย้ายข้อมูลล้มเหลว",
+      );
     } finally {
       setMigrationLoading(false);
     }
@@ -417,27 +429,52 @@ export default function MigratePersonPage() {
               }
               extra={
                 <Space>
-                  <Button
-                    icon={<RobotOutlined />}
-                    disabled={!selectedRowKeys.length}
-                    loading={automateLoading}
-                    onClick={handleAutomateFill}
-                    style={{
-                      color: token.colorSuccess,
-                      borderColor: token.colorSuccess,
-                    }}
+                  <Tooltip
+                    title={
+                      !selectedRowKeys.length
+                        ? "กรุณาเลือกรายการไทม์ชีทที่ต้องการให้ AI ช่วยเติม"
+                        : ""
+                    }
                   >
-                    AI ช่วยเติมงาน
-                  </Button>
-                  <Button
-                    type="primary"
-                    icon={<SwapOutlined />}
-                    disabled={!selectedRowKeys.length || !targetFeatureId}
-                    loading={migrationLoading}
-                    onClick={handleMigrate}
+                    <span>
+                      <Button
+                        icon={<RobotOutlined />}
+                        disabled={!selectedRowKeys.length}
+                        loading={automateLoading}
+                        onClick={handleAutomateFill}
+                        style={{
+                          color: token.colorSuccess,
+                          borderColor: token.colorSuccess,
+                        }}
+                      >
+                        AI ช่วยเติมงาน
+                      </Button>
+                    </span>
+                  </Tooltip>
+
+                  <Tooltip
+                    title={
+                      !targetProjectId
+                        ? "กรุณาเลือกโปรเจกต์เป้าหมาย"
+                        : !targetFeatureId
+                          ? "กรุณาเลือก Feature เป้าหมาย"
+                          : !selectedRowKeys.length
+                            ? "กรุณาเลือกรายการไทม์ชีทที่ต้องการย้าย"
+                            : ""
+                    }
                   >
-                    ย้ายโปรเจกต์
-                  </Button>
+                    <span>
+                      <Button
+                        type="primary"
+                        icon={<SwapOutlined />}
+                        disabled={!selectedRowKeys.length || !targetFeatureId}
+                        loading={migrationLoading}
+                        onClick={handleMigrate}
+                      >
+                        ย้ายโปรเจกต์
+                      </Button>
+                    </span>
+                  </Tooltip>
                 </Space>
               }
             >
@@ -533,6 +570,112 @@ export default function MigratePersonPage() {
                       <Text style={{ fontSize: token.fontSizeSM }}>{val}</Text>
                     </Card>
                   ),
+                },
+              ]}
+            />
+          </Flex>
+        </Modal>
+
+        {/* --- Migrate Confirmation Modal --- */}
+        <Modal
+          title={
+            <Space>
+              <SwapOutlined style={{ color: token.colorPrimary }} />{" "}
+              ยืนยันการย้ายโปรเจกต์
+            </Space>
+          }
+          open={migrateModalVisible}
+          onCancel={() => !migrationLoading && setMigrateModalVisible(false)}
+          width={900}
+          okText="ยืนยันการย้ายข้อมูล"
+          cancelText="ยกเลิก"
+          onOk={handleConfirmMigrate}
+          confirmLoading={migrationLoading}
+          maskClosable={false}
+        >
+          <Flex vertical gap="large">
+            <Card
+              size="small"
+              styles={{ body: { backgroundColor: token.colorFillAlter } }}
+              variant="borderless"
+            >
+              <Row gutter={24} align="middle">
+                <Col span={11}>
+                  <Flex vertical align="center">
+                    <Text
+                      type="secondary"
+                      style={{ fontSize: token.fontSizeSM }}
+                    >
+                      ย้ายรายการที่เลือกทั้งหมด
+                    </Text>
+                    <Title level={4} style={{ margin: 0 }}>
+                      {selectedRowKeys.length} รายการ
+                    </Title>
+                  </Flex>
+                </Col>
+                <Col span={2}>
+                  <Flex justify="center">
+                    <SwapOutlined
+                      style={{ fontSize: 24, color: token.colorTextQuaternary }}
+                    />
+                  </Flex>
+                </Col>
+                <Col span={11}>
+                  <Flex vertical>
+                    <Text
+                      type="secondary"
+                      style={{ fontSize: token.fontSizeSM }}
+                    >
+                      ไปยังเป้าหมาย
+                    </Text>
+                    <Text strong>
+                      {projects.find((p) => p.id === targetProjectId)?.name}
+                    </Text>
+                    <Text type="secondary">
+                      {features.find((f) => f.id === targetFeatureId)?.name}
+                    </Text>
+                  </Flex>
+                </Col>
+              </Row>
+            </Card>
+
+            <Divider orientation="left" style={{ margin: 0 }}>
+              รายการที่จะถูกย้าย
+            </Divider>
+
+            <Table
+              size="small"
+              pagination={{ pageSize: 5 }}
+              dataSource={entries.filter((e) => selectedRowKeys.includes(e.id))}
+              rowKey="id"
+              columns={[
+                {
+                  title: "วันที่",
+                  dataIndex: "date",
+                  width: 100,
+                  render: (d) => dayjs(d).format("DD/MM/YYYY"),
+                },
+                {
+                  title: "โปรเจกต์/Feature (เดิม)",
+                  render: (_, record) => (
+                    <Flex vertical>
+                      <Text style={{ fontSize: token.fontSizeSM }}>
+                        {record.project?.name}
+                      </Text>
+                      <Text
+                        type="secondary"
+                        style={{ fontSize: 10 }}
+                        ellipsis={{ tooltip: record.feature?.name }}
+                      >
+                        {record.feature?.name}
+                      </Text>
+                    </Flex>
+                  ),
+                },
+                {
+                  title: "รายละเอียด",
+                  dataIndex: "description",
+                  ellipsis: true,
                 },
               ]}
             />
