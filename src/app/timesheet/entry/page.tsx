@@ -1639,35 +1639,48 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
 
   useEffect(() => {
     if (open) {
-      if (formMode === "create") {
-        form.resetFields();
-        form.setFieldsValue({
-          status: "IN_PROGRESS",
-          date: dayjs(),
-          work_hour: 8,
-        });
-      } else if ((formMode === "edit" || formMode === "copy") && record) {
-        form.setFieldsValue({
-          project_id: Number(record.project_id),
-          sub_project_id: record.feature_id
-            ? Number(record.feature_id)
-            : undefined,
-          description: record.description ?? "",
-          work_hour: Number(record.hours) || undefined,
-          status: record.status,
-          date: formMode === "copy" ? dayjs() : dayjs(record.date),
-        });
-      }
+      // Use a small delay to ensure the form is fully connected to the element
+      // before attempting to reset or set values, preventing Ant Design warnings.
+      const timer = setTimeout(() => {
+        if (formMode === "create") {
+          form.resetFields();
+          form.setFieldsValue({
+            status: "IN_PROGRESS",
+            date: dayjs(),
+            work_hour: 8,
+          });
+        } else if ((formMode === "edit" || formMode === "copy") && record) {
+          form.setFieldsValue({
+            project_id: Number(record.project_id),
+            sub_project_id: record.feature_id
+              ? Number(record.feature_id)
+              : undefined,
+            description: record.description ?? "",
+            work_hour: Number(record.hours) || undefined,
+            status: record.status,
+            date: formMode === "copy" ? dayjs() : dayjs(record.date),
+          });
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [open, formMode, form, record]);
 
   useEffect(() => {
     if (!open) return;
-    if (searchMode === "hierarchy") {
-      form.setFieldsValue({ sub_project_search: undefined });
-    } else {
-      form.setFieldsValue({ project_id: undefined, sub_project_id: undefined });
-    }
+
+    // Similarly delay this update to ensure connection
+    const timer = setTimeout(() => {
+      if (searchMode === "hierarchy") {
+        form.setFieldsValue({ sub_project_search: undefined });
+      } else {
+        form.setFieldsValue({
+          project_id: undefined,
+          sub_project_id: undefined,
+        });
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [searchMode, form, open]);
 
   const projectOptions = useMemo(
@@ -2403,11 +2416,10 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
       setCompletedCount(0);
       setUsers([]);
     } else {
-      // Reset forms when modal opens to ensure clean state
-      form.resetFields();
+      // Reset password form when modal opens
       passwordForm.resetFields();
     }
-  }, [open, form, passwordForm]);
+  }, [open, passwordForm]);
 
   // Fetch users from localStorage when modal opens
   useEffect(() => {
@@ -2429,6 +2441,11 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
     const password = passwordForm.getFieldValue("password");
     if (password === "LIGHT") {
       setIsUnlocked(true);
+      // Wait for the next tick to ensure the Form is rendered before resetting
+      setTimeout(() => {
+        form.resetFields();
+        form.setFieldsValue({ status: "IN_PROGRESS", date: dayjs() });
+      }, 0);
       toast.success("ปลดล็อคสำเร็จ! สามารถลงเวลาได้ทุกคนแล้ว", {
         icon: <CheckCircleOutlined style={{ color: token.colorSuccess }} />,
       });
