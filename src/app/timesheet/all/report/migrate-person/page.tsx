@@ -231,24 +231,45 @@ export default function MigratePersonPage() {
   };
 
   // --- Table Configuration ---
+  const projectFilters = Array.from(
+    new Set(entries.map((e) => e.project?.name).filter(Boolean)),
+  ).map((name) => ({ text: String(name), value: String(name) }));
+
+  const featureFilters = Array.from(
+    new Set(entries.map((e) => e.feature?.name).filter(Boolean)),
+  ).map((name) => ({ text: String(name), value: String(name) }));
+
   const columns = [
     {
       title: "วันที่",
       dataIndex: "date",
-      width: 120,
+      width: 110,
       render: (d: string) => dayjs(d).format("DD/MM/YYYY"),
     },
     {
       title: "โปรเจกต์เดิม",
-      render: (_: any, record: any) => (
-        <Flex vertical gap={0}>
-          <Text strong style={{ fontSize: token.fontSizeSM }}>
-            {record.project?.name}
-          </Text>
-          <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
-            {record.feature?.name}
-          </Text>
-        </Flex>
+      dataIndex: ["project", "name"],
+      width: 180,
+      filters: projectFilters,
+      onFilter: (value: any, record: any) => record.project?.name === value,
+      filterSearch: true,
+      render: (name: string) => (
+        <Text strong style={{ fontSize: token.fontSizeSM }}>
+          {name}
+        </Text>
+      ),
+    },
+    {
+      title: "ฟีเจอร์เดิม",
+      dataIndex: ["feature", "name"],
+      width: 180,
+      filters: featureFilters,
+      onFilter: (value: any, record: any) => record.feature?.name === value,
+      filterSearch: true,
+      render: (name: string) => (
+        <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
+          {name || "-"}
+        </Text>
       ),
     },
     {
