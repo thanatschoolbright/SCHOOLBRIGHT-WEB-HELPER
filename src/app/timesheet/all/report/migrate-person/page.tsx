@@ -2,27 +2,34 @@
 
 import DashboardLayout from "@/components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
+import StatusModal from "@/components/modal/status-modal";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import { PERMISSIONS } from "@/constants/permission.constant";
 import {
-  ArrowRightOutlined,
   CheckCircleOutlined,
-  ExclamationCircleOutlined,
-  PlayCircleOutlined,
+  ClearOutlined,
+  FilterOutlined,
+  LoadingOutlined,
+  RobotOutlined,
+  SearchOutlined,
   SwapOutlined,
-  SyncOutlined,
-  UserOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import {
+  App,
+  Avatar,
   Badge,
   Button,
   Card,
+  Checkbox,
   Col,
   Empty,
   Flex,
-  Progress,
+  Modal,
   Row,
   Select,
   Space,
+  Steps,
   Table,
   Tag,
   theme,
@@ -30,179 +37,291 @@ import {
 } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
-interface MigrationItem {
+interface TimesheetEntry {
   id: number;
   date: string;
   hours: number;
   description: string;
-  createdBy: number;
-  user?: {
-    firstname_th: string;
-    lastname_th: string;
-    nickname: string;
-  };
-  status: "pending" | "processing" | "success" | "error";
-  error?: string;
+  projectId: number;
+  featureId: number;
+  project: { name: string };
+  feature: { name: string; ticket_number: string };
+  hasIssue: boolean;
+  issueTypes: string[];
 }
 
-export default function MigrateProjectPage() {
+interface UserSummary {
+  admin_id: number;
+  firstname_th: string;
+  lastname_th: string;
+  nickname: string;
+  employee_code: string;
+}
+
+export default function MigratePersonPage() {
   const { token } = theme.useToken();
+  const { modal: antdModal } = App.useApp();
 
   // Data States
+  const [users, setUsers] = useState<UserSummary[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
-  const [sourceFeatures, setSourceFeatures] = useState<any[]>([]);
-  const [targetFeatures, setTargetFeatures] = useState<any[]>([]);
+  const [features, setFeatures] = useState<any[]>([]);
+  const [entries, setEntries] = useState<TimesheetEntry[]>([]);
 
   // Selection States
-  const [sourceProject, setSourceProject] = useState<number | null>(null);
-  const [sourceFeature, setSourceFeature] = useState<number | null>(null);
-  const [targetProject, setTargetProject] = useState<number | null>(null);
-  const [targetFeature, setTargetFeature] = useState<number | null>(null);
+  const [selectedUser, setSelectedUser] = useState<number | null>(null);
+  const [showOnlyIssues, setShowOnlyIssues] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // Migration States
-  const [entries, setEntries] = useState<MigrationItem[]>([]);
+  const [targetProjectId, setTargetProjectId] = useState<number | null>(null);
+  const [targetFeatureId, setTargetFeatureId] = useState<number | null>(null);
+
+  // UI States
   const [loading, setLoading] = useState(false);
-  const [isMigrating, setIsMigrating] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [migrationLoading, setMigrationLoading] = useState(false);
+  const [userSearchText, setUserSearchText] = useState("");
+
+  // AI Automate States
+  const [automateLoading, setAutomateLoading] = useState(false);
+  const [automateStep, setAutomateStep] = useState(0);
+  const [generatedResults, setGeneratedResults] = useState<any[]>([]);
+  const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [savingAutomate, setSavingAutomate] = useState(false);
+
+  // Modal State
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: "success" | "error";
+    title?: string;
+    message?: string;
+    errorDetails?: any;
+  }>({
+    open: false,
+    type: "success",
+  });
 
   // Initial Data
   useEffect(() => {
-    fetchProjects();
+    requestInitialData();
   }, []);
 
-  const fetchProjects = async () => {
+  /**
+   * ดึงข้อมูลพนักงานและโปรเจกต์เริ่มต้นสำหรับใช้งานในฟอร์ม
+   */
+  const requestInitialData = async () => {
     try {
-      const res = await axios.get(
-        "/api/v1/timesheet/migration?action=projects",
-      );
-      setProjects(res.data.data);
-    } catch (err) {
-      toast.error("ไม่สามารถโหลดข้อมูลโครงการได้");
+      const [userResponse, projectResponse] = await Promise.all([
+        axios.get("/api/v1/timesheet/migration/read?action=users"),
+        axios.get("/api/v1/timesheet/migration/read?action=projects"),
+      ]);
+      setUsers(userResponse.data?.data || []);
+      setProjects(projectResponse.data?.data || []);
+    } catch (error) {
+      toast.error("ไม่สามารถโหลดข้อมูลเบื้องต้นได้");
     }
   };
 
-  const fetchFeatures = async (
-    projectId: number,
-    setFn: (data: any[]) => void,
+  useEffect(() => {
+    if (selectedUser) {
+      requestTimesheetEntries(selectedUser, showOnlyIssues);
+    } else {
+      setEntries([]);
+    }
+  }, [selectedUser, showOnlyIssues]);
+
+  /**
+   * ดึงรายการ Timesheet ของพนักงานที่เลือก และกรองเฉพาะที่มีปัญหาหากเปิด Flag ไว้
+   */
+  const requestTimesheetEntries = async (
+    adminId: number,
+    issuesOnly: boolean,
   ) => {
-    try {
-      const res = await axios.get(
-        `/api/v1/timesheet/migration?action=features&projectId=${projectId}`,
-      );
-      setFn(res.data.data);
-    } catch (err) {
-      toast.error("ไม่สามารถโหลดข้อมูลโครงการย่อยได้");
-    }
-  };
-
-  const fetchEntries = async () => {
-    if (!sourceProject || !sourceFeature) return;
     setLoading(true);
     try {
-      const res = await axios.get(
-        `/api/v1/timesheet/migration?action=entries&sourceProjectId=${sourceProject}&sourceFeatureId=${sourceFeature}`,
+      const response = await axios.get(
+        `/api/v1/timesheet/migration/read?action=entries&admin_id=${adminId}&has_issues=${issuesOnly}`,
       );
-      const data = res.data.data.map((item: any) => ({
-        ...item,
-        status: "pending",
-      }));
-      setEntries(data);
-    } catch (err) {
-      toast.error("ไม่สามารถโหลดข้อมูลบันทึกเวลาได้");
+      setEntries(response.data?.data || []);
+      setSelectedRowKeys([]);
+    } catch (error) {
+      toast.error("ไม่สามารถโหลดข้อมูลไทม์ชีทได้");
     } finally {
       setLoading(false);
     }
   };
 
-  // Handlers
-  const handleSourceProjectChange = (id: number) => {
-    setSourceProject(id);
-    setSourceFeature(null);
-    setSourceFeatures([]);
-    fetchFeatures(id, setSourceFeatures);
+  /**
+   * ดึงรายชื่อ Feature เมื่อมีการเปลี่ยนโปรเจกต์ต้นทาง/ปลายทาง
+   */
+  const handleTargetProjectChange = async (value: number) => {
+    setTargetProjectId(value);
+    setTargetFeatureId(null);
+    try {
+      const response = await axios.get(
+        `/api/v1/timesheet/migration/read?action=features&project_id=${value}`,
+      );
+      setFeatures(response.data?.data || []);
+    } catch (error) {
+      toast.error("ไม่สามารถโหลดข้อมูล Feature ได้");
+    }
   };
 
-  const handleTargetProjectChange = (id: number) => {
-    setTargetProject(id);
-    setTargetFeature(null);
-    setTargetFeatures([]);
-    fetchFeatures(id, setTargetFeatures);
-  };
-
-  const startMigration = async () => {
-    if (!targetProject || !targetFeature) {
-      toast.warning("กรุณาเลือกโครงการปลายทาง");
+  /**
+   * ดำเนินการย้ายรายการ Timesheet ที่เลือกไปยังโปรเจกต์และ Feature เป้าหมาย
+   */
+  const requestMigrateTimesheet = async () => {
+    if (!targetProjectId || !targetFeatureId || selectedRowKeys.length === 0) {
+      toast.error("กรุณาเลือกรายการและเป้าหมายที่จะย้าย");
       return;
     }
 
-    if (entries.length === 0) {
-      toast.warning("ไม่มีข้อมูลที่จะย้าย");
+    setMigrationLoading(true);
+    try {
+      const response = await axios.post("/api/v1/timesheet/migration/create", {
+        entry_ids: selectedRowKeys,
+        target_project_id: targetProjectId,
+        target_feature_id: targetFeatureId,
+      });
+
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: "ย้ายข้อมูลสำเร็จ",
+        message: response.data?.message_th || "ย้ายข้อมูลรายวันเรียบร้อยแล้ว",
+      });
+
+      if (selectedUser) requestTimesheetEntries(selectedUser, showOnlyIssues);
+    } catch (error: any) {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "เกิดข้อผิดพลาดในการย้ายข้อมูล",
+        message:
+          error.response?.data?.message_th ||
+          error.response?.data?.error ||
+          "ไม่สามารถดำเนินการได้",
+        errorDetails: error.response?.data || error.message,
+      });
+    } finally {
+      setMigrationLoading(false);
+    }
+  };
+
+  /**
+   * วิเคราะห์และสร้างรายละเอียดงานด้วย AI
+   */
+  const requestAiGenerateDescriptions = async () => {
+    if (selectedRowKeys.length === 0 || !selectedUser) {
+      toast.warning("กรุณาเลือกรายการและพนักงานที่ต้องการให้ AI ช่วยสรุป");
       return;
     }
 
-    setIsMigrating(true);
-    setProgress(0);
+    setAutomateLoading(true);
+    setAutomateStep(0);
+    setGeneratedResults([]);
 
-    const updatedEntries = [...entries];
-    let successCount = 0;
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      setAutomateStep(1);
 
-    for (let i = 0; i < updatedEntries.length; i++) {
-      const entry = updatedEntries[i];
+      const response = await axios.post(
+        "/api/v1/timesheet/migration/automate-fill",
+        {
+          admin_id: selectedUser,
+          entry_ids: selectedRowKeys,
+        },
+      );
 
-      // Update state to processing
-      updatedEntries[i].status = "processing";
-      setEntries([...updatedEntries]);
-
-      try {
-        await axios.post("/api/v1/timesheet/migration", {
-          timesheetId: entry.id,
-          targetProjectId: targetProject,
-          targetFeatureId: targetFeature,
-        });
-
-        updatedEntries[i].status = "success";
-        successCount++;
-      } catch (err: any) {
-        updatedEntries[i].status = "error";
-        updatedEntries[i].error = err.response?.data?.error || "Unknown Error";
-      }
-
-      const newProgress = Math.round(((i + 1) / updatedEntries.length) * 100);
-      setProgress(newProgress);
-      setEntries([...updatedEntries]);
-
-      // Artificial delay to show processing status (Optional but good for tracking feel)
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      setGeneratedResults(response.data?.data || []);
+      setAutomateStep(2);
+      setReviewModalVisible(true);
+    } catch (error: any) {
+      toast.error(
+        `AI Generation Failed: ${error.response?.data?.message_th || error.message}`,
+      );
+    } finally {
+      setAutomateLoading(false);
     }
+  };
 
-    setIsMigrating(false);
-    toast.success(
-      `ย้ายข้อมูลเสร็จสิ้น สำเร็จ ${successCount}/${entries.length} รายการ`,
+  /**
+   * บันทึกรายละเอียดงานที่ AI แนะนำ
+   */
+  const requestUpdateDescriptionsByAi = async () => {
+    setSavingAutomate(true);
+    try {
+      const response = await axios.patch(
+        "/api/v1/timesheet/migration/automate-fill",
+        {
+          updates: generatedResults.map((item) => ({
+            id: item.id,
+            description: item.suggested_description,
+          })),
+        },
+      );
+
+      toast.success(
+        `อัปเดตรายละเอียดงาน ${response.data?.data?.count || 0} รายการสำเร็จ`,
+      );
+
+      setReviewModalVisible(false);
+      if (selectedUser) requestTimesheetEntries(selectedUser, showOnlyIssues);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message_th || error.message);
+    } finally {
+      setSavingAutomate(false);
+    }
+  };
+
+  const filteredUsers = useMemo(() => {
+    return users.filter((u) =>
+      `${u.firstname_th} ${u.lastname_th} ${u.nickname} ${u.employee_code}`
+        .toLowerCase()
+        .includes(userSearchText.toLowerCase()),
     );
-  };
+  }, [users, userSearchText]);
 
   const columns = [
     {
       title: "วันที่",
       dataIndex: "date",
       key: "date",
+      width: 120,
+      sorter: (a: any, b: any) => dayjs(a.date).unix() - dayjs(b.date).unix(),
       render: (date: string) => dayjs(date).format("DD/MM/YYYY"),
     },
     {
-      title: "พนักงาน",
-      key: "user",
-      render: (record: MigrationItem) => (
-        <Space>
-          <UserOutlined />
-          <Text>
-            {record.user?.firstname_th || "ไม่ระบุ"} (
-            {record.user?.nickname || "-"})
+      title: "โปรเจกต์เดิม",
+      key: "original",
+      render: (_: any, record: TimesheetEntry) => (
+        <Space direction="vertical" size={0}>
+          <Text strong style={{ fontSize: 12, fontWeight: 600 }}>
+            {record.project?.name}
           </Text>
+          <Text type="secondary" style={{ fontSize: 11 }}>
+            {record.feature?.name}
+          </Text>
+        </Space>
+      ),
+    },
+    {
+      title: "รายละเอียด",
+      dataIndex: "description",
+      key: "description",
+      render: (desc: string, record: TimesheetEntry) => (
+        <Space direction="vertical" size={4} style={{ width: "100%" }}>
+          {record.hasIssue ? (
+            <Tag color="error" icon={<WarningOutlined />}>
+              ไม่มีรายละเอียด
+            </Tag>
+          ) : (
+            <Text>{desc}</Text>
+          )}
         </Space>
       ),
     },
@@ -210,355 +329,350 @@ export default function MigrateProjectPage() {
       title: "ชั่วโมง",
       dataIndex: "hours",
       key: "hours",
-      render: (h: number) => <Text strong>{Number(h)}</Text>,
-    },
-    {
-      title: "สถานะการย้าย",
-      key: "status",
-      render: (record: MigrationItem) => {
-        if (record.status === "pending")
-          return <Badge status="default" text="รอการดำเนินการ" />;
-        if (record.status === "processing")
-          return <Badge status="processing" text="กำลังย้ายข้อมูล..." />;
-        if (record.status === "success")
-          return <Badge status="success" text="สำเร็จ" />;
-        return (
-          <Space>
-            <Badge status="error" text="ล้มเหลว" />
-            <Text type="danger" style={{ fontSize: 12 }}>
-              ({record.error})
-            </Text>
-          </Space>
-        );
-      },
+      width: 80,
+      align: "center" as const,
+      sorter: (a: any, b: any) => a.hours - b.hours,
+      render: (h: number) => (
+        <Badge count={h} color={h > 8 ? "orange" : "blue"} />
+      ),
     },
   ];
 
-  const sourceProjectData = projects.find((p) => p.id === sourceProject);
-  const targetProjectData = projects.find((p) => p.id === targetProject);
-  const sourceFeatureData = sourceFeatures.find((f) => f.id === sourceFeature);
-  const targetFeatureData = targetFeatures.find((f) => f.id === targetFeature);
+  /**
+   * ล้างการค้นหาทั้งหมด
+   */
+  const handleClearFilters = () => {
+    setSelectedUser(null);
+    setShowOnlyIssues(false);
+    setTargetProjectId(null);
+    setTargetFeatureId(null);
+    setEntries([]);
+    setSelectedRowKeys([]);
+    toast.info("ล้างข้อมูลการค้นหาเรียบร้อย");
+  };
 
   return (
-    <PermissionLayout role={["ADMIN"]}>
-      <DashboardLayout>
+    <DashboardLayout>
+      <PermissionLayout permission={[PERMISSIONS.TIMESHEET_WRITE]}>
+        {/* ส่วนที่ 1: หัวเรื่องของหน้า */}
         <HeaderBar
-          title="ระบบย้ายข้อมูล Timesheet (Migration Tool)"
-          subTitle="จัดการย้ายบันทึกเวลาจากโครงการ/โครงการย่อยที่ยกเลิกไปยังรายการที่ถูกต้อง"
+          title="ย้ายข้อมูล Timesheet (รายบุคคล)"
+          description="ระบบจัดการย้ายรายการที่คีย์ผิดโปรเจกต์ หรือรายการที่ไม่มีคำอธิบาย"
           icon={<SwapOutlined />}
         />
 
-        <Row gutter={[24, 24]}>
-          {/* Selection Area */}
-          <Col span={24}>
-            <Card
-              variant="borderless"
-              style={{
-                borderRadius: 16,
-                border: `1px solid ${token.colorBorderSecondary}`,
-              }}
-            >
-              <Row gutter={48} align="middle">
-                {/* Source Column */}
-                <Col xs={24} md={10}>
-                  <Space
-                    direction="vertical"
+        <Space
+          direction="vertical"
+          size={24}
+          style={{ width: "100%", marginTop: 24 }}
+        >
+          {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล (Filter) และ ปุ่มที่เกี่ยวข้อง */}
+          <Card
+            title={
+              <Space>
+                <FilterOutlined />
+                <span>ตัวกรอง</span>
+              </Space>
+            }
+            styles={{ body: { padding: 16 } }}
+            style={{
+              borderRadius: 16,
+              border: `1px solid ${token.colorBorderSecondary}`,
+            }}
+          >
+            <Row gutter={[24, 16]}>
+              {/* แถวที่ 1: เลือกพนักงาน และ เลือกโปรเจกต์ปลายทาง */}
+              <Col xs={24} lg={12}>
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Text type="secondary" style={{ fontWeight: 600 }}>
+                    เลือกพนักงาน
+                  </Text>
+                  <Select
+                    showSearch
+                    placeholder="ค้นหาชื่อพนักงาน หรือรหัส"
                     style={{ width: "100%" }}
-                    size={16}
+                    value={selectedUser}
+                    onChange={setSelectedUser}
+                    onSearch={setUserSearchText}
+                    filterOption={false}
+                    notFoundContent={loading ? "กำลังโหลด..." : "ไม่พบข้อมูล"}
                   >
-                    <Flex align="center" gap={12}>
-                      <Flex
-                        justify="center"
-                        align="center"
-                        style={{
-                          width: 38,
-                          height: 38,
-                          background: token.colorErrorBg,
-                          borderRadius: 8,
-                          color: token.colorError,
-                        }}
-                      >
-                        <ExclamationCircleOutlined />
-                      </Flex>
-                      <Title level={5} style={{ margin: 0 }}>
-                        ต้นทาง (Source Project)
-                      </Title>
-                    </Flex>
+                    {filteredUsers.map((user) => (
+                      <Select.Option key={user.admin_id} value={user.admin_id}>
+                        <Space>
+                          <Avatar
+                            size="small"
+                            style={{ backgroundColor: token.colorPrimary }}
+                          >
+                            {user.nickname?.[0] || user.firstname_th?.[0]}
+                          </Avatar>
+                          {user.firstname_th} {user.lastname_th} (
+                          {user.nickname})
+                        </Space>
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Space>
+              </Col>
 
-                    <Select
-                      placeholder="เลือกโครงการ"
-                      style={{ width: "100%" }}
-                      size="large"
-                      showSearch
-                      optionFilterProp="children"
-                      onChange={handleSourceProjectChange}
-                      loading={loading}
-                    >
-                      {projects.map((p) => (
-                        <Select.Option key={p.id} value={p.id}>
-                          <Space>
-                            {p.name}
-                            {p.is_deleted && <Tag color="error">ถูกลบ</Tag>}
-                          </Space>
-                        </Select.Option>
-                      ))}
-                    </Select>
-
-                    <Select
-                      placeholder="เลือกโครงการย่อย (Sub-project / Feature)"
-                      style={{ width: "100%" }}
-                      size="large"
-                      disabled={!sourceProject}
-                      value={sourceFeature}
-                      onChange={setSourceFeature}
-                      loading={loading}
-                    >
-                      {sourceFeatures.map((f) => (
-                        <Select.Option key={f.id} value={f.id}>
-                          <Space>
-                            {f.name}
-                            {f.is_deleted ? (
-                              <Tag color="error">ถูกลบ</Tag>
-                            ) : (
-                              <Tag color="success">ใช้งานอยู่</Tag>
-                            )}
-                          </Space>
-                        </Select.Option>
-                      ))}
-                    </Select>
-
-                    <Button
-                      type="primary"
-                      icon={<SyncOutlined />}
-                      disabled={!sourceProject || !sourceFeature}
-                      onClick={fetchEntries}
-                      loading={loading}
-                      block
-                    >
-                      ตรวจสอบข้อมูลที่ค้างอยู่
-                    </Button>
-                  </Space>
-                </Col>
-
-                <Col xs={24} md={4}>
-                  <Flex
-                    justify="center"
-                    align="center"
-                    style={{ height: "100%" }}
-                  >
-                    <ArrowRightOutlined
-                      style={{ fontSize: 32, color: token.colorTextDisabled }}
-                    />
-                  </Flex>
-                </Col>
-
-                {/* Target Column */}
-                <Col xs={24} md={10}>
-                  <Space
-                    direction="vertical"
+              <Col xs={24} lg={12}>
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Text type="secondary" style={{ fontWeight: 600 }}>
+                    โปรเจกต์เป้าหมาย
+                  </Text>
+                  <Select
+                    placeholder="เลือกโปรเจกต์เป้าหมายที่จะย้ายไป"
                     style={{ width: "100%" }}
-                    size={16}
-                  >
-                    <Flex align="center" gap={12}>
-                      <Flex
-                        justify="center"
-                        align="center"
-                        style={{
-                          width: 38,
-                          height: 38,
-                          background: token.colorSuccessBg,
-                          borderRadius: 8,
-                          color: token.colorSuccess,
-                        }}
-                      >
-                        <CheckCircleOutlined />
-                      </Flex>
-                      <Title level={5} style={{ margin: 0 }}>
-                        ปลายทาง (Target Project)
-                      </Title>
-                    </Flex>
-
-                    <Select
-                      placeholder="เลือกโครงการ"
-                      style={{ width: "100%" }}
-                      size="large"
-                      showSearch
-                      optionFilterProp="children"
-                      onChange={handleTargetProjectChange}
-                    >
-                      {projects
-                        .filter((p) => !p.is_deleted)
-                        .map((p) => (
-                          <Select.Option key={p.id} value={p.id}>
-                            {p.name}
-                          </Select.Option>
-                        ))}
-                    </Select>
-
-                    <Select
-                      placeholder="เลือกโครงการย่อย (Sub-project / Feature)"
-                      style={{ width: "100%" }}
-                      size="large"
-                      disabled={!targetProject}
-                      value={targetFeature}
-                      onChange={setTargetFeature}
-                    >
-                      {targetFeatures
-                        .filter((f) => !f.is_deleted)
-                        .map((f) => (
-                          <Select.Option key={f.id} value={f.id}>
-                            {f.name}
-                          </Select.Option>
-                        ))}
-                    </Select>
-
-                    <Button
-                      type="primary"
-                      danger
-                      icon={<PlayCircleOutlined />}
-                      disabled={
-                        !targetProject ||
-                        !targetFeature ||
-                        entries.length === 0 ||
-                        isMigrating
-                      }
-                      onClick={startMigration}
-                      block
-                      style={{ fontWeight: 600 }}
-                    >
-                      เริ่มการย้ายข้อมูลทั้งหมด
-                    </Button>
-                  </Space>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-
-          {/* Status & Progress Area */}
-          {entries.length > 0 && (
-            <Col span={24}>
-              <Card
-                variant="borderless"
-                style={{
-                  borderRadius: 16,
-                  border: `1px solid ${token.colorBorderSecondary}`,
-                }}
-              >
-                <Flex vertical gap={24}>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Flex
-                        vertical
-                        gap={8}
-                        style={{
-                          backgroundColor: token.colorFillAlter,
-                          padding: 16,
-                          borderRadius: 12,
-                          border: `1px dashed ${token.colorBorderSecondary}`,
-                        }}
-                      >
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          สรุปรายการที่รอการย้าย
-                        </Text>
-                        <Flex vertical gap={4}>
-                          <Text>
-                            จาก: <Tag>{sourceProjectData?.name}</Tag> /{" "}
-                            <Tag
-                              color={
-                                sourceFeatureData?.is_deleted
-                                  ? "error"
-                                  : "success"
-                              }
-                            >
-                              {sourceFeatureData?.name}
-                            </Tag>
-                          </Text>
-                          <Text>
-                            ไปที่:{" "}
-                            <Tag color="blue">{targetProjectData?.name}</Tag> /{" "}
-                            <Tag color="cyan">
-                              {targetFeatureData?.name || "ยังไม่ได้เลือก"}
-                            </Tag>
-                          </Text>
-                        </Flex>
-                      </Flex>
-                    </Col>
-                    <Col span={12}>
-                      <Flex
-                        vertical
-                        justify="center"
-                        align="center"
-                        style={{
-                          backgroundColor: token.colorPrimaryBg,
-                          padding: 16,
-                          borderRadius: 12,
-                          border: `1px solid ${token.colorPrimaryBorder}`,
-                          height: "100%",
-                        }}
-                      >
-                        <Title
-                          level={3}
-                          style={{ margin: 0, color: token.colorPrimary }}
-                        >
-                          {entries.length}
-                        </Title>
-                        <Text type="secondary">จำนวนบันทึกเวลาทั้งหมด</Text>
-                      </Flex>
-                    </Col>
-                  </Row>
-
-                  {(isMigrating || progress > 0) && (
-                    <Flex vertical gap={8}>
-                      <Flex justify="space-between" align="center">
-                        <Text strong>ความคืบหน้าการทำงาน</Text>
-                        <Text>{progress}%</Text>
-                      </Flex>
-                      <Progress
-                        percent={progress}
-                        status={isMigrating ? "active" : "normal"}
-                        strokeColor={{
-                          "0%": token.colorPrimary,
-                          "100%": token.colorSuccess,
-                        }}
-                      />
-                    </Flex>
-                  )}
-
-                  <Table
-                    dataSource={entries}
-                    columns={columns}
-                    rowKey="id"
-                    pagination={{ pageSize: 10 }}
-                    className="rounded-lg overflow-hidden border border-gray-100"
+                    value={targetProjectId}
+                    onChange={handleTargetProjectChange}
+                    options={projects.map((p) => ({
+                      label: p.name,
+                      value: p.id,
+                    }))}
                   />
-                </Flex>
-              </Card>
-            </Col>
-          )}
+                </Space>
+              </Col>
 
-          {entries.length === 0 && !loading && (
-            <Col span={24}>
-              <Card
-                variant="borderless"
-                style={{
-                  borderRadius: 16,
-                  border: `1px solid ${token.colorBorderSecondary}`,
-                  textAlign: "center",
-                  padding: "40px 0",
+              {/* แถวที่ 2: ตั้งค่าฟิลเตอร์อื่น ๆ และ Feature เป้ามหาย */}
+              <Col xs={24} lg={12}>
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Text type="secondary" style={{ fontWeight: 600 }}>
+                    เงื่อนไขเพิ่มเติม
+                  </Text>
+                  <Checkbox
+                    checked={showOnlyIssues}
+                    onChange={(e) => setShowOnlyIssues(e.target.checked)}
+                  >
+                    แสดงเฉพาะรายการที่มีปัญหา (ไม่มีคำอธิบาย)
+                  </Checkbox>
+                </Space>
+              </Col>
+
+              <Col xs={24} lg={12}>
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Text type="secondary" style={{ fontWeight: 600 }}>
+                    Feature เป้าหมาย
+                  </Text>
+                  <Select
+                    placeholder="เลือก Feature ในโปรเจกต์เป้าหมาย"
+                    style={{ width: "100%" }}
+                    value={targetFeatureId}
+                    onChange={setTargetFeatureId}
+                    disabled={!targetProjectId}
+                    options={features.map((f) => ({
+                      label: f.ticket_number
+                        ? `[${f.ticket_number}] ${f.name}`
+                        : f.name,
+                      value: f.id,
+                    }))}
+                  />
+                </Space>
+              </Col>
+
+              {/* ปุ่มควบคุม (ปุ่มค้นหาและล้างการค้นหา) */}
+              <Col span={24}>
+                <Flex justify="end" gap={12} style={{ marginTop: 8 }}>
+                  <Button icon={<ClearOutlined />} onClick={handleClearFilters}>
+                    ล้างการค้นหา
+                  </Button>
+                  <Button
+                    type="primary"
+                    icon={<SearchOutlined />}
+                    loading={loading}
+                    onClick={() =>
+                      selectedUser &&
+                      requestTimesheetEntries(selectedUser, showOnlyIssues)
+                    }
+                  >
+                    ค้นหาข้อมูล
+                  </Button>
+                </Flex>
+              </Col>
+            </Row>
+          </Card>
+
+          {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
+          <Card
+            styles={{ body: { padding: 16 } }}
+            style={{
+              borderRadius: 16,
+              overflow: "hidden",
+              border: `1px solid ${token.colorBorderSecondary}`,
+            }}
+            title={
+              <Space>
+                <CheckCircleOutlined />
+                <Text style={{ fontWeight: 600 }}>รายการ Timesheet</Text>
+                {selectedRowKeys.length > 0 && (
+                  <Tag color="blue" bordered={false}>
+                    เลือกอยู่ {selectedRowKeys.length} รายการ
+                  </Tag>
+                )}
+              </Space>
+            }
+            extra={
+              // ปุ่มที่เกี่ยวข้อง จัดวางไว้ที่ด้านบนขวามือเสมอ
+              <Space>
+                <Button
+                  icon={<RobotOutlined />}
+                  disabled={selectedRowKeys.length === 0}
+                  loading={automateLoading}
+                  onClick={requestAiGenerateDescriptions}
+                  style={{
+                    borderColor: token.colorSuccess,
+                    color: token.colorSuccess,
+                  }}
+                >
+                  AI ช่วยเติมงาน
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<SwapOutlined />}
+                  disabled={selectedRowKeys.length === 0 || !targetFeatureId}
+                  loading={migrationLoading}
+                  onClick={requestMigrateTimesheet}
+                >
+                  ย้ายโปรเจกต์
+                </Button>
+              </Space>
+            }
+          >
+            {selectedUser ? (
+              <Table
+                rowSelection={{
+                  selectedRowKeys,
+                  onChange: setSelectedRowKeys,
                 }}
-              >
-                <Empty
-                  description={
+                columns={columns}
+                dataSource={entries}
+                rowKey="id"
+                loading={loading}
+                pagination={{ pageSize: 15 }}
+                locale={{
+                  emptyText: <Empty description="ไม่พบรายการไทม์ชีท" />,
+                }}
+              />
+            ) : (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <Space direction="vertical" align="center">
                     <Text type="secondary">
-                      เลือกต้นทางเพื่อตรวจสอบรายการที่ต้องการย้าย
+                      กรุณาเลือกพนักงานและกดปุ่มค้นหาเพื่อดูข้อมูล
                     </Text>
-                  }
-                />
-              </Card>
-            </Col>
-          )}
-        </Row>
-      </DashboardLayout>
-    </PermissionLayout>
+                    <SearchOutlined
+                      style={{
+                        fontSize: 32,
+                        color: token.colorTextQuaternary,
+                        marginTop: 12,
+                      }}
+                    />
+                  </Space>
+                }
+                style={{ padding: "40px 0" }}
+              />
+            )}
+          </Card>
+        </Space>
+
+        {/* ส่วนที่ 5: โมดอลตรวจสอบผลลัพธ์จาก AI */}
+        <Modal
+          title={
+            <Space>
+              <RobotOutlined style={{ color: token.colorSuccess }} />
+              <span style={{ fontWeight: 600 }}>
+                ตรวจสอบรายละเอียดงานที่ AI แนะนำ
+              </span>
+            </Space>
+          }
+          open={reviewModalVisible}
+          onCancel={() => setReviewModalVisible(false)}
+          width={800}
+          maskClosable={false}
+          footer={[
+            <Button key="cancel" onClick={() => setReviewModalVisible(false)}>
+              ยกเลิก
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={savingAutomate}
+              onClick={requestUpdateDescriptionsByAi}
+              style={{ backgroundColor: token.colorSuccess }}
+            >
+              บันทึกข้อมูล
+            </Button>,
+          ]}
+        >
+          {/* สถานะการทำงานของ AI (Steps) */}
+          <div style={{ marginBottom: 24 }}>
+            <Steps
+              current={automateStep}
+              size="small"
+              items={[
+                { title: "วิเคราะห์ข้อมูล", icon: <SearchOutlined /> },
+                { title: "AI กำลังสร้างเนื้อหา", icon: <LoadingOutlined /> },
+                { title: "ตรวจสอบความเหมาะสม", icon: <CheckCircleOutlined /> },
+              ]}
+            />
+          </div>
+
+          <Table
+            dataSource={generatedResults}
+            rowKey="id"
+            size="small"
+            pagination={false}
+            scroll={{ y: 400 }}
+            columns={[
+              {
+                title: "วันที่",
+                dataIndex: "date",
+                width: 100,
+                render: (d) => dayjs(d).format("DD/MM/YYYY"),
+              },
+              {
+                title: "เนื้อหาที่แนะนำ",
+                dataIndex: "suggested_description",
+                render: (val, record) => (
+                  <Space
+                    direction="vertical"
+                    size={2}
+                    style={{ width: "100%" }}
+                  >
+                    <div
+                      style={{
+                        padding: "8px 12px",
+                        backgroundColor: token.colorSuccessBg,
+                        border: `1px solid ${token.colorSuccessBorder}`,
+                        borderRadius: 8,
+                        fontSize: 13,
+                      }}
+                    >
+                      {val}
+                    </div>
+                    {record.history_used > 0 && (
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        * อ้างอิงจากสไตล์การเขียนเดิม {record.history_used}{" "}
+                        รายการ
+                      </Text>
+                    )}
+                  </Space>
+                ),
+              },
+            ]}
+          />
+        </Modal>
+
+        {/* ส่วนที่ 6: โมดอลแสดงสถานะการทำงาน (Success/Error) */}
+        <StatusModal
+          open={statusModal.open}
+          type={statusModal.type}
+          title={statusModal.title}
+          message={statusModal.message}
+          errorDetails={statusModal.errorDetails}
+          onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
+        />
+      </PermissionLayout>
+    </DashboardLayout>
   );
 }

@@ -65,7 +65,8 @@
       "sub_project": "โครงการย่อย",
       "all": "รายงานทั้งหมด",
       "overtime": "ระบบโอที",
-      "timeline": "แผนโครงการ"
+      "timeline": "แผนโครงการ",
+      "migrate_person": "ย้ายข้อมูล (รายบุคคล)"
     }
   },
   "backlogs": {

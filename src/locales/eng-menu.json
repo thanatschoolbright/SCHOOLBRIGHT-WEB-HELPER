@@ -65,7 +65,8 @@
       "sub_project": "Sub-Projects",
       "all": "All Reports",
       "overtime": "Overtime System",
-      "timeline": "Project Timeline"
+      "timeline": "Project Timeline",
+      "migrate_person": "Migrate (Personal)"
     }
   },
   "backlogs": {
