@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
-import { Row, Col, Typography, theme, Space, Button } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import { Button, Flex, Grid, Typography, theme } from "antd";
 import { useRouter } from "next/navigation";
+import React from "react";
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 export type HeaderBarProps = {
   icon: React.ReactNode;
@@ -24,112 +25,124 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 }) => {
   const { token } = theme.useToken();
   const router = useRouter();
+  const screens = useBreakpoint();
+
+  const isMobile = !screens.md;
 
   return (
-    <div
+    <Flex
+      vertical
       style={{
         marginBottom: token.marginLG,
-        paddingBottom: 20,
+        paddingBottom: isMobile ? 12 : 20,
         borderBottom: `1px solid ${token.colorBorderSecondary}`,
-        background: "transparent",
       }}
     >
-      <Row
-        align="middle"
+      <Flex
         justify="space-between"
-        gutter={[16, 16]}
-        wrap={false}
+        align={isMobile ? "flex-start" : "center"}
+        gap={16}
+        wrap="wrap"
       >
-        <Col flex="auto">
-          <Space size={20} align="start">
-            {/* Back Button */}
-            {showBackButton && (
-              <Button
-                type="text"
-                icon={<ArrowLeftOutlined />}
-                onClick={() => router.back()}
-                style={{
-                  height: 48,
-                  width: 48,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 20,
-                  borderRadius: 12,
-                  background: token.colorFillTertiary,
-                  border: `1px solid ${token.colorBorderSecondary}`,
-                }}
-              />
-            )}
-
-            <Space size={16} align="start">
-              {/* Minimal Clean Icon Container */}
-              <div
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 12,
-                  background: token.colorPrimary,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#fff",
-                  fontSize: 24,
-                  flexShrink: 0,
-                  marginTop: 2,
-                }}
-              >
-                {icon}
-              </div>
-
-              {/* Typography Section */}
-              <Space direction="vertical" size={2}>
-                <Title
-                  level={2}
-                  style={{
-                    margin: 0,
-                    fontWeight: 700,
-                    fontSize: 24,
-                    letterSpacing: "0.02em",
-                    color: token.colorTextHeading,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  {title}
-                </Title>
-                {subTitle && (
-                  <Text
-                    type="secondary"
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 400,
-                      color: token.colorTextDescription,
-                    }}
-                  >
-                    {subTitle}
-                  </Text>
-                )}
-              </Space>
-            </Space>
-          </Space>
-        </Col>
-
-        {/* Extra Actions - Always on the right side */}
-        {extra && (
-          <Col flex="none">
-            <div
+        <Flex
+          gap={isMobile ? 12 : 20}
+          align="start"
+          style={{ flex: 1, minWidth: 0 }}
+        >
+          {/* Back Button */}
+          {showBackButton && (
+            <Button
+              type="text"
+              icon={<ArrowLeftOutlined />}
+              onClick={() => router.back()}
               style={{
+                height: isMobile ? 40 : 48,
+                width: isMobile ? 40 : 48,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "flex-end",
+                justifyContent: "center",
+                fontSize: isMobile ? 18 : 20,
+                borderRadius: 12,
+                background: token.colorFillTertiary,
+                border: `1px solid ${token.colorBorderSecondary}`,
+                flexShrink: 0,
+              }}
+            />
+          )}
+
+          <Flex gap={16} align="start" style={{ minWidth: 0 }}>
+            {/* Minimal Clean Icon Container */}
+            <Flex
+              align="center"
+              justify="center"
+              style={{
+                width: isMobile ? 40 : 48,
+                height: isMobile ? 40 : 48,
+                borderRadius: 12,
+                background: token.colorPrimary,
+                color: "#fff",
+                fontSize: isMobile ? 20 : 24,
+                flexShrink: 0,
+                marginTop: isMobile ? 0 : 2,
               }}
             >
-              {extra}
-            </div>
-          </Col>
+              {icon}
+            </Flex>
+
+            {/* Typography Section */}
+            <Flex vertical gap={2} style={{ minWidth: 0 }}>
+              <Title
+                level={2}
+                ellipsis
+                style={{
+                  margin: 0,
+                  fontWeight: 700,
+                  fontSize: isMobile ? 20 : 24,
+                  letterSpacing: "0.01em",
+                  color: token.colorTextHeading,
+                  lineHeight: 1.2,
+                }}
+              >
+                {title}
+              </Title>
+              {subTitle && (
+                <Text
+                  type="secondary"
+                  ellipsis
+                  style={{
+                    fontSize: isMobile ? 12 : 14,
+                    fontWeight: 400,
+                    color: token.colorTextDescription,
+                  }}
+                >
+                  {subTitle}
+                </Text>
+              )}
+            </Flex>
+          </Flex>
+        </Flex>
+
+        {/* Extra Actions - Responsive layout */}
+        {extra && (
+          <Flex
+            align="center"
+            justify={isMobile ? "flex-start" : "flex-end"}
+            style={{
+              width: isMobile ? "100%" : "auto",
+              marginTop: isMobile ? 8 : 0,
+              paddingLeft:
+                isMobile && (showBackButton || icon)
+                  ? showBackButton
+                    ? 52
+                    : 56
+                  : 0,
+            }}
+          >
+            {extra}
+          </Flex>
         )}
-      </Row>
-    </div>
+      </Flex>
+    </Flex>
   );
 };
 
