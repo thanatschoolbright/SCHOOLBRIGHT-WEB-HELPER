@@ -1,38 +1,35 @@
 "use client";
 
-import React, { useMemo } from "react";
 import {
-  Card,
-  Table,
-  Empty,
-  Tag,
-  Space,
-  Typography,
-  Tooltip,
-  Badge,
-  Descriptions,
-  Timeline,
-  ConfigProvider,
-  Avatar,
-  theme,
-  Button,
-} from "antd";
-import {
-  ClockCircleOutlined,
-  CalendarOutlined,
-  FileTextOutlined,
-  UserOutlined,
-  CheckCircleOutlined,
-  InfoCircleOutlined,
   ArrowRightOutlined,
-  SolutionOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
   ExportOutlined,
+  FileTextOutlined,
+  SolutionOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import type { OvertimeRecord, PaginationState } from "../types/overtime.types";
-import { useOvertimeTableColumns } from "../hooks/overtime-table-columns.hook";
+import { getUserById } from "@helpers/local_storage/user.storage";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Descriptions,
+  Empty,
+  Space,
+  Table,
+  Tag,
+  theme,
+  Timeline,
+  Tooltip,
+  Typography,
+} from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
-import { getUserById } from "@helpers/local_storage/user.storage";
+import React, { useMemo } from "react";
+import { useOvertimeTableColumns } from "../hooks/overtime-table-columns.hook";
+import type { OvertimeRecord, PaginationState } from "../types/overtime.types";
 
 const { Text, Title } = Typography;
 
@@ -295,7 +292,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
   }, [dataSource]);
 
   return (
-    <ConfigProvider theme={{ token: { borderRadius: 12 } }}>
+    <div>
       <Card
         title={
           <Space>
@@ -406,6 +403,6 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
           })}
         />
       </Card>
-    </ConfigProvider>
+    </div>
   );
 };

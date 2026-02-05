@@ -1,34 +1,33 @@
 "use client";
 
-import React from "react";
 import {
-  Card,
-  Space,
-  Button,
-  Tooltip,
-  Badge,
-  Typography,
-  Divider,
-  ConfigProvider,
-  theme,
-  Row,
-  Col,
-} from "antd";
-import {
-  PlusOutlined,
-  FilePdfOutlined,
-  CheckOutlined,
-  MailOutlined,
-  FileTextOutlined,
-  RiseOutlined,
-  CloseCircleOutlined,
-  InfoCircleOutlined,
-  ThunderboltOutlined,
-  StarOutlined,
-  CheckCircleOutlined,
-  BulbOutlined,
   BarChartOutlined,
+  BulbOutlined,
+  CheckCircleOutlined,
+  CheckOutlined,
+  CloseCircleOutlined,
+  FilePdfOutlined,
+  FileTextOutlined,
+  InfoCircleOutlined,
+  MailOutlined,
+  PlusOutlined,
+  RiseOutlined,
+  StarOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  Divider,
+  Row,
+  Space,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
+import React from "react";
 
 const { Text } = Typography;
 const { useToken } = theme;
@@ -62,13 +61,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   const { token } = useToken();
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          borderRadius: 16,
-        },
-      }}
-    >
+    <div>
       <Card
         className="shadow-lg hover:shadow-xl transition-all duration-500 mb-6 overflow-hidden relative"
         styles={{ body: { padding: "24px 28px" } }}
@@ -362,6 +355,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           </Col>
         </Row>
       </Card>
-    </ConfigProvider>
+    </div>
   );
 };

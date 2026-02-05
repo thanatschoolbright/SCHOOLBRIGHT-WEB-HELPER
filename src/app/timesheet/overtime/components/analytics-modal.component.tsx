@@ -1,46 +1,45 @@
-import React, { useMemo, useState } from "react";
 import {
-  Modal,
-  Row,
-  Col,
-  Card,
-  Statistic,
-  Divider,
-  Typography,
-  Space,
-  Segmented,
-  Progress,
-  Badge,
-  ConfigProvider,
-} from "antd";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement,
-} from "chart.js";
-import { Bar, Doughnut } from "react-chartjs-2";
-import { OvertimeRecord } from "../types/overtime.types";
-import dayjs from "dayjs";
-import "dayjs/locale/th";
+  BarChartOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  FireOutlined,
+  InfoCircleOutlined,
+  PieChartOutlined,
+  RiseOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { getUserById } from "@helpers/local_storage/user.storage";
 import {
-  ClockCircleOutlined,
-  CheckCircleOutlined,
-  UserOutlined,
-  RiseOutlined,
-  BarChartOutlined,
-  PieChartOutlined,
-  InfoCircleOutlined,
-  FireOutlined,
-  CalendarOutlined,
-} from "@ant-design/icons";
+  Badge,
+  Card,
+  Col,
+  Divider,
+  Modal,
+  Progress,
+  Row,
+  Segmented,
+  Space,
+  Statistic,
+  Typography,
+} from "antd";
+import {
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+} from "chart.js";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
+import React, { useMemo, useState } from "react";
+import { Bar, Doughnut } from "react-chartjs-2";
+import { OvertimeRecord } from "../types/overtime.types";
 
 const { Text, Title: AntTitle } = Typography;
 
@@ -142,7 +141,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
       : 0;
 
   return (
-    <ConfigProvider theme={{ token: { borderRadius: 12 } }}>
+    <div>
       <Modal
         title={
           <Space>
@@ -380,6 +379,6 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
           </Row>
         </div>
       </Modal>
-    </ConfigProvider>
+    </div>
   );
 };

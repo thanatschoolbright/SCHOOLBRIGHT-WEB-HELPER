@@ -1,34 +1,33 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { ConfigProvider, Row, Col, theme, Space, Button } from "antd";
-import thTH from "antd/locale/th_TH";
+import { Button, Col, Row, Space, theme } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 dayjs.locale("th");
 
+import SummaryCard from "@/components/card/summary-card";
 import {
-  TeamOutlined,
-  FileTextOutlined,
-  ClockCircleOutlined,
   CheckCircleOutlined,
+  ClockCircleOutlined,
+  FileTextOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
-import SummaryCard from "@/components/card/summary-card";
-import { useOvertimeData } from "./hooks/overtime.data";
-import { FilterBar } from "./components/filter-bar.component";
+import { useTranslation } from "react-i18next";
 import { ActionBar } from "./components/action-bar.component";
-import { OvertimeTable } from "./components/overtime-table.component";
+import { AnalyticsModal } from "./components/analytics-modal.component";
+import { BatchStatusModal } from "./components/batch-status-modal.component";
 import { CreateModal } from "./components/create-modal.component";
 import { DetailModal } from "./components/detail-modal.component";
-import { BatchStatusModal } from "./components/batch-status-modal.component";
-import { AnalyticsModal } from "./components/analytics-modal.component";
-import { RulesModal } from "./components/rules-modal.component";
 import { ExportModal } from "./components/export-modal.component";
+import { FilterBar } from "./components/filter-bar.component";
+import { OvertimeTable } from "./components/overtime-table.component";
+import { RulesModal } from "./components/rules-modal.component";
+import { useOvertimeData } from "./hooks/overtime.data";
 
 export default function OvertimeManagementPage() {
   const navigationRouter = useRouter();
@@ -88,15 +87,7 @@ export default function OvertimeManagementPage() {
 
   return (
     <DashboardLayout>
-      <ConfigProvider
-        locale={thTH}
-        theme={{
-          components: {
-            Table: { borderRadiusLG: 12 },
-            Card: { borderRadiusLG: 16 },
-          },
-        }}
-      >
+      <div>
         <div className="w-full space-y-6 pb-10">
           {/* ส่วนที่ 1: หัวข้อหน้าจอระดับ Enterprise */}
           <HeaderBar
@@ -298,7 +289,7 @@ export default function OvertimeManagementPage() {
             setIsExportSuccess={setIsExportSuccess}
           />
         </div>
-      </ConfigProvider>
+      </div>
     </DashboardLayout>
   );
 }

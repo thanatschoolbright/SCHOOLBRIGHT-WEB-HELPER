@@ -3,16 +3,7 @@ import {
   LockOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  ConfigProvider,
-  Input,
-  Modal,
-  Space,
-  Typography,
-  message,
-  theme,
-} from "antd";
+import { Button, Input, Modal, Space, Typography, message } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -121,15 +112,7 @@ export default function PermissionLayout({
 
   // ❌ ถ้าไม่มีสิทธิ์ ให้แสดง Modal
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: theme.defaultAlgorithm,
-        token: {
-          colorPrimary: "#faad14", // Warning/Gold color fits the "Secret" vibe
-          borderRadius: 12,
-        },
-      }}
-    >
+    <div>
       <div
         style={{
           height: "100vh",
@@ -233,6 +216,6 @@ export default function PermissionLayout({
           </Text>
         </div>
       </Modal>
-    </ConfigProvider>
+    </div>
   );
 }
