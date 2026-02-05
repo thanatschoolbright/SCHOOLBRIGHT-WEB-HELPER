@@ -136,6 +136,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
       </head>
       <body
+        suppressHydrationWarning
         className={`${googleSansFont.variable} font-sans antialiased text-slate-900 dark:text-slate-50`}
       >
         <AntdRegistry>

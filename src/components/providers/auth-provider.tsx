@@ -29,7 +29,11 @@ export default function AuthenticationProvider({
       return;
     }
 
-    // 2. ถ้าเข้าสู่ระบบแล้ว (Authenticated)
+    // 2. ตรวจสอบเส้นทางที่เกี่ยวข้องกับ Authentication
+    const authPages = ["/auth/v2/signin"];
+    const isAuthPage = authPages.includes(pathname);
+
+    // 3. ถ้าเข้าสู่ระบบแล้ว (Authenticated)
     if (status === "authenticated" && session) {
       const user = session.user as any;
 
@@ -120,7 +124,7 @@ export default function AuthenticationProvider({
       }
       setIsInitializing(false);
     }
-  }, [status, session, dispatch, pathname, router]);
+  }, [status, session, dispatch, pathname, router, authState]);
 
   // แสดง Loading เฉพาะตอนโหลดครั้งแรก หรือตอนกำลังตรวจสอบสิทธิ์
   if (status === "loading" || isInitializing) {

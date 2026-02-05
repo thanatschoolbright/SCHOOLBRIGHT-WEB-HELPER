@@ -48,7 +48,10 @@ export default function CopyrightToggle() {
             if (e.key === "Enter" || e.key === " ") setOpen((s) => !s);
           }}
         >
-          <InfoCircleOutlined style={{ fontSize: 18 }} />
+          <InfoCircleOutlined
+            suppressHydrationWarning
+            style={{ fontSize: 18 }}
+          />
         </div>
       </Popover>
     </div>
