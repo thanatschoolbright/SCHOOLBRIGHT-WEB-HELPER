@@ -374,7 +374,7 @@ export default function MigratePersonPage() {
         {/* ส่วนที่ 1: หัวเรื่องของหน้า */}
         <HeaderBar
           title="ย้ายข้อมูล Timesheet (รายบุคคล)"
-          description="ระบบจัดการย้ายรายการที่คีย์ผิดโปรเจกต์ หรือรายการที่ไม่มีคำอธิบาย"
+          subtitle="ระบบจัดการย้ายรายการที่คีย์ผิดโปรเจกต์ หรือรายการที่ไม่มีคำอธิบาย"
           icon={<SwapOutlined />}
         />
 

@@ -1,7 +1,6 @@
 "use client";
 
-import { Button, DatePicker, Space, Typography } from "antd";
-import { ReloadOutlined } from "@ant-design/icons";
+import { DatePicker, Flex, Space, Typography, theme } from "antd";
 import { Dayjs } from "dayjs";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -11,58 +10,63 @@ interface RankBoardHeaderProps {
   generatedAt: string | null;
   selectedMonth: Dayjs;
   onMonthChange: (date: Dayjs) => void;
-  onRefresh: () => void;
+  onRefresh: () => void; // แม้ไม่ได้ใช้ในส่วน UI นี้ แต่เก็บไว้ตาม Interface เดิม
   loading: boolean;
   isCompact: boolean;
 }
 
 /**
- * Component สำหรับส่วนหัวของบอร์ดอันดับ
- * @param props - Props ของ Component
+ * Component สำหรับส่วนหัวของบอร์ดอันดับ (Ant Design Optimized)
  */
 export const RankBoardHeader: React.FC<RankBoardHeaderProps> = ({
   monthLabel,
   generatedAt,
   selectedMonth,
   onMonthChange,
-  onRefresh,
-  loading,
   isCompact,
 }) => {
   const { t } = useTranslation();
+  const { token } = theme.useToken();
+
   return (
-    <Space
-      style={{ width: "100%", justifyContent: "space-between" }}
-      align="center"
-    >
-      <Space direction="vertical" size={0}>
+    // ใช้ Flex แทน Space เพื่อจัดการ Alignment และ Width 100% โดยไม่ต้องเขียน CSS
+    <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+      {/* ส่วนด้านซ้าย: ข้อความเดือนและเวลาอัปเดต */}
+      <Flex vertical>
         <Typography.Text
           strong
-          style={{ fontSize: isCompact ? 12 : 14, color: "#1677ff" }}
+          style={{
+            color: token.colorPrimary,
+            fontSize: isCompact ? token.fontSizeSM : token.fontSize,
+          }}
         >
           {monthLabel}
         </Typography.Text>
+
         {generatedAt && (
-          <Typography.Text type="secondary" style={{ fontSize: 10 }}>
+          <Typography.Text
+            type="secondary"
+            style={{ fontSize: token.fontSizeSM }}
+          >
             {t("timesheet_components.last_updated", "อัปเดตล่าสุด")}{" "}
             {generatedAt}
           </Typography.Text>
         )}
-      </Space>
-      <Space size={isCompact ? 4 : 8}>
+      </Flex>
+
+      {/* ส่วนด้านขวา: ตัวเลือกวันที่ */}
+      <Space size={isCompact ? "small" : "middle"}>
         <DatePicker
           picker="month"
           allowClear={false}
           size={isCompact ? "small" : "middle"}
           value={selectedMonth}
           onChange={(value) => {
-            if (value) {
-              onMonthChange(value);
-            }
+            if (value) onMonthChange(value);
           }}
           format="MMM BBBB"
         />
       </Space>
-    </Space>
+    </Flex>
   );
 };

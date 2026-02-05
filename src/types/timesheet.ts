@@ -10,6 +10,7 @@ export interface SummaryRecord {
   rank: string;
   rank_description: string;
   order: number;
+  avatar_url?: string | null;
 }
 
 export interface SummaryMetadata {

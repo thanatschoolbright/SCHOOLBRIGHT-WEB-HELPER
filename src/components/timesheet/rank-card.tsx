@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  Avatar,
-  Card,
-  Progress,
-  Space,
-  Tag,
-  theme,
-  Typography,
-  Flex,
-  Tooltip,
-} from "antd";
+import { SummaryRecord } from "@/types/timesheet";
 import {
   CloseCircleFilled,
   CrownFilled,
@@ -19,329 +9,179 @@ import {
   TrophyFilled,
   WarningFilled,
 } from "@ant-design/icons";
+import {
+  Avatar,
+  Badge,
+  Card,
+  ConfigProvider,
+  Flex,
+  Progress,
+  Tag,
+  theme,
+  Typography,
+} from "antd";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import { SummaryRecord } from "@/types/timesheet";
+const { Text } = Typography;
 
 interface RankCardProps {
   record: SummaryRecord;
   isCompact: boolean;
-  isCurrentUser?: boolean; // Optional: เผื่อใช้ highlight ตัวเอง
-  rank?: string; // Optional: เผื่อแสดงเลขลำดับ 1, 2, 3
+  isCurrentUser?: boolean;
+  rank?: string;
+  avatar_url?: string | null;
 }
 
-// --- Configuration ---
-const rankConfig: Record<
-  string,
-  {
-    color: string;
-    bgGradient?: string;
-    shadow?: string;
-    icon: React.ReactNode;
-  }
-> = {
-  S: {
-    color: "#D97706", // Amber-600 (Goldish)
-    bgGradient: "linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 100%)",
-    shadow: "0 4px 12px rgba(217, 119, 6, 0.15)",
-    icon: <ThunderboltFilled style={{ fontSize: 16 }} />,
-  },
-  A: {
-    color: "#16A34A", // Green-600
-    bgGradient: "linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%)",
-    shadow: "0 4px 12px rgba(22, 163, 74, 0.15)",
-    icon: <CrownFilled style={{ fontSize: 16 }} />,
-  },
-  B: {
-    color: "#2563EB", // Blue-600
-    icon: <TrophyFilled />,
-  },
-  C: {
-    color: "#EA580C", // Orange-600
-    icon: <SmileFilled />,
-  },
-  D: {
-    color: "#DC2626", // Red-600
-    icon: <WarningFilled />,
-  },
-  E: {
-    color: "#475569", // Slate-600
-    icon: <CloseCircleFilled />,
-  },
+// --- Simplified Configuration ---
+const rankConfig: Record<string, { color: string; icon: React.ReactNode }> = {
+  S: { color: "#D97706", icon: <ThunderboltFilled /> },
+  A: { color: "#16A34A", icon: <CrownFilled /> },
+  B: { color: "#2563EB", icon: <TrophyFilled /> },
+  C: { color: "#EA580C", icon: <SmileFilled /> },
+  D: { color: "#DC2626", icon: <WarningFilled /> },
+  E: { color: "#475569", icon: <CloseCircleFilled /> },
 };
-
-const formatName = (record: SummaryRecord) =>
-  record.nickname || record.full_name || "-";
 
 export const RankCard: React.FC<RankCardProps> = ({
   record,
   isCompact,
   isCurrentUser = false,
-  rank, // This is expected to be the order number (1, 2, 3...)
+  rank,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
-  const isDark = token.colorBgBase === "#0B0F19";
-
-  // ใช้ record.order เป็นลำดับที่ถ้าไม่มีการส่ง rank มา
-  const displayRank = rank || String(record.order);
-  const rankNum = Number(displayRank);
-
-  // Special backgrounds for Top 3
-  const topRankStyles = useMemo(() => {
-    if (rankNum === 1)
-      return {
-        background: isDark
-          ? "linear-gradient(135deg, #332100 0%, #1a1100 100%)"
-          : "linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)",
-        border: isDark ? "#B45309" : "#FDBA74",
-        glow: isDark
-          ? "0 0 20px rgba(217, 119, 6, 0.2)"
-          : "0 10px 20px rgba(251, 146, 60, 0.2)",
-        tagColor: "#F97316",
-      };
-    if (rankNum === 2)
-      return {
-        background: isDark
-          ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
-          : "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)",
-        border: isDark ? "#475569" : "#CBD5E1",
-        glow: isDark
-          ? "0 0 20px rgba(100, 116, 139, 0.1)"
-          : "0 10px 20px rgba(148, 163, 184, 0.1)",
-        tagColor: "#64748B",
-      };
-    if (rankNum === 3)
-      return {
-        background: isDark
-          ? "linear-gradient(135deg, #2a1a00 0%, #170d00 100%)"
-          : "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)",
-        border: isDark ? "#92400E" : "#FED7AA",
-        glow: isDark
-          ? "0 0 20px rgba(180, 83, 9, 0.1)"
-          : "0 10px 20px rgba(245, 158, 11, 0.1)",
-        tagColor: "#B45309",
-      };
-    return null;
-  }, [rankNum, isDark]);
-
-  // Get Configuration based on Rank (Grade: S, A, B...)
   const config = rankConfig[record.rank] || rankConfig.E;
+  const displayRank = rank || String(record.order);
 
-  // Calculations
-  const progressPercent = record.expected_hours
-    ? Math.min(100, (record.total_hours / record.expected_hours) * 100)
-    : 0;
-
-  // Dynamic Styles
-  const cardStyle: React.CSSProperties = useMemo(
-    () => ({
-      borderRadius: 16,
-      border: isCurrentUser
-        ? `2px solid ${token.colorPrimary}`
-        : `${
-            topRankStyles
-              ? `1.5px solid ${topRankStyles.border}`
-              : `1px solid ${token.colorBorderSecondary}`
-          }`,
-      background: topRankStyles
-        ? topRankStyles.background
-        : config.bgGradient || token.colorBgContainer,
-      boxShadow: isCurrentUser
-        ? `0 0 0 4px ${token.colorPrimaryBg}`
-        : topRankStyles
-          ? topRankStyles.glow
-          : config.shadow || "0 2px 8px rgba(0,0,0,0.02)",
-      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-      position: "relative",
-      overflow: "hidden",
-      cursor: "default",
-    }),
-    [config, isCurrentUser, token, topRankStyles],
+  // คำนวณเปอร์เซ็นต์
+  const progressPercent = useMemo(
+    () =>
+      record.expected_hours
+        ? Math.min(100, (record.total_hours / record.expected_hours) * 100)
+        : 0,
+    [record.total_hours, record.expected_hours],
   );
 
-  return (
+  const cardContent = (
     <Card
+      hoverable
       size="small"
-      style={cardStyle}
+      // ใช้ builtin styles prop ของ Ant Design 5.x
       styles={{
-        body: {
-          padding: isCompact ? "12px 16px" : "16px 20px",
-        },
+        body: { padding: isCompact ? token.paddingSM : token.paddingLG },
       }}
-      className="rank-card-hover" // Class for hover effect via global css or style tag
     >
-      {/* CSS Overlay for Hover Effect (Optional if using Global CSS) */}
-      <style jsx>{`
-        .rank-card-hover:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
-        }
-      `}</style>
-
-      {/* Decorative Side Bar */}
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 4,
-          background: config.color,
-        }}
-      />
-
-      <Flex align="center" gap={16}>
-        {/* --- Rank Number Section --- */}
+      <Flex align="center" gap="middle">
+        {/* 1. Rank Number (ใช้ Typography ในการคุมขนาด) */}
         {!isCompact && (
-          <div
-            style={{
-              width: 44,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Typography.Text
-              type="secondary"
-              style={{
-                fontSize: 10,
-                textTransform: "uppercase",
-                fontWeight: 700,
-              }}
-            >
+          <Flex vertical align="center" justify="center" gap={0}>
+            <Text type="secondary" strong style={{ fontSize: 10 }}>
               RANK
-            </Typography.Text>
-            <Typography.Text
-              style={{
-                margin: 0,
-                color: topRankStyles
-                  ? topRankStyles.tagColor
-                  : token.colorTextSecondary,
-                fontWeight: 900,
-                lineHeight: 1,
-                fontSize: displayRank.length > 2 ? 18 : 24,
-              }}
-            >
+            </Text>
+            <Title level={4} style={{ margin: 0 }}>
               {displayRank}
-            </Typography.Text>
-          </div>
+            </Title>
+          </Flex>
         )}
 
-        {/* --- Avatar Section --- */}
-        <div style={{ position: "relative" }}>
+        {/* 2. Avatar with Icon Badge */}
+        <Badge count={config.icon} offset={[-4, 32]} color={config.color}>
           <Avatar
             size={isCompact ? 40 : 48}
+            src={record.avatar_url} // รองรับถ้ารูปมีมาใน record
             style={{
               backgroundColor: isCurrentUser
                 ? token.colorPrimaryBg
                 : token.colorFillAlter,
               color: isCurrentUser ? token.colorPrimary : config.color,
-              border: `2px solid ${
-                isCurrentUser ? token.colorPrimary : "transparent"
-              }`,
-              fontSize: isCompact ? 16 : 18,
-              fontWeight: 600,
             }}
           >
-            {record.full_name?.charAt(0)?.toUpperCase() ?? "?"}
+            {record.full_name?.charAt(0).toUpperCase()}
           </Avatar>
+        </Badge>
 
-          {/* Rank Icon Badge */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: -4,
-              right: -4,
-              backgroundColor: token.colorBgContainer,
-              borderRadius: "50%",
-              padding: 2,
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-              color: config.color,
-              display: "flex",
-            }}
-          >
-            {config.icon}
-          </div>
-        </div>
-
-        {/* --- Content Section --- */}
-        <Flex vertical flex={1} style={{ minWidth: 0 }} gap={4}>
-          {/* Row 1: Name and Percentage */}
-          <Flex justify="space-between" align="center">
-            <Flex align="center" gap={8} style={{ minWidth: 0 }}>
-              <Typography.Text
-                ellipsis
-                strong
-                style={{
-                  fontSize: isCompact ? 14 : 16,
-                  color: token.colorText,
-                }}
-              >
-                {formatName(record)}
-              </Typography.Text>
-
-              <Tag
-                bordered={false}
-                color={config.color}
-                style={{
-                  margin: 0,
-                  borderRadius: 12,
-                  fontWeight: 800,
-                  backgroundColor: `${config.color}${isDark ? "30" : "15"}`,
-                  color: config.color,
-                  fontSize: isCompact ? 10 : 12,
-                  paddingInline: isCompact ? 4 : 8,
-                }}
-              >
-                {record.rank} Grade
-              </Tag>
+        {/* 3. Main Content */}
+        <Flex vertical flex={1} gap="small">
+          {/* Row: Name & Progress Text */}
+          <Flex justify="space-between" align="baseline">
+            <Flex align="center" gap="x-small">
+              <Text strong ellipsis>
+                {record.nickname || record.full_name}
+              </Text>
+              {isCompact && (
+                <Tag
+                  color={config.color}
+                  bordered={false}
+                  style={{
+                    marginLeft: 8,
+                    borderRadius: 8,
+                    fontSize: 10,
+                    fontWeight: 600,
+                  }}
+                >
+                  {record.rank}
+                </Tag>
+              )}
             </Flex>
+            <Text strong style={{ color: config.color }}>
+              {record.completion_rate.toFixed(0)}%
+            </Text>
+          </Flex>
 
-            <Typography.Text
-              strong
-              style={{
-                fontSize: isCompact ? 16 : 20,
-                color: config.color, // Use Rank Color for emphasis
-                lineHeight: 1,
-              }}
+          {/* Row: Subtitle & Hours */}
+          <Flex justify="space-between">
+            <Text
+              type="secondary"
+              ellipsis
+              style={{ fontSize: token.fontSizeSM }}
             >
-              {record.completion_rate.toFixed(0)}
-              <span style={{ fontSize: 12, marginLeft: 2 }}>%</span>
-            </Typography.Text>
-          </Flex>
-
-          {/* Row 2: Description or Rank (Compact) */}
-          <Flex justify="space-between" align="center">
-            <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-              {record.rank_description ||
-                t(
-                  "timesheet_components.no_additional_info",
-                  "ยังไม่มีข้อมูลเพิ่มเติม",
-                )}
-            </Typography.Text>
-
-            <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+              {record.rank_description || t("no_info", "ไม่มีข้อมูล")}
+            </Text>
+            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
               {record.total_hours.toFixed(1)} /{" "}
-              {record.expected_hours.toFixed(1)}{" "}
-              {t("timesheet_components.hours_abbr", "ชม.")}
-            </Typography.Text>
+              {record.expected_hours.toFixed(1)} {t("hr", "ชม.")}
+            </Text>
           </Flex>
 
-          {/* Row 3: Progress Bar */}
+          {/* Progress Bar */}
           <Progress
-            percent={Number(progressPercent.toFixed(1))}
+            percent={progressPercent}
             strokeColor={config.color}
-            trailColor={token.colorFillSecondary}
             showInfo={false}
             size="small"
-            style={{ marginBottom: 0, lineHeight: 0 }}
-            strokeLinecap="round"
           />
         </Flex>
       </Flex>
     </Card>
   );
+
+  return (
+    <ConfigProvider
+      theme={{
+        components: {
+          Card: {
+            // ใช้ Token ในการคุม Border และ Shadow แทน CSS Object
+            colorBorderSecondary: isCurrentUser
+              ? token.colorPrimary
+              : token.colorBorderSecondary,
+            boxShadowTertiary: isCurrentUser
+              ? `0 0 0 4px ${token.colorPrimaryBg}`
+              : token.boxShadowTertiary,
+          },
+        },
+      }}
+    >
+      {isCompact ? (
+        cardContent
+      ) : (
+        <Badge.Ribbon text={`${record.rank} Grade`} color={config.color}>
+          {cardContent}
+        </Badge.Ribbon>
+      )}
+    </ConfigProvider>
+  );
 };
+
+// สกัด Title มาใช้เพื่อความสวยงาม
+const { Title } = Typography;

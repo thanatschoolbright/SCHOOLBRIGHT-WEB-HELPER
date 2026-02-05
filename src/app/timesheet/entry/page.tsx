@@ -601,10 +601,6 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
     const [viewMode, setViewMode] = useState<MonthlyRankVariant>(variant);
 
     useImperativeHandle(ref, () => ({ refetch }));
-    const handleVariantChange = (val: MonthlyRankVariant) => {
-      setViewMode(val);
-      onVariantChange?.(val);
-    };
 
     const visibleRecords = useMemo(() => {
       if (currentAdminId) {
@@ -619,218 +615,224 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
     const isCompact = viewMode === "compact";
     const monthLabel =
       metadata?.range?.label_th ?? selectedMonth.format("MMMM BBBB");
-    const generatedAt = metadata?.generated_at
-      ? dayjs(metadata.generated_at).format("DD/MM/BBBB HH:mm:ss")
-      : null;
 
     return (
       <Card
         hoverable
         style={{
           height: "100%",
-          borderRadius: 24,
+          borderRadius: token.borderRadiusLG,
           border: `1px solid ${token.colorBorderSecondary}`,
           overflow: "hidden",
-          transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
         styles={{
           body: {
             padding: 0,
             height: "100%",
-            display: "flex",
-            flexDirection: "column",
           },
         }}
       >
-        <div className="absolute -top-10 -right-10 w-[150px] h-[150px] rounded-full pointer-events-none filter blur-[40px]" />
-        <div className="p-6 pb-4">
-          <div className="flex justify-between items-start mb-4 flex-wrap gap-4">
-            <div>
-              <Typography.Title
-                level={4}
-                style={{
-                  margin: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  fontWeight: 700,
-                }}
-              >
-                <div className="p-2 rounded-xl">
-                  <TrophyFilled />
-                </div>
-                <span style={{ color: token.colorTextHeading }}>
-                  {currentAdminId
-                    ? t("timesheet_entry_page.your_rank", "อันดับของคุณ")
-                    : t(
-                        "timesheet_entry_page.employee_of_the_month",
-                        "พนักงานดีเด่น",
-                      )}
-                </span>
-              </Typography.Title>
-              <Typography.Text
-                type="secondary"
-                style={{ fontSize: 12, marginTop: 4, display: "block" }}
-              >
-                <FireOutlined style={{ color: token.colorError }} />{" "}
-                {t(
-                  "timesheet_entry_page.who_is_most_diligent",
-                  "ใครขยันที่สุดในเดือนนี้?",
-                )}
-              </Typography.Text>
-            </div>
-          </div>
-          <RankBoardHeader
-            monthLabel={monthLabel}
-            selectedMonth={selectedMonth}
-            onMonthChange={setSelectedMonth}
-            loading={loading}
-            isCompact={isCompact}
-            generatedAt={null}
-            onRefresh={() => {}}
-          />
-        </div>
+        <Flex vertical style={{ height: "100%" }}>
+          {/* Header Section */}
+          <Flex vertical gap={16} style={{ padding: 24, paddingBottom: 16 }}>
+            <Flex justify="space-between" align="start" wrap="wrap" gap={16}>
+              <Flex vertical gap={4}>
+                <Typography.Title
+                  level={4}
+                  style={{
+                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    fontWeight: 800,
+                  }}
+                >
+                  <Flex
+                    align="center"
+                    justify="center"
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 12,
+                      background: token.colorWarningBg,
+                      boxShadow: `0 4px 12px ${token.colorWarning}20`,
+                    }}
+                  >
+                    <TrophyFilled
+                      style={{ color: token.colorWarning, fontSize: 18 }}
+                    />
+                  </Flex>
+                  <span style={{ color: token.colorTextHeading }}>
+                    {currentAdminId
+                      ? t("timesheet_entry_page.your_rank", "อันดับของคุณ")
+                      : t(
+                          "timesheet_entry_page.employee_of_the_month",
+                          "พนักงานดีเด่น",
+                        )}
+                  </span>
+                </Typography.Title>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  <Space size={4}>
+                    <FireOutlined style={{ color: token.colorError }} />
+                    {t(
+                      "timesheet_entry_page.who_is_most_diligent",
+                      "ใครขยันที่สุดในเดือนนี้?",
+                    )}
+                  </Space>
+                </Typography.Text>
+              </Flex>
+            </Flex>
 
-        <div className="px-6 pb-6 flex-1 overflow-y-auto relative">
-          <AnimatePresence mode="wait">
-            {loading ? (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <Space direction="vertical" size={16} style={{ width: "100%" }}>
-                  {Array.from({ length: currentAdminId ? 1 : 4 }).map(
-                    (_, index) => (
-                      <div
-                        key={index}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 16,
-                          padding: "12px",
-                          borderRadius: 16,
+            <RankBoardHeader
+              monthLabel={monthLabel}
+              selectedMonth={selectedMonth}
+              onMonthChange={setSelectedMonth}
+              loading={loading}
+              isCompact={isCompact}
+              generatedAt={null}
+              onRefresh={() => {}}
+            />
+          </Flex>
+
+          {/* Content Section (Scrollable) */}
+          <Flex
+            vertical
+            flex={1}
+            style={{
+              padding: "0 24px 24px",
+              overflowY: "auto",
+              position: "relative",
+            }}
+          >
+            <AnimatePresence mode="wait">
+              {loading ? (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Space
+                    direction="vertical"
+                    size={12}
+                    style={{ width: "100%" }}
+                  >
+                    {Array.from({ length: currentAdminId ? 1 : 4 }).map(
+                      (_, index) => (
+                        <Flex
+                          key={index}
+                          align="center"
+                          gap={16}
+                          style={{
+                            padding: 12,
+                            borderRadius: 16,
+                            background: token.colorFillAlter,
+                          }}
+                        >
+                          <Skeleton.Avatar active size={40} shape="circle" />
+                          <Flex vertical flex={1} gap={4}>
+                            <Skeleton.Input
+                              active
+                              size="small"
+                              style={{ width: "40%", height: 16 }}
+                            />
+                            <Skeleton.Input
+                              active
+                              size="small"
+                              style={{ width: "70%", height: 12 }}
+                            />
+                          </Flex>
+                        </Flex>
+                      ),
+                    )}
+                  </Space>
+                </motion.div>
+              ) : visibleRecords.length === 0 ? (
+                <Flex
+                  flex={1}
+                  vertical
+                  justify="center"
+                  align="center"
+                  style={{ minHeight: 180 }}
+                >
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={
+                      <Flex vertical gap={4}>
+                        <Typography.Text strong>ไม่พบข้อมูล</Typography.Text>
+                        <Typography.Text
+                          type="secondary"
+                          style={{ fontSize: 12 }}
+                        >
+                          {currentAdminId
+                            ? "คุณไม่มีบันทึกเวลาในเดือนนี้"
+                            : "ยังไม่มีการจัดอันดับในเดือนนี้"}
+                        </Typography.Text>
+                      </Flex>
+                    }
+                  />
+                </Flex>
+              ) : (
+                <motion.div
+                  key="list"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      transition: { staggerChildren: 0.05 },
+                    },
+                  }}
+                >
+                  <Space
+                    direction="vertical"
+                    size={8}
+                    style={{ width: "100%" }}
+                  >
+                    {visibleRecords.map((record, index) => (
+                      <motion.div
+                        key={record.admin_id}
+                        variants={{
+                          hidden: { opacity: 0, x: -10 },
+                          visible: { opacity: 1, x: 0 },
                         }}
                       >
-                        <Skeleton.Avatar active size={40} shape="circle" />
-                        <div className="flex-1">
-                          <Skeleton.Input
-                            active
-                            style={{
-                              width: "40%",
-                              height: 16,
-                              borderRadius: 4,
-                              marginBottom: 6,
-                            }}
-                          />
-                          <Skeleton.Input
-                            active
-                            style={{
-                              width: "70%",
-                              height: 12,
-                              borderRadius: 4,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ),
-                  )}
-                </Space>
-              </motion.div>
-            ) : visibleRecords.length === 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: 180,
-                  textAlign: "center",
-                }}
-              >
-                <Empty
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  description={
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 8,
-                      }}
-                    >
-                      <Typography.Text strong>ไม่พบข้อมูล</Typography.Text>
-                      <Typography.Text type="secondary">
-                        {currentAdminId
-                          ? "คุณไม่มีบันทึกเวลาในเดือนนี้"
-                          : "ยังไม่มีการจัดอันดับในเดือนนี้"}
-                      </Typography.Text>
-                    </div>
-                  }
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="list"
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: {
-                      when: "beforeChildren",
-                      staggerChildren: 0.1,
-                    },
-                  },
-                }}
-              >
-                <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                  {visibleRecords.map((record, index) => (
-                    <motion.div
-                      key={record.admin_id}
-                      variants={{
-                        hidden: { opacity: 0, x: -20 },
-                        visible: { opacity: 1, x: 0 },
-                      }}
-                    >
-                      <RankCard
-                        record={record}
-                        isCompact={isCompact}
-                        isCurrentUser={record.admin_id === currentAdminId}
-                        rank={String(index + 1)}
-                      />
-                    </motion.div>
-                  ))}
-                </Space>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                        <RankCard
+                          record={record}
+                          isCompact={isCompact}
+                          isCurrentUser={record.admin_id === currentAdminId}
+                          rank={String(index + 1)}
+                        />
+                      </motion.div>
+                    ))}
+                  </Space>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Flex>
 
-        {/* Bottom Action */}
-        <div
-          style={{
-            padding: "12px 24px",
-            borderTop: `1px solid ${token.colorBorderSecondary}`,
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <Button
-            type="text"
-            size="small"
-            icon={<ReloadOutlined />}
-            onClick={refetch}
-            style={{ color: token.colorTextSecondary }}
+          {/* Footer Section */}
+          <Flex
+            justify="center"
+            align="center"
+            style={{
+              padding: "12px 24px",
+              borderTop: `1px solid ${token.colorBorderSecondary}`,
+            }}
           >
-            {t("timesheet_entry_page.update_data", "อัปเดตข้อมูล")}
-          </Button>
-        </div>
+            <Button
+              type="text"
+              size="small"
+              icon={<ReloadOutlined />}
+              onClick={refetch}
+              style={{ color: token.colorTextSecondary }}
+            >
+              {t("timesheet_entry_page.update_data", "อัปเดตข้อมูล")}
+            </Button>
+          </Flex>
+        </Flex>
       </Card>
     );
   },
