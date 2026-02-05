@@ -1,8 +1,8 @@
 "use server";
 
+import { UserManagementService } from "@/app/api/v2/admin/user-management/service/user-management.service";
 import { signIn as nextAuthSignIn } from "@/auth";
 import { AuthError } from "next-auth";
-import { UserManagementService } from "@/app/api/v2/admin/user-management/service/user-management.service";
 
 export async function loginAction(values: any) {
   try {
@@ -34,21 +34,29 @@ export async function loginAction(values: any) {
           return {
             error:
               "บัญชีของคุณถูกระงับชั่วคราว เนื่องจากระบุรหัสผ่านผิดเกิน 5 ครั้ง โดยระบบจะปลดล็อกอัตโนมัติในภายหลัง (หรือโปรดติดต่อแอดมิน)",
+            code: "MAX_ATTEMPTS_EXCEEDED",
           };
         }
         if (errorMessage.includes("ACCOUNT_LOCKED_OR_INACTIVE")) {
           return {
             error:
               "บัญชีของคุณไม่อยู่ในสถานะที่ใช้งานได้ โปรดติดต่อฝ่ายบุคคลหรือแอดมิน",
+            code: "ACCOUNT_LOCKED_OR_INACTIVE",
           };
         }
       }
 
       switch (error.type) {
         case "CredentialsSignin":
-          return { error: "อีเมล/รหัสพนักงาน หรือ รหัสผ่านไม่ถูกต้อง" };
+          return {
+            error: "อีเมล/รหัสพนักงาน หรือ รหัสผ่านไม่ถูกต้อง",
+            code: "INVALID_CREDENTIALS",
+          };
         default:
-          return { error: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ" };
+          return {
+            error: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ",
+            code: "AUTH_ERROR",
+          };
       }
     }
     throw error;

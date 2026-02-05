@@ -47,7 +47,69 @@ export default function SignInPage() {
     "process" | "finish" | "error"
   >("process");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [debugData, setDebugData] = useState<any>(null);
+
+  const getErrorContent = () => {
+    switch (errorCode) {
+      case "MAX_ATTEMPTS_EXCEEDED":
+        return {
+          title: "บัญชีของคุณถูกล็อกชั่วคราว",
+          icon: (
+            <LockOutlined style={{ fontSize: 32, color: token.colorWarning }} />
+          ),
+          bg: token.colorWarningBg,
+          steps: [
+            "โปรดรอประมาณ 15 นาที ระบบจะปลดล็อกอัตโนมัติ",
+            "หากจำเป็นต้องใช้งานด่วน โปรดติดต่อฝ่ายบุคคล (HR) หรือ Admin",
+            "ตรวจสอบให้แน่ใจว่าไม่ได้เปิด Caps Lock ค้างไว้",
+          ],
+        };
+      case "ACCOUNT_LOCKED_OR_INACTIVE":
+        return {
+          title: "บัญชีไม่สามารถใช้งานได้",
+          icon: (
+            <CloseCircleOutlined
+              style={{ fontSize: 32, color: token.colorError }}
+            />
+          ),
+          bg: token.colorErrorBg,
+          steps: [
+            "บัญชีของคุณอาจถูกระงับหรือยังไม่อนุญาตให้เข้าใช้งาน",
+            "โปรดติดต่อ Admin เพื่อตรวจสอบสถานะบัญชี",
+          ],
+        };
+      case "INVALID_CREDENTIALS":
+        return {
+          title: "ข้อมูลการเข้าสู่ระบบไม่ถูกต้อง",
+          icon: (
+            <UserOutlined style={{ fontSize: 32, color: token.colorError }} />
+          ),
+          bg: token.colorErrorBg,
+          steps: [
+            "ตรวจสอบอีเมล หรือ รหัสพนักงานของคุณอีกครั้ง",
+            "ตรวจสอบรหัสผ่าน (ระวังตัวพิมพ์เล็ก-ใหญ่)",
+            "หากลืมรหัสผ่าน สามารถคลิก 'ลืมรหัสผ่าน' เพื่อรีเซ็ตได้",
+          ],
+        };
+      default:
+        return {
+          title: "การยืนยันตัวตนล้มเหลว",
+          icon: (
+            <CloseCircleOutlined
+              style={{ fontSize: 32, color: token.colorError }}
+            />
+          ),
+          bg: token.colorErrorBg,
+          steps: [
+            "โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต",
+            "หากปัญหายังคงอยู่ โปรดติดต่อทีมพัฒนาระบบ",
+          ],
+        };
+    }
+  };
+
+  const errorContent = getErrorContent();
 
   const onFinish = async (values: any) => {
     setLoading(true);
@@ -55,6 +117,7 @@ export default function SignInPage() {
     setCurrentStep(0);
     setLoginStatus("process");
     setErrorMessage(null);
+    setErrorCode(null);
     setDebugData(null);
 
     // Step 0: Connecting
@@ -68,10 +131,11 @@ export default function SignInPage() {
       if (result?.error) {
         setLoginStatus("error");
         setErrorMessage(result.error);
+        setErrorCode(result?.code || "AUTH_FAILED");
         setDebugData({
           timestamp: new Date().toISOString(),
           username: values.username,
-          errorCode: "AUTH_FAILED",
+          errorCode: result?.code || "AUTH_FAILED",
           serverMessage: result.error,
         });
       } else {
@@ -473,7 +537,7 @@ export default function SignInPage() {
               style={{
                 width: 64,
                 height: 64,
-                background: token.colorErrorBg,
+                background: errorContent.bg,
                 borderRadius: "50%",
                 display: "flex",
                 alignItems: "center",
@@ -481,16 +545,14 @@ export default function SignInPage() {
                 margin: "0 auto 16px",
               }}
             >
-              <CloseCircleOutlined
-                style={{ fontSize: 32, color: token.colorError }}
-              />
+              {errorContent.icon}
             </div>
           )}
 
           {loginStatus !== "finish" && (
             <Title level={4} style={{ margin: 0 }}>
               {loginStatus === "error"
-                ? "การยืนยันตัวตนล้มเหลว"
+                ? errorContent.title
                 : "กำลังนำคุณเข้าสู่ระบบ..."}
             </Title>
           )}
@@ -550,6 +612,29 @@ export default function SignInPage() {
               showIcon
               style={{ borderRadius: 12 }}
             />
+
+            <div style={{ marginTop: 20 }}>
+              <Text
+                strong
+                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
+              >
+                แนวทางการแก้ไข:
+              </Text>
+              <ul
+                style={{
+                  paddingLeft: 20,
+                  margin: 0,
+                  color: token.colorTextSecondary,
+                  fontSize: 13,
+                }}
+              >
+                {errorContent.steps.map((step, idx) => (
+                  <li key={idx} style={{ marginBottom: 4 }}>
+                    {step}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             <Divider dashed style={{ margin: "24px 0" }} />
 

@@ -1,8 +1,8 @@
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import { authConfig } from "./auth.config";
-import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
 export const {
   handlers: { GET, POST },
@@ -60,19 +60,35 @@ export const {
             `✅ [AUTH] User found: ${databaseUser.username} (ID: ${databaseUser.id})`,
           );
 
-          // 2. Check if locked out (IPO Standard)
+          // 2. Check if locked out (IPO Standard - with 15 min Auto-Unlock)
+          const MAX_FAILED_ATTEMPTS = 5;
+          const LOCKOUT_MINUTES = 15;
+
           if (databaseUser.status !== "ACTIVE") {
             console.warn(
               `🛑 [AUTH_ERROR] Account status is ${databaseUser.status}: ${databaseUser.username}`,
             );
-            throw new Error(`ACCOUNT_STATUS_${databaseUser.status}`);
+            throw new Error("ACCOUNT_LOCKED_OR_INACTIVE");
           }
 
-          if (databaseUser.failed_login_attempts >= 5) {
-            console.warn(
-              `🛑 [AUTH_ERROR] Max login attempts (5) exceeded for: ${databaseUser.username}`,
-            );
-            throw new Error("MAX_ATTEMPTS_EXCEEDED");
+          if (databaseUser.failed_login_attempts >= MAX_FAILED_ATTEMPTS) {
+            const now = new Date();
+            const lastAttempt = new Date(databaseUser.updated_at);
+            const diffInMinutes =
+              (now.getTime() - lastAttempt.getTime()) / (1000 * 60);
+
+            if (diffInMinutes < LOCKOUT_MINUTES) {
+              console.warn(
+                `🛑 [AUTH_ERROR] Max login attempts (${MAX_FAILED_ATTEMPTS}) exceeded for: ${databaseUser.username}. Try again in ${Math.ceil(
+                  LOCKOUT_MINUTES - diffInMinutes,
+                )} minutes.`,
+              );
+              throw new Error("MAX_ATTEMPTS_EXCEEDED");
+            } else {
+              console.log(
+                `[AUTH] Lockout duration expired for: ${databaseUser.username}. Allowing attempt...`,
+              );
+            }
           }
 
           // 3. Verify Password
