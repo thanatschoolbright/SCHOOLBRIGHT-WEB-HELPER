@@ -24,20 +24,25 @@ const MemoBreadcrumbs = React.memo(BreadcrumbComponent);
 export default function DashboardLayout({
   children,
 }: DashboardLayoutProps): JSX.Element {
-  // 🎨 Theme Token
   const { token } = theme.useToken();
   const { Sider, Content, Header } = Layout;
+  const screens = Grid.useBreakpoint();
 
   // 📱 States
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
 
+  // Constants
+  const isDesktop = !!screens.lg;
+  const sidebarWidth = 260;
+  const collapsedWidth = 80;
+
   // 🦴 Skeleton Fallback
   const contentSkeleton = useMemo(
     () => (
-      <Flex vertical gap="small" className="p-3">
+      <Flex vertical gap="small" style={{ padding: 12 }}>
         <Skeleton active title={{ width: "40%" }} paragraph={{ rows: 2 }} />
-        <div className="mt-4">
+        <div style={{ marginTop: 16 }}>
           <Skeleton active title={false} paragraph={{ rows: 6 }} />
         </div>
       </Flex>
@@ -47,8 +52,11 @@ export default function DashboardLayout({
 
   return (
     <Layout
-      className="min-h-screen transition-colors duration-300 relative overflow-hidden"
-      style={{ background: token.colorBgLayout }}
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        background: token.colorBgLayout,
+        transition: "background 0.3s ease",
+      }}
     >
       <style jsx global>{`
         @keyframes blob-float {
@@ -68,158 +76,165 @@ export default function DashboardLayout({
           width: 600px;
           height: 600px;
           filter: blur(100px);
-          opacity: 0.12;
+          opacity: 0.1;
           z-index: 0;
           border-radius: 50%;
           pointer-events: none;
           animation: blob-float 25s infinite alternate ease-in-out;
         }
+        .sidebar-menu-container::-webkit-scrollbar {
+          width: 4px;
+        }
+        .sidebar-menu-container::-webkit-scrollbar-thumb {
+          background: ${token.colorBorderSecondary};
+          border-radius: 10px;
+        }
       `}</style>
 
-      {/* 🌌 Animated Background Decor */}
+      {/* 🌌 Background Decor */}
       <div
         className="bg-blob"
-        style={{
-          top: "-150px",
-          right: "-100px",
-          background: token.colorPrimary,
-        }}
+        style={{ top: "-10%", right: "-10%", background: token.colorPrimary }}
       />
       <div
         className="bg-blob"
         style={{
-          bottom: "-150px",
-          left: "-100px",
+          bottom: "-10%",
+          left: "-10%",
           background: token.colorSuccess,
           animationDelay: "-5s",
         }}
       />
 
-      {/* 📱 Mobile Drawer Sidebar */}
-      <Drawer
-        placement="left"
-        onClose={() => setMobileOpen(false)}
-        open={mobileOpen}
-        width={260}
-        styles={{
-          body: { padding: 0, backgroundColor: token.colorBgContainer },
-          header: { display: "none" },
-        }}
-        classNames={{ wrapper: "z-[9999]" }}
-      >
-        <Flex vertical style={{ height: "100%" }}>
-          <div className="flex-1 overflow-y-auto mt-6">
-            <MemoSidebarContent
-              collapsed={false}
-              onMobileClose={() => setMobileOpen(false)}
-            />
-          </div>
-          <div className="p-4">
-            <DarkModeToggle />
-          </div>
-        </Flex>
-      </Drawer>
-
-      {/* 🖥️ Responsive Sider */}
-      <Sider
-        breakpoint="lg"
-        collapsedWidth="80"
-        onBreakpoint={(broken) => {
-          if (broken) setCollapsed(true);
-        }}
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-        trigger={null}
-        width={260}
-        className="hide-on-mobile shadow-sm border-r z-40 transition-all duration-300 ease-in-out sticky top-0 h-screen"
-        style={{
-          background: token.colorBgContainer,
-          borderRightColor: token.colorBorderSecondary,
-        }}
-      >
-        <Flex vertical style={{ height: "100%" }}>
-          <Flex align="center" justify="center" style={{ height: 64 }}>
-            {/* Logo Here */}
-          </Flex>
-          <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-            <MemoSidebarContent collapsed={collapsed} />
-          </div>
-          {!collapsed && (
-            <div className="p-4">
+      {/* 📱 Mobile Sidebar (Drawer) */}
+      {!isDesktop && (
+        <Drawer
+          placement="left"
+          onClose={() => setMobileOpen(false)}
+          open={mobileOpen}
+          width={sidebarWidth}
+          styles={{
+            body: { padding: 0, backgroundColor: token.colorBgContainer },
+            header: { display: "none" },
+          }}
+          classNames={{ wrapper: "z-[9999]" }}
+        >
+          <Flex vertical style={{ height: "100%", paddingTop: 24 }}>
+            <div className="flex-1 overflow-y-auto">
+              <MemoSidebarContent
+                collapsed={false}
+                onMobileClose={() => setMobileOpen(false)}
+              />
+            </div>
+            <div style={{ padding: 16 }}>
               <DarkModeToggle />
             </div>
-          )}
-          <Flex
-            align="center"
-            justify="center"
-            className="h-12 cursor-pointer hover:bg-black/5 transition-colors border-t"
-            style={{ borderColor: token.colorBorderSecondary }}
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           </Flex>
-        </Flex>
-      </Sider>
+        </Drawer>
+      )}
 
-      {/* 🔹 Main Layout Content Wrapper */}
-      <Layout className="transition-all duration-300 bg-transparent z-10">
+      {/* 🖥️ Desktop Sidebar (Sider) */}
+      {isDesktop && (
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={setCollapsed}
+          trigger={null}
+          width={sidebarWidth}
+          collapsedWidth={collapsedWidth}
+          style={{
+            background: token.colorBgContainer,
+            borderRight: `1px solid ${token.colorBorderSecondary}`,
+            zIndex: 40,
+            height: "100vh",
+            position: "sticky",
+            top: 0,
+          }}
+        >
+          <Flex vertical style={{ height: "100%" }}>
+            <Flex align="center" justify="center" style={{ height: 64 }}>
+              {/* Optional: Add Sidebar Logo placeholder */}
+            </Flex>
+
+            <div className="flex-1 overflow-y-auto sidebar-menu-container">
+              <MemoSidebarContent collapsed={collapsed} />
+            </div>
+
+            {!collapsed && (
+              <div style={{ padding: 16 }}>
+                <DarkModeToggle />
+              </div>
+            )}
+
+            <Flex
+              align="center"
+              justify="center"
+              style={{
+                height: 48,
+                cursor: "pointer",
+                borderTop: `1px solid ${token.colorBorderSecondary}`,
+                fontSize: 18,
+                color: token.colorTextSecondary,
+              }}
+              onClick={() => setCollapsed(!collapsed)}
+            >
+              {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            </Flex>
+          </Flex>
+        </Sider>
+      )}
+
+      {/* 🔹 Main Layout Area */}
+      <Layout style={{ background: "transparent", minWidth: 0 }}>
         <Header
-          className="sticky top-0 z-30 w-full p-0 h-20"
-          style={{ background: "transparent" }}
+          style={{
+            padding: 0,
+            height: 72,
+            background: "transparent",
+            position: "sticky",
+            top: 0,
+            zIndex: 30,
+            width: "100%",
+          }}
         >
           <MemoMainHeader />
         </Header>
+
         <Content
-          className="p-4 sm:p-6 overflow-x-hidden min-h-0"
-          style={{ background: "transparent" }}
+          style={{ padding: screens.sm ? "24px" : "16px", minHeight: 0 }}
         >
           <Flex vertical gap="middle" style={{ height: "100%" }}>
-            <div className="w-full">
-              <MemoBreadcrumbs />
-            </div>
-            <div className="flex-1 w-full h-full relative fade-in">
+            <MemoBreadcrumbs />
+            <div style={{ flex: 1, position: "relative" }}>
               <Suspense fallback={contentSkeleton}>{children}</Suspense>
             </div>
           </Flex>
         </Content>
       </Layout>
 
-      {/* 🔘 Mobile Floating Button */}
-      <Button
-        type="primary"
-        shape="circle"
-        size="large"
-        className="mobile-only-flex hover:scale-110 active:scale-95 transition-transform duration-200"
-        icon={mobileOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
-        onClick={() => setMobileOpen(!mobileOpen)}
-        style={{
-          position: "fixed",
-          bottom: 24,
-          right: 24,
-          width: 56,
-          height: 56,
-          fontSize: 24,
-          boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
-          backgroundColor: token.colorPrimary,
-          border: "none",
-          zIndex: 50,
-          display: "none", // Will be shown via global style
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      />
-
-      <style jsx global>{`
-        @media (max-width: 991px) {
-          .hide-on-mobile {
-            display: none !important;
-          }
-          .mobile-only-flex {
-            display: flex !important;
-          }
-        }
-      `}</style>
+      {/* 🔘 Mobile Floating Action Button */}
+      {!isDesktop && (
+        <Button
+          type="primary"
+          shape="circle"
+          size="large"
+          icon={mobileOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+          onClick={() => setMobileOpen(!mobileOpen)}
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            width: 56,
+            height: 56,
+            fontSize: 24,
+            zIndex: 50,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        />
+      )}
     </Layout>
   );
 }
