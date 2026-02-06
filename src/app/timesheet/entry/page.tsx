@@ -22,7 +22,9 @@ import {
   MoreOutlined,
   PlusOutlined,
   ProjectOutlined,
+  ReadOutlined,
   ReloadOutlined,
+  RightOutlined,
   RocketOutlined,
   SafetyCertificateFilled,
   SaveOutlined,
@@ -313,6 +315,192 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
   );
 };
 
+// --- Guide Modal ---
+interface GuideModalProps {
+  open: boolean;
+  onCancel: () => void;
+}
+
+const GuideModal: React.FC<GuideModalProps> = ({ open, onCancel }) => {
+  const { t } = useTranslation();
+  const { token } = theme.useToken();
+  const { Text, Title } = Typography;
+
+  const sections = [
+    {
+      title: "นโยบายการบันทึกต้นทุน (Capitalization Policy)",
+      icon: <FileTextOutlined style={{ color: token.colorPrimary }} />,
+      links: [
+        {
+          label: "SB-TS-DOC-001 - นโยบายการบันทึกต้นทุนการพัฒนาซอฟต์แวร์",
+          url: "https://docs.google.com/document/d/1OkUIocbdpi0_T41WhHQsQmsbVrGzJ-bvYmnOLar-utg/edit?usp=sharing",
+          tag: "Core Policy",
+        },
+      ],
+    },
+    {
+      title: "แนวทางและการปฏิบัติ (Guidelines)",
+      icon: <BookOutlined style={{ color: token.colorInfo }} />,
+      links: [
+        {
+          label: "การลงเวลาและแนวทางปฏิบัติทั่วไป",
+          url: "https://docs.google.com/document/d/1OkUIocbdpi0_T41WhHQsQmsbVrGzJ-bvYmnOLar-utg/edit?tab=t.7kqb7kp659j6",
+        },
+      ],
+    },
+    {
+      title: "คำแนะนำแยกตามตำแหน่ง (Role-based Guide)",
+      icon: <TeamOutlined style={{ color: token.colorSuccess }} />,
+      links: [
+        {
+          label: "สำหรับตำแหน่ง SA / BA / PM",
+          url: "https://docs.google.com/document/d/1OkUIocbdpi0_T41WhHQsQmsbVrGzJ-bvYmnOLar-utg/edit?tab=t.zebafthx8gwb",
+        },
+        {
+          label: "สำหรับตำแหน่ง UX / UI",
+          url: "https://docs.google.com/document/d/1OkUIocbdpi0_T41WhHQsQmsbVrGzJ-bvYmnOLar-utg/edit?tab=t.qxwspf2j73ob",
+        },
+        {
+          label: "สำหรับตำแหน่ง Developer",
+          url: "https://docs.google.com/document/d/1OkUIocbdpi0_T41WhHQsQmsbVrGzJ-bvYmnOLar-utg/edit?tab=t.nuub3l30rdiw",
+        },
+        {
+          label: "สำหรับตำแหน่ง QA",
+          url: "https://docs.google.com/document/d/1OkUIocbdpi0_T41WhHQsQmsbVrGzJ-bvYmnOLar-utg/edit?tab=t.3r566mmsriej",
+        },
+      ],
+    },
+    {
+      title: "เอกสารเพิ่มเติม",
+      icon: <SafetyCertificateFilled style={{ color: token.colorWarning }} />,
+      links: [
+        {
+          label: "เอกสารการยินยอมทำระบบทามชีท",
+          url: "https://docs.google.com/document/d/1OkUIocbdpi0_T41WhHQsQmsbVrGzJ-bvYmnOLar-utg/edit?tab=t.be5eobh0l5dp",
+        },
+      ],
+    },
+  ];
+
+  return (
+    <Modal
+      open={open}
+      onCancel={onCancel}
+      footer={[
+        <Button
+          key="close"
+          onClick={onCancel}
+          type="primary"
+          size="large"
+          style={{ borderRadius: 8 }}
+        >
+          เข้าใจแล้ว
+        </Button>,
+      ]}
+      width={700}
+      centered
+      title={
+        <Space size={12}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 10,
+              background: token.colorPrimaryBg,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <BookOutlined style={{ fontSize: 22, color: token.colorPrimary }} />
+          </div>
+          <Flex vertical gap={0}>
+            <Title level={4} style={{ margin: 0 }}>
+              คู่มือการลงเวลาทำงาน (Timesheet Guide)
+            </Title>
+            <Text type="secondary" style={{ fontSize: 13 }}>
+              กรุณาศึกษาข้อมูลเพื่อให้การลงเวลาถูกต้องตามนโยบายบริษัท
+            </Text>
+          </Flex>
+        </Space>
+      }
+    >
+      <div style={{ marginTop: 24 }}>
+        <Flex vertical gap={24}>
+          {sections.map((section, idx) => (
+            <div key={idx}>
+              <Space style={{ marginBottom: 12 }}>
+                {section.icon}
+                <Text strong style={{ fontSize: 16 }}>
+                  {section.title}
+                </Text>
+              </Space>
+              <Flex vertical gap={10}>
+                {section.links.map((link, lIdx) => (
+                  <Card
+                    key={lIdx}
+                    size="small"
+                    hoverable
+                    styles={{ body: { padding: "12px 16px" } }}
+                    style={{
+                      borderRadius: 12,
+                      border: `1px solid ${token.colorBorderSecondary}`,
+                      background: token.colorFillAlter,
+                    }}
+                    onClick={() => window.open(link.url, "_blank")}
+                  >
+                    <Flex justify="space-between" align="center">
+                      <Space size={12}>
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 8,
+                            background: token.colorBgContainer,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            border: `1px solid ${token.colorBorderSecondary}`,
+                          }}
+                        >
+                          <BookOutlined
+                            style={{
+                              fontSize: 14,
+                              color: token.colorTextSecondary,
+                            }}
+                          />
+                        </div>
+                        <Text style={{ fontWeight: 500 }}>{link.label}</Text>
+                      </Space>
+                      <Space>
+                        {link.tag && (
+                          <Tag
+                            color="blue"
+                            bordered={false}
+                            style={{ margin: 0 }}
+                          >
+                            {link.tag}
+                          </Tag>
+                        )}
+                        <RightOutlined
+                          style={{
+                            color: token.colorTextQuaternary,
+                            fontSize: 12,
+                          }}
+                        />
+                      </Space>
+                    </Flex>
+                  </Card>
+                ))}
+              </Flex>
+            </div>
+          ))}
+        </Flex>
+      </div>
+    </Modal>
+  );
+};
+
 // --- Page Header ---
 interface PageHeaderProps {
   admin_name: string;
@@ -321,6 +509,7 @@ interface PageHeaderProps {
   on_add_multi_click: () => void;
   on_bulk_all_click: () => void;
   on_my_work_click: () => void;
+  on_guide_click: () => void;
   token: any;
 }
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -330,6 +519,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   on_add_multi_click,
   on_bulk_all_click,
   on_my_work_click,
+  on_guide_click,
   token,
 }) => {
   const { t } = useTranslation();
@@ -350,14 +540,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     if (hour < 18) return <CloudOutlined style={{ color: token.colorInfo }} />;
     return <MoonOutlined style={{ color: token.colorInfo }} />;
   }, [token]);
-
-  const handleOpenGuide = () => {
-    window.open(
-      "https://docs.google.com/document/d/1bfkhcYs_X79c5j2uZ5pH-C5QAeIjN91aSVNNZEf2guI/edit?usp=sharing",
-      "_blank",
-      "noopener,noreferrer",
-    );
-  };
 
   return (
     <Card
@@ -434,6 +616,23 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         </Flex>
 
         <Space size={token.marginMD} wrap>
+          <Button
+            size="large"
+            icon={<BookOutlined />}
+            onClick={on_guide_click}
+            style={{
+              height: 48,
+              borderRadius: token.borderRadiusLG,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              border: `1px solid ${token.colorBorder}`,
+              background: token.colorBgContainer,
+            }}
+          >
+            {t("timesheet_entry_page.guide", "คู่มือการลงเวลา")}
+          </Button>
+
           <Tooltip title={t("timesheet_entry_page.my_work", "งานของฉัน")}>
             <Badge
               count={t("timesheet_entry_page.new", "ใหม่")}
@@ -512,11 +711,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 {
                   key: "guide",
                   label: t(
-                    "timesheet_entry_page.user_guide",
-                    "คู่มือการใช้งาน",
+                    "timesheet_entry_page.view_guide_modal",
+                    "คู่มือและข้อควรปฏิบัติ",
                   ),
-                  icon: <BookOutlined />,
-                  onClick: handleOpenGuide,
+                  icon: <ReadOutlined />,
+                  onClick: on_guide_click,
                 },
               ],
             }}
@@ -1639,8 +1838,9 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
 
   useEffect(() => {
     if (open) {
-      // Use a small delay to ensure the form is fully connected to the element
-      // before attempting to reset or set values, preventing Ant Design warnings.
+      // Use a consistent delay to ensure the form instance is fully connected
+      // to the DOM element, especially in fast environments like Turbopack.
+      // Increased to 100ms for extra safety.
       const timer = setTimeout(() => {
         if (formMode === "create") {
           form.resetFields();
@@ -1661,7 +1861,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
             date: formMode === "copy" ? dayjs() : dayjs(record.date),
           });
         }
-      }, 0);
+      }, 100);
       return () => clearTimeout(timer);
     }
   }, [open, formMode, form, record]);
@@ -1671,6 +1871,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
 
     // Similarly delay this update to ensure connection
     const timer = setTimeout(() => {
+      // Only set values if the form instance is likely connected
       if (searchMode === "hierarchy") {
         form.setFieldsValue({ sub_project_search: undefined });
       } else {
@@ -1679,7 +1880,7 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
           sub_project_id: undefined,
         });
       }
-    }, 0);
+    }, 100);
     return () => clearTimeout(timer);
   }, [searchMode, form, open]);
 
@@ -1744,290 +1945,373 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
         <Space size={12}>
           <div
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 6,
+              width: 36,
+              height: 36,
+              borderRadius: 8,
               background: token.colorPrimaryBg,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <ThunderboltOutlined style={{ color: token.colorPrimary }} />
+            <ThunderboltOutlined
+              style={{ color: token.colorPrimary, fontSize: 18 }}
+            />
           </div>
-          <Title level={4} style={{ margin: 0 }}>
-            {t("logWorkTime", "ลงเวลาทำงาน")}
-          </Title>
+          <div>
+            <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+              {t("logWorkTime", "ลงเวลาทำงาน")}
+            </Title>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              บันทึกรายละเอียดการปฏิบัติงานประจำวันเข้าสู่ระบบ
+            </Text>
+          </div>
         </Space>
       }
       onCancel={onCancel}
-      width={720}
+      width={1200}
       centered
       footer={null}
       forceRender
       afterClose={afterClose}
+      styles={{
+        body: { padding: "8px 0" },
+      }}
     >
       <Form form={form} layout="vertical" onFinish={onSubmit}>
-        <Card
-          size="small"
-          styles={{ body: { padding: 16 } }}
-          style={{
-            marginBottom: 16,
-            border: `1px solid ${token.colorBorderSecondary}`,
-          }}
-        >
-          <Flex
-            justify="space-between"
-            align="center"
-            style={{ marginBottom: 16 }}
+        <Flex vertical gap={24}>
+          {/* ส่วนที่ 1: ข้อมูลโครงการ (Project Selection) */}
+          <Card
+            variant="borderless"
+            styles={{ body: { padding: 24 } }}
+            style={{
+              border: `1px solid ${token.colorBorderSecondary}`,
+              borderRadius: 16,
+              background: token.colorBgContainer,
+            }}
           >
-            <Text strong>
-              <ProjectOutlined />{" "}
-              {t("responsibleProject", "โครงการที่รับผิดชอบ")}
-            </Text>
-            <Radio.Group
-              value={searchMode}
-              onChange={(e) => setSearchMode(e.target.value)}
-              buttonStyle="solid"
-              size="small"
+            <Flex
+              justify="space-between"
+              align="center"
+              style={{ marginBottom: 20 }}
             >
-              <Radio.Button value="hierarchy">
-                {t("selectByProject", "เลือกตามโครงการ")}
-              </Radio.Button>
-              <Radio.Button value="direct">
-                {t("searchSubTask", "ค้นหางานย่อย")}
-              </Radio.Button>
-            </Radio.Group>
-          </Flex>
-
-          {searchMode === "hierarchy" ? (
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label={
-                    <Space>
-                      <span>{t("mainProject", "โครงการหลัก")}</span>
-                      <Tooltip
-                        title={t(
-                          "searchProjectTip",
-                          "ค้นหาได้ทั้ง ชื่อโครงการ และ Project ID",
-                        )}
-                      >
-                        <InfoCircleOutlined
-                          style={{ color: token.colorTextSecondary }}
-                        />
-                      </Tooltip>
-                    </Space>
-                  }
-                  name="project_id"
-                  rules={[{ required: true }]}
+              <Space>
+                <div
+                  style={{
+                    padding: 8,
+                    borderRadius: 8,
+                    background: token.colorInfoBg,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
-                  <Select
-                    placeholder="เลือกโครงการ..."
-                    options={projectOptions}
-                    onChange={(v) => {
-                      form.setFieldsValue({ sub_project_id: undefined });
-                      if (v) fetchSubProjects(String(v));
-                    }}
-                    showSearch
-                    filterOption={(input, option) => {
-                      const labelStr = (
-                        option?.labelString ?? ""
-                      ).toLowerCase();
-                      const inputStr = input.toLowerCase();
-                      const valueStr = String(option?.value).toLowerCase();
-                      return (
-                        labelStr.includes(inputStr) ||
-                        valueStr.includes(inputStr)
-                      );
-                    }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label={
-                    <Space>
-                      <span>{t("subTaskFeature", "งานย่อย / ฟีเจอร์")}</span>
-                      <Tooltip
-                        title={t(
-                          "searchSubTaskTip",
-                          "ค้นหาได้ทั้ง ชื่องานย่อย และ Feature ID",
-                        )}
-                      >
-                        <InfoCircleOutlined
-                          style={{ color: token.colorTextSecondary }}
-                        />
-                      </Tooltip>
-                    </Space>
-                  }
-                  name="sub_project_id"
-                  rules={[{ required: true }]}
-                  dependencies={["project_id"]}
-                >
-                  <Select
-                    placeholder="เลือกงานย่อย..."
-                    options={subProjectOptions}
-                    disabled={!form.getFieldValue("project_id")}
-                    showSearch
-                    filterOption={(input, option) => {
-                      const labelStr = (
-                        option?.labelString ?? ""
-                      ).toLowerCase();
-                      const inputStr = input.toLowerCase();
-                      const valueStr = String(option?.value).toLowerCase();
-                      return (
-                        labelStr.includes(inputStr) ||
-                        valueStr.includes(inputStr)
-                      );
-                    }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          ) : (
-            <Form.Item
-              label={t("searchSubTask", "ค้นหางานย่อย")}
-              name="sub_project_search"
-              rules={[
-                {
-                  required: true,
-                  message: t(
-                    "pleaseSelectSubTask",
-                    "กรุณาค้นหาและเลือกงานย่อย",
-                  ),
-                },
-                {
-                  validator: async (_, value) => {
-                    const projectId = form.getFieldValue("project_id");
-                    const subProjectId = form.getFieldValue("sub_project_id");
-                    if (!projectId || !subProjectId) {
-                      return Promise.reject(
-                        new Error(
-                          t("selectFromList", "กรุณาเลือกงานย่อยจากรายการ"),
-                        ),
-                      );
-                    }
-                    return Promise.resolve();
-                  },
-                },
-              ]}
-            >
-              <Select
-                showSearch
-                placeholder={t(
-                  "searchPlaceholderDirect",
-                  "พิมพ์ชื่องานย่อย, โครงการหลัก หรือ ID...",
-                )}
-                options={subProjectOptionsSearch}
-                onSearch={handleSearchSubProject}
-                loading={searching}
-                filterOption={false}
-                notFoundContent={
-                  searching
-                    ? t("searching", "กำลังค้นหา...")
-                    : t("notFound", "ไม่พบข้อมูล")
-                }
-                onChange={(value, option: any) => {
-                  if (option?.item) {
-                    form.setFieldsValue({
-                      project_id: option.item.main_project_id,
-                      sub_project_id: option.item.id,
-                    });
-                    fetchSubProjects(String(option.item.main_project_id));
-                  }
-                }}
-                suffixIcon={<SearchOutlined />}
-              />
-            </Form.Item>
-          )}
-        </Card>
-
-        <Card
-          size="small"
-          styles={{ body: { padding: 16 } }}
-          style={{ background: token.colorFillAlter, border: "none" }}
-        >
-          <Row gutter={16}>
-            <Col xs={12} sm={8}>
-              <Form.Item
-                label={t("date", "วันที่")}
-                name="date"
-                rules={[{ required: true }]}
+                  <ProjectOutlined style={{ color: token.colorInfo }} />
+                </div>
+                <Text strong style={{ fontSize: 16 }}>
+                  {t("responsibleProject", "โครงการที่รับผิดชอบ")}
+                </Text>
+              </Space>
+              <Radio.Group
+                value={searchMode}
+                onChange={(e) => setSearchMode(e.target.value)}
+                buttonStyle="solid"
+                size="middle"
               >
-                <DatePicker format="DD/MM/BBBB" style={{ width: "100%" }} />
-              </Form.Item>
-            </Col>
-            <Col xs={12} sm={8}>
-              <Form.Item
-                label={t("durationHours", "ระยะเวลา (ชม.)")}
-                name="work_hour"
-                rules={[
-                  { required: true },
-                  { type: "number", min: 0.1, max: 24 },
-                ]}
-                extra={
+                <Radio.Button value="hierarchy">
+                  {t("selectByProject", "เลือกตามโครงการ")}
+                </Radio.Button>
+                <Radio.Button value="direct">
+                  {t("searchSubTask", "ค้นหางานย่อย")}
+                </Radio.Button>
+              </Radio.Group>
+            </Flex>
+
+            {searchMode === "hierarchy" ? (
+              <Row gutter={[24, 24]}>
+                <Col xs={24} md={12}>
                   <Form.Item
-                    noStyle
-                    shouldUpdate={(prev, curr) =>
-                      prev.work_hour !== curr.work_hour
+                    label={
+                      <Space>
+                        <span style={{ fontWeight: 500 }}>
+                          {t("mainProject", "โครงการหลัก")}
+                        </span>
+                        <Tooltip
+                          title={t(
+                            "searchProjectTip",
+                            "ค้นหาได้ทั้ง ชื่อโครงการ และ Project ID",
+                          )}
+                        >
+                          <InfoCircleOutlined
+                            style={{ color: token.colorTextSecondary }}
+                          />
+                        </Tooltip>
+                      </Space>
+                    }
+                    name="project_id"
+                    rules={[{ required: true }]}
+                  >
+                    <Select
+                      size="large"
+                      placeholder="เลือกโครงการ..."
+                      options={projectOptions}
+                      onChange={(v) => {
+                        form.setFieldsValue({ sub_project_id: undefined });
+                        if (v) fetchSubProjects(String(v));
+                      }}
+                      showSearch
+                      filterOption={(input, option) => {
+                        const labelStr = (
+                          option?.labelString ?? ""
+                        ).toLowerCase();
+                        const inputStr = input.toLowerCase();
+                        const valueStr = String(option?.value).toLowerCase();
+                        return (
+                          labelStr.includes(inputStr) ||
+                          valueStr.includes(inputStr)
+                        );
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label={
+                      <Space>
+                        <span style={{ fontWeight: 500 }}>
+                          {t("subTaskFeature", "งานย่อย / ฟีเจอร์")}
+                        </span>
+                        <Tooltip
+                          title={t(
+                            "searchSubTaskTip",
+                            "ค้นหาได้ทั้ง ชื่องานย่อย และ Feature ID",
+                          )}
+                        >
+                          <InfoCircleOutlined
+                            style={{ color: token.colorTextSecondary }}
+                          />
+                        </Tooltip>
+                      </Space>
+                    }
+                    name="sub_project_id"
+                    rules={[{ required: true }]}
+                    dependencies={["project_id"]}
+                  >
+                    <Select
+                      size="large"
+                      placeholder="เลือกงานย่อย..."
+                      options={subProjectOptions}
+                      disabled={!form.getFieldValue("project_id")}
+                      showSearch
+                      filterOption={(input, option) => {
+                        const labelStr = (
+                          option?.labelString ?? ""
+                        ).toLowerCase();
+                        const inputStr = input.toLowerCase();
+                        const valueStr = String(option?.value).toLowerCase();
+                        return (
+                          labelStr.includes(inputStr) ||
+                          valueStr.includes(inputStr)
+                        );
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            ) : (
+              <Form.Item
+                label={
+                  <span style={{ fontWeight: 500 }}>
+                    {t("searchSubTask", "ค้นหางานย่อย")}
+                  </span>
+                }
+                name="sub_project_search"
+                rules={[
+                  {
+                    required: true,
+                    message: t(
+                      "pleaseSelectSubTask",
+                      "กรุณาค้นหาและเลือกงานย่อย",
+                    ),
+                  },
+                  {
+                    validator: async (_, value) => {
+                      const projectId = form.getFieldValue("project_id");
+                      const subProjectId = form.getFieldValue("sub_project_id");
+                      if (!projectId || !subProjectId) {
+                        return Promise.reject(
+                          new Error(
+                            t("selectFromList", "กรุณาเลือกงานย่อยจากรายการ"),
+                          ),
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
+                <Select
+                  size="large"
+                  showSearch
+                  placeholder={t(
+                    "searchPlaceholderDirect",
+                    "พิมพ์ชื่องานย่อย, โครงการหลัก หรือ ID...",
+                  )}
+                  options={subProjectOptionsSearch}
+                  onSearch={handleSearchSubProject}
+                  loading={searching}
+                  filterOption={false}
+                  notFoundContent={
+                    searching
+                      ? t("searching", "กำลังค้นหา...")
+                      : t("notFound", "ไม่พบข้อมูล")
+                  }
+                  onChange={(value, option: any) => {
+                    if (option?.item) {
+                      form.setFieldsValue({
+                        project_id: option.item.main_project_id,
+                        sub_project_id: option.item.id,
+                      });
+                      fetchSubProjects(String(option.item.main_project_id));
+                    }
+                  }}
+                  suffixIcon={<SearchOutlined />}
+                />
+              </Form.Item>
+            )}
+          </Card>
+
+          {/* ส่วนที่ 2: รายละเอียดการทำงาน (Work Details) */}
+          <Card
+            variant="borderless"
+            styles={{ body: { padding: 24 } }}
+            style={{
+              borderRadius: 16,
+              background: token.colorFillAlter,
+              border: "none",
+            }}
+          >
+            <Flex vertical gap={20}>
+              <Row gutter={[24, 24]}>
+                <Col xs={24} sm={8}>
+                  <Form.Item
+                    label={
+                      <span style={{ fontWeight: 500 }}>
+                        <CalendarOutlined /> {t("date", "วันที่")}
+                      </span>
+                    }
+                    name="date"
+                    rules={[{ required: true }]}
+                  >
+                    <DatePicker
+                      size="large"
+                      format="DD/MM/BBBB"
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={8}>
+                  <Form.Item
+                    label={
+                      <span style={{ fontWeight: 500 }}>
+                        <ClockCircleOutlined />{" "}
+                        {t("durationHours", "ระยะเวลา (ชม.)")}
+                      </span>
+                    }
+                    name="work_hour"
+                    rules={[
+                      { required: true },
+                      { type: "number", min: 0.1, max: 24 },
+                    ]}
+                    extra={
+                      <Form.Item
+                        noStyle
+                        shouldUpdate={(prev, curr) =>
+                          prev.work_hour !== curr.work_hour
+                        }
+                      >
+                        {({ getFieldValue }) => {
+                          const hours = getFieldValue("work_hour");
+                          return hours > 8 ? (
+                            <Text type="warning" style={{ fontSize: 12 }}>
+                              <ExclamationCircleOutlined />{" "}
+                              {t(
+                                "over8HoursWarning",
+                                "คุณกำลังกรอกเวลาเกิน 8 ชั่วโมง",
+                              )}
+                            </Text>
+                          ) : null;
+                        }}
+                      </Form.Item>
                     }
                   >
-                    {({ getFieldValue }) => {
-                      const hours = getFieldValue("work_hour");
-                      return hours > 8 ? (
-                        <Text type="warning" style={{ fontSize: 12 }}>
-                          <ExclamationCircleOutlined />{" "}
-                          {t(
-                            "over8HoursWarning",
-                            "คุณกำลังกรอกเวลาเกิน 8 ชั่วโมง",
-                          )}
-                        </Text>
-                      ) : null;
-                    }}
+                    <InputNumber
+                      size="large"
+                      style={{ width: "100%" }}
+                      min={0}
+                      step={0.5}
+                      placeholder="0.0"
+                    />
                   </Form.Item>
-                }
-              >
-                <InputNumber style={{ width: "100%" }} min={0} step={0.5} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={8}>
-              <Form.Item label={t("status", "สถานะ")} name="status">
-                <Select options={statusOptions} />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item
-            label={t("workDescription", "รายละเอียดการทำงาน")}
-            name="description"
-            style={{ marginBottom: 0 }}
-          >
-            <Input.TextArea
-              rows={4}
-              showCount
-              maxLength={500}
-              placeholder={t(
-                "workDescriptionPlaceholder",
-                "ระบุรายละเอียดงานที่ทำ...",
-              )}
-            />
-          </Form.Item>
-        </Card>
+                </Col>
+                <Col xs={24} sm={8}>
+                  <Form.Item
+                    label={
+                      <span style={{ fontWeight: 500 }}>
+                        <TagOutlined /> {t("status", "สถานะ")}
+                      </span>
+                    }
+                    name="status"
+                  >
+                    <Select size="large" options={statusOptions} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-        <Flex justify="end" gap={12} style={{ marginTop: 24 }}>
-          <Button onClick={onCancel} disabled={disabled}>
-            {t("cancel", "ยกเลิก")}
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={disabled}
-            icon={<SaveOutlined />}
-            size="large"
-            style={{ minWidth: 120 }}
-          >
-            {t("saveData", "บันทึกข้อมูล")}
-          </Button>
+              <Form.Item
+                label={
+                  <span style={{ fontWeight: 500 }}>
+                    <FileTextOutlined />{" "}
+                    {t("workDescription", "รายละเอียดการทำงาน")}
+                  </span>
+                }
+                name="description"
+                style={{ marginBottom: 0 }}
+              >
+                <Input.TextArea
+                  rows={5}
+                  showCount
+                  maxLength={500}
+                  style={{ borderRadius: 12 }}
+                  placeholder={t(
+                    "workDescriptionPlaceholder",
+                    "อธิบายรายละเอียดงานที่ปฏิบัติในวันนี้ เพื่อความชัดเจนในการตรวจสอบ...",
+                  )}
+                />
+              </Form.Item>
+            </Flex>
+          </Card>
+
+          {/* ส่วนที่ 3: ปุ่มควบคุม (Action Buttons) */}
+          <Flex justify="end" gap={12} style={{ padding: "8px 0" }}>
+            <Button
+              onClick={onCancel}
+              disabled={disabled}
+              size="large"
+              style={{ minWidth: 100, borderRadius: 10 }}
+            >
+              {t("cancel", "ยกเลิก")}
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={disabled}
+              icon={<SaveOutlined />}
+              size="large"
+              style={{ minWidth: 160, borderRadius: 10, fontWeight: 600 }}
+            >
+              {t("saveData", "บันทึกข้อมูล")}
+            </Button>
+          </Flex>
         </Flex>
       </Form>
     </Modal>
@@ -2415,9 +2699,11 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
       setProgressList([]);
       setCompletedCount(0);
       setUsers([]);
-    } else {
-      // Reset password form when modal opens
-      passwordForm.resetFields();
+      // Reset password form when modal opens with a slight delay
+      // to ensure the form instance is connected to the DOM
+      setTimeout(() => {
+        passwordForm.resetFields();
+      }, 50);
     }
   }, [open, passwordForm]);
 
@@ -2442,10 +2728,11 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
     if (password === "LIGHT") {
       setIsUnlocked(true);
       // Wait for the next tick to ensure the Form is rendered before resetting
+      // Increased delay to 50ms for better stability in Turbopack environments
       setTimeout(() => {
         form.resetFields();
         form.setFieldsValue({ status: "IN_PROGRESS", date: dayjs() });
-      }, 0);
+      }, 50);
       toast.success("ปลดล็อคสำเร็จ! สามารถลงเวลาได้ทุกคนแล้ว", {
         icon: <CheckCircleOutlined style={{ color: token.colorSuccess }} />,
       });
@@ -2639,7 +2926,7 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
       closable={!isProcessing}
       forceRender
     >
-      {!isUnlocked ? (
+      <div style={{ display: !isUnlocked ? "block" : "none" }}>
         <Flex vertical align="center" style={{ padding: "40px 24px" }}>
           <div
             style={{
@@ -2690,9 +2977,11 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
             </Button>
           </Form>
         </Flex>
-      ) : (
+      </div>
+
+      <div style={{ display: isUnlocked ? "block" : "none" }}>
         <Flex vertical gap={24}>
-          {isProcessing && (
+          <div style={{ display: isProcessing ? "block" : "none" }}>
             <Flex vertical gap={16}>
               <Card
                 styles={{ body: { padding: 24 } }}
@@ -2771,9 +3060,9 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
                 </Flex>
               </div>
             </Flex>
-          )}
+          </div>
 
-          {!isProcessing && (
+          <div style={{ display: !isProcessing ? "block" : "none" }}>
             <Form
               form={form}
               layout="vertical"
@@ -2915,7 +3204,7 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
                 </Space>
               </Flex>
             </Form>
-          )}
+          </div>
 
           {!isProcessing && completedCount > 0 && (
             <Flex justify="center">
@@ -2925,7 +3214,7 @@ const BulkEntryAllUsersModal: React.FC<BulkEntryAllUsersModalProps> = ({
             </Flex>
           )}
         </Flex>
-      )}
+      </div>
     </Modal>
   );
 };
@@ -2947,6 +3236,7 @@ export default function TimesheetEntryPage() {
   // State
   const [multiEntryModalOpen, setMultiEntryModalOpen] = useState(false);
   const [bulkAllUsersModalOpen, setBulkAllUsersModalOpen] = useState(false);
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [myWorkModalOpen, setMyWorkModalOpen] = useState(false);
   const [subProjectsCache, setSubProjectsCache] = useState<
     Record<string, any[]>
@@ -3081,17 +3371,27 @@ export default function TimesheetEntryPage() {
     dispatch(setModalType("delete"));
   }, [dispatch]);
 
-  const handleSubmitTimesheet = useCallback(async () => {
-    try {
-      const values = await form.validateFields();
-      const success = await submitTimesheet(
-        values,
-        timesheetState.formMode,
-        timesheetState.activeRecord?.id,
-      );
-      if (success && isMountedRef.current) closeModal();
-    } catch {}
-  }, [form, submitTimesheet, timesheetState, closeModal]);
+  const handleSubmitTimesheet = useCallback(
+    async (values: any) => {
+      try {
+        // Use values from onFinish if available, otherwise validate
+        const finalValues =
+          values && typeof values === "object" && !values.nativeEvent
+            ? values
+            : await form.validateFields();
+
+        const success = await submitTimesheet(
+          finalValues,
+          timesheetState.formMode,
+          timesheetState.activeRecord?.id,
+        );
+        if (success && isMountedRef.current) closeModal();
+      } catch (error) {
+        console.error("Form validation failed:", error);
+      }
+    },
+    [form, submitTimesheet, timesheetState, closeModal],
+  );
 
   const handleDeleteTimesheet = useCallback(async () => {
     const success = await deleteTimesheet(timesheetState.selectedRowKeys);
@@ -3195,6 +3495,7 @@ export default function TimesheetEntryPage() {
               on_add_click={openCreateForm}
               on_add_multi_click={openMultiEntryForm}
               on_bulk_all_click={openBulkAllUsersModal}
+              on_guide_click={() => setGuideModalOpen(true)}
               on_my_work_click={() => setMyWorkModalOpen(true)}
               token={token}
             />
@@ -3287,6 +3588,10 @@ export default function TimesheetEntryPage() {
             open={myWorkModalOpen}
             onCancel={() => setMyWorkModalOpen(false)}
             userId={admin_id}
+          />
+          <GuideModal
+            open={guideModalOpen}
+            onCancel={() => setGuideModalOpen(false)}
           />
 
           <StatusModal
