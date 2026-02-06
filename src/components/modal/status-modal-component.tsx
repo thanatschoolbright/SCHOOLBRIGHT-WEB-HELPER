@@ -105,7 +105,7 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
       onCancel={handleClose}
       footer={null}
       centered
-      destroyOnClose
+      destroyOnHidden
       width={isError ? 600 : 420}
       styles={{ body: { paddingBlock: token.paddingLG } }}
     >
