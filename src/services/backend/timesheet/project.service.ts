@@ -81,7 +81,7 @@ export const Service = {
   // * ดึงข้อมูล Project ตาม ID พร้อมโครงสร้างข้อมูลแบบเดียวกับ findAll
   async findById(id: number) {
     const project = await PrismaTimesheet.project.findFirst({
-      where: { id },
+      where: { id, is_deleted: false },
       include: { features: true, projectAssignees: true },
     });
     if (project) {
