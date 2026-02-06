@@ -12,7 +12,7 @@ import {
   ProjectOutlined,
   SearchOutlined,
   SettingOutlined,
-  TableOutlined,
+  UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
@@ -208,7 +208,7 @@ export default function CapturableReportPage() {
 
       if (response.data.status === 200) {
         setData(response.data.data);
-        toast.success(response.data.message_th || "ดึงข้อมูลสำเร็จ", {
+        toast.success("ดึงข้อมูลแสดงรายการโครงการสมบูรณ์", {
           id: toastId,
         });
       } else {
@@ -256,7 +256,7 @@ export default function CapturableReportPage() {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success("ส่งออกไฟล์ Excel สำเร็จ", { id: toastId });
+      toast.success("ส่งออกไฟล์ Excel รายงานโครงการสมบูรณ์", { id: toastId });
     } catch (error: any) {
       toast.error("เกิดข้อผิดพลาดในการส่งออกไฟล์", { id: toastId });
     } finally {
@@ -552,11 +552,14 @@ export default function CapturableReportPage() {
             style={{ borderRadius: 16 }}
             styles={{ body: { padding: 24 } }}
           >
-            <Flex align="center" gap={8} className="mb-6">
+            <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
               <FilterOutlined
-                style={{ color: token.colorPrimary, fontSize: 18 }}
+                style={{ color: token.colorPrimary, fontSize: "1rem" }}
               />
-              <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
+              <Title
+                level={4}
+                style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}
+              >
                 ตัวกรอง
               </Title>
             </Flex>
@@ -640,11 +643,14 @@ export default function CapturableReportPage() {
           >
             <Flex justify="space-between" align="center" className="mb-4">
               <Space size={12}>
-                <TableOutlined
-                  style={{ color: token.colorPrimary, fontSize: 18 }}
+                <UnorderedListOutlined
+                  style={{ color: token.colorPrimary, fontSize: "1rem" }}
                 />
-                <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
-                  รายละเอียดรายโครงการ
+                <Title
+                  level={4}
+                  style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}
+                >
+                  รายการโครงการ
                 </Title>
                 <Popover
                   content={columnSelectorContent}
@@ -689,6 +695,7 @@ export default function CapturableReportPage() {
                 showTotal: (total) => `ทั้งหมด ${total} รายการ`,
               }}
               scroll={{ x: 1200 }}
+              style={{ marginTop: 16 }}
               summary={(pageData) => {
                 if (pageData.length === 0) return undefined;
                 const hoursIdx = filteredColumns.findIndex(
