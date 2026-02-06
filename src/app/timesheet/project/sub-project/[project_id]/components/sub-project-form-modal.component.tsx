@@ -4,6 +4,7 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseOutlined,
+  CopyOutlined,
   DeleteOutlined,
   EditOutlined,
   FileTextOutlined,
@@ -52,7 +53,7 @@ const { Text, Title, Paragraph } = Typography;
 
 interface SubProjectFormModalProps {
   open: boolean;
-  mode: "create" | "edit";
+  mode: "create" | "edit" | "clone";
   data: SubProject | null;
   loading: boolean;
   onSubmit: (values: SubProjectFormValues) => Promise<boolean>;
@@ -212,9 +213,9 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
             asset_capture_type: "CAPTUREABLE",
             projectStatusId: statusOptions[0]?.value,
           });
-        } else if (mode === "edit" && data) {
-          // 2. ถ้าเป็นโหมดแก้ไช และมีคนได้รับผิดชอบอยู่แล้ว
-          // ให้โหลดข้อมูลชื่อของคนเหล่านั้นด้วย (เพื่อป้องกัน Select แสดงแต่ ID)
+        } else if ((mode === "edit" || mode === "clone") && data) {
+          // 2. ถ้าเป็นโหมดการแก้ไข หรือการคัดลอก (Clone) และมีข้อมูลอยู่แล้ว
+          // ให้โหลดข้อมูลรายชื่อพนักงานที่รับผิดชอบอยู่เดิมด้วย
           const assigneeIds =
             data.projectAssignees
               ?.map((a) => a.userId)
@@ -259,8 +260,9 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
               : [];
 
           form.setFieldsValue({
-            name: data.name,
-            name_en: data.name_en,
+            id: mode === "clone" ? undefined : data.id,
+            name: mode === "clone" ? `${data.name} (Copy)` : data.name,
+            name_en: mode === "clone" ? `${data.name_en} (Copy)` : data.name_en,
             ticket_number: data.ticket_number,
             asset_capture_type: data.assetCaptureType,
             projectStatusId: data.projectStatusId,
@@ -312,7 +314,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
 
   const handleFinish = async (values: SubProjectFormValues) => {
     const payload = {
-      id: data?.id,
+      id: mode === "clone" ? undefined : data?.id,
       name: values.name,
       name_en: values.name_en,
       ticket_number: values.ticket_number,
@@ -388,6 +390,8 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           >
             {mode === "create" ? (
               <PlusOutlined style={{ color: "#fff" }} />
+            ) : mode === "clone" ? (
+              <CopyOutlined style={{ color: "#fff" }} />
             ) : (
               <EditOutlined style={{ color: "#fff" }} />
             )}
@@ -395,7 +399,9 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           <Title level={4} style={{ margin: 0 }}>
             {mode === "create"
               ? t("sub_project_page.modal_create_title")
-              : t("sub_project_page.modal_edit_title")}
+              : mode === "clone"
+                ? "คัดลอกฟีเจอร์เดิม"
+                : t("sub_project_page.modal_edit_title")}
           </Title>
         </Space>
       }

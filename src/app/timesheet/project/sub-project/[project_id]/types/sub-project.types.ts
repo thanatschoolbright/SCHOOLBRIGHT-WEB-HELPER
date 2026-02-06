@@ -74,7 +74,7 @@ export interface PaginationState {
 }
 
 export interface ModalState {
-  type: "create" | "edit" | "detail" | null;
+  type: "create" | "edit" | "detail" | "clone" | null;
   data: SubProject | null;
 }
 

@@ -634,6 +634,12 @@ export default function SubProjectPage() {
                 onClick: () => setModalState({ type: "edit", data: record }),
               },
               {
+                key: "clone",
+                label: "คัดลอกข้อมูล",
+                icon: <CopyOutlined />,
+                onClick: () => setModalState({ type: "clone", data: record }),
+              },
+              {
                 type: "divider",
               },
               {
@@ -843,7 +849,13 @@ export default function SubProjectPage() {
             border: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          <Flex justify="space-between" align="center" className="mb-4">
+          <Flex
+            justify="space-between"
+            align="center"
+            style={{
+              marginBottom: 12,
+            }}
+          >
             <Space size={12}>
               <SolutionOutlined
                 style={{ color: token.colorPrimary, fontSize: 18 }}
@@ -865,7 +877,6 @@ export default function SubProjectPage() {
                 icon={<CopyOutlined />}
                 onClick={handleCopyAllFeatures}
                 disabled={filteredSubProjects.length === 0}
-                style={{ fontWeight: 600 }}
               >
                 คัดลอกรายชื่อทั้งหมด
               </Button>
@@ -896,8 +907,12 @@ export default function SubProjectPage() {
 
         {/* Modals Logic */}
         <SubProjectFormModal
-          open={modalState.type === "create" || modalState.type === "edit"}
-          mode={modalState.type === "create" ? "create" : "edit"}
+          open={
+            modalState.type === "create" ||
+            modalState.type === "edit" ||
+            modalState.type === "clone"
+          }
+          mode={modalState.type as any}
           data={modalState.data}
           loading={isActionLoading}
           onSubmit={handleSubmit}
