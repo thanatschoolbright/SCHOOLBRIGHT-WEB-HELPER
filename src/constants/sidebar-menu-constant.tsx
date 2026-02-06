@@ -296,7 +296,8 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("timesheet_system.children.migrate_person"),
             href: "/timesheet/all/report/migrate-person",
             icon: <SwapOutlined />,
-            revamp: true,
+            revamp: false,
+            news: true,
             permission: PERMISSIONS.TIMESHEET_WRITE,
           },
           {

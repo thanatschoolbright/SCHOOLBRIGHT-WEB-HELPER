@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CalendarOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   CopyOutlined,
@@ -16,6 +17,7 @@ import {
   ReloadOutlined,
   SearchOutlined,
   SolutionOutlined,
+  SwapOutlined,
   SyncOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -65,6 +67,7 @@ import type {
   Project,
   SubProject,
 } from "./types/sub-project.types";
+import { calculateWorkingHours } from "./utils/date-helpers";
 
 const { Title, Text } = Typography;
 
@@ -465,26 +468,51 @@ export default function SubProjectPage() {
   // --- Table Columns Configuration ---
   const columns: ColumnsType<SubProject> = [
     {
+      title: "เชื่อมต่อ Backlog",
+      key: "ticket_number",
+      width: 180,
+      render: (_, record) =>
+        record.ticket_number ? (
+          <Tooltip
+            title={(record as any).backlogSummary || "กำลังโหลดรายละเอียด..."}
+          >
+            <Space direction="vertical" size={0}>
+              <Tag
+                icon={<LinkOutlined />}
+                color="cyan"
+                style={{ borderRadius: 4, cursor: "pointer", margin: 0 }}
+              >
+                {record.ticket_number}
+              </Tag>
+              {(record as any).backlogSummary && (
+                <Text
+                  type="secondary"
+                  style={{ fontSize: 11, display: "block" }}
+                  ellipsis
+                >
+                  {(record as any).backlogSummary}
+                </Text>
+              )}
+            </Space>
+          </Tooltip>
+        ) : (
+          <Text type="secondary">-</Text>
+        ),
+      sorter: (a, b) =>
+        (a.ticket_number || "").localeCompare(b.ticket_number || ""),
+    },
+    {
       title: "สถานะงาน",
       key: "status_tracker",
-      width: 200,
+      width: 150,
       render: (_, record) => (
-        <Space direction="vertical" size={2} className="w-full">
-          <Tag
-            color={
-              record.projectStatus?.priority === 99 ? "error" : "processing"
-            }
-            bordered={false}
-            style={{ fontWeight: 600, fontSize: 11 }}
-          >
-            {record.projectStatus?.nameTh || record.status || "Ready"}
-          </Tag>
-          <Text type="secondary" style={{ fontSize: 10 }}>
-            {record.startDate
-              ? dayjs(record.startDate).format("DD/MM/YYYY")
-              : "-"}
-          </Text>
-        </Space>
+        <Tag
+          color={record.projectStatus?.priority === 99 ? "error" : "processing"}
+          bordered={false}
+          style={{ fontWeight: 600, fontSize: 11, margin: 0 }}
+        >
+          {record.projectStatus?.nameTh || record.status || "Ready"}
+        </Tag>
       ),
       sorter: (a, b) =>
         (a.projectStatus?.priority || 0) - (b.projectStatus?.priority || 0),
@@ -507,38 +535,41 @@ export default function SubProjectPage() {
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: "เชื่อมต่อ Backlog",
-      key: "ticket_number",
-      width: 250,
-      render: (_, record) =>
-        record.ticket_number ? (
-          <Tooltip
-            title={(record as any).backlogSummary || "กำลังโหลดรายละเอียด..."}
-          >
-            <Space direction="vertical" size={0}>
-              <Tag
-                icon={<LinkOutlined />}
-                color="cyan"
-                style={{ borderRadius: 4, cursor: "pointer" }}
-              >
-                {record.ticket_number}
-              </Tag>
-              {(record as any).backlogSummary && (
-                <Text
-                  type="secondary"
-                  style={{ fontSize: 11, display: "block" }}
-                  ellipsis
-                >
-                  {(record as any).backlogSummary}
-                </Text>
-              )}
-            </Space>
-          </Tooltip>
-        ) : (
-          <Text type="secondary">-</Text>
-        ),
+      title: "ระยะเวลาดำเนินการ",
+      key: "dates",
+      width: 220,
+      render: (_, record) => (
+        <Space direction="vertical" size={0}>
+          <Flex align="center" gap={4}>
+            <CalendarOutlined
+              style={{ fontSize: 12, color: token.colorTextDescription }}
+            />
+            <Text style={{ fontSize: 12 }}>
+              {record.startDate
+                ? dayjs(record.startDate).format("DD/MM/YYYY")
+                : "-"}
+            </Text>
+            <SwapOutlined
+              style={{ fontSize: 10, color: token.colorTextDescription }}
+            />
+            <Text style={{ fontSize: 12 }}>
+              {record.endDate
+                ? dayjs(record.endDate).format("DD/MM/YYYY")
+                : "-"}
+            </Text>
+          </Flex>
+          {(record.startDate || record.endDate) && (
+            <Text type="secondary" style={{ fontSize: 10 }}>
+              {calculateWorkingHours(
+                record.startDate || "",
+                record.endDate || "",
+              ).text || ""}
+            </Text>
+          )}
+        </Space>
+      ),
       sorter: (a, b) =>
-        (a.ticket_number || "").localeCompare(b.ticket_number || ""),
+        dayjs(a.startDate || 0).unix() - dayjs(b.startDate || 0).unix(),
     },
     {
       title: "ประเภทสินทรัพย์",
