@@ -639,13 +639,20 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                   ? "กำลังค้นหา..."
                                   : "ไม่พบข้อมูล"
                               }
-                              onChange={(userId, option: any) => {
-                                if (option) {
-                                  // อัปเดตตำแหน่งอัตโนมัติเมื่อเลือกผู้ใช้งาน
-                                  form.setFieldValue(
-                                    ["assignees", name, "position"],
-                                    option.position || "พนักงาน",
-                                  );
+                              onChange={(userId) => {
+                                // 🔍 ค้นหาข้อมูลพนักงานเพื่อดึงตำแหน่ง
+                                const selectedUser = users.find(
+                                  (u) => u.admin_id === userId,
+                                );
+                                if (selectedUser) {
+                                  // ✅ ใช้ setTimeout (Macro-task) เพื่อให้ Ant Design ประมวลผลสถานะ Select ให้เสร็จก่อน
+                                  // ป้องกันปัญหา Circular Reference Warning เมื่ออัปเดต Field อื่นใน Form.List พร้อมกัน
+                                  setTimeout(() => {
+                                    form.setFieldValue(
+                                      ["assignees", name, "position"],
+                                      selectedUser.position || "พนักงาน",
+                                    );
+                                  }, 0);
                                 }
                               }}
                               options={users.map((u) => ({
@@ -667,7 +674,6 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                   </Flex>
                                 ),
                                 value: u.admin_id,
-                                position: u.position, // เก็บไว้ใช้ใน onChange
                               }))}
                               prefix={<UserOutlined />}
                             />

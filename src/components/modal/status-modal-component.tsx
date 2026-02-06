@@ -1,15 +1,24 @@
 "use client";
 
 import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  DeleteOutlined,
-  ExclamationCircleOutlined,
+  CheckCircleFilled,
+  CloseCircleFilled,
+  DeleteFilled,
+  ExclamationCircleFilled,
 } from "@ant-design/icons";
-import { Button, Input, Modal, Result, Space, theme, Typography } from "antd";
+import {
+  Button,
+  Flex,
+  Input,
+  Modal,
+  Result,
+  Space,
+  theme,
+  Typography,
+} from "antd";
 import React, { useState } from "react";
 
-const { Paragraph, Text, Title } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 export type StatusModalType = "success" | "error" | "confirm" | "delete";
 
@@ -28,7 +37,8 @@ interface StatusModalComponentProps {
 
 /**
  * 🎨 StatusModalComponent
- * คอมโพเนนต์กลางสำหรับแสดงผล Success, Error, และ Confirmation
+ * อ้างอิงเอกสาร: https://ant.design/components/modal/
+ * และ https://ant.design/components/result/
  */
 export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
   open,
@@ -61,39 +71,33 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
     setConfirmInput("");
   };
 
-  // กรองสีไอคอนและหัวข้อตามประเภท
-  const getModalConfig = () => {
+  // ดึง Icon และข้อความเริ่มต้นตามประเภท (ใช้ Filled Icon เพื่อความ Modern ตาม AntD v5)
+  const renderIcon = () => {
     switch (type) {
       case "success":
-        return {
-          icon: <CheckCircleOutlined style={{ color: token.colorSuccess }} />,
-          title: title || "ดำเนินการสำเร็จ",
-          color: token.colorSuccess,
-        };
+        return (
+          <CheckCircleFilled
+            style={{ color: token.colorSuccess, fontSize: 64 }}
+          />
+        );
       case "error":
-        return {
-          icon: <CloseCircleOutlined style={{ color: token.colorError }} />,
-          title: title || "เกิดข้อผิดพลาด",
-          color: token.colorError,
-        };
+        return (
+          <CloseCircleFilled
+            style={{ color: token.colorError, fontSize: 64 }}
+          />
+        );
       case "delete":
-        return {
-          icon: <DeleteOutlined style={{ color: token.colorError }} />,
-          title: title || "ยืนยันการลบ",
-          color: token.colorError,
-        };
+        return (
+          <DeleteFilled style={{ color: token.colorError, fontSize: 64 }} />
+        );
       default:
-        return {
-          icon: (
-            <ExclamationCircleOutlined style={{ color: token.colorWarning }} />
-          ),
-          title: title || "ยืนยันการทำรายการ",
-          color: token.colorWarning,
-        };
+        return (
+          <ExclamationCircleFilled
+            style={{ color: token.colorWarning, fontSize: 64 }}
+          />
+        );
     }
   };
-
-  const config = getModalConfig();
 
   return (
     <Modal
@@ -101,114 +105,114 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
       onCancel={handleClose}
       footer={null}
       centered
-      destroyOnHidden
-      width={isSuccess || isConfirm || isDelete ? 480 : 640}
+      destroyOnClose
+      width={isError ? 600 : 420}
+      styles={{ body: { paddingBlock: token.paddingLG } }}
     >
-      <div style={{ textAlign: "center", padding: "20px 0" }}>
-        {/* แสดง Result หรือ Custom UI ตามประเภท */}
+      {/* ใช้ Flex คุมการจัดวางแนวตั้งให้กึ่งกลาง (https://ant.design/components/flex/) */}
+      <Flex vertical align="center" gap="middle">
+        {/* ส่วนแสดงสถานะ (Icon & Title) */}
         {isSuccess || isError ? (
           <Result
             status={type as "success" | "error"}
-            title={config.title}
+            title={title || (isSuccess ? "ดำเนินการสำเร็จ" : "เกิดข้อผิดพลาด")}
             subTitle={message}
-            extra={[
-              <Button
-                type="primary"
-                key="close"
-                onClick={handleClose}
-                size="large"
-                style={{ minWidth: 120, borderRadius: 8 }}
-                loading={loading}
-              >
-                {confirmLabel || "ตกลง"}
-              </Button>,
-            ]}
+            // จัดการ Action Buttons ภายใน Result
+            extra={
+              !isError && (
+                <Button type="primary" onClick={handleClose} size="large" block>
+                  {confirmLabel || "ตกลง"}
+                </Button>
+              )
+            }
           />
         ) : (
-          <div style={{ padding: "0 20px" }}>
-            <div style={{ fontSize: 54, marginBottom: 16 }}>{config.icon}</div>
-            <Title level={4}>{config.title}</Title>
-            <Paragraph type="secondary" style={{ fontSize: 16 }}>
+          <Flex vertical align="center" gap="small">
+            {/* ไอคอนสถานะ */}
+            {renderIcon()}
+            {/* หัวข้อโมดอล */}
+            <Title level={4}>
+              {title || (isDelete ? "ยืนยันการลบ" : "ยืนยันรายการ")}
+            </Title>
+            {/* ข้อความรายละเอียด */}
+            <Text type="secondary" textAlign-center>
               {message}
-            </Paragraph>
-
-            {isDelete && (
-              <div style={{ marginTop: 24, textAlign: "left" }}>
-                <Text type="danger" strong>
-                  โปรดพิมพ์คำว่า <Text code>Delete</Text> เพื่อยืนยันการลบ
-                </Text>
-                <Input
-                  placeholder="Delete"
-                  value={confirmInput}
-                  onChange={(e) => setConfirmInput(e.target.value)}
-                  style={{ marginTop: 8, height: 45, borderRadius: 8 }}
-                  onPressEnter={handleConfirm}
-                  autoFocus
-                />
-              </div>
-            )}
-
-            <Space
-              size="middle"
-              style={{ marginTop: 32, width: "100%", justifyContent: "center" }}
-            >
-              <Button
-                onClick={handleClose}
-                size="large"
-                style={{ minWidth: 120, borderRadius: 8 }}
-                disabled={loading}
-              >
-                {cancelLabel || "ยกเลิก"}
-              </Button>
-              <Button
-                type="primary"
-                danger={isDelete}
-                onClick={handleConfirm}
-                size="large"
-                style={{ minWidth: 120, borderRadius: 8 }}
-                loading={loading}
-                disabled={isDelete && confirmInput !== "Delete"}
-              >
-                {confirmLabel || (isDelete ? "ใช่, ลบรายการ" : "ยืนยัน")}
-              </Button>
-            </Space>
-          </div>
+            </Text>
+          </Flex>
         )}
 
-        {/* รายละเอียดข้อผิดพลาดเฉพาะโหมด Error */}
+        {/* ส่วนยืนยันการลบ (เฉพาะ Delete Mode) */}
+        {isDelete && (
+          <Flex vertical gap="x-small" style={{ width: "100%" }}>
+            <Text type="danger" strong>
+              โปรดพิมพ์คำว่า <Text code>Delete</Text> เพื่อยืนยัน
+            </Text>
+            <Input
+              placeholder="Delete"
+              size="large"
+              value={confirmInput}
+              onChange={(e) => setConfirmInput(e.target.value)}
+              onPressEnter={handleConfirm}
+              autoFocus
+            />
+          </Flex>
+        )}
+
+        {/* ปุ่มควบคุม (ยกเว้นโหมด Success ที่ใช้ Button ใน Result ไปแล้ว) */}
+        {!isSuccess && (
+          <Space
+            size="middle"
+            style={{ width: "100%", justifyContent: "center" }}
+          >
+            {/* ปุ่มยกเลิก */}
+            <Button
+              onClick={handleClose}
+              size="large"
+              style={{ minWidth: 120 }}
+            >
+              {cancelLabel || "ยกเลิก"}
+            </Button>
+            {/* ปุ่มยืนยัน/ลบ */}
+            <Button
+              type="primary"
+              danger={isDelete}
+              onClick={handleConfirm}
+              size="large"
+              loading={loading}
+              disabled={isDelete && confirmInput !== "Delete"}
+              style={{ minWidth: 120 }}
+            >
+              {confirmLabel || (isDelete ? "ลบรายการ" : "ยืนยัน")}
+            </Button>
+          </Space>
+        )}
+
+        {/* ส่วนแสดงรายละเอียด Error (Truncate & Scroll ภายใน Typography) */}
         {isError && errorDetails && (
-          <div
+          <Flex
+            vertical
             style={{
-              marginTop: 24,
+              width: "100%",
               background: token.colorFillAlter,
-              padding: "16px",
-              borderRadius: "12px",
-              border: `1px solid ${token.colorBorderSecondary}`,
-              textAlign: "left",
+              padding: token.padding,
+              borderRadius: token.borderRadiusLG,
             }}
           >
-            <Text strong style={{ color: token.colorError }}>
+            <Text strong type="danger">
               Debug Information:
             </Text>
-            <pre
-              style={{
-                marginTop: 8,
-                fontSize: "12px",
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-all",
-                maxHeight: "200px",
-                overflowY: "auto",
-                fontFamily: "monospace",
-                color: token.colorTextSecondary,
-              }}
+            <Paragraph
+              code
+              ellipsis={{ rows: 5, expandable: true, symbol: "ดูเพิ่มเติม" }}
+              style={{ marginBlock: token.marginXS, whiteSpace: "pre-wrap" }}
             >
               {typeof errorDetails === "object"
                 ? JSON.stringify(errorDetails, null, 2)
                 : String(errorDetails)}
-            </pre>
-          </div>
+            </Paragraph>
+          </Flex>
         )}
-      </div>
+      </Flex>
     </Modal>
   );
 };
