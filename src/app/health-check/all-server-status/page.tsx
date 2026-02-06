@@ -3,45 +3,48 @@
 import { CallAPI as GET_SERVER_STATUS_V2 } from "@/stores/actions/server/call-get-server-status.v2";
 import { ResponseGetServerStatusV2 } from "@/stores/type";
 import {
-  ApiOutlined,
-  ArrowRightOutlined,
   CheckCircleOutlined,
+  ClearOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
   CopyOutlined,
-  DashboardOutlined,
   DatabaseOutlined,
   EditOutlined,
   EnvironmentOutlined,
   EyeOutlined,
-  GlobalOutlined,
+  FilterOutlined,
   InfoCircleOutlined,
   LinkOutlined,
   ReloadOutlined,
   SafetyCertificateOutlined,
+  SearchOutlined,
   ThunderboltFilled,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
+import SummaryCard from "@components/card/summary-card";
 import DashboardLayout from "@components/layouts/backend-layout";
+import {
+  StatusModalComponent,
+  StatusModalType,
+} from "@components/modal/status-modal-component";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import {
   Alert,
   Avatar,
-  Badge,
   Button,
   Card,
   Col,
   Descriptions,
-  Divider,
-  Empty,
   Flex,
+  Form,
   Grid,
   Input,
   Modal,
   Row,
-  Skeleton,
+  Select,
   Space,
-  Statistic,
+  Table,
   Tag,
   theme,
   Tooltip,
@@ -142,13 +145,19 @@ const useServerStatus = () => {
   return { servers, isLoading, refresh: fetchServerStatus, setServers };
 };
 
-// ==================== Components ====================
+// ==================== Sub-Components ====================
+/**
+ * ResponseTimeTag: แสดงป้ายกำกับความเร็วการตอบสนองพร้อมสีตามเกณฑ์
+ */
 const ResponseTimeTag: React.FC<{ time: number }> = ({ time }) => (
   <Tag color={getResponseTimeColor(time)} icon={<ClockCircleOutlined />}>
     {time.toFixed(3)} ms
   </Tag>
 );
 
+/**
+ * ServerStatusTag: แสดงป้ายบอกสถานะการทำงาน (Online/Offline)
+ */
 const ServerStatusTag: React.FC<{ isOnline: boolean }> = ({ isOnline }) => (
   <Tag
     color={isOnline ? "success" : "error"}
@@ -159,234 +168,17 @@ const ServerStatusTag: React.FC<{ isOnline: boolean }> = ({ isOnline }) => (
   </Tag>
 );
 
-const StatisticsCard: React.FC<{
-  stats: ReturnType<typeof calculateStats>;
-  lastChecked: string;
-  onRefresh: () => void;
-  isLoading: boolean;
-}> = ({ stats, lastChecked, onRefresh, isLoading }) => {
-  const { token } = theme.useToken();
-
-  return (
-    <Card
-      styles={{ body: { padding: "24px" } }}
-      style={{
-        borderRadius: 16,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
-        border: `1px solid ${token.colorBorderSecondary}`,
-      }}
-    >
-      <Flex justify="space-between" align="center" wrap="wrap" gap="middle">
-        <Space size="large" align="center">
-          <Avatar
-            size={64}
-            icon={<DashboardOutlined />}
-            style={{
-              backgroundColor: token.colorPrimaryBg,
-              color: token.colorPrimary,
-            }}
-          />
-          <Space direction="vertical" size={2}>
-            <Title level={3} style={{ margin: 0 }}>
-              ภาพรวมสถานะระบบ
-            </Title>
-            <Text type="secondary">
-              ตรวจสอบความพร้อมใช้งานและความเร็วในการตอบสนอง
-            </Text>
-          </Space>
-        </Space>
-
-        <Flex gap="large" wrap="wrap">
-          <Statistic
-            title="ทำงานปกติ (Online)"
-            value={stats.online}
-            valueStyle={{ color: token.colorSuccess, fontWeight: "bold" }}
-            prefix={<CheckCircleOutlined />}
-          />
-          <Divider type="vertical" style={{ height: "auto" }} />
-          <Statistic
-            title="หยุดทำงาน (Offline)"
-            value={stats.offline}
-            valueStyle={{ color: token.colorError, fontWeight: "bold" }}
-            prefix={<CloseCircleOutlined />}
-          />
-          <Divider type="vertical" style={{ height: "auto" }} />
-          <Statistic
-            title="เวลาตอบสนองเฉลี่ย"
-            value={stats.avgResponseTime.toFixed(3)}
-            suffix="ms"
-            prefix={<ClockCircleOutlined />}
-          />
-        </Flex>
-
-        <Space direction="vertical" align="end" size={4}>
-          <Text type="secondary" style={{ fontSize: "12px" }}>
-            ข้อมูลล่าสุดเมื่อ
-          </Text>
-          <Text strong>{lastChecked}</Text>
-          <Button
-            type="primary"
-            icon={<ReloadOutlined />}
-            onClick={onRefresh}
-            loading={isLoading}
-            shape="round"
-          >
-            อัปเดตข้อมูล
-          </Button>
-        </Space>
-      </Flex>
-    </Card>
-  );
-};
-
-const ServerCard: React.FC<{
-  server: ServerStatus;
-  onViewDetails: () => void;
-  onEdit: () => void;
-}> = ({ server, onViewDetails, onEdit }) => {
-  const { token } = theme.useToken();
-  const isOnline = server.status === STATUS.ONLINE;
-
-  return (
-    <Badge.Ribbon
-      text={!isOnline ? "หยุดทำงาน" : "ปกติ"}
-      color={!isOnline ? "error" : "success"}
-      placement="end"
-    >
-      <Card
-        hoverable
-        style={{
-          height: "100%",
-          borderRadius: 16,
-          border: `1px solid ${token.colorBorderSecondary}`,
-          overflow: "hidden",
-          transition: "transform 0.3s ease",
-        }}
-        styles={{ body: { padding: "20px", height: "100%" } }}
-        className="server-card-hover"
-      >
-        <Flex
-          vertical
-          justify="space-between"
-          gap="middle"
-          style={{ height: "100%" }}
-        >
-          {/* Header Section */}
-          <Flex gap="middle" align="start">
-            <Avatar
-              size={48}
-              icon={<DatabaseOutlined />}
-              style={{
-                backgroundColor: isOnline
-                  ? token.colorSuccessBg
-                  : token.colorErrorBg,
-                color: isOnline ? token.colorSuccess : token.colorError,
-              }}
-            />
-            <Space
-              direction="vertical"
-              size={0}
-              style={{ flex: 1, minWidth: 0 }}
-            >
-              <Title level={5} ellipsis style={{ margin: 0 }}>
-                {server.server_name_th || server.server_name}
-              </Title>
-              <Text type="secondary" ellipsis style={{ fontSize: "13px" }}>
-                {server.description || "รอการระบุรายละเอียด..."}
-              </Text>
-            </Space>
-          </Flex>
-
-          {/* Metrics Section */}
-          <Flex
-            justify="space-between"
-            align="center"
-            style={{
-              backgroundColor: token.colorFillQuaternary,
-              borderRadius: 8,
-              padding: "8px 12px",
-            }}
-          >
-            <Space>
-              <Text type="secondary" style={{ fontSize: "12px" }}>
-                ความเร็วตอบสนอง:
-              </Text>
-              <ResponseTimeTag time={Number(server.response_time) || 0} />
-            </Space>
-          </Flex>
-
-          <Divider style={{ margin: "12px 0" }} />
-
-          {/* Info Section */}
-          <Space
-            direction="vertical"
-            size="small"
-            style={{ width: "100%", fontSize: "13px" }}
-          >
-            <Flex justify="space-between">
-              <Text type="secondary">
-                <ClockCircleOutlined /> ตรวจสอบเมื่อ:
-              </Text>
-              <Text>{server.timestamp}</Text>
-            </Flex>
-
-            <Flex justify="space-between">
-              <Text type="secondary">
-                <GlobalOutlined /> เว็บไซต์:
-              </Text>
-              <Typography.Link
-                href={server.url}
-                target="_blank"
-                rel="noreferrer"
-                ellipsis
-                style={{ maxWidth: "150px" }}
-              >
-                {server.url}
-              </Typography.Link>
-            </Flex>
-
-            <Flex justify="space-between">
-              <Text type="secondary">
-                <ApiOutlined /> จุดเชื่อมต่อ (Endpoint):
-              </Text>
-              <Text code ellipsis style={{ maxWidth: "150px" }}>
-                {server.endpoint}
-              </Text>
-            </Flex>
-          </Space>
-
-          {/* Action Section */}
-          <Flex
-            justify="end"
-            gap="small"
-            style={{ marginTop: "auto", paddingTop: "16px" }}
-          >
-            <Tooltip title="แก้ไขหมายเหตุ">
-              <Button size="small" icon={<EditOutlined />} onClick={onEdit} />
-            </Tooltip>
-            <Button
-              size="small"
-              type="primary"
-              ghost
-              icon={<EyeOutlined />}
-              onClick={onViewDetails}
-            >
-              ดูข้อมูลลึก
-            </Button>
-          </Flex>
-        </Flex>
-      </Card>
-    </Badge.Ribbon>
-  );
-};
-
+/**
+ * ServerDetailsModal: หน้าต่างแสดงข้อมูลรายละเอียดเชิงลึกของเซิร์ฟเวอร์
+ */
 const ServerDetailsModal: React.FC<{
   server: ServerStatus | null;
   visible: boolean;
   onClose: () => void;
 }> = ({ server, visible, onClose }) => {
-  const { isMobile } = useResponsive();
   const { token } = theme.useToken();
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
 
   if (!server) return null;
 
@@ -394,15 +186,17 @@ const ServerDetailsModal: React.FC<{
 
   const handleCopy = async () => {
     const success = await copyToClipboard(JSON.stringify(server, null, 2));
-    toast[success ? "success" : "error"](
-      success ? "คัดลอกข้อมูลเรียบร้อย" : "คัดลอกข้อมูลล้มเหลว",
-    );
+    if (success) {
+      toast.success("คัดลอกข้อมูล JSON เรียบร้อยแล้ว");
+    } else {
+      toast.error("ไม่สามารถคัดลอกข้อมูลได้");
+    }
   };
 
   return (
     <Modal
       title={
-        <Space>
+        <Space size="small">
           <InfoCircleOutlined style={{ color: token.colorPrimary }} />
           <span>ข้อมูลเชิงลึกของเซิร์ฟเวอร์</span>
         </Space>
@@ -414,110 +208,120 @@ const ServerDetailsModal: React.FC<{
       destroyOnHidden
       centered
     >
-      <Card variant="borderless" className="shadow-none">
-        <Flex
-          justify="space-between"
-          align="center"
-          wrap="wrap"
-          gap="middle"
-          style={{ marginBottom: "24px" }}
-        >
-          <Space align="center">
-            <Avatar
-              size={64}
-              icon={<DatabaseOutlined />}
-              style={{
-                backgroundColor: isOnline
-                  ? token.colorSuccessBg
-                  : token.colorErrorBg,
-                color: isOnline ? token.colorSuccess : token.colorError,
-              }}
-            />
-            <Space direction="vertical" size={0}>
-              <Title level={4} style={{ margin: 0 }}>
-                {server.server_name_th || server.server_name}
-              </Title>
-              <Text type="secondary">
-                {server.description || "ไม่มีรายละเอียดเพิ่มเติม"}
-              </Text>
-            </Space>
-          </Space>
+      <Row gutter={[0, 24]}>
+        {/* Identity & Status Section */}
+        <Col span={24}>
+          <Row gutter={[16, 16]} align="middle">
+            <Col xs={24} sm={16}>
+              <Space size="large" align="center">
+                <Avatar
+                  size={64}
+                  icon={<DatabaseOutlined />}
+                  style={{
+                    backgroundColor: isOnline
+                      ? token.colorSuccessBg
+                      : token.colorErrorBg,
+                    color: isOnline ? token.colorSuccess : token.colorError,
+                  }}
+                />
+                <Space direction="vertical" size={0}>
+                  <Typography.Title
+                    level={4}
+                    style={{ margin: 0, fontWeight: 600 }}
+                  >
+                    {server.server_name_th || server.server_name}
+                  </Typography.Title>
+                  <Text type="secondary">
+                    {server.description || "ไม่มีรายละเอียดเพิ่มเติม"}
+                  </Text>
+                </Space>
+              </Space>
+            </Col>
+            <Col xs={24} sm={8}>
+              <Flex vertical align={isMobile ? "start" : "end"} gap={8}>
+                <ServerStatusTag isOnline={isOnline} />
+                <Space size={4}>
+                  <Text type="secondary">Response Time:</Text>
+                  <ResponseTimeTag time={Number(server.response_time) || 0} />
+                </Space>
+              </Flex>
+            </Col>
+          </Row>
+        </Col>
 
-          <Space direction="vertical" align="end" size={4}>
-            <ServerStatusTag isOnline={isOnline} />
-            <Space>
-              <Text type="secondary">Response Time:</Text>
-              <ResponseTimeTag time={Number(server.response_time) || 0} />
-            </Space>
-          </Space>
-        </Flex>
+        {/* Technical Details Section */}
+        <Col span={24}>
+          <Descriptions
+            bordered
+            column={isMobile ? 1 : 2}
+            size="middle"
+            labelStyle={{ width: isMobile ? "auto" : "25%", fontWeight: 600 }}
+          >
+            <Descriptions.Item label="ชื่อเซิร์ฟเวอร์ (System)">
+              {server.server}
+            </Descriptions.Item>
+            <Descriptions.Item label="สภาพแวดล้อม (Env)">
+              <Tag icon={<EnvironmentOutlined />} color="geekblue">
+                {server.environment}
+              </Tag>
+            </Descriptions.Item>
 
-        <Descriptions
-          bordered
-          column={isMobile ? 1 : 2}
-          size="middle"
-          labelStyle={{ width: "160px" }}
-        >
-          <Descriptions.Item label="ชื่อเซิร์ฟเวอร์ (System)">
-            {server.server}
-          </Descriptions.Item>
-          <Descriptions.Item label="สภาพแวดล้อม (Env)">
-            <Tag icon={<EnvironmentOutlined />} color="geekblue">
-              {server.environment}
-            </Tag>
-          </Descriptions.Item>
-
-          <Descriptions.Item label="URL เว็บไซต์" span={isMobile ? 1 : 2}>
-            <Typography.Link href={server.url} target="_blank" rel="noreferrer">
-              {server.url} <LinkOutlined />
-            </Typography.Link>
-          </Descriptions.Item>
-
-          <Descriptions.Item label="จุดเชื่อมต่อ API" span={isMobile ? 1 : 2}>
-            <Text code copyable>
-              {server.endpoint}
-            </Text>
-          </Descriptions.Item>
-
-          <Descriptions.Item label="ตรวจสอบล่าสุด">
-            {server.timestamp}
-          </Descriptions.Item>
-          <Descriptions.Item label="รหัสสถานะ HTTP">
-            {(server as any)?.status_code ? (
-              <Tag
-                color={(server as any).status_code === 200 ? "green" : "red"}
+            <Descriptions.Item label="URL เว็บไซต์" span={isMobile ? 1 : 2}>
+              <Typography.Link
+                href={server.url}
+                target="_blank"
+                rel="noreferrer"
               >
-                {(server as any).status_code}
-              </Tag>
-            ) : (
-              "-"
-            )}
-          </Descriptions.Item>
+                {server.url} <LinkOutlined />
+              </Typography.Link>
+            </Descriptions.Item>
 
-          <Descriptions.Item label="ระดับความรุนแรง" span={isMobile ? 1 : 2}>
-            {(server as any)?.response_time_severity_level ? (
-              <Tag color="warning">
-                {(server as any).response_time_severity_level}
-              </Tag>
-            ) : (
-              <Tag>Normal</Tag>
-            )}
-          </Descriptions.Item>
-        </Descriptions>
+            <Descriptions.Item label="จุดเชื่อมต่อ API" span={isMobile ? 1 : 2}>
+              <Text code copyable>
+                {server.endpoint}
+              </Text>
+            </Descriptions.Item>
 
-        <Flex justify="flex-end" gap="small" style={{ marginTop: "24px" }}>
-          <Button icon={<CopyOutlined />} onClick={handleCopy}>
-            คัดลอก JSON
-          </Button>
-          <Button type="primary" onClick={onClose}>
-            ปิดหน้าต่าง
-          </Button>
-        </Flex>
-      </Card>
+            <Descriptions.Item label="ตรวจสอบล่าสุด">
+              {server.timestamp}
+            </Descriptions.Item>
+            <Descriptions.Item label="รหัสสถานะ HTTP">
+              {(server as any)?.status_code ? (
+                <Tag
+                  color={(server as any).status_code === 200 ? "green" : "red"}
+                >
+                  {(server as any).status_code}
+                </Tag>
+              ) : (
+                "-"
+              )}
+            </Descriptions.Item>
+          </Descriptions>
+        </Col>
+
+        {/* Modal Footer Actions */}
+        <Col span={24}>
+          <Row gutter={[8, 8]} justify="end">
+            <Col>
+              <Button icon={<CopyOutlined />} onClick={handleCopy}>
+                คัดลอก JSON
+              </Button>
+            </Col>
+            <Col>
+              <Button type="primary" onClick={onClose}>
+                ปิดหน้าต่าง
+              </Button>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
     </Modal>
   );
 };
 
+/**
+ * EditDescriptionModal: หน้าต่างแก้ไขหมายเหตุหรือรายละเอียดเพิ่มเติม
+ */
 const EditDescriptionModal: React.FC<{
   server: ServerStatus | null;
   visible: boolean;
@@ -555,8 +359,8 @@ const EditDescriptionModal: React.FC<{
     >
       <Flex vertical gap="middle">
         <Alert
-          message="คำแนะนำสำหรับทีมงาน"
-          description="พื้นที่นี้สำหรับบันทึกข้อความถึงทีม CS/QA เช่น 'ปิดปรับปรุงชั่วคราว', 'เซิร์ฟเวอร์นี้สำหรับเทสเท่านั้น' เพื่อให้ทุกคนเข้าใจตรงกัน"
+          message="คำแนะนำการจัดการ"
+          description="บันทึกข้อความสำคัญเพื่อให้ทีมงาน (CS/QA/Dev) รับทราบสถานะพิเศษของเซิร์ฟเวอร์นี้"
           type="info"
           showIcon
           icon={<InfoCircleOutlined />}
@@ -589,26 +393,90 @@ const EditDescriptionModal: React.FC<{
 const ServerStatusPage: React.FC = () => {
   const router = useRouter();
   const { token } = theme.useToken();
+  const [form] = Form.useForm();
   const { servers, isLoading, refresh, setServers } = useServerStatus();
+
+  // State สำหรับจัดการ Modal ข้อมูลลึกและแก้ไข
   const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(
     null,
   );
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
 
+  // State สำหรับ Status Modal (ตามมาตรฐานใหม่)
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: StatusModalType;
+    title: string;
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
+
+  // State สำหรับการกรองข้อมูลใน Table
+  const [filters, setFilters] = useState({
+    name: "",
+    status: "all",
+  });
+
+  // คำนวณความเร็วตอบสนองเฉลี่ยและสถานะจากข้อมูลดิบ (ตามมาตรฐานห้ามกรองข้อมูลสรุปตาม Table)
   const stats = useMemo(() => calculateStats(servers), [servers]);
   const lastChecked = useMemo(() => getLatestTimestamp(servers), [servers]);
 
+  // กรองข้อมูลสำหรับแสดงใน Table เท่านั้น
+  const filteredServers = useMemo(() => {
+    return servers.filter((server) => {
+      const matchName = (server.server_name_th || server.server_name || "")
+        .toLowerCase()
+        .includes(filters.name.toLowerCase());
+      const matchStatus =
+        filters.status === "all" || server.status === filters.status;
+      return matchName && matchStatus;
+    });
+  }, [servers, filters]);
+
+  /**
+   * * handleViewDetails: แสดงข้อมูลรายละเอียดเชิงลึกของเซิร์ฟเวอร์
+   */
   const handleViewDetails = useCallback((server: ServerStatus) => {
     setSelectedServer(server);
     setDetailsModalVisible(true);
   }, []);
 
+  /**
+   * * handleEdit: เปิด Modal เพื่อแก้ไขหมายเหตุของเซิร์ฟเวอร์
+   */
   const handleEdit = useCallback((server: ServerStatus) => {
     setSelectedServer(server);
     setEditModalVisible(true);
   }, []);
 
+  /**
+   * * handleSearch: ฟังก์ชันดำเนินการกรองข้อมูลเมื่อกดปุ่มค้นหา
+   */
+  const handleSearch = (values: any) => {
+    setFilters({
+      name: values.name || "",
+      status: values.status || "all",
+    });
+    toast.success("กรองข้อมูลเซิร์ฟเวอร์เรียบร้อย");
+  };
+
+  /**
+   * * handleReset: ล้างค่าการกรองข้อมูลทั้งหมด
+   */
+  const handleReset = () => {
+    form.resetFields();
+    setFilters({ name: "", status: "all" });
+    toast.info("ล้างการค้นหาเรียบร้อย");
+  };
+
+  /**
+   * * handleSaveDescription: บันทึกการเปลี่ยนแปลงรายละเอียด (Local Update)
+   */
   const handleSaveDescription = useCallback(
     (description: string) => {
       if (!selectedServer) return;
@@ -623,163 +491,258 @@ const ServerStatusPage: React.FC = () => {
       );
 
       setSelectedServer((prev) => (prev ? { ...prev, description } : prev));
-      toast.success("บันทึกข้อมูลเรียบร้อย (อัปเดตในหน้าจอแล้ว)");
+
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: "บันทึกสำเร็จ",
+        message: "อัปเดตหมายเหตุเรียบร้อยแล้ว",
+      });
     },
     [selectedServer, setServers],
   );
 
+  /**
+   * * handleRefreshData: ดึงข้อมูลล่าสุดจาก Server
+   */
+  const handleRefreshData = async () => {
+    await refresh();
+    toast.success("ดาวน์โหลดข้อมูลแสดงสถานะเซิร์ฟเวอร์สมบูรณ์");
+  };
+
+  // กำหนด Column สำหรับ Ant Design Table
+  const columns = [
+    {
+      title: "ชื่อเซิร์ฟเวอร์ / ระบบ",
+      key: "name",
+      render: (_: any, record: ServerStatus) => (
+        <Space direction="vertical" size={0}>
+          <Text strong style={{ fontWeight: 600 }}>
+            {record.server_name_th || record.server_name || "-"}
+          </Text>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            {record.endpoint || "-"}
+          </Text>
+        </Space>
+      ),
+      sorter: (a: ServerStatus, b: ServerStatus) =>
+        (a.server_name_th || a.server_name || "").localeCompare(
+          b.server_name_th || b.server_name || "",
+        ),
+    },
+    {
+      title: "สถานะ",
+      key: "status",
+      width: 120,
+      render: (_: any, record: ServerStatus) => (
+        <ServerStatusTag isOnline={record.status === STATUS.ONLINE} />
+      ),
+      sorter: (a: ServerStatus, b: ServerStatus) =>
+        a.status.localeCompare(b.status),
+    },
+    {
+      title: "ความเร็วตอบสนอง",
+      dataIndex: "response_time",
+      key: "response_time",
+      render: (time: any) => <ResponseTimeTag time={Number(time) || 0} />,
+      sorter: (a: ServerStatus, b: ServerStatus) =>
+        (Number(a.response_time) || 0) - (Number(b.response_time) || 0),
+    },
+    {
+      title: "ตรวจสอบล่าสุด",
+      dataIndex: "timestamp",
+      key: "timestamp",
+      sorter: (a: ServerStatus, b: ServerStatus) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    },
+    {
+      title: "จัดการ",
+      key: "actions",
+      align: "right" as const,
+      render: (_: any, record: ServerStatus) => (
+        <Space>
+          <Tooltip title="แก้ไขหมายเหตุ">
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+            />
+          </Tooltip>
+          <Button
+            size="small"
+            type="primary"
+            ghost
+            icon={<EyeOutlined />}
+            onClick={() => handleViewDetails(record)}
+          >
+            ดูข้อมูลลึก
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <DashboardLayout>
-      <style jsx global>{`
-        .server-card-hover:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
-        }
-      `}</style>
-
+      {/* ส่วนที่ 1: หัวข้อหน้าเว็บ (Header Bar) */}
       <HeaderBar
         title="ระบบตรวจสอบสถานะเซิร์ฟเวอร์"
-        subTitle="ภาพรวมความพร้อมใช้งานของระบบแบบเรียลไทม์"
+        subTitle="ภาพรวมความพร้อมใช้งานและความเร็วในการตอบสนองของระบบทั้งหมดแบบเรียลไทม์"
         icon={<SafetyCertificateOutlined />}
-        color="none"
       />
-      <Divider className="my-6" />
 
-      {/* Action Bar */}
-      <Flex justify="end" align="center" style={{ marginBottom: 24 }}>
-        <div style={{ position: "relative", display: "inline-block" }}>
-          {/* Animated Badge for 'New' */}
-          <span
-            style={{
-              position: "absolute",
-              top: -8,
-              left: -8,
-              zIndex: 10,
-              display: "flex",
-              height: 12,
-              width: 12,
-            }}
-          >
-            <span
-              style={{
-                position: "absolute",
-                display: "inline-flex",
-                height: "100%",
-                width: "100%",
-                borderRadius: "50%",
-                backgroundColor: "#ff4d4f",
-                opacity: 0.75,
-                animation: "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite",
-              }}
-            ></span>
-            <span
-              style={{
-                position: "relative",
-                display: "inline-flex",
-                borderRadius: "50%",
-                height: 12,
-                width: 12,
-                backgroundColor: "#ff4d4f",
-              }}
-            ></span>
-          </span>
+      <Space direction="vertical" size={24} style={{ width: "100%" }}>
+        {/* ส่วนที่ 2: บัตรสรุปข้อมูล (Summary Cards) */}
+        <Row gutter={[20, 20]}>
+          <Col xs={24} sm={12} lg={8}>
+            <SummaryCard
+              title="ทำงานปกติ (Online)"
+              value={stats.online}
+              subtitle="เซิร์ฟเวอร์ที่พร้อมให้บริการ"
+              icon={<CheckCircleOutlined />}
+              color={token.colorSuccess}
+              percent={stats.online > 0 ? 100 : 0}
+              isLoading={isLoading}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={8}>
+            <SummaryCard
+              title="หยุดทำงาน (Offline)"
+              value={stats.offline}
+              subtitle="เซิร์ฟเวอร์ที่ขัดข้อง"
+              icon={<CloseCircleOutlined />}
+              color={token.colorError}
+              percent={stats.offline > 0 ? 100 : 0}
+              isLoading={isLoading}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={8}>
+            <SummaryCard
+              title="เวลาตอบสนองเฉลี่ย"
+              value={stats.avgResponseTime.toFixed(2)}
+              suffix="ms"
+              subtitle={`อัปเดตล่าสุด: ${lastChecked}`}
+              icon={<ClockCircleOutlined />}
+              color={token.colorPrimary}
+              isLoading={isLoading}
+            />
+          </Col>
+        </Row>
 
-          {/* New Label Tag */}
-          <Tag
-            color="red"
-            style={{
-              position: "absolute",
-              top: -12,
-              left: -20,
-              zIndex: 20,
-              transform: "rotate(-10deg)",
-              fontSize: 10,
-              border: "none",
-              fontWeight: "bold",
-            }}
-          >
-            ใหม่
-          </Tag>
-
-          <Button
-            type="default"
-            onClick={() => {
-              router.push("/health-check/v2/server-status");
-            }}
-            icon={<ThunderboltFilled style={{ color: token.colorPrimary }} />}
-            style={{ borderRadius: 8, height: 40 }}
-          >
-            ไปที่หน้าตรวจสอบบอทหลังบ้าน (SB App Bot) <ArrowRightOutlined />
-          </Button>
-        </div>
-      </Flex>
-
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        {/* Statistics Section */}
-        <StatisticsCard
-          stats={stats}
-          lastChecked={lastChecked}
-          onRefresh={refresh}
-          isLoading={isLoading}
-        />
-
-        {/* Server Grid Section */}
+        {/* ส่วนที่ 3: ตัวกรองข้อมูล (Filters) */}
         <Card
+          styles={{ body: { padding: 16 } }}
+          style={{
+            borderRadius: 16,
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
+            <FilterOutlined
+              style={{ color: token.colorPrimary, fontSize: "1.25rem" }}
+            />
+            <Typography.Title
+              level={4}
+              style={{ margin: 0, fontWeight: 600, fontSize: "1.25rem" }}
+            >
+              ตัวกรอง
+            </Typography.Title>
+          </Flex>
+
+          <Form form={form} layout="vertical" onFinish={handleSearch}>
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item name="name" label="ค้นหาชื่อเซิร์ฟเวอร์ / ระบบ">
+                  <Input
+                    prefix={<SearchOutlined />}
+                    placeholder="ระบุชื่อเซิร์ฟเวอร์ที่ต้องการค้นหา..."
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="status"
+                  label="สถานะการทำงาน"
+                  initialValue="all"
+                >
+                  <Select
+                    options={[
+                      { label: "ทั้งหมด", value: "all" },
+                      { label: "ทำงานปกติ (Online)", value: STATUS.ONLINE },
+                      { label: "หยุดทำงาน (Offline)", value: STATUS.OFFLINE },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Flex justify="end" gap="small">
+              <Button icon={<ClearOutlined />} onClick={handleReset}>
+                ล้างการค้นหา
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<SearchOutlined />}
+              >
+                ค้นหาข้อมูล
+              </Button>
+            </Flex>
+          </Form>
+        </Card>
+
+        {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา (Content) */}
+        <Card
+          styles={{ body: { padding: 16 } }}
+          style={{
+            borderRadius: 16,
+            overflow: "hidden",
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
           title={
             <Space>
-              <DatabaseOutlined style={{ color: token.colorPrimary }} />
-              <span>รายการระบบทั้งหมด ({servers.length})</span>
+              <UnorderedListOutlined style={{ color: token.colorPrimary }} />
+              <Text strong style={{ fontSize: "1rem", fontWeight: 600 }}>
+                รายการเซิร์ฟเวอร์
+              </Text>
             </Space>
           }
-          bordered={false}
-          style={{ borderRadius: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
+          extra={
+            <Space>
+              <Button
+                type="default"
+                onClick={() => router.push("/health-check/v2/server-status")}
+                icon={
+                  <ThunderboltFilled style={{ color: token.colorPrimary }} />
+                }
+              >
+                บอทหลังบ้าน (SB App Bot)
+              </Button>
+              <Button
+                type="primary"
+                icon={<ReloadOutlined />}
+                onClick={handleRefreshData}
+                loading={isLoading}
+              >
+                อัปเดตสถานะ
+              </Button>
+            </Space>
+          }
         >
-          {isLoading ? (
-            <Row gutter={[16, 16]}>
-              {[...Array(4)].map((_, i) => (
-                <Col key={i} xs={24} sm={12} lg={8} xl={6}>
-                  <Card
-                    bordered={false}
-                    style={{
-                      borderRadius: 16,
-                      border: `1px solid ${token.colorBorderSecondary}`,
-                    }}
-                  >
-                    <Skeleton active avatar paragraph={{ rows: 3 }} />
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          ) : servers.length > 0 ? (
-            <Row gutter={[24, 24]}>
-              {servers.map((server, index) => (
-                <Col
-                  key={`${server.server_name_th}-${index}`}
-                  xs={24}
-                  sm={12}
-                  lg={8}
-                  xl={6}
-                >
-                  <ServerCard
-                    server={server}
-                    onViewDetails={() => handleViewDetails(server)}
-                    onEdit={() => handleEdit(server)}
-                  />
-                </Col>
-              ))}
-            </Row>
-          ) : (
-            <div style={{ textAlign: "center", padding: "40px" }}>
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="ไม่พบข้อมูลเซิร์ฟเวอร์ในขณะนี้"
-              />
-            </div>
-          )}
+          <Table
+            dataSource={filteredServers}
+            columns={columns}
+            rowKey={(record) =>
+              `${record.server}-${record.endpoint}-${record.timestamp}`
+            }
+            loading={isLoading}
+            pagination={{ pageSize: 10, showSizeChanger: true }}
+            scroll={{ x: 800 }}
+          />
         </Card>
       </Space>
 
-      {/* Modals */}
+      {/* Modals & Components */}
       <ServerDetailsModal
         server={selectedServer}
         visible={detailsModalVisible}
@@ -791,6 +754,14 @@ const ServerStatusPage: React.FC = () => {
         visible={editModalVisible}
         onClose={() => setEditModalVisible(false)}
         onSave={handleSaveDescription}
+      />
+
+      <StatusModalComponent
+        open={statusModal.open}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+        onClose={() => setStatusModal({ ...statusModal, open: false })}
       />
     </DashboardLayout>
   );
