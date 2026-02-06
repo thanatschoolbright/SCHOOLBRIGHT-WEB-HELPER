@@ -134,17 +134,17 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
             <Title level={4}>
               {title || (isDelete ? "ยืนยันการลบ" : "ยืนยันรายการ")}
             </Title>
-            {/* ข้อความรายละเอียด */}
-            <Text type="secondary" textAlign-center>
-              {message}
-            </Text>
+            {/* ส่วนข้อความรายละเอียด จัดกึ่งกลางด้วย Flex */}
+            <Flex justify="center" style={{ width: "100%" }}>
+              <Text type="secondary">{message}</Text>
+            </Flex>
           </Flex>
         )}
 
         {/* ส่วนยืนยันการลบ (เฉพาะ Delete Mode) */}
         {isDelete && (
           <Flex vertical gap="x-small" style={{ width: "100%" }}>
-            <Text type="danger" strong>
+            <Text type="danger" strong className="mb-3">
               โปรดพิมพ์คำว่า <Text code>Delete</Text> เพื่อยืนยัน
             </Text>
             <Input
